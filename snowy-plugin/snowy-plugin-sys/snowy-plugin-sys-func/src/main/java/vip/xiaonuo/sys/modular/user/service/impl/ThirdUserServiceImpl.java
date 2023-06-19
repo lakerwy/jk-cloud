@@ -5,7 +5,9 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dingtalk.api.response.OapiV2UserGetuserinfoResponse;
+import com.fhs.common.utils.JsonUtils;
 import com.fhs.trans.service.impl.TransService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.api.AuthThirdApi;
 import vip.xiaonuo.auth.api.LoginThirdApi;
@@ -31,6 +33,7 @@ import java.util.stream.Collectors;
  * @date 2023/6/15 16:05
  */
 @Service
+@Slf4j
 public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> implements ThirdUserService {
     @Resource
     private CommonCacheOperator commonCacheOperator;
@@ -46,14 +49,20 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
 
     @Override
     public String toDoDingDingApplication(DingDingLoginParam dingDingLoginParam) {
-        //获取token
-        String token = getDingDingToken(dingDingLoginParam.getAppKey(),dingDingLoginParam.getAppSecret());
-        //获取钉钉用户信息
-        OapiV2UserGetuserinfoResponse.UserGetByCodeResponse info = CommonDingDingUtil.getUserInfo(token,dingDingLoginParam.getCode());
-        //根据钉钉用户Id，获取系统用户信息 category = 2 代表钉钉
-        String userId = authThirdApi.getUserIdByThirdId(info.getUserid(), AuthThirdCategoryEnum.DingDing.getValue());
-        //绑定系统用户，并返回token
-        return loginThirdApi.doLoginThirdById(userId,"","");
+        try {
+            //获取token
+            String token = getDingDingToken(dingDingLoginParam.getAppKey(), dingDingLoginParam.getAppSecret());
+            //获取钉钉用户信息
+            OapiV2UserGetuserinfoResponse.UserGetByCodeResponse info = CommonDingDingUtil.getUserInfo(token, dingDingLoginParam.getCode());
+            log.info("钉钉结果："+ JsonUtils.object2json(info));
+            //根据钉钉用户Id，获取系统用户信息 category = 2 代表钉钉
+            String userId = authThirdApi.getUserIdByThirdId(info.getUserid(), AuthThirdCategoryEnum.DingDing.getValue());
+            //绑定系统用户，并返回token
+            return loginThirdApi.doLoginThirdById(userId, "", "");
+        }catch (Exception ex){
+            log.info("钉钉："+ JsonUtils.object2json(ex));
+            return "";
+        }
     }
 
     @Override
