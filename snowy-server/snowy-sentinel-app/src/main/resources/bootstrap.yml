@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: snowy-sentinel-app
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      config:
+        server-addr: 10.0.33.82:8858
+        namespace: snowy-cloud-2x-ent-${spring.profiles.active}
+        group: ${spring.profiles.active}
+        prefix: ${spring.application.name}
+        file-extension: yaml
+        username: nacos
+        password: nacos
