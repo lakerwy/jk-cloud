@@ -132,6 +132,10 @@ public class GatewayConfigure {
             "/api/bizapp/pay/wx/authNotifyUrl",
             "/api/bizapp/pay/wx/jsPay",
             "/api/bizapp/pay/order/sample/doCreateOrder",
+
+            /*第三方钉钉免登*/
+            "/api/webapp/sys/third/toDoDingDingApplication",
+            "/api/webapp/sys/third/bindECard",
     };
 
     /**
