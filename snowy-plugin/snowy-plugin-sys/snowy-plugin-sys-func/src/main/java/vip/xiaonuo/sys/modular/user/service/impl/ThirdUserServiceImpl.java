@@ -89,8 +89,8 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
 
     @Override
     public String bindECard(WeChatBindEcardParam weChatBindEcardParam) {
-        // 解密，并做哈希值
-        String passwordHash = CommonCryptogramUtil.doHashValue(CommonCryptogramUtil.doSm2Decrypt(weChatBindEcardParam.getPwd()));
+        // 解密，并做哈希值 CommonCryptogramUtil.doSm2Decrypt(weChatBindEcardParam.getPwd())
+        String passwordHash = CommonCryptogramUtil.doHashValue(weChatBindEcardParam.getPwd());
         // 根据Account获取用户
         SysUser sysUser = this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, weChatBindEcardParam.getAccount()));
         // 校验
