@@ -19,9 +19,11 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -33,6 +35,7 @@ import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.migration.MigrationInstructionBuilder;
 import org.camunda.bpm.engine.migration.MigrationPlanBuilder;
 import org.camunda.bpm.engine.runtime.Execution;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
@@ -53,6 +56,7 @@ import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
+import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelFormTypeEnum;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelStatusEnum;
@@ -63,19 +67,19 @@ import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import vip.xiaonuo.flw.modular.relation.entity.FlwRelation;
 import vip.xiaonuo.flw.modular.relation.enums.FlwRelationCategoryEnum;
 import vip.xiaonuo.flw.modular.relation.service.FlwRelationService;
+import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
+import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 import vip.xiaonuo.flw.modular.task.param.FlwTaskTurnParam;
 import vip.xiaonuo.flw.modular.task.result.FlwTaskAttachmentResult;
 import vip.xiaonuo.flw.modular.task.result.FlwTaskDetailResult;
 import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
+import vip.xiaonuo.flw.modular.template.service.FlwTemplateSnService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysPositionApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -116,6 +120,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Resource
     private FlwRelationService flwRelationService;
+
+    @Resource
+    private FormRelationTableService formRelationTableService;
+
+    @Resource
+    private FlwTemplateSnService flwTemplateSnService;
 
     @Override
     public void saveDraft(FlwProcessSaveDraftParam flwProcessSaveDraftParam) {
@@ -169,6 +179,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         jsonObject.set("initiatorModelInfo", JSONUtil.createObj().set("initiatorModelId", flwModel.getId())
                 .set("initiatorModelJson", flwModel.getProcessJson()).set("initiatorFormJson", flwModel.getFormJson())
                 .set("initiatorFormType", flwModel.getFormType()));
+        ProcessInstance processInstance = null;
+        //FlwModel flwModel = flwModelService.getById(modelId);
+        String sn = getSn(flwModel);
         if(flwModel.getFormType().equals(FlwModelFormTypeEnum.DESIGN.getValue())) {
             if(ObjectUtil.isEmpty(flwModel.getTableJson())) {
                 throw new CommonException("模型错误，设计表单类型的模型数据库表JSON不能为空");
@@ -182,10 +195,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 jsonObject.set("initiatorSql", initiatorSql);
                 jsonObject.set("initiatorTableJson", flwModel.getTableJson());
                 jsonObject.set("initiatorDataJson", initiatorDataJson);
+                //设置sn
+                jsonObject.set("initiatorProcessSn",sn);
                 runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId, jsonObject);
                 NodeRuntimeUtil.handleSqlExecution(initiatorSql);
             } else {
-                runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), jsonObject);
+                processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), jsonObject);
             }
         } else {
             if(ObjectUtil.isNotEmpty(flwProcessStartParam.getDataJson())) {
@@ -194,8 +209,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 }
                 jsonObject.set("initiatorDataJson", flwProcessStartParam.getDataJson());
             }
-            runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), jsonObject);
+             processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), jsonObject);
         }
+        handDataSave(flwProcessStartParam.getDataJson(),sn,modelId,flwModel.getDefinitionId(),flwModel.getDeploymentId(),processInstance.getProcessInstanceId());
     }
 
     @Override
@@ -943,5 +959,59 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             return flowNodeList.get(0).getElementType().getTypeName().equals(BpmnModelConstants.BPMN_ELEMENT_START_EVENT);
         }
         return false;
+    }
+
+    public void handDataSave(String dataJson,String sn, String modelId, String definitionId, String deploymentId,String processInstanceId){
+        /**1 根据modelID 获取到对应的业务 表明和 服务名
+         **2
+        **/
+        //RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
+        FormRelationTable formRelationTable = new FormRelationTable();
+        formRelationTable.setActModelId(modelId);
+        formRelationTable.setDefinitionId(definitionId);
+        formRelationTable.setDeploymentId(deploymentId);
+        Map<String,Object> dataMap = JSONUtil.toBean(dataJson, Map.class);
+
+        dataMap.put("processInstanceId",processInstanceId);
+        dataMap.put("modelId",modelId);
+        //getSn(modelId);
+        dataMap.put("sn",sn);
+
+        formRelationTable = formRelationTableService.getOne(new QueryWrapper<>(formRelationTable));
+        if(ObjectUtil.isNotNull(formRelationTable)){
+            formRelationTableService.saveNewData(dataMap,formRelationTable.getTableName(),IdWorker.getIdStr());
+            BizCommon common = BizCommon.findByCommonTable(formRelationTable.getTableName());
+            if(ObjectUtil.isNotNull(common)){
+                String resourceService = common.getResourceService();
+                Object bean = SpringUtil.getBean(resourceService+".class");
+            }
+        }
+    }
+
+    private String getSn(FlwModel flwModel) {
+        if(ObjectUtil.isNotNull(flwModel)){
+            String processSnTemplate = "";
+            String processJson = flwModel.getProcessJson();
+            if(StrUtil.isNotBlank(processJson)){
+                JSONObject entries = JSONUtil.parseObj(processJson);
+                if(ObjectUtil.isNotEmpty(entries)){
+                    JSONObject properties = entries.getJSONObject("properties");
+                    if(ObjectUtil.isNotEmpty(properties)){
+                        JSONObject configInfo = properties.getJSONObject("configInfo");
+                        if(ObjectUtil.isNotEmpty(configInfo)){
+                            //str = configInfo.getStr("processStartTaskFormUrl");
+                            // 流水号模板id
+                            String processSnTemplateId = configInfo.getStr("processSnTemplateId");
+
+                            // 流水号内容
+                            processSnTemplate = flwTemplateSnService.getTemplateValueBydId(processSnTemplateId);
+                        }
+                    }
+                }
+
+            }
+            return processSnTemplate;
+        }
+        return "";
     }
 }

@@ -168,4 +168,7 @@ public class BizProjectEditParam {
     @ApiModelProperty(value = "状态", position = 34)
     private String status;
 
+    @ApiModelProperty(value = "流程实例ID", position = 60)
+    private String processInstanceId;
+
 }

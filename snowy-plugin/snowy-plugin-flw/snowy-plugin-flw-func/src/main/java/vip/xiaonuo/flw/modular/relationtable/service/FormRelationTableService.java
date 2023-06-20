@@ -87,6 +87,8 @@ public interface FormRelationTableService extends IService<FormRelationTable> {
 
     Map<String,Object> saveData(Map<String, Object> map, String tableName, String summary, String deployId, String parentTablePrimaryId);
 
+    Map<String,Object> saveNewData(Map<String, Object> map, String tableName, String parentTablePrimaryId);
+
     /**
      * 获取表单与表的关系详情
      *

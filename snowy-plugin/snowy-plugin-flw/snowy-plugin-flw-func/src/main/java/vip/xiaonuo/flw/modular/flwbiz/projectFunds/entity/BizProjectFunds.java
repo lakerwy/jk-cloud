@@ -228,4 +228,7 @@ public class BizProjectFunds {
     @ApiModelProperty(value = "修改人", position = 48)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    @ApiModelProperty(value = "流程实例ID", position = 60)
+    private String processInstanceId;
 }

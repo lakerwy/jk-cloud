@@ -192,4 +192,7 @@ public class BizProject {
     @ApiModelProperty(value = "更新者", position = 39)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    @ApiModelProperty(value = "流程实例ID", position = 60)
+    private String processInstanceId;
 }

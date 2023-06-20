@@ -1,16 +1,18 @@
 package vip.xiaonuo.flw.modular.flwbiz.common;
 
 public enum BizCommon {
-    PROJECT("PROJECT","BIZ_PROJECT"), //立项申请业务
-    PROJECT_REGISTER("PROJECT_REGISTER","BIZ_PROJECT_REGISTER"), //信息报备业务
-    PROJECT_FUNDS("PROJECT_FUNDS","BIZ_PROJECT_FUNDS"); //项目拨付款业务
+    PROJECT("PROJECT","BIZ_PROJECT","BizProjectService"), //立项申请业务
+    PROJECT_REGISTER("PROJECT_REGISTER","BIZ_PROJECT_REGISTER","BizProjectRegisterService"), //信息报备业务
+    PROJECT_FUNDS("PROJECT_FUNDS","BIZ_PROJECT_FUNDS","BizProjectFundsService"); //项目拨付款业务
 
     String bizModel;
     String bizTable;
+    String  resourceService;
 
-    BizCommon(String bizModel, String bizTable) {
+    BizCommon(String bizModel, String bizTable, String resourceService) {
         this.bizModel = bizModel;
         this.bizTable = bizTable;
+        this.resourceService = resourceService;
     }
 
     public String getBizModel() {
@@ -27,5 +29,26 @@ public enum BizCommon {
 
     public void setBizTable(String bizTable) {
         this.bizTable = bizTable;
+    }
+
+    public String getResourceService() {
+        return resourceService;
+    }
+
+    public void setResourceService(String resourceService) {
+        this.resourceService = resourceService;
+    }
+
+    public static BizCommon findByCommonTable(String tableName) {
+        // 遍历所有枚举常量
+        for (BizCommon bizCommon : BizCommon.values()) {
+            // 通过 name() 方法获取枚举常量名称，与提供的颜色名称进行比较
+            if (bizCommon.bizTable.equals(tableName)) {
+                // 如果找到了匹配的常量，则返回该常量
+                return bizCommon;
+            }
+        }
+        // 如果未找到匹配的常量，则返回 null 或抛出异常，具体取决于您的需求
+        return null;
     }
 }

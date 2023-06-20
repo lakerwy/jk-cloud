@@ -209,4 +209,7 @@ public class BizProjectFundsEditParam {
     @ApiModelProperty(value = "模型id", position = 100)
     private String modelId;
 
+    @ApiModelProperty(value = "流程实例ID", position = 60)
+    private String processInstanceId;
+
 }

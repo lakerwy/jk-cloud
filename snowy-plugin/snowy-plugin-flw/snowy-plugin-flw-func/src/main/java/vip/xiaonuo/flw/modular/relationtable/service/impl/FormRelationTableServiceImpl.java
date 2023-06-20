@@ -31,6 +31,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -42,6 +43,7 @@ import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
 import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
 import vip.xiaonuo.flw.modular.flwbiz.common.HandleExecutionUtil;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
+import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.relationtable.entity.DbTable;
 import vip.xiaonuo.flw.modular.relationtable.entity.Field;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
@@ -52,6 +54,7 @@ import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableIdParam;
 import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTablePageParam;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
+import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -402,6 +405,107 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
 
             sqlkey.append("`create_time`");
             sqlValue.append("'").append(DateUtil.dateNew(new Date())).append("'");
+
+            //动态拼接插入字段
+            //String skey = sqlkey.substring(0, sqlkey.lastIndexOf(","));
+            //动态拼接插入字段值
+            // String sValue = sqlValue.substring(0, sqlValue.lastIndexOf(","));
+            Map<String, Object> params = new HashMap<>();
+            params.put(VariableConstants.BIZ_TABLE_VAR_TABLE_NAME, tableName);
+            params.put("sqlKey", sqlkey.toString());
+            params.put("sqlValue", sqlValue.toString());
+            String sb = "insert into " +
+                    tableName +
+                    " (" +
+                    sqlkey.toString() +
+                    " ) " +
+                    " values (" +
+                    sqlValue +
+                    ")";
+            NodeRuntimeUtil.handleSqlExecution(sb);
+            //tableMapper.commonInsert(params);
+            params.put(VariableConstants.BIZ_TABLE_VAR_FIELDS,fieldsByTableName);
+            return params;
+        }catch (Exception e){
+            log.error("执行保存{}表业务数据失败",e);
+        }
+        return null;
+    }
+
+    @Override
+    public Map<String,Object> saveNewData(Map<String, Object> map, String tableName, String parentTablePrimaryId) {
+        try {
+            List<Map<String, String>> fieldsByTableName = getFieldsByTableName(tableName);
+
+            StringBuilder sqlkey = new StringBuilder();
+            StringBuilder sqlValue = new StringBuilder();
+            SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
+            Set<String> collect = new HashSet<>() ;
+            StringBuilder summaryValue = new StringBuilder();
+            for (Map<String, String> stringMap : fieldsByTableName) {
+                //字段名称
+                String fieldName = stringMap.get("COLUMN_NAME");
+                if (fieldName.equalsIgnoreCase("id")) {
+                    sqlkey.append("`id`").append(",");
+                    sqlValue.append("'").append(parentTablePrimaryId).append("', ");
+                }
+
+
+//                if (fieldName.equalsIgnoreCase("sn")) {
+//                    sqlkey.append("`sn`").append(",");
+//                    sqlValue.append("'").append(HandleExecutionUtil.getTableSn(tableName)).append("', ");
+//                }
+                //字段类型 （暂时广泛的定义三个 int varchar datetime）
+                String fieldType = stringMap.get("DATA_TYPE");
+                Object o = map.get(fieldName);
+                if (ObjectUtil.isNotEmpty(o)) {
+                    sqlkey.append("`");
+                    sqlkey.append(fieldName);
+                    sqlkey.append("`");
+                    sqlkey.append(",");
+                    if (fieldType.equalsIgnoreCase("varchar")) {
+                        sqlValue.append("'");
+                        sqlValue.append(o);
+                        sqlValue.append("'");
+                    } else if (fieldType.equalsIgnoreCase("datetime")) {
+                        Date date = null;
+                        try {
+                            date = ft.parse((String) o);
+                        } catch (ParseException e) {
+                            // throw new RuntimeException(e);
+                        }
+                        sqlValue.append(date);
+                    } else if (fieldType.equalsIgnoreCase("bigint")) {
+                        sqlValue.append(o);
+                    } else {
+                        sqlValue.append("'");
+                        sqlValue.append(o);
+                        sqlValue.append("'");
+                    }
+                    sqlValue.append(",");
+                }
+
+                if(collect.contains(fieldName)){
+                    summaryValue.append("|").append(o).append("|");
+                }
+            }
+            //公共字段deployId
+//            if(StringUtils.isNotEmpty(deployId)){
+//                sqlkey.append("`deployId` ,");
+//                sqlValue.append("'").append(deployId).append("',");
+//            }
+//            if(StringUtils.isNotEmpty(summaryValue.toString())){
+//                sqlkey.append("`summary` ,");
+//                sqlValue.append("'").append(summaryValue.substring(summaryValue.indexOf("|"), summaryValue.lastIndexOf("|"))).append("',");
+//            }
+
+            sqlkey.append("`status` ,");
+            sqlValue.append(" '0' ,");
+
+            sqlkey.append("`create_time`");
+            sqlValue.append("'").append(DateUtil.dateNew(new Date())).append("'");
+            sqlkey.append("`create_user`");
+            sqlValue.append("'").append(StpLoginUserUtil.getLoginUser().getId()).append("'");
 
             //动态拼接插入字段
             //String skey = sqlkey.substring(0, sqlkey.lastIndexOf(","));

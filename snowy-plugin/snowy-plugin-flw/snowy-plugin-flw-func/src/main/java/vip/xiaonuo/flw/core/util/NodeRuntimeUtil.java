@@ -161,11 +161,11 @@ public class NodeRuntimeUtil {
                                 String processDefinitionName = repositoryService.createProcessDefinitionQuery()
                                         .processDefinitionId(processDefinitionId).singleResult().getName();
 
-                                // 流水号模板id
-                                String processSnTemplateId = configInfo.getStr("processSnTemplateId");
-
-                                // 流水号内容
-                                String processSnTemplate = flwTemplateSnService.getTemplateValueBydId(processSnTemplateId);
+//                                // 流水号模板id
+//                                String processSnTemplateId = configInfo.getStr("processSnTemplateId");
+//
+//                                // 流水号内容
+//                                String processSnTemplate = flwTemplateSnService.getTemplateValueBydId(processSnTemplateId);
 
                                 // 标题模板，发起人 initiator，发起时间：startTime，流程名称：processName，主表单内必填字段
                                 String processTitleTemplate = configInfo.getStr("processTitleTemplate");
@@ -202,7 +202,7 @@ public class NodeRuntimeUtil {
                                         });
                                     }
                                 }
-                                delegateExecution.setVariable("initiatorProcessSn", processSnTemplate);
+                               // delegateExecution.setVariable("initiatorProcessSn", processSnTemplate);
                                 delegateExecution.setVariable("initiatorProcessTitle", titleResult.get());
                                 delegateExecution.setVariable("initiatorProcessAbstract", abstractResult.get());
                             }

@@ -181,4 +181,7 @@ public class BizProjectRegisterEditParam {
     @ApiModelProperty(value = "重要程度", position = 43)
     private String impotence;
 
+    @ApiModelProperty(value = "流程实例ID", position = 60)
+    private String processInstanceId;
+
 }

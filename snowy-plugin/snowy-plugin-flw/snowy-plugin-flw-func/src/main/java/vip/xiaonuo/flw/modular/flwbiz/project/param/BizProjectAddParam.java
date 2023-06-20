@@ -166,4 +166,7 @@ public class BizProjectAddParam {
     /** 模型id */
     @ApiModelProperty(value = "模型id",  position = 44)
     private String modelId;
+
+    @ApiModelProperty(value = "流程实例ID", position = 60)
+    private String processInstanceId;
 }

@@ -203,4 +203,6 @@ public class BizProjectFundsAddParam {
     @ApiModelProperty(value = "模型id", required = false, position = 44)
     private String modelId;
 
+    @ApiModelProperty(value = "流程实例ID", position = 60)
+    private String processInstanceId;
 }
