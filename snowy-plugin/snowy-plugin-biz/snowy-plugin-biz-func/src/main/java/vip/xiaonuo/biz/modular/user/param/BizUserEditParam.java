@@ -50,7 +50,7 @@ public class BizUserEditParam {
 
     /** 岗位id */
     @ApiModelProperty(value = "岗位id", required = true, position = 5)
-    @NotBlank(message = "positionId不能为空")
+//    @NotBlank(message = "positionId不能为空")
     private String positionId;
 
     /** 岗级 */

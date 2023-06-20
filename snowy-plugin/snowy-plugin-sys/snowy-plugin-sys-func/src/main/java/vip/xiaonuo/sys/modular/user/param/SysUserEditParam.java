@@ -50,7 +50,7 @@ public class SysUserEditParam {
 
     /** 职位id */
     @ApiModelProperty(value = "职位id", required = true, position = 5)
-    @NotBlank(message = "positionId不能为空")
+//    @NotBlank(message = "positionId不能为空")
     private String positionId;
 
     /** 职级 */

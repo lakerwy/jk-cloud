@@ -15,6 +15,7 @@ package vip.xiaonuo.flw.modular.relationtable.service;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableAddParam;
 import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableEditParam;
@@ -93,4 +94,14 @@ public interface FormRelationTableService extends IService<FormRelationTable> {
      * @date  2023/06/08 11:20
      */
     Map<String,Object> getTableName(FormRelationTablePageParam formRelationTablePageParam);
+
+    /**
+     * 添加表单与表的关系
+     *
+     * @author mayike
+     * @date  2023/06/08 11:20
+     */
+    void saveByFlwModel(FlwModel flwModel);
+
+    void updateTable(String modelId, String tableName);
 }

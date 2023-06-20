@@ -21,6 +21,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.dynamic.datasource.annotation.Master;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -49,6 +50,7 @@ import java.util.stream.Collectors;
  * @author xuyuxiang
  * @date 2022/9/2 15:05
  */
+@Master
 @Service
 public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> implements DevLogService {
 

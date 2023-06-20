@@ -136,6 +136,9 @@ public class GatewayConfigure {
             /*第三方钉钉免登*/
             "/api/webapp/sys/third/toDoDingDingApplication",
             "/api/webapp/sys/third/bindECard",
+
+            "/api/net/api/applet/ecard/GetAppletCardOpenIdByCode",
+            "/api/net//api/applet/ecard/GetEcardByUserId",
     };
 
     /**

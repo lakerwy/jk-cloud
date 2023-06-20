@@ -26,7 +26,7 @@ import javax.validation.constraints.NotBlank;
  */
 @Getter
 @Setter
-public class FlwProcessSaveDraftParam {
+public class  FlwProcessSaveDraftParam {
 
     /** 模型id */
     @ApiModelProperty(value = "模型id", required = true, position = 1)
