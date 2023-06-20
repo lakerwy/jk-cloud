@@ -95,6 +95,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     @Resource
     private RepositoryService repositoryService;
 
+    @Resource
     private FormRelationTableService formRelationTableService;
 
     @Override

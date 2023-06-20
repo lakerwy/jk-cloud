@@ -133,6 +133,9 @@ public class GatewayConfigure {
             "/api/bizapp/pay/wx/jsPay",
             "/api/bizapp/pay/order/sample/doCreateOrder",
 
+            "/api/webapp/dev/attachment/fileUpload",
+            "/api/webapp/dev/attachment/onlinePreview",
+
             /*第三方钉钉免登*/
             "/api/webapp/sys/third/toDoDingDingApplication",
             "/api/webapp/sys/third/bindECard",

@@ -582,30 +582,31 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
             formRelationTable.setDeploymentId(flwModel.getDeploymentId());
             formRelationTable = getOne(new QueryWrapper<>(formRelationTable));
             //更新
+            String str = "";
             String processJson = flwModel.getProcessJson();
-            cn.hutool.json.JSONObject entries = JSONUtil.parseObj(processJson);
-            cn.hutool.json.JSONObject properties = entries.getJSONObject("properties");
-            if(null!=properties){
-                cn.hutool.json.JSONObject configInfo = properties.getJSONObject("configInfo");
-                if(null!=configInfo){
-                    String str = configInfo.getStr("processStartTaskFormUrl");
-                    formRelationTable.setFormUrl(str);
+            if(StrUtil.isNotBlank(processJson)){
+                cn.hutool.json.JSONObject entries = JSONUtil.parseObj(processJson);
+                if(ObjectUtil.isNotEmpty(entries)){
+                    cn.hutool.json.JSONObject properties = entries.getJSONObject("properties");
+                    if(ObjectUtil.isNotEmpty(properties)){
+                        cn.hutool.json.JSONObject configInfo = properties.getJSONObject("configInfo");
+                        if(ObjectUtil.isNotEmpty(configInfo)){
+                            str = configInfo.getStr("processStartTaskFormUrl");
+                        }
+                    }
                 }
+
             }
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 //更新
-//                String processJson = flwModel.getProcessJson();
-//                cn.hutool.json.JSONObject entries = JSONUtil.parseObj(processJson);
-//                cn.hutool.json.JSONObject properties = entries.getJSONObject("properties");
-//                if(null!=properties){
-//                    cn.hutool.json.JSONObject configInfo = properties.getJSONObject("configInfo");
-//                    if(null!=configInfo){
-//                        String str = configInfo.getStr("processStartTaskFormUrl");
-//                        formRelationTable.setFormUrl(str);
-//                    }
-//                }
-            updateById(formRelationTable);
+                formRelationTable.setFormUrl(str);
+                updateById(formRelationTable);
             }else {
+                formRelationTable = new FormRelationTable();
+                formRelationTable.setActModelId(flwModel.getId());
+                formRelationTable.setDeploymentId(flwModel.getDeploymentId());
+                formRelationTable.setDefinitionId(flwModel.getDefinitionId());
+                formRelationTable.setFormUrl(str);
                 formRelationTable.setDefinitionId(flwModel.getDefinitionId());
                 save(formRelationTable);
             }
