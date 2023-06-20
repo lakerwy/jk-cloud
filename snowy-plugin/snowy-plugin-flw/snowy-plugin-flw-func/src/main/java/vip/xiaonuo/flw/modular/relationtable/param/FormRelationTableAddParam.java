@@ -39,4 +39,16 @@ public class FormRelationTableAddParam {
     @ApiModelProperty(value = "数据库表名", position = 3)
     private String tableName;
 
+    /** 定义id */
+    @ApiModelProperty(value = "定义id", position = 5)
+    private String definitionId;
+
+    /** 部署id */
+    @ApiModelProperty(value = "部署id", position = 6)
+    private String deploymentId;
+
+    /** 租户id */
+    @ApiModelProperty(value = "系统表单路由地址", position = 7)
+    private String formUrl;
+
 }

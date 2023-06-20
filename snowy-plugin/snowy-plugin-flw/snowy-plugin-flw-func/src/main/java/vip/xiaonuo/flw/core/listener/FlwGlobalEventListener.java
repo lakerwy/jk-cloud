@@ -14,8 +14,13 @@ package vip.xiaonuo.flw.core.listener;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.springframework.context.annotation.Configuration;
@@ -23,7 +28,10 @@ import org.springframework.context.event.EventListener;
 import vip.xiaonuo.flw.core.enums.NodeExecutionListenerKeyEnum;
 import vip.xiaonuo.flw.core.enums.NodeTaskListenerKeyEnum;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
+import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
+import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -34,6 +42,9 @@ import java.util.List;
  **/
 @Configuration
 public class FlwGlobalEventListener {
+
+    @Resource
+    FormRelationTableService formRelationTableService;
 
     /**
      * 执行监听器
@@ -51,6 +62,22 @@ public class FlwGlobalEventListener {
         if(isProcessEnd(delegateExecution)) {
             // 发送完成通知
             NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
+            RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
+
+            //处理状态变更
+            String processDefinitionId = delegateExecution.getProcessDefinitionId();
+            ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
+            String deploymentId = processDefinition.getDeploymentId();
+            FormRelationTable formRelationTable = new FormRelationTable();
+            formRelationTable.setDefinitionId(processDefinitionId);
+            formRelationTable.setDeploymentId(deploymentId);
+            formRelationTable = formRelationTableService.getOne(new QueryWrapper<>(formRelationTable));
+            if(null != formRelationTable){
+                String tableName = formRelationTable.getTableName();
+                if(StrUtil.isNotBlank(tableName)){
+
+                }
+            }
         }
     }
 

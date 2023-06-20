@@ -23,6 +23,7 @@ import cn.hutool.db.DbUtil;
 import cn.hutool.db.handler.RsHandler;
 import cn.hutool.db.sql.SqlExecutor;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -38,6 +39,9 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.core.constants.VariableConstants;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
+import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
+import vip.xiaonuo.flw.modular.flwbiz.common.HandleExecutionUtil;
+import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.relationtable.entity.DbTable;
 import vip.xiaonuo.flw.modular.relationtable.entity.Field;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
@@ -52,7 +56,6 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -348,7 +351,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
 
                 if (fieldName.equalsIgnoreCase("sn")) {
                     sqlkey.append("`sn`").append(",");
-                    sqlValue.append("'").append(getTableId(tableName)).append("', ");
+                    sqlValue.append("'").append(HandleExecutionUtil.getTableSn(tableName)).append("', ");
                 }
                 //字段类型 （暂时广泛的定义三个 int varchar datetime）
                 String fieldType = stringMap.get("DATA_TYPE");
@@ -479,23 +482,23 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
         return fieldsByTableName;
     }
 
-    public  String getTableId(String tableName){
-        String id = CommonHandleUtil.newHandleSqlIdExecution(tableName);
-        String idPre = "";
-        String newId = "";
-        if(StrUtil.isNotBlank(id)){
-            //xb2023050001
-            idPre = id.substring(0,8);
-            //0001
-            newId = String.format("%04d", Integer.parseInt(id.substring(8)) + 1);
-        }else {
-            Date date = new Date();
-            DateFormat format = new SimpleDateFormat("yyyyMM");
-            idPre = ID_PRE +format.format(date);
-            newId = String.format("%04d", 1);
-        }
-        return idPre+newId;
-    }
+//    public  String getTableId(String tableName){
+//        String id = CommonHandleUtil.newHandleSqlIdExecution(tableName);
+//        String idPre = "";
+//        String newId = "";
+//        if(StrUtil.isNotBlank(id)){
+//            //xb2023050001
+//            idPre = id.substring(0,8);
+//            //0001
+//            newId = String.format("%04d", Integer.parseInt(id.substring(8)) + 1);
+//        }else {
+//            Date date = new Date();
+//            DateFormat format = new SimpleDateFormat("yyyyMM");
+//            idPre = ID_PRE +format.format(date);
+//            newId = String.format("%04d", 1);
+//        }
+//        return idPre+newId;
+//    }
 
     public void  updateColumn(String tableName,List<Field> fields){
         StringBuilder sb = new StringBuilder();
@@ -569,6 +572,59 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
             }
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public void saveByFlwModel(FlwModel flwModel) {
+        if(ObjectUtil.isNotEmpty(flwModel)){
+            FormRelationTable formRelationTable = new FormRelationTable();
+            formRelationTable.setActModelId(flwModel.getId());
+            formRelationTable.setDeploymentId(flwModel.getDeploymentId());
+            formRelationTable = getOne(new QueryWrapper<>(formRelationTable));
+            //更新
+            String processJson = flwModel.getProcessJson();
+            cn.hutool.json.JSONObject entries = JSONUtil.parseObj(processJson);
+            cn.hutool.json.JSONObject properties = entries.getJSONObject("properties");
+            if(null!=properties){
+                cn.hutool.json.JSONObject configInfo = properties.getJSONObject("configInfo");
+                if(null!=configInfo){
+                    String str = configInfo.getStr("processStartTaskFormUrl");
+                    formRelationTable.setFormUrl(str);
+                }
+            }
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                //更新
+//                String processJson = flwModel.getProcessJson();
+//                cn.hutool.json.JSONObject entries = JSONUtil.parseObj(processJson);
+//                cn.hutool.json.JSONObject properties = entries.getJSONObject("properties");
+//                if(null!=properties){
+//                    cn.hutool.json.JSONObject configInfo = properties.getJSONObject("configInfo");
+//                    if(null!=configInfo){
+//                        String str = configInfo.getStr("processStartTaskFormUrl");
+//                        formRelationTable.setFormUrl(str);
+//                    }
+//                }
+            updateById(formRelationTable);
+            }else {
+                formRelationTable.setDefinitionId(flwModel.getDefinitionId());
+                save(formRelationTable);
+            }
+
+        }
+    }
+
+    @Override
+    public void updateTable(String modelId, String tableName){
+        if(StrUtil.isNotBlank(modelId)){
+            FormRelationTable formRelationTable = new FormRelationTable();
+            formRelationTable.setActModelId(modelId);
+            List<FormRelationTable> list = list(new QueryWrapper<>(formRelationTable));
+            if(CollUtil.isNotEmpty(list)){
+                formRelationTable = list.get(0);
+            }
+            formRelationTable.setTableName(BizCommon.PROJECT_REGISTER.getBizTable());
+            updateById(formRelationTable);
+        }
     }
 
 }

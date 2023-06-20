@@ -54,6 +54,8 @@ import vip.xiaonuo.flw.modular.model.result.FlwModelPositionResult;
 import vip.xiaonuo.flw.modular.model.result.FlwModelRoleResult;
 import vip.xiaonuo.flw.modular.model.result.FlwModelUserResult;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
+import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
+import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysPositionApi;
 import vip.xiaonuo.sys.api.SysRoleApi;
@@ -92,6 +94,8 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
 
     @Resource
     private RepositoryService repositoryService;
+
+    private FormRelationTableService formRelationTableService;
 
     @Override
     public Page<FlwModel> page(FlwModelPageParam flwModelPageParam) {
@@ -253,6 +257,9 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     public void enableModel(FlwModelIdParam flwModelIdParam) {
         this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
                 flwModelIdParam.getId()).set(FlwModel::getModelStatus, FlwModelStatusEnum.ENABLE.getValue()));
+        //发布后保存模型和系统表单的关联关系
+        FlwModel flwModel = this.getById(flwModelIdParam.getId());
+        formRelationTableService.saveByFlwModel(flwModel);
     }
 
     @Override

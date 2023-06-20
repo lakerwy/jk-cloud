@@ -38,5 +38,11 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-ten-api</artifactId>
         </dependency>
+
+        <!-- 引入多数据源接口，用于工作流的数据源切换功能 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-dbs-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -16,6 +16,8 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.common.pojo.CommonEntity;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -28,7 +30,7 @@ import java.util.Date;
 @Getter
 @Setter
 @TableName("FORM_RELATION_TABLE")
-public class FormRelationTable {
+public class FormRelationTable extends CommonEntity {
 
     /** 主键id */
     @TableId
@@ -46,4 +48,17 @@ public class FormRelationTable {
     /** 租户id */
     @ApiModelProperty(value = "租户id", position = 4)
     private String tenantId;
+
+    /** 定义id */
+    @ApiModelProperty(value = "定义id", position = 5)
+    private String definitionId;
+
+    /** 部署id */
+    @ApiModelProperty(value = "部署id", position = 6)
+    private String deploymentId;
+
+    /** 租户id */
+    @ApiModelProperty(value = "系统表单路由地址", position = 7)
+    private String formUrl;
+
 }
