@@ -463,7 +463,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
                 String fieldType = stringMap.get("DATA_TYPE");
                 String newField = fieldName.replaceAll("_","").toLowerCase();
                 Object o = lowerCase.get(newField);
-                if (ObjectUtil.isNotEmpty(o)) {
+                if (ObjectUtil.isNotEmpty(o) && o.equals("null")) {
                     sqlkey.append("`");
                     sqlkey.append(fieldName);
                     sqlkey.append("`");
@@ -586,7 +586,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
     }
 
     private static List<Map<String, String>> getFieldsByTableName(String tableName) {
-        final String sql = "select COLUMN_NAME,DATA_TYPE ,COLUMN_COMMENT from information_schema.COLUMNS  where table_name = ?";
+        final String sql = "select COLUMN_NAME,DATA_TYPE ,COLUMN_COMMENT from information_schema.COLUMNS  where  TABLE_NAME = 'jk-cloud-biz' and table_name = ?";
         List<Map<String, String>> fieldsByTableName = CommonHandleUtil.newHandleSqlExecution(sql, tableName);
         return fieldsByTableName;
     }

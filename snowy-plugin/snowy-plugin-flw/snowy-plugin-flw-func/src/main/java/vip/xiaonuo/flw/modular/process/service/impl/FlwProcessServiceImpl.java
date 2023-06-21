@@ -208,7 +208,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 if(!JSONUtil.isTypeJSONObject(flwProcessStartParam.getDataJson())) {
                     throw new CommonException("填写的数据请使用JSON格式");
                 }
-                jsonObject.set("initiatorDataJson", flwProcessStartParam.getDataJson());
+                String dataJson = flwProcessStartParam.getDataJson();
+                JSONObject entries = JSONUtil.parseObj(dataJson);
+                entries.set("sn", sn);
+                jsonObject.set("initiatorDataJson", JSONUtil.toJsonStr(entries));
                 //设置sn
                 jsonObject.set("initiatorProcessSn",sn);
             }
