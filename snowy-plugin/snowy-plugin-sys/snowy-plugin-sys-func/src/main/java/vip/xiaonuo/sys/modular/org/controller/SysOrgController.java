@@ -173,8 +173,21 @@ public class SysOrgController {
      */
     @ApiOperationSupport(order = 9)
     @ApiOperation("获取所有组织")
-    @GetMapping("/sys/org/all")
+    @GetMapping("/sys/center/org/all")
     public CommonResult<List<Map<String,String>>> getAllOrgs() {
         return CommonResult.data(sysOrgService.getAllOrgs());
+    }
+
+    /**
+     * 获取组织详情
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取组织详情--外部使用")
+    @GetMapping("/sys/center/org/detail")
+    public CommonResult<SysOrg> OrgDetail(@Valid SysOrgIdParam sysOrgIdParam) {
+        return CommonResult.data(sysOrgService.detail(sysOrgIdParam));
     }
 }

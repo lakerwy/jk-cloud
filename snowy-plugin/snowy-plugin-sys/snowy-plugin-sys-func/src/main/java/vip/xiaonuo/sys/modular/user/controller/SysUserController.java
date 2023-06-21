@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.user.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -392,7 +393,7 @@ public class SysUserController {
      */
     @ApiOperationSupport(order = 24)
     @ApiOperation("获取所有用户")
-    @GetMapping("/sys/user/all")
+    @GetMapping("/sys/center/user/all")
     public CommonResult<List<Map<String,String>>> getAllUsers() {
         return CommonResult.data(sysUserService.getAllUsers());
     }

@@ -174,7 +174,7 @@ public class BizProjectRegisterAddParam {
     @ApiModelProperty(value = "模型id", position = 39)
     private String modelId;
 
-    /** 更新人 */
+    /** 重要程度 */
     @ApiModelProperty(value = "重要程度", position = 43)
     private String impotence;
 

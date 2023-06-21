@@ -77,4 +77,5 @@ public interface BizProjectRegisterService extends IService<BizProjectRegister> 
      * @date  2023/06/19 15:26
      **/
     BizProjectRegister queryEntity(String id);
+
 }

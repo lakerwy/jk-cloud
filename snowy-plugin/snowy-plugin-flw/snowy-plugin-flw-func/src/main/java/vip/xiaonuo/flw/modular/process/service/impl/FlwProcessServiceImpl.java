@@ -182,12 +182,13 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         ProcessInstance processInstance = null;
         //FlwModel flwModel = flwModelService.getById(modelId);
         String sn = getSn(flwModel);
+        String parentTablePrimaryId = IdWorker.getIdStr();
         if(flwModel.getFormType().equals(FlwModelFormTypeEnum.DESIGN.getValue())) {
             if(ObjectUtil.isEmpty(flwModel.getTableJson())) {
                 throw new CommonException("模型错误，设计表单类型的模型数据库表JSON不能为空");
             }
             if(ObjectUtil.isNotEmpty(flwProcessStartParam.getDataJson())) {
-                String parentTablePrimaryId = IdWorker.getIdStr();
+                //String parentTablePrimaryId = IdWorker.getIdStr();
                 JSONObject resultDataObj = NodeRuntimeUtil.handleInitiatorDataJson(flwModel.getTableJson(),
                         flwProcessStartParam.getDataJson(), parentTablePrimaryId);
                 String initiatorSql = resultDataObj.getStr("sql");
@@ -208,10 +209,13 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     throw new CommonException("填写的数据请使用JSON格式");
                 }
                 jsonObject.set("initiatorDataJson", flwProcessStartParam.getDataJson());
+                //设置sn
+                jsonObject.set("initiatorProcessSn",sn);
             }
-             processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), jsonObject);
+             processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
         }
-        handDataSave(flwProcessStartParam.getDataJson(),sn,modelId,flwModel.getDefinitionId(),flwModel.getDeploymentId(),processInstance.getProcessInstanceId());
+        assert processInstance != null;
+        handDataSave(flwProcessStartParam.getDataJson(),sn,modelId,flwModel.getDefinitionId(),flwModel.getDeploymentId(),processInstance.getProcessInstanceId(),parentTablePrimaryId);
     }
 
     @Override
@@ -961,7 +965,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         return false;
     }
 
-    public void handDataSave(String dataJson,String sn, String modelId, String definitionId, String deploymentId,String processInstanceId){
+    public void handDataSave(String dataJson,String sn, String modelId, String definitionId, String deploymentId,String processInstanceId,String parentTablePrimaryId){
         /**1 根据modelID 获取到对应的业务 表明和 服务名
          **2
         **/
@@ -979,12 +983,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
         formRelationTable = formRelationTableService.getOne(new QueryWrapper<>(formRelationTable));
         if(ObjectUtil.isNotNull(formRelationTable)){
-            formRelationTableService.saveNewData(dataMap,formRelationTable.getTableName(),IdWorker.getIdStr());
-            BizCommon common = BizCommon.findByCommonTable(formRelationTable.getTableName());
-            if(ObjectUtil.isNotNull(common)){
-                String resourceService = common.getResourceService();
-                Object bean = SpringUtil.getBean(resourceService+".class");
-            }
+            formRelationTableService.saveNewData(dataMap,formRelationTable.getTableName(),parentTablePrimaryId);
+//            BizCommon common = BizCommon.findByCommonTable(formRelationTable.getTableName());
+//            if(ObjectUtil.isNotNull(common)){
+//                String resourceService = common.getResourceService();
+//                Object bean = SpringUtil.getBean(resourceService+".class");
+//            }
         }
     }
 

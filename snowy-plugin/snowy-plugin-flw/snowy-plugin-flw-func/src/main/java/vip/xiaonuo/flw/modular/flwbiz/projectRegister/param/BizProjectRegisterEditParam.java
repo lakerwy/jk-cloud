@@ -184,4 +184,8 @@ public class BizProjectRegisterEditParam {
     @ApiModelProperty(value = "流程实例ID", position = 60)
     private String processInstanceId;
 
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 99)
+    private String modelId;
+
 }

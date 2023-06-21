@@ -22,7 +22,7 @@ import java.util.Date;
  * 业务表-立项申请查询参数
  *
  * @author mayike
- * @date  2023/06/20 14:26
+ * @date  2023/06/21 14:38
  **/
 @Getter
 @Setter
@@ -52,17 +52,13 @@ public class BizProjectPageParam {
     @ApiModelProperty(value = "sn值")
     private String sn;
 
+    /** 立项编号 */
+    @ApiModelProperty(value = "立项编号")
+    private String projectSn;
+
     /** 项目名称 */
     @ApiModelProperty(value = "项目名称")
     private String name;
-
-    /** 项目地址 */
-    @ApiModelProperty(value = "项目地址")
-    private String address;
-
-    /** 项目来源 */
-    @ApiModelProperty(value = "项目来源")
-    private String head;
 
     /** 项目属性 */
     @ApiModelProperty(value = "项目属性")

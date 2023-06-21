@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -44,6 +45,7 @@ import java.util.List;
  * @author mayike
  * @date  2023/06/20 14:26
  **/
+@DS("slave_1")
 @Service
 public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProject> implements BizProjectService {
 
@@ -58,12 +60,6 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getName())) {
             queryWrapper.lambda().like(BizProject::getName, bizProjectPageParam.getName());
         }
-        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getAddress())) {
-            queryWrapper.lambda().like(BizProject::getAddress, bizProjectPageParam.getAddress());
-        }
-        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getHead())) {
-            queryWrapper.lambda().like(BizProject::getHead, bizProjectPageParam.getHead());
-        }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSource())) {
             queryWrapper.lambda().like(BizProject::getSource, bizProjectPageParam.getSource());
         }
@@ -77,7 +73,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizProjectAddParam bizProjectAddParam) {
         BizProject bizProject = BeanUtil.toBean(bizProjectAddParam, BizProject.class);

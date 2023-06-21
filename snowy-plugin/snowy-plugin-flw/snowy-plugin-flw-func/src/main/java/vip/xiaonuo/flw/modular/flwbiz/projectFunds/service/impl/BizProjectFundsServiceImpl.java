@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -44,6 +45,7 @@ import java.util.List;
  * @author mayike
  * @date  2023/06/19 17:26
  **/
+@DS("slave_1")
 @Service
 public class BizProjectFundsServiceImpl extends ServiceImpl<BizProjectFundsMapper, BizProjectFunds> implements BizProjectFundsService {
 
@@ -78,7 +80,7 @@ public class BizProjectFundsServiceImpl extends ServiceImpl<BizProjectFundsMappe
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizProjectFundsAddParam bizProjectFundsAddParam) {
         BizProjectFunds bizProjectFunds = BeanUtil.toBean(bizProjectFundsAddParam, BizProjectFunds.class);

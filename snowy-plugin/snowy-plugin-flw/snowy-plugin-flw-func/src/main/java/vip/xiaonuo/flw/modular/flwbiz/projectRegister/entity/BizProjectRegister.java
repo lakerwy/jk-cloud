@@ -205,9 +205,13 @@ public class BizProjectRegister {
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    /** 更新人 */
+    /** 重要程度 */
     @ApiModelProperty(value = "重要程度", position = 43)
     private String impotence;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 99)
+    private String modelId;
 
     @ApiModelProperty(value = "流程实例ID", position = 60)
     private String processInstanceId;

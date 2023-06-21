@@ -52,6 +52,17 @@ public interface FlwTaskService {
     void adjust(FlwTaskAdjustParam flwTaskAdjustParam);
 
     /**
+     * 审批保存
+     *
+     * @author xuyuxiang
+     * @date 2022/6/15 19:31
+     **/
+    void save(FlwTaskSaveParam flwTaskSaveParam);
+
+    /**
+
+
+     /**
      * 审批同意
      *
      * @author xuyuxiang

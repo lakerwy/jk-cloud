@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.id.NanoId;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.DbUtil;
@@ -25,6 +26,8 @@ import cn.hutool.db.sql.SqlExecutor;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.dynamic.datasource.annotation.Master;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -71,6 +74,7 @@ import java.util.stream.Collectors;
  * @author mayike
  * @date  2023/06/08 11:20
  **/
+@DS("master")
 @Service
 public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableMapper, FormRelationTable> implements FormRelationTableService {
 
@@ -436,12 +440,12 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
     public Map<String,Object> saveNewData(Map<String, Object> map, String tableName, String parentTablePrimaryId) {
         try {
             List<Map<String, String>> fieldsByTableName = getFieldsByTableName(tableName);
-
+            Map<String, Object> lowerCase = toLowerCase(map);
             StringBuilder sqlkey = new StringBuilder();
             StringBuilder sqlValue = new StringBuilder();
             SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
-            Set<String> collect = new HashSet<>() ;
-            StringBuilder summaryValue = new StringBuilder();
+//            Set<String> collect = new HashSet<>() ;
+//            StringBuilder summaryValue = new StringBuilder();
             for (Map<String, String> stringMap : fieldsByTableName) {
                 //字段名称
                 String fieldName = stringMap.get("COLUMN_NAME");
@@ -457,7 +461,8 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
 //                }
                 //字段类型 （暂时广泛的定义三个 int varchar datetime）
                 String fieldType = stringMap.get("DATA_TYPE");
-                Object o = map.get(fieldName);
+                String newField = fieldName.replaceAll("_","").toLowerCase();
+                Object o = lowerCase.get(newField);
                 if (ObjectUtil.isNotEmpty(o)) {
                     sqlkey.append("`");
                     sqlkey.append(fieldName);
@@ -485,9 +490,6 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
                     sqlValue.append(",");
                 }
 
-                if(collect.contains(fieldName)){
-                    summaryValue.append("|").append(o).append("|");
-                }
             }
             //公共字段deployId
 //            if(StringUtils.isNotEmpty(deployId)){
@@ -502,8 +504,11 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
             sqlkey.append("`status` ,");
             sqlValue.append(" '0' ,");
 
-            sqlkey.append("`create_time`");
-            sqlValue.append("'").append(DateUtil.dateNew(new Date())).append("'");
+            sqlkey.append("`DELETE_FLAG` ,");
+            sqlValue.append(" 'NOT_DELETE' ,");
+
+            sqlkey.append("`create_time` ,");
+            sqlValue.append("'").append(DateUtil.dateNew(new Date())).append("' ,");
             sqlkey.append("`create_user`");
             sqlValue.append("'").append(StpLoginUserUtil.getLoginUser().getId()).append("'");
 
@@ -732,4 +737,11 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
         }
     }
 
+    private static Map<String, Object> toLowerCase(Map<String, Object> mapSource) {
+        Map<String, Object> mapResult = new HashMap<String, Object>();
+        for (String key : mapSource.keySet()) {
+            mapResult.put(key.toLowerCase(), mapSource.get(key));
+        }
+        return mapResult;
+    }
 }

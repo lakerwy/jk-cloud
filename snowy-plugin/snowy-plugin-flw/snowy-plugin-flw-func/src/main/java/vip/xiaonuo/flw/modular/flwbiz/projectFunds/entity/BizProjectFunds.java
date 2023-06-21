@@ -16,7 +16,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
+
 import java.util.Date;
 
 /**
@@ -228,6 +228,10 @@ public class BizProjectFunds {
     @ApiModelProperty(value = "修改人", position = 48)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 99)
+    private String modelId;
 
     @ApiModelProperty(value = "流程实例ID", position = 60)
     private String processInstanceId;

@@ -14,7 +14,6 @@ package vip.xiaonuo.flw.modular.flwbiz.projectRegister.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -35,7 +34,6 @@ import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterEd
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterIdParam;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterPageParam;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.service.BizProjectRegisterService;
-import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
@@ -79,7 +77,7 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+   // @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizProjectRegisterAddParam bizProjectRegisterAddParam) {
         BizProjectRegister bizProjectRegister = BeanUtil.toBean(bizProjectRegisterAddParam, BizProjectRegister.class);
@@ -117,4 +115,5 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         }
         return bizProjectRegister;
     }
+
 }

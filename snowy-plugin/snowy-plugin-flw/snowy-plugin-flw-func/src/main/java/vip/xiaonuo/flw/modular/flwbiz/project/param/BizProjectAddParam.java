@@ -25,7 +25,7 @@ import java.util.Date;
  * 业务表-立项申请添加参数
  *
  * @author mayike
- * @date  2023/06/20 14:26
+ * @date  2023/06/21 14:38
  **/
 @Getter
 @Setter
@@ -35,138 +35,168 @@ public class BizProjectAddParam {
     @ApiModelProperty(value = "sn值", position = 2)
     private String sn;
 
+    /** 立项编号 */
+    @ApiModelProperty(value = "立项编号", position = 3)
+    private String projectSn;
+
     /** 公司类型 */
-    @ApiModelProperty(value = "公司类型", position = 3)
+    @ApiModelProperty(value = "公司类型", position = 4)
     private String isHead;
 
+    /** 信息编号 */
+    @ApiModelProperty(value = "信息编号", position = 5)
+    private String infoNo;
+
     /** 项目名称 */
-    @ApiModelProperty(value = "项目名称", position = 4)
+    @ApiModelProperty(value = "项目名称", position = 6)
     private String name;
 
-    /** 项目地址 */
-    @ApiModelProperty(value = "项目地址", position = 5)
-    private String address;
+    /** 是否EPC */
+    @ApiModelProperty(value = "是否EPC", position = 7)
+    private String isEpc;
+
+    /** 是否EPC+F */
+    @ApiModelProperty(value = "是否EPC+F", position = 8)
+    private String isEpcf;
+
+    /** 是否牵头 */
+    @ApiModelProperty(value = "是否牵头", position = 9)
+    private String isLead;
 
     /** 项目类型 */
-    @ApiModelProperty(value = "项目类型", position = 6)
+    @ApiModelProperty(value = "项目类型", position = 10)
     private String type;
 
-    /** 项目来源 */
-    @ApiModelProperty(value = "项目来源", position = 7)
-    private String head;
+    /** 项目地址 */
+    @ApiModelProperty(value = "项目地址", position = 11)
+    private String address;
 
     /** 项目属性 */
-    @ApiModelProperty(value = "项目属性", position = 8)
+    @ApiModelProperty(value = "项目属性", position = 12)
     private String source;
 
+    /** 项目来源 */
+    @ApiModelProperty(value = "项目来源", position = 13)
+    private String head;
+
     /** 立项编号 */
-    @ApiModelProperty(value = "立项编号", position = 9)
+    @ApiModelProperty(value = "立项编号", position = 14)
     private String approvalNo;
 
     /** 项目介绍 */
-    @ApiModelProperty(value = "项目介绍", position = 10)
+    @ApiModelProperty(value = "项目介绍", position = 15)
     private String introduce;
 
     /** 附件上传 */
-    @ApiModelProperty(value = "附件上传", position = 11)
+    @ApiModelProperty(value = "附件上传", position = 16)
     private String attachment;
 
     /** 开标日期 */
-    @ApiModelProperty(value = "开标日期", position = 12)
+    @ApiModelProperty(value = "开标日期", position = 17)
     private String startDate;
 
     /** 项目负责人 */
-    @ApiModelProperty(value = "项目负责人", position = 13)
+    @ApiModelProperty(value = "项目负责人", position = 18)
     private String projectHeader;
 
     /** 部门 */
-    @ApiModelProperty(value = "部门", position = 14)
+    @ApiModelProperty(value = "部门", position = 19)
     private String dept;
 
     /** 责任人 */
-    @ApiModelProperty(value = "责任人", position = 15)
+    @ApiModelProperty(value = "责任人", position = 20)
     private String leader;
 
     /** 区域负责人 */
-    @ApiModelProperty(value = "区域负责人", position = 16)
+    @ApiModelProperty(value = "区域负责人", position = 21)
     private String areaLeader;
 
     /** 是否主投 */
-    @ApiModelProperty(value = "是否主投", position = 17)
+    @ApiModelProperty(value = "是否主投", position = 22)
     private String isMain;
 
     /** 投标保证金 */
-    @ApiModelProperty(value = "投标保证金", position = 18)
+    @ApiModelProperty(value = "投标保证金", position = 23)
     private String bond;
 
     /** 投标限价 */
-    @ApiModelProperty(value = "投标限价", position = 19)
+    @ApiModelProperty(value = "投标限价", position = 24)
     private String priceLimit;
 
     /** 招标代理机构 */
-    @ApiModelProperty(value = "招标代理机构", position = 20)
-    private String biddingAgency;
+    @ApiModelProperty(value = "招标代理机构", position = 25)
+    private String biddingAgenct;
 
     /** 联系人 */
-    @ApiModelProperty(value = "联系人", position = 21)
+    @ApiModelProperty(value = "联系人", position = 26)
     private String biddingHeader;
 
     /** 联系电话 */
-    @ApiModelProperty(value = "联系电话", position = 22)
+    @ApiModelProperty(value = "联系电话", position = 27)
     private String biddingPhone;
 
     /** 建设单位 */
-    @ApiModelProperty(value = "建设单位", position = 23)
+    @ApiModelProperty(value = "建设单位", position = 28)
     private String project;
 
     /** 联系人 */
-    @ApiModelProperty(value = "联系人", position = 24)
+    @ApiModelProperty(value = "联系人", position = 29)
     private String projectContacts;
 
     /** 联系电话 */
-    @ApiModelProperty(value = "联系电话", position = 25)
+    @ApiModelProperty(value = "联系电话", position = 30)
     private String projectPhone;
 
     /** 设计单位 */
-    @ApiModelProperty(value = "设计单位", position = 26)
+    @ApiModelProperty(value = "设计单位", position = 31)
     private String designUnit;
 
     /** 监理单位 */
-    @ApiModelProperty(value = "监理单位", position = 27)
+    @ApiModelProperty(value = "监理单位", position = 32)
     private String controlUnit;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 28)
+    @ApiModelProperty(value = "备注", position = 33)
     private String note;
 
     /** 计划附件 */
-    @ApiModelProperty(value = "计划附件", position = 29)
+    @ApiModelProperty(value = "计划附件", position = 34)
     private String subAttachment;
 
-    /** 摘要详情 */
-    @ApiModelProperty(value = "摘要详情", position = 30)
-    private String summary;
-
     /** 中标情况 */
-    @ApiModelProperty(value = "中标情况", position = 31)
+    @ApiModelProperty(value = "中标情况", position = 35)
     private String states;
 
     /** 机会(可选) */
-    @ApiModelProperty(value = "机会(可选)", position = 32)
+    @ApiModelProperty(value = "机会(可选)", position = 36)
     private String chance;
 
     /** 机会编号 */
-    @ApiModelProperty(value = "机会编号", position = 33)
+    @ApiModelProperty(value = "机会编号", position = 37)
     private String chanceId;
 
     /** 状态 */
-    @ApiModelProperty(value = "状态", position = 34)
+    @ApiModelProperty(value = "状态", position = 38)
     private String status;
 
     /** 模型id */
-    @ApiModelProperty(value = "模型id",  position = 44)
+    @ApiModelProperty(value = "模型id", position = 44)
     private String modelId;
 
-    @ApiModelProperty(value = "流程实例ID", position = 60)
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 45)
     private String processInstanceId;
+
+    /** 市场调查结果 */
+    @ApiModelProperty(value = "市场调查结果", position = 46)
+    private String surveyResults;
+
+    /** 总师办意见 */
+    @ApiModelProperty(value = "总师办意见", position = 47)
+    private String finalAdvice;
+
+    /** 计划附件 */
+    @ApiModelProperty(value = "计划附件", position = 48)
+    private String planAttachment;
+
 }

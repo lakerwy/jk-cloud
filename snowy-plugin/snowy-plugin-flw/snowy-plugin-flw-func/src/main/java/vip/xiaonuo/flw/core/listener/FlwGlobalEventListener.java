@@ -18,15 +18,19 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
+import org.camunda.bpm.engine.runtime.ProcessInstanceQuery;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
 import vip.xiaonuo.flw.core.enums.NodeExecutionListenerKeyEnum;
 import vip.xiaonuo.flw.core.enums.NodeTaskListenerKeyEnum;
+import vip.xiaonuo.flw.core.util.CommonHandleUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
@@ -54,31 +58,39 @@ public class FlwGlobalEventListener {
      **/
     @EventListener
     public void onExecutionEvent(DelegateExecution delegateExecution) {
-        if(isProcessStart(delegateExecution)) {
+        if (isProcessStart(delegateExecution)) {
             NodeRuntimeUtil.handleTableDataVariables(delegateExecution);
             NodeRuntimeUtil.handleTitleAndAbstract(delegateExecution);
             NodeRuntimeUtil.handleUserTaskParticipateInfo(delegateExecution);
         }
-        if(isProcessEnd(delegateExecution)) {
+        if (isProcessEnd(delegateExecution)) {
             // 发送完成通知
             NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
-            RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
-
+        }
+        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(delegateExecution.getProcessInstanceId()).singleResult();
+        if (ObjectUtil.isNull(processInstance)) {
             //处理状态变更
             String processDefinitionId = delegateExecution.getProcessDefinitionId();
+            RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
             ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
             String deploymentId = processDefinition.getDeploymentId();
             FormRelationTable formRelationTable = new FormRelationTable();
             formRelationTable.setDefinitionId(processDefinitionId);
             formRelationTable.setDeploymentId(deploymentId);
             formRelationTable = formRelationTableService.getOne(new QueryWrapper<>(formRelationTable));
-            if(null != formRelationTable){
+            if (null != formRelationTable) {
+                delegateExecution.getProcessBusinessKey();
                 String tableName = formRelationTable.getTableName();
-                if(StrUtil.isNotBlank(tableName)){
-
+                if (StrUtil.isNotBlank(tableName)) {
+                    String processBusinessKey = delegateExecution.getProcessBusinessKey();
+                    String sql = "update " + tableName + " set status = '1'  where ID = '" + processBusinessKey +"'";
+                    CommonHandleUtil.handleSqlExecution(sql);
                 }
+
             }
         }
+        ;
     }
 
     /**

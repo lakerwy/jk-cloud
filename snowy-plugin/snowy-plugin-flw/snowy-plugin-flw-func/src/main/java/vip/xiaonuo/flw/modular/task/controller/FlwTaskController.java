@@ -89,13 +89,23 @@ public class FlwTaskController {
         return CommonResult.ok();
     }
 
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("审批保存")
+    @CommonLog("审批保存")
+    @PostMapping("/flw/task/save")
+    public CommonResult<String> save(@RequestBody @Valid FlwTaskSaveParam flwTaskSaveParam) {
+        flwTaskService.save(flwTaskSaveParam);
+        return CommonResult.ok();
+    }
+
+
     /**
      * 审批同意
      *
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 4)
+    @ApiOperationSupport(order = 5)
     @ApiOperation("审批同意")
     @CommonLog("审批同意")
     @PostMapping("/flw/task/pass")
@@ -110,7 +120,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("审批拒绝")
     @CommonLog("审批拒绝")
     @PostMapping("/flw/task/reject")
@@ -125,7 +135,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 6)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("审批退回")
     @CommonLog("审批退回")
     @PostMapping("/flw/task/back")
@@ -140,7 +150,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 7)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("任务转办")
     @CommonLog("任务转办")
     @PostMapping("/flw/task/turn")
@@ -155,7 +165,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 8)
+    @ApiOperationSupport(order = 9)
     @ApiOperation("审批跳转")
     @CommonLog("审批跳转")
     @PostMapping("/flw/task/jump")
@@ -170,7 +180,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 9)
+    @ApiOperationSupport(order = 10)
     @ApiOperation("审批加签")
     @CommonLog("审批加签")
     @PostMapping("/flw/task/addSign")
@@ -185,7 +195,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
-    @ApiOperationSupport(order = 10)
+    @ApiOperationSupport(order = 11)
     @ApiOperation("获取任务详情")
     @GetMapping("/flw/task/detail")
     public CommonResult<FlwTaskDetailResult> detail(@Valid FlwTaskIdParam flwTaskIdParam) {
@@ -198,7 +208,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
-    @ApiOperationSupport(order = 11)
+    @ApiOperationSupport(order = 12)
     @ApiOperation("获取可驳回节点列表")
     @GetMapping("/flw/task/getCanBackNodeInfoList")
     public CommonResult<List<FlwBackNodeResult>> getCanBackNodeInfoList(@Valid FlwTaskGetBackNodeInfoParam flwTaskGetBackNodeInfoParam) {
@@ -211,7 +221,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
-    @ApiOperationSupport(order = 12)
+    @ApiOperationSupport(order = 13)
     @ApiOperation("获取可跳转节点列表")
     @GetMapping("/flw/task/getCanJumpNodeInfoList")
     public CommonResult<List<FlwJumpNodeResult>> getCanJumpNodeInfoList(@Valid FlwTaskGetJumpNodeInfoParam flwTaskGetJumpNodeInfoParam) {
@@ -224,7 +234,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
-    @ApiOperationSupport(order = 13)
+    @ApiOperationSupport(order = 14)
     @ApiOperation("获取组织树选择器")
     @GetMapping("/flw/task/orgTreeSelector")
     public CommonResult<List<Tree<String>>> orgTreeSelector() {
@@ -237,7 +247,7 @@ public class FlwTaskController {
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
-    @ApiOperationSupport(order = 14)
+    @ApiOperationSupport(order = 15)
     @ApiOperation("获取用户选择器")
     @GetMapping("/flw/task/userSelector")
     public CommonResult<List<FlwTaskUserResult>> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam) {

@@ -278,6 +278,19 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         taskService.complete(task.getId());
     }
 
+    @Override
+    public void save(FlwTaskSaveParam flwTaskSaveParam) {
+        NodeRuntimeUtil.handleTenAuth();
+        String taskId = flwTaskSaveParam.getId();
+        Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
+        if(ObjectUtil.isEmpty(task)) {
+            throw new CommonException("任务不存在，id值为：{}", taskId);
+        }
+        String processInstanceId = task.getProcessInstanceId();
+        runtimeService.setVariables(processInstanceId, JSONUtil.createObj().set("initiatorDataJson", flwTaskSaveParam.getDataJson()));
+    }
+
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void reject(FlwTaskRejectParam flwTaskRejectParam) {
