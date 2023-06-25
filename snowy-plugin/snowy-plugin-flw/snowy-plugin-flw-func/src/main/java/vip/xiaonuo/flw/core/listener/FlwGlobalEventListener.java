@@ -18,12 +18,9 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
-import org.camunda.bpm.engine.runtime.ProcessInstanceQuery;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.springframework.context.annotation.Configuration;
@@ -66,31 +63,30 @@ public class FlwGlobalEventListener {
         if (isProcessEnd(delegateExecution)) {
             // 发送完成通知
             NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
+            //updateBizStatus(delegateExecution);
         }
-        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(delegateExecution.getProcessInstanceId()).singleResult();
-        if (ObjectUtil.isNull(processInstance)) {
-            //处理状态变更
-            String processDefinitionId = delegateExecution.getProcessDefinitionId();
-            RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
-            ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
-            String deploymentId = processDefinition.getDeploymentId();
-            FormRelationTable formRelationTable = new FormRelationTable();
-            formRelationTable.setDefinitionId(processDefinitionId);
-            formRelationTable.setDeploymentId(deploymentId);
-            formRelationTable = formRelationTableService.getOne(new QueryWrapper<>(formRelationTable));
-            if (null != formRelationTable) {
-                delegateExecution.getProcessBusinessKey();
-                String tableName = formRelationTable.getTableName();
-                if (StrUtil.isNotBlank(tableName)) {
-                    String processBusinessKey = delegateExecution.getProcessBusinessKey();
-                    String sql = "update " + tableName + " set status = '1'  where ID = '" + processBusinessKey +"'";
-                    CommonHandleUtil.handleSqlExecution(sql);
-                }
+    }
 
+    private void updateBizStatus(DelegateExecution delegateExecution) {
+        //处理状态变更
+        String processDefinitionId = delegateExecution.getProcessDefinitionId();
+        RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
+        ProcessDefinition processDefinition = repositoryService.getProcessDefinition(processDefinitionId);
+        String deploymentId = processDefinition.getDeploymentId();
+        FormRelationTable formRelationTable = new FormRelationTable();
+        formRelationTable.setDefinitionId(processDefinitionId);
+        formRelationTable.setDeploymentId(deploymentId);
+        formRelationTable = formRelationTableService.getOne(new QueryWrapper<>(formRelationTable));
+        if (null != formRelationTable) {
+            delegateExecution.getProcessBusinessKey();
+            String tableName = formRelationTable.getTableName();
+            if (StrUtil.isNotBlank(tableName)) {
+                String processBusinessKey = delegateExecution.getProcessBusinessKey();
+                String sql = "update " + tableName + " set status = '1'  where ID = '" + processBusinessKey +"'";
+                CommonHandleUtil.handleSqlExecution(sql);
             }
+
         }
-        ;
     }
 
     /**
@@ -188,5 +184,15 @@ public class FlwGlobalEventListener {
     public static boolean isTaskAssignment(DelegateTask delegateTask) {
         String eventName = delegateTask.getEventName();
         return eventName.equals(NodeTaskListenerKeyEnum.ASSIGNMENT.getValue().toLowerCase());
+    }
+
+
+    @EventListener
+    public void onUpdateBizStatusEvent(DelegateExecution delegateExecution) {
+        if(delegateExecution.getEventName().equalsIgnoreCase("end")){
+//            System.out.println("----------------------121212------------------");
+            updateBizStatus(delegateExecution);
+        }
+
     }
 }

@@ -229,6 +229,9 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
             flwModel.setVersionCode(StrUtil.format("V{}.0", processDefinition.getVersion()));
             flwModel.setProcessXml(flowXml);
             this.updateById(flwModel);
+            //发布后保存模型和系统表单的关联关系
+            //FlwModel flwModel = this.getById(flwModelIdParam.getId());
+            formRelationTableService.saveByFlwModel(flwModel);
         } catch (ProcessEngineException e) {
             throw new CommonException("模型部署异常，id值为：{}，原因为：{}", flwModelIdParam.getId(), ExceptionUtil.getMessage(e));
         }

@@ -1390,8 +1390,16 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         String primaryPositionName = primaryPosition.getName();
         SysUserPositionResult primarySysUserPositionResult = new SysUserPositionResult();
-        primarySysUserPositionResult.setOrgId(primaryOrgId);
-        primarySysUserPositionResult.setOrgName(primaryOrgName);
+        String orgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + primaryOrgId));
+        if(StrUtil.isBlank(orgId)){
+            orgId = primaryOrgId;
+        }
+        String orgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + primaryOrgId));
+        if(StrUtil.isBlank(orgName)){
+            orgName = primaryOrgName;
+        }
+        primarySysUserPositionResult.setOrgId(orgId);
+        primarySysUserPositionResult.setOrgName(orgName);
         primarySysUserPositionResult.setPositionId(primaryPositionId);
         primarySysUserPositionResult.setPositionName(primaryPositionName);
         primarySysUserPositionResult.setCategory(primarySysOrg.getCategory());
@@ -1420,8 +1428,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     }
                     String slavePositionName = slavePosition.getName();
                     SysUserPositionResult slaveSysUserPositionResult = new SysUserPositionResult();
-                    slaveSysUserPositionResult.setOrgId(slaveOrgId);
-                    slaveSysUserPositionResult.setOrgName(slaveOrgName);
+                    slaveSysUserPositionResult.setOrgId(String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgId" + slaveOrgId)));
+                    slaveSysUserPositionResult.setOrgName(String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgName" + slaveOrgId)));
                     slaveSysUserPositionResult.setPositionId(slavePositionId);
                     slaveSysUserPositionResult.setPositionName(slavePositionName);
                     slaveSysUserPositionResult.setCategory(slaveSysOrg.getCategory());

@@ -76,7 +76,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
         QueryWrapper<SysOrg> queryWrapper = new QueryWrapper<>();
         // 查询部分字段
         queryWrapper.lambda().select(SysOrg::getId, SysOrg::getParentId, SysOrg::getName,
-                SysOrg::getCategory, SysOrg::getSortCode);
+                SysOrg::getCategory, SysOrg::getSortCode, SysOrg::getDirectorId);
         if(ObjectUtil.isNotEmpty(sysOrgPageParam.getParentId())) {
             queryWrapper.lambda().eq(SysOrg::getParentId, sysOrgPageParam.getParentId());
         }

@@ -364,30 +364,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
                 String fieldType = stringMap.get("DATA_TYPE");
                 Object o = map.get(fieldName);
                 if (ObjectUtil.isNotEmpty(o)) {
-                    sqlkey.append("`");
-                    sqlkey.append(fieldName);
-                    sqlkey.append("`");
-                    sqlkey.append(",");
-                    if (fieldType.equalsIgnoreCase("varchar")) {
-                        sqlValue.append("'");
-                        sqlValue.append(o);
-                        sqlValue.append("'");
-                    } else if (fieldType.equalsIgnoreCase("datetime")) {
-                        Date date = null;
-                        try {
-                            date = ft.parse((String) o);
-                        } catch (ParseException e) {
-                            // throw new RuntimeException(e);
-                        }
-                        sqlValue.append(date);
-                    } else if (fieldType.equalsIgnoreCase("bigint")) {
-                        sqlValue.append(o);
-                    } else {
-                        sqlValue.append("'");
-                        sqlValue.append(o);
-                        sqlValue.append("'");
-                    }
-                    sqlValue.append(",");
+                    buildSql(sqlkey, sqlValue, ft, fieldName, fieldType, o);
                 }
 
                 if(collect.contains(fieldName)){
@@ -463,31 +440,8 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
                 String fieldType = stringMap.get("DATA_TYPE");
                 String newField = fieldName.replaceAll("_","").toLowerCase();
                 Object o = lowerCase.get(newField);
-                if (ObjectUtil.isNotEmpty(o) && o.equals("null")) {
-                    sqlkey.append("`");
-                    sqlkey.append(fieldName);
-                    sqlkey.append("`");
-                    sqlkey.append(",");
-                    if (fieldType.equalsIgnoreCase("varchar")) {
-                        sqlValue.append("'");
-                        sqlValue.append(o);
-                        sqlValue.append("'");
-                    } else if (fieldType.equalsIgnoreCase("datetime")) {
-                        Date date = null;
-                        try {
-                            date = ft.parse((String) o);
-                        } catch (ParseException e) {
-                            // throw new RuntimeException(e);
-                        }
-                        sqlValue.append(date);
-                    } else if (fieldType.equalsIgnoreCase("bigint")) {
-                        sqlValue.append(o);
-                    } else {
-                        sqlValue.append("'");
-                        sqlValue.append(o);
-                        sqlValue.append("'");
-                    }
-                    sqlValue.append(",");
+                if (ObjectUtil.isNotEmpty(o) && !"null".equalsIgnoreCase(o.toString())) {
+                    buildSql(sqlkey, sqlValue, ft, fieldName, fieldType, o);
                 }
 
             }
@@ -538,6 +492,38 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
         return null;
     }
 
+    private void buildSql(StringBuilder sqlkey, StringBuilder sqlValue, SimpleDateFormat ft, String fieldName, String fieldType, Object o) {
+        try {
+            sqlkey.append("`");
+            sqlkey.append(fieldName);
+            sqlkey.append("`");
+            sqlkey.append(",");
+            if (fieldType.equalsIgnoreCase("varchar")) {
+                sqlValue.append("'");
+                sqlValue.append(o);
+                sqlValue.append("'");
+            } else if (fieldType.equalsIgnoreCase("datetime")) {
+                Date date = null;
+                try {
+                    date = ft.parse((String) o);
+                } catch (ParseException e) {
+                    // throw new RuntimeException(e);
+                }
+                sqlValue.append(date);
+            } else if (fieldType.equalsIgnoreCase("bigint")) {
+                sqlValue.append(o);
+            } else {
+                sqlValue.append("'");
+                sqlValue.append(o);
+                sqlValue.append("'");
+            }
+            sqlValue.append(",");
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+    }
+
     @Override
     public Map<String,Object> getTableName(FormRelationTablePageParam param) {
         FormRelationTable formRelationTable = new FormRelationTable();
@@ -586,9 +572,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
     }
 
     private static List<Map<String, String>> getFieldsByTableName(String tableName) {
-        final String sql = "select COLUMN_NAME,DATA_TYPE ,COLUMN_COMMENT from information_schema.COLUMNS  where  TABLE_NAME = 'jk-cloud-biz' and table_name = ?";
-        List<Map<String, String>> fieldsByTableName = CommonHandleUtil.newHandleSqlExecution(sql, tableName);
-        return fieldsByTableName;
+        return CommonHandleUtil.newHandleSqlExecution(tableName);
     }
 
 //    public  String getTableId(String tableName){

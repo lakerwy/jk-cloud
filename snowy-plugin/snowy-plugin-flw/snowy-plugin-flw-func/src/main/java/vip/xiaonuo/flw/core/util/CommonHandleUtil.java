@@ -10,6 +10,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 
+import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -27,19 +28,24 @@ public class CommonHandleUtil {
      * @author xuyuxiang
      * @date 2022/6/16 10:24
      **/
-    public static List<Map<String, String>> newHandleSqlExecution(String sql, String tableName) {
-        if(ObjectUtil.isNotEmpty(sql)) {
+    public static List<Map<String, String>> newHandleSqlExecution(String tableName) {
+        //StringBuilder stringBuilder = new StringBuilder("select COLUMN_NAME,DATA_TYPE ,COLUMN_COMMENT from information_schema.COLUMNS  where ");
+        final String sql = "select COLUMN_NAME,DATA_TYPE ,COLUMN_COMMENT from information_schema.COLUMNS  where  TABLE_SCHEMA = ? and table_name = ?";
+        String dbName = "jk-cloud-biz";
             Connection conn;
             try {
                 DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
                 dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
                 conn = dbsApi.getCurrentDataSource().getConnection();
+                dbName = conn.getCatalog();
+                String test = conn.getSchema();
             } catch (SQLException e) {
                 throw new CommonException(e.getMessage());
             }
             try {
                 AtomicReference<List<Map<String, String>>> result = new AtomicReference<>(new ArrayList<>());
                 conn.setAutoCommit(false);
+                String finalDbName = dbName;
                 StrUtil.split(sql.trim(), ";").forEach(sqlItem -> {
                     if(ObjectUtil.isNotEmpty(sqlItem)) {
                         try {
@@ -63,7 +69,7 @@ public class CommonHandleUtil {
                                     }
                                     return list;
                                 }
-                            }, tableName));
+                            }, finalDbName,tableName));
 
                         } catch (SQLException e) {
                             throw new CommonException(e.getMessage());
@@ -77,7 +83,6 @@ public class CommonHandleUtil {
             } finally {
                 DbUtil.close(conn);
             }
-        }
         return new ArrayList<>();
     }
 

@@ -2,7 +2,7 @@ spring:
   application:
     name: snowy-urp-app
   profiles:
-    active: dev
+    active: test
   cloud:
     nacos:
       config:
