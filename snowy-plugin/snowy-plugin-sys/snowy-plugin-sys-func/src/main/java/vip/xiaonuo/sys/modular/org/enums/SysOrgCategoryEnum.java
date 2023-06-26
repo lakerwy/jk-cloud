@@ -28,7 +28,10 @@ public enum SysOrgCategoryEnum {
     COMPANY("COMPANY"),
 
     /** 部门 */
-    DEPT("DEPT");
+    DEPT("DEPT"),
+
+    /**合作伙伴*/
+    PARTNER("PARTNER");
 
     private final String value;
 
@@ -37,7 +40,7 @@ public enum SysOrgCategoryEnum {
     }
 
     public static void validate(String value) {
-        boolean flag = COMPANY.getValue().equals(value) || DEPT.getValue().equals(value);
+        boolean flag = COMPANY.getValue().equals(value) || DEPT.getValue().equals(value) || PARTNER.getValue().equals(value);
         if(!flag) {
             throw new CommonException("不支持的组织分类：{}", value);
         }

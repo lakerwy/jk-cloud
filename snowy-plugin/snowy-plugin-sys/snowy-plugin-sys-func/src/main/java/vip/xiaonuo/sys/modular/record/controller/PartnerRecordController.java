@@ -1,0 +1,131 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.sys.modular.record.controller;
+
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.sys.modular.record.entity.PartnerRecord;
+import vip.xiaonuo.sys.modular.record.param.PartnerRecordAddParam;
+import vip.xiaonuo.sys.modular.record.param.PartnerRecordEditParam;
+import vip.xiaonuo.sys.modular.record.param.PartnerRecordIdParam;
+import vip.xiaonuo.sys.modular.record.param.PartnerRecordPageParam;
+import vip.xiaonuo.sys.modular.record.service.PartnerRecordService;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+
+/**
+ * 合作伙伴-维护记录控制器
+ *
+ * @author mayike
+ * @date  2023/06/26 14:08
+ */
+@Api(tags = "合作伙伴-维护记录控制器")
+@ApiSupport(author = "SNOWY_TEAM", order = 1)
+@RestController
+@Validated
+public class PartnerRecordController {
+
+    @Resource
+    private PartnerRecordService partnerRecordService;
+
+    /**
+     * 获取合作伙伴-维护记录分页
+     *
+     * @author mayike
+     * @date  2023/06/26 14:08
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取合作伙伴-维护记录分页")
+    @SaCheckPermission("/sys/record/page")
+    @GetMapping("/sys/record/page")
+    public CommonResult<Page<PartnerRecord>> page(PartnerRecordPageParam partnerRecordPageParam) {
+        return CommonResult.data(partnerRecordService.page(partnerRecordPageParam));
+    }
+
+    /**
+     * 添加合作伙伴-维护记录
+     *
+     * @author mayike
+     * @date  2023/06/26 14:08
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("添加合作伙伴-维护记录")
+    @CommonLog("添加合作伙伴-维护记录")
+    @SaCheckPermission("/sys/record/add")
+    @PostMapping("/sys/record/add")
+    public CommonResult<String> add(@RequestBody @Valid PartnerRecordAddParam partnerRecordAddParam) {
+        partnerRecordService.add(partnerRecordAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑合作伙伴-维护记录
+     *
+     * @author mayike
+     * @date  2023/06/26 14:08
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("编辑合作伙伴-维护记录")
+    @CommonLog("编辑合作伙伴-维护记录")
+    @SaCheckPermission("/sys/record/edit")
+    @PostMapping("/sys/record/edit")
+    public CommonResult<String> edit(@RequestBody @Valid PartnerRecordEditParam partnerRecordEditParam) {
+        partnerRecordService.edit(partnerRecordEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除合作伙伴-维护记录
+     *
+     * @author mayike
+     * @date  2023/06/26 14:08
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("删除合作伙伴-维护记录")
+    @CommonLog("删除合作伙伴-维护记录")
+    @SaCheckPermission("/sys/record/delete")
+    @PostMapping("/sys/record/delete")
+    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                                   CommonValidList<PartnerRecordIdParam> partnerRecordIdParamList) {
+        partnerRecordService.delete(partnerRecordIdParamList);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取合作伙伴-维护记录详情
+     *
+     * @author mayike
+     * @date  2023/06/26 14:08
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取合作伙伴-维护记录详情")
+    @SaCheckPermission("/sys/record/detail")
+    @GetMapping("/sys/record/detail")
+    public CommonResult<PartnerRecord> detail(@Valid PartnerRecordIdParam partnerRecordIdParam) {
+        return CommonResult.data(partnerRecordService.detail(partnerRecordIdParam));
+    }
+}

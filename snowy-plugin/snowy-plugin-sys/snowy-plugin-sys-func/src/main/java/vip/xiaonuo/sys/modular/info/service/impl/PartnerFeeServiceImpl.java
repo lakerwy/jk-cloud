@@ -1,0 +1,94 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.sys.modular.info.service.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.info.entity.PartnerFee;
+import vip.xiaonuo.sys.modular.info.mapper.PartnerFeeMapper;
+import vip.xiaonuo.sys.modular.info.param.PartnerFeeAddParam;
+import vip.xiaonuo.sys.modular.info.param.PartnerFeeEditParam;
+import vip.xiaonuo.sys.modular.info.param.PartnerFeeIdParam;
+import vip.xiaonuo.sys.modular.info.param.PartnerFeePageParam;
+import vip.xiaonuo.sys.modular.info.service.PartnerFeeService;
+
+import java.util.List;
+
+/**
+ * 合作伙伴-管理费缴纳情况Service接口实现类
+ *
+ * @author mayike
+ * @date  2023/06/26 14:07
+ **/
+@Service
+public class PartnerFeeServiceImpl extends ServiceImpl<PartnerFeeMapper, PartnerFee> implements PartnerFeeService {
+
+    @Override
+    public Page<PartnerFee> page(PartnerFeePageParam partnerFeePageParam) {
+        QueryWrapper<PartnerFee> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isAllNotEmpty(partnerFeePageParam.getSortField(), partnerFeePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(partnerFeePageParam.getSortOrder());
+            queryWrapper.orderBy(true, partnerFeePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(partnerFeePageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByAsc(PartnerFee::getId);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void add(PartnerFeeAddParam partnerFeeAddParam) {
+        PartnerFee partnerFee = BeanUtil.toBean(partnerFeeAddParam, PartnerFee.class);
+        this.save(partnerFee);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void edit(PartnerFeeEditParam partnerFeeEditParam) {
+        PartnerFee partnerFee = this.queryEntity(partnerFeeEditParam.getId());
+        BeanUtil.copyProperties(partnerFeeEditParam, partnerFee);
+        this.updateById(partnerFee);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void delete(List<PartnerFeeIdParam> partnerFeeIdParamList) {
+        // 执行删除
+        this.removeByIds(CollStreamUtil.toList(partnerFeeIdParamList, PartnerFeeIdParam::getId));
+    }
+
+    @Override
+    public PartnerFee detail(PartnerFeeIdParam partnerFeeIdParam) {
+        return this.queryEntity(partnerFeeIdParam.getId());
+    }
+
+    @Override
+    public PartnerFee queryEntity(String id) {
+        PartnerFee partnerFee = this.getById(id);
+        if(ObjectUtil.isEmpty(partnerFee)) {
+            throw new CommonException("合作伙伴-管理费缴纳情况不存在，id值为：{}", id);
+        }
+        return partnerFee;
+    }
+}

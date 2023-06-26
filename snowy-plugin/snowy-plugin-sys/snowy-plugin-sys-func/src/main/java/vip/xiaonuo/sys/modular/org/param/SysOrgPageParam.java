@@ -49,4 +49,5 @@ public class SysOrgPageParam {
     /** 名称关键词 */
     @ApiModelProperty(value = "名称关键词")
     private String searchKey;
+
 }

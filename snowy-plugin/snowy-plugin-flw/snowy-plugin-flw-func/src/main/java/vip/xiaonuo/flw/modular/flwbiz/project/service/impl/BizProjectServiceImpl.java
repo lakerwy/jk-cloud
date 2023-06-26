@@ -63,6 +63,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSource())) {
             queryWrapper.lambda().like(BizProject::getSource, bizProjectPageParam.getSource());
         }
+        queryWrapper.lambda().eq(BizProject::getStatus,"1");
         if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

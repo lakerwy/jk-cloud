@@ -58,6 +58,8 @@ public class CommonPageRequest {
                 log.error(">>> 分页条数转换异常：", e);
                 size = 20;
             }
+        }else {
+            size = Integer.MAX_VALUE;
         }
 
         //第几页
@@ -69,6 +71,8 @@ public class CommonPageRequest {
                 log.error(">>> 分页页数转换异常：", e);
                 page = 1;
             }
+        }else {
+            page = 1;
         }
         Page<T> objectPage = new Page<>(page, size);
         if (ObjectUtil.isNotEmpty(orderItemList)) {
