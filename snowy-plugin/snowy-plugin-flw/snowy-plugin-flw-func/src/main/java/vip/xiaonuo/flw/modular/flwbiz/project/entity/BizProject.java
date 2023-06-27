@@ -13,6 +13,7 @@
 package vip.xiaonuo.flw.modular.flwbiz.project.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -228,4 +229,13 @@ public class BizProject {
     /** 计划附件 */
     @ApiModelProperty(value = "计划附件", position = 48)
     private String planAttachment;
+
+    /** 申请人 */
+    @ApiModelProperty(value = "申请人", position = 50)
+    private String applyUser;
+
+    /** 申请时间 */
+    @ApiModelProperty(value = "申请时间", position = 51)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    private String applyTime;
 }

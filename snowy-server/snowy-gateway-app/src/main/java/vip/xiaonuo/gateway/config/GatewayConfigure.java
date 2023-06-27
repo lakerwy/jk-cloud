@@ -141,7 +141,9 @@ public class GatewayConfigure {
             "/api/webapp/sys/third/bindECard",
 
             "/api/net/api/applet/ecard/GetAppletCardOpenIdByCode",
-            "/api/net//api/applet/ecard/GetEcardByUserId",
+            "/api/net/api/applet/ecard/GetEcardByUserId",
+            "/api/net/api/sys/resume/SaveResume",
+            "/api/net/api/sys/attach/AttachUpLoad"
     };
 
     /**

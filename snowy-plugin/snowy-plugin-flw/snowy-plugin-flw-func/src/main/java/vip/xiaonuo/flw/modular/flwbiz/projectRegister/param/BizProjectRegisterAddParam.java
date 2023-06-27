@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.flw.modular.flwbiz.projectRegister.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -180,4 +181,13 @@ public class BizProjectRegisterAddParam {
 
     @ApiModelProperty(value = "流程实例ID", position = 60)
     private String processInstanceId;
+
+    /** 申请人 */
+    @ApiModelProperty(value = "申请人", position = 70)
+    private String applyUser;
+
+    /** 申请时间 */
+    @ApiModelProperty(value = "申请时间", position = 71)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    private String applyTime;
 }

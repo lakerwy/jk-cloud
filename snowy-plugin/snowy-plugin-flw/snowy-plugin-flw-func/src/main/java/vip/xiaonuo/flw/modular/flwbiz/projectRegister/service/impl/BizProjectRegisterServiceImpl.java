@@ -67,6 +67,7 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         if(ObjectUtil.isNotEmpty(bizProjectRegisterPageParam.getScale())) {
             queryWrapper.lambda().like(BizProjectRegister::getScale, bizProjectRegisterPageParam.getScale());
         }
+        queryWrapper.lambda().eq(BizProjectRegister::getStatus,"1");
         if(ObjectUtil.isAllNotEmpty(bizProjectRegisterPageParam.getSortField(), bizProjectRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

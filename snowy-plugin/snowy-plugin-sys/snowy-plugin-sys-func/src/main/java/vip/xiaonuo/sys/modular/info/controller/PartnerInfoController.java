@@ -60,8 +60,8 @@ public class PartnerInfoController {
      * @author mayike
      * @date  2023/06/26 14:04
      */
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("获取合作伙伴-基本信息分页")
+   // @ApiOperationSupport(order = 1)
+   // @ApiOperation("获取合作伙伴-基本信息分页")
     @GetMapping("/sys/info/page")
     public CommonResult<Page<PartnerInfo>> page(PartnerInfoPageParam partnerInfoPageParam) {
         return CommonResult.data(partnerInfoService.page(partnerInfoPageParam));
@@ -133,7 +133,7 @@ public class PartnerInfoController {
      * @date  2023/06/26 14:04
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取合作伙伴-基本信息详情")
+    @ApiOperation("获取合作伙伴-分页")
     @GetMapping("/sys/info/listPage")
     public CommonResult<IPage<PartnerInfoVo>> listPage(@Valid PartnerInfoPageParam partnerInfoPageParam) {
         return CommonResult.data(partnerInfoService.pageList(partnerInfoPageParam));

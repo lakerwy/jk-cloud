@@ -690,9 +690,17 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
                 }
 
             }
+            HashMap<String, Object> query = new HashMap<>();
+            query.put("ACT_MODEL_ID",flwModel.getId());
+            List<FormRelationTable> formRelationTables = listByMap(query);
+            String tableName = null;
+            if(CollUtil.isNotEmpty(formRelationTables)){
+                tableName = formRelationTables.get(0).getTableName();
+            }
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 //更新
                 formRelationTable.setFormUrl(str);
+                formRelationTable.setTableName(tableName);
                 updateById(formRelationTable);
             }else {
                 formRelationTable = new FormRelationTable();
@@ -701,6 +709,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
                 formRelationTable.setDefinitionId(flwModel.getDefinitionId());
                 formRelationTable.setFormUrl(str);
                 formRelationTable.setDefinitionId(flwModel.getDefinitionId());
+                formRelationTable.setTableName(tableName);
                 save(formRelationTable);
             }
 

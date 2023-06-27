@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.record.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,6 +43,7 @@ public class PartnerRecordEditParam {
 
     /** 维护日期 */
     @ApiModelProperty(value = "维护日期", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date optTime;
 
     /** 事项 */

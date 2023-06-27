@@ -27,13 +27,10 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.info.entity.PartnerFee;
+import vip.xiaonuo.sys.modular.info.param.*;
 import vip.xiaonuo.sys.modular.info.service.PartnerFeeService;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 import vip.xiaonuo.sys.modular.info.mapper.PartnerInfoMapper;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoAddParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoEditParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoIdParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoPageParam;
 import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
 import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
@@ -42,9 +39,9 @@ import vip.xiaonuo.sys.modular.record.entity.PartnerRecord;
 import vip.xiaonuo.sys.modular.record.service.PartnerRecordService;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 合作伙伴-基本信息Service接口实现类
@@ -89,9 +86,11 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     @Override
     public void add(PartnerInfoAddParam partnerInfoAddParam) {
         PartnerInfo partnerInfo = BeanUtil.toBean(partnerInfoAddParam, PartnerInfo.class);
-        List<PartnerFee> partnerFees = partnerInfoAddParam.getPartnerFees();
+        List<PartnerFeeAddParam> partnerFeeAddParams = partnerInfoAddParam.getPartnerFees();
         this.save(partnerInfo);
-        if(CollUtil.isNotEmpty(partnerFees)){
+        if(CollUtil.isNotEmpty(partnerFeeAddParams)){
+            //partnerFees.forEach(partnerFee -> partnerFee.setOrgId(partnerInfo.getOrgId()));
+            List<PartnerFee> partnerFees = partnerFeeAddParams.stream().map(partnerFeeAddParam -> BeanUtil.toBean(partnerFeeAddParam, PartnerFee.class)).collect(Collectors.toList());
             partnerFees.forEach(partnerFee -> partnerFee.setOrgId(partnerInfo.getOrgId()));
             partnerFeeService.saveBatch(partnerFees);
         }
@@ -106,10 +105,37 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
         List<PartnerFee> partnerFees = partnerInfoEditParam.getPartnerFees();
         QueryWrapper<PartnerFee> wrapper = new QueryWrapper<>();
         wrapper.eq("ORG_ID",partnerInfo.getOrgId());
-        partnerFeeService.remove(wrapper);
+       List<PartnerFee> list = partnerFeeService.list(wrapper);
+//        partnerFeeService.remove(wrapper);
         if(CollUtil.isNotEmpty(partnerFees)){
             partnerFees.forEach(partnerFee -> partnerFee.setOrgId(partnerInfo.getOrgId()));
-            partnerFeeService.saveBatch(partnerFees);
+//            不能使用     saveOrUpdateBatch     逻辑删除导致批量主键冲突
+//            partnerFeeService.saveOrUpdateBatch(partnerFees);
+            Set<String> ids = new HashSet<>();
+            if(CollUtil.isNotEmpty(list)){
+                ids = list.stream().map(PartnerFee::getId).collect(Collectors.toSet());
+            }
+            //List<PartnerFee> savePartnerFees = new ArrayList<>();
+            List<PartnerFee> updatePartnerFees = new ArrayList<>();
+            updatePartnerFees = partnerFees.stream().filter(partnerFee -> StrUtil.isNotBlank(partnerFee.getId())).collect(Collectors.toList());
+            Set<String> collect = updatePartnerFees.stream().map(PartnerFee::getId).collect(Collectors.toSet());
+            ids.removeAll(collect);
+            partnerFees.removeAll(updatePartnerFees);
+            if(CollUtil.isNotEmpty(updatePartnerFees)){
+                partnerFeeService.updateBatchById(updatePartnerFees);
+            }
+            if(CollUtil.isNotEmpty(partnerFees)){
+                partnerFeeService.saveBatch(partnerFees);
+            }
+            if(CollUtil.isNotEmpty(ids)){
+                partnerFeeService.removeByIds(ids);
+            }
+//            partnerFees.forEach(partnerFee -> {
+//                if(StrUtil.isNotBlank(partnerFee.getId())){
+//                    savePartnerFees.
+//                }
+//            });
+
         }
     }
 
@@ -153,7 +179,8 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     public PartnerInfoVo getInfoById(PartnerInfoIdParam partnerInfoIdParam) {
         PartnerInfoVo vo = partnerInfoMapper.infoById(partnerInfoIdParam.getOrgId());
         if(ObjectUtil.isEmpty(vo)) {
-            throw new CommonException("合作伙伴-基本信息不存在，id值为：{}", partnerInfoIdParam.getOrgId());
+           // throw new CommonException("合作伙伴-基本信息不存在，id值为：{}", partnerInfoIdParam.getOrgId());
+            return null;
         }
         return vo;
     }

@@ -33,6 +33,9 @@
         <result column="DELETE_FLAG" jdbcType="VARCHAR" property="deleteFlag" />
         <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
         <result column="CREATE_USER" jdbcType="VARCHAR" property="createUser" />
+        <result column="STAGES" jdbcType="VARCHAR" property="stages" />
+        <result column="CSERVICE" jdbcType="VARCHAR" property="cservice" />
+        <result column="CONTACT" jdbcType="VARCHAR" property="contact" />
         <collection property="partnerFees" column="ID" select="getFees" />
         <collection property="partnerRecords" column="ID" select="getRecords" />
     </resultMap>

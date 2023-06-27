@@ -43,50 +43,61 @@ public class PartnerInfoEditParam {
     @ApiModelProperty(value = "地址", position = 4)
     private String address;
 
+    /** 阶段 */
+    @ApiModelProperty(value = "阶段", position = 5)
+    private String stages;
+
+    /** 协同客服 */
+    @ApiModelProperty(value = "协同客服", position = 6)
+    private String cservice;
+
+    /** 主要联系人 */
+    @ApiModelProperty(value = "主要联系人", position = 7)
+    private String contact;
     /** 电话 */
-    @ApiModelProperty(value = "电话", position = 5)
+    @ApiModelProperty(value = "电话", position = 8)
     private String telNumber;
 
     /** 伙伴状态 */
-    @ApiModelProperty(value = "伙伴状态", position = 6)
+    @ApiModelProperty(value = "伙伴状态", position = 9)
     private String partnerStatus;
 
     /** 手机号码 */
-    @ApiModelProperty(value = "手机号码", position = 7)
+    @ApiModelProperty(value = "手机号码", position = 10)
     private String phoneNumber;
 
     /** 职务 */
-    @ApiModelProperty(value = "职务", position = 8)
+    @ApiModelProperty(value = "职务", position = 11)
     private String post;
 
     /** 电子邮箱 */
-    @ApiModelProperty(value = "电子邮箱", position = 9)
+    @ApiModelProperty(value = "电子邮箱", position = 12)
     private String email;
 
     /** 伙伴分级 */
-    @ApiModelProperty(value = "伙伴分级", position = 10)
+    @ApiModelProperty(value = "伙伴分级", position = 13)
     private String partnerLevel;
 
     /** 重要程度 */
-    @ApiModelProperty(value = "重要程度", position = 11)
+    @ApiModelProperty(value = "重要程度", position = 14)
     private String vitalLevel;
 
     /** 开户银行 */
-    @ApiModelProperty(value = "开户银行", position = 12)
+    @ApiModelProperty(value = "开户银行", position = 15)
     private String bankName;
 
     /** 账号 */
-    @ApiModelProperty(value = "账号", position = 13)
+    @ApiModelProperty(value = "账号", position = 16)
     private String bankNumber;
 
     /** 收款单位 */
-    @ApiModelProperty(value = "收款单位", position = 14)
+    @ApiModelProperty(value = "收款单位", position = 17)
     private String receivingUnits;
 
     /** 邮递地址 */
-    @ApiModelProperty(value = "邮递地址", position = 15)
+    @ApiModelProperty(value = "邮递地址", position = 18)
     private String mailingAddress;
 
-    @ApiModelProperty(value = "管理费缴纳情况实体", position = 16)
+    @ApiModelProperty(value = "管理费缴纳情况实体", position = 19)
     private List<PartnerFee> partnerFees;
 }

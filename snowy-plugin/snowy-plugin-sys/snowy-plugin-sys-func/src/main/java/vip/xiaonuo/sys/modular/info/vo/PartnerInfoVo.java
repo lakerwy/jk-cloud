@@ -152,4 +152,16 @@ public class PartnerInfoVo{
     @ApiModelProperty(value = "修改用户", position = 34)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 阶段 */
+    @ApiModelProperty(value = "阶段", position = 34)
+    private String stages;
+
+    /** 协同客服 */
+    @ApiModelProperty(value = "协同客服", position = 36)
+    private String cservice;
+
+    /** 主要联系人 */
+    @ApiModelProperty(value = "主要联系人", position = 37)
+    private String contact;
 }

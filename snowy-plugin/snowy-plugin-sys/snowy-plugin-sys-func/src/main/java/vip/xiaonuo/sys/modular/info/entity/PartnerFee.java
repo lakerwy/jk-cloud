@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.info.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,10 +42,12 @@ public class PartnerFee {
 
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date startTime;
 
     /** 结束时间 */
     @ApiModelProperty(value = "结束时间", position = 4)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date endTime;
 
     /** 管理费率 */

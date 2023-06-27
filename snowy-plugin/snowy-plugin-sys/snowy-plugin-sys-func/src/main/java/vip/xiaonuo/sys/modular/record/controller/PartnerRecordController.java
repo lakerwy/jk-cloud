@@ -60,7 +60,6 @@ public class PartnerRecordController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取合作伙伴-维护记录分页")
-    @SaCheckPermission("/sys/record/page")
     @GetMapping("/sys/record/page")
     public CommonResult<Page<PartnerRecord>> page(PartnerRecordPageParam partnerRecordPageParam) {
         return CommonResult.data(partnerRecordService.page(partnerRecordPageParam));
@@ -75,7 +74,6 @@ public class PartnerRecordController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加合作伙伴-维护记录")
     @CommonLog("添加合作伙伴-维护记录")
-    @SaCheckPermission("/sys/record/add")
     @PostMapping("/sys/record/add")
     public CommonResult<String> add(@RequestBody @Valid PartnerRecordAddParam partnerRecordAddParam) {
         partnerRecordService.add(partnerRecordAddParam);
@@ -91,7 +89,6 @@ public class PartnerRecordController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑合作伙伴-维护记录")
     @CommonLog("编辑合作伙伴-维护记录")
-    @SaCheckPermission("/sys/record/edit")
     @PostMapping("/sys/record/edit")
     public CommonResult<String> edit(@RequestBody @Valid PartnerRecordEditParam partnerRecordEditParam) {
         partnerRecordService.edit(partnerRecordEditParam);
@@ -107,7 +104,6 @@ public class PartnerRecordController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除合作伙伴-维护记录")
     @CommonLog("删除合作伙伴-维护记录")
-    @SaCheckPermission("/sys/record/delete")
     @PostMapping("/sys/record/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<PartnerRecordIdParam> partnerRecordIdParamList) {
@@ -123,7 +119,6 @@ public class PartnerRecordController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取合作伙伴-维护记录详情")
-    @SaCheckPermission("/sys/record/detail")
     @GetMapping("/sys/record/detail")
     public CommonResult<PartnerRecord> detail(@Valid PartnerRecordIdParam partnerRecordIdParam) {
         return CommonResult.data(partnerRecordService.detail(partnerRecordIdParam));
