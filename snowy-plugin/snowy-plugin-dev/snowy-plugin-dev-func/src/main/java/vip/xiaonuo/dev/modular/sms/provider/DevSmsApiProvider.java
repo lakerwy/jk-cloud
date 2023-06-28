@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import vip.xiaonuo.dev.api.DevSmsApi;
 import vip.xiaonuo.dev.modular.sms.param.DevSmsSendAliyunParam;
 import vip.xiaonuo.dev.modular.sms.param.DevSmsSendTencentParam;
+import vip.xiaonuo.dev.modular.sms.param.DevSmsSendYunPianParam;
 import vip.xiaonuo.dev.modular.sms.service.DevSmsService;
 
 import javax.annotation.Resource;
@@ -51,5 +52,15 @@ public class DevSmsApiProvider implements DevSmsApi {
         devSmsSendTencentParam.setTemplateCode(templateCode);
         devSmsSendTencentParam.setTemplateParam(templateParam);
         devSmsService.sendTencent(devSmsSendTencentParam);
+    }
+
+    @Override
+    public void sendSmsYunPian(String apiKey, String mobile, String tpl_id, String tpl_value) {
+        DevSmsSendYunPianParam devSmsSendYunPianParam = new DevSmsSendYunPianParam();
+        devSmsSendYunPianParam.setApiKey(apiKey);
+        devSmsSendYunPianParam.setPhoneNumbers(mobile);
+        devSmsSendYunPianParam.setTemplateCode(tpl_id);
+        devSmsSendYunPianParam.setTemplateParam(tpl_value);
+        devSmsService.sendYunPian(devSmsSendYunPianParam);
     }
 }

@@ -113,6 +113,7 @@ import java.io.BufferedOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URLEncoder;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -137,6 +138,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     private static final String USER_VALID_CODE_CACHE_KEY = "user-validCode:";
 
     private static final String ORG_FIRST_CODE_CACHE_KEY = "org_FirstCode:";
+
+    /* 云片短信：验证码短信模板 */
+    private static final String SNOWY_SMS_YUNPIAN_TPL_CODE_ID = "SNOWY_SMS_YUNPIAN_TPL_CODE_ID";
+
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
@@ -475,6 +480,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         // TODO 使用腾讯云执行发送验证码，将验证码作为短信内容的参数变量放入，
         // TODO sdkAppId和签名不传则使用系统默认配置的sdkAppId和签名，支持传入多个参数，逗号拼接，示例："张三,15038****76,进行中"
         //devSmsApi.sendSmsTencent(null, phone, null, "验证码模板号", phoneValidCode);
+
+        // TODO 使用云片执行发送验证码，将验证码作为短信内容的参数变量放入，
+        String tpl_Id = devConfigApi.getValueByKey(SNOWY_SMS_YUNPIAN_TPL_CODE_ID);
+        String tpl_Value = URLEncoder.encode("#code#") + "="  + URLEncoder.encode(phoneValidCode);
+        devSmsApi.sendSmsYunPian("", phone, tpl_Id, tpl_Value);
 
         // 将请求号作为key，验证码的值作为value放到redis，用于校验，5分钟有效
         commonCacheOperator.put(USER_VALID_CODE_CACHE_KEY + phone + StrUtil.UNDERLINE + phoneValidCodeReqNo, phoneValidCode, 5 * 60);

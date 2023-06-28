@@ -26,10 +26,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.modular.sms.entity.DevSms;
-import vip.xiaonuo.dev.modular.sms.param.DevSmsIdParam;
-import vip.xiaonuo.dev.modular.sms.param.DevSmsPageParam;
-import vip.xiaonuo.dev.modular.sms.param.DevSmsSendAliyunParam;
-import vip.xiaonuo.dev.modular.sms.param.DevSmsSendTencentParam;
+import vip.xiaonuo.dev.modular.sms.param.*;
 import vip.xiaonuo.dev.modular.sms.service.DevSmsService;
 
 import javax.annotation.Resource;
@@ -121,5 +118,20 @@ public class DevSmsController {
     @GetMapping("/dev/sms/detail")
     public CommonResult<DevSms> detail(@Valid DevSmsIdParam devSmsIdParam) {
         return CommonResult.data(devSmsService.detail(devSmsIdParam));
+    }
+
+    /**
+     * 发送短信——云片(单一发送)
+     *
+     * @author yong.ye
+     * @date 2023/6/27 15:47
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("发送云片短信")
+    @CommonLog("发送云片短信")
+    @PostMapping("/dev/sms/sendYunPian")
+    public CommonResult<String> sendYunPian(@RequestBody @Valid DevSmsSendYunPianParam devSmsSendYunPianParam) {
+        devSmsService.sendYunPian(devSmsSendYunPianParam);
+        return CommonResult.ok();
     }
 }

@@ -28,13 +28,11 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.modular.sms.entity.DevSms;
 import vip.xiaonuo.dev.modular.sms.enums.DevSmsEngineTypeEnum;
 import vip.xiaonuo.dev.modular.sms.mapper.DevSmsMapper;
-import vip.xiaonuo.dev.modular.sms.param.DevSmsIdParam;
-import vip.xiaonuo.dev.modular.sms.param.DevSmsPageParam;
-import vip.xiaonuo.dev.modular.sms.param.DevSmsSendAliyunParam;
-import vip.xiaonuo.dev.modular.sms.param.DevSmsSendTencentParam;
+import vip.xiaonuo.dev.modular.sms.param.*;
 import vip.xiaonuo.dev.modular.sms.service.DevSmsService;
 import vip.xiaonuo.dev.modular.sms.util.DevSmsAliyunUtil;
 import vip.xiaonuo.dev.modular.sms.util.DevSmsTencentUtil;
+import vip.xiaonuo.dev.modular.sms.util.DevSmsYunPianUtil;
 
 import java.util.List;
 
@@ -107,6 +105,21 @@ public class DevSmsServiceImpl extends ServiceImpl<DevSmsMapper, DevSms> impleme
             throw new CommonException("短信不存在，id值为：{}", id);
         }
         return devSms;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void sendYunPian(DevSmsSendYunPianParam smsSendYunPianParam) {
+        validPhone(smsSendYunPianParam.getPhoneNumbers());
+        String receiptInfo = DevSmsYunPianUtil.sendSms(smsSendYunPianParam.getApiKey(),
+                smsSendYunPianParam.getPhoneNumbers(),
+                smsSendYunPianParam.getTemplateCode(),
+                smsSendYunPianParam.getTemplateParam());
+        DevSms devSms = new DevSms();
+        BeanUtil.copyProperties(smsSendYunPianParam, devSms);
+        devSms.setEngine(DevSmsEngineTypeEnum.YUNPIAN.getValue());
+        devSms.setReceiptInfo(receiptInfo);
+        this.save(devSms);
     }
 
     /**

@@ -51,4 +51,16 @@ public interface DevSmsApi {
      * @date 2022/2/24 13:42
      **/
     void sendSmsTencent(String sdkAppId, String phoneNumbers, String signName, String templateCode, String templateParam);
+
+    /* =========云片短信========= */
+
+    /**
+     * 发送短信（单一发送）
+     *
+     * @param apiKey 短信 apiKey，ApiKey 用户唯一标识，在"账号设置"-"子帐号管理"中查看
+     * @param mobile 手机号码
+     * @param tpl_id 短信服务控制台配置且审核通过的模板编码
+     * @param tpl_value 短信服务控制台配置且审核通过的模板参数
+     **/
+    void sendSmsYunPian(String apiKey, String mobile, String tpl_id, String tpl_value);
 }

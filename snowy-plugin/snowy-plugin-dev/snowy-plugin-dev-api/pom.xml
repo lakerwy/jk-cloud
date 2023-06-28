@@ -86,5 +86,13 @@
             <groupId>com.github.oshi</groupId>
             <artifactId>oshi-core</artifactId>
         </dependency>
+
+        <!--云片短信发送-->
+        <dependency>
+            <groupId>com.yunpian.sdk</groupId>
+            <artifactId>yunpian-java-sdk</artifactId>
+            <version>${yunpian.version}</version>
+        </dependency>
+
     </dependencies>
 </project>

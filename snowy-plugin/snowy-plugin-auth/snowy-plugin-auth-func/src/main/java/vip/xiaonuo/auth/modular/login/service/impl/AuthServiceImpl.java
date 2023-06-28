@@ -47,6 +47,7 @@ import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
 
 import javax.annotation.Resource;
+import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -62,6 +63,9 @@ public class AuthServiceImpl implements AuthService {
     private static final String SNOWY_SYS_DEFAULT_CAPTCHA_OPEN_KEY = "SNOWY_SYS_DEFAULT_CAPTCHA_OPEN";
 
     private static final String AUTH_VALID_CODE_CACHE_KEY = "auth-validCode:";
+
+    /* 云片短信：验证码短信模板 */
+    private static final String SNOWY_SMS_YUNPIAN_TPL_CODE_ID = "SNOWY_SMS_YUNPIAN_TPL_CODE_ID";
 
     @Resource(name = "loginUserApi")
     private SaBaseLoginUserApi loginUserApi;
@@ -120,7 +124,12 @@ public class AuthServiceImpl implements AuthService {
 
         // TODO 使用腾讯云执行发送验证码，将验证码作为短信内容的参数变量放入，
         // TODO sdkAppId和签名不传则使用系统默认配置的sdkAppId和签名，支持传入多个参数，逗号拼接，示例："张三,15038****76,进行中"
-        devSmsApi.sendSmsTencent("sdkAppId", phone, "签名", "模板编码", phoneValidCode);
+        //devSmsApi.sendSmsTencent("sdkAppId", phone, "签名", "模板编码", phoneValidCode);
+
+        // TODO 使用云片执行发送验证码，将验证码作为短信内容的参数变量放入，
+        String tpl_Id = devConfigApi.getValueByKey(SNOWY_SMS_YUNPIAN_TPL_CODE_ID);
+        String tpl_Value = URLEncoder.encode("#code#") + "="  + URLEncoder.encode(phoneValidCode);
+        devSmsApi.sendSmsYunPian("", phone, tpl_Id, tpl_Value);
 
         // 将请求号作为key，验证码的值作为value放到redis，用于校验，5分钟有效
         commonCacheOperator.put(AUTH_VALID_CODE_CACHE_KEY + phone + StrUtil.UNDERLINE + phoneValidCodeReqNo, phoneValidCode, 5 * 60);
