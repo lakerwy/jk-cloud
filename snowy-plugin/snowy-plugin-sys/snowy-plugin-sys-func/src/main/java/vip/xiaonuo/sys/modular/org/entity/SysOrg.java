@@ -70,18 +70,18 @@ public class SysOrg extends CommonEntity implements TransPojo {
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private String extJson;
 
-    @ApiModelProperty(value = "伙伴类型", position = 10)
-    private String partnerType;
-
-    @ApiModelProperty(value = "所属大区", position = 11)
-    private String region;
-
-    @ApiModelProperty(value = "大区经理", position = 12)
-    private String regionalManager;
-
-    @ApiModelProperty(value = "伙伴性质", position = 13)
-    private String partnerNature ;
-
-    @ApiModelProperty(value = "当前管理率", position = 14)
-    private String currentRates;
+//    @ApiModelProperty(value = "伙伴类型", position = 10)
+//    private String partnerType;
+//
+//    @ApiModelProperty(value = "所属大区", position = 11)
+//    private String region;
+//
+//    @ApiModelProperty(value = "大区经理", position = 12)
+//    private String regionalManager;
+//
+//    @ApiModelProperty(value = "伙伴性质", position = 13)
+//    private String partnerNature ;
+//
+//    @ApiModelProperty(value = "当前管理率", position = 14)
+//    private String currentRates;
 }

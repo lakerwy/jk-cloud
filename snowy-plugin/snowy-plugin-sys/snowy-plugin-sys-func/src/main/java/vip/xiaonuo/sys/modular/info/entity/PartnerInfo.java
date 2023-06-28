@@ -124,4 +124,19 @@ public class PartnerInfo {
     @ApiModelProperty(value = "修改用户", position = 23)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    @ApiModelProperty(value = "伙伴类型", position = 30)
+    private String partnerType;
+
+    @ApiModelProperty(value = "所属大区", position = 31)
+    private String region;
+
+    @ApiModelProperty(value = "大区经理", position = 32)
+    private String regionalManager;
+
+    @ApiModelProperty(value = "伙伴性质", position = 33)
+    private String partnerNature ;
+
+    @ApiModelProperty(value = "当前管理率", position = 34)
+    private String currentRates;
 }

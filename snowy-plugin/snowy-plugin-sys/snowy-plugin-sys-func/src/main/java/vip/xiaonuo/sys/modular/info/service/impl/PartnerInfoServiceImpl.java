@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
 import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
+import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.record.entity.PartnerRecord;
 import vip.xiaonuo.sys.modular.record.service.PartnerRecordService;
 
@@ -60,6 +61,10 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
 
     @Resource
     private PartnerInfoMapper partnerInfoMapper;
+
+    @Resource
+    private SysOrgService orgService;
+
     @Override
     public Page<PartnerInfo> page(PartnerInfoPageParam partnerInfoPageParam) {
         QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
@@ -99,16 +104,21 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(PartnerInfoEditParam partnerInfoEditParam) {
-        PartnerInfo partnerInfo = this.queryEntity(partnerInfoEditParam.getOrgId());
+        PartnerInfo partnerInfo = this.getById(partnerInfoEditParam.getOrgId());
+        if(ObjectUtil.isEmpty(partnerInfo)){
+            partnerInfo = new PartnerInfo();
+        }
         BeanUtil.copyProperties(partnerInfoEditParam, partnerInfo);
-        this.updateById(partnerInfo);
+        saveOrUpdate(partnerInfo);
+        //this.updateById(partnerInfo);
         List<PartnerFee> partnerFees = partnerInfoEditParam.getPartnerFees();
         QueryWrapper<PartnerFee> wrapper = new QueryWrapper<>();
         wrapper.eq("ORG_ID",partnerInfo.getOrgId());
        List<PartnerFee> list = partnerFeeService.list(wrapper);
 //        partnerFeeService.remove(wrapper);
         if(CollUtil.isNotEmpty(partnerFees)){
-            partnerFees.forEach(partnerFee -> partnerFee.setOrgId(partnerInfo.getOrgId()));
+            PartnerInfo finalPartnerInfo = partnerInfo;
+            partnerFees.forEach(partnerFee -> partnerFee.setOrgId(finalPartnerInfo.getOrgId()));
 //            不能使用     saveOrUpdateBatch     逻辑删除导致批量主键冲突
 //            partnerFeeService.saveOrUpdateBatch(partnerFees);
             Set<String> ids = new HashSet<>();
@@ -151,6 +161,7 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
         QueryWrapper<PartnerRecord> recordQueryWrapper = new QueryWrapper<>();
         recordQueryWrapper.in("ORG_ID",list);
         partnerRecordService.remove(recordQueryWrapper);
+        orgService.removeByIds(CollStreamUtil.toList(partnerInfoIdParamList, PartnerInfoIdParam::getOrgId));
     }
 
     @Override
@@ -198,6 +209,7 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
             queryWrapper.like("pi.PARTNER_LEVEL", partnerInfoPageParam.getVitalLevel());
         }
         queryWrapper.eq("so.CATEGORY", SysOrgCategoryEnum.PARTNER.getValue());
+        queryWrapper.eq("so.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isAllNotEmpty(partnerInfoPageParam.getSortField(), partnerInfoPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(partnerInfoPageParam.getSortOrder());
             queryWrapper.orderBy(true, partnerInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

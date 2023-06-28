@@ -100,4 +100,19 @@ public class PartnerInfoAddParam {
     @ApiModelProperty(value = "管理费缴纳情况实体", position = 19)
     private List<PartnerFeeAddParam> partnerFees;
 
+    @ApiModelProperty(value = "伙伴类型", position = 30)
+    private String partnerType;
+
+    @ApiModelProperty(value = "所属大区", position = 31)
+    private String region;
+
+    @ApiModelProperty(value = "大区经理", position = 32)
+    private String regionalManager;
+
+    @ApiModelProperty(value = "伙伴性质", position = 33)
+    private String partnerNature ;
+
+    @ApiModelProperty(value = "当前管理率", position = 34)
+    private String currentRates;
+
 }
