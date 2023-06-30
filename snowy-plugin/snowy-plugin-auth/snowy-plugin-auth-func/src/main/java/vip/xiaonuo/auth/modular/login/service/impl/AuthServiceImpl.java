@@ -51,6 +51,8 @@ import java.net.URLEncoder;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
+
 /**
  * 登录Service接口实现类
  *
@@ -386,6 +388,10 @@ public class AuthServiceImpl implements AuthService {
         saBaseLoginUser.setPassword(null);
         saBaseLoginUser.setPermissionCodeList(null);
         saBaseLoginUser.setDataScopeList(null);
+        String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + saBaseLoginUser.getOrgId()));
+        String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + saBaseLoginUser.getOrgId()));
+        saBaseLoginUser.setFirstOrgId(sOrgId);
+        saBaseLoginUser.setFirstOrgName(sOrgName);
         return saBaseLoginUser;
     }
 

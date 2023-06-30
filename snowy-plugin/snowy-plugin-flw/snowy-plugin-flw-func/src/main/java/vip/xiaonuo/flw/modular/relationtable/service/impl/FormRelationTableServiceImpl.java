@@ -15,6 +15,7 @@ package vip.xiaonuo.flw.modular.relationtable.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.id.NanoId;
 import cn.hutool.core.map.MapUtil;
@@ -64,6 +65,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -503,13 +505,16 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
                 sqlValue.append(o);
                 sqlValue.append("'");
             } else if (fieldType.equalsIgnoreCase("datetime")) {
-                Date date = null;
-                try {
-                    date = ft.parse((String) o);
-                } catch (ParseException e) {
-                    // throw new RuntimeException(e);
-                }
-                sqlValue.append(date);
+                sqlValue.append("'");
+                //Date date = null;
+                    if (o instanceof Long) {
+                        o = DateUtil.date((Long) o).toString();
+                    }
+                    if (o instanceof DateTime) {
+                        o = ((DateTime) o).toDateStr();
+                    }
+                sqlValue.append(o);
+                sqlValue.append("'");
             } else if (fieldType.equalsIgnoreCase("bigint")) {
                 sqlValue.append(o);
             } else {

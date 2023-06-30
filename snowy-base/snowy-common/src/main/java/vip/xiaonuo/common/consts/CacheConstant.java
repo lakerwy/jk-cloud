@@ -24,4 +24,9 @@ public class CacheConstant {
      */
     public static final String PERMISSION_RESOURCE_CACHE_KEY = "permission-resource";
 
+    /**
+     * 一级部门id的缓存--key
+     */
+    public static final String ORG_FIRST_CODE_CACHE_KEY = "org_FirstCode:";
+
 }

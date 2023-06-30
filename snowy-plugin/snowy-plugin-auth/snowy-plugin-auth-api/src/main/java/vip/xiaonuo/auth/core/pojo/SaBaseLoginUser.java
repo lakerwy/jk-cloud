@@ -252,6 +252,12 @@ public abstract class SaBaseLoginUser {
     /** 是否可登录，由继承类实现 */
     public abstract Boolean getEnabled();
 
+    /**一级部门id*/
+    private String firstOrgId;
+
+    /**一级部门名称*/
+    private String firstOrgName;
+
     /**
      * 数据范围类
      *

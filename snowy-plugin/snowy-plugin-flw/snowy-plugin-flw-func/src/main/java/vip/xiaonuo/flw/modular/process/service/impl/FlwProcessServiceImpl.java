@@ -211,6 +211,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 String dataJson = flwProcessStartParam.getDataJson();
                 JSONObject entries = JSONUtil.parseObj(dataJson);
                 entries.set("sn", sn);
+                entries.set("applyUserId",loginUser.getId());
+                entries.set("applyUser",loginUser.getName());
+                entries.set("applyTime",DateUtil.dateNew(new Date()).toDateStr());
+                flwProcessStartParam.setDataJson(JSONUtil.toJsonStr(entries));
                 jsonObject.set("initiatorDataJson", JSONUtil.toJsonStr(entries));
                 //设置sn
                 jsonObject.set("initiatorProcessSn",sn);

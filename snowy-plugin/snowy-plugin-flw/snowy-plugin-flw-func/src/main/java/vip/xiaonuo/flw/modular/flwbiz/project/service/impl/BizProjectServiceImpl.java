@@ -54,6 +54,10 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
     @Override
     public Page<BizProject> page(BizProjectPageParam bizProjectPageParam) {
         QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
+
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getStartApplyTime()) && ObjectUtil.isNotEmpty(bizProjectPageParam.getEndApplyTime())) {
+            queryWrapper.lambda().between(BizProject::getApplyTime, bizProjectPageParam.getStartApplyTime(), bizProjectPageParam.getEndApplyTime());
+        }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSn())) {
             queryWrapper.lambda().like(BizProject::getSn, bizProjectPageParam.getSn());
         }

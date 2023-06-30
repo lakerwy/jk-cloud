@@ -62,4 +62,12 @@ public class BizProjectRegisterPageParam {
     @ApiModelProperty(value = "建设规模")
     private String scale;
 
+    /** 申请时间开始 */
+    @ApiModelProperty(value = "申请时间开始")
+    private String startApplyTime;
+
+    /** 申请时间结束 */
+    @ApiModelProperty(value = "申请时间结束")
+    private String endApplyTime;
+
 }

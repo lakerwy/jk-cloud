@@ -34,6 +34,7 @@ import vip.xiaonuo.flw.modular.flwbiz.projectFunds.param.BizProjectFundsAddParam
 import vip.xiaonuo.flw.modular.flwbiz.projectFunds.param.BizProjectFundsEditParam;
 import vip.xiaonuo.flw.modular.flwbiz.projectFunds.param.BizProjectFundsPageParam;
 import vip.xiaonuo.flw.modular.flwbiz.projectFunds.service.BizProjectFundsService;
+import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
@@ -55,6 +56,9 @@ public class BizProjectFundsServiceImpl extends ServiceImpl<BizProjectFundsMappe
     @Override
     public Page<BizProjectFunds> page(BizProjectFundsPageParam bizProjectFundsPageParam) {
         QueryWrapper<BizProjectFunds> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bizProjectFundsPageParam.getStartApplyTime()) && ObjectUtil.isNotEmpty(bizProjectFundsPageParam.getEndApplyTime())) {
+            queryWrapper.lambda().between(BizProjectFunds::getApplyTime, bizProjectFundsPageParam.getStartApplyTime(), bizProjectFundsPageParam.getEndApplyTime());
+        }
         if(ObjectUtil.isNotEmpty(bizProjectFundsPageParam.getSn())) {
             queryWrapper.lambda().like(BizProjectFunds::getSn, bizProjectFundsPageParam.getSn());
         }

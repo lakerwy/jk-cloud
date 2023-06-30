@@ -64,4 +64,12 @@ public class BizProjectPageParam {
     @ApiModelProperty(value = "项目属性")
     private String source;
 
+    /** 申请时间开始 */
+    @ApiModelProperty(value = "申请时间开始")
+    private String startApplyTime;
+
+    /** 申请时间结束 */
+    @ApiModelProperty(value = "申请时间结束")
+    private String endApplyTime;
+
 }

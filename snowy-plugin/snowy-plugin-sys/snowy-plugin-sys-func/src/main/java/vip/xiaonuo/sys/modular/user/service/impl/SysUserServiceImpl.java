@@ -122,6 +122,8 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
+
 /**
  * 用户Service接口实现类
  *
@@ -137,7 +139,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     private static final String USER_VALID_CODE_CACHE_KEY = "user-validCode:";
 
-    private static final String ORG_FIRST_CODE_CACHE_KEY = "org_FirstCode:";
+    //public static final String ORG_FIRST_CODE_CACHE_KEY = "org_FirstCode:";
 
     /* 云片短信：验证码短信模板 */
     private static final String SNOWY_SMS_YUNPIAN_TPL_CODE_ID = "SNOWY_SMS_YUNPIAN_TPL_CODE_ID";
@@ -1401,11 +1403,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         String primaryPositionName = primaryPosition.getName();
         SysUserPositionResult primarySysUserPositionResult = new SysUserPositionResult();
         String orgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + primaryOrgId));
-        if(StrUtil.isBlank(orgId)){
+        if(StrUtil.isBlank(orgId) || "null".equals(orgId)){
             orgId = primaryOrgId;
         }
         String orgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + primaryOrgId));
-        if(StrUtil.isBlank(orgName)){
+        if(StrUtil.isBlank(orgName) || "null".equals(orgName)){
             orgName = primaryOrgName;
         }
         primarySysUserPositionResult.setOrgId(orgId);
@@ -1438,8 +1440,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     }
                     String slavePositionName = slavePosition.getName();
                     SysUserPositionResult slaveSysUserPositionResult = new SysUserPositionResult();
-                    slaveSysUserPositionResult.setOrgId(String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgId" + slaveOrgId)));
-                    slaveSysUserPositionResult.setOrgName(String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgName" + slaveOrgId)));
+                    String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + slaveOrgId));
+                    String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + slaveOrgId));
+                    slaveSysUserPositionResult.setOrgId((StrUtil.isNotBlank(sOrgId) && "null".equals(sOrgId))?sOrgId:slaveOrgId);
+                    slaveSysUserPositionResult.setOrgName((StrUtil.isNotBlank(sOrgName) && "null".equals(sOrgName))?sOrgName:slaveOrgName);
                     slaveSysUserPositionResult.setPositionId(slavePositionId);
                     slaveSysUserPositionResult.setPositionName(slavePositionName);
                     slaveSysUserPositionResult.setCategory(slaveSysOrg.getCategory());

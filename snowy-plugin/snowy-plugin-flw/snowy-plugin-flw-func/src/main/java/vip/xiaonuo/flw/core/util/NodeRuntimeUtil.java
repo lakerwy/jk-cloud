@@ -1039,6 +1039,7 @@ public class NodeRuntimeUtil {
             }
             try {
                 conn.setAutoCommit(false);
+
                 StrUtil.split(sql.trim(), ";").forEach(sqlItem -> {
                     if(ObjectUtil.isNotEmpty(sqlItem)) {
                         try {

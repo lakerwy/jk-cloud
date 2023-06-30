@@ -38,7 +38,7 @@ public class CommonHandleUtil {
                 dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
                 conn = dbsApi.getCurrentDataSource().getConnection();
                 dbName = conn.getCatalog();
-                String test = conn.getSchema();
+               // String test = conn.getSchema();
             } catch (SQLException e) {
                 throw new CommonException(e.getMessage());
             }
