@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.AuditLists.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -42,7 +43,7 @@ public class BizAuditListsEditParam {
 
     /** 图审ID */
     @ApiModelProperty(value = "图审ID", position = 3)
-    private Integer reviewId;
+    private String reviewId;
 
     /** SN单号 */
     @ApiModelProperty(value = "SN单号", position = 4)
@@ -90,6 +91,7 @@ public class BizAuditListsEditParam {
 
     /** 提交时间 */
     @ApiModelProperty(value = "提交时间", position = 15)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date optDate;
 
     /** ATTACHMENT1 */
@@ -110,6 +112,7 @@ public class BizAuditListsEditParam {
 
     /** OPERATE_TIME */
     @ApiModelProperty(value = "OPERATE_TIME", position = 20)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date operateTime;
 
     /** 模型id */
@@ -126,6 +129,7 @@ public class BizAuditListsEditParam {
 
     /** 申请时间 */
     @ApiModelProperty(value = "申请时间", position = 29)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date applyTime;
 
 }

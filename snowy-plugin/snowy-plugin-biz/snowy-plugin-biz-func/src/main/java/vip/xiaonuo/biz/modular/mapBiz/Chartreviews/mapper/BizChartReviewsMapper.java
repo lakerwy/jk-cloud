@@ -12,8 +12,15 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
 
 /**
  * 业务表-图审受理单
@@ -23,4 +30,8 @@ Mapper接口
  * @date  2023/06/30 16:07
  **/
 public interface BizChartReviewsMapper extends BaseMapper<BizChartReviews> {
+
+    BizChartReviewsDetailsVo getCRMDetailById(String id);
+
+    Page<BizChartReviewsVo> getPageList(Page<BizChartReviews> page, @Param(Constants.WRAPPER) Wrapper<BizChartReviews> queryWrapper);
 }

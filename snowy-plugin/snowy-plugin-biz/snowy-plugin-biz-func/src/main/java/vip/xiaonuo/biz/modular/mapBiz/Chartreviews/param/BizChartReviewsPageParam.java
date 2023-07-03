@@ -69,4 +69,15 @@ public class BizChartReviewsPageParam {
     @ApiModelProperty(value = "项目负责人")
     private String projectLeader;
 
+    @ApiModelProperty(value = "项目名称")
+    private String projectName;
+
+    /** 项目(合同)编号 */
+    @ApiModelProperty(value = "项目(合同)编号")
+    private String projectNo;
+
+    /** 工程类别（历史表Hetong.SecondLevel） */
+    @ApiModelProperty(value = "工程类别")
+    private String secondLevel;
+
 }

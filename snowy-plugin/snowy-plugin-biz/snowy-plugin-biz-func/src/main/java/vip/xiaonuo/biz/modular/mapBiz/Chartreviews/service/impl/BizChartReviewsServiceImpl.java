@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -22,8 +23,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.core.enums.BizTableCommon;
+import vip.xiaonuo.biz.core.utils.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.mapper.BizChartReviewsMapper;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.BizChartReviewsService;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +39,8 @@ import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsEditPara
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsPageParam;
 
+import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,6 +53,9 @@ Service接口实现类
 @Service
 @DS("slave_1")
 public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMapper, BizChartReviews> implements BizChartReviewsService {
+
+    @Resource
+    BizChartReviewsMapper bizChartReviewsMapper;
 
     @Override
     public Page<BizChartReviews> page(BizChartReviewsPageParam bizChartReviewsPageParam) {
@@ -75,6 +86,9 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
     @Override
     public void add(BizChartReviewsAddParam bizChartReviewsAddParam) {
         BizChartReviews bizChartReviews = BeanUtil.toBean(bizChartReviewsAddParam, BizChartReviews.class);
+        bizChartReviews.setSn(CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS));
+        bizChartReviews.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        bizChartReviews.setOptDate(DateUtil.date(new Date()));
         this.save(bizChartReviews);
     }
 
@@ -94,8 +108,9 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
     }
 
     @Override
-    public BizChartReviews detail(BizChartReviewsIdParam bizChartReviewsIdParam) {
-        return this.queryEntity(bizChartReviewsIdParam.getId());
+    public BizChartReviewsDetailsVo detail(BizChartReviewsIdParam bizChartReviewsIdParam) {
+        return bizChartReviewsMapper.getCRMDetailById(bizChartReviewsIdParam.getId());
+        //return this.queryEntity(bizChartReviewsIdParam.getId());
     }
 
     @Override
@@ -105,5 +120,41 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
             throw new CommonException("业务表-图审受理单 不存在，id值为：{}", id);
         }
         return bizChartReviews;
+    }
+
+    @Override
+    public Page<BizChartReviewsVo> pageList(BizChartReviewsPageParam bizChartReviewsPageParam) {
+        QueryWrapper<BizChartReviews> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getSn())){
+            queryWrapper.like("a.SN",bizChartReviewsPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getProjectName())){
+            queryWrapper.like("b.PROJECT_NAME",bizChartReviewsPageParam.getProjectName());
+        }
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getSecondLevel())){
+            queryWrapper.like("b.SECOND_LEVEL",bizChartReviewsPageParam.getSecondLevel());
+        }
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getProjectLeader())){
+            queryWrapper.like("a.PROJECT_LEADER",bizChartReviewsPageParam.getProjectLeader());
+        }
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getProjectNo())){
+            queryWrapper.like("a.PROJECT_NO",bizChartReviewsPageParam.getProjectNo());
+        }
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getCompanyOrDepartment())){
+            queryWrapper.like("a.COMPANY_OR_DEPARTMENT",bizChartReviewsPageParam.getCompanyOrDepartment());
+        }
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getStartOptDate()) && ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getEndOptDate())) {
+            queryWrapper.between("a.OPT_DATE", bizChartReviewsPageParam.getStartOptDate(), bizChartReviewsPageParam.getEndOptDate());
+        }
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        if(ObjectUtil.isAllNotEmpty(bizChartReviewsPageParam.getSortField(), bizChartReviewsPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(bizChartReviewsPageParam.getSortOrder());
+            queryWrapper.orderBy(true, bizChartReviewsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(bizChartReviewsPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByAsc("a.ID");
+        }
+
+        return bizChartReviewsMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);
     }
 }

@@ -60,6 +60,9 @@ public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, B
         if(ObjectUtil.isNotEmpty(bizAuditListsPageParam.getCompanyOrDepartment())) {
             queryWrapper.lambda().like(BizAuditLists::getCompanyOrDepartment, bizAuditListsPageParam.getCompanyOrDepartment());
         }
+        if(ObjectUtil.isNotEmpty(bizAuditListsPageParam.getReviewId())){
+            queryWrapper.lambda().eq(BizAuditLists::getReviewId,bizAuditListsPageParam.getReviewId());
+        }
         if(ObjectUtil.isAllNotEmpty(bizAuditListsPageParam.getSortField(), bizAuditListsPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizAuditListsPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizAuditListsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -50,6 +51,7 @@ public class BizChartReviews {
 
     /** 受理时间 */
     @ApiModelProperty(value = "受理时间", position = 5)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date optDate;
 
     /** 项目(合同)编号 */
@@ -78,6 +80,7 @@ public class BizChartReviews {
 
     /** 初次出图日期 */
     @ApiModelProperty(value = "初次出图日期", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date mapDate;
 
     /** 初次出图份数 */
@@ -106,6 +109,7 @@ public class BizChartReviews {
 
     /** 盖章日期 */
     @ApiModelProperty(value = "盖章日期", position = 19)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date sealDate;
 
     /** 是否留档 */

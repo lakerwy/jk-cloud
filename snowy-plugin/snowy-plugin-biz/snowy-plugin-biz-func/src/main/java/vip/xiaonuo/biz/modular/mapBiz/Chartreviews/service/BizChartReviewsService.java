@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
@@ -19,6 +20,8 @@ import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsAddParam
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsPageParam;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
 
 import java.util.List;
 
@@ -74,7 +77,7 @@ public interface BizChartReviewsService extends IService<BizChartReviews> {
      * @author mayike
      * @date  2023/06/30 16:07
      */
-    BizChartReviews detail(BizChartReviewsIdParam bizChartReviewsIdParam);
+    BizChartReviewsDetailsVo detail(BizChartReviewsIdParam bizChartReviewsIdParam);
 
     /**
      * 获取业务表-图审受理单
@@ -84,4 +87,7 @@ public interface BizChartReviewsService extends IService<BizChartReviews> {
      * @date  2023/06/30 16:07
      **/
     BizChartReviews queryEntity(String id);
+
+
+    Page<BizChartReviewsVo> pageList(BizChartReviewsPageParam bizChartReviewsPageParam);
 }

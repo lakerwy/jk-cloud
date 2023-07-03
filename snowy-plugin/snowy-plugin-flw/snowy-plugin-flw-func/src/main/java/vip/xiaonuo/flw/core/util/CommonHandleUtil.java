@@ -100,7 +100,7 @@ public class CommonHandleUtil {
             try {
                 AtomicReference<String> result = new AtomicReference<>();
                 conn.setAutoCommit(false);
-                String finalSql= " SELECT sn FROM " + tableName + " WHERE DATE_FORMAT( create_time, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) ORDER BY id DESC LIMIT 1";
+                String finalSql= " SELECT sn FROM " + tableName + " WHERE DATE_FORMAT( CREATE_TIME, '%Y%m' ) = DATE_FORMAT( CURDATE( ) , '%Y%m' ) ORDER BY CREATE_TIME DESC LIMIT 1";
                 //String finalSql = sql;
                 if(ObjectUtil.isNotEmpty(finalSql)) {
                     try {

@@ -28,6 +28,8 @@ import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsAddParam
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsPageParam;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.BizChartReviewsService;
@@ -121,8 +123,7 @@ public class BizChartReviewsController {
     }
 
     /**
-     * 获取业务表-图审受理单
-详情
+     * 获取业务表-图审受理单详情
      *
      * @author mayike
      * @date  2023/06/30 16:07
@@ -131,7 +132,17 @@ public class BizChartReviewsController {
     @ApiOperation("获取业务表-图审受理单 详情")
 //    @SaCheckPermission("/biz/Chartreviews/detail")
     @GetMapping("/biz/ChartReviews/detail")
-    public CommonResult<BizChartReviews> detail(@Valid BizChartReviewsIdParam bizChartReviewsIdParam) {
+    public CommonResult<BizChartReviewsDetailsVo> detail(@Valid BizChartReviewsIdParam bizChartReviewsIdParam) {
+        //通过主表id 获取BIZ_CHART_REVIEW_DETAILS 表的列表信息 获取合同的基本信息
         return CommonResult.data(bizChartReviewsService.detail(bizChartReviewsIdParam));
     }
+
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取业务表-图审受理单新分页")
+//    @SaCheckPermission("/biz/Chartreviews/page")
+    @GetMapping("/biz/ChartReviews/pageList")
+    public CommonResult<Page<BizChartReviewsVo>> pageList(BizChartReviewsPageParam bizChartReviewsPageParam) {
+        return CommonResult.data(bizChartReviewsService.pageList(bizChartReviewsPageParam));
+    }
+
 }

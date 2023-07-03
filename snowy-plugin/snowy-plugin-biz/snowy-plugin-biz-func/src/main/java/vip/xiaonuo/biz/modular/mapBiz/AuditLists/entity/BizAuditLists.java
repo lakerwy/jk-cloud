@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,7 +42,7 @@ public class BizAuditLists {
 
     /** 图审ID */
     @ApiModelProperty(value = "图审ID", position = 3)
-    private Integer reviewId;
+    private String reviewId;
 
     /** SN单号 */
     @ApiModelProperty(value = "SN单号", position = 4)
@@ -89,6 +90,7 @@ public class BizAuditLists {
 
     /** 提交时间 */
     @ApiModelProperty(value = "提交时间", position = 15)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date optDate;
 
     /** ATTACHMENT1 */
@@ -109,6 +111,7 @@ public class BizAuditLists {
 
     /** OPERATE_TIME */
     @ApiModelProperty(value = "OPERATE_TIME", position = 20)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date operateTime;
 
     /** 删除状态 */
@@ -151,5 +154,6 @@ public class BizAuditLists {
 
     /** 申请时间 */
     @ApiModelProperty(value = "申请时间", position = 29)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date applyTime;
 }

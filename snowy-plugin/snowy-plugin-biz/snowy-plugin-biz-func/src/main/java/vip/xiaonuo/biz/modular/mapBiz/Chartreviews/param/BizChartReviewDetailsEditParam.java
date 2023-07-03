@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -58,6 +59,7 @@ public class BizChartReviewDetailsEditParam {
 
     /** 终审时间 */
     @ApiModelProperty(value = "终审时间", position = 7)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date auditTiem;
 
     /** 当前状态 */

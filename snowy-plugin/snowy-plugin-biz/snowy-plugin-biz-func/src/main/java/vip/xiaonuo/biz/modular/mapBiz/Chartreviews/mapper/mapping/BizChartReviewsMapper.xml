@@ -1,5 +1,54 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.mapper.BizChartReviewsMapper">
+    <resultMap id="BaseResultMap" type="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo">
+        <id column="ID" jdbcType="VARCHAR" property="id" />
+        <id column="TASK_ID" jdbcType="VARCHAR" property="taskId"/>
+
+        <id column="SN" jdbcType="VARCHAR" property="sn"/>
+        <id column="OPT" jdbcType="VARCHAR" property="opt"/>
+        <id column="OPT_DATE" jdbcType="TIMESTAMP" property="optDate"/>
+        <id column="PROJECT_NO" jdbcType="VARCHAR" property="projectNo"/>
+        <id column="SENDER" jdbcType="VARCHAR" property="sender"/>
+        <id column="COMPANY_OR_DEPARTMENT" jdbcType="VARCHAR" property="companyOrDepartment"/>
+        <id column="PROJECT_LEADER" jdbcType="VARCHAR" property="projectLeader"/>
+        <id column="MAP_STAGE" jdbcType="VARCHAR" property="mapStage"/>
+        <id column="DESIGNER" jdbcType="VARCHAR" property="designer"/>
+        <id column="MAP_DATE" jdbcType="TIMESTAMP" property="mapDate"/>
+        <id column="MAP_COPIES" jdbcType="VARCHAR" property="mapCopies"/>
+        <id column="NOTE" jdbcType="VARCHAR" property="note"/>
+        <id column="ATTACHMENTS" jdbcType="VARCHAR" property="attachments"/>
+        <id column="ATTACHMENTS1" jdbcType="VARCHAR" property="attachments1"/>
+        <id column="ATTACHMENTS2" jdbcType="VARCHAR" property="attachments2"/>
+        <id column="ATTACHMENTS3" jdbcType="VARCHAR" property="attachments3"/>
+        <id column="SEAL_DATE" jdbcType="TIMESTAMP" property="sealDate"/>
+        <id column="IS_FILE" jdbcType="VARCHAR" property="isFile"/>
+        <id column="IS_LOGISTICS" jdbcType="VARCHAR" property="isLogistics"/>
+        <id column="STATUS" jdbcType="VARCHAR" property="status"/>
+
+        <result column="DELETE_FLAG" jdbcType="VARCHAR" property="deleteFlag" />
+        <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="CREATE_USER" jdbcType="VARCHAR" property="createUser" />
+
+        <result column="SECOND_LEVEL" jdbcType="VARCHAR" property="secondLevel" />
+        <result column="CONTRACT_NO" jdbcType="VARCHAR" property="contractNo" />
+        <result column="PROJECT_NAME" jdbcType="VARCHAR" property="projectName" />
+        <collection property="bizChartReviewDetailsList" column="ID" select="getCRDList"/>
+    </resultMap>
+
+    <select id="getCRMDetailById" resultMap="BaseResultMap" parameterType="String">
+        SELECT a.*, b.CONTRACT_NO,b.PROJECT_NAME,b.SECOND_LEVEL FROM BIZ_CHART_REVIEWS a
+            LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO
+            WHERE  a.DELETE_FLAG = 'NOT_DELETE' AND a.ID =${id}
+    </select>
+
+    <select id="getCRDList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviewDetails">
+        SELECT * FROM BIZ_CHART_REVIEW_DETAILS WHERE DELETE_FLAG = 'NOT_DELETE' AND REVIEW_ID = #{ID}
+    </select>
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo">
+        SELECT a.*, b.CONTRACT_NO,b.PROJECT_NAME,b.SECOND_LEVEL FROM BIZ_CHART_REVIEWS a
+            LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO  ${ew.customSqlSegment}
+    </select>
 
 </mapper>
