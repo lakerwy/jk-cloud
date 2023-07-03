@@ -15,6 +15,8 @@ package vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -47,5 +49,10 @@ public class BizAuditListsDetailsPageParam {
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
+
+    /** 工程设计校审主表ID */
+    @ApiModelProperty(value = "工程设计校审主表ID")
+    @NotBlank(message = "auditId不能为空")
+    private String auditId;
 
 }

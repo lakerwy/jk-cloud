@@ -46,6 +46,9 @@ public class BizAuditListsDetailsServiceImpl extends ServiceImpl<BizAuditListsDe
     @Override
     public Page<BizAuditListsDetails> page(BizAuditListsDetailsPageParam bizAuditListsDetailsPageParam) {
         QueryWrapper<BizAuditListsDetails> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bizAuditListsDetailsPageParam.getAuditId())){
+            queryWrapper.lambda().eq(BizAuditListsDetails::getAuditId,bizAuditListsDetailsPageParam.getAuditId());
+        }
         if(ObjectUtil.isAllNotEmpty(bizAuditListsDetailsPageParam.getSortField(), bizAuditListsDetailsPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizAuditListsDetailsPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizAuditListsDetailsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
