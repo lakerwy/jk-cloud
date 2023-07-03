@@ -1,0 +1,227 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.biz.modular.crm.hetong.entity;
+
+import com.baomidou.mybatisplus.annotation.*;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * 业务表-CRM-合同实体
+ *
+ * @author yong.ye
+ * @date  2023/06/30 14:49
+ **/
+@Getter
+@Setter
+@TableName("BIZ_CRM_HETONG")
+public class Hetong {
+
+    /** 主键ID（历史表Hetong.Id） */
+    @TableId
+    @ApiModelProperty(value = "主键ID（历史表Hetong.Id）", position = 1)
+    private String id;
+
+    /** 登记人（历史表Hetong.Opt） */
+    @ApiModelProperty(value = "登记人（历史表Hetong.Opt）", position = 2)
+    private String opt;
+
+    /** 登记日期（历史表Hetong.RegisterDate） */
+    @ApiModelProperty(value = "登记日期（历史表Hetong.RegisterDate）", position = 3)
+    private Date registerDate;
+
+    /** 是否归档（历史表Hetong.IsFiling） */
+    @ApiModelProperty(value = "是否归档（历史表Hetong.IsFiling）", position = 4)
+    private String isFiling;
+
+    /** 工程类别（历史表Hetong.SecondLevel） */
+    @ApiModelProperty(value = "工程类别（历史表Hetong.SecondLevel）", position = 5)
+    private String secondLevel;
+
+    /** 合同编号（历史表Hetong.ContractNo） */
+    @ApiModelProperty(value = "合同编号（历史表Hetong.ContractNo）", position = 6)
+    private String contractNo;
+
+    /** 合同名称（历史表Hetong.ProjectName） */
+    @ApiModelProperty(value = "合同名称（历史表Hetong.ProjectName）", position = 7)
+    private String projectName;
+
+    /** 甲方（历史表Hetong.Counterparty） */
+    @ApiModelProperty(value = "甲方（历史表Hetong.Counterparty）", position = 8)
+    private String counterparty;
+
+    /** 乙方（历史表Hetong.Secondparty） */
+    @ApiModelProperty(value = "乙方（历史表Hetong.Secondparty）", position = 9)
+    private String secondparty;
+
+    /** 合作伙伴ID（历史表Hetong.PartnerId） */
+    @ApiModelProperty(value = "合作伙伴ID（历史表Hetong.PartnerId）", position = 10)
+    private String partnerId;
+
+    /** 合作伙伴类型（历史表Hetong.PartnerType） */
+    @ApiModelProperty(value = "合作伙伴类型（历史表Hetong.PartnerType）", position = 11)
+    private String partnerType;
+
+    /** 合作伙伴责任单位（历史表Hetong.CompanyOrDepartment） */
+    @ApiModelProperty(value = "合作伙伴责任单位（历史表Hetong.CompanyOrDepartment）", position = 12)
+    private String companyOrDepartment;
+
+    /** 合作伙伴责任人（历史表Hetong.Owner） */
+    @ApiModelProperty(value = "合作伙伴责任人（历史表Hetong.Owner）", position = 13)
+    private String owner;
+
+    /** 项目备忘日期（历史表Hetong.MemoDate） */
+    @ApiModelProperty(value = "项目备忘日期（历史表Hetong.MemoDate）", position = 14)
+    private String memoDate;
+
+    /** 设计委托书日期（历史表Hetong.DesignDate） */
+    @ApiModelProperty(value = "设计委托书日期（历史表Hetong.DesignDate）", position = 15)
+    private String designDate;
+
+    /** 中标日期（历史表Hetong.BidDate） */
+    @ApiModelProperty(value = "中标日期（历史表Hetong.BidDate）", position = 16)
+    private Date bidDate;
+
+    /** 合同盖章日期（历史表Hetong.SealDate） */
+    @ApiModelProperty(value = "合同盖章日期（历史表Hetong.SealDate）", position = 17)
+    private Date sealDate;
+
+    /** 归档日期（历史表Hetong.FilingDate） */
+    @ApiModelProperty(value = "归档日期（历史表Hetong.FilingDate）", position = 18)
+    private Date filingDate;
+
+    /** 合同金额（历史表Hetong.ContractAmount） */
+    @ApiModelProperty(value = "合同金额（历史表Hetong.ContractAmount）", position = 19)
+    private BigDecimal contractAmount;
+
+    /** 投资规模（历史表Hetong.InvestScale） */
+    @ApiModelProperty(value = "投资规模（历史表Hetong.InvestScale）", position = 20)
+    private String investScale;
+
+    /** 状态（历史表Hetong.Status） */
+    @ApiModelProperty(value = "状态（历史表Hetong.Status）", position = 21)
+    private String status;
+
+    /** 页次（历史表Hetong.Page） */
+    @ApiModelProperty(value = "页次（历史表Hetong.Page）", position = 22)
+    private String page;
+
+    /** 原件份数（历史表Hetong.Copys） */
+    @ApiModelProperty(value = "原件份数（历史表Hetong.Copys）", position = 23)
+    private String copys;
+
+    /** 项目规模描述（历史表Hetong.Description） */
+    @ApiModelProperty(value = "项目规模描述（历史表Hetong.Description）", position = 24)
+    private String description;
+
+    /** 备注（历史表Hetong.Note） */
+    @ApiModelProperty(value = "备注（历史表Hetong.Note）", position = 25)
+    private String note;
+
+    /** 中标通知书（历史表Hetong.BidAttaches） */
+    @ApiModelProperty(value = "中标通知书（历史表Hetong.BidAttaches）", position = 26)
+    private String bidAttaches;
+
+    /** 中标负责人（历史表Hetong.BidOwner） */
+    @ApiModelProperty(value = "中标负责人（历史表Hetong.BidOwner）", position = 27)
+    private String bidOwner;
+
+    /** 电子合同（历史表Hetong.Attachments） */
+    @ApiModelProperty(value = "电子合同（历史表Hetong.Attachments）", position = 28)
+    private String attachments;
+
+    /** 出图日期（历史表Hetong.FigureDate） */
+    @ApiModelProperty(value = "出图日期（历史表Hetong.FigureDate）", position = 29)
+    private Date figureDate;
+
+    /** 出图阶段（历史表Hetong.FigureStage） */
+    @ApiModelProperty(value = "出图阶段（历史表Hetong.FigureStage）", position = 30)
+    private String figureStage;
+
+    /** 图纸存档（历史表Hetong.FigureAttaches） */
+    @ApiModelProperty(value = "图纸存档（历史表Hetong.FigureAttaches）", position = 31)
+    private String figureAttaches;
+
+    /** 图审合格证（历史表Hetong.Certificate） */
+    @ApiModelProperty(value = "图审合格证（历史表Hetong.Certificate）", position = 32)
+    private String certificate;
+
+    /** 竣工日期（历史表Hetong.CompleDate） */
+    @ApiModelProperty(value = "竣工日期（历史表Hetong.CompleDate）", position = 33)
+    private Date compleDate;
+
+    /** 竣工材料（历史表Hetong.CompleData） */
+    @ApiModelProperty(value = "竣工材料（历史表Hetong.CompleData）", position = 34)
+    private String compleData;
+
+    /** 原件存放位置（历史表Hetong.Location） */
+    @ApiModelProperty(value = "原件存放位置（历史表Hetong.Location）", position = 35)
+    private String location;
+
+    /** 核定应收金额（历史表Hetong.ShouldAmount） */
+    @ApiModelProperty(value = "核定应收金额（历史表Hetong.ShouldAmount）", position = 36)
+    private BigDecimal shouldAmount;
+
+    /** 已收金额（历史表Hetong.HaveAmount） */
+    @ApiModelProperty(value = "已收金额（历史表Hetong.HaveAmount）", position = 37)
+    private BigDecimal haveAmount;
+
+    /** 已开票金额（历史表Hetong.InvoiceAmount） */
+    @ApiModelProperty(value = "已开票金额（历史表Hetong.InvoiceAmount）", position = 38)
+    private BigDecimal invoiceAmount;
+
+    /** 其他附件（历史表Hetong.AttachmentsNote） */
+    @ApiModelProperty(value = "其他附件（历史表Hetong.AttachmentsNote）", position = 39)
+    private String attachmentsNote;
+
+    /** 项目负责人（历史表Hetong.ProjectLeader） */
+    @ApiModelProperty(value = "项目负责人（历史表Hetong.ProjectLeader）", position = 40)
+    private String projectLeader;
+
+    /** 管理费（历史表Hetong.ManageFee） */
+    @ApiModelProperty(value = "管理费（历史表Hetong.ManageFee）", position = 41)
+    private BigDecimal manageFee;
+
+    /** 合同签订人（历史表Hetong.Register） */
+    @ApiModelProperty(value = "合同签订人（历史表Hetong.Register）", position = 42)
+    private String register;
+
+    /** 删除状态标记 */
+    @ApiModelProperty(value = "删除状态标记", position = 43)
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
+    private String deleteFlag;
+
+    /** 创建时间 */
+    @ApiModelProperty(value = "创建时间", position = 44)
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
+
+    /** 创建人 */
+    @ApiModelProperty(value = "创建人", position = 45)
+    @TableField(fill = FieldFill.INSERT)
+    private String createUser;
+
+    /** 更新时间 */
+    @ApiModelProperty(value = "更新时间", position = 46)
+    @TableField(fill = FieldFill.UPDATE)
+    private Date updateTime;
+
+    /** 更新人 */
+    @ApiModelProperty(value = "更新人", position = 47)
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateUser;
+}
