@@ -541,10 +541,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         return sysOrgApi.orgTreeSelector();
     }
 
+    @SuppressWarnings("ALL")
     @Override
-    public List<FlwTaskUserResult> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam) {
-        return sysUserApi.userSelector(flwTaskSelectorUserParam.getOrgId(), flwTaskSelectorUserParam.getSearchKey())
-                .stream().map(jsonObject -> JSONUtil.toBean(jsonObject, FlwTaskUserResult.class)).collect(Collectors.toList());
+    public Page<FlwTaskUserResult> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam) {
+        return BeanUtil.toBean(sysUserApi.userSelector(flwTaskSelectorUserParam.getOrgId(), flwTaskSelectorUserParam.getSearchKey()), Page.class);
     }
 
     /**

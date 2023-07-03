@@ -333,5 +333,5 @@ public interface FlwProcessService {
      * @author xuyuxiang
      * @date 2023/5/27 13:57
      */
-    List<FlwProcessUserResult> userSelector(FlwProcessSelectorUserParam flwProcessSelectorUserParam);
+    Page<FlwProcessUserResult> userSelector(FlwProcessSelectorUserParam flwProcessSelectorUserParam);
 }

@@ -25,6 +25,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class BizUserSelectorPositionParam {
+    /** 当前页 */
+    @ApiModelProperty(value = "当前页码")
+    private Integer current;
+
+    /** 每页条数 */
+    @ApiModelProperty(value = "每页条数")
+    private Integer size;
+
 
     /** 机构id */
     @ApiModelProperty(value = "机构id")

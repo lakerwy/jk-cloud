@@ -148,5 +148,5 @@ public interface FlwTaskService {
      * @author xuyuxiang
      * @date 2023/5/27 13:57
      */
-    List<FlwTaskUserResult> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam);
+    Page<FlwTaskUserResult> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam);
 }

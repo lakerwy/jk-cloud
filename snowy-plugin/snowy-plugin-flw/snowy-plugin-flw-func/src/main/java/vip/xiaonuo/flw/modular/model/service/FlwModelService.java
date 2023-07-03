@@ -144,7 +144,7 @@ public interface FlwModelService extends IService<FlwModel> {
      * @author xuyuxiang
      * @date 2022/7/22 13:34
      **/
-    List<FlwModelOrgResult> orgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam);
+    Page<FlwModelOrgResult> orgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam);
 
     /**
      * 获取职位选择器
@@ -152,7 +152,7 @@ public interface FlwModelService extends IService<FlwModel> {
      * @author xuyuxiang
      * @date 2022/5/13 21:00
      */
-    List<FlwModelPositionResult> positionSelector(FlwModelSelectorPositionParam flwModelSelectorPositionParam);
+    Page<FlwModelPositionResult> positionSelector(FlwModelSelectorPositionParam flwModelSelectorPositionParam);
 
     /**
      * 获取角色选择器
@@ -160,7 +160,7 @@ public interface FlwModelService extends IService<FlwModel> {
      * @author xuyuxiang
      * @date 2022/5/13 21:00
      */
-    List<FlwModelRoleResult> roleSelector(FlwModelSelectorRoleParam flwModelSelectorRoleParam);
+    Page<FlwModelRoleResult> roleSelector(FlwModelSelectorRoleParam flwModelSelectorRoleParam);
 
     /**
      * 获取用户选择器
@@ -168,7 +168,7 @@ public interface FlwModelService extends IService<FlwModel> {
      * @author xuyuxiang
      * @date 2022/4/24 20:08
      */
-    List<FlwModelUserResult> userSelector(FlwModelSelectorUserParam flwModelSelectorUserParam);
+    Page<FlwModelUserResult> userSelector(FlwModelSelectorUserParam flwModelSelectorUserParam);
 
     /**
      * 获取执行监听器选择器

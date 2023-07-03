@@ -302,31 +302,34 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         return sysOrgApi.orgTreeSelector();
     }
 
+    @SuppressWarnings("ALL")
     @Override
-    public List<FlwModelOrgResult> orgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam) {
-        return sysOrgApi.orgListSelector(flwModelSelectorOrgListParam.getParentId()).stream().map(jsonObject ->
-                JSONUtil.toBean(jsonObject, FlwModelOrgResult.class)).collect(Collectors.toList());
+    public Page<FlwModelOrgResult> orgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam) {
+        return BeanUtil.toBean(sysOrgApi.orgListSelector(flwModelSelectorOrgListParam.getParentId()), Page.class);
     }
 
+
+    @SuppressWarnings("ALL")
     @Override
-    public List<FlwModelPositionResult> positionSelector(FlwModelSelectorPositionParam flwModelSelectorPositionParam) {
-        return sysPositionApi.positionSelector(flwModelSelectorPositionParam.getOrgId(),
-                flwModelSelectorPositionParam.getSearchKey()).stream().map(jsonObject ->
-                JSONUtil.toBean(jsonObject, FlwModelPositionResult.class)).collect(Collectors.toList());
+    public Page<FlwModelPositionResult> positionSelector(FlwModelSelectorPositionParam flwModelSelectorPositionParam) {
+        return BeanUtil.toBean(sysPositionApi.positionSelector(flwModelSelectorPositionParam.getOrgId(),
+                flwModelSelectorPositionParam.getSearchKey()), Page.class);
     }
 
+
+    @SuppressWarnings("ALL")
     @Override
-    public List<FlwModelRoleResult> roleSelector(FlwModelSelectorRoleParam flwModelSelectorRoleParam) {
-        return sysRoleApi.roleSelector(flwModelSelectorRoleParam.getOrgId(), flwModelSelectorRoleParam.getCategory(),
-                flwModelSelectorRoleParam.getSearchKey()).stream().map(jsonObject ->
-                JSONUtil.toBean(jsonObject, FlwModelRoleResult.class)).collect(Collectors.toList());
+    public Page<FlwModelRoleResult> roleSelector(FlwModelSelectorRoleParam flwModelSelectorRoleParam) {
+        return BeanUtil.toBean(sysRoleApi.roleSelector(flwModelSelectorRoleParam.getOrgId(), flwModelSelectorRoleParam.getCategory(),
+                flwModelSelectorRoleParam.getSearchKey(), null), Page.class);
     }
 
+    @SuppressWarnings("ALL")
     @Override
-    public List<FlwModelUserResult> userSelector(FlwModelSelectorUserParam flwModelSelectorUserParam) {
-        return sysUserApi.userSelector(flwModelSelectorUserParam.getOrgId(), flwModelSelectorUserParam.getSearchKey())
-                .stream().map(jsonObject -> JSONUtil.toBean(jsonObject, FlwModelUserResult.class)).collect(Collectors.toList());
+    public Page<FlwModelUserResult> userSelector(FlwModelSelectorUserParam flwModelSelectorUserParam) {
+        return BeanUtil.toBean(sysUserApi.userSelector(flwModelSelectorUserParam.getOrgId(), flwModelSelectorUserParam.getSearchKey()), Page.class);
     }
+
 
     @Override
     public List<String> executionListenerSelector() {

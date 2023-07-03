@@ -225,8 +225,7 @@ public class FlwModeController {
     @ApiOperationSupport(order = 12)
     @ApiOperation("获取组织列表选择器")
     @GetMapping("/flw/model/orgListSelector")
-    @SaCheckPermission("/flw/model/orgListSelector")
-    public CommonResult<List<FlwModelOrgResult>> orgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam) {
+    public CommonResult<Page<FlwModelOrgResult>> orgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam) {
         return CommonResult.data(flwModelService.orgListSelector(flwModelSelectorOrgListParam));
     }
 
@@ -239,10 +238,10 @@ public class FlwModeController {
     @ApiOperationSupport(order = 13)
     @ApiOperation("获取职位选择器")
     @GetMapping("/flw/model/positionSelector")
-    @SaCheckPermission("/flw/model/positionSelector")
-    public CommonResult<List<FlwModelPositionResult>> positionSelector(FlwModelSelectorPositionParam flwModelSelectorPositionParam) {
+    public CommonResult<Page<FlwModelPositionResult>> positionSelector(FlwModelSelectorPositionParam flwModelSelectorPositionParam) {
         return CommonResult.data(flwModelService.positionSelector(flwModelSelectorPositionParam));
     }
+
 
     /**
      * 获取角色选择器
@@ -253,10 +252,10 @@ public class FlwModeController {
     @ApiOperationSupport(order = 14)
     @ApiOperation("获取角色选择器")
     @GetMapping("/flw/model/roleSelector")
-    @SaCheckPermission("/flw/model/roleSelector")
-    public CommonResult<List<FlwModelRoleResult>> roleSelector(FlwModelSelectorRoleParam flwModelSelectorRoleParam) {
+    public CommonResult<Page<FlwModelRoleResult>> roleSelector(FlwModelSelectorRoleParam flwModelSelectorRoleParam) {
         return CommonResult.data(flwModelService.roleSelector(flwModelSelectorRoleParam));
     }
+
 
     /**
      * 获取用户选择器
@@ -267,10 +266,10 @@ public class FlwModeController {
     @ApiOperationSupport(order = 15)
     @ApiOperation("获取用户选择器")
     @GetMapping("/flw/model/userSelector")
-    @SaCheckPermission("/flw/model/userSelector")
-    public CommonResult<List<FlwModelUserResult>> userSelector(FlwModelSelectorUserParam flwModelSelectorUserParam) {
+    public CommonResult<Page<FlwModelUserResult>> userSelector(FlwModelSelectorUserParam flwModelSelectorUserParam) {
         return CommonResult.data(flwModelService.userSelector(flwModelSelectorUserParam));
     }
+
 
     /**
      * 获取执行监听器选择器

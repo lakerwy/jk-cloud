@@ -14,6 +14,8 @@ package vip.xiaonuo.flw.core.context.sys;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -56,10 +58,10 @@ public class SysPositionApiContextBean implements SysPositionApi {
      * @date 2022/7/22 14:47
      */
     @Override
-    public List<JSONObject> positionSelector(String orgId, String searchKey) {
+    public Page<JSONObject> positionSelector(String orgId, String searchKey) {
         String feignResp = sysPositionFeign.positionSelector(orgId, searchKey);
-        JSONArray jsonArray = new JSONArray(feignResp);
-        List<JSONObject> resp = jsonArray.toList(JSONObject.class);
+        Page<JSONObject> resp = (Page<JSONObject>) JSONUtil.toBean(feignResp,Page.class);
         return resp;
     }
+
 }

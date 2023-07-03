@@ -119,7 +119,7 @@ public class SysOrgController {
     @CommonLog("删除组织")
     @PostMapping("/sys/org/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<SysOrgIdParam> sysOrgIdParamList) {
+                                       CommonValidList<SysOrgIdParam> sysOrgIdParamList) {
         sysOrgService.delete(sysOrgIdParamList);
         return CommonResult.ok();
     }
@@ -161,7 +161,7 @@ public class SysOrgController {
     @ApiOperationSupport(order = 8)
     @ApiOperation("获取用户选择器")
     @GetMapping("/sys/org/userSelector")
-    public CommonResult<List<SysUser>> userSelector(SysOrgSelectorUserParam sysOrgSelectorUserParam) {
+    public CommonResult<Page<SysUser>> userSelector(SysOrgSelectorUserParam sysOrgSelectorUserParam) {
         return CommonResult.data(sysOrgService.userSelector(sysOrgSelectorUserParam));
     }
 

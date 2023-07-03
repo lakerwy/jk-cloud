@@ -56,6 +56,7 @@ public class BizAuditListsDetails {
 
     /** 处理情况 */
     @ApiModelProperty(value = "处理情况", position = 6)
+    @TableField(value = "`condition`")
     private String condition;
 
     /** 附件 */

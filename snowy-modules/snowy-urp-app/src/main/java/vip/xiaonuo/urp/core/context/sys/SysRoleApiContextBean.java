@@ -14,6 +14,8 @@ package vip.xiaonuo.urp.core.context.sys;
 
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -57,12 +59,12 @@ public class SysRoleApiContextBean implements SysRoleApi {
      * @date 2022/7/22 14:49
      */
     @Override
-    public List<JSONObject> roleSelector(String orgId, String category, String searchKey) {
-        String feignResp = sysRoleFeign.roleSelector(orgId, category, searchKey);
-        JSONArray jsonArray = new JSONArray(feignResp);
-        List<JSONObject> resp = jsonArray.toList(JSONObject.class);
+    public Page<JSONObject> roleSelector(String orgId, String category, String searchKey, List<String> dataScopeList) {
+        String feignResp = sysRoleFeign.roleSelector(orgId, category, searchKey,dataScopeList);
+        Page<JSONObject> resp = (Page<JSONObject>) JSONUtil.toBean(feignResp,Page.class);
         return resp;
     }
+
 
     /**
      * 代码生成菜单按钮授权

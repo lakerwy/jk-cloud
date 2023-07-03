@@ -250,7 +250,8 @@ public class FlwTaskController {
     @ApiOperationSupport(order = 15)
     @ApiOperation("获取用户选择器")
     @GetMapping("/flw/task/userSelector")
-    public CommonResult<List<FlwTaskUserResult>> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam) {
+    public CommonResult<Page<FlwTaskUserResult>> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam) {
         return CommonResult.data(flwTaskService.userSelector(flwTaskSelectorUserParam));
     }
+
 }

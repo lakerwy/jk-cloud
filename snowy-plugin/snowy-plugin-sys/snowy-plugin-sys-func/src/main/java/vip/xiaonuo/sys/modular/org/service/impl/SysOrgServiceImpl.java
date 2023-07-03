@@ -76,7 +76,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
         QueryWrapper<SysOrg> queryWrapper = new QueryWrapper<>();
         // 查询部分字段
         queryWrapper.lambda().select(SysOrg::getId, SysOrg::getParentId, SysOrg::getName,
-                SysOrg::getCategory, SysOrg::getSortCode, SysOrg::getDirectorId);
+                SysOrg::getCategory, SysOrg::getSortCode,SysOrg::getDirectorId);
         if(ObjectUtil.isNotEmpty(sysOrgPageParam.getParentId())) {
             queryWrapper.lambda().eq(SysOrg::getParentId, sysOrgPageParam.getParentId());
         }
@@ -97,8 +97,8 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     public List<Tree<String>> tree() {
         List<SysOrg> sysOrgList = this.getAllOrgList();
         List<TreeNode<String>> treeNodeList = sysOrgList.stream().map(sysOrg ->
-                new TreeNode<>(sysOrg.getId(), sysOrg.getParentId(),
-                        sysOrg.getName(), sysOrg.getSortCode()).setExtra(JSONUtil.parseObj(sysOrg)))
+                        new TreeNode<>(sysOrg.getId(), sysOrg.getParentId(),
+                                sysOrg.getName(), sysOrg.getSortCode()).setExtra(JSONUtil.parseObj(sysOrg)))
                 .collect(Collectors.toList());
         return TreeUtil.build(treeNodeList, "0");
     }
@@ -213,7 +213,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     public String getOrgIdByOrgFullNameWithCreate(String orgFullName) {
         List<SysOrg> allOrgList = this.getAllOrgList();
         List<Tree<String>> treeList = TreeUtil.build(allOrgList.stream().map(sysOrg ->
-                new TreeNode<>(sysOrg.getId(), sysOrg.getParentId(), sysOrg.getName(), sysOrg.getSortCode()))
+                        new TreeNode<>(sysOrg.getId(), sysOrg.getParentId(), sysOrg.getName(), sysOrg.getSortCode()))
                 .collect(Collectors.toList()), "0");
         return findOrgIdByOrgName("0", StrUtil.split(orgFullName, StrUtil.DASHED).iterator(), allOrgList, treeList);
     }
@@ -264,13 +264,13 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     public List<Tree<String>> orgTreeSelector() {
         List<SysOrg> sysOrgList = this.getAllOrgList();
         List<TreeNode<String>> treeNodeList = sysOrgList.stream().map(sysOrg ->
-                new TreeNode<>(sysOrg.getId(), sysOrg.getParentId(), sysOrg.getName(), sysOrg.getSortCode()))
+                        new TreeNode<>(sysOrg.getId(), sysOrg.getParentId(), sysOrg.getName(), sysOrg.getSortCode()))
                 .collect(Collectors.toList());
         return TreeUtil.build(treeNodeList, "0");
     }
 
     @Override
-    public List<SysOrg> orgListSelector(SysOrgSelectorOrgListParam sysOrgSelectorOrgListParam) {
+    public Page<SysOrg> orgListSelector(SysOrgSelectorOrgListParam sysOrgSelectorOrgListParam) {
         LambdaQueryWrapper<SysOrg> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         // 查询部分字段
         lambdaQueryWrapper.select(SysOrg::getId, SysOrg::getParentId, SysOrg::getName,
@@ -282,33 +282,34 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             lambdaQueryWrapper.like(SysOrg::getName, sysOrgSelectorOrgListParam.getSearchKey());
         }
         lambdaQueryWrapper.orderByAsc(SysOrg::getSortCode);
-        return this.list(lambdaQueryWrapper);
+        return this.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
     }
 
     @Override
-    public List<SysUser> userSelector(SysOrgSelectorUserParam sysOrgSelectorUserParam) {
+    public Page<SysUser> userSelector(SysOrgSelectorUserParam sysOrgSelectorUserParam) {
         LambdaQueryWrapper<SysUser> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         // 只查询部分字段
-        lambdaQueryWrapper.select(SysUser::getId, SysUser::getOrgId, SysUser::getAccount, SysUser::getName, SysUser::getSortCode);
-        // 如果查询条件为空，则从缓存中查询
+        lambdaQueryWrapper.select(SysUser::getId, SysUser::getAvatar, SysUser::getOrgId, SysUser::getPositionId, SysUser::getAccount,
+                SysUser::getName, SysUser::getSortCode, SysUser::getGender, SysUser::getEntryDate);
+        // 如果查询条件为空，则直接查询
         if(ObjectUtil.isAllEmpty(sysOrgSelectorUserParam.getOrgId(), sysOrgSelectorUserParam.getSearchKey())) {
             return sysUserService.getAllUserSelectorList();
         } else {
             if(ObjectUtil.isNotEmpty(sysOrgSelectorUserParam.getOrgId())) {
-                // 如果组织id不为空，则查询该组织所在顶级组织下的所有人
-                List<String> parentAndChildOrgIdList = CollStreamUtil.toList(this.getParentAndChildListById(this
+                // 如果组织id不为空，则查询该组织及其子组织下的所有人
+                List<String> childOrgIdList = CollStreamUtil.toList(this.getChildListById(this
                         .getAllOrgList(), sysOrgSelectorUserParam.getOrgId(), true), SysOrg::getId);
-                if (ObjectUtil.isNotEmpty(parentAndChildOrgIdList)) {
-                    lambdaQueryWrapper.in(SysUser::getOrgId, parentAndChildOrgIdList);
+                if (ObjectUtil.isNotEmpty(childOrgIdList)) {
+                    lambdaQueryWrapper.in(SysUser::getOrgId, childOrgIdList);
                 } else {
-                    return CollectionUtil.newArrayList();
+                    return new Page<>();
                 }
             }
             if(ObjectUtil.isNotEmpty(sysOrgSelectorUserParam.getSearchKey())) {
                 lambdaQueryWrapper.like(SysUser::getName, sysOrgSelectorUserParam.getSearchKey());
             }
             lambdaQueryWrapper.orderByAsc(SysUser::getSortCode);
-            return sysUserService.list(lambdaQueryWrapper);
+            return sysUserService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
         }
     }
 

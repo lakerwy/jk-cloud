@@ -319,11 +319,11 @@ public class FlwProcessMonitorController {
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
-    @ApiOperationSupport(order = 17)
     @ApiOperation("获取用户选择器")
     @SaCheckPermission("/flw/process/monitor/userSelector")
     @GetMapping("/flw/process/monitor/userSelector")
-    public CommonResult<List<FlwProcessUserResult>> userSelector(FlwProcessSelectorUserParam flwProcessSelectorUserParam) {
+    public CommonResult<Page<FlwProcessUserResult>> userSelector(FlwProcessSelectorUserParam flwProcessSelectorUserParam) {
         return CommonResult.data(flwProcessService.userSelector(flwProcessSelectorUserParam));
     }
+
 }

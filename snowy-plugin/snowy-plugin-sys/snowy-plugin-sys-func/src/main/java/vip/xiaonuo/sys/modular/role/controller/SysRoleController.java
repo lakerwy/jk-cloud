@@ -106,7 +106,7 @@ public class SysRoleController {
     @CommonLog("删除角色")
     @PostMapping("/sys/role/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                               CommonValidList<SysRoleIdParam> sysRoleIdParamList) {
+                                       CommonValidList<SysRoleIdParam> sysRoleIdParamList) {
         sysRoleService.delete(sysRoleIdParamList);
         return CommonResult.ok();
     }
@@ -299,7 +299,7 @@ public class SysRoleController {
     @ApiOperationSupport(order = 18)
     @ApiOperation("获取角色选择器")
     @GetMapping("/sys/role/roleSelector")
-    public CommonResult<List<SysRole>> roleSelector(SysRoleSelectorRoleParam sysRoleSelectorRoleParam) {
+    public CommonResult<Page<SysRole>> roleSelector(SysRoleSelectorRoleParam sysRoleSelectorRoleParam) {
         return CommonResult.data(sysRoleService.roleSelector(sysRoleSelectorRoleParam));
     }
 
@@ -312,7 +312,7 @@ public class SysRoleController {
     @ApiOperationSupport(order = 19)
     @ApiOperation("获取用户选择器")
     @GetMapping("/sys/role/userSelector")
-    public CommonResult<List<SysUser>> userSelector(SysRoleSelectorUserParam sysRoleSelectorUserParam) {
+    public CommonResult<Page<SysUser>> userSelector(SysRoleSelectorUserParam sysRoleSelectorUserParam) {
         return CommonResult.data(sysRoleService.userSelector(sysRoleSelectorUserParam));
     }
 }

@@ -1,8 +1,11 @@
 package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import java.util.Date;
 
 @Getter
 @Setter
@@ -59,4 +62,9 @@ public class BizChartReviewsVo {
     /** 工程类别（历史表Hetong.SecondLevel） */
     @ApiModelProperty(value = "工程类别（历史表Hetong.SecondLevel）", position = 25)
     private String secondLevel;
+
+    /** 受理时间 */
+    @ApiModelProperty(value = "受理时间", position = 30)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    private Date optDate;
 }

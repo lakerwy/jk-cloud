@@ -619,20 +619,20 @@ public class BizUserServiceImpl extends ServiceImpl<BizUserMapper, BizUser> impl
         lambdaQueryWrapper.orderByAsc(BizOrg::getSortCode);
         List<BizOrg> bizOrgList = bizOrgService.list(lambdaQueryWrapper);
         List<TreeNode<String>> treeNodeList = bizOrgList.stream().map(bizOrg ->
-                new TreeNode<>(bizOrg.getId(), bizOrg.getParentId(), bizOrg.getName(), bizOrg.getSortCode()))
+                        new TreeNode<>(bizOrg.getId(), bizOrg.getParentId(), bizOrg.getName(), bizOrg.getSortCode()))
                 .collect(Collectors.toList());
         return TreeUtil.build(treeNodeList, "0");
     }
 
     @Override
-    public List<BizOrg> orgListSelector(BizUserSelectorOrgListParam bizUserSelectorOrgListParam) {
+    public Page<BizOrg> orgListSelector(BizUserSelectorOrgListParam bizUserSelectorOrgListParam) {
         LambdaQueryWrapper<BizOrg> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             lambdaQueryWrapper.in(BizOrg::getId, loginUserDataScope);
         } else {
-            return CollectionUtil.newArrayList();
+            return new Page<>();
         }
         // 查询部分字段
         lambdaQueryWrapper.select(BizOrg::getId, BizOrg::getParentId, BizOrg::getName,
@@ -644,18 +644,18 @@ public class BizUserServiceImpl extends ServiceImpl<BizUserMapper, BizUser> impl
             lambdaQueryWrapper.like(BizOrg::getName, bizUserSelectorOrgListParam.getSearchKey());
         }
         lambdaQueryWrapper.orderByAsc(BizOrg::getSortCode);
-        return bizOrgService.list(lambdaQueryWrapper);
+        return bizOrgService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
     }
 
     @Override
-    public List<BizPosition> positionSelector(BizUserSelectorPositionParam bizUserSelectorPositionParam) {
+    public Page<BizPosition> positionSelector(BizUserSelectorPositionParam bizUserSelectorPositionParam) {
         LambdaQueryWrapper<BizPosition> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             lambdaQueryWrapper.in(BizPosition::getOrgId, loginUserDataScope);
         } else {
-            return CollectionUtil.newArrayList();
+            return new Page<>();
         }
         // 查询部分字段
         lambdaQueryWrapper.select(BizPosition::getId, BizPosition::getOrgId, BizPosition::getName,
@@ -667,53 +667,59 @@ public class BizUserServiceImpl extends ServiceImpl<BizUserMapper, BizUser> impl
             lambdaQueryWrapper.like(BizPosition::getName, bizUserSelectorPositionParam.getSearchKey());
         }
         lambdaQueryWrapper.orderByAsc(BizPosition::getSortCode);
-        return bizPositionService.list(lambdaQueryWrapper);
+        return bizPositionService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
     }
 
+    @SuppressWarnings("ALL")
     @Override
-    public List<BizUserRoleResult> roleSelector(BizUserSelectorRoleParam bizUserSelectorRoleParam) {
+    public Page<BizUserRoleResult> roleSelector(BizUserSelectorRoleParam bizUserSelectorRoleParam) {
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             if(ObjectUtil.isNotEmpty(bizUserSelectorRoleParam.getOrgId())) {
                 if(loginUserDataScope.contains(bizUserSelectorRoleParam.getOrgId())) {
-                    return sysRoleApi.roleSelector(bizUserSelectorRoleParam.getOrgId(), bizUserSelectorRoleParam.getCategory(),
-                            bizUserSelectorRoleParam.getSearchKey()).stream().map(jsonObject ->
-                            JSONUtil.toBean(jsonObject, BizUserRoleResult.class)).collect(Collectors.toList());
+                    return BeanUtil.toBean(sysRoleApi.roleSelector(bizUserSelectorRoleParam.getOrgId(), bizUserSelectorRoleParam.getCategory(),
+                            bizUserSelectorRoleParam.getSearchKey(), loginUserDataScope), Page.class);
                 } else {
-                    return CollectionUtil.newArrayList();
+                    return new Page<>();
                 }
             } else {
-                return sysRoleApi.roleSelector(bizUserSelectorRoleParam.getOrgId(), bizUserSelectorRoleParam.getCategory(),
-                        bizUserSelectorRoleParam.getSearchKey()).stream().map(jsonObject ->
-                        JSONUtil.toBean(jsonObject, BizUserRoleResult.class)).filter(bizUserRoleResult -> ObjectUtil
-                        .isNotEmpty(bizUserRoleResult.getOrgId()) && loginUserDataScope.contains(bizUserRoleResult.getOrgId()))
-                        .collect(Collectors.toList());
+                return BeanUtil.toBean(sysRoleApi.roleSelector(bizUserSelectorRoleParam.getOrgId(), bizUserSelectorRoleParam.getCategory(),
+                        bizUserSelectorRoleParam.getSearchKey(), loginUserDataScope), Page.class);
             }
         } else {
-            return CollectionUtil.newArrayList();
+            return new Page<>();
         }
     }
 
     @Override
-    public List<BizUser> userSelector(BizUserSelectorUserParam bizUserSelectorUserParam) {
+    public Page<BizUser> userSelector(BizUserSelectorUserParam bizUserSelectorUserParam) {
         LambdaQueryWrapper<BizUser> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             lambdaQueryWrapper.in(BizUser::getOrgId, loginUserDataScope);
         } else {
-            return CollectionUtil.newArrayList();
+            return new Page<>();
         }
         // 只查询部分字段
-        lambdaQueryWrapper.select(BizUser::getId, BizUser::getOrgId, BizUser::getAccount, BizUser::getName, BizUser::getSortCode);
-        if(ObjectUtil.isNotEmpty(bizUserSelectorUserParam.getOrgId())) {
-            lambdaQueryWrapper.eq(BizUser::getOrgId, bizUserSelectorUserParam.getOrgId());
+        lambdaQueryWrapper.select(BizUser::getId, BizUser::getAvatar, BizUser::getOrgId, BizUser::getPositionId, BizUser::getAccount,
+                BizUser::getName, BizUser::getSortCode, BizUser::getGender, BizUser::getEntryDate);
+        if (ObjectUtil.isNotEmpty(bizUserSelectorUserParam.getOrgId())) {
+            // 如果机构id不为空，则查询该机构及其子机构下的所有人
+            List<String> childOrgIdList = CollStreamUtil.toList(bizOrgService.getChildListById(bizOrgService
+                    .getAllOrgList(), bizUserSelectorUserParam.getOrgId(), true), BizOrg::getId);
+            if (ObjectUtil.isNotEmpty(childOrgIdList)) {
+                lambdaQueryWrapper.in(BizUser::getOrgId, childOrgIdList);
+            } else {
+                return new Page<>();
+            }
         }
         if(ObjectUtil.isNotEmpty(bizUserSelectorUserParam.getSearchKey())) {
             lambdaQueryWrapper.like(BizUser::getName, bizUserSelectorUserParam.getSearchKey());
         }
         lambdaQueryWrapper.orderByAsc(BizUser::getSortCode);
-        return this.list(lambdaQueryWrapper);
+        return this.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
     }
+
 }

@@ -13,6 +13,7 @@
 package vip.xiaonuo.flw.modular.process.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
@@ -942,12 +943,13 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         return sysOrgApi.orgTreeSelector();
     }
 
-    @Override
-    public List<FlwProcessUserResult> userSelector(FlwProcessSelectorUserParam flwProcessSelectorUserParam) {
-        return sysUserApi.userSelector(flwProcessSelectorUserParam.getOrgId(), flwProcessSelectorUserParam.getSearchKey())
-                .stream().map(jsonObject -> JSONUtil.toBean(jsonObject, FlwProcessUserResult.class)).collect(Collectors.toList());
-    }
 
+    @SuppressWarnings("ALL")
+    @Override
+    public Page<FlwProcessUserResult> userSelector(FlwProcessSelectorUserParam flwProcessSelectorUserParam) {
+        return BeanUtil.toBean(sysUserApi.userSelector(flwProcessSelectorUserParam.getOrgId(), flwProcessSelectorUserParam.getSearchKey()), Page.class);
+
+    }
     /**
      * 获取任务审批记录
      *

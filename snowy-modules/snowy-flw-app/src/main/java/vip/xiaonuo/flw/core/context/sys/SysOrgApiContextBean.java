@@ -17,6 +17,8 @@ import cn.hutool.core.lang.TypeReference;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -99,10 +101,10 @@ public class SysOrgApiContextBean implements SysOrgApi {
      * @date 2022/7/22 14:45
      */
     @Override
-    public List<JSONObject> orgListSelector(String parentId) {
+    public Page<JSONObject> orgListSelector(String parentId) {
         String feignResp = sysOrgFeign.orgListSelector(parentId);
-        JSONArray jsonArray = new JSONArray(feignResp);
-        List<JSONObject> resp = jsonArray.toList(JSONObject.class);
+        Page<JSONObject> resp = (Page<JSONObject>) JSONUtil.toBean(feignResp,Page.class);
         return resp;
     }
+
 }

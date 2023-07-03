@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -41,6 +42,7 @@ import java.util.List;
  * @date  2023/07/03 11:46
  **/
 @Service
+@DS("slave_1")
 public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper, BizMapRegister> implements BizMapRegisterService {
 
     @Override

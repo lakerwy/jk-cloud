@@ -113,8 +113,8 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
             return CollectionUtil.newArrayList();
         }
         List<TreeNode<String>> treeNodeList = bizOrgSet.stream().map(bizOrg ->
-                new TreeNode<>(bizOrg.getId(), bizOrg.getParentId(),
-                        bizOrg.getName(), bizOrg.getSortCode()).setExtra(JSONUtil.parseObj(bizOrg)))
+                        new TreeNode<>(bizOrg.getId(), bizOrg.getParentId(),
+                                bizOrg.getName(), bizOrg.getSortCode()).setExtra(JSONUtil.parseObj(bizOrg)))
                 .collect(Collectors.toList());
         return TreeUtil.build(treeNodeList, "0");
     }
@@ -259,7 +259,7 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
     public String getOrgIdByOrgFullNameWithCreate(String orgFullName) {
         List<BizOrg> allOrgList = this.getAllOrgList();
         List<Tree<String>> treeList = TreeUtil.build(allOrgList.stream().map(bizOrg ->
-                new TreeNode<>(bizOrg.getId(), bizOrg.getParentId(), bizOrg.getName(), bizOrg.getSortCode()))
+                        new TreeNode<>(bizOrg.getId(), bizOrg.getParentId(), bizOrg.getName(), bizOrg.getSortCode()))
                 .collect(Collectors.toList()), "0");
         return findOrgIdByOrgName("0", StrUtil.split(orgFullName, StrUtil.DASHED).iterator(), allOrgList, treeList);
     }
@@ -319,7 +319,7 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
         lambdaQueryWrapper.orderByAsc(BizOrg::getSortCode);
         List<BizOrg> bizOrgList = this.list(lambdaQueryWrapper);
         List<TreeNode<String>> treeNodeList = bizOrgList.stream().map(bizOrg ->
-                new TreeNode<>(bizOrg.getId(), bizOrg.getParentId(), bizOrg.getName(), bizOrg.getSortCode()))
+                        new TreeNode<>(bizOrg.getId(), bizOrg.getParentId(), bizOrg.getName(), bizOrg.getSortCode()))
                 .collect(Collectors.toList());
         return TreeUtil.build(treeNodeList, "0");
     }
@@ -348,17 +348,18 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
     }
 
     @Override
-    public List<BizUser> userSelector(BizOrgSelectorUserParam bizOrgSelectorUserParam) {
+    public Page<BizUser> userSelector(BizOrgSelectorUserParam bizOrgSelectorUserParam) {
         LambdaQueryWrapper<BizUser> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             lambdaQueryWrapper.in(BizUser::getOrgId, loginUserDataScope);
         } else {
-            return CollectionUtil.newArrayList();
+            return new Page<>();
         }
         // 只查询部分字段
-        lambdaQueryWrapper.select(BizUser::getId, BizUser::getOrgId, BizUser::getAccount, BizUser::getName);
+        lambdaQueryWrapper.select(BizUser::getId, BizUser::getAvatar, BizUser::getOrgId, BizUser::getPositionId, BizUser::getAccount,
+                BizUser::getName, BizUser::getSortCode, BizUser::getGender, BizUser::getEntryDate);
         if(ObjectUtil.isNotEmpty(bizOrgSelectorUserParam.getOrgId())) {
             lambdaQueryWrapper.eq(BizUser::getOrgId, bizOrgSelectorUserParam.getOrgId());
         }
@@ -366,7 +367,7 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
             lambdaQueryWrapper.like(BizUser::getName, bizOrgSelectorUserParam.getSearchKey());
         }
         lambdaQueryWrapper.orderByAsc(BizUser::getSortCode);
-        return bizUserService.list(lambdaQueryWrapper);
+        return bizUserService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
     }
 
     /* ====以下为各种递归方法==== */
