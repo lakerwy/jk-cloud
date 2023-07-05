@@ -27,6 +27,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.param.HetongEditParam;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongIdParam;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -35,6 +36,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 业务表-CRM-合同控制器
@@ -126,5 +128,19 @@ public class HetongController {
     @GetMapping("/biz/crm/hetong/detail")
     public CommonResult<Hetong> detail(@Valid HetongIdParam hetongIdParam) {
         return CommonResult.data(hetongService.detail(hetongIdParam));
+    }
+
+    /**
+     * 获取业务表-CRM-合同详情
+     *
+     * @author yong.ye
+     * @date  2023/06/30 14:49
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取业务表-CRM-合同列表  【api/crm/contract/GetHetongList】")
+//    @SaCheckPermission("/biz/hetong/detail")
+    @GetMapping("/biz/crm/hetong/listAll")
+    public CommonResult<List<HetongInfoVo>> listAll() {
+        return CommonResult.data(hetongService.getListAll());
     }
 }

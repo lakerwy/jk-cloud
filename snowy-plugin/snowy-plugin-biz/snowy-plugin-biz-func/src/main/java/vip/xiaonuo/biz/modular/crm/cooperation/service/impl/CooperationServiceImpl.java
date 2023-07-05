@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.contractrr.entity.Contractrr;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -36,6 +37,8 @@ import vip.xiaonuo.biz.modular.crm.cooperation.param.CooperationPageParam;
 import vip.xiaonuo.biz.modular.crm.cooperation.service.CooperationService;
 import vip.xiaonuo.common.util.CommonSnUtil;
 
+import java.time.LocalDate;
+import java.time.Year;
 import java.util.Date;
 import java.util.List;
 
@@ -53,6 +56,17 @@ public class CooperationServiceImpl extends ServiceImpl<CooperationMapper, Coope
     @Override
     public Page<Cooperation> page(CooperationPageParam cooperationPageParam) {
         QueryWrapper<Cooperation> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(cooperationPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Cooperation::getContractNo, cooperationPageParam.getSearchKey()).or()
+                    .like(Cooperation::getOpt, cooperationPageParam.getSearchKey()).or()
+                    .like(Cooperation::getProtocolName, cooperationPageParam.getSearchKey()).or()
+                    .like(Cooperation::getFirstParty, cooperationPageParam.getSearchKey()).or()
+                    .like(Cooperation::getCounterparty, cooperationPageParam.getSearchKey()).or()
+                    .like(Cooperation::getCompanyOrDepartment, cooperationPageParam.getSearchKey()).or()
+                    .like(Cooperation::getOwner, cooperationPageParam.getSearchKey()).or()
+                    .like(Cooperation::getContractType, cooperationPageParam.getSearchKey()).or()
+                    .like(Cooperation::getAgent, cooperationPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(cooperationPageParam.getRegisterYear())) {
             queryWrapper.lambda().eq(Cooperation::getRegisterYear, cooperationPageParam.getRegisterYear());
         }
@@ -94,7 +108,7 @@ public class CooperationServiceImpl extends ServiceImpl<CooperationMapper, Coope
             queryWrapper.orderBy(true, cooperationPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(cooperationPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Cooperation::getId);
+            queryWrapper.lambda().orderByDesc(Cooperation::getContractNo);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -109,7 +123,7 @@ public class CooperationServiceImpl extends ServiceImpl<CooperationMapper, Coope
         cooperation.setContractNo(newSn);
         cooperation.setOpt(StpLoginUserUtil.getLoginUser().getName());
         cooperation.setOptDate(new Date());
-        cooperation.setRegisterYear(new Date().getYear());
+        cooperation.setRegisterYear(LocalDate.now().getYear());
         this.save(cooperation);
     }
 

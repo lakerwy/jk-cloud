@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -12,6 +14,9 @@ import java.util.Date;
  * @author yong.ye
  * @date 2023/7/4 9:34
  */
+
+@Getter
+@Setter
 public class InvoiceRegisterPageInfoVo {
 
 

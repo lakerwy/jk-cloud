@@ -23,8 +23,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.fpinformations.entity.Fpinformations;
 import vip.xiaonuo.biz.modular.crm.fpinformations.service.FpinformationsService;
+import vip.xiaonuo.biz.modular.crm.pursalecontract.entity.Pursalecontract;
 import vip.xiaonuo.biz.modular.crm.rollinout.param.*;
 import vip.xiaonuo.biz.modular.crm.rollinout.vo.RollinoutInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
@@ -37,6 +39,7 @@ import vip.xiaonuo.biz.modular.crm.rollinout.service.RollinoutService;
 import vip.xiaonuo.common.util.CommonSnUtil;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -59,6 +62,15 @@ public class RollinoutServiceImpl extends ServiceImpl<RollinoutMapper, Rollinout
     @Override
     public Page<Rollinout> page(RollinoutPageParam rollinoutPageParam) {
         QueryWrapper<Rollinout> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(rollinoutPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Rollinout::getName, rollinoutPageParam.getSearchKey()).or()
+                    .like(Rollinout::getOpt, rollinoutPageParam.getSearchKey()).or()
+                    .like(Rollinout::getFund, rollinoutPageParam.getSearchKey()).or()
+                    .like(Rollinout::getSn, rollinoutPageParam.getSearchKey()).or()
+                    .like(Rollinout::getSocial, rollinoutPageParam.getSearchKey()).or()
+                    .like(Rollinout::getDept, rollinoutPageParam.getSearchKey()).or()
+                    .like(Rollinout::getLimit, rollinoutPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(rollinoutPageParam.getFpId())) {
             queryWrapper.lambda().eq(Rollinout::getFpId, rollinoutPageParam.getFpId());
         }
@@ -88,7 +100,7 @@ public class RollinoutServiceImpl extends ServiceImpl<RollinoutMapper, Rollinout
             queryWrapper.orderBy(true, rollinoutPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(rollinoutPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Rollinout::getId);
+            queryWrapper.lambda().orderByDesc(Rollinout::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -101,6 +113,8 @@ public class RollinoutServiceImpl extends ServiceImpl<RollinoutMapper, Rollinout
         Rollinout tmp = this.getOne(new QueryWrapper<Rollinout>().lambda().orderByDesc(Rollinout::getCreateTime).last("limit 1"));
         String newSn = CommonSnUtil.GenerateSn(rollinoutAddParam.getSn(), tmp == null ? "" : tmp.getSn(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
         rollinout.setSn(newSn);
+        rollinout.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        rollinout.setOptDate(new Date());
         this.save(rollinout);
 
         //反更新人员信息的社保+公积金情况
@@ -148,6 +162,15 @@ public class RollinoutServiceImpl extends ServiceImpl<RollinoutMapper, Rollinout
     @Override
     public IPage<RollinoutInfoVo> pageList(RollinoutInfoPageParam rollinoutInfoPageParam) {
         QueryWrapper<Rollinout> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(rollinoutInfoPageParam.getSearchKey())) {
+            queryWrapper.like("a.NAME", rollinoutInfoPageParam.getSearchKey()).or()
+                    .like("a.OPT", rollinoutInfoPageParam.getSearchKey()).or()
+                    .like("a.FUND", rollinoutInfoPageParam.getSearchKey()).or()
+                    .like("a.SN", rollinoutInfoPageParam.getSearchKey()).or()
+                    .like("a.SOCIAL", rollinoutInfoPageParam.getSearchKey()).or()
+                    .like("a.DEPT", rollinoutInfoPageParam.getSearchKey()).or()
+                    .like("a.LIMIT", rollinoutInfoPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(rollinoutInfoPageParam.getSn())) {
             queryWrapper.like("a.SN", rollinoutInfoPageParam.getSn());
         }

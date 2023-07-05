@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.crm.major.entity.Major;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -49,6 +50,9 @@ public class MajorleaderServiceImpl extends ServiceImpl<MajorleaderMapper, Major
     @Override
     public Page<Majorleader> page(MajorleaderPageParam majorleaderPageParam) {
         QueryWrapper<Majorleader> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(majorleaderPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Majorleader::getUserName, majorleaderPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(majorleaderPageParam.getMajorId())) {
             queryWrapper.lambda().eq(Majorleader::getMajorId, majorleaderPageParam.getMajorId());
         }

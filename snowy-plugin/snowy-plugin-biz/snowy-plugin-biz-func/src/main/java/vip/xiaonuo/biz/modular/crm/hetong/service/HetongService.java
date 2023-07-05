@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongAddParam;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongEditParam;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
 
 import java.util.List;
 
@@ -77,4 +78,12 @@ public interface HetongService extends IService<Hetong> {
      * @date  2023/06/30 14:49
      **/
     Hetong queryEntity(String id);
+
+    /**
+     * 获取业务表-CRM-合同列表
+     *
+     * @author yong.ye
+     * @date  2023/06/30 14:49
+     **/
+    List<HetongInfoVo> getListAll();
 }

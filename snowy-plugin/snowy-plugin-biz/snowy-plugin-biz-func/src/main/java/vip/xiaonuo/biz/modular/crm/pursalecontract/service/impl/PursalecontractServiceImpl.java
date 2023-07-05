@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -53,6 +54,17 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
     @Override
     public Page<Pursalecontract> page(PursalecontractPageParam pursalecontractPageParam) {
         QueryWrapper<Pursalecontract> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(pursalecontractPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Pursalecontract::getContractNo, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getOpt, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getContractName, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getPartyA, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getOperator, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getDept, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getBehalfA, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getBehalfB, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getPartyB, pursalecontractPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(pursalecontractPageParam.getEndRegisterDate())) {
             queryWrapper.lambda().between(Pursalecontract::getRegisterDate, pursalecontractPageParam.getStartRegisterDate(), pursalecontractPageParam.getEndRegisterDate());
         }
@@ -91,7 +103,7 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
             queryWrapper.orderBy(true, pursalecontractPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(pursalecontractPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Pursalecontract::getId);
+            queryWrapper.lambda().orderByDesc(Pursalecontract::getContractNo);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

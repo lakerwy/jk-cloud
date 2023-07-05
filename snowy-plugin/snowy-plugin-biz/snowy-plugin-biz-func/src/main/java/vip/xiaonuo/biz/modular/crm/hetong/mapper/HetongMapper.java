@@ -14,6 +14,9 @@ package vip.xiaonuo.biz.modular.crm.hetong.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
+
+import java.util.List;
 
 /**
  * 业务表-CRM-合同Mapper接口
@@ -22,4 +25,5 @@ import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
  * @date  2023/06/30 14:49
  **/
 public interface HetongMapper extends BaseMapper<Hetong> {
+    List<HetongInfoVo> getListAll();
 }

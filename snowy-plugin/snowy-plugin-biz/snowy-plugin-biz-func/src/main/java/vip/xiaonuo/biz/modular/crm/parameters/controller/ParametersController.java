@@ -155,7 +155,7 @@ public class ParametersController {
      * @author yong.ye
      * @date  2023/07/03 14:04
      */
-    @ApiOperationSupport(order = 7)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("根据合同ID获取合同参数详情（携带合同信息）  【api/crm/contract/GetParametersByHetongId】")
     @GetMapping("/biz/crm/parameters/detailByHetongId")
     public CommonResult<ParametersInfoVo> detailByHetongId(@Valid ParametersHetongIdParam parametersHetongIdParam) {

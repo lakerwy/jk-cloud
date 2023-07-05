@@ -134,7 +134,7 @@ public class MajorController {
      * @date  2023/07/04 14:04
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("获取合作伙伴-分页   【api/crm/Draw/GetMajorPage】")
+    @ApiOperation("获取业务表-CRM-图审专业列表-分页   【api/crm/Draw/GetMajorPage】")
     @GetMapping("/biz/crm/major/listPage")
     public CommonResult<IPage<MajorInfoVo>> listPage(@Valid MajorPageParam majorPageParam) {
         return CommonResult.data(majorService.pageList(majorPageParam));

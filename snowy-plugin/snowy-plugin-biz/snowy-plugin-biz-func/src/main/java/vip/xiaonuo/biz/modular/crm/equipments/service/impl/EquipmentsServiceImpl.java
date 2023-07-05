@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.crm.cooperation.entity.Cooperation;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -49,6 +50,13 @@ public class EquipmentsServiceImpl extends ServiceImpl<EquipmentsMapper, Equipme
     @Override
     public Page<Equipments> page(EquipmentsPageParam equipmentsPageParam) {
         QueryWrapper<Equipments> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(equipmentsPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Equipments::getSn, equipmentsPageParam.getSearchKey()).or()
+                    .like(Equipments::getDept, equipmentsPageParam.getSearchKey()).or()
+                    .like(Equipments::getUsers, equipmentsPageParam.getSearchKey()).or()
+                    .like(Equipments::getEqNum, equipmentsPageParam.getSearchKey()).or()
+                    .like(Equipments::getEqType, equipmentsPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(equipmentsPageParam.getSn())) {
             queryWrapper.lambda().like(Equipments::getSn, equipmentsPageParam.getSn());
         }
@@ -75,7 +83,7 @@ public class EquipmentsServiceImpl extends ServiceImpl<EquipmentsMapper, Equipme
             queryWrapper.orderBy(true, equipmentsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(equipmentsPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Equipments::getId);
+            queryWrapper.lambda().orderByDesc(Equipments::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

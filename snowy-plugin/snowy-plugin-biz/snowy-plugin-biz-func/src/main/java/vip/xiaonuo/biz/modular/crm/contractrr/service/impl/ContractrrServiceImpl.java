@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.calocks.entity.Calocks;
 import vip.xiaonuo.biz.modular.crm.contractrr.param.*;
 import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrInfoVo;
 import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrPageInfoVo;
@@ -61,6 +62,11 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
     @Override
     public Page<Contractrr> page(ContractrrPageParam contractrrPageParam) {
         QueryWrapper<Contractrr> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(contractrrPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Contractrr::getSn, contractrrPageParam.getSearchKey()).or()
+                    .like(Contractrr::getContractNo, contractrrPageParam.getSearchKey()).or()
+                    .like(Contractrr::getOpt, contractrrPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(contractrrPageParam.getSn())) {
             queryWrapper.lambda().like(Contractrr::getSn, contractrrPageParam.getSn());
         }
@@ -78,7 +84,7 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
             queryWrapper.orderBy(true, contractrrPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(contractrrPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Contractrr::getId);
+            queryWrapper.lambda().orderByDesc(Contractrr::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -128,6 +134,12 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
     @Override
     public IPage<ContractrrPageInfoVo> pageList(ContractrrPageInfoParam contractrrPageInfoParam) {
         QueryWrapper<Contractrr> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(contractrrPageInfoParam.getSearchKey())) {
+            queryWrapper.like("a.SN", contractrrPageInfoParam.getSearchKey()).or()
+                    .like("a.CONTRACT_NO", contractrrPageInfoParam.getSearchKey()).or()
+                    .like("b.CONTRACT_NAME", contractrrPageInfoParam.getSearchKey()).or()
+                    .like("b.COMPANY_OR_DEPARTMENT", contractrrPageInfoParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getSn())) {
             queryWrapper.like("a.SN", contractrrPageInfoParam.getSn());
         }
@@ -153,7 +165,7 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
             queryWrapper.orderBy(true, contractrrPageInfoParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(contractrrPageInfoParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.ID");
+            queryWrapper.orderByDesc("a.SN");
         }
         return contractrrMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

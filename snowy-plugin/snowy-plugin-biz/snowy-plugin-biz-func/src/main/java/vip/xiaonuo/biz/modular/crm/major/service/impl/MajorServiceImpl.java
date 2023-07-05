@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.crm.invoiceregister.entity.Invoiceregister;
 import vip.xiaonuo.biz.modular.crm.major.vo.MajorInfoVo;
 import vip.xiaonuo.biz.modular.crm.majorleader.entity.Majorleader;
 import vip.xiaonuo.biz.modular.crm.majorleader.param.MajorleaderAddParam;
@@ -65,6 +66,10 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
     @Override
     public Page<Major> page(MajorPageParam majorPageParam) {
         QueryWrapper<Major> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(majorPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Major::getMajorNo, majorPageParam.getSearchKey()).or()
+                    .like(Major::getMajorName, majorPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(majorPageParam.getMajorName())) {
             queryWrapper.lambda().like(Major::getMajorName, majorPageParam.getMajorName());
         }
@@ -76,7 +81,7 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
             queryWrapper.orderBy(true, majorPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(majorPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Major::getId);
+            queryWrapper.lambda().orderByDesc(Major::getMajorNo);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -94,7 +99,11 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
         List<MajorleaderAddParam> majorleaderAddParams = majorAddParam.getMajorleaders();
         if(CollUtil.isNotEmpty(majorleaderAddParams)){
             List<Majorleader> majorleaders = majorleaderAddParams.stream().map(MajorleaderAddParam -> BeanUtil.toBean(MajorleaderAddParam, Majorleader.class)).collect(Collectors.toList());
-            majorleaders.forEach(majorleader -> majorleader.setMajorId(major.getId()));
+            majorleaders.forEach(majorleader ->
+            {
+                majorleader.setMajorId(major.getId()) ;
+                majorleader.setDeleteFlag("NOT_DELETE") ;
+            });
             majorleaderService.saveBatch(majorleaders);
         }
     }
@@ -119,7 +128,11 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
             List<Majorleader> list = majorleaderService.list(wrapper);
             //处理数据，赋予外键，获取已设置的majorleader主键Id
             Major finalMajor = major;
-            majorLeaders.forEach(majorLeader->majorLeader.setMajorId(finalMajor.getId()));
+            majorLeaders.forEach(majorLeader->
+            {
+                majorLeader.setMajorId(finalMajor.getId());
+                majorLeader.setDeleteFlag("NOT_DELETE");
+            });
             //主键暂存区（已设置的数据库值）
             Set<String> ids = new HashSet<>();
             if(CollUtil.isNotEmpty(list)){
@@ -181,6 +194,10 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
     @Override
     public IPage<MajorInfoVo> pageList(MajorPageParam majorPageParam) {
         QueryWrapper<Major> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(majorPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Major::getMajorNo, majorPageParam.getSearchKey()).or()
+                    .like(Major::getMajorName, majorPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(majorPageParam.getMajorName())) {
             queryWrapper.lambda().like(Major::getMajorName, majorPageParam.getMajorName());
         }
@@ -192,7 +209,7 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
             queryWrapper.orderBy(true, majorPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(majorPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Major::getId);
+            queryWrapper.lambda().orderByDesc(Major::getMajorNo);
         }
         return majorMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

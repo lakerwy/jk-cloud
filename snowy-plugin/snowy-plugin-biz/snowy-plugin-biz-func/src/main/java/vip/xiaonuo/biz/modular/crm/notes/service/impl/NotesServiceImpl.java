@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.major.entity.Major;
 import vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -59,6 +60,13 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
     @Override
     public Page<Notes> page(NotesPageParam notesPageParam) {
         QueryWrapper<Notes> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(notesPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Notes::getSn, notesPageParam.getSearchKey()).or()
+                    .like(Notes::getOpt, notesPageParam.getSearchKey()).or()
+                    .like(Notes::getPartnerNo, notesPageParam.getSearchKey()).or()
+                    .like(Notes::getContractNo, notesPageParam.getSearchKey()).or()
+                    .like(Notes::getNote, notesPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(notesPageParam.getSn())) {
             queryWrapper.lambda().like(Notes::getSn, notesPageParam.getSn());
         }
@@ -94,7 +102,7 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
             queryWrapper.orderBy(true, notesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(notesPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Notes::getId);
+            queryWrapper.lambda().orderByDesc(Notes::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -146,6 +154,13 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
         QueryWrapper<Notes> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
         queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
+        if (ObjectUtil.isNotEmpty(notesPageParam.getSearchKey())) {
+            queryWrapper.like("a.SN", notesPageParam.getSearchKey()).or()
+                    .like("a.CONTRACT_NO", notesPageParam.getSearchKey()).or()
+                    .like("a.PARTNER_NO", notesPageParam.getSearchKey()).or()
+                    .like("b.contractName", notesPageParam.getSearchKey()).or()
+                    .like("b.partnerName", notesPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(notesPageParam.getSn())) {
             queryWrapper.like("a.SN", notesPageParam.getSn());
         }
@@ -181,7 +196,7 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
             queryWrapper.orderBy(true, notesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(notesPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.ID");
+            queryWrapper.orderByAsc("a.SN");
         }
         return notesMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

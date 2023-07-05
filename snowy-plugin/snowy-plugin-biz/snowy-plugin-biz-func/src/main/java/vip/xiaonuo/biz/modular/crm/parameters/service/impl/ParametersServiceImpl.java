@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.notes.entity.Notes;
 import vip.xiaonuo.biz.modular.crm.parameters.param.*;
 import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
@@ -54,6 +55,10 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
     @Override
     public Page<Parameters> page(ParametersPageParam parametersPageParam) {
         QueryWrapper<Parameters> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(parametersPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Parameters::getSn, parametersPageParam.getSearchKey()).or()
+                    .like(Parameters::getOpt, parametersPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getCoveredArea())) {
             queryWrapper.lambda().like(Parameters::getCoveredArea, parametersPageParam.getCoveredArea());
         }
@@ -119,7 +124,7 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
             queryWrapper.orderBy(true, parametersPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(parametersPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Parameters::getId);
+            queryWrapper.lambda().orderByDesc(Parameters::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -169,6 +174,17 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
     @Override
     public IPage<ParametersInfoVo> pageList(ParametersInfoPageParam parametersInfoPageParam) {
         QueryWrapper<Parameters> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(parametersInfoPageParam.getSearchKey())) {
+            queryWrapper.like("a.SN", parametersInfoPageParam.getSearchKey()).or()
+                    .like("a.OPT", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.mainSecondLevel", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.mainContractNo", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.mainProjectName", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.mainCounterparty", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.mainSecondparty", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.mainCompanyOrDepartment", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.mainDescription", parametersInfoPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getCoveredArea())) {
             queryWrapper.like("a.COVERED_AREA", parametersInfoPageParam.getCoveredArea());
         }
@@ -270,7 +286,7 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
             queryWrapper.orderBy(true, parametersInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(parametersInfoPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.ID");
+            queryWrapper.orderByAsc("a.SN");
         }
 
         return parametersMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);

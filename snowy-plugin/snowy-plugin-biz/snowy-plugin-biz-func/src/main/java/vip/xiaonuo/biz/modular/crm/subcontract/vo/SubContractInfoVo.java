@@ -5,6 +5,8 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -13,6 +15,8 @@ import java.util.Date;
  * @author yong.ye
  * @date 2023/7/3 15:56
  */
+@Getter
+@Setter
 public class SubContractInfoVo {
 
     /** 主键ID（历史表SubContract.Id） */

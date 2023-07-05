@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.rollinout.entity.Rollinout;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
@@ -54,6 +55,17 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
     @Override
     public Page<Subcontract> page(SubcontractPageParam subcontractPageParam) {
         QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(subcontractPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Subcontract::getSecondLevel, subcontractPageParam.getSearchKey()).or()
+                    .like(Subcontract::getOpt, subcontractPageParam.getSearchKey()).or()
+                    .like(Subcontract::getContractNo, subcontractPageParam.getSearchKey()).or()
+                    .like(Subcontract::getCompanyOrDepartment, subcontractPageParam.getSearchKey()).or()
+                    .like(Subcontract::getProjectName, subcontractPageParam.getSearchKey()).or()
+                    .like(Subcontract::getCounterparty, subcontractPageParam.getSearchKey()).or()
+                    .like(Subcontract::getMainContractNo, subcontractPageParam.getSearchKey()).or()
+                    .like(Subcontract::getOwner, subcontractPageParam.getSearchKey()).or()
+                    .like(Subcontract::getFirstparty, subcontractPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getOpt())) {
             queryWrapper.lambda().like(Subcontract::getOpt, subcontractPageParam.getOpt());
         }
@@ -98,7 +110,7 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
             queryWrapper.orderBy(true, subcontractPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(subcontractPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Subcontract::getId);
+            queryWrapper.lambda().orderByDesc(Subcontract::getContractNo);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

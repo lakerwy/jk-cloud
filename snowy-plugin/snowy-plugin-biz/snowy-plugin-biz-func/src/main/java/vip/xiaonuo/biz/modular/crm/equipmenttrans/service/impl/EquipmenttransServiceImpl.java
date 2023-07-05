@@ -57,6 +57,12 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
     @Override
     public Page<Equipmenttrans> page(EquipmenttransPageParam equipmenttransPageParam) {
         QueryWrapper<Equipmenttrans> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(equipmenttransPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Equipmenttrans::getEDept, equipmenttransPageParam.getSearchKey()).or()
+                    .like(Equipmenttrans::getDept, equipmenttransPageParam.getSearchKey()).or()
+                    .like(Equipmenttrans::getUsers, equipmenttransPageParam.getSearchKey()).or()
+                    .like(Equipmenttrans::getEUsers, equipmenttransPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(equipmenttransPageParam.getEqId())) {
             queryWrapper.lambda().eq(Equipmenttrans::getEqId, equipmenttransPageParam.getEqId());
         }
@@ -80,7 +86,7 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
             queryWrapper.orderBy(true, equipmenttransPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(equipmenttransPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Equipmenttrans::getId);
+            queryWrapper.lambda().orderByDesc(Equipmenttrans::getId);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -135,6 +141,12 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
     @Override
     public IPage<EquipmenttransInfoVo> pageList(EquipmenttransInfoPageParam equipmenttransInfoPageParam) {
         QueryWrapper<Equipmenttrans> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSearchKey())) {
+            queryWrapper.like("a.DEPT", equipmenttransInfoPageParam.getSearchKey()).or()
+                    .like("a.USERS", equipmenttransInfoPageParam.getSearchKey()).or()
+                    .like("b.SN", equipmenttransInfoPageParam.getSearchKey()).or()
+                    .like("b.eqNum", equipmenttransInfoPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSN())) {
             queryWrapper.like("b.sn", equipmenttransInfoPageParam.getSN());
         }
@@ -157,7 +169,7 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
             queryWrapper.orderBy(true, equipmenttransInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(equipmenttransInfoPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.ID");
+            queryWrapper.orderByAsc("b.sn");
         }
 
         return equipmenttransMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);

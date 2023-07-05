@@ -62,6 +62,11 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
     @Override
     public Page<Invoiceregister> page(InvoiceregisterPageParam invoiceregisterPageParam) {
         QueryWrapper<Invoiceregister> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(invoiceregisterPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Invoiceregister::getSn, invoiceregisterPageParam.getSearchKey()).or()
+                    .like(Invoiceregister::getContractNo, invoiceregisterPageParam.getSearchKey()).or()
+                    .like(Invoiceregister::getNote, invoiceregisterPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(invoiceregisterPageParam.getSn())) {
             queryWrapper.lambda().like(Invoiceregister::getSn, invoiceregisterPageParam.getSn());
         }
@@ -79,7 +84,7 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             queryWrapper.orderBy(true, invoiceregisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoiceregisterPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Invoiceregister::getId);
+            queryWrapper.lambda().orderByDesc(Invoiceregister::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -129,6 +134,12 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
     @Override
     public IPage<InvoiceRegisterPageInfoVo> pageList(InvoiceregisterInfoPageParam invoiceregisterInfoPageParam) {
         QueryWrapper<Invoiceregister> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getSearchKey())) {
+            queryWrapper.like("a.SN", invoiceregisterInfoPageParam.getSearchKey()).or()
+                    .like("a.CONTRACT_NO", invoiceregisterInfoPageParam.getSearchKey()).or()
+                    .like("b.contractName", invoiceregisterInfoPageParam.getSearchKey()).or()
+                    .like("b.companyOrDepartment", invoiceregisterInfoPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getSn())) {
             queryWrapper.like("a.SN", invoiceregisterInfoPageParam.getSn());
         }
@@ -155,7 +166,7 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             queryWrapper.orderBy(true, invoiceregisterInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoiceregisterInfoPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.ID");
+            queryWrapper.orderByAsc("a.SN");
         }
         return invoiceregisterMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

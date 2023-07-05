@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpClientLoginUserUtil;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.calocks.entity.Calocks;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -53,6 +54,13 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
     @Override
     public Page<Bidopen> page(BidopenPageParam bidopenPageParam) {
         QueryWrapper<Bidopen> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(bidopenPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Bidopen::getSn, bidopenPageParam.getSearchKey()).or()
+                    .like(Bidopen::getOpt, bidopenPageParam.getSearchKey()).or()
+                    .like(Bidopen::getProjectName, bidopenPageParam.getSearchKey()).or()
+                    .like(Bidopen::getBidNo, bidopenPageParam.getSearchKey()).or()
+                    .like(Bidopen::getType, bidopenPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getOpt())) {
             queryWrapper.lambda().like(Bidopen::getOpt, bidopenPageParam.getOpt());
         }
@@ -85,7 +93,7 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
             queryWrapper.orderBy(true, bidopenPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bidopenPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Bidopen::getId);
+            queryWrapper.lambda().orderByDesc(Bidopen::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

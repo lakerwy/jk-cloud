@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.hetong.mapper.HetongMapper;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongIdParam;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -36,6 +37,8 @@ import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.common.util.CommonSnUtil;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -49,9 +52,21 @@ import java.util.List;
 @Service
 public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> implements HetongService {
 
+    @Resource
+    private HetongMapper hetongMapper;
     @Override
     public Page<Hetong> page(HetongPageParam hetongPageParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(hetongPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Hetong::getSecondLevel, hetongPageParam.getSearchKey()).or()
+                    .like(Hetong::getContractNo, hetongPageParam.getSearchKey()).or()
+                    .like(Hetong::getProjectName, hetongPageParam.getSearchKey()).or()
+                    .like(Hetong::getCounterparty, hetongPageParam.getSearchKey()).or()
+                    .like(Hetong::getSecondparty, hetongPageParam.getSearchKey()).or()
+                    .like(Hetong::getCompanyOrDepartment, hetongPageParam.getSearchKey()).or()
+                    .like(Hetong::getBidOwner, hetongPageParam.getSearchKey()).or()
+                    .like(Hetong::getProjectLeader, hetongPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
             queryWrapper.lambda().between(Hetong::getRegisterDate, hetongPageParam.getStartRegisterDate(), hetongPageParam.getEndRegisterDate());
         }
@@ -102,7 +117,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.orderBy(true, hetongPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(hetongPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Hetong::getId);
+            queryWrapper.lambda().orderByDesc(Hetong::getContractNo);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -147,5 +162,10 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             throw new CommonException("业务表-CRM-合同不存在，id值为：{}", id);
         }
         return hetong;
+    }
+
+    @Override
+    public List<HetongInfoVo> getListAll() {
+        return hetongMapper.getListAll();
     }
 }

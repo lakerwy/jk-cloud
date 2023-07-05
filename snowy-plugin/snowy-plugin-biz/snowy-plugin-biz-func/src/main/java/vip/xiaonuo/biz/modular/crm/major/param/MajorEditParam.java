@@ -41,8 +41,8 @@ public class MajorEditParam {
     private String majorName;
 
     /** 专业编号（历史表Major.MajorNo） */
-    @ApiModelProperty(value = "专业编号（历史表Major.MajorNo）", position = 3)
-    private String majorNo;
+//    @ApiModelProperty(value = "专业编号（历史表Major.MajorNo  ）", position = 3)
+//    private String majorNo;
 
     @ApiModelProperty(value = "专业负责人", position = 4)
     private List<Majorleader> majorleaders;

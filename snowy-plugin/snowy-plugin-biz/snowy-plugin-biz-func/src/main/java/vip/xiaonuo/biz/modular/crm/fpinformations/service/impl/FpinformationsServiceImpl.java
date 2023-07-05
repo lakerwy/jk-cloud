@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.equipmenttrans.entity.Equipmenttrans;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -53,6 +54,18 @@ public class FpinformationsServiceImpl extends ServiceImpl<FpinformationsMapper,
     @Override
     public Page<Fpinformations> page(FpinformationsPageParam fpinformationsPageParam) {
         QueryWrapper<Fpinformations> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(fpinformationsPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Fpinformations::getSn, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getDept, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getName, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getIdNumber, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getSchool, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getEducation, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getMajor, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getCertificateNo, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getTitleNumber, fpinformationsPageParam.getSearchKey()).or()
+                    .like(Fpinformations::getSocialNumber, fpinformationsPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(fpinformationsPageParam.getSn())) {
             queryWrapper.lambda().like(Fpinformations::getSn, fpinformationsPageParam.getSn());
         }
@@ -79,7 +92,7 @@ public class FpinformationsServiceImpl extends ServiceImpl<FpinformationsMapper,
             queryWrapper.orderBy(true, fpinformationsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(fpinformationsPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Fpinformations::getId);
+            queryWrapper.lambda().orderByDesc(Fpinformations::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

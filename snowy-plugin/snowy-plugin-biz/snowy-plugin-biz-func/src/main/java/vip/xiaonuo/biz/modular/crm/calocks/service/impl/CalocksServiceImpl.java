@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpClientLoginUserUtil;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.bidopen.entity.Bidopen;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -54,6 +55,15 @@ public class CalocksServiceImpl extends ServiceImpl<CalocksMapper, Calocks> impl
     @Override
     public Page<Calocks> page(CalocksPageParam calocksPageParam) {
         QueryWrapper<Calocks> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(calocksPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Calocks::getSn, calocksPageParam.getSearchKey()).or()
+                    .like(Calocks::getOpt, calocksPageParam.getSearchKey()).or()
+                    .like(Calocks::getUnitName, calocksPageParam.getSearchKey()).or()
+                    .like(Calocks::getIssuer, calocksPageParam.getSearchKey()).or()
+                    .like(Calocks::getKeeper, calocksPageParam.getSearchKey()).or()
+                    .like(Calocks::getApplicant, calocksPageParam.getSearchKey()).or()
+                    .like(Calocks::getAccount1, calocksPageParam.getSearchKey());
+        }
         if(ObjectUtil.isNotEmpty(calocksPageParam.getOpt())) {
             queryWrapper.lambda().like(Calocks::getOpt, calocksPageParam.getOpt());
         }
@@ -83,7 +93,7 @@ public class CalocksServiceImpl extends ServiceImpl<CalocksMapper, Calocks> impl
             queryWrapper.orderBy(true, calocksPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(calocksPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Calocks::getId);
+            queryWrapper.lambda().orderByDesc(Calocks::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
