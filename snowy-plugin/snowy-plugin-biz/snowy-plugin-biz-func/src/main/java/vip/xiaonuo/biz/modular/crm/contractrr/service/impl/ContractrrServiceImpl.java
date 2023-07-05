@@ -159,7 +159,6 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
             queryWrapper.like("b.COMPANY_OR_DEPARTMENT", contractrrPageInfoParam.getCompanyOrDepartment());
         }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
-        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
         if(ObjectUtil.isAllNotEmpty(contractrrPageInfoParam.getSortField(), contractrrPageInfoParam.getSortOrder())) {
             CommonSortOrderEnum.validate(contractrrPageInfoParam.getSortOrder());
             queryWrapper.orderBy(true, contractrrPageInfoParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

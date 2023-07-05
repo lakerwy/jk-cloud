@@ -4,8 +4,8 @@
 
     <select id="getDetailById" resultType="vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo" parameterType="String">
         select a.*, b.SECOND_LEVEL as mainContractSecondLevel,b.PROJECT_NAME as mainContractName,b.CONTRACT_AMOUNT as mainContractAmount
-        from BIZ_CRM_SUBCONTRACT a left join BIZ_CRM_HETONG b on a.HETONG_ID = b.ID or a.MAIN_CONTRACT_NO = b.CONTRACT_NO
-        where a.ID = ${id} and b.DELETE_FLAG = 'NOT_DELETE'
+        from BIZ_CRM_SUBCONTRACT a left join BIZ_CRM_HETONG b on (a.HETONG_ID = b.ID or a.MAIN_CONTRACT_NO = b.CONTRACT_NO) and b.DELETE_FLAG = 'NOT_DELETE'
+        where a.ID = ${id}
     </select>
 
     <select id="getSubContractListByHetongId" resultType="vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract" parameterType="String">

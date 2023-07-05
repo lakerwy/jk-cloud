@@ -248,7 +248,6 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
 
         /* 合同信息 */
-        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainSecondLevel())) {
             queryWrapper.eq("b.mainSecondLevel", parametersInfoPageParam.getMainSecondLevel());
         }

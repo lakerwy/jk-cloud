@@ -160,8 +160,6 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
             queryWrapper.eq("b.status", equipmenttransInfoPageParam.getStatus());
         }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
-        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
-
 
         /* 排序 */
         if(ObjectUtil.isAllNotEmpty(equipmenttransInfoPageParam.getSortField(), equipmenttransInfoPageParam.getSortOrder())) {

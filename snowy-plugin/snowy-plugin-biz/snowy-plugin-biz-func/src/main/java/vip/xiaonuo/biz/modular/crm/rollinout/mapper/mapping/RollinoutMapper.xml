@@ -9,6 +9,6 @@
     <select id="getDetailById" resultType="vip.xiaonuo.biz.modular.crm.rollinout.vo.RollinoutInfoVo" parameterType="String">
         select a.*, b.ID_NUMBER as FPIDNumber,b.EDUCATION as FPEducation
         from BIZ_CRM_ROLLINOUT a left join BIZ_CRM_FPINFORMATIONS b on a.FP_ID = b.ID
-        where a.ID = ${id} and b.DELETE_FLAG = 'NOT_DELETE'
+        where a.ID = ${id}
     </select>
 </mapper>

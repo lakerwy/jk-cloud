@@ -159,7 +159,6 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             queryWrapper.like("b.COMPANY_OR_DEPARTMENT", invoiceregisterInfoPageParam.getCompanyOrDepartment());
         }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
-        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
 
         if(ObjectUtil.isAllNotEmpty(invoiceregisterInfoPageParam.getSortField(), invoiceregisterInfoPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceregisterInfoPageParam.getSortOrder());

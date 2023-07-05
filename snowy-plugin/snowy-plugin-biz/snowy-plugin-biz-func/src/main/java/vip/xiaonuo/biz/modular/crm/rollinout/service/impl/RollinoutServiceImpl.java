@@ -162,6 +162,7 @@ public class RollinoutServiceImpl extends ServiceImpl<RollinoutMapper, Rollinout
     @Override
     public IPage<RollinoutInfoVo> pageList(RollinoutInfoPageParam rollinoutInfoPageParam) {
         QueryWrapper<Rollinout> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
         if (ObjectUtil.isNotEmpty(rollinoutInfoPageParam.getSearchKey())) {
             queryWrapper.like("a.NAME", rollinoutInfoPageParam.getSearchKey()).or()
                     .like("a.OPT", rollinoutInfoPageParam.getSearchKey()).or()

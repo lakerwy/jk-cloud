@@ -16,7 +16,7 @@
                b.OWNER as mainOwner,b.CONTRACT_AMOUNT as mainContractAmount,b.INVEST_SCALE as mainInvestScale,b.STATUS as mainStatus,
                b.DESCRIPTION as mainDescription,b.NOTE as mainNote,b.BID_OWNER as mainBidOwner,b.PROJECT_LEADER as mainProjectLeader
         from BIZ_CRM_PARAMETERS a left join BIZ_CRM_HETONG b on a.PROJECT_ID = b.ID
-        where a.ID = ${id} and b.DELETE_FLAG = 'NOT_DELETE'
+        where a.ID = ${id}
     </select>
 
     <select id="getDetailByHetongId" resultType="vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo" parameterType="String">
@@ -25,6 +25,6 @@
                b.OWNER as mainOwner,b.CONTRACT_AMOUNT as mainContractAmount,b.INVEST_SCALE as mainInvestScale,b.STATUS as mainStatus,
                b.DESCRIPTION as mainDescription,b.NOTE as mainNote,b.BID_OWNER as mainBidOwner,b.PROJECT_LEADER as mainProjectLeader
         from BIZ_CRM_PARAMETERS a left join BIZ_CRM_HETONG b on a.PROJECT_ID = b.ID
-        where a.PROJECT_ID = ${hetongId} and a.DELETE_FLAG = 'NOT_DELETE' and b.DELETE_FLAG = 'NOT_DELETE'
+        where a.PROJECT_ID = ${hetongId} and a.DELETE_FLAG = 'NOT_DELETE'
     </select>
 </mapper>

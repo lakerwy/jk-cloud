@@ -153,7 +153,6 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
     public IPage<NotesInfoVo> pageList(NotesPageParam notesPageParam) {
         QueryWrapper<Notes> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
-        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
         if (ObjectUtil.isNotEmpty(notesPageParam.getSearchKey())) {
             queryWrapper.like("a.SN", notesPageParam.getSearchKey()).or()
                     .like("a.CONTRACT_NO", notesPageParam.getSearchKey()).or()
