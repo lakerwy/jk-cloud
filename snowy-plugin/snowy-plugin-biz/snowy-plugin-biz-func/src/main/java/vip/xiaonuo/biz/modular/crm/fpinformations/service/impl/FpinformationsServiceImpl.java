@@ -22,6 +22,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -32,7 +34,9 @@ import vip.xiaonuo.biz.modular.crm.fpinformations.param.FpinformationsEditParam;
 import vip.xiaonuo.biz.modular.crm.fpinformations.param.FpinformationsIdParam;
 import vip.xiaonuo.biz.modular.crm.fpinformations.param.FpinformationsPageParam;
 import vip.xiaonuo.biz.modular.crm.fpinformations.service.FpinformationsService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -84,6 +88,12 @@ public class FpinformationsServiceImpl extends ServiceImpl<FpinformationsMapper,
     @Override
     public void add(FpinformationsAddParam fpinformationsAddParam) {
         Fpinformations fpinformations = BeanUtil.toBean(fpinformationsAddParam, Fpinformations.class);
+        //处理Sn编号
+        Fpinformations tmp = this.getOne(new QueryWrapper<Fpinformations>().lambda().orderByDesc(Fpinformations::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(fpinformationsAddParam.getSn(), tmp == null ? "" : tmp.getSn(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        fpinformations.setSn(newSn);
+        fpinformations.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        fpinformations.setOptDate(new Date());
         this.save(fpinformations);
     }
 

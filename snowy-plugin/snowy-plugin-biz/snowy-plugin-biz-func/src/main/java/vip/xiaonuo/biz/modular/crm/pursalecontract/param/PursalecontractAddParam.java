@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.pursalecontract.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,6 +38,7 @@ public class PursalecontractAddParam {
 
     /** 登记日期（历史表PurSaleContract.RegisterDate） */
     @ApiModelProperty(value = "登记日期（历史表PurSaleContract.RegisterDate）", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date registerDate;
 
     /** 合同编号（历史表PurSaleContract.ContractNo） */
@@ -93,6 +95,7 @@ public class PursalecontractAddParam {
 
     /** 合同盖章日期（历史表PurSaleContract.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表PurSaleContract.SealDate）", position = 17)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date sealDate;
 
     /** 原件归档（历史表PurSaleContract.IsFill） */
@@ -101,6 +104,7 @@ public class PursalecontractAddParam {
 
     /** 归档日期（历史表PurSaleContract.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表PurSaleContract.FilingDate）", position = 19)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date filingDate;
 
     /** 合同金额（历史表PurSaleContract.Amount） */

@@ -22,6 +22,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpClientLoginUserUtil;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -32,7 +35,9 @@ import vip.xiaonuo.biz.modular.crm.bidopen.param.BidopenEditParam;
 import vip.xiaonuo.biz.modular.crm.bidopen.param.BidopenIdParam;
 import vip.xiaonuo.biz.modular.crm.bidopen.param.BidopenPageParam;
 import vip.xiaonuo.biz.modular.crm.bidopen.service.BidopenService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -89,6 +94,12 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
     @Override
     public void add(BidopenAddParam bidopenAddParam) {
         Bidopen bidopen = BeanUtil.toBean(bidopenAddParam, Bidopen.class);
+        //处理Sn编号
+        Bidopen tmp = this.getOne(new QueryWrapper<Bidopen>().lambda().orderByDesc(Bidopen::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(bidopenAddParam.getSn(), tmp == null ? "" : tmp.getSn(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        bidopen.setSn(newSn);
+        bidopen.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        bidopen.setOptDate(new Date());
         this.save(bidopen);
     }
 

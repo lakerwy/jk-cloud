@@ -18,21 +18,28 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
+import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
+import vip.xiaonuo.biz.modular.crm.invoiceregister.param.*;
+import vip.xiaonuo.biz.modular.crm.invoiceregister.vo.InvoiceRegisterInfoVo;
+import vip.xiaonuo.biz.modular.crm.invoiceregister.vo.InvoiceRegisterPageInfoVo;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.invoiceregister.entity.Invoiceregister;
 import vip.xiaonuo.biz.modular.crm.invoiceregister.mapper.InvoiceregisterMapper;
-import vip.xiaonuo.biz.modular.crm.invoiceregister.param.InvoiceregisterAddParam;
-import vip.xiaonuo.biz.modular.crm.invoiceregister.param.InvoiceregisterEditParam;
-import vip.xiaonuo.biz.modular.crm.invoiceregister.param.InvoiceregisterIdParam;
-import vip.xiaonuo.biz.modular.crm.invoiceregister.param.InvoiceregisterPageParam;
 import vip.xiaonuo.biz.modular.crm.invoiceregister.service.InvoiceregisterService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,6 +52,12 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMapper, Invoiceregister> implements InvoiceregisterService {
+
+    @Resource
+    private HetongService hetongService;
+
+    @Resource
+    private InvoiceregisterMapper invoiceregisterMapper;
 
     @Override
     public Page<Invoiceregister> page(InvoiceregisterPageParam invoiceregisterPageParam) {
@@ -75,6 +88,12 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
     @Override
     public void add(InvoiceregisterAddParam invoiceregisterAddParam) {
         Invoiceregister invoiceregister = BeanUtil.toBean(invoiceregisterAddParam, Invoiceregister.class);
+        //处理Sn编号
+        Invoiceregister tmp = this.getOne(new QueryWrapper<Invoiceregister>().lambda().orderByDesc(Invoiceregister::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(invoiceregisterAddParam.getSn(), tmp == null ? "" : tmp.getSn(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        invoiceregister.setSn(newSn);
+        invoiceregister.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        invoiceregister.setOptDate(new Date());
         this.save(invoiceregister);
     }
 
@@ -105,5 +124,49 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             throw new CommonException("业务表-CRM-合同开票登记不存在，id值为：{}", id);
         }
         return invoiceregister;
+    }
+
+    @Override
+    public IPage<InvoiceRegisterPageInfoVo> pageList(InvoiceregisterInfoPageParam invoiceregisterInfoPageParam) {
+        QueryWrapper<Invoiceregister> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getSn())) {
+            queryWrapper.like("a.SN", invoiceregisterInfoPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getOpt())) {
+            queryWrapper.like("a.OPT", invoiceregisterInfoPageParam.getOpt());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getStartOptDate()) && ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getEndOptDate())) {
+            queryWrapper.between("a.OPT_DATE", invoiceregisterInfoPageParam.getStartOptDate(), invoiceregisterInfoPageParam.getEndOptDate());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getContractNo())) {
+            queryWrapper.like("a.CONTRACT_NO", invoiceregisterInfoPageParam.getContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getContractName())) {
+            queryWrapper.like("b.CONTRACT_NAME", invoiceregisterInfoPageParam.getContractName());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getCompanyOrDepartment())) {
+            queryWrapper.like("b.COMPANY_OR_DEPARTMENT", invoiceregisterInfoPageParam.getCompanyOrDepartment());
+        }
+        queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
+
+        if(ObjectUtil.isAllNotEmpty(invoiceregisterInfoPageParam.getSortField(), invoiceregisterInfoPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(invoiceregisterInfoPageParam.getSortOrder());
+            queryWrapper.orderBy(true, invoiceregisterInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(invoiceregisterInfoPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByAsc("a.ID");
+        }
+        return invoiceregisterMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public InvoiceRegisterInfoVo detailById(InvoiceregisterIdParam invoiceregisterIdParam) {
+        InvoiceRegisterInfoVo result = new InvoiceRegisterInfoVo();
+        Invoiceregister invoiceregister = this.queryEntity(invoiceregisterIdParam.getId());
+        BeanUtil.copyProperties(invoiceregister, result);
+        Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo,invoiceregister.getContractNo()));
+        result.setHetongInfo(ht);
+        return result;
     }
 }

@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.crm.major.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.crm.major.vo.MajorInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -72,7 +74,7 @@ public class MajorController {
      * @date  2023/06/30 16:42
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-图审专业")
+    @ApiOperation("添加业务表-CRM-图审专业  【api/crm/Draw/AddMajor】")
     @CommonLog("添加业务表-CRM-图审专业")
     @PostMapping("/biz/crm/major/add")
     public CommonResult<String> add(@RequestBody @Valid MajorAddParam majorAddParam) {
@@ -87,7 +89,7 @@ public class MajorController {
      * @date  2023/06/30 16:42
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-图审专业")
+    @ApiOperation("编辑业务表-CRM-图审专业  【api/crm/Draw/UpdateMajor】")
     @CommonLog("编辑业务表-CRM-图审专业")
     @PostMapping("/biz/crm/major/edit")
     public CommonResult<String> edit(@RequestBody @Valid MajorEditParam majorEditParam) {
@@ -102,7 +104,7 @@ public class MajorController {
      * @date  2023/06/30 16:42
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-图审专业")
+    @ApiOperation("删除业务表-CRM-图审专业  【api/crm/Draw/DeleteMajor】")
     @CommonLog("删除业务表-CRM-图审专业")
     @PostMapping("/biz/crm/major/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -118,9 +120,23 @@ public class MajorController {
      * @date  2023/06/30 16:42
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-CRM-图审专业详情")
+    @ApiOperation("获取业务表-CRM-图审专业详情  【api/crm/Draw/GetMajor】")
     @GetMapping("/biz/crm/major/detail")
-    public CommonResult<Major> detail(@Valid MajorIdParam majorIdParam) {
+    public CommonResult<MajorInfoVo> detail(@Valid MajorIdParam majorIdParam) {
         return CommonResult.data(majorService.detail(majorIdParam));
+    }
+
+
+    /**
+     * 获取专业列表-携带专业负责人
+     *
+     * @author yong.ye
+     * @date  2023/07/04 14:04
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取合作伙伴-分页   【api/crm/Draw/GetMajorPage】")
+    @GetMapping("/biz/crm/major/listPage")
+    public CommonResult<IPage<MajorInfoVo>> listPage(@Valid MajorPageParam majorPageParam) {
+        return CommonResult.data(majorService.pageList(majorPageParam));
     }
 }

@@ -59,7 +59,7 @@ public class CooperationController {
      * @date  2023/06/30 16:53
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-CRM-合作协议分页")
+    @ApiOperation("获取业务表-CRM-合作协议分页  【api/crm/partner/GetCooperationPage】")
     @GetMapping("/biz/crm/cooperation/page")
     public CommonResult<Page<Cooperation>> page(CooperationPageParam cooperationPageParam) {
         return CommonResult.data(cooperationService.page(cooperationPageParam));
@@ -72,7 +72,7 @@ public class CooperationController {
      * @date  2023/06/30 16:53
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-合作协议")
+    @ApiOperation("添加业务表-CRM-合作协议  【api/crm/partner/AddCooperation】")
     @CommonLog("添加业务表-CRM-合作协议")
     @PostMapping("/biz/crm/cooperation/add")
     public CommonResult<String> add(@RequestBody @Valid CooperationAddParam cooperationAddParam) {
@@ -87,7 +87,7 @@ public class CooperationController {
      * @date  2023/06/30 16:53
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-合作协议")
+    @ApiOperation("编辑业务表-CRM-合作协议  【api/crm/partner/UpdateCooperation】")
     @CommonLog("编辑业务表-CRM-合作协议")
     @PostMapping("/biz/crm/cooperation/edit")
     public CommonResult<String> edit(@RequestBody @Valid CooperationEditParam cooperationEditParam) {
@@ -102,7 +102,7 @@ public class CooperationController {
      * @date  2023/06/30 16:53
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-合作协议")
+    @ApiOperation("删除业务表-CRM-合作协议  【api/crm/partner/DeleteCooperation】")
     @CommonLog("删除业务表-CRM-合作协议")
     @PostMapping("/biz/crm/cooperation/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -118,7 +118,7 @@ public class CooperationController {
      * @date  2023/06/30 16:53
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-CRM-合作协议详情")
+    @ApiOperation("获取业务表-CRM-合作协议详情  【api/crm/partner/GetCooperation】")
     @GetMapping("/biz/crm/cooperation/detail")
     public CommonResult<Cooperation> detail(@Valid CooperationIdParam cooperationIdParam) {
         return CommonResult.data(cooperationService.detail(cooperationIdParam));

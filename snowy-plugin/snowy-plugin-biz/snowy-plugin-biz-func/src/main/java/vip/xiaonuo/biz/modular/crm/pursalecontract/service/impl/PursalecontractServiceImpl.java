@@ -22,6 +22,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -32,7 +34,9 @@ import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractEditPara
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractIdParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractPageParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.service.PursalecontractService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -96,6 +100,12 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
     @Override
     public void add(PursalecontractAddParam pursalecontractAddParam) {
         Pursalecontract pursalecontract = BeanUtil.toBean(pursalecontractAddParam, Pursalecontract.class);
+        //处理Sn编号
+        Pursalecontract tmp = this.getOne(new QueryWrapper<Pursalecontract>().lambda().orderByDesc(Pursalecontract::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(pursalecontractAddParam.getContractNo(), tmp == null ? "" : tmp.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        pursalecontract.setContractNo(newSn);
+        pursalecontract.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        pursalecontract.setRegisterDate(new Date());
         this.save(pursalecontract);
     }
 

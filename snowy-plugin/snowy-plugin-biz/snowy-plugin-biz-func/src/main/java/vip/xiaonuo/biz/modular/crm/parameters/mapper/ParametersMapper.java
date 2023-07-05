@@ -30,4 +30,8 @@ import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 public interface ParametersMapper extends BaseMapper<Parameters> {
 
     IPage<ParametersInfoVo> getPageList(Page<ParametersInfoVo> page, @Param(Constants.WRAPPER) Wrapper<Parameters> queryWrapper);
+
+    ParametersInfoVo getDetailById(String id);
+
+    ParametersInfoVo getDetailByHetongId(String hetongId);
 }

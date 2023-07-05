@@ -59,7 +59,7 @@ public class FpinformationsController {
      * @date  2023/06/30 16:55
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-CRM-合作伙伴人员信息分页")
+    @ApiOperation("获取业务表-CRM-合作伙伴人员信息分页  【api/crm/partner/GetFPInformationsPage】")
     @GetMapping("/biz/crm/fpinformations/page")
     public CommonResult<Page<Fpinformations>> page(FpinformationsPageParam fpinformationsPageParam) {
         return CommonResult.data(fpinformationsService.page(fpinformationsPageParam));
@@ -72,7 +72,7 @@ public class FpinformationsController {
      * @date  2023/06/30 16:55
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-合作伙伴人员信息")
+    @ApiOperation("添加业务表-CRM-合作伙伴人员信息  【api/crm/partner/AddFPInformations】")
     @CommonLog("添加业务表-CRM-合作伙伴人员信息")
     @PostMapping("/biz/crm/fpinformations/add")
     public CommonResult<String> add(@RequestBody @Valid FpinformationsAddParam fpinformationsAddParam) {
@@ -87,7 +87,7 @@ public class FpinformationsController {
      * @date  2023/06/30 16:55
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-合作伙伴人员信息")
+    @ApiOperation("编辑业务表-CRM-合作伙伴人员信息  【api/crm/partner/UpdateFPInformations】")
     @CommonLog("编辑业务表-CRM-合作伙伴人员信息")
     @PostMapping("/biz/crm/fpinformations/edit")
     public CommonResult<String> edit(@RequestBody @Valid FpinformationsEditParam fpinformationsEditParam) {
@@ -102,7 +102,7 @@ public class FpinformationsController {
      * @date  2023/06/30 16:55
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-合作伙伴人员信息")
+    @ApiOperation("删除业务表-CRM-合作伙伴人员信息  【api/crm/partner/DeleteFPInformations】")
     @CommonLog("删除业务表-CRM-合作伙伴人员信息")
     @PostMapping("/biz/crm/fpinformations/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -118,7 +118,7 @@ public class FpinformationsController {
      * @date  2023/06/30 16:55
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-CRM-合作伙伴人员信息详情")
+    @ApiOperation("获取业务表-CRM-合作伙伴人员信息详情  【api/crm/partner/GetFPInformations】")
     @GetMapping("/biz/crm/fpinformations/detail")
     public CommonResult<Fpinformations> detail(@Valid FpinformationsIdParam fpinformationsIdParam) {
         return CommonResult.data(fpinformationsService.detail(fpinformationsIdParam));

@@ -15,10 +15,8 @@ package vip.xiaonuo.biz.modular.crm.subcontract.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractAddParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractEditParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractIdParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractPageParam;
+import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 
 import java.util.List;
 
@@ -77,4 +75,18 @@ public interface SubcontractService extends IService<Subcontract> {
      * @date  2023/06/30 16:22
      **/
     Subcontract queryEntity(String id);
+
+    /**
+     * 根据主键ID获取分包合同详情（携带源合同信息）
+     * @param subcontractIdParam
+     * @return
+     */
+    SubContractInfoVo detailById(SubcontractIdParam subcontractIdParam);
+
+    /**
+     * 根据合同ID获取分包合同列表
+     * @param subContractHetongIdParam
+     * @return
+     */
+    List<Subcontract> detailByHetongId(SubContractHetongIdParam subContractHetongIdParam);
 }

@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -59,7 +60,7 @@ public class SubcontractController {
      * @date  2023/06/30 16:22
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-CRM-分包合同分页")
+    @ApiOperation("获取业务表-CRM-分包合同分页  【api/crm/contract/GetSubContractPage】")
     @GetMapping("/biz/crm/subcontract/page")
     public CommonResult<Page<Subcontract>> page(SubcontractPageParam subcontractPageParam) {
         return CommonResult.data(subcontractService.page(subcontractPageParam));
@@ -72,7 +73,7 @@ public class SubcontractController {
      * @date  2023/06/30 16:22
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-分包合同")
+    @ApiOperation("添加业务表-CRM-分包合同  【api/crm/contract/AddSubContract】")
     @CommonLog("添加业务表-CRM-分包合同")
     @PostMapping("/biz/crm/subcontract/add")
     public CommonResult<String> add(@RequestBody @Valid SubcontractAddParam subcontractAddParam) {
@@ -87,7 +88,7 @@ public class SubcontractController {
      * @date  2023/06/30 16:22
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-分包合同")
+    @ApiOperation("编辑业务表-CRM-分包合同  【api/crm/contract/UpdateSubContract】")
     @CommonLog("编辑业务表-CRM-分包合同")
     @PostMapping("/biz/crm/subcontract/edit")
     public CommonResult<String> edit(@RequestBody @Valid SubcontractEditParam subcontractEditParam) {
@@ -102,7 +103,7 @@ public class SubcontractController {
      * @date  2023/06/30 16:22
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-分包合同")
+    @ApiOperation("删除业务表-CRM-分包合同  【api/crm/contract/DeleteSubContract】")
     @CommonLog("删除业务表-CRM-分包合同")
     @PostMapping("/biz/crm/subcontract/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -122,5 +123,18 @@ public class SubcontractController {
     @GetMapping("/biz/crm/subcontract/detail")
     public CommonResult<Subcontract> detail(@Valid SubcontractIdParam subcontractIdParam) {
         return CommonResult.data(subcontractService.detail(subcontractIdParam));
+    }
+
+    /**
+     * 获取业务表-CRM-分包合同详情(携带源合同信息)
+     *
+     * @author yong.ye
+     * @date  2023/06/30 16:22
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取业务表-CRM-分包合同详情(携带源合同信息)  【api/crm/contract/GetSubContractById】")
+    @GetMapping("/biz/crm/subcontract/detailById")
+    public CommonResult<SubContractInfoVo> detailById(@Valid SubcontractIdParam subcontractIdParam) {
+        return CommonResult.data(subcontractService.detailById(subcontractIdParam));
     }
 }

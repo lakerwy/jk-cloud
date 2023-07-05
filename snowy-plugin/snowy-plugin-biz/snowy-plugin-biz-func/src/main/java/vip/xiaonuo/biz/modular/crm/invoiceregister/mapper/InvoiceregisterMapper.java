@@ -12,8 +12,16 @@
  */
 package vip.xiaonuo.biz.modular.crm.invoiceregister.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.biz.modular.crm.contractrr.entity.Contractrr;
+import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrPageInfoVo;
 import vip.xiaonuo.biz.modular.crm.invoiceregister.entity.Invoiceregister;
+import vip.xiaonuo.biz.modular.crm.invoiceregister.vo.InvoiceRegisterPageInfoVo;
 
 /**
  * 业务表-CRM-合同开票登记Mapper接口
@@ -22,4 +30,5 @@ import vip.xiaonuo.biz.modular.crm.invoiceregister.entity.Invoiceregister;
  * @date  2023/06/30 16:48
  **/
 public interface InvoiceregisterMapper extends BaseMapper<Invoiceregister> {
+    IPage<InvoiceRegisterPageInfoVo> getPageList(Page<InvoiceRegisterPageInfoVo> page, @Param(Constants.WRAPPER) Wrapper<Invoiceregister> queryWrapper);
 }

@@ -22,17 +22,20 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.crm.subcontract.mapper.SubcontractMapper;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractAddParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractEditParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractIdParam;
-import vip.xiaonuo.biz.modular.crm.subcontract.param.SubcontractPageParam;
 import vip.xiaonuo.biz.modular.crm.subcontract.service.SubcontractService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -46,6 +49,8 @@ import java.util.List;
 @Service
 public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subcontract> implements SubcontractService {
 
+    @Resource
+    private SubcontractMapper subcontractMapper;
     @Override
     public Page<Subcontract> page(SubcontractPageParam subcontractPageParam) {
         QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
@@ -102,6 +107,12 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
     @Override
     public void add(SubcontractAddParam subcontractAddParam) {
         Subcontract subcontract = BeanUtil.toBean(subcontractAddParam, Subcontract.class);
+        //处理Sn编号
+        Subcontract tmp = this.getOne(new QueryWrapper<Subcontract>().lambda().orderByDesc(Subcontract::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(subcontractAddParam.getContractNo(), tmp == null ? "" : tmp.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        subcontract.setContractNo(newSn);
+        subcontract.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        subcontract.setRegisterDate(new Date());
         this.save(subcontract);
     }
 
@@ -133,4 +144,15 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
         }
         return subcontract;
     }
+
+    @Override
+    public SubContractInfoVo detailById(SubcontractIdParam subcontractIdParam) {
+        return subcontractMapper.getDetailById(subcontractIdParam.getId());
+    }
+
+    @Override
+    public List<Subcontract> detailByHetongId(SubContractHetongIdParam subContractHetongIdParam) {
+        return subcontractMapper.getSubContractListByHetongId(subContractHetongIdParam.getHetongId());
+    }
+
 }

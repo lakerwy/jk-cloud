@@ -12,13 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.crm.invoiceregister.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.crm.invoiceregister.entity.Invoiceregister;
-import vip.xiaonuo.biz.modular.crm.invoiceregister.param.InvoiceregisterAddParam;
-import vip.xiaonuo.biz.modular.crm.invoiceregister.param.InvoiceregisterEditParam;
-import vip.xiaonuo.biz.modular.crm.invoiceregister.param.InvoiceregisterIdParam;
-import vip.xiaonuo.biz.modular.crm.invoiceregister.param.InvoiceregisterPageParam;
+import vip.xiaonuo.biz.modular.crm.invoiceregister.param.*;
+import vip.xiaonuo.biz.modular.crm.invoiceregister.vo.InvoiceRegisterInfoVo;
+import vip.xiaonuo.biz.modular.crm.invoiceregister.vo.InvoiceRegisterPageInfoVo;
 
 import java.util.List;
 
@@ -77,4 +77,18 @@ public interface InvoiceregisterService extends IService<Invoiceregister> {
      * @date  2023/06/30 16:48
      **/
     Invoiceregister queryEntity(String id);
+
+    /**
+     * 获取合同开票登记列表（携带合同信息）-分页
+     * @param invoiceregisterInfoPageParam
+     * @return
+     */
+    IPage<InvoiceRegisterPageInfoVo> pageList(InvoiceregisterInfoPageParam invoiceregisterInfoPageParam);
+
+    /**
+     * 根据主键ID获取合同开票登记详情（携带合同信息）
+     * @param invoiceregisterIdParam
+     * @return
+     */
+    InvoiceRegisterInfoVo detailById(InvoiceregisterIdParam invoiceregisterIdParam);
 }

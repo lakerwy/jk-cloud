@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.crm.contractrr.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -23,14 +24,16 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.crm.contractrr.param.*;
+import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrInfoVo;
+import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrPageInfoVo;
+import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersIdParam;
+import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersInfoPageParam;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.crm.contractrr.entity.Contractrr;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrAddParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrEditParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrIdParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrPageParam;
 import vip.xiaonuo.biz.modular.crm.contractrr.service.ContractrrService;
 
 import javax.annotation.Resource;
@@ -72,7 +75,7 @@ public class ContractrrController {
      * @date  2023/06/30 16:47
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-合同收款登记")
+    @ApiOperation("添加业务表-CRM-合同收款登记    【api/crm/Finance/AddContractRR】")
     @CommonLog("添加业务表-CRM-合同收款登记")
     @PostMapping("/biz/crm/contractrr/add")
     public CommonResult<String> add(@RequestBody @Valid ContractrrAddParam contractrrAddParam) {
@@ -87,7 +90,7 @@ public class ContractrrController {
      * @date  2023/06/30 16:47
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-合同收款登记")
+    @ApiOperation("编辑业务表-CRM-合同收款登记    【api/crm/Finance/UpdateContractRR】")
     @CommonLog("编辑业务表-CRM-合同收款登记")
     @PostMapping("/biz/crm/contractrr/edit")
     public CommonResult<String> edit(@RequestBody @Valid ContractrrEditParam contractrrEditParam) {
@@ -102,7 +105,7 @@ public class ContractrrController {
      * @date  2023/06/30 16:47
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-合同收款登记")
+    @ApiOperation("删除业务表-CRM-合同收款登记    【api/crm/Finance/DeleteContractRR】")
     @CommonLog("删除业务表-CRM-合同收款登记")
     @PostMapping("/biz/crm/contractrr/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -122,5 +125,32 @@ public class ContractrrController {
     @GetMapping("/biz/crm/contractrr/detail")
     public CommonResult<Contractrr> detail(@Valid ContractrrIdParam contractrrIdParam) {
         return CommonResult.data(contractrrService.detail(contractrrIdParam));
+    }
+
+
+    /**
+     * 获取业务表-CRM-合同收款登记列表（携带合同信息）
+     *
+     * @author yong.ye
+     * @date  2023/07/03 14:04
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取业务表-CRM-合同收款登记列表（携带合同信息）    【api/crm/Finance/GetContractRRPage】")
+    @GetMapping("/biz/crm/contractrr/listPage")
+    public CommonResult<IPage<ContractrrPageInfoVo>> listPage(@Valid ContractrrPageInfoParam contractrrPageInfoParam) {
+        return CommonResult.data(contractrrService.pageList(contractrrPageInfoParam));
+    }
+
+    /**
+     * 根据Id获取业务表-CRM-合同收款登记详情（携带合同信息）
+     *
+     * @author yong.ye
+     * @date  2023/07/03 14:04
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("根据Id获取业务表-CRM-合同收款登记详情（携带合同信息）    【api/crm/Finance/GetContractRR】")
+    @GetMapping("/biz/crm/contractrr/detailById")
+    public CommonResult<ContractrrInfoVo> detailById(@Valid ContractrrIdParam contractrrIdParam) {
+        return CommonResult.data(contractrrService.detailById(contractrrIdParam));
     }
 }

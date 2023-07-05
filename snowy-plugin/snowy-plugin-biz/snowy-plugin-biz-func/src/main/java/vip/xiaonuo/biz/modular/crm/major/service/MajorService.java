@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.major.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.crm.major.entity.Major;
@@ -19,6 +20,7 @@ import vip.xiaonuo.biz.modular.crm.major.param.MajorAddParam;
 import vip.xiaonuo.biz.modular.crm.major.param.MajorEditParam;
 import vip.xiaonuo.biz.modular.crm.major.param.MajorIdParam;
 import vip.xiaonuo.biz.modular.crm.major.param.MajorPageParam;
+import vip.xiaonuo.biz.modular.crm.major.vo.MajorInfoVo;
 
 import java.util.List;
 
@@ -68,7 +70,7 @@ public interface MajorService extends IService<Major> {
      * @author yong.ye
      * @date  2023/06/30 16:42
      */
-    Major detail(MajorIdParam majorIdParam);
+    MajorInfoVo detail(MajorIdParam majorIdParam);
 
     /**
      * 获取业务表-CRM-图审专业详情
@@ -77,4 +79,12 @@ public interface MajorService extends IService<Major> {
      * @date  2023/06/30 16:42
      **/
     Major queryEntity(String id);
+
+    /**
+     * 获取业务表-CRM-图审专业分页(携带专业负责人)
+     *
+     * @author yong.ye
+     * @date  2023/07/04 16:42
+     */
+    IPage<MajorInfoVo> pageList(MajorPageParam majorPageParam);
 }

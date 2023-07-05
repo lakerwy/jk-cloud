@@ -22,6 +22,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -32,7 +34,9 @@ import vip.xiaonuo.biz.modular.crm.cooperation.param.CooperationEditParam;
 import vip.xiaonuo.biz.modular.crm.cooperation.param.CooperationIdParam;
 import vip.xiaonuo.biz.modular.crm.cooperation.param.CooperationPageParam;
 import vip.xiaonuo.biz.modular.crm.cooperation.service.CooperationService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -99,6 +103,13 @@ public class CooperationServiceImpl extends ServiceImpl<CooperationMapper, Coope
     @Override
     public void add(CooperationAddParam cooperationAddParam) {
         Cooperation cooperation = BeanUtil.toBean(cooperationAddParam, Cooperation.class);
+        //处理Sn编号
+        Cooperation tmp = this.getOne(new QueryWrapper<Cooperation>().lambda().orderByDesc(Cooperation::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(cooperationAddParam.getContractNo(), tmp == null ? "" : tmp.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        cooperation.setContractNo(newSn);
+        cooperation.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        cooperation.setOptDate(new Date());
+        cooperation.setRegisterYear(new Date().getYear());
         this.save(cooperation);
     }
 

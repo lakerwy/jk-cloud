@@ -85,6 +85,7 @@ public class Rollinout {
 
     /** 社保缴纳期限（历史表RollInOut.Limit） */
     @ApiModelProperty(value = "社保缴纳期限（历史表RollInOut.Limit）", position = 14)
+    @TableField(value = "`limit`")
     private String limit;
 
     /** 专业（历史表RollInOut.Majors） */

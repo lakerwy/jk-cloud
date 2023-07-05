@@ -18,21 +18,23 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.crm.equipments.entity.Equipments;
+import vip.xiaonuo.biz.modular.crm.equipments.service.EquipmentsService;
+import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.*;
+import vip.xiaonuo.biz.modular.crm.equipmenttrans.vo.EquipmenttransInfoVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.equipmenttrans.entity.Equipmenttrans;
 import vip.xiaonuo.biz.modular.crm.equipmenttrans.mapper.EquipmenttransMapper;
-import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransAddParam;
-import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransEditParam;
-import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransIdParam;
-import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransPageParam;
 import vip.xiaonuo.biz.modular.crm.equipmenttrans.service.EquipmenttransService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -45,6 +47,12 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper, Equipmenttrans> implements EquipmenttransService {
+
+    @Resource
+    private EquipmentsService equipmentsService;
+
+    @Resource
+    private EquipmenttransMapper equipmenttransMapper;
 
     @Override
     public Page<Equipmenttrans> page(EquipmenttransPageParam equipmenttransPageParam) {
@@ -82,6 +90,11 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
     public void add(EquipmenttransAddParam equipmenttransAddParam) {
         Equipmenttrans equipmenttrans = BeanUtil.toBean(equipmenttransAddParam, Equipmenttrans.class);
         this.save(equipmenttrans);
+        //同步更新设备
+        Equipments equipments = equipmentsService.queryEntity(equipmenttrans.getEqId());
+        equipments.setDept(equipmenttrans.getDept());
+        equipments.setUsers(equipmenttrans.getUsers());
+        equipmentsService.updateById(equipments);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -90,6 +103,12 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
         Equipmenttrans equipmenttrans = this.queryEntity(equipmenttransEditParam.getId());
         BeanUtil.copyProperties(equipmenttransEditParam, equipmenttrans);
         this.updateById(equipmenttrans);
+        //同步更新设备
+        Equipments equipments = equipmentsService.queryEntity(equipmenttrans.getEqId());
+        equipments.setDept(equipmenttrans.getDept());
+        equipments.setUsers(equipmenttrans.getUsers());
+        equipmentsService.updateById(equipments);
+
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -111,5 +130,36 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
             throw new CommonException("业务表-CRM-设备转移记录不存在，id值为：{}", id);
         }
         return equipmenttrans;
+    }
+
+    @Override
+    public IPage<EquipmenttransInfoVo> pageList(EquipmenttransInfoPageParam equipmenttransInfoPageParam) {
+        QueryWrapper<Equipmenttrans> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSN())) {
+            queryWrapper.like("b.sn", equipmenttransInfoPageParam.getSN());
+        }
+        if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getEqNum())) {
+            queryWrapper.like("b.eqNum", equipmenttransInfoPageParam.getEqNum());
+        }
+        if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getEqType())) {
+            queryWrapper.eq("b.eqType", equipmenttransInfoPageParam.getEqType());
+        }
+        if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getStatus())) {
+            queryWrapper.eq("b.status", equipmenttransInfoPageParam.getStatus());
+        }
+        queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
+
+
+        /* 排序 */
+        if(ObjectUtil.isAllNotEmpty(equipmenttransInfoPageParam.getSortField(), equipmenttransInfoPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(equipmenttransInfoPageParam.getSortOrder());
+            queryWrapper.orderBy(true, equipmenttransInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(equipmenttransInfoPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByAsc("a.ID");
+        }
+
+        return equipmenttransMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }

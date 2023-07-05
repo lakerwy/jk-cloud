@@ -12,13 +12,19 @@
  */
 package vip.xiaonuo.biz.modular.crm.notes.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransInfoPageParam;
+import vip.xiaonuo.biz.modular.crm.equipmenttrans.vo.EquipmenttransInfoVo;
 import vip.xiaonuo.biz.modular.crm.notes.entity.Notes;
 import vip.xiaonuo.biz.modular.crm.notes.param.NotesAddParam;
 import vip.xiaonuo.biz.modular.crm.notes.param.NotesEditParam;
 import vip.xiaonuo.biz.modular.crm.notes.param.NotesIdParam;
 import vip.xiaonuo.biz.modular.crm.notes.param.NotesPageParam;
+import vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo;
+import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersIdParam;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 
 import java.util.List;
 
@@ -77,4 +83,18 @@ public interface NotesService extends IService<Notes> {
      * @date  2023/06/30 16:49
      **/
     Notes queryEntity(String id);
+
+    /**
+     * 获取业务表-CRM-备忘录登记分页(携带合同、伙伴信息)
+     * @param notesPageParam
+     * @return
+     */
+    IPage<NotesInfoVo> pageList(NotesPageParam notesPageParam);
+
+    /**
+     * 根据主键ID获取业务表-CRM-备忘录登记详情(携带合同、伙伴信息)
+     * @param notesIdParam
+     * @return
+     */
+    NotesInfoVo detailById(NotesIdParam notesIdParam);
 }

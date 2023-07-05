@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.contractrr.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,16 +38,16 @@ public class ContractrrEditParam {
     private String id;
 
     /** 流水号SN（历史表ContractRR.SN） */
-    @ApiModelProperty(value = "流水号SN（历史表ContractRR.SN）", position = 2)
-    private String sn;
+//    @ApiModelProperty(value = "流水号SN（历史表ContractRR.SN）", position = 2)
+//    private String sn;
 
     /** 登记人（历史表ContractRR.Opt） */
-    @ApiModelProperty(value = "登记人（历史表ContractRR.Opt）", position = 3)
-    private String opt;
+//    @ApiModelProperty(value = "登记人（历史表ContractRR.Opt）", position = 3)
+//    private String opt;
 
     /** 登记日期（历史表ContractRR.OptDate） */
-    @ApiModelProperty(value = "登记日期（历史表ContractRR.OptDate）", position = 4)
-    private Date optDate;
+//    @ApiModelProperty(value = "登记日期（历史表ContractRR.OptDate）", position = 4)
+//    private Date optDate;
 
     /** 合同编号（历史表ContractRR.ContractNo） */
     @ApiModelProperty(value = "合同编号（历史表ContractRR.ContractNo）", position = 5)
@@ -54,6 +55,7 @@ public class ContractrrEditParam {
 
     /** 收款时间（历史表ContractRR.CollectDate） */
     @ApiModelProperty(value = "收款时间（历史表ContractRR.CollectDate）", position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date collectDate;
 
     /** 收款金额（历史表ContractRR.CollectAmount） */

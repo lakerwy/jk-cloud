@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.invoiceregister.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +42,7 @@ public class InvoiceregisterAddParam {
 
     /** 登记日期（历史表InvoiceRegister.OptDate） */
     @ApiModelProperty(value = "登记日期（历史表InvoiceRegister.OptDate）", position = 4)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 合同编号（历史表InvoiceRegister.ContractNo） */
@@ -49,6 +51,7 @@ public class InvoiceregisterAddParam {
 
     /** 开票时间（历史表InvoiceRegister.MakeTime） */
     @ApiModelProperty(value = "开票时间（历史表InvoiceRegister.MakeTime）", position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date makeTime;
 
     /** 开票金额（历史表InvoiceRegister.MakeAmount） */

@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.equipmenttrans.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,8 +42,9 @@ public class EquipmenttransEditParam {
     private String eqId;
 
     /** 登记日期（历史表EquipmentTrans.RegisterDate） */
-    @ApiModelProperty(value = "登记日期（历史表EquipmentTrans.RegisterDate）", position = 3)
-    private Date registerDate;
+//    @ApiModelProperty(value = "登记日期（历史表EquipmentTrans.RegisterDate）", position = 3)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+//    private Date registerDate;
 
     /** 转入部门（历史表EquipmentTrans.Dept） */
     @ApiModelProperty(value = "转入部门（历史表EquipmentTrans.Dept）", position = 4)

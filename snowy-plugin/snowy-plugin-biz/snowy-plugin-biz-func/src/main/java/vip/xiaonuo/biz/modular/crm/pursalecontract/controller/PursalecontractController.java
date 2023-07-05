@@ -59,7 +59,7 @@ public class PursalecontractController {
      * @date  2023/06/30 16:03
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-CRM-购销合同分页")
+    @ApiOperation("获取业务表-CRM-购销合同分页   【api/crm/contract/GetPurSaleContractPage】")
     @GetMapping("/biz/crm/pursalecontract/page")
     public CommonResult<Page<Pursalecontract>> page(PursalecontractPageParam pursalecontractPageParam) {
         return CommonResult.data(pursalecontractService.page(pursalecontractPageParam));
@@ -72,7 +72,7 @@ public class PursalecontractController {
      * @date  2023/06/30 16:03
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-购销合同")
+    @ApiOperation("添加业务表-CRM-购销合同  【api/crm/contract/AddPurSaleContract】")
     @CommonLog("添加业务表-CRM-购销合同")
     @PostMapping("/biz/crm/pursalecontract/add")
     public CommonResult<String> add(@RequestBody @Valid PursalecontractAddParam pursalecontractAddParam) {
@@ -87,7 +87,7 @@ public class PursalecontractController {
      * @date  2023/06/30 16:03
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-购销合同")
+    @ApiOperation("编辑业务表-CRM-购销合同  【api/crm/contract/UpdatePurSaleContract】")
     @CommonLog("编辑业务表-CRM-购销合同")
     @PostMapping("/biz/crm/pursalecontract/edit")
     public CommonResult<String> edit(@RequestBody @Valid PursalecontractEditParam pursalecontractEditParam) {
@@ -102,7 +102,7 @@ public class PursalecontractController {
      * @date  2023/06/30 16:03
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-购销合同")
+    @ApiOperation("删除业务表-CRM-购销合同  【api/crm/contract/DeletePurSaleContract】")
     @CommonLog("删除业务表-CRM-购销合同")
     @PostMapping("/biz/crm/pursalecontract/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -118,7 +118,7 @@ public class PursalecontractController {
      * @date  2023/06/30 16:03
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-CRM-购销合同详情")
+    @ApiOperation("获取业务表-CRM-购销合同详情  【api/crm/contract/GetPurSaleContractById】")
     @GetMapping("/biz/crm/pursalecontract/detail")
     public CommonResult<Pursalecontract> detail(@Valid PursalecontractIdParam pursalecontractIdParam) {
         return CommonResult.data(pursalecontractService.detail(pursalecontractIdParam));

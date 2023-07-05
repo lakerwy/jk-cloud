@@ -23,16 +23,20 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.parameters.param.*;
 import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
 import vip.xiaonuo.biz.modular.crm.parameters.mapper.ParametersMapper;
 import vip.xiaonuo.biz.modular.crm.parameters.service.ParametersService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -124,6 +128,12 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
     @Override
     public void add(ParametersAddParam parametersAddParam) {
         Parameters parameters = BeanUtil.toBean(parametersAddParam, Parameters.class);
+        //处理Sn编号
+        Parameters tmp = this.getOne(new QueryWrapper<Parameters>().lambda().orderByDesc(Parameters::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(parametersAddParam.getSn(),tmp==null?"":tmp.getSn(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        parameters.setSn(newSn);
+        parameters.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        parameters.setOptDate(new Date());
         this.save(parameters);
     }
 
@@ -222,6 +232,7 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
 
         /* 合同信息 */
+        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainSecondLevel())) {
             queryWrapper.eq("b.mainSecondLevel", parametersInfoPageParam.getMainSecondLevel());
         }
@@ -263,5 +274,15 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         }
 
         return parametersMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public ParametersInfoVo detailById(ParametersIdParam parametersIdParam) {
+        return parametersMapper.getDetailById(parametersIdParam.getId());
+    }
+
+    @Override
+    public ParametersInfoVo detailByHetongId(ParametersHetongIdParam parametersHetongIdParam) {
+        return parametersMapper.getDetailByHetongId(parametersHetongIdParam.getHetongId());
     }
 }

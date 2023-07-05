@@ -12,13 +12,16 @@
  */
 package vip.xiaonuo.biz.modular.crm.contractrr.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.crm.contractrr.entity.Contractrr;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrAddParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrEditParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrIdParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrPageParam;
+import vip.xiaonuo.biz.modular.crm.contractrr.param.*;
+import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrInfoVo;
+import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrPageInfoVo;
+import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersIdParam;
+import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersInfoPageParam;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 
 import java.util.List;
 
@@ -77,4 +80,18 @@ public interface ContractrrService extends IService<Contractrr> {
      * @date  2023/06/30 16:47
      **/
     Contractrr queryEntity(String id);
+
+    /**
+     * 获取合同收款登记列表（携带合同信息）-分页
+     * @param contractrrPageInfoParam
+     * @return
+     */
+    IPage<ContractrrPageInfoVo> pageList(ContractrrPageInfoParam contractrrPageInfoParam);
+
+    /**
+     * 根据主键ID获取合同收款登记详情（携带合同信息）
+     * @param contractrrIdParam
+     * @return
+     */
+    ContractrrInfoVo detailById(ContractrrIdParam contractrrIdParam);
 }

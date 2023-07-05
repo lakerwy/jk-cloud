@@ -9,4 +9,22 @@
                b.DESCRIPTION as mainDescription,b.NOTE as mainNote,b.BID_OWNER as mainBidOwner,b.PROJECT_LEADER as mainProjectLeader
         from BIZ_CRM_PARAMETERS a left join BIZ_CRM_HETONG b on a.PROJECT_ID = b.ID  ${ew.customSqlSegment}
     </select>
+
+    <select id="getDetailById" resultType="vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo" parameterType="String">
+        select a.*, b.SECOND_LEVEL as mainSecondLevel,b.CONTRACT_NO as mainContractNo,b.PROJECT_NAME as mainProjectName,
+               b.COUNTERPARTY as mainCounterparty,b.SECONDPARTY as mainSecondparty,b.COMPANY_OR_DEPARTMENT as mainCompanyOrDepartment,
+               b.OWNER as mainOwner,b.CONTRACT_AMOUNT as mainContractAmount,b.INVEST_SCALE as mainInvestScale,b.STATUS as mainStatus,
+               b.DESCRIPTION as mainDescription,b.NOTE as mainNote,b.BID_OWNER as mainBidOwner,b.PROJECT_LEADER as mainProjectLeader
+        from BIZ_CRM_PARAMETERS a left join BIZ_CRM_HETONG b on a.PROJECT_ID = b.ID
+        where a.ID = ${id} and b.DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
+    <select id="getDetailByHetongId" resultType="vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo" parameterType="String">
+        select a.*, b.SECOND_LEVEL as mainSecondLevel,b.CONTRACT_NO as mainContractNo,b.PROJECT_NAME as mainProjectName,
+               b.COUNTERPARTY as mainCounterparty,b.SECONDPARTY as mainSecondparty,b.COMPANY_OR_DEPARTMENT as mainCompanyOrDepartment,
+               b.OWNER as mainOwner,b.CONTRACT_AMOUNT as mainContractAmount,b.INVEST_SCALE as mainInvestScale,b.STATUS as mainStatus,
+               b.DESCRIPTION as mainDescription,b.NOTE as mainNote,b.BID_OWNER as mainBidOwner,b.PROJECT_LEADER as mainProjectLeader
+        from BIZ_CRM_PARAMETERS a left join BIZ_CRM_HETONG b on a.PROJECT_ID = b.ID
+        where a.PROJECT_ID = ${hetongId} and a.DELETE_FLAG = 'NOT_DELETE' and b.DELETE_FLAG = 'NOT_DELETE'
+    </select>
 </mapper>

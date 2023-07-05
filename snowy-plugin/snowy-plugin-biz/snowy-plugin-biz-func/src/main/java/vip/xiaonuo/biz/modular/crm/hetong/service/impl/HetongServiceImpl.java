@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.hetong.mapper.HetongMapper;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongIdParam;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
@@ -35,6 +36,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.common.util.CommonSnUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -113,6 +115,8 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         Hetong tmpht = this.getOne(new QueryWrapper<Hetong>().lambda().orderByDesc(Hetong::getCreateTime).last("limit 1"));
         String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
         hetong.setContractNo(newSn);
+        hetong.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        hetong.setRegisterDate(new Date());
         this.save(hetong);
     }
 

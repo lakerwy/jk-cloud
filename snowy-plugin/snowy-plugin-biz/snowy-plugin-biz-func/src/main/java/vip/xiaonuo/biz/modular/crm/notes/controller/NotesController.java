@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.crm.notes.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -72,7 +74,7 @@ public class NotesController {
      * @date  2023/06/30 16:49
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-备忘录登记")
+    @ApiOperation("添加业务表-CRM-备忘录登记  【api/crm/Finance/AddNotes】")
     @CommonLog("添加业务表-CRM-备忘录登记")
     @PostMapping("/biz/crm/notes/add")
     public CommonResult<String> add(@RequestBody @Valid NotesAddParam notesAddParam) {
@@ -87,7 +89,7 @@ public class NotesController {
      * @date  2023/06/30 16:49
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-备忘录登记")
+    @ApiOperation("编辑业务表-CRM-备忘录登记  【api/crm/Finance/UpdateNotes】")
     @CommonLog("编辑业务表-CRM-备忘录登记")
     @PostMapping("/biz/crm/notes/edit")
     public CommonResult<String> edit(@RequestBody @Valid NotesEditParam notesEditParam) {
@@ -102,7 +104,7 @@ public class NotesController {
      * @date  2023/06/30 16:49
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-备忘录登记")
+    @ApiOperation("删除业务表-CRM-备忘录登记  【api/crm/Finance/DeleteNotes】")
     @CommonLog("删除业务表-CRM-备忘录登记")
     @PostMapping("/biz/crm/notes/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -122,5 +124,31 @@ public class NotesController {
     @GetMapping("/biz/crm/notes/detail")
     public CommonResult<Notes> detail(@Valid NotesIdParam notesIdParam) {
         return CommonResult.data(notesService.detail(notesIdParam));
+    }
+
+    /**
+     * 获取业务表-CRM-备忘录登记分页（携带合同、伙伴信息）
+     *
+     * @author yong.ye
+     * @date  2023/07/03 14:04
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取业务表-CRM-备忘录登记分页（携带合同、伙伴信息） 【api/crm/Finance/GetNotesPage】")
+    @GetMapping("/biz/crm/notes/listPage")
+    public CommonResult<IPage<NotesInfoVo>> listPage(@Valid NotesPageParam notesPageParam) {
+        return CommonResult.data(notesService.pageList(notesPageParam));
+    }
+
+    /**
+     * 获取业务表-CRM-备忘录登记详情（携带合同、伙伴信息）
+     *
+     * @author yong.ye
+     * @date  2023/06/30 16:49
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取业务表-CRM-备忘录登记详情  【api/crm/Finance/GetNotes】")
+    @GetMapping("/biz/crm/notes/detailById")
+    public CommonResult<NotesInfoVo> detailById(@Valid NotesIdParam notesIdParam) {
+        return CommonResult.data(notesService.detailById(notesIdParam));
     }
 }

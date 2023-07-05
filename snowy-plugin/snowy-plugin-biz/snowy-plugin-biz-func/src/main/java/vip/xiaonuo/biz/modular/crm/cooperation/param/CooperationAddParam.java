@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.cooperation.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -69,10 +70,12 @@ public class CooperationAddParam {
 
     /** 合同盖章日期（历史表Cooperation.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表Cooperation.SealDate）", position = 11)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date sealDate;
 
     /** 归档日期（历史表Cooperation.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表Cooperation.FilingDate）", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date filingDate;
 
     /** 有效期至（历史表Cooperation.Indate） */
@@ -89,6 +92,7 @@ public class CooperationAddParam {
 
     /** 登记日期（历史表Cooperation.OptDate） */
     @ApiModelProperty(value = "登记日期（历史表Cooperation.OptDate）", position = 16)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 协议扫描件（历史表Cooperation.Attachments） */

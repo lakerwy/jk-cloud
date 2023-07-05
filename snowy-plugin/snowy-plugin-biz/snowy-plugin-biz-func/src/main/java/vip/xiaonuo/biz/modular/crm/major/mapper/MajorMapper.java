@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.crm.major.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.major.entity.Major;
+import vip.xiaonuo.biz.modular.crm.major.vo.MajorInfoVo;
 
 /**
  * 业务表-CRM-图审专业Mapper接口
@@ -22,4 +28,5 @@ import vip.xiaonuo.biz.modular.crm.major.entity.Major;
  * @date  2023/06/30 16:42
  **/
 public interface MajorMapper extends BaseMapper<Major> {
+    IPage<MajorInfoVo> getPageList(Page<MajorInfoVo> page, @Param(Constants.WRAPPER) Wrapper<Major> queryWrapper);
 }

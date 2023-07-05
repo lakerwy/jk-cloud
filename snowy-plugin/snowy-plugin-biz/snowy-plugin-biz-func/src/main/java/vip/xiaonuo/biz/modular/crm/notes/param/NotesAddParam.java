@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.notes.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +42,7 @@ public class NotesAddParam {
 
     /** 登记日期（历史表Notes.OptDate） */
     @ApiModelProperty(value = "登记日期（历史表Notes.OptDate）", position = 4)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 类别（历史表Notes.Type） */
@@ -57,14 +59,17 @@ public class NotesAddParam {
 
     /** 申请日期（历史表Notes.ApplyDate） */
     @ApiModelProperty(value = "申请日期（历史表Notes.ApplyDate）", position = 8)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date applyDate;
 
     /** 最后签批日期（历史表Notes.FinalDate） */
     @ApiModelProperty(value = "最后签批日期（历史表Notes.FinalDate）", position = 9)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date finalDate;
 
     /** 财务签收日期（历史表Notes.SignDate） */
     @ApiModelProperty(value = "财务签收日期（历史表Notes.SignDate）", position = 10)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date signDate;
 
     /** 执行注销标记（历史表Notes.CancelMark） */

@@ -12,13 +12,12 @@
  */
 package vip.xiaonuo.biz.modular.crm.rollinout.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.crm.rollinout.entity.Rollinout;
-import vip.xiaonuo.biz.modular.crm.rollinout.param.RollinoutAddParam;
-import vip.xiaonuo.biz.modular.crm.rollinout.param.RollinoutEditParam;
-import vip.xiaonuo.biz.modular.crm.rollinout.param.RollinoutIdParam;
-import vip.xiaonuo.biz.modular.crm.rollinout.param.RollinoutPageParam;
+import vip.xiaonuo.biz.modular.crm.rollinout.param.*;
+import vip.xiaonuo.biz.modular.crm.rollinout.vo.RollinoutInfoVo;
 
 import java.util.List;
 
@@ -77,4 +76,18 @@ public interface RollinoutService extends IService<Rollinout> {
      * @date  2023/06/30 16:56
      **/
     Rollinout queryEntity(String id);
+
+    /**
+     * 获取人员转入转出列表（分页）-携带人员信息
+     * @param rollinoutInfoPageParam
+     * @return
+     */
+    IPage<RollinoutInfoVo> pageList(RollinoutInfoPageParam rollinoutInfoPageParam);
+
+    /**
+     * 根据主键ID获取人员转入转出列表（分页）-携带人员信息
+     * @param rollinoutIdParam
+     * @return
+     */
+    RollinoutInfoVo detailById(RollinoutIdParam rollinoutIdParam);
 }

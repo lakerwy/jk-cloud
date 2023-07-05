@@ -38,17 +38,17 @@ public class ParametersEditParam {
     private String id;
 
     /** 登记人（历史表Parameters.Opt） */
-    @ApiModelProperty(value = "登记人（历史表Parameters.Opt）", position = 2)
-    private String opt;
+//    @ApiModelProperty(value = "登记人（历史表Parameters.Opt）", position = 2)
+//    private String opt;
 
     /** 登记日期（历史表Parameters.OptDate） */
-    @ApiModelProperty(value = "登记日期（历史表Parameters.OptDate）", position = 3)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
-    private Date optDate;
+//    @ApiModelProperty(value = "登记日期（历史表Parameters.OptDate）", position = 3)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+//    private Date optDate;
 
     /** SN（历史表Parameters.SN） */
-    @ApiModelProperty(value = "SN（历史表Parameters.SN）", position = 4)
-    private String sn;
+//    @ApiModelProperty(value = "SN（历史表Parameters.SN）", position = 4)
+//    private String sn;
 
     /** 合同ID主键（历史表Parameters.ProjectId） */
     @ApiModelProperty(value = "合同ID主键（历史表Parameters.ProjectId）", position = 5)

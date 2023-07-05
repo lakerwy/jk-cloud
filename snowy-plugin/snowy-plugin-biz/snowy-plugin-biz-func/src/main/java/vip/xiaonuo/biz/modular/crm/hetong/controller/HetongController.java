@@ -58,7 +58,7 @@ public class HetongController {
      * @date  2023/06/30 14:49
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-CRM-合同分页")
+    @ApiOperation("获取业务表-CRM-合同分页  【api/crm/contract/GetHetongPage】")
 //    @SaCheckPermission("/biz/hetong/page")
     @GetMapping("/biz/crm/hetong/page")
     public CommonResult<Page<Hetong>> page(HetongPageParam hetongPageParam) {
@@ -72,7 +72,7 @@ public class HetongController {
      * @date  2023/06/30 14:49
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-合同")
+    @ApiOperation("添加业务表-CRM-合同  【api/crm/contract/AddHetong】")
     @CommonLog("添加业务表-CRM-合同")
 //    @SaCheckPermission("/biz/hetong/add")
     @PostMapping("/biz/crm/hetong/add")
@@ -88,7 +88,7 @@ public class HetongController {
      * @date  2023/06/30 14:49
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-合同")
+    @ApiOperation("编辑业务表-CRM-合同  【api/crm/contract/UpdateHetong】")
     @CommonLog("编辑业务表-CRM-合同")
 //    @SaCheckPermission("/biz/hetong/edit")
     @PostMapping("/biz/crm/hetong/edit")
@@ -104,7 +104,7 @@ public class HetongController {
      * @date  2023/06/30 14:49
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-合同")
+    @ApiOperation("删除业务表-CRM-合同  【api/crm/contract/DeleteHetong】")
     @CommonLog("删除业务表-CRM-合同")
 //    @SaCheckPermission("/biz/hetong/delete")
     @PostMapping("/biz/crm/hetong/delete")
@@ -121,7 +121,7 @@ public class HetongController {
      * @date  2023/06/30 14:49
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-CRM-合同详情")
+    @ApiOperation("获取业务表-CRM-合同详情  【api/crm/contract/GetHetong】")
 //    @SaCheckPermission("/biz/hetong/detail")
     @GetMapping("/biz/crm/hetong/detail")
     public CommonResult<Hetong> detail(@Valid HetongIdParam hetongIdParam) {

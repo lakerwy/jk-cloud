@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.crm.rollinout.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -23,14 +24,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersIdParam;
+import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersInfoPageParam;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
+import vip.xiaonuo.biz.modular.crm.rollinout.param.*;
+import vip.xiaonuo.biz.modular.crm.rollinout.vo.RollinoutInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.crm.rollinout.entity.Rollinout;
-import vip.xiaonuo.biz.modular.crm.rollinout.param.RollinoutAddParam;
-import vip.xiaonuo.biz.modular.crm.rollinout.param.RollinoutEditParam;
-import vip.xiaonuo.biz.modular.crm.rollinout.param.RollinoutIdParam;
-import vip.xiaonuo.biz.modular.crm.rollinout.param.RollinoutPageParam;
 import vip.xiaonuo.biz.modular.crm.rollinout.service.RollinoutService;
 
 import javax.annotation.Resource;
@@ -72,7 +74,7 @@ public class RollinoutController {
      * @date  2023/06/30 16:56
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-合作伙伴人员转入转出")
+    @ApiOperation("添加业务表-CRM-合作伙伴人员转入转出  【api/crm/partner/AddRollInOut】")
     @CommonLog("添加业务表-CRM-合作伙伴人员转入转出")
     @PostMapping("/biz/crm/rollinout/add")
     public CommonResult<String> add(@RequestBody @Valid RollinoutAddParam rollinoutAddParam) {
@@ -87,7 +89,7 @@ public class RollinoutController {
      * @date  2023/06/30 16:56
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-合作伙伴人员转入转出")
+    @ApiOperation("编辑业务表-CRM-合作伙伴人员转入转出  【api/crm/partner/UpdateRollInOut】")
     @CommonLog("编辑业务表-CRM-合作伙伴人员转入转出")
     @PostMapping("/biz/crm/rollinout/edit")
     public CommonResult<String> edit(@RequestBody @Valid RollinoutEditParam rollinoutEditParam) {
@@ -102,7 +104,7 @@ public class RollinoutController {
      * @date  2023/06/30 16:56
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-合作伙伴人员转入转出")
+    @ApiOperation("删除业务表-CRM-合作伙伴人员转入转出  【api/crm/partner/DeleteRollInOut】")
     @CommonLog("删除业务表-CRM-合作伙伴人员转入转出")
     @PostMapping("/biz/crm/rollinout/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -122,5 +124,31 @@ public class RollinoutController {
     @GetMapping("/biz/crm/rollinout/detail")
     public CommonResult<Rollinout> detail(@Valid RollinoutIdParam rollinoutIdParam) {
         return CommonResult.data(rollinoutService.detail(rollinoutIdParam));
+    }
+
+    /**
+     * 获取人员转入转出列表（分页）-携带人员信息
+     *
+     * @author yong.ye
+     * @date  2023/07/03 14:04
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取人员转入转出列表（分页）-携带人员信息  【api/crm/partner/GetRollInOut】")
+    @GetMapping("/biz/crm/rollinout/listPage")
+    public CommonResult<IPage<RollinoutInfoVo>> listPage(@Valid RollinoutInfoPageParam rollinoutInfoPageParam) {
+        return CommonResult.data(rollinoutService.pageList(rollinoutInfoPageParam));
+    }
+
+    /**
+     * 根据主键ID获取人员转入转出列表（分页）-携带人员信息
+     *
+     * @author yong.ye
+     * @date  2023/07/03 14:04
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("根据ID获取合同参数详情（携带合同信息）  【api/crm/partner/GetRollInOut】")
+    @GetMapping("/biz/crm/rollinout/detailById")
+    public CommonResult<RollinoutInfoVo> detailById(@Valid RollinoutIdParam rollinoutIdParam) {
+        return CommonResult.data(rollinoutService.detailById(rollinoutIdParam));
     }
 }

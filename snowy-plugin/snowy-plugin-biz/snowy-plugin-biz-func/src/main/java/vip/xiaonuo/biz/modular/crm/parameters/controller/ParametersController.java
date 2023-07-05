@@ -71,7 +71,7 @@ public class ParametersController {
      * @date  2023/06/30 15:50
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-合同参数")
+    @ApiOperation("添加业务表-CRM-合同参数  【api/crm/contract/AddParameters】")
     @CommonLog("添加业务表-CRM-合同参数")
     @PostMapping("/biz/crm/parameters/add")
     public CommonResult<String> add(@RequestBody @Valid ParametersAddParam parametersAddParam) {
@@ -86,7 +86,7 @@ public class ParametersController {
      * @date  2023/06/30 15:50
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-合同参数")
+    @ApiOperation("编辑业务表-CRM-合同参数  【api/crm/contract/UpdateParameters】")
     @CommonLog("编辑业务表-CRM-合同参数")
     @PostMapping("/biz/crm/parameters/edit")
     public CommonResult<String> edit(@RequestBody @Valid ParametersEditParam parametersEditParam) {
@@ -101,7 +101,7 @@ public class ParametersController {
      * @date  2023/06/30 15:50
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-合同参数")
+    @ApiOperation("删除业务表-CRM-合同参数  【api/crm/contract/DeleteParameters】")
     @CommonLog("删除业务表-CRM-合同参数")
     @PostMapping("/biz/crm/parameters/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -130,9 +130,35 @@ public class ParametersController {
      * @date  2023/07/03 14:04
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("获取合同参数列表（携带合同信息）-分页")
+    @ApiOperation("获取合同参数列表（携带合同信息）-分页  【api/crm/contract/GetParametersPage】")
     @GetMapping("/biz/crm/parameters/listPage")
     public CommonResult<IPage<ParametersInfoVo>> listPage(@Valid ParametersInfoPageParam parametersInfoPageParam) {
         return CommonResult.data(parametersService.pageList(parametersInfoPageParam));
+    }
+
+    /**
+     * 根据主键ID获取合同参数详情-携带合同信息
+     *
+     * @author yong.ye
+     * @date  2023/07/03 14:04
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("根据ID获取合同参数详情（携带合同信息）  【api/crm/contract/GetParametersById】")
+    @GetMapping("/biz/crm/parameters/detailById")
+    public CommonResult<ParametersInfoVo> detailById(@Valid ParametersIdParam parametersIdParam) {
+        return CommonResult.data(parametersService.detailById(parametersIdParam));
+    }
+
+    /**
+     * 根据(合同ID)获取合同参数详情-携带合同信息
+     *
+     * @author yong.ye
+     * @date  2023/07/03 14:04
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("根据合同ID获取合同参数详情（携带合同信息）  【api/crm/contract/GetParametersByHetongId】")
+    @GetMapping("/biz/crm/parameters/detailByHetongId")
+    public CommonResult<ParametersInfoVo> detailByHetongId(@Valid ParametersHetongIdParam parametersHetongIdParam) {
+        return CommonResult.data(parametersService.detailByHetongId(parametersHetongIdParam));
     }
 }

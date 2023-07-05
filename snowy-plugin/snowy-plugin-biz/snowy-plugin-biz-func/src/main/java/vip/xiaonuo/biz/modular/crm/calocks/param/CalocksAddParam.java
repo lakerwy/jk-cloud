@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.calocks.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,6 +38,7 @@ public class CalocksAddParam {
 
     /** 登记日期（历史表CALocks.OptDate） */
     @ApiModelProperty(value = "登记日期（历史表CALocks.OptDate）", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 流水号SN（历史表CALocks.SN） */
@@ -73,10 +75,12 @@ public class CalocksAddParam {
 
     /** 申请日期（历史表CALocks.ApplyDate） */
     @ApiModelProperty(value = "申请日期（历史表CALocks.ApplyDate）", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date applyDate;
 
     /** 有效期（历史表CALocks.Indate） */
     @ApiModelProperty(value = "有效期（历史表CALocks.Indate）", position = 13)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date indate;
 
     /** 状态（历史表CALocks.Status） */

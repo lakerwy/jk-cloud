@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.pursalecontract.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,16 +38,16 @@ public class PursalecontractEditParam {
     private String id;
 
     /** 登记人（历史表PurSaleContract.Opt） */
-    @ApiModelProperty(value = "登记人（历史表PurSaleContract.Opt）", position = 2)
-    private String opt;
+//    @ApiModelProperty(value = "登记人（历史表PurSaleContract.Opt）", position = 2)
+//    private String opt;
 
     /** 登记日期（历史表PurSaleContract.RegisterDate） */
-    @ApiModelProperty(value = "登记日期（历史表PurSaleContract.RegisterDate）", position = 3)
-    private Date registerDate;
+//    @ApiModelProperty(value = "登记日期（历史表PurSaleContract.RegisterDate）", position = 3)
+//    private Date registerDate;
 
     /** 合同编号（历史表PurSaleContract.ContractNo） */
-    @ApiModelProperty(value = "合同编号（历史表PurSaleContract.ContractNo）", position = 4)
-    private String contractNo;
+//    @ApiModelProperty(value = "合同编号（历史表PurSaleContract.ContractNo）", position = 4)
+//    private String contractNo;
 
     /** 合同名称（历史表PurSaleContract.ContractName） */
     @ApiModelProperty(value = "合同名称（历史表PurSaleContract.ContractName）", position = 5)
@@ -98,6 +99,7 @@ public class PursalecontractEditParam {
 
     /** 合同盖章日期（历史表PurSaleContract.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表PurSaleContract.SealDate）", position = 17)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date sealDate;
 
     /** 原件归档（历史表PurSaleContract.IsFill） */
@@ -106,6 +108,7 @@ public class PursalecontractEditParam {
 
     /** 归档日期（历史表PurSaleContract.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表PurSaleContract.FilingDate）", position = 19)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date filingDate;
 
     /** 合同金额（历史表PurSaleContract.Amount） */

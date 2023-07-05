@@ -18,10 +18,14 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -32,7 +36,10 @@ import vip.xiaonuo.biz.modular.crm.notes.param.NotesEditParam;
 import vip.xiaonuo.biz.modular.crm.notes.param.NotesIdParam;
 import vip.xiaonuo.biz.modular.crm.notes.param.NotesPageParam;
 import vip.xiaonuo.biz.modular.crm.notes.service.NotesService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,6 +52,9 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements NotesService {
+
+    @Resource
+    private NotesMapper notesMapper;
 
     @Override
     public Page<Notes> page(NotesPageParam notesPageParam) {
@@ -93,6 +103,12 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
     @Override
     public void add(NotesAddParam notesAddParam) {
         Notes notes = BeanUtil.toBean(notesAddParam, Notes.class);
+        //处理Sn编号
+        Notes tmp = this.getOne(new QueryWrapper<Notes>().lambda().orderByDesc(Notes::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(notesAddParam.getSn(), tmp == null ? "" : tmp.getSn(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        notes.setSn(newSn);
+        notes.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        notes.setOptDate(new Date());
         this.save(notes);
     }
 
@@ -123,5 +139,55 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
             throw new CommonException("业务表-CRM-备忘录登记不存在，id值为：{}", id);
         }
         return notes;
+    }
+
+    @Override
+    public IPage<NotesInfoVo> pageList(NotesPageParam notesPageParam) {
+        QueryWrapper<Notes> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
+        if(ObjectUtil.isNotEmpty(notesPageParam.getSn())) {
+            queryWrapper.like("a.SN", notesPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getOpt())) {
+            queryWrapper.like("a.OPT", notesPageParam.getOpt());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getStartOptDate()) && ObjectUtil.isNotEmpty(notesPageParam.getEndOptDate())) {
+            queryWrapper.between("a.OPT_DATE", notesPageParam.getStartOptDate(), notesPageParam.getEndOptDate());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getType())) {
+            queryWrapper.eq("a.TYPE", notesPageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getPartnerNo())) {
+            queryWrapper.like("a.PARTNER_NO", notesPageParam.getPartnerNo());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getContractNo())) {
+            queryWrapper.like("a.CONTRACT_NO", notesPageParam.getContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getStartApplyDate()) && ObjectUtil.isNotEmpty(notesPageParam.getEndApplyDate())) {
+            queryWrapper.between("a.APPLY_DATE", notesPageParam.getStartApplyDate(), notesPageParam.getEndApplyDate());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getStartFinalDate()) && ObjectUtil.isNotEmpty(notesPageParam.getEndFinalDate())) {
+            queryWrapper.between("a.FINAL_DATE", notesPageParam.getStartFinalDate(), notesPageParam.getEndFinalDate());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getStartSignDate()) && ObjectUtil.isNotEmpty(notesPageParam.getEndSignDate())) {
+            queryWrapper.between("a.SIGN_DATE", notesPageParam.getStartSignDate(), notesPageParam.getEndSignDate());
+        }
+        if(ObjectUtil.isNotEmpty(notesPageParam.getCancelMark())) {
+            queryWrapper.eq("a.CANCEL_MARK", notesPageParam.getCancelMark());
+        }
+        if(ObjectUtil.isAllNotEmpty(notesPageParam.getSortField(), notesPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(notesPageParam.getSortOrder());
+            queryWrapper.orderBy(true, notesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(notesPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByAsc("a.ID");
+        }
+        return notesMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public NotesInfoVo detailById(NotesIdParam notesIdParam) {
+        return notesMapper.getDetailById(notesIdParam.getId());
     }
 }

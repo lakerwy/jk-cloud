@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.calocks.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,16 +38,16 @@ public class CalocksEditParam {
     private String id;
 
     /** 登记人（历史表CALocks.Opt） */
-    @ApiModelProperty(value = "登记人（历史表CALocks.Opt）", position = 2)
-    private String opt;
+//    @ApiModelProperty(value = "登记人（历史表CALocks.Opt）", position = 2)
+//    private String opt;
 
     /** 登记日期（历史表CALocks.OptDate） */
-    @ApiModelProperty(value = "登记日期（历史表CALocks.OptDate）", position = 3)
-    private Date optDate;
+//    @ApiModelProperty(value = "登记日期（历史表CALocks.OptDate）", position = 3)
+//    private Date optDate;
 
     /** 流水号SN（历史表CALocks.SN） */
-    @ApiModelProperty(value = "流水号SN（历史表CALocks.SN）", position = 4)
-    private String sn;
+//    @ApiModelProperty(value = "流水号SN（历史表CALocks.SN）", position = 4)
+//    private String sn;
 
     /** 归属单位（历史表CALocks.UnitName） */
     @ApiModelProperty(value = "归属单位（历史表CALocks.UnitName）", position = 5)
@@ -78,10 +79,12 @@ public class CalocksEditParam {
 
     /** 申请日期（历史表CALocks.ApplyDate） */
     @ApiModelProperty(value = "申请日期（历史表CALocks.ApplyDate）", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date applyDate;
 
     /** 有效期（历史表CALocks.Indate） */
     @ApiModelProperty(value = "有效期（历史表CALocks.Indate）", position = 13)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date indate;
 
     /** 状态（历史表CALocks.Status） */

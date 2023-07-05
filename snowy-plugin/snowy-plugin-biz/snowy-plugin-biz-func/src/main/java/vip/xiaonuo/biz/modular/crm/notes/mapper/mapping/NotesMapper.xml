@@ -1,5 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.crm.notes.mapper.NotesMapper">
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo" >
+        select a.*, b.PROJECT_NAME as contractName
+        from BIZ_CRM_NOTES a left join BIZ_CRM_HETONG b on a.CONTRACT_NO = b.CONTRACT_NO  ${ew.customSqlSegment}
+    </select>
 
+    <select id="getDetailById" resultType="vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo" parameterType="String">
+        select a.*, b.PROJECT_NAME as contractName
+        from BIZ_CRM_NOTES a left join BIZ_CRM_HETONG b on a.CONTRACT_NO = b.CONTRACT_NO
+        where a.ID = ${id} and b.DELETE_FLAG = 'NOT_DELETE'
+    </select>
 </mapper>

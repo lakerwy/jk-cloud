@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.rollinout.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -45,6 +46,7 @@ public class RollinoutAddParam {
 
     /** 登记日期（历史表RollInOut.OptDate） */
     @ApiModelProperty(value = "登记日期（历史表RollInOut.OptDate）", position = 5)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 操作（历史表RollInOut.Operate） */

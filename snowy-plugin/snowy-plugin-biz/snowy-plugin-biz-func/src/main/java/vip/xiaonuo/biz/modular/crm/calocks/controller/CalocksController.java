@@ -59,7 +59,7 @@ public class CalocksController {
      * @date  2023/06/30 16:35
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-CRM-CA登记分页")
+    @ApiOperation("获取业务表-CRM-CA登记分页   【api/crm/Bid/GetCALocksPage】")
     @GetMapping("/biz/crm/calocks/page")
     public CommonResult<Page<Calocks>> page(CalocksPageParam calocksPageParam) {
         return CommonResult.data(calocksService.page(calocksPageParam));
@@ -72,7 +72,7 @@ public class CalocksController {
      * @date  2023/06/30 16:35
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-CA登记")
+    @ApiOperation("添加业务表-CRM-CA登记  【api/crm/Bid/AddCALocks】")
     @CommonLog("添加业务表-CRM-CA登记")
     @PostMapping("/biz/crm/calocks/add")
     public CommonResult<String> add(@RequestBody @Valid CalocksAddParam calocksAddParam) {
@@ -87,7 +87,7 @@ public class CalocksController {
      * @date  2023/06/30 16:35
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-CA登记")
+    @ApiOperation("编辑业务表-CRM-CA登记  【api/crm/Bid/UpdateCALocks】")
     @CommonLog("编辑业务表-CRM-CA登记")
     @PostMapping("/biz/crm/calocks/edit")
     public CommonResult<String> edit(@RequestBody @Valid CalocksEditParam calocksEditParam) {
@@ -102,7 +102,7 @@ public class CalocksController {
      * @date  2023/06/30 16:35
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-CA登记")
+    @ApiOperation("删除业务表-CRM-CA登记  【api/crm/Bid/DeleteCALocks】")
     @CommonLog("删除业务表-CRM-CA登记")
     @PostMapping("/biz/crm/calocks/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -118,7 +118,7 @@ public class CalocksController {
      * @date  2023/06/30 16:35
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-CRM-CA登记详情")
+    @ApiOperation("获取业务表-CRM-CA登记详情  【api/crm/Bid/GetCALocks】")
     @GetMapping("/biz/crm/calocks/detail")
     public CommonResult<Calocks> detail(@Valid CalocksIdParam calocksIdParam) {
         return CommonResult.data(calocksService.detail(calocksIdParam));

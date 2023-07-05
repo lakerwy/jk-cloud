@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.bidopen.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,16 +38,16 @@ public class BidopenEditParam {
     private String id;
 
     /** 登记人（历史表BidOpen.Opt） */
-    @ApiModelProperty(value = "登记人（历史表BidOpen.Opt）", position = 2)
-    private String opt;
+//    @ApiModelProperty(value = "登记人（历史表BidOpen.Opt）", position = 2)
+//    private String opt;
 
     /** 登记日期（历史表BidOpen.OptDate） */
-    @ApiModelProperty(value = "登记日期（历史表BidOpen.OptDate）", position = 3)
-    private Date optDate;
+//    @ApiModelProperty(value = "登记日期（历史表BidOpen.OptDate）", position = 3)
+//    private Date optDate;
 
     /** 流水号SN（历史表BidOpen.SN） */
-    @ApiModelProperty(value = "流水号SN（历史表BidOpen.SN）", position = 4)
-    private String sn;
+//    @ApiModelProperty(value = "流水号SN（历史表BidOpen.SN）", position = 4)
+//    private String sn;
 
     /** 立项-主键ID（历史表BidOpen.ProjectId） */
     @ApiModelProperty(value = "立项-主键ID（历史表BidOpen.ProjectId）", position = 5)
@@ -86,6 +87,7 @@ public class BidopenEditParam {
 
     /** 中标时间（历史表BidOpen.BidDate） */
     @ApiModelProperty(value = "中标时间（历史表BidOpen.BidDate）", position = 14)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date bidDate;
 
     /** 立项-所属部门（历史表BidOpen.Dept） */

@@ -12,8 +12,16 @@
  */
 package vip.xiaonuo.biz.modular.crm.notes.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.notes.entity.Notes;
+import vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo;
+import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 
 /**
  * 业务表-CRM-备忘录登记Mapper接口
@@ -22,4 +30,8 @@ import vip.xiaonuo.biz.modular.crm.notes.entity.Notes;
  * @date  2023/06/30 16:49
  **/
 public interface NotesMapper extends BaseMapper<Notes> {
+
+    IPage<NotesInfoVo> getPageList(Page<NotesInfoVo> page, @Param(Constants.WRAPPER) Wrapper<Notes> queryWrapper);
+
+    NotesInfoVo getDetailById(String id);
 }

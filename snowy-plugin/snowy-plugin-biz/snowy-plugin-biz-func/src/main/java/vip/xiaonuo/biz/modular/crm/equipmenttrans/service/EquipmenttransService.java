@@ -12,13 +12,12 @@
  */
 package vip.xiaonuo.biz.modular.crm.equipmenttrans.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.crm.equipmenttrans.entity.Equipmenttrans;
-import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransAddParam;
-import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransEditParam;
-import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransIdParam;
-import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.EquipmenttransPageParam;
+import vip.xiaonuo.biz.modular.crm.equipmenttrans.param.*;
+import vip.xiaonuo.biz.modular.crm.equipmenttrans.vo.EquipmenttransInfoVo;
 
 import java.util.List;
 
@@ -77,4 +76,11 @@ public interface EquipmenttransService extends IService<Equipmenttrans> {
      * @date  2023/06/30 16:39
      **/
     Equipmenttrans queryEntity(String id);
+
+    /**
+     * 获取业务表-CRM-设备转移记录分页(携带设备信息)
+     * @param equipmenttransInfoPageParam
+     * @return
+     */
+    IPage<EquipmenttransInfoVo> pageList(EquipmenttransInfoPageParam equipmenttransInfoPageParam);
 }

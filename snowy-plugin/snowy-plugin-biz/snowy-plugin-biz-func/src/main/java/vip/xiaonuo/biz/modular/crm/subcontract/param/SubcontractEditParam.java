@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.subcontract.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,12 +38,12 @@ public class SubcontractEditParam {
     private String id;
 
     /** 登记人（历史表SubContract.Opt） */
-    @ApiModelProperty(value = "登记人（历史表SubContract.Opt）", position = 2)
-    private String opt;
+//    @ApiModelProperty(value = "登记人（历史表SubContract.Opt）", position = 2)
+//    private String opt;
 
     /** 登记日期（历史表SubContract.RegisterDate） */
-    @ApiModelProperty(value = "登记日期（历史表SubContract.RegisterDate）", position = 3)
-    private Date registerDate;
+//    @ApiModelProperty(value = "登记日期（历史表SubContract.RegisterDate）", position = 3)
+//    private Date registerDate;
 
     /** 是否归档（历史表SubContract.IsFiling） */
     @ApiModelProperty(value = "是否归档（历史表SubContract.IsFiling）", position = 4)
@@ -53,8 +54,8 @@ public class SubcontractEditParam {
     private String secondLevel;
 
     /** 合同编号（历史表SubContract.ContractNo） */
-    @ApiModelProperty(value = "合同编号（历史表SubContract.ContractNo）", position = 6)
-    private String contractNo;
+//    @ApiModelProperty(value = "合同编号（历史表SubContract.ContractNo）", position = 6)
+//    private String contractNo;
 
     /** 合同名称（历史表SubContract.ProjectName） */
     @ApiModelProperty(value = "合同名称（历史表SubContract.ProjectName）", position = 7)
@@ -78,10 +79,12 @@ public class SubcontractEditParam {
 
     /** 合同盖章日期（历史表SubContract.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表SubContract.SealDate）", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date sealDate;
 
     /** 归档日期（历史表SubContract.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表SubContract.FilingDate）", position = 13)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date filingDate;
 
     /** 合同金额（历史表SubContract.ContractAmount） */

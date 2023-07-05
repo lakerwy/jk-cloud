@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.equipments.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -61,6 +62,7 @@ public class EquipmentsAddParam {
 
     /** 采购日期（历史表Equipments.PurchaseDate） */
     @ApiModelProperty(value = "采购日期（历史表Equipments.PurchaseDate）", position = 9)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date purchaseDate;
 
     /** 采购金额（历史表Equipments.PurchaseAmount） */

@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.contractrr.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -41,6 +42,7 @@ public class ContractrrAddParam {
 
     /** 登记日期（历史表ContractRR.OptDate） */
     @ApiModelProperty(value = "登记日期（历史表ContractRR.OptDate）", position = 4)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 合同编号（历史表ContractRR.ContractNo） */
@@ -49,6 +51,7 @@ public class ContractrrAddParam {
 
     /** 收款时间（历史表ContractRR.CollectDate） */
     @ApiModelProperty(value = "收款时间（历史表ContractRR.CollectDate）", position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date collectDate;
 
     /** 收款金额（历史表ContractRR.CollectAmount） */

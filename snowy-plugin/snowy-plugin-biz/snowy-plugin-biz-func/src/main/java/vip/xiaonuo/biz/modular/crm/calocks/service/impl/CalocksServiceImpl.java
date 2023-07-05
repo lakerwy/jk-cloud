@@ -22,6 +22,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpClientLoginUserUtil;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -32,7 +35,9 @@ import vip.xiaonuo.biz.modular.crm.calocks.param.CalocksEditParam;
 import vip.xiaonuo.biz.modular.crm.calocks.param.CalocksIdParam;
 import vip.xiaonuo.biz.modular.crm.calocks.param.CalocksPageParam;
 import vip.xiaonuo.biz.modular.crm.calocks.service.CalocksService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -87,6 +92,12 @@ public class CalocksServiceImpl extends ServiceImpl<CalocksMapper, Calocks> impl
     @Override
     public void add(CalocksAddParam calocksAddParam) {
         Calocks calocks = BeanUtil.toBean(calocksAddParam, Calocks.class);
+        //处理Sn编号
+        Calocks tmp = this.getOne(new QueryWrapper<Calocks>().lambda().orderByDesc(Calocks::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(calocksAddParam.getSn(), tmp == null ? "" : tmp.getSn(), CommonSnFormatEnum.SNYYYY001.getValue());
+        calocks.setSn(newSn);
+        calocks.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        calocks.setOptDate(new Date());
         this.save(calocks);
     }
 

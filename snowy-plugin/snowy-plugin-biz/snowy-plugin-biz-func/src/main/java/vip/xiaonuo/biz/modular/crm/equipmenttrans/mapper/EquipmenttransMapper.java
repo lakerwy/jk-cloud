@@ -12,8 +12,16 @@
  */
 package vip.xiaonuo.biz.modular.crm.equipmenttrans.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.equipmenttrans.entity.Equipmenttrans;
+import vip.xiaonuo.biz.modular.crm.equipmenttrans.vo.EquipmenttransInfoVo;
+import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 
 /**
  * 业务表-CRM-设备转移记录Mapper接口
@@ -22,4 +30,5 @@ import vip.xiaonuo.biz.modular.crm.equipmenttrans.entity.Equipmenttrans;
  * @date  2023/06/30 16:39
  **/
 public interface EquipmenttransMapper extends BaseMapper<Equipmenttrans> {
+    IPage<EquipmenttransInfoVo> getPageList(Page<EquipmenttransInfoVo> page, @Param(Constants.WRAPPER) Wrapper<Equipmenttrans> queryWrapper);
 }

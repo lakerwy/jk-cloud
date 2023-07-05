@@ -59,7 +59,7 @@ public class EquipmentsController {
      * @date  2023/06/30 16:38
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-CRM-设备登记分页")
+    @ApiOperation("获取业务表-CRM-设备登记分页  【api/crm/Equipments/GetEquipmentsPage】")
     @GetMapping("/biz/crm/equipments/page")
     public CommonResult<Page<Equipments>> page(EquipmentsPageParam equipmentsPageParam) {
         return CommonResult.data(equipmentsService.page(equipmentsPageParam));
@@ -72,7 +72,7 @@ public class EquipmentsController {
      * @date  2023/06/30 16:38
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-设备登记")
+    @ApiOperation("添加业务表-CRM-设备登记  【api/crm/Equipments/AddEquipments】")
     @CommonLog("添加业务表-CRM-设备登记")
     @PostMapping("/biz/crm/equipments/add")
     public CommonResult<String> add(@RequestBody @Valid EquipmentsAddParam equipmentsAddParam) {
@@ -87,7 +87,7 @@ public class EquipmentsController {
      * @date  2023/06/30 16:38
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-设备登记")
+    @ApiOperation("编辑业务表-CRM-设备登记  【api/crm/Equipments/UpdateEquipments】")
     @CommonLog("编辑业务表-CRM-设备登记")
     @PostMapping("/biz/crm/equipments/edit")
     public CommonResult<String> edit(@RequestBody @Valid EquipmentsEditParam equipmentsEditParam) {
@@ -102,7 +102,7 @@ public class EquipmentsController {
      * @date  2023/06/30 16:38
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-CRM-设备登记")
+    @ApiOperation("删除业务表-CRM-设备登记  【api/crm/Equipments/DeleteEquipments】")
     @CommonLog("删除业务表-CRM-设备登记")
     @PostMapping("/biz/crm/equipments/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -118,7 +118,7 @@ public class EquipmentsController {
      * @date  2023/06/30 16:38
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-CRM-设备登记详情")
+    @ApiOperation("获取业务表-CRM-设备登记详情  【api/crm/Equipments/GetEquipments】")
     @GetMapping("/biz/crm/equipments/detail")
     public CommonResult<Equipments> detail(@Valid EquipmentsIdParam equipmentsIdParam) {
         return CommonResult.data(equipmentsService.detail(equipmentsIdParam));

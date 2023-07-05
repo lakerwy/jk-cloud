@@ -13,7 +13,11 @@
 package vip.xiaonuo.biz.modular.crm.subcontract.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
+import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
+
+import java.util.List;
 
 /**
  * 业务表-CRM-分包合同Mapper接口
@@ -22,4 +26,8 @@ import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
  * @date  2023/06/30 16:22
  **/
 public interface SubcontractMapper extends BaseMapper<Subcontract> {
+
+    SubContractInfoVo getDetailById(String id);
+
+    List<Subcontract> getSubContractListByHetongId(String hetongId);
 }

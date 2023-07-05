@@ -18,21 +18,28 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.contractrr.param.*;
+import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrInfoVo;
+import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrPageInfoVo;
+import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
+import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.contractrr.entity.Contractrr;
 import vip.xiaonuo.biz.modular.crm.contractrr.mapper.ContractrrMapper;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrAddParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrEditParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrIdParam;
-import vip.xiaonuo.biz.modular.crm.contractrr.param.ContractrrPageParam;
 import vip.xiaonuo.biz.modular.crm.contractrr.service.ContractrrService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 
+import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -44,6 +51,12 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contractrr> implements ContractrrService {
+
+    @Resource
+    private HetongService hetongService;
+
+    @Resource
+    private ContractrrMapper contractrrMapper;
 
     @Override
     public Page<Contractrr> page(ContractrrPageParam contractrrPageParam) {
@@ -74,6 +87,12 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
     @Override
     public void add(ContractrrAddParam contractrrAddParam) {
         Contractrr contractrr = BeanUtil.toBean(contractrrAddParam, Contractrr.class);
+        //处理Sn编号
+        Contractrr tmp = this.getOne(new QueryWrapper<Contractrr>().lambda().orderByDesc(Contractrr::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(contractrrAddParam.getSn(), tmp == null ? "" : tmp.getSn(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        contractrr.setSn(newSn);
+        contractrr.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        contractrr.setOptDate(new Date());
         this.save(contractrr);
     }
 
@@ -105,4 +124,49 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
         }
         return contractrr;
     }
+
+    @Override
+    public IPage<ContractrrPageInfoVo> pageList(ContractrrPageInfoParam contractrrPageInfoParam) {
+        QueryWrapper<Contractrr> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getSn())) {
+            queryWrapper.like("a.SN", contractrrPageInfoParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getOpt())) {
+            queryWrapper.like("a.OPT", contractrrPageInfoParam.getOpt());
+        }
+        if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getStartOptDate()) && ObjectUtil.isNotEmpty(contractrrPageInfoParam.getEndOptDate())) {
+            queryWrapper.between("a.OPT_DATE", contractrrPageInfoParam.getStartOptDate(), contractrrPageInfoParam.getEndOptDate());
+        }
+        if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getContractNo())) {
+            queryWrapper.like("a.CONTRACT_NO", contractrrPageInfoParam.getContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getContractName())) {
+            queryWrapper.like("b.CONTRACT_NAME", contractrrPageInfoParam.getContractName());
+        }
+        if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getCompanyOrDepartment())) {
+            queryWrapper.like("b.COMPANY_OR_DEPARTMENT", contractrrPageInfoParam.getCompanyOrDepartment());
+        }
+        queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG", "NOT_DELETE");
+        if(ObjectUtil.isAllNotEmpty(contractrrPageInfoParam.getSortField(), contractrrPageInfoParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(contractrrPageInfoParam.getSortOrder());
+            queryWrapper.orderBy(true, contractrrPageInfoParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(contractrrPageInfoParam.getSortField()));
+        } else {
+            queryWrapper.orderByAsc("a.ID");
+        }
+        return contractrrMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public ContractrrInfoVo detailById(ContractrrIdParam contractrrIdParam) {
+        ContractrrInfoVo result = new ContractrrInfoVo();
+        Contractrr contractrr = this.queryEntity(contractrrIdParam.getId());
+        BeanUtil.copyProperties(contractrr, result);
+        Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo,contractrr.getContractNo()));
+        result.setHetongInfo(ht);
+        return result;
+    }
+
+
 }

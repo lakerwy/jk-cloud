@@ -15,11 +15,11 @@ package vip.xiaonuo.biz.modular.crm.major.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.crm.majorleader.entity.Majorleader;
+import vip.xiaonuo.biz.modular.crm.majorleader.param.MajorleaderEditParam;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.List;
 
 /**
  * 业务表-CRM-图审专业编辑参数
@@ -44,4 +44,6 @@ public class MajorEditParam {
     @ApiModelProperty(value = "专业编号（历史表Major.MajorNo）", position = 3)
     private String majorNo;
 
+    @ApiModelProperty(value = "专业负责人", position = 4)
+    private List<Majorleader> majorleaders;
 }

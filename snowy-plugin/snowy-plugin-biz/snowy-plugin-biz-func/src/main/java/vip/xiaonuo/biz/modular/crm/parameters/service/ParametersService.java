@@ -83,4 +83,18 @@ public interface ParametersService extends IService<Parameters> {
      * @return
      */
     IPage<ParametersInfoVo> pageList(ParametersInfoPageParam parametersInfoPageParam);
+
+    /**
+     * 根据主键ID获取合同参数详情（携带合同信息）
+     * @param parametersIdParam
+     * @return
+     */
+    ParametersInfoVo detailById(ParametersIdParam parametersIdParam);
+
+    /**
+     * 根据合同ID获取合同参数详情（携带合同信息）
+     * @param parametersHetongIdParam
+     * @return
+     */
+    ParametersInfoVo detailByHetongId(ParametersHetongIdParam parametersHetongIdParam);
 }
