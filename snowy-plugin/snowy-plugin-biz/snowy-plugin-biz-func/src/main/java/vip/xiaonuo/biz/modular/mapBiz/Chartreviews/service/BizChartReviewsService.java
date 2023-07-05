@@ -16,10 +16,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsAddParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsEditParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsIdParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsPageParam;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.*;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
 
@@ -90,4 +87,6 @@ public interface BizChartReviewsService extends IService<BizChartReviews> {
 
 
     Page<BizChartReviewsVo> pageList(BizChartReviewsPageParam bizChartReviewsPageParam);
+
+    void updateStatus(BizChartReviewsStatusParam bizChartReviewsStatusParam);
 }

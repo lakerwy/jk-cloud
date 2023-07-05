@@ -128,4 +128,21 @@ public class BizAuditListsDetailsController {
     public CommonResult<BizAuditListsDetails> detail(@Valid BizAuditListsDetailsIdParam bizAuditListsDetailsIdParam) {
         return CommonResult.data(bizAuditListsDetailsService.detail(bizAuditListsDetailsIdParam));
     }
+
+
+    /**
+     * 编辑业务表-设计校审记录表
+     *
+     * @author mayike
+     * @date  2023/07/03 11:33
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("编辑业务表-设计校审记录表无token")
+    @CommonLog("编辑业务表-设计校审记录表-无token")
+//    @SaCheckPermission("/biz/AuditListsDetails/edit")
+    @PostMapping("/biz/AuditListsDetails/editNoToken")
+    public CommonResult<String> editNoToken(@RequestBody @Valid BizAuditListsDetailsEditParam bizAuditListsDetailsEditParam) {
+        bizAuditListsDetailsService.edit(bizAuditListsDetailsEditParam);
+        return CommonResult.ok();
+    }
 }

@@ -24,10 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsAddParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsEditParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsIdParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsPageParam;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.*;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
 import vip.xiaonuo.common.annotation.CommonLog;
@@ -62,7 +59,7 @@ public class BizChartReviewsController {
      * @author mayike
      * @date  2023/06/30 16:07
      */
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 11)
     @ApiOperation("获取业务表-图审受理单 分页")
 //    @SaCheckPermission("/biz/Chartreviews/page")
     @GetMapping("/biz/ChartReviews/page")
@@ -143,6 +140,15 @@ public class BizChartReviewsController {
     @GetMapping("/biz/ChartReviews/pageList")
     public CommonResult<Page<BizChartReviewsVo>> pageList(BizChartReviewsPageParam bizChartReviewsPageParam) {
         return CommonResult.data(bizChartReviewsService.pageList(bizChartReviewsPageParam));
+    }
+
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("图审受理单状态更新")
+//    @SaCheckPermission("/biz/Chartreviews/page")
+    @GetMapping("/biz/ChartReviews/updateStatus")
+    public CommonResult<String> updateStatus(BizChartReviewsStatusParam bizChartReviewsStatusParam){
+        bizChartReviewsService.updateStatus(bizChartReviewsStatusParam);
+        return CommonResult.ok();
     }
 
 }

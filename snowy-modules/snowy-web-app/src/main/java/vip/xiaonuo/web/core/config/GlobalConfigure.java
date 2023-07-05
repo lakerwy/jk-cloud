@@ -155,6 +155,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/api/webapp/dev/file/download",
             /*文件免token上传*/
             "/dev/file/NoToken/uploadLocalReturnUrl",
+            "/dev/attachment/info",
 
             /* 用户个人中心相关 */
             "/sys/userCenter/getPicCaptcha",

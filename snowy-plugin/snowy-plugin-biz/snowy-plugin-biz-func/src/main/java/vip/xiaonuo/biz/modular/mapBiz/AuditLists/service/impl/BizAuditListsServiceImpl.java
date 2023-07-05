@@ -17,11 +17,17 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoVo;
+import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDetails;
+import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service.BizAuditListsDetailsService;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.BizChartReviewsService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +39,7 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsPageParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -44,6 +51,12 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, BizAuditLists> implements BizAuditListsService {
+
+    @Resource
+    BizChartReviewsService bizChartReviewsService;
+
+    @Resource
+    BizAuditListsDetailsService bizAuditListsDetailsService;
 
     @Override
     public Page<BizAuditLists> page(BizAuditListsPageParam bizAuditListsPageParam) {
@@ -107,5 +120,21 @@ public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, B
             throw new CommonException("业务表-设计校审主表不存在，id值为：{}", id);
         }
         return bizAuditLists;
+    }
+
+    @Override
+    public BizAuditInfoVo info(BizAuditListsIdParam bizAuditListsIdParam) {
+        BizAuditLists bizAuditLists = this.queryEntity(bizAuditListsIdParam.getId());
+        String reviewId = bizAuditLists.getReviewId();
+        BizChartReviews bizChartReviews = bizChartReviewsService.getById(reviewId);
+        QueryWrapper<BizAuditListsDetails> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizAuditListsDetails::getAuditId, bizAuditListsIdParam.getId());
+        queryWrapper.lambda().orderByAsc(BizAuditListsDetails::getOpinionTime);
+        List<BizAuditListsDetails> list = bizAuditListsDetailsService.list(queryWrapper);
+        BizAuditInfoVo bizAuditInfoVo = new BizAuditInfoVo();
+        bizAuditInfoVo.setBizChartReviews(bizChartReviews);
+        bizAuditInfoVo.setBizAuditLists(bizAuditLists);
+        bizAuditInfoVo.setBizAuditListsDetailsList(list);
+        return bizAuditInfoVo;
     }
 }

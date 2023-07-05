@@ -28,6 +28,7 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsPageParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -128,4 +129,19 @@ public class BizAuditListsController {
     public CommonResult<BizAuditLists> detail(@Valid BizAuditListsIdParam bizAuditListsIdParam) {
         return CommonResult.data(bizAuditListsService.detail(bizAuditListsIdParam));
     }
+
+    /**
+     * 获取业务表-设计校审主表详情
+     *
+     * @author mayike
+     * @date  2023/06/30 16:43
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("业务表-设计校审-获取单页展示所有信息")
+//    @SaCheckPermission("/biz/AuditLists/detail")
+    @GetMapping("/biz/AuditLists/info")
+    public CommonResult<BizAuditInfoVo> info(@Valid BizAuditListsIdParam bizAuditListsIdParam) {
+        return CommonResult.data(bizAuditListsService.info(bizAuditListsIdParam));
+    }
+
 }
