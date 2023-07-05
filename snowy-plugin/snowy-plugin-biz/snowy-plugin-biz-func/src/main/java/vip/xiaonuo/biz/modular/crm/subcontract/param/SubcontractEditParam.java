@@ -79,12 +79,12 @@ public class SubcontractEditParam {
 
     /** 合同盖章日期（历史表SubContract.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表SubContract.SealDate）", position = 12)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date sealDate;
 
     /** 归档日期（历史表SubContract.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表SubContract.FilingDate）", position = 13)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date filingDate;
 
     /** 合同金额（历史表SubContract.ContractAmount） */

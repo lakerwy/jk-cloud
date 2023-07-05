@@ -42,17 +42,17 @@ public class RollinoutEditParam {
     private String fpId;
 
     /** 流水号SN（历史表RollInOut.SN） */
-    @ApiModelProperty(value = "流水号SN（历史表RollInOut.SN）", position = 3)
-    private String sn;
+//    @ApiModelProperty(value = "流水号SN（历史表RollInOut.SN）", position = 3)
+//    private String sn;
 
     /** 登记人（历史表RollInOut.Opt） */
-    @ApiModelProperty(value = "登记人（历史表RollInOut.Opt）", position = 4)
-    private String opt;
+//    @ApiModelProperty(value = "登记人（历史表RollInOut.Opt）", position = 4)
+//    private String opt;
 
     /** 登记日期（历史表RollInOut.OptDate） */
-    @ApiModelProperty(value = "登记日期（历史表RollInOut.OptDate）", position = 5)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
-    private Date optDate;
+//    @ApiModelProperty(value = "登记日期（历史表RollInOut.OptDate）", position = 5)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+//    private Date optDate;
 
     /** 操作（历史表RollInOut.Operate） */
     @ApiModelProperty(value = "操作（历史表RollInOut.Operate）", position = 6)

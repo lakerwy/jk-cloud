@@ -51,7 +51,7 @@ public class ContractrrAddParam {
 
     /** 收款时间（历史表ContractRR.CollectDate） */
     @ApiModelProperty(value = "收款时间（历史表ContractRR.CollectDate）", position = 6)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date collectDate;
 
     /** 收款金额（历史表ContractRR.CollectAmount） */

@@ -96,17 +96,17 @@ public class HetongEditParam {
 
     /** 中标日期（历史表Hetong.BidDate） */
     @ApiModelProperty(value = "中标日期（历史表Hetong.BidDate）", position = 16)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date bidDate;
 
     /** 合同盖章日期（历史表Hetong.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表Hetong.SealDate）", position = 17)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date sealDate;
 
     /** 归档日期（历史表Hetong.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表Hetong.FilingDate）", position = 18)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date filingDate;
 
     /** 合同金额（历史表Hetong.ContractAmount） */
@@ -151,7 +151,7 @@ public class HetongEditParam {
 
     /** 出图日期（历史表Hetong.FigureDate） */
     @ApiModelProperty(value = "出图日期（历史表Hetong.FigureDate）", position = 29)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date figureDate;
 
     /** 出图阶段（历史表Hetong.FigureStage） */
@@ -168,7 +168,7 @@ public class HetongEditParam {
 
     /** 竣工日期（历史表Hetong.CompleDate） */
     @ApiModelProperty(value = "竣工日期（历史表Hetong.CompleDate）", position = 33)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date compleDate;
 
     /** 竣工材料（历史表Hetong.CompleData） */

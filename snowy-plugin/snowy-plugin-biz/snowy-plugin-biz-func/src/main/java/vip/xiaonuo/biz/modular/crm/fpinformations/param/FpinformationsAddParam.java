@@ -71,12 +71,12 @@ public class FpinformationsAddParam {
 
     /** 入职日期（历史表FPInformations.EntryDate） */
     @ApiModelProperty(value = "入职日期（历史表FPInformations.EntryDate）", position = 11)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date entryDate;
 
     /** 社保转入日期（历史表FPInformations.InDate） */
     @ApiModelProperty(value = "社保转入日期（历史表FPInformations.InDate）", position = 12)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date inDate;
 
     /** 联系方式（历史表FPInformations.Phone） */
@@ -105,7 +105,7 @@ public class FpinformationsAddParam {
 
     /** 毕业证-毕业时间（历史表FPInformations.GraduateDate） */
     @ApiModelProperty(value = "毕业证-毕业时间（历史表FPInformations.GraduateDate）", position = 19)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date graduateDate;
 
     /** 毕业证-证书编号（历史表FPInformations.CertificateNo） */
@@ -126,7 +126,7 @@ public class FpinformationsAddParam {
 
     /** 职称-授予时间（历史表FPInformations.TitleDate） */
     @ApiModelProperty(value = "职称-授予时间（历史表FPInformations.TitleDate）", position = 24)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date titleDate;
 
     /** 职业资格证/注册证-名称（历史表FPInformations.CertificateName） */

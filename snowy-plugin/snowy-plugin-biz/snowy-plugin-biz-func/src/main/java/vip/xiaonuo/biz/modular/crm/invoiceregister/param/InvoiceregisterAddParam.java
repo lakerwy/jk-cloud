@@ -51,7 +51,7 @@ public class InvoiceregisterAddParam {
 
     /** 开票时间（历史表InvoiceRegister.MakeTime） */
     @ApiModelProperty(value = "开票时间（历史表InvoiceRegister.MakeTime）", position = 6)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date makeTime;
 
     /** 开票金额（历史表InvoiceRegister.MakeAmount） */

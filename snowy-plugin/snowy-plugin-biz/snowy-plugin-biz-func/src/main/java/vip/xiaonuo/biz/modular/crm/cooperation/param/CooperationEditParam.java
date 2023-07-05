@@ -75,12 +75,12 @@ public class CooperationEditParam {
 
     /** 合同盖章日期（历史表Cooperation.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表Cooperation.SealDate）", position = 11)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date sealDate;
 
     /** 归档日期（历史表Cooperation.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表Cooperation.FilingDate）", position = 12)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date filingDate;
 
     /** 有效期至（历史表Cooperation.Indate） */

@@ -95,7 +95,7 @@ public class PursalecontractAddParam {
 
     /** 合同盖章日期（历史表PurSaleContract.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表PurSaleContract.SealDate）", position = 17)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date sealDate;
 
     /** 原件归档（历史表PurSaleContract.IsFill） */
@@ -104,7 +104,7 @@ public class PursalecontractAddParam {
 
     /** 归档日期（历史表PurSaleContract.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表PurSaleContract.FilingDate）", position = 19)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date filingDate;
 
     /** 合同金额（历史表PurSaleContract.Amount） */

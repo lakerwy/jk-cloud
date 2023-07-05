@@ -79,12 +79,12 @@ public class CalocksEditParam {
 
     /** 申请日期（历史表CALocks.ApplyDate） */
     @ApiModelProperty(value = "申请日期（历史表CALocks.ApplyDate）", position = 12)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date applyDate;
 
     /** 有效期（历史表CALocks.Indate） */
     @ApiModelProperty(value = "有效期（历史表CALocks.Indate）", position = 13)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date indate;
 
     /** 状态（历史表CALocks.Status） */

@@ -83,7 +83,7 @@ public class BidopenAddParam {
 
     /** 中标时间（历史表BidOpen.BidDate） */
     @ApiModelProperty(value = "中标时间（历史表BidOpen.BidDate）", position = 14)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date bidDate;
 
     /** 立项-所属部门（历史表BidOpen.Dept） */
