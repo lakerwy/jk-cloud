@@ -167,6 +167,10 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/pay/wx/authNotifyUrl",
             "/pay/wx/jsPay",
             "/pay/order/sample/doCreateOrder",
+
+            /*获取工程设计校审信息*/
+            "/biz/AuditLists/info",
+            "/biz/AuditListsDetails/editNoToken",
     };
 
     /**

@@ -19,6 +19,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -27,6 +28,7 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.core.enums.BizTableCommon;
 import vip.xiaonuo.biz.core.utils.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.mapper.BizChartReviewsMapper;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.*;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.BizChartReviewsService;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
@@ -34,12 +36,11 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsAddParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsEditParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsIdParam;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.BizChartReviewsPageParam;
 
 import javax.annotation.Resource;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -152,9 +153,17 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
             queryWrapper.orderBy(true, bizChartReviewsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizChartReviewsPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.ID");
+            queryWrapper.orderByAsc("a.CREATE_TIME");
         }
 
         return bizChartReviewsMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);
+    }
+
+    @Override
+    public void updateStatus(BizChartReviewsStatusParam bizChartReviewsStatusParam) {
+        UpdateWrapper<BizChartReviews> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda().eq(BizChartReviews::getId,bizChartReviewsStatusParam.getId());
+        updateWrapper.lambda().set(BizChartReviews::getStatus,bizChartReviewsStatusParam.getStatus());
+        this.update(updateWrapper);
     }
 }

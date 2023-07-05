@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -22,6 +23,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsIdParam;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -33,6 +35,7 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetai
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsPageParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service.BizAuditListsDetailsService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -65,6 +68,7 @@ public class BizAuditListsDetailsServiceImpl extends ServiceImpl<BizAuditListsDe
     @Override
     public void add(BizAuditListsDetailsAddParam bizAuditListsDetailsAddParam) {
         BizAuditListsDetails bizAuditListsDetails = BeanUtil.toBean(bizAuditListsDetailsAddParam, BizAuditListsDetails.class);
+        bizAuditListsDetails.setOpinionTime(DateUtil.date(new Date()));
         this.save(bizAuditListsDetails);
     }
 
@@ -73,6 +77,7 @@ public class BizAuditListsDetailsServiceImpl extends ServiceImpl<BizAuditListsDe
     public void edit(BizAuditListsDetailsEditParam bizAuditListsDetailsEditParam) {
         BizAuditListsDetails bizAuditListsDetails = this.queryEntity(bizAuditListsDetailsEditParam.getId());
         BeanUtil.copyProperties(bizAuditListsDetailsEditParam, bizAuditListsDetails);
+        bizAuditListsDetails.setReviseDate(DateUtil.date(new Date()));
         this.updateById(bizAuditListsDetails);
     }
 

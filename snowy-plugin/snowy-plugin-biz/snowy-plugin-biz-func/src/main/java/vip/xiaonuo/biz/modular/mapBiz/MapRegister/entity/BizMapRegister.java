@@ -120,11 +120,11 @@ public class BizMapRegister {
 
     /** 盖章样本 */
     @ApiModelProperty(value = "盖章样本", position = 22)
-    private String attachment2;
+    private String attachments2;
 
     /** 项目名称 */
     @ApiModelProperty(value = "项目名称", position = 23)
-    private String projectNames;
+    private String projectName;
 
     /** 项目编号 */
     @ApiModelProperty(value = "项目编号", position = 24)

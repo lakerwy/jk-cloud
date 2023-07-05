@@ -114,6 +114,7 @@ public class GatewayConfigure {
             "/api/webapp/dev/file/download",
             /*文件免token上传*/
             "/api/webapp/dev/file/NoToken/uploadLocalReturnUrl",
+            "/api/webapp/dev/attachment/info",
 
             /* 用户个人中心相关 */
             "/api/webapp/sys/userCenter/getPicCaptcha",
@@ -143,7 +144,11 @@ public class GatewayConfigure {
             "/api/net/api/applet/ecard/GetAppletCardOpenIdByCode",
             "/api/net/api/applet/ecard/GetEcardByUserId",
             "/api/net/api/sys/resume/SaveResume",
-            "/api/net/api/sys/attach/AttachUpLoad"
+            "/api/net/api/sys/attach/AttachUpLoad",
+
+            /*获取工程设计校审信息*/
+            "/api/bizapp/biz/AuditLists/info",
+            "/api/bizapp/biz/AuditListsDetails/editNoToken",
     };
 
     /**

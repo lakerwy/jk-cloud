@@ -37,13 +37,46 @@
     </resultMap>
 
     <select id="getCRMDetailById" resultMap="BaseResultMap" parameterType="String">
-        SELECT a.*, b.CONTRACT_NO,b.PROJECT_NAME,b.SECOND_LEVEL FROM BIZ_CHART_REVIEWS a
-            LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO
-            WHERE  a.DELETE_FLAG = 'NOT_DELETE' AND a.ID =${id}
+        SELECT
+            a.ID,
+            a.TASK_ID,
+            a.SN,
+            a.OPT,
+            a.OPT_DATE,
+            a.PROJECT_NO,
+            a.SENDER,
+            a.COMPANY_OR_DEPARTMENT,
+            a.PROJECT_LEADER,
+            a.MAP_STAGE,
+            a.DESIGNER,
+            a.ATTACHMENTS,
+            a.ATTACHMENTS1,
+            a.ATTACHMENTS2,
+            a.ATTACHMENTS3,
+            a.CREATE_TIME,
+            a.CREATE_USER,
+            a.DELETE_FLAG,
+            a.`STATUS`,
+            b.CONTRACT_NO,
+            b.PROJECT_NAME,
+            b.SECOND_LEVEL,
+            c.SEAL_DATE,
+            c.MAP_COPIES,
+            c.NOTE,
+            c.IS_DILE,
+            c.IS_LOGISTICS
+        FROM
+            BIZ_CHART_REVIEWS a
+                LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO
+                LEFT JOIN BIZ_MAP_REGISTER c ON c.REVIEW_ID = a.ID
+        WHERE
+            a.DELETE_FLAG = 'NOT_DELETE'
+          AND c.`STATUS` = '1'
+          AND a.ID = ${id}
     </select>
 
     <select id="getCRDList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviewDetails">
-        SELECT * FROM BIZ_CHART_REVIEW_DETAILS WHERE DELETE_FLAG = 'NOT_DELETE' AND REVIEW_ID = #{ID}
+        SELECT * FROM BIZ_CHART_REVIEW_DETAILS WHERE DELETE_FLAG = 'NOT_DELETE' AND  MAJOR_NAME is not null AND LEADER is not null AND REVIEW_ID = #{ID}  order by  AUDIT_TIEM desc
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo">
