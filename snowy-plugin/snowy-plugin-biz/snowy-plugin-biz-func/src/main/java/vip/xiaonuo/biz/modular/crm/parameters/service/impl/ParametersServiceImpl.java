@@ -177,13 +177,13 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         if (ObjectUtil.isNotEmpty(parametersInfoPageParam.getSearchKey())) {
             queryWrapper.like("a.SN", parametersInfoPageParam.getSearchKey()).or()
                     .like("a.OPT", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.mainSecondLevel", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.mainContractNo", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.mainProjectName", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.mainCounterparty", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.mainSecondparty", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.mainCompanyOrDepartment", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.mainDescription", parametersInfoPageParam.getSearchKey());
+                    .like("b.SECOND_LEVEL", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.CONTRACT_NO", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.PROJECT_NAME", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.COUNTERPARTY", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.SECONDPARTY", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.COMPANY_OR_DEPARTMENT", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.DESCRIPTION", parametersInfoPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getCoveredArea())) {
             queryWrapper.like("a.COVERED_AREA", parametersInfoPageParam.getCoveredArea());
@@ -249,34 +249,34 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
 
         /* 合同信息 */
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainSecondLevel())) {
-            queryWrapper.eq("b.mainSecondLevel", parametersInfoPageParam.getMainSecondLevel());
+            queryWrapper.eq("b.SECOND_LEVEL", parametersInfoPageParam.getMainSecondLevel());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainContractNo())) {
-            queryWrapper.like("b.mainContractNo", parametersInfoPageParam.getMainContractNo());
+            queryWrapper.like("b.CONTRACT_NO", parametersInfoPageParam.getMainContractNo());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainProjectName())) {
-            queryWrapper.like("b.mainProjectName", parametersInfoPageParam.getMainProjectName());
+            queryWrapper.like("b.PROJECT_NAME", parametersInfoPageParam.getMainProjectName());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainCounterparty())) {
-            queryWrapper.like("b.mainCounterparty", parametersInfoPageParam.getMainCounterparty());
+            queryWrapper.like("b.COUNTERPARTY", parametersInfoPageParam.getMainCounterparty());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainSecondparty())) {
-            queryWrapper.like("b.mainSecondparty", parametersInfoPageParam.getMainSecondparty());
+            queryWrapper.like("b.SECONDPARTY", parametersInfoPageParam.getMainSecondparty());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainCompanyOrDepartment())) {
-            queryWrapper.like("b.mainCompanyOrDepartment", parametersInfoPageParam.getMainCompanyOrDepartment());
+            queryWrapper.like("b.COMPANY_OR_DEPARTMENT", parametersInfoPageParam.getMainCompanyOrDepartment());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainOwner())) {
-            queryWrapper.like("b.mainOwner", parametersInfoPageParam.getMainOwner());
+            queryWrapper.like("b.OWNER", parametersInfoPageParam.getMainOwner());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainContractAmount())) {
-            queryWrapper.eq("b.mainContractAmount", parametersInfoPageParam.getMainContractAmount());
+            queryWrapper.eq("b.CONTRACT_AMOUNT", parametersInfoPageParam.getMainContractAmount());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainInvestScale())) {
-            queryWrapper.like("b.mainInvestScale", parametersInfoPageParam.getMainInvestScale());
+            queryWrapper.like("b.INVEST_SCALE", parametersInfoPageParam.getMainInvestScale());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainDescription())) {
-            queryWrapper.like("b.mainDescription", parametersInfoPageParam.getMainDescription());
+            queryWrapper.like("b.DESCRIPTION", parametersInfoPageParam.getMainDescription());
         }
 
         /* 排序 */

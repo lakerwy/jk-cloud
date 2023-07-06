@@ -149,7 +149,7 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
         if (ObjectUtil.isNotEmpty(contractrrPageInfoParam.getSearchKey())) {
             queryWrapper.like("a.SN", contractrrPageInfoParam.getSearchKey()).or()
                     .like("a.CONTRACT_NO", contractrrPageInfoParam.getSearchKey()).or()
-                    .like("b.CONTRACT_NAME", contractrrPageInfoParam.getSearchKey()).or()
+                    .like("b.PROJECT_NAME", contractrrPageInfoParam.getSearchKey()).or()
                     .like("b.COMPANY_OR_DEPARTMENT", contractrrPageInfoParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getSn())) {
@@ -165,7 +165,7 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
             queryWrapper.like("a.CONTRACT_NO", contractrrPageInfoParam.getContractNo());
         }
         if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getContractName())) {
-            queryWrapper.like("b.CONTRACT_NAME", contractrrPageInfoParam.getContractName());
+            queryWrapper.like("b.PROJECT_NAME", contractrrPageInfoParam.getContractName());
         }
         if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getCompanyOrDepartment())) {
             queryWrapper.like("b.COMPANY_OR_DEPARTMENT", contractrrPageInfoParam.getCompanyOrDepartment());

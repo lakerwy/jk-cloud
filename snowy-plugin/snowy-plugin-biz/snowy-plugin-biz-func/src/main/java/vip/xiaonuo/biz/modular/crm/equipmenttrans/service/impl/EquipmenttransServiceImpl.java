@@ -145,19 +145,19 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
             queryWrapper.like("a.DEPT", equipmenttransInfoPageParam.getSearchKey()).or()
                     .like("a.USERS", equipmenttransInfoPageParam.getSearchKey()).or()
                     .like("b.SN", equipmenttransInfoPageParam.getSearchKey()).or()
-                    .like("b.eqNum", equipmenttransInfoPageParam.getSearchKey());
+                    .like("b.EQ_NUM", equipmenttransInfoPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSN())) {
-            queryWrapper.like("b.sn", equipmenttransInfoPageParam.getSN());
+            queryWrapper.like("b.SN", equipmenttransInfoPageParam.getSN());
         }
         if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getEqNum())) {
-            queryWrapper.like("b.eqNum", equipmenttransInfoPageParam.getEqNum());
+            queryWrapper.like("b.EQ_NUM", equipmenttransInfoPageParam.getEqNum());
         }
         if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getEqType())) {
-            queryWrapper.eq("b.eqType", equipmenttransInfoPageParam.getEqType());
+            queryWrapper.eq("b.EQ_TYPE", equipmenttransInfoPageParam.getEqType());
         }
         if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getStatus())) {
-            queryWrapper.eq("b.status", equipmenttransInfoPageParam.getStatus());
+            queryWrapper.eq("b.STATUS", equipmenttransInfoPageParam.getStatus());
         }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
 

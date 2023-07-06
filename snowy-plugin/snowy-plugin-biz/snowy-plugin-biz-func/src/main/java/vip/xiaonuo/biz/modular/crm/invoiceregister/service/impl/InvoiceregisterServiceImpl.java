@@ -149,8 +149,8 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
         if (ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getSearchKey())) {
             queryWrapper.like("a.SN", invoiceregisterInfoPageParam.getSearchKey()).or()
                     .like("a.CONTRACT_NO", invoiceregisterInfoPageParam.getSearchKey()).or()
-                    .like("b.contractName", invoiceregisterInfoPageParam.getSearchKey()).or()
-                    .like("b.companyOrDepartment", invoiceregisterInfoPageParam.getSearchKey());
+                    .like("b.PROJECT_NAME", invoiceregisterInfoPageParam.getSearchKey()).or()
+                    .like("b.COMPANY_OR_DEPARTMENT", invoiceregisterInfoPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getSn())) {
             queryWrapper.like("a.SN", invoiceregisterInfoPageParam.getSn());
@@ -165,7 +165,7 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             queryWrapper.like("a.CONTRACT_NO", invoiceregisterInfoPageParam.getContractNo());
         }
         if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getContractName())) {
-            queryWrapper.like("b.CONTRACT_NAME", invoiceregisterInfoPageParam.getContractName());
+            queryWrapper.like("b.PROJECT_NAME", invoiceregisterInfoPageParam.getContractName());
         }
         if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getCompanyOrDepartment())) {
             queryWrapper.like("b.COMPANY_OR_DEPARTMENT", invoiceregisterInfoPageParam.getCompanyOrDepartment());
