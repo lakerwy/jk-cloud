@@ -65,22 +65,22 @@ public class EquipmenttransInfoPageParam {
 
     /** SN 设备编号 */
     @ApiModelProperty(value = "SN 设备编号")
-    private String SN;
+    private String sn;
 
     /** 未知（历史数据存储同SN） */
     @ApiModelProperty(value = "未知（历史数据存储同SN）")
-    private String EqNum;
+    private String eqNum;
 
     /** 配置信息 */
     @ApiModelProperty(value = "配置信息")
-    private String Configure;
+    private String configure;
 
     /** 设备类型 */
     @ApiModelProperty(value = "设备类型")
-    private String EqType;
+    private String eqType;
 
     /** 状态 */
     @ApiModelProperty(value = "状态")
-    private String Status;
+    private String status;
 
 }

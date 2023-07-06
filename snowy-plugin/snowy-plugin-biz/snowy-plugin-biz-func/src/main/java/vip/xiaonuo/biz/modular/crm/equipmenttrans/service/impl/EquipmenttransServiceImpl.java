@@ -149,8 +149,8 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
                     .like("b.SN", equipmenttransInfoPageParam.getSearchKey()).or()
                     .like("b.EQ_NUM", equipmenttransInfoPageParam.getSearchKey());
         }
-        if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSN())) {
-            queryWrapper.like("b.SN", equipmenttransInfoPageParam.getSN());
+        if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSn())) {
+            queryWrapper.like("b.SN", equipmenttransInfoPageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getEqNum())) {
             queryWrapper.like("b.EQ_NUM", equipmenttransInfoPageParam.getEqNum());
