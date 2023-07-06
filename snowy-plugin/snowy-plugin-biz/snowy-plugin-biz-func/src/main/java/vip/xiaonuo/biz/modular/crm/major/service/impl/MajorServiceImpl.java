@@ -194,6 +194,7 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
     @Override
     public IPage<MajorInfoVo> pageList(MajorPageParam majorPageParam) {
         QueryWrapper<Major> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(Major::getDeleteFlag,"NOT_DELETE");
         if (ObjectUtil.isNotEmpty(majorPageParam.getSearchKey())) {
             queryWrapper.lambda().like(Major::getMajorNo, majorPageParam.getSearchKey()).or()
                     .like(Major::getMajorName, majorPageParam.getSearchKey());

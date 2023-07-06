@@ -40,6 +40,7 @@ import vip.xiaonuo.biz.modular.crm.contractrr.service.ContractrrService;
 import vip.xiaonuo.common.util.CommonSnUtil;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -100,6 +101,17 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
         contractrr.setOpt(StpLoginUserUtil.getLoginUser().getName());
         contractrr.setOptDate(new Date());
         this.save(contractrr);
+
+        //反更新 合同 已收款金额
+        if(StrUtil.isNotEmpty(contractrr.getContractNo())) {
+            Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, contractrr.getContractNo()));
+            if(ObjectUtil.isNotEmpty(ht)){
+                BigDecimal htHaveAmount = ht.getHaveAmount() == null ? BigDecimal.ZERO : ht.getHaveAmount();
+                BigDecimal addhaveAmount = contractrr.getCollectAmount() == null ? BigDecimal.ZERO : contractrr.getCollectAmount();
+                ht.setHaveAmount(htHaveAmount.add(addhaveAmount));
+                hetongService.updateById(ht);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

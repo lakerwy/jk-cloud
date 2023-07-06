@@ -22,4 +22,5 @@ import vip.xiaonuo.biz.modular.crm.bidopen.entity.Bidopen;
  * @date  2023/06/30 16:31
  **/
 public interface BidopenMapper extends BaseMapper<Bidopen> {
+    void updateBizProjectStates(String id,String states);
 }

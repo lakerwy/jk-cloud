@@ -38,6 +38,7 @@ import vip.xiaonuo.biz.modular.crm.bidopen.param.BidopenPageParam;
 import vip.xiaonuo.biz.modular.crm.bidopen.service.BidopenService;
 import vip.xiaonuo.common.util.CommonSnUtil;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +52,8 @@ import java.util.List;
 @Service
 public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> implements BidopenService {
 
+    @Resource
+    private BidopenMapper bidopenMapper;
     @Override
     public Page<Bidopen> page(BidopenPageParam bidopenPageParam) {
         QueryWrapper<Bidopen> queryWrapper = new QueryWrapper<>();
@@ -109,6 +112,9 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
         bidopen.setOpt(StpLoginUserUtil.getLoginUser().getName());
         bidopen.setOptDate(new Date());
         this.save(bidopen);
+
+        //反更新 立项 状态
+        bidopenMapper.updateBizProjectStates(bidopen.getProjectId(),bidopen.getStates());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -117,6 +123,9 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
         Bidopen bidopen = this.queryEntity(bidopenEditParam.getId());
         BeanUtil.copyProperties(bidopenEditParam, bidopen);
         this.updateById(bidopen);
+
+        //反更新 立项 状态
+        bidopenMapper.updateBizProjectStates(bidopen.getProjectId(),bidopen.getStates());
     }
 
     @Transactional(rollbackFor = Exception.class)

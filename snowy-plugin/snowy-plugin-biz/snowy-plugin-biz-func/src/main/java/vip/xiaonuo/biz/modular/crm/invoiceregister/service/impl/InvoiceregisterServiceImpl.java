@@ -39,6 +39,7 @@ import vip.xiaonuo.biz.modular.crm.invoiceregister.service.InvoiceregisterServic
 import vip.xiaonuo.common.util.CommonSnUtil;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -100,6 +101,17 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
         invoiceregister.setOpt(StpLoginUserUtil.getLoginUser().getName());
         invoiceregister.setOptDate(new Date());
         this.save(invoiceregister);
+
+        //反更新 合同 已开票金额
+        if(StrUtil.isNotEmpty(invoiceregister.getContractNo())) {
+            Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, invoiceregister.getContractNo()));
+            if(ObjectUtil.isNotEmpty(ht)){
+                BigDecimal invoiceAmount = ht.getInvoiceAmount() == null ? BigDecimal.ZERO : ht.getInvoiceAmount();
+                BigDecimal addInvoiceAmount = invoiceregister.getMakeAmount() == null ? BigDecimal.ZERO : invoiceregister.getMakeAmount();
+                ht.setInvoiceAmount(invoiceAmount.add(addInvoiceAmount));
+                hetongService.updateById(ht);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
