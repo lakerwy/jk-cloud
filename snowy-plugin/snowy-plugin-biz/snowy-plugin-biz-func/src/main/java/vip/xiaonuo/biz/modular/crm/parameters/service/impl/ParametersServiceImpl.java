@@ -285,7 +285,7 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
             queryWrapper.orderBy(true, parametersInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(parametersInfoPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.SN");
+            queryWrapper.orderByDesc("a.SN");
         }
 
         return parametersMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
