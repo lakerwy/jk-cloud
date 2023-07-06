@@ -35,6 +35,7 @@ import vip.xiaonuo.biz.modular.crm.equipmenttrans.mapper.EquipmenttransMapper;
 import vip.xiaonuo.biz.modular.crm.equipmenttrans.service.EquipmenttransService;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -95,6 +96,7 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
     @Override
     public void add(EquipmenttransAddParam equipmenttransAddParam) {
         Equipmenttrans equipmenttrans = BeanUtil.toBean(equipmenttransAddParam, Equipmenttrans.class);
+        equipmenttrans.setRegisterDate(new Date());
         this.save(equipmenttrans);
         //同步更新设备
         Equipments equipments = equipmentsService.queryEntity(equipmenttrans.getEqId());
