@@ -165,7 +165,7 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             queryWrapper.orderBy(true, invoiceregisterInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoiceregisterInfoPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.SN");
+            queryWrapper.orderByDesc("a.SN");
         }
         return invoiceregisterMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

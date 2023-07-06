@@ -195,7 +195,7 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
             queryWrapper.orderBy(true, notesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(notesPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.SN");
+            queryWrapper.orderByDesc("a.SN");
         }
         return notesMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
