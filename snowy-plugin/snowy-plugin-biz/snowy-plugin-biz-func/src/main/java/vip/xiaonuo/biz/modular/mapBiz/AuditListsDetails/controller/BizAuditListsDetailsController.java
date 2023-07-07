@@ -13,16 +13,22 @@
 package vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.impl.BizAuditListsServiceImpl;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsPageParam;
 import vip.xiaonuo.common.annotation.CommonLog;
@@ -32,10 +38,14 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDeta
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsAddParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service.BizAuditListsDetailsService;
+import vip.xiaonuo.dev.api.IDingDingService;
+import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 业务表-设计校审记录表控制器
@@ -51,6 +61,12 @@ public class BizAuditListsDetailsController {
 
     @Resource
     private BizAuditListsDetailsService bizAuditListsDetailsService;
+
+    @Autowired
+    IDingDingService iDingDingService;
+
+    @Resource
+    BizAuditListsService bizAuditListsService;
 
     /**
      * 获取业务表-设计校审记录表分页
@@ -79,6 +95,14 @@ public class BizAuditListsDetailsController {
     @PostMapping("/biz/AuditListsDetails/add")
     public CommonResult<String> add(@RequestBody @Valid BizAuditListsDetailsAddParam bizAuditListsDetailsAddParam) {
         bizAuditListsDetailsService.add(bizAuditListsDetailsAddParam);
+        try {
+            BizAuditLists auditLists = bizAuditListsService.getById(bizAuditListsDetailsAddParam.getAuditId());
+            JSONObject entries = JSONUtil.parseObj(auditLists);
+            List<String> ids = new ArrayList<>();
+            ids.add(auditLists.getCreateUser());
+            iDingDingService.batchSend(entries,ids);
+        }catch (Exception e){
+        }
         return CommonResult.ok();
     }
 
@@ -143,6 +167,16 @@ public class BizAuditListsDetailsController {
     @PostMapping("/biz/AuditListsDetails/editNoToken")
     public CommonResult<String> editNoToken(@RequestBody @Valid BizAuditListsDetailsEditParam bizAuditListsDetailsEditParam) {
         bizAuditListsDetailsService.edit(bizAuditListsDetailsEditParam);
+        try {
+            BizAuditLists auditLists = bizAuditListsService.getById(bizAuditListsDetailsEditParam.getAuditId());
+            JSONObject entries = JSONUtil.parseObj(auditLists);
+            List<String> ids = new ArrayList<>();
+            ids.add(auditLists.getCreateUser());
+            ids.add(auditLists.getReader());
+            iDingDingService.batchSend(entries,ids);
+        }catch (Exception e){
+            //消息发送失败
+        }
         return CommonResult.ok();
     }
 }

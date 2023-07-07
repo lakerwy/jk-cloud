@@ -40,6 +40,7 @@ import vip.xiaonuo.auth.modular.login.param.AuthPhoneValidCodeLoginParam;
 import vip.xiaonuo.auth.modular.login.result.AuthPicValidCodeResult;
 import vip.xiaonuo.auth.modular.login.service.AuthService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.CacheConstant;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.common.util.CommonEmailUtil;
@@ -333,6 +334,7 @@ public class AuthServiceImpl implements AuthService {
         saBaseLoginUser.setRoleCodeList(roleCodeList);
         // 缓存用户信息，此处使用TokenSession为了指定时间内无操作则自动下线
         StpUtil.getTokenSession().set("loginUser", saBaseLoginUser);
+        commonCacheOperator.put(CacheConstant.USER_INFO+saBaseLoginUser.getId(),saBaseLoginUser.getAccount());
         // 返回token
         return StpUtil.getTokenInfo().tokenValue;
     }

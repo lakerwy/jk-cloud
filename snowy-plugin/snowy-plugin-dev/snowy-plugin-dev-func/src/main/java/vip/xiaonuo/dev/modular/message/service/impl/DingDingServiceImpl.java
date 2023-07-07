@@ -6,7 +6,6 @@ import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.OapiGettokenRequest;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
-import com.dingtalk.api.request.OapiMessageMassSendRequest;
 import com.dingtalk.api.request.OapiV2UserGetbymobileRequest;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
@@ -15,11 +14,12 @@ import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
-import vip.xiaonuo.dev.modular.message.service.IDingDingService;
 import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -131,6 +131,86 @@ public class DingDingServiceImpl implements IDingDingService {
         if(CollUtil.isNotEmpty(collect)){
             try {
                 collect.forEach(cl-> asyncsendV2(subject,cl));
+            }catch (Exception e){
+                log.info("> > > > >发送钉钉通知失败",e);
+            }
+
+        }
+    }
+
+    @Override
+    public OapiMessageCorpconversationAsyncsendV2Response asyncsendV2(JSONObject jsonObject, String phone) {
+        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = getByMobile(phone);
+        if (!oapiV2UserGetbymobileResponse.isSuccess()) {
+            log.error(oapiV2UserGetbymobileResponse.getErrmsg());
+            return null;
+        }
+        OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
+
+        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
+        OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
+        // yourAgentId
+        request.setAgentId(dingTalkProperties.getAgentId());
+        request.setUseridList(result.getUserid());
+        request.setToAllUser(false);
+
+        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
+        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
+        head.setText("工程校审处理单");
+        head.setBgcolor("FFBBBBBB");
+        oa.setHead(head);
+        oa.setPcMessageUrl("https://yun.jianke.co");
+        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+        String sn = String.valueOf(jsonObject.get("sn"));
+        String title = "工程校审单号为s%的处理通知单";
+        body.setTitle(String.format(title,sn));
+        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("项目名称");
+        form.setValue(String.valueOf(jsonObject.get("projectName")));
+        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
+        forms.add(form);
+        body.setForm(forms);
+//        String mg = message;
+//        mg += "\n请登录建科云2.0官网处理";
+//        body.setContent(mg);
+        oa.setBody(body);
+
+
+        OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
+//        msg.setOa(oa);
+        msg.setMsgtype("oa");
+        msg.setOa(oa);
+//        msg.setText(new OapiMessageCorpconversationAsyncsendV2Request.Text());
+//        msg.getText().setContent(message);
+        request.setMsg(msg);
+
+        OapiGettokenResponse oapiGettokenResponse = this.getToken();
+        String accessToken = oapiGettokenResponse.getAccessToken();
+        try {
+            return client.execute(request, accessToken);
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
+    /**
+     *
+     * @param entries 主题
+     * @param receiverIdList 人员id集合
+     */
+    @Override
+    public void batchSend(JSONObject entries, List<String> receiverIdList) {
+        if(!dingTalkProperties.isSend()){
+            return;
+        }
+        List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(receiverIdList);
+        //手机号集合
+        List<String> collect = users.stream().map(u -> u.getStr("account")).collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(collect)){
+            try {
+                collect.forEach(cl-> asyncsendV2(entries,cl));
             }catch (Exception e){
                 log.info("> > > > >发送钉钉通知失败",e);
             }

@@ -115,9 +115,12 @@
         <xxljob.version>2.3.1</xxljob.version>
         <mybatis-spring-boot-starter.version>2.1.4</mybatis-spring-boot-starter.version>
 
+        <!--钉钉和云片-->
         <dingtalk.version>2.0.19</dingtalk.version>
         <olddingtalk.version>2.0.0</olddingtalk.version>
         <yunpian.version>1.2.7</yunpian.version>
+
+        <dingtalk.version>2.0.0</dingtalk.version>
 
     </properties>
 
@@ -940,6 +943,19 @@
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-reactor-spring-boot-starter</artifactId>
                 <version>${sa.token.version}</version>
+            </dependency>
+
+            <!-- 钉钉消息推送 -->
+            <dependency>
+                <groupId>com.aliyun</groupId>
+                <artifactId>alibaba-dingtalk-service-sdk</artifactId>
+                <version>${dingtalk.version}</version>
+                <exclusions>
+                    <exclusion>
+                        <groupId>log4j</groupId>
+                        <artifactId>log4j</artifactId>
+                    </exclusion>
+                </exclusions>
             </dependency>
         </dependencies>
     </dependencyManagement>

@@ -50,5 +50,10 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-dev-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.aliyun</groupId>
+            <artifactId>alibaba-dingtalk-service-sdk</artifactId>
+        </dependency>
     </dependencies>
 </project>

@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.core.utils.CommonUtils;
@@ -40,6 +41,8 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsPageParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
+import vip.xiaonuo.dev.api.IDingDingService;
+import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
 import java.util.List;

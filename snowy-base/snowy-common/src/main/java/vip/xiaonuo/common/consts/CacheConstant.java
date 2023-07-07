@@ -29,4 +29,6 @@ public class CacheConstant {
      */
     public static final String ORG_FIRST_CODE_CACHE_KEY = "org_FirstCode:";
 
+    public static final String USER_INFO = "USER_INFO:";
+
 }

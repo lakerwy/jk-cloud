@@ -1,5 +1,6 @@
-package vip.xiaonuo.dev.modular.message.service;
+package vip.xiaonuo.dev.api;
 
+import cn.hutool.json.JSONObject;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
@@ -28,4 +29,11 @@ public interface IDingDingService {
 
     void batchSend(String subject, List<String> receiverIdList);
 
+    /**
+     * 发送工作通知
+     * @return OapiMessageCorpconversationAsyncsendV2Response
+     */
+    OapiMessageCorpconversationAsyncsendV2Response asyncsendV2(JSONObject message , String phone);
+
+    void batchSend(JSONObject entries, List<String> receiverIdList);
 }
