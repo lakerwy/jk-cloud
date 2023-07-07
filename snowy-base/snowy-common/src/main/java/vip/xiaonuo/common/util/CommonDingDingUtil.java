@@ -4,8 +4,10 @@ import com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenResponse;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.OapiGettokenRequest;
+import com.dingtalk.api.request.OapiV2UserGetRequest;
 import com.dingtalk.api.request.OapiV2UserGetuserinfoRequest;
 import com.dingtalk.api.response.OapiGettokenResponse;
+import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserGetuserinfoResponse;
 
 /**
@@ -88,5 +90,24 @@ public class CommonDingDingUtil {
             return null;
         }
     }
+
+    /**
+     * 根据 钉钉userid，获取钉钉用户详情
+     * @param access_token 钉钉内部应用 token
+     * @param userId 钉钉用户userid
+     * @return
+     */
+    public static OapiV2UserGetResponse.UserGetResponse getUserById(String access_token, String userId){
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/get");
+            OapiV2UserGetRequest req = new OapiV2UserGetRequest();
+            req.setUserid(userId);
+            OapiV2UserGetResponse rsp = client.execute(req, access_token);
+            return rsp.getResult();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
 
 }

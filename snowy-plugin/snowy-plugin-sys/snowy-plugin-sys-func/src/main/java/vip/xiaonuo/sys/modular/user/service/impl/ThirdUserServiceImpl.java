@@ -4,8 +4,10 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserGetuserinfoResponse;
 import com.fhs.common.utils.JsonUtils;
+import com.fhs.common.utils.StringUtil;
 import com.fhs.trans.service.impl.TransService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -20,6 +22,7 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
 import vip.xiaonuo.sys.modular.user.mapper.SysUserMapper;
 import vip.xiaonuo.sys.modular.user.param.*;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 import vip.xiaonuo.sys.modular.user.service.ThirdUserService;
 
 import javax.annotation.Resource;
@@ -47,6 +50,9 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
     @Resource
     private LoginThirdApi loginThirdApi;
 
+    @Resource
+    private SysUserService sysUserService;
+
     @Override
     public String toDoDingDingApplication(DingDingLoginParam dingDingLoginParam) {
         try {
@@ -57,6 +63,17 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
             log.info("钉钉结果："+ JsonUtils.object2json(info));
             //根据钉钉用户Id，获取系统用户信息 category = 2 代表钉钉
             String userId = authThirdApi.getUserIdByThirdId(info.getUserid(), AuthThirdCategoryEnum.DingDing.getValue());
+            //逻辑判断：若当前系统中不存在dingdinguserid的记录，则新增一条记录
+            if(StringUtil.isEmpty(userId)){
+                OapiV2UserGetResponse.UserGetResponse dingUser = CommonDingDingUtil.getUserById(token, info.getUserid());
+                SysLoginUser tmpUser = sysUserService.getUserByPhone(dingUser.getMobile());
+                log.info("钉钉用户详情：" + JsonUtils.object2json(dingUser));
+                if(ObjectUtil.isNotEmpty(tmpUser)) {
+                    userId = tmpUser.getId();
+                    log.info("钉钉用户匹配的系统用户userId：" + userId);
+                    authThirdApi.addAuthThird(userId, dingUser.getUserid(), AuthThirdCategoryEnum.DingDing.getValue(), tmpUser.getName());
+                }
+            }
             //绑定系统用户，并返回token
             return loginThirdApi.doLoginThirdById(userId, "", "");
         }catch (Exception ex){
