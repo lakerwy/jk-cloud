@@ -31,6 +31,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 import vip.xiaonuo.dev.modular.message.entity.DevMessage;
 import vip.xiaonuo.dev.modular.message.enums.DevMessageCategoryEnum;
 import vip.xiaonuo.dev.modular.message.mapper.DevMessageMapper;
@@ -40,6 +41,7 @@ import vip.xiaonuo.dev.modular.message.param.DevMessagePageParam;
 import vip.xiaonuo.dev.modular.message.param.DevMessageSendParam;
 import vip.xiaonuo.dev.modular.message.result.DevMessageResult;
 import vip.xiaonuo.dev.modular.message.service.DevMessageService;
+import vip.xiaonuo.dev.modular.message.service.IDingDingService;
 import vip.xiaonuo.dev.modular.relation.entity.DevRelation;
 import vip.xiaonuo.dev.modular.relation.enums.DevRelationCategoryEnum;
 import vip.xiaonuo.dev.modular.relation.service.DevRelationService;
@@ -65,6 +67,9 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
     @Resource
     private DevRelationService devRelationService;
 
+    @Resource
+    private IDingDingService dingDingService;
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void send(DevMessageSendParam devMessageSendParam) {
@@ -81,6 +86,9 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
             devRelationService.saveRelationBatchWithAppend(devMessage.getId(), receiverIdList,
                     DevRelationCategoryEnum.MSG_TO_USER.getValue(), extJsonList);
         }
+        //发送钉钉通知
+        dingDingService.batchSend(devMessageSendParam.getSubject(),receiverIdList);
+
     }
 
     @Override

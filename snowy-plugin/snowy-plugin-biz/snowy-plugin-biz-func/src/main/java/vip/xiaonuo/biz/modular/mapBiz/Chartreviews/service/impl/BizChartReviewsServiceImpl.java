@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -27,11 +28,13 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.core.enums.BizTableCommon;
 import vip.xiaonuo.biz.core.utils.CommonUtils;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.mapper.BizChartReviewsMapper;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.*;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.BizChartReviewsService;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -43,6 +46,8 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+
+import static vip.xiaonuo.biz.core.utils.CommonUtils.isNumeric;
 
 /**
  * 业务表-图审受理单
@@ -58,6 +63,8 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
     @Resource
     BizChartReviewsMapper bizChartReviewsMapper;
 
+    @Resource
+    CommonCacheOperator commonCacheOperator;
     @Override
     public Page<BizChartReviews> page(BizChartReviewsPageParam bizChartReviewsPageParam) {
         QueryWrapper<BizChartReviews> queryWrapper = new QueryWrapper<>();
@@ -90,6 +97,7 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
         bizChartReviews.setSn(CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS));
         bizChartReviews.setOpt(StpLoginUserUtil.getLoginUser().getName());
         bizChartReviews.setOptDate(DateUtil.date(new Date()));
+        bizChartReviews.setStatus("受理中");
         this.save(bizChartReviews);
     }
 
@@ -110,9 +118,22 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
 
     @Override
     public BizChartReviewsDetailsVo detail(BizChartReviewsIdParam bizChartReviewsIdParam) {
-        return bizChartReviewsMapper.getCRMDetailById(bizChartReviewsIdParam.getId());
+        BizChartReviewsDetailsVo detail = bizChartReviewsMapper.getCRMDetailById(bizChartReviewsIdParam.getId());
+        List<BizAuditLists> bizAuditListsList = detail.getBizAuditListsList();
+        for (BizAuditLists bizAuditLists : bizAuditListsList) {
+            String profession = bizAuditLists.getProfession();
+            String reader = bizAuditLists.getReader();
+            if(isNumeric(profession)){
+                profession = (String) commonCacheOperator.get(CommonUtils.MAJOR_TYPE + profession);
+                reader = (String) commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+reader);
+            }
+            bizAuditLists.setProfession(profession);
+            bizAuditLists.setReader(reader);
+        }
+        return detail;
         //return this.queryEntity(bizChartReviewsIdParam.getId());
     }
+
 
     @Override
     public BizChartReviews queryEntity(String id) {
@@ -153,7 +174,8 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
             queryWrapper.orderBy(true, bizChartReviewsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizChartReviewsPageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.CREATE_TIME");
+            //queryWrapper.orderByAsc("a.OPT_DATE");
+            queryWrapper.orderByDesc("a.OPT_DATE");
         }
 
         return bizChartReviewsMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);

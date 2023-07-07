@@ -211,6 +211,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 }
                 String dataJson = flwProcessStartParam.getDataJson();
                 JSONObject entries = JSONUtil.parseObj(dataJson);
+                entries.set("businessKey",parentTablePrimaryId);
                 entries.set("sn", sn);
                 entries.set("applyUserId",loginUser.getId());
                 entries.set("applyUser",loginUser.getName());

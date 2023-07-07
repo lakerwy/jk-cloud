@@ -2,7 +2,7 @@ spring:
   application:
     name: snowy-flw-app
   profiles:
-    active: dev
+    active: test
   cloud:
     nacos:
       config:
@@ -13,3 +13,8 @@ spring:
         file-extension: yaml
         username: nacos
         password: nacos
+dingtalk:
+  agentId: 2124084395
+  appKey: dingt8huy4ebf11uxafv
+  appSecret: emw9oZflLGQhZJ_YDyWl8UtBkLQHher77KMAR1_MdCWK3Y-q06t2WworrrpoCMpu
+  isSend: false

@@ -5,6 +5,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviewDetails;
 
 import java.io.Serializable;
@@ -125,8 +126,11 @@ public class BizChartReviewsDetailsVo  implements Serializable {
     @ApiModelProperty(value = "工程类别（历史表Hetong.SecondLevel）", position = 26)
     private String secondLevel;
 
+//    @ApiModelProperty(value = "校审记录列表")
+//    private List<BizChartReviewDetails> bizChartReviewDetailsList;
+
     @ApiModelProperty(value = "校审记录列表")
-    private List<BizChartReviewDetails> bizChartReviewDetailsList;
+    private List<BizAuditLists> bizAuditListsList;
 
     /** 创建时间 */
     @ApiModelProperty(value = "创建时间", position = 50)

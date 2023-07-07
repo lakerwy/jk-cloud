@@ -142,7 +142,7 @@ public class BizChartReviewsController {
         return CommonResult.data(bizChartReviewsService.pageList(bizChartReviewsPageParam));
     }
 
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 10)
     @ApiOperation("图审受理单状态更新")
 //    @SaCheckPermission("/biz/Chartreviews/page")
     @GetMapping("/biz/ChartReviews/updateStatus")

@@ -738,7 +738,6 @@ public class NodeRuntimeUtil {
                         throw new CommonException("不支持的通知渠道类型：{}", processNoticeChannel);
                 }
             }
-
         });
     }
 
@@ -793,7 +792,7 @@ public class NodeRuntimeUtil {
      **/
     public static JSONObject handleDataJsonPrimaryTableField(String dataJson) {
         JSONObject dataObject = JSONUtil.parseObj(dataJson);
-        AtomicReference<JSONObject> primaryTableJsonObject = new AtomicReference<>();
+        AtomicReference<JSONObject> primaryTableJsonObject = new AtomicReference<>(JSONUtil.createObj());
         dataObject.forEach((key, value) -> {
             String valueJson = JSONUtil.toJsonStr(value);
             boolean isPrimaryTableJson = JSONUtil.isTypeJSONObject(valueJson);
