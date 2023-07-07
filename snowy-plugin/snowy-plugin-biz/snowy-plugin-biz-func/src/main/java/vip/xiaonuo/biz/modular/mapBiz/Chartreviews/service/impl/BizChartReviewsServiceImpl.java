@@ -168,6 +168,9 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
         if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getStartOptDate()) && ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getEndOptDate())) {
             queryWrapper.between("a.OPT_DATE", bizChartReviewsPageParam.getStartOptDate(), bizChartReviewsPageParam.getEndOptDate());
         }
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getSearchKey())){
+            queryWrapper.like("a.sn",bizChartReviewsPageParam.getSearchKey());
+        }
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isAllNotEmpty(bizChartReviewsPageParam.getSortField(), bizChartReviewsPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizChartReviewsPageParam.getSortOrder());
@@ -175,7 +178,7 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
                     StrUtil.toUnderlineCase(bizChartReviewsPageParam.getSortField()));
         } else {
             //queryWrapper.orderByAsc("a.OPT_DATE");
-            queryWrapper.orderByDesc("a.OPT_DATE");
+            queryWrapper.orderByDesc("a.SN");
         }
 
         return bizChartReviewsMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);
