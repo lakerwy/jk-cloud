@@ -15,10 +15,7 @@ package vip.xiaonuo.flw.modular.flwbiz.projectRegister.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterAddParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterEditParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterIdParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterPageParam;
+import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.*;
 
 import java.util.List;
 
@@ -77,5 +74,7 @@ public interface BizProjectRegisterService extends IService<BizProjectRegister> 
      * @date  2023/06/19 15:26
      **/
     BizProjectRegister queryEntity(String id);
+
+    void  updateStatus(BizProjectRegisterCommonEditParam bizProjectRegisterCommonEditParam);
 
 }

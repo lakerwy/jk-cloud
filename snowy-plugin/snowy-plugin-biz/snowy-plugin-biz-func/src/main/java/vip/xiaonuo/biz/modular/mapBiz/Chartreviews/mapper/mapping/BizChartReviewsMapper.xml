@@ -33,7 +33,8 @@
         <result column="SECOND_LEVEL" jdbcType="VARCHAR" property="secondLevel" />
         <result column="CONTRACT_NO" jdbcType="VARCHAR" property="contractNo" />
         <result column="PROJECT_NAME" jdbcType="VARCHAR" property="projectName" />
-        <collection property="bizChartReviewDetailsList" column="ID" select="getCRDList"/>
+<!--        <collection property="bizChartReviewDetailsList" column="ID" select="getCRDList"/>-->
+        <collection property="bizAuditListsList" column="ID" select="getAuditList"/>
     </resultMap>
 
     <select id="getCRMDetailById" resultMap="BaseResultMap" parameterType="String">
@@ -71,7 +72,7 @@
                 LEFT JOIN BIZ_MAP_REGISTER c ON c.REVIEW_ID = a.ID
         WHERE
             a.DELETE_FLAG = 'NOT_DELETE'
-          AND c.`STATUS` = '1'
+--           AND c.`STATUS` = '1'
           AND a.ID = ${id}
     </select>
 
@@ -82,6 +83,10 @@
     <select id="getPageList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo">
         SELECT a.*, b.CONTRACT_NO,b.PROJECT_NAME,b.SECOND_LEVEL FROM BIZ_CHART_REVIEWS a
             LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO  ${ew.customSqlSegment}
+    </select>
+
+    <select id="getAuditList" resultType="vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists">
+        SELECT * FROM BIZ_AUDIT_LISTS WHERE DELETE_FLAG = 'NOT_DELETE' AND REVIEW_ID = #{ID}  ORDER BY CREATE_TIME ,OPT_DATE
     </select>
 
 </mapper>

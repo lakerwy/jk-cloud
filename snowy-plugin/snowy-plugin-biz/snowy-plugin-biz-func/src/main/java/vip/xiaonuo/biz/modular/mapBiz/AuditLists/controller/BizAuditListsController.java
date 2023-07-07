@@ -13,6 +13,8 @@
 package vip.xiaonuo.biz.modular.mapBiz.AuditLists.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -30,6 +32,8 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsPageParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
@@ -52,6 +56,11 @@ public class BizAuditListsController {
 
     @Resource
     private BizAuditListsService bizAuditListsService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
+    private final static String CODE_PREX = "CODE_";
 
     /**
      * 获取业务表-设计校审主表分页
@@ -141,7 +150,38 @@ public class BizAuditListsController {
 //    @SaCheckPermission("/biz/AuditLists/detail")
     @GetMapping("/biz/AuditLists/info")
     public CommonResult<BizAuditInfoVo> info(@Valid BizAuditListsIdParam bizAuditListsIdParam) {
+        if(StrUtil.isNotBlank(bizAuditListsIdParam.getUserType())){
+            if("1".equals(bizAuditListsIdParam.getUserType())){
+                String code = (String) commonCacheOperator.get(CODE_PREX + bizAuditListsIdParam.getId());
+                if(StrUtil.isBlank(code)){
+                    throw  new CommonException("验证码已过期，请重新获取后在查询。");
+                }
+                if(!code.equals(bizAuditListsIdParam.getCode())){
+                    throw new CommonException("验证码错误。");
+                }
+            }
+        }
         return CommonResult.data(bizAuditListsService.info(bizAuditListsIdParam));
+    }
+
+    /**
+     * 获取业务表-设计校审主表详情
+     *
+     * @author mayike
+     * @date  2023/06/30 16:43
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("业务表-设计校审-获取单页展示随机数")
+//    @SaCheckPermission("/biz/AuditLists/detail")
+    @GetMapping("/biz/AuditLists/getCode")
+    public CommonResult<String> getCode(@Valid BizAuditListsIdParam bizAuditListsIdParam) {
+        String code = (String)commonCacheOperator.get(CODE_PREX + bizAuditListsIdParam.getId());
+        if(StrUtil.isNotBlank(code)){
+            return CommonResult.data(code);
+        }
+        code = RandomUtil.randomNumbers(6);
+        commonCacheOperator.put(CODE_PREX+bizAuditListsIdParam.getId(),code,3*24*60*60);
+        return CommonResult.data(code);
     }
 
 }

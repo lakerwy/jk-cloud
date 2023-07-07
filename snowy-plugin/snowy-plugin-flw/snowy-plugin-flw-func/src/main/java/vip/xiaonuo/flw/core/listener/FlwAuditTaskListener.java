@@ -9,6 +9,8 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;
 
+import java.util.Date;
+
 /**
  * 工程设计校审完成事件
  */
@@ -23,7 +25,7 @@ public class FlwAuditTaskListener implements TaskListener {
         String businessKey = processInstance.getBusinessKey();
 
         //获取工程校审记录总数 ====审定次数
-        String sql = "UPDATE BIZ_AUDIT_LISTS SET COUNTS =  (SELECT COUNT(1) FROM BIZ_AUDIT_LISTS_DETAILS WHERE AUDIT_ID = '" + businessKey + "'), STATUS = '1' WHERE  ID = '" + businessKey + "'";
+        String sql = "UPDATE BIZ_AUDIT_LISTS SET COUNTS =  (SELECT COUNT(1) FROM BIZ_AUDIT_LISTS_DETAILS WHERE AUDIT_ID = '" + businessKey + "'), STATUS = '1',AUDIT_TIEM = "+ new Date() +" WHERE  ID = '" + businessKey + "'";
         CommonHandleUtil.handleSqlExecution(sql);
         log.info("更新工程设计校审-----");
     }

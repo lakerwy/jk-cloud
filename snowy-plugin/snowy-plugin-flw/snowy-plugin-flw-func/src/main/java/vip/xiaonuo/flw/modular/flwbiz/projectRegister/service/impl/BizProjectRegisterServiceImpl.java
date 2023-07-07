@@ -18,6 +18,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -29,10 +30,7 @@ import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
 import vip.xiaonuo.flw.modular.flwbiz.common.HandleExecutionUtil;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.mapper.BizProjectRegisterMapper;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterAddParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterEditParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterIdParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterPageParam;
+import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.service.BizProjectRegisterService;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
@@ -118,6 +116,14 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
             throw new CommonException("业务表-立项报备不存在，id值为：{}", id);
         }
         return bizProjectRegister;
+    }
+
+    @Override
+    public void updateStatus(BizProjectRegisterCommonEditParam bizProjectRegisterCommonEditParam) {
+        UpdateWrapper<BizProjectRegister> updateWrapper = new UpdateWrapper<>();
+        updateWrapper.lambda().eq(BizProjectRegister::getId,bizProjectRegisterCommonEditParam.getId());
+        updateWrapper.lambda().set(BizProjectRegister::getBusinessStatus,bizProjectRegisterCommonEditParam.getBusinessStatus());
+        this.update(updateWrapper);
     }
 
 }

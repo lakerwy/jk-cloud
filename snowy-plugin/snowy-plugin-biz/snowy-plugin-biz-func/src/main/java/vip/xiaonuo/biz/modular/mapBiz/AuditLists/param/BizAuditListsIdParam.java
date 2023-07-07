@@ -32,4 +32,11 @@ public class BizAuditListsIdParam {
     @ApiModelProperty(value = "主键ID", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
+
+    /** 主键ID */
+    @ApiModelProperty(value = "验证码")
+    private String code;
+
+    @ApiModelProperty(value = "用户类型  0内部用户 1 外部用户")
+    private String userType;
 }

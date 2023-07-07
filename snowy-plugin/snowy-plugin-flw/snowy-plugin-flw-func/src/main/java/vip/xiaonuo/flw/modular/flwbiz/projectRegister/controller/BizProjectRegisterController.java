@@ -26,10 +26,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterAddParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterEditParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterIdParam;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.BizProjectRegisterPageParam;
+import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.service.BizProjectRegisterService;
 
 import javax.annotation.Resource;
@@ -126,5 +123,14 @@ public class BizProjectRegisterController {
     @GetMapping("/flw/projectRegister/detail")
     public CommonResult<BizProjectRegister> detail(@Valid BizProjectRegisterIdParam bizProjectRegisterIdParam) {
         return CommonResult.data(bizProjectRegisterService.detail(bizProjectRegisterIdParam));
+    }
+
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取业务表-信息报备经营情况")
+//    @SaCheckPermission("/biz/Chartreviews/page")
+    @PostMapping("/flw/projectRegister/updateStatus")
+    public CommonResult<String> updateStatus(BizProjectRegisterCommonEditParam bizProjectRegisterCommonEditParam){
+        bizProjectRegisterService.updateStatus(bizProjectRegisterCommonEditParam);
+        return CommonResult.ok();
     }
 }

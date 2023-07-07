@@ -24,11 +24,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.core.utils.CommonUtils;
 import vip.xiaonuo.biz.modular.crm.invoiceregister.entity.Invoiceregister;
 import vip.xiaonuo.biz.modular.crm.major.vo.MajorInfoVo;
 import vip.xiaonuo.biz.modular.crm.majorleader.entity.Majorleader;
 import vip.xiaonuo.biz.modular.crm.majorleader.param.MajorleaderAddParam;
 import vip.xiaonuo.biz.modular.crm.majorleader.service.MajorleaderService;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -62,6 +64,9 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
 
     @Resource
     private MajorMapper majorMapper;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<Major> page(MajorPageParam majorPageParam) {
@@ -212,6 +217,15 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
         } else {
             queryWrapper.lambda().orderByDesc(Major::getMajorNo);
         }
-        return majorMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        IPage<MajorInfoVo> pageList = majorMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        List<MajorInfoVo> records = pageList.getRecords();
+        for (MajorInfoVo record : records) {
+            commonCacheOperator.put(CommonUtils.MAJOR_TYPE+record.getId(),record.getMajorName());
+            List<Majorleader> majorleaders = record.getMajorleaders();
+            for (Majorleader majorleader : majorleaders) {
+                commonCacheOperator.put(CommonUtils.MAJOR_TYPE_USER+majorleader.getUserId(),majorleader.getUserName());
+            }
+        }
+        return pageList;
     }
 }

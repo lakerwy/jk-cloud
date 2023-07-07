@@ -96,4 +96,12 @@ public class CommonUtils {
         }
         return "";
     }
+
+    public final static String MAJOR_TYPE = "MAJOR_";
+
+    public final static String MAJOR_TYPE_USER = "MAJOR_USER_";
+
+    public static boolean isNumeric(String str) {
+        return str.matches("-?\\d+(\\.\\d+)?");
+    }
 }

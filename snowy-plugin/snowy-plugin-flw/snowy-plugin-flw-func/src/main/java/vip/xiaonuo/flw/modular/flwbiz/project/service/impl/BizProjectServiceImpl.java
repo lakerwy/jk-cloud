@@ -67,13 +67,17 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSource())) {
             queryWrapper.lambda().like(BizProject::getSource, bizProjectPageParam.getSource());
         }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
+            queryWrapper.lambda().or(wrapper ->wrapper.like(BizProject::getName,bizProjectPageParam.getName()).or().like(BizProject::getProjectSn,bizProjectPageParam.getSearchKey()));
+        }
         queryWrapper.lambda().eq(BizProject::getStatus,"1");
         if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizProjectPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizProject::getId);
+            //queryWrapper.lambda().orderByAsc(BizProject::getId);
+            queryWrapper.lambda().orderByDesc(BizProject::getApplyTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

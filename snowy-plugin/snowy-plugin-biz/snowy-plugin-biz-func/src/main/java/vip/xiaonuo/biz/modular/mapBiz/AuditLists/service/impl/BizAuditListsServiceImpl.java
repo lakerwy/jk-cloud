@@ -23,11 +23,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.core.utils.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoVo;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDetails;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service.BizAuditListsDetailsService;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.BizChartReviewsService;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -57,6 +59,9 @@ public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, B
 
     @Resource
     BizAuditListsDetailsService bizAuditListsDetailsService;
+
+    @Resource
+    CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<BizAuditLists> page(BizAuditListsPageParam bizAuditListsPageParam) {
@@ -125,6 +130,11 @@ public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, B
     @Override
     public BizAuditInfoVo info(BizAuditListsIdParam bizAuditListsIdParam) {
         BizAuditLists bizAuditLists = this.queryEntity(bizAuditListsIdParam.getId());
+        String profession = bizAuditLists.getProfession();
+        if(CommonUtils.isNumeric(profession)){
+            bizAuditLists.setProfession ( (String)commonCacheOperator.get(CommonUtils.MAJOR_TYPE + profession));
+            bizAuditLists.setReader((String) commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+bizAuditLists.getReader()));
+        }
         String reviewId = bizAuditLists.getReviewId();
         BizChartReviews bizChartReviews = bizChartReviewsService.getById(reviewId);
         QueryWrapper<BizAuditListsDetails> queryWrapper = new QueryWrapper<>();

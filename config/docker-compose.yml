@@ -15,4 +15,4 @@ services:
       - $pwd/conf.d:/etc/nginx/conf.d
       - $pwd/logs:/var/log/nginx
     #docker 重启后，容器自启动
-    restart: always
+    #restart: always
