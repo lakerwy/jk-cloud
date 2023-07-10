@@ -168,13 +168,24 @@ public class DingDingServiceImpl implements IDingDingService {
         oa.setHead(head);
 //        oa.setPcMessageUrl("https://yun.jianke.co");
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-        String sn = String.valueOf(jsonObject.get("sn"));
-        body.setTitle(String.format("工程校审单号为%s的处理通知单",sn));
+        //String sn = String.valueOf(jsonObject.get("sn"));
+        body.setTitle("【工程设计校审】");
         OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("项目名称");
-        form.setValue(String.valueOf(jsonObject.get("projectName")));
+        form.setKey("基本信息： ");
+        form.setValue(jsonObject.getStr("projectName")+" | " + jsonObject.getStr("designStage") + " | " +jsonObject.getStr("companyOrDepartment") + " | "+ jsonObject.getStr("profession") + " | " +jsonObject.getStr("reader"));
         List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
         forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("流水号：");
+        form.setValue(jsonObject.getStr("sn"));
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("发起于：");
+        form.setValue(jsonObject.getStr("applyTime") +","+ jsonObject.getStr("applyUser"));
+        forms.add(form);
+
         body.setForm(forms);
         String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
         body.setContent(mg);
