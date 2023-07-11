@@ -38,8 +38,8 @@ public class NotesInfoVo {
     @ApiModelProperty(value = "类别（历史表Notes.Type）", position = 5)
     private String type;
 
-    /** 伙伴编号（历史表Notes.PartnerNo） */
-    @ApiModelProperty(value = "伙伴编号（历史表Notes.PartnerNo）", position = 6)
+    /** 伙伴编号|伙伴名称（历史表Notes.PartnerNo） */
+    @ApiModelProperty(value = "伙伴编号|伙伴名称（历史表Notes.PartnerNo）", position = 6)
     private String partnerNo;
 
     /** 合同编号（历史表Notes.ContractNo） */
@@ -102,7 +102,7 @@ public class NotesInfoVo {
     private String contractName;
 
     /** 伙伴名称 */
-    @ApiModelProperty(value = "伙伴名称", position = 20)
-    private String partnerName;
+//    @ApiModelProperty(value = "伙伴名称", position = 20)
+//    private String partnerName;
 
 }
