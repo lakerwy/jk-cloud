@@ -34,7 +34,7 @@ public class PartnerRecordAddParam {
 
     /** 合作伙伴ID */
     @ApiModelProperty(value = "合作伙伴ID", position = 2)
-    private String orgId;
+    private String infoId;
 
     /** 维护日期 */
     @ApiModelProperty(value = "维护日期", position = 3)

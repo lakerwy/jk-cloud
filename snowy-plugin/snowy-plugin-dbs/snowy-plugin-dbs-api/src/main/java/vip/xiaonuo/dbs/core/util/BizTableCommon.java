@@ -1,8 +1,9 @@
-package vip.xiaonuo.biz.core.enums;
+package vip.xiaonuo.dbs.core.util;
 
 public enum BizTableCommon {
     BIZ_CHART_REVIEWS("BIZ_CHART_REVIEWS","BIZ_CHART_REVIEWS","TS","图审受理业务"), //图审受理业务
     BIZ_AUDIT_LISTS("BIZ_AUDIT_LISTS","BIZ_AUDIT_LISTS","JS","设计校审业务"), //设计校审业务
+    SYS_PARTNER_INFO("SYS_PARTNER_INFO","PARTNER_INFO","PSN","合作伙伴业务"), //合作伙伴业务
     BIZ_MAP_REGISTER("BIZ_MAP_REGISTER","BIZ_MAP_REGISTER","CT","出图登记业务"); //出图登记业务
 
     String bizModel;

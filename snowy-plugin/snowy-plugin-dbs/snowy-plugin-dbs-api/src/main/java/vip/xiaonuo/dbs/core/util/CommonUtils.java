@@ -1,4 +1,4 @@
-package vip.xiaonuo.biz.core.utils;
+package vip.xiaonuo.dbs.core.util;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -6,7 +6,6 @@ import cn.hutool.db.DbUtil;
 import cn.hutool.db.handler.RsHandler;
 import cn.hutool.db.sql.SqlExecutor;
 import cn.hutool.extra.spring.SpringUtil;
-import vip.xiaonuo.biz.core.enums.BizTableCommon;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
@@ -32,8 +31,8 @@ public class CommonUtils {
      * 该方法适合 xb2023050001 其余规则慎用
      * @return
      */
-    public static String getTableSn(BizTableCommon bizTableCommon){
-        String id = newHandleSqlIdExecution(bizTableCommon.getBizTable());
+    public static String getTableSn(BizTableCommon bizTableCommon,String type){
+        String id = newHandleSqlIdExecution(bizTableCommon.getBizTable(),type);
         String idPre = "";
         String newId = "";
         if(StrUtil.isNotBlank(id)){
@@ -50,12 +49,18 @@ public class CommonUtils {
         return idPre+newId;
     }
 
-    private static String newHandleSqlIdExecution(String tableName) {
+    public static String getTableSn(BizTableCommon bizTableCommon){
+        return getTableSn(bizTableCommon,null);
+    }
+
+    private static String newHandleSqlIdExecution(String tableName,String type) {
         if(ObjectUtil.isNotEmpty(tableName)) {
             Connection conn;
             try {
                 DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
-                dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
+                if(StrUtil.isNotBlank(type)){
+                    dbsApi.changeDataSource(type);
+                }
                 conn = dbsApi.getCurrentDataSource().getConnection();
             } catch (SQLException e) {
                 throw new CommonException(e.getMessage());

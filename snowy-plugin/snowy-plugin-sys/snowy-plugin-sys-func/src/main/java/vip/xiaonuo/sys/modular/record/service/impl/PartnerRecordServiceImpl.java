@@ -53,7 +53,7 @@ public class PartnerRecordServiceImpl extends ServiceImpl<PartnerRecordMapper, P
         } else {
             queryWrapper.lambda().orderByAsc(PartnerRecord::getId);
         }
-        queryWrapper.lambda().eq(PartnerRecord::getOrgId,partnerRecordPageParam.getOrgId());
+        queryWrapper.lambda().eq(PartnerRecord::getInfoId,partnerRecordPageParam.getInfoId());
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 

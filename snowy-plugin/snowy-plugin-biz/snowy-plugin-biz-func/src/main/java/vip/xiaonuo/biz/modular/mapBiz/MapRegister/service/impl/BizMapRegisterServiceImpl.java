@@ -53,7 +53,7 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
             queryWrapper.orderBy(true, bizMapRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizMapRegisterPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizMapRegister::getId);
+            queryWrapper.lambda().orderByDesc(BizMapRegister::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

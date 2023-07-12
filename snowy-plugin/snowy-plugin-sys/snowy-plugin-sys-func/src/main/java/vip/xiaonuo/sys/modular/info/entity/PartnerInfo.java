@@ -30,9 +30,12 @@ import java.util.Date;
 @TableName("PARTNER_INFO")
 public class PartnerInfo {
 
-    /** 合作伙伴 主键ID */
     @TableId
-    @ApiModelProperty(value = "合作伙伴ID(主键)", position = 1)
+    @ApiModelProperty(value = "ID(主键)", position = 1)
+    private String id;
+
+    /** 合作伙伴 主键ID */
+    @ApiModelProperty(value = "合作伙伴ID", position = 2)
     private String orgId;
 
     /** 实体 */
@@ -83,22 +86,6 @@ public class PartnerInfo {
     @ApiModelProperty(value = "重要程度", position = 14)
     private String vitalLevel;
 
-    /** 开户银行 */
-    @ApiModelProperty(value = "开户银行", position = 15)
-    private String bankName;
-
-    /** 账号 */
-    @ApiModelProperty(value = "账号", position = 16)
-    private String bankNumber;
-
-    /** 收款单位 */
-    @ApiModelProperty(value = "收款单位", position = 17)
-    private String receivingUnits;
-
-    /** 邮递地址 */
-    @ApiModelProperty(value = "邮递地址", position = 18)
-    private String mailingAddress;
-
     /** 删除标志 */
     @ApiModelProperty(value = "删除标志", position = 19)
     @TableLogic
@@ -139,4 +126,10 @@ public class PartnerInfo {
 
     @ApiModelProperty(value = "当前管理率", position = 34)
     private String currentRates;
+
+    @ApiModelProperty(value = "伙伴编号",position = 35)
+    private String sn;
+
+    @ApiModelProperty(value = "伙伴名称",position = 36)
+    private String name;
 }

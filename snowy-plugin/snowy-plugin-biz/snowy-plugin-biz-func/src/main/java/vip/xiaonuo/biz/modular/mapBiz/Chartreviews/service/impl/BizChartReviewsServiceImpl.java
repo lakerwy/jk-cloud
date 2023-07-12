@@ -15,7 +15,6 @@ package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.CharUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -26,8 +25,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.biz.core.enums.BizTableCommon;
-import vip.xiaonuo.biz.core.utils.CommonUtils;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.dbs.core.util.BizTableCommon;
+import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.mapper.BizChartReviewsMapper;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.param.*;
@@ -41,13 +41,10 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
 
 import javax.annotation.Resource;
-import java.text.DateFormat;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
-import static vip.xiaonuo.biz.core.utils.CommonUtils.isNumeric;
+import static vip.xiaonuo.dbs.core.util.CommonUtils.isNumeric;
 
 /**
  * 业务表-图审受理单
@@ -94,7 +91,7 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
     @Override
     public void add(BizChartReviewsAddParam bizChartReviewsAddParam) {
         BizChartReviews bizChartReviews = BeanUtil.toBean(bizChartReviewsAddParam, BizChartReviews.class);
-        bizChartReviews.setSn(CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS));
+        bizChartReviews.setSn(CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME));
         bizChartReviews.setOpt(StpLoginUserUtil.getLoginUser().getName());
         bizChartReviews.setOptDate(DateUtil.date(new Date()));
         bizChartReviews.setStatus("受理中");

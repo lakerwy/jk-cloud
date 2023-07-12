@@ -139,6 +139,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/auth/b/getPhoneValidCode",
             "/auth/b/doLogin",
             "/auth/b/doLoginByPhone",
+            "/auth/b/cadDoLogin",
 
             /* 三方登录相关 */
             "/auth/third/render",

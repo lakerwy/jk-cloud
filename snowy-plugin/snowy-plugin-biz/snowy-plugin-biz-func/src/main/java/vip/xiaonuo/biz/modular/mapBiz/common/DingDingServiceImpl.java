@@ -3,7 +3,6 @@ package vip.xiaonuo.biz.modular.mapBiz.common;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.OapiGettokenRequest;
@@ -16,7 +15,7 @@ import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
+import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.common.config.DingTalkProperties;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.CacheConstant;
@@ -129,7 +128,7 @@ public class DingDingServiceImpl implements IDingDingService {
      */
     @Override
     public void batchSend(String subject, List<String> receiverIdList) {
-        if(!dingTalkProperties.isSend()){
+        if(!"1".equals(dingTalkProperties.getIsSend())){
             return;
         }
         List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(receiverIdList);
@@ -172,7 +171,9 @@ public class DingDingServiceImpl implements IDingDingService {
         body.setTitle("【工程设计校审】");
         OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("基本信息： ");
-        form.setValue(jsonObject.getStr("projectName")+" | " + jsonObject.getStr("designStage") + " | " +jsonObject.getStr("companyOrDepartment") + " | "+ jsonObject.getStr("profession") + " | " +jsonObject.getStr("reader"));
+        String professionValue = jsonObject.getStr("profession");
+        String reader = jsonObject.getStr("reader");
+        form.setValue(jsonObject.getStr("projectName")+" | " + jsonObject.getStr("designStage") + " | " +jsonObject.getStr("companyOrDepartment") + " | "+ commonCacheOperator.get(CommonUtils.MAJOR_TYPE + professionValue) + " | " +commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+reader));
         List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
         forms.add(form);
 

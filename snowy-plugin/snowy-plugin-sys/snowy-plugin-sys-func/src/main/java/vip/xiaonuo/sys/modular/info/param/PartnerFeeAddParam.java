@@ -33,7 +33,7 @@ public class PartnerFeeAddParam {
 
     /** 合作伙伴ID */
     @ApiModelProperty(value = "合作伙伴ID", position = 2)
-    private String orgId;
+    private String infoId;
 
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间", position = 3)

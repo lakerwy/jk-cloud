@@ -431,4 +431,58 @@ public class AuthServiceImpl implements AuthService {
             return execLoginC(saBaseClientLoginUser, device);
         }
     }
+
+    @Override
+    public String cadDoLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
+        // 获取账号
+        String account = authAccountPasswordLoginParam.getAccount();
+        // 获取密码
+        String password = authAccountPasswordLoginParam.getPassword();
+        // 获取设备
+        String device = authAccountPasswordLoginParam.getDevice();
+        // 默认指定为PC，如在小程序跟移动端的情况下，自行指定即可
+        if(ObjectUtil.isEmpty(device)) {
+            device = AuthDeviceTypeEnum.PC.getValue();
+        } else {
+            AuthDeviceTypeEnum.validate(device);
+        }
+        // 校验验证码
+        String defaultCaptchaOpen = devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_CAPTCHA_OPEN_KEY);
+        if(ObjectUtil.isNotEmpty(defaultCaptchaOpen)) {
+            if(Convert.toBool(defaultCaptchaOpen)) {
+                // 获取验证码
+                String validCode = authAccountPasswordLoginParam.getValidCode();
+                // 获取验证码请求号
+                String validCodeReqNo = authAccountPasswordLoginParam.getValidCodeReqNo();
+                // 开启验证码则必须传入验证码
+                if(ObjectUtil.isEmpty(validCode)) {
+                    throw new CommonException(AuthExceptionEnum.VALID_CODE_EMPTY.getValue());
+                }
+                // 开启验证码则必须传入验证码请求号
+                if(ObjectUtil.isEmpty(validCodeReqNo)) {
+                    throw new CommonException(AuthExceptionEnum.VALID_CODE_REQ_NO_EMPTY.getValue());
+                }
+                // 执行校验验证码
+                validValidCode(null, validCode, validCodeReqNo);
+            }
+        }
+        // SM2解密并获得前端传来的密码哈希值
+        String passwordHash;
+        try {
+            // 解密，并做哈希值
+            passwordHash = CommonCryptogramUtil.doHashValue(password);
+        } catch (Exception e) {
+            throw new CommonException(AuthExceptionEnum.PWD_DECRYPT_ERROR.getValue());
+        }
+
+        SaBaseLoginUser saBaseLoginUser = loginUserApi.getUserByAccount(account);
+        if(ObjectUtil.isEmpty(saBaseLoginUser)) {
+            throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
+        }
+        if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
+            throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
+        }
+        // 执行B端登录
+        return execLoginB(saBaseLoginUser, device);
+    }
 }

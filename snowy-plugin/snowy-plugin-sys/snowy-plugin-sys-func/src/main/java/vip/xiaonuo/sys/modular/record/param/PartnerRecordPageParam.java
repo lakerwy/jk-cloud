@@ -49,6 +49,6 @@ public class PartnerRecordPageParam {
     private String searchKey;
 
     @ApiModelProperty(value = "合作伙伴id",required = true)
-    private String orgId;
+    private String infoId;
 
 }

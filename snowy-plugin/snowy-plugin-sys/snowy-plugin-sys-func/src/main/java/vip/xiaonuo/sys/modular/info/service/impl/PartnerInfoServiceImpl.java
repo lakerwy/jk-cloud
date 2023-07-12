@@ -26,12 +26,16 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.core.util.BizTableCommon;
+import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.sys.modular.info.entity.PartnerFee;
+import vip.xiaonuo.sys.modular.info.entity.PartnerPayment;
 import vip.xiaonuo.sys.modular.info.param.*;
 import vip.xiaonuo.sys.modular.info.service.PartnerFeeService;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 import vip.xiaonuo.sys.modular.info.mapper.PartnerInfoMapper;
 import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
+import vip.xiaonuo.sys.modular.info.service.PartnerPaymentService;
 import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
@@ -65,6 +69,9 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     @Resource
     private SysOrgService orgService;
 
+    @Resource
+    private PartnerPaymentService partnerPaymentService;
+
     @Override
     public Page<PartnerInfo> page(PartnerInfoPageParam partnerInfoPageParam) {
         QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
@@ -90,21 +97,36 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(PartnerInfoAddParam partnerInfoAddParam) {
+        String name = partnerInfoAddParam.getName();
+        SysOrg sysOrg = new SysOrg();
+        sysOrg.setCategory(SysOrgCategoryEnum.PARTNER.name());
+        sysOrg.setParentId("1666256671493107714");
+        sysOrg.setSortCode(99);
+        sysOrg.setName(name);
+        orgService.save(sysOrg);
         PartnerInfo partnerInfo = BeanUtil.toBean(partnerInfoAddParam, PartnerInfo.class);
+        partnerInfo.setOrgId(sysOrg.getId());
+        partnerInfo.setSn(CommonUtils.getTableSn(BizTableCommon.SYS_PARTNER_INFO));
         List<PartnerFeeAddParam> partnerFeeAddParams = partnerInfoAddParam.getPartnerFees();
+        List<PartnerPaymentAddParam> partnerPaymentAddParams = partnerInfoAddParam.getPartnerPayments();
         this.save(partnerInfo);
         if(CollUtil.isNotEmpty(partnerFeeAddParams)){
             //partnerFees.forEach(partnerFee -> partnerFee.setOrgId(partnerInfo.getOrgId()));
             List<PartnerFee> partnerFees = partnerFeeAddParams.stream().map(partnerFeeAddParam -> BeanUtil.toBean(partnerFeeAddParam, PartnerFee.class)).collect(Collectors.toList());
-            partnerFees.forEach(partnerFee -> partnerFee.setOrgId(partnerInfo.getOrgId()));
+            partnerFees.forEach(partnerFee -> partnerFee.setInfoId(partnerInfo.getId()));
             partnerFeeService.saveBatch(partnerFees);
+        }
+        if(CollUtil.isNotEmpty(partnerPaymentAddParams)){
+            List<PartnerPayment> partnerPayments = partnerPaymentAddParams.stream().map(partnerPaymentAddParam -> BeanUtil.toBean(partnerPaymentAddParam, PartnerPayment.class)).collect(Collectors.toList());
+            partnerPayments.forEach(partnerPayment -> partnerPayment.setInfoId(partnerInfo.getId()));
+            partnerPaymentService.saveBatch(partnerPayments);
         }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(PartnerInfoEditParam partnerInfoEditParam) {
-        PartnerInfo partnerInfo = this.getById(partnerInfoEditParam.getOrgId());
+        PartnerInfo partnerInfo = this.getById(partnerInfoEditParam.getId());
         if(ObjectUtil.isEmpty(partnerInfo)){
             partnerInfo = new PartnerInfo();
         }
@@ -112,13 +134,19 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
         saveOrUpdate(partnerInfo);
         //this.updateById(partnerInfo);
         List<PartnerFee> partnerFees = partnerInfoEditParam.getPartnerFees();
+        handlePartnerFees(partnerInfo, partnerFees);
+        List<PartnerPayment> partnerPayments = partnerInfoEditParam.getPartnerPayments();
+        handlePartnerPayments(partnerInfo,partnerPayments);
+    }
+
+    private void handlePartnerFees(PartnerInfo partnerInfo, List<PartnerFee> partnerFees) {
         QueryWrapper<PartnerFee> wrapper = new QueryWrapper<>();
-        wrapper.eq("ORG_ID",partnerInfo.getOrgId());
-       List<PartnerFee> list = partnerFeeService.list(wrapper);
+        wrapper.eq("INFO_ID", partnerInfo.getId());
+        List<PartnerFee> list = partnerFeeService.list(wrapper);
 //        partnerFeeService.remove(wrapper);
         if(CollUtil.isNotEmpty(partnerFees)){
             PartnerInfo finalPartnerInfo = partnerInfo;
-            partnerFees.forEach(partnerFee -> partnerFee.setOrgId(finalPartnerInfo.getOrgId()));
+            partnerFees.forEach(partnerFee -> partnerFee.setInfoId(finalPartnerInfo.getId()));
 //            不能使用     saveOrUpdateBatch     逻辑删除导致批量主键冲突
 //            partnerFeeService.saveOrUpdateBatch(partnerFees);
             Set<String> ids = new HashSet<>();
@@ -140,12 +168,38 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
             if(CollUtil.isNotEmpty(ids)){
                 partnerFeeService.removeByIds(ids);
             }
-//            partnerFees.forEach(partnerFee -> {
-//                if(StrUtil.isNotBlank(partnerFee.getId())){
-//                    savePartnerFees.
-//                }
-//            });
+        }
+    }
 
+    private void handlePartnerPayments(PartnerInfo partnerInfo, List<PartnerPayment> partnerPayments) {
+        QueryWrapper<PartnerPayment> wrapper = new QueryWrapper<>();
+        wrapper.eq("INFO_ID", partnerInfo.getId());
+        List<PartnerPayment> list = partnerPaymentService.list(wrapper);
+//        partnerFeeService.remove(wrapper);
+        if(CollUtil.isNotEmpty(partnerPayments)){
+            PartnerInfo finalPartnerInfo = partnerInfo;
+            partnerPayments.forEach(partnerPayment -> partnerPayment.setInfoId(finalPartnerInfo.getId()));
+//            不能使用     saveOrUpdateBatch     逻辑删除导致批量主键冲突
+//            partnerFeeService.saveOrUpdateBatch(partnerFees);
+            Set<String> ids = new HashSet<>();
+            if(CollUtil.isNotEmpty(list)){
+                ids = list.stream().map(PartnerPayment::getId).collect(Collectors.toSet());
+            }
+            //List<PartnerFee> savePartnerFees = new ArrayList<>();
+            List<PartnerPayment> updatePartnerPayments = new ArrayList<>();
+            updatePartnerPayments = partnerPayments.stream().filter(partnerPayment -> StrUtil.isNotBlank(partnerPayment.getId())).collect(Collectors.toList());
+            Set<String> collect = updatePartnerPayments.stream().map(PartnerPayment::getId).collect(Collectors.toSet());
+            ids.removeAll(collect);
+            partnerPayments.removeAll(updatePartnerPayments);
+            if(CollUtil.isNotEmpty(updatePartnerPayments)){
+                partnerPaymentService.updateBatchById(updatePartnerPayments);
+            }
+            if(CollUtil.isNotEmpty(partnerPayments)){
+                partnerPaymentService.saveBatch(partnerPayments);
+            }
+            if(CollUtil.isNotEmpty(ids)){
+                partnerPaymentService.removeByIds(ids);
+            }
         }
     }
 
@@ -153,27 +207,35 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     @Override
     public void delete(List<PartnerInfoIdParam> partnerInfoIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(partnerInfoIdParamList, PartnerInfoIdParam::getOrgId));
-        List<String> list = CollStreamUtil.toList(partnerInfoIdParamList, PartnerInfoIdParam::getOrgId);
+        List<String> list = CollStreamUtil.toList(partnerInfoIdParamList, PartnerInfoIdParam::getId);
+        List<PartnerInfo> partnerInfos = listByIds(list);
+        List<String> orgIds = CollStreamUtil.toList(partnerInfos, PartnerInfo::getOrgId);
+        this.removeByIds(list);
+        //List<String> list = CollStreamUtil.toList(partnerInfoIdParamList, PartnerInfoIdParam::getId);
         QueryWrapper<PartnerFee> wrapper = new QueryWrapper<>();
-        wrapper.in("ORG_ID",list);
+        wrapper.in("INFO_ID",list);
         partnerFeeService.remove(wrapper);
         QueryWrapper<PartnerRecord> recordQueryWrapper = new QueryWrapper<>();
-        recordQueryWrapper.in("ORG_ID",list);
+        recordQueryWrapper.in("INFO_ID",list);
         partnerRecordService.remove(recordQueryWrapper);
-        orgService.removeByIds(CollStreamUtil.toList(partnerInfoIdParamList, PartnerInfoIdParam::getOrgId));
+        QueryWrapper<PartnerPayment> paymentQueryWrapper = new QueryWrapper<>();
+        paymentQueryWrapper.in("INFO_ID",list);
+        partnerPaymentService.remove(paymentQueryWrapper);
+        orgService.removeByIds(orgIds);
     }
 
     @Override
     public PartnerInfoVo detail(PartnerInfoIdParam partnerInfoIdParam) {
-        PartnerInfo partnerInfo = this.queryEntity(partnerInfoIdParam.getOrgId());
+        PartnerInfo partnerInfo = this.queryEntity(partnerInfoIdParam.getId());
         PartnerInfoVo vo = BeanUtil.toBean(partnerInfo, PartnerInfoVo.class);
         Map<String,Object> queryMap = new HashMap<>();
-        queryMap.put("ORG_ID",partnerInfo.getOrgId());
+        queryMap.put("INFO_ID",partnerInfo.getOrgId());
         List<PartnerFee> partnerFees = partnerFeeService.listByMap(queryMap);
         List<PartnerRecord> partnerRecords = partnerRecordService.listByMap(queryMap);
+        List<PartnerPayment> partnerPayments = partnerPaymentService.listByMap(queryMap);
         vo.setPartnerFees(partnerFees);
         vo.setPartnerRecords(partnerRecords);
+        vo.setPartnerPayments(partnerPayments);
         return vo;
     }
 
@@ -188,7 +250,7 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
 
     @Override
     public PartnerInfoVo getInfoById(PartnerInfoIdParam partnerInfoIdParam) {
-        PartnerInfoVo vo = partnerInfoMapper.infoById(partnerInfoIdParam.getOrgId());
+        PartnerInfoVo vo = partnerInfoMapper.infoById(partnerInfoIdParam.getId());
         if(ObjectUtil.isEmpty(vo)) {
            // throw new CommonException("合作伙伴-基本信息不存在，id值为：{}", partnerInfoIdParam.getOrgId());
             return null;
@@ -216,7 +278,7 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
                     StrUtil.toUnderlineCase(partnerInfoPageParam.getSortField()));
         } else {
 //            queryWrapper.lambda().orderByAsc(PartnerInfo::getOrgId);
-            queryWrapper.orderByAsc("so.ID");
+            queryWrapper.orderByDesc("pi.SN");
         }
         return partnerInfoMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

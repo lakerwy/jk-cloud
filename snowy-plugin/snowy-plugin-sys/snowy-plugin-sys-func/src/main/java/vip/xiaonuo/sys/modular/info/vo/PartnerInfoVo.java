@@ -8,6 +8,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.sys.modular.info.entity.PartnerFee;
+import vip.xiaonuo.sys.modular.info.entity.PartnerPayment;
 import vip.xiaonuo.sys.modular.record.entity.PartnerRecord;
 
 import java.util.Date;
@@ -106,21 +107,9 @@ public class PartnerInfoVo{
     @ApiModelProperty(value = "重要程度", position = 23)
     private String vitalLevel;
 
-    /** 开户银行 */
-    @ApiModelProperty(value = "开户银行", position = 24)
-    private String bankName;
+    @ApiModelProperty(value = "合作伙伴-开户行信息",position = 25)
+    private List<PartnerPayment> partnerPayments;
 
-    /** 账号 */
-    @ApiModelProperty(value = "账号", position = 25)
-    private String bankNumber;
-
-    /** 收款单位 */
-    @ApiModelProperty(value = "收款单位", position = 26)
-    private String receivingUnits;
-
-    /** 邮递地址 */
-    @ApiModelProperty(value = "邮递地址", position = 27)
-    private String mailingAddress;
     @ApiModelProperty(value = "合作伙伴-管理费缴纳情况", position = 28)
     private List<PartnerFee> partnerFees;
 
@@ -164,4 +153,8 @@ public class PartnerInfoVo{
     /** 主要联系人 */
     @ApiModelProperty(value = "主要联系人", position = 37)
     private String contact;
+
+    /** 主要联系人 */
+    @ApiModelProperty(value = "组织id", position = 38)
+    private String orgId;
 }

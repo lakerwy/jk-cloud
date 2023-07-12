@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.sys.modular.info.entity.PartnerFee;
+import vip.xiaonuo.sys.modular.info.entity.PartnerPayment;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -31,8 +32,12 @@ import java.util.List;
 public class PartnerInfoEditParam {
 
     /** 合作伙伴ID */
-    @ApiModelProperty(value = "合作伙伴ID(主键ID)", required = true, position = 1)
+    @ApiModelProperty(value = "主键ID", required = true, position = 1)
     @NotBlank(message = "id不能为空")
+    private String id;
+
+    /** 合作伙伴ID */
+    @ApiModelProperty(value = "组织架构ID",  position = 2)
     private String orgId;
 
     /** 实体 */
@@ -82,21 +87,8 @@ public class PartnerInfoEditParam {
     @ApiModelProperty(value = "重要程度", position = 14)
     private String vitalLevel;
 
-    /** 开户银行 */
-    @ApiModelProperty(value = "开户银行", position = 15)
-    private String bankName;
-
-    /** 账号 */
-    @ApiModelProperty(value = "账号", position = 16)
-    private String bankNumber;
-
-    /** 收款单位 */
-    @ApiModelProperty(value = "收款单位", position = 17)
-    private String receivingUnits;
-
-    /** 邮递地址 */
-    @ApiModelProperty(value = "邮递地址", position = 18)
-    private String mailingAddress;
+    @ApiModelProperty(value = "开户银行信息列表", position = 18)
+    private List<PartnerPayment> partnerPayments;
 
     @ApiModelProperty(value = "管理费缴纳情况实体", position = 19)
     private List<PartnerFee> partnerFees;
@@ -115,4 +107,11 @@ public class PartnerInfoEditParam {
 
     @ApiModelProperty(value = "当前管理率", position = 34)
     private String currentRates;
+
+    @ApiModelProperty(value = "伙伴编号",position = 35)
+    private String sn;
+
+    @ApiModelProperty(value = "伙伴名称",position = 36)
+    private String name;
+
 }

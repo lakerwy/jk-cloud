@@ -122,7 +122,7 @@ public class DingDingServiceImpl implements IDingDingService {
      */
     @Override
     public void batchSend(String subject, List<String> receiverIdList) {
-        if(!dingTalkProperties.isSend()){
+        if(!"1".equals(dingTalkProperties.getIsSend())){
             return;
         }
         List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(receiverIdList);
@@ -202,7 +202,7 @@ public class DingDingServiceImpl implements IDingDingService {
      */
     @Override
     public void batchSend(JSONObject entries, List<String> receiverIdList) {
-        if(!dingTalkProperties.isSend()){
+        if(!"1".equals(dingTalkProperties.getIsSend())){
             return;
         }
         List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(receiverIdList);

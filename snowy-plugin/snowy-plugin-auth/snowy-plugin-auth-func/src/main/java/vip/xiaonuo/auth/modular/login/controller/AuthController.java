@@ -130,4 +130,18 @@ public class AuthController {
     public CommonResult<SaBaseLoginUser> getLoginUser() {
         return CommonResult.data(authService.getLoginUser());
     }
+
+
+    /**
+     * B端账号密码登录
+     *
+     * @author xuyuxiang
+     * @date 2021/10/15 13:12
+     **/
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("CAD端账号密码登录")
+    @PostMapping("/auth/b/cadDoLogin")
+    public CommonResult<String> cadDoLogin(@RequestBody @Valid AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
+        return CommonResult.data(authService.cadDoLogin(authAccountPasswordLoginParam));
+    }
 }

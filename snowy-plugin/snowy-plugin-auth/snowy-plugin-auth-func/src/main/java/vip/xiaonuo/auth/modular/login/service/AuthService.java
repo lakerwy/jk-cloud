@@ -82,4 +82,6 @@ public interface AuthService {
      * @date 2022/7/9 14:44
      */
     String doLoginById(String userId, String device, String type);
+
+    String cadDoLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam);
 }

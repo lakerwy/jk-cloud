@@ -99,6 +99,7 @@ public class GatewayConfigure {
             "/api/webapp/auth/b/getPhoneValidCode",
             "/api/webapp/auth/b/doLogin",
             "/api/webapp/auth/b/doLoginByPhone",
+            "/api/webapp/auth/b/cadDoLogin",
 
             /* 三方登录相关 */
             "/api/webapp/auth/third/render",
