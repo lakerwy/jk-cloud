@@ -114,4 +114,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         return article;
     }
+
+    @Override
+    public void click(ArticleIdParam articleIdParam) {
+        Article article = this.queryEntity(articleIdParam.getId());
+        int hits = article.getHits() == null ? 0 : article.getHits();
+        article.setHits(hits+1);
+        this.updateById(article);
+    }
 }

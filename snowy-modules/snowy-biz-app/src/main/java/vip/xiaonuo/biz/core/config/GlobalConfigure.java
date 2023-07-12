@@ -171,6 +171,11 @@ public class GlobalConfigure implements WebMvcConfigurer {
             /*获取工程设计校审信息*/
             "/biz/AuditLists/info",
             "/biz/AuditListsDetails/editNoToken",
+
+            /* cms 文章管理 */
+            "/biz/cms/article/page",
+            "/biz/cms/article/detail",
+            "/biz/cms/article/click",
     };
 
     /**

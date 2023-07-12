@@ -77,4 +77,12 @@ public interface ArticleService extends IService<Article> {
      * @date  2023/07/10 14:36
      **/
     Article queryEntity(String id);
+
+    /**
+     * 点击获取业务表-CMS-文章（点击量）
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    void click(ArticleIdParam articleIdParam);
 }

@@ -122,4 +122,19 @@ public class ArticleController {
     public CommonResult<Article> detail(@Valid ArticleIdParam articleIdParam) {
         return CommonResult.data(articleService.detail(articleIdParam));
     }
+
+    /**
+     * 点击业务表-CMS-文章管理（新增点击量）
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("点击业务表-CMS-文章管理（新增点击量）")
+    @CommonLog("点击业务表-CMS-文章管理（新增点击量）")
+    @PostMapping("/biz/cms/article/click")
+    public CommonResult<String> click(@RequestBody @Valid ArticleIdParam articleIdParam) {
+        articleService.click(articleIdParam);
+        return CommonResult.ok();
+    }
 }

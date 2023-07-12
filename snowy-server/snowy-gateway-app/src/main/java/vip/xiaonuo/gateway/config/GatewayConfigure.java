@@ -150,6 +150,12 @@ public class GatewayConfigure {
             /*获取工程设计校审信息*/
             "/api/bizapp/biz/AuditLists/info",
             "/api/bizapp/biz/AuditListsDetails/editNoToken",
+
+            /* cms 文章管理 */
+            "/api/bizapp/biz/cms/article/page",
+            "/api/bizapp/biz/cms/article/detail",
+            "/api/bizapp/biz/cms/article/click",
+
     };
 
     /**
