@@ -12,9 +12,17 @@
  */
 package vip.xiaonuo.biz.modular.crm.hetong.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
+import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 
 import java.util.List;
 
@@ -26,4 +34,8 @@ import java.util.List;
  **/
 public interface HetongMapper extends BaseMapper<Hetong> {
     List<HetongInfoVo> getListAll();
+
+    IPage<HetongDetailVo> getPageList(Page<HetongDetailVo> page, @Param(Constants.WRAPPER) Wrapper<Hetong> queryWrapper);
+
+    HetongDetailVo getDetailById(String id);
 }

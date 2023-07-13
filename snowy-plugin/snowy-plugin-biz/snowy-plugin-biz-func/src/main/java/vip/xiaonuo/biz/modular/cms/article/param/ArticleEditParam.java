@@ -15,11 +15,10 @@ package vip.xiaonuo.biz.modular.cms.article.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.cms.article.entity.ArticleAuth;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.List;
 
 /**
  * 业务表-CMS-文章管理编辑参数
@@ -67,5 +66,17 @@ public class ArticleEditParam {
     /** 点击量 */
     @ApiModelProperty(value = "点击量", position = 9)
     private Integer hits;
+
+    /** 设置权限，0: 全员 1: 非全员 */
+    @ApiModelProperty(value = "设置权限，0: 全员 1: 非全员", position = 10)
+    private Integer isAuth;
+
+    /** 是否上架，0: 未上架 1: 已上架 */
+    @ApiModelProperty(value = "是否上架，0: 未上架 1: 已上架", position = 11)
+    private Integer isShelf;
+
+    /** 权限配置集合 */
+    @ApiModelProperty(value = "权限配置", position = 12)
+    private List<ArticleAuth> articleAuths;
 
 }

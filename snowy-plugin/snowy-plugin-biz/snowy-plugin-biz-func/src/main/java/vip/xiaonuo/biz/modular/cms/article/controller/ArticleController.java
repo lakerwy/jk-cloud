@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.cms.article.controller;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -22,14 +23,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.cms.article.ArticleInfoVo;
+import vip.xiaonuo.biz.modular.cms.article.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.cms.article.entity.Article;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleAddParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleEditParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleIdParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticlePageParam;
 import vip.xiaonuo.biz.modular.cms.article.service.ArticleService;
 
 import javax.annotation.Resource;
@@ -52,7 +51,7 @@ public class ArticleController {
     private ArticleService articleService;
 
     /**
-     * 获取业务表-CMS-文章管理分页
+     * 获取业务表-CMS-文章管理分页 [管理员-全部数据]
      *
      * @author yong.ye
      * @date  2023/07/10 14:36
@@ -119,7 +118,7 @@ public class ArticleController {
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取业务表-CMS-文章管理详情")
     @GetMapping("/biz/cms/article/detail")
-    public CommonResult<Article> detail(@Valid ArticleIdParam articleIdParam) {
+    public CommonResult<ArticleInfoVo> detail(@Valid ArticleIdParam articleIdParam) {
         return CommonResult.data(articleService.detail(articleIdParam));
     }
 
@@ -135,6 +134,34 @@ public class ArticleController {
     @PostMapping("/biz/cms/article/click")
     public CommonResult<String> click(@RequestBody @Valid ArticleIdParam articleIdParam) {
         articleService.click(articleIdParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取业务表-CMS-文章管理分页 [内网用 有权限控制] 已上架+（全员|有权限）
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取业务表-CMS-文章管理分页 [内网用 有权限控制]")
+    @GetMapping("/biz/cms/article/listPage")
+    public CommonResult<IPage<Article>> listPage(ArticlePageParam articlePageParam) {
+        return CommonResult.data(articleService.listPage(articlePageParam));
+    }
+
+    /**
+     * 业务表-CMS-文章管理（上架|下架）
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("业务表-CMS-文章管理（上架|下架）")
+    @CommonLog("业务表-CMS-文章管理（上架|下架）")
+    @PostMapping("/biz/cms/article/shelf")
+    public CommonResult<String> shelf(@RequestBody @Valid ArticleShelfParam articleShelfParam) {
+        articleService.shelf(articleShelfParam);
         return CommonResult.ok();
     }
 }

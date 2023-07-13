@@ -5,6 +5,17 @@
         select ID,SECOND_LEVEL,CONTRACT_NO,PROJECT_NAME,
                COUNTERPARTY,SECONDPARTY,COMPANY_OR_DEPARTMENT,`OWNER`,
                BID_DATE,SEAL_DATE,FILING_DATE,CONTRACT_AMOUNT
-        from BIZ_CRM_HETONG where DELETE_FLAG = 'NOT_DELETE'
+        from BIZ_CRM_HETONG where DELETE_FLAG = 'NOT_DELETE' and FLOW_STATUS = '1'
+    </select>
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo" >
+        select a.*, b.PROJECT_SN as bizProjectSn,b.NAME as bizProjectName
+        from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID  ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetailById" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo" parameterType="String">
+        select a.*, b.PROJECT_SN as bizProjectSn,b.NAME as bizProjectName
+        from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID
+        where a.ID = ${id}
     </select>
 </mapper>

@@ -14,27 +14,36 @@ package vip.xiaonuo.biz.modular.cms.article.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cms.article.ArticleInfoVo;
+import vip.xiaonuo.biz.modular.cms.article.entity.ArticleAuth;
+import vip.xiaonuo.biz.modular.cms.article.param.*;
+import vip.xiaonuo.biz.modular.cms.article.service.ArticleAuthService;
 import vip.xiaonuo.biz.modular.crm.bidopen.entity.Bidopen;
+import vip.xiaonuo.biz.modular.crm.major.entity.Major;
+import vip.xiaonuo.biz.modular.crm.majorleader.entity.Majorleader;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.cms.article.entity.Article;
 import vip.xiaonuo.biz.modular.cms.article.mapper.ArticleMapper;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleAddParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleEditParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleIdParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticlePageParam;
 import vip.xiaonuo.biz.modular.cms.article.service.ArticleService;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-CMS-文章管理Service接口实现类
@@ -47,9 +56,14 @@ import java.util.List;
 @Service
 public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> implements ArticleService {
 
+    @Resource
+    private ArticleAuthService articleAuthService;
+    @Resource
+    private ArticleMapper articleMapper;
     @Override
     public Page<Article> page(ArticlePageParam articlePageParam) {
         QueryWrapper<Article> queryWrapper = new QueryWrapper<>();
+        /* 外部查询 */
         if (ObjectUtil.isNotEmpty(articlePageParam.getSearchKey())) {
             queryWrapper.lambda().like(Article::getSn, articlePageParam.getSearchKey()).or()
                     .like(Article::getTitle, articlePageParam.getSearchKey()).or()
@@ -69,6 +83,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if(ObjectUtil.isNotEmpty(articlePageParam.getTags())) {
             queryWrapper.lambda().like(Article::getTags, articlePageParam.getTags());
         }
+        if(ObjectUtil.isNotEmpty(articlePageParam.getIsAuth())) {
+            queryWrapper.lambda().eq(Article::getIsAuth, articlePageParam.getIsAuth());
+        }
+        if(ObjectUtil.isNotEmpty(articlePageParam.getIsShelf())) {
+            queryWrapper.lambda().eq(Article::getIsShelf, articlePageParam.getIsShelf());
+        }
         if(ObjectUtil.isAllNotEmpty(articlePageParam.getSortField(), articlePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(articlePageParam.getSortOrder());
             queryWrapper.orderBy(true, articlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -84,6 +104,13 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     public void add(ArticleAddParam articleAddParam) {
         Article article = BeanUtil.toBean(articleAddParam, Article.class);
         this.save(article);
+        //新增对应关系
+        List<ArticleAuthAddParam> articleAuthAddParams = articleAddParam.getArticleAuths();
+        if(CollUtil.isNotEmpty(articleAuthAddParams)){
+            List<ArticleAuth> articleAuths = articleAuthAddParams.stream().map(articleAuthAddParam -> BeanUtil.toBean(articleAuthAddParam, ArticleAuth.class)).collect(Collectors.toList());
+            articleAuths.forEach(articleAuth -> articleAuth.setArticleId(article.getId()));
+            articleAuthService.saveBatch(articleAuths);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -92,18 +119,60 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Article article = this.queryEntity(articleEditParam.getId());
         BeanUtil.copyProperties(articleEditParam, article);
         this.updateById(article);
+
+        //处理 文章权限
+        List<ArticleAuth> articleAuths = articleEditParam.getArticleAuths();
+        if(CollUtil.isNotEmpty(articleAuths)){
+            //查询 数据库 获取历史设置
+            QueryWrapper<ArticleAuth> wrapper = new QueryWrapper<>();
+            wrapper.lambda().eq(ArticleAuth::getArticleId, article.getId());
+            List<ArticleAuth> list = articleAuthService.list(wrapper);
+            //处理数据，赋予外键
+            articleAuths.forEach(articleAuth->{ articleAuth.setArticleId(article.getId());  });
+            //主键暂存区（已设置的数据库值）
+            Set<String> ids = new HashSet<>();
+            if(CollUtil.isNotEmpty(list)){
+                ids = list.stream().map(ArticleAuth::getId).collect(Collectors.toSet());
+            }
+            //逻辑（新增+更新+删除）
+            List<ArticleAuth> updateArticleAuth = new ArrayList<>();
+            updateArticleAuth = articleAuths.stream().filter(articleAuth -> StrUtil.isNotBlank(articleAuth.getId())).collect(Collectors.toList());
+            //排除update的id
+            Set<String> collect = updateArticleAuth.stream().map(ArticleAuth::getId).collect(Collectors.toSet());
+            ids.removeAll(collect);
+            articleAuths.removeAll(updateArticleAuth);
+            //数据更新处理逻辑
+            if(CollUtil.isNotEmpty(updateArticleAuth)){
+                articleAuthService.updateBatchById(updateArticleAuth);
+            }
+            if(CollUtil.isNotEmpty(articleAuths)){
+                articleAuthService.saveBatch(articleAuths);
+            }
+            if(CollUtil.isNotEmpty(ids)){
+                articleAuthService.removeByIds(ids);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<ArticleIdParam> articleIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(articleIdParamList, ArticleIdParam::getId));
+        List<String> list = CollStreamUtil.toList(articleIdParamList, ArticleIdParam::getId);
+        this.removeByIds(list);
+        QueryWrapper<ArticleAuth> wrapper = new QueryWrapper<>();
+        wrapper.in("ARTICLE_ID",list);
+        articleAuthService.remove(wrapper);
     }
 
     @Override
-    public Article detail(ArticleIdParam articleIdParam) {
-        return this.queryEntity(articleIdParam.getId());
+    public ArticleInfoVo detail(ArticleIdParam articleIdParam) {
+        ArticleInfoVo articleInfoVo = new ArticleInfoVo();
+        Article article = this.queryEntity(articleIdParam.getId());
+        BeanUtil.copyProperties(article, articleInfoVo);
+        List<ArticleAuth> articleAuthList = articleAuthService.list(new QueryWrapper<ArticleAuth>().lambda().eq(ArticleAuth::getArticleId,article.getId()));
+        articleInfoVo.setArticleAuths(articleAuthList);
+        return articleInfoVo;
     }
 
     @Override
@@ -120,6 +189,50 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Article article = this.queryEntity(articleIdParam.getId());
         int hits = article.getHits() == null ? 0 : article.getHits();
         article.setHits(hits+1);
+        this.updateById(article);
+    }
+
+    @Override
+    public IPage<Article> listPage(ArticlePageParam articlePageParam) {
+        QueryWrapper<Article> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(articlePageParam.getSearchKey())) {
+            queryWrapper.like("a.SN", articlePageParam.getSearchKey()).or()
+                    .like("a.TITLE", articlePageParam.getSearchKey()).or()
+                    .like("a.SUB_TITLE", articlePageParam.getSearchKey()).or()
+                    .like("a.TAGS", articlePageParam.getSearchKey()).or()
+                    .like("a.TYPE", articlePageParam.getSearchKey());
+        }
+        if(ObjectUtil.isNotEmpty(articlePageParam.getTitle())) {
+            queryWrapper.like("a.TITLE", articlePageParam.getTitle());
+        }
+        if(ObjectUtil.isNotEmpty(articlePageParam.getSubTitle())) {
+            queryWrapper.like("a.SUB_TITLE", articlePageParam.getSubTitle());
+        }
+        if(ObjectUtil.isNotEmpty(articlePageParam.getType())) {
+            queryWrapper.eq("a.TYPE", articlePageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(articlePageParam.getTags())) {
+            queryWrapper.like("a.TAGS", articlePageParam.getTags());
+        }
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("a.IS_SHELF",1);
+        queryWrapper.and(q->q.eq("a.IS_AUTH",0).or(q1->q1.in("b.OBJ_ID",articlePageParam.getListIds())));
+
+        if(ObjectUtil.isAllNotEmpty(articlePageParam.getSortField(), articlePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(articlePageParam.getSortOrder());
+            queryWrapper.orderBy(true, articlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(articlePageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(Article::getCreateTime);
+        }
+
+        return articleMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public void shelf(ArticleShelfParam articleShelfParam) {
+        Article article = this.queryEntity(articleShelfParam.getId());
+        article.setIsShelf(articleShelfParam.getIsShelf());
         this.updateById(article);
     }
 }

@@ -116,4 +116,8 @@ public class HetongPageParam {
     @ApiModelProperty(value = "项目负责人（历史表Hetong.ProjectLeader）")
     private String projectLeader;
 
+    /** 丙方 */
+    @ApiModelProperty(value = "丙方")
+    private String partyc;
+
 }

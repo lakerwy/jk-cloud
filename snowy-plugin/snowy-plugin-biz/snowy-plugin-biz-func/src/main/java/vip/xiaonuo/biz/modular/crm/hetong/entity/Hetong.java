@@ -224,4 +224,16 @@ public class Hetong {
     @ApiModelProperty(value = "更新人", position = 47)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 丙方 */
+    @ApiModelProperty(value = "丙方", position = 48)
+    private String partyc;
+
+    /** 立项-主键ID */
+    @ApiModelProperty(value = "立项-主键ID", position = 49)
+    private String bizProjectId;
+
+    /** 流程状态（0 - 已提交  1- 已审批） */
+    @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 50)
+    private String flowStatus;
 }

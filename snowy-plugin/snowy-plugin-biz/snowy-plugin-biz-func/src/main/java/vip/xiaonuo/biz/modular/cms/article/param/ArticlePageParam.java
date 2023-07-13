@@ -15,8 +15,7 @@ package vip.xiaonuo.biz.modular.cms.article.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.List;
 
 /**
  * 业务表-CMS-文章管理查询参数
@@ -63,5 +62,17 @@ public class ArticlePageParam {
     /** 文档标签 */
     @ApiModelProperty(value = "文档标签")
     private String tags;
+
+    /** 设置权限，0: 全员 1: 非全员 */
+    @ApiModelProperty(value = "设置权限，0: 全员 1: 非全员")
+    private Integer isAuth;
+
+    /** 是否上架，0: 未上架 1: 已上架 */
+    @ApiModelProperty(value = "是否上架，0: 未上架 1: 已上架")
+    private Integer isShelf;
+
+    /** 当前用户的 userId,roleId,orgId */
+    @ApiModelProperty(value = "当前用户的 userId,roleId,orgId")
+    private List<String> listIds;
 
 }

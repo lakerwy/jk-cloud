@@ -62,4 +62,8 @@ public class HetongInfoVo {
     @ApiModelProperty(value = "合同金额（历史表Hetong.ContractAmount）", position = 19)
     private BigDecimal contractAmount;
 
+    /** 丙方 */
+    @ApiModelProperty(value = "丙方", position = 20)
+    private String partyc;
+
 }

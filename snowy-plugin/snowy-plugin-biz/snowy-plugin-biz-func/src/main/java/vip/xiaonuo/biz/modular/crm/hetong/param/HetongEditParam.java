@@ -207,4 +207,15 @@ public class HetongEditParam {
     @ApiModelProperty(value = "合同签订人（历史表Hetong.Register）", position = 42)
     private String register;
 
+    /** 丙方 */
+    @ApiModelProperty(value = "丙方", position = 43)
+    private String partyc;
+
+    /** 立项-主键ID */
+    @ApiModelProperty(value = "立项-主键ID", position = 44)
+    private String bizProjectId;
+
+    /** 流程状态（0 - 已提交  1- 已审批） */
+//    @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 45)
+//    private String flowStatus;
 }

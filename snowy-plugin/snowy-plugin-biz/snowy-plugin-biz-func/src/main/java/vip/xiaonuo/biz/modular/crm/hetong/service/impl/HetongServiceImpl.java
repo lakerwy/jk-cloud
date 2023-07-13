@@ -18,6 +18,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -25,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.hetong.mapper.HetongMapper;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongIdParam;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -55,62 +57,48 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
     @Resource
     private HetongMapper hetongMapper;
     @Override
-    public Page<Hetong> page(HetongPageParam hetongPageParam) {
+    public IPage<HetongDetailVo> page(HetongPageParam hetongPageParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
+        //审核通过的合同
+        queryWrapper.eq("a.FLOW_STATUS","1");
         if (ObjectUtil.isNotEmpty(hetongPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Hetong::getSecondLevel, hetongPageParam.getSearchKey()).or()
-                    .like(Hetong::getContractNo, hetongPageParam.getSearchKey()).or()
-                    .like(Hetong::getProjectName, hetongPageParam.getSearchKey()).or()
-                    .like(Hetong::getCounterparty, hetongPageParam.getSearchKey()).or()
-                    .like(Hetong::getSecondparty, hetongPageParam.getSearchKey()).or()
-                    .like(Hetong::getCompanyOrDepartment, hetongPageParam.getSearchKey()).or()
-                    .like(Hetong::getBidOwner, hetongPageParam.getSearchKey()).or()
-                    .like(Hetong::getProjectLeader, hetongPageParam.getSearchKey());
+            queryWrapper.like("a.SECOND_LEVEL", hetongPageParam.getSearchKey()).or()
+                    .like("a.CONTRACT_NO", hetongPageParam.getSearchKey()).or()
+                    .like("a.PROJECT_NAME", hetongPageParam.getSearchKey()).or()
+                    .like("a.COUNTERPARTY", hetongPageParam.getSearchKey()).or()
+                    .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
+                    .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
+                    .like("a.PARTYC", hetongPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
-            queryWrapper.lambda().between(Hetong::getRegisterDate, hetongPageParam.getStartRegisterDate(), hetongPageParam.getEndRegisterDate());
-        }
-        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsFiling())) {
-            queryWrapper.lambda().eq(Hetong::getIsFiling, hetongPageParam.getIsFiling());
+            queryWrapper.between("a.REGISTER_DATE", hetongPageParam.getStartRegisterDate(), hetongPageParam.getEndRegisterDate());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getSecondLevel())) {
-            queryWrapper.lambda().eq(Hetong::getSecondLevel, hetongPageParam.getSecondLevel());
+            queryWrapper.eq("a.SECOND_LEVEL", hetongPageParam.getSecondLevel());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getContractNo())) {
-            queryWrapper.lambda().like(Hetong::getContractNo, hetongPageParam.getContractNo());
+            queryWrapper.like("a.CONTRACT_NO", hetongPageParam.getContractNo());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getProjectName())) {
-            queryWrapper.lambda().like(Hetong::getProjectName, hetongPageParam.getProjectName());
+            queryWrapper.like("a.PROJECT_NAME", hetongPageParam.getProjectName());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getCounterparty())) {
-            queryWrapper.lambda().like(Hetong::getCounterparty, hetongPageParam.getCounterparty());
+            queryWrapper.like("a.COUNTERPARTY", hetongPageParam.getCounterparty());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getSecondparty())) {
-            queryWrapper.lambda().like(Hetong::getSecondparty, hetongPageParam.getSecondparty());
+            queryWrapper.like("a.SECONDPARTY", hetongPageParam.getSecondparty());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getPartnerType())) {
-            queryWrapper.lambda().eq(Hetong::getPartnerType, hetongPageParam.getPartnerType());
+            queryWrapper.eq("a.PARTNER_TYPE", hetongPageParam.getPartnerType());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getCompanyOrDepartment())) {
-            queryWrapper.lambda().like(Hetong::getCompanyOrDepartment, hetongPageParam.getCompanyOrDepartment());
-        }
-        if(ObjectUtil.isNotEmpty(hetongPageParam.getOwner())) {
-            queryWrapper.lambda().like(Hetong::getOwner, hetongPageParam.getOwner());
+            queryWrapper.like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getCompanyOrDepartment());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndSealDate())) {
-            queryWrapper.lambda().between(Hetong::getSealDate, hetongPageParam.getStartSealDate(), hetongPageParam.getEndSealDate());
+            queryWrapper.between("a.SEAL_DATE", hetongPageParam.getStartSealDate(), hetongPageParam.getEndSealDate());
         }
-        if(ObjectUtil.isNotEmpty(hetongPageParam.getInvestScale())) {
-            queryWrapper.lambda().like(Hetong::getInvestScale, hetongPageParam.getInvestScale());
-        }
-        if(ObjectUtil.isNotEmpty(hetongPageParam.getStatus())) {
-            queryWrapper.lambda().like(Hetong::getStatus, hetongPageParam.getStatus());
-        }
-        if(ObjectUtil.isNotEmpty(hetongPageParam.getDescription())) {
-            queryWrapper.lambda().like(Hetong::getDescription, hetongPageParam.getDescription());
-        }
-        if(ObjectUtil.isNotEmpty(hetongPageParam.getProjectLeader())) {
-            queryWrapper.lambda().like(Hetong::getProjectLeader, hetongPageParam.getProjectLeader());
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getPartyc())) {
+            queryWrapper.like("a.PARTYC", hetongPageParam.getPartyc());
         }
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hetongPageParam.getSortOrder());
@@ -119,7 +107,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         } else {
             queryWrapper.lambda().orderByDesc(Hetong::getContractNo);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return hetongMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -151,8 +139,8 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
     }
 
     @Override
-    public Hetong detail(HetongIdParam hetongIdParam) {
-        return this.queryEntity(hetongIdParam.getId());
+    public HetongDetailVo detail(HetongIdParam hetongIdParam) {
+        return hetongMapper.getDetailById(hetongIdParam.getId());
     }
 
     @Override

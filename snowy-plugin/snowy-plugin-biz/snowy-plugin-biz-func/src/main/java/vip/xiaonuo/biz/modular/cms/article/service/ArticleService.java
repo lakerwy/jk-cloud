@@ -12,13 +12,12 @@
  */
 package vip.xiaonuo.biz.modular.cms.article.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.cms.article.ArticleInfoVo;
 import vip.xiaonuo.biz.modular.cms.article.entity.Article;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleAddParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleEditParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticleIdParam;
-import vip.xiaonuo.biz.modular.cms.article.param.ArticlePageParam;
+import vip.xiaonuo.biz.modular.cms.article.param.*;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ import java.util.List;
 public interface ArticleService extends IService<Article> {
 
     /**
-     * 获取业务表-CMS-文章管理分页
+     * 获取业务表-CMS-文章管理分页【公网用-仅能看IsAuth=0】
      *
      * @author yong.ye
      * @date  2023/07/10 14:36
@@ -68,7 +67,7 @@ public interface ArticleService extends IService<Article> {
      * @author yong.ye
      * @date  2023/07/10 14:36
      */
-    Article detail(ArticleIdParam articleIdParam);
+    ArticleInfoVo detail(ArticleIdParam articleIdParam);
 
     /**
      * 获取业务表-CMS-文章管理详情
@@ -85,4 +84,20 @@ public interface ArticleService extends IService<Article> {
      * @date  2023/07/10 14:36
      */
     void click(ArticleIdParam articleIdParam);
+
+    /**
+     * 获取业务表-CMS-文章管理分页【内网用-有权限控制】
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    IPage<Article> listPage(ArticlePageParam articlePageParam);
+
+    /**
+     * 获取业务表-CMS-文章（上架|下架）
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    void shelf(ArticleShelfParam articleShelfParam);
 }

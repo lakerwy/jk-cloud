@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.cms.article.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.cms.article.entity.Article;
+
 
 /**
  * 业务表-CMS-文章管理Mapper接口
@@ -22,4 +28,6 @@ import vip.xiaonuo.biz.modular.cms.article.entity.Article;
  * @date  2023/07/10 14:36
  **/
 public interface ArticleMapper extends BaseMapper<Article> {
+
+    IPage<Article> getPageList(Page<Article> page,@Param(Constants.WRAPPER) Wrapper<Article> queryWrapper);
 }

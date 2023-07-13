@@ -92,4 +92,12 @@ public class Article {
     @ApiModelProperty(value = "更新人", position = 14)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 设置权限，0: 全员 1: 非全员 */
+    @ApiModelProperty(value = "设置权限，0: 全员 1: 非全员", position = 15)
+    private Integer isAuth;
+
+    /** 是否上架，0: 未上架 1: 已上架 */
+    @ApiModelProperty(value = "是否上架，0: 未上架 1: 已上架", position = 16)
+    private Integer isShelf;
 }
