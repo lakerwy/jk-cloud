@@ -397,4 +397,20 @@ public class SysUserController {
     public CommonResult<List<Map<String,String>>> getAllUsers() {
         return CommonResult.data(sysUserService.getAllUsers());
     }
+
+
+    /**
+     * 分公司员工同步至组织架构，添加用户
+     *
+     * @author yong.ye
+     * @date 2023/7/13 20:47
+     */
+    @ApiOperationSupport(order = 25)
+    @ApiOperation("分公司员工同步至组织架构，添加用户")
+    @CommonLog("分公司员工同步至组织架构，添加用户")
+    @PostMapping("/sys/center/user/syncToUserAdd")
+    public CommonResult<String> syncToUserAdd(@RequestBody @Valid SyncToUserAddParam syncToUserAddParam) {
+        sysUserService.syncToUserAdd(syncToUserAddParam);
+        return CommonResult.ok();
+    }
 }

@@ -480,4 +480,12 @@ public interface SysUserService extends IService<SysUser> {
     List<SysRole> getRoleListByIdList(SysUserIdListParam sysUserIdListParam);
 
     List<Map<String,String>> getAllUsers();
+
+    /**
+     * 分公司员工同步至组织架构，添加用户
+     *
+     * @author yong.ye
+     * @date 2023/7/13 20:48
+     */
+    void syncToUserAdd(SyncToUserAddParam syncToUserAddParam);
 }

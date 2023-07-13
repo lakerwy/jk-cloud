@@ -80,4 +80,7 @@ public class FpinformationsPageParam {
     @ApiModelProperty(value = "身份证号（历史表FPInformations.IDNumber）")
     private String idNumber;
 
+    /** 是否已开通 1:开通  0:关闭 */
+    @ApiModelProperty(value = "是否已开通 1:开通  0:关闭")
+    private String isSync;
 }

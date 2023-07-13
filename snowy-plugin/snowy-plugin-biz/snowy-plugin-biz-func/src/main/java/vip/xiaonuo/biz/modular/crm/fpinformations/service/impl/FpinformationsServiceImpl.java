@@ -87,6 +87,9 @@ public class FpinformationsServiceImpl extends ServiceImpl<FpinformationsMapper,
         if(ObjectUtil.isNotEmpty(fpinformationsPageParam.getIdNumber())) {
             queryWrapper.lambda().like(Fpinformations::getIdNumber, fpinformationsPageParam.getIdNumber());
         }
+        if(ObjectUtil.isNotEmpty(fpinformationsPageParam.getIsSync())) {
+            queryWrapper.lambda().eq(Fpinformations::getIsSync, fpinformationsPageParam.getIsSync());
+        }
         if(ObjectUtil.isAllNotEmpty(fpinformationsPageParam.getSortField(), fpinformationsPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(fpinformationsPageParam.getSortOrder());
             queryWrapper.orderBy(true, fpinformationsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

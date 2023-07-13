@@ -102,6 +102,46 @@ public class CommonUtils {
         return "";
     }
 
+    /**
+     * 执行SQL
+     *
+     * @author xuyuxiang
+     * @date 2022/6/16 10:24
+     **/
+    public static void handleSqlExecution(String sql,String type) {
+        if(ObjectUtil.isNotEmpty(sql)) {
+            Connection conn;
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            try {
+                if(StrUtil.isNotBlank(type)){
+                    dbsApi.changeDataSource(type);
+                }
+                conn = dbsApi.getCurrentDataSource().getConnection();
+            } catch (SQLException e) {
+                throw new CommonException(e.getMessage());
+            }
+            try {
+                conn.setAutoCommit(false);
+
+                StrUtil.split(sql.trim(), ";").forEach(sqlItem -> {
+                    if(ObjectUtil.isNotEmpty(sqlItem)) {
+                        try {
+                            SqlExecutor.execute(conn, sqlItem);
+                        } catch (SQLException e) {
+                            throw new CommonException(e.getMessage());
+                        }
+                    }
+                });
+                conn.commit();
+            } catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            } finally {
+                DbUtil.close(conn);
+                dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME);
+            }
+        }
+    }
+
     public final static String MAJOR_TYPE = "MAJOR_";
 
     public final static String MAJOR_TYPE_USER = "MAJOR_USER_";

@@ -165,4 +165,7 @@ public class FpinformationsEditParam {
     @ApiModelProperty(value = "职业资格证/注册证-附件（历史表FPInformations.Attachments2）", position = 32)
     private String attachments2;
 
+    /** 是否已开通 1:开通  0:关闭 */
+    @ApiModelProperty(value = "是否已开通 1:开通  0:关闭", position = 38)
+    private String isSync;
 }

@@ -184,4 +184,8 @@ public class Fpinformations {
     @ApiModelProperty(value = "更新人", position = 37)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 是否已开通 1:开通  0:关闭 */
+    @ApiModelProperty(value = "是否已开通 1:开通  0:关闭", position = 38)
+    private String isSync;
 }
