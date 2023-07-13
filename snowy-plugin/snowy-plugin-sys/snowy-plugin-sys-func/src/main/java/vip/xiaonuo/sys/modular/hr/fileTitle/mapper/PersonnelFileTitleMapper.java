@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.hr.fileTitle.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Delete;
 import vip.xiaonuo.sys.modular.hr.fileTitle.entity.PersonnelFileTitle;
 
 /**
@@ -22,4 +23,7 @@ import vip.xiaonuo.sys.modular.hr.fileTitle.entity.PersonnelFileTitle;
  * @date  2023/07/10 16:57
  **/
 public interface PersonnelFileTitleMapper extends BaseMapper<PersonnelFileTitle> {
+
+    @Delete("DELETE FROM PERSONNEL_FILE_TITLE WHERE FILE_ID=#{fileId}")
+    public void deleteByFileId(String fileId);
 }

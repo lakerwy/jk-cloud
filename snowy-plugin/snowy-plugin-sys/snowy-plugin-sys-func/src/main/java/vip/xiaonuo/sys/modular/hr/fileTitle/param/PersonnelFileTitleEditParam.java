@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.sys.modular.hr.fileTitle.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
@@ -60,6 +62,8 @@ public class PersonnelFileTitleEditParam {
 
     /** 发证日期 */
     @ApiModelProperty(value = "发证日期", position = 8)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date certificateDate;
 
     /** 备注 */

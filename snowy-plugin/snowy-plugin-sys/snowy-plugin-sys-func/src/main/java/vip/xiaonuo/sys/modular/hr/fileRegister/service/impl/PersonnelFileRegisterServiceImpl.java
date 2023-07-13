@@ -91,4 +91,18 @@ public class PersonnelFileRegisterServiceImpl extends ServiceImpl<PersonnelFileR
         }
         return personnelFileRegister;
     }
+
+    @Override
+    public void deleteByFileId(String fileId){
+//        LambdaQueryWrapper<PersonnelFileRegister> queryWrapper = new LambdaQueryWrapper<>();
+//        queryWrapper.eq(PersonnelFileRegister::getFileId,fileId);
+        baseMapper.deleteByFileId(fileId);
+    }
+
+    @Override
+    public void deleteNewFileId(List<String> ids) {
+        QueryWrapper<PersonnelFileRegister> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(PersonnelFileRegister::getFileId,ids);
+        baseMapper.delete(queryWrapper);
+    }
 }

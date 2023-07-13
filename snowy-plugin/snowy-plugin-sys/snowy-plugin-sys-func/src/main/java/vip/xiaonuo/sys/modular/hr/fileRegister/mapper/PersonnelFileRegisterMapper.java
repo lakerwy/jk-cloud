@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.hr.fileRegister.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Delete;
 import vip.xiaonuo.sys.modular.hr.fileRegister.entity.PersonnelFileRegister;
 
 /**
@@ -22,4 +23,7 @@ import vip.xiaonuo.sys.modular.hr.fileRegister.entity.PersonnelFileRegister;
  * @date  2023/07/12 10:55
  **/
 public interface PersonnelFileRegisterMapper extends BaseMapper<PersonnelFileRegister> {
+
+    @Delete("DELETE FROM PERSONNEL_FILE_REGISTER WHERE FILE_ID=#{fileId}")
+    public void deleteByFileId(String fileId);
 }

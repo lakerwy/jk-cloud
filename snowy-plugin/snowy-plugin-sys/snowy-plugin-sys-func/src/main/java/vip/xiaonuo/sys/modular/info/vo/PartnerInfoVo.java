@@ -157,4 +157,7 @@ public class PartnerInfoVo{
     /** 主要联系人 */
     @ApiModelProperty(value = "组织id", position = 38)
     private String orgId;
+
+    @ApiModelProperty(value = "伙伴编号",position = 39)
+    private String sn;
 }

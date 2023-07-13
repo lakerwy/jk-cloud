@@ -13,9 +13,11 @@
 package vip.xiaonuo.sys.modular.hr.fileCert.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -61,6 +63,8 @@ public class PersonnelFileCert {
 
     /** 有效期至 */
     @ApiModelProperty(value = "有效期至", position = 8)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date invalidDate;
 
     /** 附件 */

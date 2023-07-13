@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.sys.modular.hr.personnel.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.sys.modular.hr.fileCert.param.PersonnelFileCertAddParam;
 import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesAddParam;
 import vip.xiaonuo.sys.modular.hr.fileRegister.param.PersonnelFileRegisterAddParam;
@@ -74,6 +76,8 @@ public class PersonnelAddParam {
 
     /** 出生日期 */
     @ApiModelProperty(value = "出生日期", position = 11)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birth;
 
     /** 年龄 */
@@ -146,6 +150,8 @@ public class PersonnelAddParam {
 
     /** 入职时间 */
     @ApiModelProperty(value = "入职时间", position = 29)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date hireDate;
 
     /** 用工性质 */
@@ -154,6 +160,8 @@ public class PersonnelAddParam {
 
     /** 司龄起算日 */
     @ApiModelProperty(value = "司龄起算日", position = 31)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
     /** 入职司龄(自动算) */
@@ -166,6 +174,8 @@ public class PersonnelAddParam {
 
     /** 转正时间 */
     @ApiModelProperty(value = "转正时间", position = 34)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date positiveTime;
 
     /** 合同续签次数（自动算） */
@@ -205,6 +215,30 @@ public class PersonnelAddParam {
     private String extJson;
 
     /**
+     * 第一学历
+     */
+    @ApiModelProperty(value = "第一学历", position = 49)
+    private String firstDegree;
+
+    /**
+     * 学历类型
+     */
+    @ApiModelProperty(value = "第一学历学历类型", position = 50)
+    private String firstDegreeClass;
+
+    /**
+     * 毕业时间
+     */
+    @ApiModelProperty(value = "第一学历毕业时间", position = 51)
+    private String firstGraduateDate;
+
+    /**
+     * 毕业院校
+     */
+    @ApiModelProperty(value = "第一学历毕业院校", position = 51)
+    private String firstGraduateSchool;
+
+    /**
      * 第一学历专业
      */
     @ApiModelProperty(value = "第一学历专业", position = 52)
@@ -213,7 +247,7 @@ public class PersonnelAddParam {
     /**
      * 备注
      */
-    @ApiModelProperty(value = "备注", position = 53)
+    @ApiModelProperty(value = "第一学历备注", position = 53)
     private String firstNote;
 
     /**
@@ -249,7 +283,7 @@ public class PersonnelAddParam {
     /**
      * 备注
      */
-    @ApiModelProperty(value = "备注", position = 59)
+    @ApiModelProperty(value = "第二学历备注", position = 59)
     private String secondNote;
 
     /**
@@ -281,6 +315,13 @@ public class PersonnelAddParam {
      */
     @ApiModelProperty(value = "第三学历专业", position = 64)
     private String thirdMajor;
+
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "第三学历备注", position = 65)
+    private String thirdNote;
+
 
     @ApiModelProperty(value = "证书信息列表", position = 72)
     private List<PersonnelFileCertAddParam> personnelFileCertList;

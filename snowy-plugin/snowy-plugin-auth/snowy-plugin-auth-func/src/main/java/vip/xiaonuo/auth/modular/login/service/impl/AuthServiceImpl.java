@@ -49,7 +49,9 @@ import vip.xiaonuo.dev.api.DevSmsApi;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
@@ -433,7 +435,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String cadDoLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
+    public Map<String,String> cadDoLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
         // 获取账号
         String account = authAccountPasswordLoginParam.getAccount();
         // 获取密码
@@ -483,6 +485,11 @@ public class AuthServiceImpl implements AuthService {
             throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
         }
         // 执行B端登录
-        return execLoginB(saBaseLoginUser, device);
+        execLoginB(saBaseLoginUser, device);
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        Map<String, String> result = new HashMap<>();
+        result.put("account",loginUser.getAccount());
+        result.put("name",loginUser.getName());
+        return result;
     }
 }

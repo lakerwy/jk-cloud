@@ -12,8 +12,16 @@
  */
 package vip.xiaonuo.sys.modular.hr.fileMoves.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
+import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
 
 /**
  * 业务表-人员异动主表Mapper接口
@@ -22,4 +30,10 @@ import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
  * @date  2023/07/10 16:56
  **/
 public interface PersonnelFileMovesMapper extends BaseMapper<PersonnelFileMoves> {
+
+    @Delete("DELETE FROM PERSONNEL_FILE_MOVES WHERE FILE_ID=#{fileId}")
+    public void deleteByFileId(String fileId);
+    Page<PersonnelFileMovesVo> pageList(Page<PersonnelFileMovesVo> page, @Param(Constants.WRAPPER) Wrapper<PersonnelFileMovesVo> queryWrapper);
+
+    PersonnelFileMovesVo getInfoById(String id);
 }

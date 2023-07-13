@@ -1,8 +1,10 @@
 package vip.xiaonuo.sys.modular.hr.personnel.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -36,10 +38,14 @@ public class PersonnelListVo {
 
     /** 入职时间 */
     @ApiModelProperty(value = "入职时间", position = 29)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date hireDate;
 
     /** 转正时间 */
     @ApiModelProperty(value = "转正时间", position = 34)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date positiveTime;
 
     /** 职位 */

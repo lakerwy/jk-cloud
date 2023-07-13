@@ -19,6 +19,8 @@ import vip.xiaonuo.auth.modular.login.param.AuthGetPhoneValidCodeParam;
 import vip.xiaonuo.auth.modular.login.param.AuthPhoneValidCodeLoginParam;
 import vip.xiaonuo.auth.modular.login.result.AuthPicValidCodeResult;
 
+import java.util.Map;
+
 /**
  * 登录Service接口
  *
@@ -83,5 +85,5 @@ public interface AuthService {
      */
     String doLoginById(String userId, String device, String type);
 
-    String cadDoLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam);
+    Map<String,String> cadDoLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam);
 }

@@ -77,4 +77,8 @@ public interface PersonnelFileTitleService extends IService<PersonnelFileTitle> 
      * @date  2023/07/10 16:57
      **/
     PersonnelFileTitle queryEntity(String id);
+
+    void deleteByFileId(String id);
+
+    void deleteNewFileId(List<String> ids);
 }

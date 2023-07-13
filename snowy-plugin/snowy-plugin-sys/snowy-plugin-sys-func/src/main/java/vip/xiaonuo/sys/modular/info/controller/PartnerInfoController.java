@@ -28,10 +28,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoAddParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoEditParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoIdParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoPageParam;
+import vip.xiaonuo.sys.modular.info.param.*;
 import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
 import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 
@@ -132,10 +129,23 @@ public class PartnerInfoController {
      * @author mayike
      * @date  2023/06/26 14:04
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("获取合作伙伴-分页")
     @GetMapping("/sys/info/listPage")
     public CommonResult<IPage<PartnerInfoVo>> listPage(@Valid PartnerInfoPageParam partnerInfoPageParam) {
         return CommonResult.data(partnerInfoService.pageList(partnerInfoPageParam));
+    }
+
+    /**
+     * 获取合作伙伴-基本信息详情
+     *
+     * @author mayike
+     * @date  2023/06/26 14:04
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取合作伙伴-根据组织ID基本信息详情")
+    @GetMapping("/sys/info/detailByOrgId")
+    public CommonResult<PartnerInfoVo> detailByOrgId(@Valid PartnerInfoOrgIdParam partnerInfoOrgIdParam) {
+        return CommonResult.data(partnerInfoService.getInfoByOrgId(partnerInfoOrgIdParam));
     }
 }

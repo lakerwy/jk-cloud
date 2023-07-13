@@ -3,9 +3,11 @@ package vip.xiaonuo.sys.modular.hr.personnel.vo;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
 import vip.xiaonuo.sys.modular.hr.fileRegister.entity.PersonnelFileRegister;
 import vip.xiaonuo.sys.modular.hr.fileTitle.entity.PersonnelFileTitle;
@@ -30,6 +32,8 @@ public class PersonnelVo extends PersonnelListVo{
 
     /** 出生日期 */
     @ApiModelProperty(value = "出生日期", position = 11)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birth;
 
     /** 年龄 */
@@ -106,6 +110,8 @@ public class PersonnelVo extends PersonnelListVo{
 
     /** 司龄起算日 */
     @ApiModelProperty(value = "司龄起算日", position = 31)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
 
@@ -186,19 +192,19 @@ public class PersonnelVo extends PersonnelListVo{
     /**
      * 学历类型
      */
-    @ApiModelProperty(value = "学历类型", position = 50)
+    @ApiModelProperty(value = "第一学历学历类型", position = 50)
     private String firstDegreeClass;
 
     /**
      * 毕业时间
      */
-    @ApiModelProperty(value = "毕业时间", position = 51)
+    @ApiModelProperty(value = "第一学历毕业时间", position = 51)
     private String firstGraduateDate;
 
     /**
      * 毕业院校
      */
-    @ApiModelProperty(value = "毕业院校", position = 51)
+    @ApiModelProperty(value = "第一学历毕业院校", position = 51)
     private String firstGraduateSchool;
 
     /**
@@ -210,7 +216,7 @@ public class PersonnelVo extends PersonnelListVo{
     /**
      * 备注
      */
-    @ApiModelProperty(value = "备注", position = 53)
+    @ApiModelProperty(value = "第一学历备注", position = 53)
     private String firstNote;
 
     /**
@@ -246,7 +252,7 @@ public class PersonnelVo extends PersonnelListVo{
     /**
      * 备注
      */
-    @ApiModelProperty(value = "备注", position = 59)
+    @ApiModelProperty(value = "第二学历备注", position = 59)
     private String secondNote;
 
     /**
@@ -282,7 +288,7 @@ public class PersonnelVo extends PersonnelListVo{
     /**
      * 备注
      */
-    @ApiModelProperty(value = "备注", position = 65)
+    @ApiModelProperty(value = "第三学历备注", position = 65)
     private String thirdNote;
 
     /** 租户id */

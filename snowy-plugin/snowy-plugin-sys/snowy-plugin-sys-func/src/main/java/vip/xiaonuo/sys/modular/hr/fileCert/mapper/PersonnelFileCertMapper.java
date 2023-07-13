@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.hr.fileCert.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Delete;
 import vip.xiaonuo.sys.modular.hr.fileCert.entity.PersonnelFileCert;
 
 /**
@@ -22,4 +23,7 @@ import vip.xiaonuo.sys.modular.hr.fileCert.entity.PersonnelFileCert;
  * @date  2023/07/10 16:53
  **/
 public interface PersonnelFileCertMapper extends BaseMapper<PersonnelFileCert> {
+
+    @Delete("DELETE FROM PERSONNEL_FILE_CERT WHERE FILE_ID=#{fileId}")
+    public void deleteByFileId(String fileId);
 }

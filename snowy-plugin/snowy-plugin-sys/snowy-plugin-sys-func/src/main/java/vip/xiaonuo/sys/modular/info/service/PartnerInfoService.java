@@ -16,10 +16,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoAddParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoEditParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoIdParam;
-import vip.xiaonuo.sys.modular.info.param.PartnerInfoPageParam;
+import vip.xiaonuo.sys.modular.info.param.*;
 import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 
 import java.util.List;
@@ -83,4 +80,6 @@ public interface PartnerInfoService extends IService<PartnerInfo> {
     PartnerInfoVo getInfoById(PartnerInfoIdParam partnerInfoIdParam);
 
     IPage<PartnerInfoVo> pageList(PartnerInfoPageParam partnerInfoPageParam);
+
+    PartnerInfoVo getInfoByOrgId(PartnerInfoOrgIdParam partnerInfoOrgIdParam);
 }

@@ -77,4 +77,8 @@ public interface PersonnelFileRegisterService extends IService<PersonnelFileRegi
      * @date  2023/07/12 10:55
      **/
     PersonnelFileRegister queryEntity(String id);
+
+    void deleteByFileId(String fileId);
+
+    void deleteNewFileId(List<String> ids);
 }

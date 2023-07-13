@@ -31,6 +31,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesAddParam;
 import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesEditParam;
 import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesPageParam;
+import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -61,8 +62,8 @@ public class PersonnelFileMovesController {
     @ApiOperation("获取业务表-人员异动主表分页")
 //    @SaCheckPermission("/biz/filemoves/page")
     @GetMapping("/sys/fileMoves/page")
-    public CommonResult<Page<PersonnelFileMoves>> page(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
-        return CommonResult.data(personnelFileMovesService.page(personnelFileMovesPageParam));
+    public CommonResult<Page<PersonnelFileMovesVo>> page(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
+        return CommonResult.data(personnelFileMovesService.pageList(personnelFileMovesPageParam));
     }
 
     /**

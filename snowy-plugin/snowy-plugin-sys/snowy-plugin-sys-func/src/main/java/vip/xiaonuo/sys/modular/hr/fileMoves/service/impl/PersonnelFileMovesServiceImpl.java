@@ -16,7 +16,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -32,6 +31,7 @@ import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesPageParam;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
 
 import java.util.List;
 
@@ -81,7 +81,8 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
 
     @Override
     public PersonnelFileMoves detail(PersonnelFileMovesIdParam personnelFileMovesIdParam) {
-        return this.queryEntity(personnelFileMovesIdParam.getId());
+//        return this.queryEntity(personnelFileMovesIdParam.getId());
+        return baseMapper.selectById(personnelFileMovesIdParam.getId());
     }
 
     @Override
@@ -91,5 +92,30 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
             throw new CommonException("业务表-人员异动主表不存在，id值为：{}", id);
         }
         return personnelFileMoves;
+    }
+
+    @Override
+    public void deleteByFileId(String fileId) {
+        baseMapper.deleteByFileId(fileId);
+    }
+
+    @Override
+    public void deleteNewFileId(List<String> ids) {
+        QueryWrapper<PersonnelFileMoves> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(PersonnelFileMoves::getFileId,ids);
+        baseMapper.delete(queryWrapper);
+    }
+
+    @Override
+    public Page<PersonnelFileMovesVo> pageList(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
+        QueryWrapper<PersonnelFileMovesVo> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isAllNotEmpty(personnelFileMovesPageParam.getSortField(), personnelFileMovesPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(personnelFileMovesPageParam.getSortOrder());
+            queryWrapper.orderBy(true, personnelFileMovesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(personnelFileMovesPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(PersonnelFileMovesVo::getSn);
+        }
+        return baseMapper.pageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }

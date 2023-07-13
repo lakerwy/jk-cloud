@@ -34,6 +34,7 @@ import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.Map;
 
 /**
  * B端登录控制器
@@ -141,7 +142,7 @@ public class AuthController {
     @ApiOperationSupport(order = 7)
     @ApiOperation("CAD端账号密码登录")
     @PostMapping("/auth/b/cadDoLogin")
-    public CommonResult<String> cadDoLogin(@RequestBody @Valid AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
+    public CommonResult<Map<String,String>> cadDoLogin(@RequestBody @Valid AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
         return CommonResult.data(authService.cadDoLogin(authAccountPasswordLoginParam));
     }
 }

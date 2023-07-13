@@ -16,7 +16,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -91,5 +90,17 @@ public class PersonnelFileTitleServiceImpl extends ServiceImpl<PersonnelFileTitl
             throw new CommonException("业务表-职称信息不存在，id值为：{}", id);
         }
         return personnelFileTitle;
+    }
+
+    @Override
+    public void deleteByFileId(String fileId) {
+        baseMapper.deleteByFileId(fileId);
+    }
+
+    @Override
+    public void deleteNewFileId(List<String> ids) {
+        QueryWrapper<PersonnelFileTitle> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(PersonnelFileTitle::getFileId,ids);
+        baseMapper.delete(queryWrapper);
     }
 }

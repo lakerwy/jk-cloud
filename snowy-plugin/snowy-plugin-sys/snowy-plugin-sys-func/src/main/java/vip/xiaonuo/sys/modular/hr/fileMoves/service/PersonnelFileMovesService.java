@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesAddParam;
 import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesEditParam;
 import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesIdParam;
 import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesPageParam;
+import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
 
 import java.util.List;
 
@@ -77,4 +78,10 @@ public interface PersonnelFileMovesService extends IService<PersonnelFileMoves> 
      * @date  2023/07/10 16:56
      **/
     PersonnelFileMoves queryEntity(String id);
+
+    void deleteByFileId(String id);
+
+    void deleteNewFileId(List<String> ids);
+
+    public Page<PersonnelFileMovesVo> pageList(PersonnelFileMovesPageParam personnelFileMovesPageParam);
 }

@@ -8,6 +8,7 @@
         <result column="PARENT_ID" jdbcType="VARCHAR" property="parentId" />
         <result column="DIRECTOR_ID" jdbcType="VARCHAR" property="directorId" />
         <result column="NAME" jdbcType="VARCHAR" property="name" />
+        <result column="SN" jdbcType="VARCHAR" property="sn" />
         <result column="CODE" jdbcType="VARCHAR" property="code" />
         <result column="CATEGORY" jdbcType="VARCHAR" property="category" />
         <result column="SORT_CODE" jdbcType="VARCHAR" property="sortCode" />
@@ -38,7 +39,7 @@
     </resultMap>
     
     <select id="infoById" resultMap="BaseResultMap" parameterType="String">
-        SELECT pi.*,so.PARENT_ID,so.DIRECTOR_ID,so.NAME,so.CODE,so.CATEGORY
+        SELECT pi.*,so.PARENT_ID,so.DIRECTOR_ID,so.CODE,so.CATEGORY
         FROM PARTNER_INFO pi LEFT JOIN SYS_ORG so ON  pi.ORG_ID = so.ID
         where pi.DELETE_FLAG = 'NOT_DELETE'
                    /*and pi.DELETE_FLAG = 'NOT_DELETE'*/
@@ -58,7 +59,7 @@
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo" >
-        select pi.*,so.PARENT_ID,so.DIRECTOR_ID,so.NAME,so.CODE,so.CATEGORY
+        select pi.*,so.PARENT_ID,so.DIRECTOR_ID,so.CODE,so.CATEGORY
         FROM  PARTNER_INFO pi LEFT JOIN SYS_ORG so ON  pi.ORG_ID = so.ID  ${ew.customSqlSegment}
     </select>
 </mapper>

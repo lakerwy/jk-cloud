@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -281,5 +282,26 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
             queryWrapper.orderByDesc("pi.SN");
         }
         return partnerInfoMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public PartnerInfoVo getInfoByOrgId(PartnerInfoOrgIdParam partnerInfoOrgIdParam) {
+       // PartnerInfo partnerInfo = this.queryEntity(partnerInfoIdParam.getId());
+        QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(PartnerInfo::getOrgId, partnerInfoOrgIdParam.getOrgId());
+        PartnerInfo partnerInfo = getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(partnerInfo)) {
+            PartnerInfoVo vo = BeanUtil.toBean(partnerInfo, PartnerInfoVo.class);
+            Map<String, Object> queryMap = new HashMap<>();
+            queryMap.put("INFO_ID", partnerInfo.getOrgId());
+            List<PartnerFee> partnerFees = partnerFeeService.listByMap(queryMap);
+            List<PartnerRecord> partnerRecords = partnerRecordService.listByMap(queryMap);
+            List<PartnerPayment> partnerPayments = partnerPaymentService.listByMap(queryMap);
+            vo.setPartnerFees(partnerFees);
+            vo.setPartnerRecords(partnerRecords);
+            vo.setPartnerPayments(partnerPayments);
+            return vo;
+        }
+        return null;
     }
 }

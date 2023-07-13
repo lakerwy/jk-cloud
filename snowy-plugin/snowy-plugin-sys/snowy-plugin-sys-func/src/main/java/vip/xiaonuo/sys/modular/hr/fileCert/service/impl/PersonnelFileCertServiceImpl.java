@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -32,6 +33,7 @@ import vip.xiaonuo.sys.modular.hr.fileCert.entity.PersonnelFileCert;
 import vip.xiaonuo.sys.modular.hr.fileCert.mapper.PersonnelFileCertMapper;
 import vip.xiaonuo.sys.modular.hr.fileCert.param.PersonnelFileCertEditParam;
 import vip.xiaonuo.sys.modular.hr.fileCert.param.PersonnelFileCertPageParam;
+import vip.xiaonuo.sys.modular.hr.fileTitle.entity.PersonnelFileTitle;
 
 import java.util.List;
 
@@ -91,5 +93,17 @@ public class PersonnelFileCertServiceImpl extends ServiceImpl<PersonnelFileCertM
             throw new CommonException("业务表-证书信息不存在，id值为：{}", id);
         }
         return personnelFileCert;
+    }
+
+    @Override
+    public void deleteByFileId(String fileId) {
+        baseMapper.deleteByFileId(fileId);
+    }
+
+    @Override
+    public void deleteNewFileId(List<String> ids) {
+        QueryWrapper<PersonnelFileCert> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(PersonnelFileCert::getFileId,ids);
+        baseMapper.delete(queryWrapper);
     }
 }

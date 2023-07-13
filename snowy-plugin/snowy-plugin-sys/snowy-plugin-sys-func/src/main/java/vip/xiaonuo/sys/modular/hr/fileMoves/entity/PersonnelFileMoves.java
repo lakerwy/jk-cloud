@@ -13,9 +13,11 @@
 package vip.xiaonuo.sys.modular.hr.fileMoves.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -41,6 +43,8 @@ public class PersonnelFileMoves {
 
     /** 经办日期 */
     @ApiModelProperty(value = "经办日期", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date optDate;
 
     /** 经办人 */
@@ -97,6 +101,8 @@ public class PersonnelFileMoves {
 
     /** 离职时间 */
     @ApiModelProperty(value = "离职时间", position = 17)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date livetime;
 
     /** 现部门 */

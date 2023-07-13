@@ -77,4 +77,8 @@ public interface PersonnelFileCertService extends IService<PersonnelFileCert> {
      * @date  2023/07/10 16:53
      **/
     PersonnelFileCert queryEntity(String id);
+
+    void deleteByFileId(String id);
+
+    void deleteNewFileId(List<String> ids);
 }

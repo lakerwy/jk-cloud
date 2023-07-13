@@ -13,9 +13,12 @@
 package vip.xiaonuo.sys.modular.hr.personnel.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -153,6 +156,8 @@ public class Personnel {
 
     /** 司龄起算日 */
     @ApiModelProperty(value = "司龄起算日", position = 31)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startDate;
 
     /** 入职司龄(自动算) */
@@ -165,6 +170,8 @@ public class Personnel {
 
     /** 转正时间 */
     @ApiModelProperty(value = "转正时间", position = 34)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date positiveTime;
 
     /** 合同续签次数（自动算） */
@@ -234,6 +241,30 @@ public class Personnel {
     private String tenantId;
 
     /**
+     * 第一学历
+     */
+    @ApiModelProperty(value = "第一学历", position = 49)
+    private String firstDegree;
+
+    /**
+     * 学历类型
+     */
+    @ApiModelProperty(value = "第一学历学历类型", position = 50)
+    private String firstDegreeClass;
+
+    /**
+     * 毕业时间
+     */
+    @ApiModelProperty(value = "第一学历毕业时间", position = 51)
+    private String firstGraduateDate;
+
+    /**
+     * 毕业院校
+     */
+    @ApiModelProperty(value = "第一学历毕业院校", position = 51)
+    private String firstGraduateSchool;
+
+    /**
      * 第一学历专业
      */
     @ApiModelProperty(value = "第一学历专业", position = 52)
@@ -242,7 +273,7 @@ public class Personnel {
     /**
      * 备注
      */
-    @ApiModelProperty(value = "备注", position = 53)
+    @ApiModelProperty(value = "第一学历备注", position = 53)
     private String firstNote;
 
     /**
@@ -278,7 +309,7 @@ public class Personnel {
     /**
      * 备注
      */
-    @ApiModelProperty(value = "备注", position = 59)
+    @ApiModelProperty(value = "第二学历备注", position = 59)
     private String secondNote;
 
     /**
@@ -310,4 +341,10 @@ public class Personnel {
      */
     @ApiModelProperty(value = "第三学历专业", position = 64)
     private String thirdMajor;
+
+    /**
+     * 备注
+     */
+    @ApiModelProperty(value = "第三学历备注", position = 65)
+    private String thirdNote;
 }

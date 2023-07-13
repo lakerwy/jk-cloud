@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.sys.modular.hr.fileMoves.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -34,6 +36,8 @@ public class PersonnelFileMovesAddParam {
 
     /** 经办日期 */
     @ApiModelProperty(value = "经办日期", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date optDate;
 
     /** 经办人 */
@@ -66,6 +70,8 @@ public class PersonnelFileMovesAddParam {
 
     /** 转正时间 */
     @ApiModelProperty(value = "转正时间", position = 11)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date positiveTime;
 
     /** 现部门ID */
@@ -90,6 +96,8 @@ public class PersonnelFileMovesAddParam {
 
     /** 离职时间 */
     @ApiModelProperty(value = "离职时间", position = 17)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date livetime;
 
     /** 现部门 */
