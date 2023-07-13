@@ -88,4 +88,8 @@ public class ArticleInfoVo {
     /** 是否有权限 */
     @ApiModelProperty(value = "是否有权限", position = 16)
     private Integer isAuth;
+
+    /** 是否上架，0: 未上架 1: 已上架 */
+    @ApiModelProperty(value = "是否上架，0: 未上架 1: 已上架", position = 17)
+    private Integer isShelf;
 }
