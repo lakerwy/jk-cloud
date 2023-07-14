@@ -17,8 +17,13 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelStatsParam;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
+
+import java.util.List;
+import java.util.Map;
 
 /**
  * 业务表-人事档案Mapper接口
@@ -28,4 +33,6 @@ import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
  **/
 public interface PersonnelMapper extends BaseMapper<Personnel> {
     Page<PersonnelListVo> getPageList(Page<PersonnelListVo> page, @Param(Constants.WRAPPER) Wrapper<PersonnelListVo> queryWrapper);
+
+    List<PersonnelStatsVo> getStatsResult(@Param("param") PersonnelStatsParam param);
 }

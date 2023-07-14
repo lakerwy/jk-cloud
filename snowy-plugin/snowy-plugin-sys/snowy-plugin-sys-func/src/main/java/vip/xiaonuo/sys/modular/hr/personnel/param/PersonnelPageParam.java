@@ -65,4 +65,7 @@ public class PersonnelPageParam {
     /** 入职时间结束 */
     @ApiModelProperty(value = "入职时间结束")
     private String endHireDate;
+
+    @ApiModelProperty(value = "状态")
+    private String status;
 }

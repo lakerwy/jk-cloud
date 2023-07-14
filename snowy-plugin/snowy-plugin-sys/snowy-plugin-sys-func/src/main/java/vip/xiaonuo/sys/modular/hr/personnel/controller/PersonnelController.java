@@ -22,21 +22,21 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.sys.modular.hr.personnel.param.*;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
-import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelAddParam;
-import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelEditParam;
-import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelIdParam;
-import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelPageParam;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 业务表-人事档案控制器
@@ -142,5 +142,14 @@ public class PersonnelController {
     @GetMapping("/sys/personnel/pageList")
     public CommonResult<Page<PersonnelListVo>> pageList(PersonnelPageParam personnelPageParam) {
         return CommonResult.data(personnelService.pageList(personnelPageParam));
+    }
+
+
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取业务表-人事月报统计")
+//    @SaCheckPermission("/biz/personnel/page")
+    @GetMapping("/sys/personnel/getStatsResult")
+    public CommonResult<List<PersonnelStatsVo>> getStatsResult(PersonnelStatsParam param) {
+        return CommonResult.data(personnelService.getStatsResult(param));
     }
 }

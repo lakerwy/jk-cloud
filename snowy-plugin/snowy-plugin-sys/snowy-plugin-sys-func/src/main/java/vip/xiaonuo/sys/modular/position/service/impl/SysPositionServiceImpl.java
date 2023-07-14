@@ -217,4 +217,23 @@ public class SysPositionServiceImpl extends ServiceImpl<SysPositionMapper, SysPo
         lambdaQueryWrapper.orderByAsc(SysPosition::getSortCode);
         return this.list(lambdaQueryWrapper);
     }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public SysPosition newAdd(SysPositionAddParam sysPositionAddParam) {
+        SysPositionCategoryEnum.validate(sysPositionAddParam.getCategory());
+        SysPosition sysPosition = BeanUtil.toBean(sysPositionAddParam, SysPosition.class);
+        boolean repeatName = this.count(new LambdaQueryWrapper<SysPosition>().eq(SysPosition::getOrgId, sysPosition.getOrgId())
+                .eq(SysPosition::getName, sysPosition.getName())) > 0;
+        if(repeatName) {
+            return this.getOne(new LambdaQueryWrapper<SysPosition>().eq(SysPosition::getOrgId, sysPosition.getOrgId()).eq(SysPosition::getName, sysPosition.getName()));
+            //throw new CommonException("同组织下存在重复的职位，名称为：{}", sysPosition.getName());
+        }
+        sysPosition.setCode(RandomUtil.randomString(10));
+        this.save(sysPosition);
+
+        // 发布增加事件
+        CommonDataChangeEventCenter.doAddWithData(SysDataTypeEnum.POSITION.getValue(), JSONUtil.createArray().put(sysPosition));
+        return sysPosition;
+    }
 }

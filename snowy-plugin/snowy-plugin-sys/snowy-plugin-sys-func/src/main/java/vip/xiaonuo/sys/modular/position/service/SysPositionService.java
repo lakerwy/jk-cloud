@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.position.service;
 import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.sys.modular.position.entity.SysPosition;
 import vip.xiaonuo.sys.modular.position.param.*;
 
@@ -36,12 +37,7 @@ public interface SysPositionService extends IService<SysPosition> {
      */
     Page<SysPosition> page(SysPositionPageParam sysPositionPageParam);
 
-    /**
-     * 添加职位
-     *
-     * @author xuyuxiang
-     * @date 2022/4/24 20:48
-     */
+    @Transactional(rollbackFor = Exception.class)
     void add(SysPositionAddParam sysPositionAddParam);
 
     /**
@@ -109,4 +105,7 @@ public interface SysPositionService extends IService<SysPosition> {
      * @date 2022/4/24 20:08
      */
     List<SysPosition> positionSelector(SysPositionSelectorPositionParam sysPositionSelectorPositionParam);
+
+    @Transactional(rollbackFor = Exception.class)
+    SysPosition newAdd(SysPositionAddParam sysPositionAddParam);
 }

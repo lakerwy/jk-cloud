@@ -15,48 +15,42 @@ package vip.xiaonuo.sys.modular.hr.personnel.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.BetweenFormatter;
-import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.sys.modular.hr.fileCert.entity.PersonnelFileCert;
-import vip.xiaonuo.sys.modular.hr.fileCert.param.PersonnelFileCertAddParam;
-import vip.xiaonuo.sys.modular.hr.fileCert.param.PersonnelFileCertEditParam;
 import vip.xiaonuo.sys.modular.hr.fileCert.service.PersonnelFileCertService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
-import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesAddParam;
 import vip.xiaonuo.sys.modular.hr.fileMoves.service.PersonnelFileMovesService;
 import vip.xiaonuo.sys.modular.hr.fileRegister.entity.PersonnelFileRegister;
 import vip.xiaonuo.sys.modular.hr.fileRegister.service.PersonnelFileRegisterService;
 import vip.xiaonuo.sys.modular.hr.fileTitle.entity.PersonnelFileTitle;
 import vip.xiaonuo.sys.modular.hr.fileTitle.service.PersonnelFileTitleService;
+import vip.xiaonuo.sys.modular.hr.personnel.param.*;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
 import vip.xiaonuo.sys.modular.hr.personnel.mapper.PersonnelMapper;
-import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelAddParam;
-import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelEditParam;
-import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelIdParam;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
-import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelPageParam;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
-import vip.xiaonuo.sys.modular.info.entity.PartnerFee;
+import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
+import vip.xiaonuo.sys.modular.position.service.SysPositionService;
+import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * 业务表-人事档案Service接口实现类
@@ -82,6 +76,12 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     @Resource
     private PersonnelFileRegisterService personnelFileRegisterService;
 
+    @Resource
+    private SysUserService sysUserService;
+
+    @Resource
+    private SysPositionService sysPositionService;
+
     @Override
     public Page<Personnel> page(PersonnelPageParam personnelPageParam) {
         QueryWrapper<Personnel> queryWrapper = new QueryWrapper<>();
@@ -106,8 +106,17 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         //异动信息
         //职称信息
         //证书信息
+        //新增岗位
+        SysPositionAddParam positionAddParam = new SysPositionAddParam();
+        positionAddParam.setName(personnelAddParam.getDuty());
+        positionAddParam.setOrgId(personnelAddParam.getDeptId());
+        positionAddParam.setCategory("LOW");
+        positionAddParam.setSortCode(99);
+        String dutyId = sysPositionService.newAdd(positionAddParam).getId();
+
         Personnel personnel = BeanUtil.toBean(personnelAddParam, Personnel.class);
-        personnel.setStatus("1");
+        personnel.setDutyId(dutyId);
+        personnel.setStatus("0");
         //按照入职时间获取最后一条
         Long max = Long.parseLong(Objects.requireNonNull(list().stream().map(Personnel::getFileNo).max(Comparator.naturalOrder()).orElse("600000")))+1;
         personnel.setFileNo(String.valueOf(max));
@@ -132,6 +141,16 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             collect.forEach(personnelFileRegister -> personnelFileRegister.setFileId(personnel.getId()));
             personnelFileRegisterService.saveBatch(collect);
         }
+
+        SysUserAddParam sysUserAddParam = new SysUserAddParam();
+        sysUserAddParam.setAccount(personnelAddParam.getPhone());
+        sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
+        sysUserAddParam.setName(personnelAddParam.getName());
+        sysUserAddParam.setPhone(personnelAddParam.getPhone());
+        sysUserAddParam.setPositionId(personnel.getDutyId());
+        sysUserAddParam.setEmpNo(personnel.getFileNo());
+        sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+        sysUserService.add(sysUserAddParam);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -188,11 +207,14 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         }
         if (ObjectUtil.isNotEmpty(personnelVo.getPositiveTime())) {
             //转正司龄
-            personnelVo.setPositiveAge(dayComparePrecise(new Date(), personnelVo.getPositiveTime()));
+            if(!personnelVo.getPositiveTime().after(new Date())){
+                personnelVo.setPositiveAge(dayComparePrecise(new Date(), personnelVo.getPositiveTime()));
+            }
         }
+
         if (ObjectUtil.isNotEmpty(personnelVo.getBirth())) {
             //年纪
-            personnelVo.setAge(Period.between(LocalDate.parse(DateUtil.formatDate(new Date())), LocalDate.parse(DateUtil.formatDate(personnelVo.getBirth()))).getYears());
+            personnelVo.setAge(Period.between(LocalDate.parse(DateUtil.formatDate(personnelVo.getBirth())),LocalDate.parse(DateUtil.formatDate(new Date()))).getYears());
         }
 
         Map<String, Object> columnMap = new HashMap<>();
@@ -204,7 +226,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         List<PersonnelFileRegister> personnelFileRegisters = personnelFileRegisterService.listByMap(columnMap);
         personnelVo.setPersonnelFileRegisterList(personnelFileRegisters);
         //合同续签次数
-        personnelVo.setAge(personnelFileRegisters.size());
+        personnelVo.setRenewTime(personnelFileRegisters.size()>=1?personnelFileRegisters.size()-1:0);
         return personnelVo;
     }
 
@@ -232,8 +254,13 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if (ObjectUtil.isNotEmpty(personnelPageParam.getDuty())) {
             queryWrapper.like("c.`NAME`", personnelPageParam.getDuty());
         }
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getStatus())){
+            queryWrapper.eq("a.`STATUS`", personnelPageParam.getStatus());
+        }else {
+            queryWrapper.eq("a.`STATUS`", "0");
+        }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
-        queryWrapper.eq("a.`STATUS`", "1");
+
         if (ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -249,17 +276,24 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                 personnelListVo.setEnterage(dayComparePrecise(new Date(), personnelListVo.getHireDate()));
             }
             if (ObjectUtil.isNotEmpty(personnelListVo.getPositiveTime())) {
-                personnelListVo.setPositiveAge(dayComparePrecise(new Date(), personnelListVo.getHireDate()));
+                if(!personnelListVo.getPositiveTime().after(new Date())){
+                    personnelListVo.setPositiveAge(dayComparePrecise(new Date(), personnelListVo.getPositiveTime()));
+                }
             }
         });
-        return personnelMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        return  pageList.setRecords(records);
     }
 
     private static String dayComparePrecise(Date date1, Date date2) {
         Period period = Period.between(LocalDate.parse(DateUtil.formatDate(date1)), LocalDate.parse(DateUtil.formatDate(date2)));
 
-        return period.getYears() + "年" +
+        return (period.getYears() + "年" +
                 period.getMonths() + "月" +
-                period.getDays() + "日";
+                period.getDays() + "日").replaceAll("-","") ;
+    }
+
+    @Override
+    public List<PersonnelStatsVo> getStatsResult(PersonnelStatsParam param){
+         return  baseMapper.getStatsResult(param);
     }
 }

@@ -143,8 +143,8 @@
         a.DELETE_FLAG, a.CREATE_TIME, a.CREATE_USER, a.UPDATE_TIME, a.UPDATE_USER
     </sql>
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo">
-        SELECT a.ID,a.FILE_NO, a.`NAME`,a.SEX,a.BIRTH,a.ID_NUMBER,a.HIRE_DATE,a.POSITIVE_TIME,b.`NAME`
-            AS DEPT,c.`NAME` AS DUTY,a.`STATUS` FROM PERSONNEL a LEFT JOIN SYS_ORG b ON a.DEPT_ID = b.ID LEFT JOIN SYS_POSITION c ON a.DUTY_ID=c.ID
+        SELECT a.ID,a.FILE_NO, a.`NAME`,a.SEX,a.BIRTH,a.ID_NUMBER,a.HIRE_DATE,a.POSITIVE_TIME,a.DUTY,b.`NAME`
+            AS DEPT,a.`STATUS` FROM PERSONNEL a LEFT JOIN SYS_ORG b ON a.DEPT_ID = b.ID LEFT JOIN SYS_POSITION c ON a.DUTY_ID=c.ID
             ${ew.customSqlSegment}
     </select>
 
@@ -169,5 +169,38 @@
 
     <select id="getFileCertList" resultType="vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves">
         SELECT * FROM PERSONNEL_FILE_MOVES WHERE FILE_ID = #{ID}
+    </select>
+
+    <select id="getStatsResult" parameterType="vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelStatsParam" resultType="vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo">
+        SELECT b.`NAME` as dept ,a.* FROM (
+        select DEPT_ID ,COUNT(id) as countNum,
+        sum(case when Sex = '男' then 1 else 0 end) as countBoy,
+        sum(case when Sex = '女' then 1 else 0 end) as countGirl,
+        sum(case when HIGHEST_EDUCATION like '博士%' then 1 else 0 end) as countDoctor,
+        sum(case when HIGHEST_EDUCATION like '硕士%' then 1 else 0 end) as countMaster,
+        sum(case when HIGHEST_EDUCATION like '本科%' then 1 else 0 end) as countBachelor,
+        sum(case when HIGHEST_EDUCATION not like '博士%' and HIGHEST_EDUCATION not like '硕士%' and HIGHEST_EDUCATION not like '本科%' then 1 else 0 end) as countAssociate,
+        sum(case when (YEAR(NOW())-YEAR(BIRTH)) &lt; 28 then 1 else 0 end) as countAge1,
+        sum(case when (YEAR(NOW())-YEAR(BIRTH)) >= 28 and (YEAR(NOW())-YEAR(BIRTH)) &lt; 35 then 1 else 0 end) as countAge2,
+        sum(case when (YEAR(NOW())-YEAR(BIRTH)) >= 35 and (YEAR(NOW())-YEAR(BIRTH)) &lt; 45 then 1 else 0 end) as countAge3,
+        sum(case when (YEAR(NOW())-YEAR(BIRTH)) >= 45 then 1 else 0 end) as countAge4,
+        sum(case when (YEAR(NOW())-YEAR(HIRE_DATE)) &lt; 1 then 1 else 0 end) as countWorkAge1,
+        sum(case when  (YEAR(NOW())-YEAR(HIRE_DATE)) >=1 AND (YEAR(NOW())-YEAR(HIRE_DATE)) &lt; 3 then 1 else 0 end) as countWorkAge2,
+        sum(case when (YEAR(NOW())-YEAR(HIRE_DATE)) >=3 AND (YEAR(NOW())-YEAR(HIRE_DATE)) &lt; 5 then 1 else 0 end) as countWorkAge3,
+        sum(case when (YEAR(NOW())-YEAR(HIRE_DATE)) >=5 then 1 else 0 end) as countWorkAge4
+        from PERSONNEL
+        where 1 = 1
+        <if test="param.deptId != null and param.deptId != ''">
+            and DEPT_ID = ${param.deptId}
+        </if>
+        <if test="param.startHireDate != null and param.startHireDate != ''">
+            and HIRE_DATE >= ${param.startHireDate}
+        </if>
+
+        <if test="param.endHireDate != null and param.endHireDate != ''">
+            and HIRE_DATE &lt;${endHireDate}
+        </if>
+        group by DEPT_ID
+        )  a LEFT JOIN SYS_ORG b on a.DEPT_ID = b.ID
     </select>
 </mapper>
