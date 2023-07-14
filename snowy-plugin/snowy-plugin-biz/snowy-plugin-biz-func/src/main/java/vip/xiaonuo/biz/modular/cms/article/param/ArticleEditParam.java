@@ -12,12 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.cms.article.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.biz.modular.cms.article.entity.ArticleAuth;
 
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -78,5 +80,10 @@ public class ArticleEditParam {
     /** 权限配置集合 */
     @ApiModelProperty(value = "权限配置", position = 12)
     private List<ArticleAuth> articleAuths;
+
+    /** 上架时间 */
+    @ApiModelProperty(value = "上架时间", position = 13)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Date shelfTime;
 
 }

@@ -3,6 +3,7 @@ package vip.xiaonuo.biz.modular.cms.article;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -92,4 +93,8 @@ public class ArticleInfoVo {
     /** 是否上架，0: 未上架 1: 已上架 */
     @ApiModelProperty(value = "是否上架，0: 未上架 1: 已上架", position = 17)
     private Integer isShelf;
+
+    /** 上架时间 */
+    @ApiModelProperty(value = "上架时间", position = 18)
+    private Date shelfTime;
 }

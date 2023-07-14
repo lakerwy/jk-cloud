@@ -28,9 +28,6 @@ import vip.xiaonuo.biz.modular.cms.article.ArticleInfoVo;
 import vip.xiaonuo.biz.modular.cms.article.entity.ArticleAuth;
 import vip.xiaonuo.biz.modular.cms.article.param.*;
 import vip.xiaonuo.biz.modular.cms.article.service.ArticleAuthService;
-import vip.xiaonuo.biz.modular.crm.bidopen.entity.Bidopen;
-import vip.xiaonuo.biz.modular.crm.major.entity.Major;
-import vip.xiaonuo.biz.modular.crm.majorleader.entity.Majorleader;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -39,10 +36,7 @@ import vip.xiaonuo.biz.modular.cms.article.mapper.ArticleMapper;
 import vip.xiaonuo.biz.modular.cms.article.service.ArticleService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -216,8 +210,12 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         }
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.eq("a.IS_SHELF",1);
-        queryWrapper.and(q->q.eq("a.IS_AUTH",0).or(q1->q1.in("b.OBJ_ID",articlePageParam.getListIds())));
-
+        queryWrapper.le("a.SHELF_TIME", new Date() );
+        if(CollUtil.isNotEmpty(articlePageParam.getListIds())) {
+            queryWrapper.and(q -> q.eq("a.IS_AUTH", 0).or(q1 -> q1.in("b.OBJ_ID", articlePageParam.getListIds())));
+        }else{
+            queryWrapper.eq("a.IS_AUTH",0);
+        }
         if(ObjectUtil.isAllNotEmpty(articlePageParam.getSortField(), articlePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(articlePageParam.getSortOrder());
             queryWrapper.orderBy(true, articlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

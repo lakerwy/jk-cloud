@@ -100,4 +100,8 @@ public class Article {
     /** 是否上架，0: 未上架 1: 已上架 */
     @ApiModelProperty(value = "是否上架，0: 未上架 1: 已上架", position = 16)
     private Integer isShelf;
+
+    /** 上架时间 */
+    @ApiModelProperty(value = "上架时间", position = 17)
+    private Date shelfTime;
 }
