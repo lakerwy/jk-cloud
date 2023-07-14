@@ -34,6 +34,7 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
     @Override
     public HetongReportResult listReport(HetongReportParam hetongReportParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(Hetong::getFlowStatus,1);
         if(ObjectUtil.isNotEmpty(hetongReportParam.getYear())) {
             queryWrapper.lambda().apply("YEAR(CREATE_TIME) = {0}", hetongReportParam.getYear());
         }
@@ -41,7 +42,7 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
             queryWrapper.lambda().between(Hetong::getCreateTime, hetongReportParam.getStartDate(), hetongReportParam.getEndDate());
         }
         if(ObjectUtil.isNotEmpty(hetongReportParam.getType())) {
-            queryWrapper.lambda().like(Hetong::getPartnerType, hetongReportParam.getType());
+            queryWrapper.lambda().eq(Hetong::getPartnerType, hetongReportParam.getType());
         }
         List<Hetong> list = hetongService.list(queryWrapper);
         return getHetongReportResult(list);
