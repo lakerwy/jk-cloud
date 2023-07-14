@@ -34,7 +34,7 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
     @Override
     public HetongReportResult listReport(HetongReportParam hetongReportParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(Hetong::getFlowStatus,1);
+        queryWrapper.lambda().eq(Hetong::getStatus,"1");
         if(ObjectUtil.isNotEmpty(hetongReportParam.getYear())) {
             queryWrapper.lambda().apply("YEAR(CREATE_TIME) = {0}", hetongReportParam.getYear());
         }

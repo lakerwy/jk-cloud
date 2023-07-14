@@ -60,7 +60,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
     public IPage<HetongDetailVo> page(HetongPageParam hetongPageParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
         //审核通过的合同
-        queryWrapper.eq("a.FLOW_STATUS","1");
+        queryWrapper.eq("a.STATUS","1");
         if (ObjectUtil.isNotEmpty(hetongPageParam.getSearchKey())) {
             queryWrapper.like("a.SECOND_LEVEL", hetongPageParam.getSearchKey()).or()
                     .like("a.CONTRACT_NO", hetongPageParam.getSearchKey()).or()

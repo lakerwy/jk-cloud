@@ -111,8 +111,8 @@ public class Hetong {
     @ApiModelProperty(value = "投资规模（历史表Hetong.InvestScale）", position = 20)
     private String investScale;
 
-    /** 状态（历史表Hetong.Status） */
-    @ApiModelProperty(value = "状态（历史表Hetong.Status）", position = 21)
+    /** 流程状态（0 - 已提交  1- 已审批） */
+    @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 21)
     private String status;
 
     /** 页次（历史表Hetong.Page） */
@@ -233,7 +233,7 @@ public class Hetong {
     @ApiModelProperty(value = "立项-主键ID", position = 49)
     private String bizProjectId;
 
-    /** 流程状态（0 - 已提交  1- 已审批） */
-    @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 50)
-    private String flowStatus;
+    /** 合同状态：对应历史表的status */
+    @ApiModelProperty(value = "合同状态：对应历史表的status", position = 50)
+    private String htstatus;
 }

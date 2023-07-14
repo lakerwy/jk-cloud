@@ -104,8 +104,8 @@ public class HetongPageParam {
     @ApiModelProperty(value = "投资规模（历史表Hetong.InvestScale）")
     private String investScale;
 
-    /** 状态（历史表Hetong.Status） */
-    @ApiModelProperty(value = "状态（历史表Hetong.Status）")
+    /** 流程状态 0 或 1 */
+    @ApiModelProperty(value = "流程状态 0 或 1")
     private String status;
 
     /** 项目规模描述（历史表Hetong.Description） */
