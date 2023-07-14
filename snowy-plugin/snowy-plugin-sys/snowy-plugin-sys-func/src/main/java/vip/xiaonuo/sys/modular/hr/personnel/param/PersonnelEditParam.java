@@ -177,6 +177,8 @@ public class PersonnelEditParam {
 
     /** 转正时间 */
     @ApiModelProperty(value = "转正时间", position = 34)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date positiveTime;
 
     /** 合同续签次数（自动算） */

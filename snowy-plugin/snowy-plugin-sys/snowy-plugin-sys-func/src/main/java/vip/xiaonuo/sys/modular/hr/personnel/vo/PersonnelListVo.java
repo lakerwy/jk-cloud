@@ -63,4 +63,10 @@ public class PersonnelListVo {
     /** 转正司龄(自动算) */
     @ApiModelProperty(value = "转正司龄(自动算)", position = 40)
     private String positiveAge;
+
+    /** 出生日期 */
+    @ApiModelProperty(value = "出生日期", position = 11)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date birth;
 }

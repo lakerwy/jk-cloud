@@ -29,13 +29,6 @@ public class PersonnelVo extends PersonnelListVo{
     @ApiModelProperty(value = "职位ID", position = 6)
     private String dutyId;
 
-
-    /** 出生日期 */
-    @ApiModelProperty(value = "出生日期", position = 11)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date birth;
-
     /** 年龄 */
     @ApiModelProperty(value = "年龄", position = 12)
     private Integer age;

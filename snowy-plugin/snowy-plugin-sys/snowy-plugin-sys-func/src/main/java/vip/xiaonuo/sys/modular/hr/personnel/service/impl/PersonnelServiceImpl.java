@@ -62,7 +62,7 @@ import java.util.stream.Stream;
  * 业务表-人事档案Service接口实现类
  *
  * @author mayike
- * @date  2023/07/10 17:28
+ * @date 2023/07/10 17:28
  **/
 @Service
 public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel> implements PersonnelService {
@@ -85,10 +85,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     @Override
     public Page<Personnel> page(PersonnelPageParam personnelPageParam) {
         QueryWrapper<Personnel> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(personnelPageParam.getName())) {
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getName())) {
             queryWrapper.lambda().like(Personnel::getName, personnelPageParam.getName());
         }
-        if(ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
+        if (ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(personnelPageParam.getSortField()));
@@ -107,23 +107,27 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         //职称信息
         //证书信息
         Personnel personnel = BeanUtil.toBean(personnelAddParam, Personnel.class);
+        personnel.setStatus("1");
+        //按照入职时间获取最后一条
+        Long max = Long.parseLong(Objects.requireNonNull(list().stream().map(Personnel::getFileNo).max(Comparator.naturalOrder()).orElse("600000")))+1;
+        personnel.setFileNo(String.valueOf(max));
         this.save(personnel);
-        if(CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileCertList())){
+        if (CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileCertList())) {
             List<PersonnelFileCert> collect = personnelAddParam.getPersonnelFileCertList().stream().map(personnelFileCertAddParam -> BeanUtil.toBean(personnelFileCertAddParam, PersonnelFileCert.class)).collect(Collectors.toList());
             collect.forEach(personnelFileCert -> personnelFileCert.setFileId(personnel.getId()));
             personnelFileCertService.saveBatch(collect);
         }
-        if(CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileMovesList())){
+        if (CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileMovesList())) {
             List<PersonnelFileMoves> collect = personnelAddParam.getPersonnelFileMovesList().stream().map(personnelFileMovesAddParam -> BeanUtil.toBean(personnelFileMovesAddParam, PersonnelFileMoves.class)).collect(Collectors.toList());
             collect.forEach(personnelFileMoves -> personnelFileMoves.setFileId(personnel.getId()));
             personnelFileMovesService.saveBatch(collect);
         }
-        if(CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileTitleList())){
+        if (CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileTitleList())) {
             List<PersonnelFileTitle> collect = personnelAddParam.getPersonnelFileTitleList().stream().map(personnelFileTitleAddParam -> BeanUtil.toBean(personnelFileTitleAddParam, PersonnelFileTitle.class)).collect(Collectors.toList());
             collect.forEach(personnelFileTitle -> personnelFileTitle.setFileId(personnel.getId()));
             personnelFileTitleService.saveBatch(collect);
         }
-        if(CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileRegisterList())){
+        if (CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileRegisterList())) {
             List<PersonnelFileRegister> collect = personnelAddParam.getPersonnelFileRegisterList().stream().map(personnelFileRegisterAddParam -> BeanUtil.toBean(personnelFileRegisterAddParam, PersonnelFileRegister.class)).collect(Collectors.toList());
             collect.forEach(personnelFileRegister -> personnelFileRegister.setFileId(personnel.getId()));
             personnelFileRegisterService.saveBatch(collect);
@@ -140,22 +144,22 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         personnelFileTitleService.deleteByFileId(personnel.getId());
         personnelFileCertService.deleteByFileId(personnel.getId());
         this.updateById(personnel);
-        if(CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileCertList())){
-            List<PersonnelFileCert> collect = personnelEditParam.getPersonnelFileCertList().stream().map(param ->  BeanUtil.toBean(param, PersonnelFileCert.class)).collect(Collectors.toList());
+        if (CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileCertList())) {
+            List<PersonnelFileCert> collect = personnelEditParam.getPersonnelFileCertList().stream().map(param -> BeanUtil.toBean(param, PersonnelFileCert.class)).collect(Collectors.toList());
             collect.forEach(personnelFileCert -> personnelFileCert.setFileId(personnel.getId()));
             personnelFileCertService.saveBatch(collect);
         }
-        if(CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileMovesList())){
+        if (CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileMovesList())) {
             List<PersonnelFileMoves> collect = personnelEditParam.getPersonnelFileMovesList().stream().map(param -> BeanUtil.toBean(param, PersonnelFileMoves.class)).collect(Collectors.toList());
             collect.forEach(personnelFileMoves -> personnelFileMoves.setFileId(personnel.getId()));
             personnelFileMovesService.saveBatch(collect);
         }
-        if(CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileTitleList())){
+        if (CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileTitleList())) {
             List<PersonnelFileTitle> collect = personnelEditParam.getPersonnelFileTitleList().stream().map(param -> BeanUtil.toBean(param, PersonnelFileTitle.class)).collect(Collectors.toList());
             collect.forEach(personnelFileTitle -> personnelFileTitle.setFileId(personnel.getId()));
             personnelFileTitleService.saveBatch(collect);
         }
-        if(CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileRegisterList())){
+        if (CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileRegisterList())) {
             List<PersonnelFileRegister> collect = personnelEditParam.getPersonnelFileRegisterList().stream().map(param -> BeanUtil.toBean(param, PersonnelFileRegister.class)).collect(Collectors.toList());
             collect.forEach(personnelFileRegister -> personnelFileRegister.setFileId(personnel.getId()));
             personnelFileRegisterService.saveBatch(collect);
@@ -178,16 +182,22 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     public PersonnelVo detail(PersonnelIdParam personnelIdParam) {
         Personnel personnel = this.queryEntity(personnelIdParam.getId());
         PersonnelVo personnelVo = BeanUtil.toBean(personnel, PersonnelVo.class);
-        //入职司龄
-        personnelVo.setEnterage(dayComparePrecise(new Date(),personnelVo.getHireDate()));
-        //转正司龄
-        personnelVo.setPositiveAge(dayComparePrecise(new Date(),personnelVo.getPositiveTime()));
-        //年纪
-        personnelVo.setAge(Period.between(LocalDate.parse(DateUtil.formatDate(new Date())), LocalDate.parse(DateUtil.formatDate(personnelVo.getBirth()))).getYears());
+        if (ObjectUtil.isNotEmpty(personnelVo.getHireDate())) {
+            //入职司龄
+            personnelVo.setEnterage(dayComparePrecise(new Date(), personnelVo.getHireDate()));
+        }
+        if (ObjectUtil.isNotEmpty(personnelVo.getPositiveTime())) {
+            //转正司龄
+            personnelVo.setPositiveAge(dayComparePrecise(new Date(), personnelVo.getPositiveTime()));
+        }
+        if (ObjectUtil.isNotEmpty(personnelVo.getBirth())) {
+            //年纪
+            personnelVo.setAge(Period.between(LocalDate.parse(DateUtil.formatDate(new Date())), LocalDate.parse(DateUtil.formatDate(personnelVo.getBirth()))).getYears());
+        }
 
         Map<String, Object> columnMap = new HashMap<>();
-        columnMap.put("FILE_ID",personnel.getId());
-        columnMap.put("DELETE_FLAG","NOT_DELETE");
+        columnMap.put("FILE_ID", personnel.getId());
+        columnMap.put("DELETE_FLAG", "NOT_DELETE");
         personnelVo.setPersonnelFileCertList(personnelFileCertService.listByMap(columnMap));
         personnelVo.setPersonnelFileMovesList(personnelFileMovesService.listByMap(columnMap));
         personnelVo.setPersonnelFileTitleList(personnelFileTitleService.listByMap(columnMap));
@@ -201,7 +211,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     @Override
     public Personnel queryEntity(String id) {
         Personnel personnel = this.getById(id);
-        if(ObjectUtil.isEmpty(personnel)) {
+        if (ObjectUtil.isEmpty(personnel)) {
             throw new CommonException("业务表-人事档案不存在，id值为：{}", id);
         }
         return personnel;
@@ -210,21 +220,21 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     @Override
     public Page<PersonnelListVo> pageList(PersonnelPageParam personnelPageParam) {
         QueryWrapper<PersonnelListVo> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(personnelPageParam.getName())) {
-            queryWrapper.like("a.`NAME", personnelPageParam.getName());
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getName())) {
+            queryWrapper.like("a.`NAME`", personnelPageParam.getName());
         }
-        if(ObjectUtil.isNotEmpty(personnelPageParam.getStartHireDate()) && ObjectUtil.isNotEmpty(personnelPageParam.getEndHireDate())) {
-            queryWrapper.between("a.HIRE_DATE",personnelPageParam.getStartHireDate(),personnelPageParam.getEndHireDate());
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getStartHireDate()) && ObjectUtil.isNotEmpty(personnelPageParam.getEndHireDate())) {
+            queryWrapper.between("a.HIRE_DATE", personnelPageParam.getStartHireDate(), personnelPageParam.getEndHireDate());
         }
-        if(ObjectUtil.isNotEmpty(personnelPageParam.getDept())) {
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getDept())) {
             queryWrapper.like("b.`NAME`", personnelPageParam.getDept());
         }
-        if(ObjectUtil.isNotEmpty(personnelPageParam.getDuty())) {
-            queryWrapper.like("c.`NAME``", personnelPageParam.getDuty());
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getDuty())) {
+            queryWrapper.like("c.`NAME`", personnelPageParam.getDuty());
         }
-        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.eq("a.`STATUS`","1");
-        if(ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
+        queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
+        queryWrapper.eq("a.`STATUS`", "1");
+        if (ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(personnelPageParam.getSortField()));
@@ -233,10 +243,19 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         }
         Page<PersonnelListVo> pageList = personnelMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
         List<PersonnelListVo> records = pageList.getRecords();
-        records.forEach(personnelListVo -> personnelListVo.setEnterage(dayComparePrecise(new Date(),personnelListVo.getHireDate())));
-        return personnelMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);
+        records.forEach(personnelListVo ->
+        {
+            if (ObjectUtil.isNotEmpty(personnelListVo.getHireDate())) {
+                personnelListVo.setEnterage(dayComparePrecise(new Date(), personnelListVo.getHireDate()));
+            }
+            if (ObjectUtil.isNotEmpty(personnelListVo.getPositiveTime())) {
+                personnelListVo.setPositiveAge(dayComparePrecise(new Date(), personnelListVo.getHireDate()));
+            }
+        });
+        return personnelMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
-    private static String dayComparePrecise(Date date1, Date date2){
+
+    private static String dayComparePrecise(Date date1, Date date2) {
         Period period = Period.between(LocalDate.parse(DateUtil.formatDate(date1)), LocalDate.parse(DateUtil.formatDate(date2)));
 
         return period.getYears() + "年" +
