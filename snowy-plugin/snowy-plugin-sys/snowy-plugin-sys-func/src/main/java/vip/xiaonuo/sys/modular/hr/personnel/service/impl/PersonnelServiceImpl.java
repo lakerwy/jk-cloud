@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -43,6 +44,7 @@ import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
 import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
@@ -195,6 +197,13 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         personnelFileTitleService.deleteNewFileId(ids);
         personnelFileMovesService.deleteNewFileId(ids);
         personnelFileRegisterService.deleteNewFileId(ids);
+        List<Personnel> personals = listByIds(ids);
+        Set<String> collect = personals.stream().map(Personnel::getPhone).collect(Collectors.toSet());
+        List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getPhone, collect));
+        if(CollUtil.isNotEmpty(list)){
+            List<String> collect1 = list.stream().map(SysUser::getId).collect(Collectors.toList());
+            sysUserService.handleDelete(collect1);
+        }
     }
 
     @Override

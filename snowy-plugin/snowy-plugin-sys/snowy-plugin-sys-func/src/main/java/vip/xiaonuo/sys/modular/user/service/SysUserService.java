@@ -16,6 +16,7 @@ import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
@@ -101,6 +102,9 @@ public interface SysUserService extends IService<SysUser> {
      * @date 2022/4/24 21:18
      */
     void delete(List<SysUserIdParam> sysUserIdParamList);
+
+    @Transactional(rollbackFor = Exception.class)
+    void handleDelete(List<String> sysUserIdList);
 
     /**
      * 获取用户详情

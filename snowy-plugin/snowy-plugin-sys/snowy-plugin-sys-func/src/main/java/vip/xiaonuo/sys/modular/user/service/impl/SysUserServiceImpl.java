@@ -353,6 +353,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public void delete(List<SysUserIdParam> sysUserIdParamList) {
         List<String> sysUserIdList = CollStreamUtil.toList(sysUserIdParamList, SysUserIdParam::getId);
+        this.handleDelete(sysUserIdList);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void handleDelete(List<String> sysUserIdList) {
         if (ObjectUtil.isNotEmpty(sysUserIdList)) {
             boolean containsSuperAdminAccount = this.listByIds(sysUserIdList).stream().map(SysUser::getAccount)
                     .collect(Collectors.toSet()).contains(SysBuildInEnum.BUILD_IN_USER_ACCOUNT.getValue());
