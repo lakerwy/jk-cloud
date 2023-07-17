@@ -118,8 +118,23 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
     @Override
     public void edit(InvoiceregisterEditParam invoiceregisterEditParam) {
         Invoiceregister invoiceregister = this.queryEntity(invoiceregisterEditParam.getId());
+        //旧的已开票金额
+        BigDecimal oldMakeAmount = invoiceregister.getMakeAmount() == null ? BigDecimal.ZERO : invoiceregister.getMakeAmount();
         BeanUtil.copyProperties(invoiceregisterEditParam, invoiceregister);
         this.updateById(invoiceregister);
+
+        //反更新 合同 已开票金额
+        if(StrUtil.isNotEmpty(invoiceregister.getContractNo())) {
+            Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, invoiceregister.getContractNo()));
+            if(ObjectUtil.isNotEmpty(ht)){
+                BigDecimal invoiceAmount = ht.getInvoiceAmount() == null ? BigDecimal.ZERO : ht.getInvoiceAmount();
+                //新的开票金额
+                BigDecimal newInvoiceAmount = invoiceregister.getMakeAmount() == null ? BigDecimal.ZERO : invoiceregister.getMakeAmount();
+                //合同已开票金额 = 已开票金额 - 旧的开票金额 + 新的开票金额
+                ht.setInvoiceAmount(invoiceAmount.subtract(oldMakeAmount).add(newInvoiceAmount));
+                hetongService.updateById(ht);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -118,8 +118,24 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
     @Override
     public void edit(ContractrrEditParam contractrrEditParam) {
         Contractrr contractrr = this.queryEntity(contractrrEditParam.getId());
+        //若修改 旧的收款金额
+        BigDecimal oldCollectAmount = contractrr.getCollectAmount() == null ? BigDecimal.ZERO : contractrr.getCollectAmount();
         BeanUtil.copyProperties(contractrrEditParam, contractrr);
         this.updateById(contractrr);
+
+        //反更新 合同 已收款金额
+        if(StrUtil.isNotEmpty(contractrr.getContractNo())) {
+            Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, contractrr.getContractNo()));
+            if(ObjectUtil.isNotEmpty(ht)){
+                BigDecimal htHaveAmount = ht.getHaveAmount() == null ? BigDecimal.ZERO : ht.getHaveAmount();
+                //修改后 新的收款金额
+                BigDecimal newhaveAmount = contractrr.getCollectAmount() == null ? BigDecimal.ZERO : contractrr.getCollectAmount();
+                //合同已收款金额 = 已收款金额 - 旧的收款金额 + 新的收款金额
+                ht.setHaveAmount(htHaveAmount.subtract(oldCollectAmount).add(newhaveAmount));
+                hetongService.updateById(ht);
+            }
+        }
+
     }
 
     @Transactional(rollbackFor = Exception.class)
