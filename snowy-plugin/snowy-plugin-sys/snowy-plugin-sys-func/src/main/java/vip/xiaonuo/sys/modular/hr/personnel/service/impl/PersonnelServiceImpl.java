@@ -120,7 +120,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         personnel.setDutyId(dutyId);
         personnel.setStatus("0");
         //按照入职时间获取最后一条
-        Long max = Long.parseLong(Objects.requireNonNull(list().stream().map(Personnel::getFileNo).max(Comparator.naturalOrder()).orElse("600000")))+1;
+        Long max = Long.parseLong(Objects.requireNonNull(list().stream().map(Personnel::getFileNo).filter(ObjectUtil::isNotEmpty).max(Comparator.naturalOrder()).orElse("600000")))+1;
         personnel.setFileNo(String.valueOf(max));
         this.save(personnel);
         if (CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileCertList())) {
@@ -192,14 +192,15 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     public void delete(List<PersonnelIdParam> personnelIdParamList) {
         // 执行删除
         List<String> ids = CollStreamUtil.toList(personnelIdParamList, PersonnelIdParam::getId);
+        List<Personnel> personals = listByIds(ids);
         this.removeByIds(ids);
         personnelFileCertService.deleteNewFileId(ids);
         personnelFileTitleService.deleteNewFileId(ids);
         personnelFileMovesService.deleteNewFileId(ids);
         personnelFileRegisterService.deleteNewFileId(ids);
-        List<Personnel> personals = listByIds(ids);
+        log.debug("测试删除----"+ids.toString());
         Set<String> collect = personals.stream().map(Personnel::getPhone).collect(Collectors.toSet());
-        List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getPhone, collect));
+        List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getAccount, collect));
         if(CollUtil.isNotEmpty(list)){
             List<String> collect1 = list.stream().map(SysUser::getId).collect(Collectors.toList());
             sysUserService.handleDelete(collect1);
