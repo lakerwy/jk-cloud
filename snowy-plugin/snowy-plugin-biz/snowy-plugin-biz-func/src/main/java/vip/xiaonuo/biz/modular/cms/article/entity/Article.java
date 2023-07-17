@@ -104,4 +104,12 @@ public class Article {
     /** 上架时间 */
     @ApiModelProperty(value = "上架时间", position = 17)
     private Date shelfTime;
+
+    /** 是否置顶，0: 未置顶 1: 置顶 */
+    @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶", position = 18)
+    private Integer isTop;
+
+    /** 置顶时间 */
+    @ApiModelProperty(value = "置顶时间", position = 19)
+    private Date topTime;
 }

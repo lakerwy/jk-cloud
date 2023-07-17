@@ -75,4 +75,8 @@ public class ArticlePageParam {
     @ApiModelProperty(value = "当前用户的 userId,roleId,orgId")
     private List<String> listIds;
 
+    /** 是否置顶，0: 未置顶 1: 置顶 */
+    @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶", position = 14)
+    private Integer isTop;
+
 }

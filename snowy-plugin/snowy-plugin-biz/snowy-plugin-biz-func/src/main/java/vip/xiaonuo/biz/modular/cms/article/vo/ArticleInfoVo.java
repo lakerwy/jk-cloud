@@ -1,4 +1,4 @@
-package vip.xiaonuo.biz.modular.cms.article;
+package vip.xiaonuo.biz.modular.cms.article.vo;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -97,4 +97,12 @@ public class ArticleInfoVo {
     /** 上架时间 */
     @ApiModelProperty(value = "上架时间", position = 18)
     private Date shelfTime;
+
+    /** 是否置顶，0: 未置顶 1: 置顶 */
+    @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶", position = 14)
+    private Integer isTop;
+
+    /** 置顶时间 */
+    @ApiModelProperty(value = "置顶时间", position = 15)
+    private Date topTime;
 }

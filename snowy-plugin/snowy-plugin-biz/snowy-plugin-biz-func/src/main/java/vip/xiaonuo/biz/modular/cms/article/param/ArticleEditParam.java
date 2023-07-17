@@ -86,4 +86,13 @@ public class ArticleEditParam {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date shelfTime;
 
+    /** 是否置顶，0: 未置顶 1: 置顶 */
+    @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶", position = 14)
+    private Integer isTop;
+
+    /** 置顶时间 */
+    @ApiModelProperty(value = "置顶时间", position = 15)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    private Date topTime;
+
 }

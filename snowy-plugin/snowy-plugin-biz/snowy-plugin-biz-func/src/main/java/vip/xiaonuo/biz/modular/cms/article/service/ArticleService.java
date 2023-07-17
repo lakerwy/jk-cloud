@@ -15,7 +15,7 @@ package vip.xiaonuo.biz.modular.cms.article.service;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.biz.modular.cms.article.ArticleInfoVo;
+import vip.xiaonuo.biz.modular.cms.article.vo.ArticleInfoVo;
 import vip.xiaonuo.biz.modular.cms.article.entity.Article;
 import vip.xiaonuo.biz.modular.cms.article.param.*;
 
@@ -100,4 +100,12 @@ public interface ArticleService extends IService<Article> {
      * @date  2023/07/10 14:36
      */
     void shelf(ArticleShelfParam articleShelfParam);
+
+    /**
+     * 获取业务表-CMS-文章（置顶|取消置顶）
+     *
+     * @author yong.ye
+     * @date  2023/07/17 14:36
+     */
+    void top(ArticleTopParam articleTopParam);
 }

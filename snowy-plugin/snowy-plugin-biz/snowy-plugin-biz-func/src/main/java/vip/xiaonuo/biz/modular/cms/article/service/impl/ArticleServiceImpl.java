@@ -24,7 +24,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.cms.article.ArticleInfoVo;
+import vip.xiaonuo.biz.modular.cms.article.vo.ArticleInfoVo;
 import vip.xiaonuo.biz.modular.cms.article.entity.ArticleAuth;
 import vip.xiaonuo.biz.modular.cms.article.param.*;
 import vip.xiaonuo.biz.modular.cms.article.service.ArticleAuthService;
@@ -83,12 +83,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if(ObjectUtil.isNotEmpty(articlePageParam.getIsShelf())) {
             queryWrapper.lambda().eq(Article::getIsShelf, articlePageParam.getIsShelf());
         }
+        if(ObjectUtil.isNotEmpty(articlePageParam.getIsTop())) {
+            queryWrapper.lambda().eq(Article::getIsTop, articlePageParam.getIsTop());
+        }
         if(ObjectUtil.isAllNotEmpty(articlePageParam.getSortField(), articlePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(articlePageParam.getSortOrder());
             queryWrapper.orderBy(true, articlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(articlePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Article::getCreateTime);
+            queryWrapper.lambda().orderByDesc(Article::getIsTop).orderByDesc(Article::getTopTime).orderByDesc(Article::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -221,7 +224,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             queryWrapper.orderBy(true, articlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(articlePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Article::getCreateTime);
+            queryWrapper.orderByDesc("a.IS_TOP").orderByDesc("a.TOP_TIME").orderByDesc("a.CREATE_TIME");
         }
 
         return articleMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
@@ -232,5 +235,24 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Article article = this.queryEntity(articleShelfParam.getId());
         article.setIsShelf(articleShelfParam.getIsShelf());
         this.updateById(article);
+    }
+
+    @Override
+    public void top(ArticleTopParam articleTopParam) {
+        Article article = this.queryEntity(articleTopParam.getId());
+        //置顶
+        if(articleTopParam.getIsTop() == 1){
+            article.setIsTop(articleTopParam.getIsTop());
+            article.setTopTime(ObjectUtil.isNull(articleTopParam.getTopTime())?new Date():articleTopParam.getTopTime());
+            this.updateById(article);
+        }
+        //取消置顶
+        else if(articleTopParam.getIsTop() == 0){
+            article.setIsTop(articleTopParam.getIsTop());
+            article.setTopTime(null);
+            this.updateById(article);
+        }else{
+            throw new CommonException("业务表-CMS-文章管理(置顶|取消置顶)，操作类型异常");
+        }
     }
 }

@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.cms.article.ArticleInfoVo;
+import vip.xiaonuo.biz.modular.cms.article.vo.ArticleInfoVo;
 import vip.xiaonuo.biz.modular.cms.article.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -164,4 +164,20 @@ public class ArticleController {
         articleService.shelf(articleShelfParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 业务表-CMS-文章管理（置顶 1 |取消置顶 0）
+     *
+     * @author yong.ye
+     * @date  2023/07/17 14:36
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("业务表-CMS-文章管理（置顶|取消置顶）")
+    @CommonLog("业务表-CMS-文章管理（置顶|取消置顶）")
+    @PostMapping("/biz/cms/article/top")
+    public CommonResult<String> top(@RequestBody @Valid ArticleTopParam articleTopParam) {
+        articleService.top(articleTopParam);
+        return CommonResult.ok();
+    }
+
 }
