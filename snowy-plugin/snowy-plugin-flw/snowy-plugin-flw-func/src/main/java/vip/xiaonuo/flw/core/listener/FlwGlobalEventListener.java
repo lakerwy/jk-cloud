@@ -187,7 +187,7 @@ public class FlwGlobalEventListener {
     }
 
 
-    @EventListener
+    //@EventListener
     public void onUpdateBizStatusEvent(DelegateExecution delegateExecution) {
         if(delegateExecution.getEventName().equalsIgnoreCase("end")){
 //            System.out.println("----------------------121212------------------");

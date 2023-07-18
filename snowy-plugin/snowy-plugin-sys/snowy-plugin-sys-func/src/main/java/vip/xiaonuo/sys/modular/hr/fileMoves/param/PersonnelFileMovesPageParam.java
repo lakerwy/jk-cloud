@@ -46,4 +46,7 @@ public class PersonnelFileMovesPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    @ApiModelProperty(value = "异动类型")
+    private String moveType;
+
 }

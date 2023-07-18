@@ -1,6 +1,7 @@
 package vip.xiaonuo.biz.modular.mapBiz.common;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
@@ -23,6 +24,7 @@ import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -184,7 +186,7 @@ public class DingDingServiceImpl implements IDingDingService {
 
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("发起于：");
-        form.setValue(jsonObject.getStr("applyTime") +","+ jsonObject.getStr("applyUser"));
+        form.setValue(DateUtil.format(jsonObject.getDate("applyTime"), DatePattern.NORM_DATETIME_PATTERN) +","+ jsonObject.getStr("applyUser"));
         forms.add(form);
 
         body.setForm(forms);

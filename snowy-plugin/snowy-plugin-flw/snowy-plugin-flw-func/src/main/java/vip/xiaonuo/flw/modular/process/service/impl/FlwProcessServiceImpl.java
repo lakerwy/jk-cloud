@@ -215,7 +215,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 entries.set("sn", sn);
                 entries.set("applyUserId",loginUser.getId());
                 entries.set("applyUser",loginUser.getName());
-                entries.set("applyTime",DateUtil.dateNew(new Date()).toDateStr());
+                entries.set("applyTime",DateUtil.now());
                 flwProcessStartParam.setDataJson(JSONUtil.toJsonStr(entries));
                 jsonObject.set("initiatorDataJson", JSONUtil.toJsonStr(entries));
                 //设置sn
