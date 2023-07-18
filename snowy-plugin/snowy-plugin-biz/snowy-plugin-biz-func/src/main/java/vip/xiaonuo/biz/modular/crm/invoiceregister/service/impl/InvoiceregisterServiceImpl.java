@@ -78,7 +78,7 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             queryWrapper.lambda().between(Invoiceregister::getOptDate, invoiceregisterPageParam.getStartOptDate(), invoiceregisterPageParam.getEndOptDate());
         }
         if(ObjectUtil.isNotEmpty(invoiceregisterPageParam.getContractNo())) {
-            queryWrapper.lambda().like(Invoiceregister::getContractNo, invoiceregisterPageParam.getContractNo());
+            queryWrapper.lambda().eq(Invoiceregister::getContractNo, invoiceregisterPageParam.getContractNo());
         }
         if(ObjectUtil.isAllNotEmpty(invoiceregisterPageParam.getSortField(), invoiceregisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceregisterPageParam.getSortOrder());
@@ -177,7 +177,7 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             queryWrapper.between("a.OPT_DATE", invoiceregisterInfoPageParam.getStartOptDate(), invoiceregisterInfoPageParam.getEndOptDate());
         }
         if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getContractNo())) {
-            queryWrapper.like("a.CONTRACT_NO", invoiceregisterInfoPageParam.getContractNo());
+            queryWrapper.eq("a.CONTRACT_NO", invoiceregisterInfoPageParam.getContractNo());
         }
         if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getContractName())) {
             queryWrapper.like("b.PROJECT_NAME", invoiceregisterInfoPageParam.getContractName());

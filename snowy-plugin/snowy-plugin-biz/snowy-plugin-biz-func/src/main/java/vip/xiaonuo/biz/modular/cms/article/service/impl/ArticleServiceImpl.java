@@ -242,8 +242,15 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         Article article = this.queryEntity(articleTopParam.getId());
         //置顶
         if(articleTopParam.getIsTop() == 1){
+            List<Article> articleList = this.list(new QueryWrapper<Article>().lambda().eq(Article::getIsTop,1));
+            //置顶只能同时存在一个
+            if(CollUtil.isNotEmpty(articleList)){
+                articleList.forEach(r -> { r.setIsTop(0); r.setTopTime(null); }); //取消置顶
+                this.updateBatchById(articleList);
+            }
+            //设置当前置顶
             article.setIsTop(articleTopParam.getIsTop());
-            article.setTopTime(ObjectUtil.isNull(articleTopParam.getTopTime())?new Date():articleTopParam.getTopTime());
+            article.setTopTime(new Date());
             this.updateById(article);
         }
         //取消置顶

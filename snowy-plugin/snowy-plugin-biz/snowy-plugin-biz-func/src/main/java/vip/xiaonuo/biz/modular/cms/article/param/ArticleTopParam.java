@@ -22,12 +22,8 @@ public class ArticleTopParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 是否置顶，0: 未置顶 1: 置顶 */
+    /** 是否置顶，0: 取消置顶 1: 置顶 */
     @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶", required = true)
     private Integer isTop;
 
-    /** 置顶时间 */
-    @ApiModelProperty(value = "置顶时间")
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
-    private Date topTime;
 }

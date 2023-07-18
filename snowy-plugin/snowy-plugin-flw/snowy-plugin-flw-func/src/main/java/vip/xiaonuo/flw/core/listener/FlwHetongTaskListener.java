@@ -25,7 +25,7 @@ public class FlwHetongTaskListener implements TaskListener {
             ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
             String businessKey = processInstance.getBusinessKey();
             //获取合同记录--更新流程状态
-            String sql = "UPDATE BIZ_CRM_HETONG SET `STATUS` = '1'  WHERE id = '"+businessKey+"'";
+            String sql = "UPDATE BIZ_CRM_HETONG SET `STATUS` = '1',CONTRACT_NO = SN  WHERE id = '"+businessKey+"'";
             CommonHandleUtil.handleSqlExecution(sql);
             log.info("更新合同-----");
         }catch (Exception e) {

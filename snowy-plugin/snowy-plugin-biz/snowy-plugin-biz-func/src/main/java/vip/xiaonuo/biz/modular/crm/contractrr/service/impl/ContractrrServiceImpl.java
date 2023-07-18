@@ -78,7 +78,7 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
             queryWrapper.lambda().between(Contractrr::getOptDate, contractrrPageParam.getStartOptDate(), contractrrPageParam.getEndOptDate());
         }
         if(ObjectUtil.isNotEmpty(contractrrPageParam.getContractNo())) {
-            queryWrapper.lambda().like(Contractrr::getContractNo, contractrrPageParam.getContractNo());
+            queryWrapper.lambda().eq(Contractrr::getContractNo, contractrrPageParam.getContractNo());
         }
         if(ObjectUtil.isAllNotEmpty(contractrrPageParam.getSortField(), contractrrPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(contractrrPageParam.getSortOrder());
@@ -178,7 +178,7 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
             queryWrapper.between("a.OPT_DATE", contractrrPageInfoParam.getStartOptDate(), contractrrPageInfoParam.getEndOptDate());
         }
         if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getContractNo())) {
-            queryWrapper.like("a.CONTRACT_NO", contractrrPageInfoParam.getContractNo());
+            queryWrapper.eq("a.CONTRACT_NO", contractrrPageInfoParam.getContractNo());
         }
         if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getContractName())) {
             queryWrapper.like("b.PROJECT_NAME", contractrrPageInfoParam.getContractName());

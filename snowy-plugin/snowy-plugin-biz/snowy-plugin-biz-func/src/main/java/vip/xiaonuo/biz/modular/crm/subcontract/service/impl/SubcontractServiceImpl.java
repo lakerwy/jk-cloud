@@ -103,7 +103,7 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
             queryWrapper.lambda().eq(Subcontract::getHetongId, subcontractPageParam.getHetongId());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getMainContractNo())) {
-            queryWrapper.lambda().like(Subcontract::getMainContractNo, subcontractPageParam.getMainContractNo());
+            queryWrapper.lambda().eq(Subcontract::getMainContractNo, subcontractPageParam.getMainContractNo());
         }
         if(ObjectUtil.isAllNotEmpty(subcontractPageParam.getSortField(), subcontractPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subcontractPageParam.getSortOrder());
