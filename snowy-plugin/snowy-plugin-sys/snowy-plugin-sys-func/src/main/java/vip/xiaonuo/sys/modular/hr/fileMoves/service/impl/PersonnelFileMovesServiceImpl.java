@@ -108,13 +108,13 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
 
     @Override
     public Page<PersonnelFileMovesVo> pageList(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
-        QueryWrapper<PersonnelFileMovesVo> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<PersonnelFileMoves> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isAllNotEmpty(personnelFileMovesPageParam.getSortField(), personnelFileMovesPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelFileMovesPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelFileMovesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(personnelFileMovesPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(PersonnelFileMovesVo::getSn);
+            queryWrapper.lambda().orderByDesc(PersonnelFileMoves::getSn);
         }
         return baseMapper.pageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

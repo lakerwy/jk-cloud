@@ -33,7 +33,7 @@ public interface PersonnelFileMovesMapper extends BaseMapper<PersonnelFileMoves>
 
     @Delete("DELETE FROM PERSONNEL_FILE_MOVES WHERE FILE_ID=#{fileId}")
     public void deleteByFileId(String fileId);
-    Page<PersonnelFileMovesVo> pageList(Page<PersonnelFileMovesVo> page, @Param(Constants.WRAPPER) Wrapper<PersonnelFileMovesVo> queryWrapper);
+    Page<PersonnelFileMovesVo> pageList(Page<PersonnelFileMovesVo> page, @Param(Constants.WRAPPER) Wrapper<PersonnelFileMoves> queryWrapper);
 
     PersonnelFileMovesVo getInfoById(String id);
 }
