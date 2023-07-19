@@ -3,7 +3,6 @@ package vip.xiaonuo.biz.modular.cms.article.vo;
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -99,10 +98,18 @@ public class ArticleInfoVo {
     private Date shelfTime;
 
     /** 是否置顶，0: 未置顶 1: 置顶 */
-    @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶", position = 14)
+    @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶", position = 19)
     private Integer isTop;
 
     /** 置顶时间 */
-    @ApiModelProperty(value = "置顶时间", position = 15)
+    @ApiModelProperty(value = "置顶时间", position = 20)
     private Date topTime;
+
+    /** 序号 */
+    @ApiModelProperty(value = "序号", position = 21)
+    private Long sid;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 22)
+    private String attach;
 }

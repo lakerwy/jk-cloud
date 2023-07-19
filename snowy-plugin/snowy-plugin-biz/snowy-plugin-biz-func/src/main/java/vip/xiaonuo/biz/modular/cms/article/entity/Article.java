@@ -16,7 +16,6 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -112,4 +111,12 @@ public class Article {
     /** 置顶时间 */
     @ApiModelProperty(value = "置顶时间", position = 19)
     private Date topTime;
+
+    /** 序号 */
+    @ApiModelProperty(value = "序号", position = 20)
+    private Long sid;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 21)
+    private String attach;
 }

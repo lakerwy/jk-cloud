@@ -86,6 +86,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
         if(ObjectUtil.isNotEmpty(articlePageParam.getIsTop())) {
             queryWrapper.lambda().eq(Article::getIsTop, articlePageParam.getIsTop());
         }
+        if(ObjectUtil.isNotEmpty(articlePageParam.getSid())) {
+            queryWrapper.lambda().eq(Article::getSid, articlePageParam.getSid());
+        }
         if(ObjectUtil.isAllNotEmpty(articlePageParam.getSortField(), articlePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(articlePageParam.getSortOrder());
             queryWrapper.orderBy(true, articlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -100,6 +103,8 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
     @Override
     public void add(ArticleAddParam articleAddParam) {
         Article article = BeanUtil.toBean(articleAddParam, Article.class);
+        long sid = this.list().stream().filter(x->x.getSid()!=null).map(x->x.getSid()).max(Long::compareTo).orElse(0L)+1;
+        article.setSid(sid);
         this.save(article);
         //新增对应关系
         List<ArticleAuthAddParam> articleAuthAddParams = articleAddParam.getArticleAuths();
@@ -232,9 +237,9 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
 
     @Override
     public void shelf(ArticleShelfParam articleShelfParam) {
-        Article article = this.queryEntity(articleShelfParam.getId());
-        article.setIsShelf(articleShelfParam.getIsShelf());
-        this.updateById(article);
+        List<Article> articleList = this.list(new QueryWrapper<Article>().lambda().in(Article::getId,articleShelfParam.getIds()));
+        articleList.forEach(article -> article.setIsShelf(articleShelfParam.getIsShelf()));
+        this.updateBatchById(articleList);
     }
 
     @Override
