@@ -95,4 +95,7 @@ public class ArticleEditParam {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     private Date topTime;
 
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 16)
+    private String attach;
 }

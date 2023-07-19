@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.cms.article.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.util.List;
 
 /**
@@ -76,7 +77,11 @@ public class ArticlePageParam {
     private List<String> listIds;
 
     /** 是否置顶，0: 未置顶 1: 置顶 */
-    @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶", position = 14)
+    @ApiModelProperty(value = "是否置顶，0: 未置顶 1: 置顶")
     private Integer isTop;
+
+    /** 序号 */
+    @ApiModelProperty(value = "序号")
+    private Long sid;
 
 }
