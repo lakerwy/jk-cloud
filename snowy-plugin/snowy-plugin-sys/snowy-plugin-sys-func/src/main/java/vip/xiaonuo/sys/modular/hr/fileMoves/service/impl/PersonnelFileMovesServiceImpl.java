@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.fileMoves.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -21,6 +22,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
 import vip.xiaonuo.sys.modular.hr.fileMoves.service.PersonnelFileMovesService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.mapper.PersonnelFileMovesMapper;
@@ -44,6 +47,7 @@ import java.util.List;
 @Service
 public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMovesMapper, PersonnelFileMoves> implements PersonnelFileMovesService {
 
+    private FlwCommonApi flwCommonApi;
     @Override
     public Page<PersonnelFileMoves> page(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
         QueryWrapper<PersonnelFileMoves> queryWrapper = new QueryWrapper<>();
@@ -61,6 +65,15 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
     @Override
     public void add(PersonnelFileMovesAddParam personnelFileMovesAddParam) {
         PersonnelFileMoves personnelFileMoves = BeanUtil.toBean(personnelFileMovesAddParam, PersonnelFileMoves.class);
+        String modelId = personnelFileMovesAddParam.getModelId();
+        if(ObjectUtil.isNotEmpty(modelId)){
+            String sn = flwCommonApi.getSnByModelId(modelId);
+            if(ObjectUtil.isNotEmpty(sn)){
+                personnelFileMoves.setSn(sn);
+            }
+        }
+        personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
+        personnelFileMoves.setApplyTime(DateUtil.date());
         this.save(personnelFileMoves);
     }
 
@@ -112,6 +125,13 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
         if(ObjectUtil.isNotEmpty(personnelFileMovesPageParam.getMoveType())){
             queryWrapper.lambda().eq(PersonnelFileMoves::getMoveType,personnelFileMovesPageParam.getMoveType());
         }
+        if(ObjectUtil.isNotEmpty(personnelFileMovesPageParam.getSearchKey())){
+            queryWrapper.and(wrapper ->wrapper.like("b.`NAME`",personnelFileMovesPageParam.getSearchKey())
+                    .or().like("a.ORIG_DEPT",personnelFileMovesPageParam.getSearchKey())
+                    .or().like("a.SN",personnelFileMovesPageParam.getSearchKey())
+            );
+        }
+
         if(ObjectUtil.isAllNotEmpty(personnelFileMovesPageParam.getSortField(), personnelFileMovesPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelFileMovesPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelFileMovesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

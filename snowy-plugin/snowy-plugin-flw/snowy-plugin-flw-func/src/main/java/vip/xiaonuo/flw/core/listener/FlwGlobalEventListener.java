@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
@@ -42,7 +43,7 @@ import java.util.List;
  * @date 2022/5/26 10:01
  **/
 @Configuration
-public class FlwGlobalEventListener {
+public class FlwGlobalEventListener implements JavaDelegate {
 
     @Resource
     FormRelationTableService formRelationTableService;
@@ -59,11 +60,6 @@ public class FlwGlobalEventListener {
             NodeRuntimeUtil.handleTableDataVariables(delegateExecution);
             NodeRuntimeUtil.handleTitleAndAbstract(delegateExecution);
             NodeRuntimeUtil.handleUserTaskParticipateInfo(delegateExecution);
-        }
-        if (isProcessEnd(delegateExecution)) {
-            // 发送完成通知
-            NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
-            //updateBizStatus(delegateExecution);
         }
     }
 
@@ -136,21 +132,6 @@ public class FlwGlobalEventListener {
     }
 
     /**
-     * 判断是否流程结束
-     *
-     * @author xuyuxiang
-     * @date 2022/6/9 19:52
-     */
-    public static boolean isProcessEnd(DelegateExecution delegateExecution) {
-        String eventName = delegateExecution.getEventName();
-        if(eventName.equals(NodeExecutionListenerKeyEnum.END.getValue().toLowerCase())) {
-            String activityInstanceId = delegateExecution.getActivityInstanceId();
-            return ObjectUtil.isEmpty(activityInstanceId);
-        }
-        return false;
-    }
-
-    /**
      * 判断任务是否为发起申请
      *
      * @author xuyuxiang
@@ -185,6 +166,22 @@ public class FlwGlobalEventListener {
         String eventName = delegateTask.getEventName();
         return eventName.equals(NodeTaskListenerKeyEnum.ASSIGNMENT.getValue().toLowerCase());
     }
+
+    /**
+     * 结束监听
+     *
+     * @author xuyuxiang
+     * @date 2023/7/17 23:42
+     */
+    @Override
+    public void execute(DelegateExecution delegateExecution) {
+        String eventName = delegateExecution.getEventName();
+        if(eventName.equals(NodeExecutionListenerKeyEnum.END.getValue().toLowerCase())) {
+            // 发送完成通知
+            NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
+        }
+    }
+
 
 
     //@EventListener

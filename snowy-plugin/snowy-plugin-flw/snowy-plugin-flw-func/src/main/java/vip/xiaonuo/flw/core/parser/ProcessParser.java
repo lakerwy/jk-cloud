@@ -23,6 +23,7 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
 import org.camunda.bpm.model.xml.ModelInstance;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.core.enums.NodeExecutionListenerKeyEnum;
+import vip.xiaonuo.flw.core.listener.FlwGlobalEventListener;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 
@@ -48,6 +49,10 @@ public class ProcessParser {
         ProcessBuilder processBuilder = Bpmn.createExecutableProcess(process.getId()).name(process.getTitle());
         ModelInstance modelInstance = processBuilder.getElement().getModelInstance();
         CamundaProperties camundaProperties = modelInstance.newInstance(CamundaProperties.class);
+        CamundaExecutionListener comProcessEndListener = modelInstance.newInstance(CamundaExecutionListener.class);
+        comProcessEndListener.setCamundaEvent(NodeExecutionListenerKeyEnum.END.getValue().toLowerCase());
+        comProcessEndListener.setCamundaClass(FlwGlobalEventListener.class.getName());
+        processBuilder.addExtensionElement(comProcessEndListener);
         FlwNode.FlwNodeProperties properties = process.getProperties();
         if(ObjectUtil.isNotEmpty(properties)) {
             FlwNode.FlwNodeConfigProp configInfo = properties.getConfigInfo();

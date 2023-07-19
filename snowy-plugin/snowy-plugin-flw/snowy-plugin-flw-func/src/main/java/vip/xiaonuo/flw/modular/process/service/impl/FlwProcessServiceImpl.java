@@ -20,7 +20,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -53,11 +52,9 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
-import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
-import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelFormTypeEnum;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelStatusEnum;
@@ -127,6 +124,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Resource
     private FlwTemplateSnService flwTemplateSnService;
+
+    //临时方案，老流程模型id
+    private final String[] modelIds = {"1670715490585120770","1671425567596056578","1672784809137639425","1674588959370481665","1674592452277293057","1679010014274043906"};
 
     @Override
     public void saveDraft(FlwProcessSaveDraftParam flwProcessSaveDraftParam) {
@@ -224,7 +224,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
              processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
         }
         assert processInstance != null;
-        handDataSave(flwProcessStartParam.getDataJson(),sn,modelId,flwModel.getDefinitionId(),flwModel.getDeploymentId(),processInstance.getProcessInstanceId(),parentTablePrimaryId);
+        if(Arrays.asList(modelIds).contains(flwModel.getId())) {
+            handDataSave(flwProcessStartParam.getDataJson(), sn, modelId, flwModel.getDefinitionId(), flwModel.getDeploymentId(), processInstance.getProcessInstanceId(), parentTablePrimaryId);
+        }
     }
 
     @Override
@@ -1002,7 +1004,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         }
     }
 
-    private String getSn(FlwModel flwModel) {
+    public String getSn(FlwModel flwModel) {
         if(ObjectUtil.isNotNull(flwModel)){
             String processSnTemplate = "";
             String processJson = flwModel.getProcessJson();
@@ -1027,5 +1029,11 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             return processSnTemplate;
         }
         return "";
+    }
+
+    @Override
+    public String getSn(String modelId){
+        FlwModel flwModel = flwModelService.queryEntity(modelId);
+        return  getSn(flwModel);
     }
 }

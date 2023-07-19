@@ -120,4 +120,21 @@ public class PersonnelFileMoves {
     /** 新部门ID */
     @ApiModelProperty(value = "新部门ID", position = 21)
     private String nowDutyId;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 26)
+    private String modelId;
+
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 27)
+    private String processInstanceId;
+
+    /** 申请人 */
+    @ApiModelProperty(value = "申请人", position = 28)
+    private String applyUser;
+
+    /** 申请时间 */
+    @ApiModelProperty(value = "申请时间", position = 29)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    private Date applyTime;
 }

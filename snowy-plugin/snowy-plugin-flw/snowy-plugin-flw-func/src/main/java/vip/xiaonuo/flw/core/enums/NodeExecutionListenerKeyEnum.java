@@ -46,7 +46,7 @@ public enum NodeExecutionListenerKeyEnum {
     }
 
     public static void validate(String value) {
-        boolean flag = START.getValue().equals(value) || END.getValue().equals(value);
+        boolean flag = START.getValue().equals(value) || END.getValue().equals(value) || TAKE.getValue().equals(value);
         if(!flag) {
             throw new CommonException("不支持的执行监听器类型：{}", value);
         }

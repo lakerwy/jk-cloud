@@ -116,4 +116,7 @@ public class PersonnelFileMovesAddParam {
     @ApiModelProperty(value = "新部门ID", position = 21)
     private String nowDutyId;
 
+    @ApiModelProperty(value = "流程模型ID" ,position = 22)
+    private String modelId;
+
 }

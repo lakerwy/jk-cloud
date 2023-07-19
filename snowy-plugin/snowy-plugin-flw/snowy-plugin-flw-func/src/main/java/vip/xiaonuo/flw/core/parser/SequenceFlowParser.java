@@ -59,9 +59,9 @@ public class SequenceFlowParser {
         conditionResult = new StringBuilder(StrUtil.removeSuffix(conditionResult, "||"));
         conditionResult.append("}");
         if(conditionResult.toString().equals("${}")) {
-            return exclusiveGatewayBuilder.condition(flwNode.getTitle(), "${true}");
+            return exclusiveGatewayBuilder.condition(flwNode.getTitle(), "${true}").sequenceFlowId(flwNode.getId());
         } else {
-            return exclusiveGatewayBuilder.condition(flwNode.getTitle(), conditionResult.toString());
+            return exclusiveGatewayBuilder.condition(flwNode.getTitle(), conditionResult.toString()).sequenceFlowId(flwNode.getId());
         }
     }
 }

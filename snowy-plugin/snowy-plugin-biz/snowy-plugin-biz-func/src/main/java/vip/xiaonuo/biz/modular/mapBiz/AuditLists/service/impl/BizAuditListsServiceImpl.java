@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.consts.CacheConstant;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoVo;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDetails;
@@ -132,7 +133,13 @@ public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, B
         String profession = bizAuditLists.getProfession();
         if(CommonUtils.isNumeric(profession)){
             bizAuditLists.setProfession ( (String)commonCacheOperator.get(CommonUtils.MAJOR_TYPE + profession));
-            bizAuditLists.setReader((String) commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+bizAuditLists.getReader()));
+//            commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+bizAuditLists.getReader())
+            String o = String.valueOf(commonCacheOperator.get(CacheConstant.USER_INFO + bizAuditLists.getReader()));
+            String s = "";
+            if(StrUtil.isNotBlank(o)){
+                s = " "+o;
+            }
+            bizAuditLists.setReader(commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+bizAuditLists.getReader()) + s);
         }
         String reviewId = bizAuditLists.getReviewId();
         BizChartReviews bizChartReviews = bizChartReviewsService.getById(reviewId);

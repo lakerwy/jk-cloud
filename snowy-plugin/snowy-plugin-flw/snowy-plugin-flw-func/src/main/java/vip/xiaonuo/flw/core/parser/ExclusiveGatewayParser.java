@@ -16,13 +16,20 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import org.camunda.bpm.model.bpmn.builder.*;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaExecutionListener;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
+import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.camunda.bpm.model.xml.ModelInstance;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.flw.core.enums.NodeExecutionListenerKeyEnum;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 排他网关构造器
@@ -136,12 +143,15 @@ public class ExclusiveGatewayParser {
                     .getProperties().getConfigInfo().getPriorityLevel()));
             // 定义条件子节点构造的结果
             List<AbstractFlowNodeBuilder> conditionNodeReusltBuilderList = CollectionUtil.newArrayList();
+            // 定义条件构造结果
+            ExclusiveGatewayBuilder oneConditionBuilder = null;
             // 遍历条件节点，逐条构造
             for (FlwNode conditionNode: conditionNodeList) {
                 // 获取这个条件的子节点
                 FlwNode oneConditionChildNode = conditionNode.getChildNode();
                 // 先构造一个条件
-                ExclusiveGatewayBuilder oneConditionBuilder = SequenceFlowParser.buildSequenceFlowSingle(exclusiveGatewayBuilder, conditionNode);
+                oneConditionBuilder = SequenceFlowParser.buildSequenceFlowSingle(exclusiveGatewayBuilder, conditionNode);
+
                 // 再根据条件子节点类型继续构造
                 if(ObjectUtil.isNotEmpty(oneConditionChildNode) && ObjectUtil.isNotEmpty(oneConditionChildNode.getId())) {
                     if(NodeInfoUtil.isUserTask(oneConditionChildNode)) {
@@ -163,6 +173,35 @@ public class ExclusiveGatewayParser {
                     // 如果条件节点的子节点为空，则构造一个自动通过节点
                     conditionNodeReusltBuilderList.add(UserTaskParser.buildUserTaskSingle(oneConditionBuilder, createAutoCompleteNode()));
                 }
+            }
+            // 对条件连接线构造监听器属性
+            if(ObjectUtil.isNotEmpty(oneConditionBuilder)) {
+                List<FlwNode> finalConditionNodeList = conditionNodeList;
+                oneConditionBuilder.getElement().getOutgoing().forEach(sequenceFlow -> {
+                    FlwNode conditionNode = finalConditionNodeList.stream().filter(tempNode -> {
+                        return tempNode.getId().equals(sequenceFlow.getId());
+                    }).collect(Collectors.toList()).get(0);
+                    SequenceFlowBuilder sequenceFlowBuilder = sequenceFlow.builder();
+                    ModelInstance modelInstance = sequenceFlowBuilder.getElement().getModelInstance();
+                    CamundaProperties camundaProperties = modelInstance.newInstance(CamundaProperties.class);
+                    FlwNode.FlwNodeProperties properties = conditionNode.getProperties();
+                    if(ObjectUtil.isNotEmpty(properties)) {
+                        List<FlwNode.FlwNodeExecutionListenerProp> executionListenerInfo = properties.getExecutionListenerInfo();
+                        if (ObjectUtil.isNotEmpty(executionListenerInfo)) {
+                            CamundaProperty camundaProperty = modelInstance.newInstance(CamundaProperty.class);
+                            camundaProperty.setCamundaName("executionListenerInfo");
+                            camundaProperty.setCamundaValue(JSONUtil.toJsonStr(executionListenerInfo));
+                            camundaProperties.addChildElement(camundaProperty);
+                            executionListenerInfo.forEach(flwNodeExecutionListenerProp -> {
+                                NodeExecutionListenerKeyEnum.validate(flwNodeExecutionListenerProp.getKey());
+                                CamundaExecutionListener camundaExecutionListener = modelInstance.newInstance(CamundaExecutionListener.class);
+                                camundaExecutionListener.setCamundaEvent(flwNodeExecutionListenerProp.getKey().toLowerCase());
+                                camundaExecutionListener.setCamundaClass(flwNodeExecutionListenerProp.getValue());
+                                sequenceFlowBuilder.addExtensionElement(camundaExecutionListener);
+                            });
+                        }
+                    }
+                });
             }
             // 获取条件子节点构造集合中的任意一个
             AbstractFlowNodeBuilder conditionNodeReusltBuilderListZero = conditionNodeReusltBuilderList.get(0);

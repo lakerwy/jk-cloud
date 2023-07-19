@@ -36,6 +36,7 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.task.Comment;
+import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.*;
@@ -149,7 +150,7 @@ public class NodeRuntimeUtil {
         Collection<ExtensionElements> extensionElementsCollection = delegateExecution.getBpmnModelElementInstance().getParentElement()
                 .getChildElementsByType(ExtensionElements.class);
         RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
-        FlwTemplateSnService flwTemplateSnService = SpringUtil.getBean(FlwTemplateSnService.class);
+        //FlwTemplateSnService flwTemplateSnService = SpringUtil.getBean(FlwTemplateSnService.class);
         if(ObjectUtil.isNotEmpty(extensionElementsCollection)) {
             extensionElementsCollection.forEach(extensionElements ->
                 extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
@@ -218,27 +219,16 @@ public class NodeRuntimeUtil {
      **/
     public static void handleUserTaskParticipateInfo(DelegateExecution delegateExecution) {
         delegateExecution.getBpmnModelInstance().getModelElementsByType(UserTask.class).forEach(userTask -> {
-            AtomicReference<String> participateInfo = new AtomicReference<>();
-            ExtensionElements extensionElements = userTask.getExtensionElements();
-            if (ObjectUtil.isNotEmpty(extensionElements)) {
-                extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
-                    camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
-                        if (camundaProperty.getCamundaName().equals("participateInfo")) {
-                            if(ObjectUtil.isNotEmpty(camundaProperty.getCamundaValue())) {
-                                participateInfo.set(camundaProperty.getCamundaValue());
-                            }
-                        }
-                    }));
-            }
-            if (ObjectUtil.isEmpty(participateInfo.get())) {
-                // 是否用户任务（排除开始任务）
-                if(isUserTask(delegateExecution)) {
-                    handleUserTaskEmptyParticipateInfo(delegateExecution, userTask);
+            String userTaskParticipateInfo = getUserTaskParticipateInfo(userTask);
+            if (ObjectUtil.isEmpty(userTaskParticipateInfo)) {
+                // 是否用户任务（排除开始节点和开始任务）
+                if(!isStartUserTask(delegateExecution)) {
+                    handleUserTaskEmptyParticipateInfo(delegateExecution.getProcessInstanceId(), userTask);
                 }
             } else {
-                List<String> participateUserIdList = handleUserTaskParticipateInfo(delegateExecution, participateInfo.get());
+                List<String> participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), userTaskParticipateInfo);
                 if (ObjectUtil.isEmpty(participateUserIdList)) {
-                    handleUserTaskEmptyParticipateInfo(delegateExecution, userTask);
+                    handleUserTaskEmptyParticipateInfo(delegateExecution.getProcessInstanceId(), userTask);
                 } else {
                     delegateExecution.setVariable("assignee" + StrUtil.UNDERLINE + userTask.getId(), participateUserIdList);
                 }
@@ -247,21 +237,34 @@ public class NodeRuntimeUtil {
     }
 
     /**
+     * 判断执行是否为发起申请
+     *
+     * @author xuyuxiang
+     * @date 2022/6/9 19:52
+     */
+    public static boolean isStartUserTask(DelegateExecution delegateExecution) {
+        FlowElement bpmnModelElementInstance = delegateExecution.getBpmnModelElementInstance();
+        if(bpmnModelElementInstance instanceof StartEvent) {
+            return true;
+        }
+        if(bpmnModelElementInstance instanceof UserTask) {
+            UserTask userTask = (UserTask) bpmnModelElementInstance;
+            return isStartUserTask(userTask);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 判断任务是否为发起申请
      *
      * @author xuyuxiang
      * @date 2022/6/9 19:52
      */
-    public static boolean isUserTask(DelegateExecution delegateExecution) {
-        FlowElement bpmnModelElementInstance = delegateExecution.getBpmnModelElementInstance();
-        if(bpmnModelElementInstance instanceof UserTask) {
-            UserTask userTask = (UserTask) bpmnModelElementInstance;
-            List<FlowNode> flowNodeList = userTask.getPreviousNodes().list();
-            if(ObjectUtil.isNotEmpty(flowNodeList) && flowNodeList.size() == 1) {
-                return !flowNodeList.get(0).getElementType().getTypeName().equals(BpmnModelConstants.BPMN_ELEMENT_START_EVENT);
-            } else {
-                return true;
-            }
+    public static boolean isStartUserTask(UserTask userTask) {
+        List<FlowNode> flowNodeList = userTask.getPreviousNodes().list();
+        if(ObjectUtil.isNotEmpty(flowNodeList) && flowNodeList.size() == 1) {
+            return flowNodeList.get(0).getElementType().getTypeName().equals(BpmnModelConstants.BPMN_ELEMENT_START_EVENT);
         } else {
             return false;
         }
@@ -277,68 +280,69 @@ public class NodeRuntimeUtil {
         ExtensionElements extensionElements = delegateTask.getBpmnModelElementInstance().getExtensionElements();
         if (ObjectUtil.isNotEmpty(extensionElements)) {
             extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
-                camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
-                    if (camundaProperty.getCamundaName().equals("configInfo")) {
-                        JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
-                        String userTaskType = configInfo.getStr("userTaskType");
-                        if (userTaskType.equals("ARTIFICIAL")) {
-                            // 如果当前审批节点办理人为AUTO_COMPLETE，则自动通过
-                            String assignee = delegateTask.getAssignee();
-                            if (ObjectUtil.isNotEmpty(assignee) && assignee.equals("AUTO_COMPLETE")) {
-                                // 自动通过任务
-                                handleUserTaskCommentAndAttachment(delegateTask.getId(),
-                                        delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
-                                        "该节点审批人为空，审批自动通过", CollectionUtil.newArrayList());
-                                delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
-                            } else {
-                                // 获取流程类型
-                                Collection<ExtensionElements> processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance().getParentElement().getChildElementsByType(ExtensionElements.class);
-                                if(ObjectUtil.isNotEmpty(processExtensionElementsCollection)) {
-                                    processExtensionElementsCollection.forEach(processExtensionElements ->
-                                            processExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(processCamundaProperties ->
-                                                    processCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(processCamundaProperty -> {
-                                                        if (processCamundaProperty.getCamundaName().equals("configInfo")) {
-                                                            JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
-                                                            Boolean processEnableAutoDistinct = processConfigInfo.getBool("processEnableAutoDistinct");
-                                                            // 如果开启了自动去重
-                                                            if (processEnableAutoDistinct) {
-                                                                String processAutoDistinctType = processConfigInfo.getStr("processAutoDistinctType");
-                                                                JSONObject jsonObject = JSONUtil.parseObj(delegateTask.getVariables());
-                                                                String initiator = jsonObject.getStr("initiator");
-                                                                if(ObjectUtil.isNotEmpty(initiator)) {
-                                                                    if (processAutoDistinctType.equals("SAMPLE")) {
-                                                                        if (ObjectUtil.isNotEmpty(assignee) && assignee.equals(initiator)) {
-                                                                            // 当审批人和发起人是同一个人，审批自动通过；
-                                                                            handleUserTaskCommentAndAttachment(delegateTask.getId(),
-                                                                                    delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
-                                                                                    "审批人和发起人是同一个人，审批自动通过", CollectionUtil.newArrayList());
-                                                                            delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
-                                                                        }
-                                                                    } else {
-                                                                        // 获取上一个节点的审批参与人，如果为一个参与人，且跟当前的参与人一致，则审批自动通过；
-                                                                        List<FlowNode> previousNodeList = delegateTask.getBpmnModelElementInstance().getPreviousNodes().list();
-                                                                        if (ObjectUtil.isNotEmpty(previousNodeList) && previousNodeList.size() == 1) {
-                                                                            FlowNode flowNode = previousNodeList.get(0);
-                                                                            if (flowNode.getElementType().getTypeName().equals(BpmnModelConstants.BPMN_ELEMENT_USER_TASK)) {
-                                                                                // 获取上一节点的审批参与人
-                                                                                AtomicReference<String> previousParticipateInfo = new AtomicReference<>();
-                                                                                ExtensionElements previousExtensionElements = flowNode.getExtensionElements();
-                                                                                if (ObjectUtil.isNotEmpty(previousExtensionElements)) {
-                                                                                    previousExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(previousCamundaProperties ->
-                                                                                            previousCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(previousCamundaProperty -> {
-                                                                                                if (previousCamundaProperty.getCamundaName().equals("participateInfo")) {
-                                                                                                    previousParticipateInfo.set(previousCamundaProperty.getCamundaValue());
-                                                                                                }
-                                                                                            }));
-                                                                                }
-                                                                                if (ObjectUtil.isNotEmpty(previousParticipateInfo.get())) {
-                                                                                    List<String> participateInfo = handleUserTaskParticipateInfo(delegateTask.getExecution(), previousParticipateInfo.get());
-                                                                                    if(ObjectUtil.isNotEmpty(participateInfo) && participateInfo.size() == 1) {
-                                                                                        if(delegateTask.getAssignee().equals(participateInfo.get(0))) {
-                                                                                            handleUserTaskCommentAndAttachment(delegateTask.getId(),
-                                                                                                    delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
-                                                                                                    "相同审批人连续出现，审批自动通过", CollectionUtil.newArrayList());
-                                                                                            delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
+                    camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
+                        if (camundaProperty.getCamundaName().equals("configInfo")) {
+                            JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
+                            String userTaskType = configInfo.getStr("userTaskType");
+                            if (userTaskType.equals("ARTIFICIAL")) {
+                                // 如果当前审批节点办理人为AUTO_COMPLETE，则自动通过
+                                String assignee = delegateTask.getAssignee();
+                                if (ObjectUtil.isNotEmpty(assignee) && assignee.equals("AUTO_COMPLETE")) {
+                                    // 自动通过任务
+                                    handleUserTaskCommentAndAttachment(delegateTask.getId(),
+                                            delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
+                                            "该节点审批人为空，审批自动通过", CollectionUtil.newArrayList());
+                                    delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
+                                } else {
+                                    // 获取流程类型
+                                    Collection<ExtensionElements> processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance().getParentElement().getChildElementsByType(ExtensionElements.class);
+                                    if(ObjectUtil.isNotEmpty(processExtensionElementsCollection)) {
+                                        processExtensionElementsCollection.forEach(processExtensionElements ->
+                                                processExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(processCamundaProperties ->
+                                                        processCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(processCamundaProperty -> {
+                                                            if (processCamundaProperty.getCamundaName().equals("configInfo")) {
+                                                                JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
+                                                                Boolean processEnableAutoDistinct = processConfigInfo.getBool("processEnableAutoDistinct");
+                                                                // 如果开启了自动去重
+                                                                if (processEnableAutoDistinct) {
+                                                                    String processAutoDistinctType = processConfigInfo.getStr("processAutoDistinctType");
+                                                                    JSONObject jsonObject = JSONUtil.parseObj(delegateTask.getVariables());
+                                                                    String initiator = jsonObject.getStr("initiator");
+                                                                    if(ObjectUtil.isNotEmpty(initiator)) {
+                                                                        if (processAutoDistinctType.equals("SAMPLE")) {
+                                                                            if (ObjectUtil.isNotEmpty(assignee) && assignee.equals(initiator)) {
+                                                                                // 当审批人和发起人是同一个人，审批自动通过；
+                                                                                handleUserTaskCommentAndAttachment(delegateTask.getId(),
+                                                                                        delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
+                                                                                        "审批人和发起人是同一个人，审批自动通过", CollectionUtil.newArrayList());
+                                                                                delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
+                                                                            }
+                                                                        } else {
+                                                                            // 获取上一个节点的审批参与人，如果为一个参与人，且跟当前的参与人一致，则审批自动通过；
+                                                                            List<FlowNode> previousNodeList = delegateTask.getBpmnModelElementInstance().getPreviousNodes().list();
+                                                                            if (ObjectUtil.isNotEmpty(previousNodeList) && previousNodeList.size() == 1) {
+                                                                                FlowNode flowNode = previousNodeList.get(0);
+                                                                                if (flowNode.getElementType().getTypeName().equals(BpmnModelConstants.BPMN_ELEMENT_USER_TASK)) {
+                                                                                    // 获取上一节点的审批参与人
+                                                                                    AtomicReference<String> previousParticipateInfo = new AtomicReference<>();
+                                                                                    ExtensionElements previousExtensionElements = flowNode.getExtensionElements();
+                                                                                    if (ObjectUtil.isNotEmpty(previousExtensionElements)) {
+                                                                                        previousExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(previousCamundaProperties ->
+                                                                                                previousCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(previousCamundaProperty -> {
+                                                                                                    if (previousCamundaProperty.getCamundaName().equals("participateInfo")) {
+                                                                                                        previousParticipateInfo.set(previousCamundaProperty.getCamundaValue());
+                                                                                                    }
+                                                                                                }));
+                                                                                    }
+                                                                                    if (ObjectUtil.isNotEmpty(previousParticipateInfo.get())) {
+                                                                                        List<String> participateInfo = handleUserTaskParticipateInfo(delegateTask.getProcessInstanceId(), previousParticipateInfo.get());
+                                                                                        if(ObjectUtil.isNotEmpty(participateInfo) && participateInfo.size() == 1) {
+                                                                                            if(delegateTask.getAssignee().equals(participateInfo.get(0))) {
+                                                                                                handleUserTaskCommentAndAttachment(delegateTask.getId(),
+                                                                                                        delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
+                                                                                                        "相同审批人连续出现，审批自动通过", CollectionUtil.newArrayList());
+                                                                                                delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
+                                                                                            }
                                                                                         }
                                                                                     }
                                                                                 }
@@ -347,43 +351,42 @@ public class NodeRuntimeUtil {
                                                                     }
                                                                 }
                                                             }
-                                                        }
-                                                    })
-                                            )
-                                    );
+                                                        })
+                                                )
+                                        );
+                                    }
+                                }
+                            } else {
+                                switch (userTaskType) {
+                                    case "EMPTY":
+                                        // 空节点自动通过，不记录审批意见
+                                        delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
+                                        break;
+                                    case "COMPLETE":
+                                        // 自动通过任务
+                                        handleUserTaskCommentAndAttachment(delegateTask.getId(),
+                                                delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
+                                                "该节点为自动通过节点，审批自动通过", CollectionUtil.newArrayList());
+                                        delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
+                                        break;
+                                    case "REJECT":
+                                        // 自动拒绝任务
+                                        handleUserTaskCommentAndAttachment(delegateTask.getId(),
+                                                delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动拒绝",
+                                                "该节点为自动拒绝节点，审批自动拒绝", CollectionUtil.newArrayList());
+                                        // 发送退回消息
+                                        NodeRuntimeUtil.handleUserTaskBackNotice(delegateTask);
+                                        // 执行拒绝
+                                        delegateTask.getProcessEngineServices().getRuntimeService()
+                                                .deleteProcessInstancesIfExists(CollectionUtil.newArrayList(delegateTask.getProcessInstanceId()), "REJECT",
+                                                        true, true, true);
+                                        break;
+                                    default:
+                                        throw new CommonException("不支持的任务类型：{}", userTaskType);
                                 }
                             }
-                        } else {
-                            switch (userTaskType) {
-                                case "EMPTY":
-                                    // 空节点自动通过，不记录审批意见
-                                    delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
-                                    break;
-                                case "COMPLETE":
-                                    // 自动通过任务
-                                    handleUserTaskCommentAndAttachment(delegateTask.getId(),
-                                            delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
-                                            "该节点为自动通过节点，审批自动通过", CollectionUtil.newArrayList());
-                                    delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
-                                    break;
-                                case "REJECT":
-                                    // 自动拒绝任务
-                                    handleUserTaskCommentAndAttachment(delegateTask.getId(),
-                                            delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动拒绝",
-                                            "该节点为自动拒绝节点，审批自动拒绝", CollectionUtil.newArrayList());
-                                    // 发送退回消息
-                                    NodeRuntimeUtil.handleUserTaskBackNotice(delegateTask);
-                                    // 执行拒绝
-                                    delegateTask.getProcessEngineServices().getRuntimeService()
-                                            .deleteProcessInstancesIfExists(CollectionUtil.newArrayList(delegateTask.getProcessInstanceId()), "REJECT",
-                                            true, true, true);
-                                    break;
-                                default:
-                                    throw new CommonException("不支持的任务类型：{}", userTaskType);
-                            }
                         }
-                    }
-                })
+                    })
             );
         }
     }
@@ -394,25 +397,26 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/13 18:16
      **/
-    public static void handleUserTaskEmptyParticipateInfo(DelegateExecution delegateExecution, UserTask userTask) {
+    public static void handleUserTaskEmptyParticipateInfo(String processInstanceId, UserTask userTask) {
         ExtensionElements extensionElements = userTask.getExtensionElements();
+        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
         if(ObjectUtil.isNotEmpty(extensionElements)) {
             extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
-                camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
-                if (camundaProperty.getCamundaName().equals("configInfo")) {
-                    JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
-                    String userTaskEmptyApproveType = configInfo.getStr("userTaskEmptyApproveType");
-                    if (userTaskEmptyApproveType.equals("AUTO_TURN")) {
-                        // 自动转交，设置转交人
-                        delegateExecution.setVariable("assignee" + StrUtil.UNDERLINE + userTask.getId(),
-                                CollectionUtil.newArrayList(configInfo.getStr("userTaskEmptyApproveUser")));
-                    } else if(userTaskEmptyApproveType.equals("AUTO_COMPLETE")) {
-                        // 自动通过，则设置节点办理人为AUTO_COMPLETE
-                        delegateExecution.setVariable("assignee" + StrUtil.UNDERLINE + userTask.getId(),
-                                CollectionUtil.newArrayList(userTaskEmptyApproveType));
-                    }
-                }
-            }));
+                    camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
+                        if (camundaProperty.getCamundaName().equals("configInfo")) {
+                            JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
+                            String userTaskEmptyApproveType = configInfo.getStr("userTaskEmptyApproveType");
+                            if (userTaskEmptyApproveType.equals("AUTO_TURN")) {
+                                // 自动转交，设置转交人
+                                runtimeService.setVariable(processInstanceId, "assignee" + StrUtil.UNDERLINE + userTask.getId(),
+                                        CollectionUtil.newArrayList(configInfo.getStr("userTaskEmptyApproveUser")));
+                            } else if(userTaskEmptyApproveType.equals("AUTO_COMPLETE")) {
+                                // 自动通过，则设置节点办理人为AUTO_COMPLETE
+                                runtimeService.setVariable(processInstanceId, "assignee" + StrUtil.UNDERLINE + userTask.getId(),
+                                        CollectionUtil.newArrayList(userTaskEmptyApproveType));
+                            }
+                        }
+                    }));
         }
     }
 
@@ -459,17 +463,18 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/6 9:58
      **/
-    public static List<String> handleUserTaskParticipateInfo(DelegateExecution delegateExecution, String participateInfo) {
+    public static List<String> handleUserTaskParticipateInfo(String processInstanceId, String participateInfo) {
         SysUserApi sysUserApi = SpringUtil.getBean(SysUserApi.class);
         SysRelationApi sysRelationApi = SpringUtil.getBean(SysRelationApi.class);
         SysOrgApi sysOrgApi = SpringUtil.getBean(SysOrgApi.class);
-        JSONObject jsonObject = JSONUtil.parseObj(delegateExecution.getVariables());
+        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+        JSONObject jsonObject = JSONUtil.parseObj(runtimeService.getVariables(processInstanceId));
         JSONArray participateInfoArray = JSONUtil.parseArray(participateInfo);
         String initiator = jsonObject.getStr("initiator");
         String initiatorOrgId = jsonObject.getStr("initiatorOrgId");
         String initiatorPositionId = jsonObject.getStr("initiatorPositionId");
         String initiatorDataJson = jsonObject.getStr("initiatorDataJson");
-        Object initiatorTableJson = delegateExecution.getVariable("initiatorTableJson");
+        Object initiatorTableJson = runtimeService.getVariable(processInstanceId, "initiatorTableJson");
         List<String> resultUserIdList = CollectionUtil.newArrayList();
         participateInfoArray.forEach(participateInfoJsonObject -> {
             FlwNode.FlwNodeParticipateProp flwNodeParticipateProp = JSONUtil.toBean(JSONUtil.parseObj(participateInfoJsonObject),
@@ -533,14 +538,30 @@ public class NodeRuntimeUtil {
                                         .collect(Collectors.toList()).get(0)).getStr("tableName");
                                 String formUserVariableKey = StrUtil.toCamelCase(primaryTableName.toLowerCase()) + StrUtil.UNDERLINE +
                                         StrUtil.toCamelCase(formUser.toLowerCase());
-                                Object formUserVariableValue = delegateExecution.getVariable(formUserVariableKey);
+                                Object formUserVariableValue = runtimeService.getVariable(processInstanceId, formUserVariableKey);
                                 if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
-                                    resultUserIdList.add(Convert.toStr(formUserVariableValue));
+                                    if(JSONUtil.isTypeJSONArray(Convert.toStr(formUserVariableValue))) {
+                                        JSONArray jsonArray = JSONUtil.parseArray(Convert.toStr(formUserVariableValue));
+                                        List<String> formUserIdList = CollectionUtil.removeNull(jsonArray.stream().map(o -> {
+                                            JSONObject userItem = JSONUtil.parseObj(o);
+                                            if (ObjectUtil.isNotEmpty(userItem)) {
+                                                return userItem.getStr("id");
+                                            } else {
+                                                return null;
+                                            }
+                                        }).collect(Collectors.toList()));
+                                        resultUserIdList.addAll(formUserIdList);
+                                    }
                                 }
                             } else {
-                                Object formUserVariableValue = delegateExecution.getVariable(formUser);
+                                Object formUserVariableValue = runtimeService.getVariable(processInstanceId, formUser);
                                 if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
-                                    resultUserIdList.addAll(CollectionUtil.distinct(StrUtil.split(Convert.toStr(formUserVariableValue), StrUtil.COMMA)));
+                                    StrUtil.split(Convert.toStr(formUserVariableValue), StrUtil.COMMA).forEach(userId -> {
+                                        JSONObject user = sysUserApi.getUserByIdWithoutException(userId);
+                                        if(ObjectUtil.isNotEmpty(user)) {
+                                            resultUserIdList.add(userId);
+                                        }
+                                    });
                                 }
                             }
                         }
@@ -674,12 +695,12 @@ public class NodeRuntimeUtil {
                 delegateExecution.getBpmnModelElementInstance().getChildElementsByType(ExtensionElements.class).forEach(extensionElements ->
                         extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
                                 camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
-                                            if (camundaProperty.getCamundaName().equals("participateInfo")) {
-                                                    participateInfo.set(camundaProperty.getCamundaValue());
-                                            }
+                                    if (camundaProperty.getCamundaName().equals("participateInfo")) {
+                                        participateInfo.set(camundaProperty.getCamundaValue());
+                                    }
                                 })));
                 if (ObjectUtil.isNotEmpty(participateInfo.get())) {
-                    participateUserIdList = handleUserTaskParticipateInfo(delegateExecution, participateInfo.get());
+                    participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), participateInfo.get());
                 }
                 processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateExecution(delegateExecution, processNoticeTemplate);
                 break;
@@ -730,7 +751,7 @@ public class NodeRuntimeUtil {
                         List<String> userPhoneList = sysUserApi.getUserListByIdListWithoutException(finalParticipateUserIdList).stream()
                                 .map(jsonObject -> jsonObject.getStr("phone")).collect(Collectors.toList());
                         if(ObjectUtil.isNotEmpty(userPhoneList)) {
-                                /*devSmsApi.sendSmsAliyun(StrUtil.join(StrUtil.COMMA, userPhoneList), null, "模板编码", "模板参数");*/
+                            /*devSmsApi.sendSmsAliyun(StrUtil.join(StrUtil.COMMA, userPhoneList), null, "模板编码", "模板参数");*/
                         }
                         log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的SMS");
                         break;
@@ -738,6 +759,7 @@ public class NodeRuntimeUtil {
                         throw new CommonException("不支持的通知渠道类型：{}", processNoticeChannel);
                 }
             }
+
         });
     }
 
@@ -792,7 +814,7 @@ public class NodeRuntimeUtil {
      **/
     public static JSONObject handleDataJsonPrimaryTableField(String dataJson) {
         JSONObject dataObject = JSONUtil.parseObj(dataJson);
-        AtomicReference<JSONObject> primaryTableJsonObject = new AtomicReference<>(JSONUtil.createObj());
+        AtomicReference<JSONObject> primaryTableJsonObject = new AtomicReference<>();
         dataObject.forEach((key, value) -> {
             String valueJson = JSONUtil.toJsonStr(value);
             boolean isPrimaryTableJson = JSONUtil.isTypeJSONObject(valueJson);
@@ -1038,7 +1060,6 @@ public class NodeRuntimeUtil {
             }
             try {
                 conn.setAutoCommit(false);
-
                 StrUtil.split(sql.trim(), ";").forEach(sqlItem -> {
                     if(ObjectUtil.isNotEmpty(sqlItem)) {
                         try {
@@ -1089,5 +1110,67 @@ public class NodeRuntimeUtil {
             return "-1";
         }
 
+    }
+
+    /**
+     * 处理使用【表单内的人】的节点的数据（排除当前所有任务的节点）
+     *
+     * @author xuyuxiang
+     * @date 2023/7/19 9:33
+     **/
+    public static void handleUserTaskWithFormUserParticipateInfo(String processInstanceId, String processDefinitionId, String dataJson) {
+        TaskService taskService = SpringUtil.getBean(TaskService.class);
+        Set<String> currentTaskDefinitionIdSet = taskService.createTaskQuery().processInstanceId(processInstanceId).list().stream()
+                .map(Task::getTaskDefinitionKey).collect(Collectors.toSet());
+        if(ObjectUtil.isEmpty(currentTaskDefinitionIdSet)) {
+            throw new CommonException("数据错误，当前任务数量为空");
+        }
+        RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
+        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+        repositoryService.getBpmnModelInstance(processDefinitionId)
+                .getModelElementsByType(UserTask.class).forEach(userTask -> {
+                    if(!isStartUserTask(userTask)) {
+                        boolean isCurrentTaskDefinition = currentTaskDefinitionIdSet.contains(userTask.getId());
+                        if(!isCurrentTaskDefinition) {
+                            String userTaskParticipateInfo = getUserTaskParticipateInfo(userTask);
+                            if (ObjectUtil.isNotEmpty(userTaskParticipateInfo)) {
+                                boolean useFormUser = JSONUtil.parseArray(userTaskParticipateInfo).stream().anyMatch(o -> JSONUtil.toBean(JSONUtil.parseObj(o),
+                                        FlwNode.FlwNodeParticipateProp.class).getKey().equals("FORM_USER"));
+                                if(useFormUser) {
+                                    List<String> participateUserIdList = handleUserTaskParticipateInfo(processInstanceId, userTaskParticipateInfo);
+                                    if (ObjectUtil.isEmpty(participateUserIdList)) {
+                                        handleUserTaskEmptyParticipateInfo(processInstanceId, userTask);
+                                    } else {
+                                        runtimeService.setVariable(processInstanceId, "assignee" + StrUtil.UNDERLINE + userTask.getId(), participateUserIdList);
+                                    }
+                                }
+                            } else {
+                                handleUserTaskEmptyParticipateInfo(processInstanceId, userTask);
+                            }
+                        }
+                    }
+                });
+    }
+
+    /**
+     * 根据用户任务获取当前节点的办理人配置数据
+     *
+     * @author xuyuxiang
+     * @date 2023/7/19 10:37
+     **/
+    public static String getUserTaskParticipateInfo(UserTask userTask) {
+        AtomicReference<String> participateInfo = new AtomicReference<>();
+        ExtensionElements extensionElements = userTask.getExtensionElements();
+        if (ObjectUtil.isNotEmpty(extensionElements)) {
+            extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
+                    camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
+                        if (camundaProperty.getCamundaName().equals("participateInfo")) {
+                            if(ObjectUtil.isNotEmpty(camundaProperty.getCamundaValue())) {
+                                participateInfo.set(camundaProperty.getCamundaValue());
+                            }
+                        }
+                    }));
+        }
+        return participateInfo.get();
     }
 }

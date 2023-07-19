@@ -476,7 +476,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             throw new CommonException("当前节点：{}的节点类型不支持加签", currentUserTask.getName());
         }
         List<String> assigneeList = flwTaskAddSignParam.getAssigneeList();
-        List<String> existAssigneeList = historyService.createHistoricTaskInstanceQuery().taskDefinitionKey(flwTaskAddSignParam
+        List<String> existAssigneeList = historyService.createHistoricTaskInstanceQuery().processInstanceId(task.getProcessInstanceId()).taskDefinitionKey(flwTaskAddSignParam
                 .getCurrentActivityId()).list().stream().map(HistoricTaskInstance::getAssignee).collect(Collectors.toList());
         Collection<String> intersection = CollectionUtil.intersection(assigneeList, existAssigneeList);
         if(ObjectUtil.isNotEmpty(intersection)) {

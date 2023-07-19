@@ -46,7 +46,7 @@ public class FlwServiceTaskListener implements JavaDelegate {
                             }
                         })));
         if (ObjectUtil.isNotEmpty(participateInfo.get())) {
-            participateUserIdList = NodeRuntimeUtil.handleUserTaskParticipateInfo(delegateExecution, participateInfo.get());
+            participateUserIdList = NodeRuntimeUtil.handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), participateInfo.get());
         }
         SpringUtil.getBean(FlwProcessService.class).doCopy(delegateExecution.getProcessInstanceId(), participateUserIdList);
         // 发送抄送通知
