@@ -623,16 +623,16 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setCurrentActivityName(task.getName());
                     String taskAssignee = task.getAssignee();
                     if(ObjectUtil.isNotEmpty(taskAssignee)) {
-                        JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
-                        if(ObjectUtil.isNotEmpty(taskAssigneeUser)) {
-                            flwTodoTaskResult.setAssignees(taskAssigneeUser.getStr("name"));
-                        }
+                        flwTodoTaskResult.setAssignees(taskAssignee);
+//                        JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
+//                        if(ObjectUtil.isNotEmpty(taskAssigneeUser)) {
+//                            flwTodoTaskResult.setAssignees(taskAssigneeUser.getStr("name"));
+//                        }
                     } else {
                         String assignee = variableJsonObject.getStr("assignee" + StrUtil.UNDERLINE + task.getTaskDefinitionKey());
                         if(ObjectUtil.isNotEmpty(assignee)) {
                             List<String> userIdList = JSONUtil.toList(assignee, String.class);
-                            flwTodoTaskResult.setAssignees(StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(userIdList).stream()
-                                    .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList())));
+                            flwTodoTaskResult.setAssignees(StrUtil.join("、", userIdList));
                         }
                     }
                     flwTodoTaskResult.setInitiator(variableJsonObject.getStr("initiator"));

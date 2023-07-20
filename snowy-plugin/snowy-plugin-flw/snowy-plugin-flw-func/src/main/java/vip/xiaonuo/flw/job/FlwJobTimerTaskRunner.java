@@ -12,16 +12,22 @@
  */
 package vip.xiaonuo.flw.job;
 
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
+import org.camunda.bpm.engine.impl.calendar.DateTimeUtil;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import vip.xiaonuo.common.timer.CommonTimerTaskRunner;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.CacheConstant;
+import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.flw.modular.task.result.FlwTodoTaskResult;
 import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
 
 import javax.annotation.Resource;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 定时器的一个示例
@@ -35,12 +41,26 @@ public class FlwJobTimerTaskRunner{
     @Resource
     FlwTaskService flwTaskService;
 
-   // @Scheduled(cron = "0 0/1 * * * ?")
+    @Autowired
+    IDingDingService iDingDingService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
+    /* 0 0 9 * * ?  */
+   @Scheduled(cron = "0 0 9 * * ? ")
     public void action() {
         List<FlwTodoTaskResult> flwTodoTaskResults = flwTaskService.todoListByType("0ebe4494-1fc6-11ee-a186-0242ac110004", "xn41ae86-a393-4fdc-8eea-68808a659fc7");
-        for (FlwTodoTaskResult flwTodoTaskResult : flwTodoTaskResults) {
-            log.info("测试数据----"+flwTodoTaskResult.getCurrentActivityName()+flwTodoTaskResult.getTitle());
+        List<FlwTodoTaskResult> needFlwTodoTaskResult = flwTodoTaskResults.stream().filter(x-> x.getInitiatorTime().compareTo(DateUtil.yesterday().toString())<0).collect(Collectors.toList());
+        for (FlwTodoTaskResult flwTodoTaskResult : needFlwTodoTaskResult) {
+            if(StrUtil.isNotEmpty(flwTodoTaskResult.getAssignees())) {
+                List<String> userlist = Arrays.stream(flwTodoTaskResult.getAssignees().split("、")).distinct().collect(Collectors.toList());
+                for (String userid : userlist) {
+                    String account = String.valueOf(commonCacheOperator.get(CacheConstant.USER_INFO + userid));
+                    String message = flwTodoTaskResult.getTitle();
+                    iDingDingService.asyncsendV2(message, account);
+                }
+            }
         }
-        log.info("我是一个定时任务，正在在被执行");
     }
 }
