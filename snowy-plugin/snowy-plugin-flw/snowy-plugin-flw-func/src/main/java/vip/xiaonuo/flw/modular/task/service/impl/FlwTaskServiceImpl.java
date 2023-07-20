@@ -590,4 +590,60 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             NodeRuntimeUtil.handleTableDataVariables(processInstanceId, initiatorTableJson, dataJson);
         }
     }
+
+    /**
+     * 获取某种类型的所有待办
+     * @param processDefinitionId
+     * @param activityInstanceId
+     * @return
+     */
+    @Override
+    public List<FlwTodoTaskResult> todoListByType(String processDefinitionId, String activityInstanceId) {
+        //NodeRuntimeUtil.handleTenAuth();
+        TaskQuery taskQuery = taskService.createTaskQuery().active().processDefinitionId(processDefinitionId).taskDefinitionKey(activityInstanceId).orderByTaskCreateTime().desc();
+        //Page<FlwTodoTaskResult> defaultPage = CommonPageRequest.defaultPage();
+//        long current = defaultPage.getCurrent();
+//        long size = defaultPage.getSize();
+        //        defaultPage.setTotal(taskQuery.count());
+//        defaultPage.setRecords(flwTodoTaskResultList);
+        return taskQuery.list().stream()
+                .map(task -> {
+                    JSONObject variableJsonObject = JSONUtil.createObj();
+                    historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
+                            .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
+                                    historicVariableInstance.getValue()));
+                    FlwTodoTaskResult flwTodoTaskResult = new FlwTodoTaskResult();
+                    flwTodoTaskResult.setId(task.getId());
+                    flwTodoTaskResult.setProcessInstanceId(task.getProcessInstanceId());
+                    flwTodoTaskResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
+                    flwTodoTaskResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
+                    flwTodoTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
+                    flwTodoTaskResult.setProcessDefinitionId(task.getProcessDefinitionId());
+                    flwTodoTaskResult.setCurrentActivityId(task.getTaskDefinitionKey());
+                    flwTodoTaskResult.setCurrentActivityName(task.getName());
+                    String taskAssignee = task.getAssignee();
+                    if(ObjectUtil.isNotEmpty(taskAssignee)) {
+                        JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
+                        if(ObjectUtil.isNotEmpty(taskAssigneeUser)) {
+                            flwTodoTaskResult.setAssignees(taskAssigneeUser.getStr("name"));
+                        }
+                    } else {
+                        String assignee = variableJsonObject.getStr("assignee" + StrUtil.UNDERLINE + task.getTaskDefinitionKey());
+                        if(ObjectUtil.isNotEmpty(assignee)) {
+                            List<String> userIdList = JSONUtil.toList(assignee, String.class);
+                            flwTodoTaskResult.setAssignees(StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(userIdList).stream()
+                                    .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList())));
+                        }
+                    }
+                    flwTodoTaskResult.setInitiator(variableJsonObject.getStr("initiator"));
+                    flwTodoTaskResult.setInitiatorName(variableJsonObject.getStr("initiatorName"));
+                    flwTodoTaskResult.setInitiatorOrgId(variableJsonObject.getStr("initiatorOrgId"));
+                    flwTodoTaskResult.setInitiatorOrgName(variableJsonObject.getStr("initiatorOrgName"));
+                    flwTodoTaskResult.setInitiatorPositionId(variableJsonObject.getStr("initiatorPositionId"));
+                    flwTodoTaskResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
+                    flwTodoTaskResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
+                    flwTodoTaskResult.setTenantId(task.getTenantId());
+                    return flwTodoTaskResult;
+                }).collect(Collectors.toList());
+    }
 }

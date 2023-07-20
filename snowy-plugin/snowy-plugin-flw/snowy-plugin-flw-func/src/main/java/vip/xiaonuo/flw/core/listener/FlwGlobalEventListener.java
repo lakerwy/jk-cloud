@@ -17,11 +17,14 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
+import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.springframework.context.annotation.Configuration;
@@ -43,6 +46,7 @@ import java.util.List;
  * @date 2022/5/26 10:01
  **/
 @Configuration
+@Slf4j
 public class FlwGlobalEventListener implements JavaDelegate {
 
     @Resource
@@ -179,17 +183,26 @@ public class FlwGlobalEventListener implements JavaDelegate {
         if(eventName.equals(NodeExecutionListenerKeyEnum.END.getValue().toLowerCase())) {
             // 发送完成通知
             NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
+            //            System.out.println("----------------------121212------------------");
+            log.debug("测试结束事件------------------------");
+            updateBizStatus(delegateExecution);
         }
     }
 
 
 
-    //@EventListener
+    @EventListener
     public void onUpdateBizStatusEvent(DelegateExecution delegateExecution) {
-        if(delegateExecution.getEventName().equalsIgnoreCase("end")){
+        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(delegateExecution.getProcessInstanceId()).singleResult();
+
+        if(processInstance == null){
 //            System.out.println("----------------------121212------------------");
+            log.debug("测试结束事件------------------------");
             updateBizStatus(delegateExecution);
         }
 
     }
+
 }

@@ -149,4 +149,6 @@ public interface FlwTaskService {
      * @date 2023/5/27 13:57
      */
     Page<FlwTaskUserResult> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam);
+
+    List<FlwTodoTaskResult> todoListByType(String processDefinitionId, String activityInstanceId);
 }

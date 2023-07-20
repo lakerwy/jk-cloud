@@ -17,6 +17,11 @@ import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.timer.CommonTimerTaskRunner;
+import vip.xiaonuo.flw.modular.task.result.FlwTodoTaskResult;
+import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 定时器的一个示例
@@ -27,9 +32,15 @@ import vip.xiaonuo.common.timer.CommonTimerTaskRunner;
 @Slf4j
 @Component
 public class FlwJobTimerTaskRunner{
+    @Resource
+    FlwTaskService flwTaskService;
 
-    @Scheduled(cron = "0 0/1 * * * ?")
+   // @Scheduled(cron = "0 0/1 * * * ?")
     public void action() {
+        List<FlwTodoTaskResult> flwTodoTaskResults = flwTaskService.todoListByType("0ebe4494-1fc6-11ee-a186-0242ac110004", "xn41ae86-a393-4fdc-8eea-68808a659fc7");
+        for (FlwTodoTaskResult flwTodoTaskResult : flwTodoTaskResults) {
+            log.info("测试数据----"+flwTodoTaskResult.getCurrentActivityName()+flwTodoTaskResult.getTitle());
+        }
         log.info("我是一个定时任务，正在在被执行");
     }
 }

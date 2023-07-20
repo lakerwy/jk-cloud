@@ -224,9 +224,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
              processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
         }
         assert processInstance != null;
-        if(Arrays.asList(modelIds).contains(flwModel.getId())) {
-            handDataSave(flwProcessStartParam.getDataJson(), sn, modelId, flwModel.getDefinitionId(), flwModel.getDeploymentId(), processInstance.getProcessInstanceId(), parentTablePrimaryId);
-        }
+        handDataSave(flwProcessStartParam.getDataJson(), sn, modelId, flwModel.getDefinitionId(), flwModel.getDeploymentId(), processInstance.getProcessInstanceId(), parentTablePrimaryId);
     }
 
     @Override
