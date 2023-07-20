@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.personnel.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -24,6 +25,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.sys.modular.hr.fileCert.entity.PersonnelFileCert;
 import vip.xiaonuo.sys.modular.hr.fileCert.service.PersonnelFileCertService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
@@ -209,7 +211,18 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
 
     @Override
     public PersonnelVo detail(PersonnelIdParam personnelIdParam) {
-        Personnel personnel = this.queryEntity(personnelIdParam.getId());
+        Personnel personnel = null;
+        String id = null;
+        if(ObjectUtil.isNotEmpty(personnelIdParam.getId())){
+            id = personnelIdParam.getId();
+            personnel = this.queryEntity(id);
+        }else {
+            id = StpLoginUserUtil.getLoginUser().getEmpNo();
+            personnel = getOne(new LambdaQueryWrapper<Personnel>().eq(Personnel::getFileNo, id));
+        }
+        if(ObjectUtil.isEmpty(personnel)){
+            throw new CommonException("该员工信息不存在，id值为：{}",id);
+        }
         PersonnelVo personnelVo = BeanUtil.toBean(personnel, PersonnelVo.class);
         if (ObjectUtil.isNotEmpty(personnelVo.getHireDate())) {
             //入职司龄

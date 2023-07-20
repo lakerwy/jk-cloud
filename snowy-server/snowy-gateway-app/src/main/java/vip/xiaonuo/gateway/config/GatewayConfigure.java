@@ -123,6 +123,7 @@ public class GatewayConfigure {
             "/api/webapp/sys/userCenter/findPasswordGetEmailValidCode",
             "/api/webapp/sys/userCenter/findPasswordByPhone",
             "/api/webapp/sys/userCenter/findPasswordByEmail",
+            "api/webapp/ten/storage/tenSelector",
 
             /* actuator */
             "/actuator",

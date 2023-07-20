@@ -29,7 +29,7 @@ import javax.validation.constraints.NotBlank;
 public class PersonnelIdParam {
 
     /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true)
+    @ApiModelProperty(value = "主键ID")
     @NotBlank(message = "id不能为空")
     private String id;
 }
