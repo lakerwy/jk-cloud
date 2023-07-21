@@ -271,8 +271,9 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
         if(ObjectUtil.isNotEmpty(partnerInfoPageParam.getVitalLevel())) {
             queryWrapper.like("pi.PARTNER_LEVEL", partnerInfoPageParam.getVitalLevel());
         }
-        queryWrapper.eq("so.CATEGORY", SysOrgCategoryEnum.PARTNER.getValue());
-        queryWrapper.eq("so.DELETE_FLAG","NOT_DELETE");
+//        queryWrapper.eq("so.CATEGORY", SysOrgCategoryEnum.PARTNER.getValue());
+//        queryWrapper.eq("so.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("pi.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isAllNotEmpty(partnerInfoPageParam.getSortField(), partnerInfoPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(partnerInfoPageParam.getSortOrder());
             queryWrapper.orderBy(true, partnerInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

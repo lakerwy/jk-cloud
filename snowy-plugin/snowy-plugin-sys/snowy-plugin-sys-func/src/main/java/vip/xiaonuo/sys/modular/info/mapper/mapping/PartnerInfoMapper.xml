@@ -60,6 +60,8 @@
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo" >
         select pi.*,so.PARENT_ID,so.DIRECTOR_ID,so.CODE,so.CATEGORY
-        FROM  PARTNER_INFO pi LEFT JOIN SYS_ORG so ON  pi.ORG_ID = so.ID  ${ew.customSqlSegment}
+        FROM  PARTNER_INFO pi LEFT JOIN SYS_ORG so ON  pi.ORG_ID = so.ID AND so.CATEGORY = 'PARTNER'
+                                                           AND so.DELETE_FLAG = 'NOT_DELETE'
+                                                           ${ew.customSqlSegment}
     </select>
 </mapper>
