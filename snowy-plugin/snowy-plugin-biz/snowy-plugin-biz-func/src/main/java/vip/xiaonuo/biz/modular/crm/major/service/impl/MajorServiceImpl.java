@@ -85,7 +85,7 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
             queryWrapper.orderBy(true, majorPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(majorPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Major::getMajorNo);
+            queryWrapper.lambda().orderByAsc(Major::getMajorNo);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -214,7 +214,7 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
             queryWrapper.orderBy(true, majorPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(majorPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Major::getMajorNo);
+            queryWrapper.lambda().orderByAsc(Major::getMajorNo);
         }
         IPage<MajorInfoVo> pageList = majorMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
         List<MajorInfoVo> records = pageList.getRecords();
