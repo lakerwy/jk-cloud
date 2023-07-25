@@ -214,4 +214,8 @@ public class HetongAddParam {
     @ApiModelProperty(value = "合同状态：对应历史表的status", position = 45)
     private String htstatus;
 
+    /** 零星单位名称 */
+    @ApiModelProperty(value = "零星单位名称", position = 46)
+    private String unitsName;
+
 }

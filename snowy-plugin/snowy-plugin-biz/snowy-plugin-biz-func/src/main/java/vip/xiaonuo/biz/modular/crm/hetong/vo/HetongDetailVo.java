@@ -230,4 +230,8 @@ public class HetongDetailVo {
     /** 立项-编号 */
     @ApiModelProperty(value = "立项-编号", position = 52)
     private String bizProjectSn;
+
+    /** 零星单位名称 */
+    @ApiModelProperty(value = "零星单位名称", position = 53)
+    private String unitsName;
 }

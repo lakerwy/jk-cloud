@@ -236,4 +236,8 @@ public class Hetong {
     /** 合同状态：对应历史表的status */
     @ApiModelProperty(value = "合同状态：对应历史表的status", position = 50)
     private String htstatus;
+
+    /** 零星单位名称 */
+    @ApiModelProperty(value = "零星单位名称", position = 51)
+    private String unitsName;
 }

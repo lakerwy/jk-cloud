@@ -66,4 +66,8 @@ public class HetongInfoVo {
     @ApiModelProperty(value = "丙方", position = 20)
     private String partyc;
 
+    /** 零星单位名称 */
+    @ApiModelProperty(value = "零星单位名称", position = 21)
+    private String unitsName;
+
 }

@@ -110,7 +110,7 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
             queryWrapper.orderBy(true, subcontractPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(subcontractPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Subcontract::getContractNo);
+            queryWrapper.lambda().orderByDesc(Subcontract::getRegisterDate).orderByDesc(Subcontract::getContractNo);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
