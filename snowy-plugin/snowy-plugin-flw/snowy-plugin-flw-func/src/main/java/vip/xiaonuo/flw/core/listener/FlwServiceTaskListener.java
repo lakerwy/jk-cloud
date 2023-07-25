@@ -15,6 +15,7 @@ package vip.xiaonuo.flw.core.listener;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.model.bpmn.instance.ExtensionElements;
@@ -32,6 +33,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * @author xuyuxiang
  * @date 2022/5/26 14:15
  **/
+@Slf4j
 public class FlwServiceTaskListener implements JavaDelegate {
 
     @Override
@@ -49,7 +51,11 @@ public class FlwServiceTaskListener implements JavaDelegate {
             participateUserIdList = NodeRuntimeUtil.handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), participateInfo.get());
         }
         SpringUtil.getBean(FlwProcessService.class).doCopy(delegateExecution.getProcessInstanceId(), participateUserIdList);
-        // 发送抄送通知
-        NodeRuntimeUtil.handleProcessCopyNotice(delegateExecution);
+        try {
+            // 发送抄送通知
+            NodeRuntimeUtil.handleProcessCopyNotice(delegateExecution);
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
     }
 }

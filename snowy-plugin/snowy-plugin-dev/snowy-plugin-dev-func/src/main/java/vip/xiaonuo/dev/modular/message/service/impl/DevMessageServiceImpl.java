@@ -86,7 +86,7 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
                     DevRelationCategoryEnum.MSG_TO_USER.getValue(), extJsonList);
         }
         //发送钉钉通知
-        dingDingService.batchSend(devMessageSendParam.getSubject(),receiverIdList);
+        dingDingService.batchSend(devMessageSendParam.getContent(),receiverIdList);
 
     }
 

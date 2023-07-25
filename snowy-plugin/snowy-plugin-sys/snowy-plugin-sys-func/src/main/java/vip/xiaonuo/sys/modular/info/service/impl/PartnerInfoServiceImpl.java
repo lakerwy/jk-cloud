@@ -230,7 +230,7 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
         PartnerInfo partnerInfo = this.queryEntity(partnerInfoIdParam.getId());
         PartnerInfoVo vo = BeanUtil.toBean(partnerInfo, PartnerInfoVo.class);
         Map<String,Object> queryMap = new HashMap<>();
-        queryMap.put("INFO_ID",partnerInfo.getOrgId());
+        queryMap.put("INFO_ID",partnerInfo.getId());
         List<PartnerFee> partnerFees = partnerFeeService.listByMap(queryMap);
         List<PartnerRecord> partnerRecords = partnerRecordService.listByMap(queryMap);
         List<PartnerPayment> partnerPayments = partnerPaymentService.listByMap(queryMap);
@@ -265,11 +265,14 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
         if(ObjectUtil.isNotEmpty(partnerInfoPageParam.getPartnerStatus())) {
             queryWrapper.like("pi.PARTNER_STATUS", partnerInfoPageParam.getPartnerStatus());
         }
-        if(ObjectUtil.isNotEmpty(partnerInfoPageParam.getPartnerLevel())) {
-            queryWrapper.like("pi.PARTNER_STATUS", partnerInfoPageParam.getPartnerLevel());
-        }
+//        if(ObjectUtil.isNotEmpty(partnerInfoPageParam.getPartnerLevel())) {
+//            queryWrapper.like("pi.PARTNER_STATUS", partnerInfoPageParam.getPartnerLevel());
+//        }
         if(ObjectUtil.isNotEmpty(partnerInfoPageParam.getVitalLevel())) {
             queryWrapper.like("pi.PARTNER_LEVEL", partnerInfoPageParam.getVitalLevel());
+        }
+        if(ObjectUtil.isNotEmpty(partnerInfoPageParam.getSearchKey())){
+            queryWrapper.or(wrapper ->wrapper.like("pi.NAME",partnerInfoPageParam.getSearchKey()));
         }
 //        queryWrapper.eq("so.CATEGORY", SysOrgCategoryEnum.PARTNER.getValue());
 //        queryWrapper.eq("so.DELETE_FLAG","NOT_DELETE");
@@ -294,7 +297,7 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
         if(ObjectUtil.isNotEmpty(partnerInfo)) {
             PartnerInfoVo vo = BeanUtil.toBean(partnerInfo, PartnerInfoVo.class);
             Map<String, Object> queryMap = new HashMap<>();
-            queryMap.put("INFO_ID", partnerInfo.getOrgId());
+            queryMap.put("INFO_ID", partnerInfo.getId());
             List<PartnerFee> partnerFees = partnerFeeService.listByMap(queryMap);
             List<PartnerRecord> partnerRecords = partnerRecordService.listByMap(queryMap);
             List<PartnerPayment> partnerPayments = partnerPaymentService.listByMap(queryMap);

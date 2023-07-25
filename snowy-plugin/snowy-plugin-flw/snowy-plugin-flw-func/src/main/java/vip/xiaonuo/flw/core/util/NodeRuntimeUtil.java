@@ -375,7 +375,11 @@ public class NodeRuntimeUtil {
                                                 delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动拒绝",
                                                 "该节点为自动拒绝节点，审批自动拒绝", CollectionUtil.newArrayList());
                                         // 发送退回消息
-                                        NodeRuntimeUtil.handleUserTaskBackNotice(delegateTask);
+                                        try {
+                                            NodeRuntimeUtil.handleUserTaskBackNotice(delegateTask);
+                                        }catch (Exception e){
+                                            log.error(e.getMessage());
+                                        }
                                         // 执行拒绝
                                         delegateTask.getProcessEngineServices().getRuntimeService()
                                                 .deleteProcessInstancesIfExists(CollectionUtil.newArrayList(delegateTask.getProcessInstanceId()), "REJECT",
@@ -583,7 +587,7 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/13 17:35
      **/
-    public static void handleUserTaskTodoNotice(DelegateTask delegateTask) {
+    public static void handleUserTaskTodoNotice(DelegateTask delegateTask) throws Exception{
         handleProcessNotice(delegateTask, null, "TODO", "processEnableTodoNotice",
                 "processTodoNoticeChannel", "processTodoNoticeTemplate");
     }
@@ -594,7 +598,7 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/13 17:35
      **/
-    public static void handleUserTaskBackNotice(DelegateTask delegateTask) {
+    public static void handleUserTaskBackNotice(DelegateTask delegateTask) throws Exception{
         handleProcessNotice(delegateTask, null, "BACK", "processEnableBackNotice",
                 "processBackNoticeChannel", "processBackNoticeTemplate");
     }
@@ -605,7 +609,7 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/13 17:35
      **/
-    public static void handleProcessCopyNotice(DelegateExecution delegateExecution) {
+    public static void handleProcessCopyNotice(DelegateExecution delegateExecution) throws Exception{
         handleProcessNotice(null, delegateExecution, "COPY", "processEnableCopyNotice",
                 "processCopyNoticeChannel", "processCopyNoticeTemplate");
     }
@@ -616,7 +620,7 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/13 17:35
      **/
-    public static void handleProcessCompleteNotice(DelegateExecution delegateExecution) {
+    public static void handleProcessCompleteNotice(DelegateExecution delegateExecution) throws Exception{
         handleProcessNotice(null, delegateExecution, "COMPLETE", "processEnableCompleteNotice",
                 "processCompleteNoticeChannel", "processCompleteNoticeTemplate");
     }
@@ -632,7 +636,7 @@ public class NodeRuntimeUtil {
                                             String noticeType,
                                             String processNoticeEnablePropertyKey,
                                             String processNoticeChannelPropertyKey,
-                                            String processNoticeTemplatePropertyKey) {
+                                            String processNoticeTemplatePropertyKey)  throws Exception{
         RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
         final boolean[] processNoticeEnabled = {false};
         AtomicReference<List<String>> processNoticeChannelList = new AtomicReference<>();
@@ -676,7 +680,7 @@ public class NodeRuntimeUtil {
     }
 
     private static void handleProcessNoticeExecute(DelegateTask delegateTask, DelegateExecution delegateExecution, String noticeType, String processNoticeTemplate,
-                                                   List<String> processNoticeChannelList) {
+                                                   List<String> processNoticeChannelList) throws Exception {
         RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
         DevMessageApi devMessageApi = SpringUtil.getBean(DevMessageApi.class);
         DevEmailApi devEmailApi = SpringUtil.getBean(DevEmailApi.class);
@@ -763,7 +767,7 @@ public class NodeRuntimeUtil {
         });
     }
 
-    private static String handleProcessNoticeTemplateForDelegateTask(DelegateTask delegateTask, String processNoticeTemplate) {
+    private static String handleProcessNoticeTemplateForDelegateTask(DelegateTask delegateTask, String processNoticeTemplate) throws Exception {
         Object initiatorName;
         RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
         try {
@@ -780,14 +784,14 @@ public class NodeRuntimeUtil {
         return handleProcessNoticeTemplate(delegateTask.getProcessDefinitionId(),initiatorName, initiatorDataJson, processNoticeTemplate);
     }
 
-    private static String handleProcessNoticeTemplateForDelegateExecution(DelegateExecution delegateExecution, String processNoticeTemplate) {
+    private static String handleProcessNoticeTemplateForDelegateExecution(DelegateExecution delegateExecution, String processNoticeTemplate) throws Exception{
         return handleProcessNoticeTemplate(delegateExecution.getProcessDefinitionId(),
                 delegateExecution.getVariable("initiatorName"),
                 delegateExecution.getVariable("initiatorDataJson"), processNoticeTemplate);
     }
 
     private static String handleProcessNoticeTemplate(String processDefinitionId, Object initiatorNameObj, Object initiatorDataObj,
-                                                      String processNoticeTemplate) {
+                                                      String processNoticeTemplate)  throws Exception{
         String processDefinitionName = SpringUtil.getBean(RepositoryService.class).createProcessDefinitionQuery()
                 .processDefinitionId(processDefinitionId).singleResult().getName();
         // 获取发起人姓名
@@ -814,7 +818,7 @@ public class NodeRuntimeUtil {
      **/
     public static JSONObject handleDataJsonPrimaryTableField(String dataJson) {
         JSONObject dataObject = JSONUtil.parseObj(dataJson);
-        AtomicReference<JSONObject> primaryTableJsonObject = new AtomicReference<>();
+        AtomicReference<JSONObject> primaryTableJsonObject = new AtomicReference<>(JSONUtil.createObj());
         dataObject.forEach((key, value) -> {
             String valueJson = JSONUtil.toJsonStr(value);
             boolean isPrimaryTableJson = JSONUtil.isTypeJSONObject(valueJson);

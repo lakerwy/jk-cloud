@@ -23,6 +23,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
@@ -72,6 +73,7 @@ import static org.camunda.bpm.engine.task.IdentityLinkType.CANDIDATE;
  * @date 2022/5/22 15:33
  */
 @Service
+@Slf4j
 public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Resource
@@ -332,7 +334,11 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                                         targetActivityId.set("-1");
                                         break;
                                     case "TO_START":
-                                        NodeRuntimeUtil.handleUserTaskBackNotice((DelegateTask) task);
+                                        try {
+                                            NodeRuntimeUtil.handleUserTaskBackNotice((DelegateTask) task);
+                                        }catch (Exception e){
+                                            log.error(e.getMessage());
+                                        }
                                         break;
                                     case "USER_SELECT":
                                         if (ObjectUtil.isEmpty(flwTaskBackParam.getTargetActivityId())) {

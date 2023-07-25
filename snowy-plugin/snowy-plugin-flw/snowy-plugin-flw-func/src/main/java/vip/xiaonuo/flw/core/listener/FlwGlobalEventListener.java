@@ -115,7 +115,11 @@ public class FlwGlobalEventListener implements JavaDelegate {
         if(isTaskAssignment(delegateTask)) {
             if(!isTaskStart(delegateTask)) {
                 // 非申请节点则发送待办通知
-                NodeRuntimeUtil.handleUserTaskTodoNotice(delegateTask);
+                try {
+                    NodeRuntimeUtil.handleUserTaskTodoNotice(delegateTask);
+                }catch (Exception e){
+                    log.error(e.getMessage());
+                }
             }
         }
     }
@@ -182,10 +186,14 @@ public class FlwGlobalEventListener implements JavaDelegate {
         String eventName = delegateExecution.getEventName();
         if(eventName.equals(NodeExecutionListenerKeyEnum.END.getValue().toLowerCase())) {
             // 发送完成通知
-            NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
+            try {
+                NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
+                updateBizStatus(delegateExecution);
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
             //            System.out.println("----------------------121212------------------");
-            log.debug("测试结束事件------------------------");
-            updateBizStatus(delegateExecution);
+            //log.debug("测试结束事件------------------------");
         }
     }
 

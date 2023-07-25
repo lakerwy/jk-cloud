@@ -90,6 +90,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         if(ObjectUtil.isNotEmpty(devFilePageParam.getSearchKey())) {
             queryWrapper.lambda().like(DevFile::getName, devFilePageParam.getSearchKey());
         }
+        queryWrapper.lambda().orderByDesc(DevFile::getCreateTime);
         Page<DevFile> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<DevFile> records = page.getRecords();
         List<DevFile> newRecords = new ArrayList<>();
@@ -509,7 +510,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             Date date = new Date();
             DateFormat format = new SimpleDateFormat("yyyyMMdd");
             fileIdPre = format.format(date);
-            fileName = String.format("%04d", 1);
+            fileName = String.format("%04d", 1000);
         }
         Map<String,String> map = new HashMap<>();
         map.put("fileIdPre",fileIdPre);

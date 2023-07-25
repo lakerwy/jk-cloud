@@ -100,7 +100,7 @@ public class DingDingServiceImpl implements IDingDingService {
         oa.setPcMessageUrl("https://yun.jianke.co");
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
         String mg = message;
-        mg += "\n请登录建科云2.0官网处理";
+        mg += "\n处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
         body.setContent(mg);
         oa.setBody(body);
 

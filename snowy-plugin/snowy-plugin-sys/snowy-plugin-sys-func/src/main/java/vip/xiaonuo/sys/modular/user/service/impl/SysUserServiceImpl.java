@@ -211,8 +211,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public SysLoginUser getUserByAccount(String account) {
         SysUser sysUser = this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, account));
         if (ObjectUtil.isNotEmpty(sysUser)) {
+            SysOrg sysOrg = sysOrgService.getById(sysUser.getOrgId());
             transService.transOne(sysUser);
-            return BeanUtil.copyProperties(sysUser, SysLoginUser.class);
+            SysLoginUser sysLoginUser = BeanUtil.copyProperties(sysUser, SysLoginUser.class);
+            sysLoginUser.setCategory(sysOrg.getCategory());
+            return sysLoginUser;
         }
         return null;
     }

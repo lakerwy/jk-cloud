@@ -48,6 +48,10 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
     @Override
     public Page<BizMapRegister> page(BizMapRegisterPageParam bizMapRegisterPageParam) {
         QueryWrapper<BizMapRegister> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bizMapRegisterPageParam.getSearchKey())){
+            queryWrapper.lambda().or(wrapper ->wrapper.like(BizMapRegister::getProjectName,bizMapRegisterPageParam.getSearchKey()).or().
+                    like(BizMapRegister::getSn,bizMapRegisterPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(bizMapRegisterPageParam.getSortField(), bizMapRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizMapRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizMapRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

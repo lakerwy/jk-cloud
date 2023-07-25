@@ -16,6 +16,7 @@
         <id column="DESIGNER" jdbcType="VARCHAR" property="designer"/>
         <id column="MAP_DATE" jdbcType="TIMESTAMP" property="mapDate"/>
         <id column="MAP_COPIES" jdbcType="VARCHAR" property="mapCopies"/>
+        <id column="REMARK" jdbcType="VARCHAR" property="remark"/>
         <id column="NOTE" jdbcType="VARCHAR" property="note"/>
         <id column="ATTACHMENTS" jdbcType="VARCHAR" property="attachments"/>
         <id column="ATTACHMENTS1" jdbcType="VARCHAR" property="attachments1"/>
@@ -58,6 +59,7 @@
             a.CREATE_USER,
             a.DELETE_FLAG,
             a.`STATUS`,
+            a.NOTE as REMARK,
             b.CONTRACT_NO,
             b.PROJECT_NAME,
             b.SECOND_LEVEL,

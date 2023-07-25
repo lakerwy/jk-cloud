@@ -217,7 +217,11 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             id = personnelIdParam.getId();
             personnel = this.queryEntity(id);
         }else {
-            id = StpLoginUserUtil.getLoginUser().getEmpNo();
+            if(ObjectUtil.isNotEmpty(personnelIdParam.getFileNo())){
+                id = personnelIdParam.getFileNo();
+            }else {
+                id = StpLoginUserUtil.getLoginUser().getEmpNo();
+            }
             personnel = getOne(new LambdaQueryWrapper<Personnel>().eq(Personnel::getFileNo, id));
         }
         if(ObjectUtil.isEmpty(personnel)){

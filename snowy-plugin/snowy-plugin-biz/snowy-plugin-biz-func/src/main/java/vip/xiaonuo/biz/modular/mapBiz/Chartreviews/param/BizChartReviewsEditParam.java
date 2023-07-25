@@ -90,7 +90,7 @@ public class BizChartReviewsEditParam {
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 14)
-    private String note;
+    private String remark;
 
     /** ATTACHMENTS */
     @ApiModelProperty(value = "ATTACHMENTS", position = 15)

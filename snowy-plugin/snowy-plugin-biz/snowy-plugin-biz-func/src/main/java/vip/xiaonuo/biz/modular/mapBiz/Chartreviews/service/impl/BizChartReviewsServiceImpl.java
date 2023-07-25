@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dbs.core.util.BizTableCommon;
@@ -95,6 +96,7 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
         bizChartReviews.setOpt(StpLoginUserUtil.getLoginUser().getName());
         bizChartReviews.setOptDate(DateUtil.date(new Date()));
         bizChartReviews.setStatus("受理中");
+        bizChartReviews.setNote(bizChartReviewsAddParam.getRemark());
         this.save(bizChartReviews);
     }
 
@@ -103,6 +105,7 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
     public void edit(BizChartReviewsEditParam bizChartReviewsEditParam) {
         BizChartReviews bizChartReviews = this.queryEntity(bizChartReviewsEditParam.getId());
         BeanUtil.copyProperties(bizChartReviewsEditParam, bizChartReviews);
+        bizChartReviews.setNote(bizChartReviewsEditParam.getRemark());
         this.updateById(bizChartReviews);
     }
 
@@ -166,7 +169,14 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
             queryWrapper.between("a.OPT_DATE", bizChartReviewsPageParam.getStartOptDate(), bizChartReviewsPageParam.getEndOptDate());
         }
         if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getSearchKey())){
-            queryWrapper.like("a.sn",bizChartReviewsPageParam.getSearchKey());
+            //queryWrapper.like("a.sn",bizChartReviewsPageParam.getSearchKey());
+            queryWrapper.and(wrapper ->wrapper.like("b.PROJECT_NAME",bizChartReviewsPageParam.getSearchKey())
+                    .or().like("a.OPT",bizChartReviewsPageParam.getSearchKey())
+                    .or().like("a.SN",bizChartReviewsPageParam.getSearchKey()));
+        }
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        if("PARTNER".equalsIgnoreCase(loginUser.getCategory())){
+            queryWrapper.eq("a.COMPANY_OR_DEPARTMENT",loginUser.getOrgName());
         }
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isAllNotEmpty(bizChartReviewsPageParam.getSortField(), bizChartReviewsPageParam.getSortOrder())) {
@@ -175,7 +185,8 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
                     StrUtil.toUnderlineCase(bizChartReviewsPageParam.getSortField()));
         } else {
             //queryWrapper.orderByAsc("a.OPT_DATE");
-            queryWrapper.orderByDesc("a.SN");
+            queryWrapper.orderByDesc("a.OPT_DATE");
+            queryWrapper.orderByDesc("a.OPT_DATE","a.SN");
         }
 
         return bizChartReviewsMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);

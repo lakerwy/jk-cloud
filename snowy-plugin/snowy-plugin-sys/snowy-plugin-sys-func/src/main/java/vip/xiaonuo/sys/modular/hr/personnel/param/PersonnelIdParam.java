@@ -31,4 +31,7 @@ public class PersonnelIdParam {
     /** 主键ID */
     @ApiModelProperty(value = "主键ID")
     private String id;
+
+    @ApiModelProperty(value = "档案号")
+    private String fileNo;
 }
