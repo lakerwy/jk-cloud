@@ -76,9 +76,9 @@ public class BizAuditListsAddParam {
     @ApiModelProperty(value = "审核等级", position = 12)
     private String grade;
 
-    /** 送审图 */
-    @ApiModelProperty(value = "送审图", position = 13)
-    private String attachments;
+//    /** 送审图 */
+//    @ApiModelProperty(value = "送审图", position = 13)
+//    private String attachments;
 
     /** 提交人 */
     @ApiModelProperty(value = "提交人", position = 14)

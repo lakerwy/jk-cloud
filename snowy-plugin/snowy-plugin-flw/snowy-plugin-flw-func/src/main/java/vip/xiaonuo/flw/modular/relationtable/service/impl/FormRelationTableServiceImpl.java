@@ -484,6 +484,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
                     " values (" +
                     sqlValue +
                     ")";
+            log.debug("数据插入sql{}----"+sb);
             NodeRuntimeUtil.handleSqlExecution(sb);
             //tableMapper.commonInsert(params);
             params.put(VariableConstants.BIZ_TABLE_VAR_FIELDS,fieldsByTableName);

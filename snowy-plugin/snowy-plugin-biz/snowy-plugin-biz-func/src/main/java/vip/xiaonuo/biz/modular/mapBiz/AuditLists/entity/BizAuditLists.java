@@ -83,8 +83,8 @@ public class BizAuditLists {
     private String grade;
 
     /** 送审图 */
-    @ApiModelProperty(value = "送审图", position = 13)
-    private String attachments;
+//    @ApiModelProperty(value = "送审图", position = 13)
+//    private String attachments;
 
     /** 提交人 */
     @ApiModelProperty(value = "提交人", position = 14)
