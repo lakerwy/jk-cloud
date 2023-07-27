@@ -15,7 +15,10 @@ package vip.xiaonuo.common.cache;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
+import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.SessionCallback;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -82,5 +85,25 @@ public class CommonCacheOperator {
             results.put(key, this.get(key));
         }
         return results;
+    }
+
+    public Object getKeyAndDelete(String key){
+        return  redisTemplate.execute(new SessionCallback<Object>(){
+            @Override
+            public Object execute(RedisOperations redisOperations) throws DataAccessException {
+                // 开启事务
+                redisOperations.multi();
+
+                // 查询键
+                Object o = redisOperations.opsForValue().get(key);
+
+                // 删除键
+                redisOperations.delete(key);
+
+                // 执行事务
+                redisOperations.exec();
+                return o;
+            }
+        });
     }
 }

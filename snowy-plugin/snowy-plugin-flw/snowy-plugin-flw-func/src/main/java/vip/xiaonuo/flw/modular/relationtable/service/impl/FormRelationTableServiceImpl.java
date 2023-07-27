@@ -29,10 +29,13 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.dynamic.datasource.annotation.Master;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -78,6 +81,7 @@ import java.util.stream.Collectors;
  **/
 @DS("master")
 @Service
+@EnableAsync
 public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableMapper, FormRelationTable> implements FormRelationTableService {
 
     private final String ID_PRE = "LC";
@@ -742,5 +746,31 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
             mapResult.put(key.toLowerCase(), mapSource.get(key));
         }
         return mapResult;
+    }
+
+    /**
+     * 标记为异步执行，提高效率
+     * @param modelId
+     * @param tableName
+     * @param businessKey
+     * @param processInstanceId
+     */
+    @Override
+    @Async
+    public void save(String modelId, String tableName, String businessKey, String processInstanceId) {
+        FormRelationTable formRelationTable = new FormRelationTable();
+        formRelationTable.setActModelId(modelId);
+        formRelationTable.setTableName(tableName);
+        formRelationTable.setId(businessKey);
+        formRelationTable.setProcessInstanceId(processInstanceId);
+        this.save(formRelationTable);
+    }
+
+    @Override
+    public FormRelationTable getInfoByProcessInstanceId(String processInstanceId) {
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            return this.getOne(new LambdaQueryWrapper<FormRelationTable>().eq(FormRelationTable::getProcessInstanceId,processInstanceId));
+        }
+        return null;
     }
 }

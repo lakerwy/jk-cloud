@@ -30,8 +30,8 @@ import javax.validation.constraints.NotBlank;
 public class BizProjectRegisterEditParam {
 
     /** 主键 */
-    @ApiModelProperty(value = "主键", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
+    @ApiModelProperty(value = "主键", position = 1)
+    //@NotBlank(message = "id不能为空")
     private String id;
 
     /** sn值 */

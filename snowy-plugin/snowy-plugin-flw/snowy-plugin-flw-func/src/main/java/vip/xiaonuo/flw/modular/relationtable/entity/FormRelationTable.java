@@ -61,4 +61,7 @@ public class FormRelationTable extends CommonEntity {
     @ApiModelProperty(value = "系统表单路由地址", position = 7)
     private String formUrl;
 
+    @ApiModelProperty(value = "流程实例id", position = 8)
+    private String processInstanceId;
+
 }

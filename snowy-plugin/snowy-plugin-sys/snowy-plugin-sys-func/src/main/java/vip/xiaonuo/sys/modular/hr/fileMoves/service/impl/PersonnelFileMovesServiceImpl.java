@@ -24,7 +24,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
 import vip.xiaonuo.sys.modular.hr.fileMoves.service.PersonnelFileMovesService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.mapper.PersonnelFileMovesMapper;
@@ -37,7 +36,6 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**

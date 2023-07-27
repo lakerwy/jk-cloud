@@ -23,7 +23,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
@@ -32,6 +35,7 @@ import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.mapper.BizProjectRegisterMapper;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.*;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.service.BizProjectRegisterService;
+import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
@@ -49,6 +53,9 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
 
     @Resource
     FormRelationTableService formRelationTableService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<BizProjectRegister> page(BizProjectRegisterPageParam bizProjectRegisterPageParam) {
@@ -68,13 +75,13 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         if(ObjectUtil.isNotEmpty(bizProjectRegisterPageParam.getScale())) {
             queryWrapper.lambda().like(BizProjectRegister::getScale, bizProjectRegisterPageParam.getScale());
         }
-        queryWrapper.lambda().eq(BizProjectRegister::getStatus,"1");
+        //queryWrapper.lambda().eq(BizProjectRegister::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isAllNotEmpty(bizProjectRegisterPageParam.getSortField(), bizProjectRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizProjectRegisterPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizProjectRegister::getId);
+            queryWrapper.lambda().orderByDesc(BizProjectRegister::getApplyTime,BizProjectRegister::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -83,16 +90,34 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
     @Override
     public void add(BizProjectRegisterAddParam bizProjectRegisterAddParam) {
         BizProjectRegister bizProjectRegister = BeanUtil.toBean(bizProjectRegisterAddParam, BizProjectRegister.class);
-        bizProjectRegister.setSn(HandleExecutionUtil.getTableSn(BizCommon.PROJECT_REGISTER.getBizTable()));
-        bizProjectRegister.setStatus("0");
+        //bizProjectRegister.setSn(HandleExecutionUtil.getTableSn(BizCommon.PROJECT_REGISTER.getBizTable()));
+        String processInstanceId = bizProjectRegisterAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            bizProjectRegister.setId(id);
+            bizProjectRegister.setSn(String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            bizProjectRegister.setModelId(modelId);
+            //将流程实例和业务表关联起来
+            formRelationTableService.save(modelId,BizCommon.PROJECT_REGISTER.getBizTable(),id,processInstanceId);
+        }
+        bizProjectRegister.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(bizProjectRegister);
-        formRelationTableService.updateTable(bizProjectRegisterAddParam.getModelId(),BizCommon.PROJECT_REGISTER.getBizTable());
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizProjectRegisterEditParam bizProjectRegisterEditParam) {
-        BizProjectRegister bizProjectRegister = this.queryEntity(bizProjectRegisterEditParam.getId());
+        String id = bizProjectRegisterEditParam.getId();
+        if(ObjectUtil.isEmpty(bizProjectRegisterEditParam.getId()) && ObjectUtil.isNotEmpty(bizProjectRegisterEditParam.getProcessInstanceId())){
+            FormRelationTable formRelationTable = formRelationTableService.getInfoByProcessInstanceId(bizProjectRegisterEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id=formRelationTable.getId();
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                bizProjectRegisterEditParam.setId(id);
+            }
+        }
+        BizProjectRegister bizProjectRegister = this.queryEntity(id);
         BeanUtil.copyProperties(bizProjectRegisterEditParam, bizProjectRegister);
         this.updateById(bizProjectRegister);
     }

@@ -22,7 +22,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
@@ -34,6 +37,7 @@ import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectEditParam;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectIdParam;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectPageParam;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
+import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
@@ -51,6 +55,9 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
 
     @Resource
     FormRelationTableService formRelationTableService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
     @Override
     public Page<BizProject> page(BizProjectPageParam bizProjectPageParam) {
         QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
@@ -86,16 +93,33 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
     @Override
     public void add(BizProjectAddParam bizProjectAddParam) {
         BizProject bizProject = BeanUtil.toBean(bizProjectAddParam, BizProject.class);
-        bizProject.setSn(HandleExecutionUtil.getTableSn(BizCommon.PROJECT.getBizTable()));
-        bizProject.setStatus("0");
+        String processInstanceId = bizProjectAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            bizProject.setId(id);
+            bizProject.setSn(String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            bizProject.setModelId(modelId);
+            //将流程实例和业务表关联起来
+            formRelationTableService.save(modelId,BizCommon.PROJECT.getBizTable(),id,processInstanceId);
+        }
+        bizProject.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(bizProject);
-        formRelationTableService.updateTable(bizProjectAddParam.getModelId(),BizCommon.PROJECT.getBizTable());
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizProjectEditParam bizProjectEditParam) {
-        BizProject bizProject = this.queryEntity(bizProjectEditParam.getId());
+        String id = bizProjectEditParam.getId();
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(bizProjectEditParam.getProcessInstanceId())){
+            FormRelationTable formRelationTable = formRelationTableService.getInfoByProcessInstanceId(bizProjectEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id=formRelationTable.getId();
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                bizProjectEditParam.setId(id);
+            }
+        }
+        BizProject bizProject = this.queryEntity(id);
         BeanUtil.copyProperties(bizProjectEditParam, bizProject);
         this.updateById(bizProject);
     }
