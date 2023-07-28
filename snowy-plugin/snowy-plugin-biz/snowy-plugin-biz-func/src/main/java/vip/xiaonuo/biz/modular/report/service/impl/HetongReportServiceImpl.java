@@ -275,8 +275,8 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
 
         // 关键字搜索
         if (ObjectUtil.isNotEmpty(htBillParam.getSearchKey())) {
-            queryWrapper.lambda().like(Hetong::getCompanyOrDepartment, htBillParam.getSearchKey()).or()
-                    .like(Hetong::getOwner, htBillParam.getSearchKey());
+            queryWrapper.lambda().and(q->q.like(Hetong::getCompanyOrDepartment, htBillParam.getSearchKey()).or()
+                    .like(Hetong::getOwner, htBillParam.getSearchKey()));
         }
 
         //排序
