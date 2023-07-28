@@ -107,7 +107,7 @@ public interface FormRelationTableService extends IService<FormRelationTable> {
 
     void updateTable(String modelId, String tableName);
 
-    void save(String modelId,String tableName,String businessKey,String processInstanceId);
+    void save(String modelId,String tableName,String businessKey,String processInstanceId,String dbName);
 
     FormRelationTable getInfoByProcessInstanceId(String processInstanceId);
 }

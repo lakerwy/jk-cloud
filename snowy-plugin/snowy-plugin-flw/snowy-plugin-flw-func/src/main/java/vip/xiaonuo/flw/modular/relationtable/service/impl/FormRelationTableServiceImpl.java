@@ -759,13 +759,16 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
      * @param processInstanceId
      */
     @Override
-    @Async
-    public void save(String modelId, String tableName, String businessKey, String processInstanceId) {
+    //@Async
+    public void save(String modelId, String tableName, String businessKey, String processInstanceId,String dbName) {
         FormRelationTable formRelationTable = new FormRelationTable();
         formRelationTable.setActModelId(modelId);
-        formRelationTable.setTableName(tableName);
+        String flName = "`"+dbName+"`.`"+tableName+"`";
+        formRelationTable.setTableName(flName);
         formRelationTable.setId(businessKey);
         formRelationTable.setProcessInstanceId(processInstanceId);
+        formRelationTable.setCreateTime(DateUtil.date());
+        formRelationTable.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
         this.save(formRelationTable);
     }
 

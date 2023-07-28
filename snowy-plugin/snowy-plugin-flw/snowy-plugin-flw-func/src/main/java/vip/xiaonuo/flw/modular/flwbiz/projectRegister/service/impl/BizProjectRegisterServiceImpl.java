@@ -80,6 +80,7 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
             queryWrapper.lambda().like(BizProjectRegister::getScale, bizProjectRegisterPageParam.getScale());
         }
 //        queryWrapper.lambda().eq(BizProjectRegister::getStatus,"1");
+        queryWrapper.lambda().in(BizProjectRegister::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isAllNotEmpty(bizProjectRegisterPageParam.getSortField(), bizProjectRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -97,20 +98,20 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         //bizProjectRegister.setSn(HandleExecutionUtil.getTableSn(BizCommon.PROJECT_REGISTER.getBizTable()));
         String processInstanceId = bizProjectRegisterAddParam.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){
-            String id = String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
-            String modelId = String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
             bizProjectRegister.setId(id);
-            bizProjectRegister.setSn(String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            bizProjectRegister.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             bizProjectRegister.setModelId(modelId);
             bizProjectRegister.setApplyTime(DateUtil.now());
             bizProjectRegister.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
             //将流程实例和业务表关联起来
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableService.save(modelId,dbName+BizCommon.PROJECT_REGISTER.getBizTable(),id,processInstanceId);
+            formRelationTableService.save(modelId,BizCommon.PROJECT_REGISTER.getBizTable(),id,processInstanceId,dbName);
         }
         bizProjectRegister.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(bizProjectRegister);
-        formRelationTableService.updateTable(bizProjectRegisterAddParam.getModelId(),BizCommon.PROJECT_REGISTER.getBizTable());
+        //formRelationTableService.updateTable(bizProjectRegisterAddParam.getModelId(),BizCommon.PROJECT_REGISTER.getBizTable());
     }
 
     @Transactional(rollbackFor = Exception.class)
