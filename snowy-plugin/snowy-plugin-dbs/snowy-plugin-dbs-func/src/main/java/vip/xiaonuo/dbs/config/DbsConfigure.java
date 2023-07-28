@@ -99,44 +99,57 @@ public class DbsConfigure {
             HashMap<String, DataSource> dataSourceHashMap = MapUtil.newHashMap();
             Map<String, DataSourceProperty> dataSourcePropertyMap = dynamicDataSourceProperties.getDatasource();
             if(ObjectUtil.isNotEmpty(dataSourcePropertyMap)) {
-                String primaryDsName = new DynamicDataSourceProperties().getPrimary();
-                DataSourceProperty masterDataSourceProperty = dataSourcePropertyMap.get(primaryDsName);
-                if(ObjectUtil.isNotEmpty(masterDataSourceProperty)) {
-                    Connection conn = null;
-                    try {
-                        if (ObjectUtil.isEmpty(masterDataSourceProperty.getPublicKey())) {
-                            masterDataSourceProperty.setPublicKey(dynamicDataSourceProperties.getPublicKey());
+                for (Map.Entry<String, DataSourceProperty> entry : dataSourcePropertyMap.entrySet()) {
+                    String key = entry.getKey();
+                    DataSourceProperty value = entry.getValue();
+                    String primaryDsName = new DynamicDataSourceProperties().getPrimary();
+                    if(ObjectUtil.isNotEmpty(value) && key.equals(primaryDsName)) {
+                        Connection conn = null;
+                        try {
+                            if (ObjectUtil.isEmpty(value.getPublicKey())) {
+                                value.setPublicKey(dynamicDataSourceProperties.getPublicKey());
+                            }
+                            EncDataSourceInitEvent encDataSourceInitEvent = new EncDataSourceInitEvent();
+                            encDataSourceInitEvent.beforeCreate(value);
+                            conn = DriverManager.getConnection(value.getUrl(), value.getUsername(),
+                                    value.getPassword());
+                            String dbsTableName;
+                            Object annotationValue = AnnotationUtil.getAnnotationValue(DbsStorage.class, TableName.class);
+                            if(ObjectUtil.isNotEmpty(annotationValue)) {
+                                dbsTableName = Convert.toStr(annotationValue);
+                            } else {
+                                dbsTableName = StrUtil.toUnderlineCase(DbsStorage.class.getSimpleName());
+                            }
+                            commonCacheOperator.put(DbTypeCacheConstant.CACHE_DB_KEY+primaryDsName,conn.getCatalog());
+                            GlobalConfig.DbConfig dbConfig = mybatisPlusProperties.getGlobalConfig().getDbConfig();
+                            String logicDeleteField = dbConfig.getLogicDeleteField();
+                            if(ObjectUtil.isEmpty(logicDeleteField)) {
+                                logicDeleteField = "DELETE_FLAG";
+                            }
+                            String logicNotDeleteValue = dbConfig.getLogicNotDeleteValue();
+                            if(ObjectUtil.isEmpty(logicNotDeleteValue)) {
+                                logicNotDeleteValue = EnumUtil.toString(CommonDeleteFlagEnum.NOT_DELETE);
+                            }
+                            List<Entity> entityList = SqlExecutor.query(conn, "SELECT * FROM " + dbsTableName + " WHERE " + logicDeleteField + " = \"" + logicNotDeleteValue + "\"", new EntityListHandler());
+                            entityList.forEach(entity -> {
+                                DataSourceProperty dataSourceProperty = new DataSourceProperty();
+                                BeanUtil.copyProperties(entity, dataSourceProperty, true);
+                                dataSourceHashMap.put(dataSourceProperty.getPoolName(), defaultDataSourceCreator.createDataSource(dataSourceProperty));
+                            });
+                        } catch (SQLException ignored) {
+                        } finally {
+                            DbUtil.close(conn);
                         }
-                        EncDataSourceInitEvent encDataSourceInitEvent = new EncDataSourceInitEvent();
-                        encDataSourceInitEvent.beforeCreate(masterDataSourceProperty);
-                        conn = DriverManager.getConnection(masterDataSourceProperty.getUrl(), masterDataSourceProperty.getUsername(),
-                                masterDataSourceProperty.getPassword());
-                        String dbsTableName;
-                        Object annotationValue = AnnotationUtil.getAnnotationValue(DbsStorage.class, TableName.class);
-                        if(ObjectUtil.isNotEmpty(annotationValue)) {
-                            dbsTableName = Convert.toStr(annotationValue);
-                        } else {
-                            dbsTableName = StrUtil.toUnderlineCase(DbsStorage.class.getSimpleName());
+                    }else {
+                        Connection conn = null;
+                        try {
+                            conn = DriverManager.getConnection(value.getUrl(), value.getUsername(),
+                                    value.getPassword());
+                            commonCacheOperator.put(DbTypeCacheConstant.CACHE_DB_KEY+key,conn.getCatalog());
+                        }catch (SQLException ignored) {
+                        } finally {
+                            DbUtil.close(conn);
                         }
-                        commonCacheOperator.put(DbTypeCacheConstant.CACHE_DB_KEY+primaryDsName,conn.getCatalog());
-                        GlobalConfig.DbConfig dbConfig = mybatisPlusProperties.getGlobalConfig().getDbConfig();
-                        String logicDeleteField = dbConfig.getLogicDeleteField();
-                        if(ObjectUtil.isEmpty(logicDeleteField)) {
-                            logicDeleteField = "DELETE_FLAG";
-                        }
-                        String logicNotDeleteValue = dbConfig.getLogicNotDeleteValue();
-                        if(ObjectUtil.isEmpty(logicNotDeleteValue)) {
-                            logicNotDeleteValue = EnumUtil.toString(CommonDeleteFlagEnum.NOT_DELETE);
-                        }
-                        List<Entity> entityList = SqlExecutor.query(conn, "SELECT * FROM " + dbsTableName + " WHERE " + logicDeleteField + " = \"" + logicNotDeleteValue + "\"", new EntityListHandler());
-                        entityList.forEach(entity -> {
-                            DataSourceProperty dataSourceProperty = new DataSourceProperty();
-                            BeanUtil.copyProperties(entity, dataSourceProperty, true);
-                            dataSourceHashMap.put(dataSourceProperty.getPoolName(), defaultDataSourceCreator.createDataSource(dataSourceProperty));
-                        });
-                    } catch (SQLException ignored) {
-                    } finally {
-                        DbUtil.close(conn);
                     }
                 }
             }

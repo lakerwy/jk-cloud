@@ -28,4 +28,13 @@ public enum FlwStatusEnum {
         this.value = value;
         this.name = name;
     }
+
+    public static String fromValue(String value) {
+        for (FlwStatusEnum enumConstant : FlwStatusEnum.values()) {
+            if (enumConstant.value.equals(value)) {
+                return enumConstant.getName();
+            }
+        }
+        throw new IllegalArgumentException("Invalid value: " + value);
+    }
 }
