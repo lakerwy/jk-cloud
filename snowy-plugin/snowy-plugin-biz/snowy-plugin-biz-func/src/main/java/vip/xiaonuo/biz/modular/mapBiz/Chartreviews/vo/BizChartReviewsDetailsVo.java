@@ -76,12 +76,12 @@ public class BizChartReviewsDetailsVo  implements Serializable {
     @ApiModelProperty(value = "备注", position = 14)
     private String note;
 
-    /** ATTACHMENTS */
-    @ApiModelProperty(value = "ATTACHMENTS", position = 15)
+    /** ATTACHMENTS（送审图） */
+    @ApiModelProperty(value = "ATTACHMENTS(送审图)", position = 15)
     private String attachments;
 
-    /** 送审图 */
-    @ApiModelProperty(value = "送审图", position = 16)
+    /** attachments1 */
+    @ApiModelProperty(value = "attachments1", position = 16)
     private String attachments1;
 
     /** 审定图 */
