@@ -45,6 +45,7 @@ import org.camunda.bpm.model.bpmn.instance.MultiInstanceLoopCharacteristics;
 import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
 import org.camunda.bpm.model.bpmn.instance.UserTask;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
@@ -306,9 +307,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getInitiator())) {
             historicProcessInstanceQuery.startedBy(flwProcessMonitorPageParam.getInitiator());
         }
-        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSearchKey())) {
-            historicProcessInstanceQuery.variableValueLike("initiatorName", "%" + flwProcessMonitorPageParam.getSearchKey() + "%");
-        }
+//        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSearchKey())) {
+//            historicProcessInstanceQuery.variableValueLike("initiatorName", "%" + flwProcessMonitorPageParam.getSearchKey() + "%");
+//        }
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getName())) {
             historicProcessInstanceQuery.processDefinitionNameLike("%" + flwProcessMonitorPageParam.getName() + "%");
         }
@@ -319,7 +320,28 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();
-        List<FlwProcessResult> flwProcessResultList = historicProcessInstanceQuery
+        List<FlwProcessResult> flwProcessResultList = new ArrayList<>();
+        long count = 0L;
+        if(ObjectUtil.isEmpty(flwProcessMonitorPageParam.getSearchKey())){
+             flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
+             count = flwProcessResultList.size();
+        }else {
+            flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, Integer.MAX_VALUE, size);
+            flwProcessResultList = flwProcessResultList.stream().filter(flwProcessResult -> flwProcessResult.getAbstractTitle().contains(flwProcessMonitorPageParam.getSearchKey())
+                    || flwProcessResult.getSn().contains(flwProcessMonitorPageParam.getSearchKey())).collect(Collectors.toList());
+            count = flwProcessResultList.size();
+            flwProcessResultList = flwProcessResultList.subList(Convert.toInt((current - 1) * size), Convert.toInt(Math.min(size, count)));
+
+        }
+        //List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
+        defaultPage.setTotal(count);
+        defaultPage.setRecords(flwProcessResultList);
+        return defaultPage;
+    }
+
+    @NotNull
+    private List<FlwProcessResult> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, long current, long size) {
+        return historicProcessInstanceQuery
                 .listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
                 .map(historicProcessInstance -> {
                     FlwProcessResult flwProcessResult = new FlwProcessResult();
@@ -415,9 +437,6 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     return flwProcessResult;
                 })
                 .collect(Collectors.toList());
-        defaultPage.setTotal(historicProcessInstanceQuery.count());
-        defaultPage.setRecords(flwProcessResultList);
-        return defaultPage;
     }
 
     @Transactional(rollbackFor = Exception.class)
