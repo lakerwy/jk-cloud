@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.report.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
@@ -20,6 +21,7 @@ import vip.xiaonuo.biz.modular.report.param.HtFilingPageParam;
 import vip.xiaonuo.biz.modular.report.param.HtFilingParam;
 import vip.xiaonuo.biz.modular.report.result.*;
 import vip.xiaonuo.biz.modular.report.service.HetongReportService;
+import vip.xiaonuo.biz.modular.report.service.PartnerInfoService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.page.CommonPageRequest;
 
@@ -40,6 +42,10 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
     private ReportMapper reportMapper;
     @Resource
     private HetongService hetongService;
+
+    @Resource
+    private PartnerInfoService partnerInfoService;
+
     @Override
     public HetongReportResult listReport(HetongReportParam hetongReportParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
@@ -159,33 +165,74 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
         DateTime preThreeMonth = new DateTime(LocalDate.now().minusMonths(3).toString());
         //推3个月，再推1年
         DateTime preYear = new DateTime(preThreeMonth.toLocalDateTime().minusYears(1).toString());
-
-        //归档率,收入合同归档率统计（若未传入 统计开始时间、统计结束时间 ，默认统计当前日期向前推3个月，再近一年数据）
-        DateTime startDate = ObjectUtil.isNotEmpty(htFilingParam.getStartDate())? new DateTime(htFilingParam.getStartDate()):preYear;
-        DateTime endDate = ObjectUtil.isNotEmpty(htFilingParam.getEndDate())? new DateTime(htFilingParam.getEndDate()):preThreeMonth;
-        //数据统计
-        List<HTYearFilingRate> htYearFilingRateList = reportMapper.getHtYearFilingRate(startDate,endDate,htFilingParam.getPartnerType());
-
-        //超过三个月未归档(若未传入 统计开始时间、统计结束时间，默认2017-1-1 至 当前日期向前3个月)
+        //默认超过3个月开始日期
         DateTime threeInit = new DateTime("2017-1-1");
-        DateTime threeStartDate = ObjectUtil.isNotEmpty(htFilingParam.getThreeStartDate())? new DateTime(htFilingParam.getThreeStartDate()):threeInit;
-        DateTime threeEndDate = ObjectUtil.isNotEmpty(htFilingParam.getThreeEndDate())? new DateTime(htFilingParam.getThreeEndDate()):preThreeMonth;
-        List<HTThreeMonthUnFiling> htThreeMonthUnFilingList = reportMapper.getHtThreeMonthUnFiling(threeStartDate,threeEndDate,htFilingParam.getPartnerType());
+        //结果集
+        List<HTYearFilingRate> resultList = new ArrayList<>();
 
-        //数据处理与合并
-        for (HTYearFilingRate htYearFilingRate : htYearFilingRateList) {
-            htYearFilingRate.setUnFilingNum(htYearFilingRate.getTotalNum()-htYearFilingRate.getFilingNum());
-            htYearFilingRate.setFilingRate(htYearFilingRate.getTotalNum() >0 ? (double) htYearFilingRate.getFilingNum()/htYearFilingRate.getTotalNum() : 0);
-            Optional<HTThreeMonthUnFiling> threeMonthUnFiling = htThreeMonthUnFilingList.stream().filter(x->x.getPartnerId().equals(htYearFilingRate.getPartnerId())).findFirst();
-            htYearFilingRate.setThreeUnFilingNum(threeMonthUnFiling.isPresent() ? threeMonthUnFiling.get().getThreeUnFilingNum() : 0 );
+        /** 近一年归档率,收入合同归档率统计（若未传入 统计开始时间、统计结束时间 ，默认统计当前日期向前推3个月，再近一年数据） **/
+        if("1".equals(htFilingParam.getReportType())){
+            DateTime startDate = ObjectUtil.isNotEmpty(htFilingParam.getStartDate())? new DateTime(htFilingParam.getStartDate()):preYear;
+            DateTime endDate = ObjectUtil.isNotEmpty(htFilingParam.getEndDate())? new DateTime(htFilingParam.getEndDate()):preThreeMonth;
+            //数据统计
+            resultList = reportMapper.getHtYearFilingRate(startDate,endDate,htFilingParam.getPartnerType());
+            //处理数据
+            for (HTYearFilingRate rate : resultList) {
+                rate.setUnFilingNum(rate.getTotalNum()-rate.getFilingNum());
+                rate.setFilingRate(rate.getTotalNum() >0 ? (double) rate.getFilingNum()/rate.getTotalNum() : 0);
+            }
+            return resultAddInfo(resultList);
         }
-
-        //过滤数据
-        if(ObjectUtil.isNotEmpty(htFilingParam.getPartnerId())){
-            return htYearFilingRateList.stream().filter(x->x.getPartnerId().equals(htFilingParam.getPartnerId())).collect(Collectors.toList());
+        /** 超过三个月未归档(若未传入 统计开始时间、统计结束时间，默认2017-1-1 至 当前日期向前3个月) **/
+        else if("2".equals(htFilingParam.getReportType())){
+            DateTime threeStartDate = ObjectUtil.isNotEmpty(htFilingParam.getStartDate())? new DateTime(htFilingParam.getStartDate()):threeInit;
+            DateTime threeEndDate = ObjectUtil.isNotEmpty(htFilingParam.getEndDate())? new DateTime(htFilingParam.getEndDate()):preThreeMonth;
+            List<HTThreeMonthUnFiling> listThreeFiling = reportMapper.getHtThreeMonthUnFiling(threeStartDate,threeEndDate,htFilingParam.getPartnerType());
+            resultList = BeanUtil.copyToList(listThreeFiling, HTYearFilingRate.class);
+            return resultAddInfo(resultList);
         }
-        return htYearFilingRateList;
+        /** 统计数据1 + 统计数据2 合并 **/
+        else if("3".equals(htFilingParam.getReportType())){
+            // 近一年归档率（或统计范围内）
+            DateTime startDate = ObjectUtil.isNotEmpty(htFilingParam.getStartDate())? new DateTime(htFilingParam.getStartDate()):preYear;
+            DateTime endDate = ObjectUtil.isNotEmpty(htFilingParam.getEndDate())? new DateTime(htFilingParam.getEndDate()):preThreeMonth;
+            //数据统计
+            resultList = reportMapper.getHtYearFilingRate(startDate,endDate,htFilingParam.getPartnerType());
+            // 2017-1-1起，超过3个月未归档（或统计范围内）
+            DateTime threeStartDate = ObjectUtil.isNotEmpty(htFilingParam.getStartDate())? new DateTime(htFilingParam.getStartDate()):threeInit;
+            DateTime threeEndDate = ObjectUtil.isNotEmpty(htFilingParam.getEndDate())? new DateTime(htFilingParam.getEndDate()):preThreeMonth;
+            List<HTThreeMonthUnFiling> listThreeFiling = reportMapper.getHtThreeMonthUnFiling(threeStartDate,threeEndDate,htFilingParam.getPartnerType());
+            //合并数据
+            for (HTYearFilingRate rate : resultList) {
+                rate.setUnFilingNum(rate.getTotalNum()-rate.getFilingNum());
+                rate.setFilingRate(rate.getTotalNum() >0 ? (double) rate.getFilingNum()/rate.getTotalNum() : 0);
+                Optional<HTThreeMonthUnFiling> threeMonthUnFiling = listThreeFiling.stream().filter(x->x.getPartnerId().equals(rate.getPartnerId())).findFirst();
+                rate.setThreeUnFilingNum(threeMonthUnFiling.isPresent() ? threeMonthUnFiling.get().getThreeUnFilingNum() : 0 );
+            }
+            return resultList;
+        }else{
+            return null;
+        }
     }
+
+
+    /** 拼接信息 **/
+    public List<HTYearFilingRate> resultAddInfo(List<HTYearFilingRate> resultList){
+        if(CollUtil.isNotEmpty(resultList)){
+            List<PartnerVo> partnerVoList = partnerInfoService.getAll();
+            if(CollUtil.isNotEmpty(partnerVoList)){
+                for (HTYearFilingRate item : resultList) {
+                    Optional<PartnerVo> partnerVo = partnerVoList.stream().filter(x->x.getId().equals(item.getPartnerId())).findFirst();
+                    if(partnerVo.isPresent()) {
+                        item.setPartnerName(partnerVo.get().getName());
+                        item.setPartnerType(partnerVo.get().getPartnerType());
+                    }
+                }
+            }
+        }
+        return resultList;
+    }
+
 
     @Override
     public IPage<HTBillResult> billReport(HtBillParam htBillParam) {
@@ -299,7 +346,9 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
         //获取分页信息
         IPage<HTFilingPageResult> resultIPage = reportMapper.getHtFilingPageList(CommonPageRequest.defaultPage(), queryWrapper);
         //获取所属责任单位的 近一年合同归档率 超过3个月未归档 统计数据
-        List<HTYearFilingRate> htYearFilingRateList = filingReport(new HtFilingParam());
+        HtFilingParam htFilingParam = new HtFilingParam();
+        htFilingParam.setReportType("3");
+        List<HTYearFilingRate> htYearFilingRateList = filingReport(htFilingParam);
         for (HTFilingPageResult item:resultIPage.getRecords()) {
             Optional<HTYearFilingRate> filingRate = htYearFilingRateList.stream().filter(x->x.getPartnerId().equals(item.getPartnerId())).findFirst();
             item.setTotalNum(filingRate.isPresent()?filingRate.get().getTotalNum() : 0);

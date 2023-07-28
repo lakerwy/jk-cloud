@@ -50,7 +50,7 @@ public class HetongReportController {
     }
 
     /**
-     * 获取（分公司|零星|机构|公司部门）收入合同归档率+超过3月未归档统计表
+     * 获取（分公司|零星|机构|公司部门）收入合同归档率|超过3月未归档统计表
      * 默认统计近1年合同归档率 :当前日期向前推3个月后的近一年
      * 默认2017-1-1至今未归档:自2017-1-1至当前日期向前3个月范围内，超过3个月未归档
      *
@@ -58,7 +58,7 @@ public class HetongReportController {
      * @date  2023/06/30 14:49
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("获取（分公司|零星|机构|公司部门）收入合同归档率+超过3月未归档统计表")
+    @ApiOperation("获取（分公司|零星|机构|公司部门）收入合同归档率|超过3月未归档统计表")
     @GetMapping("/biz/report/hetong/filingReport")
     public CommonResult<List<HTYearFilingRate>> filingReport(HtFilingParam htFilingParam) {
         return CommonResult.data(hetongReportService.filingReport(htFilingParam));

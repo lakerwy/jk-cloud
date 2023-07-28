@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -41,6 +42,7 @@ import vip.xiaonuo.common.util.CommonSnUtil;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -63,13 +65,21 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.eq("a.STATUS","1");
         if (ObjectUtil.isNotEmpty(hetongPageParam.getSearchKey())) {
-            queryWrapper.like("a.SECOND_LEVEL", hetongPageParam.getSearchKey()).or()
-                    .like("a.CONTRACT_NO", hetongPageParam.getSearchKey()).or()
-                    .like("a.PROJECT_NAME", hetongPageParam.getSearchKey()).or()
-                    .like("a.COUNTERPARTY", hetongPageParam.getSearchKey()).or()
-                    .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
-                    .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
-                    .like("a.PARTYC", hetongPageParam.getSearchKey());
+            List<String> keys = StrUtil.splitTrim(hetongPageParam.getSearchKey().replace(" ",",").replace("，",","),",");
+            if(keys.size() > 1){
+                for (String key:keys) {
+                    queryWrapper.and(q->q.like("a.PROJECT_NAME",key)
+                            .or().like("a.CONTRACT_NO",key));
+                }
+            }else {
+                queryWrapper.like("a.SECOND_LEVEL", hetongPageParam.getSearchKey()).or()
+                        .like("a.CONTRACT_NO", hetongPageParam.getSearchKey()).or()
+                        .like("a.PROJECT_NAME", hetongPageParam.getSearchKey()).or()
+                        .like("a.COUNTERPARTY", hetongPageParam.getSearchKey()).or()
+                        .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
+                        .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
+                        .like("a.PARTYC", hetongPageParam.getSearchKey());
+            }
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
             queryWrapper.between("a.REGISTER_DATE", hetongPageParam.getStartRegisterDate(), hetongPageParam.getEndRegisterDate());

@@ -18,6 +18,12 @@ public class HTYearFilingRate {
     @ApiModelProperty(value = "责任单位Id（分公司）", position = 1)
     private String partnerId;
 
+    @ApiModelProperty(value = "伙伴名称",position = 4)
+    private String partnerName;
+
+    @ApiModelProperty(value = "伙伴类型", position = 5)
+    private String partnerType;
+
     /** 合同总数 */
     @ApiModelProperty(value = "合同总数", position = 2)
     private Integer totalNum;
