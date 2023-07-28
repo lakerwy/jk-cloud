@@ -64,7 +64,7 @@ public class BizMapRegisterEditParam {
 
     /** 设计阶段 */
     @ApiModelProperty(value = "设计阶段", position = 8)
-    private String designSrage;
+    private String designStage;
 
     /** 出图盖章日期 */
     @ApiModelProperty(value = "出图盖章日期", position = 9)

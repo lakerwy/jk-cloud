@@ -60,4 +60,7 @@ public class FlwProcessStartParam {
     /** 发起人职位名称 */
     @ApiModelProperty(value = "发起人职位名称", position = 8)
     private String initiatorPositionName;
+
+    @ApiModelProperty(value = "业务主键id",position = 9)
+    private String id;
 }

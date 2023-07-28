@@ -7,22 +7,25 @@ import lombok.Getter;
  */
 @Getter
 public enum FlwStatusEnum {
-    ACTIVE_STATUS("0","审批中"),
 
-    COMPLETED_STATUS("1","已完成"),
+    //参数状态
+    ACTIVE_STATUS("0", "审批中"),
 
-    REVOKE_STATUS("2","已撤回"),
+    COMPLETED_STATUS("1", "审批通过"),
 
-    REJECT_STATUS("3","已拒绝"),
+    REVOKE_STATUS("2", "已撤回"),
 
-    END_STATUS("4","已终止");
+    REJECT_STATUS("3", "已拒绝"),
+
+    END_STATUS("4", "已终止"),
+    ;
 
     private final String value;
 
     private final String name;
 
     FlwStatusEnum(String value, String name) {
-        this.value =value;
+        this.value = value;
         this.name = name;
     }
 }

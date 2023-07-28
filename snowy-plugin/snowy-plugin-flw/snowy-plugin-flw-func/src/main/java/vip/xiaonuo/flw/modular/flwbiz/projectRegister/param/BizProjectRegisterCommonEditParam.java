@@ -17,4 +17,8 @@ public class BizProjectRegisterCommonEditParam {
     /** 经营状态 */
     @ApiModelProperty(value = "经营状态", position = 16)
     private String businessStatus;
+
+    /** 流程状态 */
+    @ApiModelProperty(value = "经营状态", position = 20)
+    private String status;
 }

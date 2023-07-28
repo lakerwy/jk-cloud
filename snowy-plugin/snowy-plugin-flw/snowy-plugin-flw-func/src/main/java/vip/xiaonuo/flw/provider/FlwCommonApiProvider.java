@@ -1,5 +1,6 @@
 package vip.xiaonuo.flw.provider;
 
+import com.baomidou.dynamic.datasource.annotation.Master;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
@@ -7,6 +8,7 @@ import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import javax.annotation.Resource;
 
 @Service
+@Master
 public class FlwCommonApiProvider implements FlwCommonApi {
 
     @Resource

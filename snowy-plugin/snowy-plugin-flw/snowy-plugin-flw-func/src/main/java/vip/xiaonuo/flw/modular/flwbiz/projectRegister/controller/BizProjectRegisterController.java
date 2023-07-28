@@ -126,7 +126,7 @@ public class BizProjectRegisterController {
     }
 
     @ApiOperationSupport(order = 7)
-    @ApiOperation("获取业务表-信息报备经营情况")
+    @ApiOperation("修改业务表-信息状态情况")
 //    @SaCheckPermission("/biz/Chartreviews/page")
     @PostMapping("/flw/projectRegister/updateStatus")
     public CommonResult<String> updateStatus(BizProjectRegisterCommonEditParam bizProjectRegisterCommonEditParam){

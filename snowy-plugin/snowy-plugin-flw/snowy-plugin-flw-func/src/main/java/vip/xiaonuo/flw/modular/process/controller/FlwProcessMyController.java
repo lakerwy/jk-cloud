@@ -32,10 +32,7 @@ import vip.xiaonuo.flw.modular.model.param.FlwModelIdParam;
 import vip.xiaonuo.flw.modular.model.param.FlwModelMyParam;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.process.param.*;
-import vip.xiaonuo.flw.modular.process.result.FlwProcessDetailResult;
-import vip.xiaonuo.flw.modular.process.result.FlwProcessDraftDetailResult;
-import vip.xiaonuo.flw.modular.process.result.FlwProcessMyDraftResult;
-import vip.xiaonuo.flw.modular.process.result.FlwProcessResult;
+import vip.xiaonuo.flw.modular.process.result.*;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 
 import javax.annotation.Resource;
@@ -100,8 +97,8 @@ public class FlwProcessMyController {
     @CommonLog("发起流程")
     @PostMapping("/flw/process/start")
     public CommonResult<String> start(@RequestBody @Valid FlwProcessStartParam flwProcessStartParam) {
-        flwProcessService.start(flwProcessStartParam);
-        return CommonResult.ok();
+        //flwProcessService.start(flwProcessStartParam);
+        return CommonResult.data(flwProcessService.start(flwProcessStartParam));
     }
 
     /**

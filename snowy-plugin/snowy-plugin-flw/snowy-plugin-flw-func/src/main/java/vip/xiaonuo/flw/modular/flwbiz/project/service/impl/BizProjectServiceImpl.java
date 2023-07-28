@@ -14,6 +14,7 @@ package vip.xiaonuo.flw.modular.flwbiz.project.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -22,12 +23,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
 import vip.xiaonuo.flw.modular.flwbiz.common.HandleExecutionUtil;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
@@ -77,7 +81,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
             queryWrapper.lambda().or(wrapper ->wrapper.like(BizProject::getName,bizProjectPageParam.getSearchKey()).or().like(BizProject::getProjectSn,bizProjectPageParam.getSearchKey()));
         }
-        queryWrapper.lambda().eq(BizProject::getStatus,"1");
+        //queryWrapper.lambda().eq(BizProject::getStatus,"1");
         if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -100,11 +104,15 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
             bizProject.setId(id);
             bizProject.setSn(String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             bizProject.setModelId(modelId);
+            bizProject.setApplyTime(DateUtil.now());
+            bizProject.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
             //将流程实例和业务表关联起来
-            formRelationTableService.save(modelId,BizCommon.PROJECT.getBizTable(),id,processInstanceId);
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            formRelationTableService.save(modelId,dbName+BizCommon.PROJECT.getBizTable(),id,processInstanceId);
         }
         bizProject.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(bizProject);
+        formRelationTableService.updateTable(bizProjectAddParam.getModelId(),BizCommon.PROJECT.getBizTable());
     }
 
     @Transactional(rollbackFor = Exception.class)

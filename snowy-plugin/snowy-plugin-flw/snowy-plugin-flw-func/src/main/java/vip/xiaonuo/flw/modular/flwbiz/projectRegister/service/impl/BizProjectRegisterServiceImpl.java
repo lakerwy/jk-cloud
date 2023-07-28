@@ -14,6 +14,7 @@ package vip.xiaonuo.flw.modular.flwbiz.projectRegister.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -23,12 +24,15 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
 import vip.xiaonuo.flw.modular.flwbiz.common.HandleExecutionUtil;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
@@ -75,7 +79,7 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         if(ObjectUtil.isNotEmpty(bizProjectRegisterPageParam.getScale())) {
             queryWrapper.lambda().like(BizProjectRegister::getScale, bizProjectRegisterPageParam.getScale());
         }
-        //queryWrapper.lambda().eq(BizProjectRegister::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+//        queryWrapper.lambda().eq(BizProjectRegister::getStatus,"1");
         if(ObjectUtil.isAllNotEmpty(bizProjectRegisterPageParam.getSortField(), bizProjectRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -98,11 +102,15 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
             bizProjectRegister.setId(id);
             bizProjectRegister.setSn(String.valueOf(commonCacheOperator.getKeyAndDelete(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             bizProjectRegister.setModelId(modelId);
+            bizProjectRegister.setApplyTime(DateUtil.now());
+            bizProjectRegister.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
             //将流程实例和业务表关联起来
-            formRelationTableService.save(modelId,BizCommon.PROJECT_REGISTER.getBizTable(),id,processInstanceId);
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            formRelationTableService.save(modelId,dbName+BizCommon.PROJECT_REGISTER.getBizTable(),id,processInstanceId);
         }
         bizProjectRegister.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(bizProjectRegister);
+        formRelationTableService.updateTable(bizProjectRegisterAddParam.getModelId(),BizCommon.PROJECT_REGISTER.getBizTable());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -147,7 +155,12 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
     public void updateStatus(BizProjectRegisterCommonEditParam bizProjectRegisterCommonEditParam) {
         UpdateWrapper<BizProjectRegister> updateWrapper = new UpdateWrapper<>();
         updateWrapper.lambda().eq(BizProjectRegister::getId,bizProjectRegisterCommonEditParam.getId());
-        updateWrapper.lambda().set(BizProjectRegister::getBusinessStatus,bizProjectRegisterCommonEditParam.getBusinessStatus());
+        if(ObjectUtil.isNotEmpty(bizProjectRegisterCommonEditParam.getBusinessStatus())){
+            updateWrapper.lambda().set(BizProjectRegister::getBusinessStatus,bizProjectRegisterCommonEditParam.getBusinessStatus());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectRegisterCommonEditParam.getStatus())){
+            updateWrapper.lambda().set(BizProjectRegister::getStatus,bizProjectRegisterCommonEditParam.getStatus());
+        }
         this.update(updateWrapper);
     }
 

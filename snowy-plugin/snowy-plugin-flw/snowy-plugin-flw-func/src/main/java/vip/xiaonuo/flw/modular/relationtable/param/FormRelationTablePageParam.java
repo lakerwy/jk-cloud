@@ -54,4 +54,7 @@ public class FormRelationTablePageParam {
     @ApiModelProperty(value = "查询字段")
     private String[] fields;
 
+    @ApiModelProperty(value = "流程实例id", position = 8)
+    private String processInstanceId;
+
 }

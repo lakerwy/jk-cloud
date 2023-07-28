@@ -46,7 +46,7 @@ public class BizChartReviewsVo {
 
     /** 设计阶段 */
     @ApiModelProperty(value = "设计阶段", position = 10)
-    private String mapStage;
+    private String designStage;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 14)

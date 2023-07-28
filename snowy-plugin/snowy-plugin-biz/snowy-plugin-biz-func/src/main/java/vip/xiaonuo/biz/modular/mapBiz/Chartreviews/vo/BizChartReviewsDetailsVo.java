@@ -56,7 +56,7 @@ public class BizChartReviewsDetailsVo  implements Serializable {
 
     /** 设计阶段 */
     @ApiModelProperty(value = "设计阶段", position = 10)
-    private String mapStage;
+    private String designStage;
 
     /** 设计人 */
     @ApiModelProperty(value = "设计人", position = 11)

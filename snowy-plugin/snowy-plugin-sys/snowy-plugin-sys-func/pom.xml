@@ -46,9 +46,5 @@
         </dependency>
 
         <!-- 引入工作流接口，用于sn获取 -->
-        <dependency>
-            <groupId>vip.xiaonuo</groupId>
-            <artifactId>snowy-plugin-flw-api</artifactId>
-        </dependency>
     </dependencies>
 </project>

@@ -45,6 +45,8 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.enums.CommonDeleteFlagEnum;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.dbs.modular.entity.DbsStorage;
@@ -89,6 +91,9 @@ public class DbsConfigure {
         @Resource
         private final DefaultDataSourceCreator defaultDataSourceCreator;
 
+        @Resource
+        CommonCacheOperator commonCacheOperator;
+
         @Override
         public Map<String, DataSource> loadDataSources() {
             HashMap<String, DataSource> dataSourceHashMap = MapUtil.newHashMap();
@@ -113,6 +118,7 @@ public class DbsConfigure {
                         } else {
                             dbsTableName = StrUtil.toUnderlineCase(DbsStorage.class.getSimpleName());
                         }
+                        commonCacheOperator.put(DbTypeCacheConstant.CACHE_DB_KEY+primaryDsName,conn.getCatalog());
                         GlobalConfig.DbConfig dbConfig = mybatisPlusProperties.getGlobalConfig().getDbConfig();
                         String logicDeleteField = dbConfig.getLogicDeleteField();
                         if(ObjectUtil.isEmpty(logicDeleteField)) {

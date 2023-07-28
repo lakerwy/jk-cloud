@@ -17,7 +17,6 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -46,8 +45,6 @@ import java.util.List;
  **/
 @Service
 public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMovesMapper, PersonnelFileMoves> implements PersonnelFileMovesService {
-//    @Resource
-//    private FlwCommonApi flwCommonApi;
 
     @Override
     public Page<PersonnelFileMoves> page(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
@@ -68,7 +65,7 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
         PersonnelFileMoves personnelFileMoves = BeanUtil.toBean(personnelFileMovesAddParam, PersonnelFileMoves.class);
         String modelId = personnelFileMovesAddParam.getModelId();
 //        if(ObjectUtil.isNotEmpty(modelId)){
-//            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+////            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
 //            String sn = flwCommonApi.getSnByModelId(modelId);
 //            if(ObjectUtil.isNotEmpty(sn)){
 //                personnelFileMoves.setSn(sn);

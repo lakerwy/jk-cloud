@@ -121,6 +121,7 @@
         <yunpian.version>1.2.7</yunpian.version>
 
         <dingtalk.version>2.0.0</dingtalk.version>
+        <logstash.version>6.6</logstash.version>
 
     </properties>
 
@@ -957,6 +958,15 @@
                     </exclusion>
                 </exclusions>
             </dependency>
+
+            <!--集成logstash-->
+            <!-- https://mvnrepository.com/artifact/net.logstash.logback/logstash-logback-encoder -->
+            <dependency>
+                <groupId>net.logstash.logback</groupId>
+                <artifactId>logstash-logback-encoder</artifactId>
+                <version>${logstash.version}</version>
+            </dependency>
+
         </dependencies>
     </dependencyManagement>
 

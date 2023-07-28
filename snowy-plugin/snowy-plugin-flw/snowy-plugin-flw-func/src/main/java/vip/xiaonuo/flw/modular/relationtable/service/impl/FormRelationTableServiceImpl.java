@@ -429,12 +429,14 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
             SimpleDateFormat ft = new SimpleDateFormat("yyyy-MM-dd");
 //            Set<String> collect = new HashSet<>() ;
 //            StringBuilder summaryValue = new StringBuilder();
+            Map<String,Object> sqlParams = new HashMap<>();
             for (Map<String, String> stringMap : fieldsByTableName) {
                 //字段名称
                 String fieldName = stringMap.get("COLUMN_NAME");
                 if (fieldName.equalsIgnoreCase("id")) {
                     sqlkey.append("`id`").append(",");
                     sqlValue.append("'").append(parentTablePrimaryId).append("', ");
+                   // sqlParams.put(fieldName,)
                 }
 
 
@@ -444,7 +446,8 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
 //                }
                 //字段类型 （暂时广泛的定义三个 int varchar datetime）
                 String fieldType = stringMap.get("DATA_TYPE");
-                String newField = fieldName.replaceAll("_","").toLowerCase();
+                //String newField = fieldName.replaceAll("_","").toLowerCase();
+                String newField = StrUtil.toCamelCase(fieldName).toLowerCase();
                 Object o = lowerCase.get(newField);
                 if (ObjectUtil.isNotEmpty(o) && !"null".equalsIgnoreCase(o.toString())) {
                     buildSql(sqlkey, sqlValue, ft, fieldName, fieldType, o);

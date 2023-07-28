@@ -12,7 +12,7 @@
         <id column="SENDER" jdbcType="VARCHAR" property="sender"/>
         <id column="COMPANY_OR_DEPARTMENT" jdbcType="VARCHAR" property="companyOrDepartment"/>
         <id column="PROJECT_LEADER" jdbcType="VARCHAR" property="projectLeader"/>
-        <id column="MAP_STAGE" jdbcType="VARCHAR" property="mapStage"/>
+        <id column="DESIGN_STAGE" jdbcType="VARCHAR" property="designStage"/>
         <id column="DESIGNER" jdbcType="VARCHAR" property="designer"/>
         <id column="MAP_DATE" jdbcType="TIMESTAMP" property="mapDate"/>
         <id column="MAP_COPIES" jdbcType="VARCHAR" property="mapCopies"/>
@@ -49,7 +49,7 @@
             a.SENDER,
             a.COMPANY_OR_DEPARTMENT,
             a.PROJECT_LEADER,
-            a.MAP_STAGE,
+            a.DESIGN_STAGE,
             a.DESIGNER,
             a.ATTACHMENTS,
             a.ATTACHMENTS1,
