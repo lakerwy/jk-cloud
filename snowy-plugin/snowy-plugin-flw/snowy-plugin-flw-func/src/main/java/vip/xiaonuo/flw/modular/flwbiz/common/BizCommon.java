@@ -3,7 +3,10 @@ package vip.xiaonuo.flw.modular.flwbiz.common;
 public enum BizCommon {
     PROJECT("PROJECT","BIZ_PROJECT","BizProjectService"), //立项申请业务
     PROJECT_REGISTER("PROJECT_REGISTER","BIZ_PROJECT_REGISTER","BizProjectRegisterService"), //信息报备业务
-    PROJECT_FUNDS("PROJECT_FUNDS","BIZ_PROJECT_FUNDS","BizProjectFundsService"); //项目拨付款业务
+    PROJECT_FUNDS("PROJECT_FUNDS","BIZ_PROJECT_FUNDS","BizProjectFundsService"), //项目拨付款业务
+    BIZ_AUDIT_LISTS("BIZ_AUDIT_LISTS","BIZ_AUDIT_LISTS","BizAuditListsServiceImpl"), //工程校审业务
+
+    BIZ_MAP_REGISTER("BIZ_MAP_REGISTER","BIZ_MAP_REGISTER","BizMapRegisterServiceImpl"); //工程出图业务
 
     String bizModel;
     String bizTable;

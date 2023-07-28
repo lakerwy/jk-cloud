@@ -46,4 +46,16 @@ public class FlwTaskPageTodoParam {
     @ApiModelProperty(value = "流程名称")
     private String name;
 
+    /** 流水号 */
+    @ApiModelProperty(value = "流水号")
+    private String sn;
+
+    /** 摘要 */
+    @ApiModelProperty(value = "摘要")
+    private String initiatorProcessAbstract;
+
+    /** 摘要 */
+    @ApiModelProperty(value = "标题")
+    private String initiatorProcessTitle;
+
 }

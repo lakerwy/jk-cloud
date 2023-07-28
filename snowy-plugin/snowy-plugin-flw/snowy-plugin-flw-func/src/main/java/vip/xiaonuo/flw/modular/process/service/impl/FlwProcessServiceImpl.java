@@ -307,9 +307,20 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getInitiator())) {
             historicProcessInstanceQuery.startedBy(flwProcessMonitorPageParam.getInitiator());
         }
-//        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSearchKey())) {
-//            historicProcessInstanceQuery.variableValueLike("initiatorName", "%" + flwProcessMonitorPageParam.getSearchKey() + "%");
-//        }
+        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSearchKey())) {
+            historicProcessInstanceQuery.variableValueLike("initiatorName", "%" + flwProcessMonitorPageParam.getSearchKey() + "%");
+        }
+        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSn())) {
+            historicProcessInstanceQuery.variableValueLike("initiatorProcessSn", "%" + flwProcessMonitorPageParam.getSn() + "%");
+        }
+
+        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getInitiatorProcessAbstract())) {
+            historicProcessInstanceQuery.variableValueLike("initiatorProcessAbstract", "%" + flwProcessMonitorPageParam.getInitiatorProcessAbstract() + "%");
+        }
+
+        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getInitiatorProcessTitle())) {
+            historicProcessInstanceQuery.variableValueLike("initiatorProcessTitle", "%" + flwProcessMonitorPageParam.getInitiatorProcessTitle() + "%");
+        }
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getName())) {
             historicProcessInstanceQuery.processDefinitionNameLike("%" + flwProcessMonitorPageParam.getName() + "%");
         }
@@ -320,21 +331,8 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();
-        List<FlwProcessResult> flwProcessResultList = new ArrayList<>();
-        long count = 0L;
-        if(ObjectUtil.isEmpty(flwProcessMonitorPageParam.getSearchKey())){
-             flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
-             count = flwProcessResultList.size();
-        }else {
-            flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, Integer.MAX_VALUE, size);
-            flwProcessResultList = flwProcessResultList.stream().filter(flwProcessResult -> flwProcessResult.getAbstractTitle().contains(flwProcessMonitorPageParam.getSearchKey())
-                    || flwProcessResult.getSn().contains(flwProcessMonitorPageParam.getSearchKey())).collect(Collectors.toList());
-            count = flwProcessResultList.size();
-            flwProcessResultList = flwProcessResultList.subList(Convert.toInt((current - 1) * size), Convert.toInt(Math.min(size, count)));
-
-        }
-        //List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
-        defaultPage.setTotal(count);
+        List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
+        defaultPage.setTotal(historicProcessInstanceQuery.count());
         defaultPage.setRecords(flwProcessResultList);
         return defaultPage;
     }

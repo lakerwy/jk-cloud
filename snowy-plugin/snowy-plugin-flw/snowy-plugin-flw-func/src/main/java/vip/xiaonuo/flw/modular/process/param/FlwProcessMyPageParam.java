@@ -37,4 +37,20 @@ public class FlwProcessMyPageParam {
     /** 流程名称 */
     @ApiModelProperty(value = "流程名称")
     private String name;
+
+    /** 发起人姓名关键词 */
+    @ApiModelProperty(value = "发起人姓名关键词")
+    private String searchKey;
+
+    /** 流水号 */
+    @ApiModelProperty(value = "流水号")
+    private String sn;
+
+    /** 摘要 */
+    @ApiModelProperty(value = "摘要")
+    private String initiatorProcessAbstract;
+
+    /** 摘要 */
+    @ApiModelProperty(value = "标题")
+    private String initiatorProcessTitle;
 }

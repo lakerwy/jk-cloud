@@ -99,8 +99,6 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     @Resource
     private FlwProcessService flwProcessService;
 
-   // private final int selectNum = 5;
-
     @Override
     public Page<FlwTodoTaskResult> todoPage(FlwTaskPageTodoParam flwTaskPageTodoParam) {
         NodeRuntimeUtil.handleTenAuth();
@@ -111,53 +109,24 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if(ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getInitiator())) {
             taskQuery.processVariableValueEquals("initiator", flwTaskPageTodoParam.getInitiator());
         }
-//        if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getSearchKey())) {
-//            taskQuery.processVariableValueLike("initiatorName", "%" + flwTaskPageTodoParam.getSearchKey() + "%");
-//        }
+        if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getSearchKey())) {
+            taskQuery.processVariableValueLike("initiatorName", "%" + flwTaskPageTodoParam.getSearchKey() + "%");
+        }
+        if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getSn())) {
+            taskQuery.processVariableValueLike("initiatorProcessSn", "%" + flwTaskPageTodoParam.getSn() + "%");
+        }
+        if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getInitiatorProcessAbstract())) {
+            taskQuery.processVariableValueLike("initiatorProcessAbstract", "%" + flwTaskPageTodoParam.getInitiatorProcessAbstract() + "%");
+        }
+        if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getInitiatorProcessTitle())) {
+            taskQuery.processVariableValueLike("initiatorProcessTitle", "%" + flwTaskPageTodoParam.getInitiatorProcessTitle() + "%");
+        }
         Page<FlwTodoTaskResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();
-        List<FlwTodoTaskResult> flwTodoTaskResultList =new ArrayList<>();
-        long count = 0L;
-        //flwTodoTaskResultList = getFlwTodoTasks(taskQuery, current, size,flwTodoTaskResultList);
-        if(ObjectUtil.isEmpty(flwTaskPageTodoParam.getSearchKey())){
-            getFlwTodoTasks(taskQuery, current, size,flwTodoTaskResultList,null);
-            count = taskQuery.count();
-        }else {
-            getFlwTodoTasks(taskQuery, current, Integer.MAX_VALUE,flwTodoTaskResultList,null);
-            flwTodoTaskResultList = flwTodoTaskResultList.stream().filter(flwTodoTaskResult -> flwTodoTaskResult.getAbstractTitle().contains(flwTaskPageTodoParam.getSearchKey()) ||
-                    flwTodoTaskResult.getSn().contains(flwTaskPageTodoParam.getSearchKey())).collect(Collectors.toList());
-            count = flwTodoTaskResultList.size();
-            flwTodoTaskResultList = flwTodoTaskResultList.subList(Convert.toInt((current - 1) * size), Convert.toInt(Math.min(size, count)));
-//            int i = 0;
-//            while (i < selectNum) {
-//                getFlwTodoTasks(taskQuery, current, size, flwTodoTaskResultList, flwTaskPageTodoParam.getSearchKey());
-//                int size1 = flwTodoTaskResultList.size();
-//                //如果第一次查询就小于页数，就无需第二次遍历
-//                flwTodoTaskResultList =  flwTodoTaskResultList.stream().filter(flwTodoTaskResult -> flwTodoTaskResult.getTitle().contains(flwTaskPageTodoParam.getSearchKey())).collect(Collectors.toList()).subList(Convert.toInt((current - 1) * size), Convert.toInt(size));
-//
-//                if (i == 0) {
-//                    if (size1 < size) {
-//                        break;
-//                    }
-//                }
-//                if (flwTodoTaskResultList.size() > size) {
-//                    flwTodoTaskResultList = flwTodoTaskResultList.subList(0,Convert.toInt(size));
-//                }
-//                i++;
-//                current += 1;
-//            }
-        }
-        defaultPage.setTotal(count);
-        defaultPage.setRecords(flwTodoTaskResultList);
-        return defaultPage;
-    }
-
-    private void getFlwTodoTasks(TaskQuery taskQuery, long current, long size, List<FlwTodoTaskResult> flwTodoTasks, String searchKey) {
-        List<FlwTodoTaskResult> collect = taskQuery.listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
+        List<FlwTodoTaskResult> flwTodoTaskResultList = taskQuery.listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
                 .map(task -> {
                     JSONObject variableJsonObject = JSONUtil.createObj();
-//                    HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery().processInstanceId(task.getProcessInstanceId());
                     historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
                             .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
                                     historicVariableInstance.getValue()));
@@ -171,14 +140,14 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setCurrentActivityId(task.getTaskDefinitionKey());
                     flwTodoTaskResult.setCurrentActivityName(task.getName());
                     String taskAssignee = task.getAssignee();
-                    if (ObjectUtil.isNotEmpty(taskAssignee)) {
+                    if(ObjectUtil.isNotEmpty(taskAssignee)) {
                         JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
-                        if (ObjectUtil.isNotEmpty(taskAssigneeUser)) {
+                        if(ObjectUtil.isNotEmpty(taskAssigneeUser)) {
                             flwTodoTaskResult.setAssignees(taskAssigneeUser.getStr("name"));
                         }
                     } else {
                         String assignee = variableJsonObject.getStr("assignee" + StrUtil.UNDERLINE + task.getTaskDefinitionKey());
-                        if (ObjectUtil.isNotEmpty(assignee)) {
+                        if(ObjectUtil.isNotEmpty(assignee)) {
                             List<String> userIdList = JSONUtil.toList(assignee, String.class);
                             flwTodoTaskResult.setAssignees(StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(userIdList).stream()
                                     .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList())));
@@ -194,10 +163,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setTenantId(task.getTenantId());
                     return flwTodoTaskResult;
                 }).collect(Collectors.toList());
-//        if(ObjectUtil.isNotEmpty(searchKey)){
-//            collect = collect.stream().filter(flwTodoTaskResult -> flwTodoTaskResult.getTitle().contains(searchKey)).collect(Collectors.toList());
-//        }
-        flwTodoTasks.addAll(collect);
+        defaultPage.setTotal(taskQuery.count());
+        defaultPage.setRecords(flwTodoTaskResultList);
+        return defaultPage;
     }
 
     @Override
@@ -211,34 +179,20 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if(ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiator())) {
             historicTaskInstanceQuery.processVariableValueEquals("initiator", flwTaskPageDoneParam.getInitiator());
         }
-//        if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getSearchKey())) {
-//            historicTaskInstanceQuery.processVariableValueLike("initiatorName", "%" + flwTaskPageDoneParam.getSearchKey() + "%");
-//        }
+        if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getSn())) {
+            historicTaskInstanceQuery.processVariableValueLike("initiatorProcessSn", "%" + flwTaskPageDoneParam.getSn() + "%");
+        }
+        if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiatorProcessAbstract())) {
+            historicTaskInstanceQuery.processVariableValueLike("initiatorProcessAbstract", "%" + flwTaskPageDoneParam.getInitiatorProcessAbstract() + "%");
+        }
+
+        if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiatorProcessTitle())) {
+            historicTaskInstanceQuery.processVariableValueLike("initiatorProcessTitle", "%" + flwTaskPageDoneParam.getInitiatorProcessTitle() + "%");
+        }
         Page<FlwDoneTaskResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();
-        long count = 0L;
-        List<FlwDoneTaskResult> flwDoneTaskResultList = new ArrayList<>();
-        if(ObjectUtil.isEmpty(flwTaskPageDoneParam.getSearchKey())){
-            flwDoneTaskResultList = getFlwDoneTaskResults(historicTaskInstanceQuery, current, size);
-            count = flwDoneTaskResultList.size();
-        }else {
-            flwDoneTaskResultList = getFlwDoneTaskResults(historicTaskInstanceQuery, Integer.MAX_VALUE, size);
-            flwDoneTaskResultList = flwDoneTaskResultList.stream().filter(flwProcessResult -> flwProcessResult.getAbstractTitle().contains(flwTaskPageDoneParam.getSearchKey())
-                    || flwProcessResult.getSn().contains(flwTaskPageDoneParam.getSearchKey())).collect(Collectors.toList());
-            count = flwDoneTaskResultList.size();
-            flwDoneTaskResultList = flwDoneTaskResultList.subList(Convert.toInt((current - 1) * size), Convert.toInt(Math.min(size, count)));
-
-        }
-        //List<FlwDoneTaskResult> flwDoneTaskResultList = getFlwDoneTaskResults(historicTaskInstanceQuery, current, size);
-        defaultPage.setTotal(count);
-        defaultPage.setRecords(flwDoneTaskResultList);
-        return defaultPage;
-    }
-
-    @NotNull
-    private List<FlwDoneTaskResult> getFlwDoneTaskResults(HistoricTaskInstanceQuery historicTaskInstanceQuery, long current, long size) {
-        return historicTaskInstanceQuery.listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
+        List<FlwDoneTaskResult> flwDoneTaskResultList = historicTaskInstanceQuery.listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
                 .map(historicTaskInstance -> {
                     JSONObject variableJsonObject = JSONUtil.createObj();
                     historyService.createHistoricVariableInstanceQuery().processInstanceId(historicTaskInstance.getProcessInstanceId()).list()
@@ -306,6 +260,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     }
                     return flwDoneTaskResult;
                 }).collect(Collectors.toList());
+        defaultPage.setTotal(historicTaskInstanceQuery.count());
+        defaultPage.setRecords(flwDoneTaskResultList);
+        return defaultPage;
+
     }
 
     @Transactional(rollbackFor = Exception.class)
