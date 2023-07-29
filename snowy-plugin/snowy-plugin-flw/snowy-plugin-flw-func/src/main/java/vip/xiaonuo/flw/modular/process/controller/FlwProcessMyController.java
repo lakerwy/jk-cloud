@@ -158,7 +158,7 @@ public class FlwProcessMyController {
         flwProcessMonitorPageParam.setName(flwProcessMyPageParam.getName());
         flwProcessMonitorPageParam.setSearchKey(flwProcessMyPageParam.getSearchKey());
         flwProcessMonitorPageParam.setSn(flwProcessMyPageParam.getSn());
-        flwProcessMonitorPageParam.setInitiatorProcessTitle(flwProcessMyPageParam.getInitiatorProcessTitle());
+        flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getInitiatorProcessAbstract());
         return CommonResult.data(flwProcessService.monitorPage(flwProcessMonitorPageParam));
     }
 

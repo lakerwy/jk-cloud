@@ -571,6 +571,60 @@ public class NodeRuntimeUtil {
                         }
                     }
                     break;
+                case "FORM_USER_LEADER":
+                    String formUser2 = flwNodeParticipateProp.getValue();
+                    if (ObjectUtil.isNotEmpty(formUser2)) {
+                        if(ObjectUtil.isNotEmpty(initiatorDataJson)) {
+                            if(ObjectUtil.isNotEmpty(initiatorTableJson)) {
+                                String primaryTableName = JSONUtil.parseObj(JSONUtil.parseArray(initiatorTableJson)
+                                        .stream().filter(obj -> JSONUtil.parseObj(obj).getStr("tableType").equals("parent"))
+                                        .collect(Collectors.toList()).get(0)).getStr("tableName");
+                                String formUserVariableKey = StrUtil.toCamelCase(primaryTableName.toLowerCase()) + StrUtil.UNDERLINE +
+                                        StrUtil.toCamelCase(formUser2.toLowerCase());
+                                Object formUserVariableValue = runtimeService.getVariable(processInstanceId, formUserVariableKey);
+                                if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
+                                    if(JSONUtil.isTypeJSONArray(Convert.toStr(formUserVariableValue))) {
+                                        JSONArray jsonArray = JSONUtil.parseArray(Convert.toStr(formUserVariableValue));
+                                        List<String> formUserIdList = CollectionUtil.removeNull(jsonArray.stream().map(o -> {
+                                            JSONObject userItem = JSONUtil.parseObj(o);
+                                            if (ObjectUtil.isNotEmpty(userItem)) {
+                                                String id = userItem.getStr("id");
+                                                //获取用户对象，然后获取所在部门
+                                                JSONObject user = sysUserApi.getUserByIdWithException(id);
+                                                //所在组织
+                                                String orgId = String.valueOf(user.get("orgId"));
+                                                //所在组织部门主管id
+                                                String supervisorId = sysOrgApi.getSupervisorIdByOrgId(orgId);
+                                                if(ObjectUtil.isNotEmpty(supervisorId)){
+                                                    return  supervisorId;
+                                                }else {
+                                                    return null;
+                                                }
+                                            } else {
+                                                return null;
+                                            }
+                                        }).collect(Collectors.toList()));
+                                        resultUserIdList.addAll(formUserIdList);
+                                    }
+                                }
+                            } else {
+                                Object formUserVariableValue = runtimeService.getVariable(processInstanceId, formUser2);
+                                if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
+                                    StrUtil.split(Convert.toStr(formUserVariableValue), StrUtil.COMMA).forEach(userId -> {
+                                        JSONObject user = sysUserApi.getUserByIdWithoutException(userId);
+                                        //所在组织
+                                        String orgId = String.valueOf(user.get("orgId"));
+                                        //所在组织部门主管id
+                                        String supervisorId = sysOrgApi.getSupervisorIdByOrgId(orgId);
+                                        if(ObjectUtil.isNotEmpty(supervisorId)) {
+                                            resultUserIdList.add(supervisorId);
+                                        }
+                                    });
+                                }
+                            }
+                        }
+                    }
+                    break;
                 case "INITIATOR":
                     resultUserIdList.add(initiator);
                     break;

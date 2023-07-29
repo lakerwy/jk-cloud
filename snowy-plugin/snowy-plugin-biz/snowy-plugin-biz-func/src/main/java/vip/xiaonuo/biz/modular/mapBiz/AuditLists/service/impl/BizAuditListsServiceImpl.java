@@ -14,7 +14,6 @@ package vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -23,11 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.consts.CacheConstant;
-import vip.xiaonuo.common.consts.DbTypeCacheConstant;
-import vip.xiaonuo.common.consts.FlwCacheConstant;
-import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoVo;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDetails;
@@ -45,9 +40,6 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsPageParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
-import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
-import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
-import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -70,9 +62,6 @@ public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, B
 
     @Resource
     CommonCacheOperator commonCacheOperator;
-
-    @Resource
-    FormRelationTableService formRelationTableService;
 
     @Override
     public Page<BizAuditLists> page(BizAuditListsPageParam bizAuditListsPageParam) {
@@ -106,35 +95,13 @@ public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, B
     @Override
     public void add(BizAuditListsAddParam bizAuditListsAddParam) {
         BizAuditLists bizAuditLists = BeanUtil.toBean(bizAuditListsAddParam, BizAuditLists.class);
-        String processInstanceId = bizAuditListsAddParam.getProcessInstanceId();
-        if(ObjectUtil.isNotEmpty(processInstanceId)){
-            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
-            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
-            bizAuditLists.setId(id);
-            bizAuditLists.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
-            bizAuditLists.setModelId(modelId);
-            bizAuditLists.setApplyTime(DateUtil.date());
-            bizAuditLists.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
-            //将流程实例和业务表关联起来
-            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableService.save(modelId, BizCommon.BIZ_AUDIT_LISTS.getBizTable(),id,processInstanceId,dbName);
-        }
         this.save(bizAuditLists);
     }
 
-   // @Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizAuditListsEditParam bizAuditListsEditParam) {
-        String id = bizAuditListsEditParam.getId();
-        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(bizAuditListsEditParam.getProcessInstanceId())){
-            FormRelationTable formRelationTable = formRelationTableService.getInfoByProcessInstanceId(bizAuditListsEditParam.getProcessInstanceId());
-            if(ObjectUtil.isNotEmpty(formRelationTable)){
-                id=formRelationTable.getId();
-                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
-                bizAuditListsEditParam.setId(id);
-            }
-        }
-        BizAuditLists bizAuditLists = this.queryEntity(id);
+        BizAuditLists bizAuditLists = this.queryEntity(bizAuditListsEditParam.getId());
         BeanUtil.copyProperties(bizAuditListsEditParam, bizAuditLists);
         this.updateById(bizAuditLists);
     }

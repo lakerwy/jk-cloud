@@ -28,6 +28,7 @@ import vip.xiaonuo.biz.modular.mapBiz.MapRegister.service.BizMapRegisterService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
+//import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -38,9 +39,8 @@ import vip.xiaonuo.biz.modular.mapBiz.MapRegister.param.BizMapRegisterEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.MapRegister.param.BizMapRegisterIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.MapRegister.param.BizMapRegisterPageParam;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
-import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
-import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
+//import vip.xiaonuo.flw.api.FormRelationTableService;
+//import vip.xiaonuo.flw.entity.FormRelationTable;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -58,8 +58,8 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
     @Resource
     CommonCacheOperator commonCacheOperator;
 
-    @Resource
-    FormRelationTableService formRelationTableService;
+//    @Resource
+//    FormRelationTableService formRelationTableService;
 
     @Override
     public Page<BizMapRegister> page(BizMapRegisterPageParam bizMapRegisterPageParam) {
@@ -93,7 +93,7 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
             bizMapRegister.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
             //将流程实例和业务表关联起来
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableService.save(modelId, BizCommon.BIZ_MAP_REGISTER.getBizTable(),id,processInstanceId,dbName);
+            //formRelationTableService.save(modelId, BizCommonEnum.BIZ_MAP_REGISTER.getBizTable(),id,processInstanceId,dbName);
         }
         this.save(bizMapRegister);
     }
@@ -102,14 +102,14 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
     @Override
     public void edit(BizMapRegisterEditParam bizMapRegisterEditParam) {
         String id = bizMapRegisterEditParam.getId();
-        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(id)){
-            FormRelationTable formRelationTable = formRelationTableService.getInfoByProcessInstanceId(bizMapRegisterEditParam.getProcessInstanceId());
-            if(ObjectUtil.isNotEmpty(formRelationTable)){
-                id=formRelationTable.getId();
-                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
-                bizMapRegisterEditParam.setId(id);
-            }
-        }
+//        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(id)){
+//            FormRelationTable formRelationTable = formRelationTableService.getInfoByProcessInstanceId(bizMapRegisterEditParam.getProcessInstanceId());
+//            if(ObjectUtil.isNotEmpty(formRelationTable)){
+//                id=formRelationTable.getId();
+//                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+//                bizMapRegisterEditParam.setId(id);
+//            }
+//        }
         BizMapRegister bizMapRegister = this.queryEntity(id);
         BeanUtil.copyProperties(bizMapRegisterEditParam, bizMapRegister);
         this.updateById(bizMapRegister);
