@@ -44,5 +44,10 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-dbs-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-flw-api</artifactId>
+        </dependency>
     </dependencies>
 </project>

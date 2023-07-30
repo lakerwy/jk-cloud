@@ -32,8 +32,7 @@ import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
-import vip.xiaonuo.flw.modular.flwbiz.common.HandleExecutionUtil;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
 import vip.xiaonuo.flw.modular.flwbiz.project.mapper.BizProjectMapper;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectAddParam;
@@ -109,7 +108,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
             bizProject.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
             //将流程实例和业务表关联起来
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableService.save(modelId,BizCommon.PROJECT.getBizTable(),id,processInstanceId,dbName);
+            formRelationTableService.save(modelId, BizCommonEnum.PROJECT.getBizTable(),id,processInstanceId,dbName);
         }
         bizProject.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(bizProject);

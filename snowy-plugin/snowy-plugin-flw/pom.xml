@@ -18,6 +18,9 @@
         <!-- 工作流程插件api接口 -->
         <module>snowy-plugin-flw-api</module>
 
+        <!--工作流程插件feign接口-->
+        <module>snowy-plugin-flw-feign</module>
+
         <!-- 工作流程插件func实现 -->
         <module>snowy-plugin-flw-func</module>
     </modules>

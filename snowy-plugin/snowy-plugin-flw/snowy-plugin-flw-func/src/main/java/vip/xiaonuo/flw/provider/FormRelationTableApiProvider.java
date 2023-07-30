@@ -1,0 +1,29 @@
+package vip.xiaonuo.flw.provider;
+
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
+
+import javax.annotation.Resource;
+
+/**
+ * @PACKAGE_NAME: vip.xiaonuo.flw.provider
+ * @NAME: FormRelationTableApiProvider
+ * @USER: jack
+ * @DATE: 7/30/2023
+ * @PROJECT_NAME: jk-cloud
+ **/
+public class FormRelationTableApiProvider implements FormRelationTableApi {
+    @Resource
+    FormRelationTableService formRelationTableService;
+    @Override
+    public void save(String modelId, String tableName, String businessKey, String processInstanceId, String dbName) {
+        formRelationTableService.save(modelId,tableName,businessKey,processInstanceId,dbName);
+    }
+
+    @Override
+    public JSONObject getInfoByProcessInstanceId(String processInstanceId) {
+        return JSONUtil.parseObj(formRelationTableService.getInfoByProcessInstanceId(processInstanceId));
+    }
+}

@@ -1,6 +1,6 @@
-package vip.xiaonuo.flw.modular.flwbiz.common;
+package vip.xiaonuo.common.enums;
 
-public enum BizCommon {
+public enum BizCommonEnum {
     PROJECT("PROJECT","BIZ_PROJECT","BizProjectService"), //立项申请业务
     PROJECT_REGISTER("PROJECT_REGISTER","BIZ_PROJECT_REGISTER","BizProjectRegisterService"), //信息报备业务
     PROJECT_FUNDS("PROJECT_FUNDS","BIZ_PROJECT_FUNDS","BizProjectFundsService"), //项目拨付款业务
@@ -12,7 +12,7 @@ public enum BizCommon {
     String bizTable;
     String  resourceService;
 
-    BizCommon(String bizModel, String bizTable, String resourceService) {
+    BizCommonEnum(String bizModel, String bizTable, String resourceService) {
         this.bizModel = bizModel;
         this.bizTable = bizTable;
         this.resourceService = resourceService;
@@ -42,9 +42,9 @@ public enum BizCommon {
         this.resourceService = resourceService;
     }
 
-    public static BizCommon findByCommonTable(String tableName) {
+    public static BizCommonEnum findByCommonTable(String tableName) {
         // 遍历所有枚举常量
-        for (BizCommon bizCommon : BizCommon.values()) {
+        for (BizCommonEnum bizCommon : BizCommonEnum.values()) {
             // 通过 name() 方法获取枚举常量名称，与提供的颜色名称进行比较
             if (bizCommon.bizTable.equals(tableName)) {
                 // 如果找到了匹配的常量，则返回该常量

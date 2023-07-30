@@ -25,7 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.flw.modular.flwbiz.common.HandleExecutionUtil;
 import vip.xiaonuo.flw.modular.flwbiz.projectFunds.mapper.BizProjectFundsMapper;
 import vip.xiaonuo.flw.modular.flwbiz.projectFunds.param.BizProjectFundsIdParam;
@@ -34,7 +34,6 @@ import vip.xiaonuo.flw.modular.flwbiz.projectFunds.param.BizProjectFundsAddParam
 import vip.xiaonuo.flw.modular.flwbiz.projectFunds.param.BizProjectFundsEditParam;
 import vip.xiaonuo.flw.modular.flwbiz.projectFunds.param.BizProjectFundsPageParam;
 import vip.xiaonuo.flw.modular.flwbiz.projectFunds.service.BizProjectFundsService;
-import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
@@ -88,11 +87,11 @@ public class BizProjectFundsServiceImpl extends ServiceImpl<BizProjectFundsMappe
     @Override
     public void add(BizProjectFundsAddParam bizProjectFundsAddParam) {
         BizProjectFunds bizProjectFunds = BeanUtil.toBean(bizProjectFundsAddParam, BizProjectFunds.class);
-        bizProjectFunds.setSn(HandleExecutionUtil.getTableSn(BizCommon.PROJECT_FUNDS.getBizTable()));
+        bizProjectFunds.setSn(HandleExecutionUtil.getTableSn(BizCommonEnum.PROJECT_FUNDS.getBizTable()));
         bizProjectFunds.setStatus("0");
         this.save(bizProjectFunds);
 
-        formRelationTableService.updateTable(bizProjectFundsAddParam.getModelId(),BizCommon.PROJECT_FUNDS.getBizTable());
+        formRelationTableService.updateTable(bizProjectFundsAddParam.getModelId(), BizCommonEnum.PROJECT_FUNDS.getBizTable());
     }
 
     @Transactional(rollbackFor = Exception.class)

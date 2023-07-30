@@ -18,7 +18,6 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.id.NanoId;
-import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.DbUtil;
@@ -28,13 +27,11 @@ import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.dynamic.datasource.annotation.Master;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -47,10 +44,9 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.core.constants.VariableConstants;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
-import vip.xiaonuo.flw.modular.flwbiz.common.BizCommon;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.flw.modular.flwbiz.common.HandleExecutionUtil;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
-import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.relationtable.entity.DbTable;
 import vip.xiaonuo.flw.modular.relationtable.entity.Field;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
@@ -61,14 +57,11 @@ import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableIdParam;
 import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTablePageParam;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
-import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -738,7 +731,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
             if(CollUtil.isNotEmpty(list)){
                 formRelationTable = list.get(0);
             }
-            formRelationTable.setTableName(BizCommon.PROJECT_REGISTER.getBizTable());
+            formRelationTable.setTableName(BizCommonEnum.PROJECT_REGISTER.getBizTable());
             updateById(formRelationTable);
         }
     }
