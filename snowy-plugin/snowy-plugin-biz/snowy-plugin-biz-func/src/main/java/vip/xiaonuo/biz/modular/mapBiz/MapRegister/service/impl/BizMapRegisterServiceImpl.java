@@ -60,6 +60,9 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
     @Resource
     CommonCacheOperator commonCacheOperator;
 
+//    @Resource
+//    FormRelationTableService formRelationTableService;
+
     @Override
     public Page<BizMapRegister> page(BizMapRegisterPageParam bizMapRegisterPageParam) {
         QueryWrapper<BizMapRegister> queryWrapper = new QueryWrapper<>();

@@ -116,6 +116,13 @@
             <version>${project.parent.version}</version>
         </dependency>
 
+        <!--工作流程feign-->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-flw-feign</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
+
         <!-- 业务功能插件 -->
         <dependency>
             <groupId>vip.xiaonuo</groupId>

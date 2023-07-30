@@ -2,6 +2,7 @@ package vip.xiaonuo.flw.provider;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import org.springframework.stereotype.Service;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
@@ -14,6 +15,7 @@ import javax.annotation.Resource;
  * @DATE: 7/30/2023
  * @PROJECT_NAME: jk-cloud
  **/
+@Service
 public class FormRelationTableApiProvider implements FormRelationTableApi {
     @Resource
     FormRelationTableService formRelationTableService;
