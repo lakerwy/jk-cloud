@@ -85,7 +85,8 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
             personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
             FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
             //将流程实例和业务表关联起来
-            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME));
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
             formRelationTableApi.save(modelId, BizCommonEnum.PERSONNEL_FILE_MOVES.getBizTable(),id,processInstanceId,dbName);
         }
         personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
