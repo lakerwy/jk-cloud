@@ -93,14 +93,17 @@ public class Hetong {
 
     /** 中标日期（历史表Hetong.BidDate） */
     @ApiModelProperty(value = "中标日期（历史表Hetong.BidDate）", position = 16)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date bidDate;
 
     /** 合同盖章日期（历史表Hetong.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表Hetong.SealDate）", position = 17)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date sealDate;
 
     /** 归档日期（历史表Hetong.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表Hetong.FilingDate）", position = 18)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date filingDate;
 
     /** 合同金额（历史表Hetong.ContractAmount） */
@@ -145,6 +148,7 @@ public class Hetong {
 
     /** 出图日期（历史表Hetong.FigureDate） */
     @ApiModelProperty(value = "出图日期（历史表Hetong.FigureDate）", position = 29)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date figureDate;
 
     /** 出图阶段（历史表Hetong.FigureStage） */
@@ -161,6 +165,7 @@ public class Hetong {
 
     /** 竣工日期（历史表Hetong.CompleDate） */
     @ApiModelProperty(value = "竣工日期（历史表Hetong.CompleDate）", position = 33)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date compleDate;
 
     /** 竣工材料（历史表Hetong.CompleData） */
