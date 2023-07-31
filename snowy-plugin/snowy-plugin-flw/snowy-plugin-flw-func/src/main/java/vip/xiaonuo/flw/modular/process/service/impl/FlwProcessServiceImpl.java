@@ -321,7 +321,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getProcessInstanceIdList())) {
             historicProcessInstanceQuery.processInstanceIds(CollectionUtil.newHashSet(flwProcessMonitorPageParam.getProcessInstanceIdList()));
         }
-
+        if(ObjectUtil.isAllNotEmpty(flwProcessMonitorPageParam.getVariableValueKey(),flwProcessMonitorPageParam.getVariableValue())){
+            historicProcessInstanceQuery.variableValueEquals(flwProcessMonitorPageParam.getVariableValueKey(),flwProcessMonitorPageParam.getVariableValue());
+        }
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();

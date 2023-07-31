@@ -93,4 +93,9 @@ public class FlwTodoTaskResult {
     /** 发起时间 */
     @ApiModelProperty(value = "发起时间", position = 17)
     private String initiatorTime;
+
+    /** 流程名称 */
+    @ApiModelProperty(value = "流程名称", position = 18)
+    private String processDefinitionName;
+
 }

@@ -22,6 +22,8 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.HistoryService;
@@ -44,6 +46,8 @@ import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -51,6 +55,8 @@ import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
+import vip.xiaonuo.flw.modular.model.entity.FlwModel;
+import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.process.param.FlwProcessIdParam;
 import vip.xiaonuo.flw.modular.process.result.FlwProcessDetailResult;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
@@ -105,6 +111,12 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     @Resource
     private FormRelationTableService formRelationTableService;
 
+    @Resource
+    private FlwModelService flwModelService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
     @Override
     public Page<FlwTodoTaskResult> todoPage(FlwTaskPageTodoParam flwTaskPageTodoParam) {
         NodeRuntimeUtil.handleTenAuth();
@@ -142,7 +154,18 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
                     flwTodoTaskResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
                     flwTodoTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
-                    flwTodoTaskResult.setProcessDefinitionId(task.getProcessDefinitionId());
+                    String processDefinitionId = task.getProcessDefinitionId();
+                    Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+                    if(ObjectUtil.isNotEmpty(o)){
+                        flwTodoTaskResult.setProcessDefinitionName(String.valueOf(o));
+                    }else {
+                        FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
+                        if (ObjectUtil.isNotEmpty(flwModel)) {
+                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, flwModel.getName());
+                            flwTodoTaskResult.setProcessDefinitionName(flwModel.getName());
+                        }
+                    }
+                    flwTodoTaskResult.setProcessDefinitionId(processDefinitionId);
                     flwTodoTaskResult.setCurrentActivityId(task.getTaskDefinitionKey());
                     flwTodoTaskResult.setCurrentActivityName(task.getName());
                     String taskAssignee = task.getAssignee();
@@ -210,7 +233,19 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwDoneTaskResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
                     flwDoneTaskResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
                     flwDoneTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
-                    flwDoneTaskResult.setProcessDefinitionId(historicTaskInstance.getProcessDefinitionId());
+                    String processDefinitionId = historicTaskInstance.getProcessDefinitionId();
+                    flwDoneTaskResult.setProcessDefinitionId(processDefinitionId);
+                    Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+                    if(ObjectUtil.isNotEmpty(o)){
+                        flwDoneTaskResult.setProcessDefinitionName(String.valueOf(o));
+                    }else {
+                        FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
+                        if (ObjectUtil.isNotEmpty(flwModel)) {
+                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, flwModel.getName());
+                            flwDoneTaskResult.setProcessDefinitionName(flwModel.getName());
+                        }
+                    }
+
                     flwDoneTaskResult.setDoneActivityId(historicTaskInstance.getTaskDefinitionKey());
                     flwDoneTaskResult.setDoneActivityName(historicTaskInstance.getName());
                     flwDoneTaskResult.setDoneTime(DateUtil.formatDateTime(historicTaskInstance.getEndTime()));

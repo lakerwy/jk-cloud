@@ -101,4 +101,8 @@ public class FlwDoneTaskResult {
     /** 状态码 */
     @ApiModelProperty(value = "状态码", position = 19)
     private String stateCode;
+
+    /** 流程名称 */
+    @ApiModelProperty(value = "流程名称", position = 18)
+    private String processDefinitionName;
 }
