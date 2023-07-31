@@ -34,6 +34,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.common.enums.BizCommonEnum;
+import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.mapper.BizProjectRegisterMapper;
 import vip.xiaonuo.flw.modular.flwbiz.projectRegister.param.*;
@@ -77,6 +78,9 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         }
         if(ObjectUtil.isNotEmpty(bizProjectRegisterPageParam.getScale())) {
             queryWrapper.lambda().like(BizProjectRegister::getScale, bizProjectRegisterPageParam.getScale());
+        }
+        if(ObjectUtil.isNotEmpty(bizProjectRegisterPageParam.getSearchKey())){
+            queryWrapper.lambda().or(wrapper ->wrapper.like(BizProjectRegister::getEntryName,bizProjectRegisterPageParam.getSearchKey()).or().like(BizProjectRegister::getSn,bizProjectRegisterPageParam.getSearchKey()));
         }
 //        queryWrapper.lambda().eq(BizProjectRegister::getStatus,"1");
         queryWrapper.lambda().in(BizProjectRegister::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());

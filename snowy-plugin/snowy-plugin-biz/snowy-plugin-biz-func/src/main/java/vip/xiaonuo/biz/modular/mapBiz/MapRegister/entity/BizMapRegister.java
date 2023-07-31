@@ -180,4 +180,7 @@ public class BizMapRegister {
     @ApiModelProperty(value = "申请时间", position = 35)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date applyTime;
+
+    @ApiModelProperty(value = "是否直接出图",position = 36)
+    private String isPost;
 }

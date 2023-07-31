@@ -130,39 +130,58 @@ public class FlwTemplateSnServiceImpl extends ServiceImpl<FlwTemplateSnMapper, F
         // 获取最新值，最新值不为空，则表示使用过，将其返回，再基于上一个生成一个新的存起来，方便下次使用
         String latestValue = flwTemplateSn.getLatestValue();
         if(ObjectUtil.isNotEmpty(latestValue)) {
-            // 再生成个新的，保存
-            genAndSaveSnCodeByOldCode(latestValue, flwTemplateSn);
-            // 返回上一个的
-            return latestValue;
+            // 校验上个值
+            String oldSnCodeRemovePrefix = StrUtil.removePrefix(latestValue, flwTemplateSn.getPrefix());
+            boolean sameDay = DateUtil.isSameDay(DateTime.now(), DateUtil.parse(StrUtil.sub(oldSnCodeRemovePrefix, 0,
+                    oldSnCodeRemovePrefix.length() - flwTemplateSn.getSuffixDigits())));
+            if(sameDay) {
+                // 如果上次日期与当前日期是同一天，则再生成个新的，保存
+                genAndSaveSnCodeByOldCode(latestValue, flwTemplateSn);
+                // 返回上一个的
+                return latestValue;
+            } else {
+                // 如果上次日期与当前日期不是同一天，则重新生成
+                return this.doGetNewSn(flwTemplateSn);
+            }
         } else {
             // 最新值为空，则表示还没使用过，则生成一个并返回，再基于上一个生成一个新的存起来，方便下次使用
-            // 前缀
-            String prefix = flwTemplateSn.getPrefix();
-            // 日期格式化
-            String dateFormat = flwTemplateSn.getDateFormat();
-            String formatResult = DateUtil.format(DateTime.now(), dateFormat);
-            // 后缀位数
-            Integer suffixDigits = flwTemplateSn.getSuffixDigits();
-
-            // 流水号：后缀初始值
-            int snCodeValue = flwTemplateSn.getSuffixInitialValue();
-
-            // 如果流水号的值比位数大，则表示流水号用尽
-            if(Convert.toStr(snCodeValue).length() > suffixDigits) {
-                throw new CommonException("流水号使用已超出范围，id为：{}", flwTemplateSn.getId());
-            }
-
-            StringBuilder suffixDigitsFormat = new StringBuilder();
-            for (int i = 0; i < suffixDigits; i++) {
-                suffixDigitsFormat.append("0");
-            }
-            // 组装：前缀 + 日期 + 后缀
-            String resultCode = prefix + formatResult + NumberUtil.decimalFormat(suffixDigitsFormat.toString(), snCodeValue);
-
-            // 生成一个新的并保存
-            genAndSaveSnCodeByOldCode(resultCode, flwTemplateSn);
-            return resultCode;
+            return this.doGetNewSn(flwTemplateSn);
         }
+    }
+
+    /**
+     * 根据模板获取流水号
+     *
+     * @author xuyuxiang
+     * @date 2023/7/27 16:04
+     **/
+    private String doGetNewSn(FlwTemplateSn flwTemplateSn) {
+        // 前缀
+        String prefix = flwTemplateSn.getPrefix();
+        // 日期格式化
+        String dateFormat = flwTemplateSn.getDateFormat();
+        String formatResult = DateUtil.format(DateTime.now(), dateFormat);
+        // 后缀位数
+        Integer suffixDigits = flwTemplateSn.getSuffixDigits();
+
+        // 流水号：后缀初始值
+        int snCodeValue = flwTemplateSn.getSuffixInitialValue();
+
+        // 如果流水号的值比位数大，则表示流水号用尽
+        if(Convert.toStr(snCodeValue).length() > suffixDigits) {
+            throw new CommonException("流水号使用已超出范围，id为：{}", flwTemplateSn.getId());
+        }
+
+        StringBuilder suffixDigitsFormat = new StringBuilder();
+        for (int i = 0; i < suffixDigits; i++) {
+            suffixDigitsFormat.append("0");
+        }
+        // 组装：前缀 + 日期 + 后缀
+        String resultCode = prefix + formatResult + NumberUtil.decimalFormat(suffixDigitsFormat.toString(), snCodeValue);
+
+        // 生成一个新的并保存
+        genAndSaveSnCodeByOldCode(resultCode, flwTemplateSn);
+        return resultCode;
     }
 
     /**
@@ -190,19 +209,7 @@ public class FlwTemplateSnServiceImpl extends ServiceImpl<FlwTemplateSnMapper, F
         int oldSuffixInitialValue = Convert.toInt(StrUtil.subSufByLength(oldSnCode, 4));
 
         // 定义流水号值
-        int snCodeValue;
-
-        // 去除前缀
-        String oldSnCodeRemovePrefix = StrUtil.removePrefix(oldSnCode, flwTemplateSn.getPrefix());
-        boolean sameDay = DateUtil.isSameDay(now, DateUtil.parse(StrUtil.sub(oldSnCodeRemovePrefix, 0,
-                oldSnCodeRemovePrefix.length() - flwTemplateSn.getSuffixDigits())));
-        if(sameDay) {
-            // 如果上次日期与当前日期是同一天，则流水号的值 = 老值 + 增量
-            snCodeValue = oldSuffixInitialValue + suffixIncrementalValue;
-        } else {
-            // 否则流水号的值为后缀初始值
-            snCodeValue = flwTemplateSn.getSuffixInitialValue();
-        }
+        int snCodeValue = oldSuffixInitialValue + suffixIncrementalValue;
 
         // 如果流水号的值比位数大，则表示流水号用尽
         if(Convert.toStr(snCodeValue).length() > suffixDigits) {

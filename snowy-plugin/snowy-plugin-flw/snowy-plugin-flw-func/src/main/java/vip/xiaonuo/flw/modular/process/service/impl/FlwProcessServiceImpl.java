@@ -51,11 +51,14 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
@@ -131,12 +134,6 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
-
-    //临时方案，老流程模型id
-    private final String[] modelIds = {"1670715490585120770","1671425567596056578","1672784809137639425","1674588959370481665","1674592452277293057","1679010014274043906"};
-
-    //是否走新流程的标志
-    private boolean flag = true;
 
     @Override
     public void saveDraft(FlwProcessSaveDraftParam flwProcessSaveDraftParam) {
@@ -222,9 +219,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 String dataJson = flwProcessStartParam.getDataJson();
                 JSONObject entries = JSONUtil.parseObj(dataJson);
                 entries.set("businessKey",parentTablePrimaryId);
-                if(!false){
-                    entries.set("id",parentTablePrimaryId);
-                }
+                entries.set("id",parentTablePrimaryId);
                 entries.set("sn", sn);
                 entries.set("applyUserId",loginUser.getId());
                 entries.set("applyUser",loginUser.getName());
@@ -237,13 +232,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
              processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
         }
         String processInstanceId = processInstance.getProcessInstanceId();
-        if(flag){
-            //将id 和sn 存入缓存中，保证每个模块的业务都可以获取到，获取完成之后清空缓存，避免占用内存
-            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_ID_KEY+processInstanceId,parentTablePrimaryId);
-            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId,sn);
-            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY+processInstanceId,modelId);
-        }else {
-            assert processInstance != null;
+        //让校审继续走老流程的发送
+        //将id 和sn 存入缓存中，保证每个模块的业务都可以获取到，获取完成之后清空缓存，避免占用内存
+        commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_ID_KEY+processInstanceId,parentTablePrimaryId);
+        commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId,sn);
+        commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY+processInstanceId,modelId);
+        if(modelId.equals("1674588959370481665")){
             handDataSave(flwProcessStartParam.getDataJson(), sn, modelId, flwModel.getDefinitionId(), flwModel.getDeploymentId(), processInstance.getProcessInstanceId(), parentTablePrimaryId);
         }
         return processInstanceId;
@@ -470,6 +464,14 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             });
             runtimeService.deleteProcessInstancesIfExists(processInstanceIdList, "END",
                     true, true, true);
+            processInstanceIdList.forEach(processInstanceId->{
+                FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
+                //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
+                if(ObjectUtil.isNotEmpty(info)){
+                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.END_STATUS.getValue() + " where ID = " + info.getId();
+                    NodeRuntimeUtil.handleSqlExecution(sql);
+                }
+            });
         }
     }
 
@@ -496,15 +498,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 }
                 runtimeService.deleteProcessInstanceIfExists(processInstanceId, "REVOKE",
                         true, true, true, true);
-                if(flag){
                     //获取流程实例关联的业务信息
-                    FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
+                FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
                     //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
-                    //todo
-                    if(ObjectUtil.isNotEmpty(info)){
-                        String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REVOKE_STATUS.getValue() + " where ID = " + info.getId();
-                        NodeRuntimeUtil.handleSqlExecution(sql);
-                    }
+                if(ObjectUtil.isNotEmpty(info)){
+                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REVOKE_STATUS.getValue() + " where ID = " + info.getId();
+                    NodeRuntimeUtil.handleSqlExecution(sql);
                 }
             });
         }
@@ -623,6 +622,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         FlwProcessIdParam flwProcessIdParam = new FlwProcessIdParam();
         flwProcessIdParam.setId(processInstanceId);
         this.delete(CollectionUtil.newArrayList(flwProcessIdParam));
+        FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
+            //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
+        if (ObjectUtil.isNotEmpty(info)) {
+            String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.ACTIVE_STATUS.getValue() + " where ID = " + info.getId();
+            NodeRuntimeUtil.handleSqlExecution(sql);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -1042,6 +1047,11 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         formRelationTable = formRelationTableService.getOne(new QueryWrapper<>(formRelationTable));
         if(ObjectUtil.isNotNull(formRelationTable)){
             formRelationTableService.saveNewData(dataMap,formRelationTable.getTableName(),parentTablePrimaryId);
+            //formRelationTableService.save(modelId,);
+            if(modelId.equals("1674588959370481665")){
+                String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+                formRelationTableService.save(modelId, BizCommonEnum.BIZ_AUDIT_LISTS.getBizTable(),parentTablePrimaryId,processInstanceId,dbName);
+            }
 //            BizCommon common = BizCommon.findByCommonTable(formRelationTable.getTableName());
 //            if(ObjectUtil.isNotNull(common)){
 //                String resourceService = common.getResourceService();

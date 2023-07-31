@@ -30,9 +30,9 @@ import vip.xiaonuo.biz.modular.mapBiz.MapRegister.service.BizMapRegisterService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
-//import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.mapBiz.MapRegister.entity.BizMapRegister;
@@ -60,9 +60,6 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
     @Resource
     CommonCacheOperator commonCacheOperator;
 
-//    @Resource
-//    FormRelationTableService formRelationTableService;
-
     @Override
     public Page<BizMapRegister> page(BizMapRegisterPageParam bizMapRegisterPageParam) {
         QueryWrapper<BizMapRegister> queryWrapper = new QueryWrapper<>();
@@ -70,6 +67,7 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
             queryWrapper.lambda().or(wrapper ->wrapper.like(BizMapRegister::getProjectName,bizMapRegisterPageParam.getSearchKey()).or().
                     like(BizMapRegister::getSn,bizMapRegisterPageParam.getSearchKey()));
         }
+        queryWrapper.lambda().in(BizMapRegister::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isAllNotEmpty(bizMapRegisterPageParam.getSortField(), bizMapRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizMapRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizMapRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -91,13 +89,20 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
             bizMapRegister.setId(id);
             bizMapRegister.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             bizMapRegister.setModelId(modelId);
-            bizMapRegister.setApplyTime(DateUtil.date());
-            bizMapRegister.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
+
             FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
             //将流程实例和业务表关联起来
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
             formRelationTableApi.save(modelId, BizCommonEnum.BIZ_MAP_REGISTER.getBizTable(),id,processInstanceId,dbName);
         }
+        if(bizMapRegisterAddParam.getIsPost().equals("是")){
+            bizMapRegister.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }else {
+            bizMapRegister.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+        }
+        bizMapRegister.setApplyTime(DateUtil.date());
+        bizMapRegister.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
+
         this.save(bizMapRegister);
     }
 

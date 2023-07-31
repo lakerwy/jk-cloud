@@ -74,8 +74,7 @@
                 LEFT JOIN BIZ_MAP_REGISTER c ON c.REVIEW_ID = a.ID
         WHERE
             a.DELETE_FLAG = 'NOT_DELETE'
---           AND c.`STATUS` = '1'
-          AND a.ID = ${id}
+          AND a.ID = ${id} LIMIT 1
     </select>
 
     <select id="getCRDList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviewDetails">

@@ -44,6 +44,7 @@ import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
@@ -53,6 +54,8 @@ import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
 import vip.xiaonuo.flw.modular.process.param.FlwProcessIdParam;
 import vip.xiaonuo.flw.modular.process.result.FlwProcessDetailResult;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
+import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
+import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 import vip.xiaonuo.flw.modular.task.param.*;
 import vip.xiaonuo.flw.modular.task.result.*;
 import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
@@ -98,6 +101,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Resource
     private FlwProcessService flwProcessService;
+
+    @Resource
+    private FormRelationTableService formRelationTableService;
 
     @Override
     public Page<FlwTodoTaskResult> todoPage(FlwTaskPageTodoParam flwTaskPageTodoParam) {
@@ -326,6 +332,13 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         // 执行拒绝
         runtimeService.deleteProcessInstancesIfExists(CollectionUtil.newArrayList(processInstanceId), "REJECT",
                 true, true, true);
+
+        FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
+        //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
+        if(ObjectUtil.isNotEmpty(info)){
+            String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where ID = " + info.getId();
+            NodeRuntimeUtil.handleSqlExecution(sql);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

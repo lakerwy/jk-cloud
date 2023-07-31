@@ -29,6 +29,7 @@ import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.flw.core.enums.NodeExecutionListenerKeyEnum;
 import vip.xiaonuo.flw.core.enums.NodeTaskListenerKeyEnum;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;
@@ -188,7 +189,15 @@ public class FlwGlobalEventListener implements JavaDelegate {
             // 发送完成通知
             try {
                 NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
-                updateBizStatus(delegateExecution);
+                //updateBizStatus(delegateExecution);
+                String processInstanceId = delegateExecution.getProcessInstanceId();
+                //获取流程实例关联的业务信息
+                FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
+                //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
+                if(ObjectUtil.isNotEmpty(info)){
+                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where ID = " + info.getId();
+                    NodeRuntimeUtil.handleSqlExecution(sql);
+                }
             }catch (Exception e){
                 log.error(e.getMessage());
             }
@@ -199,7 +208,7 @@ public class FlwGlobalEventListener implements JavaDelegate {
 
 
 
-    @EventListener
+    //@EventListener
     public void onUpdateBizStatusEvent(DelegateExecution delegateExecution) {
         RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()

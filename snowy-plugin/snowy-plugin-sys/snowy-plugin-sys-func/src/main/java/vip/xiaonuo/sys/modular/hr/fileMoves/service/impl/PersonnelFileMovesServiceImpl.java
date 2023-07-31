@@ -17,12 +17,20 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
 import vip.xiaonuo.sys.modular.hr.fileMoves.service.PersonnelFileMovesService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.mapper.PersonnelFileMovesMapper;
@@ -35,6 +43,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -46,6 +55,8 @@ import java.util.List;
 @Service
 public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMovesMapper, PersonnelFileMoves> implements PersonnelFileMovesService {
 
+    @Resource
+    CommonCacheOperator commonCacheOperator;
     @Override
     public Page<PersonnelFileMoves> page(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
         QueryWrapper<PersonnelFileMoves> queryWrapper = new QueryWrapper<>();
@@ -63,14 +74,20 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
     @Override
     public void add(PersonnelFileMovesAddParam personnelFileMovesAddParam) {
         PersonnelFileMoves personnelFileMoves = BeanUtil.toBean(personnelFileMovesAddParam, PersonnelFileMoves.class);
-        String modelId = personnelFileMovesAddParam.getModelId();
-//        if(ObjectUtil.isNotEmpty(modelId)){
-////            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
-//            String sn = flwCommonApi.getSnByModelId(modelId);
-//            if(ObjectUtil.isNotEmpty(sn)){
-//                personnelFileMoves.setSn(sn);
-//            }
-//        }
+        String processInstanceId = personnelFileMovesAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            personnelFileMoves.setId(id);
+            personnelFileMoves.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            personnelFileMoves.setModelId(modelId);
+            personnelFileMoves.setApplyTime(DateUtil.date());
+            personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            //将流程实例和业务表关联起来
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME));
+            formRelationTableApi.save(modelId, BizCommonEnum.PERSONNEL_FILE_MOVES.getBizTable(),id,processInstanceId,dbName);
+        }
         personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
         personnelFileMoves.setApplyTime(DateUtil.date());
         this.save(personnelFileMoves);
@@ -79,6 +96,16 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(PersonnelFileMovesEditParam personnelFileMovesEditParam) {
+        String id = personnelFileMovesEditParam.getId();
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(personnelFileMovesEditParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(personnelFileMovesEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id=formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                personnelFileMovesEditParam.setId(id);
+            }
+        }
         PersonnelFileMoves personnelFileMoves = this.queryEntity(personnelFileMovesEditParam.getId());
         BeanUtil.copyProperties(personnelFileMovesEditParam, personnelFileMoves);
         this.updateById(personnelFileMoves);

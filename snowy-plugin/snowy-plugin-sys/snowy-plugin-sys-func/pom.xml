@@ -44,6 +44,10 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-dbs-api</artifactId>
         </dependency>
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-flw-api</artifactId>
+        </dependency>
 
         <!-- 引入工作流接口，用于sn获取 -->
     </dependencies>

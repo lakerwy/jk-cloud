@@ -156,4 +156,7 @@ public class BizMapRegisterEditParam {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date applyTime;
 
+    @ApiModelProperty(value = "是否直接出图",position = 36)
+    private String isPost;
+
 }
