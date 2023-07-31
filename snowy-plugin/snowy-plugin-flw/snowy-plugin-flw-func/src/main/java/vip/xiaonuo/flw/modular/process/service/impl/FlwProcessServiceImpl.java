@@ -348,8 +348,22 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     flwProcessResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
                     flwProcessResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
                     flwProcessResult.setBusinessKey(historicProcessInstance.getBusinessKey());
+                    String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
                     flwProcessResult.setProcessDefinitionId(historicProcessInstance.getProcessDefinitionId());
-                    flwProcessResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
+
+                    //流程名称从flwModel中读取 保证和流程设计页面的流程名称同步
+                    Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+                    if(ObjectUtil.isNotEmpty(o)){
+                        flwProcessResult.setProcessDefinitionName(String.valueOf(o));
+                    }else {
+                        FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
+                        if (ObjectUtil.isNotEmpty(flwModel)) {
+                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, flwModel.getName());
+                            flwProcessResult.setProcessDefinitionName(flwModel.getName());
+                        }
+                    }
+
+                    //flwProcessResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
                     flwProcessResult.setProcessDefinitionVersion(StrUtil.format("V{}.0", historicProcessInstance.getProcessDefinitionVersion()));
                     flwProcessResult.setStartTime(DateUtil.formatDateTime(historicProcessInstance.getStartTime()));
                     flwProcessResult.setEndTime(ObjectUtil.isNotEmpty(historicProcessInstance.getEndTime()) ?
