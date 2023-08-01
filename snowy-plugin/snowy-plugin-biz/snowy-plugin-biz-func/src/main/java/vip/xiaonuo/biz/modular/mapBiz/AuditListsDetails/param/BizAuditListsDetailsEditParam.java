@@ -58,8 +58,8 @@ public class BizAuditListsDetailsEditParam {
     private String condition;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 7)
-    private String attachments;
+    @ApiModelProperty(value = "校审附件", position = 7)
+    private String auditAttachments;
 
     /** 工程设计校审主表ID */
     @ApiModelProperty(value = "工程设计校审主表ID", position = 8)

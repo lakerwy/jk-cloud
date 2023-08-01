@@ -60,9 +60,9 @@ public class BizAuditListsDetails {
     @TableField(value = "`condition`")
     private String condition;
 
-    /** 附件 */
-    @ApiModelProperty(value = "附件", position = 7)
-    private String attachments;
+    /** 校审附件 */
+    @ApiModelProperty(value = "校审附件", position = 7)
+    private String auditAttachments;
 
     /** 工程设计校审主表ID */
     @ApiModelProperty(value = "工程设计校审主表ID", position = 8)

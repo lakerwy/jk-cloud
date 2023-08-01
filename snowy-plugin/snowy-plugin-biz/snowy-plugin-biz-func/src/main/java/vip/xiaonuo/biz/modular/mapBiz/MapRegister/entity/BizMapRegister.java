@@ -17,7 +17,8 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
+import org.simpleframework.xml.Transient;
+
 import java.util.Date;
 
 /**
@@ -84,7 +85,7 @@ public class BizMapRegister {
 
     /** 是否留档 */
     @ApiModelProperty(value = "是否留档", position = 13)
-    private String isDile;
+    private String isFile;
 
     /** 是否物流 */
     @ApiModelProperty(value = "是否物流", position = 14)
@@ -112,15 +113,15 @@ public class BizMapRegister {
 
     /** 用印审批单 */
     @ApiModelProperty(value = "用印审批单", position = 20)
-    private String attachments;
+    private String printApprovalAttachments;
 
     /** 图审合格证 */
     @ApiModelProperty(value = "图审合格证", position = 21)
-    private String attachments1;
+    private String reviewQualifiedAttachments;
 
     /** 盖章样本 */
     @ApiModelProperty(value = "盖章样本", position = 22)
-    private String attachments2;
+    private String stampAttachments;
 
     /** 项目名称 */
     @ApiModelProperty(value = "项目名称", position = 23)
@@ -183,4 +184,8 @@ public class BizMapRegister {
 
     @ApiModelProperty(value = "是否直接出图",position = 36)
     private String isPost;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "审定图",position = 37)
+    private String validatedAttachments;
 }

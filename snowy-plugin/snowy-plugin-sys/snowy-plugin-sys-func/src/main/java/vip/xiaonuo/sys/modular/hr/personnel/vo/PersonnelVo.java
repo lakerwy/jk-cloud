@@ -299,4 +299,10 @@ public class PersonnelVo extends PersonnelListVo{
 
     @ApiModelProperty(value = "签约信息列表", position = 73)
     private List<PersonnelFileRegister> personnelFileRegisterList;
+
+    @ApiModelProperty(value = "直属上级", position = 74)
+    private String director;
+
+    @ApiModelProperty(value = "部门负责人", position = 75)
+    private String leader;
 }

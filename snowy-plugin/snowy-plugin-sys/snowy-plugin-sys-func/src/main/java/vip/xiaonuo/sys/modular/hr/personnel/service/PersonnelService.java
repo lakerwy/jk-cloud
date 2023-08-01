@@ -87,4 +87,6 @@ public interface PersonnelService extends IService<Personnel> {
     Page<PersonnelListVo> pageList(PersonnelPageParam personnelPageParam);
 
     List<PersonnelStatsVo> getStatsResult(PersonnelStatsParam param);
+
+    PersonnelVo info(PersonnelIdParam personnelIdParam);
 }

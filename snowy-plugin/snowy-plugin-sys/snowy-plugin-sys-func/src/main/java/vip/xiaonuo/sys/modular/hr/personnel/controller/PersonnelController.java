@@ -152,4 +152,18 @@ public class PersonnelController {
     public CommonResult<List<PersonnelStatsVo>> getStatsResult(PersonnelStatsParam param) {
         return CommonResult.data(personnelService.getStatsResult(param));
     }
+
+    /**
+     * 获取业务表-人事档案详情
+     *
+     * @author mayike
+     * @date  2023/07/10 17:28
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取业务表-人事档案详情")
+//    @SaCheckPermission("/biz/personnel/detail")
+    @GetMapping("/sys/personnel/info")
+    public CommonResult<PersonnelVo> info(@Valid PersonnelIdParam personnelIdParam) {
+        return CommonResult.data(personnelService.info(personnelIdParam));
+    }
 }

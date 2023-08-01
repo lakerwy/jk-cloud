@@ -159,6 +159,7 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
                     .or().like("a.SN",personnelFileMovesPageParam.getSearchKey())
             );
         }
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
 
         if(ObjectUtil.isAllNotEmpty(personnelFileMovesPageParam.getSortField(), personnelFileMovesPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelFileMovesPageParam.getSortOrder());

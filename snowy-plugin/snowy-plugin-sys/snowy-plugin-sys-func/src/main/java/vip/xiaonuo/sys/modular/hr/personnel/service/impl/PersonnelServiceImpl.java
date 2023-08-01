@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.sys.modular.hr.fileCert.entity.PersonnelFileCert;
 import vip.xiaonuo.sys.modular.hr.fileCert.service.PersonnelFileCertService;
@@ -44,6 +45,8 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
@@ -85,6 +88,9 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
 
     @Resource
     private SysPositionService sysPositionService;
+
+    @Resource
+    private SysOrgService sysOrgService;
 
     @Override
     public Page<Personnel> page(PersonnelPageParam personnelPageParam) {
@@ -322,5 +328,36 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     @Override
     public List<PersonnelStatsVo> getStatsResult(PersonnelStatsParam param){
          return  baseMapper.getStatsResult(param);
+    }
+
+    @Override
+    public PersonnelVo info(PersonnelIdParam personnelIdParam) {
+
+        Personnel personnel = null;
+        String id = null;
+        if(ObjectUtil.isNotEmpty(personnelIdParam.getId())){
+            id = personnelIdParam.getId();
+            personnel = this.queryEntity(id);
+        }else {
+            if(ObjectUtil.isNotEmpty(personnelIdParam.getFileNo())){
+                id = personnelIdParam.getFileNo();
+            }else {
+                id = StpLoginUserUtil.getLoginUser().getEmpNo();
+            }
+            personnel = getOne(new LambdaQueryWrapper<Personnel>().eq(Personnel::getFileNo, id));
+        }
+        //Personnel personnel = this.queryEntity(personnelIdParam.getId());
+        PersonnelVo personnelVo = BeanUtil.toBean(personnel, PersonnelVo.class);
+        String deptId = personnel.getDeptId();
+        SysOrg sysOrg = sysOrgService.getById(deptId);
+        if(ObjectUtil.isNotEmpty(sysOrg)){
+            String directorId = sysOrg.getDirectorId();
+            if(ObjectUtil.isNotEmpty(directorId)){
+                SysLoginUser user = sysUserService.getUserById(directorId);
+                personnelVo.setLeader(user.getName());
+                personnelVo.setDirector(user.getName());
+            }
+        }
+        return personnelVo;
     }
 }

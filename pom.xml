@@ -121,7 +121,7 @@
         <yunpian.version>1.2.7</yunpian.version>
 
         <dingtalk.version>2.0.0</dingtalk.version>
-        <logstash.version>6.6</logstash.version>
+        <logstash.version>7.0.1</logstash.version>
 
     </properties>
 

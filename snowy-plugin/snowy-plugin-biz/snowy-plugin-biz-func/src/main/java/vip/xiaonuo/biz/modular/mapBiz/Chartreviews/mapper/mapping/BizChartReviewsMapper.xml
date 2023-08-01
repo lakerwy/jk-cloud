@@ -18,10 +18,10 @@
         <id column="MAP_COPIES" jdbcType="VARCHAR" property="mapCopies"/>
         <id column="REMARK" jdbcType="VARCHAR" property="remark"/>
         <id column="NOTE" jdbcType="VARCHAR" property="note"/>
-        <id column="ATTACHMENTS" jdbcType="VARCHAR" property="attachments"/>
+        <id column="REVIEW_ATTACHMENTS" jdbcType="VARCHAR" property="reviewAttachments"/>
         <id column="ATTACHMENTS1" jdbcType="VARCHAR" property="attachments1"/>
-        <id column="ATTACHMENTS2" jdbcType="VARCHAR" property="attachments2"/>
-        <id column="ATTACHMENTS3" jdbcType="VARCHAR" property="attachments3"/>
+        <id column="VALIDATED_ATTACHMENTS" jdbcType="VARCHAR" property="validatedAttachments"/>
+        <id column="OTHER_ATTACHMENTS" jdbcType="VARCHAR" property="otherAttachments"/>
         <id column="SEAL_DATE" jdbcType="TIMESTAMP" property="sealDate"/>
         <id column="IS_FILE" jdbcType="VARCHAR" property="isFile"/>
         <id column="IS_LOGISTICS" jdbcType="VARCHAR" property="isLogistics"/>
@@ -51,10 +51,10 @@
             a.PROJECT_LEADER,
             a.DESIGN_STAGE,
             a.DESIGNER,
-            a.ATTACHMENTS,
+            a.REVIEW_ATTACHMENTS,
             a.ATTACHMENTS1,
-            a.ATTACHMENTS2,
-            a.ATTACHMENTS3,
+            a.VALIDATED_ATTACHMENTS,
+            a.OTHER_ATTACHMENTS,
             a.CREATE_TIME,
             a.CREATE_USER,
             a.DELETE_FLAG,
@@ -66,7 +66,7 @@
             c.SEAL_DATE,
             c.MAP_COPIES,
             c.NOTE,
-            c.IS_DILE,
+            c.IS_FILE,
             c.IS_LOGISTICS
         FROM
             BIZ_CHART_REVIEWS a

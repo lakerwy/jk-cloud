@@ -85,7 +85,7 @@ public class BizMapRegisterEditParam {
 
     /** 是否留档 */
     @ApiModelProperty(value = "是否留档", position = 13)
-    private String isDile;
+    private String isFile;
 
     /** 是否物流 */
     @ApiModelProperty(value = "是否物流", position = 14)
@@ -113,15 +113,15 @@ public class BizMapRegisterEditParam {
 
     /** 用印审批单 */
     @ApiModelProperty(value = "用印审批单", position = 20)
-    private String attachments;
+    private String printApprovalAttachments;
 
     /** 图审合格证 */
     @ApiModelProperty(value = "图审合格证", position = 21)
-    private String attachments1;
+    private String reviewQualifiedAttachments;
 
     /** 盖章样本 */
     @ApiModelProperty(value = "盖章样本", position = 22)
-    private String attachments2;
+    private String stampAttachments;
 
     /** 项目名称 */
     @ApiModelProperty(value = "项目名称", position = 23)

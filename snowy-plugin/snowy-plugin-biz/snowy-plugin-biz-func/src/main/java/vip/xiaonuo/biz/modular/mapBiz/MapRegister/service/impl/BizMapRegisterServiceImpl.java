@@ -26,6 +26,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.BizChartReviewsService;
 import vip.xiaonuo.biz.modular.mapBiz.MapRegister.service.BizMapRegisterService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
@@ -59,6 +61,9 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
 
     @Resource
     CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private BizChartReviewsService bizChartReviewsService;
 
     @Override
     public Page<BizMapRegister> page(BizMapRegisterPageParam bizMapRegisterPageParam) {
@@ -142,6 +147,8 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
         if(ObjectUtil.isEmpty(bizMapRegister)) {
             throw new CommonException("业务表-出图登记记录表不存在，id值为：{}", id);
         }
+        BizChartReviews chartReviews = bizChartReviewsService.getById(bizMapRegister.getReviewId());
+        bizMapRegister.setValidatedAttachments(chartReviews.getValidatedAttachments());
         return bizMapRegister;
     }
 }

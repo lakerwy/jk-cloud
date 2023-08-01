@@ -35,6 +35,7 @@ import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.history.HistoricTaskInstanceQuery;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
@@ -159,10 +160,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     if(ObjectUtil.isNotEmpty(o)){
                         flwTodoTaskResult.setProcessDefinitionName(String.valueOf(o));
                     }else {
-                        FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
-                        if (ObjectUtil.isNotEmpty(flwModel)) {
-                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, flwModel.getName());
-                            flwTodoTaskResult.setProcessDefinitionName(flwModel.getName());
+                        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+                        if (ObjectUtil.isNotEmpty(processDefinition)) {
+                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
+                            flwTodoTaskResult.setProcessDefinitionName(processDefinition.getName());
                         }
                     }
                     flwTodoTaskResult.setProcessDefinitionId(processDefinitionId);
@@ -239,10 +240,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     if(ObjectUtil.isNotEmpty(o)){
                         flwDoneTaskResult.setProcessDefinitionName(String.valueOf(o));
                     }else {
-                        FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
-                        if (ObjectUtil.isNotEmpty(flwModel)) {
-                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, flwModel.getName());
-                            flwDoneTaskResult.setProcessDefinitionName(flwModel.getName());
+                        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+                        if (ObjectUtil.isNotEmpty(processDefinition)) {
+                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
+                            flwDoneTaskResult.setProcessDefinitionName(processDefinition.getName());
                         }
                     }
 

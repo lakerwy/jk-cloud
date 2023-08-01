@@ -94,8 +94,8 @@ public class BizAuditListsEditParam {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date optDate;
 
-    /** ATTACHMENT1 */
-    @ApiModelProperty(value = "ATTACHMENT1", position = 16)
+    /** 无用字段 （历史数据中的字段，界面不在展示）*/
+    @ApiModelProperty(value = "无用字段", position = 16)
     private String attachment1;
 
     /** 状态 */

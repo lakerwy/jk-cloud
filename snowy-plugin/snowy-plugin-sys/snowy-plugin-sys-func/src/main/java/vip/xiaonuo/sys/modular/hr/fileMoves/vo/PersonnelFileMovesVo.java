@@ -1,6 +1,9 @@
 package vip.xiaonuo.sys.modular.hr.fileMoves.vo;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -142,5 +145,51 @@ public class PersonnelFileMovesVo {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 49)
     private String status;
+
+    /** 扩展信息 */
+    @ApiModelProperty(value = "扩展信息", position = 22)
+    private String extJson;
+
+    /** 删除标志 */
+    @ApiModelProperty(value = "删除标志", position = 23)
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
+    private String deleteFlag;
+
+    /** 创建时间 */
+    @ApiModelProperty(value = "创建时间", position = 24)
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
+
+    /** 创建用户 */
+    @ApiModelProperty(value = "创建用户", position = 25)
+    @TableField(fill = FieldFill.INSERT)
+    private String createUser;
+
+    /** 修改时间 */
+    @ApiModelProperty(value = "修改时间", position = 26)
+    @TableField(fill = FieldFill.UPDATE)
+    private Date updateTime;
+
+    /** 修改用户 */
+    @ApiModelProperty(value = "修改用户", position = 27)
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateUser;
+
+    /** 租户id */
+    @ApiModelProperty(value = "租户id", position = 28)
+    private String tenantId;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 29)
+    private String modelId;
+
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 30)
+    private String processInstanceId;
+
+    /** 申请人 */
+    @ApiModelProperty(value = "申请人", position = 31)
+    private String applyUser;
 
 }

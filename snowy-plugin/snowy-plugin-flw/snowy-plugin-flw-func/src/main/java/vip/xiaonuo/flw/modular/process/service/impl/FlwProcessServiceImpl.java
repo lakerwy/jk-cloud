@@ -34,11 +34,14 @@ import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.migration.MigrationInstructionBuilder;
 import org.camunda.bpm.engine.migration.MigrationPlanBuilder;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.repository.ProcessDefinitionQuery;
 import org.camunda.bpm.engine.runtime.Execution;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.camunda.bpm.model.bpmn.instance.MultiInstanceLoopCharacteristics;
@@ -219,7 +222,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 String dataJson = flwProcessStartParam.getDataJson();
                 JSONObject entries = JSONUtil.parseObj(dataJson);
                 entries.set("businessKey",parentTablePrimaryId);
-                entries.set("id",parentTablePrimaryId);
+                if(!modelId.equals("1674588959370481665")) {
+                    entries.set("id", parentTablePrimaryId);
+                }
                 entries.set("sn", sn);
                 entries.set("applyUserId",loginUser.getId());
                 entries.set("applyUser",loginUser.getName());
@@ -349,17 +354,18 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     flwProcessResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
                     flwProcessResult.setBusinessKey(historicProcessInstance.getBusinessKey());
                     String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
-                    flwProcessResult.setProcessDefinitionId(historicProcessInstance.getProcessDefinitionId());
+                    flwProcessResult.setProcessDefinitionId(processDefinitionId);
 
                     //流程名称从flwModel中读取 保证和流程设计页面的流程名称同步
                     Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
                     if(ObjectUtil.isNotEmpty(o)){
                         flwProcessResult.setProcessDefinitionName(String.valueOf(o));
                     }else {
-                        FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
-                        if (ObjectUtil.isNotEmpty(flwModel)) {
-                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, flwModel.getName());
-                            flwProcessResult.setProcessDefinitionName(flwModel.getName());
+                        //FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
+                        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+                        if (ObjectUtil.isNotEmpty(processDefinition)) {
+                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
+                            flwProcessResult.setProcessDefinitionName(processDefinition.getName());
                         }
                     }
 

@@ -121,16 +121,16 @@
                     <pattern>
                         <pattern>
                             {
-                            "applicationName":"${APPLICATION_NAME}",
                             "severity": "%level",
-                            "service": "${springAppName:-}",
+                            "service": "${APPLICATION_NAME:-}",
                             "trace": "%X{X-B3-TraceId:-}",
                             "span": "%X{X-B3-SpanId:-}",
                             "exportable": "%X{X-Span-Export:-}",
                             "pid": "${PID:-}",
                             "thread": "%thread",
                             "class": "%logger{40}",
-                            "rest": "%message"
+                            "rest": "%message",
+                            "stack_trace": "%exception{5}"
                             }
                         </pattern>
                     </pattern>
