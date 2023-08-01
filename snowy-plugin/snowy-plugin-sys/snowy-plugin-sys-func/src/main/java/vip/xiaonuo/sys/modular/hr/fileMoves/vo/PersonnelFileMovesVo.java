@@ -104,4 +104,43 @@ public class PersonnelFileMovesVo {
     @ApiModelProperty(value = "姓名", position = 22)
     private String name;
 
+    /** 申请时间 */
+    @ApiModelProperty(value = "申请时间", position = 23)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date applyTime;
+
+
+    /** 直接上级评价的优点 */
+    @ApiModelProperty(value = "直接上级评价的优点", position = 42)
+    private String advantage;
+
+    /** 直接上级评价的缺点 */
+    @ApiModelProperty(value = "直接上级评价的缺点", position = 43)
+    private String disAdvantage;
+
+    /** 直接上级评价的建议 */
+    @ApiModelProperty(value = "直接上级评价的建议", position = 44)
+    private String suggestion;
+
+    /** 直接上级评价-是否与员工面谈  (是: 1,否: 2) */
+    @ApiModelProperty(value = "直接上级评价-是否与员工面谈  (是: 1,否: 2)", position = 45)
+    private String isInterview;
+
+    /** 直接上级评价-最后工作日 */
+    @ApiModelProperty(value = "直接上级评价-最后工作日", position = 46)
+    private String lastDate;
+
+    /** 直接上级评价-是否招聘新人补位  (是: 1,否: 2) */
+    @ApiModelProperty(value = "直接上级评价-是否招聘新人补位  (是: 1,否: 2)", position = 47)
+    private String isHiring;
+
+    /** 直接上级评价-招聘建议 */
+    @ApiModelProperty(value = "直接上级评价-招聘建议", position = 48)
+    private String hiringSuggestion;
+
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态", position = 49)
+    private String status;
+
 }
