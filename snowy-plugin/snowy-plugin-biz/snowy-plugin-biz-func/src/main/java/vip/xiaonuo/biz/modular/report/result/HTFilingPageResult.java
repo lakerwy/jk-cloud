@@ -77,18 +77,18 @@ public class HTFilingPageResult {
 //    /** 中标日期 */
 //    @ApiModelProperty(value = "中标日期", position = 16)
 //    private Date bidDate;
-//
-//    /** 合同盖章日期 */
-//    @ApiModelProperty(value = "合同盖章日期", position = 17)
-//    private Date sealDate;
 
-//    /** 归档日期 */
-//    @ApiModelProperty(value = "归档日期", position = 18)
-//    private Date filingDate;
-//
-//    /** 合同金额 */
-//    @ApiModelProperty(value = "合同金额", position = 19)
-//    private BigDecimal contractAmount;
+    /** 合同盖章日期 */
+    @ApiModelProperty(value = "合同盖章日期", position = 17)
+    private Date sealDate;
+
+    /** 归档日期 */
+    @ApiModelProperty(value = "归档日期", position = 18)
+    private Date filingDate;
+
+    /** 合同金额 */
+    @ApiModelProperty(value = "合同金额", position = 19)
+    private BigDecimal contractAmount;
 //
 //    /** 投资规模 */
 //    @ApiModelProperty(value = "投资规模", position = 20)
