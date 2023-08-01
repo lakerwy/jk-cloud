@@ -42,7 +42,9 @@
     </select>
 
     <select id="getHtFilingPageList" resultType="vip.xiaonuo.biz.modular.report.result.HTFilingPageResult" >
-        select * from BIZ_CRM_HETONG ${ew.customSqlSegment}
+        select ID as id,SECOND_LEVEL as secondLevel,SECONDPARTY as secondparty,COMPANY_OR_DEPARTMENT as companyOrDepartment,
+               CONTRACT_NO as contractNo,PROJECT_NAME as projectName,CONTRACT_AMOUNT as contractAmount,PARTNER_ID as partnerId,
+               COUNTERPARTY as counterparty,IS_FILING as isFiling  from BIZ_CRM_HETONG ${ew.customSqlSegment}
     </select>
 
 </mapper>
