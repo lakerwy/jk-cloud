@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -99,6 +100,7 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
     public void add(BizProjectRegisterAddParam bizProjectRegisterAddParam) {
         BizProjectRegister bizProjectRegister = BeanUtil.toBean(bizProjectRegisterAddParam, BizProjectRegister.class);
         //bizProjectRegister.setSn(HandleExecutionUtil.getTableSn(BizCommon.PROJECT_REGISTER.getBizTable()));
+        bizProjectRegister.setLocation(JSONUtil.toJsonStr(bizProjectRegisterAddParam.getLocationCheckbox()));
         String processInstanceId = bizProjectRegisterAddParam.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){
             String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
@@ -131,6 +133,7 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         }
         BizProjectRegister bizProjectRegister = this.queryEntity(id);
         BeanUtil.copyProperties(bizProjectRegisterEditParam, bizProjectRegister);
+        bizProjectRegister.setLocation(JSONUtil.toJsonStr(bizProjectRegisterEditParam.getLocationCheckbox()));
         this.updateById(bizProjectRegister);
     }
 

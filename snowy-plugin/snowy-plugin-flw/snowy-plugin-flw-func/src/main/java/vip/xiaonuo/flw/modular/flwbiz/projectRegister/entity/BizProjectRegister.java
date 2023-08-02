@@ -226,4 +226,15 @@ public class BizProjectRegister {
     @ApiModelProperty(value = "申请时间", position = 71)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private String applyTime;
+
+    /** 项目地址 */
+    @ApiModelProperty(value = "项目地址", position = 60)
+    private String projectAddress;
+
+
+    /** 投资额 */
+    @ApiModelProperty(value = "投资额", position = 61)
+    private String investment;
 }
+
+

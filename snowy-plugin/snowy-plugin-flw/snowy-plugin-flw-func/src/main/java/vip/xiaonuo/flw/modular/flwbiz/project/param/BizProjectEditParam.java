@@ -214,4 +214,35 @@ public class BizProjectEditParam {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private String applyTime;
 
+    /** 建设地点 */
+    @ApiModelProperty(value = "建设地点", position = 60)
+    private String location;
+
+    /** 建设规模 */
+    @ApiModelProperty(value = "建设规模", position = 61)
+    private String scale;
+
+    /** 投资额 */
+    @ApiModelProperty(value = "投资额", position = 62)
+    private String investment;
+
+    /** 是否联合体 */
+    @ApiModelProperty(value = "是否联合体", position = 63)
+    private String isConsortium;
+
+    /** 是否协同 */
+    @ApiModelProperty(value = "是否协同", position = 64)
+    private String isCooperate;
+
+    /** 协同部门 */
+    @ApiModelProperty(value = "协同部门", position = 65)
+    private String cooperateDept;
+
+    /** 所属大区 */
+    @ApiModelProperty(value = "所属大区", position = 66)
+    private String region;
+
+    /** 行业分类 */
+    @ApiModelProperty(value = "行业分类", position = 67)
+    private String industryClassification;
 }
