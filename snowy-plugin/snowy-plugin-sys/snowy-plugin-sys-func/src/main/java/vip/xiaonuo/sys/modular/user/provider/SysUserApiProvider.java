@@ -110,15 +110,14 @@ public class SysUserApiProvider implements SysUserApi {
     }
 
     @Override
-    public JSONObject getSupervisorIdBySupervisorLevel(List<String> userIdList, String userId, String orgId, String positionId, String supervisorLevel) {
+    public JSONObject getSupervisorIdBySupervisorLevel(List<String> userIdList, String userId, String orgId, String supervisorLevel) {
         SysUser sysUser = sysUserService.queryEntity(userId);
         String userOrgId = sysUser.getOrgId();
-        String userPositionId = sysUser.getPositionId();
         String positionJson = sysUser.getPositionJson();
         AtomicReference<String> result = new AtomicReference<>();
         // 先查主职位主管
-        if(ObjectUtil.isAllNotEmpty(userOrgId, userPositionId)) {
-            if(userOrgId.equals(orgId) && userPositionId.equals(positionId)) {
+        if(ObjectUtil.isAllNotEmpty(userOrgId)) {
+            if(userOrgId.equals(orgId)) {
                 String directorId = sysUser.getDirectorId();
                 if(ObjectUtil.isNotEmpty(directorId)) {
                     result.set(directorId);
@@ -130,12 +129,12 @@ public class SysUserApiProvider implements SysUserApi {
             if(ObjectUtil.isNotEmpty(positionJson)) {
                 JSONUtil.parseArray(positionJson).forEach(object -> {
                     JSONObject jsonObject = JSONUtil.parseObj(object);
-                    String tempPositionId = jsonObject.getStr("positionId");
-                    String directorId = jsonObject.getStr("directorId");
-                    if(ObjectUtil.isNotEmpty(tempPositionId) && tempPositionId.equals(positionId)) {
-                        if(ObjectUtil.isNotEmpty(directorId)) {
+                    String partTimeOrgId = jsonObject.getStr("orgId");
+                    if(ObjectUtil.isNotEmpty(partTimeOrgId) && orgId.equals(partTimeOrgId)) {
+                        String partTimDirectorId = jsonObject.getStr("directorId");
+                        if(ObjectUtil.isNotEmpty(partTimDirectorId)) {
                             // 存在多个相同兼职职位，后者覆盖前者
-                            result.set(directorId);
+                            result.set(partTimDirectorId);
                         }
                     }
                 });
@@ -147,17 +146,22 @@ public class SysUserApiProvider implements SysUserApi {
         if(supervisorLevel.equals("-1")) {
             if(ObjectUtil.isEmpty(resultUserId)) {
                 // 查不到，则当前用户就是最高层级主管
-                return JSONUtil.createObj().set("id", userId).set("idList", CollectionUtil.newArrayList(userId));
-            } else {
-                if(userIdList.contains(resultUserId)) {
-                    // 如果查出的结果已经出现过，意味着出现了循环主管，则当前的userId就是最高级主管
-                    return JSONUtil.createObj().set("id", userId).set("idList", userIdList);
+                if(ObjectUtil.isEmpty(userIdList)) {
+                    return JSONUtil.createObj().set("id", userId).set("idList", CollectionUtil.newArrayList(userId));
                 } else {
-                    // 如果查出的结果没有出现过，则将查询的结果放入集合
-                    userIdList.add(resultUserId);
-                    // 继续查询
-                    return this.getSupervisorIdBySupervisorLevel(userIdList, resultUserId, orgId, positionId, supervisorLevel);
+                    return JSONUtil.createObj().set("id", userId).set("idList", userIdList);
                 }
+            } else {
+                if(ObjectUtil.isNotEmpty(userIdList)) {
+                    if(userIdList.contains(resultUserId)) {
+                        // 如果查出的结果已经出现过，意味着出现了循环主管，则当前的userId就是最高级主管
+                        return JSONUtil.createObj().set("id", userId).set("idList", userIdList);
+                    }
+                }
+                // 如果结果为空，则将查询的结果放入集合
+                userIdList.add(resultUserId);
+                // 继续查询
+                return this.getSupervisorIdBySupervisorLevel(userIdList, resultUserId, orgId, supervisorLevel);
             }
         } else {
             // 如果要求查指定层级主管
@@ -172,25 +176,27 @@ public class SysUserApiProvider implements SysUserApi {
                     // 则当前结果就是一级直属主管
                     return JSONUtil.createObj().set("id", resultUserId).set("idList", CollectionUtil.newArrayList(resultUserId));
                 } else {
-                    if(userIdList.contains(resultUserId)) {
-                        // 如果查出的结果已经出现过，意味着出现了循环主管，则当前的userId就暂定是满足层级的主管
-                        return JSONUtil.createObj().set("id", userId).set("idList", userIdList);
-                    } else {
-                        // 如果查出的结果没有出现过，则将查询的结果放入集合
-                        userIdList.add(resultUserId);
-                        // 继续查更高层级主管
-                        return this.getSupervisorIdBySupervisorLevel(userIdList, resultUserId, orgId, positionId, nextLevel);
+                    if(ObjectUtil.isNotEmpty(userIdList)) {
+                        if(userIdList.contains(resultUserId)) {
+                            // 如果查出的结果已经出现过，意味着出现了循环主管，则当前的userId就暂定是满足层级的主管
+                            return JSONUtil.createObj().set("id", userId).set("idList", userIdList);
+                        }
                     }
+                    // 如果查出的结果没有出现过，则将查询的结果放入集合
+                    userIdList.add(resultUserId);
+                    // 继续查更高层级主管
+                    return this.getSupervisorIdBySupervisorLevel(userIdList, resultUserId, orgId, nextLevel);
                 }
             }
         }
     }
 
+
     @Override
-    public List<String> getMulSupervisorIdListByEndLevel(String userId, String orgId, String positionId, String endLevel) {
+    public List<String> getMulSupervisorIdListByEndLevel(String userId, String orgId, String endLevel) {
         List<String> resultList = CollectionUtil.newArrayList();
         if(endLevel.equals("-1")) {
-            List<String> idList = this.getSupervisorIdBySupervisorLevel(CollectionUtil.newArrayList(), userId, orgId, positionId, endLevel)
+            List<String> idList = this.getSupervisorIdBySupervisorLevel(CollectionUtil.newArrayList(), userId, orgId, endLevel)
                     .getBeanList("idList", String.class);
             if(ObjectUtil.isNotEmpty(idList)) {
                 resultList.addAll(idList);
@@ -199,7 +205,7 @@ public class SysUserApiProvider implements SysUserApi {
             Integer levelValue = Convert.toInt(endLevel);
             for (int i = 1; i < levelValue; i++) {
                 String supervisorId = this.getSupervisorIdBySupervisorLevel(CollectionUtil.newArrayList(), userId, orgId,
-                        positionId, Convert.toStr(i)).getStr("id");
+                        Convert.toStr(i)).getStr("id");
                 if(ObjectUtil.isNotEmpty(supervisorId)) {
                     resultList.add(supervisorId);
                 } else {
@@ -218,4 +224,5 @@ public class SysUserApiProvider implements SysUserApi {
         sysUserSelectorUserParam.setSearchKey(searchKey);
         return BeanUtil.toBean(sysUserService.userSelector(sysUserSelectorUserParam), Page.class);
     }
+
 }

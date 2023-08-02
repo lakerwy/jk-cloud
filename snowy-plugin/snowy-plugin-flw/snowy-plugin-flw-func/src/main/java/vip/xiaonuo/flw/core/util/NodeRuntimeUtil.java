@@ -513,8 +513,8 @@ public class NodeRuntimeUtil {
                     String supervisorLevel = flwNodeParticipateProp.getValue();
                     if(ObjectUtil.isAllNotEmpty(initiator, initiatorOrgId, initiatorPositionId, supervisorLevel)) {
                         // 根据主管层级获取指定主管
-                        String supervisor = sysUserApi.getSupervisorIdBySupervisorLevel(CollectionUtil.newArrayList(), initiator, initiatorOrgId,
-                                initiatorPositionId, supervisorLevel).getStr("id");
+                        String supervisor = sysUserApi.getSupervisorIdBySupervisorLevel(CollectionUtil.newArrayList(),
+                                initiator, initiatorOrgId, supervisorLevel).getStr("id");
                         if (ObjectUtil.isNotEmpty(supervisor)) {
                             resultUserIdList.add(supervisor);
                         }
@@ -525,101 +525,80 @@ public class NodeRuntimeUtil {
                     String endLevel = flwNodeParticipateProp.getValue();
                     if(ObjectUtil.isAllNotEmpty(initiator, initiatorOrgId, initiatorPositionId, endLevel)) {
                         // 根据主管层级获取主管列表
-                        List<String> supervisorList = sysUserApi.getMulSupervisorIdListByEndLevel(initiator,
-                                initiatorOrgId, initiatorPositionId, endLevel);
+                        List<String> supervisorList = sysUserApi.getMulSupervisorIdListByEndLevel(initiator, initiatorOrgId, endLevel);
                         if (ObjectUtil.isNotEmpty(supervisorList)) {
                             resultUserIdList.addAll(supervisorList);
                         }
                     }
                     break;
                 case "FORM_USER":
-                    String formUser = flwNodeParticipateProp.getValue();
-                    if (ObjectUtil.isNotEmpty(formUser)) {
+                    String formUserValueForUser = flwNodeParticipateProp.getValue();
+                    if (ObjectUtil.isNotEmpty(formUserValueForUser)) {
                         if(ObjectUtil.isNotEmpty(initiatorDataJson)) {
                             if(ObjectUtil.isNotEmpty(initiatorTableJson)) {
-                                String primaryTableName = JSONUtil.parseObj(JSONUtil.parseArray(initiatorTableJson)
-                                        .stream().filter(obj -> JSONUtil.parseObj(obj).getStr("tableType").equals("parent"))
-                                        .collect(Collectors.toList()).get(0)).getStr("tableName");
-                                String formUserVariableKey = StrUtil.toCamelCase(primaryTableName.toLowerCase()) + StrUtil.UNDERLINE +
-                                        StrUtil.toCamelCase(formUser.toLowerCase());
-                                Object formUserVariableValue = runtimeService.getVariable(processInstanceId, formUserVariableKey);
-                                if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
-                                    if(JSONUtil.isTypeJSONArray(Convert.toStr(formUserVariableValue))) {
-                                        JSONArray jsonArray = JSONUtil.parseArray(Convert.toStr(formUserVariableValue));
-                                        List<String> formUserIdList = CollectionUtil.removeNull(jsonArray.stream().map(o -> {
-                                            JSONObject userItem = JSONUtil.parseObj(o);
-                                            if (ObjectUtil.isNotEmpty(userItem)) {
-                                                return userItem.getStr("id");
-                                            } else {
-                                                return null;
-                                            }
-                                        }).collect(Collectors.toList()));
-                                        resultUserIdList.addAll(formUserIdList);
-                                    }
-                                }
+                                resultUserIdList.addAll(getFormUserIdListForDesignForm(initiatorTableJson, formUserValueForUser,
+                                        processInstanceId));
                             } else {
-                                Object formUserVariableValue = runtimeService.getVariable(processInstanceId, formUser);
-                                if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
-                                    StrUtil.split(Convert.toStr(formUserVariableValue), StrUtil.COMMA).forEach(userId -> {
-                                        JSONObject user = sysUserApi.getUserByIdWithoutException(userId);
-                                        if(ObjectUtil.isNotEmpty(user)) {
-                                            resultUserIdList.add(userId);
+                                resultUserIdList.addAll(getFormUserIdListForDefineForm(formUserValueForUser, processInstanceId));
+                            }
+                        }
+                    }
+                    break;
+                case "FORM_USER_SUPERVISOR":
+                    // 主管级别：-1 最高层级主管，1 直接主管，2 第2级主管，...10 第10级主管
+                    String formUserSupervisorLevel = flwNodeParticipateProp.getValue();
+                    // 扩展信息{"extJson":{"key":"FORM_USER","label":"表单内的人","value":"XXX_USER","extJson":""}}
+                    String ormUserSupervisorExtJson = flwNodeParticipateProp.getExtJson();
+                    if(ObjectUtil.isAllNotEmpty(formUserSupervisorLevel, ormUserSupervisorExtJson)) {
+                        if(ObjectUtil.isNotEmpty(ormUserSupervisorExtJson)) {
+                            JSONObject formUserSupervisorJsonObject = JSONUtil.parseObj(ormUserSupervisorExtJson);
+                            if(ObjectUtil.isNotEmpty(formUserSupervisorJsonObject)) {
+                                String formUserValueForSupervisor = formUserSupervisorJsonObject.getStr("value");
+                                if(ObjectUtil.isNotEmpty(formUserValueForSupervisor)) {
+                                    if(ObjectUtil.isNotEmpty(initiatorDataJson)) {
+                                        List<String> formUserIdList;
+                                        if(ObjectUtil.isNotEmpty(initiatorTableJson)) {
+                                            formUserIdList = getFormUserIdListForDesignForm(initiatorTableJson,
+                                                    formUserValueForSupervisor, processInstanceId);
+                                        } else {
+                                            formUserIdList = getFormUserIdListForDefineForm(formUserValueForSupervisor,
+                                                    processInstanceId);
                                         }
-                                    });
+                                        if(ObjectUtil.isNotEmpty(formUserIdList)) {
+                                            resultUserIdList.addAll(getUserSupervisorIdList(formUserIdList,
+                                                    formUserSupervisorLevel));
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                     break;
-                case "FORM_USER_LEADER":
-                    String formUser2 = flwNodeParticipateProp.getValue();
-                    if (ObjectUtil.isNotEmpty(formUser2)) {
-                        if(ObjectUtil.isNotEmpty(initiatorDataJson)) {
-                            if(ObjectUtil.isNotEmpty(initiatorTableJson)) {
-                                String primaryTableName = JSONUtil.parseObj(JSONUtil.parseArray(initiatorTableJson)
-                                        .stream().filter(obj -> JSONUtil.parseObj(obj).getStr("tableType").equals("parent"))
-                                        .collect(Collectors.toList()).get(0)).getStr("tableName");
-                                String formUserVariableKey = StrUtil.toCamelCase(primaryTableName.toLowerCase()) + StrUtil.UNDERLINE +
-                                        StrUtil.toCamelCase(formUser2.toLowerCase());
-                                Object formUserVariableValue = runtimeService.getVariable(processInstanceId, formUserVariableKey);
-                                if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
-                                    if(JSONUtil.isTypeJSONArray(Convert.toStr(formUserVariableValue))) {
-                                        JSONArray jsonArray = JSONUtil.parseArray(Convert.toStr(formUserVariableValue));
-                                        List<String> formUserIdList = CollectionUtil.removeNull(jsonArray.stream().map(o -> {
-                                            JSONObject userItem = JSONUtil.parseObj(o);
-                                            if (ObjectUtil.isNotEmpty(userItem)) {
-                                                String id = userItem.getStr("id");
-                                                //获取用户对象，然后获取所在部门
-                                                JSONObject user = sysUserApi.getUserByIdWithException(id);
-                                                //所在组织
-                                                String orgId = String.valueOf(user.get("orgId"));
-                                                //所在组织部门主管id
-                                                String supervisorId = sysOrgApi.getSupervisorIdByOrgId(orgId);
-                                                if(ObjectUtil.isNotEmpty(supervisorId)){
-                                                    return  supervisorId;
-                                                }else {
-                                                    return null;
-                                                }
-                                            } else {
-                                                return null;
-                                            }
-                                        }).collect(Collectors.toList()));
-                                        resultUserIdList.addAll(formUserIdList);
-                                    }
-                                }
-                            } else {
-                                Object formUserVariableValue = runtimeService.getVariable(processInstanceId, formUser2);
-                                if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
-                                    StrUtil.split(Convert.toStr(formUserVariableValue), StrUtil.COMMA).forEach(userId -> {
-                                        JSONObject user = sysUserApi.getUserByIdWithoutException(userId);
-                                        //所在组织
-                                        String orgId = String.valueOf(user.get("orgId"));
-                                        //所在组织部门主管id
-                                        String supervisorId = sysOrgApi.getSupervisorIdByOrgId(orgId);
-                                        if(ObjectUtil.isNotEmpty(supervisorId)) {
-                                            resultUserIdList.add(supervisorId);
+                case "FORM_USER_MUL_LEVEL_SUPERVISOR":
+                    // 主管级别：-1 最高层级主管，1 直接主管，2 第2级主管，...10 第10级主管
+                    String formUserMulLevelSupervisorLevel = flwNodeParticipateProp.getValue();
+                    // 扩展信息{"extJson":{"key":"FORM_USER","label":"表单内的人","value":"XXX_USER","extJson":""}}
+                    String formUserMulLevelSupervisorExtJson = flwNodeParticipateProp.getExtJson();
+                    if(ObjectUtil.isAllNotEmpty(formUserMulLevelSupervisorLevel, formUserMulLevelSupervisorExtJson)) {
+                        if(ObjectUtil.isNotEmpty(formUserMulLevelSupervisorExtJson)) {
+                            JSONObject formUserMulLevelSupervisorJsonObject = JSONUtil.parseObj(formUserMulLevelSupervisorExtJson);
+                            if(ObjectUtil.isNotEmpty(formUserMulLevelSupervisorJsonObject)) {
+                                String formUserValueForMulLevelSupervisor = formUserMulLevelSupervisorJsonObject.getStr("value");
+                                if(ObjectUtil.isNotEmpty(formUserValueForMulLevelSupervisor)) {
+                                    if(ObjectUtil.isNotEmpty(initiatorDataJson)) {
+                                        List<String> formUserIdList;
+                                        if(ObjectUtil.isNotEmpty(initiatorTableJson)) {
+                                            formUserIdList = getFormUserIdListForDesignForm(initiatorTableJson,
+                                                    formUserValueForMulLevelSupervisor, processInstanceId);
+                                        } else {
+                                            formUserIdList = getFormUserIdListForDefineForm(formUserValueForMulLevelSupervisor,
+                                                    processInstanceId);
                                         }
-                                    });
+                                        if(ObjectUtil.isNotEmpty(formUserIdList)) {
+                                            resultUserIdList.addAll(getMulLevelUserSupervisorIdList(formUserIdList,
+                                                    formUserMulLevelSupervisorLevel));
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -634,6 +613,107 @@ public class NodeRuntimeUtil {
         });
         return CollectionUtil.distinct(resultUserIdList);
     }
+
+    /**
+     * 获取设计表单模式下表单内的人id集合
+     *
+     * @author xuyuxiang
+     * @date 2023/7/25 23:00
+     */
+    private static List<String> getFormUserIdListForDesignForm(Object initiatorTableJson, String formUserValue, String processInstanceId) {
+        List<String> resultUserIdList = CollectionUtil.newArrayList();
+        String primaryTableName = JSONUtil.parseObj(JSONUtil.parseArray(initiatorTableJson)
+                .stream().filter(obj -> JSONUtil.parseObj(obj).getStr("tableType").equals("parent"))
+                .collect(Collectors.toList()).get(0)).getStr("tableName");
+        String formUserVariableKey = StrUtil.toCamelCase(primaryTableName.toLowerCase()) + StrUtil.UNDERLINE +
+                StrUtil.toCamelCase(formUserValue.toLowerCase());
+        Object formUserVariableValue = SpringUtil.getBean(RuntimeService.class).getVariable(processInstanceId, formUserVariableKey);
+        if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
+            if(JSONUtil.isTypeJSONArray(Convert.toStr(formUserVariableValue))) {
+                JSONArray jsonArray = JSONUtil.parseArray(Convert.toStr(formUserVariableValue));
+                resultUserIdList  = CollectionUtil.removeNull(jsonArray.stream().map(o -> {
+                    JSONObject userItem = JSONUtil.parseObj(o);
+                    if (ObjectUtil.isNotEmpty(userItem)) {
+                        return userItem.getStr("id");
+                    } else {
+                        return null;
+                    }
+                }).collect(Collectors.toList()));
+            }
+        }
+        return resultUserIdList;
+    }
+
+    /**
+     * 获取自定义表单模式下表单内的人id集合
+     *
+     * @author xuyuxiang
+     * @date 2023/7/25 23:00
+     */
+    private static List<String> getFormUserIdListForDefineForm(String formUserValues, String processInstanceId) {
+        List<String> resultUserIdList = CollectionUtil.newArrayList();
+        StrUtil.split(formUserValues, StrUtil.COMMA).forEach(formUserValueItem -> {
+            Object formUserVariableValue = SpringUtil.getBean(RuntimeService.class).getVariable(processInstanceId, formUserValueItem);
+            if(ObjectUtil.isNotEmpty(formUserVariableValue)) {
+                resultUserIdList.addAll(StrUtil.split(Convert.toStr(formUserVariableValue), StrUtil.COMMA));
+            }
+        });
+        return resultUserIdList;
+    }
+
+    /**
+     * 获取用户指定上级主管id集合
+     *
+     * @author xuyuxiang
+     * @date 2023/7/26 0:17
+     */
+    public static List<String> getUserSupervisorIdList(List<String> formUserIdList, String level) {
+        List<String> resultUserIdList = CollectionUtil.newArrayList();
+        SysUserApi sysUserApi = SpringUtil.getBean(SysUserApi.class);
+        formUserIdList.forEach(formUserId -> {
+            // 根据主管层级获取主管列表
+            JSONObject formUser = sysUserApi.getUserByIdWithoutException(formUserId);
+            if(ObjectUtil.isNotEmpty(formUser)) {
+                String orgId = formUser.getStr("orgId");
+                if(ObjectUtil.isNotEmpty(orgId)) {
+                    JSONObject supervisorJsonObject = sysUserApi.getSupervisorIdBySupervisorLevel(CollectionUtil.newArrayList(), formUserId,
+                            orgId, level);
+                    if (ObjectUtil.isNotEmpty(supervisorJsonObject)) {
+                        resultUserIdList.add(supervisorJsonObject.getStr("id"));
+                    }
+                }
+            }
+        });
+        return resultUserIdList;
+    }
+
+    /**
+     * 获取用户连续多级主管id集合
+     *
+     * @author xuyuxiang
+     * @date 2023/7/26 0:17
+     */
+    public static List<String> getMulLevelUserSupervisorIdList(List<String> formUserIdList, String endLevel) {
+        List<String> resultUserIdList = CollectionUtil.newArrayList();
+        SysUserApi sysUserApi = SpringUtil.getBean(SysUserApi.class);
+        formUserIdList.forEach(formUserId -> {
+            // 根据主管层级获取主管列表
+            JSONObject formUser = sysUserApi.getUserByIdWithoutException(formUserId);
+            if(ObjectUtil.isNotEmpty(formUser)) {
+                String orgId = formUser.getStr("orgId");
+                String positionId = formUser.getStr("positionId");
+                if(ObjectUtil.isAllNotEmpty(orgId, positionId)) {
+                    List<String> supervisorList = sysUserApi.getMulSupervisorIdListByEndLevel(formUserId, orgId, endLevel);
+                    if (ObjectUtil.isNotEmpty(supervisorList)) {
+                        resultUserIdList.addAll(supervisorList);
+                    }
+                }
+            }
+        });
+        return resultUserIdList;
+    }
+
+
 
     /**
      * 处理任务待办通知

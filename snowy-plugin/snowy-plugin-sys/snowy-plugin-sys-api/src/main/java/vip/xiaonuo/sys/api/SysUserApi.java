@@ -95,7 +95,7 @@ public interface SysUserApi {
      * @author xuyuxiang
      * @date 2022/6/6 14:50
      **/
-    JSONObject getSupervisorIdBySupervisorLevel(List<String> userIdList, String userId, String orgId, String positionId, String supervisorLevel);
+    JSONObject getSupervisorIdBySupervisorLevel(List<String> userIdList, String userId, String orgId, String supervisorLevel);
 
     /**
      * 根据用户id和组织id和职位id和终点主管层级获取上级主管id集合
@@ -103,7 +103,7 @@ public interface SysUserApi {
      * @author xuyuxiang
      * @date 2022/6/6 14:50
      **/
-    List<String> getMulSupervisorIdListByEndLevel(String userId, String orgId, String positionId, String endLevel);
+    List<String> getMulSupervisorIdListByEndLevel(String userId, String orgId, String endLevel);
 
     /**
      * 获取用户选择器

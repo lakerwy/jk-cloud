@@ -12,7 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -172,8 +172,10 @@ public class BizAuditListsDetailsController {
             JSONObject entries = JSONUtil.parseObj(auditLists);
             List<String> ids = new ArrayList<>();
             ids.add(auditLists.getCreateUser());
-            ids.add(auditLists.getReader());
-            iDingDingService.batchSend(entries,ids);
+            //ids.add(auditLists.getReader());
+            if(ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getCondition())) {
+                iDingDingService.batchSend(entries, ids);
+            }
         }catch (Exception e){
             //消息发送失败
         }

@@ -148,14 +148,13 @@ public class SysUserFeignProvider implements SysUserFeign {
      * @param userIdList
      * @param userId
      * @param orgId
-     * @param positionId
      * @param supervisorLevel
      * @author xuyuxiang
      * @date 2022/6/6 14:50
      */
     @Override
-    public JSONObject getSupervisorIdBySupervisorLevel(List<String> userIdList, String userId, String orgId, String positionId, String supervisorLevel) {
-        return sysUserApiProvider.getSupervisorIdBySupervisorLevel(userIdList, userId, orgId, positionId, supervisorLevel);
+    public JSONObject getSupervisorIdBySupervisorLevel(List<String> userIdList, String userId, String orgId, String supervisorLevel) {
+        return sysUserApiProvider.getSupervisorIdBySupervisorLevel(userIdList, userId, orgId, supervisorLevel);
     }
 
     /**
@@ -163,14 +162,13 @@ public class SysUserFeignProvider implements SysUserFeign {
      *
      * @param userId
      * @param orgId
-     * @param positionId
      * @param endLevel
      * @author xuyuxiang
      * @date 2022/6/6 14:50
      */
     @Override
-    public List<String> getMulSupervisorIdListByEndLevel(String userId, String orgId, String positionId, String endLevel) {
-        return sysUserApiProvider.getMulSupervisorIdListByEndLevel(userId, orgId, positionId, endLevel);
+    public List<String> getMulSupervisorIdListByEndLevel(String userId, String orgId, String endLevel) {
+        return sysUserApiProvider.getMulSupervisorIdListByEndLevel(userId, orgId, endLevel);
     }
 
     /**

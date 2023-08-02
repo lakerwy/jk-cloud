@@ -160,14 +160,13 @@ public class SysUserApiContextBean implements SysUserApi {
      * @param userIdList
      * @param userId
      * @param orgId
-     * @param positionId
      * @param supervisorLevel
      * @author xuyuxiang
      * @date 2022/6/6 14:50
      */
     @Override
-    public JSONObject getSupervisorIdBySupervisorLevel(List<String> userIdList, String userId, String orgId, String positionId, String supervisorLevel) {
-        return sysUserFeign.getSupervisorIdBySupervisorLevel(userIdList, userId, orgId, positionId, supervisorLevel);
+    public JSONObject getSupervisorIdBySupervisorLevel(List<String> userIdList, String userId, String orgId, String supervisorLevel) {
+        return sysUserFeign.getSupervisorIdBySupervisorLevel(userIdList, userId, orgId, supervisorLevel);
     }
 
     /**
@@ -175,14 +174,13 @@ public class SysUserApiContextBean implements SysUserApi {
      *
      * @param userId
      * @param orgId
-     * @param positionId
      * @param endLevel
      * @author xuyuxiang
      * @date 2022/6/6 14:50
      */
     @Override
-    public List<String> getMulSupervisorIdListByEndLevel(String userId, String orgId, String positionId, String endLevel) {
-        return sysUserFeign.getMulSupervisorIdListByEndLevel(userId, orgId, positionId, endLevel);
+    public List<String> getMulSupervisorIdListByEndLevel(String userId, String orgId, String endLevel) {
+        return sysUserFeign.getMulSupervisorIdListByEndLevel(userId, orgId, endLevel);
     }
 
     /**

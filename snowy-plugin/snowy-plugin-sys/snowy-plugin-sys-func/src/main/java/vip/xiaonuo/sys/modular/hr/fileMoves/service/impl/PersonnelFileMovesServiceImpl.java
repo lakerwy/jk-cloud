@@ -92,6 +92,7 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
         }
         personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
         personnelFileMoves.setApplyTime(DateUtil.date());
+        personnelFileMoves.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(personnelFileMoves);
     }
 

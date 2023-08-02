@@ -108,7 +108,7 @@ public interface SysUserFeign {
      * @date 2022/6/6 14:50
      **/
     @RequestMapping("/feign/sys/user/getSupervisorIdBySupervisorLevel")
-    JSONObject getSupervisorIdBySupervisorLevel(@RequestParam(value = "userIdList",required = false) List<String> userIdList, @RequestParam(value = "userId",required = false) String userId, @RequestParam(value = "orgId",required = false) String orgId, @RequestParam(value = "positionId",required = false) String positionId, @RequestParam(value = "supervisorLevel",required = false) String supervisorLevel);
+    JSONObject getSupervisorIdBySupervisorLevel(@RequestParam(value = "userIdList",required = false) List<String> userIdList, @RequestParam(value = "userId",required = false) String userId, @RequestParam(value = "orgId",required = false) String orgId,  @RequestParam(value = "supervisorLevel",required = false) String supervisorLevel);
 
     /**
      * 根据用户id和组织id和职位id和终点主管层级获取上级主管id集合
@@ -117,7 +117,7 @@ public interface SysUserFeign {
      * @date 2022/6/6 14:50
      **/
     @RequestMapping("/feign/sys/user/getMulSupervisorIdListByEndLevel")
-    List<String> getMulSupervisorIdListByEndLevel(@RequestParam(value = "userId",required = false) String userId, @RequestParam(value = "orgId",required = false) String orgId, @RequestParam(value = "positionId",required = false) String positionId, @RequestParam(value = "endLevel",required = false) String endLevel);
+    List<String> getMulSupervisorIdListByEndLevel(@RequestParam(value = "userId",required = false) String userId, @RequestParam(value = "orgId",required = false) String orgId,  @RequestParam(value = "endLevel",required = false) String endLevel);
 
     /**
      * 获取用户选择器
