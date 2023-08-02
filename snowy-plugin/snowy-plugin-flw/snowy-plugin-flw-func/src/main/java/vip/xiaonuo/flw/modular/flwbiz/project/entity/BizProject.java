@@ -76,7 +76,7 @@ public class BizProject {
 
     /** 项目地址 */
     @ApiModelProperty(value = "项目地址", position = 11)
-    private String address;
+    private String projectAddress;
 
     /** 项目属性 */
     @ApiModelProperty(value = "项目属性", position = 12)
