@@ -98,7 +98,6 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
     @Override
     public void add(BizProjectAddParam bizProjectAddParam) {
         BizProject bizProject = BeanUtil.toBean(bizProjectAddParam, BizProject.class);
-        bizProject.setLocation(JSONUtil.toJsonStr(bizProjectAddParam.getLocationCheckbox()));
         String processInstanceId = bizProjectAddParam.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){
             String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
@@ -130,7 +129,6 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         }
         BizProject bizProject = this.queryEntity(id);
         BeanUtil.copyProperties(bizProjectEditParam, bizProject);
-        bizProject.setLocation(JSONUtil.toJsonStr(bizProjectEditParam.getLocationCheckbox()));
         this.updateById(bizProject);
     }
 
