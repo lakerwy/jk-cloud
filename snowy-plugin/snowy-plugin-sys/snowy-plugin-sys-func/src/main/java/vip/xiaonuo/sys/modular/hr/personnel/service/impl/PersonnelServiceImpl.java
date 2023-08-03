@@ -151,16 +151,30 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             collect.forEach(personnelFileRegister -> personnelFileRegister.setFileId(personnel.getId()));
             personnelFileRegisterService.saveBatch(collect);
         }
-
-        SysUserAddParam sysUserAddParam = new SysUserAddParam();
-        sysUserAddParam.setAccount(personnelAddParam.getPhone());
-        sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
-        sysUserAddParam.setName(personnelAddParam.getName());
-        sysUserAddParam.setPhone(personnelAddParam.getPhone());
-        sysUserAddParam.setPositionId(personnel.getDutyId());
-        sysUserAddParam.setEmpNo(personnel.getFileNo());
-        sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
-        sysUserService.add(sysUserAddParam);
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnelAddParam.getPhone()));
+        if(ObjectUtil.isEmpty(user)){
+            SysUserAddParam sysUserAddParam = new SysUserAddParam();
+            sysUserAddParam.setAccount(personnelAddParam.getPhone());
+            sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
+            sysUserAddParam.setName(personnelAddParam.getName());
+            sysUserAddParam.setPhone(personnelAddParam.getPhone());
+            sysUserAddParam.setPositionId(personnel.getDutyId());
+            sysUserAddParam.setEmpNo(personnel.getFileNo());
+            sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+            sysUserService.add(sysUserAddParam);
+        }else {
+            SysUserAddParam sysUserAddParam = new SysUserAddParam();
+            //sysUserAddParam.setAccount(personnelAddParam.getPhone());
+            sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
+            sysUserAddParam.setName(personnelAddParam.getName());
+            sysUserAddParam.setPhone(personnelAddParam.getPhone());
+            sysUserAddParam.setPositionId(personnel.getDutyId());
+            sysUserAddParam.setEmpNo(personnel.getFileNo());
+            sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+            SysUser sysUser = BeanUtil.toBean(sysUserAddParam, SysUser.class);
+            sysUser.setId(user.getId());
+            sysUserService.updateById(sysUser);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
