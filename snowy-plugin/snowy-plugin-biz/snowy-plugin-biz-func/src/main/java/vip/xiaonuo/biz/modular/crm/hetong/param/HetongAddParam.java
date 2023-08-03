@@ -17,8 +17,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -218,4 +216,11 @@ public class HetongAddParam {
     @ApiModelProperty(value = "零星单位名称", position = 46)
     private String unitsName;
 
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 52)
+    private String modelId;
+
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 53)
+    private String processInstanceId;
 }

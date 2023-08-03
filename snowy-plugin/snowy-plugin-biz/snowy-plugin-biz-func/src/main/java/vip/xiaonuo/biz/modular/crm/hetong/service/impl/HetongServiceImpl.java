@@ -13,16 +13,15 @@
 package vip.xiaonuo.biz.modular.crm.hetong.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fhs.common.utils.StringUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -30,8 +29,13 @@ import vip.xiaonuo.biz.modular.crm.hetong.mapper.HetongMapper;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongIdParam;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
@@ -40,10 +44,10 @@ import vip.xiaonuo.biz.modular.crm.hetong.param.HetongEditParam;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.common.util.CommonSnUtil;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -59,6 +63,9 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
 
     @Resource
     private HetongMapper hetongMapper;
+    @Resource
+    CommonCacheOperator commonCacheOperator;
+
     @Override
     public IPage<HetongDetailVo> page(HetongPageParam hetongPageParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
@@ -126,18 +133,46 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
     @Override
     public void add(HetongAddParam hetongAddParam) {
         Hetong hetong = BeanUtil.toBean(hetongAddParam, Hetong.class);
-        //处理合同编号
-        Hetong tmpht = this.getOne(new QueryWrapper<Hetong>().lambda().orderByDesc(Hetong::getCreateTime).last("limit 1"));
-        String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
-        hetong.setContractNo(newSn);
         hetong.setOpt(StpLoginUserUtil.getLoginUser().getName());
         hetong.setRegisterDate(new Date());
+
+        //走合同审批流程
+        String processInstanceId = hetongAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            hetong.setId(id);
+            hetong.setContractNo(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            hetong.setModelId(modelId);
+            hetong.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
+            formRelationTableApi.save(modelId, BizCommonEnum.PERSONNEL_FILE_MOVES.getBizTable(),id,processInstanceId,dbName);
+        }
+        else{//不走审批流程
+            Hetong tmpht = this.getOne(new QueryWrapper<Hetong>().lambda().orderByDesc(Hetong::getCreateTime).last("limit 1"));
+            String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+            hetong.setContractNo(newSn);
+        }
         this.save(hetong);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(HetongEditParam hetongEditParam) {
+        String id = hetongEditParam.getId();
+        //判断是否走合同审批流程内的修改
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(hetongEditParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(hetongEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id = formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                hetongEditParam.setId(id);
+            }
+        }
         Hetong hetong = this.queryEntity(hetongEditParam.getId());
         BeanUtil.copyProperties(hetongEditParam, hetong);
         this.updateById(hetong);

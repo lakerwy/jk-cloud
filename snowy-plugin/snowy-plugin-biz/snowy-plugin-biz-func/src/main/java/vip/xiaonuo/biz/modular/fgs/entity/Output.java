@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.fgs.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -70,6 +71,7 @@ public class Output {
     /** 合同盖章日期 */
     @ApiModelProperty(value = "合同盖章日期", position = 10)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date sealDate;
 
     /** 合同金额 */
@@ -80,11 +82,13 @@ public class Output {
     /** 项目竣工日期（预计） */
     @ApiModelProperty(value = "项目竣工日期（预计）", position = 12)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date preCompleDate;
 
     /** 项目竣工日期 */
     @ApiModelProperty(value = "项目竣工日期", position = 13)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date compleDate;
 
     /** 累计已完成产值 */
