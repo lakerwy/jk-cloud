@@ -97,7 +97,19 @@ public class OutputEditParam {
 
     /** 本季完成产值 */
     @ApiModelProperty(value = "本季完成产值", position = 15)
-    private BigDecimal tmpCompletedOutput;
+    private BigDecimal firstCompletedOutput;
+
+    /** 二季度完成产值 */
+    @ApiModelProperty(value = "本季完成产值", position = 15)
+    private BigDecimal secondCompletedOutput;
+
+    /** 三季度完成产值 */
+    @ApiModelProperty(value = "本季完成产值", position = 15)
+    private BigDecimal thirdCompletedOutput;
+
+    /** 四季度完成产值 */
+    @ApiModelProperty(value = "本季完成产值", position = 15)
+    private BigDecimal fourthCompletedOutput;
 
     /** 填报人 */
     @ApiModelProperty(value = "填报人", position = 16)
