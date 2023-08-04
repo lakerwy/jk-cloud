@@ -492,4 +492,12 @@ public interface SysUserService extends IService<SysUser> {
      * @date 2023/7/13 20:48
      */
     void syncToUserAdd(SyncToUserAddParam syncToUserAddParam);
+
+    /**
+     * 添加用户
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:48
+     */
+    void addAndGrantRole(SysUserAddParam sysUserAddParam);
 }

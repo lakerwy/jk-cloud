@@ -109,11 +109,11 @@ public class PersonnelFileMoves {
     private Date livetime;
 
     /** 新岗位ID */
-    @ApiModelProperty(value = "新岗位ID", position = 18)
+    @ApiModelProperty(value = "新部门ID", position = 18)
     private String nowDeptId;
 
     /** 新部门ID */
-    @ApiModelProperty(value = "新部门ID", position = 19)
+    @ApiModelProperty(value = "新岗位ID", position = 19)
     private String nowDutyId;
 
     /** 新部门 */

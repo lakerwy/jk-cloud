@@ -10,7 +10,6 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 
-import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -169,5 +168,69 @@ public class CommonHandleUtil {
                 dbsApi.changeDataSource("master");
             }
         }
+    }
+
+    /**
+     * 执行查询sql
+     *
+     * @author xuyuxiang
+     * @date 2022/6/16 10:24
+     **/
+    public static Map<String, Object> handleSqlQuery(String sql, boolean isMaster) {
+        //StringBuilder stringBuilder = new StringBuilder("select COLUMN_NAME,DATA_TYPE ,COLUMN_COMMENT from information_schema.COLUMNS  where ");
+        //final String sql = "select COLUMN_NAME,DATA_TYPE ,COLUMN_COMMENT from information_schema.COLUMNS  where  TABLE_SCHEMA = ? and table_name = ?";
+       // sql = "SELECT a.PHONE,a.ID FROM PERSONNEL a JOIN PERSONNEL_FILE_MOVES b ON a.ID = b.FILE_ID AND b.ID = '116'";
+        Connection conn;
+        try {
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            conn = dbsApi.getCurrentDataSource().getConnection();
+            if(!isMaster){
+                dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
+                conn = dbsApi.getCurrentDataSource().getConnection();
+            }
+            // String test = conn.getSchema();
+        } catch (SQLException e) {
+            throw new CommonException(e.getMessage());
+        }
+        try {
+            AtomicReference<Map<String, Object>> resultMap = new AtomicReference<>(new HashMap<>());
+            conn.setAutoCommit(false);
+            Connection finalConn = conn;
+            StrUtil.split(sql.trim(), ";").forEach(sqlItem -> {
+                if(ObjectUtil.isNotEmpty(sqlItem)) {
+                    try {
+                        // SqlExecutor.execute(conn, sqlItem);
+//                        List<List<Object>> query1 = SqlExecutor.query(finalConn, sqlItem, new ValueListHandler());
+//                        String query = SqlExecutor.query(finalConn, "SELECT a.PHONE FROM PERSONNEL a JOIN PERSONNEL_FILE_MOVES b ON a.ID = b.FILE_ID AND b.ID = '171'", new StringHandler());
+//                        System.out.println(query);
+                        resultMap.set(SqlExecutor.query(finalConn, sqlItem, new RsHandler<Map<String, Object>>() {
+                            @Override
+                            public Map<String, Object> handle(ResultSet rs) throws SQLException {
+                                Map<String, Object> map = new HashMap<>();
+                                while (rs.next()) {
+                                    // 获取所有列名并以列名为键，对应的值为值，构建Map
+                                    int columnsCount = rs.getMetaData().getColumnCount();
+                                    for (int i = 1; i <= columnsCount; i++) {
+                                        String columnName = rs.getMetaData().getColumnLabel(i);
+                                        Object columnValue = rs.getObject(i);
+                                        map.put(columnName, columnValue);
+                                    }
+                                }
+                                return map;
+                            }
+                        }));
+                    } catch (SQLException e) {
+                        throw new CommonException(e.getMessage());
+                    }
+                }
+            });
+            conn.commit();
+            return resultMap.get();
+        } catch (SQLException sqlException) {
+            sqlException.printStackTrace();
+        } finally {
+            DbUtil.close(conn);
+        }
+        return new HashMap<>();
     }
 }

@@ -192,11 +192,13 @@ public class DevConfigServiceImpl extends ServiceImpl<DevConfigMapper, DevConfig
     @Override
     public void editBatch(List<DevConfigBatchParam> devConfigBatchParamList) {
         devConfigBatchParamList.forEach(devConfigBatchParam -> {
-            this.update(new LambdaUpdateWrapper<DevConfig>()
-                    .eq(DevConfig::getConfigKey, devConfigBatchParam.getConfigKey())
-                    .set(DevConfig::getConfigValue, devConfigBatchParam.getConfigValue()));
-            // 移除对应的缓存
-            commonCacheOperator.remove(CONFIG_CACHE_KEY + tenApi.getCurrentTenDomain() + ":" + devConfigBatchParam.getConfigKey());
+            if(!"SNOWY_SYS_DEFAULT_PASSWORD".equals(devConfigBatchParam.getConfigKey())) {
+                this.update(new LambdaUpdateWrapper<DevConfig>()
+                        .eq(DevConfig::getConfigKey, devConfigBatchParam.getConfigKey())
+                        .set(DevConfig::getConfigValue, devConfigBatchParam.getConfigValue()));
+                // 移除对应的缓存
+                commonCacheOperator.remove(CONFIG_CACHE_KEY + tenApi.getCurrentTenDomain() + ":" + devConfigBatchParam.getConfigKey());
+            }
         });
     }
 }

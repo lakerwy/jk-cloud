@@ -305,4 +305,7 @@ public class PersonnelVo extends PersonnelListVo{
 
     @ApiModelProperty(value = "部门负责人", position = 75)
     private String leader;
+
+    @ApiModelProperty(value = "账户id", position = 31)
+    private String sysUserId;
 }

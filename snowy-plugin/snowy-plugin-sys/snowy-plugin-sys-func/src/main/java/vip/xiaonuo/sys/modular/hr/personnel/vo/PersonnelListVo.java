@@ -69,4 +69,12 @@ public class PersonnelListVo {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birth;
+
+    /** 用工性质 */
+    @ApiModelProperty(value = "用工性质", position = 30)
+    private String employNature;
+
+
+    @ApiModelProperty(value = "账户id", position = 31)
+    private String sysUserId;
 }

@@ -51,6 +51,7 @@ import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
+import vip.xiaonuo.sys.modular.user.param.SysUserGrantRoleParam;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
@@ -161,7 +162,11 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             sysUserAddParam.setPositionId(personnel.getDutyId());
             sysUserAddParam.setEmpNo(personnel.getFileNo());
             sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
-            sysUserService.add(sysUserAddParam);
+            sysUserService.addAndGrantRole(sysUserAddParam);
+//            sysUserService.add(sysUserAddParam);
+//            SysUserGrantRoleParam sysUserGrantRoleParam = new SysUserGrantRoleParam();
+//            sysUserGrantRoleParam.setId();
+//            sysUserService.grantRole(new SysUserGrantRoleParam().setId(););
         }else {
             SysUserAddParam sysUserAddParam = new SysUserAddParam();
             //sysUserAddParam.setAccount(personnelAddParam.getPhone());
@@ -362,6 +367,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         }
         //Personnel personnel = this.queryEntity(personnelIdParam.getId());
         PersonnelVo personnelVo = BeanUtil.toBean(personnel, PersonnelVo.class);
+        SysUser one = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()));
+        if(ObjectUtil.isNotEmpty(one)){
+            personnelVo.setSysUserId(one.getId());
+        }
         String deptId = personnel.getDeptId();
         SysOrg sysOrg = sysOrgService.getById(deptId);
         if(ObjectUtil.isNotEmpty(sysOrg)){

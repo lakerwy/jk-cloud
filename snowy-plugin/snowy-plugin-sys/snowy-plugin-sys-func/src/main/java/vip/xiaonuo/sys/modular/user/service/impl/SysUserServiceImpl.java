@@ -266,20 +266,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SysUserAddParam sysUserAddParam) {
-        checkParam(sysUserAddParam);
-        SysUser sysUser = BeanUtil.toBean(sysUserAddParam, SysUser.class);
-        if (ObjectUtil.isEmpty(sysUser.getAvatar())) {
-            // 设置默认头像
-            sysUser.setAvatar(CommonAvatarUtil.generateImg(sysUser.getName()));
-        }
-        // 设置默认密码
-        sysUser.setPassword(CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY)));
-        // 设置状态
-        sysUser.setUserStatus(SysUserStatusEnum.ENABLE.getValue());
-        this.save(sysUser);
-
-        // 发布增加事件
-        CommonDataChangeEventCenter.doAddWithData(SysDataTypeEnum.USER.getValue(), JSONUtil.createArray().put(sysUser));
+        saveUser(sysUserAddParam);
     }
 
     private void checkParam(SysUserAddParam sysUserAddParam) {
@@ -1674,6 +1661,41 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 CommonUtils.handleSqlExecution(sql, DbsConstant.SLAVE_1_DATASOURCE_NAME);
             }
         }
+    }
+
+    @Override
+    @Transactional
+    public void addAndGrantRole(SysUserAddParam sysUserAddParam) {
+        SysUser sysUser = saveUser(sysUserAddParam);
+        SysUserGrantRoleParam sysUserGrantRoleParam = new SysUserGrantRoleParam();
+        sysUserGrantRoleParam.setId(sysUser.getId());
+
+        SysRole sysRole = sysRoleService.getOne(new LambdaQueryWrapper<SysRole>().eq(SysRole::getName, "职员"));
+        if(ObjectUtil.isNotEmpty(sysRole)){
+            List<String> roles = new ArrayList<>();
+            String id = sysRole.getId();
+            roles.add(id);
+            sysUserGrantRoleParam.setRoleIdList(roles);
+            grantRole(sysUserGrantRoleParam);
+        }
+    }
+
+    private SysUser saveUser(SysUserAddParam sysUserAddParam) {
+        checkParam(sysUserAddParam);
+        SysUser sysUser = BeanUtil.toBean(sysUserAddParam, SysUser.class);
+        if (ObjectUtil.isEmpty(sysUser.getAvatar())) {
+            // 设置默认头像
+            sysUser.setAvatar(CommonAvatarUtil.generateImg(sysUser.getName()));
+        }
+        // 设置默认密码
+        sysUser.setPassword(CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY)));
+        // 设置状态
+        sysUser.setUserStatus(SysUserStatusEnum.ENABLE.getValue());
+        this.save(sysUser);
+
+        // 发布增加事件
+        CommonDataChangeEventCenter.doAddWithData(SysDataTypeEnum.USER.getValue(), JSONUtil.createArray().put(sysUser));
+        return sysUser;
     }
 
     /**
