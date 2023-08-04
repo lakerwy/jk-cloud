@@ -45,6 +45,7 @@ public class Hetong {
 
     /** 是否归档（历史表Hetong.IsFiling） */
     @ApiModelProperty(value = "是否归档（历史表Hetong.IsFiling）", position = 4)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private String isFiling;
 
     /** 工程类别（历史表Hetong.SecondLevel） */
@@ -85,29 +86,32 @@ public class Hetong {
 
     /** 项目备忘日期（历史表Hetong.MemoDate） */
     @ApiModelProperty(value = "项目备忘日期（历史表Hetong.MemoDate）", position = 14)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private String memoDate;
 
     /** 设计委托书日期（历史表Hetong.DesignDate） */
     @ApiModelProperty(value = "设计委托书日期（历史表Hetong.DesignDate）", position = 15)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private String designDate;
 
     /** 中标日期（历史表Hetong.BidDate） */
     @ApiModelProperty(value = "中标日期（历史表Hetong.BidDate）", position = 16)
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date bidDate;
 
     /** 合同盖章日期（历史表Hetong.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表Hetong.SealDate）", position = 17)
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date sealDate;
 
     /** 归档日期（历史表Hetong.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表Hetong.FilingDate）", position = 18)
-    @TableField(fill = FieldFill.INSERT_UPDATE)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date filingDate;
 
     /** 合同金额（历史表Hetong.ContractAmount） */
     @ApiModelProperty(value = "合同金额（历史表Hetong.ContractAmount）", position = 19)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal contractAmount;
 
     /** 投资规模（历史表Hetong.InvestScale） */
@@ -148,7 +152,6 @@ public class Hetong {
 
     /** 出图日期（历史表Hetong.FigureDate） */
     @ApiModelProperty(value = "出图日期（历史表Hetong.FigureDate）", position = 29)
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date figureDate;
 
     /** 出图阶段（历史表Hetong.FigureStage） */
@@ -165,7 +168,6 @@ public class Hetong {
 
     /** 竣工日期（历史表Hetong.CompleDate） */
     @ApiModelProperty(value = "竣工日期（历史表Hetong.CompleDate）", position = 33)
-    @TableField(fill = FieldFill.INSERT_UPDATE)
     private Date compleDate;
 
     /** 竣工材料（历史表Hetong.CompleData） */
@@ -178,14 +180,17 @@ public class Hetong {
 
     /** 核定应收金额（历史表Hetong.ShouldAmount） */
     @ApiModelProperty(value = "核定应收金额（历史表Hetong.ShouldAmount）", position = 36)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal shouldAmount;
 
     /** 已收金额（历史表Hetong.HaveAmount） */
     @ApiModelProperty(value = "已收金额（历史表Hetong.HaveAmount）", position = 37)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal haveAmount;
 
     /** 已开票金额（历史表Hetong.InvoiceAmount） */
     @ApiModelProperty(value = "已开票金额（历史表Hetong.InvoiceAmount）", position = 38)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal invoiceAmount;
 
     /** 其他附件（历史表Hetong.AttachmentsNote） */
@@ -245,4 +250,12 @@ public class Hetong {
     /** 零星单位名称 */
     @ApiModelProperty(value = "零星单位名称", position = 51)
     private String unitsName;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 52)
+    private String modelId;
+
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 53)
+    private String processInstanceId;
 }
