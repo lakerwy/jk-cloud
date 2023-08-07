@@ -70,7 +70,7 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
         QueryWrapper<BizMapRegister> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(bizMapRegisterPageParam.getSearchKey())){
             queryWrapper.lambda().or(wrapper ->wrapper.like(BizMapRegister::getProjectName,bizMapRegisterPageParam.getSearchKey()).or().
-                    like(BizMapRegister::getSn,bizMapRegisterPageParam.getSearchKey()));
+                    like(BizMapRegister::getSn,bizMapRegisterPageParam.getSearchKey()).or().like(BizMapRegister::getCompanyOrDepartment,bizMapRegisterPageParam.getSearchKey()));
         }
         queryWrapper.lambda().in(BizMapRegister::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isAllNotEmpty(bizMapRegisterPageParam.getSortField(), bizMapRegisterPageParam.getSortOrder())) {
