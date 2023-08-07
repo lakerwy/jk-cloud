@@ -1,4 +1,4 @@
-package vip.xiaonuo.biz.modular.task.Vo;
+package vip.xiaonuo.biz.modular.task.vo;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

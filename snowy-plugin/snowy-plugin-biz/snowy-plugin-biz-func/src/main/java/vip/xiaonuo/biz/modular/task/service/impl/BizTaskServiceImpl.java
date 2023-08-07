@@ -15,21 +15,19 @@ package vip.xiaonuo.biz.modular.task.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.org.entity.BizOrg;
-import vip.xiaonuo.biz.modular.org.service.BizOrgService;
-import vip.xiaonuo.biz.modular.task.Vo.DeptTaskResult;
+import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
+import vip.xiaonuo.biz.modular.task.vo.DeptTaskResult;
 import vip.xiaonuo.biz.modular.task.entity.BizTaskFlw;
 import vip.xiaonuo.biz.modular.task.enums.BizTaskStatusEnum;
 import vip.xiaonuo.biz.modular.task.param.*;
@@ -69,6 +67,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     private BizTaskFlwService bizTaskFlwService;
     @Resource
     CommonCacheOperator commonCacheOperator;
+    @Resource
+    private SysOrgService sysOrgService;
 
 
     @Override
@@ -94,17 +94,19 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         bizTaskPageParam.setCurrent(1);
         bizTaskPageParam.setSize(Integer.MAX_VALUE);
         List<BizTask> result = this.page(CommonPageRequest.defaultPage(), queryWrapper).getRecords();
-//        List<Tree<String>> bizOrgList = sysOrgApi.orgTreeSelector();
-        List<DeptTaskResult> deptTaskResultList = new ArrayList<>();
         //构造结构
+        List<DeptTaskResult> deptTaskResultList = new ArrayList<>();
         if(CollUtil.isNotEmpty(result)) {
+            List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
             List<String> orgResult = result.stream().map(x -> x.getOrgId()).distinct().collect(Collectors.toList());
             for (String orgId:orgResult) {
                 DeptTaskResult deptTaskResult = new DeptTaskResult();
                 deptTaskResult.setOrgId(orgId);
-                String orgName = "数字化研究院";
-                deptTaskResult.setOrgName(orgName);
-                deptTaskResult.setTaskList(result.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList()));
+                Optional<BizSysOrgVo> org = orgList.stream().filter(x->x.getOrgId().equals(orgId)).findFirst();
+                deptTaskResult.setOrgName(org.get().getOrgName());
+                List<BizTask> listTask = result.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
+                listTask.forEach(x->x.setOrgName(org.get().getOrgName()));
+                deptTaskResult.setTaskList(listTask);
                 deptTaskResultList.add(deptTaskResult);
             }
         }
@@ -136,8 +138,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     @Override
     public BizTask detail(BizTaskIdParam bizTaskIdParam) {
         BizTask bizTask = this.queryEntity(bizTaskIdParam.getId());
-        String orgName = "数字化研究院";
-        bizTask.setOrgName(orgName);
+        BizSysOrgVo org = sysOrgService.getOrgById(bizTask.getOrgId());
+        bizTask.setOrgName(org.getOrgName());
         return bizTask;
     }
 
