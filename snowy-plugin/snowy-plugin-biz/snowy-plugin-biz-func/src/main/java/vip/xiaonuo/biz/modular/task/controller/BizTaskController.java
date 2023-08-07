@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.task.Vo.DeptTaskResult;
 import vip.xiaonuo.biz.modular.task.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -32,6 +33,7 @@ import vip.xiaonuo.biz.modular.task.service.BizTaskService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 业务表-绩效考核-任务表控制器
@@ -57,7 +59,7 @@ public class BizTaskController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-绩效考核-任务表分页")
     @GetMapping("/biz/task/page")
-    public CommonResult<Page<BizTask>> page(BizTaskPageParam bizTaskPageParam) {
+    public CommonResult<List<DeptTaskResult>> page(BizTaskPageParam bizTaskPageParam) {
         return CommonResult.data(bizTaskService.page(bizTaskPageParam));
     }
 

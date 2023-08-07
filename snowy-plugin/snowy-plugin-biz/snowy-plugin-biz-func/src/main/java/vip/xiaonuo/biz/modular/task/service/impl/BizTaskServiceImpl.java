@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.task.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -26,6 +27,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.org.entity.BizOrg;
+import vip.xiaonuo.biz.modular.org.service.BizOrgService;
+import vip.xiaonuo.biz.modular.task.Vo.DeptTaskResult;
 import vip.xiaonuo.biz.modular.task.entity.BizTaskFlw;
 import vip.xiaonuo.biz.modular.task.enums.BizTaskStatusEnum;
 import vip.xiaonuo.biz.modular.task.param.*;
@@ -47,6 +51,8 @@ import vip.xiaonuo.flw.api.FormRelationTableApi;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-绩效考核-任务表Service接口实现类
@@ -64,8 +70,9 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     @Resource
     CommonCacheOperator commonCacheOperator;
 
+
     @Override
-    public Page<BizTask> page(BizTaskPageParam bizTaskPageParam) {
+    public List<DeptTaskResult> page(BizTaskPageParam bizTaskPageParam) {
         QueryWrapper<BizTask> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getOrgId())) {
             queryWrapper.lambda().eq(BizTask::getOrgId, bizTaskPageParam.getOrgId());
@@ -73,14 +80,35 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getTaskName())) {
             queryWrapper.lambda().like(BizTask::getTaskName, bizTaskPageParam.getTaskName());
         }
+        if(ObjectUtil.isNotEmpty(bizTaskPageParam.getYear())) {
+            queryWrapper.lambda().like(BizTask::getYear, bizTaskPageParam.getYear());
+        }
         if(ObjectUtil.isAllNotEmpty(bizTaskPageParam.getSortField(), bizTaskPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizTaskPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizTaskPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizTaskPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizTask::getId);
+            queryWrapper.lambda().orderByDesc(BizTask::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        //直接查询所有
+        bizTaskPageParam.setCurrent(1);
+        bizTaskPageParam.setSize(Integer.MAX_VALUE);
+        List<BizTask> result = this.page(CommonPageRequest.defaultPage(), queryWrapper).getRecords();
+//        List<Tree<String>> bizOrgList = sysOrgApi.orgTreeSelector();
+        List<DeptTaskResult> deptTaskResultList = new ArrayList<>();
+        //构造结构
+        if(CollUtil.isNotEmpty(result)) {
+            List<String> orgResult = result.stream().map(x -> x.getOrgId()).distinct().collect(Collectors.toList());
+            for (String orgId:orgResult) {
+                DeptTaskResult deptTaskResult = new DeptTaskResult();
+                deptTaskResult.setOrgId(orgId);
+                String orgName = "数字化研究院";
+                deptTaskResult.setOrgName(orgName);
+                deptTaskResult.setTaskList(result.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList()));
+                deptTaskResultList.add(deptTaskResult);
+            }
+        }
+        return deptTaskResultList;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -107,7 +135,10 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
 
     @Override
     public BizTask detail(BizTaskIdParam bizTaskIdParam) {
-        return this.queryEntity(bizTaskIdParam.getId());
+        BizTask bizTask = this.queryEntity(bizTaskIdParam.getId());
+        String orgName = "数字化研究院";
+        bizTask.setOrgName(orgName);
+        return bizTask;
     }
 
     @Override

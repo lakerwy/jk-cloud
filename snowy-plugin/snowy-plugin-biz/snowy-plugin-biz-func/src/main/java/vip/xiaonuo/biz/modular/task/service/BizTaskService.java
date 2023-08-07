@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.task.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.task.Vo.DeptTaskResult;
 import vip.xiaonuo.biz.modular.task.entity.BizTask;
 import vip.xiaonuo.biz.modular.task.param.*;
 
@@ -33,7 +34,7 @@ public interface BizTaskService extends IService<BizTask> {
      * @author yong.ye
      * @date  2023/08/04 14:20
      */
-    Page<BizTask> page(BizTaskPageParam bizTaskPageParam);
+    List<DeptTaskResult> page(BizTaskPageParam bizTaskPageParam);
 
     /**
      * 添加业务表-绩效考核-任务表

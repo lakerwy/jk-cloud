@@ -125,4 +125,9 @@ public class BizTask {
     /** 流程审批单 - 外键Id */
     @ApiModelProperty(value = "流程审批单 - 外键Id", position = 20)
     private String flwId;
+
+    /** 组织名称 */
+    @ApiModelProperty(value = "组织名称", position = 21)
+    @TableField(exist = false)
+    private String orgName;
 }

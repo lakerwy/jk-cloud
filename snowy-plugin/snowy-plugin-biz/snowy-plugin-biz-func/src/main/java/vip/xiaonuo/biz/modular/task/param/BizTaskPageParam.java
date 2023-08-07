@@ -56,4 +56,8 @@ public class BizTaskPageParam {
     @ApiModelProperty(value = "年度重点/专项工作任务")
     private String taskName;
 
+    /** 年度 */
+    @ApiModelProperty(value = "年度")
+    private String year;
+
 }
