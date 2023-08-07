@@ -54,7 +54,7 @@ public class FlwTurnPositiveTaskListener implements TaskListener {
                             sql = "SELECT PHONE FROM PERSONNEL WHERE ID = " + fileId;
                             map = CommonHandleUtil.handleSqlQuery(sql, Boolean.TRUE);
                             if(ObjectUtil.isNotEmpty(map) && ObjectUtil.isNotEmpty(map.get("PHONE"))){
-                                sql = "UPDATE SYS_USER SET DELETE_FLAG = 'DELETE' WHERE ACCOUNT = " + map.get("PHONE");
+                                sql = "UPDATE SYS_USER SET DELETE_FLAG = 'DELETE' WHERE `ACCOUNT` = '" + map.get("PHONE")+"'";
                                 NodeRuntimeUtil.handleSqlExecution(sql);
                             }
                             //删除账号 ，如果查询的为空的话，会删除所有账号  有风险
@@ -67,11 +67,16 @@ public class FlwTurnPositiveTaskListener implements TaskListener {
                         if(ObjectUtil.isNotEmpty(info)){
                             Object variable = delegateTask.getVariable("nowDeptId");
                             if(ObjectUtil.isNotEmpty(variable)){
-                                //更新系统中部门
-                                sql = "UPDATE SYS_USER SET ORG_ID = " + variable +" WHERE ACCOUNT = " + map.get("PHONE");
-                                NodeRuntimeUtil.handleSqlExecution(sql);
+                                sql = "SELECT PHONE FROM PERSONNEL WHERE ID = " + fileId;
+                                map = CommonHandleUtil.handleSqlQuery(sql, Boolean.TRUE);
+                                if(ObjectUtil.isNotEmpty(map) && ObjectUtil.isNotEmpty(map.get("PHONE"))){
+                                    //更新系统中部门
+                                    sql = "UPDATE SYS_USER SET `ORG_ID` = " + variable +" WHERE `ACCOUNT` = '" + map.get("PHONE")+"'";
+                                    NodeRuntimeUtil.handleSqlExecution(sql);
+                                }
                                 //跟新档案表中部门和岗位
-                                sql = "UPDATE PERSONNEL SET `DEPT_ID` = " +variable + "where ID = " + fileId;
+                                sql = "UPDATE PERSONNEL SET `DEPT_ID` = " +variable + " where ID = '" + fileId + "'";
+                                log.debug(sql);
                                 NodeRuntimeUtil.handleSqlExecution(sql);
                             }
                         }
