@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.task.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -145,15 +146,19 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
 
             //第三步： 处理绩效考核年度重要任务记录表（审批流程中一次提交多条年度重要任务）
             List<BizTask> bizTaskList = new ArrayList<>();
-            BeanUtil.copyProperties(taskFlwParam.getFlwParamList(), bizTaskList);
-            for (BizTask item : bizTaskList) {
-                item.setFlwId(bizTaskFlw.getId());
-                item.setOrgId(taskFlwParam.getOrgId());
-                item.setOwer(taskFlwParam.getOwer());
-                item.setYear(taskFlwParam.getYear());
-                item.setStatus(BizTaskStatusEnum.ACTIVE_STATUS.getValue());
+            for (FlwParam item : taskFlwParam.getFlwParamList()) {
+                BizTask bizTask = new BizTask();
+                BeanUtil.copyProperties(item, bizTask);
+                bizTask.setFlwId(bizTaskFlw.getId());
+                bizTask.setOrgId(taskFlwParam.getOrgId());
+                bizTask.setOwer(taskFlwParam.getOwer());
+                bizTask.setYear(taskFlwParam.getYear());
+                bizTask.setStatus(BizTaskStatusEnum.ACTIVE_STATUS.getValue());
+                bizTaskList.add(bizTask);
             }
-            this.saveBatch(bizTaskList);
+            if(CollUtil.isNotEmpty(bizTaskList)) {
+                this.saveBatch(bizTaskList);
+            }
         }
     }
 
@@ -179,15 +184,19 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             this.removeByIds(oldBizTaskList);
             //先删除旧的业务数据，再重新新增
             List<BizTask> newBizTaskList = new ArrayList<>();
-            BeanUtil.copyProperties(taskFlwParam.getFlwParamList(), newBizTaskList);
-            for (BizTask item : newBizTaskList) {
-                item.setFlwId(bizTaskFlw.getId());
-                item.setOrgId(taskFlwParam.getOrgId());
-                item.setOwer(taskFlwParam.getOwer());
-                item.setYear(taskFlwParam.getYear());
-                item.setStatus(BizTaskStatusEnum.ACTIVE_STATUS.getValue());
+            for (FlwParam item : taskFlwParam.getFlwParamList()) {
+                BizTask bizTask = new BizTask();
+                BeanUtil.copyProperties(item, bizTask);
+                bizTask.setFlwId(bizTaskFlw.getId());
+                bizTask.setOrgId(taskFlwParam.getOrgId());
+                bizTask.setOwer(taskFlwParam.getOwer());
+                bizTask.setYear(taskFlwParam.getYear());
+                bizTask.setStatus(BizTaskStatusEnum.ACTIVE_STATUS.getValue());
+                newBizTaskList.add(bizTask);
             }
-            this.saveBatch(newBizTaskList);
+            if(CollUtil.isNotEmpty(newBizTaskList)) {
+                this.saveBatch(newBizTaskList);
+            }
         }
     }
 }

@@ -87,7 +87,7 @@ public class OutputServiceImpl extends ServiceImpl<OutputMapper, Output> impleme
             queryWrapper.orderBy(true, outputPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(outputPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Output::getContractNo);
+            queryWrapper.lambda().orderByDesc(Output::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
