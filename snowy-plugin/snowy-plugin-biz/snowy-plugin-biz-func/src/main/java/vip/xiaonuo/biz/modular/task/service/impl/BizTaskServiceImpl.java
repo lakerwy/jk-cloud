@@ -16,19 +16,35 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.task.entity.BizTaskFlw;
+import vip.xiaonuo.biz.modular.task.enums.BizTaskStatusEnum;
 import vip.xiaonuo.biz.modular.task.param.*;
+import vip.xiaonuo.biz.modular.task.service.BizTaskFlwService;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.task.entity.BizTask;
 import vip.xiaonuo.biz.modular.task.mapper.BizTaskMapper;
 import vip.xiaonuo.biz.modular.task.service.BizTaskService;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -37,8 +53,15 @@ import java.util.List;
  * @author yong.ye
  * @date  2023/08/04 14:20
  **/
+
+@DS("slave_1")
 @Service
 public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> implements BizTaskService {
+
+    @Resource
+    private BizTaskFlwService bizTaskFlwService;
+    @Resource
+    CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<BizTask> page(BizTaskPageParam bizTaskPageParam) {
@@ -95,10 +118,76 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         return bizTask;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public void batchAdd(BizTaskBatchAddParam bizTaskBatchAddParam) {
+    public void flwAdd(TaskFlwParam taskFlwParam) {
+        //部门年度重点任务审批流程
+        String processInstanceId = taskFlwParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            //第一步： 任务流程单（类似与其他的单一流程业务表）
+            BizTaskFlw bizTaskFlw = new BizTaskFlw();
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            bizTaskFlw.setId(id);
+            bizTaskFlw.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            bizTaskFlw.setModelId(modelId);
+            bizTaskFlw.setProcessInstanceId(processInstanceId);
+            bizTaskFlw.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            bizTaskFlw.setExtJson(JsonUtils.object2json(taskFlwParam));
+            bizTaskFlwService.save(bizTaskFlw);
 
+            //第二步： 存储流程表对应关系
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            //将流程实例和业务表关联起来(任务流程单表)
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
+            formRelationTableApi.save(modelId, BizCommonEnum.BIZ_TASK_FLW.getBizTable(),id,processInstanceId,dbName);
+
+            //第三步： 处理绩效考核年度重要任务记录表（审批流程中一次提交多条年度重要任务）
+            List<BizTask> bizTaskList = new ArrayList<>();
+            BeanUtil.copyProperties(taskFlwParam.getFlwParamList(), bizTaskList);
+            for (BizTask item : bizTaskList) {
+                item.setFlwId(bizTaskFlw.getId());
+                item.setOrgId(taskFlwParam.getOrgId());
+                item.setOwer(taskFlwParam.getOwer());
+                item.setYear(taskFlwParam.getYear());
+                item.setStatus(BizTaskStatusEnum.ACTIVE_STATUS.getValue());
+            }
+            this.saveBatch(bizTaskList);
+        }
     }
 
-
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void flwEdit(TaskFlwParam taskFlwParam) {
+        //任务流程清单主键Id，与流程表单对应
+        String taskFlwId = "";
+        //判断审批流程内的修改
+        if(ObjectUtil.isNotEmpty(taskFlwParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(taskFlwParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                taskFlwId = formRelationTable.getStr("id");
+            }
+        }
+        if(StrUtil.isNotEmpty(taskFlwId)){
+            BizTaskFlw bizTaskFlw = bizTaskFlwService.queryEntity(taskFlwId);
+            bizTaskFlw.setExtJson(JsonUtils.object2json(taskFlwParam));
+            bizTaskFlwService.updateById(bizTaskFlw);
+            //处理该流程的业务数据
+            List<BizTask> oldBizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getFlwId,taskFlwId));
+            this.removeByIds(oldBizTaskList);
+            //先删除旧的业务数据，再重新新增
+            List<BizTask> newBizTaskList = new ArrayList<>();
+            BeanUtil.copyProperties(taskFlwParam.getFlwParamList(), newBizTaskList);
+            for (BizTask item : newBizTaskList) {
+                item.setFlwId(bizTaskFlw.getId());
+                item.setOrgId(taskFlwParam.getOrgId());
+                item.setOwer(taskFlwParam.getOwer());
+                item.setYear(taskFlwParam.getYear());
+                item.setStatus(BizTaskStatusEnum.ACTIVE_STATUS.getValue());
+            }
+            this.saveBatch(newBizTaskList);
+        }
+    }
 }

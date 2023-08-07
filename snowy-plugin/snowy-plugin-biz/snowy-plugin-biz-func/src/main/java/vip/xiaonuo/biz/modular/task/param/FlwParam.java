@@ -6,25 +6,22 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 /**
+ * 任务中心：流程中提交的任务数据（部门年度重点任务记录）
  * @author yong.ye
  * @date 2023/8/4 14:23
  */
 
 @Getter
 @Setter
-public class BizTaskSaveParam {
+public class FlwParam {
 
-
-//    /** 组织Id */
-//    @ApiModelProperty(value = "组织Id", position = 2)
-//    private String orgId;
-//
-//    /** 责任人Id */
-//    @ApiModelProperty(value = "责任人Id", position = 3)
-//    private String ower;
+    /** 主键ID */
+    @ApiModelProperty(value = "主键ID", position = 1)
+    private String id;
 
     /** 年度重点/专项工作任务 */
     @ApiModelProperty(value = "年度重点/专项工作任务", position = 4)

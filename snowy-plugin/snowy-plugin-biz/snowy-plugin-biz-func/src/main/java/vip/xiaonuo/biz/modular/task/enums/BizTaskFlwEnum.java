@@ -15,20 +15,20 @@ package vip.xiaonuo.biz.modular.task.enums;
 import lombok.Getter;
 
 /**
- * 业务表-绩效考核-任务表枚举
+ * 业务表-绩效考核-任务流程单（流程审批）枚举
  *
  * @author yong.ye
- * @date  2023/08/04 14:20
+ * @date  2023/08/04 17:33
  **/
 @Getter
-public enum BizTaskEnum {
+public enum BizTaskFlwEnum {
 
     /** 测试 */
     TEST("TEST");
 
     private final String value;
 
-    BizTaskEnum(String value) {
+    BizTaskFlwEnum(String value) {
         this.value = value;
     }
 }

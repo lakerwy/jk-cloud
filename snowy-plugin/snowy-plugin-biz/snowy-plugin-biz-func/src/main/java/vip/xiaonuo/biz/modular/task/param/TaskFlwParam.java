@@ -12,7 +12,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class BizTaskBatchAddParam {
+public class TaskFlwParam {
 
     /** 组织Id */
     @ApiModelProperty(value = "组织Id", position = 2)
@@ -22,7 +22,19 @@ public class BizTaskBatchAddParam {
     @ApiModelProperty(value = "责任人Id|部门负责人", position = 3)
     private String ower;
 
+    /** 年度 */
+    @ApiModelProperty(value = "年度", position = 3)
+    private String year;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 4)
+    private String modelId;
+
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 5)
+    private String processInstanceId;
+
     /** 年度任务集合 */
-    @ApiModelProperty(value = "年度任务集合", position = 4)
-    private List<BizTaskSaveParam> batchSaveParam;
+    @ApiModelProperty(value = "年度任务集合", position = 6)
+    private List<FlwParam> flwParamList;
 }

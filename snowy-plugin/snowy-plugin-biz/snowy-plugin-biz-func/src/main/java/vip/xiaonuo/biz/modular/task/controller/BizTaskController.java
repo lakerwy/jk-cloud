@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.biz.modular.task.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -57,7 +56,6 @@ public class BizTaskController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-绩效考核-任务表分页")
-//    @SaCheckPermission("/biz/task/page")
     @GetMapping("/biz/task/page")
     public CommonResult<Page<BizTask>> page(BizTaskPageParam bizTaskPageParam) {
         return CommonResult.data(bizTaskService.page(bizTaskPageParam));
@@ -72,7 +70,6 @@ public class BizTaskController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加业务表-绩效考核-任务表")
     @CommonLog("添加业务表-绩效考核-任务表")
-//    @SaCheckPermission("/biz/task/add")
     @PostMapping("/biz/task/add")
     public CommonResult<String> add(@RequestBody @Valid BizTaskAddParam bizTaskAddParam) {
         bizTaskService.add(bizTaskAddParam);
@@ -88,7 +85,6 @@ public class BizTaskController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑业务表-绩效考核-任务表")
     @CommonLog("编辑业务表-绩效考核-任务表")
-//    @SaCheckPermission("/biz/task/edit")
     @PostMapping("/biz/task/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizTaskEditParam bizTaskEditParam) {
         bizTaskService.edit(bizTaskEditParam);
@@ -104,7 +100,6 @@ public class BizTaskController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除业务表-绩效考核-任务表")
     @CommonLog("删除业务表-绩效考核-任务表")
-//    @SaCheckPermission("/biz/task/delete")
     @PostMapping("/biz/task/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<BizTaskIdParam> bizTaskIdParamList) {
@@ -120,7 +115,6 @@ public class BizTaskController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取业务表-绩效考核-任务表详情")
-//    @SaCheckPermission("/biz/task/detail")
     @GetMapping("/biz/task/detail")
     public CommonResult<BizTask> detail(@Valid BizTaskIdParam bizTaskIdParam) {
         return CommonResult.data(bizTaskService.detail(bizTaskIdParam));
@@ -128,18 +122,33 @@ public class BizTaskController {
 
 
     /**
-     * 添加业务表-绩效考核-任务表 (批量添加)
+     * 添加业务表-绩效考核-任务表 (通过流程发起，批量增加任务)
      *
      * @author yong.ye
      * @date  2023/08/04 14:20
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("添加业务表-绩效考核-任务表(批量添加)")
-    @CommonLog("添加业务表-绩效考核-任务表(批量添加)")
-//    @SaCheckPermission("/biz/task/batchAdd")
-    @PostMapping("/biz/task/batchAdd")
-    public CommonResult<String> batchAdd(@RequestBody @Valid BizTaskBatchAddParam bizTaskBatchAddParam) {
-        bizTaskService.batchAdd(bizTaskBatchAddParam);
+    @ApiOperation("添加业务表-绩效考核-任务表 (通过流程发起，批量增加任务)")
+    @CommonLog("添加业务表-绩效考核-任务表 (通过流程发起，批量增加任务)")
+    @PostMapping("/biz/task/flwAdd")
+    public CommonResult<String> flwAdd(@RequestBody @Valid TaskFlwParam taskFlwParam) {
+        bizTaskService.flwAdd(taskFlwParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 编辑业务表-绩效考核-任务表 (通过流程中修改)
+     *
+     * @author yong.ye
+     * @date  2023/08/04 14:20
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("编辑业务表-绩效考核-任务表 (通过流程中修改)")
+    @CommonLog("编辑业务表-绩效考核-任务表 (通过流程中修改)")
+    @PostMapping("/biz/task/flwEdit")
+    public CommonResult<String> flwEdit(@RequestBody @Valid TaskFlwParam taskFlwParam) {
+        bizTaskService.flwEdit(taskFlwParam);
         return CommonResult.ok();
     }
 }

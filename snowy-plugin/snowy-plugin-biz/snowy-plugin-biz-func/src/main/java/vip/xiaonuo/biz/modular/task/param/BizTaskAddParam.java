@@ -41,6 +41,10 @@ public class BizTaskAddParam {
     @ApiModelProperty(value = "责任人Id", position = 3)
     private String ower;
 
+    /** 年度 */
+    @ApiModelProperty(value = "年度", position = 3)
+    private String year;
+
     /** 年度重点/专项工作任务 */
     @ApiModelProperty(value = "年度重点/专项工作任务", position = 4)
     private String taskName;

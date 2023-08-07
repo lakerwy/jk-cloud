@@ -43,6 +43,10 @@ public class BizTask {
     @ApiModelProperty(value = "责任人Id", position = 3)
     private String ower;
 
+    /** 年度 */
+    @ApiModelProperty(value = "年度", position = 3)
+    private String year;
+
     /** 年度重点/专项工作任务 */
     @ApiModelProperty(value = "年度重点/专项工作任务", position = 4)
     private String taskName;
@@ -117,4 +121,8 @@ public class BizTask {
     @ApiModelProperty(value = "更新人", position = 19)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 流程审批单 - 外键Id */
+    @ApiModelProperty(value = "流程审批单 - 外键Id", position = 20)
+    private String flwId;
 }

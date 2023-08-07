@@ -76,10 +76,18 @@ public interface BizTaskService extends IService<BizTask> {
     BizTask queryEntity(String id);
 
     /**
-     * 添加业务表-绩效考核-任务表(批量添加)
+     * 添加业务表-年度重点任务记录(流程中发起 - 批量)
      *
      * @author yong.ye
      * @date  2023/08/04 14:20
      */
-    void batchAdd(BizTaskBatchAddParam bizTaskBatchAddParam);
+    void flwAdd(TaskFlwParam taskFlwParam);
+
+    /**
+     * 编辑业务表-年度重点任务记录(流程中修改 - 批量)
+     *
+     * @author yong.ye
+     * @date  2023/08/04 14:20
+     */
+    void flwEdit(TaskFlwParam taskFlwParam);
 }
