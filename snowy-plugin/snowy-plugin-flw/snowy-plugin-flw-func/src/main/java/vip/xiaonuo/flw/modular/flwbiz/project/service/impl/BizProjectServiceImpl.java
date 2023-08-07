@@ -21,6 +21,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.trans.service.impl.DictionaryTransService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -61,6 +62,9 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private DictionaryTransService dictionaryTransService;
     @Override
     public Page<BizProject> page(BizProjectPageParam bizProjectPageParam) {
         QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
@@ -90,7 +94,12 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
             //queryWrapper.lambda().orderByAsc(BizProject::getId);
             queryWrapper.lambda().orderByDesc(BizProject::getApplyTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizProject> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+//        List<BizProject> records = page.getRecords();
+//        records.forEach(bizProject -> );
+//        page.setRecords(records);
+       page.getRecords().forEach(bizProject -> bizProject.setHeadText((String) commonCacheOperator.get("trans","PROJECTCOME_"+bizProject.getHead())));
+        return page;
     }
 
     //@Transactional(rollbackFor = Exception.class)

@@ -87,6 +87,16 @@ public class CommonCacheOperator {
         return results;
     }
 
+    /**
+     * 根据分组和key 获取value
+     * @param group
+     * @param key
+     * @return
+     */
+    public Object get(String group, String key) {
+        return redisTemplate.boundValueOps(group +":"+ key).get();
+    }
+
     public Object getKeyAndDelete(String key){
         return  redisTemplate.execute(new SessionCallback<Object>(){
             @Override

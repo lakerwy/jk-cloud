@@ -273,4 +273,8 @@ public class BizProject {
     /** 行业分类 */
     @ApiModelProperty(value = "行业分类", position = 67)
     private String industryClassification;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "项目来源中文")
+    private String headText;
 }
