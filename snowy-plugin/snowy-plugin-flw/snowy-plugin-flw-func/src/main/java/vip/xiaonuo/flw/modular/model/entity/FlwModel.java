@@ -108,4 +108,8 @@ public class FlwModel extends CommonEntity {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 20)
     private String extJson;
+
+    /** 扩展信息 */
+    @ApiModelProperty(value = "模型展示控制字段", position = 21)
+    private String modelShowStatus;
 }

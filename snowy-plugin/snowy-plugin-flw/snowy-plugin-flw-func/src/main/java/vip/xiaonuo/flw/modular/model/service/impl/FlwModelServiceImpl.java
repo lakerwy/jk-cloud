@@ -146,6 +146,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         }
         // 只查询已启用的
         lambdaQueryWrapper.eq(FlwModel::getModelStatus, FlwModelStatusEnum.ENABLE.getValue());
+        lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,FlwModelStatusEnum.ENABLE.getValue());
         List<FlwModel> list = this.list(lambdaQueryWrapper);
         // 过滤已经设计了的
         return CollectionUtil.removeNull(list.stream().map(flwModel -> {
@@ -179,6 +180,8 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         FlwModel flwModel = BeanUtil.toBean(flwModelAddParam, FlwModel.class);
         flwModel.setCode(RandomUtil.randomString(10));
         flwModel.setModelStatus(FlwModelStatusEnum.DISABLED.getValue());
+        //默认展示在发起申请页面
+        flwModel.setModelStatus(FlwModelStatusEnum.ENABLE.getValue());
         this.save(flwModel);
     }
 
@@ -262,8 +265,8 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
                 flwModelIdParam.getId()).set(FlwModel::getModelStatus, FlwModelStatusEnum.ENABLE.getValue()));
         //发布后保存模型和系统表单的关联关系
-        FlwModel flwModel = this.getById(flwModelIdParam.getId());
-        formRelationTableService.saveByFlwModel(flwModel);
+//        FlwModel flwModel = this.getById(flwModelIdParam.getId());
+//        formRelationTableService.saveByFlwModel(flwModel);
     }
 
     @Override

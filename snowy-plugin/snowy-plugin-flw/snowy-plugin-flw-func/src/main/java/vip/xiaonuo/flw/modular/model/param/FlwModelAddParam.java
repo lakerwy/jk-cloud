@@ -79,4 +79,9 @@ public class FlwModelAddParam {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 11)
     private String extJson;
+
+
+    /** 扩展信息 */
+    @ApiModelProperty(value = "模型展示控制字段", position = 13)
+    private String modelShowStatus;
 }
