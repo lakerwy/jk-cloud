@@ -1616,6 +1616,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             // commonCacheOperator.remove(ORG_FIRST_CODE_CACHE_KEY+orgId);
             String orgName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgName" + orgId);
             String firstOrgId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgId" + orgId);
+            String firstOrgLeaderId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + orgId);
+            String firstOrgLeaderName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + orgId);
             if(StrUtil.isBlank(orgName)){
                 Map<String,String> map = newHandleSqlIdExecution(orgId);
                 orgName = map.get("orgName");
@@ -1626,6 +1628,22 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 firstOrgId = map.get("orgId");
                 commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgId" + orgId, firstOrgId,7*24*60*60);
             }
+            if(StrUtil.isBlank(firstOrgLeaderId)){
+                Map<String,String> map = newHandleSqlIdExecution(orgId);
+                firstOrgLeaderId = map.get("leaderId");
+                commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + orgId, firstOrgLeaderId,7*24*60*60);
+            }
+            if(StrUtil.isBlank(firstOrgLeaderName)){
+                Map<String,String> map = newHandleSqlIdExecution(orgId);
+                firstOrgLeaderId = map.get("leaderId");
+                if(StrUtil.isNotBlank(firstOrgLeaderId)){
+                    SysLoginUser user= getUserById(firstOrgLeaderId);
+                    if(ObjectUtil.isNotEmpty(user)){
+                        firstOrgLeaderName = user.getName();
+                        commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + orgId, firstOrgLeaderName,7*24*60*60);
+                    }
+                }
+            }
         }
         return userList.stream().map(user -> {
             Map<String, String> map = new HashMap<>();
@@ -1633,6 +1651,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             map.put("id", user.getId());
             map.put("firstOrgId",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgId" + user.getOrgId())));
             map.put("firstOrgName",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgName" + user.getOrgId())));
+            map.put("firstOrgLeaderId",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + user.getOrgId())));
+            map.put("firstOrgLeaderName",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + user.getOrgId())));
             return map;
         }).collect(Collectors.toList());
     }
@@ -1716,7 +1736,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             try {
                 AtomicReference<Map<String,String>> result = new AtomicReference<>();
                 conn.setAutoCommit(false);
-                String finalSql= "SELECT t2.`NAME` as orgName,t2.ID as orgId\n" +
+                String finalSql= "SELECT t2.`NAME` as orgName,t2.ID as orgId,  t2.DIRECTOR_ID  as leaderId\n" +
                         "        FROM\n" +
                         "            (\n" +
                         "                SELECT\n" +
