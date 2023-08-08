@@ -126,8 +126,8 @@ public class BizChartReviewsDetailsVo  implements Serializable {
     @ApiModelProperty(value = "工程类别（历史表Hetong.SecondLevel）", position = 26)
     private String secondLevel;
 
-//    @ApiModelProperty(value = "校审记录列表")
-//    private List<BizChartReviewDetails> bizChartReviewDetailsList;
+    @ApiModelProperty(value = "图审记录列表")
+    private List<BizChartReviewDetails> bizChartReviewDetailsList;
 
     @ApiModelProperty(value = "校审记录列表")
     private List<BizAuditLists> bizAuditListsList;

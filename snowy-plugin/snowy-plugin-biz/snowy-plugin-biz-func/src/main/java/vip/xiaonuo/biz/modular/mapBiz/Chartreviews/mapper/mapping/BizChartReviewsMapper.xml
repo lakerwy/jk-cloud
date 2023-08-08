@@ -34,7 +34,7 @@
         <result column="SECOND_LEVEL" jdbcType="VARCHAR" property="secondLevel" />
         <result column="CONTRACT_NO" jdbcType="VARCHAR" property="contractNo" />
         <result column="PROJECT_NAME" jdbcType="VARCHAR" property="projectName" />
-<!--        <collection property="bizChartReviewDetailsList" column="ID" select="getCRDList"/>-->
+        <collection property="bizChartReviewDetailsList" column="ID" select="getCRDList"/>
         <collection property="bizAuditListsList" column="ID" select="getAuditList"/>
     </resultMap>
 
