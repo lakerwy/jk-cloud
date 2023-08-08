@@ -90,4 +90,12 @@ public interface BizTaskService extends IService<BizTask> {
      * @date  2023/08/04 14:20
      */
     void flwEdit(TaskFlwParam taskFlwParam);
+
+    /**
+     * 更新业务表-年度重点任务记录(指定字段)
+     *
+     * @author yong.ye
+     * @date  2023/08/04 14:20
+     */
+    void update(BizTaskUpdateParam bizTaskUpdateParam);
 }

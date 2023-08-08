@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.task.param;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -47,27 +48,41 @@ public class FlwParam {
     @ApiModelProperty(value = "标志成果", position = 8)
     private String markResult;
 
-    /** 完成进度 */
-    @ApiModelProperty(value = "完成进度", position = 9)
+    /** 状态 */
+    @ApiModelProperty(value = "状态", position = 9)
     private String status;
 
     /** 证明附件 */
     @ApiModelProperty(value = "证明附件", position = 10)
     private String attach;
 
-//    /** 自评分 */
-//    @ApiModelProperty(value = "自评分", position = 11)
-//    private Double selfScore;
-//
-//    /** 人事评分 */
-//    @ApiModelProperty(value = "人事评分", position = 12)
-//    private Double hrScore;
-//
-//    /** 董事长评分 */
-//    @ApiModelProperty(value = "董事长评分", position = 13)
-//    private Double boosScore;
+    /** 自评分 */
+    @ApiModelProperty(value = "自评分", position = 11)
+    private Double selfScore;
+
+    /** 人事评分 */
+    @ApiModelProperty(value = "人事评分", position = 12)
+    private Double hrScore;
+
+    /** 董事长评分 */
+    @ApiModelProperty(value = "董事长评分", position = 13)
+    private Double boosScore;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 14)
     private String memo;
+
+    /** 完成进度 */
+    @ApiModelProperty(value = "完成进度", position = 15)
+    private String finishStatus;
+
+    /** 实际完成时间 */
+    @ApiModelProperty(value = "实际完成时间", position = 16)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date finishDate;
+
+    /** 董事长意见 */
+    @ApiModelProperty(value = "董事长意见", position = 17)
+    private String boosMemo;
 }

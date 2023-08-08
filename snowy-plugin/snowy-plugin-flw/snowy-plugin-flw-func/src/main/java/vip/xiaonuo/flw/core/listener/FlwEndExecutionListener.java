@@ -49,6 +49,10 @@ public class FlwEndExecutionListener implements ExecutionListener {
             if(ObjectUtil.isNotEmpty(info)){
                 String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where ID = " + info.getId();
                 NodeRuntimeUtil.handleSqlExecution(sql);
+                if(ObjectUtil.isNotEmpty(info.getBizTableName())){
+                    sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where FLW_ID = " + info.getId();
+                    NodeRuntimeUtil.handleSqlExecution(sql);
+                }
             }
         } catch (Exception e) {
             throw new CommonException("执行监听器{}出现异常：{}", FlwEndExecutionListener.class.getName(), e.getMessage());

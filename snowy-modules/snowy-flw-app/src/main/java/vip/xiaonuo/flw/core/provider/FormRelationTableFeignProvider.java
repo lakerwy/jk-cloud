@@ -30,4 +30,10 @@ public class FormRelationTableFeignProvider implements FormRelationTableFeign {
     public JSONObject getInfoByProcessInstanceId(@RequestParam String processInstanceId) {
         return formRelationTableApiProvider.getInfoByProcessInstanceId(processInstanceId);
     }
+
+    @Override
+    @RequestMapping("/feign/flw/formRelationTable/save2")
+    public void save2(String modelId, String tableName, String businessKey, String processInstanceId, String dbName, String bizTableName) {
+        formRelationTableApiProvider.save2(modelId,tableName,businessKey,processInstanceId,dbName,bizTableName);
+    }
 }

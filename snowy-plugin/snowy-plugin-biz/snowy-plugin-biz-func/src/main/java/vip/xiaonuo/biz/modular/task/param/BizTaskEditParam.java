@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.task.param;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -74,8 +75,8 @@ public class BizTaskEditParam {
     @ApiModelProperty(value = "标志成果", position = 8)
     private String markResult;
 
-    /** 完成进度 */
-    @ApiModelProperty(value = "完成进度", position = 9)
+    /** 状态 */
+    @ApiModelProperty(value = "状态", position = 9)
     private String status;
 
     /** 证明附件 */
@@ -98,4 +99,15 @@ public class BizTaskEditParam {
     @ApiModelProperty(value = "备注", position = 14)
     private String memo;
 
+    /** 完成进度 */
+    @ApiModelProperty(value = "完成进度", position = 15)
+    private String finishStatus;
+
+    /** 实际完成时间 */
+    @ApiModelProperty(value = "实际完成时间", position = 16)
+    private Date finishDate;
+
+    /** 董事长意见 */
+    @ApiModelProperty(value = "董事长意见", position = 17)
+    private String boosMemo;
 }

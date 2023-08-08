@@ -152,4 +152,20 @@ public class BizTaskController {
         bizTaskService.flwEdit(taskFlwParam);
         return CommonResult.ok();
     }
+
+
+    /**
+     * 更新业务表-绩效考核-任务表(更新指定字段)
+     *
+     * @author yong.ye
+     * @date  2023/08/04 14:20
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("更新业务表-绩效考核-任务表(更新指定字段)")
+    @CommonLog("更新业务表-绩效考核-任务表(更新指定字段)")
+    @PostMapping("/biz/task/update")
+    public CommonResult<String> update(@RequestBody @Valid BizTaskUpdateParam bizTaskUpdateParam) {
+        bizTaskService.update(bizTaskUpdateParam);
+        return CommonResult.ok();
+    }
 }

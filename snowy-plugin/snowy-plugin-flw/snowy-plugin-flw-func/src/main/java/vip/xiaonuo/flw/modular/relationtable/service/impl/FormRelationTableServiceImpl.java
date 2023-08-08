@@ -772,4 +772,20 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
         }
         return null;
     }
+
+    @Override
+    public void save2(String modelId, String tableName, String businessKey, String processInstanceId, String dbName, String bizTableName) {
+        FormRelationTable formRelationTable = new FormRelationTable();
+        formRelationTable.setActModelId(modelId);
+        String flName = "`"+dbName+"`.`"+tableName+"`";
+        formRelationTable.setTableName(flName);
+        formRelationTable.setId(businessKey);
+        formRelationTable.setProcessInstanceId(processInstanceId);
+        formRelationTable.setCreateTime(DateUtil.date());
+        formRelationTable.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
+        //针对1个流程多条业务数据情况（实际业务表）
+        String tmpBizTableName = "`"+dbName+"`.`"+bizTableName+"`";
+        formRelationTable.setBizTableName(tmpBizTableName);
+        this.save(formRelationTable);
+    }
 }

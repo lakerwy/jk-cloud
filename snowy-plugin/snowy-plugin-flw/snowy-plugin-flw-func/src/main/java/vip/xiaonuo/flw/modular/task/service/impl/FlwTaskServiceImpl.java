@@ -374,6 +374,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if(ObjectUtil.isNotEmpty(info)){
             String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where ID = " + info.getId();
             NodeRuntimeUtil.handleSqlExecution(sql);
+            if(ObjectUtil.isNotEmpty(info.getBizTableName())){
+                sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where FLW_ID = " + info.getId();
+                NodeRuntimeUtil.handleSqlExecution(sql);
+            }
         }
     }
 

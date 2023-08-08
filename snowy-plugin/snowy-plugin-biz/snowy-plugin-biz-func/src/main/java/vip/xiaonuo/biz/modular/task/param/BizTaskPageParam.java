@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.task.param;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -59,5 +60,9 @@ public class BizTaskPageParam {
     /** 年度 */
     @ApiModelProperty(value = "年度")
     private String year;
+
+    /** 完成进度 */
+    @ApiModelProperty(value = "完成进度")
+    private String finishStatus;
 
 }

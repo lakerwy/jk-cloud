@@ -19,4 +19,8 @@ public interface FormRelationTableFeign {
 
     @RequestMapping("/feign/flw/formRelationTable/getInfo")
     JSONObject getInfoByProcessInstanceId(@RequestParam String processInstanceId);
+
+    @RequestMapping("/feign/flw/formRelationTable/save2")
+    void save2(@RequestParam String modelId, @RequestParam String tableName, @RequestParam String businessKey, @RequestParam String processInstanceId, @RequestParam String dbName, @RequestParam String bizTableName);
+
 }

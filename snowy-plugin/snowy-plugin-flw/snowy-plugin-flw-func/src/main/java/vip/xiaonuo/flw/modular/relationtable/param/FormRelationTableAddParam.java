@@ -54,4 +54,8 @@ public class FormRelationTableAddParam {
     @ApiModelProperty(value = "流程实例id", position = 8)
     private String processInstanceId;
 
+    /** 数据库表名业务表 (1:n  针对1个流程多条业务数据的情况，用于流程中处理) */
+    @ApiModelProperty(value = "数据库表名业务表 (1:n  针对1个流程多条业务数据的情况，用于流程中处理) ", position = 9)
+    private String bizTableName;
+
 }

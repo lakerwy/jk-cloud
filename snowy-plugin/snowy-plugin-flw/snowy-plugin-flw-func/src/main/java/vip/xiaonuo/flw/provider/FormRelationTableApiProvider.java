@@ -28,4 +28,9 @@ public class FormRelationTableApiProvider implements FormRelationTableApi {
     public JSONObject getInfoByProcessInstanceId(String processInstanceId) {
         return JSONUtil.parseObj(formRelationTableService.getInfoByProcessInstanceId(processInstanceId));
     }
+
+    @Override
+    public void save2(String modelId, String tableName, String businessKey, String processInstanceId, String dbName, String bizTableName) {
+        formRelationTableService.save2(modelId,tableName,businessKey,processInstanceId,dbName,bizTableName);
+    }
 }

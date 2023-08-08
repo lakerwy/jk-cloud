@@ -197,6 +197,10 @@ public class FlwGlobalEventListener implements JavaDelegate {
                 if(ObjectUtil.isNotEmpty(info)){
                     String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where ID = " + info.getId();
                     NodeRuntimeUtil.handleSqlExecution(sql);
+                    if(ObjectUtil.isNotEmpty(info.getBizTableName())){
+                        sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where FLW_ID = " + info.getId();
+                        NodeRuntimeUtil.handleSqlExecution(sql);
+                    }
                 }
             }catch (Exception e){
                 log.error(e.getMessage());

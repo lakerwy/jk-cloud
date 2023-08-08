@@ -7,7 +7,9 @@ public enum BizCommonEnum {
     BIZ_AUDIT_LISTS("BIZ_AUDIT_LISTS","BIZ_AUDIT_LISTS","BizAuditListsServiceImpl"), //工程校审业务
     BIZ_MAP_REGISTER("BIZ_MAP_REGISTER","BIZ_MAP_REGISTER","BizMapRegisterServiceImpl"), //工程出图业务
     PERSONNEL_FILE_MOVES("PERSONNEL_FILE_MOVES","PERSONNEL_FILE_MOVES","BizAuditListsServiceImpl"), //人事异动业务
-    BIZ_TASK_FLW("BIZ_TASK_FLW","BIZ_TASK_FLW","BizTaskFlwServiceImpl"), //任务中心-部门绩效业务
+    BIZ_TASK_FLW("BIZ_TASK_FLW","BIZ_TASK_FLW","BizTaskFlwServiceImpl"), //任务中心-部门绩效业务-流程申请单
+
+    BIZ_TASK("BIZ_TASK","BIZ_TASK","BizTaskServiceImpl"), //任务中心-部门绩效业务-实际业务表（1-n）
 
     BIZ_CRM_HETONG("BIZ_CRM_HETONG","BIZ_CRM_HETONG","HetongServiceImpl"); //CRM-收入合同业务
 

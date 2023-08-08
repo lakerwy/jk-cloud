@@ -25,4 +25,15 @@ public interface FormRelationTableApi {
      * @return
      */
     JSONObject getInfoByProcessInstanceId(String processInstanceId);
+
+    /**
+     * 新增(针对流程中，1个流程多条业务记录情况，有一张流程申请单表，一张业务数据表（外键是申请单Id）)
+     * @param modelId
+     * @param tableName  流程申请单表-用于流程
+     * @param businessKey
+     * @param processInstanceId
+     * @param dbName
+     * @param bizTableName  业务数据表-实际业务数据
+     */
+    void save2(String modelId,String tableName,String businessKey,String processInstanceId,String dbName,String bizTableName);
 }

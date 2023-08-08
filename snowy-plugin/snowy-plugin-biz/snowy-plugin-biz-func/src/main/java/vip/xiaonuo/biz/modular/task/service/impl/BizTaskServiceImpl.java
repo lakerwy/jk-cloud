@@ -81,7 +81,10 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             queryWrapper.lambda().like(BizTask::getTaskName, bizTaskPageParam.getTaskName());
         }
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getYear())) {
-            queryWrapper.lambda().like(BizTask::getYear, bizTaskPageParam.getYear());
+            queryWrapper.lambda().eq(BizTask::getYear, bizTaskPageParam.getYear());
+        }
+        if(ObjectUtil.isNotEmpty(bizTaskPageParam.getFinishStatus())) {
+            queryWrapper.lambda().eq(BizTask::getFinishStatus, bizTaskPageParam.getFinishStatus());
         }
         if(ObjectUtil.isAllNotEmpty(bizTaskPageParam.getSortField(), bizTaskPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizTaskPageParam.getSortOrder());
@@ -103,9 +106,10 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 DeptTaskResult deptTaskResult = new DeptTaskResult();
                 deptTaskResult.setOrgId(orgId);
                 Optional<BizSysOrgVo> org = orgList.stream().filter(x->x.getOrgId().equals(orgId)).findFirst();
-                deptTaskResult.setOrgName(org.get().getOrgName());
+                String orgName = org.isPresent() ? org.get().getOrgName() : "";
+                deptTaskResult.setOrgName(orgName);
                 List<BizTask> listTask = result.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
-                listTask.forEach(x->x.setOrgName(org.get().getOrgName()));
+                listTask.forEach(x->x.setOrgName(orgName));
                 deptTaskResult.setTaskList(listTask);
                 deptTaskResultList.add(deptTaskResult);
             }
@@ -174,8 +178,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
             //将流程实例和业务表关联起来(任务流程单表)
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
-            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
-            formRelationTableApi.save(modelId, BizCommonEnum.BIZ_TASK_FLW.getBizTable(),id,processInstanceId,dbName);
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            formRelationTableApi.save2(modelId, BizCommonEnum.BIZ_TASK_FLW.getBizTable(),id,processInstanceId,dbName,BizCommonEnum.BIZ_TASK.getBizTable());
 
             //第三步： 处理绩效考核年度重要任务记录表（审批流程中一次提交多条年度重要任务）
             List<BizTask> bizTaskList = new ArrayList<>();
@@ -212,11 +216,9 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             BizTaskFlw bizTaskFlw = bizTaskFlwService.queryEntity(taskFlwId);
             bizTaskFlw.setExtJson(JsonUtils.object2json(taskFlwParam));
             bizTaskFlwService.updateById(bizTaskFlw);
-            //处理该流程的业务数据
-            List<BizTask> oldBizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getFlwId,taskFlwId));
-            this.removeByIds(oldBizTaskList);
-            //先删除旧的业务数据，再重新新增
-            List<BizTask> newBizTaskList = new ArrayList<>();
+            //处理该流程的业务数据(业务数据主键由前端提供)
+            //格式化前端数据
+            List<BizTask> tmpBizTaskList = new ArrayList<>();
             for (FlwParam item : taskFlwParam.getFlwParamList()) {
                 BizTask bizTask = new BizTask();
                 BeanUtil.copyProperties(item, bizTask);
@@ -224,12 +226,49 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 bizTask.setOrgId(taskFlwParam.getOrgId());
                 bizTask.setOwer(taskFlwParam.getOwer());
                 bizTask.setYear(taskFlwParam.getYear());
-                bizTask.setStatus(BizTaskStatusEnum.ACTIVE_STATUS.getValue());
-                newBizTaskList.add(bizTask);
+                tmpBizTaskList.add(bizTask);
             }
-            if(CollUtil.isNotEmpty(newBizTaskList)) {
-                this.saveBatch(newBizTaskList);
+            if(CollUtil.isNotEmpty(tmpBizTaskList)) {
+                //历史数据
+                List<BizTask> oldBizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getFlwId, taskFlwId));
+                List<String> oldIds = oldBizTaskList.stream().map(BizTask::getFlwId).collect(Collectors.toList());
+                //待更新的
+                List<BizTask> updateList = tmpBizTaskList.stream().filter(x -> oldIds.contains(x.getId())).collect(Collectors.toList());
+                //待新增的
+                List<BizTask> addList = tmpBizTaskList.stream().filter(x -> !oldIds.contains(x.getId())).collect(Collectors.toList());
+                //待删除的
+                List<String> updateIds = updateList.stream().map(BizTask::getId).collect(Collectors.toList());
+                List<BizTask> removeList = oldBizTaskList.stream().filter(x -> !updateIds.contains(x.getId())).collect(Collectors.toList());
+
+                //更新数据库
+                if (CollUtil.isNotEmpty(addList)) {
+                    this.saveBatch(addList);
+                }
+                if (CollUtil.isNotEmpty(updateList)) {
+                    this.updateBatchById(updateList);
+                }
+                if (CollUtil.isNotEmpty(removeList)) {
+                    this.removeByIds(removeList);
+                }
+            }else {
+                //历史数据
+                List<BizTask> oldBizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getFlwId, taskFlwId));
+                if (CollUtil.isNotEmpty(oldBizTaskList)) {
+                    this.removeByIds(oldBizTaskList);
+                }
             }
         }
+    }
+
+    @Override
+    public void update(BizTaskUpdateParam bizTaskUpdateParam) {
+        BizTask bizTask = this.queryEntity(bizTaskUpdateParam.getId());
+        String colName = bizTaskUpdateParam.getColName().toLowerCase();
+        if("finishstatus".equals(colName)){
+            bizTask.setFinishStatus(bizTaskUpdateParam.getColValue());
+        }else if("attach".equals(colName)){
+            bizTask.setAttach(bizTaskUpdateParam.getColValue());
+        }
+        this.updateById(bizTask);
     }
 }

@@ -21,4 +21,9 @@ public class FlwFormRelationTableApiContextBean implements FormRelationTableApi 
     public JSONObject getInfoByProcessInstanceId(String processInstanceId) {
         return formRelationTableFeign.getInfoByProcessInstanceId(processInstanceId);
     }
+
+    @Override
+    public void save2(String modelId, String tableName, String businessKey, String processInstanceId, String dbName, String bizTableName) {
+        formRelationTableFeign.save2(modelId,tableName,businessKey,processInstanceId,dbName,bizTableName);
+    }
 }

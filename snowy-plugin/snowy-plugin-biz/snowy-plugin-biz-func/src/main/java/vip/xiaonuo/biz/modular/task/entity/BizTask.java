@@ -69,8 +69,8 @@ public class BizTask {
     @ApiModelProperty(value = "标志成果", position = 8)
     private String markResult;
 
-    /** 完成进度 */
-    @ApiModelProperty(value = "完成进度", position = 9)
+    /** 状态 */
+    @ApiModelProperty(value = "状态", position = 9)
     private String status;
 
     /** 证明附件 */
@@ -130,4 +130,18 @@ public class BizTask {
     @ApiModelProperty(value = "组织名称", position = 21)
     @TableField(exist = false)
     private String orgName;
+
+    /** 完成进度 */
+    @ApiModelProperty(value = "完成进度", position = 22)
+    private String finishStatus;
+
+    /** 实际完成时间 */
+    @ApiModelProperty(value = "实际完成时间", position = 23)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private Date finishDate;
+
+    /** 董事长意见 */
+    @ApiModelProperty(value = "董事长意见", position = 24)
+    private String boosMemo;
+
 }
