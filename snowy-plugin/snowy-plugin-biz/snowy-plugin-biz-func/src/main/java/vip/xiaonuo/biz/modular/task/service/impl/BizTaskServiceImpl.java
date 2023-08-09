@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssReportVo;
 import vip.xiaonuo.biz.modular.task.vo.DeptTaskResult;
 import vip.xiaonuo.biz.modular.task.entity.BizTaskFlw;
 import vip.xiaonuo.biz.modular.task.enums.BizTaskStatusEnum;
@@ -83,9 +84,6 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getYear())) {
             queryWrapper.lambda().eq(BizTask::getYear, bizTaskPageParam.getYear());
         }
-        if(ObjectUtil.isNotEmpty(bizTaskPageParam.getFinishStatus())) {
-            queryWrapper.lambda().eq(BizTask::getFinishStatus, bizTaskPageParam.getFinishStatus());
-        }
         if(ObjectUtil.isAllNotEmpty(bizTaskPageParam.getSortField(), bizTaskPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizTaskPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizTaskPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -111,11 +109,59 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 List<BizTask> listTask = result.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
                 listTask.forEach(x->x.setOrgName(orgName));
                 deptTaskResult.setTaskList(listTask);
+                deptTaskResult.setTotalScore(getDeptTotalScore(listTask));
                 deptTaskResultList.add(deptTaskResult);
             }
         }
         return deptTaskResultList;
     }
+
+    /***
+     * 统计对象：某部门，某年度，年度任务分
+     * 统计规则：满分80分制
+     * 董事办打分规则：满分5分制
+     *
+     * 返回结果：统计某部门某年度的 年度任务得分
+    ***/
+    public double getDeptTotalScore(List<BizTask> bizTaskList){
+        double fullScore = 80; //满分-80分制 (部门任务分 80 分制)
+        double dfRate = 5;   //满分-董事办打分( 5 分制)
+        double total = 0;    //部门年度任务最后得分
+        if(CollUtil.isNotEmpty(bizTaskList)){
+            for (BizTask item:bizTaskList) {
+                if(ObjectUtil.isNotEmpty(item.getBoosScore()) && ObjectUtil.isNotEmpty(item.getRate())){
+                    total += fullScore * item.getRate() * item.getBoosScore() / dfRate;
+                }
+            }
+        }
+        return total;
+    }
+
+    /***
+     * 根据考核年度，获取各部门的 年度任务分
+     * @param assYear
+     * @return
+     */
+    public List<DeptAssReportVo> getDeptTaskScore(String assYear){
+        //获取本年度任务数据
+        List<BizTask> bizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getYear,assYear));
+        //获取涉及的部门
+        List<String> orgIds = bizTaskList.stream().map(x -> x.getOrgId()).distinct().collect(Collectors.toList());
+        //返回的结果集
+        List<DeptAssReportVo> deptAssReportVoList = new ArrayList<>();
+        if(CollUtil.isNotEmpty(orgIds)){
+            for (String orgId:orgIds) {
+                DeptAssReportVo reportVo = new DeptAssReportVo();
+                List<BizTask> listTask = bizTaskList.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
+                reportVo.setAssYear(assYear);
+                reportVo.setOrgId(orgId);
+                reportVo.setNdScore(getDeptTotalScore(listTask));
+                deptAssReportVoList.add(reportVo);
+            }
+        }
+        return deptAssReportVoList;
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -268,6 +314,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             bizTask.setFinishStatus(bizTaskUpdateParam.getColValue());
         }else if("attach".equals(colName)){
             bizTask.setAttach(bizTaskUpdateParam.getColValue());
+        }else if("rate".equals(colName)){
+            bizTask.setRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
         }
         this.updateById(bizTask);
     }

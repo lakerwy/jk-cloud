@@ -51,4 +51,8 @@ public class BizDeptAssRecordsAddParam {
     @ApiModelProperty(value = "(外键)部门考核表主键Id", position = 6)
     private String assId;
 
+    /** 实际加|减分值 */
+    @ApiModelProperty(value = "实际加|减分值", position = 7)
+    private Double realScore;
+
 }

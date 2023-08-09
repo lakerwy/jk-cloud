@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.task.entity.BizDeptAss;
 import vip.xiaonuo.biz.modular.task.param.*;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssReportVo;
 
 
 import java.util.List;
@@ -75,4 +76,12 @@ public interface BizDeptAssService extends IService<BizDeptAss> {
      * @date  2023/08/09 08:38
      **/
     BizDeptAss queryEntity(String id);
+
+    /**
+     * 获取业务表-部门绩效考核-年度考核报表
+     *
+     * @author yong.ye
+     * @date  2023/08/09 08:38
+     **/
+    List<DeptAssReportVo> yearReport(DeptAssReportParam deptAssReportParam);
 }

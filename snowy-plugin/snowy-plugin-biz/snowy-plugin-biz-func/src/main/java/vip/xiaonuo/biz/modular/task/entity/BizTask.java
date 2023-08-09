@@ -144,4 +144,8 @@ public class BizTask {
     @ApiModelProperty(value = "董事长意见", position = 24)
     private String boosMemo;
 
+    /** 权重（存小数） */
+    @ApiModelProperty(value = "权重（存小数）", position = 25)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private Double rate;
 }

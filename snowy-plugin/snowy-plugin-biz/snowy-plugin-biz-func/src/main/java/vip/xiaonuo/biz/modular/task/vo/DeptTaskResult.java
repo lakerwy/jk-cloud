@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.task.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -25,6 +26,10 @@ public class DeptTaskResult {
     /** 组织名称 */
     @ApiModelProperty(value = "组织名称", position = 2)
     private String orgName;
+
+    /** 总分 */
+    @ApiModelProperty(value = "总分", position = 4)
+    private Double totalScore;
 
 //    /** 年度 */
 //    @ApiModelProperty(value = "年度", position = 3)

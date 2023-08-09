@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.task.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -26,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.task.entity.BizDeptAssRecords;
 import vip.xiaonuo.biz.modular.task.param.*;
 import vip.xiaonuo.biz.modular.task.service.BizDeptAssRecordsService;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssRecordVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -58,7 +60,7 @@ public class BizDeptAssRecordsController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-部门绩效考核-部门考核记录分页")
     @GetMapping("/biz/task/dept/records/page")
-    public CommonResult<Page<BizDeptAssRecords>> page(BizDeptAssRecordsPageParam bizDeptAssRecordsPageParam) {
+    public CommonResult<IPage<DeptAssRecordVo>> page(BizDeptAssRecordsPageParam bizDeptAssRecordsPageParam) {
         return CommonResult.data(bizDeptAssRecordsService.page(bizDeptAssRecordsPageParam));
     }
 
@@ -117,7 +119,7 @@ public class BizDeptAssRecordsController {
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取业务表-部门绩效考核-部门考核记录详情")
     @GetMapping("/biz/task/dept/records/detail")
-    public CommonResult<BizDeptAssRecords> detail(@Valid BizDeptAssRecordsIdParam bizDeptAssRecordsIdParam) {
+    public CommonResult<DeptAssRecordVo> detail(@Valid BizDeptAssRecordsIdParam bizDeptAssRecordsIdParam) {
         return CommonResult.data(bizDeptAssRecordsService.detail(bizDeptAssRecordsIdParam));
     }
 }

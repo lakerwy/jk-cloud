@@ -14,10 +14,12 @@ package vip.xiaonuo.biz.modular.task.service;
 
 
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.task.entity.BizDeptAssRecords;
 import vip.xiaonuo.biz.modular.task.param.*;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssRecordVo;
 
 import java.util.List;
 
@@ -35,7 +37,7 @@ public interface BizDeptAssRecordsService extends IService<BizDeptAssRecords> {
      * @author yong.ye
      * @date  2023/08/08 17:20
      */
-    Page<BizDeptAssRecords> page(BizDeptAssRecordsPageParam bizDeptAssRecordsPageParam);
+    IPage<DeptAssRecordVo> page(BizDeptAssRecordsPageParam bizDeptAssRecordsPageParam);
 
     /**
      * 添加业务表-部门绩效考核-部门考核记录
@@ -67,7 +69,7 @@ public interface BizDeptAssRecordsService extends IService<BizDeptAssRecords> {
      * @author yong.ye
      * @date  2023/08/08 17:20
      */
-    BizDeptAssRecords detail(BizDeptAssRecordsIdParam bizDeptAssRecordsIdParam);
+    DeptAssRecordVo detail(BizDeptAssRecordsIdParam bizDeptAssRecordsIdParam);
 
     /**
      * 获取业务表-部门绩效考核-部门考核记录详情

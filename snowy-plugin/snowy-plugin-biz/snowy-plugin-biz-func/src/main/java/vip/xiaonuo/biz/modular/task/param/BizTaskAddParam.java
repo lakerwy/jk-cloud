@@ -107,4 +107,7 @@ public class BizTaskAddParam {
     @ApiModelProperty(value = "董事长意见", position = 17)
     private String boosMemo;
 
+    /** 权重（存小数） */
+    @ApiModelProperty(value = "权重（存小数）", position = 18)
+    private Double rate;
 }

@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.task.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssReportVo;
 import vip.xiaonuo.biz.modular.task.vo.DeptTaskResult;
 import vip.xiaonuo.biz.modular.task.entity.BizTask;
 import vip.xiaonuo.biz.modular.task.param.*;
@@ -98,4 +99,12 @@ public interface BizTaskService extends IService<BizTask> {
      * @date  2023/08/04 14:20
      */
     void update(BizTaskUpdateParam bizTaskUpdateParam);
+
+
+    /***
+     * 根据考核年度，获取各部门的 年度任务分
+     * @param assYear
+     * @return
+     */
+    List<DeptAssReportVo> getDeptTaskScore(String assYear);
 }

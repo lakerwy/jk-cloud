@@ -80,4 +80,14 @@ public class BizDeptAss {
     @ApiModelProperty(value = "更新人", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 组织名称 */
+    @ApiModelProperty(value = "组织名称", position = 12)
+    @TableField(exist = false)
+    private String orgName;
+
+    /** 总分 */
+    @ApiModelProperty(value = "总分", position = 13)
+    @TableField(exist = false)
+    private Double totalScore;
 }

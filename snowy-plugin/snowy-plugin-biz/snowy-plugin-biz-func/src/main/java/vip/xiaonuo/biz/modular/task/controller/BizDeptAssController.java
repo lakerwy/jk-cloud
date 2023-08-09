@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.biz.modular.task.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -26,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.task.entity.BizDeptAss;
 import vip.xiaonuo.biz.modular.task.param.*;
 import vip.xiaonuo.biz.modular.task.service.BizDeptAssService;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssReportVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -33,6 +33,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 业务表-部门绩效考核-考核表控制器
@@ -119,5 +120,19 @@ public class BizDeptAssController {
     @GetMapping("/biz/task/dept/ass/detail")
     public CommonResult<BizDeptAss> detail(@Valid BizDeptAssIdParam bizDeptAssIdParam) {
         return CommonResult.data(bizDeptAssService.detail(bizDeptAssIdParam));
+    }
+
+
+    /**
+     * 获取业务表-部门绩效考核-年度考核报表
+     *
+     * @author yong.ye
+     * @date  2023/08/09 08:38
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取业务表-部门绩效考核-年度考核报表")
+    @GetMapping("/biz/task/dept/ass/yearReport")
+    public CommonResult<List<DeptAssReportVo>> yearReport(DeptAssReportParam deptAssReportParam) {
+        return CommonResult.data(bizDeptAssService.yearReport(deptAssReportParam));
     }
 }

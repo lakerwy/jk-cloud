@@ -13,8 +13,18 @@
 package vip.xiaonuo.biz.modular.task.mapper;
 
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
+import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
+import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 import vip.xiaonuo.biz.modular.task.entity.BizDeptAssRecords;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssRecordVo;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssScore;
 
 /**
  * 业务表-部门绩效考核-部门考核记录Mapper接口
@@ -23,4 +33,10 @@ import vip.xiaonuo.biz.modular.task.entity.BizDeptAssRecords;
  * @date  2023/08/08 17:20
  **/
 public interface BizDeptAssRecordsMapper extends BaseMapper<BizDeptAssRecords> {
+
+    public DeptAssScore getDeptAssScore(String assId);
+
+    IPage<DeptAssRecordVo> getPageList(Page<DeptAssRecordVo> page, @Param(Constants.WRAPPER) Wrapper<BizDeptAssRecords> queryWrapper);
+
+    DeptAssRecordVo getDetailById(String id);
 }

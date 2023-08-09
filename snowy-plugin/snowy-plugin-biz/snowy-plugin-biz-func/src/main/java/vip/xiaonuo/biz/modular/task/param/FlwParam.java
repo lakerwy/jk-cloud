@@ -85,4 +85,8 @@ public class FlwParam {
     /** 董事长意见 */
     @ApiModelProperty(value = "董事长意见", position = 17)
     private String boosMemo;
+
+    /** 权重（存小数） */
+    @ApiModelProperty(value = "权重（存小数）", position = 18)
+    private Double rate;
 }

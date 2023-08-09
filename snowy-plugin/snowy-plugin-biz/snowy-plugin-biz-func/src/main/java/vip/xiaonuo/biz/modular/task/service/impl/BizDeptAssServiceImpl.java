@@ -26,12 +26,20 @@ import vip.xiaonuo.biz.modular.task.entity.BizDeptAss;
 import vip.xiaonuo.biz.modular.task.mapper.BizDeptAssMapper;
 import vip.xiaonuo.biz.modular.task.param.*;
 import vip.xiaonuo.biz.modular.task.service.BizDeptAssService;
+import vip.xiaonuo.biz.modular.task.service.BizTaskService;
+import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
+import vip.xiaonuo.biz.modular.task.vo.DeptAssReportVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-部门绩效考核-考核表Service接口实现类
@@ -42,6 +50,12 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDeptAss> implements BizDeptAssService {
+
+    @Resource
+    private SysOrgService sysOrgService;
+
+    @Resource
+    private BizTaskService bizTaskService;
 
     @Override
     public Page<BizDeptAss> page(BizDeptAssPageParam bizDeptAssPageParam) {
@@ -59,12 +73,27 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
         } else {
             queryWrapper.lambda().orderByAsc(BizDeptAss::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizDeptAss> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
+        for (BizDeptAss item:result.getRecords()) {
+            Optional<BizSysOrgVo> org = orgList.stream().filter(x->x.getOrgId().equals(item.getOrgId())).findFirst();
+            String orgName = org.isPresent() ? org.get().getOrgName() : "";
+            item.setOrgName(orgName);
+            item.setTotalScore(item.getAddScore()-item.getMinusScore());
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizDeptAssAddParam bizDeptAssAddParam) {
+        //同一个年度同一个部门只能存在一条有效数据
+        BizDeptAss dbBizDeptAss = this.getOne(new QueryWrapper<BizDeptAss>().lambda()
+                .eq(BizDeptAss::getAssYear,bizDeptAssAddParam.getAssYear())
+                .eq(BizDeptAss::getOrgId,bizDeptAssAddParam.getOrgId()));
+        if(ObjectUtil.isNotEmpty(dbBizDeptAss)){
+            throw new CommonException("当前部门已存在{}年度已存在记录",bizDeptAssAddParam.getAssYear());
+        }
         BizDeptAss bizDeptAss = BeanUtil.toBean(bizDeptAssAddParam, BizDeptAss.class);
         this.save(bizDeptAss);
     }
@@ -86,7 +115,11 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
 
     @Override
     public BizDeptAss detail(BizDeptAssIdParam bizDeptAssIdParam) {
-        return this.queryEntity(bizDeptAssIdParam.getId());
+        BizDeptAss result = this.queryEntity(bizDeptAssIdParam.getId());
+        BizSysOrgVo org = sysOrgService.getOrgById(result.getOrgId());
+        result.setOrgName(org.getOrgName());
+        result.setTotalScore(result.getAddScore()-result.getMinusScore());
+        return result;
     }
 
     @Override
@@ -96,5 +129,41 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
             throw new CommonException("业务表-部门绩效考核-考核表不存在，id值为：{}", id);
         }
         return bizDeptAss;
+    }
+
+    @Override
+    public List<DeptAssReportVo> yearReport(DeptAssReportParam deptAssReportParam) {
+        //各个部门年度任务分
+        List<DeptAssReportVo> ndTask = bizTaskService.getDeptTaskScore(deptAssReportParam.getAssYear());
+        //各个部门年度考核分（加减分）
+        List<BizDeptAss> ndAssess = this.list(new QueryWrapper<BizDeptAss>().lambda().eq(BizDeptAss::getAssYear,deptAssReportParam.getAssYear()));
+        //部门年度任务 涉及的部门
+        List<String> taskOrgIds = ndTask.stream().map(DeptAssReportVo::getOrgId).collect(Collectors.toList());
+
+        //构造结果集
+        List<DeptAssReportVo> result = ndTask;
+        result.forEach(item->{
+           Optional<BizDeptAss> tempAssess = ndAssess.stream().filter(x->x.getOrgId().equals(item.getOrgId())).findFirst();
+           if (tempAssess.isPresent()){
+               item.setKhScore(tempAssess.get().getAddScore()-tempAssess.get().getMinusScore());
+           }
+        });
+        for (BizDeptAss item:ndAssess) {
+            if(!taskOrgIds.contains(item.getOrgId())){
+                DeptAssReportVo reportVo = new DeptAssReportVo();
+                reportVo.setAssYear(deptAssReportParam.getAssYear());
+                reportVo.setOrgId(item.getOrgId());
+                reportVo.setKhScore(item.getAddScore()-item.getMinusScore());
+                result.add(reportVo);
+            }
+        }
+        //赋值部门信息
+        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
+        for (DeptAssReportVo item:result) {
+            Optional<BizSysOrgVo> org = orgList.stream().filter(x->x.getOrgId().equals(item.getOrgId())).findFirst();
+            String orgName = org.isPresent() ? org.get().getOrgName() : "";
+            item.setOrgName(orgName);
+        }
+        return result;
     }
 }

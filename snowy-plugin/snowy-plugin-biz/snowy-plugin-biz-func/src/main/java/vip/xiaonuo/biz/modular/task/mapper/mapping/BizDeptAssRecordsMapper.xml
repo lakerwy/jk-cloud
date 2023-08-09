@@ -1,5 +1,29 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.task.mapper.BizDeptAssRecordsMapper">
+    <select id="getDeptAssScore" resultType="vip.xiaonuo.biz.modular.task.vo.DeptAssScore" >
+        select a.ASS_ID as assId,
+               sum(IF(b.DICT_TYPE = 1,a.REAL_SCORE,0)) as addScore,
+               sum(IF(b.DICT_TYPE = 2,a.REAL_SCORE,0)) as minusScore
+        from BIZ_DEPT_ASS_RECORDS a join BIZ_DEPT_ASS_DICT b on a.DICT_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.ASS_ID = #{assId}
+        group by a.ASS_ID
+    </select>
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.task.vo.DeptAssRecordVo" >
+        select a.*, b.DICT_TYPE as dictType,b.DICT_NAME as dictName,b.DICT_SCORE as dictScore,b.DICT_DESCRIPTION as dictDescription
+        from BIZ_DEPT_ASS_RECORDS a
+            left join BIZ_DEPT_ASS_DICT b
+                   on a.DICT_ID = b.ID
+                    ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetailById" resultType="vip.xiaonuo.biz.modular.task.vo.DeptAssRecordVo" >
+        select a.*, b.DICT_TYPE as dictType,b.DICT_NAME as dictName,b.DICT_SCORE as dictScore,b.DICT_DESCRIPTION as dictDescription
+        from BIZ_DEPT_ASS_RECORDS a
+                 left join BIZ_DEPT_ASS_DICT b
+                           on a.DICT_ID = b.ID
+            where a.ID = #{id}
+    </select>
 
 </mapper>
