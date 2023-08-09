@@ -79,14 +79,6 @@ public class BizTaskAddParam {
     @ApiModelProperty(value = "证明附件", position = 10)
     private String attach;
 
-    /** 自评分 */
-    @ApiModelProperty(value = "自评分", position = 11)
-    private Double selfScore;
-
-    /** 人事评分 */
-    @ApiModelProperty(value = "人事评分", position = 12)
-    private Double hrScore;
-
     /** 董事长评分 */
     @ApiModelProperty(value = "董事长评分", position = 13)
     private Double boosScore;
@@ -110,4 +102,8 @@ public class BizTaskAddParam {
     /** 权重（存小数） */
     @ApiModelProperty(value = "权重（存小数）", position = 18)
     private Double rate;
+
+    /** 进度比（存小数 0.5） */
+    @ApiModelProperty(value = "进度比（存小数 0.5）", position = 19)
+    private Double jdRate;
 }

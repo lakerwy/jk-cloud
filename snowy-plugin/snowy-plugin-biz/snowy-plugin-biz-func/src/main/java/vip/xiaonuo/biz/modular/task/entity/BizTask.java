@@ -77,18 +77,8 @@ public class BizTask {
     @ApiModelProperty(value = "证明附件", position = 10)
     private String attach;
 
-    /** 自评分 */
-    @ApiModelProperty(value = "自评分", position = 11)
-    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
-    private Double selfScore;
-
-    /** 人事评分 */
-    @ApiModelProperty(value = "人事评分", position = 12)
-    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
-    private Double hrScore;
-
-    /** 董事长评分 */
-    @ApiModelProperty(value = "董事长评分", position = 13)
+    /** 董事办评分 */
+    @ApiModelProperty(value = "董事办评分", position = 13)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Double boosScore;
 
@@ -141,11 +131,16 @@ public class BizTask {
     private Date finishDate;
 
     /** 董事长意见 */
-    @ApiModelProperty(value = "董事长意见", position = 24)
+    @ApiModelProperty(value = "董事办意见", position = 24)
     private String boosMemo;
 
-    /** 权重（存小数） */
-    @ApiModelProperty(value = "权重（存小数）", position = 25)
+    /** 权重（存小数 0.7） */
+    @ApiModelProperty(value = "权重（存小数 0.7）", position = 25)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Double rate;
+
+    /** 进度比（存小数 0.5） */
+    @ApiModelProperty(value = "进度比（存小数 0.5）", position = 26)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private Double jdRate;
 }

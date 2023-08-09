@@ -121,16 +121,23 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
      * 统计规则：满分80分制
      * 董事办打分规则：满分5分制
      *
+     * 权重比，比如：两个任务70%，30%，总分就是56，24
+     * 进度比（逾期0，晚一点50%，正常100%）
+     * 董事办比（5星100%，4星80%以此类推）
+     * 56=70%（比例固定）进度分+30%（比例固定）董事长审核
+     *
      * 返回结果：统计某部门某年度的 年度任务得分
     ***/
     public double getDeptTotalScore(List<BizTask> bizTaskList){
         double fullScore = 80; //满分-80分制 (部门任务分 80 分制)
         double dfRate = 5;   //满分-董事办打分( 5 分制)
         double total = 0;    //部门年度任务最后得分
+        double jdRate = 0.7; //进度比 - 进度分 占 70%
+        double bossRate = 0.3; //进度比 - 董事长审核 占 30%
         if(CollUtil.isNotEmpty(bizTaskList)){
             for (BizTask item:bizTaskList) {
-                if(ObjectUtil.isNotEmpty(item.getBoosScore()) && ObjectUtil.isNotEmpty(item.getRate())){
-                    total += fullScore * item.getRate() * item.getBoosScore() / dfRate;
+                if(ObjectUtil.isNotEmpty(item.getBoosScore()) && ObjectUtil.isNotEmpty(item.getRate()) && ObjectUtil.isNotEmpty(item.getJdRate())){
+                    total = total + fullScore * item.getRate() * jdRate * item.getJdRate() + fullScore * item.getRate() * bossRate * item.getBoosScore() / dfRate;
                 }
             }
         }
@@ -315,6 +322,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         }else if("attach".equals(colName)){
             bizTask.setAttach(bizTaskUpdateParam.getColValue());
         }else if("rate".equals(colName)){
+            bizTask.setRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
+        }else if("jdrate".equals(colName)){
             bizTask.setRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
         }
         this.updateById(bizTask);
