@@ -22,7 +22,6 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -73,12 +72,12 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
     @Override
     public String uploadReturnId(String engine, MultipartFile file) {
-        return this.storageFile(engine, file, true);
+        return this.storageFile(engine, file, true,null);
     }
 
     @Override
     public String uploadReturnUrl(String engine, MultipartFile file) {
-        return this.storageFile(engine, file, false);
+        return this.storageFile(engine, file, false,null);
     }
 
     @Override
@@ -155,7 +154,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author xuyuxiang
      * @date 2022/6/16 16:24
      **/
-    private String storageFile(String engine, MultipartFile file, boolean returnFileId) {
+    private String storageFile(String engine, MultipartFile file, boolean returnFileId, String bucketName) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -167,7 +166,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         String fileName = getFileName();
         String fileId = getFileIdPre()+fileName;
         // 存储桶名称
-        String bucketName;
+//        String bucketName;
 
         // 定义存储的url，本地文件返回文件实际路径，其他引擎返回网络地址
         String storageUrl;
@@ -176,7 +175,9 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         if(engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
 
             // 使用固定名称defaultBucketName
-            bucketName = "jk";
+            if(StrUtil.isBlank(bucketName)){
+                bucketName = "jk";
+            }
             storageUrl = DevFileLocalUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
         } else if(engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
 
@@ -516,6 +517,11 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         map.put("fileIdPre",fileIdPre);
         map.put("fileName",fileName);
         return map;
+    }
+
+    @Override
+    public String uploadReturnUrl(MultipartFile file, String bucketName) {
+        return this.storageFile(null, file, false,bucketName);
     }
 
 }

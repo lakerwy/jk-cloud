@@ -206,7 +206,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 String initiatorDataJson = resultDataObj.getStr("data");
                 jsonObject.set("initiatorSql", initiatorSql);
                 jsonObject.set("initiatorTableJson", flwModel.getTableJson());
-                jsonObject.set("initiatorDataJson", initiatorDataJson);
+                jsonObject.set("initiatorDataJson", JSONUtil.parse(initiatorDataJson).toString());
                 //设置sn
                 jsonObject.set("initiatorProcessSn",sn);
                 runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId, jsonObject);

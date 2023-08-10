@@ -12,7 +12,9 @@
  */
 package vip.xiaonuo.dev.modular.sms.controller;
 
+import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.gexin.rp.sdk.base.IPushResult;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -28,6 +30,8 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.modular.sms.entity.DevSms;
 import vip.xiaonuo.dev.modular.sms.param.*;
 import vip.xiaonuo.dev.modular.sms.service.DevSmsService;
+import vip.xiaonuo.dev.modular.sms.service.JPushService;
+import vip.xiaonuo.dev.modular.sms.service.UniPushService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -47,6 +51,12 @@ public class DevSmsController {
 
     @Resource
     private DevSmsService devSmsService;
+
+    @Resource
+    private UniPushService uniPushService;
+
+    @Resource
+    private JPushService jPushService;
 
     /**
      * 发送短信——阿里云
@@ -132,6 +142,24 @@ public class DevSmsController {
     @PostMapping("/dev/sms/sendYunPian")
     public CommonResult<String> sendYunPian(@RequestBody @Valid DevSmsSendYunPianParam devSmsSendYunPianParam) {
         devSmsService.sendYunPian(devSmsSendYunPianParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 发送短信——云片(单一发送)
+     *
+     * @author yong.ye
+     * @date 2023/6/27 15:47
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("发送unipush推送消息")
+    @CommonLog("发送unipush推送消息")
+    @GetMapping("/dev/sms/sendUniPush")
+    public CommonResult<String> sendUniPush(String cid) {
+        String message = RandomUtil.randomString(16);
+        //IPushResult iPushResult = uniPushService.singlePush(cid, message, 1);
+        jPushService.sendToAllAndroid("notification_title","msg_title","msg_content","exts");
+        System.out.println(message);
         return CommonResult.ok();
     }
 }

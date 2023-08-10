@@ -34,7 +34,7 @@
         <result column="SECOND_LEVEL" jdbcType="VARCHAR" property="secondLevel" />
         <result column="CONTRACT_NO" jdbcType="VARCHAR" property="contractNo" />
         <result column="PROJECT_NAME" jdbcType="VARCHAR" property="projectName" />
-        <collection property="bizChartReviewDetailsList" column="ID" select="getCRDList"/>
+        <collection property="bizMapRegisterList" column="ID" select="getMapList"/>
         <collection property="bizAuditListsList" column="ID" select="getAuditList"/>
     </resultMap>
 
@@ -77,8 +77,8 @@
           AND a.ID = ${id} LIMIT 1
     </select>
 
-    <select id="getCRDList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviewDetails">
-        SELECT * FROM BIZ_CHART_REVIEW_DETAILS WHERE DELETE_FLAG = 'NOT_DELETE' AND  MAJOR_NAME is not null AND LEADER is not null AND REVIEW_ID = #{ID}  order by  AUDIT_TIEM desc
+    <select id="getMapList" resultType="vip.xiaonuo.biz.modular.mapBiz.MapRegister.entity.BizMapRegister">
+        SELECT * FROM BIZ_MAP_REGISTER WHERE DELETE_FLAG = 'NOT_DELETE' AND REVIEW_ID = #{ID}  order by  CREATE_TIME desc
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo">

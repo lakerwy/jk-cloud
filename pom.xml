@@ -123,6 +123,8 @@
         <dingtalk.version>2.0.0</dingtalk.version>
         <logstash.version>7.0.1</logstash.version>
 
+        <getui.version>1.0.0.14</getui.version>
+
     </properties>
 
     <modules>
@@ -918,6 +920,12 @@
                 <groupId>mysql</groupId>
                 <artifactId>mysql-connector-java</artifactId>
                 <version>${mysql.connector.java.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.getui.push</groupId>
+                <artifactId>restful-sdk</artifactId>
+                <version>${getui.version}</version>
             </dependency>
 
             <!-- postgresql -->

@@ -82,4 +82,6 @@ public interface DevSmsService extends IService<DevSms> {
      * @date 2023/6/27 18:37
      **/
     void sendYunPian(DevSmsSendYunPianParam devSmsSendYunPianParam);
+
+    void sendUniPush();
 }
