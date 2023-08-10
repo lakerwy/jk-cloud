@@ -22,4 +22,11 @@ import vip.xiaonuo.biz.modular.task.entity.BizTask;
  * @date  2023/08/04 14:20
  **/
 public interface BizTaskMapper extends BaseMapper<BizTask> {
+
+    void firstAuto();
+
+    void secondAuto();
+
+    void thirdAuto();
+
 }

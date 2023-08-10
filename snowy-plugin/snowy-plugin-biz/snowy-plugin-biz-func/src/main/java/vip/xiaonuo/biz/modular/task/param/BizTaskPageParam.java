@@ -61,8 +61,4 @@ public class BizTaskPageParam {
     @ApiModelProperty(value = "年度")
     private String year;
 
-    /** 完成进度 */
-    @ApiModelProperty(value = "完成进度")
-    private String finishStatus;
-
 }

@@ -39,9 +39,13 @@ public class BizTask {
     @ApiModelProperty(value = "组织Id", position = 2)
     private String orgId;
 
+    /** 责任人名称 */
+    @ApiModelProperty(value = "责任人名称", position = 3)
+    private String ower;
+
     /** 责任人Id */
     @ApiModelProperty(value = "责任人Id", position = 3)
-    private String ower;
+    private String owerId;
 
     /** 年度 */
     @ApiModelProperty(value = "年度", position = 3)
@@ -79,7 +83,6 @@ public class BizTask {
 
     /** 董事办评分 */
     @ApiModelProperty(value = "董事办评分", position = 13)
-    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Double boosScore;
 
     /** 备注 */
@@ -121,13 +124,12 @@ public class BizTask {
     @TableField(exist = false)
     private String orgName;
 
-    /** 完成进度 */
-    @ApiModelProperty(value = "完成进度", position = 22)
-    private String finishStatus;
+    /** 完成进度 百分比 100% 存 100 */
+    @ApiModelProperty(value = "完成进度 百分比 100% 存 100", position = 22)
+    private Double finishStatus;
 
     /** 实际完成时间 */
     @ApiModelProperty(value = "实际完成时间", position = 23)
-    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date finishDate;
 
     /** 董事长意见 */
@@ -136,11 +138,24 @@ public class BizTask {
 
     /** 权重（存小数 0.7） */
     @ApiModelProperty(value = "权重（存小数 0.7）", position = 25)
-    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Double rate;
 
-    /** 进度比（存小数 0.5） */
-    @ApiModelProperty(value = "进度比（存小数 0.5）", position = 26)
+    /** 进度分系数 */
+    @ApiModelProperty(value = "进度分系数", position = 25)
+    private Double progressRate;
+
+    /** 人工调整分 */
+    @ApiModelProperty(value = "人工调整分", position = 26)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
-    private Double jdRate;
+    private Double adjScore;
+
+    /** 进度分 */
+    @ApiModelProperty(value = "进度分", position = 26)
+    @TableField(exist = false)
+    private Double progressScore;
+
+    /** 成效分 */
+    @ApiModelProperty(value = "成效分", position = 26)
+    @TableField(exist = false)
+    private Double effectScore;
 }

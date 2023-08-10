@@ -18,9 +18,13 @@ public class TaskFlwParam {
     @ApiModelProperty(value = "组织Id", position = 2)
     private String orgId;
 
-    /** 责任人Id|部门负责人 */
-    @ApiModelProperty(value = "责任人Id|部门负责人", position = 3)
+    /** 责任人|部门负责人 */
+    @ApiModelProperty(value = "责任人|部门负责人", position = 3)
     private String ower;
+
+    /** 责任人Id */
+    @ApiModelProperty(value = "责任人Id", position = 3)
+    private String owerId;
 
     /** 年度 */
     @ApiModelProperty(value = "年度", position = 3)

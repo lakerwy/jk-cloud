@@ -48,10 +48,6 @@ public class FlwParam {
     @ApiModelProperty(value = "标志成果", position = 8)
     private String markResult;
 
-    /** 备注 */
-    @ApiModelProperty(value = "备注", position = 14)
-    private String memo;
-
     /** 权重（存小数） */
     @ApiModelProperty(value = "权重（存小数）", position = 18)
     private Double rate;

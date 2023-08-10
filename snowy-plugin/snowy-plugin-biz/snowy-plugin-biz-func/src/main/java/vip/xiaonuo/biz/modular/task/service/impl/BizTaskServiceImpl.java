@@ -33,6 +33,7 @@ import vip.xiaonuo.biz.modular.task.entity.BizTaskFlw;
 import vip.xiaonuo.biz.modular.task.enums.BizTaskStatusEnum;
 import vip.xiaonuo.biz.modular.task.param.*;
 import vip.xiaonuo.biz.modular.task.service.BizTaskFlwService;
+import vip.xiaonuo.biz.modular.task.vo.DeptTaskScore;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -71,10 +72,15 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     @Resource
     private SysOrgService sysOrgService;
 
+    @Resource
+    private BizTaskMapper bizTaskMapper;
+
 
     @Override
     public List<DeptTaskResult> page(BizTaskPageParam bizTaskPageParam) {
         QueryWrapper<BizTask> queryWrapper = new QueryWrapper<>();
+        //只看 审核中 + 审核完成
+        queryWrapper.lambda().in(BizTask::getStatus,"1","0");
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getOrgId())) {
             queryWrapper.lambda().eq(BizTask::getOrgId, bizTaskPageParam.getOrgId());
         }
@@ -108,8 +114,9 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 deptTaskResult.setOrgName(orgName);
                 List<BizTask> listTask = result.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
                 listTask.forEach(x->x.setOrgName(orgName));
-                deptTaskResult.setTaskList(listTask);
-                deptTaskResult.setTotalScore(getDeptTotalScore(listTask));
+                DeptTaskScore deptTaskScore = getDeptTotalScore(listTask);
+                deptTaskResult.setTaskList(deptTaskScore.getBizTaskList());
+                deptTaskResult.setTotalScore(deptTaskScore.getTotalScore());
                 deptTaskResultList.add(deptTaskResult);
             }
         }
@@ -128,20 +135,39 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
      *
      * 返回结果：统计某部门某年度的 年度任务得分
     ***/
-    public double getDeptTotalScore(List<BizTask> bizTaskList){
-        double fullScore = 80; //满分-80分制 (部门任务分 80 分制)
-        double dfRate = 5;   //满分-董事办打分( 5 分制)
-        double total = 0;    //部门年度任务最后得分
-        double jdRate = 0.7; //进度比 - 进度分 占 70%
-        double bossRate = 0.3; //进度比 - 董事长审核 占 30%
+    public DeptTaskScore getDeptTotalScore(List<BizTask> bizTaskList){
+        //返回结果
+        DeptTaskScore deptTaskScore = new DeptTaskScore();
+        //统计参数
+        double fullScore = 80; //部门年度任务总分 80 分
+        double bossScore = 5;  //董事办任务评价总分 5 分
+        double progress = 0.7; //任务进度分占比 70%
+        double boss = 0.3;     //董事办成效评分占比 30%
+        double total = 0;      //部门年度任务最后得分
+        double totalRate = 0;  //部门任务总占比（因为合计可能超过100%）
+        //统计逻辑
         if(CollUtil.isNotEmpty(bizTaskList)){
+            totalRate = bizTaskList.stream().filter(x->ObjectUtil.isNotEmpty(x.getRate())).mapToDouble(BizTask::getRate).sum();
+            //循环计算
             for (BizTask item:bizTaskList) {
-                if(ObjectUtil.isNotEmpty(item.getBoosScore()) && ObjectUtil.isNotEmpty(item.getRate()) && ObjectUtil.isNotEmpty(item.getJdRate())){
-                    total = total + fullScore * item.getRate() * jdRate * item.getJdRate() + fullScore * item.getRate() * bossRate * item.getBoosScore() / dfRate;
+                double progressScore = 0;  //任务进度分
+                double effectScore = 0;    //任务成效分
+                //任务权重，进度分系数
+                if(ObjectUtil.isNotEmpty(item.getRate()) && ObjectUtil.isNotEmpty(item.getProgressRate()) ) {
+                    progressScore = fullScore * (item.getRate() / totalRate) * progress * item.getProgressRate();
                 }
+                if(ObjectUtil.isNotEmpty(item.getRate()) && ObjectUtil.isNotEmpty(item.getBoosScore())) {
+                    effectScore = fullScore * (item.getRate() / totalRate) * boss * (item.getBoosScore() / bossScore);
+                }
+                item.setProgressScore(progressScore);
+                item.setEffectScore(effectScore);
+
+                total = total + progressScore + effectScore;
             }
         }
-        return total;
+        deptTaskScore.setTotalScore(total);
+        deptTaskScore.setBizTaskList(bizTaskList);
+        return deptTaskScore;
     }
 
     /***
@@ -150,8 +176,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
      * @return
      */
     public List<DeptAssReportVo> getDeptTaskScore(String assYear){
-        //获取本年度任务数据
-        List<BizTask> bizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getYear,assYear));
+        //获取本年度任务数据(只看审核中+审核完成)
+        List<BizTask> bizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getYear,assYear).in(BizTask::getStatus,"1","0"));
         //获取涉及的部门
         List<String> orgIds = bizTaskList.stream().map(x -> x.getOrgId()).distinct().collect(Collectors.toList());
         //返回的结果集
@@ -162,13 +188,12 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 List<BizTask> listTask = bizTaskList.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
                 reportVo.setAssYear(assYear);
                 reportVo.setOrgId(orgId);
-                reportVo.setNdScore(getDeptTotalScore(listTask));
+                reportVo.setNdScore(getDeptTotalScore(listTask).getTotalScore());
                 deptAssReportVoList.add(reportVo);
             }
         }
         return deptAssReportVoList;
     }
-
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -242,6 +267,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 bizTask.setFlwId(bizTaskFlw.getId());
                 bizTask.setOrgId(taskFlwParam.getOrgId());
                 bizTask.setOwer(taskFlwParam.getOwer());
+                bizTask.setOwerId(taskFlwParam.getOwerId());
                 bizTask.setYear(taskFlwParam.getYear());
                 bizTask.setStatus(BizTaskStatusEnum.ACTIVE_STATUS.getValue());
                 bizTaskList.add(bizTask);
@@ -278,6 +304,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 bizTask.setFlwId(bizTaskFlw.getId());
                 bizTask.setOrgId(taskFlwParam.getOrgId());
                 bizTask.setOwer(taskFlwParam.getOwer());
+                bizTask.setOwerId(taskFlwParam.getOwerId());
                 bizTask.setYear(taskFlwParam.getYear());
                 tmpBizTaskList.add(bizTask);
             }
@@ -318,7 +345,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         BizTask bizTask = this.queryEntity(bizTaskUpdateParam.getId());
         String colName = bizTaskUpdateParam.getColName().toLowerCase();
         if("finishstatus".equals(colName)){
-            bizTask.setFinishStatus(bizTaskUpdateParam.getColValue());
+            bizTask.setFinishStatus(Double.valueOf(bizTaskUpdateParam.getColValue()));
         }else if("attach".equals(colName)){
             bizTask.setAttach(bizTaskUpdateParam.getColValue());
         }else if("rate".equals(colName)){
@@ -327,5 +354,13 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             bizTask.setRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
         }
         this.updateById(bizTask);
+    }
+
+
+    @Override
+    public void autoUpdateProgressRate() {
+         bizTaskMapper.firstAuto();
+         bizTaskMapper.secondAuto();
+         bizTaskMapper.thirdAuto();
     }
 }

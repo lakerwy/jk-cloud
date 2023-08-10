@@ -107,4 +107,9 @@ public interface BizTaskService extends IService<BizTask> {
      * @return
      */
     List<DeptAssReportVo> getDeptTaskScore(String assYear);
+
+    /**
+     * 系统自动计算 部门绩效考核 - 任务分 - 完成进度分系数
+     */
+    void autoUpdateProgressRate();
 }

@@ -43,6 +43,10 @@ public class BizTaskAddParam {
     @ApiModelProperty(value = "责任人Id", position = 3)
     private String ower;
 
+    /** 责任人Id */
+    @ApiModelProperty(value = "责任人Id", position = 3)
+    private String owerId;
+
     /** 年度 */
     @ApiModelProperty(value = "年度", position = 3)
     private String year;
@@ -87,9 +91,9 @@ public class BizTaskAddParam {
     @ApiModelProperty(value = "备注", position = 14)
     private String memo;
 
-    /** 完成进度 */
-    @ApiModelProperty(value = "完成进度", position = 15)
-    private String finishStatus;
+    /** 完成进度 百分比 100% 存 100 */
+    @ApiModelProperty(value = "完成进度 百分比 100% 存 100", position = 15)
+    private Double finishStatus;
 
     /** 实际完成时间 */
     @ApiModelProperty(value = "实际完成时间", position = 16)
@@ -103,7 +107,11 @@ public class BizTaskAddParam {
     @ApiModelProperty(value = "权重（存小数）", position = 18)
     private Double rate;
 
-    /** 进度比（存小数 0.5） */
-    @ApiModelProperty(value = "进度比（存小数 0.5）", position = 19)
-    private Double jdRate;
+    /** 进度分系数 */
+    @ApiModelProperty(value = "进度分系数", position = 19)
+    private Double progressRate;
+
+    /** 人工调整分 */
+    @ApiModelProperty(value = "人工调整分", position = 20)
+    private Double adjScore;
 }

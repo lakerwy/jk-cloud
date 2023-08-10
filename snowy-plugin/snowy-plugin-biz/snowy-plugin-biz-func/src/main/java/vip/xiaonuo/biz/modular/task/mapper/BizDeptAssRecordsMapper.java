@@ -34,7 +34,7 @@ import vip.xiaonuo.biz.modular.task.vo.DeptAssScore;
  **/
 public interface BizDeptAssRecordsMapper extends BaseMapper<BizDeptAssRecords> {
 
-    public DeptAssScore getDeptAssScore(String assId);
+    DeptAssScore getDeptAssScore(String assId);
 
     IPage<DeptAssRecordVo> getPageList(Page<DeptAssRecordVo> page, @Param(Constants.WRAPPER) Wrapper<BizDeptAssRecords> queryWrapper);
 
