@@ -367,4 +367,16 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         }
         return flwModel;
     }
+
+    @Override
+    public void disableShowModel(FlwModelIdParam flwModelIdParam) {
+        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
+                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.DISABLED.getValue()));
+    }
+
+    @Override
+    public void enableShowModel(FlwModelIdParam flwModelIdParam) {
+        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
+                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.ENABLE.getValue()));
+    }
 }

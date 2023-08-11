@@ -121,4 +121,9 @@ public class HotDeployConfServiceImpl extends ServiceImpl<HotDeployConfMapper, H
         map.put("downUrl",downUrl);
         return map;
     }
+
+    @Override
+    public HotDeployConf getInfo() {
+        return this.getOne(new LambdaQueryWrapper<HotDeployConf>().orderByDesc(HotDeployConf::getCreateTime).last("limit 1"));
+    }
 }

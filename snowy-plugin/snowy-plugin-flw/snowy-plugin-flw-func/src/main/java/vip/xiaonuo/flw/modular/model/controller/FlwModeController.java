@@ -296,4 +296,34 @@ public class FlwModeController {
     public CommonResult<List<String>> taskListenerSelector() {
         return CommonResult.data(flwModelService.taskListenerSelector());
     }
+
+    /**
+     * 停用模型
+     *
+     * @author xuyuxiang
+     * @date 2021/10/13 14:01
+     **/
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("停用展示模型")
+    @CommonLog("停用展示模型")
+    @PostMapping("/flw/model/disableShowModel")
+    public CommonResult<String> disableShowModel(@RequestBody FlwModelIdParam flwModelIdParam) {
+        flwModelService.disableShowModel(flwModelIdParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 启用模型
+     *
+     * @author xuyuxiang
+     * @date 2021/10/13 14:01
+     **/
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("启用展示模型")
+    @CommonLog("启用展示模型")
+    @PostMapping("/flw/model/enableShowModel")
+    public CommonResult<String> enableShowModel(@RequestBody @Valid FlwModelIdParam flwModelIdParam) {
+        flwModelService.enableShowModel(flwModelIdParam);
+        return CommonResult.ok();
+    }
 }

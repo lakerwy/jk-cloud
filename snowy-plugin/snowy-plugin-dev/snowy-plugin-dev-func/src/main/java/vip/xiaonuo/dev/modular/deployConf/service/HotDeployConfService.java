@@ -82,4 +82,6 @@ public interface HotDeployConfService extends IService<HotDeployConf> {
     HotDeployConf queryEntity(String id);
 
     Map<String,String> save(String version, MultipartFile file);
+
+    HotDeployConf getInfo();
 }

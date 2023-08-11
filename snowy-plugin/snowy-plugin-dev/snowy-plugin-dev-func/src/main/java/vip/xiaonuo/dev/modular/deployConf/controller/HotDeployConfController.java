@@ -61,7 +61,7 @@ public class HotDeployConfController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取热部署配置分页")
-    @SaCheckPermission("/dev/deployConf/page")
+//    @SaCheckPermission("/dev/deployConf/page")
     @GetMapping("/dev/deployConf/page")
     public CommonResult<Page<HotDeployConf>> page(HotDeployConfPageParam hotDeployConfPageParam) {
         return CommonResult.data(hotDeployConfService.page(hotDeployConfPageParam));
@@ -76,7 +76,7 @@ public class HotDeployConfController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加热部署配置")
     @CommonLog("添加热部署配置")
-    @SaCheckPermission("/dev/deployConf/add")
+//    @SaCheckPermission("/dev/deployConf/add")
     @PostMapping("/dev/deployConf/add")
     public CommonResult<String> add(@RequestBody @Valid HotDeployConfAddParam hotDeployConfAddParam) {
         hotDeployConfService.add(hotDeployConfAddParam);
@@ -92,7 +92,7 @@ public class HotDeployConfController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑热部署配置")
     @CommonLog("编辑热部署配置")
-    @SaCheckPermission("/dev/deployConf/edit")
+//    @SaCheckPermission("/dev/deployConf/edit")
     @PostMapping("/dev/deployConf/edit")
     public CommonResult<String> edit(@RequestBody @Valid HotDeployConfEditParam hotDeployConfEditParam) {
         hotDeployConfService.edit(hotDeployConfEditParam);
@@ -108,7 +108,7 @@ public class HotDeployConfController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除热部署配置")
     @CommonLog("删除热部署配置")
-    @SaCheckPermission("/dev/deployConf/delete")
+//    @SaCheckPermission("/dev/deployConf/delete")
     @PostMapping("/dev/deployConf/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<HotDeployConfIdParam> hotDeployConfIdParamList) {
@@ -124,7 +124,7 @@ public class HotDeployConfController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取热部署配置详情")
-    @SaCheckPermission("/dev/deployConf/detail")
+//    @SaCheckPermission("/dev/deployConf/detail")
     @GetMapping("/dev/deployConf/detail")
     public CommonResult<HotDeployConf> detail(@Valid HotDeployConfIdParam hotDeployConfIdParam) {
         return CommonResult.data(hotDeployConfService.detail(hotDeployConfIdParam));
@@ -140,7 +140,21 @@ public class HotDeployConfController {
     @ApiOperation("上传移动端安装包返回url")
     @CommonLog("上传移动端安装包返回url")
     @PostMapping("/dev/deployConf/uploadPackage")
-    public CommonResult<Map<String,String>> uploadPackageReturnUrl(@RequestPart("file") MultipartFile file, @RequestParam(value = "version") String version) {
+    public CommonResult<Map<String,String>> uploadPackageReturnUrl(@RequestPart("file") MultipartFile file, @RequestPart(value = "version") String version) {
         return  CommonResult.data(hotDeployConfService.save(version,file));
+    }
+
+    /**
+     * 获取热部署配置详情
+     *
+     * @author mayike
+     * @date  2023/08/10 16:14
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取最新安装包信息")
+//    @SaCheckPermission("/dev/deployConf/getInfo")
+    @GetMapping("/dev/deployConf/getInfo")
+    public CommonResult<HotDeployConf> getInfo() {
+        return CommonResult.data(hotDeployConfService.getInfo());
     }
 }
