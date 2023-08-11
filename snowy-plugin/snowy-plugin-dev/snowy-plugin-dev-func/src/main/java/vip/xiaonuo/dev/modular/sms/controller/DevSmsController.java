@@ -30,11 +30,14 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.modular.sms.entity.DevSms;
 import vip.xiaonuo.dev.modular.sms.param.*;
 import vip.xiaonuo.dev.modular.sms.service.DevSmsService;
+import vip.xiaonuo.dev.modular.sms.service.JPushService;
 import vip.xiaonuo.dev.modular.sms.service.UniPushService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 短信控制器
@@ -53,6 +56,9 @@ public class DevSmsController {
 
     @Resource
     UniPushService uniPushService;
+
+    @Resource
+    JPushService jPushService;
 
     /**
      * 发送短信——阿里云
@@ -153,8 +159,10 @@ public class DevSmsController {
     @GetMapping("/dev/sms/sendUniPush")
     public CommonResult<String> sendUniPush(String cid) {
         String message = RandomUtil.randomString(16);
-        IPushResult iPushResult = uniPushService.singlePush(cid, message, 1);
-        //jPushService.sendToAllAndroid("notification_title","msg_title","msg_content","exts");
+        //IPushResult iPushResult = uniPushService.singlePush(cid, message, 1);
+        List<String> cids = new ArrayList<>();
+        cids.add(cid);
+        jPushService.sendToAliasList(cids,"notification_title"+message,"msg_title"+message,"msg_content"+message,"exts",false);
         System.out.println(message);
         return CommonResult.ok();
     }

@@ -157,6 +157,8 @@ public class GatewayConfigure {
             "/api/bizapp/biz/cms/article/detail",
             "/api/bizapp/biz/cms/article/click",
 
+            "/api/webapp/dev/deployConf/getInfo"
+
     };
 
     /**

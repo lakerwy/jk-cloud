@@ -19,7 +19,7 @@ public class DeptAssJobTimerTaskRunner {
     private BizTaskService bizTaskService;
 
     /* 0 0 9 * * ?  */
-    @Scheduled(cron = "0/30 * * * * ? ")
+//    @Scheduled(cron = "0/30 * * * * ? ")
     public void action() {
         try {
             // 本定时任务用于出来 部门绩效考核 - 部门任务分 - 进度分 - 进度率 自动计算

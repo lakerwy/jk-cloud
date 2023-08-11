@@ -72,4 +72,6 @@ public class BizProjectPageParam {
     @ApiModelProperty(value = "申请时间结束")
     private String endApplyTime;
 
+    private String isHead;
+
 }

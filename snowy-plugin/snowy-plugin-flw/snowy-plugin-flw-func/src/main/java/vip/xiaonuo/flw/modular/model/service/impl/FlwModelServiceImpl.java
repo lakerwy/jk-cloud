@@ -146,7 +146,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         }
         // 只查询已启用的
         lambdaQueryWrapper.eq(FlwModel::getModelStatus, FlwModelStatusEnum.ENABLE.getValue());
-        lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,FlwModelStatusEnum.ENABLE.getValue());
+//        lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,FlwModelStatusEnum.ENABLE.getValue());
         List<FlwModel> list = this.list(lambdaQueryWrapper);
         // 过滤已经设计了的
         return CollectionUtil.removeNull(list.stream().map(flwModel -> {
@@ -368,15 +368,15 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         return flwModel;
     }
 
-    @Override
-    public void disableShowModel(FlwModelIdParam flwModelIdParam) {
-        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
-                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.DISABLED.getValue()));
-    }
-
-    @Override
-    public void enableShowModel(FlwModelIdParam flwModelIdParam) {
-        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
-                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.ENABLE.getValue()));
-    }
+//    @Override
+//    public void disableShowModel(FlwModelIdParam flwModelIdParam) {
+//        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
+//                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.DISABLED.getValue()));
+//    }
+//
+//    @Override
+//    public void enableShowModel(FlwModelIdParam flwModelIdParam) {
+//        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
+//                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.ENABLE.getValue()));
+//    }
 }

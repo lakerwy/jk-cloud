@@ -203,7 +203,7 @@ public class JPushServiceImpl implements JPushService {
         // 创建一个IosAlert对象，可指定APNs的alert、title等字段
         // IosAlert iosAlert =  IosAlert.newBuilder().setTitleAndBody("title", "alert body").build();
         Audience audience;
-        if(isAlias){
+        if(!isAlias){
             audience = Audience.registrationId(aliasList);
         }else {
             audience = Audience.alias(aliasList);

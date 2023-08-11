@@ -178,6 +178,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
             /*第三方钉钉免登*/
             "/sys/third/toDoDingDingApplication",
             "/sys/third/bindECard",
+
+            "/dev/deployConf/getInfo",
     };
 
     /**

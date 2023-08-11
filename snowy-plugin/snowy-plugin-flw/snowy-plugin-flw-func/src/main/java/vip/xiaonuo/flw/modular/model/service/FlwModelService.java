@@ -194,7 +194,7 @@ public interface FlwModelService extends IService<FlwModel> {
      */
     FlwModel validModel(String modelId);
 
-    void disableShowModel(FlwModelIdParam flwModelIdParam);
-
-    void enableShowModel(FlwModelIdParam flwModelIdParam);
+//    void disableShowModel(FlwModelIdParam flwModelIdParam);
+//
+//    void enableShowModel(FlwModelIdParam flwModelIdParam);
 }

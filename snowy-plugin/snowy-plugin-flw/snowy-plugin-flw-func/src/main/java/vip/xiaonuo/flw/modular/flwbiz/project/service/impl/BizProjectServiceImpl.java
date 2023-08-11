@@ -84,6 +84,9 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
             queryWrapper.lambda().or(wrapper ->wrapper.like(BizProject::getName,bizProjectPageParam.getSearchKey()).or().like(BizProject::getProjectSn,bizProjectPageParam.getSearchKey()));
         }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getIsHead())){
+            queryWrapper.lambda().eq(BizProject::getIsHead,bizProjectPageParam.getIsHead());
+        }
         //queryWrapper.lambda().eq(BizProject::getStatus,"1");
         queryWrapper.lambda().in(BizProject::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
