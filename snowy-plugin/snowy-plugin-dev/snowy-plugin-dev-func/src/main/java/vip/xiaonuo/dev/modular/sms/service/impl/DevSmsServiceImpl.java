@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.dev.modular.sms.config.PushReqBean;
 import vip.xiaonuo.dev.modular.sms.entity.DevSms;
 import vip.xiaonuo.dev.modular.sms.enums.DevSmsEngineTypeEnum;
 import vip.xiaonuo.dev.modular.sms.mapper.DevSmsMapper;
@@ -138,11 +137,11 @@ public class DevSmsServiceImpl extends ServiceImpl<DevSmsMapper, DevSms> impleme
         });
     }
 
-    @Override
-    public void sendUniPush(){
-        PushReqBean bean = new PushReqBean();
-        bean.setUser("abd531f623f5e6af71b8890c08b0306b");
-        bean.setTitle("新的测试发送88888");
-        bean.setContent("新的测试发送88888");
-    }
+//    @Override
+//    public void sendUniPush(){
+//        PushReqBean bean = new PushReqBean();
+//        bean.setUser("abd531f623f5e6af71b8890c08b0306b");
+//        bean.setTitle("新的测试发送88888");
+//        bean.setContent("新的测试发送88888");
+//    }
 }

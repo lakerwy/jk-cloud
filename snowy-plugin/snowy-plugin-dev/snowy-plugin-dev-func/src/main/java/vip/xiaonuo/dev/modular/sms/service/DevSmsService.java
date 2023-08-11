@@ -83,5 +83,5 @@ public interface DevSmsService extends IService<DevSms> {
      **/
     void sendYunPian(DevSmsSendYunPianParam devSmsSendYunPianParam);
 
-    void sendUniPush();
+//    void sendUniPush();
 }

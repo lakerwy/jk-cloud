@@ -30,7 +30,6 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.modular.sms.entity.DevSms;
 import vip.xiaonuo.dev.modular.sms.param.*;
 import vip.xiaonuo.dev.modular.sms.service.DevSmsService;
-import vip.xiaonuo.dev.modular.sms.service.JPushService;
 import vip.xiaonuo.dev.modular.sms.service.UniPushService;
 
 import javax.annotation.Resource;
@@ -53,10 +52,7 @@ public class DevSmsController {
     private DevSmsService devSmsService;
 
     @Resource
-    private UniPushService uniPushService;
-
-    @Resource
-    private JPushService jPushService;
+    UniPushService uniPushService;
 
     /**
      * 发送短信——阿里云
@@ -157,8 +153,8 @@ public class DevSmsController {
     @GetMapping("/dev/sms/sendUniPush")
     public CommonResult<String> sendUniPush(String cid) {
         String message = RandomUtil.randomString(16);
-        //IPushResult iPushResult = uniPushService.singlePush(cid, message, 1);
-        jPushService.sendToAllAndroid("notification_title","msg_title","msg_content","exts");
+        IPushResult iPushResult = uniPushService.singlePush(cid, message, 1);
+        //jPushService.sendToAllAndroid("notification_title","msg_title","msg_content","exts");
         System.out.println(message);
         return CommonResult.ok();
     }

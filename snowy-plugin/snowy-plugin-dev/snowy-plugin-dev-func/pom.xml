@@ -53,11 +53,11 @@
             <artifactId>snowy-plugin-dbs-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>com.getui.push</groupId>
-            <artifactId>restful-sdk</artifactId>
-<!--            <version>1.0.0.8</version>-->
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>com.getui.push</groupId>-->
+<!--            <artifactId>restful-sdk</artifactId>-->
+<!--&lt;!&ndash;            <version>1.0.0.8</version>&ndash;&gt;-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>com.gexin.platform</groupId>

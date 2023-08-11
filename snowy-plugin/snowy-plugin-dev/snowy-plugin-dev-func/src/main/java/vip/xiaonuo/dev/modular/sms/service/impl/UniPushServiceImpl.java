@@ -1,7 +1,6 @@
 package vip.xiaonuo.dev.modular.sms.service.impl;
 
 import cn.hutool.core.util.RandomUtil;
-import com.getui.push.v2.sdk.dto.req.message.android.GTNotification;
 import com.gexin.rp.sdk.base.IAliasResult;
 import com.gexin.rp.sdk.base.IPushResult;
 import com.gexin.rp.sdk.base.IQueryResult;
