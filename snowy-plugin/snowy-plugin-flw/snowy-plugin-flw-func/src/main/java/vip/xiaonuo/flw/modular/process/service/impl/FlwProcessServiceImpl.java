@@ -491,10 +491,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
                 //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
                 if(ObjectUtil.isNotEmpty(info)){
-                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.END_STATUS.getValue() + " where ID = " + info.getId();
+                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.END_STATUS.getValue() + " where ID = '" + info.getId()+"'";
                     NodeRuntimeUtil.handleSqlExecution(sql);
                     if(ObjectUtil.isNotEmpty(info.getBizTableName())){
-                        sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.END_STATUS.getValue() + " where FLW_ID = " + info.getId();
+                        sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.END_STATUS.getValue() + " where FLW_ID = '" + info.getId() +"'";
                         NodeRuntimeUtil.handleSqlExecution(sql);
                     }
                 }
@@ -529,10 +529,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
                     //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
                 if(ObjectUtil.isNotEmpty(info)){
-                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REVOKE_STATUS.getValue() + " where ID = " + info.getId();
+                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REVOKE_STATUS.getValue() + " where ID = '" + info.getId() +"'";
                     NodeRuntimeUtil.handleSqlExecution(sql);
                     if(ObjectUtil.isNotEmpty(info.getBizTableName())){
-                        sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.REVOKE_STATUS.getValue() + " where FLW_ID = " + info.getId();
+                        sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.REVOKE_STATUS.getValue() + " where FLW_ID = '" + info.getId() +"'";
                         NodeRuntimeUtil.handleSqlExecution(sql);
                     }
                 }
@@ -656,10 +656,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
             //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
         if (ObjectUtil.isNotEmpty(info)) {
-            String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.ACTIVE_STATUS.getValue() + " where ID = " + info.getId();
+            String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.ACTIVE_STATUS.getValue() + " where ID = '" + info.getId() +"'";
             NodeRuntimeUtil.handleSqlExecution(sql);
             if(ObjectUtil.isNotEmpty(info.getBizTableName())){
-                sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.ACTIVE_STATUS.getValue() + " where FLW_ID = " + info.getId();
+                sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.ACTIVE_STATUS.getValue() + " where FLW_ID = '" + info.getId() +"'";
                 NodeRuntimeUtil.handleSqlExecution(sql);
             }
         }

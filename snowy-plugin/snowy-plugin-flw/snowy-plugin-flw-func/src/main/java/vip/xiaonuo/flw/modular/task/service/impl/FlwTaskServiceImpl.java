@@ -372,10 +372,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
         //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
         if(ObjectUtil.isNotEmpty(info)){
-            String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where ID = " + info.getId();
+            String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where ID = '" + info.getId() +"'";
             NodeRuntimeUtil.handleSqlExecution(sql);
             if(ObjectUtil.isNotEmpty(info.getBizTableName())){
-                sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where FLW_ID = " + info.getId();
+                sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where FLW_ID = '" + info.getId() +"'";
                 NodeRuntimeUtil.handleSqlExecution(sql);
             }
         }

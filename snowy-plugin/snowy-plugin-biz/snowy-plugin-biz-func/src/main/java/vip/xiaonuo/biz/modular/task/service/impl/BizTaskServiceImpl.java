@@ -311,7 +311,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             if(CollUtil.isNotEmpty(tmpBizTaskList)) {
                 //历史数据
                 List<BizTask> oldBizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getFlwId, taskFlwId));
-                List<String> oldIds = oldBizTaskList.stream().map(BizTask::getFlwId).collect(Collectors.toList());
+                List<String> oldIds = oldBizTaskList.stream().map(BizTask::getId).collect(Collectors.toList());
                 //待更新的
                 List<BizTask> updateList = tmpBizTaskList.stream().filter(x -> oldIds.contains(x.getId())).collect(Collectors.toList());
                 //待新增的
