@@ -193,4 +193,8 @@ public interface FlwModelService extends IService<FlwModel> {
      * @date 2023/5/27 16:15
      */
     FlwModel validModel(String modelId);
+
+    void disableShowModel(FlwModelIdParam flwModelIdParam);
+
+    void enableShowModel(FlwModelIdParam flwModelIdParam);
 }

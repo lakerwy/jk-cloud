@@ -14,6 +14,14 @@
     <packaging>jar</packaging>
     <description>开发工具插件func实现</description>
 
+    <repositories>
+        <repository>
+            <id>getui-nexus</id>
+            <url>http://mvn.gt.getui.com/nexus/content/repositories/releases/</url>
+        </repository>
+    </repositories>
+
+
     <dependencies>
         <!-- 每个插件都要引入自己的对外接口 -->
         <dependency>
@@ -44,5 +52,31 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-dbs-api</artifactId>
         </dependency>
+
+        <dependency>
+            <groupId>com.getui.push</groupId>
+            <artifactId>restful-sdk</artifactId>
+<!--            <version>1.0.0.8</version>-->
+        </dependency>
+
+        <dependency>
+            <groupId>com.gexin.platform</groupId>
+            <artifactId>gexin-rp-sdk-http</artifactId>
+            <version>4.1.2.3</version>
+        </dependency>
+
+        <!-- 极光推送 begin -->
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jpush-client</artifactId>
+            <version>3.3.10</version>
+        </dependency>
+        <dependency>
+            <groupId>cn.jpush.api</groupId>
+            <artifactId>jiguang-common</artifactId>
+            <version>1.1.4</version>
+        </dependency>
+        <!-- 极光推送 end -->
+
     </dependencies>
 </project>

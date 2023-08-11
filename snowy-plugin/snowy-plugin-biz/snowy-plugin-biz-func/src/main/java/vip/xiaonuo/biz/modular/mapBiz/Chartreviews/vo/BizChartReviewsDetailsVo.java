@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
-import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviewDetails;
+import vip.xiaonuo.biz.modular.mapBiz.MapRegister.entity.BizMapRegister;
 
 import java.io.Serializable;
 import java.util.Date;
@@ -127,7 +127,7 @@ public class BizChartReviewsDetailsVo  implements Serializable {
     private String secondLevel;
 
     @ApiModelProperty(value = "图审记录列表")
-    private List<BizChartReviewDetails> bizChartReviewDetailsList;
+    private List<BizMapRegister> bizMapRegisterList;
 
     @ApiModelProperty(value = "校审记录列表")
     private List<BizAuditLists> bizAuditListsList;

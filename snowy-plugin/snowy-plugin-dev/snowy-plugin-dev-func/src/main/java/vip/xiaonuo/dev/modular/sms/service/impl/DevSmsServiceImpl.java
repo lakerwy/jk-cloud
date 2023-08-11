@@ -25,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.sms.config.PushReqBean;
 import vip.xiaonuo.dev.modular.sms.entity.DevSms;
 import vip.xiaonuo.dev.modular.sms.enums.DevSmsEngineTypeEnum;
 import vip.xiaonuo.dev.modular.sms.mapper.DevSmsMapper;
@@ -34,6 +35,7 @@ import vip.xiaonuo.dev.modular.sms.util.DevSmsAliyunUtil;
 import vip.xiaonuo.dev.modular.sms.util.DevSmsTencentUtil;
 import vip.xiaonuo.dev.modular.sms.util.DevSmsYunPianUtil;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -134,5 +136,13 @@ public class DevSmsServiceImpl extends ServiceImpl<DevSmsMapper, DevSms> impleme
                 throw new CommonException("手机号码：{}格式错误", phone);
             }
         });
+    }
+
+    @Override
+    public void sendUniPush(){
+        PushReqBean bean = new PushReqBean();
+        bean.setUser("abd531f623f5e6af71b8890c08b0306b");
+        bean.setTitle("新的测试发送88888");
+        bean.setContent("新的测试发送88888");
     }
 }
