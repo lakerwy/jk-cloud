@@ -123,7 +123,10 @@
         <dingtalk.version>2.0.0</dingtalk.version>
         <logstash.version>7.0.1</logstash.version>
 
-        <getui.version>1.0.0.14</getui.version>
+<!--        <getui.version>1.0.0.14</getui.version>-->
+        <jpush.version>3.3.10</jpush.version>
+        <jpush-common.version>1.1.4</jpush-common.version>
+        <gexin.version>4.1.2.3</gexin.version>
 
     </properties>
 
@@ -922,10 +925,26 @@
                 <version>${mysql.connector.java.version}</version>
             </dependency>
 
+<!--            <dependency>-->
+<!--                <groupId>com.getui.push</groupId>-->
+<!--                <artifactId>restful-sdk</artifactId>-->
+<!--                <version>${getui.version}</version>-->
+<!--            </dependency>-->
+
             <dependency>
-                <groupId>com.getui.push</groupId>
-                <artifactId>restful-sdk</artifactId>
-                <version>${getui.version}</version>
+                <groupId>cn.jpush.api</groupId>
+                <artifactId>jpush-client</artifactId>
+                <version>${jpush.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.jpush.api</groupId>
+                <artifactId>jiguang-common</artifactId>
+                <version>${jpush-common.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.gexin.platform</groupId>
+                <artifactId>gexin-rp-sdk-http</artifactId>
+                <version>${gexin.version}</version>
             </dependency>
 
             <!-- postgresql -->
