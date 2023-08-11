@@ -352,6 +352,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             bizTask.setRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
         }else if("jdrate".equals(colName)){
             bizTask.setRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
+        }else if("memo".equals(colName)){
+            bizTask.setMemo(bizTaskUpdateParam.getColValue());
         }
         this.updateById(bizTask);
     }

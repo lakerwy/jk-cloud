@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.task.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -23,11 +24,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.task.entity.BizDeptAss;
+import vip.xiaonuo.biz.modular.task.entity.BizDeptAssSynergy;
+import vip.xiaonuo.biz.modular.task.entity.BizGroupPerformance;
 import vip.xiaonuo.biz.modular.task.mapper.BizDeptAssMapper;
 import vip.xiaonuo.biz.modular.task.param.*;
-import vip.xiaonuo.biz.modular.task.service.BizDeptAssService;
-import vip.xiaonuo.biz.modular.task.service.BizTaskService;
-import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.service.*;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.biz.modular.task.vo.DeptAssReportVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -36,9 +37,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -56,6 +55,12 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
 
     @Resource
     private BizTaskService bizTaskService;
+
+    @Resource
+    private BizGroupPerformanceService bizGroupPerformanceService;
+
+    @Resource
+    private BizDeptAssSynergyService bizDeptAssSynergyService;
 
     @Override
     public Page<BizDeptAss> page(BizDeptAssPageParam bizDeptAssPageParam) {
@@ -92,7 +97,7 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
                 .eq(BizDeptAss::getAssYear,bizDeptAssAddParam.getAssYear())
                 .eq(BizDeptAss::getOrgId,bizDeptAssAddParam.getOrgId()));
         if(ObjectUtil.isNotEmpty(dbBizDeptAss)){
-            throw new CommonException("当前部门已存在{}年度已存在记录",bizDeptAssAddParam.getAssYear());
+            throw new CommonException("当前部门已存在{}年度数据",bizDeptAssAddParam.getAssYear());
         }
         BizDeptAss bizDeptAss = BeanUtil.toBean(bizDeptAssAddParam, BizDeptAss.class);
         this.save(bizDeptAss);
@@ -139,31 +144,57 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
         List<BizDeptAss> ndAssess = this.list(new QueryWrapper<BizDeptAss>().lambda().eq(BizDeptAss::getAssYear,deptAssReportParam.getAssYear()));
         //部门年度任务 涉及的部门
         List<String> taskOrgIds = ndTask.stream().map(DeptAssReportVo::getOrgId).collect(Collectors.toList());
-
         //构造结果集
         List<DeptAssReportVo> result = ndTask;
+//        for (BizDeptAss item:ndAssess) {
+//            if(!taskOrgIds.contains(item.getOrgId())){
+//                DeptAssReportVo reportVo = new DeptAssReportVo();
+//                reportVo.setAssYear(deptAssReportParam.getAssYear());
+//                reportVo.setOrgId(item.getOrgId());
+//                reportVo.setKhScore(item.getAddScore()-item.getMinusScore());
+//                result.add(reportVo);
+//            }
+//        }
+
+        //获取携带信息
+        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();  //部门字典列表
+        //集团经营业绩分(一年一条)
+        BizGroupPerformance bizGroupPerformance = bizGroupPerformanceService.getOne(new QueryWrapper<BizGroupPerformance>().lambda().eq(BizGroupPerformance::getAssYear,deptAssReportParam.getAssYear()));
+        //各部门年度协同分
+        List<BizDeptAssSynergy> bizDeptAssSynergyList = bizDeptAssSynergyService.list(new QueryWrapper<BizDeptAssSynergy>().lambda().eq(BizDeptAssSynergy::getAssYear,deptAssReportParam.getAssYear()));
+        //拼接结果
         result.forEach(item->{
-           Optional<BizDeptAss> tempAssess = ndAssess.stream().filter(x->x.getOrgId().equals(item.getOrgId())).findFirst();
-           if (tempAssess.isPresent()){
-               item.setKhScore(tempAssess.get().getAddScore()-tempAssess.get().getMinusScore());
-           }
-        });
-        for (BizDeptAss item:ndAssess) {
-            if(!taskOrgIds.contains(item.getOrgId())){
-                DeptAssReportVo reportVo = new DeptAssReportVo();
-                reportVo.setAssYear(deptAssReportParam.getAssYear());
-                reportVo.setOrgId(item.getOrgId());
-                reportVo.setKhScore(item.getAddScore()-item.getMinusScore());
-                result.add(reportVo);
-            }
-        }
-        //赋值部门信息
-        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
-        for (DeptAssReportVo item:result) {
+            //部门名称
             Optional<BizSysOrgVo> org = orgList.stream().filter(x->x.getOrgId().equals(item.getOrgId())).findFirst();
-            String orgName = org.isPresent() ? org.get().getOrgName() : "";
-            item.setOrgName(orgName);
-        }
-        return result;
+            if(org.isPresent()) {
+                item.setOrgName(org.get().getOrgName());
+            }
+            //集团经营业绩得分（15%）
+            if(ObjectUtil.isNotEmpty(bizGroupPerformance)){
+                item.setJtScore(bizGroupPerformance.getGroupScore());
+            }
+            //部门协同分(5%)
+            Optional<BizDeptAssSynergy> bizDeptAssSynergy = bizDeptAssSynergyList.stream().filter(x->x.getOrgId().equals(item.getOrgId())).findFirst();
+            if(bizDeptAssSynergy.isPresent()){
+                item.setXtScore(bizDeptAssSynergy.get().getSynergyScore());
+            }
+            //部门综合分（加减分）
+            Optional<BizDeptAss> tempAssess = ndAssess.stream().filter(x->x.getOrgId().equals(item.getOrgId())).findFirst();
+            if (tempAssess.isPresent()){
+               item.setKhScore(tempAssess.get().getAddScore()-tempAssess.get().getMinusScore());
+            }
+            //合计总分
+            double totalScore = (ObjectUtil.isNotEmpty(item.getJtScore())?item.getJtScore():0)
+                               +(ObjectUtil.isNotEmpty(item.getNdScore())?item.getNdScore():0)
+                               +(ObjectUtil.isNotEmpty(item.getXtScore())?item.getXtScore():0)
+                               +(ObjectUtil.isNotEmpty(item.getKhScore())?item.getKhScore():0);
+            item.setTotalScore(totalScore);
+        });
+        return CollUtil.sort(result, new Comparator<DeptAssReportVo>() {
+            @Override
+            public int compare(DeptAssReportVo o1, DeptAssReportVo o2) {
+                return o2.getTotalScore().compareTo(o1.getTotalScore());
+            }
+        });
     }
 }

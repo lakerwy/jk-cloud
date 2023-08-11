@@ -39,4 +39,8 @@ public class DeptAssReportVo {
     /** 部门考核分(无限制) */
     @ApiModelProperty(value = "部门考核分(无限制)", position = 8)
     private Double khScore;
+
+    /** 总分 */
+    @ApiModelProperty(value = "总分", position = 9)
+    private Double totalScore;
 }
