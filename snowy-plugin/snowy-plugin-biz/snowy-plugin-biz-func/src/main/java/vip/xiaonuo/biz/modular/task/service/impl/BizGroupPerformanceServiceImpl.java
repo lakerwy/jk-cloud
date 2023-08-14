@@ -78,6 +78,13 @@ public class BizGroupPerformanceServiceImpl extends ServiceImpl<BizGroupPerforma
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizGroupPerformanceEditParam bizGroupPerformanceEditParam) {
+        //同一个年度只能存在一条有效数据
+        BizGroupPerformance tmp = this.getOne(new QueryWrapper<BizGroupPerformance>().lambda()
+                .eq(BizGroupPerformance::getAssYear,bizGroupPerformanceEditParam.getAssYear())
+                .ne(BizGroupPerformance::getId,bizGroupPerformanceEditParam.getId()));
+        if(ObjectUtil.isNotEmpty(tmp)){
+            throw new CommonException("已存在{}年度数据",bizGroupPerformanceEditParam.getAssYear());
+        }
         BizGroupPerformance bizGroupPerformance = this.queryEntity(bizGroupPerformanceEditParam.getId());
         BeanUtil.copyProperties(bizGroupPerformanceEditParam, bizGroupPerformance);
         this.updateById(bizGroupPerformance);

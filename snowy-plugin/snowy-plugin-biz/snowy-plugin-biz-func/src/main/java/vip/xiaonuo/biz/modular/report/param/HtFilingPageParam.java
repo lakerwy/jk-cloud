@@ -60,10 +60,6 @@ public class HtFilingPageParam {
     @ApiModelProperty(value = "合作伙伴类型")
     private String partnerType;
 
-    /** 合作伙伴ID */
-    @ApiModelProperty(value = "合作伙伴ID")
-    private String partnerId;
-
     /** 合作伙伴责任单位 */
     @ApiModelProperty(value = "合作伙伴责任单位")
     private String companyOrDepartment;

@@ -90,6 +90,11 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getYear())) {
             queryWrapper.lambda().eq(BizTask::getYear, bizTaskPageParam.getYear());
         }
+        if (ObjectUtil.isNotEmpty(bizTaskPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(BizTask::getTaskName, bizTaskPageParam.getSearchKey()).or()
+                    .like(BizTask::getNode, bizTaskPageParam.getSearchKey()).or()
+                    .like(BizTask::getMarkResult, bizTaskPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(bizTaskPageParam.getSortField(), bizTaskPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizTaskPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizTaskPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

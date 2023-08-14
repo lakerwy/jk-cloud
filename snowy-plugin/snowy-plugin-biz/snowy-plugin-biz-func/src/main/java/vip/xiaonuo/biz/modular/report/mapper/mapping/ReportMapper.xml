@@ -3,7 +3,7 @@
 <mapper namespace="vip.xiaonuo.biz.modular.report.mapper.ReportMapper">
 
     <select id="getHtYearFilingRate" resultType="vip.xiaonuo.biz.modular.report.result.HTYearFilingRate" >
-        select PARTNER_ID as partnerId,
+        select COMPANY_OR_DEPARTMENT as partnerName,
                count(1) as totalNum,
                SUM(IF(IS_FILING='是',1,0)) as filingNum,
                0 as unFilingNum,
@@ -15,13 +15,13 @@
               and PARTNER_TYPE = #{partnerType}
           </if>
 
-          and PARTNER_ID is not null  and PARTNER_ID != ''
+          and COMPANY_OR_DEPARTMENT is not null  and COMPANY_OR_DEPARTMENT != ''
           and SEAL_DATE &gt;= #{startDate} and SEAL_DATE &lt;= #{endDate}
-        group by PARTNER_ID
+        group by COMPANY_OR_DEPARTMENT
     </select>
 
     <select id="getHtThreeMonthUnFiling" resultType="vip.xiaonuo.biz.modular.report.result.HTThreeMonthUnFiling" >
-        select PARTNER_ID as partnerId,
+        select COMPANY_OR_DEPARTMENT as partnerName,
                count(1) as threeUnFilingNum
         from BIZ_CRM_HETONG
         where DELETE_FLAG = 'NOT_DELETE' and STATUS = '1'
@@ -30,11 +30,11 @@
                 and PARTNER_TYPE = #{partnerType}
            </if>
 
-          and PARTNER_ID is not null  and PARTNER_ID != ''
+          and COMPANY_OR_DEPARTMENT is not null and COMPANY_OR_DEPARTMENT != ''
           and (IS_FILING is null or IS_FILING = '' or IS_FILING != '是' )
           and SEAL_DATE &gt;= #{startDate} and SEAL_DATE &lt;= #{endDate}
           and  DATE_ADD(SEAL_DATE,INTERVAL 3 MONTH) &lt; now()
-        group by PARTNER_ID
+        group by COMPANY_OR_DEPARTMENT
     </select>
 
     <select id="getBillPageList" resultType="vip.xiaonuo.biz.modular.report.result.HTBillResult" >
@@ -43,7 +43,7 @@
 
     <select id="getHtFilingPageList" resultType="vip.xiaonuo.biz.modular.report.result.HTFilingPageResult" >
         select ID as id,SECOND_LEVEL as secondLevel,SECONDPARTY as secondparty,COMPANY_OR_DEPARTMENT as companyOrDepartment,
-               CONTRACT_NO as contractNo,PROJECT_NAME as projectName,CONTRACT_AMOUNT as contractAmount,PARTNER_ID as partnerId,
+               CONTRACT_NO as contractNo,PROJECT_NAME as projectName,CONTRACT_AMOUNT as contractAmount,
                COUNTERPARTY as counterparty,IS_FILING as isFiling,SEAL_DATE as sealDate,FILING_DATE as filingDate
         from BIZ_CRM_HETONG ${ew.customSqlSegment}
     </select>

@@ -106,6 +106,14 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizDeptAssEditParam bizDeptAssEditParam) {
+        //同一个年度同一个部门只能存在一条有效数据
+        BizDeptAss dbBizDeptAss = this.getOne(new QueryWrapper<BizDeptAss>().lambda()
+                .eq(BizDeptAss::getAssYear,bizDeptAssEditParam.getAssYear())
+                .eq(BizDeptAss::getOrgId,bizDeptAssEditParam.getOrgId())
+                .ne(BizDeptAss::getId,bizDeptAssEditParam.getId()));
+        if(ObjectUtil.isNotEmpty(dbBizDeptAss)){
+            throw new CommonException("当前部门已存在{}年度数据",bizDeptAssEditParam.getAssYear());
+        }
         BizDeptAss bizDeptAss = this.queryEntity(bizDeptAssEditParam.getId());
         BeanUtil.copyProperties(bizDeptAssEditParam, bizDeptAss);
         this.updateById(bizDeptAss);

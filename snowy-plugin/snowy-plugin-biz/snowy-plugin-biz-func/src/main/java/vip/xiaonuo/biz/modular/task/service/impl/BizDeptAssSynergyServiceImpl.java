@@ -81,6 +81,14 @@ public class BizDeptAssSynergyServiceImpl extends ServiceImpl<BizDeptAssSynergyM
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizDeptAssSynergyEditParam bizDeptAssSynergyEditParam) {
+        //同一个年度同一个部门只能存在一条有效数据
+        BizDeptAssSynergy tmp = this.getOne(new QueryWrapper<BizDeptAssSynergy>().lambda()
+                .eq(BizDeptAssSynergy::getAssYear,bizDeptAssSynergyEditParam.getAssYear())
+                .eq(BizDeptAssSynergy::getOrgId,bizDeptAssSynergyEditParam.getOrgId())
+                .ne(BizDeptAssSynergy::getId,bizDeptAssSynergyEditParam.getId()));
+        if(ObjectUtil.isNotEmpty(tmp)){
+            throw new CommonException("当前部门已存在{}年度数据",bizDeptAssSynergyEditParam.getAssYear());
+        }
         BizDeptAssSynergy bizDeptAssSynergy = this.queryEntity(bizDeptAssSynergyEditParam.getId());
         BeanUtil.copyProperties(bizDeptAssSynergyEditParam, bizDeptAssSynergy);
         this.updateById(bizDeptAssSynergy);

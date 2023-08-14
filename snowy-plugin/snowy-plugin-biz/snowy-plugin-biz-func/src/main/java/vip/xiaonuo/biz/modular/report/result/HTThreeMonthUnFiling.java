@@ -13,9 +13,9 @@ import lombok.Setter;
 @Getter
 @Setter
 public class HTThreeMonthUnFiling {
-    /** 责任单位Id（分公司） */
-    @ApiModelProperty(value = "责任单位Id（分公司）", position = 1)
-    private String partnerId;
+    /** 伙伴名称|责任单位|分公司 */
+    @ApiModelProperty(value = "伙伴名称|责任单位|分公司", position = 1)
+    private String partnerName;
 
     /** 未归档数 */
     @ApiModelProperty(value = "未归档数", position = 2)

@@ -21,7 +21,6 @@ import vip.xiaonuo.biz.modular.report.param.HtFilingPageParam;
 import vip.xiaonuo.biz.modular.report.param.HtFilingParam;
 import vip.xiaonuo.biz.modular.report.result.*;
 import vip.xiaonuo.biz.modular.report.service.HetongReportService;
-import vip.xiaonuo.biz.modular.report.service.PartnerInfoService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.page.CommonPageRequest;
 
@@ -43,8 +42,8 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
     @Resource
     private HetongService hetongService;
 
-    @Resource
-    private PartnerInfoService partnerInfoService;
+//    @Resource
+//    private PartnerInfoService partnerInfoService;
 
     @Override
     public HetongReportResult listReport(HetongReportParam hetongReportParam) {
@@ -181,7 +180,7 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
                 rate.setUnFilingNum(rate.getTotalNum()-rate.getFilingNum());
                 rate.setFilingRate(rate.getTotalNum() >0 ? (double) rate.getFilingNum()/rate.getTotalNum() : 0);
             }
-            return resultAddInfo(resultList);
+            return resultList;
         }
         /** 超过三个月未归档(若未传入 统计开始时间、统计结束时间，默认2017-1-1 至 当前日期向前3个月) **/
         else if("2".equals(htFilingParam.getReportType())){
@@ -189,7 +188,7 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
             DateTime threeEndDate = ObjectUtil.isNotEmpty(htFilingParam.getEndDate())? new DateTime(htFilingParam.getEndDate()):preThreeMonth;
             List<HTThreeMonthUnFiling> listThreeFiling = reportMapper.getHtThreeMonthUnFiling(threeStartDate,threeEndDate,htFilingParam.getPartnerType());
             resultList = BeanUtil.copyToList(listThreeFiling, HTYearFilingRate.class);
-            return resultAddInfo(resultList);
+            return resultList;
         }
         /** 统计数据1 + 统计数据2 合并 **/
         else if("3".equals(htFilingParam.getReportType())){
@@ -206,7 +205,7 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
             for (HTYearFilingRate rate : resultList) {
                 rate.setUnFilingNum(rate.getTotalNum()-rate.getFilingNum());
                 rate.setFilingRate(rate.getTotalNum() >0 ? (double) rate.getFilingNum()/rate.getTotalNum() : 0);
-                Optional<HTThreeMonthUnFiling> threeMonthUnFiling = listThreeFiling.stream().filter(x->x.getPartnerId().equals(rate.getPartnerId())).findFirst();
+                Optional<HTThreeMonthUnFiling> threeMonthUnFiling = listThreeFiling.stream().filter(x->x.getPartnerName().equals(rate.getPartnerName())).findFirst();
                 rate.setThreeUnFilingNum(threeMonthUnFiling.isPresent() ? threeMonthUnFiling.get().getThreeUnFilingNum() : 0 );
             }
             return resultList;
@@ -216,22 +215,22 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
     }
 
 
-    /** 拼接信息 **/
-    public List<HTYearFilingRate> resultAddInfo(List<HTYearFilingRate> resultList){
-        if(CollUtil.isNotEmpty(resultList)){
-            List<PartnerVo> partnerVoList = partnerInfoService.getAll();
-            if(CollUtil.isNotEmpty(partnerVoList)){
-                for (HTYearFilingRate item : resultList) {
-                    Optional<PartnerVo> partnerVo = partnerVoList.stream().filter(x->x.getId().equals(item.getPartnerId())).findFirst();
-                    if(partnerVo.isPresent()) {
-                        item.setPartnerName(partnerVo.get().getName());
-                        item.setPartnerType(partnerVo.get().getPartnerType());
-                    }
-                }
-            }
-        }
-        return resultList;
-    }
+//    /** 拼接信息 **/
+//    public List<HTYearFilingRate> resultAddInfo(List<HTYearFilingRate> resultList){
+//        if(CollUtil.isNotEmpty(resultList)){
+//            List<PartnerVo> partnerVoList = partnerInfoService.getAll();
+//            if(CollUtil.isNotEmpty(partnerVoList)){
+//                for (HTYearFilingRate item : resultList) {
+//                    Optional<PartnerVo> partnerVo = partnerVoList.stream().filter(x->x.getId().equals(item.getPartnerId())).findFirst();
+//                    if(partnerVo.isPresent()) {
+//                        item.setPartnerName(partnerVo.get().getName());
+//                        item.setPartnerType(partnerVo.get().getPartnerType());
+//                    }
+//                }
+//            }
+//        }
+//        return resultList;
+//    }
 
 
     @Override
@@ -333,9 +332,7 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
         if(ObjectUtil.isNotEmpty(htFilingPageParam.getPartyc())) {
             queryWrapper.lambda().like(Hetong::getPartyc, htFilingPageParam.getPartyc());
         }
-        if(ObjectUtil.isNotEmpty(htFilingPageParam.getPartnerId())) {
-            queryWrapper.lambda().eq(Hetong::getPartnerId, htFilingPageParam.getPartnerId());
-        }
+
         if(ObjectUtil.isAllNotEmpty(htFilingPageParam.getSortField(), htFilingPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(htFilingPageParam.getSortOrder());
             queryWrapper.orderBy(true, htFilingPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -350,7 +347,7 @@ public class HetongReportServiceImpl extends ServiceImpl<ReportMapper, Hetong> i
         htFilingParam.setReportType("3");
         List<HTYearFilingRate> htYearFilingRateList = filingReport(htFilingParam);
         for (HTFilingPageResult item:resultIPage.getRecords()) {
-            Optional<HTYearFilingRate> filingRate = htYearFilingRateList.stream().filter(x->x.getPartnerId().equals(item.getPartnerId())).findFirst();
+            Optional<HTYearFilingRate> filingRate = htYearFilingRateList.stream().filter(x->x.getPartnerName().equals(item.getCompanyOrDepartment())).findFirst();
             item.setTotalNum(filingRate.isPresent()?filingRate.get().getTotalNum() : 0);
             item.setFilingNum(filingRate.isPresent()?filingRate.get().getFilingNum() : 0);
             item.setUnFilingNum(filingRate.isPresent()?filingRate.get().getUnFilingNum() : 0);

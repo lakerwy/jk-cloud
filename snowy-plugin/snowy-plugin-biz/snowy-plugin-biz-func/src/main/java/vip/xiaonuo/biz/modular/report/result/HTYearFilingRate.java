@@ -14,11 +14,7 @@ import lombok.Setter;
 @Setter
 public class HTYearFilingRate {
 
-    /** 责任单位Id（分公司） */
-    @ApiModelProperty(value = "责任单位Id（分公司）", position = 1)
-    private String partnerId;
-
-    @ApiModelProperty(value = "伙伴名称",position = 4)
+    @ApiModelProperty(value = "伙伴名称|责任单位|分公司",position = 4)
     private String partnerName;
 
     @ApiModelProperty(value = "伙伴类型", position = 5)
