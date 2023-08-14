@@ -27,8 +27,8 @@ public class DeptAssJobTimerTaskRunner {
 //    @Resource
 //    private DevMessageApi devMessageApi;
 
-    /* 0 0 9 * * ?  */
-    @Scheduled(cron = "0/30 * * * * ? ")
+//    /* 0 0 9 * * ?  */
+//    @Scheduled(cron = "0/30 * * * * ? ")
     public void action() {
         try {
             // 本定时任务用于出来 部门绩效考核 - 部门任务分 - 进度分 - 进度率 自动计算
