@@ -73,4 +73,8 @@ public class BizOrg extends CommonEntity implements TransPojo {
     @ApiModelProperty(value = "扩展信息", position = 9)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private String extJson;
+
+    @ApiModelProperty(value = "主管名称", position = 51)
+    @TableField(exist = false)
+    private String directorName;
 }

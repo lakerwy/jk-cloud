@@ -88,4 +88,8 @@ public class SysOrg extends CommonEntity implements TransPojo {
 //
 //    @ApiModelProperty(value = "当前管理率", position = 14)
 //    private String currentRates;
+
+    @ApiModelProperty(value = "主管名称", position = 51)
+    @TableField(exist = false)
+    private String directorName;
 }
