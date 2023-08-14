@@ -57,7 +57,7 @@ public class BizGroupPerformanceServiceImpl extends ServiceImpl<BizGroupPerforma
             queryWrapper.orderBy(true, bizGroupPerformancePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizGroupPerformancePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizGroupPerformance::getId);
+            queryWrapper.lambda().orderByDesc(BizGroupPerformance::getAssYear);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

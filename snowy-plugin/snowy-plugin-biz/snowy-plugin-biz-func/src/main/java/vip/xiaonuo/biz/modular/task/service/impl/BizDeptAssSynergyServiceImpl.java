@@ -59,7 +59,7 @@ public class BizDeptAssSynergyServiceImpl extends ServiceImpl<BizDeptAssSynergyM
             queryWrapper.orderBy(true, bizDeptAssSynergyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizDeptAssSynergyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizDeptAssSynergy::getId);
+            queryWrapper.lambda().orderByDesc(BizDeptAssSynergy::getAssYear).orderByAsc(BizDeptAssSynergy::getOrgName);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

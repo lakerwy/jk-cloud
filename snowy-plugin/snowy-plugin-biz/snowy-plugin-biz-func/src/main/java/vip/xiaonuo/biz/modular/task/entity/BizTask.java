@@ -140,22 +140,25 @@ public class BizTask {
     @ApiModelProperty(value = "权重（存小数 0.7）", position = 25)
     private Double rate;
 
-    /** 进度分系数 */
-    @ApiModelProperty(value = "进度分系数", position = 25)
+    /** 进度分系数（系统自动计算） */
+    @ApiModelProperty(value = "进度分系数（系统自动计算）", position = 26)
     private Double progressRate;
 
     /** 人工调整分 */
-    @ApiModelProperty(value = "人工调整分", position = 26)
-    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    @ApiModelProperty(value = "人工调整分", position = 27)
     private Double adjScore;
 
     /** 进度分 */
-    @ApiModelProperty(value = "进度分", position = 26)
+    @ApiModelProperty(value = "进度分", position = 28)
     @TableField(exist = false)
     private Double progressScore;
 
     /** 成效分 */
-    @ApiModelProperty(value = "成效分", position = 26)
+    @ApiModelProperty(value = "成效分", position = 29)
     @TableField(exist = false)
     private Double effectScore;
+
+    /** 任务进度分系数自动计算留痕备注 */
+    @ApiModelProperty(value = "任务进度分系数自动计算留痕备注", position = 30)
+    private String autoMemo;
 }

@@ -152,6 +152,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             for (BizTask item:bizTaskList) {
                 double progressScore = 0;  //任务进度分
                 double effectScore = 0;    //任务成效分
+                double adjScore = ObjectUtil.isNotEmpty(item.getAdjScore()) ? item.getAdjScore() : 0;       //人工修正分
                 //任务权重，进度分系数
                 if(ObjectUtil.isNotEmpty(item.getRate()) && ObjectUtil.isNotEmpty(item.getProgressRate()) ) {
                     progressScore = fullScore * (item.getRate() / totalRate) * progress * item.getProgressRate();
@@ -162,7 +163,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 item.setProgressScore(progressScore);
                 item.setEffectScore(effectScore);
 
-                total = total + progressScore + effectScore;
+                total = total + progressScore + effectScore + adjScore;
             }
         }
         deptTaskScore.setTotalScore(total);
@@ -344,16 +345,24 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     public void update(BizTaskUpdateParam bizTaskUpdateParam) {
         BizTask bizTask = this.queryEntity(bizTaskUpdateParam.getId());
         String colName = bizTaskUpdateParam.getColName().toLowerCase();
+        //完成进度
         if("finishstatus".equals(colName)){
             bizTask.setFinishStatus(Double.valueOf(bizTaskUpdateParam.getColValue()));
-        }else if("attach".equals(colName)){
+        }//证明文件
+        else if("attach".equals(colName)){
             bizTask.setAttach(bizTaskUpdateParam.getColValue());
-        }else if("rate".equals(colName)){
+        }//任务权重
+        else if("rate".equals(colName)){
             bizTask.setRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
-        }else if("jdrate".equals(colName)){
-            bizTask.setRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
-        }else if("memo".equals(colName)){
+        }//进度系数
+        else if("progressrate".equals(colName)){
+            bizTask.setProgressRate(Double.valueOf(bizTaskUpdateParam.getColValue()));
+        }//完成情况
+        else if("memo".equals(colName)){
             bizTask.setMemo(bizTaskUpdateParam.getColValue());
+        }//人工修正分
+        else if("adjscore".equals(colName)){
+            bizTask.setAdjScore(Double.valueOf(bizTaskUpdateParam.getColValue()));
         }
         this.updateById(bizTask);
     }

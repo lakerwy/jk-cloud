@@ -20,8 +20,8 @@ public class DeptAssReportParam {
     @NotBlank(message = "assYear不能为空")
     private String assYear;
 
-//    /** 组织Id */
-//    @ApiModelProperty(value = "组织Id", position = 3)
-//    private String orgId;
+    /** 组织Id */
+    @ApiModelProperty(value = "组织Id", position = 3)
+    private String orgId;
 
 }
