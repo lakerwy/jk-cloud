@@ -58,7 +58,7 @@ public class BizDeptAssDictServiceImpl extends ServiceImpl<BizDeptAssDictMapper,
             queryWrapper.orderBy(true, bizDeptAssDictPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizDeptAssDictPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizDeptAssDict::getId);
+            queryWrapper.lambda().orderByAsc(BizDeptAssDict::getDictName);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

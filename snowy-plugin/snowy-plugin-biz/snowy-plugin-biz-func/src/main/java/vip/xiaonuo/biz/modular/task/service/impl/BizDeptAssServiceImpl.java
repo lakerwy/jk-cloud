@@ -76,7 +76,7 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
             queryWrapper.orderBy(true, bizDeptAssPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizDeptAssPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizDeptAss::getId);
+            queryWrapper.lambda().orderByDesc(BizDeptAss::getAssYear);
         }
         Page<BizDeptAss> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
@@ -163,6 +163,9 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
         //各部门年度协同分
         List<BizDeptAssSynergy> bizDeptAssSynergyList = bizDeptAssSynergyService.list(new QueryWrapper<BizDeptAssSynergy>().lambda().eq(BizDeptAssSynergy::getAssYear,deptAssReportParam.getAssYear()));
         //拼接结果
+        if(StrUtil.isNotEmpty(deptAssReportParam.getOrgId())){
+            result = result.stream().filter(x->x.getOrgId().equals(deptAssReportParam.getOrgId())).collect(Collectors.toList());
+        }
         result.forEach(item->{
             //部门名称
             Optional<BizSysOrgVo> org = orgList.stream().filter(x->x.getOrgId().equals(item.getOrgId())).findFirst();
