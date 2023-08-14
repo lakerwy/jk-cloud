@@ -87,6 +87,8 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
         }
         //发送钉钉通知
         dingDingService.batchSend(devMessageSendParam.getContent(),receiverIdList);
+        //发送推送消息
+        //TODO
 
     }
 

@@ -258,6 +258,12 @@ public abstract class SaBaseLoginUser {
     /**一级部门名称*/
     private String firstOrgName;
 
+    /**一级部门领导id*/
+    private String firstOrgLeaderId;
+
+    /**一级部门领导名称*/
+    private String firstOrgLeaderName;
+
     /** 分类 */
     private String category;
 

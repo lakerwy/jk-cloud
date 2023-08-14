@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -23,6 +24,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.sys.api.SysUserApi;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.param.SysUserGrantRoleParam;
 import vip.xiaonuo.sys.modular.user.param.SysUserIdParam;
@@ -46,6 +49,9 @@ public class SysUserApiProvider implements SysUserApi {
 
     @Resource
     private SysUserService sysUserService;
+
+    @Resource
+    private SysOrgService sysOrgService;
 
     @Override
     public JSONObject getUserByIdWithoutException(String userId) {
@@ -122,6 +128,14 @@ public class SysUserApiProvider implements SysUserApi {
                 if(ObjectUtil.isNotEmpty(directorId)) {
                     result.set(directorId);
                 }
+            }
+        }
+        //查询员工所在部门，获取部门负责人
+        if(ObjectUtil.isEmpty(result.get())){
+            SysOrg sysOrg = sysOrgService.getById(userOrgId);
+            String directorId = sysOrg.getDirectorId();
+            if(StrUtil.isNotBlank(directorId)){
+                result.set(directorId);
             }
         }
         // 再查兼职职位主管

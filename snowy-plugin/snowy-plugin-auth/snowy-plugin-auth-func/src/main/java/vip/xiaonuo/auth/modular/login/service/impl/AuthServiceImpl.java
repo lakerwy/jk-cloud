@@ -394,8 +394,12 @@ public class AuthServiceImpl implements AuthService {
         saBaseLoginUser.setDataScopeList(null);
         String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + saBaseLoginUser.getOrgId()));
         String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + saBaseLoginUser.getOrgId()));
+        String firstOrgLeaderId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + saBaseLoginUser.getOrgId());
+        String firstOrgLeaderName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + saBaseLoginUser.getOrgId());
         saBaseLoginUser.setFirstOrgId(sOrgId);
         saBaseLoginUser.setFirstOrgName(sOrgName);
+        saBaseLoginUser.setFirstOrgLeaderId(firstOrgLeaderId);
+        saBaseLoginUser.setFirstOrgLeaderName(firstOrgLeaderName);
         return saBaseLoginUser;
     }
 

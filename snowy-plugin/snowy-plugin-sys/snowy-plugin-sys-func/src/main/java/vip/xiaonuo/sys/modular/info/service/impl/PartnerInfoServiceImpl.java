@@ -73,6 +73,8 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     @Resource
     private PartnerPaymentService partnerPaymentService;
 
+    private final String PARENT_ID = "1666256671493107714";
+
     @Override
     public Page<PartnerInfo> page(PartnerInfoPageParam partnerInfoPageParam) {
         QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
@@ -99,12 +101,15 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     @Override
     public void add(PartnerInfoAddParam partnerInfoAddParam) {
         String name = partnerInfoAddParam.getName();
+        SysOrg one = orgService.getOne(new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getParentId, PARENT_ID).eq(SysOrg::getName, name));
         SysOrg sysOrg = new SysOrg();
-        sysOrg.setCategory(SysOrgCategoryEnum.PARTNER.name());
-        sysOrg.setParentId("1666256671493107714");
-        sysOrg.setSortCode(99);
-        sysOrg.setName(name);
-        orgService.save(sysOrg);
+        if(ObjectUtil.isNull(one)){
+            sysOrg.setCategory(SysOrgCategoryEnum.PARTNER.name());
+            sysOrg.setParentId(PARENT_ID);
+            sysOrg.setSortCode(99);
+            sysOrg.setName(name);
+            orgService.save(sysOrg);
+        }
         PartnerInfo partnerInfo = BeanUtil.toBean(partnerInfoAddParam, PartnerInfo.class);
         partnerInfo.setOrgId(sysOrg.getId());
         partnerInfo.setSn(CommonUtils.getTableSn(BizTableCommon.SYS_PARTNER_INFO));
