@@ -180,4 +180,7 @@ public class SysUserEditParam {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 37)
     private String extJson;
+
+    @ApiModelProperty(value = "推送关联的cid", position = 52)
+    private String cid;
 }

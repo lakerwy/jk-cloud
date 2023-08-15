@@ -175,4 +175,7 @@ public class SysUserAddParam {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 36)
     private String extJson;
+
+    @ApiModelProperty(value = "推送关联的cid", position = 52)
+    private String cid;
 }

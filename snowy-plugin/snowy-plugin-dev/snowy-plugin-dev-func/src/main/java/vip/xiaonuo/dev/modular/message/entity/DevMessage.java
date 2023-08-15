@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.dev.modular.message.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -52,4 +53,8 @@ public class DevMessage extends CommonEntity {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 6)
     private String extJson;
+
+    @ApiModelProperty(value = "流程实例id", position = 7)
+    @TableField(exist = false)
+    private String processInstanceId;
 }

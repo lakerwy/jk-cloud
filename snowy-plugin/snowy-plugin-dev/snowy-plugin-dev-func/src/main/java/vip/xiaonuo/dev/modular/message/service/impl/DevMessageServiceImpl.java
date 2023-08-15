@@ -15,6 +15,7 @@ package vip.xiaonuo.dev.modular.message.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
@@ -44,9 +45,11 @@ import vip.xiaonuo.dev.modular.message.service.DevMessageService;
 import vip.xiaonuo.dev.modular.relation.entity.DevRelation;
 import vip.xiaonuo.dev.modular.relation.enums.DevRelationCategoryEnum;
 import vip.xiaonuo.dev.modular.relation.service.DevRelationService;
+import vip.xiaonuo.dev.modular.sms.service.UniPushService;
 import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -69,6 +72,9 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
     @Resource
     private IDingDingService dingDingService;
 
+    @Resource
+    private UniPushService uniPushService;
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void send(DevMessageSendParam devMessageSendParam) {
@@ -84,11 +90,17 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
                     .set("read", false))).collect(Collectors.toList());
             devRelationService.saveRelationBatchWithAppend(devMessage.getId(), receiverIdList,
                     DevRelationCategoryEnum.MSG_TO_USER.getValue(), extJsonList);
+            List<JSONObject> users = sysUserApi.getUserListByIdWithException(receiverIdList);
+            if(CollUtil.isNotEmpty(users)){
+                List<String> ids = users.stream().map(user -> String.valueOf(user.get("cid"))).collect(Collectors.toList());
+                uniPushService.batchSendPush(ids,devMessage,1);
+            }
         }
         //发送钉钉通知
         dingDingService.batchSend(devMessageSendParam.getContent(),receiverIdList);
         //发送推送消息
         //TODO
+
 
     }
 

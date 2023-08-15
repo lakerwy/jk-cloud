@@ -48,4 +48,7 @@ public class DevMessageSendParam {
     @ApiModelProperty(value = "分类", position = 4, hidden = true)
     @NotBlank(message = "category不能为空")
     private String category;
+
+    @ApiModelProperty(value = "流程实例id", position = 5)
+    private String processInstanceId;
 }

@@ -33,7 +33,7 @@ public interface DevMessageApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:35
      **/
-    void sendMessage(List<String> receiverIdList, String subject);
+    void sendMessage(List<String> receiverIdList, String subject,String processInstanceId);
 
     /**
      * 发送站内信指定分类
@@ -43,7 +43,7 @@ public interface DevMessageApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:35
      **/
-    void sendMessage(List<String> receiverIdList, String category, String subject);
+    void sendMessage(List<String> receiverIdList, String category, String subject,String processInstanceId);
 
     /**
      * 发送站内信带内容，默认：分类系统通知
@@ -54,7 +54,7 @@ public interface DevMessageApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:35
      **/
-    void sendMessageWithContent(List<String> receiverIdList, String subject, String content);
+    void sendMessageWithContent(List<String> receiverIdList, String subject, String content,String processInstanceId);
 
     /**
      * 发送站内信带内容，指定分类
@@ -65,7 +65,7 @@ public interface DevMessageApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:35
      **/
-    void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content);
+    void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content,String processInstanceId);
 
     /**
      * 获取未读站内信列表

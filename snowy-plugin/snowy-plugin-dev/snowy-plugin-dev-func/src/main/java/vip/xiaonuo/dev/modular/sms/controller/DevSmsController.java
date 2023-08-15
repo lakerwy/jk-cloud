@@ -153,17 +153,33 @@ public class DevSmsController {
      * @author yong.ye
      * @date 2023/6/27 15:47
      */
+//    @ApiOperationSupport(order = 6)
+//    @ApiOperation("发送unipush推送消息")
+//    @CommonLog("发送unipush推送消息")
+//    @GetMapping("/dev/sms/sendUniPush")
+//    public CommonResult<String> sendUniPush(String cid) {
+//        String message = RandomUtil.randomString(16);
+//        IPushResult iPushResult = uniPushService.singlePush(cid, message, 1);
+//        //IPushResult iPushResult = uniPushService.singlePush(cid, message, 1);
+////        List<String> cids = new ArrayList<>();
+////        cids.add(cid);
+////        jPushService.sendToAliasList(cids,"notification_title"+message,"msg_title"+message,"msg_content"+message,"exts",false);
+//        System.out.println(iPushResult.getResponse().toString());
+//        return CommonResult.ok();
+//    }
+
+    /**
+     * 发送短信——云片(单一发送)
+     *
+     * @author yong.ye
+     * @date 2023/6/27 15:47
+     */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("发送unipush推送消息")
-    @CommonLog("发送unipush推送消息")
-    @GetMapping("/dev/sms/sendUniPush")
-    public CommonResult<String> sendUniPush(String cid) {
-        String message = RandomUtil.randomString(16);
-        //IPushResult iPushResult = uniPushService.singlePush(cid, message, 1);
-        List<String> cids = new ArrayList<>();
-        cids.add(cid);
-        jPushService.sendToAliasList(cids,"notification_title"+message,"msg_title"+message,"msg_content"+message,"exts",false);
-        System.out.println(message);
+    @ApiOperation("别名绑定")
+    @CommonLog("别名绑定")
+    @PostMapping("/dev/sms/bindAlias")
+    public CommonResult<String> bindAlias(String alias,String cid) {
+        uniPushService.bindAlias(alias,cid);
         return CommonResult.ok();
     }
 }

@@ -40,27 +40,28 @@ public class DevMessageProvider implements DevMessageApi {
     private DevMessageService devMessageService;
 
     @Override
-    public void sendMessage(List<String> receiverIdList, String subject) {
-        this.sendMessage(receiverIdList, subject, null);
+    public void sendMessage(List<String> receiverIdList, String subject,String processInstanceId) {
+        this.sendMessage(receiverIdList, subject, null, processInstanceId);
     }
 
     @Override
-    public void sendMessage(List<String> receiverIdList, String subject, String content) {
-        this.sendMessageWithContent(receiverIdList, subject, null);
+    public void sendMessage(List<String> receiverIdList, String subject, String content, String processInstanceId) {
+        this.sendMessageWithContent(receiverIdList, subject, null,processInstanceId);
     }
 
     @Override
-    public void sendMessageWithContent(List<String> receiverIdList, String subject, String content) {
-        this.sendMessageWithContent(receiverIdList, null, subject, content);
+    public void sendMessageWithContent(List<String> receiverIdList, String subject, String content, String processInstanceId) {
+        this.sendMessageWithContent(receiverIdList, null, subject, content,processInstanceId);
     }
 
     @Override
-    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content) {
+    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content,String processInstanceId) {
         DevMessageSendParam devMessageSendParam = new DevMessageSendParam();
         devMessageSendParam.setReceiverIdList(receiverIdList);
         devMessageSendParam.setCategory(category);
         devMessageSendParam.setSubject(subject);
         devMessageSendParam.setContent(ObjectUtil.isEmpty(content)?subject:content);
+        devMessageSendParam.setProcessInstanceId(processInstanceId);
         devMessageService.send(devMessageSendParam);
     }
 

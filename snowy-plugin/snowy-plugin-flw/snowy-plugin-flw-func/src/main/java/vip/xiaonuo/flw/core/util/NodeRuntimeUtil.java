@@ -871,7 +871,7 @@ public class NodeRuntimeUtil {
                 switch (processNoticeChannel) {
                     case "MSG":
                         // TODO 执行发送消息
-                        devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat);
+                        devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId());
                         log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                         break;
                     case "EMAIL":
