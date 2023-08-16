@@ -66,7 +66,7 @@ public class BizInsLibraryVo {
 
     /** 与我司互补说明 */
     @ApiModelProperty(value = "与我司互补说明", position = 12)
-    private String explain;
+    private String explainMemo;
 
     /** 与我司是否合作 */
     @ApiModelProperty(value = "与我司是否合作", position = 13)
