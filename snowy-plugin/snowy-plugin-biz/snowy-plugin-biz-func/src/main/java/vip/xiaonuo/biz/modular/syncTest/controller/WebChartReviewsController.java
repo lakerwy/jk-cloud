@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.syncTest.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -37,6 +38,7 @@ import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-图审受理单控制器
@@ -94,30 +96,38 @@ public class WebChartReviewsController {
     @ApiOperation("图审相关信息同步")
     @GetMapping("/biz/syncTest/syncChartView")
     public CommonResult<String> syncChartView() {
-        List<WebChartReviews> chartReviewsList = webChartReviewsService.list();
+        //先执行 UPDATE BIZ_AUDIT_LISTS_DETAILS  a  JOIN `jk-cloud-test`.WEB_AUDIT_LISTS_DETAILS b  ON a.TASK_ID = b.TASK_ID AND a.ORDER_INDEX = b.ORDER_INDEX SET a.ID = b.ID ;
+        List<WebChartReviews> chartReviewsList = webChartReviewsService.list(new LambdaQueryWrapper<WebChartReviews>().eq(WebChartReviews::getDeleteFlag,"NOT_DELETE"))
+                .stream().filter(webChartReviews -> webChartReviews.getDeleteFlag().equals("NOT_DELETE")).collect(Collectors.toList());
         log.info("chartReviewsList更新条数-----"+chartReviewsList.size());
         List<BizChartReviews> bizChartReviews = BeanUtil.copyToList(chartReviewsList, BizChartReviews.class);
-        bizChartReviewsService.updateBatchById(bizChartReviews);
+        //bizChartReviewsService.delete();
+        bizChartReviewsService.saveOrUpdateBatch(bizChartReviews);
 
-        List<WebChartReviewDetails> chartReviewDetails = webChartReviewDetailsService.list();
+        List<WebChartReviewDetails> chartReviewDetails = webChartReviewDetailsService.list(new LambdaQueryWrapper<WebChartReviewDetails>().eq(WebChartReviewDetails::getDeleteFlag,"NOT_DELETE"))
+                .stream().filter(webChartReviewDetails -> webChartReviewDetails.getDeleteFlag().equals("NOT_DELETE")).collect(Collectors.toList());
         log.info("chartReviewDetails更新条数-----"+chartReviewDetails.size());
         List<BizChartReviewDetails> bizChartReviewDetails = BeanUtil.copyToList(chartReviewDetails, BizChartReviewDetails.class);
-        bizChartReviewDetailsService.updateBatchById(bizChartReviewDetails);
+        bizChartReviewDetailsService.saveOrUpdateBatch(bizChartReviewDetails);
 
-        List<WebAuditLists> auditLists = webAuditListsService.list();
+        List<WebAuditLists> auditLists = webAuditListsService.list().stream().filter(bean -> bean.getDeleteFlag().equals("NOT_DELETE")).collect(Collectors.toList())
+                .stream().filter(bean -> bean.getDeleteFlag().equals("NOT_DELETE")).collect(Collectors.toList());
         log.info("auditLists更新条数-----"+auditLists.size());
         List<BizAuditLists> bizAuditLists = BeanUtil.copyToList(auditLists, BizAuditLists.class);
-        bizAuditListsService.updateBatchById(bizAuditLists);
+        bizAuditListsService.saveOrUpdateBatch(bizAuditLists);
 
-        List<WebAuditListsDetails> auditListsDetails = webAuditListsDetailsService.list();
+
+        List<WebAuditListsDetails> auditListsDetails = webAuditListsDetailsService.list(new LambdaQueryWrapper<WebAuditListsDetails>().eq(WebAuditListsDetails::getDeleteFlag,"NOT_DELETE"))
+                .stream().filter(bean -> bean.getDeleteFlag().equals("NOT_DELETE")).collect(Collectors.toList());
         log.info("auditListsDetails更新条数----"+auditListsDetails.size());
         List<BizAuditListsDetails> bizAuditListsDetails = BeanUtil.copyToList(auditListsDetails, BizAuditListsDetails.class);
-        bizAuditListsDetailsService.updateBatchById(bizAuditListsDetails);
+        bizAuditListsDetailsService.saveOrUpdateBatch(bizAuditListsDetails);
 
-        List<WebMapRegister> mapRegisters = webMapRegisterService.list();
+        List<WebMapRegister> mapRegisters = webMapRegisterService.list(new LambdaQueryWrapper<WebMapRegister>().eq(WebMapRegister::getDeleteFlag,"NOT_DELETE"))
+                        .stream().filter(bean -> bean.getDeleteFlag().equals("NOT_DELETE")).collect(Collectors.toList());
         log.info("mapRegisters更新条数----"+mapRegisters.size());
         List<BizMapRegister> bizMapRegisters = BeanUtil.copyToList(mapRegisters, BizMapRegister.class);
-        bizMapRegisterService.updateBatchById(bizMapRegisters);
+        bizMapRegisterService.saveOrUpdateBatch(bizMapRegisters);
         return CommonResult.ok();
     }
 }
