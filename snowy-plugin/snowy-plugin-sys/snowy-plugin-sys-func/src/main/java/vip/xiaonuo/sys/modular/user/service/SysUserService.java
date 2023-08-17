@@ -500,4 +500,6 @@ public interface SysUserService extends IService<SysUser> {
      * @date 2022/4/24 20:48
      */
     void addAndGrantRole(SysUserAddParam sysUserAddParam);
+
+    void bindCid(SysUserUpdateCidParam sysUserUpdateCidParam);
 }

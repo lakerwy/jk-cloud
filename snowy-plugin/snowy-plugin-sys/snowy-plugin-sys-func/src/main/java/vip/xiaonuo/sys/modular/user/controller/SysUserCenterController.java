@@ -350,4 +350,19 @@ public class SysUserCenterController {
     public CommonResult<List<SysRole>> getRoleListByIdList(@RequestBody @Valid SysUserIdListParam sysUserIdListParam) {
         return CommonResult.data(sysUserService.getRoleListByIdList(sysUserIdListParam));
     }
+
+    /**
+     * 编辑个人信息
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:47
+     */
+    @ApiOperationSupport(order = 22)
+    @ApiOperation("绑定用户CID信息")
+    @CommonLog("绑定用户CID信息")
+    @PostMapping("/sys/userCenter/bindCid")
+    public CommonResult<String> bindCid(@RequestBody @Valid SysUserUpdateCidParam sysUserUpdateCidParam) {
+        sysUserService.bindCid(sysUserUpdateCidParam);
+        return CommonResult.ok();
+    }
 }
