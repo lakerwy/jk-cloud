@@ -46,7 +46,8 @@ public class DevJobListener implements ApplicationListener<ApplicationStartedEve
                         // 运行定时任务
                         ((CommonTimerTaskRunner) SpringUtil.getBean(Class.forName(devJob.getActionClass()))).action();
                     } catch (ClassNotFoundException e) {
-                        throw new CommonException("定时任务找不到对应的类，名称为：{}", devJob.getActionClass());
+                        log.debug("定时任务找不到对应的类，名称为：{}", devJob.getActionClass());
+                        //throw new CommonException("定时任务找不到对应的类，名称为：{}", devJob.getActionClass());
                     }
                 }));
         // 设置秒级别的启用
