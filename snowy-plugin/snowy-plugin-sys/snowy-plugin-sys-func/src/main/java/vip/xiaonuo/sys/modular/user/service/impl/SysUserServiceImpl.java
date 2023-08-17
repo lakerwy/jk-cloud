@@ -1785,4 +1785,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         return new HashMap<>();
     }
+
+    @Override
+    public void bindCid(SysUserUpdateCidParam sysUserUpdateCidParam) {
+        SysUser sysUser = this.queryEntity(sysUserUpdateCidParam.getId());
+        this.update(new LambdaUpdateWrapper<SysUser>().eq(SysUser::getId,
+                sysUser.getId()).set(SysUser::getCid,sysUserUpdateCidParam.getCid()));
+    }
 }

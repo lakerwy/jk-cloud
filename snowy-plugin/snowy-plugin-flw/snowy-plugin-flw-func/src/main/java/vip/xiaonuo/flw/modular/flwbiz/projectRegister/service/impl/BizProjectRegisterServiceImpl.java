@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.flw.modular.flwbiz.projectRegister.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
@@ -83,6 +84,9 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         if(ObjectUtil.isNotEmpty(bizProjectRegisterPageParam.getSearchKey())){
             queryWrapper.lambda().or(wrapper ->wrapper.like(BizProjectRegister::getEntryName,bizProjectRegisterPageParam.getSearchKey()).or().like(BizProjectRegister::getSn,bizProjectRegisterPageParam.getSearchKey()));
         }
+
+//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+
 //        queryWrapper.lambda().eq(BizProjectRegister::getStatus,"1");
         queryWrapper.lambda().in(BizProjectRegister::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isAllNotEmpty(bizProjectRegisterPageParam.getSortField(), bizProjectRegisterPageParam.getSortOrder())) {

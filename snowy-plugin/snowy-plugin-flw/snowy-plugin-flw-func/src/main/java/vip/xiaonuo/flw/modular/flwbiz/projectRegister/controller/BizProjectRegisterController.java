@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.flw.modular.flwbiz.projectRegister.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -56,7 +57,7 @@ public class BizProjectRegisterController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-信息报备分页")
-//    @SaCheckPermission("/flw/projectregister/page")
+//    @SaCheckPermission("/flw/projectRegister/page")
     @GetMapping("/flw/projectRegister/page")
     public CommonResult<Page<BizProjectRegister>> page(BizProjectRegisterPageParam bizProjectRegisterPageParam) {
         return CommonResult.data(bizProjectRegisterService.page(bizProjectRegisterPageParam));
@@ -71,7 +72,7 @@ public class BizProjectRegisterController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加业务表-信息报备")
     @CommonLog("添加业务表-信息报备")
-//    @SaCheckPermission("/flw/projectregister/add")
+//    @SaCheckPermission("/flw/projectRegister/add")
     @PostMapping("/flw/projectRegister/add")
     public CommonResult<String> add(@RequestBody @Valid BizProjectRegisterAddParam bizProjectRegisterAddParam) {
         bizProjectRegisterService.add(bizProjectRegisterAddParam);
@@ -87,7 +88,7 @@ public class BizProjectRegisterController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑业务表-信息报备")
     @CommonLog("编辑业务表-信息报备")
-//    @SaCheckPermission("/flw/projectregister/edit")
+//    @SaCheckPermission("/flw/projectRegister/edit")
     @PostMapping("/flw/projectRegister/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizProjectRegisterEditParam bizProjectRegisterEditParam) {
         bizProjectRegisterService.edit(bizProjectRegisterEditParam);
@@ -103,7 +104,7 @@ public class BizProjectRegisterController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除业务表-信息报备")
     @CommonLog("删除业务表-信息报备")
-//    @SaCheckPermission("/flw/projectregister/delete")
+//    @SaCheckPermission("/flw/projectRegister/delete")
     @PostMapping("/flw/projectRegister/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<BizProjectRegisterIdParam> bizProjectRegisterIdParamList) {
@@ -119,7 +120,7 @@ public class BizProjectRegisterController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取业务表-信息报备详情")
-//    @SaCheckPermission("/flw/projectregister/detail")
+//    @SaCheckPermission("/flw/projectRegister/detail")
     @GetMapping("/flw/projectRegister/detail")
     public CommonResult<BizProjectRegister> detail(@Valid BizProjectRegisterIdParam bizProjectRegisterIdParam) {
         return CommonResult.data(bizProjectRegisterService.detail(bizProjectRegisterIdParam));
@@ -127,7 +128,7 @@ public class BizProjectRegisterController {
 
     @ApiOperationSupport(order = 7)
     @ApiOperation("修改业务表-信息状态情况")
-//    @SaCheckPermission("/biz/Chartreviews/page")
+//    @SaCheckPermission("/flw/projectRegister/updateStatus")
     @PostMapping("/flw/projectRegister/updateStatus")
     public CommonResult<String> updateStatus(BizProjectRegisterCommonEditParam bizProjectRegisterCommonEditParam){
         bizProjectRegisterService.updateStatus(bizProjectRegisterCommonEditParam);
