@@ -123,13 +123,15 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         NodeRuntimeUtil.handleTenAuth();
         TaskQuery taskQuery = taskService.createTaskQuery().active().taskAssignee(StpUtil.getLoginIdAsString()).orderByTaskCreateTime().desc();
         if(ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getName())) {
-            taskQuery.processDefinitionName(flwTaskPageTodoParam.getName());
+            taskQuery.processDefinitionName(flwTaskPageTodoParam.getName()).or()
+                    .processVariableValueLike("initiatorProcessAbstract", "%" + flwTaskPageTodoParam.getName() + "%");
         }
         if(ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getInitiator())) {
             taskQuery.processVariableValueEquals("initiator", flwTaskPageTodoParam.getInitiator());
         }
         if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getSearchKey())) {
-            taskQuery.processVariableValueLike("initiatorName", "%" + flwTaskPageTodoParam.getSearchKey() + "%");
+            taskQuery.processVariableValueLike("initiatorName", "%" + flwTaskPageTodoParam.getSearchKey() + "%").or()
+                    .processVariableValueLike("initiatorProcessSn", "%" + flwTaskPageTodoParam.getSearchKey() + "%");
         }
         if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getSn())) {
             taskQuery.processVariableValueLike("initiatorProcessSn", "%" + flwTaskPageTodoParam.getSn() + "%");
