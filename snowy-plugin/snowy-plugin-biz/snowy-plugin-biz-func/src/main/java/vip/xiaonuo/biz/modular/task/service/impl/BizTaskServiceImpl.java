@@ -84,16 +84,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getOrgId())) {
             queryWrapper.lambda().eq(BizTask::getOrgId, bizTaskPageParam.getOrgId());
         }
-        if(ObjectUtil.isNotEmpty(bizTaskPageParam.getTaskName())) {
-            queryWrapper.lambda().like(BizTask::getTaskName, bizTaskPageParam.getTaskName());
-        }
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getYear())) {
             queryWrapper.lambda().eq(BizTask::getYear, bizTaskPageParam.getYear());
-        }
-        if (ObjectUtil.isNotEmpty(bizTaskPageParam.getSearchKey())) {
-            queryWrapper.lambda().and(q->q.like(BizTask::getTaskName, bizTaskPageParam.getSearchKey()).or()
-                    .like(BizTask::getNode, bizTaskPageParam.getSearchKey()).or()
-                    .like(BizTask::getMarkResult, bizTaskPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(bizTaskPageParam.getSortField(), bizTaskPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizTaskPageParam.getSortOrder());
@@ -103,9 +95,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             queryWrapper.lambda().orderByDesc(BizTask::getCreateTime);
         }
         //直接查询所有
-        bizTaskPageParam.setCurrent(1);
-        bizTaskPageParam.setSize(Integer.MAX_VALUE);
-        List<BizTask> result = this.page(CommonPageRequest.defaultPage(), queryWrapper).getRecords();
+        List<BizTask> result = this.list(queryWrapper);
         //构造结构
         List<DeptTaskResult> deptTaskResultList = new ArrayList<>();
         if(CollUtil.isNotEmpty(result)) {
@@ -124,6 +114,10 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 deptTaskResult.setTotalScore(deptTaskScore.getTotalScore());
                 deptTaskResultList.add(deptTaskResult);
             }
+        }
+        //过滤
+        if(ObjectUtil.isNotEmpty(bizTaskPageParam.getSearchKey())){
+            return deptTaskResultList.stream().filter(x->x.getOrgName().contains(bizTaskPageParam.getSearchKey())).collect(Collectors.toList());
         }
         return deptTaskResultList;
     }
