@@ -86,12 +86,12 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         }
 
         // 校验数据范围
-        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            queryWrapper.lambda().in(BizProjectRegister::getDataScopeId, loginUserDataScope);
-        } else {
-            queryWrapper.lambda().eq(BizProjectRegister::getCreateUser,StpUtil.getLoginIdAsString());
-        }
+//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+//            queryWrapper.lambda().in(BizProjectRegister::getDataScopeId, loginUserDataScope);
+//        } else {
+//            queryWrapper.lambda().eq(BizProjectRegister::getCreateUser,StpUtil.getLoginIdAsString());
+//        }
 
 //        queryWrapper.lambda().eq(BizProjectRegister::getStatus,"1");
         queryWrapper.lambda().in(BizProjectRegister::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());

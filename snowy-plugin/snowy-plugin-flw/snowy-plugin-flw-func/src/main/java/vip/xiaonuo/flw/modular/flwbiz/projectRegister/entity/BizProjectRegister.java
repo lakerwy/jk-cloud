@@ -235,8 +235,8 @@ public class BizProjectRegister {
     @ApiModelProperty(value = "投资额", position = 61)
     private String investment;
 
-    @ApiModelProperty(value = "数据权限字段",position = 62)
-    private String dataScopeId;
+//    @ApiModelProperty(value = "数据权限字段",position = 62)
+//    private String dataScopeId;
 }
 
 
