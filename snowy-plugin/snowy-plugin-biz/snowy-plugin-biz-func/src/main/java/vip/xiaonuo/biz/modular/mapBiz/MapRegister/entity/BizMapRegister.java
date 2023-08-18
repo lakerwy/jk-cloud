@@ -188,4 +188,7 @@ public class BizMapRegister {
     @TableField(exist = false)
     @ApiModelProperty(value = "审定图",position = 37)
     private String validatedAttachments;
+
+    @ApiModelProperty(value = "物流备注", position = 38)
+    private String logisticsMemo;
 }

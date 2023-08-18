@@ -57,7 +57,7 @@ public class BizProjectRegisterController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-信息报备分页")
-//    @SaCheckPermission("/flw/projectRegister/page")
+    @SaCheckPermission("/flw/projectRegister/page")
     @GetMapping("/flw/projectRegister/page")
     public CommonResult<Page<BizProjectRegister>> page(BizProjectRegisterPageParam bizProjectRegisterPageParam) {
         return CommonResult.data(bizProjectRegisterService.page(bizProjectRegisterPageParam));

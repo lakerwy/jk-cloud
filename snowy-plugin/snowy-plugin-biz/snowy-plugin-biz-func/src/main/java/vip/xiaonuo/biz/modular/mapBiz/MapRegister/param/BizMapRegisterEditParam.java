@@ -159,4 +159,7 @@ public class BizMapRegisterEditParam {
     @ApiModelProperty(value = "是否直接出图",position = 36)
     private String isPost;
 
+    @ApiModelProperty(value = "物流备注", position = 37)
+    private String logisticsMemo;
+
 }
