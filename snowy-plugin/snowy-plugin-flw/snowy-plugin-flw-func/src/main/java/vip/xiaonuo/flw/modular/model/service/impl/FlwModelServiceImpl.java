@@ -39,6 +39,8 @@ import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -97,6 +99,9 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
 
     @Resource
     private FormRelationTableService formRelationTableService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<FlwModel> page(FlwModelPageParam flwModelPageParam) {
@@ -190,6 +195,8 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         FlwModel flwModel = this.queryEntity(flwModelEditParam.getId());
         BeanUtil.copyProperties(flwModelEditParam, flwModel);
         this.updateById(flwModel);
+        //流程名称从flwModel中读取 保证和流程设计页面的流程名称同步，更新缓存
+        commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + flwModel.getDefinitionId(),flwModel.getName());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -235,6 +242,10 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
             //发布后保存模型和系统表单的关联关系
             //FlwModel flwModel = this.getById(flwModelIdParam.getId());
             formRelationTableService.saveByFlwModel(flwModel);
+
+            //流程名称从flwModel中读取 保证和流程设计页面的流程名称同步，更新缓存
+            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + flwModel.getDefinitionId(),flwModel.getName());
+
         } catch (ProcessEngineException e) {
             throw new CommonException("模型部署异常，id值为：{}，原因为：{}", flwModelIdParam.getId(), ExceptionUtil.getMessage(e));
         }

@@ -44,6 +44,8 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dev.api.DevEmailApi;
@@ -147,6 +149,7 @@ public class NodeRuntimeUtil {
      * @date 2022/6/13 16:40
      **/
     public static void handleTitleAndAbstract(DelegateExecution delegateExecution) {
+        CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
         Collection<ExtensionElements> extensionElementsCollection = delegateExecution.getBpmnModelElementInstance().getParentElement()
                 .getChildElementsByType(ExtensionElements.class);
         RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
@@ -159,8 +162,16 @@ public class NodeRuntimeUtil {
                                 JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
 
                                 String processDefinitionId = delegateExecution.getProcessDefinitionId();
-                                String processDefinitionName = repositoryService.createProcessDefinitionQuery()
-                                        .processDefinitionId(processDefinitionId).singleResult().getName();
+
+                                //流程名称，由于每次更新流程模板发布并不会更新流程名称
+                                Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+                                String processDefinitionName = "";
+                                if(ObjectUtil.isNotEmpty(o)){
+                                    processDefinitionName = String.valueOf(o);
+                                }else {
+                                    processDefinitionName = repositoryService.createProcessDefinitionQuery()
+                                            .processDefinitionId(processDefinitionId).singleResult().getName();
+                                }
 
 //                                // 流水号模板id
 //                                String processSnTemplateId = configInfo.getStr("processSnTemplateId");
