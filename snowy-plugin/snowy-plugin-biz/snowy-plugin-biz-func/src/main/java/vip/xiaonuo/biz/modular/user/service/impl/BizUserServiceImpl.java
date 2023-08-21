@@ -16,6 +16,7 @@ import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.afterturn.easypoi.entity.ImageEntity;
 import cn.afterturn.easypoi.word.WordExportUtil;
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -41,6 +42,7 @@ import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.alibaba.excel.write.style.column.LongestMatchColumnWidthStyleStrategy;
 import com.alibaba.excel.write.style.row.AbstractRowHeightStyleStrategy;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -59,6 +61,7 @@ import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.position.entity.BizPosition;
 import vip.xiaonuo.biz.modular.position.service.BizPositionService;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
+import vip.xiaonuo.biz.modular.user.enums.BizRoleCategoryEnum;
 import vip.xiaonuo.biz.modular.user.enums.BizUserStatusEnum;
 import vip.xiaonuo.biz.modular.user.mapper.BizUserMapper;
 import vip.xiaonuo.biz.modular.user.param.*;
@@ -71,7 +74,9 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.listener.CommonDataChangeEventCenter;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.*;
+import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dev.api.DevConfigApi;
+import vip.xiaonuo.dev.api.DevDfcApi;
 import vip.xiaonuo.sys.api.SysRoleApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
@@ -115,6 +120,13 @@ public class BizUserServiceImpl extends ServiceImpl<BizUserMapper, BizUser> impl
 
     @Resource
     private BizPositionService bizPositionService;
+
+    @Resource
+    private DbsApi dbsApi;
+
+    @Resource
+    private DevDfcApi devDfcApi;
+
 
     @Override
     public Page<BizUser> page(BizUserPageParam bizUserPageParam) {
@@ -685,13 +697,19 @@ public class BizUserServiceImpl extends ServiceImpl<BizUserMapper, BizUser> impl
             if(ObjectUtil.isNotEmpty(bizUserSelectorRoleParam.getOrgId())) {
                 if(loginUserDataScope.contains(bizUserSelectorRoleParam.getOrgId())) {
                     return BeanUtil.toBean(sysRoleApi.roleSelector(bizUserSelectorRoleParam.getOrgId(), bizUserSelectorRoleParam.getCategory(),
-                            bizUserSelectorRoleParam.getSearchKey(), loginUserDataScope), Page.class);
+                            bizUserSelectorRoleParam.getSearchKey(), loginUserDataScope,true), Page.class);
                 } else {
                     return new Page<>();
                 }
             } else {
-                return BeanUtil.toBean(sysRoleApi.roleSelector(bizUserSelectorRoleParam.getOrgId(), bizUserSelectorRoleParam.getCategory(),
-                        bizUserSelectorRoleParam.getSearchKey(), loginUserDataScope), Page.class);
+                if (ObjectUtil.isNotEmpty(bizUserSelectorRoleParam.getCategory()) & BizRoleCategoryEnum.GLOBAL.getValue().equals(bizUserSelectorRoleParam.getCategory())) {
+                    // 查询系统级别的
+                    return BeanUtil.toBean(sysRoleApi.roleSelector(null, bizUserSelectorRoleParam.getCategory(),
+                            bizUserSelectorRoleParam.getSearchKey(), null, true), Page.class);
+                } else {
+                    return BeanUtil.toBean(sysRoleApi.roleSelector(null, bizUserSelectorRoleParam.getCategory(),
+                            bizUserSelectorRoleParam.getSearchKey(), loginUserDataScope, true), Page.class);
+                }
             }
         } else {
             return new Page<>();
@@ -728,4 +746,10 @@ public class BizUserServiceImpl extends ServiceImpl<BizUserMapper, BizUser> impl
         return this.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
     }
 
+    @Override
+    public List<JSONObject> getDynamicFieldConfigList() {
+        String currentDataSourceId = dbsApi.getCurrentDataSourceId();
+        String tableName = AnnotationUtil.getAnnotationValue(BizUser.class, TableName.class);
+        return devDfcApi.getTableFieldList(currentDataSourceId, tableName);
+    }
 }

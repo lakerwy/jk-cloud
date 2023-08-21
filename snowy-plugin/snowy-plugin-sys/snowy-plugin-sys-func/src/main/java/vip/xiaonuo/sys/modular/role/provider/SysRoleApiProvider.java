@@ -69,7 +69,7 @@ public class SysRoleApiProvider implements SysRoleApi {
 
     @SuppressWarnings("ALL")
     @Override
-    public Page<JSONObject> roleSelector(String orgId, String category, String searchKey, List<String> dataScopeList) {
+    public Page<JSONObject> roleSelector(String orgId, String category, String searchKey, List<String> dataScopeList, boolean excludeSuperAdmin) {
         SysRoleSelectorRoleParam sysRoleSelectorRoleParam = new SysRoleSelectorRoleParam();
         sysRoleSelectorRoleParam.setOrgId(orgId);
         sysRoleSelectorRoleParam.setCategory(category);
@@ -82,8 +82,8 @@ public class SysRoleApiProvider implements SysRoleApi {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void grantForGenMenuAndButton(String menuId) {
-        String superAdminRoleId = sysRoleService.getOne(new LambdaQueryWrapper<SysRole>().eq(SysRole::getCode, SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue())
-                .eq(SysRole::getCategory, SysRoleCategoryEnum.GLOBAL.getValue())).getId();
+        String superAdminRoleId = sysRoleService.getOne(new LambdaQueryWrapper<SysRole>()
+                .eq(SysRole::getCode, SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue())).getId();
         SysRoleGrantResourceParam sysRoleGrantResourceParam = new SysRoleGrantResourceParam();
         sysRoleGrantResourceParam.setId(superAdminRoleId);
         SysMenu sysMenu = sysMenuService.queryEntity(menuId);

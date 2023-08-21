@@ -39,7 +39,7 @@ public interface SysRoleApi {
      * @author xuyuxiang
      * @date 2022/7/22 14:49
      **/
-    Page<JSONObject> roleSelector(String orgId, String category, String searchKey, List<String> dataScopeList);
+    Page<JSONObject> roleSelector(String orgId, String category, String searchKey, List<String> dataScopeList, boolean excludeSuperAdmin);
 
     /**
      * 代码生成菜单按钮授权

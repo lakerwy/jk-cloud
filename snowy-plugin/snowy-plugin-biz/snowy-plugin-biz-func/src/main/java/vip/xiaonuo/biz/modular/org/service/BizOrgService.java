@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.org.service;
 
 import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.org.entity.BizOrg;
@@ -172,4 +173,13 @@ public interface BizOrgService extends IService<BizOrg> {
      * @date 2022/4/24 20:08
      */
     Page<BizUser> userSelector(BizOrgSelectorUserParam bizOrgSelectorUserParam);
+
+    /**
+     * 获取动态字段配置
+     *
+     * @author 每天一点
+     * @date 2022/8/5 3：23
+     */
+    List<JSONObject> getDynamicFieldConfigList();
+
 }

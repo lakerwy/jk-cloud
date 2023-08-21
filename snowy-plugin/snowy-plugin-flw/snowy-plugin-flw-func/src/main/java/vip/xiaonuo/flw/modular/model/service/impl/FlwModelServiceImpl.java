@@ -335,7 +335,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     @Override
     public Page<FlwModelRoleResult> roleSelector(FlwModelSelectorRoleParam flwModelSelectorRoleParam) {
         return BeanUtil.toBean(sysRoleApi.roleSelector(flwModelSelectorRoleParam.getOrgId(), flwModelSelectorRoleParam.getCategory(),
-                flwModelSelectorRoleParam.getSearchKey(), null), Page.class);
+                flwModelSelectorRoleParam.getSearchKey(), null,false), Page.class);
     }
 
     @SuppressWarnings("ALL")

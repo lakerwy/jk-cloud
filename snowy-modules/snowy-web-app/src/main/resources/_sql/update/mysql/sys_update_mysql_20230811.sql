@@ -1,0 +1,45 @@
+-- 创建动态字段表 --
+DROP TABLE IF EXISTS `DEV_DFC`;
+CREATE TABLE `DEV_DFC`  (
+                            `ID` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '主键',
+                            `TENANT_ID` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '租户id',
+                            `DBS_ID` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '数据源',
+                            `TABLE_NAME` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '表名称',
+                            `SORT_CODE` int(11) NULL DEFAULT NULL COMMENT '排序码',
+                            `NAME` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '表单域属性名',
+                            `LABEL` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '标签文本',
+                            `REQUIRED` tinyint(1) NULL DEFAULT NULL COMMENT '必填',
+                            `PLACEHOLDER` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '提示语',
+                            `TYPE` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '类型',
+                            `SELECT_OPTION_TYPE` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '选择项类型',
+                            `DICT_TYPE_CODE` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '字典',
+                            `SEL_OPTION_API_URL` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '选择项api地址',
+                            `SEL_DATA_API_URL` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '已选择数据api地址',
+                            `IS_MULTIPLE` tinyint(1) NULL DEFAULT NULL COMMENT '是否多选',
+                            `DELETE_FLAG` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '删除标志',
+                            `CREATE_TIME` datetime NULL DEFAULT NULL COMMENT '创建时间',
+                            `CREATE_USER` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '创建用户',
+                            `UPDATE_TIME` datetime NULL DEFAULT NULL COMMENT '更新时间',
+                            `UPDATE_USER` varchar(20) CHARACTER SET utf8 COLLATE utf8_general_ci NULL DEFAULT NULL COMMENT '更新用户',
+                            PRIMARY KEY (`ID`) USING BTREE
+) ENGINE = InnoDB CHARACTER SET = utf8 COLLATE = utf8_general_ci COMMENT = '动态字段' ROW_FORMAT = DYNAMIC;
+
+-- 字典内容 --
+INSERT INTO `DEV_DICT` VALUES ('1687104430738157570', '-1', '0', 'DFC类型', 'DFC_TYPE', 'FRM', 105, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1687104953432322049', '-1', '1687104430738157570', '输入框', 'input', 'FRM', 106, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1687105046696865793', '-1', '1687104430738157570', '数字输入框', 'number', 'FRM', 106, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1687521605483429890', '-1', '1687104430738157570', '多行文本', 'textarea', 'FRM', 106, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1688098040816222209', '-1', '1687104430738157570', '单选框', 'radio', 'FRM', 106, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1688130427063316481', '-1', '1687104430738157570', '多选框', 'checkbox', 'FRM', 106, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1688133068094910466', '-1', '0', 'DFC选择项类型', 'DFC_SELECT_OPTION_TYPE', 'FRM', 107, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1688133571604328450', '-1', '1688133068094910466', '字典', 'DICT', 'FRM', 108, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1688133651887501313', '-1', '1688133068094910466', '接口', 'API', 'FRM', 108, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1688153828247154689', '-1', '1687104430738157570', '下拉选择', 'select', 'FRM', 106, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `DEV_DICT` VALUES ('1688200409285578754', '-1', '1687104430738157570', '分页下拉选择', 'pageSelect', 'FRM', 106, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+
+-- 菜单内容 --
+INSERT INTO `SYS_RESOURCE` VALUES ('1687256714411425794', '-1', '1548901111999773250', '动态字段', 'dfc', 'j6ndvl7qyc', 'MENU', '1548901111999770525', 'MENU', '/dev/dfc', 'dev/dfc/index', 'chrome-filled', NULL, 99, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `SYS_RESOURCE` VALUES ('1689891405367353346', '-1', '0', '业务字典', 'bizDict', NULL, 'MENU', '1548901111999773976', 'MENU', '/biz/dict/index', 'biz/dict/index', 'read-outlined', NULL, 12, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `SYS_RESOURCE` VALUES ('1689892202679377921', '-1', '1689891405367353346', '编辑字典', NULL, 'bizDictEdit', 'BUTTON', NULL, NULL, NULL, NULL, NULL, NULL, 1, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `SYS_RESOURCE` VALUES ('1689894316554067969', '-1', '1548901111999773328', '高德地图', 'gaodeMap', NULL, 'MENU', '1548901111999770525', 'MENU', '/exm/map/gaodeMap', 'exm/map/gaodeMap', 'environment-outlined', NULL, 99, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);
+INSERT INTO `SYS_RESOURCE` VALUES ('1689894577238450177', '-1', '1548901111999773328', '百度地图', 'baiduMap', NULL, 'MENU', '1548901111999770525', 'MENU', '/exm/map/baiduMap', 'exm/map/baiduMap', 'compass-outlined', NULL, 99, NULL, 'NOT_DELETE', NULL, NULL, NULL, NULL);

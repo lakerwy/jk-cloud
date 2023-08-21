@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.org.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -172,5 +173,20 @@ public class BizOrgController {
     public CommonResult<Page<BizUser>> userSelector(BizOrgSelectorUserParam bizOrgSelectorUserParam) {
         return CommonResult.data(bizOrgService.userSelector(bizOrgSelectorUserParam));
     }
+
+    /**
+     * 获取动态字段的配置
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("获取动态字段的配置")
+    @SaCheckPermission("/biz/org/getDynamicFieldConfigList")
+    @GetMapping("/biz/org/getDynamicFieldConfigList")
+    public CommonResult<List<JSONObject>> getDynamicFieldConfigList() {
+        return CommonResult.data(bizOrgService.getDynamicFieldConfigList());
+    }
+
 
 }

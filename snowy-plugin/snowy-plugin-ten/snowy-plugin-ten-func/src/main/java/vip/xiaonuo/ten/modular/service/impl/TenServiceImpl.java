@@ -20,6 +20,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.autoconfigure.MybatisPlusProperties;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -51,6 +52,7 @@ import vip.xiaonuo.ten.modular.result.TenDbsSelectorResult;
 import vip.xiaonuo.ten.modular.service.TenService;
 
 import javax.annotation.Resource;
+import java.net.URL;
 import java.sql.Connection;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -106,11 +108,16 @@ public class TenServiceImpl extends ServiceImpl<TenMapper, TenStorage> implement
         String domain = CommonServletUtil.getRequest().getHeader("Domain");
         if (ObjectUtil.isEmpty(domain)) {
             domain = CommonServletUtil.getRequest().getParameter("Domain");
-            if (ObjectUtil.isEmpty(domain)) {
-                domain = CommonServletUtil.getRequest().getHeader("Origin");
+            if (ObjectUtil.isEmpty(domain)){
+                domain = CommonServletUtil.getRequest().getHeader("Referer");
                 if (ObjectUtil.isEmpty(domain)) {
-                    domain = CommonServletUtil.getRequest().getParameter("Origin");
+                    domain = CommonServletUtil.getRequest().getParameter("Referer");
                 }
+                // 兜底逻辑，处理Referer为真实domain
+                if(ObjectUtil.isNotEmpty(domain)){
+                    domain = getDomainFromUrl(domain);
+                }
+
             }
         }
 
@@ -127,6 +134,30 @@ public class TenServiceImpl extends ServiceImpl<TenMapper, TenStorage> implement
             }
         }
     }
+
+    /**
+     * @description 根据url获取domain
+     * @param urlStr
+     * @return String
+     * @author dongxiayu
+     * @date 2023/8/16 22:42
+     **/
+    private String getDomainFromUrl(String urlStr){
+        String domain = null;
+
+        URL url = URLUtil.url(urlStr);
+        String protocol = url.getProtocol();
+        String host = url.getHost();
+        int port = url.getPort();
+        if(port==-1){
+            domain = String.format("%s://%s",protocol,host);
+        }else{
+            domain = String.format("%s://%s:%s",protocol,host,port);
+        }
+
+        return domain;
+    }
+
 
     @Override
     public TenStorage getCurrentTen() {

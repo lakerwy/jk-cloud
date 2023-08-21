@@ -367,7 +367,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         }
         //Personnel personnel = this.queryEntity(personnelIdParam.getId());
         PersonnelVo personnelVo = BeanUtil.toBean(personnel, PersonnelVo.class);
-        SysUser one = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()));
+        SysUser one = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()).eq(SysUser::getDeleteFlag,"NOT_DELETE"));
         if(ObjectUtil.isNotEmpty(one)){
             personnelVo.setSysUserId(one.getId());
         }

@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.position.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -24,6 +25,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -45,6 +47,8 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.listener.CommonDataChangeEventCenter;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.api.DbsApi;
+import vip.xiaonuo.dev.api.DevDfcApi;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -65,6 +69,13 @@ public class BizPositionServiceImpl extends ServiceImpl<BizPositionMapper, BizPo
 
     @Resource
     private BizUserService bizUserService;
+
+    @Resource
+    private DbsApi dbsApi;
+
+    @Resource
+    private DevDfcApi devDfcApi;
+
 
     @Override
     public Page<BizPosition> page(BizPositionPageParam bizPositionPageParam) {
@@ -208,6 +219,15 @@ public class BizPositionServiceImpl extends ServiceImpl<BizPositionMapper, BizPo
     public String getPositionIdByPositionNameWithCreate(String orgId, String positionName) {
         return null;
     }
+
+
+    @Override
+    public List<JSONObject> getDynamicFieldConfigList() {
+        String currentDataSourceId = dbsApi.getCurrentDataSourceId();
+        String tableName = AnnotationUtil.getAnnotationValue(BizPosition.class, TableName.class);
+        return devDfcApi.getTableFieldList(currentDataSourceId, tableName);
+    }
+
 
     /* ====岗位部分所需要用到的选择器==== */
 

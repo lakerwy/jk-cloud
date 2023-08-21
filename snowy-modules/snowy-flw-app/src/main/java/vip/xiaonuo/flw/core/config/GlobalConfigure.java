@@ -64,6 +64,7 @@ import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
 import vip.xiaonuo.auth.core.util.StpClientUtil;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.annotation.CommonNoRepeat;
 import vip.xiaonuo.common.annotation.CommonWrapper;
 import vip.xiaonuo.common.consts.FeignConstant;
@@ -578,6 +579,9 @@ public class GlobalConfigure implements WebMvcConfigurer {
         /** 更新时间 */
         private static final String UPDATE_TIME = "updateTime";
 
+        /** 数据权限控制字段（默认创建人组织id） */
+        private static final String DATA_SCOPE_ID = "dataScopeId";
+
         @Override
         public void insertFill(MetaObject metaObject) {
             try {
@@ -599,6 +603,13 @@ public class GlobalConfigure implements WebMvcConfigurer {
                 Object createTime = metaObject.getValue(CREATE_TIME);
                 if (ObjectUtil.isNull(createTime)) {
                     setFieldValByName(CREATE_TIME, DateTime.now(), metaObject);
+                }
+            } catch (ReflectionException ignored) { }
+            try {
+                //为空则设置createTime
+                Object dataScopeId = metaObject.getValue(DATA_SCOPE_ID);
+                if (ObjectUtil.isNull(dataScopeId)) {
+                    setFieldValByName(DATA_SCOPE_ID, this.getUserOrgId(), metaObject);
                 }
             } catch (ReflectionException ignored) { }
         }
@@ -623,6 +634,23 @@ public class GlobalConfigure implements WebMvcConfigurer {
                 String loginId = StpUtil.getLoginIdAsString();
                 if (ObjectUtil.isNotEmpty(loginId)) {
                     return loginId;
+                } else {
+                    return "-1";
+                }
+            } catch (Exception e) {
+                return "-1";
+            }
+
+        }
+
+        /**
+         * 获取用户组织Id
+         */
+        private String getUserOrgId() {
+            try {
+                String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+                if (ObjectUtil.isNotEmpty(orgId)) {
+                    return orgId;
                 } else {
                     return "-1";
                 }

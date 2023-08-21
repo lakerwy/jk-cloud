@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.position.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -156,5 +157,20 @@ public class BizPositionController {
     public CommonResult<Page<BizPosition>> positionSelector(BizPositionSelectorPositionParam bizPositionSelectorPositionParam) {
         return CommonResult.data(bizPositionService.positionSelector(bizPositionSelectorPositionParam));
     }
+
+    /**
+     * 获取动态字段的配置
+     *
+     * @author 每天一点
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取动态字段的配置")
+    @SaCheckPermission("/biz/position/getDynamicFieldConfigList")
+    @GetMapping("/biz/position/getDynamicFieldConfigList")
+    public CommonResult<List<JSONObject>> getDynamicFieldConfigList() {
+        return CommonResult.data(bizPositionService.getDynamicFieldConfigList());
+    }
+
 
 }

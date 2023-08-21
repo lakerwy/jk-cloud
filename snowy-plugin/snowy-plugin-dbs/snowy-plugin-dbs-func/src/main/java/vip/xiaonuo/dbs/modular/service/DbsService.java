@@ -149,4 +149,13 @@ public interface DbsService extends IService<DbsStorage> {
      * @date 2022/3/8 16:31
      **/
     void changeDataSource(String name);
+
+    /**
+     * 获取当前正在使用的数据源ID
+     *
+     * @author 每天一点
+     * @date 2022/8/5 14:01
+     **/
+    String getCurrentDataSourceId();
+
 }

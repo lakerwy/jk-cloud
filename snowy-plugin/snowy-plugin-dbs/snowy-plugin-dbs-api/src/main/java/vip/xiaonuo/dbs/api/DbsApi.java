@@ -89,4 +89,13 @@ public interface DbsApi {
      * @date 2022/7/19 18:47
      **/
     List<String> tableColumns(String tableName);
+
+    /**
+     * 获取当前正在使用的数据源ID
+     *
+     * @author 每天一点
+     * @date 2022/8/5 14:01
+     **/
+    String getCurrentDataSourceId();
+
 }

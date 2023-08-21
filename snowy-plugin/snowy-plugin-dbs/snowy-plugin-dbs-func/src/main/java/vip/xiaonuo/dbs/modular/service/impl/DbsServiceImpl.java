@@ -265,6 +265,18 @@ public class DbsServiceImpl extends ServiceImpl<DbsMapper, DbsStorage> implement
     }
 
     @Override
+    public String getCurrentDataSourceId() {
+        String currentDataSourceName = this.getCurrentDataSourceName();
+        if("master".equals(currentDataSourceName)){
+            return "master";
+        }
+        QueryWrapper<DbsStorage> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(DbsStorage::getPoolName, currentDataSourceName);
+        return this.getOne(queryWrapper).getId();
+    }
+
+
+    @Override
     public String getCurrentDataSourceName() {
         String dataSourceName = DynamicDataSourceContextHolder.peek();
         if (ObjectUtil.isEmpty(dataSourceName)) {

@@ -56,6 +56,11 @@ public class DbsApiProvider implements DbsApi {
     }
 
     @Override
+    public String getCurrentDataSourceId() {
+        return dbsStorageService.getCurrentDataSourceId();
+    }
+
+    @Override
     public DataSource getCurrentDataSource() {
         return dbsStorageService.getCurrentDataSource();
     }

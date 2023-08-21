@@ -92,16 +92,13 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
                     DevRelationCategoryEnum.MSG_TO_USER.getValue(), extJsonList);
             List<JSONObject> users = sysUserApi.getUserListByIdWithException(receiverIdList);
             if(CollUtil.isNotEmpty(users)){
+                //发送推送消息
                 List<String> ids = users.stream().map(user -> String.valueOf(user.get("cid"))).collect(Collectors.toList());
                 uniPushService.batchSendPush(ids,devMessage,1);
             }
         }
         //发送钉钉通知
         dingDingService.batchSend(devMessageSendParam.getContent(),receiverIdList);
-        //发送推送消息
-        //TODO
-
-
     }
 
     @Override

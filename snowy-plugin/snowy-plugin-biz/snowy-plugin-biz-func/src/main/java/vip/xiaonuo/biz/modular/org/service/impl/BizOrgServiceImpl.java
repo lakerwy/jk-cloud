@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.org.service.impl;
 
+import cn.hutool.core.annotation.AnnotationUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -23,6 +24,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -44,6 +46,8 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.listener.CommonDataChangeEventCenter;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.api.DbsApi;
+import vip.xiaonuo.dev.api.DevDfcApi;
 import vip.xiaonuo.sys.api.SysRoleApi;
 
 import javax.annotation.Resource;
@@ -69,6 +73,13 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
 
     @Resource
     private BizUserService bizUserService;
+
+    @Resource
+    private DbsApi dbsApi;
+
+    @Resource
+    private DevDfcApi devDfcApi;
+
 
     @Override
     public Page<BizOrg> page(BizOrgPageParam bizOrgPageParam) {
@@ -304,6 +315,14 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
         return bizOrg.getId();
     }
 
+    @Override
+    public List<JSONObject> getDynamicFieldConfigList() {
+        String currentDataSourceId = dbsApi.getCurrentDataSourceId();
+        String tableName = AnnotationUtil.getAnnotationValue(BizOrg.class, TableName.class);
+        return devDfcApi.getTableFieldList(currentDataSourceId, tableName);
+    }
+
+
     /* ====机构部分所需要用到的选择器==== */
 
     @Override
@@ -435,11 +454,13 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
         return index == -1?null:originDataList.get(index);
     }
 
+    @Override
     public BizOrg getParentById(List<BizOrg> originDataList, String id) {
         BizOrg self = this.getById(originDataList, id);
         return ObjectUtil.isNotEmpty(self)?self:this.getById(originDataList, self.getParentId());
     }
 
+    @Override
     public BizOrg getChildById(List<BizOrg> originDataList, String id) {
         int index = CollStreamUtil.toList(originDataList, BizOrg::getParentId).indexOf(id);
         return index == -1?null:originDataList.get(index);

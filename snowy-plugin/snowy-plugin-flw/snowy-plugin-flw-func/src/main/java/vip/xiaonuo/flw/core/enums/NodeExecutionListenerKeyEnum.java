@@ -37,7 +37,29 @@ public enum NodeExecutionListenerKeyEnum {
     /**
      * 到达
      */
-    TAKE("TAKE");
+    TAKE("TAKE"),
+
+    /* 以下为自定义执行事件（全局配置） */
+
+    /**
+     * 拒绝
+     */
+    REJECT("REJECT"),
+
+    /**
+     * 终止
+     */
+    CLOSE("CLOSE"),
+
+    /**
+     * 撤回
+     */
+    REVOKE("REVOKE"),
+
+    /**
+     * 删除
+     */
+    DELETE("DELETE");
 
     private final String value;
 
@@ -46,7 +68,8 @@ public enum NodeExecutionListenerKeyEnum {
     }
 
     public static void validate(String value) {
-        boolean flag = START.getValue().equals(value) || END.getValue().equals(value) || TAKE.getValue().equals(value);
+        boolean flag = START.getValue().equals(value) || END.getValue().equals(value) || TAKE.getValue().equals(value) ||
+                REJECT.getValue().equals(value) || CLOSE.getValue().equals(value) || REVOKE.getValue().equals(value) || DELETE.getValue().equals(value);
         if(!flag) {
             throw new CommonException("不支持的执行监听器类型：{}", value);
         }
