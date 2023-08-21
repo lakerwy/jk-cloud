@@ -53,12 +53,12 @@ public class BizTaskPageParam {
     @ApiModelProperty(value = "组织Id")
     private String orgId;
 
-    /** 年度重点/专项工作任务 */
-    @ApiModelProperty(value = "年度重点/专项工作任务")
-    private String taskName;
-
     /** 年度 */
     @ApiModelProperty(value = "年度")
     private String year;
+
+    /** 是否已打分 1 代表已打分  0 代表未打分 */
+    @ApiModelProperty(value = "是否已打分 1 代表已打分  0 代表未打分")
+    private String isScored;
 
 }

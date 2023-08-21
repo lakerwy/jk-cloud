@@ -27,7 +27,7 @@ public class FlwBossScoreListener implements TaskListener {
             //获取备注
             String boosMemo =  String.valueOf(delegateTask.getVariable("boosMemo"));
             if(StrUtil.isNotEmpty(id)){
-                String sql = "UPDATE BIZ_TASK SET BOOS_SCORE = "+boosScore+",BOOS_MEMO = '"+boosMemo+"' WHERE ID = '" + id + "'";
+                String sql = "UPDATE BIZ_TASK SET BOOS_SCORE = "+boosScore+",STATUS='100',BOOS_MEMO = '"+boosMemo+"' WHERE ID = '" + id + "'";
                 CommonHandleUtil.handleSqlExecution(sql);
             }
             log.info("董事长打分任务更新业务表状态-----");

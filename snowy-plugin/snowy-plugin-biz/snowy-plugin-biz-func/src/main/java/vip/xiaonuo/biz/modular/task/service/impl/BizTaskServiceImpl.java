@@ -80,7 +80,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     public List<DeptTaskResult> page(BizTaskPageParam bizTaskPageParam) {
         QueryWrapper<BizTask> queryWrapper = new QueryWrapper<>();
         //只看 审核中 + 审核完成
-        queryWrapper.lambda().in(BizTask::getStatus,"1","0");
+        queryWrapper.lambda().in(BizTask::getStatus,"1","0","100");
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getOrgId())) {
             queryWrapper.lambda().eq(BizTask::getOrgId, bizTaskPageParam.getOrgId());
         }
@@ -115,9 +115,31 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 deptTaskResultList.add(deptTaskResult);
             }
         }
-        //过滤
+        //过滤关键字
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getSearchKey())){
-            return deptTaskResultList.stream().filter(x->x.getOrgName().contains(bizTaskPageParam.getSearchKey())).collect(Collectors.toList());
+            List<DeptTaskResult> tmpResult = new ArrayList<>();
+            for (DeptTaskResult item:deptTaskResultList) {
+                List<BizTask> tmpFiter = item.getTaskList().stream().filter(x->x.getTaskName().contains(bizTaskPageParam.getSearchKey())).collect(Collectors.toList());
+                if(CollUtil.isNotEmpty(tmpFiter)){
+                    item.setTaskList(tmpFiter);
+                    tmpResult.add(item);
+                }
+            }
+            deptTaskResultList = tmpResult;
+        }
+        //过滤状态
+        if(ObjectUtil.isNotEmpty(bizTaskPageParam.getIsScored())){
+            List<DeptTaskResult> tmpResult = new ArrayList<>();
+            for (DeptTaskResult item:deptTaskResultList) {
+                List<BizTask> tmpFiter = "1".equals(bizTaskPageParam.getIsScored())
+                        ? item.getTaskList().stream().filter(x->x.getStatus().equals("100")).collect(Collectors.toList())
+                        : item.getTaskList().stream().filter(x->!x.getStatus().equals("100")).collect(Collectors.toList());
+                if(CollUtil.isNotEmpty(tmpFiter)){
+                    item.setTaskList(tmpFiter);
+                    tmpResult.add(item);
+                }
+            }
+            deptTaskResultList = tmpResult;
         }
         return deptTaskResultList;
     }
@@ -177,7 +199,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
      */
     public List<DeptAssReportVo> getDeptTaskScore(String assYear){
         //获取本年度任务数据(只看审核中+审核完成)
-        List<BizTask> bizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getYear,assYear).in(BizTask::getStatus,"1","0"));
+        List<BizTask> bizTaskList = this.list(new QueryWrapper<BizTask>().lambda().eq(BizTask::getYear,assYear).in(BizTask::getStatus,"1","0","100"));
         //获取涉及的部门
         List<String> orgIds = bizTaskList.stream().map(x -> x.getOrgId()).distinct().collect(Collectors.toList());
         //返回的结果集
@@ -362,6 +384,9 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         }//人工修正分
         else if("adjscore".equals(colName)){
             bizTask.setAdjScore(Double.valueOf(bizTaskUpdateParam.getColValue()));
+        }//状态
+        else if("status".equals(colName)){
+            bizTask.setStatus(bizTaskUpdateParam.getColValue());
         }
         this.updateById(bizTask);
     }
