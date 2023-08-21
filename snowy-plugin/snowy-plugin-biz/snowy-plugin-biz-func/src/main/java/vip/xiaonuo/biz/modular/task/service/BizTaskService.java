@@ -37,12 +37,12 @@ public interface BizTaskService extends IService<BizTask> {
     List<DeptTaskResult> page(BizTaskPageParam bizTaskPageParam);
 
     /**
-     * 添加业务表-绩效考核-任务表
+     * 添加业务表-绩效考核-任务表(页面批量新增任务)
      *
      * @author yong.ye
      * @date  2023/08/04 14:20
      */
-    void add(BizTaskAddParam bizTaskAddParam);
+    void add(TaskFlwParam taskFlwParam);
 
     /**
      * 编辑业务表-绩效考核-任务表

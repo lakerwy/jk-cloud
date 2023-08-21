@@ -219,9 +219,15 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(BizTaskAddParam bizTaskAddParam) {
-        BizTask bizTask = BeanUtil.toBean(bizTaskAddParam, BizTask.class);
-        this.save(bizTask);
+    public void add(TaskFlwParam taskFlwParam) {
+        List<BizTask> bizTaskList = BeanUtil.copyToList(taskFlwParam.getFlwParamList(),BizTask.class);
+        bizTaskList.forEach(x->{
+            x.setOrgId(taskFlwParam.getOrgId());
+            x.setOwer(taskFlwParam.getOwer());
+            x.setOwerId(taskFlwParam.getOwerId());
+            x.setYear(taskFlwParam.getYear());
+        });
+        this.saveBatch(bizTaskList);
     }
 
     @Transactional(rollbackFor = Exception.class)

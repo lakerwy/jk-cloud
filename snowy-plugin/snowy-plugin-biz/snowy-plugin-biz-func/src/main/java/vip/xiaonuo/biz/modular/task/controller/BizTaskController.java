@@ -63,17 +63,17 @@ public class BizTaskController {
     }
 
     /**
-     * 添加业务表-绩效考核-任务表
+     * 添加业务表-绩效考核-任务表（页面批量新增任务）
      *
      * @author yong.ye
      * @date  2023/08/04 14:20
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-绩效考核-任务表")
-    @CommonLog("添加业务表-绩效考核-任务表")
+    @ApiOperation("添加业务表-绩效考核-任务表（页面批量新增任务）")
+    @CommonLog("添加业务表-绩效考核-任务表（页面批量新增任务）")
     @PostMapping("/biz/task/add")
-    public CommonResult<String> add(@RequestBody @Valid BizTaskAddParam bizTaskAddParam) {
-        bizTaskService.add(bizTaskAddParam);
+    public CommonResult<String> add(@RequestBody @Valid TaskFlwParam taskFlwParam) {
+        bizTaskService.add(taskFlwParam);
         return CommonResult.ok();
     }
 

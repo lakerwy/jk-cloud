@@ -52,4 +52,8 @@ public class FlwParam {
     @ApiModelProperty(value = "权重（存小数）", position = 18)
     private Double rate;
 
+    /** 状态 */
+    @ApiModelProperty(value = "状态", position = 19)
+    private String status;
+
 }
