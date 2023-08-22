@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.flw.modular.relation.entity;
 
+import com.alibaba.fastjson.annotation.JSONField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.Getter;
 import lombok.Setter;

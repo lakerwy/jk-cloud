@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
@@ -178,6 +179,14 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
         if("PARTNER".equalsIgnoreCase(loginUser.getCategory())){
             queryWrapper.eq("a.COMPANY_OR_DEPARTMENT",loginUser.getOrgName());
         }
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
+        } else {
+            queryWrapper.in("a.CREATE_USER", StpUtil.getLoginIdAsString());
+        }
+
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isAllNotEmpty(bizChartReviewsPageParam.getSortField(), bizChartReviewsPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizChartReviewsPageParam.getSortOrder());

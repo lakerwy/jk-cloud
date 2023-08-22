@@ -277,4 +277,7 @@ public class BizProject {
     @TableField(exist = false)
     @ApiModelProperty(value = "项目来源中文")
     private String headText;
+
+    @ApiModelProperty(value = "数据权限字段",position = 62)
+    private String dataScopeId;
 }

@@ -191,4 +191,7 @@ public class BizMapRegister {
 
     @ApiModelProperty(value = "物流备注", position = 38)
     private String logisticsMemo;
+
+    @ApiModelProperty(value = "数据权限字段",position = 62)
+    private String dataScopeId;
 }

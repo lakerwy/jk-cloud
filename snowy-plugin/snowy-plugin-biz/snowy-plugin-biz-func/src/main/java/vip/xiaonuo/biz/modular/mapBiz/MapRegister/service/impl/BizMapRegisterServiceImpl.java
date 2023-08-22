@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.MapRegister.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
@@ -73,6 +74,15 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
                     like(BizMapRegister::getSn,bizMapRegisterPageParam.getSearchKey()).or().like(BizMapRegister::getCompanyOrDepartment,bizMapRegisterPageParam.getSearchKey()));
         }
         queryWrapper.lambda().in(BizMapRegister::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BizMapRegister::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BizMapRegister::getCreateUser, StpUtil.getLoginIdAsString());
+        }
+
         if(ObjectUtil.isAllNotEmpty(bizMapRegisterPageParam.getSortField(), bizMapRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizMapRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizMapRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

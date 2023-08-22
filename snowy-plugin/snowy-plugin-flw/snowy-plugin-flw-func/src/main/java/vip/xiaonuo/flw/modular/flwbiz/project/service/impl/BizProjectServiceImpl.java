@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.flw.modular.flwbiz.project.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
@@ -41,6 +42,7 @@ import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectEditParam;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectIdParam;
 import vip.xiaonuo.flw.modular.flwbiz.project.param.BizProjectPageParam;
 import vip.xiaonuo.flw.modular.flwbiz.project.service.BizProjectService;
+import vip.xiaonuo.flw.modular.flwbiz.projectRegister.entity.BizProjectRegister;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
@@ -89,6 +91,15 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         }
         //queryWrapper.lambda().eq(BizProject::getStatus,"1");
         queryWrapper.lambda().in(BizProject::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BizProject::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BizProject::getCreateUser, StpUtil.getLoginIdAsString());
+        }
+
         if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

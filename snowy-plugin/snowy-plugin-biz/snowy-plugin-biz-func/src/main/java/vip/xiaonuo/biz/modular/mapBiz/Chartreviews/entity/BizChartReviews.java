@@ -152,4 +152,7 @@ public class BizChartReviews {
     @ApiModelProperty(value = "更新人", position = 27)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    @ApiModelProperty(value = "数据权限字段",position = 62)
+    private String dataScopeId;
 }

@@ -606,7 +606,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
                 }
             } catch (ReflectionException ignored) { }
             try {
-                //为空则设置createTime
+                //设置数据权限
                 Object dataScopeId = metaObject.getValue(DATA_SCOPE_ID);
                 if (ObjectUtil.isNull(dataScopeId)) {
                     setFieldValByName(DATA_SCOPE_ID, this.getUserOrgId(), metaObject);

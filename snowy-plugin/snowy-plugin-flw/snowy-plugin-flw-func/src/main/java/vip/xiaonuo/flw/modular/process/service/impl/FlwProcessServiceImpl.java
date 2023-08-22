@@ -25,6 +25,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.enums.SqlKeyword;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.camunda.bpm.engine.HistoryService;
@@ -255,9 +256,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if(ObjectUtil.isNotEmpty(flwProcessMyDraftPageParam.getName())) {
             lambdaQueryWrapper.like(FlwRelation::getExtJson, JSONUtil.toJsonStr(JSONUtil.createObj().set("title", flwProcessMyDraftPageParam.getName())));
         }
-        lambdaQueryWrapper.eq(FlwRelation::getCategory, FlwRelationCategoryEnum.FLW_USER_TO_DRAFT.getValue());
+        lambdaQueryWrapper.eq(FlwRelation::getCategory, FlwRelationCategoryEnum.FLW_USER_TO_DRAFT.getValue())
+                .eq(FlwRelation::getObjectId,StpLoginUserUtil.getLoginUser().getId());
+//        lambdaQueryWrapper.orderByDesc(FlwRelation::getExtJson, entity -> JSONUtil.parseObj(entity.getExtJson()).get("createTime"));
         Page<FlwRelation> page = flwRelationService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
-        return new Page<FlwProcessMyDraftResult>(page.getCurrent(), page.getSize()).setRecords(page.getRecords().stream().map(flwRelation -> {
+        //page.setTotal(page.getTotal());
+        return new Page<FlwProcessMyDraftResult>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(page.getRecords().stream().map(flwRelation -> {
             String extJson = flwRelation.getExtJson();
             JSONObject jsonObject = JSONUtil.parseObj(extJson);
             String title = jsonObject.getStr("title");
@@ -269,7 +273,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             flwProcessMyDraftResult.setTitle(title);
             flwProcessMyDraftResult.setCreateTime(createTime);
             return flwProcessMyDraftResult;
-        }).collect(Collectors.toList()));
+        }).sorted().collect(Collectors.toList()));
     }
 
     @Override
