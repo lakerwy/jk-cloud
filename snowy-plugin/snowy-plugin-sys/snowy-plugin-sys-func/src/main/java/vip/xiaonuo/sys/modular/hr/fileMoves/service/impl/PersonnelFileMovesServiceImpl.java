@@ -45,6 +45,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -161,6 +162,10 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
             );
         }
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        ArrayList<Object> status = new ArrayList<>();
+        status.add(FlwStatusEnum.ACTIVE_STATUS.getValue());
+        status.add(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        queryWrapper.in("a.STATUS",status);
 
         if(ObjectUtil.isAllNotEmpty(personnelFileMovesPageParam.getSortField(), personnelFileMovesPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelFileMovesPageParam.getSortOrder());
