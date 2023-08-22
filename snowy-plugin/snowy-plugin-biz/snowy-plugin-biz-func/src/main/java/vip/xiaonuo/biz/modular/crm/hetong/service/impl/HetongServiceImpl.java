@@ -119,6 +119,18 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         if(ObjectUtil.isNotEmpty(hetongPageParam.getPartyc())) {
             queryWrapper.like("a.PARTYC", hetongPageParam.getPartyc());
         }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getOwner())) {
+            queryWrapper.like("a.OWNER", hetongPageParam.getOwner());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getProjectLeader())) {
+            queryWrapper.like("a.PROJECT_LEADER", hetongPageParam.getProjectLeader());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getInvestScale())) {
+            queryWrapper.like("a.INVEST_SCALE", hetongPageParam.getInvestScale());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getDescription())) {
+            queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());
+        }
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hetongPageParam.getSortOrder());
             queryWrapper.orderBy(true, hetongPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
