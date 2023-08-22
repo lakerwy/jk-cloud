@@ -136,7 +136,7 @@ public class BizChartReviewsController {
 
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-图审受理单新分页")
-//    @SaCheckPermission("/biz/Chartreviews/page")
+    @SaCheckPermission("/biz/ChartReviews/pageList")
     @GetMapping("/biz/ChartReviews/pageList")
     public CommonResult<Page<BizChartReviewsVo>> pageList(BizChartReviewsPageParam bizChartReviewsPageParam) {
         return CommonResult.data(bizChartReviewsService.pageList(bizChartReviewsPageParam));

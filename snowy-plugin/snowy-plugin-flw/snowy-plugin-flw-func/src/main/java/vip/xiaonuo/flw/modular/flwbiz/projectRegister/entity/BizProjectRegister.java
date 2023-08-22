@@ -236,6 +236,7 @@ public class BizProjectRegister {
     private String investment;
 
     @ApiModelProperty(value = "数据权限字段",position = 62)
+    @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 }
 

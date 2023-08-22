@@ -1793,4 +1793,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         this.update(new LambdaUpdateWrapper<SysUser>().eq(SysUser::getId,
                 sysUser.getId()).set(SysUser::getCid,sysUserUpdateCidParam.getCid()));
     }
+
+    @Override
+    public List<String> getChildOrgId(String orgId){
+        List<SysOrg> sysOrgList = sysOrgService.getAllOrgList();
+        return sysOrgService.getChildListById(sysOrgList, orgId, true)
+                .stream().map(SysOrg::getId).collect(Collectors.toList());
+    }
 }

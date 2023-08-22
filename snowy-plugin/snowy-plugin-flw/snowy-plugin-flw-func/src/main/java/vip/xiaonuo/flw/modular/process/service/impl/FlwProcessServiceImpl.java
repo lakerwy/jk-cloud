@@ -273,7 +273,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             flwProcessMyDraftResult.setTitle(title);
             flwProcessMyDraftResult.setCreateTime(createTime);
             return flwProcessMyDraftResult;
-        }).sorted().collect(Collectors.toList()));
+        }).collect(Collectors.toList()));
     }
 
     @Override

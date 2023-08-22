@@ -60,7 +60,7 @@ public class BizMapRegisterController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-出图登记记录表分页")
-//    @SaCheckPermission("/biz/MapRegister/page")
+    @SaCheckPermission("/biz/MapRegister/page")
     @GetMapping("/biz/MapRegister/page")
     public CommonResult<Page<BizMapRegister>> page(BizMapRegisterPageParam bizMapRegisterPageParam) {
         return CommonResult.data(bizMapRegisterService.page(bizMapRegisterPageParam));

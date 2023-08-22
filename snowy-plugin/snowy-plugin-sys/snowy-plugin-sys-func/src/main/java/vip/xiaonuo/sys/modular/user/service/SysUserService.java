@@ -502,4 +502,11 @@ public interface SysUserService extends IService<SysUser> {
     void addAndGrantRole(SysUserAddParam sysUserAddParam);
 
     void bindCid(SysUserUpdateCidParam sysUserUpdateCidParam);
+
+    /**
+     * 获取该部门下以及子部门Id
+     * @param orgId
+     * @return
+     */
+    List<String> getChildOrgId(String orgId);
 }
