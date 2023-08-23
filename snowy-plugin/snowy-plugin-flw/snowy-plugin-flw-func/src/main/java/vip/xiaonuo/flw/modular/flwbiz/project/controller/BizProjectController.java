@@ -60,7 +60,7 @@ public class BizProjectController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-立项申请分页")
-//    @SaCheckPermission("/flw/project/page")
+    @SaCheckPermission("/flw/project/page")
     @GetMapping("/flw/project/page")
     public CommonResult<Page<BizProject>> page(BizProjectPageParam bizProjectPageParam) {
         return CommonResult.data(bizProjectService.page(bizProjectPageParam));

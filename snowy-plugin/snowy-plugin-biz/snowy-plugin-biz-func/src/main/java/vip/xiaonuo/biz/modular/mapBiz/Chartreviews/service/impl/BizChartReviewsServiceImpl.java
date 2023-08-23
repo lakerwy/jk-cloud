@@ -175,16 +175,17 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
                     .or().like("a.OPT",bizChartReviewsPageParam.getSearchKey())
                     .or().like("a.SN",bizChartReviewsPageParam.getSearchKey()));
         }
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        if("PARTNER".equalsIgnoreCase(loginUser.getCategory())){
-            queryWrapper.eq("a.COMPANY_OR_DEPARTMENT",loginUser.getOrgName());
-        }
+//        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+//        if("PARTNER".equalsIgnoreCase(loginUser.getCategory())){
+//            queryWrapper.eq("a.COMPANY_OR_DEPARTMENT",loginUser.getOrgName());
+//        }
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
         } else {
             queryWrapper.in("a.CREATE_USER", StpUtil.getLoginIdAsString());
+            //默认获取部门及部门一下的数据
         }
 
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");

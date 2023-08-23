@@ -154,5 +154,6 @@ public class BizChartReviews {
     private String updateUser;
 
     @ApiModelProperty(value = "数据权限字段",position = 62)
+    @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 }
