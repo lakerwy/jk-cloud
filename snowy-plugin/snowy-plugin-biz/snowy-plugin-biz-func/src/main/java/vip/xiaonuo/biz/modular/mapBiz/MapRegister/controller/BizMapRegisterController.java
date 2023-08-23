@@ -91,7 +91,7 @@ public class BizMapRegisterController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑业务表-出图登记记录表")
     @CommonLog("编辑业务表-出图登记记录表")
-//    @SaCheckPermission("/biz/MapRegister/edit")
+    @SaCheckPermission("/biz/MapRegister/edit")
     @PostMapping("/biz/MapRegister/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizMapRegisterEditParam bizMapRegisterEditParam) {
         bizMapRegisterService.edit(bizMapRegisterEditParam);
@@ -107,7 +107,7 @@ public class BizMapRegisterController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除业务表-出图登记记录表")
     @CommonLog("删除业务表-出图登记记录表")
-//    @SaCheckPermission("/biz/MapRegister/delete")
+    @SaCheckPermission("/biz/MapRegister/delete")
     @PostMapping("/biz/MapRegister/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<BizMapRegisterIdParam> bizMapRegisterIdParamList) {

@@ -13,6 +13,7 @@
 package vip.xiaonuo.auth.core.util;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.common.util.CommonServletUtil;
@@ -51,5 +52,9 @@ public class StpLoginUserUtil {
             }
         });
         return resultList;
+    }
+
+    public static boolean checkRight(){
+        return getLoginUserDataScope().contains(getLoginUser().getOrgId());
     }
 }

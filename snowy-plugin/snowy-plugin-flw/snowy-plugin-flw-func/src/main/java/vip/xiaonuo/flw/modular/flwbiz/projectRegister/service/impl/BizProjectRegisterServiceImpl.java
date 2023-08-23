@@ -15,6 +15,7 @@ package vip.xiaonuo.flw.modular.flwbiz.projectRegister.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -141,6 +142,7 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
             }
         }
         BizProjectRegister bizProjectRegister = this.queryEntity(id);
+        checkRight(null,bizProjectRegister.getCreateUser());
         BeanUtil.copyProperties(bizProjectRegisterEditParam, bizProjectRegister);
         this.updateById(bizProjectRegister);
     }
@@ -148,6 +150,7 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<BizProjectRegisterIdParam> bizProjectRegisterIdParamList) {
+        bizProjectRegisterIdParamList.forEach(bizProjectRegisterIdParam -> checkRight(bizProjectRegisterIdParam.getId(),null));
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(bizProjectRegisterIdParamList, BizProjectRegisterIdParam::getId));
     }
@@ -155,6 +158,24 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
     @Override
     public BizProjectRegister detail(BizProjectRegisterIdParam bizProjectRegisterIdParam) {
         return this.queryEntity(bizProjectRegisterIdParam.getId());
+    }
+
+    public void checkRight(String id,String createUser){
+        if(StrUtil.isBlank(createUser)){
+            BizProjectRegister bizProjectRegister= this.queryEntity(id);
+            createUser = bizProjectRegister.getCreateUser();
+        }
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        //仅可编辑自己的
+        if(CollUtil.isEmpty(loginUserDataScope)){
+            if(!StpLoginUserUtil.getLoginUser().getAccount().equals(createUser)){
+                throw new CommonException("您没有权限编辑该条记录");
+            }
+        }else {
+            if(!StpLoginUserUtil.checkRight()){
+                throw new CommonException("您没有权限编辑该条记录");
+            }
+        }
     }
 
     @Override

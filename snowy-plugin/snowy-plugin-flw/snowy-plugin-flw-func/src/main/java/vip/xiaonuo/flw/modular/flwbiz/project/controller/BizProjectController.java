@@ -91,7 +91,7 @@ public class BizProjectController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑业务表-立项申请")
     @CommonLog("编辑业务表-立项申请")
-//    @SaCheckPermission("/flw/project/edit")
+    @SaCheckPermission("/flw/project/edit")
     @PostMapping("/flw/project/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizProjectEditParam bizProjectEditParam) {
         bizProjectService.edit(bizProjectEditParam);
