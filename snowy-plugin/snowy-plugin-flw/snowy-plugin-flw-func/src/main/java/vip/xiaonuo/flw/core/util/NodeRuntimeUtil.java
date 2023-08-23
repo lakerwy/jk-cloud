@@ -61,9 +61,7 @@ import vip.xiaonuo.ten.api.TenApi;
 
 import java.sql.Connection;
 import java.sql.SQLException;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -882,7 +880,12 @@ public class NodeRuntimeUtil {
                 switch (processNoticeChannel) {
                     case "MSG":
                         // TODO 执行发送消息
-                        devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId());
+                        //delegateTask.getTaskDefinitionKey()
+                        Map<String,String> taskMap = new HashMap<>();
+                        taskMap.put("processInstanceId",delegateTask.getProcessInstanceId());
+                        taskMap.put("taskId",delegateTask.getId());
+                        taskMap.put("taskDefKey",delegateTask.getTaskDefinitionKey());
+                        devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId(),taskMap);
                         log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                         break;
                     case "EMAIL":

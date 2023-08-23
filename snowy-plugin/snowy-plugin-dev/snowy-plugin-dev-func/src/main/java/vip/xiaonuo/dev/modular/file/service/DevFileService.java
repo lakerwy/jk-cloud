@@ -104,4 +104,9 @@ public interface DevFileService extends IService<DevFile> {
     List<DevFile> getInfosByIds(List<String> ids);
 
     String uploadReturnUrl(MultipartFile file, String bucketName);
+
+
+    void mkDir(String engine, String dirName);
+
+    void pageList(String engine, String dirPath);
 }

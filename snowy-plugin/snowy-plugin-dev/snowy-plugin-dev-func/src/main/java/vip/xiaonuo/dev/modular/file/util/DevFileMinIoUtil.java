@@ -22,6 +22,7 @@ import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import io.minio.*;
+import io.minio.errors.*;
 import io.minio.http.Method;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,6 +32,8 @@ import vip.xiaonuo.dev.modular.file.enums.DevFileBucketAuthEnum;
 
 import javax.activation.MimetypesFileTypeMap;
 import java.io.*;
+import java.security.InvalidKeyException;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * MINIO文件工具类
@@ -461,6 +464,26 @@ public class DevFileMinIoUtil {
             contentType = MimetypesFileTypeMap.getDefaultFileTypeMap().getContentType(key);
         }
         return contentType;
+    }
+
+    /**
+     * 查询存储桶是否存在
+     * 例如：传入参数examplebucket-1250000000，返回true代表存在此桶
+     *
+     * @param bucketName 桶名称
+     * @author xuyuxiang
+     * @date 2022/1/5 23:24
+     */
+    public static void mkdirBucket(String bucketName) {
+        initClient();
+        try {
+             client.putObject(
+                    PutObjectArgs.builder().bucket(defaultBucketName).object(bucketName).stream(
+                                    new ByteArrayInputStream(new byte[]{}), 0, -1)
+                            .build());
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
     }
 
 }
