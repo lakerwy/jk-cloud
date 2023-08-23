@@ -80,13 +80,13 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
                             .or().like("a.CONTRACT_NO",key));
                 }
             }else {
-                queryWrapper.like("a.SECOND_LEVEL", hetongPageParam.getSearchKey()).or()
+                queryWrapper.and(q->q.like("a.SECOND_LEVEL", hetongPageParam.getSearchKey()).or()
                         .like("a.CONTRACT_NO", hetongPageParam.getSearchKey()).or()
                         .like("a.PROJECT_NAME", hetongPageParam.getSearchKey()).or()
                         .like("a.COUNTERPARTY", hetongPageParam.getSearchKey()).or()
                         .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
                         .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
-                        .like("a.PARTYC", hetongPageParam.getSearchKey());
+                        .like("a.PARTYC", hetongPageParam.getSearchKey()));
             }
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
