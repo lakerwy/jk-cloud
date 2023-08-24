@@ -133,7 +133,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             for (DeptTaskResult item:deptTaskResultList) {
                 List<BizTask> tmpFiter = "1".equals(bizTaskPageParam.getIsScored())
                         ? item.getTaskList().stream().filter(x->x.getStatus().equals("100")).collect(Collectors.toList())
-                        : item.getTaskList().stream().filter(x->!x.getStatus().equals("100")).collect(Collectors.toList());
+                        : item.getTaskList().stream().filter(x->x.getStatus().equals("1")).collect(Collectors.toList());
                 if(CollUtil.isNotEmpty(tmpFiter)){
                     item.setTaskList(tmpFiter);
                     tmpResult.add(item);
