@@ -302,7 +302,7 @@ public class DevFileController {
         List<String> list = Arrays.asList(split);
         List<DevFile> infos = devFileService.getInfosByIds(list);
         String apiUrl = commonProperties.getBackendUrl();
-        List<DevFileVo> vos = infos.stream().map(v-> new DevFileVo(v.getName(),apiUrl+v.getDownloadPath(), v.getId())).collect(Collectors.toList());
+        List<DevFileVo> vos = infos.stream().map(v-> new DevFileVo(v.getName(),apiUrl+v.getDownloadPath(), v.getId(), v.getSizeKb(),v.getSizeInfo())).collect(Collectors.toList());
         return CommonResult.data(vos);
     }
 
@@ -348,5 +348,26 @@ public class DevFileController {
     @PostMapping("/dev/file/NoToken/uploadLocalReturnUrl")
     public CommonResult<String> uploadNewLocalReturnUrl(@RequestPart("file") MultipartFile file) {
         return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.LOCAL.getValue(), file));
+    }
+
+    /**
+     * 本地文件创建文件夹
+     *
+     **/
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("本地文件创建文件夹")
+    @CommonLog("本地文件创建文件夹")
+    @GetMapping("/dev/file/mkDir")
+    public CommonResult<String> mkDir(@RequestParam(value = "dirPath") String dirPath) {
+        devFileService.mkDir(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
+        return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("本地文件 获取文件列表")
+    @GetMapping("/dev/file/pageList")
+    public CommonResult<String> pageList(@RequestParam(value = "dirPath") String dirPath) {
+        devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
+        return CommonResult.ok();
     }
 }

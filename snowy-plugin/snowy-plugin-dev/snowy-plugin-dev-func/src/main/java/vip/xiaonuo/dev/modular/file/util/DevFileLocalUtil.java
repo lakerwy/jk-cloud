@@ -360,4 +360,22 @@ public class DevFileLocalUtil {
         }
         return file;
     }
+
+
+    /**
+     * 创建文件夹
+     * 例如：传入参数examplebucket-1250000000，返回true代表存在此桶
+     */
+    public static void mkdirBucket(String bucketName) {
+        initClient();
+        FileUtil.mkdir(getUploadFileFolder() + FileUtil.FILE_SEPARATOR + bucketName);
+    }
+
+    /**
+     * 查询文件下所有文件
+     */
+    public static void fileList(String path) {
+        initClient();
+//        FileUtil.mkdir(getUploadFileFolder() + FileUtil.FILE_SEPARATOR + bucketName);
+    }
 }

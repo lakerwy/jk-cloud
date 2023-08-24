@@ -19,6 +19,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 站内信发送参数
@@ -49,6 +50,6 @@ public class DevMessageSendParam {
     @NotBlank(message = "category不能为空")
     private String category;
 
-    @ApiModelProperty(value = "流程实例id", position = 5)
-    private String processInstanceId;
+    @ApiModelProperty(value = "任务参数", position = 5)
+    private Map<String,String> taskMap ;
 }

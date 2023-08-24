@@ -328,6 +328,11 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getName())) {
             historicProcessInstanceQuery.processDefinitionNameLike("%" + flwProcessMonitorPageParam.getName() + "%");
         }
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        //合作伙伴的只能看自己部门的
+        if(loginUser.getCategory().equals("PARTNER")){
+            historicProcessInstanceQuery.variableValueEquals("initiatorOrgId",loginUser.getOrgId());
+        }
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getProcessInstanceIdList())) {
             historicProcessInstanceQuery.processInstanceIds(CollectionUtil.newHashSet(flwProcessMonitorPageParam.getProcessInstanceIdList()));
         }

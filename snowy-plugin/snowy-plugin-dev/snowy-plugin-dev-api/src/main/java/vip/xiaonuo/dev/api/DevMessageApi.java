@@ -16,6 +16,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 站内信API接口
@@ -33,7 +34,7 @@ public interface DevMessageApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:35
      **/
-    void sendMessage(List<String> receiverIdList, String subject,String processInstanceId);
+    void sendMessage(List<String> receiverIdList, String subject,Map<String,String> taskMap);
 
     /**
      * 发送站内信指定分类
@@ -43,7 +44,7 @@ public interface DevMessageApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:35
      **/
-    void sendMessage(List<String> receiverIdList, String category, String subject,String processInstanceId);
+    void sendMessage(List<String> receiverIdList, String category, String subject, Map<String,String> taskMap);
 
     /**
      * 发送站内信带内容，默认：分类系统通知
@@ -54,7 +55,7 @@ public interface DevMessageApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:35
      **/
-    void sendMessageWithContent(List<String> receiverIdList, String subject, String content,String processInstanceId);
+    void sendMessageWithContent(List<String> receiverIdList, String subject, String content,Map<String,String> taskMap);
 
     /**
      * 发送站内信带内容，指定分类
@@ -65,7 +66,7 @@ public interface DevMessageApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:35
      **/
-    void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content,String processInstanceId);
+    void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content,Map<String,String> taskMap);
 
     /**
      * 获取未读站内信列表

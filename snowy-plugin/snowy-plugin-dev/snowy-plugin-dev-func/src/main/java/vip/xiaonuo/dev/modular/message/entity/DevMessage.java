@@ -19,6 +19,8 @@ import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.common.pojo.CommonEntity;
 
+import java.util.Map;
+
 /**
  * 站内信实体
  *
@@ -54,7 +56,7 @@ public class DevMessage extends CommonEntity {
     @ApiModelProperty(value = "扩展信息", position = 6)
     private String extJson;
 
-    @ApiModelProperty(value = "流程实例id", position = 7)
+    @ApiModelProperty(value = "任务参数", position = 7)
     @TableField(exist = false)
-    private String processInstanceId;
+    private Map<String,String> taskMap;
 }

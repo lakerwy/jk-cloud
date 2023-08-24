@@ -15,6 +15,7 @@ package vip.xiaonuo.flw.modular.flwbiz.project.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -150,6 +151,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
             }
         }
         BizProject bizProject = this.queryEntity(id);
+        checkRight(null,bizProject.getCreateUser());
         BeanUtil.copyProperties(bizProjectEditParam, bizProject);
         this.updateById(bizProject);
     }
@@ -157,8 +159,27 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<BizProjectIdParam> bizProjectIdParamList) {
+        bizProjectIdParamList.forEach(bizProjectIdParam -> checkRight(bizProjectIdParam.getId(),null));
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(bizProjectIdParamList, BizProjectIdParam::getId));
+    }
+
+    public void checkRight(String id,String createUser){
+        if(StrUtil.isBlank(createUser)){
+            BizProject bizProject = this.queryEntity(id);
+            createUser = bizProject.getCreateUser();
+        }
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        //仅可编辑自己的
+        if(CollUtil.isEmpty(loginUserDataScope)){
+            if(!StpLoginUserUtil.getLoginUser().getAccount().equals(createUser)){
+                throw new CommonException("您没有权限编辑该条记录");
+            }
+        }else {
+            if(!StpLoginUserUtil.checkRight()){
+                throw new CommonException("您没有权限编辑该条记录");
+            }
+        }
     }
 
     @Override

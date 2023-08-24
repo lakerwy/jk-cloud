@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -105,14 +106,34 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
     @Override
     public void edit(BizChartReviewsEditParam bizChartReviewsEditParam) {
         BizChartReviews bizChartReviews = this.queryEntity(bizChartReviewsEditParam.getId());
+        checkRight(null,bizChartReviews.getCreateUser());
         BeanUtil.copyProperties(bizChartReviewsEditParam, bizChartReviews);
         bizChartReviews.setNote(bizChartReviewsEditParam.getRemark());
         this.updateById(bizChartReviews);
     }
 
+    public void checkRight(String id,String createUser){
+        if(StrUtil.isBlank(createUser)){
+            BizChartReviews bizChartReviews = this.queryEntity(id);
+            createUser = bizChartReviews.getCreateUser();
+        }
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        //仅可编辑自己的
+        if(CollUtil.isEmpty(loginUserDataScope)){
+            if(!StpLoginUserUtil.getLoginUser().getAccount().equals(createUser)){
+                throw new CommonException("您没有权限编辑该条记录");
+            }
+        }else {
+            if(!StpLoginUserUtil.checkRight()){
+                throw new CommonException("您没有权限编辑该条记录");
+            }
+        }
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<BizChartReviewsIdParam> bizChartReviewsIdParamList) {
+        bizChartReviewsIdParamList.forEach(bizChartReviewsIdParam -> this.checkRight(bizChartReviewsIdParam.getId(),null));
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(bizChartReviewsIdParamList, BizChartReviewsIdParam::getId));
     }

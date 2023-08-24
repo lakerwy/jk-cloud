@@ -524,4 +524,72 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         return this.storageFile(null, file, false,bucketName);
     }
 
+    @Override
+    public void mkDir(String engine, String dirName) {
+        // 如果引擎为空，默认使用本地
+        if (ObjectUtil.isEmpty(engine)) {
+            engine = DevFileEngineTypeEnum.LOCAL.getValue();
+        }
+        // 根据引擎类型执行不同方法
+        if (engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+
+            // 使用固定名称defaultBucketName
+            if (StrUtil.isBlank(dirName)) {
+                dirName = "jk";
+            }
+            DevFileLocalUtil.mkdirBucket(dirName);
+        } else if (engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
+            //todo
+            // 使用阿里云默认配置的bucketName
+            //bucketName = DevFileAliyunUtil.getDefaultBucketName();
+            //storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(dirName, genNewFileKey(fileName, file), file);
+        } else if (engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
+            //todo
+            // 使用腾讯云默认配置的bucketName
+            //bucketName = DevFileTencentUtil.getDefaultBucketName();
+            // storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+        } else if (engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
+
+            // 使用MINIO默认配置的bucketName
+            //bucketName = DevFileMinIoUtil.getDefaultBucketName();
+            DevFileMinIoUtil.mkdirBucket(dirName);
+        } else {
+            throw new CommonException("不支持的文件引擎：{}", engine);
+        }
+    }
+
+    @Override
+    public void pageList(String engine, String dirPath) {
+        // 如果引擎为空，默认使用本地
+//        if (ObjectUtil.isEmpty(engine)) {
+//            engine = DevFileEngineTypeEnum.LOCAL.getValue();
+//        }
+//        // 根据引擎类型执行不同方法
+//        if (engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+//
+//            // 使用固定名称defaultBucketName
+//            if (StrUtil.isBlank(dirPath)) {
+//                dirName = "jk";
+//            }
+//            DevFileLocalUtil.mkdirBucket(dirName);
+//        } else if (engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
+//            //todo
+//            // 使用阿里云默认配置的bucketName
+//            //bucketName = DevFileAliyunUtil.getDefaultBucketName();
+//            //storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(dirName, genNewFileKey(fileName, file), file);
+//        } else if (engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
+//            //todo
+//            // 使用腾讯云默认配置的bucketName
+//            //bucketName = DevFileTencentUtil.getDefaultBucketName();
+//            // storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+//        } else if (engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
+//
+//            // 使用MINIO默认配置的bucketName
+//            //bucketName = DevFileMinIoUtil.getDefaultBucketName();
+//            DevFileMinIoUtil.mkdirBucket(dirName);
+//        } else {
+//            throw new CommonException("不支持的文件引擎：{}", engine);
+//        }
+    }
+
 }

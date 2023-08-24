@@ -25,6 +25,7 @@ import vip.xiaonuo.dev.modular.message.service.DevMessageService;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -40,28 +41,28 @@ public class DevMessageProvider implements DevMessageApi {
     private DevMessageService devMessageService;
 
     @Override
-    public void sendMessage(List<String> receiverIdList, String subject,String processInstanceId) {
-        this.sendMessage(receiverIdList, subject, null, processInstanceId);
+    public void sendMessage(List<String> receiverIdList, String subject,Map<String,String> taskMap) {
+        this.sendMessage(receiverIdList, subject, null, taskMap);
     }
 
     @Override
-    public void sendMessage(List<String> receiverIdList, String subject, String content, String processInstanceId) {
-        this.sendMessageWithContent(receiverIdList, subject, null,processInstanceId);
+    public void sendMessage(List<String> receiverIdList, String subject, String content, Map<String,String> taskMap) {
+        this.sendMessageWithContent(receiverIdList, subject, null,taskMap);
     }
 
     @Override
-    public void sendMessageWithContent(List<String> receiverIdList, String subject, String content, String processInstanceId) {
-        this.sendMessageWithContent(receiverIdList, null, subject, content,processInstanceId);
+    public void sendMessageWithContent(List<String> receiverIdList, String subject, String content, Map<String,String> taskMap) {
+        this.sendMessageWithContent(receiverIdList, null, subject, content,taskMap);
     }
 
     @Override
-    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content,String processInstanceId) {
+    public void sendMessageWithContent(List<String> receiverIdList, String category, String subject, String content,Map<String,String> taskMap) {
         DevMessageSendParam devMessageSendParam = new DevMessageSendParam();
         devMessageSendParam.setReceiverIdList(receiverIdList);
         devMessageSendParam.setCategory(category);
         devMessageSendParam.setSubject(subject);
         devMessageSendParam.setContent(ObjectUtil.isEmpty(content)?subject:content);
-        devMessageSendParam.setProcessInstanceId(processInstanceId);
+        devMessageSendParam.setTaskMap(taskMap);
         devMessageService.send(devMessageSendParam);
     }
 

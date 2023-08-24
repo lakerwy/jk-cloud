@@ -94,7 +94,7 @@ public class BizChartReviewsController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑业务表-图审受理单 ")
     @CommonLog("编辑业务表-图审受理单 ")
-//    @SaCheckPermission("/biz/Chartreviews/edit")
+    @SaCheckPermission("/biz/ChartReviews/edit")
     @PostMapping("/biz/ChartReviews/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizChartReviewsEditParam bizChartReviewsEditParam) {
         bizChartReviewsService.edit(bizChartReviewsEditParam);
@@ -111,7 +111,7 @@ public class BizChartReviewsController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除业务表-图审受理单 ")
     @CommonLog("删除业务表-图审受理单 ")
-//    @SaCheckPermission("/biz/Chartreviews/delete")
+    @SaCheckPermission("/biz/ChartReviews/delete")
     @PostMapping("/biz/ChartReviews/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                        CommonValidList<BizChartReviewsIdParam> bizChartReviewsIdParamList) {
