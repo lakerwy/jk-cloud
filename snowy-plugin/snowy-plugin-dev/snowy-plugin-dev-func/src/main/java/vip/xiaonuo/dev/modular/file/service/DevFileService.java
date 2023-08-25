@@ -97,7 +97,7 @@ public interface DevFileService extends IService<DevFile> {
      */
     DevFile queryEntity(String id);
 
-    Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file);
+    Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file, boolean isSpec);
 
     DevFile selectInfoNow();
 

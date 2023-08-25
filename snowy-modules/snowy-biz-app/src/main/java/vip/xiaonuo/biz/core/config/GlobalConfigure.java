@@ -177,6 +177,10 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/biz/cms/article/page",
             "/biz/cms/article/detail",
             "/biz/cms/article/click",
+
+            /* 招聘计划 面试登记表 */
+            "/biz/recruit/resume/registerSave",
+            "/biz/recruit/resume/registerDetail",
     };
 
     /**

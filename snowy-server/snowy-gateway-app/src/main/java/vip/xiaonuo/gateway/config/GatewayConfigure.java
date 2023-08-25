@@ -157,6 +157,10 @@ public class GatewayConfigure {
             "/api/bizapp/biz/cms/article/detail",
             "/api/bizapp/biz/cms/article/click",
 
+            /* 招聘计划 面试登记表 */
+            "/api/bizapp/biz/recruit/resume/registerSave",
+            "/api/bizapp/biz/recruit/resume/registerDetail",
+
             "/api/webapp/dev/deployConf/getInfo"
 
     };

@@ -1,6 +1,5 @@
 package vip.xiaonuo.biz.modular.recruit.param.dto;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -115,4 +114,15 @@ public class RecruitPlanFlwAddDto {
     @ApiModelProperty(value = "状态", position = 23)
     private String status;
 
+    /** 计划编制(当时填写) */
+    @ApiModelProperty(value = "计划编制(当时填写)", position = 5)
+    private Integer planNums;
+
+    /** 实际编制(当时填写) */
+    @ApiModelProperty(value = "实际编制(当时填写)", position = 5)
+    private Integer realNums;
+
+    /** 年度 */
+    @ApiModelProperty(value = "年度", position = 30)
+    private String year;
 }

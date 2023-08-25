@@ -282,13 +282,13 @@ public class DevFileController {
     @ApiOperationSupport(order = 16)
     @ApiOperation("附件上传")
     @PostMapping("/dev/attachment/fileUpload")
-    public CommonResult<Object> fileUpload(@RequestParam(value = "file") MultipartFile[] file) {
+    public CommonResult<Object> fileUpload(@RequestParam(value = "file") MultipartFile[] file ,@RequestParam(value = "isSpec", required = false, defaultValue = "false") boolean isSpec) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         //默认文件引擎
         String defaultFileEngine = devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY);
 
         for (MultipartFile fl : file) {
-            mapList.add(devFileService.uploadReturnId(defaultFileEngine,null,fl));
+            mapList.add(devFileService.uploadReturnId(defaultFileEngine,null,fl,isSpec));
         }
 
         return CommonResult.data(mapList);

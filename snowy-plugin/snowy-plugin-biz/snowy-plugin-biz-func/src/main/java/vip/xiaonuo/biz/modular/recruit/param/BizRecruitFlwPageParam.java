@@ -15,8 +15,6 @@ package vip.xiaonuo.biz.modular.recruit.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 业务表-招聘-部门计划流程审批单查询参数
