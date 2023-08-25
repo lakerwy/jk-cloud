@@ -53,7 +53,7 @@ public class BizResumePerserServiceImpl extends ServiceImpl<BizResumePerserMappe
             queryWrapper.orderBy(true, bizResumePerserPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizResumePerserPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizResumePerser::getId);
+            queryWrapper.lambda().orderByDesc(BizResumePerser::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

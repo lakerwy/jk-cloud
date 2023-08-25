@@ -90,7 +90,7 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
             queryWrapper.orderBy(true, bizRecruitResumePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizRecruitResumePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizRecruitResume::getId);
+            queryWrapper.lambda().orderByDesc(BizRecruitResume::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -140,6 +140,7 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
         recruitResume.setResumeAttach(resumeAddDto.getResumeAttach());
         recruitResume.setResumeResource(recruitResume.getResumeResource());
         recruitResume.setPlanId(resumeAddDto.getPlanId());
+        recruitResume.setStatus("1");
         recruitResume = parser(recruitResume);
         this.save(recruitResume);
     }
