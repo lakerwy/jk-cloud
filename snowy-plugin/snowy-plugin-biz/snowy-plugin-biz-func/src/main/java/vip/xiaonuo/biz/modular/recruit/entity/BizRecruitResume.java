@@ -188,6 +188,10 @@ public class BizRecruitResume {
     @ApiModelProperty(value = "简历附件地址", position = 38)
     private String resumeUrl;
 
+    /** 简历附件名称（带后缀） */
+    @ApiModelProperty(value = "简历附件名称（带后缀）", position = 38)
+    private String resumeName;
+
     /** 应聘登记JSON */
     @ApiModelProperty(value = "应聘登记JSON", position = 39)
     private String registJson;

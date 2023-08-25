@@ -226,6 +226,7 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
             x.setOwer(taskFlwParam.getOwer());
             x.setOwerId(taskFlwParam.getOwerId());
             x.setYear(taskFlwParam.getYear());
+            x.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         });
         this.saveBatch(bizTaskList);
     }

@@ -149,6 +149,7 @@ public class BizRecruitPlanServiceImpl extends ServiceImpl<BizRecruitPlanMapper,
     @Override
     public void add(RecruitPlanFlwDto recruitPlanFlwDto) {
         List<BizRecruitPlan> bizRecruitPlanList = BeanUtil.copyToList(recruitPlanFlwDto.getRecruitPlanList(), BizRecruitPlan.class);
+        bizRecruitPlanList.forEach(x->x.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue()));
         this.saveBatch(bizRecruitPlanList);
     }
 

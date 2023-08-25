@@ -30,4 +30,8 @@ public class ResumeAddDto {
     /** 简历附件地址 */
     @ApiModelProperty(value = "简历附件地址", position = 38)
     private String resumeUrl;
+
+    /** 简历附件名称（带后缀） */
+    @ApiModelProperty(value = "简历附件名称（带后缀）", position = 38)
+    private String resumeName;
 }
