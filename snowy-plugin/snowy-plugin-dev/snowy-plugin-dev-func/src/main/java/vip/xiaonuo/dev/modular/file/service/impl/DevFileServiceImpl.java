@@ -274,13 +274,9 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         String fileObjectName = fileId + StrUtil.DOT + fileSuffix;
 
         // 获取日期文件夹，格式如，2021/10/11/
-//        String dateFolderPath = DateUtil.thisYear() + StrUtil.SLASH +
-//                (DateUtil.thisMonth() + 1) + StrUtil.SLASH +
-//                DateUtil.thisDayOfMonth() + StrUtil.SLASH;
-        String fmt = "yyyy" + StrUtil.SLASH +"MMdd";
-        Date date = new Date();
-        DateFormat format = new SimpleDateFormat(fmt);
-        String dateFolderPath = format.format(date)+StrUtil.SLASH;
+        String dateFolderPath = DateUtil.thisYear() + StrUtil.SLASH +
+                (DateUtil.thisMonth() + 1) + StrUtil.SLASH +
+                DateUtil.thisDayOfMonth() + StrUtil.SLASH;
 
         // 返回
         return dateFolderPath + fileObjectName;
@@ -321,8 +317,8 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     }
 
     @Override
-    public Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file, boolean isSpec) {
-        return this.newStorageFile(engine, file, bucketName, isSpec);
+    public Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file) {
+        return this.newStorageFile(engine, file, bucketName);
     }
 
     @Override
@@ -342,7 +338,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author mayike
      * @date 2023/6/12 16:24
      **/
-    private Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName, boolean isSpec) {
+    private Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -381,22 +377,22 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
                 // 使用固定名称defaultBucketName
                 bucketName = "jk";
             }
-            storageUrl = DevFileLocalUtil.storageFileWithReturnUrl(bucketName, isSpec ? genFileKey(fileName,file) : genNewFileKey(fileName, file), file);
+            storageUrl = DevFileLocalUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
         } else if(engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
 
             // 使用阿里云默认配置的bucketName
             bucketName = DevFileAliyunUtil.getDefaultBucketName();
-            storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(bucketName, isSpec ? genFileKey(fileName,file) : genNewFileKey(fileName, file), file);
+            storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
         } else if(engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
 
             // 使用腾讯云默认配置的bucketName
             bucketName = DevFileTencentUtil.getDefaultBucketName();
-            storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, isSpec ? genFileKey(fileName,file) : genNewFileKey(fileName, file), file);
+            storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
         } else if(engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
 
             // 使用MINIO默认配置的bucketName
             bucketName = DevFileMinIoUtil.getDefaultBucketName();
-            storageUrl = DevFileMinIoUtil.storageFileWithReturnUrl(bucketName, isSpec ? genFileKey(fileName,file) : genNewFileKey(fileName, file), file);
+            storageUrl = DevFileMinIoUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
         } else {
             throw new CommonException("不支持的文件引擎：{}", engine);
         }
@@ -457,7 +453,6 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         map.put("url",downloadUrl);
         map.put("name",file.getOriginalFilename());
         map.put("fileId",fullFileId);
-        map.put("storageUrl",storageUrl);
         return map;
         // 如果是返回id则返回文件id
 //        if(returnFileId) {
