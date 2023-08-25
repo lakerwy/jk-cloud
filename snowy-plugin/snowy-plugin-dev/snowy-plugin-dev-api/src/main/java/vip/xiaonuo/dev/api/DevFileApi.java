@@ -31,7 +31,7 @@ public interface DevFileApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:44
      **/
-    String storageFileWithReturnUrlLocal(MultipartFile file);
+    String storageFileWithReturnUrlLocal(MultipartFile file, String parentId);
 
     /**
      * 上传文件返回Id
@@ -40,7 +40,7 @@ public interface DevFileApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:44
      **/
-    String storageFileWithReturnIdLocal(MultipartFile file);
+    String storageFileWithReturnIdLocal(MultipartFile file, String parentId);
 
     /* =========阿里云文件========= */
 
@@ -51,7 +51,7 @@ public interface DevFileApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:44
      **/
-    String storageFileWithReturnUrlAliyun(MultipartFile file);
+    String storageFileWithReturnUrlAliyun(MultipartFile file,String parentId);
 
     /**
      * 上传文件返回Id
@@ -60,7 +60,7 @@ public interface DevFileApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:44
      **/
-    String storageFileWithReturnIdAliyun(MultipartFile file);
+    String storageFileWithReturnIdAliyun(MultipartFile file,String parentId);
 
     /* =========腾讯云件========= */
 
@@ -71,7 +71,7 @@ public interface DevFileApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:44
      **/
-    String storageFileWithReturnUrlTencent(MultipartFile file);
+    String storageFileWithReturnUrlTencent(MultipartFile file,String parentId);
 
     /**
      * 上传文件返回Id
@@ -80,7 +80,7 @@ public interface DevFileApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:44
      **/
-    String storageFileWithReturnIdTencent(MultipartFile file);
+    String storageFileWithReturnIdTencent(MultipartFile file,String parentId);
 
     /* =========MINIO件========= */
 
@@ -91,7 +91,7 @@ public interface DevFileApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:44
      **/
-    String storageFileWithReturnUrlMinio(MultipartFile file);
+    String storageFileWithReturnUrlMinio(MultipartFile file,String parentId);
 
     /**
      * 上传文件返回Id
@@ -100,5 +100,5 @@ public interface DevFileApi {
      * @author xuyuxiang
      * @date 2022/6/22 17:44
      **/
-    String storageFileWithReturnIdMinio(MultipartFile file);
+    String storageFileWithReturnIdMinio(MultipartFile file,String parentId);
 }

@@ -39,7 +39,7 @@ public interface DevFileService extends IService<DevFile> {
      * @author xuyuxiang
      * @date 2022/4/22 15:53
      **/
-    String uploadReturnId(String engine, MultipartFile file);
+    String uploadReturnId(String engine, MultipartFile file,String parentId);
 
     /**
      * MultipartFile文件上传，返回文件Url
@@ -47,7 +47,7 @@ public interface DevFileService extends IService<DevFile> {
      * @author xuyuxiang
      * @date 2022/4/22 15:53
      **/
-    String uploadReturnUrl(String engine, MultipartFile file);
+    String uploadReturnUrl(String engine, MultipartFile file, String parentId);
 
     /**
      * 文件分页列表接口
@@ -97,16 +97,12 @@ public interface DevFileService extends IService<DevFile> {
      */
     DevFile queryEntity(String id);
 
-    Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file);
+    Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file,String parentId);
 
     DevFile selectInfoNow();
 
     List<DevFile> getInfosByIds(List<String> ids);
 
-    String uploadReturnUrl(MultipartFile file, String bucketName);
+    String uploadReturnUrl(MultipartFile file, String bucketName,String parentId);
 
-
-    void mkDir(String engine, String dirName);
-
-    void pageList(String engine, String dirPath);
 }

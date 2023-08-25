@@ -80,8 +80,8 @@ public class DevFileController {
     @ApiOperation("动态上传文件返回id")
     @CommonLog("动态上传文件返回id")
     @PostMapping("/dev/file/uploadDynamicReturnId")
-    public CommonResult<String> uploadDynamicReturnId(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnId(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file));
+    public CommonResult<String> uploadDynamicReturnId(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnId(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
     }
 
     /**
@@ -94,8 +94,8 @@ public class DevFileController {
     @ApiOperation("动态上传文件返回url")
     @CommonLog("动态上传文件返回url")
     @PostMapping("/dev/file/uploadDynamicReturnUrl")
-    public CommonResult<String> uploadDynamicReturnUrl(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnUrl(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file));
+    public CommonResult<String> uploadDynamicReturnUrl(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnUrl(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
     }
 
     /**
@@ -108,8 +108,8 @@ public class DevFileController {
     @ApiOperation("上传本地文件返回id")
     @CommonLog("上传本地文件返回id")
     @PostMapping("/dev/file/uploadLocalReturnId")
-    public CommonResult<String> uploadLocalReturnId(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnId(DevFileEngineTypeEnum.LOCAL.getValue(), file));
+    public CommonResult<String> uploadLocalReturnId(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnId(DevFileEngineTypeEnum.LOCAL.getValue(), file, parentId));
     }
 
     /**
@@ -122,8 +122,8 @@ public class DevFileController {
     @ApiOperation("上传本地文件返回url")
     @CommonLog("上传本地文件返回url")
     @PostMapping("/dev/file/uploadLocalReturnUrl")
-    public CommonResult<String> uploadLocalReturnUrl(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.LOCAL.getValue(), file));
+    public CommonResult<String> uploadLocalReturnUrl(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.LOCAL.getValue(), file, parentId));
     }
 
     /**
@@ -136,8 +136,8 @@ public class DevFileController {
     @ApiOperation("上传阿里云文件返回id")
     @CommonLog("上传阿里云文件返回id")
     @PostMapping("/dev/file/uploadAliyunReturnId")
-    public CommonResult<String> uploadAliyunReturnId(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnId(DevFileEngineTypeEnum.ALIYUN.getValue(), file));
+    public CommonResult<String> uploadAliyunReturnId(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnId(DevFileEngineTypeEnum.ALIYUN.getValue(), file,parentId));
     }
 
     /**
@@ -150,8 +150,8 @@ public class DevFileController {
     @ApiOperation("上传阿里云文件返回url")
     @CommonLog("上传阿里云文件返回url")
     @PostMapping("/dev/file/uploadAliyunReturnUrl")
-    public CommonResult<String> uploadAliyunReturnUrl(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.ALIYUN.getValue(), file));
+    public CommonResult<String> uploadAliyunReturnUrl(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.ALIYUN.getValue(), file,parentId));
     }
 
     /**
@@ -164,8 +164,8 @@ public class DevFileController {
     @ApiOperation("上传腾讯云文件返回id")
     @CommonLog("上传腾讯云文件返回id")
     @PostMapping("/dev/file/uploadTencentReturnId")
-    public CommonResult<String> uploadTencentReturnId(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnId(DevFileEngineTypeEnum.TENCENT.getValue(), file));
+    public CommonResult<String> uploadTencentReturnId(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnId(DevFileEngineTypeEnum.TENCENT.getValue(), file, parentId));
     }
 
     /**
@@ -178,8 +178,8 @@ public class DevFileController {
     @ApiOperation("上传腾讯云文件返回url")
     @CommonLog("上传腾讯云文件返回url")
     @PostMapping("/dev/file/uploadTencentReturnUrl")
-    public CommonResult<String> uploadTencentReturnUrl(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.TENCENT.getValue(), file));
+    public CommonResult<String> uploadTencentReturnUrl(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.TENCENT.getValue(), file,parentId));
     }
 
     /**
@@ -192,8 +192,8 @@ public class DevFileController {
     @ApiOperation("上传MINIO文件返回id")
     @CommonLog("上传MINIO文件返回id")
     @PostMapping("/dev/file/uploadMinioReturnId")
-    public CommonResult<String> uploadMinioReturnId(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnId(DevFileEngineTypeEnum.MINIO.getValue(), file));
+    public CommonResult<String> uploadMinioReturnId(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnId(DevFileEngineTypeEnum.MINIO.getValue(), file,parentId));
     }
 
     /**
@@ -206,8 +206,8 @@ public class DevFileController {
     @ApiOperation("上传MINIO文件返回url")
     @CommonLog("上传MINIO文件返回url")
     @PostMapping("/dev/file/uploadMinioReturnUrl")
-    public CommonResult<String> uploadMinioReturnUrl(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.MINIO.getValue(), file));
+    public CommonResult<String> uploadMinioReturnUrl(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.MINIO.getValue(), file,parentId));
     }
 
     /**
@@ -282,13 +282,13 @@ public class DevFileController {
     @ApiOperationSupport(order = 16)
     @ApiOperation("附件上传")
     @PostMapping("/dev/attachment/fileUpload")
-    public CommonResult<Object> fileUpload(@RequestParam(value = "file") MultipartFile[] file) {
+    public CommonResult<Object> fileUpload(@RequestParam(value = "file") MultipartFile[] file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         //默认文件引擎
         String defaultFileEngine = devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY);
 
         for (MultipartFile fl : file) {
-            mapList.add(devFileService.uploadReturnId(defaultFileEngine,null,fl));
+            mapList.add(devFileService.uploadReturnId(defaultFileEngine,null,fl,parentId));
         }
 
         return CommonResult.data(mapList);
@@ -346,28 +346,15 @@ public class DevFileController {
     @ApiOperation("无需token上传本地文件返回url")
     @CommonLog("无需token上传本地文件返回url")
     @PostMapping("/dev/file/NoToken/uploadLocalReturnUrl")
-    public CommonResult<String> uploadNewLocalReturnUrl(@RequestPart("file") MultipartFile file) {
-        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.LOCAL.getValue(), file));
-    }
-
-    /**
-     * 本地文件创建文件夹
-     *
-     **/
-    @ApiOperationSupport(order = 20)
-    @ApiOperation("本地文件创建文件夹")
-    @CommonLog("本地文件创建文件夹")
-    @GetMapping("/dev/file/mkDir")
-    public CommonResult<String> mkDir(@RequestParam(value = "dirPath") String dirPath) {
-        devFileService.mkDir(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
-        return CommonResult.ok();
+    public CommonResult<String> uploadNewLocalReturnUrl(@RequestPart("file") MultipartFile file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
+        return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.LOCAL.getValue(), file,parentId));
     }
 
     @ApiOperationSupport(order = 20)
     @ApiOperation("本地文件 获取文件列表")
     @GetMapping("/dev/file/pageList")
     public CommonResult<String> pageList(@RequestParam(value = "dirPath") String dirPath) {
-        devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
+       // devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
         return CommonResult.ok();
     }
 }

@@ -219,4 +219,57 @@ public class DingDingServiceImpl implements IDingDingService {
 
         }
     }
+
+
+    /**
+     * 发送工作通知
+     * @return OapiMessageCorpconversationAsyncsendV2Response
+     */
+    @Override
+    public OapiMessageCorpconversationAsyncsendV2Response asyncSendV3(String message ,String phone) {
+        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = getByMobile(phone);
+        if (!oapiV2UserGetbymobileResponse.isSuccess()) {
+            log.error(oapiV2UserGetbymobileResponse.getErrmsg());
+            return null;
+        }
+        OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
+
+        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
+        OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
+        // yourAgentId
+        request.setAgentId(dingTalkProperties.getAgentId());
+        request.setUseridList(result.getUserid());
+        request.setToAllUser(false);
+
+        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
+        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
+        head.setText("通知消息");
+        head.setBgcolor("FFBBBBBB");
+        oa.setHead(head);
+        oa.setPcMessageUrl("https://yun.jianke.co");
+        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+        String mg = message;
+        mg+= "等员工将于20天后转正，请及时处理";
+        mg += DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
+        body.setContent(mg);
+        oa.setBody(body);
+
+
+        OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
+//        msg.setOa(oa);
+        msg.setMsgtype("oa");
+        msg.setOa(oa);
+//        msg.setText(new OapiMessageCorpconversationAsyncsendV2Request.Text());
+//        msg.getText().setContent(message);
+        request.setMsg(msg);
+
+        OapiGettokenResponse oapiGettokenResponse = this.getToken();
+        String accessToken = oapiGettokenResponse.getAccessToken();
+        try {
+            return client.execute(request, accessToken);
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

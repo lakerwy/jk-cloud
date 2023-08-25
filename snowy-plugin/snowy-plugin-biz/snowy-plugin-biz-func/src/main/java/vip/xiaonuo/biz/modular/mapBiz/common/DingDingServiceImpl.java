@@ -241,4 +241,9 @@ public class DingDingServiceImpl implements IDingDingService {
 
         }
     }
+
+    @Override
+    public OapiMessageCorpconversationAsyncsendV2Response asyncSendV3(String message, String phone) {
+        return null;
+    }
 }

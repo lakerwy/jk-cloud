@@ -70,14 +70,17 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     private final static String DOWNLOADURL = "/dev/file/download?id=";
     private final static String GATEWAYDOWNLOADURL = "/api/webapp/dev/file/download?id=";
 
+    /**顶级父目录id*/
+    public final static  String ROOT_FOLD_ID = "0";
+
     @Override
-    public String uploadReturnId(String engine, MultipartFile file) {
-        return this.storageFile(engine, file, true,null);
+    public String uploadReturnId(String engine, MultipartFile file,String parentId) {
+        return this.storageFile(engine, file, true,null,parentId);
     }
 
     @Override
-    public String uploadReturnUrl(String engine, MultipartFile file) {
-        return this.storageFile(engine, file, false,null);
+    public String uploadReturnUrl(String engine, MultipartFile file, String parentId) {
+        return this.storageFile(engine, file, false,null,parentId);
     }
 
     @Override
@@ -154,7 +157,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author xuyuxiang
      * @date 2022/6/16 16:24
      **/
-    private String storageFile(String engine, MultipartFile file, boolean returnFileId, String bucketName) {
+    private String storageFile(String engine, MultipartFile file, boolean returnFileId, String bucketName, String parentId) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -207,6 +210,8 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         // 设置存储引擎类型
         devFile.setEngine(engine);
         devFile.setBucket(bucketName);
+        devFile.setIsDir(0);
+        devFile.setParentId(StrUtil.isBlank(parentId)?ROOT_FOLD_ID:parentId);
         devFile.setName(file.getOriginalFilename());
         String suffix = ObjectUtil.isNotEmpty(file.getOriginalFilename())?StrUtil.subAfter(file.getOriginalFilename(),
                 StrUtil.DOT, true):null;
@@ -317,8 +322,8 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     }
 
     @Override
-    public Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file) {
-        return this.newStorageFile(engine, file, bucketName);
+    public Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file,String parentId) {
+        return this.newStorageFile(engine, file, bucketName,parentId);
     }
 
     @Override
@@ -338,7 +343,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author mayike
      * @date 2023/6/12 16:24
      **/
-    private Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName) {
+    private Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName,String parentId) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -520,76 +525,8 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     }
 
     @Override
-    public String uploadReturnUrl(MultipartFile file, String bucketName) {
-        return this.storageFile(null, file, false,bucketName);
-    }
-
-    @Override
-    public void mkDir(String engine, String dirName) {
-        // 如果引擎为空，默认使用本地
-        if (ObjectUtil.isEmpty(engine)) {
-            engine = DevFileEngineTypeEnum.LOCAL.getValue();
-        }
-        // 根据引擎类型执行不同方法
-        if (engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
-
-            // 使用固定名称defaultBucketName
-            if (StrUtil.isBlank(dirName)) {
-                dirName = "jk";
-            }
-            DevFileLocalUtil.mkdirBucket(dirName);
-        } else if (engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
-            //todo
-            // 使用阿里云默认配置的bucketName
-            //bucketName = DevFileAliyunUtil.getDefaultBucketName();
-            //storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(dirName, genNewFileKey(fileName, file), file);
-        } else if (engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
-            //todo
-            // 使用腾讯云默认配置的bucketName
-            //bucketName = DevFileTencentUtil.getDefaultBucketName();
-            // storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
-        } else if (engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
-
-            // 使用MINIO默认配置的bucketName
-            //bucketName = DevFileMinIoUtil.getDefaultBucketName();
-            DevFileMinIoUtil.mkdirBucket(dirName);
-        } else {
-            throw new CommonException("不支持的文件引擎：{}", engine);
-        }
-    }
-
-    @Override
-    public void pageList(String engine, String dirPath) {
-        // 如果引擎为空，默认使用本地
-//        if (ObjectUtil.isEmpty(engine)) {
-//            engine = DevFileEngineTypeEnum.LOCAL.getValue();
-//        }
-//        // 根据引擎类型执行不同方法
-//        if (engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
-//
-//            // 使用固定名称defaultBucketName
-//            if (StrUtil.isBlank(dirPath)) {
-//                dirName = "jk";
-//            }
-//            DevFileLocalUtil.mkdirBucket(dirName);
-//        } else if (engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
-//            //todo
-//            // 使用阿里云默认配置的bucketName
-//            //bucketName = DevFileAliyunUtil.getDefaultBucketName();
-//            //storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(dirName, genNewFileKey(fileName, file), file);
-//        } else if (engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
-//            //todo
-//            // 使用腾讯云默认配置的bucketName
-//            //bucketName = DevFileTencentUtil.getDefaultBucketName();
-//            // storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
-//        } else if (engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
-//
-//            // 使用MINIO默认配置的bucketName
-//            //bucketName = DevFileMinIoUtil.getDefaultBucketName();
-//            DevFileMinIoUtil.mkdirBucket(dirName);
-//        } else {
-//            throw new CommonException("不支持的文件引擎：{}", engine);
-//        }
+    public String uploadReturnUrl(MultipartFile file, String bucketName,String parentId) {
+        return this.storageFile(null, file, false,bucketName,parentId);
     }
 
 }
