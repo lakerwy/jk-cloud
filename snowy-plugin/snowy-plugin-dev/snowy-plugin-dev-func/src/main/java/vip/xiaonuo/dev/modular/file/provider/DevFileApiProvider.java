@@ -33,42 +33,42 @@ public class DevFileApiProvider implements DevFileApi {
     private DevFileService devFileService;
 
     @Override
-    public String storageFileWithReturnUrlLocal(MultipartFile file, String parentId) {
-        return devFileService.uploadReturnUrl(DevFileEngineTypeEnum.LOCAL.getValue(), file,parentId);
+    public String storageFileWithReturnUrlLocal(MultipartFile file) {
+        return devFileService.uploadReturnUrl(DevFileEngineTypeEnum.LOCAL.getValue(), file);
     }
 
     @Override
-    public String storageFileWithReturnIdLocal(MultipartFile file,String parentId) {
-        return devFileService.uploadReturnId(DevFileEngineTypeEnum.LOCAL.getValue(), file,parentId);
+    public String storageFileWithReturnIdLocal(MultipartFile file) {
+        return devFileService.uploadReturnId(DevFileEngineTypeEnum.LOCAL.getValue(), file);
     }
 
     @Override
-    public String storageFileWithReturnUrlAliyun(MultipartFile file,String parentId) {
-        return devFileService.uploadReturnUrl(DevFileEngineTypeEnum.ALIYUN.getValue(), file,parentId);
+    public String storageFileWithReturnUrlAliyun(MultipartFile file) {
+        return devFileService.uploadReturnUrl(DevFileEngineTypeEnum.ALIYUN.getValue(), file);
     }
 
     @Override
-    public String storageFileWithReturnIdAliyun(MultipartFile file,String parentId) {
-        return devFileService.uploadReturnId(DevFileEngineTypeEnum.ALIYUN.getValue(), file,parentId);
+    public String storageFileWithReturnIdAliyun(MultipartFile file) {
+        return devFileService.uploadReturnId(DevFileEngineTypeEnum.ALIYUN.getValue(), file);
     }
 
     @Override
-    public String storageFileWithReturnUrlTencent(MultipartFile file,String parentId) {
-        return devFileService.uploadReturnUrl(DevFileEngineTypeEnum.TENCENT.getValue(), file,parentId);
+    public String storageFileWithReturnUrlTencent(MultipartFile file) {
+        return devFileService.uploadReturnUrl(DevFileEngineTypeEnum.TENCENT.getValue(), file);
     }
 
     @Override
-    public String storageFileWithReturnIdTencent(MultipartFile file,String parentId) {
-        return devFileService.uploadReturnId(DevFileEngineTypeEnum.TENCENT.getValue(), file,parentId);
+    public String storageFileWithReturnIdTencent(MultipartFile file) {
+        return devFileService.uploadReturnId(DevFileEngineTypeEnum.TENCENT.getValue(), file);
     }
 
     @Override
-    public String storageFileWithReturnUrlMinio(MultipartFile file,String parentId) {
-        return devFileService.uploadReturnUrl(DevFileEngineTypeEnum.MINIO.getValue(), file,parentId);
+    public String storageFileWithReturnUrlMinio(MultipartFile file) {
+        return devFileService.uploadReturnUrl(DevFileEngineTypeEnum.MINIO.getValue(), file);
     }
 
     @Override
-    public String storageFileWithReturnIdMinio(MultipartFile file,String parentId) {
-        return devFileService.uploadReturnId(DevFileEngineTypeEnum.MINIO.getValue(), file,parentId);
+    public String storageFileWithReturnIdMinio(MultipartFile file) {
+        return devFileService.uploadReturnId(DevFileEngineTypeEnum.MINIO.getValue(), file);
     }
 }

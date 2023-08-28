@@ -1,0 +1,214 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.pan.modular.fold.controller;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.dev.api.DevConfigApi;
+import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.pan.modular.fold.entity.DevFold;
+import vip.xiaonuo.pan.modular.fold.param.*;
+import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+import java.util.List;
+
+/**
+ * 文件主表控制器
+ *
+ * @author mayike
+ * @date  2023/08/28 10:09
+ */
+@Api(tags = "文件夹控制器")
+@ApiSupport(author = "SNOWY_TEAM", order = 1)
+@RestController
+@Validated
+public class DevFoldController {
+
+    /** 默认文件引擎 */
+    private static final String SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY = "SNOWY_SYS_DEFAULT_FILE_ENGINE";
+
+    @Resource
+    private DevFoldService devFoldService;
+
+    @Resource
+    private DevConfigApi devConfigApi;
+
+    /**
+     * 获取文件主表分页
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取文件夹分页")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/page")
+    public CommonResult<Page<DevFold>> page(DevFoldPageParam devFoldPageParam) {
+        return CommonResult.data(devFoldService.page(devFoldPageParam));
+    }
+
+    /**
+     * 添加文件主表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("添加文件夹")
+    @CommonLog("添加文件夹")
+//    @SaCheckPermission("/pan/fold/add")
+    @PostMapping("/pan/fold/add")
+    public CommonResult<String> add(@RequestBody @Valid DevFoldAddParam devFoldAddParam) {
+        devFoldService.add(devFoldAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑文件主表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("编辑文件夹")
+    @CommonLog("编辑文件夹")
+//    @SaCheckPermission("/pan/fold/edit")
+    @PostMapping("/pan/fold/edit")
+    public CommonResult<String> edit(@RequestBody @Valid DevFoldEditParam devFoldEditParam) {
+        devFoldService.edit(devFoldEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除文件主表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("删除文件夹")
+    @CommonLog("删除文件夹")
+//    @SaCheckPermission("/pan/fold/delete")
+    @PostMapping("/pan/fold/delete")
+    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                                   CommonValidList<DevFoldIdParam> devFoldIdParamList) {
+        devFoldService.delete(devFoldIdParamList);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取文件主表详情
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取文件夹详情")
+//    @SaCheckPermission("/pan/fold/detail")
+    @GetMapping("/pan/fold/detail")
+    public CommonResult<DevFold> detail(@Valid DevFoldIdParam devFoldIdParam) {
+        return CommonResult.data(devFoldService.detail(devFoldIdParam));
+    }
+
+    /**
+     * 本地文件创建文件夹
+     *
+     **/
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("本地文件创建文件夹")
+    @CommonLog("本地文件创建文件夹")
+    @PostMapping("/pan/fold/createFold")
+    public CommonResult<String> createFold(@Valid @RequestBody DevFoldAddParam devFoldAddParam) {
+        //判断文件夹是否存在
+        DevFold devFold = BeanUtil.copyProperties(devFoldAddParam, DevFold.class);
+        Boolean dirExist = devFoldService.isDirExist(devFold);
+        if(!dirExist){
+            return  CommonResult.error("同名文件夹已存在,请修改名称后在操作");
+        }
+        devFoldService.add(devFoldAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 文件夹重命名
+     *
+     **/
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("文件夹重命名")
+    @CommonLog("文件夹重命名")
+    @PostMapping("/pan/fold/reNameFold")
+    public CommonResult<String> reNameFold(@Valid @RequestBody DevFoldEditParam devFoldEditParam) {
+        //判断文件夹是否存在
+        DevFold devFold = BeanUtil.copyProperties(devFoldEditParam, DevFold.class);
+        List<DevFold> devFolds =  devFoldService.getFolds(devFold);
+        if(CollUtil.isNotEmpty(devFolds)){
+            //如果修改的名字为自己的原始名称，就直接返回
+            if(devFolds.get(0).getId().equals(devFoldEditParam.getId())){
+                return CommonResult.ok();
+            }
+            return  CommonResult.error("同名文件夹已存在,请修改名称后在操作");
+        }
+        devFoldService.edit(devFoldEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 文件夹重命名
+     *
+     **/
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("文件夹移动")
+    @CommonLog("文件夹移动")
+    @PostMapping("/pan/fold/moveFold")
+    public CommonResult<String> moveFold(@Valid @RequestBody DevFoldOperateParam devFoldOperateParam) {
+        /*
+         * 1、个人文件可移动到部门 、 部门文件不能移动到个人 （判断是否可以移动）
+         * 2、检查原文件夹下，是否有文件被操作。（如果有文件被操作，是不能移动的） ----文件修改或者预览时都要给文件夹上锁
+         * 3、判断目标文件夹是否存在同名文件夹
+         */
+        devFoldService.checkMove(devFoldOperateParam);
+        return CommonResult.ok();
+    }
+
+
+
+
+    //***********************************文件操作**************************************************//
+    /**
+     * 动态上传文件返回id
+     *
+     * @author xuyuxiang
+     * @date 2021/10/13 14:01
+     **/
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("动态上传文件返回文件信息")
+    @CommonLog("动态上传文件返回文件信息")
+    @PostMapping("/pan/file/uploadDynamicReturnBean")
+    public CommonResult<List<DevFile>> uploadDynamicReturnId(@RequestPart("file") MultipartFile[] file, @RequestParam(value = "parentId",required = false) String parentId) {
+        return CommonResult.data(devFoldService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
+    }
+}

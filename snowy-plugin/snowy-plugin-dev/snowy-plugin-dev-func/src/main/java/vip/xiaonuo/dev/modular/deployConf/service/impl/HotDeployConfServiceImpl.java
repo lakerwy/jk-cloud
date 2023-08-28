@@ -111,7 +111,7 @@ public class HotDeployConfServiceImpl extends ServiceImpl<HotDeployConfMapper, H
         if(ObjectUtil.isNotEmpty(one)){
             throw new CommonException("该版本包已发布,请重新发布");
         }
-        String downUrl = devFileService.uploadReturnUrl(file, "apk","0");
+        String downUrl = devFileService.uploadReturnUrl(file, "apk");
         HotDeployConf hotDeployConf = new HotDeployConf();
         hotDeployConf.setVersion(version);
         hotDeployConf.setPackageUrl(downUrl);

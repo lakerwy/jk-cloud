@@ -74,13 +74,13 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     public final static  String ROOT_FOLD_ID = "0";
 
     @Override
-    public String uploadReturnId(String engine, MultipartFile file,String parentId) {
-        return this.storageFile(engine, file, true,null,parentId);
+    public String uploadReturnId(String engine, MultipartFile file) {
+        return this.storageFile(engine, file, null).getId();
     }
 
     @Override
-    public String uploadReturnUrl(String engine, MultipartFile file, String parentId) {
-        return this.storageFile(engine, file, false,null,parentId);
+    public String uploadReturnUrl(String engine, MultipartFile file) {
+        return this.storageFile(engine, file, null).getDownloadPath();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author xuyuxiang
      * @date 2022/6/16 16:24
      **/
-    private String storageFile(String engine, MultipartFile file, boolean returnFileId, String bucketName, String parentId) {
+    private DevFile storageFile(String engine, MultipartFile file, String bucketName) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -210,8 +210,6 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         // 设置存储引擎类型
         devFile.setEngine(engine);
         devFile.setBucket(bucketName);
-        devFile.setIsDir(0);
-        devFile.setParentId(StrUtil.isBlank(parentId)?ROOT_FOLD_ID:parentId);
         devFile.setName(file.getOriginalFilename());
         String suffix = ObjectUtil.isNotEmpty(file.getOriginalFilename())?StrUtil.subAfter(file.getOriginalFilename(),
                 StrUtil.DOT, true):null;
@@ -253,12 +251,13 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
         this.save(devFile);
 
-        // 如果是返回id则返回文件id
-        if(returnFileId) {
-            return fileId;
-        } else {
-            return downloadUrl;
-        }
+//        // 如果是返回id则返回文件id
+//        if(returnFileId) {
+//            return fileId;
+//        } else {
+//            return downloadUrl;
+//        }
+        return devFile;
     }
 
     /**
@@ -322,8 +321,8 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     }
 
     @Override
-    public Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file,String parentId) {
-        return this.newStorageFile(engine, file, bucketName,parentId);
+    public Map<String,Object> uploadReturnId(String engine, String bucketName, MultipartFile file) {
+        return this.newStorageFile(engine, file, bucketName);
     }
 
     @Override
@@ -343,7 +342,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author mayike
      * @date 2023/6/12 16:24
      **/
-    private Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName,String parentId) {
+    private Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -525,8 +524,13 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     }
 
     @Override
-    public String uploadReturnUrl(MultipartFile file, String bucketName,String parentId) {
-        return this.storageFile(null, file, false,bucketName,parentId);
+    public String uploadReturnUrl(MultipartFile file, String bucketName) {
+        return this.storageFile(null, file,bucketName).getDownloadPath();
+    }
+
+    @Override
+    public DevFile uploadReturnBean(String engine, MultipartFile file) {
+        return this.storageFile(null, file,null);
     }
 
 }

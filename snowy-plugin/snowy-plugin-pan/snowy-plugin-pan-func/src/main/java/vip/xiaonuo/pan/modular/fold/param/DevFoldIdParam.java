@@ -15,29 +15,21 @@ package vip.xiaonuo.pan.modular.fold.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.pan.core.RegexConstant;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.Pattern;
 
 /**
- * 创建文件夹参数
+ * 文件主表Id参数
  *
  * @author mayike
- * @date 2023/8/25 10:24
- */
+ * @date  2023/08/28 10:09
+ **/
 @Getter
 @Setter
-public class DevFileAddParam {
+public class DevFoldIdParam {
 
-    @NotBlank(message = "文件名不能为空")
-    @Pattern(regexp = RegexConstant.FILE_NAME_REGEX, message = "文件名不合法！")
-    @ApiModelProperty(value = "文件名", required = true)
-    private String fileName;
-
-//    @ApiModelProperty(value = "文件夹路径", required = true)
-//    private String filePath;
-
-    @ApiModelProperty(value = "父目录ID", required = true)
-    private String parentId;
+    /** 主键ID */
+    @ApiModelProperty(value = "主键ID", required = true)
+    @NotBlank(message = "id不能为空")
+    private String id;
 }
