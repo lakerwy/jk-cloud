@@ -13,6 +13,7 @@
 package vip.xiaonuo.pan.modular.fold.param;
 
 import io.swagger.annotations.ApiModelProperty;
+import io.swagger.models.auth.In;
 import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
@@ -51,5 +52,11 @@ public class DevFoldPageParam {
     /** 文件名称 */
     @ApiModelProperty(value = "文件名称")
     private String fileName;
+
+    @ApiModelProperty(value = "文件夹类型")
+    private Integer foldType;
+
+    @ApiModelProperty(value = "目录ID (默认根目录ID为0)")
+    private String id;
 
 }

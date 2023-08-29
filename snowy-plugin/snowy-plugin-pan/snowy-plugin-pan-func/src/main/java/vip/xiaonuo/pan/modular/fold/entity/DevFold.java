@@ -103,6 +103,6 @@ public class DevFold {
     private Integer lockFlag;
 
     /** 文件夹类型 */
-    @ApiModelProperty(value = "文件夹类型", position = 16)
+    @ApiModelProperty(value = "文件夹类型(0 个人文件夹 1、群组文件夹)", position = 16)
     private Integer foldType;
 }

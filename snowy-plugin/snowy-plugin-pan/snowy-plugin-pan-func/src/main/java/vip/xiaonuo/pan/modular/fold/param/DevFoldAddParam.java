@@ -32,11 +32,11 @@ import java.util.Date;
 public class DevFoldAddParam {
 
     /** 父目录文件夹ID */
-    @ApiModelProperty(value = "父目录文件夹ID", position = 2)
+    @ApiModelProperty(value = "父目录文件夹ID", required = true,  position = 2)
     private String parentId;
 
     /** 文件名称 */
-    @ApiModelProperty(value = "文件名称", position = 3)
+    @ApiModelProperty(value = "文件名称", required = true, position = 3)
     private String fileName;
 
     /** 文件路径 */
@@ -44,8 +44,8 @@ public class DevFoldAddParam {
     private String filePath;
 
     /** 是否是目录(0-否,1-是) */
-    @ApiModelProperty(value = "是否是目录(0-否,1-是)", position = 5)
-    private Integer isDir;
+//    @ApiModelProperty(value = "是否是目录(0-否,1-是)", position = 5)
+//    private Integer isDir;
 
     /** 文件的ID（对应DEV_FILE表的主键ID） */
     @ApiModelProperty(value = "文件的ID（对应DEV_FILE表的主键ID）", position = 6)
@@ -60,7 +60,7 @@ public class DevFoldAddParam {
     private String dataScopeId;
 
     /** 文件夹类型 */
-    @ApiModelProperty(value = "文件夹类型", position = 16)
+    @ApiModelProperty(value = "文件夹类型(0 个人文件夹 1、群组文件夹)", required = true,position = 16)
     private Integer foldType;
 
 }

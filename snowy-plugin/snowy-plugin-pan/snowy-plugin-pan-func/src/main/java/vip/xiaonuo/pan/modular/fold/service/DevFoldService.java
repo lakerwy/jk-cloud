@@ -103,7 +103,7 @@ public interface DevFoldService extends IService<DevFold> {
      * 创建部门文件夹根目录
      * @return 文件id
      */
-    String createGroupFold(String groupId);
+    String createGroupFold();
 
     /**
      * 移动前校验
@@ -112,4 +112,13 @@ public interface DevFoldService extends IService<DevFold> {
     void checkMove(DevFoldOperateParam devFoldOperateParam);
 
     Boolean checkFoldLock(String foldId);
+
+    /**
+     * 文件夹移动
+     * @param devFoldOperateParam
+     */
+    void moveFold(DevFoldOperateParam devFoldOperateParam);
+
+    Page<DevFold> pageList(DevFoldPageParam devFoldPageParam);
+
 }

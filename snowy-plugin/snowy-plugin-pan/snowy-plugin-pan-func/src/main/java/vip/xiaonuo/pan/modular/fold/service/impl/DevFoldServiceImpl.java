@@ -172,6 +172,7 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
         devFold.setParentId(ROOT_FOLD_ID);
         devFold.setIsDir(IS_DIR);
         devFold.setRootDir(DevFoldEnum.SELF_ROOT.getLevel());
+        devFold.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
         //个人根目录文件夹名不允许修改、移动和删除
         String name = StpLoginUserUtil.getLoginUser().getName();
         devFold.setFileName(name+"的个人文件夹");
@@ -180,7 +181,7 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
     }
 
     @Override
-    public String createGroupFold(String groupId) {
+    public String createGroupFold() {
         LambdaQueryWrapper<DevFold> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(DevFold::getParentId,ROOT_FOLD_ID).eq(DevFold::getIsDir,IS_DIR).eq(DevFold::getRootDir,DevFoldEnum.GROUP_ROOT.getLevel())
                 .eq(DevFold::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
@@ -192,6 +193,8 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
         devFold.setParentId(ROOT_FOLD_ID);
         devFold.setIsDir(IS_DIR);
         devFold.setRootDir(DevFoldEnum.GROUP_ROOT.getLevel());
+        devFold.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
+        devFold.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
         //部门根目录文件夹名不允许修改、移动和删除
         String name = StpLoginUserUtil.getLoginUser().getOrgName();
         devFold.setFileName(name+"部门文件夹");
@@ -213,6 +216,9 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
                 Objects.equals(DevFoldEnum.SELF_FOLD_TYPE.getLevel(), targetDevFold.getFoldType())){
             throw  new CommonException(ExceptionEnum.FOLD_MOVE_NOT_SUPPORT.getValue());
         }
+        if(checkFoldLock(devFoldOperateParam.getSourceFoldId())){
+            throw new CommonException(ExceptionEnum.FOLD_MOVE_NOT_SUPPORT.getValue());
+        }
     }
 
     /**
@@ -222,7 +228,42 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
      */
     @Override
     public Boolean checkFoldLock(String foldId){
+        //todo
         return  false;
+    }
+
+    @Override
+    public void moveFold(DevFoldOperateParam devFoldOperateParam) {
+        DevFold devFold = queryEntity(devFoldOperateParam.getSourceFoldId());
+        DevFold targetFold = getById(devFoldOperateParam.getTargetFoldId());
+        devFold.setParentId(devFoldOperateParam.getTargetFoldId());
+        devFold.setFoldType(targetFold.getFoldType());
+        this.updateById(devFold);
+    }
+
+
+    @Override
+    public Page<DevFold> pageList(DevFoldPageParam devFoldPageParam) {
+        QueryWrapper<DevFold> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isEmpty(devFoldPageParam.getFoldType())){
+            devFoldPageParam.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
+        }
+        if(ObjectUtil.isEmpty(devFoldPageParam.getId())){
+            devFoldPageParam.setId(ROOT_FOLD_ID);
+        }
+        queryWrapper.lambda().eq(DevFold::getFoldType,devFoldPageParam.getFoldType());
+        queryWrapper.lambda().eq(DevFold::getParentId,devFoldPageParam.getId());
+        if(ObjectUtil.isNotEmpty(devFoldPageParam.getFileName())) {
+            queryWrapper.lambda().like(DevFold::getFileName, devFoldPageParam.getFileName());
+        }
+        if(ObjectUtil.isAllNotEmpty(devFoldPageParam.getSortField(), devFoldPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(devFoldPageParam.getSortOrder());
+            queryWrapper.orderBy(true, devFoldPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(devFoldPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByAsc(DevFold::getId);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
 }

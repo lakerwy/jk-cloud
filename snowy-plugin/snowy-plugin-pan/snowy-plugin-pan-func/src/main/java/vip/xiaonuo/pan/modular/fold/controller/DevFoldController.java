@@ -191,6 +191,7 @@ public class DevFoldController {
          * 3、判断目标文件夹是否存在同名文件夹
          */
         devFoldService.checkMove(devFoldOperateParam);
+        devFoldService.moveFold(devFoldOperateParam);
         return CommonResult.ok();
     }
 
@@ -210,5 +211,19 @@ public class DevFoldController {
     @PostMapping("/pan/file/uploadDynamicReturnBean")
     public CommonResult<List<DevFile>> uploadDynamicReturnId(@RequestPart("file") MultipartFile[] file, @RequestParam(value = "parentId",required = false) String parentId) {
         return CommonResult.data(devFoldService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
+    }
+
+    /**
+     * 获取文件主表分页
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("文件夹列表（个人、部门、分享）")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/pageList")
+    public CommonResult<Page<DevFold>> pageList(DevFoldPageParam devFoldPageParam) {
+        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
     }
 }
