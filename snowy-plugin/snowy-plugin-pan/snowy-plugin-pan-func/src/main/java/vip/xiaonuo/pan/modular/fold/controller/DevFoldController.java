@@ -28,6 +28,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.pan.modular.fold.entity.DevFold;
+import vip.xiaonuo.pan.modular.fold.enums.DevFoldEnum;
 import vip.xiaonuo.pan.modular.fold.param.*;
 import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
 
@@ -224,6 +225,51 @@ public class DevFoldController {
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/pageList")
     public CommonResult<Page<DevFold>> pageList(DevFoldPageParam devFoldPageParam) {
+        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+    }
+
+    /**
+     * 所有个人文件夹列表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("所有个人文件夹列表")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/selfAllPageList")
+    public CommonResult<Page<DevFold>> selfAllPageList(DevFoldPageParam devFoldPageParam) {
+        devFoldPageParam.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
+        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+    }
+
+    /**
+     * 所有群组文件夹列表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("所有群组文件夹列表")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/groupAllPageList")
+    public CommonResult<Page<DevFold>> groupAllPageList(DevFoldPageParam devFoldPageParam) {
+        devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
+        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+    }
+
+    /**
+     * 所有群组文件夹列表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("获取登录人个人文件夹列表")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/selfPageList")
+    public CommonResult<Page<DevFold>> selfPageList(DevFoldPageParam devFoldPageParam) {
+        devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
         return CommonResult.data(devFoldService.pageList(devFoldPageParam));
     }
 }

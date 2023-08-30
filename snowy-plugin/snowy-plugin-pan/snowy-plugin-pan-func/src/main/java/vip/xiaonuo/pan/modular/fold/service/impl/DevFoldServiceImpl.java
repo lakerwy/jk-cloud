@@ -245,9 +245,36 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
     @Override
     public Page<DevFold> pageList(DevFoldPageParam devFoldPageParam) {
         QueryWrapper<DevFold> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isEmpty(devFoldPageParam.getFoldType())){
-            devFoldPageParam.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
+//        if(ObjectUtil.isEmpty(devFoldPageParam.getFoldType())){
+//            devFoldPageParam.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
+//        }
+        if(ObjectUtil.isEmpty(devFoldPageParam.getId())){
+            devFoldPageParam.setId(ROOT_FOLD_ID);
         }
+        if(ObjectUtil.isNotEmpty(devFoldPageParam.getFoldType())){
+            queryWrapper.lambda().eq(DevFold::getFoldType,devFoldPageParam.getFoldType());
+        }
+        queryWrapper.lambda().eq(DevFold::getParentId,devFoldPageParam.getId());
+        if(ObjectUtil.isNotEmpty(devFoldPageParam.getFileName())) {
+            queryWrapper.lambda().like(DevFold::getFileName, devFoldPageParam.getFileName());
+        }
+        if(ObjectUtil.isAllNotEmpty(devFoldPageParam.getSortField(), devFoldPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(devFoldPageParam.getSortOrder());
+            queryWrapper.orderBy(true, devFoldPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(devFoldPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByAsc(DevFold::getId);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public Page<DevFold> pageListByParam(DevFoldPageParam devFoldPageParam) {
+        //个人文件夹，默认展示一级目录下的
+        QueryWrapper<DevFold> queryWrapper = new QueryWrapper<>();
+//        if(ObjectUtil.isEmpty(devFoldPageParam.getFoldType())){
+//            devFoldPageParam.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
+//        }
         if(ObjectUtil.isEmpty(devFoldPageParam.getId())){
             devFoldPageParam.setId(ROOT_FOLD_ID);
         }
