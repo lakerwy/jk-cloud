@@ -12,7 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.recruit.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -22,9 +22,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeAddDto;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeParserDto;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeRegistSaveDto;
+import vip.xiaonuo.biz.modular.recruit.param.dto.*;
+import vip.xiaonuo.biz.modular.recruit.vo.BizRecruitResumeVo;
+import vip.xiaonuo.biz.modular.recruit.vo.ResumeChannelStatisticVo;
+import vip.xiaonuo.biz.modular.recruit.vo.ResumeChannelTotalVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -63,7 +64,7 @@ public class BizRecruitResumeController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-招聘-简历库分页")
     @GetMapping("/biz/recruit/resume/page")
-    public CommonResult<Page<BizRecruitResume>> page(BizRecruitResumePageParam bizRecruitResumePageParam) {
+    public CommonResult<IPage<BizRecruitResumeVo>> page(BizRecruitResumePageParam bizRecruitResumePageParam) {
         return CommonResult.data(bizRecruitResumeService.page(bizRecruitResumePageParam));
     }
 
@@ -184,5 +185,50 @@ public class BizRecruitResumeController {
     @GetMapping("/biz/recruit/resume/registerDetail")
     public CommonResult<String> registerDetail(@Valid BizRecruitResumeIdParam bizRecruitResumeIdParam) {
         return CommonResult.data(bizRecruitResumeService.registerDetail(bizRecruitResumeIdParam));
+    }
+
+
+    /**
+     * 业务表-招聘-简历库(更新字段)
+     *
+     * @author yong.ye
+     * @date  2023/08/23 17:08
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("业务表-招聘-简历库(更新字段)")
+    @CommonLog("业务表-招聘-简历库(更新字段)")
+    @PostMapping("/biz/recruit/resume/update")
+    public CommonResult<String> update(@RequestBody @Valid ResumeUpdateDto resumeUpdateDto) {
+        bizRecruitResumeService.update(resumeUpdateDto);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 招聘统计图
+     *
+     * @author yong.ye
+     * @date  2023/08/23 17:08
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("招聘渠道图集")
+    @GetMapping("/biz/recruit/resume/channelTotal")
+    public CommonResult<ResumeChannelTotalVo> channelTotal(@Valid ResumeChannelTotalDto resumeChannelTotalDto) {
+        return CommonResult.data(bizRecruitResumeService.channelTotal(resumeChannelTotalDto));
+    }
+
+    /**
+     * 业务表-招聘-简历库(拒收Offer)
+     *
+     * @author yong.ye
+     * @date  2023/08/23 17:08
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("业务表-招聘-简历库(拒收Offer)")
+    @CommonLog("业务表-招聘-简历库(拒收Offer)")
+    @PostMapping("/biz/recruit/resume/refuse")
+    public CommonResult<String> refuse(@RequestBody @Valid ResumeRefuseDto resumeRefuseDto) {
+        bizRecruitResumeService.refuse(resumeRefuseDto);
+        return CommonResult.ok();
     }
 }

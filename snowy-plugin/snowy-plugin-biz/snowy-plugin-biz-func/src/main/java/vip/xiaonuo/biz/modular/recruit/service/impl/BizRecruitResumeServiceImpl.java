@@ -14,22 +14,29 @@ package vip.xiaonuo.biz.modular.recruit.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
+import org.joda.time.DateTime;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.recruit.entity.BizRecruitPlan;
+import vip.xiaonuo.biz.modular.recruit.enums.BizRecruitResumeEnum;
+import vip.xiaonuo.biz.modular.recruit.enums.BizRecruitResumeStageEnum;
 import vip.xiaonuo.biz.modular.recruit.param.*;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeAddDto;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeParserDto;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeRegistSaveDto;
+import vip.xiaonuo.biz.modular.recruit.param.dto.*;
+import vip.xiaonuo.biz.modular.recruit.service.BizRecruitPlanService;
 import vip.xiaonuo.biz.modular.recruit.service.BizResumePerserService;
 import vip.xiaonuo.biz.modular.recruit.utils.ResumeParserUtil;
+import vip.xiaonuo.biz.modular.recruit.vo.*;
+import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -38,7 +45,11 @@ import vip.xiaonuo.biz.modular.recruit.mapper.BizRecruitResumeMapper;
 import vip.xiaonuo.biz.modular.recruit.service.BizRecruitResumeService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-招聘-简历库Service接口实现类
@@ -52,47 +63,45 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
     @Resource
     BizResumePerserService bizResumePerserService;
 
+    @Resource
+    BizRecruitResumeMapper bizRecruitResumeMapper;
+
+    @Resource
+    BizRecruitPlanService bizRecruitPlanService;
+
+    @Resource
+    SysOrgService sysOrgService;
+
     @Override
-    public Page<BizRecruitResume> page(BizRecruitResumePageParam bizRecruitResumePageParam) {
+    public IPage<BizRecruitResumeVo> page(BizRecruitResumePageParam bizRecruitResumePageParam) {
         QueryWrapper<BizRecruitResume> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getType())) {
-            queryWrapper.lambda().eq(BizRecruitResume::getType, bizRecruitResumePageParam.getType());
+            queryWrapper.eq("a.TYPE", bizRecruitResumePageParam.getType());
         }
         if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getResumeResource())) {
-            queryWrapper.lambda().eq(BizRecruitResume::getResumeResource, bizRecruitResumePageParam.getResumeResource());
+            queryWrapper.eq("a.RESUME_RESOURCE", bizRecruitResumePageParam.getResumeResource());
         }
         if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getName())) {
-            queryWrapper.lambda().like(BizRecruitResume::getName, bizRecruitResumePageParam.getName());
+            queryWrapper.like("a.NAME", bizRecruitResumePageParam.getName());
         }
         if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getGender())) {
-            queryWrapper.lambda().eq(BizRecruitResume::getGender, bizRecruitResumePageParam.getGender());
+            queryWrapper.eq("a.GENDER", bizRecruitResumePageParam.getGender());
         }
         if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getIdCard())) {
-            queryWrapper.lambda().like(BizRecruitResume::getIdCard, bizRecruitResumePageParam.getIdCard());
+            queryWrapper.like("a.ID_CARD", bizRecruitResumePageParam.getIdCard());
         }
         if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getCollege())) {
-            queryWrapper.lambda().like(BizRecruitResume::getCollege, bizRecruitResumePageParam.getCollege());
-        }
-        if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getCollegeType())) {
-            queryWrapper.lambda().eq(BizRecruitResume::getCollegeType, bizRecruitResumePageParam.getCollegeType());
-        }
-        if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getMajor())) {
-            queryWrapper.lambda().like(BizRecruitResume::getMajor, bizRecruitResumePageParam.getMajor());
-        }
-        if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getDegree())) {
-            queryWrapper.lambda().eq(BizRecruitResume::getDegree, bizRecruitResumePageParam.getDegree());
-        }
-        if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getRecruit())) {
-            queryWrapper.lambda().eq(BizRecruitResume::getRecruit, bizRecruitResumePageParam.getRecruit());
+            queryWrapper.like("a.COLLEGE", bizRecruitResumePageParam.getCollege());
         }
         if(ObjectUtil.isAllNotEmpty(bizRecruitResumePageParam.getSortField(), bizRecruitResumePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizRecruitResumePageParam.getSortOrder());
             queryWrapper.orderBy(true, bizRecruitResumePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizRecruitResumePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(BizRecruitResume::getCreateTime);
+            queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return bizRecruitResumeMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -138,10 +147,17 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
         recruitResume.setResumeName(resumeAddDto.getResumeName());
         recruitResume.setResumeUrl(resumeAddDto.getResumeUrl());
         recruitResume.setResumeAttach(resumeAddDto.getResumeAttach());
-        recruitResume.setResumeResource(recruitResume.getResumeResource());
+        recruitResume.setResumeResource(resumeAddDto.getResumeResource());
         recruitResume.setPlanId(resumeAddDto.getPlanId());
-        recruitResume.setStatus("1");
+        recruitResume.setStatus(BizRecruitResumeEnum.SEND.getValue());
         recruitResume = parser(recruitResume);
+        //判断同职位，同个手机号是否已投递
+        if(ObjectUtil.isNotEmpty(recruitResume.getPlanId()) && ObjectUtil.isNotEmpty(recruitResume.getPhone())) {
+            List<BizRecruitResume> oldList = this.list(new QueryWrapper<BizRecruitResume>().lambda().eq(BizRecruitResume::getPlanId, recruitResume.getPlanId()).eq(BizRecruitResume::getPhone, recruitResume.getPhone()));
+            if(CollUtil.isNotEmpty(oldList)){
+                throw new CommonException("当前手机号的简历已投递过该岗位");
+            }
+        }
         this.save(recruitResume);
     }
 
@@ -189,6 +205,8 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
                     recruitResume.setPhone(result.getStr("phone"));
                     recruitResume.setExpectSalary(result.getStr("expect_salary"));
                     recruitResume.setExpectTime(result.getStr("expect_time"));
+                    recruitResume.setContJobExp(result.getStr("cont_job_exp "));
+                    recruitResume.setContCertificate(result.getStr("cont_certificate"));
                     recruitResume.setResumeJson(result.toString());
                 }
                 //增加接口调用记录
@@ -233,6 +251,272 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
     public String registerDetail(BizRecruitResumeIdParam bizRecruitResumeIdParam) {
         BizRecruitResume recruitResume = this.queryEntity(bizRecruitResumeIdParam.getId());
         return recruitResume.getRegistJson();
+    }
+
+    @Override
+    public void update(ResumeUpdateDto resumeUpdateDto) {
+        BizRecruitResume recruitResume = this.queryEntity(resumeUpdateDto.getId());
+        String colName = resumeUpdateDto.getColName().toLowerCase();
+        //状态
+        if("status".equals(colName)){
+            recruitResume.setStatus(resumeUpdateDto.getColValue());
+        }
+        //标签
+        if("tags".equals(colName)){
+            recruitResume.setTags(resumeUpdateDto.getColValue());
+        }
+        this.updateById(recruitResume);
+    }
+
+    @Override
+    public ResumeChannelTotalVo channelTotal(ResumeChannelTotalDto resumeChannelTotalDto) {
+        //分类统计
+        ResumeChannelTotalVo resultVo = new ResumeChannelTotalVo();
+        //条件
+        QueryWrapper<BizRecruitResume> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizRecruitResume::getDeleteFlag,"NOT_DELETE");
+        if(ObjectUtil.isNotEmpty(resumeChannelTotalDto.getStartDate()) && ObjectUtil.isNotEmpty(resumeChannelTotalDto.getEndDate())) {
+            queryWrapper.lambda().between(BizRecruitResume::getCreateTime, resumeChannelTotalDto.getStartDate(), resumeChannelTotalDto.getEndDate());
+        }
+        List<BizRecruitResume> resumeList = this.list(queryWrapper);
+        Map<String,List<BizRecruitResume>> groupList = resumeList.stream().collect(Collectors.groupingBy(x->x.getResumeResource()));
+
+        //1. 各个渠道各个状态简历统计表
+        List<ResumeChannelNumVo> channelNumVoList = new ArrayList<>();
+        for (Map.Entry<String,List<BizRecruitResume>> item:groupList.entrySet()) {
+            ResumeChannelNumVo channelNumVo = new ResumeChannelNumVo();
+            //各个状态统计
+            channelNumVo.setResumeResource(item.getKey());
+            long touDiNum = item.getValue().size();
+            long youxiaoNum = item.getValue().stream().filter(x-> collStatus("youxiaoNum").contains(x.getStatus())
+                            || (x.getStatus().equals(BizRecruitResumeEnum.STOP.getValue()) && collStatusStage("youxiaoNum").contains(x.getStatusStage()))).count();
+            long faceNum = item.getValue().stream().filter(x-> collStatus("faceNum").contains(x.getStatus())
+                            || (x.getStatus().equals(BizRecruitResumeEnum.STOP.getValue()) && collStatusStage("faceNum").contains(x.getStatusStage()))).count();
+            long firstPassNum = item.getValue().stream().filter(x-> collStatus("firstPassNum").contains(x.getStatus())
+                            || (x.getStatus().equals(BizRecruitResumeEnum.STOP.getValue()) && collStatusStage("firstPassNum").contains(x.getStatusStage()))).count();
+            long facePassNum = item.getValue().stream().filter(x-> collStatus("facePassNum").contains(x.getStatus())
+                            || (x.getStatus().equals(BizRecruitResumeEnum.STOP.getValue()) && collStatusStage("facePassNum").contains(x.getStatusStage()))).count();
+            long tryNum = item.getValue().stream().filter(x->x.getStatus().equals(BizRecruitResumeEnum.ARRIVE.getValue())).count();
+            channelNumVo.setTouDiNum(touDiNum);
+            channelNumVo.setYouXiaoNum(youxiaoNum);
+            channelNumVo.setFaceNum(faceNum);
+            channelNumVo.setFirstPassNum(firstPassNum);
+            channelNumVo.setFacePassNum(facePassNum);
+            channelNumVo.setTryNum(tryNum);
+            channelNumVoList.add(channelNumVo);
+        }
+
+        //2. 汇总
+        ResumeChannelNumVo channelNumVo_HZ = new ResumeChannelNumVo();
+        if(CollUtil.isNotEmpty(channelNumVoList)) {
+            channelNumVo_HZ.setResumeResource("汇总");
+            channelNumVo_HZ.setTouDiNum(channelNumVoList.stream().mapToLong(x -> x.getTouDiNum()).sum());
+            channelNumVo_HZ.setYouXiaoNum(channelNumVoList.stream().mapToLong(x -> x.getYouXiaoNum()).sum());
+            channelNumVo_HZ.setFaceNum(channelNumVoList.stream().mapToLong(x -> x.getFaceNum()).sum());
+            channelNumVo_HZ.setFirstPassNum(channelNumVoList.stream().mapToLong(x -> x.getFirstPassNum()).sum());
+            channelNumVo_HZ.setFacePassNum(channelNumVoList.stream().mapToLong(x -> x.getFacePassNum()).sum());
+            channelNumVo_HZ.setTryNum(channelNumVoList.stream().mapToLong(x -> x.getTryNum()).sum());
+        }
+
+        List<ResumeChannelNumVo> temp = new ArrayList<>();
+        temp.addAll(channelNumVoList);
+        temp.add(channelNumVo_HZ);
+        resultVo.setChannelNumVoList(temp);
+
+        //3. 漏斗-汇总
+        List<ResumeChannel_LD_HZ> ld_HZ = new ArrayList<>();
+        ld_HZ.add(new ResumeChannel_LD_HZ("简历投递量",channelNumVo_HZ.getTouDiNum()));
+        ld_HZ.add(new ResumeChannel_LD_HZ("有效简历量",channelNumVo_HZ.getYouXiaoNum()));
+        ld_HZ.add(new ResumeChannel_LD_HZ("视频/面试人数",channelNumVo_HZ.getFaceNum()));
+        ld_HZ.add(new ResumeChannel_LD_HZ("初试通过数",channelNumVo_HZ.getFirstPassNum()));
+        ld_HZ.add(new ResumeChannel_LD_HZ("面试通过人数",channelNumVo_HZ.getFacePassNum()));
+        ld_HZ.add(new ResumeChannel_LD_HZ("试用人数",channelNumVo_HZ.getTryNum()));
+        resultVo.setLd_HZ(ld_HZ);
+
+        //4. 漏斗-转化率
+        List<ResumeChannel_LD_ZHL> ld_ZHL = new ArrayList<>();
+        ld_ZHL.add(new ResumeChannel_LD_ZHL("简历投递量",1D));
+        ld_ZHL.add(new ResumeChannel_LD_ZHL("有效简历量",division(channelNumVo_HZ.getYouXiaoNum(),channelNumVo_HZ.getTouDiNum())));
+        ld_ZHL.add(new ResumeChannel_LD_ZHL("视频/面试人数",division(channelNumVo_HZ.getFaceNum(),channelNumVo_HZ.getYouXiaoNum())));
+        ld_ZHL.add(new ResumeChannel_LD_ZHL("初试通过数",division(channelNumVo_HZ.getFirstPassNum(),channelNumVo_HZ.getFaceNum())));
+        ld_ZHL.add(new ResumeChannel_LD_ZHL("面试通过人数",division(channelNumVo_HZ.getFacePassNum(),channelNumVo_HZ.getFirstPassNum())));
+        ld_ZHL.add(new ResumeChannel_LD_ZHL("试用人数",division(channelNumVo_HZ.getTryNum(),channelNumVo_HZ.getFacePassNum())));
+        resultVo.setLd_ZHL(ld_ZHL);
+
+        //5. 饼图-渠道占比
+        List<ResumeChannel_BT> bt_Channel = new ArrayList<>();
+        for (ResumeChannelNumVo item:channelNumVoList) {
+            bt_Channel.add(new ResumeChannel_BT(item.getResumeResource(),division(item.getTouDiNum(),channelNumVo_HZ.getTouDiNum())));
+        }
+        resultVo.setBT_Channel(bt_Channel);
+
+        //6. 柱状图-有效简历占比
+        ResumeChannel_ZZT zzt_YX = new ResumeChannel_ZZT();
+        List<String> xAxis = new ArrayList<>();
+        List<Double> yAxis = new ArrayList<>();
+        for (ResumeChannelNumVo item:channelNumVoList) {
+            xAxis.add(item.getResumeResource());
+            yAxis.add(division(item.getYouXiaoNum(),channelNumVo_HZ.getYouXiaoNum()));
+        }
+        zzt_YX.setXAxis(xAxis);
+        zzt_YX.setYAxis(yAxis);
+        resultVo.setZzt_YX(zzt_YX);
+
+        //7. 饼图-面试人数占比
+        List<ResumeChannel_BT> bt_face = new ArrayList<>();
+        for (ResumeChannelNumVo item:channelNumVoList) {
+            bt_face.add(new ResumeChannel_BT(item.getResumeResource(),division(item.getFaceNum(),channelNumVo_HZ.getFaceNum())));
+        }
+        resultVo.setBt_face(bt_face);
+
+        //8. 柱状图-使用人数占比
+        ResumeChannel_ZZT zzt_try = new ResumeChannel_ZZT();
+        List<String> xAxisTry = new ArrayList<>();
+        List<Double> yAxisTry = new ArrayList<>();
+        for (ResumeChannelNumVo item:channelNumVoList) {
+            xAxisTry.add(item.getResumeResource());
+            yAxisTry.add(division(item.getTryNum(),channelNumVo_HZ.getTryNum()));
+        }
+        zzt_try.setXAxis(xAxisTry);
+        zzt_try.setYAxis(yAxisTry);
+        resultVo.setZzt_try(zzt_try);
+
+        //9. 柱状图 招聘未达成-原因
+        ResumeChannel_ZZT zzt_refuse = new ResumeChannel_ZZT();
+        List<String> xAxisRefuse = new ArrayList<>();
+        List<Double> yAxisRefuse = new ArrayList<>();
+        List<Long> zAxisRefuse = new ArrayList<>();
+        List<BizRecruitResume> refuseList = resumeList.stream().filter(x->x.getStatus().equals(BizRecruitResumeEnum.REFUSE.getValue())).collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(refuseList)){
+            List<String> reasons = refuseList.stream().map(x->x.getReason()).distinct().collect(Collectors.toList());
+            for (String item:reasons) {
+                xAxisRefuse.add(item);
+                long nums = resumeList.stream().filter(x->x.getReason().equals(item)).count();
+                zAxisRefuse.add(nums);
+                yAxisRefuse.add(division(nums,(long)refuseList.size()));
+            }
+            zzt_refuse.setXAxis(xAxisRefuse);
+            zzt_refuse.setYAxis(yAxisRefuse);
+            zzt_refuse.setZAxis(zAxisRefuse);
+        }
+        resultVo.setZzt_refuse(zzt_refuse);
+
+        //10. 柱状图 试用
+        ResumeChannel_ZZT zzt_arrive = new ResumeChannel_ZZT();
+        List<String> xAxisArrive = new ArrayList<>();
+        List<Long> zAxisArrive = new ArrayList<>();
+        List<BizRecruitResume> arriveList = refuseList.stream().filter(x->x.getStatus().equals(BizRecruitResumeEnum.ARRIVE.getValue())).collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(arriveList)){
+            List<String> resources = arriveList.stream().map(x->x.getResumeResource()).distinct().collect(Collectors.toList());
+            for(String item : resources){
+                xAxisArrive.add(item);
+                zAxisArrive.add(arriveList.stream().filter(x->x.getResumeResource().equals(item)).count());
+            }
+            zzt_arrive.setXAxis(xAxisArrive);
+            zzt_arrive.setZAxis(zAxisArrive);
+        }
+        resultVo.setZzt_resource(zzt_arrive);
+
+        //11. 柱状图-部门
+        ResumeChannel_ZZT zzt_dept = new ResumeChannel_ZZT();
+        List<String> xAxisDept = new ArrayList<>();
+        List<Double> yAxisDept = new ArrayList<>();
+        List<Long> zAxisDept = new ArrayList<>();
+        List<Long> tAxisDept = new ArrayList<>();
+        String year = DateTime.parse(resumeChannelTotalDto.getStartDate()).year().toString();
+        List<BizRecruitPlan> planList = bizRecruitPlanService.list(new QueryWrapper<BizRecruitPlan>().lambda().eq(BizRecruitPlan::getYear,year).eq(BizRecruitPlan::getStatus,"1"));
+        List<String> orgIds = planList.stream().map(x->x.getOrgId()).distinct().collect(Collectors.toList());
+        for (String orgId:orgIds) {
+            List<BizRecruitPlan> tmpplans = planList.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
+            BizSysOrgVo orgVo = sysOrgService.getOrgById(orgId);
+            List<BizRecruitResume> tmpresumes = this.list(new QueryWrapper<BizRecruitResume>().lambda().in(BizRecruitResume::getPlanId,tmpplans.stream().map(x->x.getId())).eq(BizRecruitResume::getStatus,BizRecruitResumeEnum.ARRIVE.getValue()));
+            xAxisDept.add(orgVo.getOrgName());
+            zAxisDept.add((long)tmpplans.size());
+            tAxisDept.add((long)tmpresumes.size());
+            yAxisDept.add(division((long)tmpresumes.size(),(long)tmpplans.size()));
+        }
+        zzt_dept.setXAxis(xAxisDept);
+        zzt_dept.setYAxis(yAxisDept);
+        zzt_dept.setZAxis(zAxisDept);
+        zzt_dept.setTAxis(tAxisDept);
+        resultVo.setZzt_dept(zzt_dept);
+        return resultVo;
+    }
+
+    @Override
+    public void refuse(ResumeRefuseDto resumeRefuseDto) {
+        BizRecruitResume bizRecruitResume = this.queryEntity(resumeRefuseDto.getId());
+        bizRecruitResume.setStatus(BizRecruitResumeEnum.REFUSE.getValue());
+        bizRecruitResume.setStatusStage(BizRecruitResumeStageEnum.PEDING_STAGE.getValue());
+        bizRecruitResume.setReason(resumeRefuseDto.getReason());
+        this.updateById(bizRecruitResume);
+    }
+
+
+    /* 计算-除法 */
+    public double division(Long x, Long y){
+        if(ObjectUtil.isEmpty(x) || ObjectUtil.isEmpty(y)){
+            return 0;
+        }
+        if(y == 0){
+            return 0;
+        }
+        return (double) x/y;
+    }
+
+    /* 简历状态集 */
+    public List<String> collStatus(String type){
+        List<String> statusList = new ArrayList<>();
+//        statusList.add(BizRecruitResumeEnum.SEND.getValue());
+//        statusList.add(BizRecruitResumeEnum.STOP.getValue());
+        statusList.add(BizRecruitResumeEnum.PRE_INTERVIEW.getValue());
+        statusList.add(BizRecruitResumeEnum.FIRST_PASS.getValue());
+        statusList.add(BizRecruitResumeEnum.RETEST_PASS.getValue());
+        statusList.add(BizRecruitResumeEnum.PENDING.getValue());
+        statusList.add(BizRecruitResumeEnum.ARRIVE.getValue());
+        statusList.add(BizRecruitResumeEnum.REFUSE.getValue());
+        if("youxiaoNum".equals(type)){
+            return statusList;
+        }
+        if("faceNum".equals(type)){
+            statusList.remove(BizRecruitResumeEnum.PRE_INTERVIEW.getValue());
+            return statusList;
+        }
+        if("firstPassNum".equals(type)){
+            statusList.remove(BizRecruitResumeEnum.PRE_INTERVIEW.getValue());
+            return statusList;
+        }
+        if("facePassNum".equals(type)){
+            statusList.remove(BizRecruitResumeEnum.PRE_INTERVIEW.getValue());
+            statusList.remove(BizRecruitResumeEnum.FIRST_PASS.getValue());
+            return statusList;
+        }
+        return statusList;
+    }
+
+    /* 简历状态-阶段集 */
+    public List<String> collStatusStage(String type){
+        List<String> statusStageList = new ArrayList<>();
+        //statusStageList.add(BizRecruitResumeStageEnum.FITER_STAGE.getValue());
+        statusStageList.add(BizRecruitResumeStageEnum.FIRST_STAGE.getValue());
+        statusStageList.add(BizRecruitResumeStageEnum.RETEST_STAGE.getValue());
+        statusStageList.add(BizRecruitResumeStageEnum.PEDING_STAGE.getValue());
+        if("youxiaoNum".equals(type)){
+            return statusStageList;
+        }
+        if("faceNum".equals(type)){
+            return statusStageList;
+        }
+        if("firstPassNum".equals(type)){
+            statusStageList.remove(BizRecruitResumeStageEnum.FIRST_STAGE.getValue());
+            return statusStageList;
+        }
+        if("facePassNum".equals(type)){
+            statusStageList.remove(BizRecruitResumeStageEnum.FIRST_STAGE.getValue());
+            statusStageList.remove(BizRecruitResumeStageEnum.RETEST_STAGE.getValue());
+            return statusStageList;
+        }
+        return statusStageList;
     }
 
 }

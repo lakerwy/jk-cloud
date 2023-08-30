@@ -88,4 +88,12 @@ public class BizRecruitResumePageParam {
     @ApiModelProperty(value = "是否统招")
     private String recruit;
 
+    /** 状态 */
+    @ApiModelProperty(value = "状态")
+    private String status;
+
+    /** 状态阶段 */
+    @ApiModelProperty(value = "状态阶段")
+    private String statusStage;
+
 }

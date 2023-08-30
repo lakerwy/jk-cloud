@@ -58,6 +58,10 @@ public class BizRecruitPlanAddParam {
     @ApiModelProperty(value = "申请人", position = 6)
     private String applyer;
 
+    /** 负责人Id */
+    @ApiModelProperty(value = "负责人Id", position = 6)
+    private String applyerId;
+
     /** 申请时间 */
     @ApiModelProperty(value = "申请时间", position = 7)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
@@ -137,4 +141,8 @@ public class BizRecruitPlanAddParam {
     /** 年度 */
     @ApiModelProperty(value = "年度", position = 30)
     private String year;
+
+    /** 部门名称 */
+    @ApiModelProperty(value = "部门名称", position = 31)
+    private String orgName;
 }

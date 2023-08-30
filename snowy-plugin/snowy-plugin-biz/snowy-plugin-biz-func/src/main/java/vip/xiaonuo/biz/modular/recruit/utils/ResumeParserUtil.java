@@ -1,6 +1,7 @@
 package vip.xiaonuo.biz.modular.recruit.utils;
 
 import cn.hutool.json.JSONObject;
+import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.http.Consts;
 import org.apache.http.HttpResponse;
@@ -11,8 +12,13 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.util.EntityUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
+import org.apache.commons.codec.binary.Base64;
 
 import javax.annotation.PostConstruct;
+import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
+import java.net.URL;
+import java.net.URLConnection;
 
 
 /**
@@ -72,10 +78,14 @@ public class ResumeParserUtil {
             HttpPost httpPost = new HttpPost(SAAS_API_URL);
             httpPost.addHeader("content-type", "application/json");
 
+            // 读取简历内容
+            byte[] bytes = download(furl);
+            String data = new String(Base64.encodeBase64(bytes), Consts.UTF_8);
+
             // 设置请求接口信息
             JSONObject json = new JSONObject();
             json.put("file_name", fname);   // 文件名
-            json.put("file_url", furl);     // "https://y2.jianke.co/api/webapp/dev/file/download?id=202308251090"
+            json.put("file_cont", data);     // "https://y2.jianke.co/api/webapp/dev/file/download?id=202308251090"
             json.put("uid", uid);            // 用户id
             json.put("pwd", pwd);            // 用户密码
             json.put("need_avatar", 0);
@@ -97,6 +107,33 @@ public class ResumeParserUtil {
 
         }catch (Exception ex){
             log.info("【简历解析】文件名："+ fname +" \n 异常信息：" +ex.getMessage());
+            return null;
+        }
+    }
+
+
+    public static byte[] download(String fileUrl) {
+        try {
+            // 开启URL链接
+            URL url = new URL(fileUrl);
+            URLConnection connection = url.openConnection();
+            //输出流
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            // 结果
+            byte[] result = null;
+            // 读取
+           try(InputStream inputStream = connection.getInputStream()) {
+               byte[] buffer = new byte[4096];
+               int bytesRead;
+               while ((bytesRead = inputStream.read(buffer)) != -1) {
+                   outputStream.write(buffer, 0, bytesRead);
+               }
+               result = outputStream.toByteArray();
+           }
+            outputStream.close();
+            return result;
+        }catch (Exception ex){
+            log.info("【下载文件】URL："+ fileUrl +" \n 异常信息：" +ex.getMessage());
             return null;
         }
     }

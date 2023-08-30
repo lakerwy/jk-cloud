@@ -125,4 +125,12 @@ public class RecruitPlanFlwAddDto {
     /** 年度 */
     @ApiModelProperty(value = "年度", position = 30)
     private String year;
+
+    /** 部门名称 */
+    @ApiModelProperty(value = "部门名称", position = 31)
+    private String orgName;
+
+    /** 负责人 */
+    @ApiModelProperty(value = "负责人", position = 6)
+    private String applyerId;
 }

@@ -107,39 +107,40 @@ public class BizRecruitPlanServiceImpl extends ServiceImpl<BizRecruitPlanMapper,
         //返回结构体
         List<BizRecruitPlanVo> bizRecruitPlanVoList = new ArrayList<>();
         //多条件分组
-        Map<RecruitPlanGroupDto, List<BizRecruitPlan>> groupPlans = recruitPlans.stream().collect(Collectors.groupingBy(
-                new Function<BizRecruitPlan, RecruitPlanGroupDto>() {
-                    @Override
-                    public RecruitPlanGroupDto apply(BizRecruitPlan bizRecruitPlan) {
-                        return new RecruitPlanGroupDto(bizRecruitPlan.getYear(), bizRecruitPlan.getOrgId());
-                    }
-                }
-        ));
-        //循环
+        List<String> orgIds = recruitPlans.stream().map(x->x.getOrgId()).distinct().collect(Collectors.toList());
+        List<String> years = recruitPlans.stream().map(x->x.getYear()).distinct().collect(Collectors.toList());
         List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
-        for (Map.Entry<RecruitPlanGroupDto, List<BizRecruitPlan>> item: groupPlans.entrySet()) {
-            //获取组织名称
-            Optional<BizSysOrgVo> org = orgList.stream().filter(x->x.getOrgId().equals(item.getKey().getOrgId())).findFirst();
-            String orgName = org.isPresent()?org.get().getOrgName():"";
-            //拼接结果
-            BizRecruitPlanVo bizRecruitPlanVo = new BizRecruitPlanVo();
-            bizRecruitPlanVo.setYear(item.getKey().getYear());
-            bizRecruitPlanVo.setOrgId(item.getKey().getOrgId());
-            bizRecruitPlanVo.setOrgName(orgName);
-            List<BizRecruitPlanDetailVo> bizRecruitPlanDetailVoList = BeanUtil.copyToList(item.getValue(), BizRecruitPlanDetailVo.class);
-            //统计社招人数\校招人数
-            List<BizRecruitResume> bizRecruitResumeList = bizRecruitResumeService.list(
-                    new QueryWrapper<BizRecruitResume>().lambda()
-                            .in(BizRecruitResume::getPlanId,bizRecruitPlanDetailVoList.stream().map(x->x.getId()).collect(Collectors.toList()))
-                            .in(BizRecruitResume::getStatus,"1"));
-            bizRecruitPlanDetailVoList.forEach(x->{
-                x.setSchoolNums(0);
-                x.setSocialNums(bizRecruitResumeList.stream().filter(m->m.getPlanId().equals(x.getId())).collect(Collectors.toList()).size());
-            });
-            bizRecruitPlanVo.setPlanList(bizRecruitPlanDetailVoList);
-            bizRecruitPlanVo.setNewPlanNums(bizRecruitPlanDetailVoList.get(0).getPlanNums());  //取最新
-            bizRecruitPlanVo.setNewRealNums(bizRecruitPlanDetailVoList.get(0).getRealNums());  //取最新
-            bizRecruitPlanVoList.add(bizRecruitPlanVo);
+        for (String orgId : orgIds){
+            for(String year :years){
+                List<BizRecruitPlan> planList = recruitPlans.stream().filter(x->x.getYear().equals(year) && x.getOrgId().equals(orgId)).collect(Collectors.toList());
+                if(CollUtil.isNotEmpty(planList)) {
+                    //获取组织名称
+                    Optional<BizSysOrgVo> org = orgList.stream().filter(x -> x.getOrgId().equals(orgId)).findFirst();
+                    String orgName = org.isPresent() ? org.get().getOrgName() : "";
+                    //拼接结果
+                    BizRecruitPlanVo bizRecruitPlanVo = new BizRecruitPlanVo();
+                    bizRecruitPlanVo.setYear(year);
+                    bizRecruitPlanVo.setOrgId(orgId);
+                    bizRecruitPlanVo.setOrgName(orgName);
+                    List<BizRecruitPlanDetailVo> bizRecruitPlanDetailVoList = BeanUtil.copyToList(planList, BizRecruitPlanDetailVo.class);
+
+                    /**
+                    //统计社招人数\校招人数
+                    List<BizRecruitResume> bizRecruitResumeList = bizRecruitResumeService.list(
+                            new QueryWrapper<BizRecruitResume>().lambda()
+                                    .in(BizRecruitResume::getPlanId, bizRecruitPlanDetailVoList.stream().map(x -> x.getId()).collect(Collectors.toList()))
+                                    .in(BizRecruitResume::getStatus, "1"));
+                    bizRecruitPlanDetailVoList.forEach(x -> {
+                        x.setSchoolNums(0);
+                        x.setSocialNums(bizRecruitResumeList.stream().filter(m -> m.getPlanId().equals(x.getId())).collect(Collectors.toList()).size());
+                    });
+                     **/
+                    bizRecruitPlanVo.setPlanList(bizRecruitPlanDetailVoList);
+                    bizRecruitPlanVo.setNewPlanNums(bizRecruitPlanDetailVoList.get(0).getPlanNums());  //取最新
+                    bizRecruitPlanVo.setNewRealNums(bizRecruitPlanDetailVoList.get(0).getRealNums());  //取最新
+                    bizRecruitPlanVoList.add(bizRecruitPlanVo);
+                }
+            }
         }
         return bizRecruitPlanVoList;
     }

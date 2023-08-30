@@ -61,9 +61,13 @@ public class BizRecruitPlan {
     @ApiModelProperty(value = "需求人数", position = 5)
     private Integer needNums;
 
-    /** 申请人 */
-    @ApiModelProperty(value = "申请人", position = 6)
+    /** 负责人 */
+    @ApiModelProperty(value = "负责人", position = 6)
     private String applyer;
+
+    /** 负责人 */
+    @ApiModelProperty(value = "负责人", position = 6)
+    private String applyerId;
 
     /** 申请时间 */
     @ApiModelProperty(value = "申请时间", position = 7)
@@ -173,6 +177,6 @@ public class BizRecruitPlan {
 
     /** 部门名称 */
     @ApiModelProperty(value = "部门名称", position = 31)
-    @TableField(exist = false)
     private String orgName;
+
 }

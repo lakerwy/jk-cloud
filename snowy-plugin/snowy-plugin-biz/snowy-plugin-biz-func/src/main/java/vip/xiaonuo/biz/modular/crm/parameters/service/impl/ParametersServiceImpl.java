@@ -60,61 +60,61 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
                     .like(Parameters::getOpt, parametersPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getCoveredArea())) {
-            queryWrapper.lambda().like(Parameters::getCoveredArea, parametersPageParam.getCoveredArea());
+            queryWrapper.ge(" CAST(COVERED_AREA AS SIGNED) ", parametersPageParam.getCoveredArea());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getBuildStorey())) {
-            queryWrapper.lambda().like(Parameters::getBuildStorey, parametersPageParam.getBuildStorey());
+            queryWrapper.ge(" CAST(BUILD_STOREY AS SIGNED) ", parametersPageParam.getBuildStorey());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getSteelSpan())) {
-            queryWrapper.lambda().like(Parameters::getSteelSpan, parametersPageParam.getSteelSpan());
+            queryWrapper.ge(" CAST(STEEL_SPAN AS SIGNED) ", parametersPageParam.getSteelSpan());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getWaterScale())) {
-            queryWrapper.lambda().like(Parameters::getWaterScale, parametersPageParam.getWaterScale());
+            queryWrapper.ge(" CAST(WATER_SCALE AS SIGNED) ", parametersPageParam.getWaterScale());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getWaterFar())) {
-            queryWrapper.lambda().like(Parameters::getWaterFar, parametersPageParam.getWaterFar());
+            queryWrapper.ge(" CAST(WATER_FAR AS SIGNED) ", parametersPageParam.getWaterFar());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getPdMax())) {
-            queryWrapper.lambda().like(Parameters::getPdMax, parametersPageParam.getPdMax());
+            queryWrapper.ge(" CAST(PD_MAX AS SIGNED) ", parametersPageParam.getPdMax());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getLandscapeArea())) {
-            queryWrapper.lambda().like(Parameters::getLandscapeArea, parametersPageParam.getLandscapeArea());
+            queryWrapper.ge(" CAST(LANDSCAPE_AREA AS SIGNED) ", parametersPageParam.getLandscapeArea());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getGarbageDScale())) {
-            queryWrapper.lambda().like(Parameters::getGarbageDScale, parametersPageParam.getGarbageDScale());
+            queryWrapper.ge(" CAST(GARBAGE_D_SCALE AS SIGNED) ", parametersPageParam.getGarbageDScale());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getPipeType())) {
             queryWrapper.lambda().eq(Parameters::getPipeType, parametersPageParam.getPipeType());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getPipeSize())) {
-            queryWrapper.lambda().like(Parameters::getPipeSize, parametersPageParam.getPipeSize());
+            queryWrapper.ge(" CAST(PIPE_SIZE AS SIGNED) ", parametersPageParam.getPipeSize());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getBridgeSpan())) {
-            queryWrapper.lambda().like(Parameters::getBridgeSpan, parametersPageParam.getBridgeSpan());
+            queryWrapper.ge(" CAST(BRIDGE_SPAN AS SIGNED) ", parametersPageParam.getBridgeSpan());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getBridgeTLength())) {
-            queryWrapper.lambda().like(Parameters::getBridgeTLength, parametersPageParam.getBridgeTLength());
+            queryWrapper.ge(" CAST(BRIDGE_T_LENGTH AS SIGNED) ", parametersPageParam.getBridgeTLength());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getRoadLevels())) {
             queryWrapper.lambda().eq(Parameters::getRoadLevels, parametersPageParam.getRoadLevels());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getRoadTLength())) {
-            queryWrapper.lambda().like(Parameters::getRoadTLength, parametersPageParam.getRoadTLength());
+            queryWrapper.ge(" CAST(ROAD_T_LENGTH AS SIGNED) ", parametersPageParam.getRoadTLength());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getRoadRedWidth())) {
-            queryWrapper.lambda().like(Parameters::getRoadRedWidth, parametersPageParam.getRoadRedWidth());
+            queryWrapper.ge(" CAST(ROAD_RED_WIDTH AS SIGNED) ", parametersPageParam.getRoadRedWidth());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getTunnelSSize())) {
-            queryWrapper.lambda().like(Parameters::getTunnelSSize, parametersPageParam.getTunnelSSize());
+            queryWrapper.ge(" CAST(TUNNEL_S_SIZE AS SIGNED) ", parametersPageParam.getTunnelSSize());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getPower())) {
-            queryWrapper.lambda().like(Parameters::getPower, parametersPageParam.getPower());
+            queryWrapper.ge(" CAST(POWER AS SIGNED) ", parametersPageParam.getPower());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getHeatsupplyArea())) {
-            queryWrapper.lambda().like(Parameters::getHeatsupplyArea, parametersPageParam.getHeatsupplyArea());
+            queryWrapper.ge(" CAST(HEATSUPPLY_AREA AS SIGNED) ", parametersPageParam.getHeatsupplyArea());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getHeatsorceSize())) {
-            queryWrapper.lambda().like(Parameters::getHeatsorceSize, parametersPageParam.getHeatsorceSize());
+            queryWrapper.ge(" CAST(HEATSORCE_SIZE AS SIGNED) ", parametersPageParam.getHeatsorceSize());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getPressurRate())) {
             queryWrapper.lambda().eq(Parameters::getPressurRate, parametersPageParam.getPressurRate());
@@ -186,61 +186,61 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
                     .like("b.DESCRIPTION", parametersInfoPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getCoveredArea())) {
-            queryWrapper.like("a.COVERED_AREA", parametersInfoPageParam.getCoveredArea());
+            queryWrapper.ge(" CAST(a.COVERED_AREA AS SIGNED) ", parametersInfoPageParam.getCoveredArea());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getBuildStorey())) {
-            queryWrapper.like("a.BUILD_STOREY", parametersInfoPageParam.getBuildStorey());
+            queryWrapper.ge(" CAST(a.BUILD_STOREY AS SIGNED) ", parametersInfoPageParam.getBuildStorey());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getSteelSpan())) {
-            queryWrapper.like("a.STEEL_SPAN", parametersInfoPageParam.getSteelSpan());
+            queryWrapper.ge(" CAST(a.STEEL_SPAN AS SIGNED) ", parametersInfoPageParam.getSteelSpan());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getWaterScale())) {
-            queryWrapper.like("a.WATER_SCALE", parametersInfoPageParam.getWaterScale());
+            queryWrapper.ge(" CAST(a.WATER_SCALE AS SIGNED) ", parametersInfoPageParam.getWaterScale());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getWaterFar())) {
-            queryWrapper.like("a.WATER_FAR", parametersInfoPageParam.getWaterFar());
+            queryWrapper.ge(" CAST(a.WATER_FAR AS SIGNED) ", parametersInfoPageParam.getWaterFar());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getPdMax())) {
-            queryWrapper.like("a.PD_MAX", parametersInfoPageParam.getPdMax());
+            queryWrapper.ge(" CAST(a.PD_MAX AS SIGNED) ", parametersInfoPageParam.getPdMax());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getLandscapeArea())) {
-            queryWrapper.like("a.LANDSCAPE_AREA", parametersInfoPageParam.getLandscapeArea());
+            queryWrapper.ge(" CAST(a.LANDSCAPE_AREA AS SIGNED) ", parametersInfoPageParam.getLandscapeArea());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getGarbageDScale())) {
-            queryWrapper.like("a.GARBAGE_D_SCALE", parametersInfoPageParam.getGarbageDScale());
+            queryWrapper.ge(" CAST(a.GARBAGE_D_SCALE AS SIGNED) ", parametersInfoPageParam.getGarbageDScale());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getPipeType())) {
             queryWrapper.eq("a.PIPE_TYPE", parametersInfoPageParam.getPipeType());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getPipeSize())) {
-            queryWrapper.like("a.PIPE_SIZE", parametersInfoPageParam.getPipeSize());
+            queryWrapper.ge(" CAST(a.PIPE_SIZE AS SIGNED) ", parametersInfoPageParam.getPipeSize());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getBridgeSpan())) {
-            queryWrapper.like("a.BRIDGE_SPAN", parametersInfoPageParam.getBridgeSpan());
+            queryWrapper.ge(" CAST(a.BRIDGE_SPAN AS SIGNED) ", parametersInfoPageParam.getBridgeSpan());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getBridgeTLength())) {
-            queryWrapper.like("a.BRIDGE_T_LENGTH", parametersInfoPageParam.getBridgeTLength());
+            queryWrapper.ge(" CAST(a.BRIDGE_T_LENGTH AS SIGNED) ", parametersInfoPageParam.getBridgeTLength());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getRoadLevels())) {
             queryWrapper.eq("a.ROAD_LEVELS", parametersInfoPageParam.getRoadLevels());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getRoadTLength())) {
-            queryWrapper.like("a.ROAD_T_LENGTH", parametersInfoPageParam.getRoadTLength());
+            queryWrapper.ge(" CAST(a.ROAD_T_LENGTH AS SIGNED) ", parametersInfoPageParam.getRoadTLength());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getRoadRedWidth())) {
-            queryWrapper.like("a.ROAD_RED_WIDTH", parametersInfoPageParam.getRoadRedWidth());
+            queryWrapper.ge(" CAST(a.ROAD_RED_WIDTH AS SIGNED) ", parametersInfoPageParam.getRoadRedWidth());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getTunnelSSize())) {
-            queryWrapper.like("a.TUNNEL_S_SIZE", parametersInfoPageParam.getTunnelSSize());
+            queryWrapper.ge(" CAST(a.TUNNEL_S_SIZE AS SIGNED) ", parametersInfoPageParam.getTunnelSSize());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getPower())) {
-            queryWrapper.like("a.POWER", parametersInfoPageParam.getPower());
+            queryWrapper.ge(" CAST(a.POWER AS SIGNED) ", parametersInfoPageParam.getPower());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getHeatsupplyArea())) {
-            queryWrapper.like("a.HEATSUPPLY_AREA", parametersInfoPageParam.getHeatsupplyArea());
+            queryWrapper.ge(" CAST(a.HEATSUPPLY_AREA AS SIGNED) ", parametersInfoPageParam.getHeatsupplyArea());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getHeatsorceSize())) {
-            queryWrapper.like("a.HEATSORCE_SIZE", parametersInfoPageParam.getHeatsorceSize());
+            queryWrapper.ge(" CAST(a.HEATSORCE_SIZE AS SIGNED) ", parametersInfoPageParam.getHeatsorceSize());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getPressurRate())) {
             queryWrapper.eq("a.PRESSUR_RATE", parametersInfoPageParam.getPressurRate());

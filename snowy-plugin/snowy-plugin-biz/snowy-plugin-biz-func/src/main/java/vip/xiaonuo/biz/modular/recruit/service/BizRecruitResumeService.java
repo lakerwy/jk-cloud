@@ -12,16 +12,17 @@
  */
 package vip.xiaonuo.biz.modular.recruit.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.recruit.entity.BizRecruitResume;
 import vip.xiaonuo.biz.modular.recruit.param.BizRecruitResumeAddParam;
 import vip.xiaonuo.biz.modular.recruit.param.BizRecruitResumeEditParam;
 import vip.xiaonuo.biz.modular.recruit.param.BizRecruitResumeIdParam;
 import vip.xiaonuo.biz.modular.recruit.param.BizRecruitResumePageParam;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeAddDto;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeParserDto;
-import vip.xiaonuo.biz.modular.recruit.param.dto.ResumeRegistSaveDto;
+import vip.xiaonuo.biz.modular.recruit.param.dto.*;
+import vip.xiaonuo.biz.modular.recruit.vo.BizRecruitResumeVo;
+import vip.xiaonuo.biz.modular.recruit.vo.ResumeChannelStatisticVo;
+import vip.xiaonuo.biz.modular.recruit.vo.ResumeChannelTotalVo;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public interface BizRecruitResumeService extends IService<BizRecruitResume> {
      * @author yong.ye
      * @date  2023/08/23 17:08
      */
-    Page<BizRecruitResume> page(BizRecruitResumePageParam bizRecruitResumePageParam);
+    IPage<BizRecruitResumeVo> page(BizRecruitResumePageParam bizRecruitResumePageParam);
 
     /**
      * 添加业务表-招聘-简历库
@@ -112,4 +113,28 @@ public interface BizRecruitResumeService extends IService<BizRecruitResume> {
      * @date  2023/08/23 17:08
      */
     String registerDetail(BizRecruitResumeIdParam bizRecruitResumeIdParam);
+
+    /**
+     * 业务表-招聘-简历库(更新字段)
+     *
+     * @author yong.ye
+     * @date  2023/08/23 17:08
+     */
+    void update(ResumeUpdateDto resumeUpdateDto);
+
+    /**
+     * 渠道图示统计
+     *
+     * @author yong.ye
+     * @date  2023/08/23 17:08
+     */
+    ResumeChannelTotalVo channelTotal(ResumeChannelTotalDto resumeChannelTotalDto);
+
+    /**
+     * 业务表-招聘-简历库(拒绝offer)
+     *
+     * @author yong.ye
+     * @date  2023/08/23 17:08
+     */
+    void refuse(ResumeRefuseDto resumeRefuseDto);
 }

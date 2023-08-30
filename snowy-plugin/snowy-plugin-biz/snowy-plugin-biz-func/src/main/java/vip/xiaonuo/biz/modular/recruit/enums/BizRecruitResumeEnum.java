@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.recruit.enums;
 
 import lombok.Getter;
+import vip.xiaonuo.common.exception.CommonException;
 
 /**
  * 业务表-招聘-简历库枚举
@@ -23,12 +24,44 @@ import lombok.Getter;
 @Getter
 public enum BizRecruitResumeEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 待推送 */
+    SEND("1"),
+
+    /** 淘汰 */
+    STOP("2"),
+
+    /** 待面试 */
+    PRE_INTERVIEW("3"),
+
+    /** 初试通过 */
+    FIRST_PASS("4"),
+
+    /** 复试通过 */
+    RETEST_PASS("5"),
+
+    /** 待录取 */
+    PENDING("6"),
+
+    /** 已接受OFFER */
+    ARRIVE("7"),
+
+    /** 已拒绝OFFER */
+    REFUSE("8");
+
 
     private final String value;
 
     BizRecruitResumeEnum(String value) {
         this.value = value;
+    }
+
+    public static void validate(String value) {
+        boolean flag = SEND.getValue().equals(value) || STOP.getValue().equals(value)
+                || PRE_INTERVIEW.getValue().equals(value) || FIRST_PASS.getValue().equals(value)
+                || RETEST_PASS.getValue().equals(value) || PENDING.getValue().equals(value)
+                || ARRIVE.getValue().equals(value) || REFUSE.getValue().equals(value);
+        if(!flag) {
+            throw new CommonException("不支持的状态类型：{}", value);
+        }
     }
 }

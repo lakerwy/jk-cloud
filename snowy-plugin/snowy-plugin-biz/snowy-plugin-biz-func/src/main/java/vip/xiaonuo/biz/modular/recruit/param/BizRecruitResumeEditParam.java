@@ -152,6 +152,10 @@ public class BizRecruitResumeEditParam {
     @ApiModelProperty(value = "状态", position = 35)
     private String status;
 
+    /** 状态阶段 */
+    @ApiModelProperty(value = "状态阶段", position = 35)
+    private String statusStage;
+
     /** 简历信息JSON */
     @ApiModelProperty(value = "简历信息JSON", position = 36)
     private String resumeJson;
@@ -175,4 +179,20 @@ public class BizRecruitResumeEditParam {
     /** 第三方解析接口返回JSON */
     @ApiModelProperty(value = "第三方解析接口返回JSON", position = 40)
     private String resumeParserJson;
+
+    /** 标签 */
+    @ApiModelProperty(value = "标签", position = 40)
+    private String tags;
+
+    /** 工作经历文本内容 */
+    @ApiModelProperty(value = "工作经历文本内容", position = 40)
+    private String contJobExp;
+
+    /** 所获证书文本内容 */
+    @ApiModelProperty(value = "所获证书文本内容", position = 40)
+    private String contCertificate;
+
+    /** 拒绝OFFER的原因 */
+    @ApiModelProperty(value = "拒绝OFFER的原因", position = 40)
+    private String reason;
 }

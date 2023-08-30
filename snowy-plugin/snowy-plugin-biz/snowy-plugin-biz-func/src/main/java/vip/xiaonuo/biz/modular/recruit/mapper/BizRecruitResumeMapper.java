@@ -12,8 +12,15 @@
  */
 package vip.xiaonuo.biz.modular.recruit.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.recruit.entity.BizRecruitResume;
+import vip.xiaonuo.biz.modular.recruit.vo.ResumeChannelStatisticVo;
+import vip.xiaonuo.biz.modular.recruit.vo.BizRecruitResumeVo;
 
 /**
  * 业务表-招聘-简历库Mapper接口
@@ -22,4 +29,8 @@ import vip.xiaonuo.biz.modular.recruit.entity.BizRecruitResume;
  * @date  2023/08/23 17:08
  **/
 public interface BizRecruitResumeMapper extends BaseMapper<BizRecruitResume> {
+
+    IPage<BizRecruitResumeVo> getPageList(Page<BizRecruitResumeVo> page, @Param(Constants.WRAPPER) Wrapper<BizRecruitResume> queryWrapper);
+
+    IPage<ResumeChannelStatisticVo> getPageChannel(Page<ResumeChannelStatisticVo> page, @Param(Constants.WRAPPER) Wrapper<BizRecruitResume> queryWrapper);
 }

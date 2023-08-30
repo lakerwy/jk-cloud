@@ -13,12 +13,12 @@ import vip.xiaonuo.biz.modular.recruit.entity.BizRecruitPlan;
 @Setter
 public class BizRecruitPlanDetailVo extends BizRecruitPlan {
 
-    /** 校招人数 */
-    @ApiModelProperty(value = "校招人数", position = 5)
-    private Integer schoolNums;
-
-    /** 社招人数 */
-    @ApiModelProperty(value = "社招人数", position = 5)
-    private Integer socialNums;
+//    /** 校招人数 */
+//    @ApiModelProperty(value = "校招人数", position = 5)
+//    private Integer schoolNums;
+//
+//    /** 社招人数 */
+//    @ApiModelProperty(value = "社招人数", position = 5)
+//    private Integer socialNums;
 
 }
