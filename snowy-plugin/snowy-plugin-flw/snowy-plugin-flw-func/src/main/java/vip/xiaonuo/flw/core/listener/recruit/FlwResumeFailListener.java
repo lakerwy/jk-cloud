@@ -14,7 +14,7 @@ import vip.xiaonuo.flw.core.util.CommonHandleUtil;
 
 @Slf4j
 @Component
-public class FlwResumeRetestFailListener implements TaskListener {
+public class FlwResumeFailListener implements TaskListener {
     @Override
     public void notify(DelegateTask delegateTask) {
         try{

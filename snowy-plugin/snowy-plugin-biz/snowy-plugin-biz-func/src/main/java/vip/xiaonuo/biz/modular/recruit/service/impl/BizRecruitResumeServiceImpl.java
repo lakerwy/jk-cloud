@@ -391,7 +391,7 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
             List<String> reasons = refuseList.stream().map(x->x.getReason()).distinct().collect(Collectors.toList());
             for (String item:reasons) {
                 xAxisRefuse.add(item);
-                long nums = resumeList.stream().filter(x->x.getReason().equals(item)).count();
+                long nums = refuseList.stream().filter(x->x.getReason().equals(item)).collect(Collectors.toList()).size();
                 zAxisRefuse.add(nums);
                 yAxisRefuse.add(division(nums,(long)refuseList.size()));
             }
@@ -405,7 +405,7 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
         ResumeChannel_ZZT zzt_arrive = new ResumeChannel_ZZT();
         List<String> xAxisArrive = new ArrayList<>();
         List<Long> zAxisArrive = new ArrayList<>();
-        List<BizRecruitResume> arriveList = refuseList.stream().filter(x->x.getStatus().equals(BizRecruitResumeEnum.ARRIVE.getValue())).collect(Collectors.toList());
+        List<BizRecruitResume> arriveList = resumeList.stream().filter(x->x.getStatus().equals(BizRecruitResumeEnum.ARRIVE.getValue())).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(arriveList)){
             List<String> resources = arriveList.stream().map(x->x.getResumeResource()).distinct().collect(Collectors.toList());
             for(String item : resources){
@@ -423,13 +423,13 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
         List<Double> yAxisDept = new ArrayList<>();
         List<Long> zAxisDept = new ArrayList<>();
         List<Long> tAxisDept = new ArrayList<>();
-        String year = DateTime.parse(resumeChannelTotalDto.getStartDate()).year().toString();
+        String year = StrUtil.toString(DateTime.parse(resumeChannelTotalDto.getStartDate()).getYear());
         List<BizRecruitPlan> planList = bizRecruitPlanService.list(new QueryWrapper<BizRecruitPlan>().lambda().eq(BizRecruitPlan::getYear,year).eq(BizRecruitPlan::getStatus,"1"));
         List<String> orgIds = planList.stream().map(x->x.getOrgId()).distinct().collect(Collectors.toList());
         for (String orgId:orgIds) {
             List<BizRecruitPlan> tmpplans = planList.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
             BizSysOrgVo orgVo = sysOrgService.getOrgById(orgId);
-            List<BizRecruitResume> tmpresumes = this.list(new QueryWrapper<BizRecruitResume>().lambda().in(BizRecruitResume::getPlanId,tmpplans.stream().map(x->x.getId())).eq(BizRecruitResume::getStatus,BizRecruitResumeEnum.ARRIVE.getValue()));
+            List<BizRecruitResume> tmpresumes = this.list(new QueryWrapper<BizRecruitResume>().lambda().in(BizRecruitResume::getPlanId,tmpplans.stream().map(x->x.getId()).collect(Collectors.toList())).eq(BizRecruitResume::getStatus,BizRecruitResumeEnum.ARRIVE.getValue()));
             xAxisDept.add(orgVo.getOrgName());
             zAxisDept.add((long)tmpplans.size());
             tAxisDept.add((long)tmpresumes.size());
