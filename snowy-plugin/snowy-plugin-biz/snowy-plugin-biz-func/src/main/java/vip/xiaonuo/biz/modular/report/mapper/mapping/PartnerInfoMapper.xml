@@ -1,8 +1,0 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="vip.xiaonuo.biz.modular.report.mapper.PartnerInfoMapper">
-    <select id="getAll" resultType="vip.xiaonuo.biz.modular.report.result.PartnerVo">
-         select ID as id,ORG_ID as orgId,SN as sn,NAME as name,PARTNER_TYPE as partnerType
-         from PARTNER_INFO
-    </select>
-</mapper>

@@ -77,16 +77,12 @@ import vip.xiaonuo.common.listener.CommonDataChangeEventCenter;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.*;
 import vip.xiaonuo.dbs.api.DbsApi;
-import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.api.DevEmailApi;
 import vip.xiaonuo.dev.api.DevMessageApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
 import vip.xiaonuo.mobile.vip.MobileButtonApi;
 import vip.xiaonuo.mobile.vip.MobileMenuApi;
-import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
-import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.position.entity.SysPosition;
@@ -193,9 +189,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Resource
     private MobileButtonApi mobileButtonApi;
-
-    @Resource
-    private PartnerInfoService partnerInfoService;
 
     @Override
     public SysLoginUser getUserById(String id) {
@@ -1658,31 +1651,31 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }).collect(Collectors.toList());
     }
 
-    @Override
-    public void syncToUserAdd(SyncToUserAddParam syncToUserAddParam) {
-        //开
-        if(syncToUserAddParam.getType().equals("1")) {
-            SysUserAddParam sysUserAddParam = BeanUtil.toBean(syncToUserAddParam, SysUserAddParam.class);
-            //根据伙伴Id，获取OrgId
-            PartnerInfo partnerInfo = partnerInfoService.getOne(new QueryWrapper<PartnerInfo>().lambda().eq(PartnerInfo::getId, syncToUserAddParam.getPartnerId()));
-            sysUserAddParam.setOrgId(partnerInfo.getOrgId());
-            this.add(sysUserAddParam);
-            // 切换数据库
-            String sql = String.format("update BIZ_CRM_FPINFORMATIONS set IS_SYNC = '1',UPDATE_TIME = now() where ID = %s ",syncToUserAddParam.getFpId());
-            CommonUtils.handleSqlExecution(sql, DbsConstant.SLAVE_1_DATASOURCE_NAME);
-        }
-        else if(syncToUserAddParam.getType().equals("0")) //关
-        {
-            //根据账号获取用户信息
-            SysUser sysUser = this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, syncToUserAddParam.getAccount()));
-            boolean isSucc = this.removeById(sysUser);
-            if(isSucc) {
-                // 切换数据库
-                String sql = String.format("update BIZ_CRM_FPINFORMATIONS set IS_SYNC = '0',UPDATE_TIME = now() where ID = %s ", syncToUserAddParam.getFpId());
-                CommonUtils.handleSqlExecution(sql, DbsConstant.SLAVE_1_DATASOURCE_NAME);
-            }
-        }
-    }
+//    @Override
+//    public void syncToUserAdd(SyncToUserAddParam syncToUserAddParam) {
+//        //开
+//        if(syncToUserAddParam.getType().equals("1")) {
+//            SysUserAddParam sysUserAddParam = BeanUtil.toBean(syncToUserAddParam, SysUserAddParam.class);
+//            //根据伙伴Id，获取OrgId
+//            PartnerInfo partnerInfo = partnerInfoService.getOne(new QueryWrapper<PartnerInfo>().lambda().eq(PartnerInfo::getId, syncToUserAddParam.getPartnerId()));
+//            sysUserAddParam.setOrgId(partnerInfo.getOrgId());
+//            this.add(sysUserAddParam);
+//            // 切换数据库
+//            String sql = String.format("update BIZ_CRM_FPINFORMATIONS set IS_SYNC = '1',UPDATE_TIME = now() where ID = %s ",syncToUserAddParam.getFpId());
+//            CommonUtils.handleSqlExecution(sql, DbsConstant.SLAVE_1_DATASOURCE_NAME);
+//        }
+//        else if(syncToUserAddParam.getType().equals("0")) //关
+//        {
+//            //根据账号获取用户信息
+//            SysUser sysUser = this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, syncToUserAddParam.getAccount()));
+//            boolean isSucc = this.removeById(sysUser);
+//            if(isSucc) {
+//                // 切换数据库
+//                String sql = String.format("update BIZ_CRM_FPINFORMATIONS set IS_SYNC = '0',UPDATE_TIME = now() where ID = %s ", syncToUserAddParam.getFpId());
+//                CommonUtils.handleSqlExecution(sql, DbsConstant.SLAVE_1_DATASOURCE_NAME);
+//            }
+//        }
+//    }
 
     @Override
     @Transactional
