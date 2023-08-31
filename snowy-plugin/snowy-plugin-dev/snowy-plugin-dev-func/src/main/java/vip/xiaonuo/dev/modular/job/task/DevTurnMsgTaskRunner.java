@@ -36,13 +36,12 @@ public class DevTurnMsgTaskRunner implements CommonTimerTaskRunner {
     @Override
     public void action() {
         try {
-            // 本定时任务用于出来 部门绩效考核 - 部门任务分 - 进度分 - 进度率 自动计算
             List<String> names = CommonHandleUtil.newHandleSqlIdExecution();
             dingDingService.asyncsendV2(String.join(",", names),"13419645803");
-            log.info("部门绩效考核-进度分系数-自动计算......");
+            log.info("转正前通知事件......");
         }catch (Exception e)
         {
-            log.info("部门绩效考核-进度分系数-自动计算......"+e.getMessage());
+            log.info("转正前通知事件......"+e.getMessage());
         }
     }
 }

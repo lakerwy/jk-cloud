@@ -66,16 +66,17 @@ public class FlwTurnPositiveTaskListener implements TaskListener {
                         //设置用户部门个职位到新的部门和职位中去
                         if(ObjectUtil.isNotEmpty(info)){
                             Object variable = delegateTask.getVariable("nowDeptId");
-                            if(ObjectUtil.isNotEmpty(variable)){
+                            Object nowDutyId = delegateTask.getVariable("nowDutyId");
+                            if(ObjectUtil.isAllNotEmpty(variable,nowDutyId)){
                                 sql = "SELECT PHONE FROM PERSONNEL WHERE ID = " + fileId;
                                 map = CommonHandleUtil.handleSqlQuery(sql, Boolean.TRUE);
                                 if(ObjectUtil.isNotEmpty(map) && ObjectUtil.isNotEmpty(map.get("PHONE"))){
                                     //更新系统中部门
-                                    sql = "UPDATE SYS_USER SET `ORG_ID` = " + variable +" WHERE `ACCOUNT` = '" + map.get("PHONE")+"'";
+                                    sql = "UPDATE SYS_USER SET `ORG_ID` = '" + variable +"' ,POSITION_ID = '"+ nowDutyId +"' WHERE `ACCOUNT` = '" + map.get("PHONE")+"'";
                                     NodeRuntimeUtil.handleSqlExecution(sql);
                                 }
                                 //跟新档案表中部门和岗位
-                                sql = "UPDATE PERSONNEL SET `DEPT_ID` = " +variable + " where ID = '" + fileId + "'";
+                                sql = "UPDATE PERSONNEL SET `DEPT_ID` = '" +variable + "' ,`DUTY_ID` = '" + nowDutyId +"' where ID = '" + fileId + "'";
                                 log.debug(sql);
                                 NodeRuntimeUtil.handleSqlExecution(sql);
                             }

@@ -47,6 +47,7 @@ import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
+import vip.xiaonuo.sys.modular.position.entity.SysPosition;
 import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
@@ -374,12 +375,17 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         String deptId = personnel.getDeptId();
         SysOrg sysOrg = sysOrgService.getById(deptId);
         if(ObjectUtil.isNotEmpty(sysOrg)){
+            personnelVo.setDept(sysOrg.getName());
             String directorId = sysOrg.getDirectorId();
             if(ObjectUtil.isNotEmpty(directorId)){
                 SysLoginUser user = sysUserService.getUserById(directorId);
                 personnelVo.setLeader(user.getName());
                 personnelVo.setDirector(user.getName());
             }
+        }
+        SysPosition sysPosition = sysPositionService.getById(personnelVo.getDutyId());
+        if(ObjectUtil.isNotEmpty(sysPosition)){
+            personnelVo.setDuty(sysPosition.getName());
         }
         return personnelVo;
     }
