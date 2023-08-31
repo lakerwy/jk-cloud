@@ -241,4 +241,8 @@ public class BizProjectAddParam {
     @ApiModelProperty(value = "行业分类", position = 67)
     private String industryClassification;
 
+    /** 投标专员 */
+    @ApiModelProperty(value = "投标专员", position = 70)
+    private String bidManger;
+
 }

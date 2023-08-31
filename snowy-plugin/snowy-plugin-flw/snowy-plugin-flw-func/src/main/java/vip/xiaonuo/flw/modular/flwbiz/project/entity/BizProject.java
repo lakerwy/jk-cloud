@@ -281,4 +281,8 @@ public class BizProject {
     @ApiModelProperty(value = "数据权限字段",position = 62)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 投标专员 */
+    @ApiModelProperty(value = "投标专员", position = 70)
+    private String bidManger;
 }

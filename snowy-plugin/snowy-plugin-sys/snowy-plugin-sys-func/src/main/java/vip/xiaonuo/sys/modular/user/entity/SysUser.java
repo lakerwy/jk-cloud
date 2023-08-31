@@ -288,4 +288,15 @@ public class SysUser extends CommonEntity implements TransPojo {
     @ApiModelProperty(value = "推送关联的cid", position = 52)
     private String cid;
 
+    /**一级部门id*/
+    @ApiModelProperty(value = "一级部门id", position = 60)
+    @TableField(exist = false)
+    private String firstOrgId;
+
+    /**一级部门名称*/
+    @ApiModelProperty(value = "一级部门名称", position = 61)
+    @TableField(exist = false)
+    private String firstOrgName;
+
+
 }

@@ -67,6 +67,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.SysBuildInEnum;
@@ -385,6 +386,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public SysUser detail(SysUserIdParam sysUserIdParam) {
+        SysUser sysUser = this.queryEntity(sysUserIdParam.getId());
+        String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + sysUser.getOrgId()));
+        String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + sysUser.getOrgId()));
+        sysUser.setFirstOrgId(sOrgId);
+        sysUser.setFirstOrgName(sOrgName);
         return this.queryEntity(sysUserIdParam.getId());
     }
 
