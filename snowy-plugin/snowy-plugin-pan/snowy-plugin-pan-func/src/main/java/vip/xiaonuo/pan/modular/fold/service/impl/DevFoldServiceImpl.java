@@ -85,6 +85,7 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
     public void add(DevFoldAddParam devFoldAddParam) {
         DevFold devFold = BeanUtil.toBean(devFoldAddParam, DevFold.class);
         devFold.setIsDir(IS_DIR);
+        devFold.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
         this.save(devFold);
     }
 
@@ -241,6 +242,11 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
         this.updateById(devFold);
     }
 
+    /**
+     * 展示个人文件夹和部门文件
+     * @param devFoldPageParam
+     * @return
+     */
 
     @Override
     public Page<DevFold> pageList(DevFoldPageParam devFoldPageParam) {
@@ -251,9 +257,10 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
         if(ObjectUtil.isEmpty(devFoldPageParam.getId())){
             devFoldPageParam.setId(ROOT_FOLD_ID);
         }
-        if(ObjectUtil.isNotEmpty(devFoldPageParam.getFoldType())){
-            queryWrapper.lambda().eq(DevFold::getFoldType,devFoldPageParam.getFoldType());
-        }
+//        if(ObjectUtil.isNotEmpty(devFoldPageParam.getFoldType())){
+//            queryWrapper.lambda().in(DevFold::getFoldType,devFoldPageParam.getFoldType());
+//        }
+        queryWrapper.lambda().eq(DevFold::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
         queryWrapper.lambda().eq(DevFold::getParentId,devFoldPageParam.getId());
         if(ObjectUtil.isNotEmpty(devFoldPageParam.getFileName())) {
             queryWrapper.lambda().like(DevFold::getFileName, devFoldPageParam.getFileName());

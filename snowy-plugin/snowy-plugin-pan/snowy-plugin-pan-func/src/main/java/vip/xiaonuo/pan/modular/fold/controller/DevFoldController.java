@@ -265,7 +265,7 @@ public class DevFoldController {
      * @date  2023/08/28 10:09
      */
     @ApiOperationSupport(order = 11)
-    @ApiOperation("获取登录人个人文件夹列表")
+    @ApiOperation("获取所见文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/selfPageList")
     public CommonResult<Page<DevFold>> selfPageList(DevFoldPageParam devFoldPageParam) {
