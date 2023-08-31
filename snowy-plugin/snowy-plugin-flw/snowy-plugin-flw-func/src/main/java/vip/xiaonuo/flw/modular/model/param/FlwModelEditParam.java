@@ -59,31 +59,36 @@ public class FlwModelEditParam {
     @NotBlank(message = "icon不能为空")
     private String icon;
 
+    /** 移动端图标 */
+    @ApiModelProperty(value = "移动端图标", position = 7)
+    private String iconMobile;
+
     /** 颜色 */
-    @ApiModelProperty(value = "颜色", required = true, position = 7)
+    @ApiModelProperty(value = "颜色", required = true, position = 8)
     @NotBlank(message = "color不能为空")
     private String color;
 
     /** 排序码 */
-    @ApiModelProperty(value = "排序码", required = true, position = 8)
+    @ApiModelProperty(value = "排序码", required = true, position = 9)
     @NotNull(message = "sortCode不能为空")
     private Integer sortCode;
 
     /** 数据库表JSON */
-    @ApiModelProperty(value = "数据库表JSON", position = 9)
+    @ApiModelProperty(value = "数据库表JSON", position = 10)
     private String tableJson;
 
     /** 表单JSON */
-    @ApiModelProperty(value = "表单JSON", position = 10)
+    @ApiModelProperty(value = "表单JSON", position = 11)
     private String formJson;
 
     /** 流程JSON */
-    @ApiModelProperty(value = "流程JSON", position = 11)
+    @ApiModelProperty(value = "流程JSON", position = 12)
     private String processJson;
 
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 12)
+    @ApiModelProperty(value = "扩展信息", position = 13)
     private String extJson;
+
 
 //    /** 扩展信息 */
 //    @ApiModelProperty(value = "模型展示控制字段", position = 13)

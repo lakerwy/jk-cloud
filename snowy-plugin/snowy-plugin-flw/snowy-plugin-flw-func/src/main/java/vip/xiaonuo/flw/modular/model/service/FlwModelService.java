@@ -179,6 +179,17 @@ public interface FlwModelService extends IService<FlwModel> {
     List<String> executionListenerSelector();
 
     /**
+     * 获取自定义事件执行监听器选择器
+     *
+     * @author xuyuxiang
+     * @date 2023/5/11 15:05
+     **/
+    List<String> executionListenerSelectorForCustomEvent();
+
+    /**
+
+
+     /**
      * 获取任务监听器选择器
      *
      * @author xuyuxiang

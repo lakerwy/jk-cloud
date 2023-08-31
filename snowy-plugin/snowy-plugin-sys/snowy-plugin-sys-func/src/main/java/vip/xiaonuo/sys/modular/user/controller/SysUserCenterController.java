@@ -365,4 +365,18 @@ public class SysUserCenterController {
         sysUserService.bindCid(sysUserUpdateCidParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 根据id获取头像
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 23)
+    @ApiOperation("根据id获取头像")
+    @PostMapping("/sys/userCenter/getAvatarById")
+    public CommonResult<String> getAvatarById(@RequestBody @Valid SysUserIdParam sysUserIdParam) {
+        return CommonResult.data(sysUserService.getAvatarById(sysUserIdParam));
+    }
+
 }

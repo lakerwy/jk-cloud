@@ -509,4 +509,6 @@ public interface SysUserService extends IService<SysUser> {
      * @return
      */
     List<String> getChildOrgId(String orgId);
+
+    String getAvatarById(SysUserIdParam sysUserIdParam);
 }

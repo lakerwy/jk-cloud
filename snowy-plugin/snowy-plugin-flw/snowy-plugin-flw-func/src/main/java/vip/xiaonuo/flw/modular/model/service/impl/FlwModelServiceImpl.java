@@ -44,6 +44,7 @@ import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventListener;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.parser.ProcessParser;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
@@ -355,6 +356,18 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
             return CollectionUtil.newArrayList();
         }
     }
+
+    @Override
+    public List<String> executionListenerSelectorForCustomEvent() {
+        Map<String, FlwGlobalCustomEventListener> executionListenerMap = SpringUtil.getBeansOfType(FlwGlobalCustomEventListener.class);
+        if (ObjectUtil.isNotEmpty(executionListenerMap)) {
+            Collection<FlwGlobalCustomEventListener> values = executionListenerMap.values();
+            return values.stream().map(executionListener -> executionListener.getClass().getName()).collect(Collectors.toList());
+        } else {
+            return CollectionUtil.newArrayList();
+        }
+    }
+
 
     @Override
     public List<String> taskListenerSelector() {

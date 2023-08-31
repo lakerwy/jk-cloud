@@ -53,6 +53,7 @@ import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
+import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
@@ -367,6 +368,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         // 更新sql
         handleDataJson(task.getProcessInstanceId(), flwTaskRejectParam.getDataJson());
 
+        // 发布拒绝事件
+        FlwGlobalCustomEventCenter.publishRejectEvent(processInstanceId);
+
         // 执行拒绝
         runtimeService.deleteProcessInstancesIfExists(CollectionUtil.newArrayList(processInstanceId), "REJECT",
                 true, true, true);
@@ -438,6 +442,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             // 添加审批记录
             NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.BACK.getValue(), "退回结束" ,
                     flwTaskBackParam.getComment(), flwTaskBackParam.getAttachmentList());
+            // 发布拒绝事件
+            FlwGlobalCustomEventCenter.publishRejectEvent(processInstanceId);
+
             runtimeService.deleteProcessInstancesIfExists(CollectionUtil.newArrayList(processInstanceId), "REJECT",
                     true, true, true);
         } else {

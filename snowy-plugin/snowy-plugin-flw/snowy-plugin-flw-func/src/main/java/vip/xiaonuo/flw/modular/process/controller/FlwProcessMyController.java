@@ -260,4 +260,18 @@ public class FlwProcessMyController {
     public CommonResult<FlwProcessDetailResult> detail(@Valid FlwProcessIdParam flwProcessIdParam) {
         return CommonResult.data(flwProcessService.detail(flwProcessIdParam));
     }
+
+    /**
+     * 获取流程模型详情
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("获取流程模型详情")
+    @GetMapping("/flw/process/modelDetail")
+    public CommonResult<FlwModel> modelDetail(@Valid FlwProcessModelIdParam flwProcessModelIdParam) {
+        return CommonResult.data(flwProcessService.modelDetail(flwProcessModelIdParam));
+    }
+
 }

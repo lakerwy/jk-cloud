@@ -335,4 +335,13 @@ public interface FlwProcessService {
      */
     Page<FlwProcessUserResult> userSelector(FlwProcessSelectorUserParam flwProcessSelectorUserParam);
     String getSn(String modelId);
+
+    /**
+     * 获取流程模型详情
+     *
+     * @author xuyuxiang
+     * @date 2023/8/28 10:04
+     **/
+    FlwModel modelDetail(FlwProcessModelIdParam flwProcessModelIdParam);
+
 }

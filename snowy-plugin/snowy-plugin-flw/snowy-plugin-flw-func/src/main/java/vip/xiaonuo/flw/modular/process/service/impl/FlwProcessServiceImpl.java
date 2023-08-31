@@ -64,6 +64,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.core.node.FlwNode;
+import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
@@ -470,6 +471,8 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         List<String> processInstanceIdList = flwProcessIdParamList.stream()
                 .map(FlwProcessIdParam::getId).collect(Collectors.toList());
         if (ObjectUtil.isNotEmpty(processInstanceIdList)) {
+            // 发布删除事件
+            processInstanceIdList.forEach(FlwGlobalCustomEventCenter::publishDeleteEvent);
             runtimeService.deleteProcessInstancesIfExists(processInstanceIdList, "DELETE",
                     true, true, true);
             historyService.deleteHistoricProcessInstancesIfExists(processInstanceIdList);
@@ -493,6 +496,8 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 if(!historicProcessInstance.getState().equals("ACTIVE")) {
                     throw new CommonException("该流程实例不在运行中无法终止，id值为：{}", processInstanceId);
                 }
+                // 发布终止事件
+                FlwGlobalCustomEventCenter.publishCloseEvent(processInstanceId);
             });
             runtimeService.deleteProcessInstancesIfExists(processInstanceIdList, "END",
                     true, true, true);
@@ -532,6 +537,8 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 if(!enableRevoke) {
                     throw new CommonException("该流程已配置不允许撤回，id值为：{}", processInstanceId);
                 }
+                // 发布撤回事件
+                FlwGlobalCustomEventCenter.publishRevokeEvent(processInstanceId);
                 runtimeService.deleteProcessInstanceIfExists(processInstanceId, "REVOKE",
                         true, true, true, true);
                     //获取流程实例关联的业务信息
@@ -1136,4 +1143,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         FlwModel flwModel = flwModelService.queryEntity(modelId);
         return  getSn(flwModel);
     }
+
+    @Override
+    public FlwModel modelDetail(FlwProcessModelIdParam flwProcessModelIdParam) {
+        return flwModelService.queryEntity(flwProcessModelIdParam.getId());
+    }
+
 }

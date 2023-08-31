@@ -73,40 +73,44 @@ public class FlwModel extends CommonEntity {
     @ApiModelProperty(value = "图标", position = 11)
     private String icon;
 
+    /** 移动端图标 */
+    @ApiModelProperty(value = "移动端图标", position = 12)
+    private String iconMobile;
+
     /** 颜色 */
-    @ApiModelProperty(value = "颜色", position = 12)
+    @ApiModelProperty(value = "颜色", position = 13)
     private String color;
 
     /** 数据库表JSON */
-    @ApiModelProperty(value = "数据库表JSON", position = 13)
+    @ApiModelProperty(value = "数据库表JSON", position = 14)
     private String tableJson;
 
     /** 表单JSON */
-    @ApiModelProperty(value = "表单JSON", position = 14)
+    @ApiModelProperty(value = "表单JSON", position = 15)
     private String formJson;
 
     /** 表单URL（暂未使用） */
-    @ApiModelProperty(value = "表单URL", position = 15)
+    @ApiModelProperty(value = "表单URL", position = 16)
     private String formUrl;
 
     /** 流程JSON */
-    @ApiModelProperty(value = "流程JSON", position = 16)
+    @ApiModelProperty(value = "流程JSON", position = 17)
     private String processJson;
 
     /** 流程XML */
-    @ApiModelProperty(value = "流程XML", position = 17)
+    @ApiModelProperty(value = "流程XML", position = 18)
     private String processXml;
 
     /** 排序码 */
-    @ApiModelProperty(value = "排序码", position = 18)
+    @ApiModelProperty(value = "排序码", position = 19)
     private Integer sortCode;
 
     /** 模型状态 */
-    @ApiModelProperty(value = "模型状态", position = 19)
+    @ApiModelProperty(value = "模型状态", position = 20)
     private String modelStatus;
 
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 20)
+    @ApiModelProperty(value = "扩展信息", position = 21)
     private String extJson;
 
 //    /** 扩展信息 */

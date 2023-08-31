@@ -285,6 +285,20 @@ public class FlwModeController {
     }
 
     /**
+     * 获取自定义事件执行监听器选择器
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 17)
+    @ApiOperation("获取自定义事件执行监听器选择器")
+    @GetMapping("/flw/model/executionListenerSelectorForCustomEvent")
+    public CommonResult<List<String>> executionListenerSelectorForCustomEvent() {
+        return CommonResult.data(flwModelService.executionListenerSelectorForCustomEvent());
+    }
+
+
+    /**
      * 获取任务监听器选择器
      *
      * @author xuyuxiang

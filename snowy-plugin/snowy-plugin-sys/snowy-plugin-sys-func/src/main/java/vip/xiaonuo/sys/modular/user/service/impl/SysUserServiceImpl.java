@@ -1800,4 +1800,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return sysOrgService.getChildListById(sysOrgList, orgId, true)
                 .stream().map(SysOrg::getId).collect(Collectors.toList());
     }
+
+    @Override
+    public String getAvatarById(SysUserIdParam sysUserIdParam) {
+        return this.detail(sysUserIdParam).getAvatar();
+    }
+
 }
