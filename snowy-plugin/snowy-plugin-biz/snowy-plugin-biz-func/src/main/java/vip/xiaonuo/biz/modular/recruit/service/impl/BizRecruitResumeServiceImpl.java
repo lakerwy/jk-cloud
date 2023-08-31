@@ -205,7 +205,7 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
                     recruitResume.setPhone(result.getStr("phone"));
                     recruitResume.setExpectSalary(result.getStr("expect_salary"));
                     recruitResume.setExpectTime(result.getStr("expect_time"));
-                    recruitResume.setContJobExp(result.getStr("cont_job_exp "));
+                    recruitResume.setContJobExp(result.getStr("cont_job_exp"));
                     recruitResume.setContCertificate(result.getStr("cont_certificate"));
                     recruitResume.setResumeJson(result.toString());
                 }
@@ -429,11 +429,14 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
         for (String orgId:orgIds) {
             List<BizRecruitPlan> tmpplans = planList.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
             BizSysOrgVo orgVo = sysOrgService.getOrgById(orgId);
-            List<BizRecruitResume> tmpresumes = this.list(new QueryWrapper<BizRecruitResume>().lambda().in(BizRecruitResume::getPlanId,tmpplans.stream().map(x->x.getId()).collect(Collectors.toList())).eq(BizRecruitResume::getStatus,BizRecruitResumeEnum.ARRIVE.getValue()));
+            long planNeedNums = tmpplans.stream().mapToLong(x->x.getNeedNums()).sum();
+            long realResumes = this.list(new QueryWrapper<BizRecruitResume>().lambda()
+                    .in(BizRecruitResume::getPlanId,tmpplans.stream().map(x->x.getId()).collect(Collectors.toList()))
+                    .eq(BizRecruitResume::getStatus,BizRecruitResumeEnum.ARRIVE.getValue())).size();
             xAxisDept.add(orgVo.getOrgName());
-            zAxisDept.add((long)tmpplans.size());
-            tAxisDept.add((long)tmpresumes.size());
-            yAxisDept.add(division((long)tmpresumes.size(),(long)tmpplans.size()));
+            zAxisDept.add(planNeedNums);
+            tAxisDept.add(realResumes);
+            yAxisDept.add(division(realResumes,planNeedNums));
         }
         zzt_dept.setXAxis(xAxisDept);
         zzt_dept.setYAxis(yAxisDept);
