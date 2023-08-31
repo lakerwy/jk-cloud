@@ -51,6 +51,7 @@ import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dev.api.DevEmailApi;
 import vip.xiaonuo.dev.api.DevMessageApi;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
+import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.modular.task.param.FlwTaskAttachmentParam;
 import vip.xiaonuo.flw.modular.template.service.FlwTemplateSnService;
@@ -386,14 +387,17 @@ public class NodeRuntimeUtil {
                                         // 发送退回消息
                                         try {
                                             NodeRuntimeUtil.handleUserTaskBackNotice(delegateTask);
-                                        }catch (Exception e){
-                                            log.error(e.getMessage());
+                                        } catch (Exception e) {
+                                            throw new RuntimeException(e);
                                         }
+                                        // 发布拒绝事件
+                                        FlwGlobalCustomEventCenter.publishRejectEvent(delegateTask.getProcessInstanceId());
                                         // 执行拒绝
                                         delegateTask.getProcessEngineServices().getRuntimeService()
                                                 .deleteProcessInstancesIfExists(CollectionUtil.newArrayList(delegateTask.getProcessInstanceId()), "REJECT",
                                                         true, true, true);
                                         break;
+
                                     default:
                                         throw new CommonException("不支持的任务类型：{}", userTaskType);
                                 }
@@ -741,7 +745,7 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/13 17:35
      **/
-    public static void handleUserTaskBackNotice(DelegateTask delegateTask) throws Exception{
+    public static void handleUserTaskBackNotice(DelegateTask delegateTask) throws Exception {
         handleProcessNotice(delegateTask, null, "BACK", "processEnableBackNotice",
                 "processBackNoticeChannel", "processBackNoticeTemplate");
     }

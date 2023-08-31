@@ -70,11 +70,15 @@ public class ProcessParser {
                 camundaProperty.setCamundaValue(JSONUtil.toJsonStr(executionListenerInfo));
                 camundaProperties.addChildElement(camundaProperty);
                 executionListenerInfo.forEach(flwNodeExecutionListenerProp -> {
-                    NodeExecutionListenerKeyEnum.validate(flwNodeExecutionListenerProp.getKey());
-                    CamundaExecutionListener camundaExecutionListener = modelInstance.newInstance(CamundaExecutionListener.class);
-                    camundaExecutionListener.setCamundaEvent(flwNodeExecutionListenerProp.getKey().toLowerCase());
-                    camundaExecutionListener.setCamundaClass(flwNodeExecutionListenerProp.getValue());
-                    processBuilder.addExtensionElement(camundaExecutionListener);
+                    String listenerPropKey = flwNodeExecutionListenerProp.getKey();
+                    NodeExecutionListenerKeyEnum.validate(listenerPropKey);
+                    if(NodeExecutionListenerKeyEnum.START.getValue().equals(listenerPropKey) || NodeExecutionListenerKeyEnum
+                            .END.getValue().equals(listenerPropKey) || NodeExecutionListenerKeyEnum.TAKE.getValue().equals(listenerPropKey)) {
+                        CamundaExecutionListener camundaExecutionListener = modelInstance.newInstance(CamundaExecutionListener.class);
+                        camundaExecutionListener.setCamundaEvent(listenerPropKey.toLowerCase());
+                        camundaExecutionListener.setCamundaClass(flwNodeExecutionListenerProp.getValue());
+                        processBuilder.addExtensionElement(camundaExecutionListener);
+                    }
                 });
             }
         }
@@ -88,4 +92,5 @@ public class ProcessParser {
             throw new CommonException("流程{}的第一个子节点类型必须为开始节点", process.getId());
         }
     }
+
 }

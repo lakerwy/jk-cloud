@@ -160,7 +160,7 @@ public class NodePropertyUtil {
      * @date 2022/5/4 15:03
      */
     private static void addButtonInfo(ModelInstance modelInstance, FlwNode.FlwNodeProperties properties,
-                                     CamundaProperties camundaProperties) {
+                                      CamundaProperties camundaProperties) {
         List<FlwNode.FlwNodeButtonProp> buttonInfo = properties.getButtonInfo();
         if(ObjectUtil.isNotEmpty(buttonInfo)) {
             CamundaProperty camundaProperty = modelInstance.newInstance(CamundaProperty.class);
@@ -177,7 +177,7 @@ public class NodePropertyUtil {
      * @date 2022/5/4 15:03
      */
     private static void addFieldInfo(ModelInstance modelInstance, FlwNode.FlwNodeProperties properties,
-                                    CamundaProperties camundaProperties) {
+                                     CamundaProperties camundaProperties) {
         List<FlwNode.FlwNodeFieldProp> fieldInfo = properties.getFieldInfo();
         if(ObjectUtil.isNotEmpty(fieldInfo)) {
             CamundaProperty camundaProperty = modelInstance.newInstance(CamundaProperty.class);
@@ -194,7 +194,7 @@ public class NodePropertyUtil {
      * @date 2022/5/4 15:03
      */
     private static void addFormInfo(ModelInstance modelInstance, FlwNode.FlwNodeProperties properties,
-                                     CamundaProperties camundaProperties) {
+                                    CamundaProperties camundaProperties) {
         List<FlwNode.FlwNodeFormProp> formInfo = properties.getFormInfo();
         if(ObjectUtil.isNotEmpty(formInfo)) {
             CamundaProperty camundaProperty = modelInstance.newInstance(CamundaProperty.class);
@@ -220,9 +220,13 @@ public class NodePropertyUtil {
             camundaProperty.setCamundaValue(JSONUtil.toJsonStr(executionListenerInfo));
             camundaProperties.addChildElement(camundaProperty);
             executionListenerInfo.forEach(flwNodeExecutionListenerProp -> {
-                NodeExecutionListenerKeyEnum.validate(flwNodeExecutionListenerProp.getKey());
-                abstractFlowNodeBuilder.camundaExecutionListenerClass(flwNodeExecutionListenerProp.getKey().toLowerCase(),
-                        flwNodeExecutionListenerProp.getValue());
+                String listenerPropKey = flwNodeExecutionListenerProp.getKey();
+                NodeExecutionListenerKeyEnum.validate(listenerPropKey);
+                if(NodeExecutionListenerKeyEnum.START.getValue().equals(listenerPropKey) || NodeExecutionListenerKeyEnum
+                        .END.getValue().equals(listenerPropKey) || NodeExecutionListenerKeyEnum.TAKE.getValue().equals(listenerPropKey)) {
+                    abstractFlowNodeBuilder.camundaExecutionListenerClass(listenerPropKey.toLowerCase(),
+                            flwNodeExecutionListenerProp.getValue());
+                }
             });
         }
     }
