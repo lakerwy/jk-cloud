@@ -68,19 +68,55 @@ services:
     environment:
       TZ: Asia/Shanghai
     ports:
-      - "9008:9008"
+      - "9004:9004"
     networks:
       - epcCloud
 
-  epcTen:
-    container_name: epcTen
+  epcFlw:
+    container_name: epcFlw
     restart: on-failure
-    build: ./ten
-    image: "epcten"
+    build: ./flw
+    image: "epcflw"
     environment:
       TZ: Asia/Shanghai
     ports:
-      - "9008:9008"
+      - "9005:9005"
+    networks:
+      - epcCloud
+
+  epcUrp:
+    container_name: epcUrp
+    restart: on-failure
+    build: ./urp
+    image: "epcurp"
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "9006:9006"
+    networks:
+      - epcCloud
+
+  epcWeb:
+    container_name: epcWeb
+    restart: on-failure
+    build: ./web
+    image: "epcweb"
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "9001:9001"
+    networks:
+      - epcCloud
+
+  epcBiz:
+    container_name: epcBiz
+    restart: on-failure
+    build: ./biz
+    image: "epcbiz"
+    environment:
+      TZ: Asia/Shanghai
+    ports:
+      - "9002:9002"
     networks:
       - epcCloud
 
