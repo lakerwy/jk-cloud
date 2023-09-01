@@ -31,4 +31,9 @@ public class SysOrgServiceImpl implements Mapper<SysOrgMapper>, SysOrgService {
     public BizSysOrgVo getOrgById(String orgId) {
         return sysOrgMapper.getOrgById(orgId);
     }
+
+    @Override
+    public BizSysOrgVo getOrgByName(String orgName) {
+        return sysOrgMapper.getOrgByOrgName(orgName);
+    }
 }

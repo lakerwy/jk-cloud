@@ -28,6 +28,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dbs.core.util.BizTableCommon;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
@@ -65,6 +67,9 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
 
     @Resource
     CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    SysOrgService sysOrgService;
     @Override
     public Page<BizChartReviews> page(BizChartReviewsPageParam bizChartReviewsPageParam) {
         QueryWrapper<BizChartReviews> queryWrapper = new QueryWrapper<>();
@@ -90,7 +95,7 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizChartReviewsAddParam bizChartReviewsAddParam) {
         BizChartReviews bizChartReviews = BeanUtil.toBean(bizChartReviewsAddParam, BizChartReviews.class);
@@ -99,6 +104,12 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
         bizChartReviews.setOptDate(DateUtil.date(new Date()));
         bizChartReviews.setStatus("受理中");
         bizChartReviews.setNote(bizChartReviewsAddParam.getRemark());
+        if(ObjectUtil.isNotEmpty(bizChartReviewsAddParam.getCompanyOrDepartment())){
+            BizSysOrgVo orgByName = sysOrgService.getOrgByName(bizChartReviewsAddParam.getCompanyOrDepartment());
+            if(ObjectUtil.isNotEmpty(orgByName)){
+                bizChartReviews.setDataScopeId(orgByName.getOrgId());
+            }
+        }
         this.save(bizChartReviews);
     }
 
