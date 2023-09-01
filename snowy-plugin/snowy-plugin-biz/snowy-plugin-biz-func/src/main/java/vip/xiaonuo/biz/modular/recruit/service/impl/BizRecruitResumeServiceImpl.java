@@ -265,6 +265,26 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
         if("tags".equals(colName)){
             recruitResume.setTags(resumeUpdateDto.getColValue());
         }
+        //姓名
+        if("name".equals(colName)){
+            recruitResume.setName(resumeUpdateDto.getColValue());
+        }
+        //性别
+        if("gender".equals(colName)){
+            recruitResume.setGender(resumeUpdateDto.getColValue());
+        }
+        //年龄
+        if("age".equals(colName)){
+            recruitResume.setAge(resumeUpdateDto.getColValue());
+        }
+        //专业
+        if("major".equals(colName)){
+            recruitResume.setMajor(resumeUpdateDto.getColValue());
+        }
+        //工作年限
+        if("workyear".equals(colName)){
+            recruitResume.setWorkYear(resumeUpdateDto.getColValue());
+        }
         this.updateById(recruitResume);
     }
 

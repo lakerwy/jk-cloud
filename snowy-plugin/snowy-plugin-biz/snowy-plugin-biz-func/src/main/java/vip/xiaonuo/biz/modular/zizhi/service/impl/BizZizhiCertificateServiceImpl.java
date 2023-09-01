@@ -74,7 +74,7 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
             queryWrapper.orderBy(true, bizZizhiCertificatePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizZizhiCertificatePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(BizZizhiCertificate::getCreateTime);
+            queryWrapper.lambda().orderByAsc(BizZizhiCertificate::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
