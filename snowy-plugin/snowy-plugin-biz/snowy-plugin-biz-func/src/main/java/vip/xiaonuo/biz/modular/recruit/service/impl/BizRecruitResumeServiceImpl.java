@@ -142,23 +142,20 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
 
     @Override
     public void addAuto(ResumeAddDto resumeAddDto) {
-        BizRecruitResume recruitResume = new BizRecruitResume();
-        recruitResume.setType("社招");
-        recruitResume.setResumeName(resumeAddDto.getResumeName());
-        recruitResume.setResumeUrl(resumeAddDto.getResumeUrl());
-        recruitResume.setResumeAttach(resumeAddDto.getResumeAttach());
-        recruitResume.setResumeResource(resumeAddDto.getResumeResource());
-        recruitResume.setPlanId(resumeAddDto.getPlanId());
-        recruitResume.setStatus(BizRecruitResumeEnum.SEND.getValue());
-        recruitResume = parser(recruitResume);
-        //判断同职位，同个手机号是否已投递
-        if(ObjectUtil.isNotEmpty(recruitResume.getPlanId()) && ObjectUtil.isNotEmpty(recruitResume.getPhone())) {
-            List<BizRecruitResume> oldList = this.list(new QueryWrapper<BizRecruitResume>().lambda().eq(BizRecruitResume::getPlanId, recruitResume.getPlanId()).eq(BizRecruitResume::getPhone, recruitResume.getPhone()));
-            if(CollUtil.isNotEmpty(oldList)){
-                throw new CommonException("当前手机号的简历已投递过该岗位");
-            }
+        List<BizRecruitResume> recruitResumeList = new ArrayList<>();
+        for (ResumeAttachDto attach:resumeAddDto.getResumeAttachList()) {
+            BizRecruitResume recruitResume = new BizRecruitResume();
+            recruitResume.setType("社招");
+            recruitResume.setResumeName(attach.getResumeName());
+            recruitResume.setResumeUrl(attach.getResumeUrl());
+            recruitResume.setResumeAttach(attach.getResumeAttach());
+            recruitResume.setResumeResource(resumeAddDto.getResumeResource());
+            recruitResume.setPlanId(resumeAddDto.getPlanId());
+            recruitResume.setStatus(BizRecruitResumeEnum.SEND.getValue());
+            recruitResume = parser(recruitResume);
+            recruitResumeList.add(recruitResume);
         }
-        this.save(recruitResume);
+        this.saveBatch(recruitResumeList);
     }
 
     /**
