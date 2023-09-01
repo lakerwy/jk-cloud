@@ -391,7 +391,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + sysUser.getOrgId()));
         sysUser.setFirstOrgId(sOrgId);
         sysUser.setFirstOrgName(sOrgName);
-        return this.queryEntity(sysUserIdParam.getId());
+        return sysUser;
     }
 
     @Override

@@ -43,6 +43,8 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
+import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
+import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -59,6 +61,10 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
 
     @Resource
     CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private SysPositionService sysPositionService;
+
     @Override
     public Page<PersonnelFileMoves> page(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
         QueryWrapper<PersonnelFileMoves> queryWrapper = new QueryWrapper<>();
@@ -94,6 +100,14 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
         personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
         personnelFileMoves.setApplyTime(DateUtil.date());
         personnelFileMoves.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+
+        SysPositionAddParam positionAddParam = new SysPositionAddParam();
+        positionAddParam.setName(personnelFileMovesAddParam.getNowDuty());
+        positionAddParam.setOrgId(personnelFileMovesAddParam.getNowDeptId());
+        positionAddParam.setCategory("LOW");
+        positionAddParam.setSortCode(99);
+        String dutyId = sysPositionService.newAdd(positionAddParam).getId();
+        personnelFileMoves.setNowDutyId(dutyId);
         this.save(personnelFileMoves);
     }
 

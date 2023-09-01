@@ -29,6 +29,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SysLoginUser;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.SysDataTypeEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -53,6 +55,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
+import static vip.xiaonuo.sys.modular.user.service.impl.SysUserServiceImpl.newHandleSqlIdExecution;
+
 /**
  * 组织Service接口实现类
  *
@@ -70,6 +75,9 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
 
     @Resource
     private SysUserService sysUserService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<SysOrg> page(SysOrgPageParam sysOrgPageParam) {
@@ -392,6 +400,38 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     public List<Map<String, String>> getAllOrgs() {
         List<SysOrg> list = this.list();
         return list.stream().map(org -> {
+            String orgName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgName" + org.getId());
+            String firstOrgId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgId" + org.getId());
+            String firstOrgLeaderId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + org.getId());
+            String firstOrgLeaderName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + org.getId());
+            if(StrUtil.isBlank(orgName)){
+                Map<String,String> map = newHandleSqlIdExecution(org.getId());
+                orgName = map.get("orgName");
+                commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgName" + org.getId(), orgName,7*24*60*60);
+            }
+            if(StrUtil.isBlank(firstOrgId)){
+                Map<String,String> map = newHandleSqlIdExecution(org.getId());
+                firstOrgId = map.get("orgId");
+                commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgId" + org.getId(), firstOrgId,7*24*60*60);
+            }
+            if(StrUtil.isBlank(firstOrgLeaderId)){
+                Map<String,String> map = newHandleSqlIdExecution(org.getId());
+                firstOrgLeaderId = map.get("leaderId");
+                commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + org.getId(), firstOrgLeaderId,7*24*60*60);
+            }
+            if(StrUtil.isBlank(firstOrgLeaderName)){
+                Map<String,String> map = newHandleSqlIdExecution(org.getId());
+                firstOrgLeaderId = map.get("leaderId");
+                if(StrUtil.isNotBlank(firstOrgLeaderId)){
+                    SysLoginUser user= sysUserService.getUserById(firstOrgLeaderId);
+                    if(ObjectUtil.isNotEmpty(user)){
+                        firstOrgLeaderName = user.getName();
+                        commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + org.getId(), firstOrgLeaderName,7*24*60*60);
+                    }
+                }
+            }
+
+
             Map<String, String> map = new HashMap<>();
             map.put("name", org.getName());
             map.put("id", org.getId());
