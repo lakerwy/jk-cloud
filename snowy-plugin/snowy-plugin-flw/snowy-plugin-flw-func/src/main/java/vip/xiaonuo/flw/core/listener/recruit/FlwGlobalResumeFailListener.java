@@ -6,11 +6,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
-import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.task.Task;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventListener;
@@ -19,43 +16,47 @@ import vip.xiaonuo.flw.core.util.CommonHandleUtil;
 /**
  * @author yong.ye
  * @date 2023/8/30 9:52
+ *
+ * 在线面试-流程 流程中 拒绝 操作
  */
 
 @Slf4j
 @Component
 public class FlwGlobalResumeFailListener implements FlwGlobalCustomEventListener {
-
     @Override
     public void publishRejectEvent(HistoricProcessInstance historicProcessInstance) {
             try{
+                //实例Id
                 String processInstanceId = historicProcessInstance.getId();
+                //获取任务信息
                 TaskService taskService = SpringUtil.getBean(TaskService.class);
                 Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).active().singleResult();
+                //当前流程节点名称
                 String nodeName = task.getName();
+                //获取传递的参数
                 HistoryService historyService = SpringUtil.getBean(HistoryService.class);
-
                 JSONObject variableJsonObject = JSONUtil.createObj();
                 historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
                         .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
                                 historicVariableInstance.getValue()));
-
-                //获取主键Id
+                //获取简历列表主键Id
                 String id = String.valueOf(variableJsonObject.getStr("taskId"));
-
                 //流程中的所有 拒绝 - 淘汰
                 if(StrUtil.isNotEmpty(id)){
                     String STATUS_STAGE = "1";
+                    if("部门筛选".equals(nodeName)) STATUS_STAGE = "1";
+                    else if("初试".equals(nodeName)) STATUS_STAGE = "2";
+                    else if ("复试".equals(nodeName)) STATUS_STAGE = "3";
+                    else if ("录取".equals(nodeName)) STATUS_STAGE = "4";
 
-
-                    //淘汰  复试阶段
+                    //淘汰  阶段
                     String sql = "UPDATE BIZ_RECRUIT_RESUME SET STATUS='2',STATUS_STAGE= '" + STATUS_STAGE + "' WHERE ID = '" + id + "'";
                     CommonHandleUtil.handleSqlExecution(sql);
                 }
-                log.info("流程中的拒绝操作【淘汰 2  阶段 3】-更新简历状态-----");
+                log.info("流程中的拒绝操作【淘汰 2  阶段 】-更新简历状态-----");
             }catch (Exception e){
-                log.info("流程中的拒绝操作【淘汰 2  阶段 3】-更新简历状态-----"+e.getMessage());
+                log.info("流程中的拒绝操作【淘汰 2  阶段 】-更新简历状态-----"+e.getMessage());
             }
-
     }
 
     @Override
