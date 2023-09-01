@@ -239,16 +239,19 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             }
              processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
         }
-        String processInstanceId = processInstance.getProcessInstanceId();
-        //让校审继续走老流程的发送
-        //将id 和sn 存入缓存中，保证每个模块的业务都可以获取到，获取完成之后清空缓存，避免占用内存
-        commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_ID_KEY+processInstanceId,parentTablePrimaryId);
-        commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId,sn);
-        commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY+processInstanceId,modelId);
+        if(ObjectUtil.isNotEmpty(processInstance)){
+            String processInstanceId = processInstance.getProcessInstanceId();
+            //让校审继续走老流程的发送
+            //将id 和sn 存入缓存中，保证每个模块的业务都可以获取到，获取完成之后清空缓存，避免占用内存
+            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_ID_KEY+processInstanceId,parentTablePrimaryId);
+            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId,sn);
+            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY+processInstanceId,modelId);
 //        if(modelId.equals("1674588959370481665")){
 //            handDataSave(flwProcessStartParam.getDataJson(), sn, modelId, flwModel.getDefinitionId(), flwModel.getDeploymentId(), processInstance.getProcessInstanceId(), parentTablePrimaryId);
 //        }
-        return processInstanceId;
+            return processInstanceId;
+        }
+        return null;
     }
 
     @Override

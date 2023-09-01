@@ -31,6 +31,8 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
 import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.service.BizChartReviewsService;
 import vip.xiaonuo.biz.modular.mapBiz.MapRegister.service.BizMapRegisterService;
+import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -67,6 +69,9 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
     @Resource
     private BizChartReviewsService bizChartReviewsService;
 
+    @Resource
+    SysOrgService sysOrgService;
+
     @Override
     public Page<BizMapRegister> page(BizMapRegisterPageParam bizMapRegisterPageParam) {
         QueryWrapper<BizMapRegister> queryWrapper = new QueryWrapper<>();
@@ -94,7 +99,7 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizMapRegisterAddParam bizMapRegisterAddParam) {
         BizMapRegister bizMapRegister = BeanUtil.toBean(bizMapRegisterAddParam, BizMapRegister.class);
@@ -119,6 +124,12 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
         bizMapRegister.setApplyTime(DateUtil.date());
         bizMapRegister.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
 
+        if(ObjectUtil.isNotEmpty(bizMapRegisterAddParam.getCompanyOrDepartment())){
+            BizSysOrgVo orgByName = sysOrgService.getOrgByName(bizMapRegisterAddParam.getCompanyOrDepartment());
+            if(ObjectUtil.isNotEmpty(orgByName)){
+                bizMapRegister.setDataScopeId(orgByName.getOrgId());
+            }
+        }
         this.save(bizMapRegister);
     }
 

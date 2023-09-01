@@ -28,4 +28,6 @@ public interface SysOrgMapper {
 
     BizSysOrgVo getOrgById(String orgId);
 
+    BizSysOrgVo getOrgByOrgName(String orgName);
+
 }

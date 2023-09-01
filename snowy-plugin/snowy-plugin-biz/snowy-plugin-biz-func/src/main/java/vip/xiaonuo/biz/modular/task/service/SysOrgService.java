@@ -40,4 +40,6 @@ public interface SysOrgService {
      */
     BizSysOrgVo getOrgById(String orgId);
 
+    BizSysOrgVo getOrgByName(String orgName);
+
 }
