@@ -144,7 +144,7 @@
     </sql>
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo">
         SELECT a.ID,a.FILE_NO, a.`NAME`,a.SEX,a.BIRTH,a.ID_NUMBER,a.HIRE_DATE,a.POSITIVE_TIME,a.DUTY,b.`NAME`
-            AS DEPT,a.`STATUS`,a.EMPLOY_NATURE, su.ID as sysUserId FROM PERSONNEL a LEFT JOIN SYS_ORG b ON a.DEPT_ID = b.ID LEFT JOIN SYS_POSITION c ON a.DUTY_ID=c.ID
+            AS DEPT,a.`STATUS`,a.EMPLOY_NATURE, su.ID as sysUserId ,c.`NAME` as DUTY_NAME  FROM PERSONNEL a LEFT JOIN SYS_ORG b ON a.DEPT_ID = b.ID LEFT JOIN SYS_POSITION c ON a.DUTY_ID=c.ID
             LEFT JOIN SYS_USER su on  a.PHONE = su.ACCOUNT
             ${ew.customSqlSegment}
     </select>

@@ -77,4 +77,7 @@ public class PersonnelListVo {
 
     @ApiModelProperty(value = "账户id", position = 31)
     private String sysUserId;
+
+    @ApiModelProperty(value = "账户id", position = 31)
+    private String dutyName;
 }

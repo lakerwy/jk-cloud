@@ -269,6 +269,14 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             //年纪
             personnelVo.setAge(Period.between(LocalDate.parse(DateUtil.formatDate(personnelVo.getBirth())),LocalDate.parse(DateUtil.formatDate(new Date()))).getYears());
         }
+        SysOrg sysOrg = sysOrgService.getById(personnelVo.getDeptId());
+        if(ObjectUtil.isNotEmpty(sysOrg)){
+            personnelVo.setDept(sysOrg.getName());
+        }
+        if(StrUtil.isNotEmpty(personnelVo.getDutyId())){
+            SysPosition sysPosition = sysPositionService.getById(personnelVo.getDutyId());
+            personnelVo.setDuty(sysPosition.getName());
+        }
 
         Map<String, Object> columnMap = new HashMap<>();
         columnMap.put("FILE_ID", personnel.getId());
