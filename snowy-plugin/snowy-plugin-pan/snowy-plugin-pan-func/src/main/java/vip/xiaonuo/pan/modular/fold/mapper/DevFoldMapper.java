@@ -13,7 +13,11 @@
 package vip.xiaonuo.pan.modular.fold.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.pan.modular.fold.entity.DevFold;
+import vip.xiaonuo.pan.modular.fold.entity.NodeFold;
+
+import java.util.List;
 
 /**
  * 文件主表Mapper接口
@@ -22,4 +26,6 @@ import vip.xiaonuo.pan.modular.fold.entity.DevFold;
  * @date  2023/08/28 10:09
  **/
 public interface DevFoldMapper extends BaseMapper<DevFold> {
+
+    List<NodeFold> nodeList(@Param(value = "id") String id);
 }

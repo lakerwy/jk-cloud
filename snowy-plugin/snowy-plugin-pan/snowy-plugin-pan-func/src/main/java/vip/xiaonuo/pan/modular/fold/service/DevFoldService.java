@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.pan.modular.fold.entity.DevFold;
+import vip.xiaonuo.pan.modular.fold.entity.NodeFold;
 import vip.xiaonuo.pan.modular.fold.param.*;
 
 import java.util.List;
@@ -126,4 +127,6 @@ public interface DevFoldService extends IService<DevFold> {
     Page<DevFold> groupPageList(DevFoldPageParam devFoldPageParam);
 
     Page<DevFold> selfPageList(DevFoldPageParam devFoldPageParam);
+
+    List<NodeFold> buildTree(String id);
 }

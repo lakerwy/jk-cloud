@@ -28,6 +28,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.pan.modular.fold.entity.DevFold;
+import vip.xiaonuo.pan.modular.fold.entity.NodeFold;
 import vip.xiaonuo.pan.modular.fold.enums.DevFoldEnum;
 import vip.xiaonuo.pan.modular.fold.param.*;
 import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
@@ -301,5 +302,20 @@ public class DevFoldController {
     public CommonResult<Page<DevFold>> selfPageList(DevFoldPageParam devFoldPageParam) {
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
         return CommonResult.data(devFoldService.selfPageList(devFoldPageParam));
+    }
+
+    /**
+     * 获取所在部门的文件夹列表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("根据id获取文件树")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/getFoldTree")
+    public CommonResult<List<NodeFold>> getFoldTree(@RequestParam(value = "id",required = true) String id) {
+        //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
+        return CommonResult.data(devFoldService.buildTree(id));
     }
 }

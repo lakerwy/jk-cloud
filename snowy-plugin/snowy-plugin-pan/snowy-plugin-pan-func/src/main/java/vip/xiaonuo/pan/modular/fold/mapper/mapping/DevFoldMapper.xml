@@ -2,4 +2,17 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.pan.modular.fold.mapper.DevFoldMapper">
 
+    <select id="nodeList" resultType="vip.xiaonuo.pan.modular.fold.entity.NodeFold">
+        SELECT u2.ID, u2.FILE_NAME,u1.LE as LEVEL,u2.PARENT_ID
+        FROM(
+                SELECT
+                    @ids AS p_ids,
+                    (SELECT @ids := GROUP_CONCAT(ID) FROM DEV_FOLD WHERE FIND_IN_SET(PARENT_ID, @ids)) AS c_ids,
+            @l := @l+1 AS LE
+        FROM DEV_FOLD, (SELECT @ids := ${id}, @l := 0 ) b
+            WHERE @ids IS NOT NULL
+            ) u1
+            JOIN DEV_FOLD u2
+        ON FIND_IN_SET(u2.ID, u1.p_ids) AND IS_DIR = 1
+    </select>
 </mapper>
