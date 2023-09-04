@@ -154,6 +154,8 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
             devFold.setFileId(devFile.getId());
             devFold.setIsDir(0);
             devFold.setParentId(parentId);
+            devFold.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+            devFold.setFileName(devFile.getName());
             save(devFold);
             devFiles.add(devFile);
         }
@@ -271,7 +273,7 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
             queryWrapper.orderBy(true, devFoldPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(devFoldPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(DevFold::getId);
+            queryWrapper.lambda().orderByDesc(DevFold::getIsDir).orderByAsc(DevFold::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
