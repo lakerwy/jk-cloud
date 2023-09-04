@@ -22,6 +22,7 @@ import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 流程Service接口
@@ -344,4 +345,5 @@ public interface FlwProcessService {
      **/
     FlwModel modelDetail(FlwProcessModelIdParam flwProcessModelIdParam);
 
+    Map<String,Long> count(Boolean flag);
 }

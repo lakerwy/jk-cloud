@@ -20,10 +20,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -35,6 +32,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 流程监控控制器
@@ -324,6 +322,19 @@ public class FlwProcessMonitorController {
     @GetMapping("/flw/process/monitor/userSelector")
     public CommonResult<Page<FlwProcessUserResult>> userSelector(FlwProcessSelectorUserParam flwProcessSelectorUserParam) {
         return CommonResult.data(flwProcessService.userSelector(flwProcessSelectorUserParam));
+    }
+
+    /**
+     * 流程数量统计
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperation("流程数量统计")
+//    @SaCheckPermission("/flw/process/monitor/count")
+    @GetMapping("/flw/process/monitor/count")
+    public CommonResult<Map<String,Long>> count(@RequestParam(value = "flag", defaultValue = "true") Boolean flag) {
+        return CommonResult.data(flwProcessService.count(flag));
     }
 
 }

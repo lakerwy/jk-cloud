@@ -42,6 +42,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
@@ -61,6 +62,7 @@ import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.core.node.FlwNode;
@@ -1150,6 +1152,35 @@ public class FlwProcessServiceImpl implements FlwProcessService {
     @Override
     public FlwModel modelDetail(FlwProcessModelIdParam flwProcessModelIdParam) {
         return flwModelService.queryEntity(flwProcessModelIdParam.getId());
+    }
+
+    @Override
+    public Map<String,Long> count(Boolean flag) {
+        HashMap<String, Long> hashMap = new HashMap<>();
+        TaskQuery taskQuery = taskService.createTaskQuery().active().taskAssignee(StpUtil.getLoginIdAsString()).orderByTaskCreateTime().desc();
+        long todoPageCount = taskQuery.count();
+        hashMap.put("todoCount",todoPageCount);
+        if(flag) {
+            HistoricTaskInstanceQuery historicTaskInstanceQuery = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString())
+                    .orderByHistoricTaskInstanceEndTime().desc();
+            long doPageCount = historicTaskInstanceQuery.count();
+            hashMap.put("doCount", doPageCount);
+            HistoricProcessInstanceQuery historicProcessInstanceQuery = historyService.createHistoricProcessInstanceQuery()
+                    .startedBy(StpUtil.getLoginIdAsString())
+                    .orderByProcessInstanceStartTime().desc();
+            long myPageCount = historicProcessInstanceQuery.count();
+            hashMap.put("myCount", myPageCount);
+            List<String> myCopyUnreadProcessInstanceIdList = getMyCopyUnreadProcessInstanceIdList();
+            if (ObjectUtil.isNotEmpty(myCopyUnreadProcessInstanceIdList)) {
+                HistoricProcessInstanceQuery historicProcessInstanceQuery1 = historyService.createHistoricProcessInstanceQuery().
+                        processInstanceIds(CollectionUtil.newHashSet(myCopyUnreadProcessInstanceIdList));
+                long count = historicProcessInstanceQuery1.count();
+                hashMap.put("readCount", count);
+            } else {
+                hashMap.put("readCount", 0L);
+            }
+        }
+        return hashMap;
     }
 
 }
