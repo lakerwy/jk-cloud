@@ -174,6 +174,7 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
         devFold.setIsDir(IS_DIR);
         devFold.setRootDir(DevFoldEnum.SELF_ROOT.getLevel());
         devFold.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
+        devFold.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
         //个人根目录文件夹名不允许修改、移动和删除
         String name = StpLoginUserUtil.getLoginUser().getName();
         devFold.setFileName(name+"的个人文件夹");
@@ -257,9 +258,9 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
         if(ObjectUtil.isEmpty(devFoldPageParam.getId())){
             devFoldPageParam.setId(ROOT_FOLD_ID);
         }
-//        if(ObjectUtil.isNotEmpty(devFoldPageParam.getFoldType())){
-//            queryWrapper.lambda().in(DevFold::getFoldType,devFoldPageParam.getFoldType());
-//        }
+        if(ObjectUtil.isNotEmpty(devFoldPageParam.getFoldType())){
+            queryWrapper.lambda().in(DevFold::getFoldType,devFoldPageParam.getFoldType());
+        }
         queryWrapper.lambda().eq(DevFold::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
         queryWrapper.lambda().eq(DevFold::getParentId,devFoldPageParam.getId());
         if(ObjectUtil.isNotEmpty(devFoldPageParam.getFileName())) {
@@ -298,6 +299,41 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
             queryWrapper.lambda().orderByAsc(DevFold::getId);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public Page<DevFold> groupPageList(DevFoldPageParam devFoldPageParam) {
+        if(ObjectUtil.isNotEmpty(devFoldPageParam.getId())){
+            QueryWrapper<DevFold> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(DevFold::getRootDir,DevFoldEnum.GROUP_ROOT.getLevel()).eq(DevFold::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
+            DevFold one = getOne(queryWrapper);
+            if(ObjectUtil.isNotEmpty(one)){
+                devFoldPageParam.setId(one.getId());
+                return pageList(devFoldPageParam);
+            }else {
+                return new Page<>();
+            }
+        }else {
+            return pageList(devFoldPageParam);
+        }
+    }
+
+    @Override
+    public Page<DevFold> selfPageList(DevFoldPageParam devFoldPageParam) {
+        if(ObjectUtil.isEmpty(devFoldPageParam.getId())){
+            QueryWrapper<DevFold> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().eq(DevFold::getRootDir,DevFoldEnum.SELF_ROOT.getLevel()).eq(DevFold::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId())
+                    .eq(DevFold::getCreateUser,StpLoginUserUtil.getLoginUser().getId());
+            DevFold one = getOne(queryWrapper);
+            if(ObjectUtil.isNotEmpty(one)){
+                devFoldPageParam.setId(one.getId());
+                return pageList(devFoldPageParam);
+            }else {
+                return new Page<>();
+            }
+        }else {
+            return pageList(devFoldPageParam);
+        }
     }
 
 }

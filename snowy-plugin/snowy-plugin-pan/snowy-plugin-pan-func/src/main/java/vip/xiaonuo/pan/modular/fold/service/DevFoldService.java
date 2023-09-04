@@ -122,4 +122,8 @@ public interface DevFoldService extends IService<DevFold> {
     Page<DevFold> pageList(DevFoldPageParam devFoldPageParam);
 
     Page<DevFold> pageListByParam(DevFoldPageParam devFoldPageParam);
+
+    Page<DevFold> groupPageList(DevFoldPageParam devFoldPageParam);
+
+    Page<DevFold> selfPageList(DevFoldPageParam devFoldPageParam);
 }

@@ -140,7 +140,7 @@ public class DevFoldController {
      *
      **/
     @ApiOperationSupport(order = 6)
-    @ApiOperation("本地文件创建文件夹")
+    @ApiOperation("本地文件创建文件夹(不允许在根目录下创建文件夹)")
     @CommonLog("本地文件创建文件夹")
     @PostMapping("/pan/fold/createFold")
     public CommonResult<String> createFold(@Valid @RequestBody DevFoldAddParam devFoldAddParam) {
@@ -265,11 +265,41 @@ public class DevFoldController {
      * @date  2023/08/28 10:09
      */
     @ApiOperationSupport(order = 11)
-    @ApiOperation("获取所见文件夹列表")
+    @ApiOperation("获取所见文件夹列表(包含个人和群组)")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/showPageList")
+    public CommonResult<Page<DevFold>> showPageList(DevFoldPageParam devFoldPageParam) {
+        //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
+        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+    }
+
+    /**
+     * 获取所在部门的文件夹列表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("获取所在部门的文件夹列表")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/groupPageList")
+    public CommonResult<Page<DevFold>> groupPageList(DevFoldPageParam devFoldPageParam) {
+        //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
+        return CommonResult.data(devFoldService.groupPageList(devFoldPageParam));
+    }
+
+    /**
+     * 获取所在部门的文件夹列表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("获取当前登录人的个人文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/selfPageList")
     public CommonResult<Page<DevFold>> selfPageList(DevFoldPageParam devFoldPageParam) {
-        devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+        //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
+        return CommonResult.data(devFoldService.selfPageList(devFoldPageParam));
     }
 }

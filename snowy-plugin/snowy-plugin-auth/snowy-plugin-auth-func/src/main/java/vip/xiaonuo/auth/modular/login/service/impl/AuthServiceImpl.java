@@ -47,7 +47,6 @@ import vip.xiaonuo.common.util.CommonEmailUtil;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
 import vip.xiaonuo.pan.api.DevFoldApi;
-import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;

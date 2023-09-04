@@ -36,7 +36,7 @@ public class DevFold {
     private String id;
 
     /** 父目录文件夹ID */
-    @ApiModelProperty(value = "父目录文件夹ID", position = 2)
+    @ApiModelProperty(value = "父目录文件夹ID", position = 2,required = true)
     private String parentId;
 
     /** 文件名称 */
