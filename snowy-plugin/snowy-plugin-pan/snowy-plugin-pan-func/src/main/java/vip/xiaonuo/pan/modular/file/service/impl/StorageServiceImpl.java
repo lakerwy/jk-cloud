@@ -6,13 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.service.StorageService;
 import vip.xiaonuo.pan.modular.file.utils.Constants;
 import vip.xiaonuo.pan.modular.file.utils.FileMD5Util;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
@@ -33,29 +34,31 @@ import java.nio.file.Paths;
 public class StorageServiceImpl implements StorageService {
 
     //这个必须与前端设定的值一致
-    @Value("${breakpoint.upload.chunkSize}")
-    private long CHUNK_SIZE;
+    //@Value("${breakpoint.upload.chunkSize}")
+    private final long CHUNK_SIZE = 5242880;
 
-    @Value("${breakpoint.upload.dir}")
-    private String finalDirPath;
+    //@Value("${breakpoint.upload.dir}")
+    private final String finalDirPath = "D:/data0/uploads/";
 
     // 保存文件的根目录
     private Path rootPaht;
 
-    @Autowired
-    private StringRedisTemplate stringRedisTemplate;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
-    @Autowired
-    public StorageServiceImpl(@Value("${breakpoint.upload.dir}") String location) {
-        this.rootPaht = Paths.get(location);
+    @Resource
+    private  StringRedisTemplate stringRedisTemplate;
+
+    public StorageServiceImpl() {
+        this.rootPaht = Paths.get(finalDirPath);
     }
 
     @Override
     public void deleteAll() {
         log.info("开发初始化清理数据，start");
         FileSystemUtils.deleteRecursively(rootPaht.toFile());
-        stringRedisTemplate.delete(Constants.FILE_UPLOAD_STATUS);
-        stringRedisTemplate.delete(Constants.FILE_MD5_KEY);
+        commonCacheOperator.delete(Constants.FILE_UPLOAD_STATUS);
+        commonCacheOperator.delete(Constants.FILE_MD5_KEY);
         log.info("开发初始化清理数据，end");
     }
 
@@ -156,15 +159,18 @@ public class StorageServiceImpl implements StorageService {
 
         accessConfFile.close();
         if (isComplete == Byte.MAX_VALUE) {
-            stringRedisTemplate.opsForHash().put(Constants.FILE_UPLOAD_STATUS, param.getMd5(), "true");
-            stringRedisTemplate.opsForValue().set(Constants.FILE_MD5_KEY + param.getMd5(), uploadDirPath + "/" + fileName);
+            commonCacheOperator.putHash(Constants.FILE_UPLOAD_STATUS, param.getMd5(), "true");
+            //stringRedisTemplate.opsForHash().put(Constants.FILE_UPLOAD_STATUS, param.getMd5(), "true");
+            commonCacheOperator.put(Constants.FILE_MD5_KEY + param.getMd5(), uploadDirPath + "/" + fileName);
+            //stringRedisTemplate.opsForValue().set(Constants.FILE_MD5_KEY + param.getMd5(), uploadDirPath + "/" + fileName);
             return true;
         } else {
-            if (!stringRedisTemplate.opsForHash().hasKey(Constants.FILE_UPLOAD_STATUS, param.getMd5())) {
-                stringRedisTemplate.opsForHash().put(Constants.FILE_UPLOAD_STATUS, param.getMd5(), "false");
+            if (!commonCacheOperator.hasHashKey(Constants.FILE_UPLOAD_STATUS, param.getMd5())) {
+                commonCacheOperator.putHash(Constants.FILE_UPLOAD_STATUS, param.getMd5(), "false");
             }
-            if (stringRedisTemplate.hasKey(Constants.FILE_MD5_KEY + param.getMd5())) {
-                stringRedisTemplate.opsForValue().set(Constants.FILE_MD5_KEY + param.getMd5(), uploadDirPath + "/" + fileName + ".conf");
+            if (commonCacheOperator.hasKey(Constants.FILE_MD5_KEY + param.getMd5())) {
+                //stringRedisTemplate.opsForValue().set(Constants.FILE_MD5_KEY + param.getMd5(), uploadDirPath + "/" + fileName + ".conf");
+                commonCacheOperator.put(Constants.FILE_MD5_KEY + param.getMd5(), uploadDirPath + "/" + fileName + ".conf");
             }
             return false;
         }

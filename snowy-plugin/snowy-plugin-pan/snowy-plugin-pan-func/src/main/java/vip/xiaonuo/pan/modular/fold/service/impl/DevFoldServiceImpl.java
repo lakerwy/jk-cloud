@@ -346,67 +346,33 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
     @Override
     public List<NodeFold> buildTree(String id) {
         List<NodeFold> nodeFolds = devFoldMapper.nodeList(id);
-        return buildTree(nodeFolds,NodeFold::getId,NodeFold::getParentId,NodeFold::getCreateTime,NodeFold::setChildren);
+        return buildDeptTreeByStream(nodeFolds,id);
+       // return buildTree(nodeFolds,NodeFold::getId,NodeFold::getParentId,NodeFold::getCreateTime,NodeFold::setChildren);
+    }
+
+
+    public static List<NodeFold> buildDeptTreeByStream(List<NodeFold> trees,String parentId){
+        //获取parentId = 0的根节点
+        List<NodeFold> list = trees.stream().filter(item -> item.getParentId().equals(parentId)).collect(Collectors.toList());
+        //根据parentId进行分组
+        Map<String, List<NodeFold>> map = trees.stream().collect(Collectors.groupingBy(NodeFold::getParentId));
+        recursionFnTree(list, map);
+        return list;
     }
 
     /**
-     * 构造数据树 O(N)
-     *
-     * @param list           原集合
-     * @param mKey           父级被子集关联的字段,比如id
-     * @param treeConnectKey 子集关联父级的字段，比如parentId
-     * @param treeSortKey    同级菜单的排序字段，比如sort
-     * @param consumer       添加子集的函数，如dto.setChild(list)
-     * @param <M>
-     * @return
+     * 递归遍历节点
+     * @param list
+     * @param map
      */
-    private static <M> List<M> buildTree(List<M> list, Function<M, ?> mKey, Function<M, ?> treeConnectKey,
-                                        Function<M, ? extends Comparable> treeSortKey, Consumers<M, M> consumer) {
-        if (CollUtil.isEmpty(list)) {
-            return Collections.emptyList();
-        }
-        Assert.notNull(mKey, "父级被子级关联的字段不能为空");
-        Assert.notNull(treeConnectKey, "子级关联父级的字段不能为空");
-        Assert.notNull(consumer, "消费函数不能为空");
-        //线程安全类集合
-        List<M> tree = Collections.synchronizedList(new ArrayList<>());
-        //按上级id分组
-        final Map<?, List<M>> collect = list.parallelStream().collect(Collectors.groupingBy(treeConnectKey));
-        list.parallelStream().filter(m -> {
-            final boolean b = (Long) treeConnectKey.apply(m) != 0L;
-            if (!b) {
-                tree.add(m);
+    public static void recursionFnTree(List<NodeFold> list, Map<String, List<NodeFold>> map){
+        for (NodeFold treeSelect : list) {
+            List<NodeFold> childList = map.get(treeSelect.getId());
+            treeSelect.setChildren(childList);
+            if (null != childList && !childList.isEmpty()){
+                recursionFnTree(childList,map);
             }
-            return b;
-        }).forEach(
-                //通过对象地址引用实现父子级关联，即使父级先添加了子级，子级在添加孙子级，父子孙三级也全部都会关联
-                m -> {
-                    if (treeSortKey != null) {
-                        consumer.accept(m, CollUtil.sort(collect.get(mKey.apply(m)), java.util.Comparator.comparing(treeSortKey)));
-                    } else {
-                        consumer.accept(m, collect.get(mKey.apply(m)));
-                    }
-                }
-        );
-        if (treeSortKey != null) {
-            //排序
-            tree.sort(java.util.Comparator.comparing(treeSortKey));
-            return tree.parallelStream().peek(b -> consumer.accept(b, CollUtil.sort(collect.get(mKey.apply(b)), java.util.Comparator.comparing(treeSortKey)))).collect(Collectors.toList());
-        } else {
-            return tree.parallelStream().peek(b -> consumer.accept(b, collect.get(mKey.apply(b)))).collect(Collectors.toList());
         }
-    }
-
-    @FunctionalInterface
-    public interface Consumers<M, N> {
-
-        /**
-         * 消费函数
-         *
-         * @param m
-         * @param n
-         */
-        void accept(M m, List<N> n);
     }
 
 }

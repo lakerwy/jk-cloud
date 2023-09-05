@@ -161,7 +161,8 @@ public class GatewayConfigure {
             "/api/bizapp/biz/recruit/resume/registerSave",
             "/api/bizapp/biz/recruit/resume/registerDetail",
 
-            "/api/webapp/dev/deployConf/getInfo"
+            "/api/webapp/dev/deployConf/getInfo",
+            "/api/webapp/pan/file/fileUpload"
 
     };
 
