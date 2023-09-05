@@ -16,6 +16,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -25,10 +27,18 @@ import vip.xiaonuo.biz.modular.epc.flw.entity.EpcJobAudit;
 import vip.xiaonuo.biz.modular.epc.flw.mapper.EpcJobAuditMapper;
 import vip.xiaonuo.biz.modular.epc.flw.param.*;
 import vip.xiaonuo.biz.modular.epc.flw.service.EpcJobAuditService;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -39,6 +49,9 @@ import java.util.List;
  **/
 @Service
 public class EpcJobAuditServiceImpl extends ServiceImpl<EpcJobAuditMapper, EpcJobAudit> implements EpcJobAuditService {
+
+    @Resource
+    CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<EpcJobAudit> page(EpcJobAuditPageParam epcJobAuditPageParam) {
@@ -75,13 +88,36 @@ public class EpcJobAuditServiceImpl extends ServiceImpl<EpcJobAuditMapper, EpcJo
     @Override
     public void add(EpcJobAuditAddParam epcJobAuditAddParam) {
         EpcJobAudit epcJobAudit = BeanUtil.toBean(epcJobAuditAddParam, EpcJobAudit.class);
+        String processInstanceId = epcJobAuditAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            epcJobAudit.setId(id);
+            epcJobAudit.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            epcJobAudit.setModelId(modelId);
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            //将流程实例和业务表关联起来
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME));
+            formRelationTableApi.save(modelId, BizCommonEnum.EPC_JOB_AUDIT.getBizTable(),id,processInstanceId,dbName);
+        }
+        epcJobAudit.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(epcJobAudit);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(EpcJobAuditEditParam epcJobAuditEditParam) {
-        EpcJobAudit epcJobAudit = this.queryEntity(epcJobAuditEditParam.getId());
+        String id = epcJobAuditEditParam.getId();
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(epcJobAuditEditParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(epcJobAuditEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id=formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                epcJobAuditEditParam.setId(id);
+            }
+        }
+        EpcJobAudit epcJobAudit = this.queryEntity(id);
         BeanUtil.copyProperties(epcJobAuditEditParam, epcJobAudit);
         this.updateById(epcJobAudit);
     }

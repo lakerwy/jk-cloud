@@ -139,4 +139,9 @@ public class EpcPersonnelLedger {
     @ApiModelProperty(value = "更新人", position = 24)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 持证情况 */
+    @ApiModelProperty(value = "持证情况", position = 25)
+    @TableField(exist = false)
+    private String certificateStage;
 }
