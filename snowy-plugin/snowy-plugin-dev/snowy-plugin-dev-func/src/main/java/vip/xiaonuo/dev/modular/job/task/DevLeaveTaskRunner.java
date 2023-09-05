@@ -44,15 +44,21 @@ public class DevLeaveTaskRunner implements CommonTimerTaskRunner {
     public void action() {
         try {
             //1、离职在最后工作日+7天后删除账号
-            String sql = "SELECT b.PHONE FROM (SELECT FILE_ID FROM PERSONNEL_FILE_MOVES WHERE MOVE_TYPE= '2' AND STATUS = '1' AND TIMESTAMPDIFF(DAY,DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%S'),LAST_DATE) = 0 ) a   LEFT JOIN PERSONNEL b ON a.FILE_ID = b.ID";
+            String sql = "SELECT b.PHONE,b.ID FROM (SELECT FILE_ID FROM PERSONNEL_FILE_MOVES WHERE MOVE_TYPE= '2' AND STATUS = '1' AND TIMESTAMPDIFF(DAY,DATE_FORMAT(NOW(), '%Y-%m-%d %H:%i:%S'),LAST_DATE) = 0 ) a   LEFT JOIN PERSONNEL b ON a.FILE_ID = b.ID";
             log.info("离职人员查询----"+sql);
             List<Map<String, Object>> mapList = CommonHandleUtil.handleSqlQuery2(sql, Boolean.TRUE);
             if(CollUtil.isNotEmpty(mapList)){
                 String fileId = mapList.stream().map(result -> "'" + result.get("PHONE") + "'").collect(Collectors.joining(","));
+                String ids = mapList.stream().map(result -> "'" + result.get("ID") + "'").collect(Collectors.joining(","));
                 if(StrUtil.isNotEmpty(fileId)){
                     sql = String.format("UPDATE SYS_USER SET `DELETE_FLAG` = 'DELETE'  WHERE ACCOUNT IN  (%s) ",fileId);
                     log.info("离职人员账户更新----"+sql);
                     CommonHandleUtil.handleSqlExecution(sql);
+                    if(StrUtil.isNotEmpty(ids)){
+                        sql = String.format("UPDATE PERSONNEL SET `STATUS` = '1' where ID IN  (%s) ",ids);
+                        log.info("离职人员花名册更新----"+sql);
+                        CommonHandleUtil.handleSqlExecution(sql);
+                    }
                 }
             }
             //2 转正日期到后，更改员工为正式员工
