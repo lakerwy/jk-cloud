@@ -1,0 +1,50 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.biz.modular.epc.safety.param;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+
+/**
+ * EPC-危险源识别添加参数
+ *
+ * @author yong.ye
+ * @date  2023/09/05 14:51
+ **/
+@Getter
+@Setter
+public class EpcFacilityDangerAddParam {
+
+    /** 项目ID(外键) */
+    @ApiModelProperty(value = "项目ID(外键)", position = 3)
+    private String projectId;
+
+    /** 危险源 */
+    @ApiModelProperty(value = "危险源", position = 4)
+    private String dangerSource;
+
+    /** 可能产生的危害 */
+    @ApiModelProperty(value = "可能产生的危害", position = 5)
+    private String harm;
+
+    /** 控制措施 */
+    @ApiModelProperty(value = "控制措施", position = 6)
+    private String measure;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 7)
+    private String memo;
+
+}
