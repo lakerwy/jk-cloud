@@ -13,9 +13,12 @@
 package vip.xiaonuo.biz.modular.epc.safety.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -49,6 +52,8 @@ public class EpcSafetySubmit {
 
     /** 交底时间 */
     @ApiModelProperty(value = "交底时间", position = 5)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date submitTime;
 
     /** 交底人员 */

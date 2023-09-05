@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.epc.safety.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -67,10 +69,14 @@ public class EpcPersonnelLedgerAddParam {
 
     /** 进场时间 */
     @ApiModelProperty(value = "进场时间", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date enterTime;
 
     /** 退场时间 */
     @ApiModelProperty(value = "退场时间", position = 13)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date outTime;
 
     /** 是否在保 */
