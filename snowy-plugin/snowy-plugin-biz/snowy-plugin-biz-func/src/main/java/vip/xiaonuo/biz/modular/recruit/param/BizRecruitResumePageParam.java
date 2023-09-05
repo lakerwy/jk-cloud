@@ -72,21 +72,21 @@ public class BizRecruitResumePageParam {
     @ApiModelProperty(value = "毕业学校")
     private String college;
 
-    /** 毕业学校类型 */
-    @ApiModelProperty(value = "毕业学校类型")
-    private String collegeType;
-
-    /** 所学专业 */
-    @ApiModelProperty(value = "所学专业")
-    private String major;
-
-    /** 学历 */
-    @ApiModelProperty(value = "学历")
-    private String degree;
-
-    /** 是否统招 */
-    @ApiModelProperty(value = "是否统招")
-    private String recruit;
+//    /** 毕业学校类型 */
+//    @ApiModelProperty(value = "毕业学校类型")
+//    private String collegeType;
+//
+//    /** 所学专业 */
+//    @ApiModelProperty(value = "所学专业")
+//    private String major;
+//
+//    /** 学历 */
+//    @ApiModelProperty(value = "学历")
+//    private String degree;
+//
+//    /** 是否统招 */
+//    @ApiModelProperty(value = "是否统招")
+//    private String recruit;
 
     /** 状态 */
     @ApiModelProperty(value = "状态")

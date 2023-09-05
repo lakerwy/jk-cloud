@@ -94,6 +94,12 @@ public class BizRecruitResumeServiceImpl extends ServiceImpl<BizRecruitResumeMap
         if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getCollege())) {
             queryWrapper.like("a.COLLEGE", bizRecruitResumePageParam.getCollege());
         }
+        if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getStatus())) {
+            queryWrapper.eq("a.STATUS", bizRecruitResumePageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(bizRecruitResumePageParam.getStatusStage())) {
+            queryWrapper.eq("a.STATUS_STAGE", bizRecruitResumePageParam.getStatusStage());
+        }
         if(ObjectUtil.isAllNotEmpty(bizRecruitResumePageParam.getSortField(), bizRecruitResumePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizRecruitResumePageParam.getSortOrder());
             queryWrapper.orderBy(true, bizRecruitResumePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
