@@ -23,15 +23,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.epc.progress.entity.EpcBuildImage;
+import vip.xiaonuo.biz.modular.epc.progress.param.*;
+import vip.xiaonuo.biz.modular.epc.progress.service.EpcBuildImageService;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.buildimage.entity.EpcBuildImage;
-import vip.xiaonuo.biz.modular.buildimage.param.EpcBuildImageAddParam;
-import vip.xiaonuo.biz.modular.buildimage.param.EpcBuildImageEditParam;
-import vip.xiaonuo.biz.modular.buildimage.param.EpcBuildImageIdParam;
-import vip.xiaonuo.biz.modular.buildimage.param.EpcBuildImagePageParam;
-import vip.xiaonuo.biz.modular.buildimage.service.EpcBuildImageService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -60,8 +57,8 @@ public class EpcBuildImageController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取EPC-施工影像表分页")
-    @SaCheckPermission("/biz/buildimage/page")
-    @GetMapping("/biz/buildimage/page")
+//    @SaCheckPermission("/biz/epc/image/page")
+    @GetMapping("/biz/epc/image/page")
     public CommonResult<Page<EpcBuildImage>> page(EpcBuildImagePageParam epcBuildImagePageParam) {
         return CommonResult.data(epcBuildImageService.page(epcBuildImagePageParam));
     }
@@ -75,8 +72,8 @@ public class EpcBuildImageController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加EPC-施工影像表")
     @CommonLog("添加EPC-施工影像表")
-    @SaCheckPermission("/biz/buildimage/add")
-    @PostMapping("/biz/buildimage/add")
+//    @SaCheckPermission("/biz/epc/image/add")
+    @PostMapping("/biz/epc/image/add")
     public CommonResult<String> add(@RequestBody @Valid EpcBuildImageAddParam epcBuildImageAddParam) {
         epcBuildImageService.add(epcBuildImageAddParam);
         return CommonResult.ok();
@@ -91,8 +88,8 @@ public class EpcBuildImageController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑EPC-施工影像表")
     @CommonLog("编辑EPC-施工影像表")
-    @SaCheckPermission("/biz/buildimage/edit")
-    @PostMapping("/biz/buildimage/edit")
+//    @SaCheckPermission("/biz/epc/image/edit")
+    @PostMapping("/biz/epc/image/edit")
     public CommonResult<String> edit(@RequestBody @Valid EpcBuildImageEditParam epcBuildImageEditParam) {
         epcBuildImageService.edit(epcBuildImageEditParam);
         return CommonResult.ok();
@@ -107,8 +104,8 @@ public class EpcBuildImageController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除EPC-施工影像表")
     @CommonLog("删除EPC-施工影像表")
-    @SaCheckPermission("/biz/buildimage/delete")
-    @PostMapping("/biz/buildimage/delete")
+//    @SaCheckPermission("/biz/epc/image/delete")
+    @PostMapping("/biz/epc/image/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<EpcBuildImageIdParam> epcBuildImageIdParamList) {
         epcBuildImageService.delete(epcBuildImageIdParamList);
@@ -123,8 +120,8 @@ public class EpcBuildImageController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取EPC-施工影像表详情")
-    @SaCheckPermission("/biz/buildimage/detail")
-    @GetMapping("/biz/buildimage/detail")
+//    @SaCheckPermission("/biz/epc/image/detail")
+    @GetMapping("/biz/epc/image/detail")
     public CommonResult<EpcBuildImage> detail(@Valid EpcBuildImageIdParam epcBuildImageIdParam) {
         return CommonResult.data(epcBuildImageService.detail(epcBuildImageIdParam));
     }
