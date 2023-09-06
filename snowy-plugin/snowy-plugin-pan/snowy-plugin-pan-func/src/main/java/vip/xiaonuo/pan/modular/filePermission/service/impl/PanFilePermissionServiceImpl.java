@@ -1,0 +1,94 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.pan.modular.filePermission.service.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.pan.modular.filePermission.entity.PanFilePermission;
+import vip.xiaonuo.pan.modular.filePermission.mapper.PanFilePermissionMapper;
+import vip.xiaonuo.pan.modular.filePermission.param.PanFilePermissionAddParam;
+import vip.xiaonuo.pan.modular.filePermission.param.PanFilePermissionEditParam;
+import vip.xiaonuo.pan.modular.filePermission.param.PanFilePermissionIdParam;
+import vip.xiaonuo.pan.modular.filePermission.param.PanFilePermissionPageParam;
+import vip.xiaonuo.pan.modular.filePermission.service.PanFilePermissionService;
+
+import java.util.List;
+
+/**
+ * 文件权限Service接口实现类
+ *
+ * @author mayike
+ * @date  2023/09/06 21:15
+ **/
+@Service
+public class PanFilePermissionServiceImpl extends ServiceImpl<PanFilePermissionMapper, PanFilePermission> implements PanFilePermissionService {
+
+    @Override
+    public Page<PanFilePermission> page(PanFilePermissionPageParam panFilePermissionPageParam) {
+        QueryWrapper<PanFilePermission> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isAllNotEmpty(panFilePermissionPageParam.getSortField(), panFilePermissionPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(panFilePermissionPageParam.getSortOrder());
+            queryWrapper.orderBy(true, panFilePermissionPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(panFilePermissionPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByAsc(PanFilePermission::getId);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void add(PanFilePermissionAddParam panFilePermissionAddParam) {
+        PanFilePermission panFilePermission = BeanUtil.toBean(panFilePermissionAddParam, PanFilePermission.class);
+        this.save(panFilePermission);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void edit(PanFilePermissionEditParam panFilePermissionEditParam) {
+        PanFilePermission panFilePermission = this.queryEntity(panFilePermissionEditParam.getId());
+        BeanUtil.copyProperties(panFilePermissionEditParam, panFilePermission);
+        this.updateById(panFilePermission);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void delete(List<PanFilePermissionIdParam> panFilePermissionIdParamList) {
+        // 执行删除
+        this.removeByIds(CollStreamUtil.toList(panFilePermissionIdParamList, PanFilePermissionIdParam::getId));
+    }
+
+    @Override
+    public PanFilePermission detail(PanFilePermissionIdParam panFilePermissionIdParam) {
+        return this.queryEntity(panFilePermissionIdParam.getId());
+    }
+
+    @Override
+    public PanFilePermission queryEntity(String id) {
+        PanFilePermission panFilePermission = this.getById(id);
+        if(ObjectUtil.isEmpty(panFilePermission)) {
+            throw new CommonException("文件权限不存在，id值为：{}", id);
+        }
+        return panFilePermission;
+    }
+}
