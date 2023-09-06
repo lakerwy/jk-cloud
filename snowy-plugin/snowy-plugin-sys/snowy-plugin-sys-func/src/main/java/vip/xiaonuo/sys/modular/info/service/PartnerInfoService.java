@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 import vip.xiaonuo.sys.modular.info.param.*;
+import vip.xiaonuo.sys.modular.info.vo.PartnerGroupVo;
 import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 
 import java.util.List;
@@ -82,4 +83,11 @@ public interface PartnerInfoService extends IService<PartnerInfo> {
     IPage<PartnerInfoVo> pageList(PartnerInfoPageParam partnerInfoPageParam);
 
     PartnerInfoVo getInfoByOrgId(PartnerInfoOrgIdParam partnerInfoOrgIdParam);
+
+    /**
+     * 获取合作伙伴-APP端列表（按大区分组）
+     * @param partnerGroupParam
+     * @return
+     */
+    List<PartnerGroupVo> listGroup(PartnerGroupParam partnerGroupParam);
 }

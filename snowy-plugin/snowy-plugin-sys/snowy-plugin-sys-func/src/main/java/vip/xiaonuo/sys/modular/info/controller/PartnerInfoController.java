@@ -30,11 +30,13 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 import vip.xiaonuo.sys.modular.info.param.*;
 import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
+import vip.xiaonuo.sys.modular.info.vo.PartnerGroupVo;
 import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 合作伙伴-基本信息控制器
@@ -147,5 +149,18 @@ public class PartnerInfoController {
     @GetMapping("/sys/info/detailByOrgId")
     public CommonResult<PartnerInfoVo> detailByOrgId(@Valid PartnerInfoOrgIdParam partnerInfoOrgIdParam) {
         return CommonResult.data(partnerInfoService.getInfoByOrgId(partnerInfoOrgIdParam));
+    }
+
+    /**
+     * 获取合作伙伴-APP端列表（按大区分组）
+     *
+     * @author mayike
+     * @date  2023/06/26 14:04
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取合作伙伴-APP端列表（按大区分组）")
+    @GetMapping("/sys/info/listGroup")
+    public CommonResult<List<PartnerGroupVo>> listGroup(@Valid PartnerGroupParam partnerGroupParam) {
+        return CommonResult.data(partnerInfoService.listGroup(partnerGroupParam));
     }
 }

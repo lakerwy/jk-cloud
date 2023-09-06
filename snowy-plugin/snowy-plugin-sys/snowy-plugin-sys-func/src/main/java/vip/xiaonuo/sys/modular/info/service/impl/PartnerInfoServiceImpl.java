@@ -37,6 +37,7 @@ import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 import vip.xiaonuo.sys.modular.info.mapper.PartnerInfoMapper;
 import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
 import vip.xiaonuo.sys.modular.info.service.PartnerPaymentService;
+import vip.xiaonuo.sys.modular.info.vo.PartnerGroupVo;
 import vip.xiaonuo.sys.modular.info.vo.PartnerInfoVo;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
@@ -312,5 +313,44 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
             return vo;
         }
         return null;
+    }
+
+    @Override
+    public List<PartnerGroupVo> listGroup(PartnerGroupParam partnerGroupParam) {
+        //返回结果
+        List<PartnerGroupVo> result = new ArrayList<>();
+        //获取参数
+        if(CollUtil.isEmpty(partnerGroupParam.getPartnerTypes())){
+            String[] regions = {"分公司","分公司（注册）"};
+            partnerGroupParam.setPartnerTypes(Arrays.asList(regions));
+        }
+        QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(PartnerInfo::getPartnerType,partnerGroupParam.getPartnerTypes());
+        if(ObjectUtil.isNotEmpty(partnerGroupParam.getRegion())){
+            queryWrapper.lambda().eq(PartnerInfo::getRegion,partnerGroupParam.getRegion());
+        }
+        if(ObjectUtil.isNotEmpty(partnerGroupParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(PartnerInfo::getName,partnerGroupParam.getSearchKey())
+                    .or().like(PartnerInfo::getEntity,partnerGroupParam.getSearchKey())
+                    .or().like(PartnerInfo::getRegionalManager,partnerGroupParam.getSearchKey()));
+        }
+        queryWrapper.lambda().orderByDesc(PartnerInfo::getRegion);
+        List<PartnerInfo> partnerInfos = this.list(queryWrapper);
+        Map<String,List<PartnerInfo>> groupList = partnerInfos.stream().filter(x->ObjectUtil.isNotEmpty(x.getRegion())).collect(Collectors.groupingBy(y->y.getRegion()));
+        if(CollUtil.isNotEmpty(partnerInfos)) {
+            PartnerGroupVo voAll = new PartnerGroupVo();
+            voAll.setRegion("全部");
+            voAll.setNums(partnerInfos.size());
+            voAll.setInfoList(partnerInfos);
+            result.add(voAll);
+        }
+        for (Map.Entry<String,List<PartnerInfo>> entry: groupList.entrySet()){
+            PartnerGroupVo voItem = new PartnerGroupVo();
+            voItem.setRegion(entry.getKey());
+            voItem.setNums(entry.getValue().size());
+            voItem.setInfoList(entry.getValue());
+            result.add(voItem);
+        }
+        return result;
     }
 }
