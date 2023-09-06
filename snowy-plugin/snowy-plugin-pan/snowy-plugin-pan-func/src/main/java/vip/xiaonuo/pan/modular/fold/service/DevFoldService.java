@@ -14,8 +14,10 @@ package vip.xiaonuo.pan.modular.fold.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.fold.entity.DevFold;
 import vip.xiaonuo.pan.modular.fold.entity.NodeFold;
 import vip.xiaonuo.pan.modular.fold.param.*;
@@ -129,4 +131,7 @@ public interface DevFoldService extends IService<DevFold> {
     Page<DevFold> selfPageList(DevFoldPageParam devFoldPageParam);
 
     List<NodeFold> buildTree(String id);
+
+    @Transactional
+    List<DevFile> uploadReturnBean(String engine, MultipartFileParam param);
 }

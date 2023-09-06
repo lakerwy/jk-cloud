@@ -2,8 +2,6 @@ package vip.xiaonuo.pan.modular.file.service.impl;
 
 import com.alibaba.excel.util.FileUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
@@ -23,6 +21,8 @@ import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.LinkedList;
+import java.util.List;
 
 /**
  * @author mayike
@@ -35,7 +35,7 @@ public class StorageServiceImpl implements StorageService {
 
     //这个必须与前端设定的值一致
     //@Value("${breakpoint.upload.chunkSize}")
-    private final long CHUNK_SIZE = 5242880;
+    private final long CHUNK_SIZE = 20971520;
 
     //@Value("${breakpoint.upload.dir}")
     private final String finalDirPath = "D:/data0/uploads/";
@@ -194,4 +194,23 @@ public class StorageServiceImpl implements StorageService {
         //修改文件名
         return toBeRenamed.renameTo(newFile);
     }
+
+    @Override
+    public List<String> getMissChunk(String pathValue) {
+        List<String> missChunkList = new LinkedList<>();
+        try {
+            File confFile = new File(pathValue);
+            byte[] completeList = new byte[0];
+            completeList = FileUtils.readFileToByteArray(confFile);
+            for (int i = 0; i < completeList.length; i++) {
+                if (completeList[i] != Byte.MAX_VALUE) {
+                    missChunkList.add(i + "");
+                }
+            }
+        } catch (Exception e) {
+            log.error(e.getMessage());
+        }
+        return missChunkList;
+    }
+
 }

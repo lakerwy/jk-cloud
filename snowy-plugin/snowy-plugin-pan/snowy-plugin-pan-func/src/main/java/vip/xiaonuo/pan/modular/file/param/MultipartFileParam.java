@@ -1,5 +1,6 @@
 package vip.xiaonuo.pan.modular.file.param;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
@@ -13,18 +14,30 @@ import org.springframework.web.multipart.MultipartFile;
 @Getter
 public class MultipartFileParam {
 
-    //任务ID
+    @ApiModelProperty(value = "任务ID", position = 1)
     private String id;
-    //总分片数量
+
+    @ApiModelProperty(value = "总分片数量", position = 2)
     private int chunks;
-    //当前为第几块分片
+
+    @ApiModelProperty(value = "当前为第几块分片", position = 3)
     private int chunk;
-    //当前分片大小
+
+    @ApiModelProperty(value = "当前分片大小", position = 4)
     private long size = 0L;
-    //文件名
+
+    @ApiModelProperty(value = "文件名", position = 5)
     private String name;
-    //分片对象
+
+    @ApiModelProperty(value = "分片对象", position = 6)
     private MultipartFile file;
-    // MD5
+
+    @ApiModelProperty(value = "文件的MD5", position = 7)
     private String md5;
+
+    @ApiModelProperty(value = "分片对象列表", position = 6)
+    private MultipartFile[] files;
+
+    @ApiModelProperty(value = "文件上传的目录id", position = 8)
+    private String parentId;
 }

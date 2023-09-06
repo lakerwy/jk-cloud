@@ -3,6 +3,7 @@ package vip.xiaonuo.pan.modular.file.service;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author mayike
@@ -39,4 +40,6 @@ public interface StorageService {
      * @throws IOException
      */
     void uploadFileByMappedByteBuffer(MultipartFileParam param) throws IOException;
+
+    List<String> getMissChunk(String pathValue);
 }

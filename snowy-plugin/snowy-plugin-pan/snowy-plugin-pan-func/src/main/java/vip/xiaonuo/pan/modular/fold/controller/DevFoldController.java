@@ -37,6 +37,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import static vip.xiaonuo.pan.core.FileCommonConstant.SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY;
 
 /**
  * 文件主表控制器
@@ -49,9 +50,6 @@ import java.util.List;
 @RestController
 @Validated
 public class DevFoldController {
-
-    /** 默认文件引擎 */
-    private static final String SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY = "SNOWY_SYS_DEFAULT_FILE_ENGINE";
 
     @Resource
     private DevFoldService devFoldService;
@@ -204,8 +202,8 @@ public class DevFoldController {
     /**
      * 动态上传文件返回id
      *
-     * @author xuyuxiang
-     * @date 2021/10/13 14:01
+     * @author mayike
+     * @date 2023/09/08
      **/
     @ApiOperationSupport(order = 7)
     @ApiOperation("动态上传文件返回文件信息")

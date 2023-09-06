@@ -15,7 +15,6 @@ package vip.xiaonuo.pan.modular.fold.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.Assert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -33,6 +32,7 @@ import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.pan.core.ExceptionEnum;
+import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.fold.entity.DevFold;
 import vip.xiaonuo.pan.modular.fold.entity.NodeFold;
 import vip.xiaonuo.pan.modular.fold.enums.DevFoldEnum;
@@ -42,7 +42,6 @@ import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -375,4 +374,27 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
         }
     }
 
+
+    @Override
+    @Transactional
+    public List<DevFile> uploadReturnBean(String engine, MultipartFileParam param) {
+        String parentId = param.getParentId();
+        if(StrUtil.isBlank(parentId)){
+            //如果父目录id为空，就上传到该用户默认创建的一级目录下
+            parentId = createSelfFold();
+        }
+        List<DevFile> devFiles = new ArrayList<>();
+        for (MultipartFile file : param.getFiles()) {
+            DevFile devFile = devFileService.uploadReturnBean(engine, file);
+            DevFold devFold = new DevFold();
+            devFold.setFileId(devFile.getId());
+            devFold.setIsDir(0);
+            devFold.setParentId(parentId);
+            devFold.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+            devFold.setFileName(devFile.getName());
+            save(devFold);
+            devFiles.add(devFile);
+        }
+        return devFiles;
+    }
 }

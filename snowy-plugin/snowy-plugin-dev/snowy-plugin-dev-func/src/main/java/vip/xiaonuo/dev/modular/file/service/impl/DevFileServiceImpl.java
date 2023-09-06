@@ -22,6 +22,7 @@ import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -72,6 +73,8 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
     /**顶级父目录id*/
     public final static  String ROOT_FOLD_ID = "0";
+
+    public  final static String PAN_FOLD_BUCKET_NAME= "pan";
 
     @Override
     public String uploadReturnId(String engine, MultipartFile file) {
@@ -342,7 +345,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author mayike
      * @date 2023/6/12 16:24
      **/
-    private Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName) {
+    private synchronized Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -402,7 +405,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
 
         // 将文件信息保存到数据库
-        devFile = new DevFile();
+        //devFile = new DevFile();
         String fullFileId = fileIdPre+fileName;
         // 设置文件id
         devFile.setId(fullFileId);
@@ -531,6 +534,99 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     @Override
     public DevFile uploadReturnBean(String engine, MultipartFile file) {
         return this.storageFile(null, file,null);
+    }
+
+    private DevFile panStorageFile(String engine, MultipartFile file, String bucketName) {
+
+        // 如果引擎为空，默认使用本地
+        if(ObjectUtil.isEmpty(engine)) {
+            engine = DevFileEngineTypeEnum.LOCAL.getValue();
+        }
+
+        // 生成id
+        String fileId = IdWorker.getIdStr();
+        String fileName = getFileName();
+        //String fileId = getFileIdPre()+fileName;
+        // 存储桶名称
+//        String bucketName;
+
+        // 定义存储的url，本地文件返回文件实际路径，其他引擎返回网络地址
+        String storageUrl;
+
+        // 根据引擎类型执行不同方法
+        if(engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+
+            // 使用固定名称defaultBucketName
+            if(StrUtil.isBlank(bucketName)){
+                bucketName = PAN_FOLD_BUCKET_NAME;
+            }
+            storageUrl = DevFileLocalUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+        } else if(engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
+
+            // 使用阿里云默认配置的bucketName
+            bucketName = DevFileAliyunUtil.getDefaultBucketName();
+            storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+        } else if(engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
+
+            // 使用腾讯云默认配置的bucketName
+            bucketName = DevFileTencentUtil.getDefaultBucketName();
+            storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+        } else if(engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
+
+            // 使用MINIO默认配置的bucketName
+            bucketName = DevFileMinIoUtil.getDefaultBucketName();
+            storageUrl = DevFileMinIoUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+        } else {
+            throw new CommonException("不支持的文件引擎：{}", engine);
+        }
+
+        // 将文件信息保存到数据库
+        DevFile devFile = new DevFile();
+
+        // 设置文件id
+        devFile.setId(fileId);
+
+        // 设置存储引擎类型
+        devFile.setEngine(engine);
+        devFile.setBucket(bucketName);
+        devFile.setName(file.getOriginalFilename());
+        String suffix = ObjectUtil.isNotEmpty(file.getOriginalFilename())?StrUtil.subAfter(file.getOriginalFilename(),
+                StrUtil.DOT, true):null;
+        devFile.setSuffix(suffix);
+        devFile.setSizeKb(Convert.toStr(NumberUtil.div(new BigDecimal(file.getSize()), BigDecimal.valueOf(1024))
+                .setScale(0, BigDecimal.ROUND_HALF_UP)));
+        devFile.setSizeInfo(FileUtil.readableFileSize(file.getSize()));
+        devFile.setObjName(ObjectUtil.isNotEmpty(devFile.getSuffix())?fileId + StrUtil.DOT + devFile.getSuffix():null);
+        // 如果是图片，则压缩生成缩略图
+        if(ObjectUtil.isNotEmpty(suffix)) {
+            if(isPic(suffix)) {
+                try {
+                    devFile.setThumbnail(ImgUtil.toBase64DataUri(ImgUtil.scale(ImgUtil.toImage(file.getBytes()),
+                            100, 100, null), suffix));
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        // 存储路径
+        devFile.setStoragePath(storageUrl);
+
+        // 定义下载地址
+
+        // 下载路径，注意：本地文件下载地址设置为下载接口地址 + 文件id
+        if(engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+            String apiUrl = commonProperties.getBackendUrl();
+            if(ObjectUtil.isEmpty(apiUrl)) {
+                throw new CommonException("后端域名地址未正确配置：snowy.config.common.backend-url为空");
+            }
+            String baseDownUrl = GATEWAYDOWNLOADURL + fileId;
+            devFile.setDownloadPath(baseDownUrl);
+        } else {
+            // 阿里云、腾讯云、MINIO可以直接使用存储地址（公网）作为下载地址
+            devFile.setDownloadPath(devFile.getStoragePath());
+        }
+
+        this.save(devFile);
+        return devFile;
     }
 
 }
