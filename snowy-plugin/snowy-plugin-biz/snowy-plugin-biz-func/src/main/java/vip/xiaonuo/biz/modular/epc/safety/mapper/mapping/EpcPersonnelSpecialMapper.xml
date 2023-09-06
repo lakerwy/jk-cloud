@@ -2,4 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.epc.safety.mapper.EpcPersonnelSpecialMapper">
 
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.epc.safety.vo.EpcPersonnelSpecialVo" >
+        select a.*, b.ID as id_p,b.TENANT_ID as tenantId_p,b.PROJECT_ID as projectId_p,b.NAME as name_p,
+               b.ID_CARD as idCard_p,b.GENDER as gender_p,b.AGE as age_p,b.PHONE as phone_p,b.HIRE_STATUS as hireStatus_p,
+               b.BELONG_COMPANY as belongCompany_p,b.WORK_TYPE as workType_p,b.ENTER_TIME as enterTime_p,b.OUT_TIME as outTime_p,
+               b.IS_INSURED as isInsured_p,b.INSURE_AMOUNT as insureAmount_p,b.INSURE_ATTACH as insureAttach_p,b.IS_SAFETY as isSafety_p,
+               b.SAFETY_ATTACH as safetyAttach_p,b.MEMO as memo_p
+        from EPC_PERSONNEL_SPECIAL a left join EPC_PERSONNEL_LEDGER b on a.PERSONNEL_ID = b.ID  ${ew.customSqlSegment}
+    </select>
+
+    <select id="getById" resultType="vip.xiaonuo.biz.modular.epc.safety.vo.EpcPersonnelSpecialVo" >
+        select a.*, b.ID as id_p,b.TENANT_ID as tenantId_p,b.PROJECT_ID as projectId_p,b.NAME as name_p,
+               b.ID_CARD as idCard_p,b.GENDER as gender_p,b.AGE as age_p,b.PHONE as phone_p,b.HIRE_STATUS as hireStatus_p,
+               b.BELONG_COMPANY as belongCompany_p,b.WORK_TYPE as workType_p,b.ENTER_TIME as enterTime_p,b.OUT_TIME as outTime_p,
+               b.IS_INSURED as isInsured_p,b.INSURE_AMOUNT as insureAmount_p,b.INSURE_ATTACH as insureAttach_p,b.IS_SAFETY as isSafety_p,
+               b.SAFETY_ATTACH as safetyAttach_p,b.MEMO as memo_p
+        from EPC_PERSONNEL_SPECIAL a left join EPC_PERSONNEL_LEDGER b on a.PERSONNEL_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.ID = #{id}
+    </select>
+
 </mapper>

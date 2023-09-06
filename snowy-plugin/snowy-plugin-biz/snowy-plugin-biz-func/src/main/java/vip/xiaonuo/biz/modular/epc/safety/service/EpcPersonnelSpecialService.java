@@ -12,10 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.epc.safety.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelSpecial;
 import vip.xiaonuo.biz.modular.epc.safety.param.*;
+import vip.xiaonuo.biz.modular.epc.safety.vo.EpcPersonnelSpecialVo;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public interface EpcPersonnelSpecialService extends IService<EpcPersonnelSpecial
      * @author yong.ye
      * @date  2023/09/05 14:54
      */
-    Page<EpcPersonnelSpecial> page(EpcPersonnelSpecialPageParam epcPersonnelSpecialPageParam);
+    IPage<EpcPersonnelSpecialVo> page(EpcPersonnelSpecialPageParam epcPersonnelSpecialPageParam);
 
     /**
      * 添加EPC-特种作业人员管理

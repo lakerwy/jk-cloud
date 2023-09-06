@@ -80,7 +80,7 @@ public class EpcTicketAuditServiceImpl extends ServiceImpl<EpcTicketAuditMapper,
             queryWrapper.orderBy(true, epcTicketAuditPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcTicketAuditPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcTicketAudit::getId);
+            queryWrapper.lambda().orderByDesc(EpcTicketAudit::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

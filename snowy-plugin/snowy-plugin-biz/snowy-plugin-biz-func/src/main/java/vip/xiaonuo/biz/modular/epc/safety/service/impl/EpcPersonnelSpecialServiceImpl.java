@@ -17,7 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -25,10 +25,12 @@ import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelSpecial;
 import vip.xiaonuo.biz.modular.epc.safety.mapper.EpcPersonnelSpecialMapper;
 import vip.xiaonuo.biz.modular.epc.safety.param.*;
 import vip.xiaonuo.biz.modular.epc.safety.service.EpcPersonnelSpecialService;
+import vip.xiaonuo.biz.modular.epc.safety.vo.EpcPersonnelSpecialVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -40,29 +42,33 @@ import java.util.List;
 @Service
 public class EpcPersonnelSpecialServiceImpl extends ServiceImpl<EpcPersonnelSpecialMapper, EpcPersonnelSpecial> implements EpcPersonnelSpecialService {
 
+    @Resource
+    EpcPersonnelSpecialMapper epcPersonnelSpecialMapper;
+
     @Override
-    public Page<EpcPersonnelSpecial> page(EpcPersonnelSpecialPageParam epcPersonnelSpecialPageParam) {
+    public IPage<EpcPersonnelSpecialVo> page(EpcPersonnelSpecialPageParam epcPersonnelSpecialPageParam) {
         QueryWrapper<EpcPersonnelSpecial> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(epcPersonnelSpecialPageParam.getTenantId())) {
-            queryWrapper.lambda().eq(EpcPersonnelSpecial::getTenantId, epcPersonnelSpecialPageParam.getTenantId());
+            queryWrapper.eq("a.TENANT_ID", epcPersonnelSpecialPageParam.getTenantId());
         }
         if(ObjectUtil.isNotEmpty(epcPersonnelSpecialPageParam.getPersonnelId())) {
-            queryWrapper.lambda().eq(EpcPersonnelSpecial::getPersonnelId, epcPersonnelSpecialPageParam.getPersonnelId());
+            queryWrapper.eq("a.PERSONNEL_ID", epcPersonnelSpecialPageParam.getPersonnelId());
         }
         if(ObjectUtil.isNotEmpty(epcPersonnelSpecialPageParam.getCertificateNo())) {
-            queryWrapper.lambda().like(EpcPersonnelSpecial::getCertificateNo, epcPersonnelSpecialPageParam.getCertificateNo());
+            queryWrapper.like("a.CERTIFICATE_NO", epcPersonnelSpecialPageParam.getCertificateNo());
         }
         if(ObjectUtil.isNotEmpty(epcPersonnelSpecialPageParam.getIssuingUnit())) {
-            queryWrapper.lambda().like(EpcPersonnelSpecial::getIssuingUnit, epcPersonnelSpecialPageParam.getIssuingUnit());
+            queryWrapper.like("a.ISSUING_UNIT", epcPersonnelSpecialPageParam.getIssuingUnit());
         }
         if(ObjectUtil.isAllNotEmpty(epcPersonnelSpecialPageParam.getSortField(), epcPersonnelSpecialPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcPersonnelSpecialPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcPersonnelSpecialPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcPersonnelSpecialPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcPersonnelSpecial::getId);
+            queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return epcPersonnelSpecialMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -89,7 +95,7 @@ public class EpcPersonnelSpecialServiceImpl extends ServiceImpl<EpcPersonnelSpec
 
     @Override
     public EpcPersonnelSpecial detail(EpcPersonnelSpecialIdParam epcPersonnelSpecialIdParam) {
-        return this.queryEntity(epcPersonnelSpecialIdParam.getId());
+        return epcPersonnelSpecialMapper.getById(epcPersonnelSpecialIdParam.getId());
     }
 
     @Override

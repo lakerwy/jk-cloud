@@ -57,7 +57,7 @@ public class EpcSafetyLogServiceImpl extends ServiceImpl<EpcSafetyLogMapper, Epc
             queryWrapper.orderBy(true, epcSafetyLogPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcSafetyLogPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcSafetyLog::getId);
+            queryWrapper.lambda().orderByDesc(EpcSafetyLog::getLogTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

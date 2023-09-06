@@ -57,7 +57,7 @@ public class EpcFacilityDangerServiceImpl extends ServiceImpl<EpcFacilityDangerM
             queryWrapper.orderBy(true, epcFacilityDangerPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcFacilityDangerPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcFacilityDanger::getId);
+            queryWrapper.lambda().orderByDesc(EpcFacilityDanger::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

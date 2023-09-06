@@ -54,7 +54,7 @@ public class EpcProjectServiceImpl extends ServiceImpl<EpcProjectMapper, EpcProj
             queryWrapper.orderBy(true, epcProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcProjectPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcProject::getId);
+            queryWrapper.lambda().orderByDesc(EpcProject::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

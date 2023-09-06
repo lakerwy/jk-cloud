@@ -57,7 +57,7 @@ public class EpcWorkerPoolServiceImpl extends ServiceImpl<EpcWorkerPoolMapper, E
             queryWrapper.orderBy(true, epcWorkerPoolPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcWorkerPoolPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcWorkerPool::getId);
+            queryWrapper.lambda().orderByDesc(EpcWorkerPool::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

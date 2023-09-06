@@ -79,7 +79,7 @@ public class EpcJobAuditServiceImpl extends ServiceImpl<EpcJobAuditMapper, EpcJo
             queryWrapper.orderBy(true, epcJobAuditPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcJobAuditPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcJobAudit::getId);
+            queryWrapper.lambda().orderByDesc(EpcJobAudit::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

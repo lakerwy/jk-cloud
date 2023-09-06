@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.epc.safety.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -29,6 +30,7 @@ import vip.xiaonuo.biz.modular.epc.safety.param.EpcPersonnelSpecialEditParam;
 import vip.xiaonuo.biz.modular.epc.safety.param.EpcPersonnelSpecialIdParam;
 import vip.xiaonuo.biz.modular.epc.safety.param.EpcPersonnelSpecialPageParam;
 import vip.xiaonuo.biz.modular.epc.safety.service.EpcPersonnelSpecialService;
+import vip.xiaonuo.biz.modular.epc.safety.vo.EpcPersonnelSpecialVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -62,7 +64,7 @@ public class EpcPersonnelSpecialController {
     @ApiOperation("获取EPC-特种作业人员管理分页")
 //    @SaCheckPermission("/biz/epc/special/page")
     @GetMapping("/biz/epc/special/page")
-    public CommonResult<Page<EpcPersonnelSpecial>> page(EpcPersonnelSpecialPageParam epcPersonnelSpecialPageParam) {
+    public CommonResult<IPage<EpcPersonnelSpecialVo>> page(EpcPersonnelSpecialPageParam epcPersonnelSpecialPageParam) {
         return CommonResult.data(epcPersonnelSpecialService.page(epcPersonnelSpecialPageParam));
     }
 

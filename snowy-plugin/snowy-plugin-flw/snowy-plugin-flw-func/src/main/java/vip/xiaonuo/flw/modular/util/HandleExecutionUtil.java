@@ -1,4 +1,4 @@
-package vip.xiaonuo.flw.modular.flwbiz.common;
+package vip.xiaonuo.flw.modular.util;
 
 import cn.hutool.core.util.StrUtil;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;

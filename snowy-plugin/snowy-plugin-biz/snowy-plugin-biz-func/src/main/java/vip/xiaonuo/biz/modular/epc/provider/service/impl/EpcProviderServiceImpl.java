@@ -61,7 +61,7 @@ public class EpcProviderServiceImpl extends ServiceImpl<EpcProviderMapper, EpcPr
             queryWrapper.orderBy(true, epcProviderPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcProviderPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcProvider::getId);
+            queryWrapper.lambda().orderByDesc(EpcProvider::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

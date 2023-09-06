@@ -22,13 +22,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelLedger;
+import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelSpecial;
 import vip.xiaonuo.biz.modular.epc.safety.mapper.EpcPersonnelLedgerMapper;
 import vip.xiaonuo.biz.modular.epc.safety.param.*;
 import vip.xiaonuo.biz.modular.epc.safety.service.EpcPersonnelLedgerService;
+import vip.xiaonuo.biz.modular.epc.safety.service.EpcPersonnelSpecialService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -39,6 +42,9 @@ import java.util.List;
  **/
 @Service
 public class EpcPersonnelLedgerServiceImpl extends ServiceImpl<EpcPersonnelLedgerMapper, EpcPersonnelLedger> implements EpcPersonnelLedgerService {
+
+    @Resource
+    EpcPersonnelSpecialService epcPersonnelSpecialService;
 
     @Override
     public Page<EpcPersonnelLedger> page(EpcPersonnelLedgerPageParam epcPersonnelLedgerPageParam) {
@@ -87,9 +93,14 @@ public class EpcPersonnelLedgerServiceImpl extends ServiceImpl<EpcPersonnelLedge
             queryWrapper.orderBy(true, epcPersonnelLedgerPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcPersonnelLedgerPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcPersonnelLedger::getId);
+            queryWrapper.lambda().orderByDesc(EpcPersonnelLedger::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<EpcPersonnelLedger> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        result.getRecords().forEach(x->{
+           boolean isCertificate = epcPersonnelSpecialService.list(new QueryWrapper<EpcPersonnelSpecial>().lambda().eq(EpcPersonnelSpecial::getPersonnelId,x.getId())).size()>0;
+           x.setCertificateStage(isCertificate?"有":"无");
+        });
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -116,7 +127,10 @@ public class EpcPersonnelLedgerServiceImpl extends ServiceImpl<EpcPersonnelLedge
 
     @Override
     public EpcPersonnelLedger detail(EpcPersonnelLedgerIdParam epcPersonnelLedgerIdParam) {
-        return this.queryEntity(epcPersonnelLedgerIdParam.getId());
+        EpcPersonnelLedger epcPersonnelLedger = this.queryEntity(epcPersonnelLedgerIdParam.getId());
+        boolean isCertificate = epcPersonnelSpecialService.list(new QueryWrapper<EpcPersonnelSpecial>().lambda().eq(EpcPersonnelSpecial::getPersonnelId,epcPersonnelLedger.getId())).size()>0;
+        epcPersonnelLedger.setCertificateStage(isCertificate?"有":"无");
+        return epcPersonnelLedger;
     }
 
     @Override

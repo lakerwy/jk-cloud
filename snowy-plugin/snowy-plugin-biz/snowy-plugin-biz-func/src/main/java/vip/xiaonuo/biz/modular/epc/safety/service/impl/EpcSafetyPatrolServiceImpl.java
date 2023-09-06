@@ -60,7 +60,7 @@ public class EpcSafetyPatrolServiceImpl extends ServiceImpl<EpcSafetyPatrolMappe
             queryWrapper.orderBy(true, epcSafetyPatrolPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcSafetyPatrolPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcSafetyPatrol::getId);
+            queryWrapper.lambda().orderByDesc(EpcSafetyPatrol::getPatrolTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

@@ -60,7 +60,7 @@ public class EpcSafetySubmitServiceImpl extends ServiceImpl<EpcSafetySubmitMappe
             queryWrapper.orderBy(true, epcSafetySubmitPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcSafetySubmitPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcSafetySubmit::getId);
+            queryWrapper.lambda().orderByDesc(EpcSafetySubmit::getSubmitTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

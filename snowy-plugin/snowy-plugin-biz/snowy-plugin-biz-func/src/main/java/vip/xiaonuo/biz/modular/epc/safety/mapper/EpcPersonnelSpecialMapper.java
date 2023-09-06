@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.epc.safety.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelSpecial;
+import vip.xiaonuo.biz.modular.epc.safety.vo.EpcPersonnelSpecialVo;
 
 /**
  * EPC-特种作业人员管理Mapper接口
@@ -22,4 +28,7 @@ import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelSpecial;
  * @date  2023/09/05 14:54
  **/
 public interface EpcPersonnelSpecialMapper extends BaseMapper<EpcPersonnelSpecial> {
+    IPage<EpcPersonnelSpecialVo> getPageList(Page<EpcPersonnelSpecialVo> page, @Param(Constants.WRAPPER) Wrapper<EpcPersonnelSpecial> queryWrapper);
+
+    EpcPersonnelSpecialVo getById(String id);
 }

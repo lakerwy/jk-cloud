@@ -60,7 +60,7 @@ public class EpcBuildImageServiceImpl extends ServiceImpl<EpcBuildImageMapper, E
             queryWrapper.orderBy(true, epcBuildImagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(epcBuildImagePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EpcBuildImage::getId);
+            queryWrapper.lambda().orderByDesc(EpcBuildImage::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
