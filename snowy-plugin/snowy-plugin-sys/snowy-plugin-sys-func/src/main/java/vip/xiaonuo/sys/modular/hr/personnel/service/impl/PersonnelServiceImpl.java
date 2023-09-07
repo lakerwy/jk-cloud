@@ -382,6 +382,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         }
         String deptId = personnel.getDeptId();
         SysOrg sysOrg = sysOrgService.getById(deptId);
+        personnelVo.setIsLeader("0");
         if(ObjectUtil.isNotEmpty(sysOrg)){
             personnelVo.setDept(sysOrg.getName());
             String directorId = sysOrg.getDirectorId();
@@ -389,6 +390,9 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                 SysLoginUser user = sysUserService.getUserById(directorId);
                 personnelVo.setLeader(user.getName());
                 personnelVo.setDirector(user.getName());
+                if(directorId.equals(one.getId())){
+                    personnelVo.setIsLeader("1");
+                }
             }
         }
         SysPosition sysPosition = sysPositionService.getById(personnelVo.getDutyId());
