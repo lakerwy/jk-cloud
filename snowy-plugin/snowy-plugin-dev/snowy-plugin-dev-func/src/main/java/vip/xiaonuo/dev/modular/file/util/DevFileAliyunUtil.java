@@ -123,7 +123,7 @@ public class DevFileAliyunUtil {
      * @author xuyuxiang
      * @date 2022/1/5 23:24
      */
-    public OSS getClient() {
+    public static OSS getClient() {
         initClient();
         return client;
     }

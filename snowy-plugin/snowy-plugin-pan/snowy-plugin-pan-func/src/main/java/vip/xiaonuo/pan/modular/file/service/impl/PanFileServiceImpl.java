@@ -153,8 +153,8 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
             uploadFileVo.setSkipUpload(true);
         } else {
-//            uploadFileVo.setSkipUpload(false);
-//
+            uploadFileVo.setSkipUpload(false);
+
 //            List<Integer> uploaded = uploadTaskDetailMapper.selectUploadedChunkNumList(uploadFileDTO.getIdentifier());
 //            if (uploaded != null && !uploaded.isEmpty()) {
 //                uploadFileVo.setUploaded(uploaded);
