@@ -186,7 +186,7 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
             queryWrapper.orderBy(true, personnelFileMovesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(personnelFileMovesPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(PersonnelFileMoves::getSn);
+            queryWrapper.lambda().orderByDesc(PersonnelFileMoves::getApplyTime).orderByDesc(PersonnelFileMoves::getSn);
         }
         return baseMapper.pageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
