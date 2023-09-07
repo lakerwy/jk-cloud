@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 业务表-FGS-建筑业产值明细表查询参数
@@ -92,7 +93,7 @@ public class OutputPageParam {
     @ApiModelProperty(value = "填报人")
     private String operator;
 
-    /** 组织Id (填报人所属分公司 orgId) */
-    @ApiModelProperty(value = "组织Id (填报人所属分公司 orgId) ")
-    private String orgId;
+    /** 组织Id集合 (填报人所属分公司 orgId) */
+    @ApiModelProperty(value = "组织Id集合 (填报人所属分公司 orgId) ")
+    private List<String> orgId;
 }

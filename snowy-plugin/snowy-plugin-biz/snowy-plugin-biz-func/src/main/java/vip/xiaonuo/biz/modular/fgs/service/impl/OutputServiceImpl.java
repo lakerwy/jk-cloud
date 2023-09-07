@@ -77,7 +77,7 @@ public class OutputServiceImpl extends ServiceImpl<OutputMapper, Output> impleme
             queryWrapper.lambda().eq(Output::getOperator, outputPageParam.getOperator());
         }
         if(ObjectUtil.isNotEmpty(outputPageParam.getOrgId())) {
-            queryWrapper.lambda().eq(Output::getOrgId, outputPageParam.getOrgId());
+            queryWrapper.lambda().in(Output::getOrgId, outputPageParam.getOrgId());
         }
         if(ObjectUtil.isNotEmpty(outputPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(outputPageParam.getEndSealDate())) {
             queryWrapper.lambda().between(Output::getSealDate, outputPageParam.getStartSealDate(), outputPageParam.getEndSealDate());
