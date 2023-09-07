@@ -1,6 +1,5 @@
 package vip.xiaonuo.pan.modular.fileCenter.util;
 
-import com.jk.fileCenterStart.exception.UFOPException;
 import vip.xiaonuo.common.exception.CommonException;
 
 import java.io.BufferedInputStream;
