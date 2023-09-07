@@ -15,10 +15,8 @@ package vip.xiaonuo.pan.modular.file.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
-import vip.xiaonuo.pan.modular.file.param.PanFileAddParam;
-import vip.xiaonuo.pan.modular.file.param.PanFileEditParam;
-import vip.xiaonuo.pan.modular.file.param.PanFileIdParam;
-import vip.xiaonuo.pan.modular.file.param.PanFilePageParam;
+import vip.xiaonuo.pan.modular.file.param.*;
+import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
 
 import java.util.List;
 
@@ -77,4 +75,6 @@ public interface PanFileService extends IService<PanFile> {
      * @date  2023/09/06 21:15
      **/
     PanFile queryEntity(String id);
+
+    UploadFileVo uploadFileSpeed(UploadFileParam uploadFileParam);
 }

@@ -629,4 +629,38 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         return devFile;
     }
 
+    /**
+     * 创建文件就夹
+     * @param engine 引擎类型
+     * @param bucketName 文件夹名称
+     * @param parentPath 父目录路径
+     * @return
+     */
+    @Override
+    public void panStorageFold(String engine,  String parentPath, String bucketName) {
+
+        // 如果引擎为空，默认使用本地
+        if(ObjectUtil.isEmpty(engine)) {
+            engine = DevFileEngineTypeEnum.LOCAL.getValue();
+        }
+
+
+        // 定义存储的url，本地文件返回文件实际路径，其他引擎返回网络地址
+        String storageUrl;
+        String dirPath = parentPath + FileUtil.FILE_SEPARATOR + bucketName + FileUtil.FILE_SEPARATOR;
+        // 根据引擎类型执行不同方法
+        if(engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+            DevFileLocalUtil.mkdirBucket(dirPath);
+        } else if(engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
+            DevFileAliyunUtil.mkdirDirPath(dirPath);
+        } else if(engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
+            DevFileTencentUtil.mkdirDirPath(dirPath);
+        } else if(engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
+             DevFileMinIoUtil.mkdirBucket(dirPath);
+        } else {
+            throw new CommonException("不支持的文件引擎：{}", engine);
+        }
+
+    }
+
 }

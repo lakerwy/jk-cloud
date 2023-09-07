@@ -195,6 +195,24 @@ public class DevFoldController {
         return CommonResult.ok();
     }
 
+    /**
+     * 文件夹重命名
+     *
+     **/
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("文件夹复制")
+    @CommonLog("文件夹复制")
+    @PostMapping("/pan/fold/copyFold")
+    public CommonResult<String> copyFold(@Valid @RequestBody DevFoldOperateParam devFoldOperateParam) {
+        /**
+         * 1、复制不受文件夹限制
+         * 2、复制文件夹 同时还要复制文件夹下文件，递归处理
+         */
+        devFoldService.checkMove(devFoldOperateParam);
+        devFoldService.moveFold(devFoldOperateParam);
+        return CommonResult.ok();
+    }
+
 
 
 

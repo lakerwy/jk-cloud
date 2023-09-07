@@ -28,4 +28,6 @@ import java.util.List;
 public interface DevFoldMapper extends BaseMapper<DevFold> {
 
     List<NodeFold> nodeList(@Param(value = "id") String id);
+
+    Long getTotalStorageSize(@Param("userId") String userId);
 }

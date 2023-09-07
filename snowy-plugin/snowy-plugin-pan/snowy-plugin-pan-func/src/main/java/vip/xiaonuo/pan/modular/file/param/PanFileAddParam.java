@@ -55,4 +55,8 @@ public class PanFileAddParam {
     @ApiModelProperty(value = "扩展信息", position = 7)
     private String extJson;
 
+    /** 文件后缀 */
+    @ApiModelProperty(value = "文件后缀", position = 13)
+    private String suffix;
+
 }

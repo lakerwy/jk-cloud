@@ -468,4 +468,14 @@ public class DevFileAliyunUtil {
         }
         return contentType;
     }
+
+    /**
+     * 创建文件夹
+     * 例如：传入参数examplebucket-1250000000，返回true代表存在此桶
+     * path 必须已 /  结束
+     */
+    public static void mkdirDirPath(String path) {
+        initClient();
+        client.putObject(defaultBucketName, path, new ByteArrayInputStream(new byte[0]));
+    }
 }

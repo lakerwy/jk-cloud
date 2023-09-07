@@ -44,6 +44,8 @@ import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
 
+import static vip.xiaonuo.pan.core.FileCommonConstant.SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY;
+
 /**
  * 文件主表Service接口实现类
  *
@@ -87,6 +89,8 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(DevFoldAddParam devFoldAddParam) {
+        //todo 暂时不创建目录
+        //devFileService.panStorageFold(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY,devFoldAddParam.getFilePath(),devFoldAddParam.getFileName());
         DevFold devFold = BeanUtil.toBean(devFoldAddParam, DevFold.class);
         devFold.setIsDir(IS_DIR);
         devFold.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
@@ -396,5 +400,10 @@ public class DevFoldServiceImpl extends ServiceImpl<DevFoldMapper, DevFold> impl
             devFiles.add(devFile);
         }
         return devFiles;
+    }
+
+    @Override
+    public Long getTotalStorageSize() {
+        return devFoldMapper.getTotalStorageSize(StpLoginUserUtil.getLoginUser().getId());
     }
 }
