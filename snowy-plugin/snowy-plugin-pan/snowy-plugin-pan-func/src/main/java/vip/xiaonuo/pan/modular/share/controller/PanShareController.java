@@ -57,8 +57,8 @@ public class PanShareController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取网盘-分享表分页")
-    @SaCheckPermission("/biz/share/page")
-    @GetMapping("/biz/share/page")
+//    @SaCheckPermission("/pan/share/page")
+    @GetMapping("/pan/share/page")
     public CommonResult<Page<PanShare>> page(PanSharePageParam panSharePageParam) {
         return CommonResult.data(panShareService.page(panSharePageParam));
     }
@@ -72,8 +72,8 @@ public class PanShareController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加网盘-分享表")
     @CommonLog("添加网盘-分享表")
-    @SaCheckPermission("/biz/share/add")
-    @PostMapping("/biz/share/add")
+//    @SaCheckPermission("/pan/share/add")
+    @PostMapping("/pan/share/add")
     public CommonResult<String> add(@RequestBody @Valid PanShareAddParam panShareAddParam) {
         panShareService.add(panShareAddParam);
         return CommonResult.ok();
@@ -88,8 +88,8 @@ public class PanShareController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑网盘-分享表")
     @CommonLog("编辑网盘-分享表")
-    @SaCheckPermission("/biz/share/edit")
-    @PostMapping("/biz/share/edit")
+//    @SaCheckPermission("/pan/share/edit")
+    @PostMapping("/pan/share/edit")
     public CommonResult<String> edit(@RequestBody @Valid PanShareEditParam panShareEditParam) {
         panShareService.edit(panShareEditParam);
         return CommonResult.ok();
@@ -104,8 +104,8 @@ public class PanShareController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除网盘-分享表")
     @CommonLog("删除网盘-分享表")
-    @SaCheckPermission("/biz/share/delete")
-    @PostMapping("/biz/share/delete")
+//    @SaCheckPermission("/pan/share/delete")
+    @PostMapping("/pan/share/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<PanShareIdParam> panShareIdParamList) {
         panShareService.delete(panShareIdParamList);
@@ -120,8 +120,8 @@ public class PanShareController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取网盘-分享表详情")
-    @SaCheckPermission("/biz/share/detail")
-    @GetMapping("/biz/share/detail")
+//    @SaCheckPermission("/pan/share/detail")
+    @GetMapping("/pan/share/detail")
     public CommonResult<PanShare> detail(@Valid PanShareIdParam panShareIdParam) {
         return CommonResult.data(panShareService.detail(panShareIdParam));
     }

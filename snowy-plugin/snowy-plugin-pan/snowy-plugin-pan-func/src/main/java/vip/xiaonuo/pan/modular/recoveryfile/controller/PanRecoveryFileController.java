@@ -26,12 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.recoveryfile.entity.PanRecoveryFile;
-import vip.xiaonuo.biz.modular.recoveryfile.param.PanRecoveryFileAddParam;
-import vip.xiaonuo.biz.modular.recoveryfile.param.PanRecoveryFileEditParam;
-import vip.xiaonuo.biz.modular.recoveryfile.param.PanRecoveryFileIdParam;
-import vip.xiaonuo.biz.modular.recoveryfile.param.PanRecoveryFilePageParam;
-import vip.xiaonuo.biz.modular.recoveryfile.service.PanRecoveryFileService;
+import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
+import vip.xiaonuo.pan.modular.recoveryfile.param.*;
+import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -60,8 +57,8 @@ public class PanRecoveryFileController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取网盘-回收站分页")
-    @SaCheckPermission("/biz/recoveryfile/page")
-    @GetMapping("/biz/recoveryfile/page")
+//    @SaCheckPermission("/pan/recovery/page")
+    @GetMapping("/pan/recovery/page")
     public CommonResult<Page<PanRecoveryFile>> page(PanRecoveryFilePageParam panRecoveryFilePageParam) {
         return CommonResult.data(panRecoveryFileService.page(panRecoveryFilePageParam));
     }
@@ -75,8 +72,8 @@ public class PanRecoveryFileController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加网盘-回收站")
     @CommonLog("添加网盘-回收站")
-    @SaCheckPermission("/biz/recoveryfile/add")
-    @PostMapping("/biz/recoveryfile/add")
+//    @SaCheckPermission("/pan/recovery/add")
+    @PostMapping("/pan/recovery/add")
     public CommonResult<String> add(@RequestBody @Valid PanRecoveryFileAddParam panRecoveryFileAddParam) {
         panRecoveryFileService.add(panRecoveryFileAddParam);
         return CommonResult.ok();
@@ -91,8 +88,8 @@ public class PanRecoveryFileController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑网盘-回收站")
     @CommonLog("编辑网盘-回收站")
-    @SaCheckPermission("/biz/recoveryfile/edit")
-    @PostMapping("/biz/recoveryfile/edit")
+//    @SaCheckPermission("/pan/recovery/edit")
+    @PostMapping("/pan/recovery/edit")
     public CommonResult<String> edit(@RequestBody @Valid PanRecoveryFileEditParam panRecoveryFileEditParam) {
         panRecoveryFileService.edit(panRecoveryFileEditParam);
         return CommonResult.ok();
@@ -107,8 +104,8 @@ public class PanRecoveryFileController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除网盘-回收站")
     @CommonLog("删除网盘-回收站")
-    @SaCheckPermission("/biz/recoveryfile/delete")
-    @PostMapping("/biz/recoveryfile/delete")
+//    @SaCheckPermission("/pan/recovery/delete")
+    @PostMapping("/pan/recovery/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<PanRecoveryFileIdParam> panRecoveryFileIdParamList) {
         panRecoveryFileService.delete(panRecoveryFileIdParamList);
@@ -123,8 +120,8 @@ public class PanRecoveryFileController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取网盘-回收站详情")
-    @SaCheckPermission("/biz/recoveryfile/detail")
-    @GetMapping("/biz/recoveryfile/detail")
+//    @SaCheckPermission("/pan/recovery/detail")
+    @GetMapping("/pan/recovery/detail")
     public CommonResult<PanRecoveryFile> detail(@Valid PanRecoveryFileIdParam panRecoveryFileIdParam) {
         return CommonResult.data(panRecoveryFileService.detail(panRecoveryFileIdParam));
     }

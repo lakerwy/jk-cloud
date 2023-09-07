@@ -57,8 +57,8 @@ public class PanShareFileController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取网盘-文件分享表分页")
-    @SaCheckPermission("/biz/share/page")
-    @GetMapping("/biz/share/page")
+//    @SaCheckPermission("/pan/share/file/page")
+    @GetMapping("/pan/share/file/page")
     public CommonResult<Page<PanShareFile>> page(PanShareFilePageParam panShareFilePageParam) {
         return CommonResult.data(panShareFileService.page(panShareFilePageParam));
     }
@@ -72,8 +72,8 @@ public class PanShareFileController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加网盘-文件分享表")
     @CommonLog("添加网盘-文件分享表")
-    @SaCheckPermission("/biz/share/add")
-    @PostMapping("/biz/share/add")
+//    @SaCheckPermission("/pan/share/file/add")
+    @PostMapping("/pan/share/file/add")
     public CommonResult<String> add(@RequestBody @Valid PanShareFileAddParam panShareFileAddParam) {
         panShareFileService.add(panShareFileAddParam);
         return CommonResult.ok();
@@ -88,8 +88,8 @@ public class PanShareFileController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑网盘-文件分享表")
     @CommonLog("编辑网盘-文件分享表")
-    @SaCheckPermission("/biz/share/edit")
-    @PostMapping("/biz/share/edit")
+//    @SaCheckPermission("/pan/share/file/edit")
+    @PostMapping("/pan/share/file/edit")
     public CommonResult<String> edit(@RequestBody @Valid PanShareFileEditParam panShareFileEditParam) {
         panShareFileService.edit(panShareFileEditParam);
         return CommonResult.ok();
@@ -104,8 +104,8 @@ public class PanShareFileController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除网盘-文件分享表")
     @CommonLog("删除网盘-文件分享表")
-    @SaCheckPermission("/biz/share/delete")
-    @PostMapping("/biz/share/delete")
+//    @SaCheckPermission("/pan/share/file/delete")
+    @PostMapping("/pan/share/file/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<PanShareFileIdParam> panShareFileIdParamList) {
         panShareFileService.delete(panShareFileIdParamList);
@@ -120,8 +120,8 @@ public class PanShareFileController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取网盘-文件分享表详情")
-    @SaCheckPermission("/biz/share/detail")
-    @GetMapping("/biz/share/detail")
+//    @SaCheckPermission("/pan/share/file/detail")
+    @GetMapping("/pan/share/file/detail")
     public CommonResult<PanShareFile> detail(@Valid PanShareFileIdParam panShareFileIdParam) {
         return CommonResult.data(panShareFileService.detail(panShareFileIdParam));
     }
