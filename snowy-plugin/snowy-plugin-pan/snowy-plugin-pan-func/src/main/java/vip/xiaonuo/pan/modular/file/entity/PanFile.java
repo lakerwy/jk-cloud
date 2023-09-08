@@ -84,4 +84,8 @@ public class PanFile {
     @ApiModelProperty(value = "修改用户", position = 12)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 文件后缀 */
+    @ApiModelProperty(value = "文件后缀", position = 13)
+    private String suffix;
 }

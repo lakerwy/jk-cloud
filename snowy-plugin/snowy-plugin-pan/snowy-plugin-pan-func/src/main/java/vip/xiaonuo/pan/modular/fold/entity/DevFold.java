@@ -16,6 +16,8 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.pan.modular.file.utils.CommonFile;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -105,4 +107,5 @@ public class DevFold {
     /** 文件夹类型 */
     @ApiModelProperty(value = "文件夹类型(0 个人文件夹 1、群组文件夹)", position = 16)
     private Integer foldType;
+
 }

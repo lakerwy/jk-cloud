@@ -14,6 +14,7 @@ package vip.xiaonuo.pan.modular.fold.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
@@ -134,4 +135,6 @@ public interface DevFoldService extends IService<DevFold> {
 
     @Transactional
     List<DevFile> uploadReturnBean(String engine, MultipartFileParam param);
+
+    Long getTotalStorageSize();
 }

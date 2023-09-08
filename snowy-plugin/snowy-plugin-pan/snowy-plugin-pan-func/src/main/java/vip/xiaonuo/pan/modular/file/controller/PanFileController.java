@@ -19,19 +19,15 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
-import vip.xiaonuo.pan.modular.file.param.PanFileAddParam;
-import vip.xiaonuo.pan.modular.file.param.PanFileEditParam;
-import vip.xiaonuo.pan.modular.file.param.PanFileIdParam;
-import vip.xiaonuo.pan.modular.file.param.PanFilePageParam;
+import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
+import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
+import vip.xiaonuo.pan.modular.fileStorage.service.PanFileStorageService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -55,6 +51,9 @@ public class PanFileController {
 
     @Resource
     private PanFileService panFileService;
+
+    @Resource
+    private PanFileStorageService panFileStorageService;
 
     /**
      * 获取文件分页
@@ -131,5 +130,23 @@ public class PanFileController {
     @GetMapping("/pan/file/detail")
     public CommonResult<PanFile> detail(@Valid PanFileIdParam panFileIdParam) {
         return CommonResult.data(panFileService.detail(panFileIdParam));
+    }
+
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("极速上传 校验文件MD5判断文件是否存在，如果存在直接上传成功并返回skipUpload=true，如果不存在返回skipUpload=false需要再次调用该接口的POST方法")
+    @CommonLog("极速上传")
+//    @SaCheckPermission("/pan/file/uploadfile")
+    @PostMapping("/pan/file/uploadFile")
+    public CommonResult<UploadFileVo> uploadFileSpeed(UploadFileParam uploadFileParam) {
+
+        Boolean flag = panFileStorageService.checkStorage(uploadFileParam.getTotalSize());
+
+        if (!flag) {
+            return CommonResult.error("存储空间不足");
+        }
+        //校验是否有同名文件和文件夹冲突
+        UploadFileVo uploadFileVo = panFileService.uploadFileSpeed(uploadFileParam);
+        return CommonResult.data(uploadFileVo);
+
     }
 }

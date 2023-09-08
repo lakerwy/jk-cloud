@@ -114,4 +114,5 @@ public interface DevFileService extends IService<DevFile> {
      **/
     DevFile uploadReturnBean(String engine, MultipartFile file);
 
+    void panStorageFold(String engine, String parentPath, String bucketName);
 }
