@@ -1,4 +1,4 @@
-package vip.xiaonuo.pan.modular.file.utils;
+package vip.xiaonuo.pan.modular.fileCenter.util;
 
 import lombok.extern.slf4j.Slf4j;
 

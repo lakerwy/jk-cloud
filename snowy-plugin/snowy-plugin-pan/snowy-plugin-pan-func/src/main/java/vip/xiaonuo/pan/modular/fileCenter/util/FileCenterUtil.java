@@ -1,4 +1,4 @@
-package vip.xiaonuo.pan.modular.file.utils;
+package vip.xiaonuo.pan.modular.fileCenter.util;
 
 import cn.hutool.core.io.FileUtil;
 import vip.xiaonuo.common.exception.CommonException;

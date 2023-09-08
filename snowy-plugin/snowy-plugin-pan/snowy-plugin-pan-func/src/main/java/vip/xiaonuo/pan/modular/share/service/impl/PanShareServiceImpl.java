@@ -32,6 +32,7 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.pan.modular.fold.entity.DevFold;
+import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.enums.PanShareStatusEnum;
 import vip.xiaonuo.pan.modular.share.enums.PanShareTypeEnum;
@@ -43,7 +44,6 @@ import vip.xiaonuo.pan.modular.share.service.PanShareService;
 import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
 import vip.xiaonuo.pan.modular.sharefile.entity.PanShareFile;
 import vip.xiaonuo.pan.modular.sharefile.service.PanShareFileService;
-import vip.xiaonuo.pan.modular.util.QiwenFile;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -61,6 +61,9 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
 
     @Resource
     PanShareFileService panShareFileService;
+
+    @Resource
+    DevFoldService devFoldService;
 
     @Override
     public Page<PanShare> page(PanSharePageParam panSharePageParam) {
@@ -154,22 +157,22 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
         //处理分享的文件集
         List<PanShareFile> panShareFileList = new ArrayList<>();
         for (String userFileId:shareFileDto.getUserFileIds()) {
-            /** 待定
-            UserFile userFile = userFileService.getById(userFileId);
-            if (userFile.getUserId().compareTo(userId) != 0) {
-                throw new CommonException("您只能分享自己的文件");
-            }
-            if (userFile.getIsDir() == 1) {
-                QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true);
-                List<UserFile> userfileList = userFileService.selectUserFileByLikeRightFilePath(qiwenFile.getPath(), userId);
-                for (UserFile userFile1 : userfileList) {
-                    PanShareFile shareFile1 = new PanShareFile();
-                    shareFile1.setUserFileId(userFile1.getUserFileId());
-                    shareFile1.setShareBatchNum(batchId);
-                    shareFile1.setShareFilePath(userFile1.getFilePath().replaceFirst(userFile.getFilePath().equals("/") ? "" : userFile.getFilePath(), ""));
-                    panShareFileList.add(shareFile1);
-                }
-            }*/
+//            /** UserFile <--> DevFold **/
+//            DevFold userFile = devFoldService.getById(userFileId);
+//            if (userFile.getUserId().compareTo(userId) != 0) {
+//                throw new CommonException("您只能分享自己的文件");
+//            }
+//            if (userFile.getIsDir() == 1) {
+//                QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true);
+//                List<UserFile> userfileList = userFileService.selectUserFileByLikeRightFilePath(qiwenFile.getPath(), userId);
+//                for (UserFile userFile1 : userfileList) {
+//                    PanShareFile shareFile1 = new PanShareFile();
+//                    shareFile1.setUserFileId(userFile1.getUserFileId());
+//                    shareFile1.setShareBatchNum(batchId);
+//                    shareFile1.setShareFilePath(userFile1.getFilePath().replaceFirst(userFile.getFilePath().equals("/") ? "" : userFile.getFilePath(), ""));
+//                    panShareFileList.add(shareFile1);
+//                }
+//            }
             PanShareFile shareFile = new PanShareFile();
             shareFile.setUserFileId(userFileId);
             shareFile.setShareFilePath("/");

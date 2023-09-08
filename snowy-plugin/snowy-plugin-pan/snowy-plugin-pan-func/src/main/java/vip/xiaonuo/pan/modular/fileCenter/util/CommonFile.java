@@ -1,22 +1,30 @@
-package vip.xiaonuo.pan.modular.util;
+package vip.xiaonuo.pan.modular.fileCenter.util;
 
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.io.FilenameUtils;
 
 /**
- * @author yong.ye
- * @date 2023/9/8 10:08
+ * @author mayike
+ * @version 1.0
+ * @date 2023/9/7 16:52
+ * 文件夹和文件的构建处理类
  */
-public class QiwenFile {
+@Getter
+@Setter
+public class CommonFile {
+
+    @Getter
     private final String path;
     public static final String separator = "/";
     private boolean isDirectory;
 
-    public QiwenFile(String pathname, boolean isDirectory) {
+    public CommonFile(String pathname, boolean isDirectory) {
         this.path = formatPath(pathname);
         this.isDirectory = isDirectory;
     }
 
-    public QiwenFile(String parent, String child, boolean isDirectory) {
+    public CommonFile(String parent, String child, boolean isDirectory) {
         if (parent != null) {
             String parentPath = separator.equals(formatPath(parent)) ? "" : formatPath(parent);
             String childPath = formatPath(child);
@@ -31,7 +39,7 @@ public class QiwenFile {
     }
 
     public static String formatPath(String path) {
-        path = UFOPUtils.pathSplitFormat(path);
+        path = FileCenterUtil.pathSplitFormat(path);
         if ("/".equals(path)) {
             return path;
         }
@@ -60,9 +68,9 @@ public class QiwenFile {
         return path.substring(0, index);
     }
 
-    public QiwenFile getParentFile() {
+    public CommonFile getParentFile() {
         String parentPath = this.getParent();
-        return new QiwenFile(parentPath, true);
+        return new CommonFile(parentPath, true);
     }
 
     public String getName() {
@@ -79,10 +87,6 @@ public class QiwenFile {
 
     public String getNameNotExtend() {
         return FilenameUtils.removeExtension(getName());
-    }
-
-    public String getPath() {
-        return path;
     }
 
     public boolean isDirectory() {
