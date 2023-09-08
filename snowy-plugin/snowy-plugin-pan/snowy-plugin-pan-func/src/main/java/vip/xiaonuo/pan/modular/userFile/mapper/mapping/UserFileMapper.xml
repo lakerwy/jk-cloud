@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="vip.xiaonuo.pan.modular.fold.mapper.DevFoldMapper">
+<mapper namespace="vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper">
 
-    <select id="nodeList" resultType="vip.xiaonuo.pan.modular.fold.entity.NodeFold">
+    <select id="nodeList" resultType="vip.xiaonuo.pan.modular.userFile.entity.NodeFold">
         SELECT u2.ID, u2.FILE_NAME,u1.LE as LEVEL,u2.PARENT_ID
         FROM(
                 SELECT

@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.pan.modular.fold.controller;
+package vip.xiaonuo.pan.modular.userFile.controller;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -27,11 +27,11 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
-import vip.xiaonuo.pan.modular.fold.entity.DevFold;
-import vip.xiaonuo.pan.modular.fold.entity.NodeFold;
-import vip.xiaonuo.pan.modular.fold.enums.DevFoldEnum;
-import vip.xiaonuo.pan.modular.fold.param.*;
-import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
+import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
+import vip.xiaonuo.pan.modular.userFile.enums.UserFileEnum;
+import vip.xiaonuo.pan.modular.userFile.param.*;
+import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -49,10 +49,10 @@ import static vip.xiaonuo.pan.core.FileCommonConstant.SNOWY_SYS_DEFAULT_FILE_ENG
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
-public class DevFoldController {
+public class UserFileController {
 
     @Resource
-    private DevFoldService devFoldService;
+    private UserFileService userFileService;
 
     @Resource
     private DevConfigApi devConfigApi;
@@ -67,8 +67,8 @@ public class DevFoldController {
     @ApiOperation("获取文件夹分页")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/page")
-    public CommonResult<Page<DevFold>> page(DevFoldPageParam devFoldPageParam) {
-        return CommonResult.data(devFoldService.page(devFoldPageParam));
+    public CommonResult<Page<UserFile>> page(UserFilePageParam userFilePageParam) {
+        return CommonResult.data(userFileService.page(userFilePageParam));
     }
 
     /**
@@ -82,8 +82,8 @@ public class DevFoldController {
     @CommonLog("添加文件夹")
 //    @SaCheckPermission("/pan/fold/add")
     @PostMapping("/pan/fold/add")
-    public CommonResult<String> add(@RequestBody @Valid DevFoldAddParam devFoldAddParam) {
-        devFoldService.add(devFoldAddParam);
+    public CommonResult<String> add(@RequestBody @Valid UserFileAddParam userFileAddParam) {
+        userFileService.add(userFileAddParam);
         return CommonResult.ok();
     }
 
@@ -98,8 +98,8 @@ public class DevFoldController {
     @CommonLog("编辑文件夹")
 //    @SaCheckPermission("/pan/fold/edit")
     @PostMapping("/pan/fold/edit")
-    public CommonResult<String> edit(@RequestBody @Valid DevFoldEditParam devFoldEditParam) {
-        devFoldService.edit(devFoldEditParam);
+    public CommonResult<String> edit(@RequestBody @Valid UserFileEditParam userFileEditParam) {
+        userFileService.edit(userFileEditParam);
         return CommonResult.ok();
     }
 
@@ -115,8 +115,8 @@ public class DevFoldController {
 //    @SaCheckPermission("/pan/fold/delete")
     @PostMapping("/pan/fold/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<DevFoldIdParam> devFoldIdParamList) {
-        devFoldService.delete(devFoldIdParamList);
+                                                   CommonValidList<UserFileIdParam> userFileIdParamList) {
+        userFileService.delete(userFileIdParamList);
         return CommonResult.ok();
     }
 
@@ -130,8 +130,8 @@ public class DevFoldController {
     @ApiOperation("获取文件夹详情")
 //    @SaCheckPermission("/pan/fold/detail")
     @GetMapping("/pan/fold/detail")
-    public CommonResult<DevFold> detail(@Valid DevFoldIdParam devFoldIdParam) {
-        return CommonResult.data(devFoldService.detail(devFoldIdParam));
+    public CommonResult<UserFile> detail(@Valid UserFileIdParam userFileIdParam) {
+        return CommonResult.data(userFileService.detail(userFileIdParam));
     }
 
     /**
@@ -142,14 +142,14 @@ public class DevFoldController {
     @ApiOperation("本地文件创建文件夹(不允许在根目录下创建文件夹)")
     @CommonLog("本地文件创建文件夹")
     @PostMapping("/pan/fold/createFold")
-    public CommonResult<String> createFold(@Valid @RequestBody DevFoldAddParam devFoldAddParam) {
+    public CommonResult<String> createFold(@Valid @RequestBody UserFileAddParam userFileAddParam) {
         //判断文件夹是否存在
-        DevFold devFold = BeanUtil.copyProperties(devFoldAddParam, DevFold.class);
-        Boolean dirExist = devFoldService.isDirExist(devFold);
+        UserFile userFile = BeanUtil.copyProperties(userFileAddParam, UserFile.class);
+        Boolean dirExist = userFileService.isDirExist(userFile);
         if(!dirExist){
             return  CommonResult.error("同名文件夹已存在,请修改名称后在操作");
         }
-        devFoldService.add(devFoldAddParam);
+        userFileService.add(userFileAddParam);
         return CommonResult.ok();
     }
 
@@ -161,18 +161,18 @@ public class DevFoldController {
     @ApiOperation("文件夹重命名")
     @CommonLog("文件夹重命名")
     @PostMapping("/pan/fold/reNameFold")
-    public CommonResult<String> reNameFold(@Valid @RequestBody DevFoldEditParam devFoldEditParam) {
+    public CommonResult<String> reNameFold(@Valid @RequestBody UserFileEditParam userFileEditParam) {
         //判断文件夹是否存在
-        DevFold devFold = BeanUtil.copyProperties(devFoldEditParam, DevFold.class);
-        List<DevFold> devFolds =  devFoldService.getFolds(devFold);
-        if(CollUtil.isNotEmpty(devFolds)){
+        UserFile userFile = BeanUtil.copyProperties(userFileEditParam, UserFile.class);
+        List<UserFile> userFiles =  userFileService.getFolds(userFile);
+        if(CollUtil.isNotEmpty(userFiles)){
             //如果修改的名字为自己的原始名称，就直接返回
-            if(devFolds.get(0).getId().equals(devFoldEditParam.getId())){
+            if(userFiles.get(0).getId().equals(userFileEditParam.getId())){
                 return CommonResult.ok();
             }
             return  CommonResult.error("同名文件夹已存在,请修改名称后在操作");
         }
-        devFoldService.edit(devFoldEditParam);
+        userFileService.edit(userFileEditParam);
         return CommonResult.ok();
     }
 
@@ -184,14 +184,14 @@ public class DevFoldController {
     @ApiOperation("文件夹移动")
     @CommonLog("文件夹移动")
     @PostMapping("/pan/fold/moveFold")
-    public CommonResult<String> moveFold(@Valid @RequestBody DevFoldOperateParam devFoldOperateParam) {
+    public CommonResult<String> moveFold(@Valid @RequestBody UserFileOperateParam userFileOperateParam) {
         /*
          * 1、个人文件可移动到部门 、 部门文件不能移动到个人 （判断是否可以移动）
          * 2、检查原文件夹下，是否有文件被操作。（如果有文件被操作，是不能移动的） ----文件修改或者预览时都要给文件夹上锁
          * 3、判断目标文件夹是否存在同名文件夹
          */
-        devFoldService.checkMove(devFoldOperateParam);
-        devFoldService.moveFold(devFoldOperateParam);
+        userFileService.checkMove(userFileOperateParam);
+        userFileService.moveFold(userFileOperateParam);
         return CommonResult.ok();
     }
 
@@ -203,13 +203,13 @@ public class DevFoldController {
     @ApiOperation("文件夹复制")
     @CommonLog("文件夹复制")
     @PostMapping("/pan/fold/copyFold")
-    public CommonResult<String> copyFold(@Valid @RequestBody DevFoldOperateParam devFoldOperateParam) {
+    public CommonResult<String> copyFold(@Valid @RequestBody UserFileOperateParam userFileOperateParam) {
         /**
          * 1、复制不受文件夹限制
          * 2、复制文件夹 同时还要复制文件夹下文件，递归处理
          */
-        devFoldService.checkMove(devFoldOperateParam);
-        devFoldService.moveFold(devFoldOperateParam);
+        userFileService.checkMove(userFileOperateParam);
+        userFileService.moveFold(userFileOperateParam);
         return CommonResult.ok();
     }
 
@@ -228,7 +228,7 @@ public class DevFoldController {
     @CommonLog("动态上传文件返回文件信息")
     @PostMapping("/pan/file/uploadDynamicReturnBean")
     public CommonResult<List<DevFile>> uploadDynamicReturnId(@RequestPart("file") MultipartFile[] file, @RequestParam(value = "parentId",required = false) String parentId) {
-        return CommonResult.data(devFoldService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
+        return CommonResult.data(userFileService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
     }
 
     /**
@@ -241,8 +241,8 @@ public class DevFoldController {
     @ApiOperation("文件夹列表（个人、部门、分享）")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/pageList")
-    public CommonResult<Page<DevFold>> pageList(DevFoldPageParam devFoldPageParam) {
-        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+    public CommonResult<Page<UserFile>> pageList(UserFilePageParam userFilePageParam) {
+        return CommonResult.data(userFileService.pageList(userFilePageParam));
     }
 
     /**
@@ -255,9 +255,9 @@ public class DevFoldController {
     @ApiOperation("所有个人文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/selfAllPageList")
-    public CommonResult<Page<DevFold>> selfAllPageList(DevFoldPageParam devFoldPageParam) {
-        devFoldPageParam.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
-        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+    public CommonResult<Page<UserFile>> selfAllPageList(UserFilePageParam userFilePageParam) {
+        userFilePageParam.setFoldType(UserFileEnum.SELF_FOLD_TYPE.getLevel());
+        return CommonResult.data(userFileService.pageList(userFilePageParam));
     }
 
     /**
@@ -270,9 +270,9 @@ public class DevFoldController {
     @ApiOperation("所有群组文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/groupAllPageList")
-    public CommonResult<Page<DevFold>> groupAllPageList(DevFoldPageParam devFoldPageParam) {
-        devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+    public CommonResult<Page<UserFile>> groupAllPageList(UserFilePageParam userFilePageParam) {
+        userFilePageParam.setFoldType(UserFileEnum.GROUP_FOLD_TYPE.getLevel());
+        return CommonResult.data(userFileService.pageList(userFilePageParam));
     }
 
     /**
@@ -285,9 +285,9 @@ public class DevFoldController {
     @ApiOperation("获取所见文件夹列表(包含个人和群组)")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/showPageList")
-    public CommonResult<Page<DevFold>> showPageList(DevFoldPageParam devFoldPageParam) {
+    public CommonResult<Page<UserFile>> showPageList(UserFilePageParam userFilePageParam) {
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(devFoldService.pageList(devFoldPageParam));
+        return CommonResult.data(userFileService.pageList(userFilePageParam));
     }
 
     /**
@@ -300,9 +300,9 @@ public class DevFoldController {
     @ApiOperation("获取所在部门的文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/groupPageList")
-    public CommonResult<Page<DevFold>> groupPageList(DevFoldPageParam devFoldPageParam) {
+    public CommonResult<Page<UserFile>> groupPageList(UserFilePageParam userFilePageParam) {
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(devFoldService.groupPageList(devFoldPageParam));
+        return CommonResult.data(userFileService.groupPageList(userFilePageParam));
     }
 
     /**
@@ -315,9 +315,9 @@ public class DevFoldController {
     @ApiOperation("获取当前登录人的个人文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/selfPageList")
-    public CommonResult<Page<DevFold>> selfPageList(DevFoldPageParam devFoldPageParam) {
+    public CommonResult<Page<UserFile>> selfPageList(UserFilePageParam userFilePageParam) {
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(devFoldService.selfPageList(devFoldPageParam));
+        return CommonResult.data(userFileService.selfPageList(userFilePageParam));
     }
 
     /**
@@ -332,6 +332,6 @@ public class DevFoldController {
     @GetMapping("/pan/fold/getFoldTree")
     public CommonResult<List<NodeFold>> getFoldTree(@RequestParam(value = "id",required = true) String id) {
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(devFoldService.buildTree(id));
+        return CommonResult.data(userFileService.buildTree(id));
     }
 }

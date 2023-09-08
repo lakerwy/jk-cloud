@@ -1,4 +1,4 @@
-package vip.xiaonuo.pan.modular.fold.param;
+package vip.xiaonuo.pan.modular.userFile.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -13,7 +13,7 @@ import javax.validation.constraints.NotBlank;
  */
 @Getter
 @Setter
-public class DevFoldOperateParam {
+public class UserFileOperateParam {
 
     /** 原文件夹ID */
     @ApiModelProperty(value = "原文件夹ID", required = true, position = 1)

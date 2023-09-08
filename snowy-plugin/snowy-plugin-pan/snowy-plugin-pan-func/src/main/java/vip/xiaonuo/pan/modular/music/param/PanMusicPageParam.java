@@ -10,24 +10,23 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.pan.modular.fold.param;
+package vip.xiaonuo.pan.modular.music.param;
 
 import io.swagger.annotations.ApiModelProperty;
-import io.swagger.models.auth.In;
 import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 文件主表查询参数
+ * 云盘-音乐实体类查询参数
  *
  * @author mayike
- * @date  2023/08/28 10:09
+ * @date  2023/09/08 14:13
  **/
 @Getter
 @Setter
-public class DevFoldPageParam {
+public class PanMusicPageParam {
 
     /** 当前页 */
     @ApiModelProperty(value = "当前页码")
@@ -48,15 +47,5 @@ public class DevFoldPageParam {
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
-
-    /** 文件名称 */
-    @ApiModelProperty(value = "文件名称")
-    private String fileName;
-
-    @ApiModelProperty(value = "文件夹类型")
-    private Integer foldType;
-
-    @ApiModelProperty(value = "目录ID (默认根目录ID为0)")
-    private String id;
 
 }

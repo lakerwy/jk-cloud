@@ -1,8 +1,5 @@
-package vip.xiaonuo.pan.modular.fold.entity;
+package vip.xiaonuo.pan.modular.userFile.entity;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;

@@ -10,26 +10,16 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.pan.modular.fold.param;
+package vip.xiaonuo.pan.modular.music.mapper;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.validation.constraints.NotBlank;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import vip.xiaonuo.pan.modular.music.entity.PanMusic;
 
 /**
- * 文件主表Id参数
+ * 云盘-音乐实体类Mapper接口
  *
  * @author mayike
- * @date  2023/08/28 10:09
+ * @date  2023/09/08 14:13
  **/
-@Getter
-@Setter
-public class DevFoldIdParam {
-
-    /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true)
-    @NotBlank(message = "id不能为空")
-    private String id;
+public interface PanMusicMapper extends BaseMapper<PanMusic> {
 }

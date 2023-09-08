@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.pan.modular.fileStorage.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -35,7 +34,7 @@ import vip.xiaonuo.pan.modular.fileStorage.param.PanFileStorageEditParam;
 import vip.xiaonuo.pan.modular.fileStorage.param.PanFileStorageIdParam;
 import vip.xiaonuo.pan.modular.fileStorage.param.PanFileStoragePageParam;
 import vip.xiaonuo.pan.modular.fileStorage.service.PanFileStorageService;
-import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
+import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -50,7 +49,7 @@ import java.util.List;
 public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper, PanFileStorage> implements PanFileStorageService {
 
     @Resource
-    private DevFoldService devFoldService;
+    private UserFileService userFileService;
     @Override
     public Page<PanFileStorage> page(PanFileStoragePageParam panFileStoragePageParam) {
         QueryWrapper<PanFileStorage> queryWrapper = new QueryWrapper<>();
@@ -117,7 +116,7 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
             totalStorageSize = totalStorageSize*1024*1024;
         }
         //获取文件的总文件大小
-        Long storageSize = devFoldService.getTotalStorageSize();
+        Long storageSize = userFileService.getTotalStorageSize();
         if(storageSize == null){
             storageSize = 0L;
         }

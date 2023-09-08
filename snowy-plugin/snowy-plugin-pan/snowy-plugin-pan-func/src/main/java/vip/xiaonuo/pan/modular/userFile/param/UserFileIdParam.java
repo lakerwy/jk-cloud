@@ -10,36 +10,26 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.pan.modular.fold.enums;
+package vip.xiaonuo.pan.modular.userFile.param;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
 
 /**
- * 文件主表枚举
+ * 文件主表Id参数
  *
  * @author mayike
  * @date  2023/08/28 10:09
  **/
 @Getter
-public enum DevFoldEnum {
+@Setter
+public class UserFileIdParam {
 
-    /** 顶级根目录 */
-    ROOT(0, "顶级根目录"),
-    SELF_ROOT(1, "个人根目录"),
-    GROUP_ROOT(2, "部门根目录"),
-
-    SELF_FOLD_TYPE(0,"个人文件夹"),
-    GROUP_FOLD_TYPE(1,"群组文件夹"),
-
-    UNLOCK(0,"未锁定"),
-    LOCK(1,"已锁定");
-
-    private final  Integer level;
-
-    private final String value;
-
-    DevFoldEnum(Integer level, String value) {
-        this.level = level;
-        this.value = value;
-    }
+    /** 主键ID */
+    @ApiModelProperty(value = "主键ID", required = true)
+    @NotBlank(message = "id不能为空")
+    private String id;
 }

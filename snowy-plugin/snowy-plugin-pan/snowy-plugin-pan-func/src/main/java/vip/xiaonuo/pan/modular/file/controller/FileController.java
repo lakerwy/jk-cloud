@@ -20,7 +20,7 @@ import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.service.StorageService;
 import vip.xiaonuo.pan.modular.fileCenter.util.Constants;
 import vip.xiaonuo.pan.modular.file.vo.FileCheckVo;
-import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
+import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
@@ -54,7 +54,7 @@ public class FileController {
     private DevConfigApi devConfigApi;
 
     @Resource
-    private DevFoldService devFoldService;
+    private UserFileService userFileService;
 
     /**
      * 秒传判断，断点判断
@@ -158,7 +158,7 @@ public class FileController {
     @CommonLog("动态上传文件返回文件信息")
     @PostMapping("/pan/file/newUploadDynamicReturnBean")
     public CommonResult<List<DevFile>> newUploadDynamicReturnBean(MultipartFileParam param) {
-        return CommonResult.data(devFoldService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), param));
+        return CommonResult.data(userFileService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), param));
     }
 
 }

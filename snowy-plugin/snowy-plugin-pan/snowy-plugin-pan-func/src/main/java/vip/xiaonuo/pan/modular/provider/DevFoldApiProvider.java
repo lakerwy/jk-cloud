@@ -1,9 +1,8 @@
 package vip.xiaonuo.pan.modular.provider;
 
 import org.springframework.stereotype.Service;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.pan.api.DevFoldApi;
-import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
+import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 
@@ -15,15 +14,15 @@ import javax.annotation.Resource;
 @Service
 public class DevFoldApiProvider implements DevFoldApi {
     @Resource
-    DevFoldService devFoldService;
+    UserFileService userFileService;
 
     @Override
     public void createSelfFold() {
-        devFoldService.createSelfFold();
+        userFileService.createSelfFold();
     }
 
     @Override
     public void createGroupFold() {
-        devFoldService.createGroupFold();
+        userFileService.createGroupFold();
     }
 }
