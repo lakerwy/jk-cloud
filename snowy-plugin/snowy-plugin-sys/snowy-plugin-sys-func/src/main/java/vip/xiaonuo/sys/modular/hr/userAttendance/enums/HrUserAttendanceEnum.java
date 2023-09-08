@@ -23,8 +23,11 @@ import lombok.Getter;
 @Getter
 public enum HrUserAttendanceEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    ATTENDANCE_OFF_DUTY("OffDuty"),//下班
+    ATTENDANCE_ON_DUTY("OnDuty"),// 下班
+    ATTENDANCE_NORMAL("0"), //正常
+    ATTENDANCE_LATE("1"), //迟到
+    ATTENDANCE_LEAVE_EARLY("2");//早退
 
     private final String value;
 

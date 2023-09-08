@@ -31,6 +31,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendance.mapper.HrUserAttendanceMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
@@ -109,20 +110,22 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         }
 
         //上班时间到下班时间区间打卡，都属于异常打卡  (有效考勤数据来源于打卡数据)
-        //code： 0 正常，1 迟到，2 早退
+        // 0 正常，1 迟到，2 早退
         List<HrUserAttendanceConfig> filterConfigList = configList.stream().filter(config -> checkTime.after(config.getOnDutyCheckTime()) && checkTime.before(config.getOffDutyCheckTime())).collect(Collectors.toList());
         if(!ObjectUtil.isEmpty(filterConfigList)){
             List<String> dutyStatus = filterConfigList.stream().map(config ->
-                    CommonTimeFormatUtil.twoTimeDiffSecond(checkTime,config.getOnDutyCheckTime()) >= CommonTimeFormatUtil.twoTimeDiffSecond(config.getOffDutyCheckTime(),checkTime) ? "OffDuty" : "OnDuty").collect(Collectors.toList());
+                    CommonTimeFormatUtil.twoTimeDiffSecond(checkTime,config.getOnDutyCheckTime()) >= CommonTimeFormatUtil.twoTimeDiffSecond(config.getOffDutyCheckTime(),checkTime) ?
+                            HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue() : HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()).collect(Collectors.toList());
             hrUserAttendance.setAbnormalFlag(1);
             hrUserAttendance.setCheckType(dutyStatus.get(0));
-            //return  CommonResult.code(1);
+            this.save(hrUserAttendance);
+            return  dutyStatus.get(0).equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()) ? HrUserAttendanceEnum.ATTENDANCE_LATE.getValue() : HrUserAttendanceEnum.ATTENDANCE_LEAVE_EARLY.getValue();
         }else{
             hrUserAttendance.setCheckType(getChectStatus(configList,checkTime));
             hrUserAttendance.setAbnormalFlag(0);
         }
         this.save(hrUserAttendance);
-        return "0";
+        return HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
     }
     @Transactional(rollbackFor = Exception.class)
     @Override
