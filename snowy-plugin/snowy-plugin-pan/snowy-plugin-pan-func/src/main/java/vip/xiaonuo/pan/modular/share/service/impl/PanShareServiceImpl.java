@@ -16,27 +16,37 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.collections.list.TransformedList;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.pan.modular.fold.entity.DevFold;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.enums.PanShareStatusEnum;
 import vip.xiaonuo.pan.modular.share.enums.PanShareTypeEnum;
 import vip.xiaonuo.pan.modular.share.mapper.PanShareMapper;
 import vip.xiaonuo.pan.modular.share.param.*;
+import vip.xiaonuo.pan.modular.share.param.dto.SaveShareFileDto;
 import vip.xiaonuo.pan.modular.share.param.dto.ShareFileDto;
 import vip.xiaonuo.pan.modular.share.service.PanShareService;
 import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
+import vip.xiaonuo.pan.modular.sharefile.entity.PanShareFile;
+import vip.xiaonuo.pan.modular.sharefile.service.PanShareFileService;
+import vip.xiaonuo.pan.modular.util.QiwenFile;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -48,6 +58,9 @@ import java.util.UUID;
  **/
 @Service
 public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> implements PanShareService {
+
+    @Resource
+    PanShareFileService panShareFileService;
 
     @Override
     public Page<PanShare> page(PanSharePageParam panSharePageParam) {
@@ -120,13 +133,15 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
     public ShareFileVo shareFile(ShareFileDto shareFileDto) {
         //返回结果
         ShareFileVo shareFileVo = new ShareFileVo();
+        //用户Id
+        String userId  = StpLoginUserUtil.getLoginUser().getId();
         //批次号
         String batchId = UUID.randomUUID().toString().replace("-","");
         //当前分享批次记录
         PanShare panShare = new PanShare();
         BeanUtil.copyProperties(shareFileDto,panShare);
         panShare.setShareTime(DateTime.now());
-        panShare.setUserId(StpLoginUserUtil.getLoginUser().getId());
+        panShare.setUserId(userId);
         panShare.setShareStatus(PanShareStatusEnum.NORMAL.getValue());
         //私密分享需要设置密码
         if(shareFileDto.getShareType().equals(PanShareTypeEnum.PRIVATE.getValue())){
@@ -135,14 +150,75 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
         }
         panShare.setShareBatchNum(batchId);
         this.save(panShare);
+
         //处理分享的文件集
+        List<PanShareFile> panShareFileList = new ArrayList<>();
         for (String userFileId:shareFileDto.getUserFileIds()) {
-
+            /** 待定
+            UserFile userFile = userFileService.getById(userFileId);
+            if (userFile.getUserId().compareTo(userId) != 0) {
+                throw new CommonException("您只能分享自己的文件");
+            }
+            if (userFile.getIsDir() == 1) {
+                QiwenFile qiwenFile = new QiwenFile(userFile.getFilePath(), userFile.getFileName(), true);
+                List<UserFile> userfileList = userFileService.selectUserFileByLikeRightFilePath(qiwenFile.getPath(), userId);
+                for (UserFile userFile1 : userfileList) {
+                    PanShareFile shareFile1 = new PanShareFile();
+                    shareFile1.setUserFileId(userFile1.getUserFileId());
+                    shareFile1.setShareBatchNum(batchId);
+                    shareFile1.setShareFilePath(userFile1.getFilePath().replaceFirst(userFile.getFilePath().equals("/") ? "" : userFile.getFilePath(), ""));
+                    panShareFileList.add(shareFile1);
+                }
+            }*/
+            PanShareFile shareFile = new PanShareFile();
+            shareFile.setUserFileId(userFileId);
+            shareFile.setShareFilePath("/");
+            shareFile.setShareBatchNum(batchId);
+            panShareFileList.add(shareFile);
         }
-
-
-
+        panShareFileService.saveBatch(panShareFileList);
+        shareFileVo.setShareBatchNum(batchId);
         return shareFileVo;
-
     }
+
+    @Override
+    public void saveShareFile(SaveShareFileDto saveShareFileDto) {
+        String userId = StpLoginUserUtil.getLoginUser().getId();
+        String savefilePath = saveShareFileDto.getFilePath();
+        /**
+        //用户文件集合
+        List<UserFile> saveUserFiles = new ArrayList<>();
+        for (String userFileId:saveShareFileDto.getUserFileIds()) {
+            //获取文件信息
+            UserFile userFile = userFileService.getById(userFileId);
+            String fileName = userFile.getFileName();
+            String filePath = userFile.getFilePath();
+            //当前文件
+            UserFile userFile2 = new UserFile();
+            BeanUtil.copyProperties(userFile, userFile2);
+            //定义文件名
+            String savefileName = fileDealComp.getRepeatFileName(userFile, savefilePath);
+            //判断是否为文件夹
+            if (userFile.getIsDir() == 1) {
+                //当前文件夹
+                PanShareFile shareFile = panShareFileService.getOne(new QueryWrapper<PanShareFile>().lambda().eq(PanShareFile::getUserFileId, userFileId).eq(PanShareFile::getShareBatchNum, saveShareFileDto.getShareBatchNum()));
+                //当前文件夹下的文件
+                List<PanShareFile> shareFileList = panShareFileService.list(new QueryWrapper<PanShareFile>().lambda().eq(PanShareFile::getShareBatchNum, saveShareFileDto.getShareBatchNum()).likeRight(PanShareFile::getShareFilePath, QiwenFile.formatPath(shareFile.getShareFilePath() +"/"+ fileName)));
+                for (PanShareFile shareFile1 : shareFileList) {
+                    UserFile userFile1 = userFileService.getById(shareFile1.getUserFileId());
+                    userFile1.setUserId(userId);
+                    userFile1.setFilePath(userFile1.getFilePath().replaceFirst(QiwenFile.formatPath(filePath + "/" + fileName), QiwenFile.formatPath(savefilePath + "/" + savefileName)));
+                    saveUserFiles.add(userFile1);
+                }
+            }
+            userFile2.setUserId(userId);
+            userFile2.setFilePath(savefilePath);
+            userFile2.setFileName(savefileName);
+            saveUserFiles.add(userFile2);
+        }
+        userFileService.saveBatch(saveUserFileList);
+         */
+    }
+
+
 }

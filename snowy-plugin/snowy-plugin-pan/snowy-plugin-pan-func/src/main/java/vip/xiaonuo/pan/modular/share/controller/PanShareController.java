@@ -28,6 +28,7 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.param.*;
+import vip.xiaonuo.pan.modular.share.param.dto.SaveShareFileDto;
 import vip.xiaonuo.pan.modular.share.param.dto.ShareFileDto;
 import vip.xiaonuo.pan.modular.share.service.PanShareService;
 import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
@@ -132,14 +133,47 @@ public class PanShareController {
     /**
      * 网盘-分享-分享文件
      *
+     * 分享文件统一接口
+     *
      * @author yong.ye
      * @date  2023/09/07 15:55
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("网盘-分享-分享文件")
-    @CommonLog("网盘-分享-分享文件")
+    @ApiOperation("网盘-分享-分享文件（分享文件统一接口）")
+    @CommonLog("网盘-分享-分享文件（分享文件统一接口）")
     @PostMapping("/pan/share/shareFile")
     public CommonResult<ShareFileVo> shareFile(@RequestBody @Valid ShareFileDto shareFileDto) {
         return CommonResult.data(panShareService.shareFile(shareFileDto));
     }
+
+    /**
+     * 网盘-分享-保存分享文件
+     *
+     * 用来将别人分享的文件保存到自己的网盘中
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("网盘-分享-保存分享文件（用来将别人分享的文件保存到自己的网盘中）")
+    @CommonLog("网盘-分享-分享文件（用来将别人分享的文件保存到自己的网盘中）")
+    @PostMapping("/pan/share/saveShareFile")
+    public CommonResult<String> saveShareFile(@RequestBody @Valid SaveShareFileDto saveShareFileDto) {
+        panShareService.saveShareFile(saveShareFileDto);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 网盘-分享-查看已分享列表
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+//    @ApiOperationSupport(order = 8)
+//    @ApiOperation("网盘-分享-查看已分享列表")
+//    @GetMapping("/pan/share/detail")
+//    public CommonResult<PanShare> detail(@Valid PanShareIdParam panShareIdParam) {
+//        return CommonResult.data(panShareService.detail(panShareIdParam));
+//    }
 }

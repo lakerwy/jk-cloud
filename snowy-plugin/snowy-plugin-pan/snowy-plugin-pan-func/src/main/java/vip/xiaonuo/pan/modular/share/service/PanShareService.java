@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.param.*;
+import vip.xiaonuo.pan.modular.share.param.dto.SaveShareFileDto;
 import vip.xiaonuo.pan.modular.share.param.dto.ShareFileDto;
 import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
 
@@ -80,8 +81,20 @@ public interface PanShareService extends IService<PanShare> {
     /**
      * 网盘-分享-分享文件
      *
+     * （分享文件统一接口）
+     *
      * @author yong.ye
      * @date  2023/09/07 15:55
      */
     ShareFileVo shareFile(ShareFileDto shareFileDto);
+
+    /**
+     * 网盘-分享-保存分享文件
+     *
+     * (用来将别人分享的文件保存到自己的网盘中)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    void saveShareFile(SaveShareFileDto saveShareFileDto);
 }
