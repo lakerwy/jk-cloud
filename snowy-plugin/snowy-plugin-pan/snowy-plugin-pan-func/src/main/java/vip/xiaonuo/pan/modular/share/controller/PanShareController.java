@@ -28,7 +28,9 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.param.*;
+import vip.xiaonuo.pan.modular.share.param.dto.ShareFileDto;
 import vip.xiaonuo.pan.modular.share.service.PanShareService;
+import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -124,5 +126,20 @@ public class PanShareController {
     @GetMapping("/pan/share/detail")
     public CommonResult<PanShare> detail(@Valid PanShareIdParam panShareIdParam) {
         return CommonResult.data(panShareService.detail(panShareIdParam));
+    }
+
+
+    /**
+     * 网盘-分享-分享文件
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("网盘-分享-分享文件")
+    @CommonLog("网盘-分享-分享文件")
+    @PostMapping("/pan/share/shareFile")
+    public CommonResult<ShareFileVo> shareFile(@RequestBody @Valid ShareFileDto shareFileDto) {
+        return CommonResult.data(panShareService.shareFile(shareFileDto));
     }
 }

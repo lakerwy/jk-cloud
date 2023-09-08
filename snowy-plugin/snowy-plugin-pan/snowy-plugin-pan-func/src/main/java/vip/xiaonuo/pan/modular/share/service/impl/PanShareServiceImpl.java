@@ -14,22 +14,31 @@ package vip.xiaonuo.pan.modular.share.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
+import vip.xiaonuo.pan.modular.share.enums.PanShareStatusEnum;
+import vip.xiaonuo.pan.modular.share.enums.PanShareTypeEnum;
 import vip.xiaonuo.pan.modular.share.mapper.PanShareMapper;
 import vip.xiaonuo.pan.modular.share.param.*;
+import vip.xiaonuo.pan.modular.share.param.dto.ShareFileDto;
 import vip.xiaonuo.pan.modular.share.service.PanShareService;
+import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * 网盘-分享表Service接口实现类
@@ -105,5 +114,35 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
             throw new CommonException("网盘-分享表不存在，id值为：{}", id);
         }
         return panShare;
+    }
+
+    @Override
+    public ShareFileVo shareFile(ShareFileDto shareFileDto) {
+        //返回结果
+        ShareFileVo shareFileVo = new ShareFileVo();
+        //批次号
+        String batchId = UUID.randomUUID().toString().replace("-","");
+        //当前分享批次记录
+        PanShare panShare = new PanShare();
+        BeanUtil.copyProperties(shareFileDto,panShare);
+        panShare.setShareTime(DateTime.now());
+        panShare.setUserId(StpLoginUserUtil.getLoginUser().getId());
+        panShare.setShareStatus(PanShareStatusEnum.NORMAL.getValue());
+        //私密分享需要设置密码
+        if(shareFileDto.getShareType().equals(PanShareTypeEnum.PRIVATE.getValue())){
+            panShare.setExtractionCode(RandomUtil.randomNumbers(6));
+            shareFileVo.setExtractionCode(panShare.getExtractionCode());
+        }
+        panShare.setShareBatchNum(batchId);
+        this.save(panShare);
+        //处理分享的文件集
+        for (String userFileId:shareFileDto.getUserFileIds()) {
+
+        }
+
+
+
+        return shareFileVo;
+
     }
 }

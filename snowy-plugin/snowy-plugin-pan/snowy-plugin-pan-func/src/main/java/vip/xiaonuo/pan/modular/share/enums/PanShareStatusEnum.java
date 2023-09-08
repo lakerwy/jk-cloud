@@ -21,14 +21,30 @@ import lombok.Getter;
  * @date  2023/09/07 15:55
  **/
 @Getter
-public enum PanShareEnum {
+public enum PanShareStatusEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    //参数状态
+    NORMAL(0, "正常"),
 
-    private final String value;
+    EXPIRED(1, "已失效"),
 
-    PanShareEnum(String value) {
+    CANCEL(2, "已取消");
+
+    private final Integer value;
+
+    private final String name;
+
+    PanShareStatusEnum(Integer value, String name) {
         this.value = value;
+        this.name = name;
+    }
+
+    public static String fromValue(String value) {
+        for (PanShareStatusEnum enumConstant : PanShareStatusEnum.values()) {
+            if (enumConstant.value.equals(value)) {
+                return enumConstant.getName();
+            }
+        }
+        throw new IllegalArgumentException("Invalid value: " + value);
     }
 }

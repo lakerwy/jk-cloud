@@ -16,6 +16,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.param.*;
+import vip.xiaonuo.pan.modular.share.param.dto.ShareFileDto;
+import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
 
 import java.util.List;
 
@@ -74,4 +76,12 @@ public interface PanShareService extends IService<PanShare> {
      * @date  2023/09/07 15:55
      **/
     PanShare queryEntity(String id);
+
+    /**
+     * 网盘-分享-分享文件
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    ShareFileVo shareFile(ShareFileDto shareFileDto);
 }
