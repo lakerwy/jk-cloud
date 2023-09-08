@@ -31,8 +31,6 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.pan.modular.fold.entity.DevFold;
-import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.enums.PanShareStatusEnum;
 import vip.xiaonuo.pan.modular.share.enums.PanShareTypeEnum;
@@ -62,8 +60,8 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
     @Resource
     PanShareFileService panShareFileService;
 
-    @Resource
-    DevFoldService devFoldService;
+//    @Resource
+//    DevFoldService devFoldService;
 
     @Override
     public Page<PanShare> page(PanSharePageParam panSharePageParam) {
