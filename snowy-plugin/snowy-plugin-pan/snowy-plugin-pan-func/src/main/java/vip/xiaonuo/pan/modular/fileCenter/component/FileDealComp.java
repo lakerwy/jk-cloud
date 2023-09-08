@@ -13,6 +13,7 @@
 //import org.springframework.stereotype.Component;
 //import vip.xiaonuo.pan.modular.file.mapper.PanFileMapper;
 //import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
+//import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 //import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 //import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 //import vip.xiaonuo.pan.modular.music.mapper.PanMusicMapper;
@@ -108,14 +109,14 @@
 //     *
 //     * @param sessionUserId
 //     */
-//    public void restoreParentFilePath(QiwenFile qiwenFile, String sessionUserId) {
+//    public void restoreParentFilePath(CommonFile commonFile, String sessionUserId) {
 //
-//        if (qiwenFile.isFile()) {
-//            qiwenFile = qiwenFile.getParentFile();
+//        if (commonFile.isFile()) {
+//            commonFile = commonFile.getParentFile();
 //        }
-//        while (qiwenFile.getParent() != null) {
-//            String fileName = qiwenFile.getName();
-//            String parentFilePath = qiwenFile.getParent();
+//        while (commonFile.getParent() != null) {
+//            String fileName = commonFile.getName();
+//            String parentFilePath = commonFile.getParent();
 //
 //            LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
 //            lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
@@ -132,7 +133,7 @@
 //                    //ignore
 //                }
 //            }
-//            qiwenFile = new QiwenFile(parentFilePath, true);
+//            commonFile = new CommonFile(parentFilePath, true);
 //        }
 //    }
 //
