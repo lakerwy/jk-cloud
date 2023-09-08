@@ -16,7 +16,11 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 
 /**
@@ -38,6 +42,17 @@ public class CommonTimeFormatUtil {
     private static final int AFTERNOON_END_HOUR = 18;
 
     private static final int NIGHT_END_HOUR = 24;
+
+    private static final String TIMESTAMP_FORMAT = "yyyy-MM-dd HH:mm:ss.SSS";
+
+    private static final String DATETIME_FORMAT = "yyyy-MM-dd HH:mm:ss";
+
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
+
+    private static final String DATE_SIMPLE_FORMAT = "yyyyMMdd";
+
+    private static final String HOUR_MIN_S = "HH:mm:ss";
+
 
     /**
      * 将日期格式化为仿微信的日期
@@ -180,4 +195,81 @@ public class CommonTimeFormatUtil {
         }
         return result;
     }
-}
+
+        /**
+         *  日期格式化
+         *
+         * @author ljy
+         * @date  2023/9/7
+         * @param format  格式
+         * @return String
+         * */
+        public static String dateToStr(Date date, String format) {
+            if (date == null) return null;
+            // 如果没有指定字符串转换的格式，则用默认格式进行转换
+            if (null == format || "".equals(format)) {
+                format = DATETIME_FORMAT;
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat(format);
+            return sdf.format(date);
+        }
+
+        /**
+         *  年月日，时分秒拼接
+         *
+         * @author ljy
+         * @date  2023/9/7
+         *
+         * @return date
+         * */
+        public static Date yearAndHourConnect(String yearDate,String hourDate) {
+            if (StringUtils.isBlank(yearDate) || StringUtils.isBlank(hourDate)) return null;
+            return strToDate(yearDate+" "+hourDate);
+        }
+
+        public static Date strToDate(String time) {
+            if (StringUtils.isBlank(time)) return null;
+            SimpleDateFormat formatter;
+            int tempPos = time.indexOf("AD");
+            time = time.trim();
+            formatter = new SimpleDateFormat("yyyy.MM.dd G 'at' hh:mm:ss z");
+            if (tempPos > -1) {
+                time = time.substring(0, tempPos) +
+                        "公元" + time.substring(tempPos + "AD".length());//china
+                formatter = new SimpleDateFormat("yyyy.MM.dd G 'at' hh:mm:ss z");
+            }
+            if (time.contains(".")) time = time.replaceAll("\\.", "/");
+            if (time.contains("-")) time = time.replaceAll("-", "/");
+            if (!time.contains("/") && !time.contains(" ")) {
+                formatter = new SimpleDateFormat("yyyyMMddHHmmss");
+            } else if (time.contains("/")) {
+                if (time.contains("am") || time.contains("pm")) formatter = new SimpleDateFormat("yyyy/MM/dd KK:mm:ss a");
+                else if (time.contains(" ")) formatter = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss");
+                else {
+                    String[] dateArr = time.split("/");
+                    if (dateArr.length == 2 || (dateArr.length == 3 && StringUtils.isBlank(dateArr[2])))
+                        formatter = new SimpleDateFormat("yyyy/MM");
+                    else formatter = new SimpleDateFormat("yyyy/MM/dd");
+                }
+            }
+            ParsePosition pos = new ParsePosition(0);
+            return formatter.parse(time, pos);
+        }
+
+    /**
+     *计算两个时间的秒差值
+     * @author ljy
+     * @date  2023/9/7
+     *
+     * @return date
+     * */
+        public static Long twoTimeDiffSecond(Date beginDate,Date endDate) {
+            if(ObjectUtil.isEmpty(beginDate) || ObjectUtil.isEmpty(endDate)){
+                return 0L;
+            }
+            long diff = beginDate.getTime() - endDate.getTime();
+            return diff < 0L ? -diff : diff;
+        }
+
+
+    }
