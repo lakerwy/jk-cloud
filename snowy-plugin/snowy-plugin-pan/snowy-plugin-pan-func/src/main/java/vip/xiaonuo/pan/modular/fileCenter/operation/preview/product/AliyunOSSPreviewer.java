@@ -6,7 +6,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.extern.slf4j.Slf4j;
 import vip.xiaonuo.dev.modular.file.util.DevFileAliyunUtil;
-import vip.xiaonuo.pan.modular.fileCenter.domain.ThumbImage;
+import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.Previewer;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.domain.PreviewFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;

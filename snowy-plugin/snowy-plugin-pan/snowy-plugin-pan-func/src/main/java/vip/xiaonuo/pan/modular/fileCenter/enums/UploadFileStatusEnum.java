@@ -1,4 +1,4 @@
-package vip.xiaonuo.pan.modular.fileCenter.constant;
+package vip.xiaonuo.pan.modular.fileCenter.enums;
 
 public enum UploadFileStatusEnum {
 

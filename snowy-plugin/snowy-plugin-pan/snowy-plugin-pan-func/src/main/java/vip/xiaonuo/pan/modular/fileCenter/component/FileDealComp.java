@@ -1,4 +1,4 @@
-//package vip.xiaonuo.pan.modular.fileSystem.component;
+//package vip.xiaonuo.pan.modular.fileCenter.component;
 //
 //import cn.hutool.core.bean.BeanUtil;
 //import cn.hutool.core.util.IdUtil;
@@ -10,12 +10,12 @@
 //import org.apache.commons.collections4.CollectionUtils;
 //import org.apache.commons.io.IOUtils;
 //import org.apache.commons.lang3.StringUtils;
-//import org.springframework.beans.factory.annotation.Autowired;
 //import org.springframework.stereotype.Component;
-//import vip.xiaonuo.pan.modular.file.service.PanFileService;
-//import vip.xiaonuo.pan.modular.fileCenter.factory.UFOPFactory;
-//import vip.xiaonuo.pan.modular.fold.entity.DevFold;
-//import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
+//import vip.xiaonuo.pan.modular.file.mapper.PanFileMapper;
+//import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
+//import vip.xiaonuo.pan.modular.fold.mapper.DevFoldMapper;
+//import vip.xiaonuo.pan.modular.share.service.PanShareService;
+//import vip.xiaonuo.pan.modular.sharefile.service.PanShareFileService;
 //
 //import javax.annotation.Resource;
 //import java.io.File;
@@ -33,19 +33,19 @@
 //@Component
 //public class FileDealComp {
 //    @Resource
-//    private DevFoldService devFoldService;
+//    private DevFoldMapper devFoldMapper;
 //    @Resource
-//    private PanFileService  panFileService;
+//    private PanFileMapper panFileMapper;
 //    @Resource
-//    private IShareService shareService;
+//    private PanShareService panShareService;
 //    @Resource
-//    private IShareFileService shareFileService;
+//    private PanShareFileService panShareFileService;
 //    @Resource
-//    private UFOPFactory ufopFactory;
+//    private FileFactory fileFactory;
 //    @Resource
 //    private MusicMapper musicMapper;
 //
-//    public static Executor exec = Executors.newFixedThreadPool(10);
+//    public static Executor exec = Executors.newFixedThreadPool(20);
 //
 //    /**
 //     * 获取重复文件名
@@ -57,22 +57,22 @@
 //     * @param savefilePath
 //     * @return
 //     */
-//    public String getRepeatFileName(DevFold devFold, String savefilePath) {
-//        String fileName = devFold.getFileName();
-//        //String extendName = devFold.getExtendName();
+//    public String getRepeatFileName(UserFile userFile, String savefilePath) {
+//        String fileName = userFile.getFileName();
+//        String extendName = userFile.getExtendName();
 //
-//        String userId = devFold.getCreateUser();
-//        int isDir = devFold.getIsDir();
-//        LambdaQueryWrapper<DevFold> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        lambdaQueryWrapper.eq(DevFold::getFilePath, savefilePath)
-//                .eq(DevFold::getDeleteFlag, "NOT_DELETE")
-//                .eq(DevFold::getCreateUser, userId)
-//                .eq(DevFold::getFileName, fileName)
-//                .eq(DevFold::getIsDir, isDir);
-//        if (devFold.isFile()) {
-//            lambdaQueryWrapper.eq(DevFold::getExtendName, extendName);
+//        String userId = userFile.getUserId();
+//        int isDir = userFile.getIsDir();
+//        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+//        lambdaQueryWrapper.eq(UserFile::getFilePath, savefilePath)
+//                .eq(UserFile::getDeleteFlag, 0)
+//                .eq(UserFile::getUserId, userId)
+//                .eq(UserFile::getFileName, fileName)
+//                .eq(UserFile::getIsDir, isDir);
+//        if (userFile.isFile()) {
+//            lambdaQueryWrapper.eq(UserFile::getExtendName, extendName);
 //        }
-//        List<DevFold> list = devFoldService.(lambdaQueryWrapper);
+//        List<UserFile> list = userFileMapper.selectList(lambdaQueryWrapper);
 //        if (CollectionUtils.isEmpty(list)) {
 //            return fileName;
 //        }
@@ -106,14 +106,14 @@
 //     *
 //     * @param sessionUserId
 //     */
-//    public void restoreParentFilePath(JkFile jkFile, String sessionUserId) {
+//    public void restoreParentFilePath(QiwenFile qiwenFile, String sessionUserId) {
 //
-//        if (jkFile.isFile()) {
-//            jkFile = jkFile.getParentFile();
+//        if (qiwenFile.isFile()) {
+//            qiwenFile = qiwenFile.getParentFile();
 //        }
-//        while (jkFile.getParent() != null) {
-//            String fileName = jkFile.getName();
-//            String parentFilePath = jkFile.getParent();
+//        while (qiwenFile.getParent() != null) {
+//            String fileName = qiwenFile.getName();
+//            String parentFilePath = qiwenFile.getParent();
 //
 //            LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
 //            lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
@@ -123,18 +123,14 @@
 //                    .eq(UserFile::getUserId, sessionUserId);
 //            List<UserFile> userFileList = userFileMapper.selectList(lambdaQueryWrapper);
 //            if (userFileList.size() == 0) {
-//                UserFile userFile = FileUtil.getQiwenDir(sessionUserId, parentFilePath, fileName);
+//                UserFile userFile = QiwenFileUtil.getQiwenDir(sessionUserId, parentFilePath, fileName);
 //                try {
 //                    userFileMapper.insert(userFile);
 //                } catch (Exception e) {
-//                    if (e.getMessage().contains("Duplicate entry")) {
-//                        //ignore
-//                    } else {
-//                        log.error(e.getMessage());
-//                    }
+//                    //ignore
 //                }
 //            }
-//            jkFile = new JkFile(parentFilePath, true);
+//            qiwenFile = new QiwenFile(parentFilePath, true);
 //        }
 //    }
 //
@@ -152,7 +148,7 @@
 //        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
 //
 //        lambdaQueryWrapper.select(UserFile::getFileName, UserFile::getFilePath)
-//                .likeRight(UserFile::getFilePath, FileUtil.formatLikePath(filePath))
+//                .likeRight(UserFile::getFilePath, QiwenFileUtil.formatLikePath(filePath))
 //                .eq(UserFile::getIsDir, 1)
 //                .eq(UserFile::getDeleteFlag, 0)
 //                .eq(UserFile::getUserId, sessionUserId)
@@ -189,8 +185,8 @@
 //            return treeNode;
 //        }
 //
-//        JkFile jkFile = new JkFile(filePath, currentNodeName, true);
-//        filePath = jkFile.getPath();
+//        QiwenFile qiwenFile = new QiwenFile(filePath, currentNodeName, true);
+//        filePath = qiwenFile.getPath();
 //
 //        if (!isExistPath(childrenTreeNodes, currentNodeName)) {  //1、判断有没有该子节点，如果没有则插入
 //            //插入
@@ -252,15 +248,15 @@
 //
 //
 //    public void uploadESByUserFileId(String userFileId) {
+//        exec.execute(()->{
+//            try {
 //
-//        try {
-//
-//            Map<String, Object> param = new HashMap<>();
-//            param.put("userFileId", userFileId);
-//            List<UserFile> userfileResult = userFileMapper.selectByMap(param);
-//            if (userfileResult != null && userfileResult.size() > 0) {
-//                FileSearch fileSearch = new FileSearch();
-//                BeanUtil.copyProperties(userfileResult.get(0), fileSearch);
+//                Map<String, Object> param = new HashMap<>();
+//                param.put("userFileId", userFileId);
+//                List<UserFile> userfileResult = userFileMapper.selectByMap(param);
+//                if (userfileResult != null && userfileResult.size() > 0) {
+//                    FileSearch fileSearch = new FileSearch();
+//                    BeanUtil.copyProperties(userfileResult.get(0), fileSearch);
 //                /*if (fileSearch.getIsDir() == 0) {
 //
 //                    Reader reader = ufopFactory.getReader(fileSearch.getStorageType());
@@ -271,11 +267,13 @@
 //                    fileSearch.setContent(content);
 //
 //                }*/
-//                elasticsearchClient.index(i -> i.index("filesearch").id(fileSearch.getUserFileId()).document(fileSearch));
+//                    elasticsearchClient.index(i -> i.index("filesearch").id(fileSearch.getUserFileId()).document(fileSearch));
+//                }
+//            } catch (Exception e) {
+//                log.debug("ES更新操作失败，请检查配置");
 //            }
-//        } catch (Exception e) {
-//            log.debug("ES更新操作失败，请检查配置");
-//        }
+//        });
+//
 //
 //    }
 //
@@ -364,8 +362,8 @@
 //     * @return
 //     */
 //    public String copyFile(FileBean fileBean, UserFile userFile) {
-//        Copier copier = ufopFactory.getCopier();
-//        Downloader downloader = ufopFactory.getDownloader(fileBean.getStorageType());
+//        Copier copier = fileFactory.getCopier();
+//        Downloader downloader = fileFactory.getDownloader(fileBean.getStorageType());
 //        DownloadFile downloadFile = new DownloadFile();
 //        downloadFile.setFileUrl(fileBean.getFileUrl());
 //        CopyFile copyFile = new CopyFile();
@@ -388,12 +386,12 @@
 //    public String getIdentifierByFile(String fileUrl, int storageType) throws IOException {
 //        DownloadFile downloadFile = new DownloadFile();
 //        downloadFile.setFileUrl(fileUrl);
-//        InputStream inputStream = ufopFactory.getDownloader(storageType).getInputStream(downloadFile);
+//        InputStream inputStream = fileFactory.getDownloader(storageType).getInputStream(downloadFile);
 //        return DigestUtils.md5Hex(inputStream);
 //    }
 //
 //    public void saveFileInputStream(int storageType, String fileUrl, InputStream inputStream) throws IOException {
-//        Writer writer1 = ufopFactory.getWriter(storageType);
+//        Writer writer1 = fileFactory.getWriter(storageType);
 //        WriteFile writeFile = new WriteFile();
 //        writeFile.setFileUrl(fileUrl);
 //        int fileSize = inputStream.available();
@@ -404,7 +402,7 @@
 //    public boolean isDirExist(String fileName, String filePath, String userId) {
 //        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
 //        lambdaQueryWrapper.eq(UserFile::getFileName, fileName)
-//                .eq(UserFile::getFilePath, JkFile.formatPath(filePath))
+//                .eq(UserFile::getFilePath, QiwenFile.formatPath(filePath))
 //                .eq(UserFile::getUserId, userId)
 //                .eq(UserFile::getDeleteFlag, 0)
 //                .eq(UserFile::getIsDir, 1);
@@ -422,7 +420,7 @@
 //        FileOutputStream fileOutputStream = null;
 //        try {
 //            if ("mp3".equalsIgnoreCase(extendName) || "flac".equalsIgnoreCase(extendName)) {
-//                Downloader downloader = ufopFactory.getDownloader(storageType);
+//                Downloader downloader = fileFactory.getDownloader(storageType);
 //                DownloadFile downloadFile = new DownloadFile();
 //                downloadFile.setFileUrl(fileUrl);
 //                inputStream = downloader.getInputStream(downloadFile);

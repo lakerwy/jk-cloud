@@ -1,4 +1,4 @@
-package vip.xiaonuo.pan.modular.fileCenter.domain;
+package vip.xiaonuo.pan.modular.fileCenter.entity;
 
 import lombok.Data;
 

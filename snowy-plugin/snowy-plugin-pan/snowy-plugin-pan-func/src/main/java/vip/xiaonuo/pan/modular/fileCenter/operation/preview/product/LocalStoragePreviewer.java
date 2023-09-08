@@ -1,6 +1,6 @@
 package vip.xiaonuo.pan.modular.fileCenter.operation.preview.product;
 
-import vip.xiaonuo.pan.modular.fileCenter.domain.ThumbImage;
+import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.Previewer;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.domain.PreviewFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;

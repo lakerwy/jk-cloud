@@ -6,8 +6,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.modular.file.util.DevFileMinIoUtil;
-import vip.xiaonuo.pan.modular.fileCenter.constant.StorageTypeEnum;
-import vip.xiaonuo.pan.modular.fileCenter.constant.UploadFileStatusEnum;
+import vip.xiaonuo.pan.modular.fileCenter.enums.StorageTypeEnum;
+import vip.xiaonuo.pan.modular.fileCenter.enums.UploadFileStatusEnum;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.Uploader;
 
 import javax.annotation.Resource;

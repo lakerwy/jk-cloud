@@ -4,7 +4,7 @@ import cn.hutool.core.io.FileTypeUtil;
 import lombok.Data;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import vip.xiaonuo.pan.modular.fileCenter.domain.ThumbImage;
+import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 import vip.xiaonuo.pan.modular.fileCenter.operation.ImageOperation;
 import vip.xiaonuo.pan.modular.fileCenter.operation.VideoOperation;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.domain.PreviewFile;

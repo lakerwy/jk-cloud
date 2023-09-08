@@ -1,11 +1,11 @@
-package vip.xiaonuo.pan.modular.fileCenter.autoconfiguration;
+package vip.xiaonuo.pan.modular.fileCenter.config;
 
 import lombok.Data;
 import vip.xiaonuo.dev.modular.file.util.DevFileLocalUtil;
-import vip.xiaonuo.pan.modular.fileCenter.domain.ThumbImage;
+import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 
 @Data
-public class UFOPProperties {
+public class FileCenterProperties {
 
     private String storageType = "0";
     private String localStoragePath = DevFileLocalUtil.getUploadFileFolder();

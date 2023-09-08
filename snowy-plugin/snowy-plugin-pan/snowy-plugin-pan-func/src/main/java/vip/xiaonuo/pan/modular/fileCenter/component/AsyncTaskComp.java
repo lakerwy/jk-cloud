@@ -1,17 +1,7 @@
-//package vip.xiaonuo.pan.modular.fileSystem.component;
+//package vip.xiaonuo.pan.modular.fileCenter.component;
 //
 //import com.alibaba.fastjson2.JSON;
 //import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-//import com.jk.fileCenterStart.factory.UFOPFactory;
-//import com.jk.fileCenterStart.operation.copy.domain.CopyFile;
-//import com.jk.fileCenterStart.util.UFOPUtils;
-//import com.jk.fileSystem.api.IFiletransferService;
-//import com.jk.fileSystem.api.IRecoveryFileService;
-//import com.jk.fileSystem.domain.FileBean;
-//import com.jk.fileSystem.domain.UserFile;
-//import com.jk.fileSystem.io.JkFile;
-//import com.jk.fileSystem.mapper.FileMapper;
-//import com.jk.fileSystem.mapper.UserFileMapper;
 //import lombok.extern.slf4j.Slf4j;
 //import org.apache.commons.codec.digest.DigestUtils;
 //import org.apache.commons.io.FilenameUtils;

@@ -1,8 +1,8 @@
 package vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain;
 
 import lombok.Data;
-import vip.xiaonuo.pan.modular.fileCenter.constant.StorageTypeEnum;
-import vip.xiaonuo.pan.modular.fileCenter.constant.UploadFileStatusEnum;
+import vip.xiaonuo.pan.modular.fileCenter.enums.StorageTypeEnum;
+import vip.xiaonuo.pan.modular.fileCenter.enums.UploadFileStatusEnum;
 
 import java.awt.image.BufferedImage;
 

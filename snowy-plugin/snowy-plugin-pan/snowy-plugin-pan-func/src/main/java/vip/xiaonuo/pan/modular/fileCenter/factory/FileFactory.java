@@ -1,7 +1,7 @@
 package vip.xiaonuo.pan.modular.fileCenter.factory;
-import vip.xiaonuo.pan.modular.fileCenter.autoconfiguration.UFOPProperties;
-import vip.xiaonuo.pan.modular.fileCenter.constant.StorageTypeEnum;
-import vip.xiaonuo.pan.modular.fileCenter.domain.ThumbImage;
+import vip.xiaonuo.pan.modular.fileCenter.config.FileCenterProperties;
+import vip.xiaonuo.pan.modular.fileCenter.enums.StorageTypeEnum;
+import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.product.AliyunOSSCopier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.product.LocalStorageCopier;
@@ -33,7 +33,7 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.write.product.MinioWriter;
 
 import javax.annotation.Resource;
 
-public class UFOPFactory {
+public class FileFactory {
     private String storageType;
     private ThumbImage thumbImage;
     @Resource
@@ -41,12 +41,12 @@ public class UFOPFactory {
     @Resource
     private MinioUploader minioUploader;
 
-    public UFOPFactory() {
+    public FileFactory() {
     }
 
-    public UFOPFactory(UFOPProperties ufopProperties) {
-        this.storageType = ufopProperties.getStorageType();
-        this.thumbImage = ufopProperties.getThumbImage();
+    public FileFactory(FileCenterProperties fileCenterProperties) {
+        this.storageType = fileCenterProperties.getStorageType();
+        this.thumbImage = fileCenterProperties.getThumbImage();
     }
 
     public Uploader getUploader() {
