@@ -66,7 +66,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             queryWrapper.lambda().eq(HrUserAttendance::getUserId, hrUserAttendancePageParam.getUserId());
         }
         if(ObjectUtil.isNotEmpty(hrUserAttendancePageParam.getMachineId())) {
-            queryWrapper.lambda().eq(HrUserAttendance::getMachineId, hrUserAttendancePageParam.getMachineId());
+            queryWrapper.lambda().eq(HrUserAttendance::getMachineCode, hrUserAttendancePageParam.getMachineId());
         }
         if(ObjectUtil.isNotEmpty(hrUserAttendancePageParam.getCheckType())) {
             queryWrapper.lambda().eq(HrUserAttendance::getCheckType, hrUserAttendancePageParam.getCheckType());

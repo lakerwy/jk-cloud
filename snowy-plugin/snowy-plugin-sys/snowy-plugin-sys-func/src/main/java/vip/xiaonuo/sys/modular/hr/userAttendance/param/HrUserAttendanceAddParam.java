@@ -41,7 +41,7 @@ public class HrUserAttendanceAddParam {
 
     /** 打卡点位(机位) */
     @ApiModelProperty(value = "打卡点位(机位)", position = 5)
-    private String machineId;
+    private String machineCode;
 
     /** 打卡是否异常：1 异常，0 正常 */
     @ApiModelProperty(value = "打卡是否异常：1 异常，0 正常", position = 6)
