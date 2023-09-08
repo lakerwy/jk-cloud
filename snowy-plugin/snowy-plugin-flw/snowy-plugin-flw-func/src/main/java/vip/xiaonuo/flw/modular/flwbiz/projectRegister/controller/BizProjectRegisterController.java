@@ -130,7 +130,7 @@ public class BizProjectRegisterController {
     @ApiOperation("修改业务表-信息状态情况")
 //    @SaCheckPermission("/flw/projectRegister/updateStatus")
     @PostMapping("/flw/projectRegister/updateStatus")
-    public CommonResult<String> updateStatus(BizProjectRegisterCommonEditParam bizProjectRegisterCommonEditParam){
+    public CommonResult<String> updateStatus(@RequestBody BizProjectRegisterCommonEditParam bizProjectRegisterCommonEditParam){
         bizProjectRegisterService.updateStatus(bizProjectRegisterCommonEditParam);
         return CommonResult.ok();
     }

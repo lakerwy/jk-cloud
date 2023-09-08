@@ -238,6 +238,9 @@ public class BizProjectRegister {
     @ApiModelProperty(value = "数据权限字段",position = 62)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    @ApiModelProperty(value = "区域负责人", position = 63)
+    private String areaLeader;
 }
 
 

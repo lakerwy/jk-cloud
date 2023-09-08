@@ -32,6 +32,6 @@ public class DingTalkProperties {
 
     private String appSecret;
 
-    private String isSend;
+    private Boolean isSend;
 
 }

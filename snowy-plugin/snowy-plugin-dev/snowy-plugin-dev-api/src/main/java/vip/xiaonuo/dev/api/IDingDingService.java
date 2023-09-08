@@ -35,5 +35,9 @@ public interface IDingDingService {
      */
     OapiMessageCorpconversationAsyncsendV2Response asyncsendV2(JSONObject message , String phone);
 
+    OapiMessageCorpconversationAsyncsendV2Response baseAsyncSend(JSONObject jsonObject, String phone);
+
     void batchSend(JSONObject entries, List<String> receiverIdList);
+
+    void baseBatchSend(JSONObject entries,List<String> receiverIdList);
 }

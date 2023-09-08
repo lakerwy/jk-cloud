@@ -60,6 +60,7 @@ import vip.xiaonuo.sys.api.SysRelationApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 import vip.xiaonuo.ten.api.TenApi;
 
+import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -889,6 +890,12 @@ public class NodeRuntimeUtil {
                         taskMap.put("processInstanceId",delegateTask.getProcessInstanceId());
                         taskMap.put("taskId",delegateTask.getId());
                         taskMap.put("taskDefKey",delegateTask.getTaskDefinitionKey());
+                        taskMap.put("initiatorProcessTitle",String.valueOf(delegateTask.getVariable("initiatorProcessTitle")));
+                        taskMap.put("initiatorProcessAbstract",String.valueOf(delegateTask.getVariable("initiatorProcessAbstract")));
+                        taskMap.put("initiatorProcessSn",String.valueOf(delegateTask.getVariable("initiatorProcessSn")));
+                        taskMap.put("initiatorTime",String.valueOf(delegateTask.getVariable("initiatorTime")));
+                        taskMap.put("initiatorName",String.valueOf(delegateTask.getVariable("initiatorName")));
+                        taskMap.put("processDefinitionId",delegateTask.getProcessDefinitionId());
                         devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId(),taskMap);
                         log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                         break;

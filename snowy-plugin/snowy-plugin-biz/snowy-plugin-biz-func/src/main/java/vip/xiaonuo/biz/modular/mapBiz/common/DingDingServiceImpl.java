@@ -130,7 +130,7 @@ public class DingDingServiceImpl implements IDingDingService {
      */
     @Override
     public void batchSend(String subject, List<String> receiverIdList) {
-        if(!"1".equals(dingTalkProperties.getIsSend())){
+        if(!dingTalkProperties.getIsSend()){
             return;
         }
         List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(receiverIdList);
@@ -213,6 +213,11 @@ public class DingDingServiceImpl implements IDingDingService {
         return null;
     }
 
+    @Override
+    public OapiMessageCorpconversationAsyncsendV2Response baseAsyncSend(JSONObject jsonObject, String phone) {
+        return null;
+    }
+
     /**
      *
      * @param entries 主题
@@ -240,5 +245,10 @@ public class DingDingServiceImpl implements IDingDingService {
             }
 
         }
+    }
+
+    @Override
+    public void baseBatchSend(JSONObject entries, List<String> receiverIdList) {
+
     }
 }

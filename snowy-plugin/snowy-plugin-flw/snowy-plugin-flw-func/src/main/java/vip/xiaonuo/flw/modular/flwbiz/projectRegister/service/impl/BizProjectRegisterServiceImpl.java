@@ -83,7 +83,9 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
             queryWrapper.lambda().like(BizProjectRegister::getScale, bizProjectRegisterPageParam.getScale());
         }
         if(ObjectUtil.isNotEmpty(bizProjectRegisterPageParam.getSearchKey())){
-            queryWrapper.lambda().or(wrapper ->wrapper.like(BizProjectRegister::getEntryName,bizProjectRegisterPageParam.getSearchKey()).or().like(BizProjectRegister::getSn,bizProjectRegisterPageParam.getSearchKey()));
+            queryWrapper.lambda().or(wrapper ->wrapper.like(BizProjectRegister::getEntryName,bizProjectRegisterPageParam.getSearchKey())
+                    .or().like(BizProjectRegister::getSn,bizProjectRegisterPageParam.getSearchKey())
+                    .or().like(BizProjectRegister::getCustomerName,bizProjectRegisterPageParam.getSearchKey()));
         }
 
         // 校验数据范围

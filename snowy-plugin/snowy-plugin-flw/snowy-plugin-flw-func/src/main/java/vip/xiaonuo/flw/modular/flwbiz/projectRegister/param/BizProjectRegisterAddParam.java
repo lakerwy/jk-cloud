@@ -199,4 +199,6 @@ public class BizProjectRegisterAddParam {
     @ApiModelProperty(value = "投资额", position = 61)
     private String investment;
 
+    @ApiModelProperty(value = "区域负责人", position = 62)
+    private String areaLeader;
 }
