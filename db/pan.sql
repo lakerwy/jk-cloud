@@ -76,3 +76,34 @@ CREATE TABLE `PAN_FILE_STORAGE` (
                                     PRIMARY KEY ( `ID` ) USING BTREE
 ) ENGINE = INNODB CHARACTER
 SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '存储实体类' ROW_FORMAT = DYNAMIC;
+
+CREATE TABLE `PAN_MUSIC` (
+                             `ID` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                             `TENANT_ID` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '租户id',
+                             `ALBUM` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `ALBUM_ARTIST` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `ALBUM_IMAGE` mediumblob,
+                             `ARTIST` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `COMMENT` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `COMPOSER` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `COPYRIGHT` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `ENCODER` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `FILE_ID` bigint(20) DEFAULT NULL COMMENT '文件id',
+                             `GENRE` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `LYRICS` varchar(10000) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '歌词',
+                             `ORIGINAL_ARTIST` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `PUBLICER` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `TITLE` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `TRACK` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `TRACK_LENGTH` float DEFAULT NULL,
+                             `URL` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `YEAR` varchar(255) COLLATE utf8_unicode_ci DEFAULT NULL,
+                             `EXT_JSON` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '扩展信息',
+                             `DELETE_FLAG` VARCHAR ( 255 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '删除标志',
+                             `CREATE_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '创建时间',
+                             `CREATE_USER` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建用户',
+                             `UPDATE_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '修改时间',
+                             `UPDATE_USER` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改用户',
+                             PRIMARY KEY ( `ID` ) USING BTREE
+) ENGINE = INNODB CHARACTER
+SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '云盘-音乐实体类' ROW_FORMAT = DYNAMIC;

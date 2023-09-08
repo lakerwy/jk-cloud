@@ -17,8 +17,6 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSON;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -34,8 +32,8 @@ import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.file.utils.CommonFile;
 import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
-import vip.xiaonuo.pan.modular.fold.entity.DevFold;
-import vip.xiaonuo.pan.modular.fold.service.DevFoldService;
+import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import java.util.HashMap;
@@ -57,7 +55,7 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
     private PanFileMapper panFileMapper;
 
     @Resource
-    private DevFoldService devFoldService;
+    private UserFileService userFileService;
 
     public static Executor exec = Executors.newFixedThreadPool(20);
 
@@ -130,16 +128,16 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
         if (CollUtil.isNotEmpty(panFiles)) {
             PanFile file = panFiles.get(0);
-            DevFold fold = new DevFold();
+            UserFile fold = new UserFile();
             fold.setFileId(file.getId());
             fold.setFilePath(commonFile.getParent());
             fold.setFileName(commonFile.getNameNotExtend());
             fold.setIsDir(commonFile.isDirectory()?1:0);
             fold.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
             fold.setParentId(uploadFileParam.getParentId());
-            DevFold devFold = devFoldService.getById(uploadFileParam.getParentId());
-            fold.setFoldType(devFold.getFoldType());
-            devFoldService.save(fold);
+            UserFile userFile = userFileService.getById(uploadFileParam.getParentId());
+            fold.setFoldType(userFile.getFoldType());
+            userFileService.save(fold);
             //todo 加入文件搜索es
 
             //文件夹上传

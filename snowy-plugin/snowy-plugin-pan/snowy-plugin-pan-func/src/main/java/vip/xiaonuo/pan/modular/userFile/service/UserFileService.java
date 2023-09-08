@@ -10,18 +10,17 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.pan.modular.fold.service;
+package vip.xiaonuo.pan.modular.userFile.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
-import vip.xiaonuo.pan.modular.fold.entity.DevFold;
-import vip.xiaonuo.pan.modular.fold.entity.NodeFold;
-import vip.xiaonuo.pan.modular.fold.param.*;
+import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
+import vip.xiaonuo.pan.modular.userFile.param.*;
 
 import java.util.List;
 
@@ -31,7 +30,7 @@ import java.util.List;
  * @author mayike
  * @date  2023/08/28 10:09
  **/
-public interface DevFoldService extends IService<DevFold> {
+public interface UserFileService extends IService<UserFile> {
 
     /**
      * 获取文件主表分页
@@ -39,7 +38,7 @@ public interface DevFoldService extends IService<DevFold> {
      * @author mayike
      * @date  2023/08/28 10:09
      */
-    Page<DevFold> page(DevFoldPageParam devFoldPageParam);
+    Page<UserFile> page(UserFilePageParam userFilePageParam);
 
     /**
      * 添加文件主表
@@ -47,7 +46,7 @@ public interface DevFoldService extends IService<DevFold> {
      * @author mayike
      * @date  2023/08/28 10:09
      */
-    void add(DevFoldAddParam devFoldAddParam);
+    void add(UserFileAddParam userFileAddParam);
 
     /**
      * 编辑文件主表
@@ -55,7 +54,7 @@ public interface DevFoldService extends IService<DevFold> {
      * @author mayike
      * @date  2023/08/28 10:09
      */
-    void edit(DevFoldEditParam devFoldEditParam);
+    void edit(UserFileEditParam userFileEditParam);
 
     /**
      * 删除文件主表
@@ -63,7 +62,7 @@ public interface DevFoldService extends IService<DevFold> {
      * @author mayike
      * @date  2023/08/28 10:09
      */
-    void delete(List<DevFoldIdParam> devFoldIdParamList);
+    void delete(List<UserFileIdParam> userFileIdParamList);
 
     /**
      * 获取文件主表详情
@@ -71,7 +70,7 @@ public interface DevFoldService extends IService<DevFold> {
      * @author mayike
      * @date  2023/08/28 10:09
      */
-    DevFold detail(DevFoldIdParam devFoldIdParam);
+    UserFile detail(UserFileIdParam userFileIdParam);
 
     /**
      * 获取文件主表详情
@@ -79,15 +78,15 @@ public interface DevFoldService extends IService<DevFold> {
      * @author mayike
      * @date  2023/08/28 10:09
      **/
-    DevFold queryEntity(String id);
+    UserFile queryEntity(String id);
 
     /**
      * 判断文件夹是否存在
-     * @param devFold
+     * @param userFile
      */
-    Boolean isDirExist(DevFold  devFold);
+    Boolean isDirExist(UserFile userFile);
 
-    List<DevFold> getFolds(DevFold devFold);
+    List<UserFile> getFolds(UserFile userFile);
 
     /**
      * MultipartFile文件上传，返回文件信息
@@ -111,25 +110,25 @@ public interface DevFoldService extends IService<DevFold> {
 
     /**
      * 移动前校验
-     * @param devFoldOperateParam
+     * @param userFileOperateParam
      */
-    void checkMove(DevFoldOperateParam devFoldOperateParam);
+    void checkMove(UserFileOperateParam userFileOperateParam);
 
     Boolean checkFoldLock(String foldId);
 
     /**
      * 文件夹移动
-     * @param devFoldOperateParam
+     * @param userFileOperateParam
      */
-    void moveFold(DevFoldOperateParam devFoldOperateParam);
+    void moveFold(UserFileOperateParam userFileOperateParam);
 
-    Page<DevFold> pageList(DevFoldPageParam devFoldPageParam);
+    Page<UserFile> pageList(UserFilePageParam userFilePageParam);
 
-    Page<DevFold> pageListByParam(DevFoldPageParam devFoldPageParam);
+    Page<UserFile> pageListByParam(UserFilePageParam userFilePageParam);
 
-    Page<DevFold> groupPageList(DevFoldPageParam devFoldPageParam);
+    Page<UserFile> groupPageList(UserFilePageParam userFilePageParam);
 
-    Page<DevFold> selfPageList(DevFoldPageParam devFoldPageParam);
+    Page<UserFile> selfPageList(UserFilePageParam userFilePageParam);
 
     List<NodeFold> buildTree(String id);
 

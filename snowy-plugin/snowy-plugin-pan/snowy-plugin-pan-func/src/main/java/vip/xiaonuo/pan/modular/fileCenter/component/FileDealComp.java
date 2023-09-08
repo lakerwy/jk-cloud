@@ -13,7 +13,9 @@
 //import org.springframework.stereotype.Component;
 //import vip.xiaonuo.pan.modular.file.mapper.PanFileMapper;
 //import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
-//import vip.xiaonuo.pan.modular.fold.mapper.DevFoldMapper;
+//import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+//import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
+//import vip.xiaonuo.pan.modular.music.mapper.PanMusicMapper;
 //import vip.xiaonuo.pan.modular.share.service.PanShareService;
 //import vip.xiaonuo.pan.modular.sharefile.service.PanShareFileService;
 //
@@ -33,7 +35,7 @@
 //@Component
 //public class FileDealComp {
 //    @Resource
-//    private DevFoldMapper devFoldMapper;
+//    private UserFileMapper userFileMapper;
 //    @Resource
 //    private PanFileMapper panFileMapper;
 //    @Resource
@@ -43,7 +45,7 @@
 //    @Resource
 //    private FileFactory fileFactory;
 //    @Resource
-//    private MusicMapper musicMapper;
+//    private PanMusicMapper panMusicMapper;
 //
 //    public static Executor exec = Executors.newFixedThreadPool(20);
 //

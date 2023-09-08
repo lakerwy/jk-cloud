@@ -10,16 +10,13 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.pan.modular.fold.param;
+package vip.xiaonuo.pan.modular.userFile.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 文件主表编辑参数
@@ -29,7 +26,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-public class DevFoldEditParam {
+public class UserFileEditParam {
 
     /** 主键ID */
     @ApiModelProperty(value = "主键ID", required = true, position = 1)
@@ -68,4 +65,11 @@ public class DevFoldEditParam {
     @ApiModelProperty(value = "文件夹类型", position = 16)
     private Integer foldType;
 
+    /** 文件拓展名 */
+    @ApiModelProperty(value = "文件拓展名", position = 16)
+    private String extendName;
+
+    /** 用户ID */
+    @ApiModelProperty(value = "用户ID", position = 16)
+    private String userId;
 }
