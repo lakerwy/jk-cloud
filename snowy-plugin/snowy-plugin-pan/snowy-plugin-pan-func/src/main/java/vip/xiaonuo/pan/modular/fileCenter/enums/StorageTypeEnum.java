@@ -4,9 +4,7 @@ package vip.xiaonuo.pan.modular.fileCenter.enums;
 public enum StorageTypeEnum {
     LOCAL(0, "本地存储"),
     ALIYUN_OSS(1, "阿里云OSS对象存储"),
-    FAST_DFS(2, "fastDFS集群存储"),
-    MINIO(3, "minio存储"),
-    QINIUYUN_KODO(4, "七牛云KODO对象存储");
+    MINIO(3, "minio存储");
     private final int code;
     private final String name;
 
