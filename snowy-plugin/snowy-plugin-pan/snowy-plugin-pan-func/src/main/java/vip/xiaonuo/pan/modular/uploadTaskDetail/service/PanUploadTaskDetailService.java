@@ -77,4 +77,6 @@ public interface PanUploadTaskDetailService extends IService<PanUploadTaskDetail
      * @date  2023/09/08 16:35
      **/
     PanUploadTaskDetail queryEntity(String id);
+
+    List<Integer> selectUploadedChunkNumList(String identifier);
 }

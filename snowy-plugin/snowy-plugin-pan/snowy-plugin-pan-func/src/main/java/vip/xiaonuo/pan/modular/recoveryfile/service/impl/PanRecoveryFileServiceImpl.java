@@ -179,9 +179,10 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
         CommonFile qiwenFile = new CommonFile(restoreFileDto.getFilePath(), true);
         fileDealComp.restoreParentFilePath(qiwenFile, StpLoginUserUtil.getLoginUser().getId());
 
-        LambdaQueryWrapper<PanRecoveryFile> recoveryFileServiceLambdaQueryWrapper = new LambdaQueryWrapper<>();
-        recoveryFileServiceLambdaQueryWrapper.eq(PanRecoveryFile::getDeleteBatchNum, restoreFileDto.getDeleteBatchNum());
-        this.remove(recoveryFileServiceLambdaQueryWrapper);
     }
 
+    @Override
+    public void deleteUserFileByDeleteBatchNum(String deleteBatchNum) {
+
+    }
 }

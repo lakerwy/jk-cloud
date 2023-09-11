@@ -1,7 +1,7 @@
 package vip.xiaonuo.pan.modular.fileCenter.operation.upload.request;
 
 import org.apache.commons.io.FilenameUtils;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,11 +33,11 @@ public class MultipartFile {
 
     public String getFileUrl() {
         String uuid = UUID.randomUUID().toString();
-        return UFOPUtils.getUploadFileUrl(uuid, getExtendName());
+        return FileCenterUtil.getUploadFileUrl(uuid, getExtendName());
     }
 
     public String getFileUrl(String identify) {
-        return UFOPUtils.getUploadFileUrl(identify, getExtendName());
+        return FileCenterUtil.getUploadFileUrl(identify, getExtendName());
     }
 
     public InputStream getUploadInputStream() throws IOException {

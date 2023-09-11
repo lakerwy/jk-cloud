@@ -7,7 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import vip.xiaonuo.dev.modular.file.util.DevFileAliyunUtil;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.InputStream;
 
@@ -21,13 +21,13 @@ public class AliyunOSSDownloader extends Downloader {
         OSSObject ossObject;
         if (downloadFile.getRange() != null) {
             GetObjectRequest getObjectRequest = new GetObjectRequest(DevFileAliyunUtil.getDefaultBucketName(),
-                    UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
+                    FileCenterUtil.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
             getObjectRequest.setRange(downloadFile.getRange().getStart(),
                     downloadFile.getRange().getStart() + downloadFile.getRange().getLength() - 1);
             ossObject = ossClient.getObject(getObjectRequest);
         } else {
             ossObject = ossClient.getObject(DevFileAliyunUtil.getDefaultBucketName(),
-                    UFOPUtils.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
+                    FileCenterUtil.getAliyunObjectNameByFileUrl(downloadFile.getFileUrl()));
         }
 
         InputStream inputStream = ossObject.getObjectContent();

@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.pan.modular.fileCenter.operation.delete.Deleter;
 import vip.xiaonuo.pan.modular.fileCenter.operation.delete.domain.DeleteFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.File;
 
@@ -12,7 +12,7 @@ import java.io.File;
 public class LocalStorageDeleter extends Deleter {
     @Override
     public void delete(DeleteFile deleteFile) {
-        File localSaveFile = UFOPUtils.getLocalSaveFile(deleteFile.getFileUrl());
+        File localSaveFile = FileCenterUtil.getLocalSaveFile(deleteFile.getFileUrl());
         if (localSaveFile.exists()) {
             boolean result = localSaveFile.delete();
             if (!result) {

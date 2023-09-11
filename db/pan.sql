@@ -154,7 +154,7 @@ CREATE TABLE `PAN_UPLOAD_TASK` (
                                    `EXTEND_NAME` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '扩展名',
                                    `FILE_NAME` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '文件名',
                                    `FILE_PATH` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '文件路径',
-                                   `IDENTIFER` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'md5唯一标识',
+                                   `IDENTIFIER` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'md5唯一标识',
                                    `UPLOAD_STATUS` int(1) DEFAULT NULL COMMENT '上传状态(1-成功,0-失败或未完成)',
                                    `UPLOAD_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '上传时间',
                                    `USER_ID` bigint(20) DEFAULT NULL COMMENT '用户id',

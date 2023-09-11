@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.pan.modular.fileCenter.operation.write.Writer;
 import vip.xiaonuo.pan.modular.fileCenter.operation.write.domain.WriteFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -15,7 +15,7 @@ import java.io.InputStream;
 public class LocalStorageWriter extends Writer {
     @Override
     public void write(InputStream inputStream, WriteFile writeFile) {
-        try (FileOutputStream out = new FileOutputStream(UFOPUtils.getStaticPath() + writeFile.getFileUrl())){
+        try (FileOutputStream out = new FileOutputStream(FileCenterUtil.getStaticPath() + writeFile.getFileUrl())){
             int read;
             final byte[] bytes = new byte[1024];
             while ((read = inputStream.read(bytes)) != -1) {

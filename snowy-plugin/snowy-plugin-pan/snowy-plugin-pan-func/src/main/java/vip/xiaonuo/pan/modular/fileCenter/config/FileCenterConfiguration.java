@@ -8,8 +8,8 @@ import vip.xiaonuo.dev.modular.file.util.DevFileLocalUtil;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.product.AliyunOSSUploader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.product.MinioUploader;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.RedisUtil;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
 import vip.xiaonuo.pan.modular.fileCenter.util.concurrent.locks.RedisLock;
 
 
@@ -18,12 +18,12 @@ public class FileCenterConfiguration {
 
     @Bean
     public FileFactory fileFactory() {
-        UFOPUtils.LOCAL_STORAGE_PATH = DevFileLocalUtil.getUploadFileFolder();
+        FileCenterUtil.LOCAL_STORAGE_PATH = DevFileLocalUtil.getUploadFileFolder();
         String bucketName = "pan";
         if (StringUtils.isNotEmpty(bucketName)) {
-            UFOPUtils.ROOT_PATH = "pan";
+            FileCenterUtil.ROOT_PATH = "pan";
         } else {
-            UFOPUtils.ROOT_PATH = "upload";
+            FileCenterUtil.ROOT_PATH = "upload";
         }
         return new FileFactory();
     }

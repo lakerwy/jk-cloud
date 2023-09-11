@@ -11,7 +11,7 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.upload.Uploader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFile;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFileResult;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.request.MultipartFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -29,7 +29,7 @@ public class LocalStorageUploader extends Uploader {
     protected UploadFileResult doUploadFlow(MultipartFile multipartFile, UploadFile uploadFile) {
         UploadFileResult uploadFileResult = new UploadFileResult();
         try {
-            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), multipartFile.getExtendName());
+            String fileUrl = FileCenterUtil.getUploadFileUrl(uploadFile.getIdentifier(), multipartFile.getExtendName());
             if (StringUtils.isNotEmpty(FILE_URL_MAP.get(uploadFile.getIdentifier()))) {
                 fileUrl = FILE_URL_MAP.get(uploadFile.getIdentifier());
             } else {
@@ -38,9 +38,9 @@ public class LocalStorageUploader extends Uploader {
             String tempFileUrl = fileUrl + "_tmp";
             String confFileUrl = fileUrl.replace("." + multipartFile.getExtendName(), ".conf");
 
-            File file = new File(UFOPUtils.getStaticPath() + fileUrl);
-            File tempFile = new File(UFOPUtils.getStaticPath() + tempFileUrl);
-            File confFile = new File(UFOPUtils.getStaticPath() + confFileUrl);
+            File file = new File(FileCenterUtil.getStaticPath() + fileUrl);
+            File tempFile = new File(FileCenterUtil.getStaticPath() + tempFileUrl);
+            File confFile = new File(FileCenterUtil.getStaticPath() + confFileUrl);
 
             //第一步 打开将要写入的文件
             RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");
@@ -76,11 +76,11 @@ public class LocalStorageUploader extends Uploader {
                 tempFile.renameTo(file);
                 FILE_URL_MAP.remove(uploadFile.getIdentifier());
 
-                if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
+                if (FileCenterUtil.isImageFile(uploadFileResult.getExtendName())) {
 
                     InputStream is = null;
                     try {
-                        is = new FileInputStream(UFOPUtils.getLocalSaveFile(fileUrl));
+                        is = new FileInputStream(FileCenterUtil.getLocalSaveFile(fileUrl));
 
                         BufferedImage src = ImageIO.read(is);
                         uploadFileResult.setBufferedImage(src);

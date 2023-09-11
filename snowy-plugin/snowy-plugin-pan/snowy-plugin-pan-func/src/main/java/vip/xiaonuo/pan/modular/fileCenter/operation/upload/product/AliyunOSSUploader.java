@@ -15,8 +15,8 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFile;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFileResult;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFileInfo;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.request.MultipartFile;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.RedisUtil;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
 
 import javax.annotation.Resource;
 import javax.imageio.ImageIO;
@@ -108,11 +108,11 @@ public class AliyunOSSUploader extends Uploader {
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":partETags");
             redisUtil.deleteKey("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":uploadPartRequest");
-            if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
+            if (FileCenterUtil.isImageFile(uploadFileResult.getExtendName())) {
 
                 OSS ossClient = DevFileAliyunUtil.getClient();
                 OSSObject ossObject = ossClient.getObject(Uploader.defaultBucketName,
-                        UFOPUtils.getAliyunObjectNameByFileUrl(uploadFileResult.getFileUrl()));
+                        FileCenterUtil.getAliyunObjectNameByFileUrl(uploadFileResult.getFileUrl()));
                 InputStream is = ossObject.getObjectContent();
                 BufferedImage src;
                 try {

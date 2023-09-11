@@ -7,8 +7,8 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.modular.file.util.DevFileAliyunUtil;
 import vip.xiaonuo.pan.modular.fileCenter.operation.read.Reader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.read.domain.ReadFile;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.ReadFileUtils;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,7 +21,7 @@ public class AliyunOSSReader extends Reader {
         String fileType = FilenameUtils.getExtension(fileUrl);
         OSS ossClient = DevFileAliyunUtil.getClient();
         OSSObject ossObject = ossClient.getObject(DevFileAliyunUtil.getDefaultBucketName(),
-                UFOPUtils.getAliyunObjectNameByFileUrl(fileUrl));
+                FileCenterUtil.getAliyunObjectNameByFileUrl(fileUrl));
         InputStream inputStream = ossObject.getObjectContent();
         try {
             return ReadFileUtils.getContentByInputStream(fileType, inputStream);
@@ -35,7 +35,7 @@ public class AliyunOSSReader extends Reader {
     public InputStream getInputStream(String fileUrl) {
         OSS ossClient = DevFileAliyunUtil.getClient();
         OSSObject ossObject = ossClient.getObject(DevFileAliyunUtil.getDefaultBucketName(),
-                UFOPUtils.getAliyunObjectNameByFileUrl(fileUrl));
+                FileCenterUtil.getAliyunObjectNameByFileUrl(fileUrl));
         return ossObject.getObjectContent();
     }
 

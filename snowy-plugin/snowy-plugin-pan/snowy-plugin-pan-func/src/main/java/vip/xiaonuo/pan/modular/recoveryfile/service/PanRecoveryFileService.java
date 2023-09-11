@@ -102,4 +102,6 @@ public interface PanRecoveryFileService extends IService<PanRecoveryFile> {
      * @date  2023/09/07 15:54
      */
     void restoreFile(RestoreFileDto restoreFileDto);
+
+    void deleteUserFileByDeleteBatchNum(String deleteBatchNum);
 }

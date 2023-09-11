@@ -15,6 +15,8 @@ package vip.xiaonuo.pan.modular.uploadTaskDetail.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.pan.modular.uploadTaskDetail.entity.PanUploadTaskDetail;
 
+import java.util.List;
+
 /**
  * 云盘-上传任务详情表Mapper接口
  *
@@ -22,4 +24,5 @@ import vip.xiaonuo.pan.modular.uploadTaskDetail.entity.PanUploadTaskDetail;
  * @date  2023/09/08 16:35
  **/
 public interface PanUploadTaskDetailMapper extends BaseMapper<PanUploadTaskDetail> {
+    List<Integer> selectUploadedChunkNumList(String identifier);
 }

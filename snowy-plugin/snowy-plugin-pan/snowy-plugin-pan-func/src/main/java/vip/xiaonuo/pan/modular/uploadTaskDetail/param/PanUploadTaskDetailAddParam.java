@@ -49,7 +49,7 @@ public class PanUploadTaskDetailAddParam {
 
     /** md5唯一标识 */
     @ApiModelProperty(value = "md5唯一标识", position = 7)
-    private String identifer;
+    private String identifier;
 
     /** 文件相对路径 */
     @ApiModelProperty(value = "文件相对路径", position = 8)

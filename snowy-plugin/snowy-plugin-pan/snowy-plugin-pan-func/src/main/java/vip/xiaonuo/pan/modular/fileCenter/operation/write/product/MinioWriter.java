@@ -8,7 +8,7 @@ import io.minio.errors.MinioException;
 import vip.xiaonuo.dev.modular.file.util.DevFileMinIoUtil;
 import vip.xiaonuo.pan.modular.fileCenter.operation.write.Writer;
 import vip.xiaonuo.pan.modular.fileCenter.operation.write.domain.WriteFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,7 +35,7 @@ public class MinioWriter extends Writer {
             }
 
             minioClient.putObject(
-                    PutObjectArgs.builder().bucket(DevFileMinIoUtil.getDefaultBucketName()).object(UFOPUtils.getAliyunObjectNameByFileUrl(writeFile.getFileUrl())).stream(
+                    PutObjectArgs.builder().bucket(DevFileMinIoUtil.getDefaultBucketName()).object(FileCenterUtil.getAliyunObjectNameByFileUrl(writeFile.getFileUrl())).stream(
                                     inputStream, inputStream.available(), -1)
 //                            .contentType("video/mp4")
                             .build());

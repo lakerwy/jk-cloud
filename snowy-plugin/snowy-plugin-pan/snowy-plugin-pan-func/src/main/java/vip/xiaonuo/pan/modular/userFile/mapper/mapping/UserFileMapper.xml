@@ -17,7 +17,12 @@
     </select>
 
     <select id="getTotalStorageSize" resultType="java.lang.Long" parameterType="java.lang.String">
-        SELECT SUM(b.FILE_SIZE) FROM DEV_FOLD a LEFT JOIN PAN_FILE b ON a.FILE_ID = b.ID  WHERE CREATE_USER = #{userId}
+        SELECT SUM(b.FILE_SIZE) FROM PAN_USER_FILE a LEFT JOIN PAN_FILE b ON a.FILE_ID = b.ID  WHERE CREATE_USER = #{userId}
+    </select>
+
+    <select id="selectUserFileByLikeRightFilePath" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select * from PAN_USER_FILE
+        where (FILE_PATH = #{filePath} or FILE_PATH like concat(#{filePath},'/%')) and USER_ID = #{userId} and deleteFlag = 0
     </select>
 
     <select id="selectUserFileByLikeRightFilePath" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
