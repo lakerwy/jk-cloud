@@ -86,7 +86,7 @@ public class FileDealComp {
         int isDir = userFile.getIsDir();
         LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(UserFile::getFilePath, savefilePath)
-                .eq(UserFile::getDeleteFlag, 0)
+                .eq(UserFile::getDeleteFlag, "NOT_DELETE")
                 .eq(UserFile::getUserId, userId)
                 .eq(UserFile::getFileName, fileName)
                 .eq(UserFile::getIsDir, isDir);
@@ -104,7 +104,7 @@ public class FileDealComp {
             i++;
             LambdaQueryWrapper<UserFile> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
             lambdaQueryWrapper1.eq(UserFile::getFilePath, savefilePath)
-                    .eq(UserFile::getDeleteFlag, 0)
+                    .eq(UserFile::getDeleteFlag, "NOT_DELETE")
                     .eq(UserFile::getUserId, userId)
                     .eq(UserFile::getFileName, fileName + "(" + i + ")")
                     .eq(UserFile::getIsDir, isDir);
@@ -139,7 +139,7 @@ public class FileDealComp {
             LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
             lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
                     .eq(UserFile::getFileName, fileName)
-                    .eq(UserFile::getDeleteFlag, 0)
+                    .eq(UserFile::getDeleteFlag, "NOT_DELETE")
                     .eq(UserFile::getIsDir, 1)
                     .eq(UserFile::getUserId, sessionUserId);
             List<UserFile> userFileList = userFileService.list(lambdaQueryWrapper);
@@ -180,7 +180,7 @@ public class FileDealComp {
             LambdaQueryWrapper<UserFile> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
             lambdaQueryWrapper1.eq(UserFile::getFilePath, userFile.getFilePath())
                     .eq(UserFile::getFileName, userFile.getFileName())
-                    .eq(UserFile::getDeleteFlag, "0");
+                    .eq(UserFile::getDeleteFlag, "NOT_DELETE");
             List<UserFile> userFiles = userFileService.list(lambdaQueryWrapper1);
             for (int i = 0; i < userFiles.size() - 1; i++) {
                 userFileService.removeById(userFiles.get(i).getId());
