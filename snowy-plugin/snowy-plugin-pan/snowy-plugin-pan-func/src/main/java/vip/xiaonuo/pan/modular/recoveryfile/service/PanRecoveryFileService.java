@@ -93,4 +93,6 @@ public interface PanRecoveryFileService extends IService<PanRecoveryFile> {
      * @date  2023/09/07 15:54
      */
     void batchDelete(BatchDeleteDto batchDeleteDto);
+
+    void deleteUserFileByDeleteBatchNum(String deleteBatchNum);
 }

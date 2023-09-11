@@ -12,10 +12,12 @@
  */
 package vip.xiaonuo.pan.modular.userFile.entity;
 
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 
 import java.util.Date;
 
@@ -121,8 +123,26 @@ public class UserFile {
         return this.isDir == 1;
     }
 
+    @ApiModelProperty(value = "删除批次号",position = 17)
+    private String deleteBatchNum;
+
+    /** 删除时间 */
+    @ApiModelProperty(value = "删除时间", position = 13)
+    private Date deleteTime;
+
     public boolean isFile() {
         return this.isDir == 0;
     }
 
+    public UserFile(CommonFile commonFile, String userId, String fileId) {
+        this.userId = userId;
+        this.fileId = fileId;
+        this.filePath = commonFile.getParent();
+        this.fileName = commonFile.getNameNotExtend();
+        this.extendName = commonFile.getExtendName();
+        this.isDir = commonFile.isDirectory() ? 1 : 0;
+    }
+
+    public UserFile() {
+    }
 }

@@ -4,7 +4,7 @@ import com.aliyun.oss.OSS;
 import vip.xiaonuo.dev.modular.file.util.DevFileAliyunUtil;
 import vip.xiaonuo.pan.modular.fileCenter.operation.delete.Deleter;
 import vip.xiaonuo.pan.modular.fileCenter.operation.delete.domain.DeleteFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 
 public class AliyunOSSDeleter extends Deleter {
@@ -13,7 +13,7 @@ public class AliyunOSSDeleter extends Deleter {
     public void delete(DeleteFile deleteFile) {
         OSS ossClient = DevFileAliyunUtil.getClient();
         try {
-            ossClient.deleteObject(DevFileAliyunUtil.getDefaultBucketName(), UFOPUtils.getAliyunObjectNameByFileUrl(deleteFile.getFileUrl()));
+            ossClient.deleteObject(DevFileAliyunUtil.getDefaultBucketName(), FileCenterUtil.getAliyunObjectNameByFileUrl(deleteFile.getFileUrl()));
         } finally {
             ossClient.shutdown();
         }

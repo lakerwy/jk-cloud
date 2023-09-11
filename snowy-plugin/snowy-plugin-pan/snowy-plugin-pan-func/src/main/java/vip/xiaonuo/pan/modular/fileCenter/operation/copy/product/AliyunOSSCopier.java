@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.modular.file.util.DevFileAliyunUtil;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.InputStream;
 import java.util.UUID;
@@ -17,7 +17,7 @@ public class AliyunOSSCopier extends Copier {
     @Override
     public String copy(InputStream inputStream, CopyFile copyFile) {
         String uuid = UUID.randomUUID().toString();
-        String fileUrl = UFOPUtils.getUploadFileUrl(uuid, copyFile.getExtendName());
+        String fileUrl = FileCenterUtil.getUploadFileUrl(uuid, copyFile.getExtendName());
         OSS ossClient = DevFileAliyunUtil.getClient();
         try {
             ossClient.putObject(DevFileAliyunUtil.getDefaultBucketName(), fileUrl, inputStream);

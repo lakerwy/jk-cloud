@@ -1,12 +1,17 @@
 package vip.xiaonuo.pan.modular.fileCenter.util;
 
 import cn.hutool.core.io.FileUtil;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.util.ResourceUtils;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.modular.file.util.DevFileLocalUtil;
 
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 /**
  * @author mayike
@@ -114,6 +119,41 @@ public class FileCenterUtil {
         return  decodeUrl;
     }
 
+    public static String getStaticPath() {
+        String localStoragePath = LOCAL_STORAGE_PATH;
+        if (StringUtils.isNotEmpty(localStoragePath)) {
+
+            return new File(localStoragePath).getPath() + File.separator;
+        }else {
+            String projectRootAbsolutePath = getProjectRootPath();
+
+            int index = projectRootAbsolutePath.indexOf("file:");
+            if (index != -1) {
+                projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
+            }
+
+            return new File(projectRootAbsolutePath + "static").getPath() + File.separator;
+        }
+
+
+    }
+    /**
+     * 获取项目所在的根目录路径 resources路径
+     * @return 结果
+     */
+    public static String getProjectRootPath() {
+        String absolutePath;
+        try {
+            String url = ResourceUtils.getURL("classpath:").getPath();
+            absolutePath = urlDecode(new File(url).getAbsolutePath()) + File.separator;
+        } catch (FileNotFoundException e) {
+            throw new CommonException(e.getMessage());
+        }
+
+        return absolutePath;
+    }
+
+
     public static String formatPath(String path) {
         path = FileCenterUtil.pathSplitFormat(path);
         if ("/".equals(path)) {
@@ -123,6 +163,36 @@ public class FileCenterUtil {
             int length = path.length();
             return path.substring(0, length - 1);
         }
+        return path;
+    }
+
+    public static String getAliyunObjectNameByFileUrl(String fileUrl) {
+        if (fileUrl.startsWith("/") || fileUrl.startsWith("\\")) {
+            fileUrl = fileUrl.substring(1);
+        }
+        return fileUrl;
+    }
+
+    /**
+     * 获取上传文件路径
+     * 返回路径格式 “upload/yyyyMMdd/”
+     * @param identifier 文件名（一般传入md5或uuid,防止文件名重复）
+     * @param extendName 文件扩展名
+     * @return 返回上传文件路径
+     */
+    public static String getUploadFileUrl(String identifier, String extendName) {
+
+        SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
+        String path = ROOT_PATH + "/" + formater.format(new Date()) + "/";
+
+        File dir = new File(FileCenterUtil.getStaticPath() + path);
+
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
+
+        path = path + identifier + "." + extendName;
+
         return path;
     }
 }

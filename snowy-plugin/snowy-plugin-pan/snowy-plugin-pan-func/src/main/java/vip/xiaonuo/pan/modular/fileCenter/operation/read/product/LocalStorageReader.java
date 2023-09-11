@@ -4,8 +4,8 @@ import org.apache.commons.io.FilenameUtils;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.pan.modular.fileCenter.operation.read.Reader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.read.domain.ReadFile;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.ReadFileUtils;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -17,7 +17,7 @@ public class LocalStorageReader extends Reader {
         String fileContent;
         try {
             String extendName = FilenameUtils.getExtension(readFile.getFileUrl());
-            FileInputStream fileInputStream = new FileInputStream(UFOPUtils.getStaticPath() + readFile.getFileUrl());
+            FileInputStream fileInputStream = new FileInputStream(FileCenterUtil.getStaticPath() + readFile.getFileUrl());
             fileContent = ReadFileUtils.getContentByInputStream(extendName, fileInputStream);
         } catch (IOException e) {
             throw new CommonException("文件读取出现异常", e);

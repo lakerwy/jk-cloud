@@ -134,4 +134,9 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
     public void batchDelete(BatchDeleteDto batchDeleteDto) {
 
     }
+
+    @Override
+    public void deleteUserFileByDeleteBatchNum(String deleteBatchNum) {
+
+    }
 }

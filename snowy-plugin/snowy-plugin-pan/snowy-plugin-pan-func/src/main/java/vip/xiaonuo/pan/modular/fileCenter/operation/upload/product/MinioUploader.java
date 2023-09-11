@@ -23,8 +23,8 @@ import java.security.NoSuchAlgorithmException;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFile;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFileResult;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.request.MultipartFile;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.RedisUtil;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
 
 @Slf4j
 public class MinioUploader extends Uploader {
@@ -53,10 +53,10 @@ public class MinioUploader extends Uploader {
         UploadFileResult uploadFileResult = new UploadFileResult();
         try {
             multipartFile.getFileUrl(uploadFile.getIdentifier());
-            String fileUrl = UFOPUtils.getUploadFileUrl(uploadFile.getIdentifier(), multipartFile.getExtendName());
+            String fileUrl = FileCenterUtil.getUploadFileUrl(uploadFile.getIdentifier(), multipartFile.getExtendName());
 
-            File tempFile =  UFOPUtils.getTempFile(fileUrl);
-            File processFile = UFOPUtils.getProcessFile(fileUrl);
+            File tempFile =  FileCenterUtil.getTempFile(fileUrl);
+            File processFile = FileCenterUtil.getProcessFile(fileUrl);
 
             byte[] fileData = multipartFile.getUploadBytes();
 
@@ -80,7 +80,7 @@ public class MinioUploader extends Uploader {
                 uploadFileResult.setFileUrl(fileUrl);
                 tempFile.delete();
 
-                if (UFOPUtils.isImageFile(uploadFileResult.getExtendName())) {
+                if (FileCenterUtil.isImageFile(uploadFileResult.getExtendName())) {
                     InputStream inputStream = null;
                     try {
                         MinioClient minioClient = DevFileMinIoUtil.getClient();

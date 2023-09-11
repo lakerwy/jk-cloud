@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.*;
 
@@ -15,7 +15,7 @@ public class LocalStorageDownloader extends Downloader {
     @Override
     public InputStream getInputStream(DownloadFile downloadFile) {
         //设置文件路径
-        File file = new File(UFOPUtils.getStaticPath() + downloadFile.getFileUrl());
+        File file = new File(FileCenterUtil.getStaticPath() + downloadFile.getFileUrl());
 
         InputStream inputStream = null;
         try {

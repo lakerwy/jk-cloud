@@ -44,6 +44,7 @@ public class FileFactory {
     public FileFactory() {
     }
 
+    //todo
     public FileFactory(FileCenterProperties fileCenterProperties) {
         this.storageType = fileCenterProperties.getStorageType();
         this.thumbImage = fileCenterProperties.getThumbImage();

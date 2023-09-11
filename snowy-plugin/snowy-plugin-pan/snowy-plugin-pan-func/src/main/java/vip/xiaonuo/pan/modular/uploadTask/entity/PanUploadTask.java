@@ -53,7 +53,7 @@ public class PanUploadTask {
 
     /** md5唯一标识 */
     @ApiModelProperty(value = "md5唯一标识", position = 6)
-    private String identifer;
+    private String identifier;
 
     /** 上传状态(1-成功,0-失败或未完成) */
     @ApiModelProperty(value = "上传状态(1-成功,0-失败或未完成)", position = 7)
@@ -65,7 +65,7 @@ public class PanUploadTask {
 
     /** 用户id */
     @ApiModelProperty(value = "用户id", position = 9)
-    private Long userId;
+    private String userId;
 
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 10)

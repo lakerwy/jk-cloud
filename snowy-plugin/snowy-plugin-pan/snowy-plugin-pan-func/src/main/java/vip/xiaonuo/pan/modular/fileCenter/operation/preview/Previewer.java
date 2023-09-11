@@ -9,7 +9,7 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.ImageOperation;
 import vip.xiaonuo.pan.modular.fileCenter.operation.VideoOperation;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.domain.PreviewFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.CharsetUtils;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
@@ -23,14 +23,14 @@ public abstract class Previewer {
 
     public void imageThumbnailPreview(HttpServletResponse httpServletResponse, PreviewFile previewFile) {
         String fileUrl = previewFile.getFileUrl();
-        boolean isVideo = UFOPUtils.isVideoFile(FilenameUtils.getExtension(fileUrl));
+        boolean isVideo = FileCenterUtil.isVideoFile(FilenameUtils.getExtension(fileUrl));
         String thumbnailImgUrl = previewFile.getFileUrl();
         if (isVideo) {
             thumbnailImgUrl = fileUrl.replace("." + FilenameUtils.getExtension(fileUrl), ".jpg");
         }
 
 
-        File cacheFile = UFOPUtils.getCacheFile(thumbnailImgUrl);
+        File cacheFile = FileCenterUtil.getCacheFile(thumbnailImgUrl);
 
         if (cacheFile.exists()) {
             FileInputStream fis = null;
@@ -59,7 +59,7 @@ public abstract class Previewer {
                     int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
                     int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
                     String type = FileTypeUtil.getType(getInputStream(previewFile));
-                    boolean isImageFile = UFOPUtils.isImageFile(type);
+                    boolean isImageFile = FileCenterUtil.isImageFile(type);
                     if (isVideo) {
                         in = VideoOperation.thumbnailsImage(inputstream, cacheFile, width, height);
                     } else if (isImageFile) {

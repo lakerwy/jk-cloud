@@ -32,6 +32,7 @@ import vip.xiaonuo.pan.modular.uploadTaskDetail.param.PanUploadTaskDetailIdParam
 import vip.xiaonuo.pan.modular.uploadTaskDetail.param.PanUploadTaskDetailPageParam;
 import vip.xiaonuo.pan.modular.uploadTaskDetail.service.PanUploadTaskDetailService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -43,6 +44,8 @@ import java.util.List;
 @Service
 public class PanUploadTaskDetailServiceImpl extends ServiceImpl<PanUploadTaskDetailMapper, PanUploadTaskDetail> implements PanUploadTaskDetailService {
 
+    @Resource
+    PanUploadTaskDetailService panUploadTaskDetailService;
     @Override
     public Page<PanUploadTaskDetail> page(PanUploadTaskDetailPageParam panUploadTaskDetailPageParam) {
         QueryWrapper<PanUploadTaskDetail> queryWrapper = new QueryWrapper<>();
@@ -90,5 +93,10 @@ public class PanUploadTaskDetailServiceImpl extends ServiceImpl<PanUploadTaskDet
             throw new CommonException("云盘-上传任务详情表不存在，id值为：{}", id);
         }
         return panUploadTaskDetail;
+    }
+
+    @Override
+    public List<Integer> selectUploadedChunkNumList(String identifier) {
+        return panUploadTaskDetailService.selectUploadedChunkNumList(identifier);
     }
 }

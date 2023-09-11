@@ -3,7 +3,7 @@ package vip.xiaonuo.pan.modular.fileCenter.operation.preview.product;
 import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.Previewer;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.domain.PreviewFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.UFOPUtils;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -22,7 +22,7 @@ public class LocalStoragePreviewer extends Previewer {
     @Override
     protected InputStream getInputStream(PreviewFile previewFile) {
         //设置文件路径
-        File file = UFOPUtils.getLocalSaveFile(previewFile.getFileUrl());
+        File file = FileCenterUtil.getLocalSaveFile(previewFile.getFileUrl());
         InputStream inputStream = null;
         try {
             inputStream = new FileInputStream(file);

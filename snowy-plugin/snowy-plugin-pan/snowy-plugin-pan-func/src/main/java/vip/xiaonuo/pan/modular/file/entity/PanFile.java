@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.file.entity;
 
+import cn.hutool.core.util.IdUtil;
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -88,4 +89,15 @@ public class PanFile {
     /** 文件后缀 */
     @ApiModelProperty(value = "文件后缀", position = 13)
     private String suffix;
+
+    public PanFile(String fileUrl, Long fileSize, Integer storageType, String identifier, String userId) {
+        this.fileUrl = fileUrl;
+        this.fileSize = fileSize;
+        this.fileStatus = 1;
+        this.storageType = storageType;
+        this.identifier = identifier;
+    }
+
+    public PanFile() {
+    }
 }
