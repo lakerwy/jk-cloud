@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.pan.modular.commonFile.mapper.PanCommonFileMapper">
+    <select id="selectCommonFileUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo">
+        SELECT c.userId, (SELECT username FROM user WHERE user.userId = c.userId) username
+        FROM PAN_COMMON_FILE a
+             LEFT JOIN PAN_PERMISSION b ON a.ID = b.commonFileId
+             LEFT JOIN PAN_USER_FILE c ON c.userFileId = a.userFileId
+        WHERE b.userId = #{userId}
+    </select>
 
 </mapper>

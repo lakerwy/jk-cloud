@@ -27,15 +27,14 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
-import vip.xiaonuo.pan.modular.commonFile.param.PanCommonFileAddParam;
-import vip.xiaonuo.pan.modular.commonFile.param.PanCommonFileEditParam;
-import vip.xiaonuo.pan.modular.commonFile.param.PanCommonFileIdParam;
-import vip.xiaonuo.pan.modular.commonFile.param.PanCommonFilePageParam;
+import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.service.PanCommonFileService;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 共享文件控制器
@@ -128,4 +127,38 @@ public class PanCommonFileController {
     public CommonResult<PanCommonFile> detail(@Valid PanCommonFileIdParam panCommonFileIdParam) {
         return CommonResult.data(panCommonFileService.detail(panCommonFileIdParam));
     }
+
+    /**
+     * 将文件共享给他人
+     *
+     * 共享文件统一接口
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("将文件共享给他人")
+    @CommonLog("将文件共享给他人")
+    @PostMapping("/pan/commonFile/commonFile")
+    public CommonResult<String> commonFile(@RequestBody @Valid CommonFileParam commonFileParam) {
+        panCommonFileService.commonFile(commonFileParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取共享空间的全量用户列表
+     *
+     * 共享文件用户接口
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取共享空间的全量用户列表")
+    @SaCheckPermission("/pan/commonFile/commonFileUser")
+    @GetMapping("/pan/commonFile/commonFileUser")
+    public CommonResult<List<CommonFileUserVo>> commonFileUser() {
+        return CommonResult.data(panCommonFileService.commonFileUser());
+    }
+
 }

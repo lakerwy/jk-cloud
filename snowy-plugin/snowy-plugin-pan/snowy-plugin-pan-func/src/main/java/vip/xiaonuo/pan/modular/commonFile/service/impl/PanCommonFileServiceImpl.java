@@ -14,8 +14,10 @@ package vip.xiaonuo.pan.modular.commonFile.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,12 +28,16 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
 import vip.xiaonuo.pan.modular.commonFile.mapper.PanCommonFileMapper;
-import vip.xiaonuo.pan.modular.commonFile.param.PanCommonFileAddParam;
-import vip.xiaonuo.pan.modular.commonFile.param.PanCommonFileEditParam;
-import vip.xiaonuo.pan.modular.commonFile.param.PanCommonFileIdParam;
-import vip.xiaonuo.pan.modular.commonFile.param.PanCommonFilePageParam;
+import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.service.PanCommonFileService;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
+import vip.xiaonuo.pan.modular.filePermission.entity.PanFilePermission;
+import vip.xiaonuo.pan.modular.filePermission.service.PanFilePermissionService;
+import vip.xiaonuo.pan.modular.permission.service.PanPermissionService;
 
+import javax.annotation.Resource;
+import java.io.FilePermission;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -42,6 +48,9 @@ import java.util.List;
  **/
 @Service
 public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, PanCommonFile> implements PanCommonFileService {
+
+    @Resource
+    PanFilePermissionService panFilePermissionService;
 
     @Override
     public Page<PanCommonFile> page(PanCommonFilePageParam panCommonFilePageParam) {
@@ -90,5 +99,26 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
             throw new CommonException("共享文件不存在，id值为：{}", id);
         }
         return panCommonFile;
+    }
+
+    @Override
+    public void commonFile(CommonFileParam commonFileParam) {
+        PanCommonFile commonFile = new PanCommonFile();
+        commonFile.setUserFileId(commonFileParam.getUserFileId());
+        this.save(commonFile);
+        //权限
+        List<PanFilePermission> filePermissionList = new ArrayList<>();
+        for (String userId : commonFileParam.getCommonUserList()) {
+            PanFilePermission filePermission = new PanFilePermission();
+            filePermission.setCommonFileId(commonFile.getId());
+            filePermission.setUserId(userId);
+            filePermissionList.add(filePermission);
+        }
+        panFilePermissionService.saveBatch(filePermissionList);
+    }
+
+    @Override
+    public List<CommonFileUserVo> commonFileUser() {
+        return null;
     }
 }

@@ -13,7 +13,11 @@
 package vip.xiaonuo.pan.modular.commonFile.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
+
+import java.util.List;
 
 /**
  * 共享文件Mapper接口
@@ -22,4 +26,7 @@ import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
  * @date  2023/09/06 21:07
  **/
 public interface PanCommonFileMapper extends BaseMapper<PanCommonFile> {
+
+    List<CommonFileUserVo> selectCommonFileUser(@Param("userId") String userId);
+
 }
