@@ -13,6 +13,7 @@
 package vip.xiaonuo.pan.modular.recoveryfile.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -28,7 +29,9 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.param.*;
+import vip.xiaonuo.pan.modular.recoveryfile.param.dto.BatchDeleteDto;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
+import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -124,5 +127,34 @@ public class PanRecoveryFileController {
     @GetMapping("/pan/recovery/detail")
     public CommonResult<PanRecoveryFile> detail(@Valid PanRecoveryFileIdParam panRecoveryFileIdParam) {
         return CommonResult.data(panRecoveryFileService.detail(panRecoveryFileIdParam));
+    }
+
+
+    /**
+     * 获取网盘-回收站分页 (回收站文件列表)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:54
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取网盘-回收站分页 (回收站文件列表)")
+    @GetMapping("/pan/recovery/listPage")
+    public CommonResult<IPage<RecoveryFileVo>> listPage(PanRecoveryFilePageParam panRecoveryFilePageParam) {
+        return CommonResult.data(panRecoveryFileService.listPage(panRecoveryFilePageParam));
+    }
+
+    /**
+     * 删除网盘-回收站 (支持批量删除)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:54
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("删除网盘-回收站(支持批量删除)")
+    @CommonLog("删除网盘-回收站(支持批量删除)")
+    @PostMapping("/pan/recovery/batchDelete")
+    public CommonResult<String> batchDelete(@RequestBody @Valid BatchDeleteDto batchDeleteDto) {
+        panRecoveryFileService.batchDelete(batchDeleteDto);
+        return CommonResult.ok();
     }
 }

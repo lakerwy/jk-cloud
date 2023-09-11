@@ -14,6 +14,7 @@ package vip.xiaonuo.pan.modular.userFile.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.apache.ibatis.annotations.Param;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
@@ -136,4 +137,7 @@ public interface UserFileService extends IService<UserFile> {
     List<DevFile> uploadReturnBean(String engine, MultipartFileParam param);
 
     Long getTotalStorageSize();
+
+    List<UserFile> selectUserFileByLikeRightFilePath(@Param("filePath") String filePath, @Param("userId") String userId);
+
 }

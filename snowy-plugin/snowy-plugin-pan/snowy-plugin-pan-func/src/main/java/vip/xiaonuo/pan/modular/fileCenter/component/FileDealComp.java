@@ -1,253 +1,256 @@
-//package vip.xiaonuo.pan.modular.fileCenter.component;
-//
-//import cn.hutool.core.bean.BeanUtil;
-//import cn.hutool.core.util.IdUtil;
-//
-//import com.alibaba.fastjson2.JSON;
-//import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-//import lombok.extern.slf4j.Slf4j;
-//import org.apache.commons.codec.digest.DigestUtils;
-//import org.apache.commons.collections4.CollectionUtils;
-//import org.apache.commons.io.IOUtils;
-//import org.apache.commons.lang3.StringUtils;
-//import org.springframework.stereotype.Component;
-//import vip.xiaonuo.pan.modular.file.mapper.PanFileMapper;
-//import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
-//import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
-//import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
-//import vip.xiaonuo.pan.modular.music.mapper.PanMusicMapper;
-//import vip.xiaonuo.pan.modular.share.service.PanShareService;
-//import vip.xiaonuo.pan.modular.sharefile.service.PanShareFileService;
-//
-//import javax.annotation.Resource;
-//import java.io.File;
-//import java.io.FileOutputStream;
-//import java.io.IOException;
-//import java.io.InputStream;
-//import java.util.*;
-//import java.util.concurrent.Executor;
-//import java.util.concurrent.Executors;
-//
-///**
-// * 文件逻辑处理组件
-// */
-//@Slf4j
-//@Component
-//public class FileDealComp {
-//    @Resource
-//    private UserFileMapper userFileMapper;
-//    @Resource
-//    private PanFileMapper panFileMapper;
-//    @Resource
-//    private PanShareService panShareService;
-//    @Resource
-//    private PanShareFileService panShareFileService;
-//    @Resource
-//    private FileFactory fileFactory;
-//    @Resource
-//    private PanMusicMapper panMusicMapper;
-//
-//    public static Executor exec = Executors.newFixedThreadPool(20);
-//
-//    /**
-//     * 获取重复文件名
-//     * <p>
-//     * 场景1: 文件还原时，在 savefilePath 路径下，保存 测试.txt 文件重名，则会生成 测试(1).txt
-//     * 场景2： 上传文件时，在 savefilePath 路径下，保存 测试.txt 文件重名，则会生成 测试(1).txt
-//     *
-//     * @param userFile
-//     * @param savefilePath
-//     * @return
-//     */
-//    public String getRepeatFileName(UserFile userFile, String savefilePath) {
-//        String fileName = userFile.getFileName();
-//        String extendName = userFile.getExtendName();
-//
-//        String userId = userFile.getUserId();
-//        int isDir = userFile.getIsDir();
-//        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//        lambdaQueryWrapper.eq(UserFile::getFilePath, savefilePath)
-//                .eq(UserFile::getDeleteFlag, 0)
-//                .eq(UserFile::getUserId, userId)
-//                .eq(UserFile::getFileName, fileName)
-//                .eq(UserFile::getIsDir, isDir);
-//        if (userFile.isFile()) {
-//            lambdaQueryWrapper.eq(UserFile::getExtendName, extendName);
-//        }
-//        List<UserFile> list = userFileMapper.selectList(lambdaQueryWrapper);
-//        if (CollectionUtils.isEmpty(list)) {
-//            return fileName;
-//        }
-//
-//        int i = 0;
-//
-//        while (!CollectionUtils.isEmpty(list)) {
-//            i++;
-//            LambdaQueryWrapper<UserFile> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
-//            lambdaQueryWrapper1.eq(UserFile::getFilePath, savefilePath)
-//                    .eq(UserFile::getDeleteFlag, 0)
-//                    .eq(UserFile::getUserId, userId)
-//                    .eq(UserFile::getFileName, fileName + "(" + i + ")")
-//                    .eq(UserFile::getIsDir, isDir);
-//            if (userFile.isFile()) {
-//                lambdaQueryWrapper1.eq(UserFile::getExtendName, extendName);
-//            }
-//            list = userFileMapper.selectList(lambdaQueryWrapper1);
-//
-//        }
-//
-//        return fileName + "(" + i + ")";
-//
-//    }
-//
-//    /**
-//     * 还原父文件路径
-//     * <p>
-//     * 1、回收站文件还原操作会将文件恢复到原来的路径下,当还原文件的时候，如果父目录已经不存在了，则需要把父母录给还原
-//     * 2、上传目录
-//     *
-//     * @param sessionUserId
-//     */
-//    public void restoreParentFilePath(QiwenFile qiwenFile, String sessionUserId) {
-//
-//        if (qiwenFile.isFile()) {
-//            qiwenFile = qiwenFile.getParentFile();
-//        }
-//        while (qiwenFile.getParent() != null) {
-//            String fileName = qiwenFile.getName();
-//            String parentFilePath = qiwenFile.getParent();
-//
-//            LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//            lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
-//                    .eq(UserFile::getFileName, fileName)
-//                    .eq(UserFile::getDeleteFlag, 0)
-//                    .eq(UserFile::getIsDir, 1)
-//                    .eq(UserFile::getUserId, sessionUserId);
-//            List<UserFile> userFileList = userFileMapper.selectList(lambdaQueryWrapper);
-//            if (userFileList.size() == 0) {
-//                UserFile userFile = QiwenFileUtil.getQiwenDir(sessionUserId, parentFilePath, fileName);
-//                try {
-//                    userFileMapper.insert(userFile);
-//                } catch (Exception e) {
-//                    //ignore
-//                }
-//            }
-//            qiwenFile = new QiwenFile(parentFilePath, true);
-//        }
-//    }
-//
-//
-//    /**
-//     * 删除重复的子目录文件
-//     * <p>
-//     * 当还原目录的时候，如果其子目录在文件系统中已存在，则还原之后进行去重操作
-//     *
-//     * @param filePath
-//     * @param sessionUserId
-//     */
-//    public void deleteRepeatSubDirFile(String filePath, String sessionUserId) {
-//        log.debug("删除子目录：" + filePath);
-//        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//
-//        lambdaQueryWrapper.select(UserFile::getFileName, UserFile::getFilePath)
-//                .likeRight(UserFile::getFilePath, QiwenFileUtil.formatLikePath(filePath))
-//                .eq(UserFile::getIsDir, 1)
-//                .eq(UserFile::getDeleteFlag, 0)
-//                .eq(UserFile::getUserId, sessionUserId)
-//                .groupBy(UserFile::getFilePath, UserFile::getFileName)
-//                .having("count(fileName) >= 2");
-//        List<UserFile> repeatList = userFileMapper.selectList(lambdaQueryWrapper);
-//
-//        for (UserFile userFile : repeatList) {
-//            LambdaQueryWrapper<UserFile> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
-//            lambdaQueryWrapper1.eq(UserFile::getFilePath, userFile.getFilePath())
-//                    .eq(UserFile::getFileName, userFile.getFileName())
-//                    .eq(UserFile::getDeleteFlag, "0");
-//            List<UserFile> userFiles = userFileMapper.selectList(lambdaQueryWrapper1);
-//            for (int i = 0; i < userFiles.size() - 1; i++) {
-//                userFileMapper.deleteById(userFiles.get(i).getUserFileId());
-//            }
-//        }
-//    }
-//
-//    /**
-//     * 组织一个树目录节点，文件移动的时候使用
-//     *
-//     * @param treeNode
-//     * @param id
-//     * @param filePath
-//     * @param nodeNameQueue
-//     * @return
-//     */
-//    public TreeNode insertTreeNode(TreeNode treeNode, long id, String filePath, Queue<String> nodeNameQueue) {
-//
-//        List<TreeNode> childrenTreeNodes = treeNode.getChildren();
-//        String currentNodeName = nodeNameQueue.peek();
-//        if (currentNodeName == null) {
-//            return treeNode;
-//        }
-//
-//        QiwenFile qiwenFile = new QiwenFile(filePath, currentNodeName, true);
-//        filePath = qiwenFile.getPath();
-//
-//        if (!isExistPath(childrenTreeNodes, currentNodeName)) {  //1、判断有没有该子节点，如果没有则插入
-//            //插入
-//            TreeNode resultTreeNode = new TreeNode();
-//
-//            resultTreeNode.setFilePath(filePath);
-//            resultTreeNode.setLabel(nodeNameQueue.poll());
-//            resultTreeNode.setId(++id);
-//
-//            childrenTreeNodes.add(resultTreeNode);
-//
-//        } else {  //2、如果有，则跳过
-//            nodeNameQueue.poll();
-//        }
-//
-//        if (nodeNameQueue.size() != 0) {
-//            for (int i = 0; i < childrenTreeNodes.size(); i++) {
-//
-//                TreeNode childrenTreeNode = childrenTreeNodes.get(i);
-//                if (currentNodeName.equals(childrenTreeNode.getLabel())) {
-//                    childrenTreeNode = insertTreeNode(childrenTreeNode, id * 10, filePath, nodeNameQueue);
-//                    childrenTreeNodes.remove(i);
-//                    childrenTreeNodes.add(childrenTreeNode);
-//                    treeNode.setChildren(childrenTreeNodes);
-//                }
-//
-//            }
-//        } else {
-//            treeNode.setChildren(childrenTreeNodes);
-//        }
-//
-//        return treeNode;
-//
-//    }
-//
-//    /**
-//     * 判断该路径在树节点中是否已经存在
-//     *
-//     * @param childrenTreeNodes
-//     * @param path
-//     * @return
-//     */
-//    public boolean isExistPath(List<TreeNode> childrenTreeNodes, String path) {
-//        boolean isExistPath = false;
-//
-//        try {
-//            for (TreeNode childrenTreeNode : childrenTreeNodes) {
-//                if (path.equals(childrenTreeNode.getLabel())) {
-//                    isExistPath = true;
-//                }
-//            }
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//
-//
-//        return isExistPath;
-//    }
-//
+package vip.xiaonuo.pan.modular.fileCenter.component;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.IdUtil;
+
+import com.alibaba.fastjson2.JSON;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.collections4.CollectionUtils;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
+import vip.xiaonuo.pan.modular.file.mapper.PanFileMapper;
+import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
+import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
+import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
+import vip.xiaonuo.pan.modular.music.mapper.PanMusicMapper;
+import vip.xiaonuo.pan.modular.share.service.PanShareService;
+import vip.xiaonuo.pan.modular.sharefile.service.PanShareFileService;
+import vip.xiaonuo.pan.modular.util.TreeNode;
+import vip.xiaonuo.pan.modular.util.UserFileUtil;
+
+import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+/**
+ * 文件逻辑处理组件
+ */
+@Slf4j
+@Component
+public class FileDealComp {
+    @Resource
+    private UserFileMapper userFileMapper;
+    @Resource
+    private PanFileMapper panFileMapper;
+    @Resource
+    private PanShareService panShareService;
+    @Resource
+    private PanShareFileService panShareFileService;
+    @Resource
+    private FileFactory fileFactory;
+    @Resource
+    private PanMusicMapper panMusicMapper;
+
+    public static Executor exec = Executors.newFixedThreadPool(20);
+
+    /**
+     * 获取重复文件名
+     * <p>
+     * 场景1: 文件还原时，在 savefilePath 路径下，保存 测试.txt 文件重名，则会生成 测试(1).txt
+     * 场景2： 上传文件时，在 savefilePath 路径下，保存 测试.txt 文件重名，则会生成 测试(1).txt
+     *
+     * @param userFile
+     * @param savefilePath
+     * @return
+     */
+    public String getRepeatFileName(UserFile userFile, String savefilePath) {
+        String fileName = userFile.getFileName();
+        String extendName = userFile.getExtendName();
+
+        String userId = userFile.getUserId();
+        int isDir = userFile.getIsDir();
+        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(UserFile::getFilePath, savefilePath)
+                .eq(UserFile::getDeleteFlag, "NOT_DELETE")
+                .eq(UserFile::getUserId, userId)
+                .eq(UserFile::getFileName, fileName)
+                .eq(UserFile::getIsDir, isDir);
+        if (userFile.isFile()) {
+            lambdaQueryWrapper.eq(UserFile::getExtendName, extendName);
+        }
+        List<UserFile> list = userFileMapper.selectList(lambdaQueryWrapper);
+        if (CollectionUtils.isEmpty(list)) {
+            return fileName;
+        }
+
+        int i = 0;
+
+        while (!CollectionUtils.isEmpty(list)) {
+            i++;
+            LambdaQueryWrapper<UserFile> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper1.eq(UserFile::getFilePath, savefilePath)
+                    .eq(UserFile::getDeleteFlag, "NOT_DELETE")
+                    .eq(UserFile::getUserId, userId)
+                    .eq(UserFile::getFileName, fileName + "(" + i + ")")
+                    .eq(UserFile::getIsDir, isDir);
+            if (userFile.isFile()) {
+                lambdaQueryWrapper1.eq(UserFile::getExtendName, extendName);
+            }
+            list = userFileMapper.selectList(lambdaQueryWrapper1);
+
+        }
+
+        return fileName + "(" + i + ")";
+
+    }
+
+    /**
+     * 还原父文件路径
+     * <p>
+     * 1、回收站文件还原操作会将文件恢复到原来的路径下,当还原文件的时候，如果父目录已经不存在了，则需要把父母录给还原
+     * 2、上传目录
+     *
+     * @param sessionUserId
+     */
+    public void restoreParentFilePath(CommonFile qiwenFile, String sessionUserId) {
+
+        if (qiwenFile.isFile()) {
+            qiwenFile = qiwenFile.getParentFile();
+        }
+        while (qiwenFile.getParent() != null) {
+            String fileName = qiwenFile.getName();
+            String parentFilePath = qiwenFile.getParent();
+
+            LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
+                    .eq(UserFile::getFileName, fileName)
+                    .eq(UserFile::getDeleteFlag, "NOT_DELETE")
+                    .eq(UserFile::getIsDir, 1)
+                    .eq(UserFile::getUserId, sessionUserId);
+            List<UserFile> userFileList = userFileMapper.selectList(lambdaQueryWrapper);
+            if (userFileList.size() == 0) {
+                UserFile userFile = UserFileUtil.getQiwenDir(sessionUserId, parentFilePath, fileName);
+                try {
+                    userFileMapper.insert(userFile);
+                } catch (Exception e) {
+                    //ignore
+                }
+            }
+            qiwenFile = new CommonFile(parentFilePath, true);
+        }
+    }
+
+
+    /**
+     * 删除重复的子目录文件
+     * <p>
+     * 当还原目录的时候，如果其子目录在文件系统中已存在，则还原之后进行去重操作
+     *
+     * @param filePath
+     * @param sessionUserId
+     */
+    public void deleteRepeatSubDirFile(String filePath, String sessionUserId) {
+        log.debug("删除子目录：" + filePath);
+        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+
+        lambdaQueryWrapper.select(UserFile::getFileName, UserFile::getFilePath)
+                .likeRight(UserFile::getFilePath, UserFileUtil.formatLikePath(filePath))
+                .eq(UserFile::getIsDir, 1)
+                .eq(UserFile::getDeleteFlag, "NOT_DELETE")
+                .eq(UserFile::getUserId, sessionUserId)
+                .groupBy(UserFile::getFilePath, UserFile::getFileName)
+                .having("count(fileName) >= 2");
+        List<UserFile> repeatList = userFileMapper.selectList(lambdaQueryWrapper);
+
+        for (UserFile userFile : repeatList) {
+            LambdaQueryWrapper<UserFile> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper1.eq(UserFile::getFilePath, userFile.getFilePath())
+                    .eq(UserFile::getFileName, userFile.getFileName())
+                    .eq(UserFile::getDeleteFlag, "NOT_DELETE");
+            List<UserFile> userFiles = userFileMapper.selectList(lambdaQueryWrapper1);
+            for (int i = 0; i < userFiles.size() - 1; i++) {
+                userFileMapper.deleteById(userFiles.get(i).getId());
+            }
+        }
+    }
+
+    /**
+     * 组织一个树目录节点，文件移动的时候使用
+     *
+     * @param treeNode
+     * @param id
+     * @param filePath
+     * @param nodeNameQueue
+     * @return
+     */
+    public TreeNode insertTreeNode(TreeNode treeNode, long id, String filePath, Queue<String> nodeNameQueue) {
+
+        List<TreeNode> childrenTreeNodes = treeNode.getChildren();
+        String currentNodeName = nodeNameQueue.peek();
+        if (currentNodeName == null) {
+            return treeNode;
+        }
+
+        CommonFile qiwenFile = new CommonFile(filePath, currentNodeName, true);
+        filePath = qiwenFile.getPath();
+
+        if (!isExistPath(childrenTreeNodes, currentNodeName)) {  //1、判断有没有该子节点，如果没有则插入
+            //插入
+            TreeNode resultTreeNode = new TreeNode();
+
+            resultTreeNode.setFilePath(filePath);
+            resultTreeNode.setLabel(nodeNameQueue.poll());
+            resultTreeNode.setId(++id);
+
+            childrenTreeNodes.add(resultTreeNode);
+
+        } else {  //2、如果有，则跳过
+            nodeNameQueue.poll();
+        }
+
+        if (nodeNameQueue.size() != 0) {
+            for (int i = 0; i < childrenTreeNodes.size(); i++) {
+
+                TreeNode childrenTreeNode = childrenTreeNodes.get(i);
+                if (currentNodeName.equals(childrenTreeNode.getLabel())) {
+                    childrenTreeNode = insertTreeNode(childrenTreeNode, id * 10, filePath, nodeNameQueue);
+                    childrenTreeNodes.remove(i);
+                    childrenTreeNodes.add(childrenTreeNode);
+                    treeNode.setChildren(childrenTreeNodes);
+                }
+
+            }
+        } else {
+            treeNode.setChildren(childrenTreeNodes);
+        }
+
+        return treeNode;
+
+    }
+
+    /**
+     * 判断该路径在树节点中是否已经存在
+     *
+     * @param childrenTreeNodes
+     * @param path
+     * @return
+     */
+    public boolean isExistPath(List<TreeNode> childrenTreeNodes, String path) {
+        boolean isExistPath = false;
+
+        try {
+            for (TreeNode childrenTreeNode : childrenTreeNodes) {
+                if (path.equals(childrenTreeNode.getLabel())) {
+                    isExistPath = true;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+
+        return isExistPath;
+    }
+
 //
 //    public void uploadESByUserFileId(String userFileId) {
 //        exec.execute(()->{
@@ -524,5 +527,5 @@
 //            }
 //        }
 //    }
-//
-//}
+
+}

@@ -404,4 +404,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     public Long getTotalStorageSize() {
         return userFileMapper.getTotalStorageSize(StpLoginUserUtil.getLoginUser().getId());
     }
+
+    @Override
+    public List<UserFile> selectUserFileByLikeRightFilePath(String filePath, String userId) {
+        return userFileMapper.selectUserFileByLikeRightFilePath(filePath,userId);
+    }
 }

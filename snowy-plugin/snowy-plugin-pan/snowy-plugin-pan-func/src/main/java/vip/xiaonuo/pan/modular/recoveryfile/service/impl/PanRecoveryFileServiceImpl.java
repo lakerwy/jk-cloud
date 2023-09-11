@@ -17,18 +17,23 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.mapper.PanRecoveryFileMapper;
 import vip.xiaonuo.pan.modular.recoveryfile.param.*;
+import vip.xiaonuo.pan.modular.recoveryfile.param.dto.BatchDeleteDto;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
+import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -39,6 +44,9 @@ import java.util.List;
  **/
 @Service
 public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMapper, PanRecoveryFile> implements PanRecoveryFileService {
+
+    @Resource
+    PanRecoveryFileMapper panRecoveryFileMapper;
 
     @Override
     public Page<PanRecoveryFile> page(PanRecoveryFilePageParam panRecoveryFilePageParam) {
@@ -96,5 +104,34 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
             throw new CommonException("网盘-回收站不存在，id值为：{}", id);
         }
         return panRecoveryFile;
+    }
+
+    @Override
+    public IPage<RecoveryFileVo> listPage(PanRecoveryFilePageParam panRecoveryFilePageParam) {
+        QueryWrapper<PanRecoveryFile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("c.USER_ID", StpLoginUserUtil.getLoginUser().getId());
+        if(ObjectUtil.isNotEmpty(panRecoveryFilePageParam.getTenantId())) {
+            queryWrapper.eq("a.TENANT_ID", panRecoveryFilePageParam.getTenantId());
+        }
+        if(ObjectUtil.isNotEmpty(panRecoveryFilePageParam.getStartDeleteTime()) && ObjectUtil.isNotEmpty(panRecoveryFilePageParam.getEndDeleteTime())) {
+            queryWrapper.between("a.DELETE_TIME", panRecoveryFilePageParam.getStartDeleteTime(), panRecoveryFilePageParam.getEndDeleteTime());
+        }
+        if(ObjectUtil.isNotEmpty(panRecoveryFilePageParam.getDeleteBatchNum())) {
+            queryWrapper.eq("a.DELETE_BATCH_NUM", panRecoveryFilePageParam.getDeleteBatchNum());
+        }
+        if(ObjectUtil.isAllNotEmpty(panRecoveryFilePageParam.getSortField(), panRecoveryFilePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(panRecoveryFilePageParam.getSortOrder());
+            queryWrapper.orderBy(true, panRecoveryFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(panRecoveryFilePageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("a.DELETE_TIME");
+        }
+        return panRecoveryFileMapper.getRecoveryFileList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public void batchDelete(BatchDeleteDto batchDeleteDto) {
+
     }
 }

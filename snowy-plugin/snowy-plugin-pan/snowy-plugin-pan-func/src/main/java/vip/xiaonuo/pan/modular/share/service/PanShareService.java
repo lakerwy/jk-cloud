@@ -12,13 +12,15 @@
  */
 package vip.xiaonuo.pan.modular.share.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.param.*;
-import vip.xiaonuo.pan.modular.share.param.dto.SaveShareFileDto;
-import vip.xiaonuo.pan.modular.share.param.dto.ShareFileDto;
+import vip.xiaonuo.pan.modular.share.param.dto.*;
 import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
+import vip.xiaonuo.pan.modular.share.vo.ShareListVo;
+import vip.xiaonuo.pan.modular.share.vo.ShareTypeVo;
 
 import java.util.List;
 
@@ -97,4 +99,55 @@ public interface PanShareService extends IService<PanShare> {
      * @date  2023/09/07 15:55
      */
     void saveShareFile(SaveShareFileDto saveShareFileDto);
+
+    /**
+     * 网盘-分享-查看已分享列表
+     *
+     * (查看已分享列表)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    IPage<ShareListVo> shareList(PanSharePageParam panSharePageParam);
+
+    /**
+     * 网盘-分享-分享文件列表
+     *
+     * (查看分享文件列表)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    IPage<ShareListVo> shareFileList(ShareFilePageDto shareFilePageDto);
+
+    /**
+     * 网盘-分享-分享文件
+     *
+     * (获取分享类型)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    ShareTypeVo shareType(ShareParam shareParam);
+
+
+    /**
+     * 网盘-分享-分享文件
+     *
+     * (校验提取码)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    Boolean checkExtractionCode(ShareExtractionCodeDto shareExtractionCodeDto);
+
+    /**
+     * 网盘-分享-分享文件
+     *
+     * (校验分享过期时间)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    Boolean checkEndTime(ShareParam shareParam);
 }

@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.pan.modular.share.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
+import vip.xiaonuo.pan.modular.share.vo.ShareListVo;
 
 /**
  * 网盘-分享表Mapper接口
@@ -22,4 +28,9 @@ import vip.xiaonuo.pan.modular.share.entity.PanShare;
  * @date  2023/09/07 15:55
  **/
 public interface PanShareMapper extends BaseMapper<PanShare> {
+
+    IPage<ShareListVo> getShareList(Page<ShareListVo> page, @Param(Constants.WRAPPER) Wrapper<PanShare> queryWrapper);
+
+    IPage<ShareListVo> getShareFileList(Page<ShareListVo> page, @Param(Constants.WRAPPER) Wrapper<PanShare> queryWrapper);
+
 }

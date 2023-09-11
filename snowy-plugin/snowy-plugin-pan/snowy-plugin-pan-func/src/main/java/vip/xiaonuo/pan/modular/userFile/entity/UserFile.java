@@ -114,4 +114,15 @@ public class UserFile {
     @ApiModelProperty(value = "用户ID", position = 16)
     private String userId;
 
+
+
+
+    public boolean isDirectory() {
+        return this.isDir == 1;
+    }
+
+    public boolean isFile() {
+        return this.isDir == 0;
+    }
+
 }

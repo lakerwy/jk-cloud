@@ -12,7 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.share.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -28,10 +28,11 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.param.*;
-import vip.xiaonuo.pan.modular.share.param.dto.SaveShareFileDto;
-import vip.xiaonuo.pan.modular.share.param.dto.ShareFileDto;
+import vip.xiaonuo.pan.modular.share.param.dto.*;
 import vip.xiaonuo.pan.modular.share.service.PanShareService;
 import vip.xiaonuo.pan.modular.share.vo.ShareFileVo;
+import vip.xiaonuo.pan.modular.share.vo.ShareListVo;
+import vip.xiaonuo.pan.modular.share.vo.ShareTypeVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -170,10 +171,64 @@ public class PanShareController {
      * @author yong.ye
      * @date  2023/09/07 15:55
      */
-//    @ApiOperationSupport(order = 8)
-//    @ApiOperation("网盘-分享-查看已分享列表")
-//    @GetMapping("/pan/share/detail")
-//    public CommonResult<PanShare> detail(@Valid PanShareIdParam panShareIdParam) {
-//        return CommonResult.data(panShareService.detail(panShareIdParam));
-//    }
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("网盘-分享-查看已分享列表")
+    @GetMapping("/pan/share/shareList")
+    public CommonResult<IPage<ShareListVo>> shareList(@Valid PanSharePageParam panSharePageParam) {
+        return CommonResult.data(panShareService.shareList(panSharePageParam));
+    }
+
+    /**
+     * 网盘-分享-分享文件列表
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("网盘-分享-分享文件列表")
+    @GetMapping("/pan/share/shareFileList")
+    public CommonResult<IPage<ShareListVo>> shareFileList(@Valid ShareFilePageDto shareFilePageDto) {
+        return CommonResult.data(panShareService.shareFileList(shareFilePageDto));
+    }
+
+    /**
+     * 网盘-分享-分享 (获取分享类型)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("网盘-分享-分享(获取分享类型)")
+    @GetMapping("/pan/share/shareType")
+    public CommonResult<ShareTypeVo> shareType(@Valid ShareParam shareParam) {
+        return CommonResult.data(panShareService.shareType(shareParam));
+    }
+
+    /**
+     * 网盘-分享-分享 (校验提取码)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("网盘-分享-分享(校验提取码)")
+    @GetMapping("/pan/share/checkExtractionCode")
+    public CommonResult<Boolean> checkExtractionCode(@Valid ShareExtractionCodeDto shareExtractionCodeDto) {
+        return CommonResult.data(panShareService.checkExtractionCode(shareExtractionCodeDto));
+    }
+
+
+    /**
+     * 网盘-分享-分享 (校验分享过期时间)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:55
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("网盘-分享-分享(校验分享过期时间)")
+    @GetMapping("/pan/share/checkEndTime")
+    public CommonResult<Boolean> checkEndTime(@Valid ShareParam shareParam) {
+        return CommonResult.data(panShareService.checkEndTime(shareParam));
+    }
+
 }

@@ -12,8 +12,16 @@
  */
 package vip.xiaonuo.pan.modular.recoveryfile.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
+import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
+import vip.xiaonuo.pan.modular.share.entity.PanShare;
+import vip.xiaonuo.pan.modular.share.vo.ShareListVo;
 
 /**
  * 网盘-回收站Mapper接口
@@ -22,4 +30,7 @@ import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
  * @date  2023/09/07 15:54
  **/
 public interface PanRecoveryFileMapper extends BaseMapper<PanRecoveryFile> {
+
+    IPage<RecoveryFileVo> getRecoveryFileList(Page<RecoveryFileVo> page, @Param(Constants.WRAPPER) Wrapper<PanRecoveryFile> queryWrapper);
+
 }

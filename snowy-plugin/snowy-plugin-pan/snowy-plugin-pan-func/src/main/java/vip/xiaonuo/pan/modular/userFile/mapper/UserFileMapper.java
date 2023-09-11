@@ -30,4 +30,7 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
     List<NodeFold> nodeList(@Param(value = "id") String id);
 
     Long getTotalStorageSize(@Param("userId") String userId);
+
+    List<UserFile> selectUserFileByLikeRightFilePath(@Param("filePath") String filePath, @Param("userId") String userId);
+
 }
