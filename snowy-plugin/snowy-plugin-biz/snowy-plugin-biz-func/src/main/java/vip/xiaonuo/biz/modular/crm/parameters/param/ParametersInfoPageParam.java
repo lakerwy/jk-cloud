@@ -72,9 +72,13 @@ public class ParametersInfoPageParam {
     @ApiModelProperty(value = "管廊分类及登记（历史表Parameters.PipeType）")
     private String pipeType;
 
-    /** 管廊断面尺寸（历史表Parameters.PipeSize） */
-    @ApiModelProperty(value = "管廊断面尺寸（历史表Parameters.PipeSize）")
+    /** 管廊断面尺寸 - 宽 */
+    @ApiModelProperty(value = "管廊断面尺寸 - 宽")
     private String pipeSize;
+
+    /** 管廊断面尺寸 - 高 */
+    @ApiModelProperty(value = "管廊断面尺寸 - 高")
+    private String pipeSizeH;
 
     /** 桥梁单跨跨度（历史表Parameters.BridgeSpan） */
     @ApiModelProperty(value = "桥梁单跨跨度（历史表Parameters.BridgeSpan）")
@@ -96,9 +100,13 @@ public class ParametersInfoPageParam {
     @ApiModelProperty(value = "道路红线宽度（历史表Parameters.RoadRedWidth）")
     private String roadRedWidth;
 
-    /** 隧道断面尺寸（历史表Parameters.TunnelSSize） */
-    @ApiModelProperty(value = "隧道断面尺寸（历史表Parameters.TunnelSSize）")
+    /** 隧道断面尺寸 - 隧道净宽限界(m) */
+    @ApiModelProperty(value = "隧道断面尺寸 - 隧道净宽限界(m)")
     private String tunnelSSize;
+
+    /** 隧道断面尺寸 - 隧道建筑净空限界(m) */
+    @ApiModelProperty(value = "隧道断面尺寸 - 隧道建筑净空限界(m)")
+    private String tunnelSSizeJ;
 
     /** 电力容量（历史表Parameters.Power） */
     @ApiModelProperty(value = "电力容量（历史表Parameters.Power）")

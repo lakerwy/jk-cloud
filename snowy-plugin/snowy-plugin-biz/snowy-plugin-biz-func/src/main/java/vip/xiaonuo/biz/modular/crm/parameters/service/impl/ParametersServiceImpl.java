@@ -89,6 +89,9 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         if(ObjectUtil.isNotEmpty(parametersPageParam.getPipeSize())) {
             queryWrapper.ge(" CAST(PIPE_SIZE AS SIGNED) ", parametersPageParam.getPipeSize());
         }
+        if(ObjectUtil.isNotEmpty(parametersPageParam.getPipeSizeH())) {
+            queryWrapper.ge(" CAST(PIPE_SIZE_H AS SIGNED) ", parametersPageParam.getPipeSizeH());
+        }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getBridgeSpan())) {
             queryWrapper.ge(" CAST(BRIDGE_SPAN AS SIGNED) ", parametersPageParam.getBridgeSpan());
         }
@@ -106,6 +109,9 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getTunnelSSize())) {
             queryWrapper.ge(" CAST(TUNNEL_S_SIZE AS SIGNED) ", parametersPageParam.getTunnelSSize());
+        }
+        if(ObjectUtil.isNotEmpty(parametersPageParam.getTunnelSSizeJ())) {
+            queryWrapper.ge(" CAST(TUNNEL_S_SIZE_J AS SIGNED) ", parametersPageParam.getTunnelSSizeJ());
         }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getPower())) {
             queryWrapper.ge(" CAST(POWER AS SIGNED) ", parametersPageParam.getPower());
@@ -215,6 +221,9 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getPipeSize())) {
             queryWrapper.ge(" CAST(a.PIPE_SIZE AS SIGNED) ", parametersInfoPageParam.getPipeSize());
         }
+        if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getPipeSizeH())) {
+            queryWrapper.ge(" CAST(a.PIPE_SIZE_H AS SIGNED) ", parametersInfoPageParam.getPipeSizeH());
+        }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getBridgeSpan())) {
             queryWrapper.ge(" CAST(a.BRIDGE_SPAN AS SIGNED) ", parametersInfoPageParam.getBridgeSpan());
         }
@@ -232,6 +241,9 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getTunnelSSize())) {
             queryWrapper.ge(" CAST(a.TUNNEL_S_SIZE AS SIGNED) ", parametersInfoPageParam.getTunnelSSize());
+        }
+        if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getTunnelSSizeJ())) {
+            queryWrapper.ge(" CAST(a.TUNNEL_S_SIZE_J AS SIGNED) ", parametersInfoPageParam.getTunnelSSizeJ());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getPower())) {
             queryWrapper.ge(" CAST(a.POWER AS SIGNED) ", parametersInfoPageParam.getPower());
