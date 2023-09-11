@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.fileStorage.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -40,7 +41,7 @@ import javax.annotation.Resource;
 import java.util.List;
 
 /**
- * 存储实体类Service接口实现类
+ * 存储实体类Service接口实现类 ----  StorageService
  *
  * @author mayike
  * @date  2023/09/07 14:57
@@ -48,6 +49,7 @@ import java.util.List;
 @Service
 public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper, PanFileStorage> implements PanFileStorageService {
 
+    public static  Long TOTAL_STORAGE_SIZE = 1024*1024*50L;
     @Resource
     private UserFileService userFileService;
     @Override
@@ -125,5 +127,25 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
         }
 
         return Boolean.TRUE;
+    }
+
+    @Override
+    public Long getTotalStorageSize(String userId) {
+        PanFileStorage panFileStorage = getOne(new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, StpLoginUserUtil.getLoginUser().getId()));
+        //判断是否给该用户设置了网盘空间大小
+        Long totalStorageSize = null;
+        if(panFileStorage == null || panFileStorage.getTotalStorageSize() ==null){
+            totalStorageSize = TOTAL_STORAGE_SIZE;
+            panFileStorage = new PanFileStorage();
+            panFileStorage.setUserId(StpLoginUserUtil.getLoginUser().getId());
+           panFileStorage.setStorageSize(totalStorageSize);
+           save(panFileStorage);
+        }else {
+            totalStorageSize = panFileStorage.getTotalStorageSize();
+        }
+        if(null!=totalStorageSize){
+            totalStorageSize = totalStorageSize * 1024 * 1024;
+        }
+        return totalStorageSize;
     }
 }

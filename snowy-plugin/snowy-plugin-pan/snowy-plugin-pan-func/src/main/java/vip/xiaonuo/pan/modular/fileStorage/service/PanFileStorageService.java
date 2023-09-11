@@ -79,4 +79,6 @@ public interface PanFileStorageService extends IService<PanFileStorage> {
     PanFileStorage queryEntity(String id);
 
     Boolean checkStorage(long totalSize);
+
+    Long getTotalStorageSize(String userId);
 }

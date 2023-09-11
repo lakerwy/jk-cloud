@@ -48,4 +48,7 @@ public class PanFileStorageEditParam {
     @ApiModelProperty(value = "扩展信息", position = 5)
     private String extJson;
 
+    @ApiModelProperty(value = "用户Id",position = 11)
+    private String userId;
+
 }

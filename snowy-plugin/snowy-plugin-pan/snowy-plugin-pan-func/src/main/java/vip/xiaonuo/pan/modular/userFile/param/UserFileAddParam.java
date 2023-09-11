@@ -15,6 +15,10 @@ package vip.xiaonuo.pan.modular.userFile.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.pan.core.RegexConstant;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.Pattern;
 
 /**
  * 文件主表添加参数
@@ -28,10 +32,13 @@ public class UserFileAddParam {
 
     /** 父目录文件夹ID */
     @ApiModelProperty(value = "父目录文件夹ID", required = true,  position = 2)
+    @NotBlank(message = "父目录文件夹ID ---根目录为0")
     private String parentId;
 
     /** 文件名称 */
     @ApiModelProperty(value = "文件名称", required = true, position = 3)
+    @NotBlank(message = "文件名不能为空")
+    @Pattern(regexp = RegexConstant.FILE_NAME_REGEX, message = "文件名不合法！", flags = {Pattern.Flag.CASE_INSENSITIVE})
     private String fileName;
 
     /** 文件路径 */

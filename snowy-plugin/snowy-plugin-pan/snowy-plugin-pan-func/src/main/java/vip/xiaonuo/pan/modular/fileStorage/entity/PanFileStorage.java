@@ -76,4 +76,7 @@ public class PanFileStorage {
     @ApiModelProperty(value = "修改用户", position = 10)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    @ApiModelProperty(value = "用户Id",position = 11)
+    private String userId;
 }

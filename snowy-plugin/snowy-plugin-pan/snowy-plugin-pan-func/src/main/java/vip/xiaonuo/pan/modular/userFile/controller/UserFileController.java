@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.userFile.controller;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -27,6 +28,11 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.pan.modular.file.entity.PanFile;
+import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
+import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
+import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
 import vip.xiaonuo.pan.modular.userFile.enums.UserFileEnum;
@@ -36,7 +42,11 @@ import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.util.List;
+import java.util.UUID;
+
 import static vip.xiaonuo.pan.core.FileCommonConstant.SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY;
 
 /**
@@ -56,6 +66,11 @@ public class UserFileController {
 
     @Resource
     private DevConfigApi devConfigApi;
+
+    @Resource
+    FileFactory fileFactory;
+
+    private final Integer storageType =1;
 
     /**
      * 获取文件主表分页
@@ -334,4 +349,26 @@ public class UserFileController {
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
         return CommonResult.data(userFileService.buildTree(id));
     }
+
+    //***********************************文件操作**************************************************//
+
+    /**
+     * 创建文件
+     *
+     **/
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("创建文件")
+    @CommonLog("创建文件")
+    @PostMapping("/pan/fold/createFile")
+    public CommonResult<String> createFile(@Valid @RequestBody UserFileAddParam userFileAddParam) {
+        //判断文件夹是否存在
+        UserFile userFile = BeanUtil.copyProperties(userFileAddParam, UserFile.class);
+        Boolean dirExist = userFileService.isDirExist(userFile);
+        if(!dirExist){
+            return  CommonResult.error("同名文件已存在,请修改名称后在操作");
+        }
+        userFileService.createFile(userFileAddParam);
+        return CommonResult.ok();
+    }
+
 }

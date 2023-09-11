@@ -140,4 +140,6 @@ public interface UserFileService extends IService<UserFile> {
 
     List<UserFile> selectUserFileByLikeRightFilePath(@Param("filePath") String filePath, @Param("userId") String userId);
 
+    void createFile(UserFileAddParam userFileAddParam);
+
 }

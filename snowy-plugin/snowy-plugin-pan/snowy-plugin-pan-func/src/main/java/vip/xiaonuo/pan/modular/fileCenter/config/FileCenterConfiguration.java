@@ -17,18 +17,6 @@ import vip.xiaonuo.pan.modular.fileCenter.util.concurrent.locks.RedisLock;
 public class FileCenterConfiguration {
 
     @Bean
-    public FileFactory fileFactory() {
-        FileCenterUtil.LOCAL_STORAGE_PATH = DevFileLocalUtil.getUploadFileFolder();
-        String bucketName = "pan";
-        if (StringUtils.isNotEmpty(bucketName)) {
-            FileCenterUtil.ROOT_PATH = "pan";
-        } else {
-            FileCenterUtil.ROOT_PATH = "upload";
-        }
-        return new FileFactory();
-    }
-
-    @Bean
     public AliyunOSSUploader aliyunOSSUploader() {
         return new AliyunOSSUploader();
     }

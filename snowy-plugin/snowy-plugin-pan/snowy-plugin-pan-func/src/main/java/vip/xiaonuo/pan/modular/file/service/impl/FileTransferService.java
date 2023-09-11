@@ -296,7 +296,7 @@ public class FileTransferService implements IFileTransferService {
 
     @Override
     public void downloadFile(HttpServletResponse httpServletResponse, DownloadFileParam downloadFileParam) {
-        UserFile userFile = userFileService.getById(downloadFileParam.getId());
+        UserFile userFile = userFileService.getById(downloadFileParam.getIds().get(0));
 
         if (userFile.isFile()) {
 

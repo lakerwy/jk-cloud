@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.userFile.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -32,7 +33,12 @@ import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.pan.core.ExceptionEnum;
+import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
+import vip.xiaonuo.pan.modular.file.service.PanFileService;
+import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
+import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
+import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
 import vip.xiaonuo.pan.modular.userFile.enums.UserFileEnum;
@@ -41,8 +47,11 @@ import vip.xiaonuo.pan.modular.userFile.param.*;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory.storageType;
 
 /**
  * 文件主表Service接口实现类
@@ -67,6 +76,12 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Resource
     private CommonProperties commonProperties;
+
+    @Resource
+    private FileFactory fileFactory;
+
+    @Resource
+    private PanFileService panFileService;
 
     @Override
     public Page<UserFile> page(UserFilePageParam userFilePageParam) {
@@ -141,6 +156,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(UserFile::getParentId, userFile.getParentId())
                 .eq(UserFile::getFileName, userFile.getFileName())
+                .eq(UserFile::getFilePath,userFile.getFilePath())
                 .eq(UserFile::getCreateUser, StpLoginUserUtil.getLoginUser().getId())
                 .eq(UserFile::getDeleteFlag,"NOT_DELETE");
         return list(lambdaQueryWrapper);
@@ -408,5 +424,49 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     @Override
     public List<UserFile> selectUserFileByLikeRightFilePath(String filePath, String userId) {
         return userFileMapper.selectUserFileByLikeRightFilePath(filePath,userId);
+    }
+
+    @Transactional
+    @Override
+    public void createFile(UserFileAddParam userFileAddParam) {
+        String extendName = userFileAddParam.getExtendName();
+        String templateFilePath = "";
+        if ("docx".equals(extendName)) {
+            templateFilePath = "Word.docx";
+        } else if ("xlsx".equals(extendName)) {
+            templateFilePath = "Excel.xlsx";
+        } else if ("pptx".equals(extendName)) {
+            templateFilePath = "PowerPoint.pptx";
+        } else if ("txt".equals(extendName)) {
+            templateFilePath = "Text.txt";
+        } else if ("drawio".equals(extendName)) {
+            templateFilePath = "Drawio.drawio";
+        }
+        InputStream inputStream = POICacheManager.getFile(templateFilePath);
+        Copier copier = fileFactory.getCopier();
+        CopyFile copyFile = new CopyFile();
+        copyFile.setExtendName(extendName);
+        String fileUrl = copier.copy(inputStream, copyFile);
+        PanFile panFile = new PanFile();
+        panFile.setFileUrl(fileUrl);
+        panFile.setFileStatus(1);
+        panFile.setFileSize(0L);
+        panFile.setStorageType(storageType);
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        panFile.setIdentifier(uuid);
+        panFileService.save(panFile);
+
+        UserFile userFile = new UserFile();
+        userFile.setFilePath(userFileAddParam.getFilePath());
+        userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
+        userFile.setFileName(userFileAddParam.getFileName());
+        userFile.setFileId(panFile.getId());
+        userFile.setIsDir(0);
+        userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+        userFile.setParentId(userFileAddParam.getParentId());
+        userFile.setExtendName(userFileAddParam.getExtendName());
+        userFile.setFoldType(userFileAddParam.getFoldType());
+        save(userFile);
+
     }
 }

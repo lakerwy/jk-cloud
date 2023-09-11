@@ -1,5 +1,7 @@
 package vip.xiaonuo.pan.modular.fileCenter.factory;
-import vip.xiaonuo.pan.modular.fileCenter.config.FileCenterProperties;
+import org.springframework.context.annotation.Bean;
+import org.springframework.stereotype.Component;
+import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.pan.modular.fileCenter.enums.StorageTypeEnum;
 import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
@@ -33,26 +35,36 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.write.product.MinioWriter;
 
 import javax.annotation.Resource;
 
+@Component
 public class FileFactory {
-    private String storageType;
+
+    public static Integer storageType;
     private ThumbImage thumbImage;
     @Resource
     private AliyunOSSUploader aliyunOSSUploader;
     @Resource
     private MinioUploader minioUploader;
 
-    public FileFactory() {
-    }
+    @Resource
+    private DevConfigApi devConfigApi;
 
-    //todo
-    public FileFactory(FileCenterProperties fileCenterProperties) {
-        this.storageType = fileCenterProperties.getStorageType();
-        this.thumbImage = fileCenterProperties.getThumbImage();
+    private static final String PAN_STORAGE_TYPE = "PAN_STORAGE_TYPE";
+
+    private static final String PAN_THUMB_IMAGE_HEIGHT= "PAN_THUMB_IMAGE_HEIGHT";
+    private static final String PAN_THUMB_IMAGE_WIDTH= "PAN_THUMB_IMAGE_WIDTH";
+
+    @Bean
+    public FileFactory getFileFactory() {
+        storageType = Integer.parseInt(devConfigApi.getValueByKey(PAN_STORAGE_TYPE));
+        thumbImage = new ThumbImage();
+        this.thumbImage.setWidth(Integer.parseInt(devConfigApi.getValueByKey(PAN_THUMB_IMAGE_WIDTH)));
+        this.thumbImage.setHeight(Integer.parseInt(devConfigApi.getValueByKey(PAN_THUMB_IMAGE_HEIGHT)));
+        return new FileFactory();
     }
 
     public Uploader getUploader() {
 
-        int type = Integer.parseInt(storageType);
+        int type = storageType;
         Uploader uploader = null;
         if (StorageTypeEnum.LOCAL.getCode() == type) {
             uploader = new LocalStorageUploader();
@@ -127,7 +139,7 @@ public class FileFactory {
     }
 
     public Copier getCopier() {
-        int type = Integer.parseInt(storageType);
+        int type = storageType;
         Copier copier = null;
         if (StorageTypeEnum.LOCAL.getCode() == type) {
             copier = new LocalStorageCopier();
