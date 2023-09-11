@@ -22,11 +22,6 @@
 
     <select id="selectUserFileByLikeRightFilePath" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
         select * from PAN_USER_FILE
-        where (FILE_PATH = #{filePath} or FILE_PATH like concat(#{filePath},'/%')) and USER_ID = #{userId} and deleteFlag = 0
-    </select>
-
-    <select id="selectUserFileByLikeRightFilePath" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
-        select * from PAN_USER_FILE
         where (FILE_PATH = #{filePath} or FILE_PATH like concat(#{filePath},'/%'))
           and USER_ID = #{userId} and DELETE_FLAG = 'NOT_DELETE'
     </select>

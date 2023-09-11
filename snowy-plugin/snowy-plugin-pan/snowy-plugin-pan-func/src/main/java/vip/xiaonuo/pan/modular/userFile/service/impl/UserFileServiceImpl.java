@@ -16,6 +16,7 @@ import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -39,8 +40,11 @@ import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
-import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
+import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
+import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
+import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.enums.UserFileEnum;
 import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 import vip.xiaonuo.pan.modular.userFile.param.*;
@@ -49,6 +53,8 @@ import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 import javax.annotation.Resource;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import static vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory.storageType;
@@ -82,6 +88,11 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Resource
     private PanFileService panFileService;
+
+    @Resource
+    private PanRecoveryFileService panRecoveryFileService;
+
+    public static Executor executor = Executors.newFixedThreadPool(20);
 
     @Override
     public Page<UserFile> page(UserFilePageParam userFilePageParam) {
@@ -122,7 +133,31 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     @Override
     public void delete(List<UserFileIdParam> userFileIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(userFileIdParamList, UserFileIdParam::getId));
+        //this.removeByIds(CollStreamUtil.toList(userFileIdParamList, UserFileIdParam::getId));
+        //1、如果是文件夹，则文件夹下所有文件都应该被标记为删除，如果不被标记的话，文件夹下分享出去的文件还是会被展示，就有问题
+        List<UserFile> userFiles = listByIds(CollStreamUtil.toList(userFileIdParamList, UserFileIdParam::getId));
+        String uuid = UUID.randomUUID().toString();
+        if(CollUtil.isNotEmpty(userFiles)){
+            for (UserFile userFile : userFiles) {
+                if(userFile.isDirectory()){
+                    String filePath = new CommonFile(userFile.getFilePath(), userFile.getFileName(), true).getPath();
+                    updateFileDeleteStateByFilePath(filePath,uuid ,StpLoginUserUtil.getLoginUser().getId());
+                }else {
+                    executor.execute(()->{
+                        userFile.setDeleteBatchNum(uuid);
+                        userFile.setDeleteFlag("DELETE");
+                        userFile.setDeleteTime(DateUtil.date());
+                        updateById(userFile);
+                    });
+                }
+                PanRecoveryFile recoveryFile = new PanRecoveryFile();
+                recoveryFile.setUserFileId(userFile.getId());
+                recoveryFile.setDeleteTime(DateUtil.date());
+                recoveryFile.setDeleteBatchNum(uuid);
+                panRecoveryFileService.save(recoveryFile);
+            }
+
+        }
     }
 
     @Override
@@ -468,5 +503,17 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         userFile.setFoldType(userFileAddParam.getFoldType());
         save(userFile);
 
+    }
+
+    private void updateFileDeleteStateByFilePath(String filePath, String deleteBatchNum, String userId) {
+        executor.execute(() -> {
+            List<UserFile> fileList = selectUserFileByLikeRightFilePath(filePath, userId);
+            for (UserFile userFile : fileList) {
+                userFile.setDeleteBatchNum(deleteBatchNum);
+                userFile.setDeleteFlag("DELETE");
+                userFile.setDeleteTime(DateUtil.date());
+                updateById(userFile);
+            }
+        });
     }
 }
