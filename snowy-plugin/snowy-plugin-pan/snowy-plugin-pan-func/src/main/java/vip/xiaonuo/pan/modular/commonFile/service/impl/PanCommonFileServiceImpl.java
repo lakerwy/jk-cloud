@@ -19,10 +19,12 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -31,6 +33,7 @@ import vip.xiaonuo.pan.modular.commonFile.mapper.PanCommonFileMapper;
 import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.service.PanCommonFileService;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 import vip.xiaonuo.pan.modular.filePermission.entity.PanFilePermission;
 import vip.xiaonuo.pan.modular.filePermission.service.PanFilePermissionService;
 import vip.xiaonuo.pan.modular.permission.service.PanPermissionService;
@@ -51,6 +54,9 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
 
     @Resource
     PanFilePermissionService panFilePermissionService;
+
+    @Resource
+    PanCommonFileMapper panCommonFileMapper;
 
     @Override
     public Page<PanCommonFile> page(PanCommonFilePageParam panCommonFilePageParam) {
@@ -119,6 +125,16 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
 
     @Override
     public List<CommonFileUserVo> commonFileUser() {
+        return panCommonFileMapper.selectCommonFileUser(StpLoginUserUtil.getLoginUser().getId());
+    }
+
+    @Override
+    public List<CommonFileVo> commonFileByUser(String userId) {
+        return panCommonFileMapper.selectCommonFileByUser(userId,StpLoginUserUtil.getLoginUser().getId());
+    }
+
+    @Override
+    public IPage<PanCommonFile> commonFileList(PanCommonFilePageParam panCommonFilePageParam) {
         return null;
     }
 }

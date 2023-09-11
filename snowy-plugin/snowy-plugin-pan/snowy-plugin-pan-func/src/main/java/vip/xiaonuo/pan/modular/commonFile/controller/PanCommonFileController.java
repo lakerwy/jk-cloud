@@ -13,6 +13,7 @@
 package vip.xiaonuo.pan.modular.commonFile.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -30,6 +31,7 @@ import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
 import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.service.PanCommonFileService;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -59,7 +61,7 @@ public class PanCommonFileController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取共享文件分页")
-    @SaCheckPermission("/pan/commonFile/page")
+//    @SaCheckPermission("/pan/commonFile/page")
     @GetMapping("/pan/commonFile/page")
     public CommonResult<Page<PanCommonFile>> page(PanCommonFilePageParam panCommonFilePageParam) {
         return CommonResult.data(panCommonFileService.page(panCommonFilePageParam));
@@ -74,7 +76,7 @@ public class PanCommonFileController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加共享文件")
     @CommonLog("添加共享文件")
-    @SaCheckPermission("/pan/commonFile/add")
+//    @SaCheckPermission("/pan/commonFile/add")
     @PostMapping("/pan/commonFile/add")
     public CommonResult<String> add(@RequestBody @Valid PanCommonFileAddParam panCommonFileAddParam) {
         panCommonFileService.add(panCommonFileAddParam);
@@ -90,7 +92,7 @@ public class PanCommonFileController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑共享文件")
     @CommonLog("编辑共享文件")
-    @SaCheckPermission("/pan/commonFile/edit")
+//    @SaCheckPermission("/pan/commonFile/edit")
     @PostMapping("/pan/commonFile/edit")
     public CommonResult<String> edit(@RequestBody @Valid PanCommonFileEditParam panCommonFileEditParam) {
         panCommonFileService.edit(panCommonFileEditParam);
@@ -106,7 +108,7 @@ public class PanCommonFileController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除共享文件")
     @CommonLog("删除共享文件")
-    @SaCheckPermission("/pan/commonFile/delete")
+//    @SaCheckPermission("/pan/commonFile/delete")
     @PostMapping("/pan/commonFile/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<PanCommonFileIdParam> panCommonFileIdParamList) {
@@ -122,7 +124,7 @@ public class PanCommonFileController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取共享文件详情")
-    @SaCheckPermission("/pan/commonFile/detail")
+//    @SaCheckPermission("/pan/commonFile/detail")
     @GetMapping("/pan/commonFile/detail")
     public CommonResult<PanCommonFile> detail(@Valid PanCommonFileIdParam panCommonFileIdParam) {
         return CommonResult.data(panCommonFileService.detail(panCommonFileIdParam));
@@ -155,10 +157,43 @@ public class PanCommonFileController {
      */
     @ApiOperationSupport(order = 7)
     @ApiOperation("获取共享空间的全量用户列表")
-    @SaCheckPermission("/pan/commonFile/commonFileUser")
+//    @SaCheckPermission("/pan/commonFile/commonFileUser")
     @GetMapping("/pan/commonFile/commonFileUser")
     public CommonResult<List<CommonFileUserVo>> commonFileUser() {
         return CommonResult.data(panCommonFileService.commonFileUser());
+    }
+
+
+    /**
+     * 获取共享用户文件列表
+     *
+     * 用来做前台列表展示
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取共享用户的文件列表")
+//    @SaCheckPermission("/pan/commonFile/commonFileByUser")
+    @GetMapping("/pan/commonFile/commonFileByUser")
+    public CommonResult<List<CommonFileVo>> commonFileByUser(@Valid String userId) {
+        return CommonResult.data(panCommonFileService.commonFileByUser(userId));
+    }
+
+    /**
+     * 获取共享空间中某个用户的文件列表
+     *
+     * 用来做前台列表展示
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("获取共享文件分页")
+//    @SaCheckPermission("/pan/commonFile/commonFileList")
+    @GetMapping("/pan/commonFile/commonFileList")
+    public CommonResult<IPage<PanCommonFile>> commonFileList(PanCommonFilePageParam panCommonFilePageParam) {
+        return CommonResult.data(panCommonFileService.commonFileList(panCommonFilePageParam));
     }
 
 }

@@ -48,4 +48,11 @@ public class PanCommonFilePageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 用户Id */
+    @ApiModelProperty(value = "用户Id")
+    private String userId;
+
+    /** 文件路径 */
+    @ApiModelProperty(value = "文件路径")
+    private String filePath;
 }

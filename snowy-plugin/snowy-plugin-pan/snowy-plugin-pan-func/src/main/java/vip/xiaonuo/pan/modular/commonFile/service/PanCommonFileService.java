@@ -12,11 +12,13 @@
  */
 package vip.xiaonuo.pan.modular.commonFile.service;
 
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
 import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 
 import java.util.List;
 
@@ -91,4 +93,20 @@ public interface PanCommonFileService extends IService<PanCommonFile> {
      * @date  2023/09/06 21:07
      **/
     List<CommonFileUserVo> commonFileUser();
+
+    /**
+     * 获取共享用户的文件列表
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     **/
+    List<CommonFileVo> commonFileByUser(String userId);
+
+    /**
+     * 获取共享空间中某个用户的文件列表
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     */
+    IPage<PanCommonFile> commonFileList(PanCommonFilePageParam panCommonFilePageParam);
 }

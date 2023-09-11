@@ -2,11 +2,21 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.pan.modular.commonFile.mapper.PanCommonFileMapper">
     <select id="selectCommonFileUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo">
-        SELECT c.userId, (SELECT username FROM user WHERE user.userId = c.userId) username
+        SELECT c.USER_ID as userId ,d.NAME as userName
         FROM PAN_COMMON_FILE a
              LEFT JOIN PAN_PERMISSION b ON a.ID = b.commonFileId
-             LEFT JOIN PAN_USER_FILE c ON c.userFileId = a.userFileId
-        WHERE b.userId = #{userId}
+             LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
+             LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
+        WHERE b.USER_ID = #{userId}
+    </select>
+
+    <select id="selectCommonFileByUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
+        SELECT a.ID as id,c.FILE_NAME as fileName, c.USER_ID as userId ,a.USER_FILE_ID as userFileId
+        FROM PAN_COMMON_FILE a
+                 LEFT JOIN PAN_PERMISSION b ON a.ID = b.commonFileId
+                 LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
+                 LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
+        WHERE c.USER_ID = #{userId} and b.USER_ID = #{sessionUserId}
     </select>
 
 </mapper>
