@@ -28,6 +28,7 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.pan.modular.fileCenter.component.AsyncTaskComp;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
@@ -183,6 +184,8 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
 
     @Override
     public void deleteUserFileByDeleteBatchNum(String deleteBatchNum) {
-
+        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserFile::getDeleteBatchNum,deleteBatchNum);
+        userFileService.remove(queryWrapper);
     }
 }

@@ -161,14 +161,14 @@ public class PanRecoveryFileController {
 
 
     /**
-     * 删除网盘-回收站 (还原回收站文件)
+     * 网盘-回收站 (还原回收站文件)
      *
      * @author yong.ye
      * @date  2023/09/07 15:54
      */
     @ApiOperationSupport(order = 7)
-    @ApiOperation("删除网盘-回收站(还原回收站文件)")
-    @CommonLog("删除网盘-回收站(还原回收站文件)")
+    @ApiOperation("网盘-回收站(还原回收站文件)")
+    @CommonLog("网盘-回收站(还原回收站文件)")
     @PostMapping("/pan/recovery/restoreFile")
     public CommonResult<String> restoreFile(@RequestBody @Valid RestoreFileDto restoreFileDto) {
         panRecoveryFileService.restoreFile(restoreFileDto);

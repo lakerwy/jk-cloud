@@ -96,7 +96,7 @@ public interface PanRecoveryFileService extends IService<PanRecoveryFile> {
     void batchDelete(BatchDeleteDto batchDeleteDto);
 
     /**
-     * 编辑网盘-回收站(还原文件)
+     * 网盘-回收站(还原文件)
      *
      * @author yong.ye
      * @date  2023/09/07 15:54
