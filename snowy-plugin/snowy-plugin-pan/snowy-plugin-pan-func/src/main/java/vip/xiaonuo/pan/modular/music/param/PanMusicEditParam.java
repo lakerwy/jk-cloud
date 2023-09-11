@@ -17,9 +17,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 云盘-音乐实体类编辑参数
@@ -70,7 +67,7 @@ public class PanMusicEditParam {
 
     /** 文件id */
     @ApiModelProperty(value = "文件id", position = 11)
-    private Long fileId;
+    private String fileId;
 
     /** GENRE */
     @ApiModelProperty(value = "GENRE", position = 12)

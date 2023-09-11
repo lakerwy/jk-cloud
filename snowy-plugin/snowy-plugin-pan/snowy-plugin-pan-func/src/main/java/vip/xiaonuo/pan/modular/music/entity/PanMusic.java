@@ -16,7 +16,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
+
 import java.util.Date;
 
 /**
@@ -73,7 +73,7 @@ public class PanMusic {
 
     /** 文件id */
     @ApiModelProperty(value = "文件id", position = 11)
-    private Long fileId;
+    private String fileId;
 
     /** GENRE */
     @ApiModelProperty(value = "GENRE", position = 12)

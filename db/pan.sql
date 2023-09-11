@@ -107,3 +107,63 @@ CREATE TABLE `PAN_MUSIC` (
                              PRIMARY KEY ( `ID` ) USING BTREE
 ) ENGINE = INNODB CHARACTER
 SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '云盘-音乐实体类' ROW_FORMAT = DYNAMIC;
+
+CREATE TABLE `PAN_PERMISSION` (
+                                  `ID` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                                  `TENANT_ID` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '租户id',
+                                  `ORDER_NUM` int(2) DEFAULT NULL COMMENT '次序',
+                                  `PARENT_ID` bigint(20) DEFAULT NULL COMMENT '父编号',
+                                  `PERMISSION_CODE` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '权限标识码',
+                                  `PERMISSION_NAME` varchar(30) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '权限名称',
+                                  `RESOURCE_TYPE` int(2) DEFAULT NULL COMMENT '资源类型',
+                                  `EXT_JSON` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '扩展信息',
+                                  `DELETE_FLAG` VARCHAR ( 255 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '删除标志',
+                                  `CREATE_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '创建时间',
+                                  `CREATE_USER` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建用户',
+                                  `UPDATE_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '修改时间',
+                                  `UPDATE_USER` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改用户',
+                                  PRIMARY KEY ( `ID` ) USING BTREE
+) ENGINE = INNODB CHARACTER
+SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '云盘-图片实体表' ROW_FORMAT = DYNAMIC;
+
+
+CREATE TABLE `PAN_PICTURE_FILE` (
+                                    `ID` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                                    `TENANT_ID` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '租户id',
+                                    `EXTEND_NAME` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '扩展名',
+                                    `FILE_NAME` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '文件名',
+                                    `FILE_SIZE` bigint(10) DEFAULT NULL COMMENT '文件大小',
+                                    `FILE_URL` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '文件url',
+                                    `STORAGE_TYPE` int(1) DEFAULT NULL COMMENT '存储类型',
+                                    `USER_ID` bigint(20) DEFAULT NULL COMMENT '用户id',
+                                    `EXT_JSON` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '扩展信息',
+                                    `DELETE_FLAG` VARCHAR ( 255 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '删除标志',
+                                    `CREATE_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '创建时间',
+                                    `CREATE_USER` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建用户',
+                                    `UPDATE_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '修改时间',
+                                    `UPDATE_USER` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改用户',
+                                    PRIMARY KEY ( `ID` ) USING BTREE
+) ENGINE = INNODB CHARACTER
+SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '云盘-图片文件' ROW_FORMAT = DYNAMIC;
+
+
+
+CREATE TABLE `PAN_UPLOAD_TASK` (
+                                   `ID` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL,
+                                   `TENANT_ID` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '租户id',
+                                   `EXTEND_NAME` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '扩展名',
+                                   `FILE_NAME` varchar(100) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '文件名',
+                                   `FILE_PATH` varchar(500) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT '文件路径',
+                                   `IDENTIFER` varchar(200) COLLATE utf8_unicode_ci DEFAULT NULL COMMENT 'md5唯一标识',
+                                   `UPLOAD_STATUS` int(1) DEFAULT NULL COMMENT '上传状态(1-成功,0-失败或未完成)',
+                                   `UPLOAD_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '上传时间',
+                                   `USER_ID` bigint(20) DEFAULT NULL COMMENT '用户id',
+                                   `EXT_JSON` LONGTEXT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL COMMENT '扩展信息',
+                                   `DELETE_FLAG` VARCHAR ( 255 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '删除标志',
+                                   `CREATE_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '创建时间',
+                                   `CREATE_USER` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建用户',
+                                   `UPDATE_TIME` datetime ( 0 ) NULL DEFAULT NULL COMMENT '修改时间',
+                                   `UPDATE_USER` VARCHAR ( 20 ) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改用户',
+                                   PRIMARY KEY ( `ID` ) USING BTREE
+) ENGINE = INNODB CHARACTER
+SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '云盘-上传任务主表' ROW_FORMAT = DYNAMIC;

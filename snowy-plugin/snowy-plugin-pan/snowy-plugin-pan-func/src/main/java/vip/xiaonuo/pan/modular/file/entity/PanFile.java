@@ -53,7 +53,7 @@ public class PanFile {
 
     /** 存储类型 */
     @ApiModelProperty(value = "存储类型", position = 6)
-    private String storageType;
+    private int storageType;
 
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 7)
