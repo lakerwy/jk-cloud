@@ -30,6 +30,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.param.*;
 import vip.xiaonuo.pan.modular.recoveryfile.param.dto.BatchDeleteDto;
+import vip.xiaonuo.pan.modular.recoveryfile.param.dto.RestoreFileDto;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
 
@@ -157,4 +158,22 @@ public class PanRecoveryFileController {
         panRecoveryFileService.batchDelete(batchDeleteDto);
         return CommonResult.ok();
     }
+
+
+    /**
+     * 删除网盘-回收站 (还原回收站文件)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:54
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("删除网盘-回收站(还原回收站文件)")
+    @CommonLog("删除网盘-回收站(还原回收站文件)")
+    @PostMapping("/pan/recovery/restoreFile")
+    public CommonResult<String> restoreFile(@RequestBody @Valid RestoreFileDto restoreFileDto) {
+        panRecoveryFileService.restoreFile(restoreFileDto);
+        return CommonResult.ok();
+    }
+
+
 }

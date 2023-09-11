@@ -16,22 +16,29 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
+import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.mapper.PanRecoveryFileMapper;
 import vip.xiaonuo.pan.modular.recoveryfile.param.*;
 import vip.xiaonuo.pan.modular.recoveryfile.param.dto.BatchDeleteDto;
+import vip.xiaonuo.pan.modular.recoveryfile.param.dto.RestoreFileDto;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
+import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -46,7 +53,17 @@ import java.util.List;
 public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMapper, PanRecoveryFile> implements PanRecoveryFileService {
 
     @Resource
+    UserFileService userFileService;
+
+    @Resource
     PanRecoveryFileMapper panRecoveryFileMapper;
+
+    @Resource
+    FileDealComp fileDealComp;
+
+    @Resource
+    AsyncTaskComp asyncTaskComp;
+
 
     @Override
     public Page<PanRecoveryFile> page(PanRecoveryFilePageParam panRecoveryFilePageParam) {
@@ -132,6 +149,39 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
 
     @Override
     public void batchDelete(BatchDeleteDto batchDeleteDto) {
-
+        for (String userFileId:batchDeleteDto.getUserFileIds()) {
+            PanRecoveryFile panRecoveryFile = this.getOne(new QueryWrapper<PanRecoveryFile>().lambda().eq(PanRecoveryFile::getUserFileId,userFileId));
+            if(ObjectUtil.isNotEmpty(panRecoveryFile)){
+                asyncTaskComp.deleteUserFile(panRecoveryFile.getUserFileId());
+                this.removeById(panRecoveryFile.getId());
+            }
+        }
     }
+
+    @Override
+    public void restoreFile(RestoreFileDto restoreFileDto) {
+        List<UserFile> restoreUserFileList = userFileService.list(new QueryWrapper<UserFile>().lambda().eq(UserFile::getDeleteBatchNum, restoreFileDto.getDeleteBatchNum()));
+        for (UserFile restoreUserFile : restoreUserFileList) {
+            restoreUserFile.setDeleteFlag("NOT_DELETE");
+            restoreUserFile.setDeleteBatchNum(restoreFileDto.getDeleteBatchNum());
+            String fileName = fileDealComp.getRepeatFileName(restoreUserFile, restoreUserFile.getFilePath());
+            if (restoreUserFile.isDirectory()) {
+                if (!StringUtils.equals(fileName, restoreUserFile.getFileName())) {
+                    userFileService.removeById(restoreUserFile);
+                } else {
+                    userFileService.updateById(restoreUserFile);
+                }
+            } else if (restoreUserFile.isFile()) {
+                restoreUserFile.setFileName(fileName);
+                userFileService.updateById(restoreUserFile);
+            }
+        }
+        CommonFile qiwenFile = new CommonFile(restoreFileDto.getFilePath(), true);
+        fileDealComp.restoreParentFilePath(qiwenFile, StpLoginUserUtil.getLoginUser().getId());
+
+        LambdaQueryWrapper<PanRecoveryFile> recoveryFileServiceLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        recoveryFileServiceLambdaQueryWrapper.eq(PanRecoveryFile::getDeleteBatchNum, restoreFileDto.getDeleteBatchNum());
+        this.remove(recoveryFileServiceLambdaQueryWrapper);
+    }
+
 }

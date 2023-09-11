@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.param.*;
 import vip.xiaonuo.pan.modular.recoveryfile.param.dto.BatchDeleteDto;
+import vip.xiaonuo.pan.modular.recoveryfile.param.dto.RestoreFileDto;
 import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
 
 import java.util.List;
@@ -93,4 +94,12 @@ public interface PanRecoveryFileService extends IService<PanRecoveryFile> {
      * @date  2023/09/07 15:54
      */
     void batchDelete(BatchDeleteDto batchDeleteDto);
+
+    /**
+     * 编辑网盘-回收站(还原文件)
+     *
+     * @author yong.ye
+     * @date  2023/09/07 15:54
+     */
+    void restoreFile(RestoreFileDto restoreFileDto);
 }
