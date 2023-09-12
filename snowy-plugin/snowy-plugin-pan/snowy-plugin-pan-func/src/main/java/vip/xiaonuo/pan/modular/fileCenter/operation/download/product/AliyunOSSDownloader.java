@@ -4,6 +4,7 @@ import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.GetObjectRequest;
 import com.aliyun.oss.model.OSSObject;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.modular.file.util.DevFileAliyunUtil;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
@@ -12,6 +13,7 @@ import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import java.io.InputStream;
 
 @Slf4j
+@Component
 public class AliyunOSSDownloader extends Downloader {
 
     @Override

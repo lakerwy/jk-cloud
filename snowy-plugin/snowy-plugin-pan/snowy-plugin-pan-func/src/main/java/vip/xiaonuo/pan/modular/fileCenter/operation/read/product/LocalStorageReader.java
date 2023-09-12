@@ -1,6 +1,7 @@
 package vip.xiaonuo.pan.modular.fileCenter.operation.read.product;
 
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.pan.modular.fileCenter.operation.read.Reader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.read.domain.ReadFile;
@@ -10,6 +11,7 @@ import vip.xiaonuo.pan.modular.fileCenter.util.ReadFileUtils;
 import java.io.FileInputStream;
 import java.io.IOException;
 
+@Component
 public class LocalStorageReader extends Reader {
     @Override
     public String read(ReadFile readFile) {

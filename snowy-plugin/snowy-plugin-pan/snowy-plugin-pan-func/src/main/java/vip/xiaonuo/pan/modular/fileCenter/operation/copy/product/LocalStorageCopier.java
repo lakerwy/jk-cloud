@@ -3,6 +3,7 @@ package vip.xiaonuo.pan.modular.fileCenter.operation.copy.product;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
@@ -14,6 +15,7 @@ import java.io.InputStream;
 import java.util.UUID;
 
 @Slf4j
+@Component
 public class LocalStorageCopier extends Copier {
     @Override
     public String copy(InputStream inputStream, CopyFile copyFile) {

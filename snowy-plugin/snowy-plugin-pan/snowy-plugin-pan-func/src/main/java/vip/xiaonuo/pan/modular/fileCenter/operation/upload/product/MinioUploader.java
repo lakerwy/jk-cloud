@@ -4,6 +4,7 @@ import io.minio.*;
 import io.minio.errors.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.modular.file.util.DevFileMinIoUtil;
 import vip.xiaonuo.pan.modular.fileCenter.enums.StorageTypeEnum;
@@ -27,13 +28,14 @@ import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.RedisUtil;
 
 @Slf4j
+@Component
 public class MinioUploader extends Uploader {
 
     @Resource
     RedisUtil redisUtil;
 
-    @Resource
-    MinioClient minioClient = DevFileMinIoUtil.getClient();
+//    @Resource
+//    MinioClient minioClient = DevFileMinIoUtil.getClient();
 
     @Override
     public void cancelUpload(UploadFile uploadFile) {
@@ -114,13 +116,13 @@ public class MinioUploader extends Uploader {
         InputStream inputStream = null;
         try {
             // 检查存储桶是否已经存在
-            boolean isExist = minioClient.bucketExists(BucketExistsArgs.builder().bucket(Uploader.defaultBucketName).build());
+            boolean isExist = DevFileMinIoUtil.getClient().bucketExists(BucketExistsArgs.builder().bucket(Uploader.defaultBucketName).build());
             if(!isExist) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(Uploader.defaultBucketName).build());
+                DevFileMinIoUtil.getClient().makeBucket(MakeBucketArgs.builder().bucket(Uploader.defaultBucketName).build());
             }
 
             inputStream = new FileInputStream(file);
-            minioClient.putObject(
+            DevFileMinIoUtil.getClient().putObject(
                     PutObjectArgs.builder().bucket(Uploader.defaultBucketName).object(fileUrl).stream(
                                     inputStream, uploadFile.getTotalSize(), 1024 * 1024 * 5)
 //                            .contentType("video/mp4")

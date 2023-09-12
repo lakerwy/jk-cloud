@@ -6,8 +6,8 @@ import io.minio.errors.MinioException;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.modular.file.util.DevFileMinIoUtil;
-import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.Previewer;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.domain.PreviewFile;
 
@@ -19,10 +19,10 @@ import java.security.NoSuchAlgorithmException;
 @Getter
 @Setter
 @Slf4j
+@Component
 public class MinioPreviewer extends Previewer {
 
-    public MinioPreviewer(ThumbImage thumbImage) {
-        setThumbImage(thumbImage);
+    public MinioPreviewer() {
     }
 
     @Override

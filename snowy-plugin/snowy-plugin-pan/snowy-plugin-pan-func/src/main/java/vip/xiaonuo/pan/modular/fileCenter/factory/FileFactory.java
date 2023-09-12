@@ -1,9 +1,8 @@
 package vip.xiaonuo.pan.modular.fileCenter.factory;
-import org.springframework.context.annotation.Bean;
+import cn.hutool.extra.spring.SpringUtil;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.pan.modular.fileCenter.enums.StorageTypeEnum;
-import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.product.AliyunOSSCopier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.product.LocalStorageCopier;
@@ -39,27 +38,27 @@ import javax.annotation.Resource;
 public class FileFactory {
 
     public static Integer storageType;
-    private ThumbImage thumbImage;
+
+    public static Integer width;
+    public static Integer height;
     @Resource
     private AliyunOSSUploader aliyunOSSUploader;
     @Resource
     private MinioUploader minioUploader;
 
-    @Resource
-    private DevConfigApi devConfigApi;
+    public static  FileFactory fileFactory;
 
     private static final String PAN_STORAGE_TYPE = "PAN_STORAGE_TYPE";
 
     private static final String PAN_THUMB_IMAGE_HEIGHT= "PAN_THUMB_IMAGE_HEIGHT";
     private static final String PAN_THUMB_IMAGE_WIDTH= "PAN_THUMB_IMAGE_WIDTH";
 
-    @Bean
-    public FileFactory getFileFactory() {
+    public  static void  initClient() {
+        DevConfigApi devConfigApi = SpringUtil.getBean(DevConfigApi.class);
         storageType = Integer.parseInt(devConfigApi.getValueByKey(PAN_STORAGE_TYPE));
-        thumbImage = new ThumbImage();
-        this.thumbImage.setWidth(Integer.parseInt(devConfigApi.getValueByKey(PAN_THUMB_IMAGE_WIDTH)));
-        this.thumbImage.setHeight(Integer.parseInt(devConfigApi.getValueByKey(PAN_THUMB_IMAGE_HEIGHT)));
-        return new FileFactory();
+        width = Integer.parseInt(devConfigApi.getValueByKey(PAN_THUMB_IMAGE_WIDTH));
+        height = Integer.parseInt(devConfigApi.getValueByKey(PAN_THUMB_IMAGE_HEIGHT));
+        fileFactory = new FileFactory();
     }
 
     public Uploader getUploader() {
@@ -129,11 +128,11 @@ public class FileFactory {
     public Previewer getPreviewer(int storageType) {
         Previewer previewer = null;
         if (StorageTypeEnum.LOCAL.getCode() == storageType) {
-            previewer = new LocalStoragePreviewer(thumbImage);
+            previewer = new LocalStoragePreviewer();
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == storageType) {
-            previewer = new AliyunOSSPreviewer(thumbImage);
+            previewer = new AliyunOSSPreviewer();
         } else if (StorageTypeEnum.MINIO.getCode() == storageType) {
-            previewer = new MinioPreviewer(thumbImage);
+            previewer = new MinioPreviewer();
         }
         return previewer;
     }

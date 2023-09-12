@@ -3,6 +3,7 @@ package vip.xiaonuo.pan.modular.fileCenter.operation.read.product;
 import com.aliyun.oss.OSS;
 import com.aliyun.oss.model.OSSObject;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.modular.file.util.DevFileAliyunUtil;
 import vip.xiaonuo.pan.modular.fileCenter.operation.read.Reader;
@@ -12,7 +13,7 @@ import vip.xiaonuo.pan.modular.fileCenter.util.ReadFileUtils;
 
 import java.io.IOException;
 import java.io.InputStream;
-
+@Component
 public class AliyunOSSReader extends Reader {
 
     @Override

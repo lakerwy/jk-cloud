@@ -52,9 +52,9 @@ public class AsyncTaskComp {
     @Resource
     FileDealComp fileDealComp;
 
-    //todo
-    @Value("${ufop.storage-type}")
-    private Integer storageType;
+//    //todo
+//    @Value("${ufop.storage-type}")
+//    private Integer storageType;
 
     public Long getFilePointCount(String fileId) {
         LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
@@ -145,7 +145,7 @@ public class AsyncTaskComp {
                     createFile.setExtendName(FilenameUtils.getExtension(totalFileUrl));
                     String saveFileUrl = fileFactory.getCopier().copy(fileInputStream, createFile);
 
-                    PanFile tempFileBean = new PanFile(saveFileUrl, currentFile.length(), storageType, md5Str, userFile.getUserId());
+                    PanFile tempFileBean = new PanFile(saveFileUrl, currentFile.length(), FileFactory.storageType, md5Str, userFile.getUserId());
 ;                   fileService.save(tempFileBean);
                     fileId = tempFileBean.getId();
                 }

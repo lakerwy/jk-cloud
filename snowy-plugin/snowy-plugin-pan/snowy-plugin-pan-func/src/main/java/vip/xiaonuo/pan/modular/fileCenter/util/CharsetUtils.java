@@ -13,7 +13,7 @@ public class CharsetUtils {
 
     public static byte[] convertTxtCharsetToGBK(byte[] bytes, String extendName) {
 
-        if(Arrays.asList(UFOPUtils.TXT_FILE).contains(extendName)) {
+        if(Arrays.asList(FileCenterUtil.TXT_FILE).contains(extendName)) {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
             try {
                 String str = new String(bytes, getFileCharsetName(byteArrayInputStream));
@@ -27,7 +27,7 @@ public class CharsetUtils {
 
     public static byte[] convertTxtCharsetToUTF8(byte[] bytes, String extendName) {
 
-        if(Arrays.asList(UFOPUtils.TXT_FILE).contains(extendName)) {
+        if(Arrays.asList(FileCenterUtil.TXT_FILE).contains(extendName)) {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(bytes);
             try {
                 String str = new String(bytes, getFileCharsetName(byteArrayInputStream));

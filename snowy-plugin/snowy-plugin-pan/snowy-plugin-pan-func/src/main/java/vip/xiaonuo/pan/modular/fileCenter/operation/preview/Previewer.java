@@ -4,7 +4,7 @@ import cn.hutool.core.io.FileTypeUtil;
 import lombok.Data;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import vip.xiaonuo.pan.modular.fileCenter.entity.ThumbImage;
+import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.operation.ImageOperation;
 import vip.xiaonuo.pan.modular.fileCenter.operation.VideoOperation;
 import vip.xiaonuo.pan.modular.fileCenter.operation.preview.domain.PreviewFile;
@@ -16,8 +16,6 @@ import java.io.*;
 
 @Data
 public abstract class Previewer {
-
-    public ThumbImage thumbImage;
 
     protected abstract InputStream getInputStream(PreviewFile previewFile);
 
@@ -54,8 +52,8 @@ public abstract class Previewer {
                 inputstream = getInputStream(previewFile);
                 if (inputstream != null) {
                     outputStream = httpServletResponse.getOutputStream();
-                    int thumbImageWidth = thumbImage.getWidth();
-                    int thumbImageHeight = thumbImage.getHeight();
+                    int thumbImageWidth = FileFactory.width;
+                    int thumbImageHeight = FileFactory.height;
                     int width = thumbImageWidth == 0 ? 150 : thumbImageWidth;
                     int height = thumbImageHeight == 0 ? 150 : thumbImageHeight;
                     String type = FileTypeUtil.getType(getInputStream(previewFile));
