@@ -82,6 +82,13 @@ public class OutputServiceImpl extends ServiceImpl<OutputMapper, Output> impleme
         if(ObjectUtil.isNotEmpty(outputPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(outputPageParam.getEndSealDate())) {
             queryWrapper.lambda().between(Output::getSealDate, outputPageParam.getStartSealDate(), outputPageParam.getEndSealDate());
         }
+        if(ObjectUtil.isNotEmpty(outputPageParam.getSearchKey())) {
+            queryWrapper.and(q->q.lambda().like(Output::getContractNo,outputPageParam.getSearchKey())
+                    .or().like(Output::getProjectName,outputPageParam.getSearchKey())
+                    .or().like(Output::getCounterparty,outputPageParam.getSearchKey())
+                    .or().like(Output::getProvince,outputPageParam.getSearchKey()));
+        }
+
         if(ObjectUtil.isAllNotEmpty(outputPageParam.getSortField(), outputPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(outputPageParam.getSortOrder());
             queryWrapper.orderBy(true, outputPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
