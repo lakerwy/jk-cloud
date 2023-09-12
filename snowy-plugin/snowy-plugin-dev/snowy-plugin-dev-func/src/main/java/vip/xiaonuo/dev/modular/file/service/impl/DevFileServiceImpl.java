@@ -53,6 +53,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 文件Service接口实现类
@@ -360,7 +361,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         DevFile devFile = new DevFile();
 //        String fileIdPre = getFileIdPre();
         String fileIdPre = DateUtil.date().toString("yyyyMMdd");
-        String fileName = Long.toString(System.currentTimeMillis());
+        String fileName = RandomUtil.randomNumbers(10);
 //        if(null != devFile){
 //            //202008090001
 //            String fileid = devFile.getId();
@@ -373,7 +374,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 //            fileIdPre = format.format(date);
 //            fileName = String.format("%04d", 1);
 //        }
-
+        final  String fullFileId = fileIdPre+fileName;
         // 根据引擎类型执行不同方法
         if(engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
             if(StrUtil.isBlank(bucketName)){
@@ -402,7 +403,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
         // 将文件信息保存到数据库
         devFile = new DevFile();
-        String fullFileId = fileIdPre+fileName;
+        //String fullFileId = fileIdPre+fileName;
         // 设置文件id
         devFile.setId(fullFileId);
 
