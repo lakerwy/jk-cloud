@@ -30,11 +30,11 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile
 import vip.xiaonuo.pan.modular.fileCenter.operation.write.Writer;
 import vip.xiaonuo.pan.modular.fileCenter.operation.write.domain.WriteFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.*;
-import vip.xiaonuo.pan.modular.music.entity.PanMusic;
-import vip.xiaonuo.pan.modular.music.service.PanMusicService;
+import vip.xiaonuo.pan.modular.fileCenter.entity.PanMusic;
+import vip.xiaonuo.pan.modular.fileCenter.service.PanMusicService;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.service.PanShareService;
-import vip.xiaonuo.pan.modular.sharefile.service.PanShareFileService;
+import vip.xiaonuo.pan.modular.share.service.PanShareFileService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 

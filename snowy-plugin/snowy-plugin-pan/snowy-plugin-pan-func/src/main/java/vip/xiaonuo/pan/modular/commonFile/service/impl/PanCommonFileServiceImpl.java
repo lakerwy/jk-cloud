@@ -14,10 +14,8 @@ package vip.xiaonuo.pan.modular.commonFile.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.util.IdUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -34,12 +32,10 @@ import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.service.PanCommonFileService;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
-import vip.xiaonuo.pan.modular.filePermission.entity.PanFilePermission;
-import vip.xiaonuo.pan.modular.filePermission.service.PanFilePermissionService;
-import vip.xiaonuo.pan.modular.permission.service.PanPermissionService;
+import vip.xiaonuo.pan.modular.fileCenter.entity.PanFilePermission;
+import vip.xiaonuo.pan.modular.fileCenter.service.PanFilePermissionService;
 
 import javax.annotation.Resource;
-import java.io.FilePermission;
 import java.util.ArrayList;
 import java.util.List;
 

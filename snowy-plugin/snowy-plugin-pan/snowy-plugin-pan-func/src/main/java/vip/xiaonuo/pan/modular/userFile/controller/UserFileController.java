@@ -29,6 +29,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
+import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
@@ -69,6 +70,9 @@ public class UserFileController {
 
     @Resource
     FileFactory fileFactory;
+
+    @Resource
+    PanFileService panFileService;
 
     private final Integer storageType =1;
 
@@ -224,7 +228,7 @@ public class UserFileController {
          * 2、复制文件夹 同时还要复制文件夹下文件，递归处理
          */
         userFileService.checkMove(userFileOperateParam);
-        userFileService.moveFold(userFileOperateParam);
+        userFileService.userFileCopy(userFileOperateParam);
         return CommonResult.ok();
     }
 

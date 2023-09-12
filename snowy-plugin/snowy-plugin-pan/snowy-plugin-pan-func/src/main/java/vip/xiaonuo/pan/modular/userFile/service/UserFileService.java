@@ -115,7 +115,7 @@ public interface UserFileService extends IService<UserFile> {
      */
     void checkMove(UserFileOperateParam userFileOperateParam);
 
-    Boolean checkFoldLock(String foldId);
+    Boolean checkFoldLock(List<String> foldId);
 
     /**
      * 文件夹移动
@@ -142,4 +142,5 @@ public interface UserFileService extends IService<UserFile> {
 
     void createFile(UserFileAddParam userFileAddParam);
 
+    void userFileCopy(UserFileOperateParam userFileOperateParam);
 }

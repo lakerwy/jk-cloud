@@ -36,14 +36,14 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFileResu
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.MimeUtils;
-import vip.xiaonuo.pan.modular.image.entity.PanImage;
-import vip.xiaonuo.pan.modular.image.service.PanImageService;
-import vip.xiaonuo.pan.modular.pictureFile.entity.PanPictureFile;
-import vip.xiaonuo.pan.modular.pictureFile.service.PanPictureFileService;
+import vip.xiaonuo.pan.modular.fileCenter.entity.PanImage;
+import vip.xiaonuo.pan.modular.fileCenter.service.PanImageService;
+import vip.xiaonuo.pan.modular.fileCenter.entity.PanPictureFile;
+import vip.xiaonuo.pan.modular.fileCenter.service.PanPictureFileService;
 import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTask;
 import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskService;
-import vip.xiaonuo.pan.modular.uploadTaskDetail.entity.PanUploadTaskDetail;
-import vip.xiaonuo.pan.modular.uploadTaskDetail.service.PanUploadTaskDetailService;
+import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTaskDetail;
+import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskDetailService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
@@ -187,8 +187,7 @@ public class FileTransferService implements IFileTransferService {
             log.error("上传失败，请检查连接配置是否正确");
             throw new CommonException("上传失败", e);
         }
-        for (int i = 0; i < uploadFileResultList.size(); i++){
-            UploadFileResult uploadFileResult = uploadFileResultList.get(i);
+        for (UploadFileResult uploadFileResult : uploadFileResultList) {
             String relativePath = uploadFileParam.getRelativePath();
             CommonFile commonFile = null;
             if (relativePath.contains("/")) {
@@ -197,7 +196,7 @@ public class FileTransferService implements IFileTransferService {
                 commonFile = new CommonFile(uploadFileParam.getFilePath(), uploadFileParam.getFilename(), false);
             }
 
-            if (UploadFileStatusEnum.SUCCESS.equals(uploadFileResult.getStatus())){
+            if (UploadFileStatusEnum.SUCCESS.equals(uploadFileResult.getStatus())) {
                 PanFile panFile = new PanFile();
                 panFile.setFileUrl(uploadFileResult.getFileUrl());
                 panFile.setFileSize(uploadFileResult.getFileSize());
@@ -238,7 +237,7 @@ public class FileTransferService implements IFileTransferService {
 
                 if (relativePath.contains("/")) {
                     CommonFile finalCommonFile = commonFile;
-                    exec.execute(()->{
+                    exec.execute(() -> {
                         fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId());
                     });
 

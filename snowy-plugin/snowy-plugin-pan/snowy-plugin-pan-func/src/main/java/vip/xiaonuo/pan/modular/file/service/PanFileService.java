@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
+import vip.xiaonuo.pan.modular.fileCenter.param.UnzipFileParam;
 
 import java.util.List;
 
@@ -76,5 +77,5 @@ public interface PanFileService extends IService<PanFile> {
      **/
     PanFile queryEntity(String id);
 
-    UploadFileVo uploadFileSpeed(UploadFileParam uploadFileParam);
+    void unzipFile(UnzipFileParam userFileAddParam);
 }

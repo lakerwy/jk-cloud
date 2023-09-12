@@ -17,6 +17,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -37,6 +38,7 @@ import vip.xiaonuo.pan.core.ExceptionEnum;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
+import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
@@ -84,13 +86,16 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     private CommonProperties commonProperties;
 
     @Resource
-    private FileFactory fileFactory;
+    private  FileFactory fileFactory;
 
     @Resource
     private PanFileService panFileService;
 
     @Resource
     private PanRecoveryFileService panRecoveryFileService;
+
+    @Resource
+    FileDealComp fileDealComp;
 
     public static Executor executor = Executors.newFixedThreadPool(20);
 
@@ -288,18 +293,67 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
      * @return
      */
     @Override
-    public Boolean checkFoldLock(String foldId){
+    public Boolean checkFoldLock(List<String> foldId){
         //todo
         return  false;
     }
 
     @Override
     public void moveFold(UserFileOperateParam userFileOperateParam) {
-        UserFile userFile = queryEntity(userFileOperateParam.getSourceFoldId());
-        UserFile targetFold = getById(userFileOperateParam.getTargetFoldId());
-        userFile.setParentId(userFileOperateParam.getTargetFoldId());
-        userFile.setFoldType(targetFold.getFoldType());
-        this.updateById(userFile);
+        UserFile destFile = getById(userFileOperateParam.getTargetFoldId());
+
+        if(ObjectUtil.isEmpty(destFile)){
+            throw  new CommonException("目标文件夹不存在");
+        }
+        String targetFoldPath = userFileOperateParam.getTargetFoldPath();
+        if(ObjectUtil.isEmpty(targetFoldPath)){
+            targetFoldPath = destFile.getFilePath()+FileUtil.FILE_SEPARATOR+destFile.getFileName()+FileUtil.FILE_SEPARATOR;
+        }
+        String fianlTargetFoldPath = targetFoldPath;
+        for (String s : userFileOperateParam.getSourceFoldId()) {
+            UserFile userFile = getById(s);
+            if(ObjectUtil.isEmpty(userFile)){
+                throw new CommonException("源文件夹不存在");
+            }
+            if(StrUtil.isEmpty(userFile.getExtendName())){
+                CommonFile commonFile = new CommonFile(userFile.getFilePath(),userFile.getFileName(),Boolean.TRUE);
+                if(targetFoldPath.startsWith(commonFile.getPath()+FileUtil.FILE_SEPARATOR) || targetFoldPath.equals(commonFile.getPath())){
+                    throw new CommonException("原路径与目标路径冲突，不能复制");
+                }
+            }
+            String oldfilePath = userFile.getFilePath();
+            String oldUserId = userFile.getUserId();
+            String fileName = userFile.getFileName();
+
+            if (userFile.getIsDir() == 0) {
+                String repeatFileName = fileDealComp.getRepeatFileName(userFile, userFile.getFilePath());
+                userFile.setFileName(repeatFileName);
+            }
+            updateById(userFile);
+
+            oldfilePath = new CommonFile(oldfilePath, fileName, true).getPath();
+            targetFoldPath = new CommonFile(targetFoldPath, fileName, true).getPath();
+
+
+            if (userFile.isDirectory()) {
+                List<UserFile> subUserFileList = selectUserFileByLikeRightFilePath(oldfilePath, oldUserId);
+
+                for (UserFile newUserFile : subUserFileList) {
+                    newUserFile.setFilePath(newUserFile.getFilePath().replaceFirst(oldfilePath, targetFoldPath));
+                    if (newUserFile.isDirectory()) {
+                        String repeatFileName = fileDealComp.getRepeatFileName(newUserFile, newUserFile.getFilePath());
+                        newUserFile.setFileName(repeatFileName);
+                    }
+                    newUserFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
+                    try {
+                        updateById(newUserFile);
+                    } catch (Exception e) {
+                        log.warn(e.getMessage());
+                    }
+                }
+            }
+            fileDealComp.deleteRepeatSubDirFile(fianlTargetFoldPath,StpLoginUserUtil.getLoginUser().getId());
+        }
     }
 
     /**
@@ -502,6 +556,69 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         userFile.setExtendName(userFileAddParam.getExtendName());
         userFile.setFoldType(userFileAddParam.getFoldType());
         save(userFile);
+
+    }
+
+    @Override
+    public void userFileCopy(UserFileOperateParam userFileOperateParam) {
+        UserFile destFile = getById(userFileOperateParam.getTargetFoldId());
+
+        if(ObjectUtil.isEmpty(destFile)){
+            throw  new CommonException("目标文件夹不存在");
+        }
+        String targetFoldPath = userFileOperateParam.getTargetFoldPath();
+        if(ObjectUtil.isEmpty(targetFoldPath)){
+            targetFoldPath = destFile.getFilePath()+FileUtil.FILE_SEPARATOR+destFile.getFileName()+FileUtil.FILE_SEPARATOR;
+        }
+        String fianlTargetFoldPath = targetFoldPath;
+        for (String s : userFileOperateParam.getSourceFoldId()) {
+            UserFile userFile = getById(s);
+            if(ObjectUtil.isEmpty(userFile)){
+                throw new CommonException("源文件夹不存在");
+            }
+            if(userFile.isDirectory()){
+                CommonFile commonFile = new CommonFile(userFile.getFilePath(),userFile.getFileName(),Boolean.TRUE);
+                if(targetFoldPath.startsWith(commonFile.getPath()+FileUtil.FILE_SEPARATOR) || targetFoldPath.equals(commonFile.getPath())){
+                    throw new CommonException("原路径与目标路径冲突，不能复制");
+                }
+            }
+            String oldfilePath = userFile.getFilePath();
+            String oldUserId = userFile.getUserId();
+            String fileName = userFile.getFileName();
+
+            //可能有问题
+            userFile.setFilePath(targetFoldPath);
+            userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
+            if (userFile.getIsDir() == 0) {
+                String repeatFileName = fileDealComp.getRepeatFileName(userFile, userFile.getFilePath());
+                userFile.setFileName(repeatFileName);
+            }
+            save(userFile);
+
+            oldfilePath = new CommonFile(oldfilePath, fileName, true).getPath();
+            targetFoldPath = new CommonFile(targetFoldPath, fileName, true).getPath();
+
+
+            if (userFile.isDirectory()) {
+                List<UserFile> subUserFileList = selectUserFileByLikeRightFilePath(oldfilePath, oldUserId);
+
+                for (UserFile newUserFile : subUserFileList) {
+                    newUserFile.setFilePath(newUserFile.getFilePath().replaceFirst(oldfilePath, targetFoldPath));
+                    if (newUserFile.isDirectory()) {
+                        String repeatFileName = fileDealComp.getRepeatFileName(newUserFile, newUserFile.getFilePath());
+                        newUserFile.setFileName(repeatFileName);
+                    }
+                    newUserFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
+                    try {
+                        save(newUserFile);
+                    } catch (Exception e) {
+                        log.warn(e.getMessage());
+                    }
+                }
+            }
+            fileDealComp.deleteRepeatSubDirFile(fianlTargetFoldPath,StpLoginUserUtil.getLoginUser().getId());
+        }
+
 
     }
 

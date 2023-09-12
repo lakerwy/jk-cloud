@@ -20,6 +20,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -30,12 +31,23 @@ import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.mapper.PanFileMapper;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
+import vip.xiaonuo.pan.modular.fileCenter.component.AsyncTaskComp;
+import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
+import vip.xiaonuo.pan.modular.fileCenter.operation.FileOperation;
+import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
+import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
+import vip.xiaonuo.pan.modular.fileCenter.param.UnzipFileParam;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -56,6 +68,13 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
     @Resource
     private UserFileService userFileService;
+
+    @Resource
+    private FileFactory fileFactory;
+
+
+    @Resource
+    AsyncTaskComp asyncTaskComp;
 
     public static Executor exec = Executors.newFixedThreadPool(20);
 
@@ -109,72 +128,55 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
     }
 
     @Override
-    public UploadFileVo uploadFileSpeed(UploadFileParam uploadFileParam) {
-        UploadFileVo uploadFileVo = new UploadFileVo();
-        Map<String, Object> param = new HashMap<>();
-        param.put("identifier", uploadFileParam.getIdentifier());
-        List<PanFile> panFiles = panFileMapper.selectByMap(param);
+    public void unzipFile(UnzipFileParam unzipFileParam) {
+        UserFile userFile = userFileService.getById(unzipFileParam.getUserFileId());
+        if(ObjectUtil.isEmpty(userFile)){
+            throw new CommonException("文件不存在，id值为：{}", unzipFileParam.getUserFileId());
+        }
+        PanFile panFile = getById(userFile.getFileId());
+        File destFile = new File(FileCenterUtil.getStaticPath() + "temp" + File.separator + panFile.getFileUrl());
 
-        String filePath = uploadFileParam.getFilePath();
-        String relativePath = uploadFileParam.getRelativePath();
 
+        Downloader downloader = fileFactory.getDownloader(panFile.getStorageType());
+        DownloadFile downloadFile = new DownloadFile();
+        downloadFile.setFileUrl(panFile.getFileUrl());
+        InputStream inputStream = downloader.getInputStream(downloadFile);
 
-        CommonFile commonFile = null;
-        if (relativePath.contains("/")) {
-            commonFile = new CommonFile(filePath, relativePath, false);
-        } else {
-            commonFile = new CommonFile(filePath, uploadFileParam.getFilename(), false);
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, destFile);
+        } catch (IOException e) {
+            throw new CommonException("文件转换失败--");
         }
 
-        if (CollUtil.isNotEmpty(panFiles)) {
-            PanFile file = panFiles.get(0);
-            UserFile fold = new UserFile();
-            fold.setFileId(file.getId());
-            fold.setFilePath(commonFile.getParent());
-            fold.setFileName(commonFile.getNameNotExtend());
-            fold.setIsDir(commonFile.isDirectory()?1:0);
-            fold.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
-            fold.setParentId(uploadFileParam.getParentId());
-            UserFile userFile = userFileService.getById(uploadFileParam.getParentId());
-            fold.setFoldType(userFile.getFoldType());
-            userFileService.save(fold);
-            //todo 加入文件搜索es
 
-            //文件夹上传
-            if (relativePath.contains("/")) {
-                CommonFile finalCommonFile = commonFile;
-                exec.execute(()->{
-                    //fileDealComp.restoreParentFilePath(finalQiwenFile, SessionUtil.getUserId());
-                });
+        String extendName = userFile.getExtendName();
 
-            }
+        String unzipUrl = FileCenterUtil.getTempFile(panFile.getFileUrl()).getAbsolutePath().replace("." + extendName, "");
 
-            uploadFileVo.setSkipUpload(true);
-        } else {
-            uploadFileVo.setSkipUpload(false);
+        List<String> fileEntryNameList = new ArrayList<>();
 
-//            List<Integer> uploaded = uploadTaskDetailMapper.selectUploadedChunkNumList(uploadFileDTO.getIdentifier());
-//            if (uploaded != null && !uploaded.isEmpty()) {
-//                uploadFileVo.setUploaded(uploaded);
-//            } else {
-//
-//                LambdaQueryWrapper<UploadTask> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-//                lambdaQueryWrapper.eq(UploadTask::getIdentifier, uploadFileDTO.getIdentifier());
-//                List<UploadTask> rslist = uploadTaskMapper.selectList(lambdaQueryWrapper);
-//                if (rslist == null || rslist.isEmpty()) {
-//                    UploadTask uploadTask = new UploadTask();
-//                    uploadTask.setIdentifier(uploadFileDTO.getIdentifier());
-//                    uploadTask.setUploadTime(DateUtil.getCurrentTime());
-//                    uploadTask.setUploadStatus(UploadFileStatusEnum.UNCOMPLATE.getCode());
-//                    uploadTask.setFileName(qiwenFile.getNameNotExtend());
-//                    uploadTask.setFilePath(qiwenFile.getParent());
-//                    uploadTask.setExtendName(qiwenFile.getExtendName());
-//                    uploadTask.setUserId(SessionUtil.getUserId());
-//                    uploadTaskMapper.insert(uploadTask);
-//                }
-//            }
-
+        try {
+            fileEntryNameList = FileOperation.unzip(destFile, unzipUrl);
+        } catch (Exception e) {
+            throw new CommonException("解压失败--",e);
         }
-        return uploadFileVo;
+
+        if (destFile.exists()) {
+            boolean delete = destFile.delete();
+        }
+
+        if (!fileEntryNameList.isEmpty() && unzipFileParam.getUnzipMode() == 1) {
+            UserFile userFile1 = new UserFile();
+            userFile1.setFileId(userFile.getUserId());
+            userFile1.setFileName(userFile.getFileName());
+            userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()));
+            userFile1.setIsDir(1);
+            userFile1.setFoldType(userFile.getFoldType());
+            userFile1.setOrgId(userFile1.getOrgId());
+            userFileService.save(userFile1);
+        }
+        for (String entryName : fileEntryNameList) {
+            asyncTaskComp.saveUnzipFile(userFile, panFile, unzipFileParam.getUnzipMode(), entryName, unzipFileParam.getFilePath());
+        }
     }
 }
