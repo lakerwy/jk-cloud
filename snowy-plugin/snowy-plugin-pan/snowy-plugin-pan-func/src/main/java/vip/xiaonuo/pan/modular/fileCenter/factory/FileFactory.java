@@ -1,5 +1,7 @@
 package vip.xiaonuo.pan.modular.fileCenter.factory;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.pan.modular.fileCenter.enums.StorageTypeEnum;
@@ -35,18 +37,18 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.write.product.MinioWriter;
 import javax.annotation.Resource;
 
 @Component
+@ConditionalOnWebApplication
 public class FileFactory {
 
-    public static Integer storageType;
+    public static Integer storageType = 0;
 
-    public static Integer width;
-    public static Integer height;
+    public static Integer width = 50;
+    public static Integer height = 50;
     @Resource
     private AliyunOSSUploader aliyunOSSUploader;
     @Resource
     private MinioUploader minioUploader;
 
-    public static  FileFactory fileFactory;
 
     private static final String PAN_STORAGE_TYPE = "PAN_STORAGE_TYPE";
 
@@ -55,14 +57,22 @@ public class FileFactory {
 
     public  static void  initClient() {
         DevConfigApi devConfigApi = SpringUtil.getBean(DevConfigApi.class);
-        storageType = Integer.parseInt(devConfigApi.getValueByKey(PAN_STORAGE_TYPE));
-        width = Integer.parseInt(devConfigApi.getValueByKey(PAN_THUMB_IMAGE_WIDTH));
-        height = Integer.parseInt(devConfigApi.getValueByKey(PAN_THUMB_IMAGE_HEIGHT));
-        fileFactory = new FileFactory();
+        String valueByKey = devConfigApi.getValueByKey(PAN_STORAGE_TYPE);
+        if(StrUtil.isNotEmpty(valueByKey)){
+            storageType = Integer.parseInt(valueByKey);
+        }
+        String valueByKey1 = devConfigApi.getValueByKey(PAN_THUMB_IMAGE_WIDTH);
+        if(StrUtil.isNotEmpty(valueByKey1)){
+            width = Integer.parseInt(valueByKey1);
+        }
+        String valueByKey2 = devConfigApi.getValueByKey(PAN_THUMB_IMAGE_HEIGHT);
+        if(StrUtil.isNotEmpty(valueByKey2)){
+            height = Integer.parseInt(valueByKey2);
+        }
     }
 
     public Uploader getUploader() {
-
+        initClient();
         int type = storageType;
         Uploader uploader = null;
         if (StorageTypeEnum.LOCAL.getCode() == type) {
@@ -138,6 +148,7 @@ public class FileFactory {
     }
 
     public Copier getCopier() {
+        initClient();
         int type = storageType;
         Copier copier = null;
         if (StorageTypeEnum.LOCAL.getCode() == type) {

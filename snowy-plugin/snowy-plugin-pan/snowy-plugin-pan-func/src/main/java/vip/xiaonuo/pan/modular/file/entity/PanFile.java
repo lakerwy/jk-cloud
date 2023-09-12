@@ -28,7 +28,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-@TableName("pan_file")
+@TableName("PAN_FILE")
 public class PanFile {
 
     /** ID */
