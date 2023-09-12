@@ -20,8 +20,10 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.NumberUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -51,6 +53,7 @@ import java.math.BigDecimal;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * 文件Service接口实现类
@@ -338,7 +341,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author mayike
      * @date 2023/6/12 16:24
      **/
-    private Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName) {
+    private  Map<String,Object> newStorageFile(String engine, MultipartFile file, String bucketName) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -346,7 +349,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
 
         // 生成id
-        // String fileId = IdWorker.getIdStr();
+        //String fileId = IdWorker.getIdStr();
 
         // 存储桶名称
         //String bucketName;
@@ -356,8 +359,9 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
         //获取一天中最后一条数据的id
         DevFile devFile = new DevFile();
-        String fileIdPre = getFileIdPre();
-        String fileName = getFileName();
+//        String fileIdPre = getFileIdPre();
+        String fileIdPre = DateUtil.date().toString("yyyyMMdd");
+        String fileName = RandomUtil.randomNumbers(10);
 //        if(null != devFile){
 //            //202008090001
 //            String fileid = devFile.getId();
@@ -370,7 +374,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 //            fileIdPre = format.format(date);
 //            fileName = String.format("%04d", 1);
 //        }
-
+        final  String fullFileId = fileIdPre+fileName;
         // 根据引擎类型执行不同方法
         if(engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
             if(StrUtil.isBlank(bucketName)){
@@ -399,7 +403,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
         // 将文件信息保存到数据库
         devFile = new DevFile();
-        String fullFileId = fileIdPre+fileName;
+        //String fullFileId = fileIdPre+fileName;
         // 设置文件id
         devFile.setId(fullFileId);
 
@@ -591,5 +595,4 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 //            throw new CommonException("不支持的文件引擎：{}", engine);
 //        }
     }
-
 }
