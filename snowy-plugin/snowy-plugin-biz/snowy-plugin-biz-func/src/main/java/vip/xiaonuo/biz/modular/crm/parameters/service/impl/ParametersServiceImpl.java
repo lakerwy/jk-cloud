@@ -282,13 +282,16 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
             queryWrapper.like("b.OWNER", parametersInfoPageParam.getMainOwner());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainContractAmount())) {
-            queryWrapper.eq("b.CONTRACT_AMOUNT", parametersInfoPageParam.getMainContractAmount());
+            queryWrapper.ge(" CAST(b.CONTRACT_AMOUNT AS SIGNED) ", parametersInfoPageParam.getMainContractAmount());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainInvestScale())) {
-            queryWrapper.like("b.INVEST_SCALE", parametersInfoPageParam.getMainInvestScale());
+            queryWrapper.ge(" CAST(b.INVEST_SCALE AS SIGNED) ", parametersInfoPageParam.getMainInvestScale());
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainDescription())) {
             queryWrapper.like("b.DESCRIPTION", parametersInfoPageParam.getMainDescription());
+        }
+        if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainProjectLeader())) {
+            queryWrapper.like("b.PROJECT_LEADER", parametersInfoPageParam.getMainProjectLeader());
         }
 
         /* 排序 */
