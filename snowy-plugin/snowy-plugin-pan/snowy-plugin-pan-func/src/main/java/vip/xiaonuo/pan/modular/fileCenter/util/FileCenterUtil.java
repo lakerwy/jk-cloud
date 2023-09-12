@@ -1,11 +1,14 @@
 package vip.xiaonuo.pan.modular.fileCenter.util;
 
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.ResourceUtils;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.modular.file.util.DevFileLocalUtil;
 
+import javax.annotation.PostConstruct;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.UnsupportedEncodingException;
@@ -20,8 +23,8 @@ import java.util.Date;
  * 文件操作帮助类
  */
 public class FileCenterUtil {
-    public static String LOCAL_STORAGE_PATH;
-    public static String ROOT_PATH;
+    public static String LOCAL_STORAGE_PATH ;
+    public static String ROOT_PATH ;
     public static final String[] IMG_FILE = {"bmp", "jpg", "png", "tif", "gif", "jpeg"};
     public static final String[] DOC_FILE = {"doc", "docx", "ppt", "pptx", "xls", "xlsx", "txt", "hlp", "wps", "rtf", "html", "pdf"};
     public static final String[] VIDEO_FILE = {"avi", "mp4", "mpg", "mov", "swf"};
@@ -34,6 +37,11 @@ public class FileCenterUtil {
     public static final int OTHER_TYPE = 5;
     public static final int SHARE_FILE = 6;
     public static final int RECYCLE_FILE = 7;
+
+    private static void  init(){
+        JSONObject client = DevFileLocalUtil.getOOSClient();
+        ROOT_PATH = client.getStr("localFileUploadFolder");
+    }
 
 
     /**
@@ -122,7 +130,6 @@ public class FileCenterUtil {
     public static String getStaticPath() {
         String localStoragePath = LOCAL_STORAGE_PATH;
         if (StringUtils.isNotEmpty(localStoragePath)) {
-
             return new File(localStoragePath).getPath() + File.separator;
         }else {
             String projectRootAbsolutePath = getProjectRootPath();
@@ -181,15 +188,15 @@ public class FileCenterUtil {
      * @return 返回上传文件路径
      */
     public static String getUploadFileUrl(String identifier, String extendName) {
-
+        init();
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
         String path = ROOT_PATH + "/" + formater.format(new Date()) + "/";
 
-        File dir = new File(FileCenterUtil.getStaticPath() + path);
-
-        if (!dir.exists()) {
-            dir.mkdirs();
-        }
+//        File dir = new File(FileCenterUtil.getStaticPath() + path);
+//
+//        if (!dir.exists()) {
+//            dir.mkdirs();
+//        }
 
         path = path + identifier + "." + extendName;
 

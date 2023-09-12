@@ -43,6 +43,7 @@ import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
+import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
@@ -236,6 +237,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         UserFile userFile = new UserFile();
         userFile.setParentId(ROOT_FOLD_ID);
         userFile.setIsDir(IS_DIR);
+        userFile.setFilePath("/");
         userFile.setRootDir(UserFileEnum.SELF_ROOT.getLevel());
         userFile.setFoldType(UserFileEnum.SELF_FOLD_TYPE.getLevel());
         userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
@@ -258,6 +260,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         UserFile userFile = new UserFile();
         userFile.setParentId(ROOT_FOLD_ID);
         userFile.setIsDir(IS_DIR);
+        userFile.setFilePath("/");
         userFile.setRootDir(UserFileEnum.GROUP_ROOT.getLevel());
         userFile.setFoldType(UserFileEnum.GROUP_FOLD_TYPE.getLevel());
         userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());

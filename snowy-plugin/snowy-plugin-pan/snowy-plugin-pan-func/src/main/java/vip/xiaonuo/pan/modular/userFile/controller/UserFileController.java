@@ -15,6 +15,7 @@ package vip.xiaonuo.pan.modular.userFile.controller;
 import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -56,7 +57,7 @@ import static vip.xiaonuo.pan.core.FileCommonConstant.SNOWY_SYS_DEFAULT_FILE_ENG
  * @author mayike
  * @date  2023/08/28 10:09
  */
-@Api(tags = "文件夹控制器")
+@Api(tags = "网盘文件夹控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
@@ -365,6 +366,9 @@ public class UserFileController {
     @CommonLog("创建文件")
     @PostMapping("/pan/fold/createFile")
     public CommonResult<String> createFile(@Valid @RequestBody UserFileAddParam userFileAddParam) {
+        if(StrUtil.isEmpty(userFileAddParam.getExtendName())){
+            return CommonResult.error("拓展名不能为空");
+        }
         //判断文件夹是否存在
         UserFile userFile = BeanUtil.copyProperties(userFileAddParam, UserFile.class);
         Boolean dirExist = userFileService.isDirExist(userFile);

@@ -21,7 +21,7 @@ public class LocalStorageCopier extends Copier {
     public String copy(InputStream inputStream, CopyFile copyFile) {
         String uuid = UUID.randomUUID().toString();
         String fileUrl = FileCenterUtil.getUploadFileUrl(uuid, copyFile.getExtendName());
-        File saveFile = new File(FileCenterUtil.getStaticPath() + fileUrl);
+        File saveFile = new File( fileUrl);
         try {
             FileUtils.copyInputStreamToFile(inputStream, saveFile);
         } catch (IOException e) {

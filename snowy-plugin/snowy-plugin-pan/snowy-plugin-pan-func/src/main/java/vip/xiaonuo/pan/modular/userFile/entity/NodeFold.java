@@ -25,18 +25,22 @@ public class NodeFold {
     @ApiModelProperty(value = "父目录文件夹ID", position = 2)
     private String parentId;
 
+    /** 父目录文件夹ID */
+    @ApiModelProperty(value = "文件路径", position = 3)
+    private String filePath;
+
     /** 文件名称 */
-    @ApiModelProperty(value = "文件名称", position = 3)
+    @ApiModelProperty(value = "文件名称", position = 4)
     private String fileName;
 
-    @ApiModelProperty(value = "层级",position = 3)
+    @ApiModelProperty(value = "层级",position = 5)
     private Integer level;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 4)
+    @ApiModelProperty(value = "创建时间", position = 6)
     private Date createTime;
 
-    @ApiModelProperty(value = "子孙节点",position = 5)
+    @ApiModelProperty(value = "子孙节点",position = 7)
     private List<NodeFold> children = new ArrayList<>();
 
 }

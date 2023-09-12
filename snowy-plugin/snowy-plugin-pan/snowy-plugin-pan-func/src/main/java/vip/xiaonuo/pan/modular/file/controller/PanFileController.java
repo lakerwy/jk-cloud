@@ -67,7 +67,7 @@ import java.util.stream.Collectors;
  * @author mayike
  * @date  2023/09/06 21:15
  */
-@Api(tags = "文件控制器")
+@Api(tags = "网盘文件管理控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated

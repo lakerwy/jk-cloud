@@ -66,7 +66,7 @@ public class UserFileAddParam {
     private Integer foldType;
 
     /** 文件拓展名 */
-    @ApiModelProperty(value = "文件拓展名", position = 16)
+    @ApiModelProperty(value = "文件拓展名 创建文件时必传", position = 16)
     private String extendName;
 
     /** 用户ID */
