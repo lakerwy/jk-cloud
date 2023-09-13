@@ -166,13 +166,15 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
         // 生成id
         //String fileId = IdWorker.getIdStr();
-        String fileName = getFileName();
-        String fileId = getFileIdPre()+fileName;
+        String fileIdPre = DateUtil.date().toString("yyyyMMdd");
+        String fileName = RandomUtil.randomNumbers(10);
         // 存储桶名称
 //        String bucketName;
 
         // 定义存储的url，本地文件返回文件实际路径，其他引擎返回网络地址
         String storageUrl;
+
+        final  String fullFileId = fileIdPre+fileName;
 
         // 根据引擎类型执行不同方法
         if(engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
@@ -205,7 +207,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         DevFile devFile = new DevFile();
 
         // 设置文件id
-        devFile.setId(fileId);
+        devFile.setId(fullFileId);
 
         // 设置存储引擎类型
         devFile.setEngine(engine);
@@ -217,7 +219,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         devFile.setSizeKb(Convert.toStr(NumberUtil.div(new BigDecimal(file.getSize()), BigDecimal.valueOf(1024))
                 .setScale(0, BigDecimal.ROUND_HALF_UP)));
         devFile.setSizeInfo(FileUtil.readableFileSize(file.getSize()));
-        devFile.setObjName(ObjectUtil.isNotEmpty(devFile.getSuffix())?fileId + StrUtil.DOT + devFile.getSuffix():null);
+        devFile.setObjName(ObjectUtil.isNotEmpty(devFile.getSuffix())?fullFileId + StrUtil.DOT + devFile.getSuffix():null);
         // 如果是图片，则压缩生成缩略图
         if(ObjectUtil.isNotEmpty(suffix)) {
             if(isPic(suffix)) {
@@ -240,7 +242,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             if(ObjectUtil.isEmpty(apiUrl)) {
                 throw new CommonException("后端域名地址未正确配置：snowy.config.common.backend-url为空");
             }
-            String baseDownUrl = GATEWAYDOWNLOADURL + fileId;
+            String baseDownUrl = GATEWAYDOWNLOADURL + fullFileId;
             downloadUrl = apiUrl + baseDownUrl;
             devFile.setDownloadPath(baseDownUrl);
         } else {
@@ -253,7 +255,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
         // 如果是返回id则返回文件id
         if(returnFileId) {
-            return fileId;
+            return fullFileId;
         } else {
             return downloadUrl;
         }
