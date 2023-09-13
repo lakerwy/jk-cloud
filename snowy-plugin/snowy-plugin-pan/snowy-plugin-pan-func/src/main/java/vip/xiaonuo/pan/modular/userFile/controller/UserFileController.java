@@ -86,7 +86,7 @@ public class UserFileController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取文件夹分页")
 //    @SaCheckPermission("/pan/fold/page")
-    @GetMapping("/pan/fold/page")
+//    @GetMapping("/pan/fold/page")
     public CommonResult<Page<UserFile>> page(UserFilePageParam userFilePageParam) {
         return CommonResult.data(userFileService.page(userFilePageParam));
     }
@@ -101,7 +101,7 @@ public class UserFileController {
     @ApiOperation("添加文件夹")
     @CommonLog("添加文件夹")
 //    @SaCheckPermission("/pan/fold/add")
-    @PostMapping("/pan/fold/add")
+//    @PostMapping("/pan/fold/add")
     public CommonResult<String> add(@RequestBody @Valid UserFileAddParam userFileAddParam) {
         userFileService.add(userFileAddParam);
         return CommonResult.ok();
@@ -117,7 +117,7 @@ public class UserFileController {
     @ApiOperation("编辑文件夹")
     @CommonLog("编辑文件夹")
 //    @SaCheckPermission("/pan/fold/edit")
-    @PostMapping("/pan/fold/edit")
+//    @PostMapping("/pan/fold/edit")
     public CommonResult<String> edit(@RequestBody @Valid UserFileEditParam userFileEditParam) {
         userFileService.edit(userFileEditParam);
         return CommonResult.ok();
@@ -158,7 +158,7 @@ public class UserFileController {
      * 本地文件创建文件夹
      *
      **/
-    @ApiOperationSupport(order = 6)
+    @ApiOperationSupport(order = 1)
     @ApiOperation("本地文件创建文件夹(不允许在根目录下创建文件夹)")
     @CommonLog("本地文件创建文件夹")
     @PostMapping("/pan/fold/createFold")
@@ -246,7 +246,7 @@ public class UserFileController {
     @ApiOperationSupport(order = 7)
     @ApiOperation("动态上传文件返回文件信息")
     @CommonLog("动态上传文件返回文件信息")
-    @PostMapping("/pan/file/uploadDynamicReturnBean")
+//    @PostMapping("/pan/file/uploadDynamicReturnBean")
     public CommonResult<List<DevFile>> uploadDynamicReturnId(@RequestPart("file") MultipartFile[] file, @RequestParam(value = "parentId",required = false) String parentId) {
         return CommonResult.data(userFileService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
     }
@@ -258,10 +258,10 @@ public class UserFileController {
      * @date  2023/08/28 10:09
      */
     @ApiOperationSupport(order = 8)
-    @ApiOperation("文件夹列表（个人、部门、分享）")
+    @ApiOperation("文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
-    @GetMapping("/pan/fold/pageList")
-    public CommonResult<Page<UserFile>> pageList(UserFilePageParam userFilePageParam) {
+    @PostMapping("/pan/fold/pageList")
+    public CommonResult<Page<UserFile>> pageList(@Valid @RequestBody UserFilePageParam userFilePageParam) {
         return CommonResult.data(userFileService.pageList(userFilePageParam));
     }
 
@@ -274,7 +274,7 @@ public class UserFileController {
     @ApiOperationSupport(order = 9)
     @ApiOperation("所有个人文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
-    @GetMapping("/pan/fold/selfAllPageList")
+//    @GetMapping("/pan/fold/selfAllPageList")
     public CommonResult<Page<UserFile>> selfAllPageList(UserFilePageParam userFilePageParam) {
         userFilePageParam.setFoldType(UserFileEnum.SELF_FOLD_TYPE.getLevel());
         return CommonResult.data(userFileService.pageList(userFilePageParam));
@@ -289,7 +289,7 @@ public class UserFileController {
     @ApiOperationSupport(order = 10)
     @ApiOperation("所有群组文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
-    @GetMapping("/pan/fold/groupAllPageList")
+//    @GetMapping("/pan/fold/groupAllPageList")
     public CommonResult<Page<UserFile>> groupAllPageList(UserFilePageParam userFilePageParam) {
         userFilePageParam.setFoldType(UserFileEnum.GROUP_FOLD_TYPE.getLevel());
         return CommonResult.data(userFileService.pageList(userFilePageParam));
@@ -319,7 +319,7 @@ public class UserFileController {
     @ApiOperationSupport(order = 12)
     @ApiOperation("获取所在部门的文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
-    @GetMapping("/pan/fold/groupPageList")
+//    @GetMapping("/pan/fold/groupPageList")
     public CommonResult<Page<UserFile>> groupPageList(UserFilePageParam userFilePageParam) {
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
         return CommonResult.data(userFileService.groupPageList(userFilePageParam));
@@ -334,7 +334,7 @@ public class UserFileController {
     @ApiOperationSupport(order = 12)
     @ApiOperation("获取当前登录人的个人文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
-    @GetMapping("/pan/fold/selfPageList")
+//    @GetMapping("/pan/fold/selfPageList")
     public CommonResult<Page<UserFile>> selfPageList(UserFilePageParam userFilePageParam) {
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
         return CommonResult.data(userFileService.selfPageList(userFilePageParam));

@@ -372,13 +372,21 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 //            devFoldPageParam.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
 //        }
         if(ObjectUtil.isEmpty(userFilePageParam.getId())){
-            userFilePageParam.setId(ROOT_FOLD_ID);
+            if(Objects.equals(userFilePageParam.getRootDir(), UserFileEnum.GROUP_ROOT.getLevel())){
+                buildGroupPageParam(userFilePageParam);
+            }else  if(Objects.equals(userFilePageParam.getRootDir(), UserFileEnum.SELF_ROOT.getLevel())){
+                buildSelfPageParam(userFilePageParam);
+            }else {
+                userFilePageParam.setId(ROOT_FOLD_ID);
+            }
         }
         if(ObjectUtil.isNotEmpty(userFilePageParam.getFoldType())){
             queryWrapper.lambda().in(UserFile::getFoldType, userFilePageParam.getFoldType());
         }
-        queryWrapper.lambda().eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
-        queryWrapper.lambda().eq(UserFile::getParentId, userFilePageParam.getId());
+        if(!userFilePageParam.getAllFlag()){
+            queryWrapper.lambda().eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
+            queryWrapper.lambda().eq(UserFile::getParentId, userFilePageParam.getId());
+        }
         if(ObjectUtil.isNotEmpty(userFilePageParam.getFileName())) {
             queryWrapper.lambda().like(UserFile::getFileName, userFilePageParam.getFileName());
         }
@@ -431,6 +439,25 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             }
         }else {
             return pageList(userFilePageParam);
+        }
+    }
+
+    private void  buildGroupPageParam(UserFilePageParam userFilePageParam){
+        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.GROUP_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
+        UserFile one = getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(one)){
+            userFilePageParam.setId(one.getId());
+        }
+    }
+
+    private void  buildSelfPageParam(UserFilePageParam userFilePageParam){
+        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.SELF_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId())
+                .eq(UserFile::getCreateUser,StpLoginUserUtil.getLoginUser().getId());
+        UserFile one = getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(one)){
+            userFilePageParam.setId(one.getId());
         }
     }
 

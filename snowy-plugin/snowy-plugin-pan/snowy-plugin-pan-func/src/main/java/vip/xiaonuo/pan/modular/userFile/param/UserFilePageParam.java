@@ -50,10 +50,16 @@ public class UserFilePageParam {
     @ApiModelProperty(value = "文件名称")
     private String fileName;
 
-    @ApiModelProperty(value = "文件夹类型")
+    @ApiModelProperty(value = "文件夹类型(0 个人文件夹 1、群组文件夹)")
     private Integer foldType;
+
+    @ApiModelProperty(value = "根目录标记(0顶级目录 1、获取个人顶级目录必传 2 、部门顶级目录传)")
+    private Integer rootDir;
 
     @ApiModelProperty(value = "目录ID (默认根目录ID为0)")
     private String id;
+
+    @ApiModelProperty(value = "查询所有的个人或者群组文件---标记 默认false   true 表示查询所有")
+    private Boolean allFlag;
 
 }

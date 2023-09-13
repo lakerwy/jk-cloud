@@ -178,8 +178,8 @@ public class PanFileController {
 
     @ApiOperationSupport(order = 7)
     @ApiOperation("极速上传")
-//    @SaCheckPermission("/pan/file/uploadFileSpeed")
-    @PostMapping("/pan/file/uploadFileSpeed")
+//    @SaCheckPermission("/pan/file/uploadFile")
+    @GetMapping("/pan/file/uploadFile")
     public CommonResult<UploadFileVo> uploadFileSpeed(UploadFileParam uploadFileParam) {
 
         boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize());
