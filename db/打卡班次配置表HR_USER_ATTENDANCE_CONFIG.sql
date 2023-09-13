@@ -11,7 +11,7 @@
  Target Server Version : 50740
  File Encoding         : 65001
 
- Date: 08/09/2023 12:25:41
+ Date: 13/09/2023 12:47:49
 */
 
 SET NAMES utf8mb4;
@@ -25,12 +25,11 @@ CREATE TABLE `HR_USER_ATTENDANCE_CONFIG`  (
   `ID` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NOT NULL COMMENT '主键id',
   `TENANT_ID` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '租户id',
   `ORDER_NUMBER` int(10) NULL DEFAULT NULL COMMENT '排班顺序',
-  `ON_DUTY_BEGIN_MIN` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '上班允许最早多少时间打卡：单位分钟',
-  `ON_DUTY_CHECK_TIME` datetime(0) NULL DEFAULT NULL COMMENT '上班打卡时间',
-  `ON_DUTY_END_MIN` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '上班允许最晚多少时间打卡：单位分钟',
-  `OFF_DUTY_BEGIN_MIN` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '下班允许最早多少时间打卡：单位分钟',
-  `OFF_DUTY_CHECK_TIME` datetime(0) NULL DEFAULT NULL COMMENT '下班打卡时间',
-  `OFF_DUTY_END_MIN` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '下班允许最晚多少时间打卡：单位分钟',
+  `ATTENDANCE_TYPE_NAME` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '考勤班次类别名，比如标准考勤，移动考勤等',
+  `DUTY_TYPE` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '上班OnDuty，下班 OffDuty ，休息 REST',
+  `BEGIN_MIN_TIME` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '允许最早多少时间打卡',
+  `CHECK_TIME` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '打卡时间点',
+  `END_MIN_TIME` varchar(10) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '允许最晚多少时间打卡',
   `ACTION_RANGE` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '作用范围区域 ',
   `IS_VALID_RANGE` int(5) NULL DEFAULT NULL COMMENT '区域范围是否有效',
   `EXT_JSON` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '扩展信息',

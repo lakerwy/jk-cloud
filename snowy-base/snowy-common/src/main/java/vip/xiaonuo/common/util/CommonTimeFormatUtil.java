@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 
 /**
@@ -271,5 +272,23 @@ public class CommonTimeFormatUtil {
             return diff < 0L ? -diff : diff;
         }
 
-
+        /**
+         * date增加多少分钟
+         * @author ljy
+         * @date  2023/9/12
+         * @type 1 增加，2 减少
+         * @return date
+         * */
+        public static Date addOrUpMinute(Date date, int minute,int type) {
+            if (date == null) return null;
+            int minuteDate = minute > 0 ? minute : -minute;
+            if(type == 1){
+            }else if(type == 2){
+                minuteDate = -minuteDate;
+            }
+            Calendar c = Calendar.getInstance();
+            c.setTime(date);
+            c.add(Calendar.MINUTE, minuteDate);
+            return c.getTime();
+        }
     }

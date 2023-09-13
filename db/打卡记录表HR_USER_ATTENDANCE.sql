@@ -11,7 +11,7 @@
  Target Server Version : 50740
  File Encoding         : 65001
 
- Date: 08/09/2023 12:25:51
+ Date: 13/09/2023 12:47:41
 */
 
 SET NAMES utf8mb4;
@@ -26,7 +26,7 @@ CREATE TABLE `HR_USER_ATTENDANCE`  (
   `USER_ID` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '人员信息ID',
   `TENANT_ID` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '租户id',
   `CHECK_TIME` datetime(0) NULL DEFAULT NULL COMMENT '打卡时间',
-  `MACHINE_ID` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '打卡点位(机位)',
+  `MACHINE_CODE` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '打卡点位(机位)',
   `ABNORMAL_FLAG` int(5) NULL DEFAULT NULL COMMENT '打卡是否异常：1 异常，0 正常',
   `CHECK_TYPE` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '上下班标识；OnDuty：上班；OffDuty：下班',
   `LATITUDE` varchar(50) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '打卡地址对应的纬度',
@@ -37,6 +37,7 @@ CREATE TABLE `HR_USER_ATTENDANCE`  (
   `CREATE_USER` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '创建用户',
   `UPDATE_TIME` datetime(0) NULL DEFAULT NULL COMMENT '修改时间 ',
   `UPDATE_USER` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL COMMENT '修改用户',
+  `ATTENDANCE_TYPE` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci NULL DEFAULT NULL,
   PRIMARY KEY (`ID`) USING BTREE
 ) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_general_ci COMMENT = '打卡记录表' ROW_FORMAT = Dynamic;
 

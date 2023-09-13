@@ -56,7 +56,7 @@ public class HrUserAttendance {
     private Integer abnormalFlag;
 
     /** 上下班标识；OnDuty：上班；OffDuty：下班 */
-    @ApiModelProperty(value = "上下班标识；OnDuty：上班；OffDuty：下班", position = 7)
+    @ApiModelProperty(value = "上下班标识；OnDuty：上班；OffDuty：下班；休息 REST", position = 7)
     private String checkType;
 
     /** 打卡地址对应的纬度 */

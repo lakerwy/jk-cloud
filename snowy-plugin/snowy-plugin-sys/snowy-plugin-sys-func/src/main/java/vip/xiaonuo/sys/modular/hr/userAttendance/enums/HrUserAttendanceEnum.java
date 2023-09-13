@@ -25,9 +25,11 @@ public enum HrUserAttendanceEnum {
 
     ATTENDANCE_OFF_DUTY("OffDuty"),//下班
     ATTENDANCE_ON_DUTY("OnDuty"),// 下班
-    ATTENDANCE_NORMAL("0"), //正常
-    ATTENDANCE_LATE("1"), //迟到
-    ATTENDANCE_LEAVE_EARLY("2");//早退
+    ATTENDANCE_REST("REST"),// 下班
+    ATTENDANCE_ABNORMAL("-1"), //打卡异常
+    ATTENDANCE_NORMAL("1"), //正常
+    ATTENDANCE_LATE("2"), //迟到
+    ATTENDANCE_LEAVE_EARLY("3");//早退
 
     private final String value;
 

@@ -14,22 +14,23 @@ package vip.xiaonuo.sys.modular.hr.userAttendance.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendance.mapper.HrUserAttendanceMapper;
@@ -41,12 +42,9 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
-import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
+import javax.annotation.Resource;
+import java.util.*;
 
 /**
  * 打卡记录表Service接口实现类
@@ -57,8 +55,12 @@ import java.util.stream.Collectors;
 @Service
 public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMapper, HrUserAttendance> implements HrUserAttendanceService {
 
+    //private static final String HR_ATTENDANCE_CONFIG_KEY = "";
+
     @Autowired
     private HrUserAttendanceConfigService hrUserAttendanceConfigService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -94,39 +96,43 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     public String attendance(HrUserAttendanceAddParam hrUserAttendanceAddParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         hrUserAttendanceAddParam.setUserId(loginUser.getId());
+        Date dateNow =DateUtil.date();/** 当前打卡时间*/
         if(ObjectUtil.isEmpty(hrUserAttendanceAddParam.getCheckTime())){
-            hrUserAttendanceAddParam.setCheckTime(new Date());
+            hrUserAttendanceAddParam.setCheckTime(dateNow);
         }
-        Date checkTime = hrUserAttendanceAddParam.getCheckTime();//当前打卡时间
         HrUserAttendance hrUserAttendance = BeanUtil.toBean(hrUserAttendanceAddParam, HrUserAttendance.class);
 
-        //待优化部分：打卡班次设置，后续启用租户,职位，角色等概念
-        Date dateNow = new Date();
-        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(new HrUserAttendanceConfigPageParam());
-        List<HrUserAttendanceConfig> configList = pageList.getRecords();
-        for(HrUserAttendanceConfig config : configList){
-            config.setOnDutyCheckTime(CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,"yyyy-MM-dd"),CommonTimeFormatUtil.dateToStr(config.getOnDutyCheckTime(),"HH:mm:ss")));//上班时间
-            config.setOffDutyCheckTime(CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,"yyyy-MM-dd"),CommonTimeFormatUtil.dateToStr(config.getOffDutyCheckTime(),"HH:mm:ss")));//下班时间
-        }
+        /** 计算有效打卡时间区间 ，加入缓存(待修改)*/
+        List<AttendanceTimeSlot> attendanceTimeSlotList = getAttendanceTimeSlotList(new HrUserAttendanceConfigPageParam(),dateNow);
 
-        //上班时间到下班时间区间打卡，都属于异常打卡  (有效考勤数据来源于打卡数据)
-        // 0 正常，1 迟到，2 早退
-        List<HrUserAttendanceConfig> filterConfigList = configList.stream().filter(config -> checkTime.after(config.getOnDutyCheckTime()) && checkTime.before(config.getOffDutyCheckTime())).collect(Collectors.toList());
-        if(!ObjectUtil.isEmpty(filterConfigList)){
-            List<String> dutyStatus = filterConfigList.stream().map(config ->
-                    CommonTimeFormatUtil.twoTimeDiffSecond(checkTime,config.getOnDutyCheckTime()) >= CommonTimeFormatUtil.twoTimeDiffSecond(config.getOffDutyCheckTime(),checkTime) ?
-                            HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue() : HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()).collect(Collectors.toList());
-            hrUserAttendance.setAbnormalFlag(1);
-            hrUserAttendance.setCheckType(dutyStatus.get(0));
-            this.save(hrUserAttendance);
-            return  dutyStatus.get(0).equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()) ? HrUserAttendanceEnum.ATTENDANCE_LATE.getValue() : HrUserAttendanceEnum.ATTENDANCE_LEAVE_EARLY.getValue();
-        }else{
-            hrUserAttendance.setCheckType(getChectStatus(configList,checkTime));
-            hrUserAttendance.setAbnormalFlag(0);
+        /** 上下班休息标识；OnDuty：上班；OffDuty：下班；休息 REST */
+        for(AttendanceTimeSlot attendanceTimeSlot : attendanceTimeSlotList){
+            if(dateNow.after(attendanceTimeSlot.getBeginTime()) && dateNow.before(attendanceTimeSlot.getEndTime())){
+                hrUserAttendance.setAbnormalFlag(1);/** 打卡正常*/
+                hrUserAttendance.setCheckType(attendanceTimeSlot.getDutyType());
+                this.save(hrUserAttendance);
+                return HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
+            }
         }
+        hrUserAttendance.setAbnormalFlag(-1); /** 打卡异常*/
         this.save(hrUserAttendance);
-        return HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
+        return HrUserAttendanceEnum.ATTENDANCE_ABNORMAL.getValue();
     }
+    private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam,Date dateNow){
+        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);
+        List<HrUserAttendanceConfig> configList = pageList.getRecords();
+        List<AttendanceTimeSlot>  attendanceTimeSlotList = new ArrayList<>();
+        for(HrUserAttendanceConfig attendanceConfig : configList){
+            AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
+            attendanceTimeSlot.setDutyType(attendanceConfig.getDutyType());
+            Date time = CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,"yyyy-MM-dd"),attendanceConfig.getCheckTime());
+            attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(attendanceConfig.getBeginMinTime()),2));
+            attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(attendanceConfig.getEndMinTime()),1));
+            attendanceTimeSlotList.add(attendanceTimeSlot);
+        }
+        return attendanceTimeSlotList;
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(HrUserAttendanceEditParam hrUserAttendanceEditParam) {
@@ -154,29 +160,5 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             throw new CommonException("打卡记录表不存在，id值为：{}", id);
         }
         return hrUserAttendance;
-    }
-
-    public String getChectStatus(List<HrUserAttendanceConfig> configList,Date checkTime){
-        String dutyStatus = "";
-        String preDutyStatus = "";
-        long preTwoTimeDiffSecond = 0L;
-        for(HrUserAttendanceConfig config : configList){
-            long onSecond = CommonTimeFormatUtil.twoTimeDiffSecond(config.getOnDutyCheckTime(),checkTime);
-            long offSceond =  CommonTimeFormatUtil.twoTimeDiffSecond(config.getOnDutyCheckTime(),checkTime);
-            long onOrOffSceond = onSecond > offSceond ? offSceond : onSecond;
-            String onOrOffStatus = onSecond > offSceond ? "OffDuty" : "OnDuty";
-            dutyStatus = onOrOffStatus;
-
-            //和上一个对比
-            if(StringUtils.isNotEmpty(preDutyStatus)){
-                preTwoTimeDiffSecond = onOrOffSceond > preTwoTimeDiffSecond ? preTwoTimeDiffSecond : onOrOffSceond;
-                dutyStatus = preTwoTimeDiffSecond > onOrOffSceond ?  onOrOffStatus : preDutyStatus;
-                preDutyStatus = dutyStatus;
-                continue;
-            }
-            preDutyStatus = onOrOffStatus;
-            preTwoTimeDiffSecond = onOrOffSceond;
-        }
-        return dutyStatus;
     }
 }

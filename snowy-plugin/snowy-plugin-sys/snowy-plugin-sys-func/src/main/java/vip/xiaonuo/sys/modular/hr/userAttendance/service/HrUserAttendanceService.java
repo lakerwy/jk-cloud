@@ -87,4 +87,13 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * @date  2023/09/07 14:24
      **/
     HrUserAttendance queryEntity(String id);
+
+    /**
+     *  缓存考勤配置数据
+     *
+     * @author ljy
+     * @date  2023/09/13 15:24
+     **/
+    //List<> getValueByKey()
+
 }

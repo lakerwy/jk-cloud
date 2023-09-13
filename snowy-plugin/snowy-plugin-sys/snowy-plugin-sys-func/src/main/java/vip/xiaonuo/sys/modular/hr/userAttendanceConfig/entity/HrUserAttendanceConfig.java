@@ -45,65 +45,61 @@ public class HrUserAttendanceConfig {
     @ApiModelProperty(value = "排班顺序", position = 3)
     private Integer orderNumber;
 
-    /** 上班允许最早多少时间打卡：单位分钟 */
-    @ApiModelProperty(value = "上班允许最早多少时间打卡：单位分钟", position = 4)
-    private String onDutyBeginMin;
+    /** 考勤班次类别 */
+    @ApiModelProperty(value = "考勤班次类别名", position = 4)
+    private String attendanceTypeName;
 
-    /** 上班打卡时间 */
-    @ApiModelProperty(value = "上班打卡时间", position = 5)
-    private Date onDutyCheckTime;
+    /** 班次打卡类别 */
+    @ApiModelProperty(value = "班次打卡类别 (上班OnDuty，下班 OffDuty，休息 REST)", position = 4)
+    private String dutyType;
 
-    /** 上班允许最晚多少时间打卡：单位分钟 */
-    @ApiModelProperty(value = "上班允许最晚多少时间打卡：单位分钟", position = 6)
-    private String onDutyEndMin;
-
-    /** 下班允许最早多少时间打卡：单位分钟 */
-    @ApiModelProperty(value = "下班允许最早多少时间打卡：单位分钟", position = 7)
-    private String offDutyBeginMin;
+    /** 允许最早多少时间打卡 */
+    @ApiModelProperty(value = "允许最早多少时间打卡", position = 5)
+    private String BeginMinTime;
 
     /** 下班打卡时间 */
-    @ApiModelProperty(value = "下班打卡时间", position = 8)
-    private Date offDutyCheckTime;
+    @ApiModelProperty(value = "打卡时间", position = 6)
+    private String checkTime;
 
-    /** 下班允许最晚多少时间打卡：单位分钟 */
-    @ApiModelProperty(value = "下班允许最晚多少时间打卡：单位分钟", position = 9)
-    private String offDutyEndMin;
+    /** 允许最晚多少时间打卡 */
+    @ApiModelProperty(value = "允许最晚多少时间打卡", position = 7)
+    private String endMinTime;
 
     /** 作用范围区域  */
-    @ApiModelProperty(value = "作用范围区域 ", position = 10)
+    @ApiModelProperty(value = "作用范围区域 ", position = 8)
     private String actionRange;
 
     /** 区域范围是否有效 */
-    @ApiModelProperty(value = "区域范围是否有效", position = 11)
+    @ApiModelProperty(value = "区域范围是否有效", position = 9)
     private Integer isValidRange;
 
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 12)
+    @ApiModelProperty(value = "扩展信息", position = 10)
     private String extJson;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 13)
+    @ApiModelProperty(value = "删除标志", position = 11)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间  */
-    @ApiModelProperty(value = "创建时间 ", position = 14)
+    @ApiModelProperty(value = "创建时间 ", position = 12)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 15)
+    @ApiModelProperty(value = "创建用户", position = 13)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 16)
+    @ApiModelProperty(value = "修改时间", position = 14)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 17)
+    @ApiModelProperty(value = "修改用户", position = 15)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 }
