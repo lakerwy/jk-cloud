@@ -500,4 +500,16 @@ public class DevFileTencentUtil {
         }
         return contentType;
     }
+
+    /**
+     * 创建文件夹
+     * @param path
+     */
+    public static void mkdirDirPath(String path) {
+        initClient();
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(0);
+        PutObjectRequest putObjectRequest = new PutObjectRequest(defaultBucketName, path, new ByteArrayInputStream(new byte[0]), metadata);
+        PutObjectResult result = client.putObject(putObjectRequest);
+    }
 }

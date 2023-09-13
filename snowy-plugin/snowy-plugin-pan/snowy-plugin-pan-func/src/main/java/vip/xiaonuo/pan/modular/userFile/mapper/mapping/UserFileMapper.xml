@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper">
+
+    <select id="nodeList" resultType="vip.xiaonuo.pan.modular.userFile.entity.NodeFold">
+        SELECT u2.ID, u2.FILE_NAME,u1.LE as LEVEL,u2.PARENT_ID,u2.CREATE_TIME,u2.FILE_PATH
+        FROM(
+                SELECT
+                    @ids AS p_ids,
+                    (SELECT @ids := GROUP_CONCAT(ID) FROM PAN_USER_FILE WHERE FIND_IN_SET(PARENT_ID, @ids)) AS c_ids,
+            @l := @l+1 AS LE
+        FROM PAN_USER_FILE, (SELECT @ids := ${id}, @l := 0 ) b
+            WHERE @ids IS NOT NULL
+            ) u1
+            JOIN PAN_USER_FILE u2
+        ON FIND_IN_SET(u2.ID, u1.p_ids) AND IS_DIR = 1
+    </select>
+
+    <select id="getTotalStorageSize" resultType="java.lang.Long" parameterType="java.lang.String">
+        SELECT SUM(b.FILE_SIZE) FROM PAN_USER_FILE a LEFT JOIN PAN_FILE b ON a.FILE_ID = b.ID  WHERE CREATE_USER = #{userId}
+    </select>
+
+    <select id="selectUserFileByLikeRightFilePath" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select * from PAN_USER_FILE
+        where (FILE_PATH = #{filePath} or FILE_PATH like concat(#{filePath},'/%'))
+          and USER_ID = #{userId} and DELETE_FLAG = 'NOT_DELETE'
+    </select>
+</mapper>

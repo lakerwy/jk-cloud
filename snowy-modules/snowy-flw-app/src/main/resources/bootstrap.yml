@@ -2,7 +2,7 @@ spring:
   application:
     name: snowy-flw-app
   profiles:
-    active: test
+    active: prod
   cloud:
     nacos:
       config:

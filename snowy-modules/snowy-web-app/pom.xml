@@ -100,6 +100,12 @@
             <artifactId>snowy-plugin-dev-func</artifactId>
         </dependency>
 
+        <!--云盘插件-->
+        <dependency>
+            <groupId>vip.xiaonuo.pan</groupId>
+            <artifactId>snowy-plugin-pan-func</artifactId>
+        </dependency>
+
         <!-- snowy-plugin-dev-feign，向外暴露feign接口 -->
         <dependency>
             <groupId>vip.xiaonuo</groupId>

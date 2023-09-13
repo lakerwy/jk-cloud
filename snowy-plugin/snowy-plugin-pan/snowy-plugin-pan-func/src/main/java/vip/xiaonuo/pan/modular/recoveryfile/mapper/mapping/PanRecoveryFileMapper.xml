@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.pan.modular.recoveryfile.mapper.PanRecoveryFileMapper">
+
+    <select id="getRecoveryFileList" resultType="vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo" >
+        select a.ID as id,a.TENANT_ID as tenantId,a.USER_FILE_ID as userFileId,a.DELETE_TIME as deleteTime,a.DELETE_BATCH_NUM as deleteBatchNum,a.MEMO as memo,
+               c.PARENT_ID as parentId,c.FILE_NAME as fileName,c.FILE_PATH as filePath,c.IS_DIR as isDir,c.FILE_ID as fileId,
+               c.ROOT_DIR as rootDir,c.RIGHT as right,c.ORG_ID as orgId,c.DATA_SCOPE_ID as dataScopeId,c.LOCK_FLAG as lockFlag,
+               c.FOLD_TYPE as foldType,c.EXTEND_NAME as extendName,
+               d.FILE_SIZE as fileSize,d.SUFFIX as suffix,d.FILE_STATUS as fileStatus,d.FILE_URL as fileUrl,d.IDENTIFIER as identifier,
+               d.STORAGE_TYPE as storageType,d.EXT_JSON as extJson
+        from PAN_RECOVERY_FILE a
+            left join PAN_USER_FILE c on a.USER_FILE_ID = c.ID and c.DELETE_FLAG = 'NOT_DELETE'
+            left join PAN_FILE d on c.FILE_ID = d.ID and d.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
+    </select>
+
+</mapper>

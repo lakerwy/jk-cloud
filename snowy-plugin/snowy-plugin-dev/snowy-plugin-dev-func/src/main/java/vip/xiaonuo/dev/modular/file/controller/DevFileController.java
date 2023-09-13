@@ -282,7 +282,7 @@ public class DevFileController {
     @ApiOperationSupport(order = 16)
     @ApiOperation("附件上传")
     @PostMapping("/dev/attachment/fileUpload")
-    public CommonResult<Object> fileUpload(@RequestParam(value = "file") MultipartFile[] file) {
+    public CommonResult<Object> fileUpload(@RequestParam(value = "file") MultipartFile[] file,@RequestParam(value = "parentId", required = false, defaultValue = "0") String parentId) {
         List<Map<String, Object>> mapList = new ArrayList<>();
         //默认文件引擎
         String defaultFileEngine = devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY);
@@ -350,24 +350,11 @@ public class DevFileController {
         return CommonResult.data(devFileService.uploadReturnUrl(DevFileEngineTypeEnum.LOCAL.getValue(), file));
     }
 
-    /**
-     * 本地文件创建文件夹
-     *
-     **/
-    @ApiOperationSupport(order = 20)
-    @ApiOperation("本地文件创建文件夹")
-    @CommonLog("本地文件创建文件夹")
-    @GetMapping("/dev/file/mkDir")
-    public CommonResult<String> mkDir(@RequestParam(value = "dirPath") String dirPath) {
-        devFileService.mkDir(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
-        return CommonResult.ok();
-    }
-
     @ApiOperationSupport(order = 20)
     @ApiOperation("本地文件 获取文件列表")
     @GetMapping("/dev/file/pageList")
     public CommonResult<String> pageList(@RequestParam(value = "dirPath") String dirPath) {
-        devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
+       // devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
         return CommonResult.ok();
     }
 }
