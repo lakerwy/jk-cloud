@@ -38,9 +38,9 @@ public class LocalStorageUploader extends Uploader {
             String tempFileUrl = fileUrl + "_tmp";
             String confFileUrl = fileUrl.replace("." + multipartFile.getExtendName(), ".conf");
 
-            File file = new File(FileCenterUtil.getStaticPath() + fileUrl);
-            File tempFile = new File(FileCenterUtil.getStaticPath() + tempFileUrl);
-            File confFile = new File(FileCenterUtil.getStaticPath() + confFileUrl);
+            File file = new File( fileUrl);
+            File tempFile = new File(tempFileUrl);
+            File confFile = new File(confFileUrl);
 
             //第一步 打开将要写入的文件
             RandomAccessFile raf = new RandomAccessFile(tempFile, "rw");

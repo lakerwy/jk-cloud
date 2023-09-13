@@ -49,6 +49,9 @@ public class FileFactory {
     @Resource
     private MinioUploader minioUploader;
 
+    @Resource
+    private LocalStorageUploader localStorageUploader;
+
 
     private static final String PAN_STORAGE_TYPE = "PAN_STORAGE_TYPE";
 
@@ -76,7 +79,7 @@ public class FileFactory {
         int type = storageType;
         Uploader uploader = null;
         if (StorageTypeEnum.LOCAL.getCode() == type) {
-            uploader = new LocalStorageUploader();
+            uploader = localStorageUploader;
         } else if (StorageTypeEnum.ALIYUN_OSS.getCode() == type) {
             uploader = aliyunOSSUploader;
         } else if (StorageTypeEnum.MINIO.getCode() == type) {

@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
@@ -166,6 +167,7 @@ public class FileTransferService implements IFileTransferService {
     }
 
     @Override
+    @Transactional
     public void uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam) {
         UploadFile uploadFile = new UploadFile();
         uploadFile.setChunkNumber(uploadFileParam.getChunkNumber());
@@ -212,7 +214,7 @@ public class FileTransferService implements IFileTransferService {
                 }
 
                 UserFile userFile = new UserFile(commonFile, StpLoginUserUtil.getLoginUser().getId(), panFile.getId());
-
+                userFile.setParentId(uploadFileParam.getParentId());
 
                 try {
                     userFileService.save(userFile);

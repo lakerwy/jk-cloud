@@ -45,7 +45,7 @@ import java.util.List;
 public class PanUploadTaskDetailServiceImpl extends ServiceImpl<PanUploadTaskDetailMapper, PanUploadTaskDetail> implements PanUploadTaskDetailService {
 
     @Resource
-    PanUploadTaskDetailService panUploadTaskDetailService;
+    PanUploadTaskDetailMapper panUploadTaskDetailMapper;
     @Override
     public Page<PanUploadTaskDetail> page(PanUploadTaskDetailPageParam panUploadTaskDetailPageParam) {
         QueryWrapper<PanUploadTaskDetail> queryWrapper = new QueryWrapper<>();
@@ -97,6 +97,6 @@ public class PanUploadTaskDetailServiceImpl extends ServiceImpl<PanUploadTaskDet
 
     @Override
     public List<Integer> selectUploadedChunkNumList(String identifier) {
-        return panUploadTaskDetailService.selectUploadedChunkNumList(identifier);
+        return panUploadTaskDetailMapper.selectUploadedChunkNumList(identifier);
     }
 }

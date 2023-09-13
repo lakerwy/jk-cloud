@@ -37,6 +37,10 @@ public class UserFile {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
+    /** 租户Id */
+    @ApiModelProperty(value = "租户Id", position = 2)
+    private String tenantId;
+
     /** 父目录文件夹ID */
     @ApiModelProperty(value = "父目录文件夹ID", position = 2,required = true)
     private String parentId;

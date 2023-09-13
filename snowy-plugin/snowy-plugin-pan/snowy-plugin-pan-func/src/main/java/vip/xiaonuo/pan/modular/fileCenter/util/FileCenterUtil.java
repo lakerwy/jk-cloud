@@ -192,11 +192,11 @@ public class FileCenterUtil {
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
         String path = ROOT_PATH + "/" + formater.format(new Date()) + "/";
 
-//        File dir = new File(FileCenterUtil.getStaticPath() + path);
-//
-//        if (!dir.exists()) {
-//            dir.mkdirs();
-//        }
+        File dir = new File(path);
+
+        if (!dir.exists()) {
+            dir.mkdirs();
+        }
 
         path = path + identifier + "." + extendName;
 
