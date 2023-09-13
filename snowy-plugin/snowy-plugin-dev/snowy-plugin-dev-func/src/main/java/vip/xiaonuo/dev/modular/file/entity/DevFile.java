@@ -81,11 +81,4 @@ public class DevFile extends CommonEntity {
     @ApiModelProperty(value = "扩展信息", position = 13)
     private String extJson;
 
-    /**是否是目录(0-否,1-是)*/
-    @ApiModelProperty(value = "是否是目录", position = 14)
-    private Integer isDir;
-
-    /**父目录id*/
-    @ApiModelProperty(value = "父目录id", position = 15)
-    private String parentId;
 }
