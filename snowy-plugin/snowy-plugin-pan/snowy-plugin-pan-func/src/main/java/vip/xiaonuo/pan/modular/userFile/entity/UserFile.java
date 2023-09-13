@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 
 import java.util.Date;
@@ -145,6 +146,7 @@ public class UserFile {
         this.fileName = commonFile.getNameNotExtend();
         this.extendName = commonFile.getExtendName();
         this.isDir = commonFile.isDirectory() ? 1 : 0;
+        this.orgId = StpLoginUserUtil.getLoginUser().getOrgId();
     }
 
     public UserFile() {

@@ -126,6 +126,7 @@ public class FileTransferService implements IFileTransferService {
 //            userFile.setFileName(commonFile.getNameNotExtend());
 //            userFile.setExtendName(commonFile.getExtendName());
 //            userFile.setIsDir(commonFile.isDirectory()?1:0);
+            userFile.setParentId(uploadFileParam.getParentId());
             userFileService.save(userFile);
 
             if (relativePath.contains("/")) {
