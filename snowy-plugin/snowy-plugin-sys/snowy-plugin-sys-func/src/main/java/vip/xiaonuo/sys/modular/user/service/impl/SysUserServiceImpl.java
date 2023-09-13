@@ -85,8 +85,6 @@ import vip.xiaonuo.dev.api.DevMessageApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
 import vip.xiaonuo.mobile.vip.MobileButtonApi;
 import vip.xiaonuo.mobile.vip.MobileMenuApi;
-import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
-import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.position.entity.SysPosition;
@@ -194,8 +192,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Resource
     private MobileButtonApi mobileButtonApi;
 
-    @Resource
-    private PartnerInfoService partnerInfoService;
 
     @Override
     public SysLoginUser getUserById(String id) {
@@ -1664,8 +1660,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if(syncToUserAddParam.getType().equals("1")) {
             SysUserAddParam sysUserAddParam = BeanUtil.toBean(syncToUserAddParam, SysUserAddParam.class);
             //根据伙伴Id，获取OrgId
-            PartnerInfo partnerInfo = partnerInfoService.getOne(new QueryWrapper<PartnerInfo>().lambda().eq(PartnerInfo::getId, syncToUserAddParam.getPartnerId()));
-            sysUserAddParam.setOrgId(partnerInfo.getOrgId());
             this.add(sysUserAddParam);
             // 切换数据库
             String sql = String.format("update BIZ_CRM_FPINFORMATIONS set IS_SYNC = '1',UPDATE_TIME = now() where ID = %s ",syncToUserAddParam.getFpId());
