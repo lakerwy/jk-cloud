@@ -27,4 +27,8 @@ public class PartnerGroupParam {
     @ApiModelProperty(value = "大区")
     private String region;
 
+    /** 伙伴状态集合（默认：协议伙伴） */
+    @ApiModelProperty(value = "伙伴状态集合（默认：协议伙伴）")
+    private List<String> partnerStatus;
+
 }

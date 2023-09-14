@@ -269,7 +269,7 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
     public IPage<PartnerInfoVo> pageList(PartnerInfoPageParam partnerInfoPageParam) {
         QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(partnerInfoPageParam.getPartnerStatus())) {
-            queryWrapper.like("pi.PARTNER_STATUS", partnerInfoPageParam.getPartnerStatus());
+            queryWrapper.eq("pi.PARTNER_STATUS", partnerInfoPageParam.getPartnerStatus());
         }
 //        if(ObjectUtil.isNotEmpty(partnerInfoPageParam.getPartnerLevel())) {
 //            queryWrapper.like("pi.PARTNER_STATUS", partnerInfoPageParam.getPartnerLevel());
@@ -324,15 +324,21 @@ public class PartnerInfoServiceImpl extends ServiceImpl<PartnerInfoMapper, Partn
             String[] regions = {"分公司","分公司（注册）"};
             partnerGroupParam.setPartnerTypes(Arrays.asList(regions));
         }
+        if(CollUtil.isEmpty(partnerGroupParam.getPartnerStatus())){
+            String[] status = {"协议伙伴"};
+            partnerGroupParam.setPartnerStatus(Arrays.asList(status));
+        }
         QueryWrapper<PartnerInfo> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().in(PartnerInfo::getPartnerType,partnerGroupParam.getPartnerTypes());
+        queryWrapper.lambda().in(PartnerInfo::getPartnerStatus,partnerGroupParam.getPartnerStatus());
         if(ObjectUtil.isNotEmpty(partnerGroupParam.getRegion())){
             queryWrapper.lambda().eq(PartnerInfo::getRegion,partnerGroupParam.getRegion());
         }
         if(ObjectUtil.isNotEmpty(partnerGroupParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(PartnerInfo::getName,partnerGroupParam.getSearchKey())
                     .or().like(PartnerInfo::getEntity,partnerGroupParam.getSearchKey())
-                    .or().like(PartnerInfo::getRegionalManager,partnerGroupParam.getSearchKey()));
+                    .or().like(PartnerInfo::getRegionalManager,partnerGroupParam.getSearchKey())
+                    .or().like(PartnerInfo::getCservice,partnerGroupParam.getSearchKey()));
         }
         queryWrapper.lambda().orderByDesc(PartnerInfo::getRegion);
         List<PartnerInfo> partnerInfos = this.list(queryWrapper);
