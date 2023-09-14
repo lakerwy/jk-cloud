@@ -36,6 +36,10 @@ public class PanFile {
     @ApiModelProperty(value = "ID", position = 1)
     private String id;
 
+    /** 租户Id */
+    @ApiModelProperty(value = "租户Id", position = 2)
+    private String tenantId;
+
     /** 文件大小 */
     @ApiModelProperty(value = "文件大小", position = 2)
     private Long fileSize;

@@ -32,7 +32,6 @@ public class UserFileAddParam {
 
     /** 父目录文件夹ID */
     @ApiModelProperty(value = "父目录文件夹ID",  position = 2)
-    @NotBlank(message = "父目录文件夹ID ---根目录为0")
     private String parentId;
 
     /** 文件名称 */

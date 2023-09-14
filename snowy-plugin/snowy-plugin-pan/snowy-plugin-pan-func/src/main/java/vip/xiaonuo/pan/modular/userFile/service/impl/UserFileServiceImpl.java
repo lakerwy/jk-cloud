@@ -151,16 +151,15 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 if(userFile.isDirectory()){
                     String filePath = new CommonFile(userFile.getFilePath(), userFile.getFileName(), true).getPath();
                     updateFileDeleteStateByFilePath(filePath,uuid ,userId);
-                }else {
-                    executor.execute(()->{
+                }
+                executor.execute(()->{
                         userFile.setDeleteBatchNum(uuid);
                         userFile.setDeleteFlag("DELETED");
                         userFile.setDeleteTime(DateUtil.date());
                         userFile.setUpdateUser(userId);
                         userFile.setUpdateTime(DateUtil.date());
                         updateDelete(userFile);
-                    });
-                }
+                });
                 //回收站
                 PanRecoveryFile recoveryFile = new PanRecoveryFile();
                 recoveryFile.setUserFileId(userFile.getId());
@@ -711,9 +710,11 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             List<UserFile> fileList = selectUserFileByLikeRightFilePath(filePath, userId);
             for (UserFile userFile : fileList) {
                 userFile.setDeleteBatchNum(deleteBatchNum);
-                userFile.setDeleteFlag("DELETE");
+                userFile.setDeleteFlag("DELETED");
                 userFile.setDeleteTime(DateUtil.date());
-                updateById(userFile);
+                userFile.setUpdateUser(userId);
+                userFile.setUpdateTime(DateUtil.date());
+                updateDelete(userFile);
             }
         });
     }
