@@ -155,7 +155,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                     updateFileDeleteStateByFilePath(filePath,uuid ,userId);
                 }
                 executor.execute(()->{
-                    updateDelete(uuid,userId,Arrays.asList(userFile.getUserId()));
+                    updateDelete(uuid,userId,Arrays.asList(userFile.getId()));
                 });
                 //回收站
                 PanRecoveryFile recoveryFile = new PanRecoveryFile();
