@@ -126,6 +126,8 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         userFile.setIsDir(IS_DIR);
         userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
         userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
+        String parentId = getParentIdByPath(userFileAddParam.getFilePath());
+        userFile.setParentId(parentId);
         this.save(userFile);
     }
 

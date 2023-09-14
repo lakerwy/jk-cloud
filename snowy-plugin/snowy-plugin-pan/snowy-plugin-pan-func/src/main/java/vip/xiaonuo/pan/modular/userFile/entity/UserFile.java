@@ -118,21 +118,24 @@ public class UserFile {
     private String extendName;
 
     /** 用户ID */
-    @ApiModelProperty(value = "用户ID", position = 16)
+    @ApiModelProperty(value = "用户ID", position = 17)
     private String userId;
 
-
+    /** 文件大小 */
+    @ApiModelProperty(value = "文件大小", position = 18)
+    @TableField(exist = false)
+    private Long fileSize;
 
 
     public boolean isDirectory() {
         return this.isDir == 1;
     }
 
-    @ApiModelProperty(value = "删除批次号",position = 17)
+    @ApiModelProperty(value = "删除批次号",position = 19)
     private String deleteBatchNum;
 
     /** 删除时间 */
-    @ApiModelProperty(value = "删除时间", position = 13)
+    @ApiModelProperty(value = "删除时间", position = 20)
     private Date deleteTime;
 
     public boolean isFile() {
