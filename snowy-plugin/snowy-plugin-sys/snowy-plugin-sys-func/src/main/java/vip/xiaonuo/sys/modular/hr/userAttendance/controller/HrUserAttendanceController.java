@@ -174,7 +174,7 @@ public class HrUserAttendanceController {
     @CommonLog("用戶每天打卡详情数据")
     //@SaCheckPermission("/sys/userAttendance/attendancedayinfo")
     @PostMapping("/sys/userAttendance/attendancedayinfo")
-    public CommonResult<List<UserAttendanceDayInfoEntity>> attendanceDayInfo(@RequestBody @Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
+    public CommonResult<Map<String,List<UserAttendanceDayInfoEntity>>> attendanceDayInfo(@RequestBody @Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
         return CommonResult.data(hrUserAttendanceService.attendanceDayInfo(hrUserAttendancePageParam));
     }
 }
