@@ -155,12 +155,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                     updateFileDeleteStateByFilePath(filePath,uuid ,userId);
                 }
                 executor.execute(()->{
-                        userFile.setDeleteBatchNum(uuid);
-                        userFile.setDeleteFlag("DELETED");
-                        userFile.setDeleteTime(DateUtil.date());
-                        userFile.setUpdateUser(userId);
-                        userFile.setUpdateTime(DateUtil.date());
-                        updateDelete(userFile);
+                    updateDelete(uuid,userId,Arrays.asList(userFile.getUserId()));
                 });
                 //回收站
                 PanRecoveryFile recoveryFile = new PanRecoveryFile();
@@ -169,7 +164,6 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 recoveryFile.setDeleteBatchNum(uuid);
                 panRecoveryFileService.save(recoveryFile);
             }
-
         }
     }
 
@@ -710,19 +704,15 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     private void updateFileDeleteStateByFilePath(String filePath, String deleteBatchNum, String userId) {
         executor.execute(() -> {
             List<UserFile> fileList = selectUserFileByLikeRightFilePath(filePath, userId);
-            for (UserFile userFile : fileList) {
-                userFile.setDeleteBatchNum(deleteBatchNum);
-                userFile.setDeleteFlag("DELETED");
-                userFile.setDeleteTime(DateUtil.date());
-                userFile.setUpdateUser(userId);
-                userFile.setUpdateTime(DateUtil.date());
-                updateDelete(userFile);
+            List<String> userFileIds = fileList.stream().map(UserFile::getId).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(userFileIds)){
+                updateDelete(deleteBatchNum,userId,userFileIds);
             }
         });
     }
 
     @Override
-    public void updateDelete(UserFile userFile){
-        userFileMapper.updateDelete(userFile);
+    public void updateDelete(String deleteBatchNum,String userId,List<String> userFileIds){
+        userFileMapper.updateDelete(deleteBatchNum,userId,userFileIds);
     }
 }

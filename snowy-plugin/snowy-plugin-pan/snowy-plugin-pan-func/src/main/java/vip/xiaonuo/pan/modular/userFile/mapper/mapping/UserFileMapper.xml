@@ -26,9 +26,12 @@
           and USER_ID = #{userId} and DELETE_FLAG = 'NOT_DELETE'
     </select>
 
-    <update id="updateDelete" parameterType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
-        update  PAN_USER_FILE set DELETE_FLAG = "DELETED" ,DELETE_BATCH_NUM = #{userFile.deleteBatchNum},DELETE_TIME= #{userFile.deleteTime},
-                                  UPDATE_USER = #{userFile.updateUser},UPDATE_TIME= #{userFile.updateTime} where ID = #{userFile.id}
+    <update id="updateDelete" >
+        update  PAN_USER_FILE set DELETE_FLAG = "DELETED" ,DELETE_BATCH_NUM = #{deleteBatchNum},DELETE_TIME= CURRENT_TIME,
+                                  UPDATE_USER = #{userId},UPDATE_TIME= CURRENT_TIME where ID in
+        <foreach collection="userFileIds" item="item" open="(" close=")" separator="," >
+            #{item}
+        </foreach>
 
     </update>
 </mapper>
