@@ -526,6 +526,11 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
      */
     public static void recursionFnTree(List<NodeFold> list, Map<String, List<NodeFold>> map){
         for (NodeFold treeSelect : list) {
+            if(treeSelect.getFilePath().equals(ROOT_FOLD_PATH)){
+                treeSelect.setCurrentPath(treeSelect.getFilePath()+treeSelect.getFileName());
+            }else {
+                treeSelect.setCurrentPath(treeSelect.getFilePath()+ROOT_FOLD_PATH+treeSelect.getFileName());
+            }
             List<NodeFold> childList = map.get(treeSelect.getId());
             treeSelect.setChildren(childList);
             if (null != childList && !childList.isEmpty()){
@@ -699,7 +704,12 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         }
         int index = filePath.lastIndexOf(ROOT_FOLD_PATH);
         String pathName = filePath.substring(index + 1);
-        String parentPath = filePath.substring(0, index);
+        String parentPath = filePath.substring(0, index+1); //  "/" 或者”/A/B/“
+        if(!parentPath.equals(ROOT_FOLD_PATH)){
+            if(parentPath.endsWith(ROOT_FOLD_PATH)){
+                parentPath = filePath.substring(0,index);
+            }
+        }
         UserFile one = getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFilePath, parentPath).eq(UserFile::getFileName, pathName));
         if(null!=one){
             return one.getId();
