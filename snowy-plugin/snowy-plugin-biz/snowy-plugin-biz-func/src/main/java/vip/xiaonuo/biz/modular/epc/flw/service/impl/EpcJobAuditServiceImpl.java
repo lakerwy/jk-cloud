@@ -97,7 +97,7 @@ public class EpcJobAuditServiceImpl extends ServiceImpl<EpcJobAuditMapper, EpcJo
             epcJobAudit.setModelId(modelId);
             FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
             //将流程实例和业务表关联起来
-            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME));
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
             formRelationTableApi.save(modelId, BizCommonEnum.EPC_JOB_AUDIT.getBizTable(),id,processInstanceId,dbName);
         }
         epcJobAudit.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
