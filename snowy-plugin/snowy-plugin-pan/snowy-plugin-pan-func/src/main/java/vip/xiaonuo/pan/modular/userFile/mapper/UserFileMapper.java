@@ -33,4 +33,5 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
 
     List<UserFile> selectUserFileByLikeRightFilePath(@Param("filePath") String filePath, @Param("userId") String userId);
 
+    void updateDelete(@Param("userFile") UserFile userFile);
 }

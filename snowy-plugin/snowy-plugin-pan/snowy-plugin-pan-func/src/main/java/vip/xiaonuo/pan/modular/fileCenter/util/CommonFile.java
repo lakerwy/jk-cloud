@@ -14,7 +14,6 @@ import org.apache.commons.io.FilenameUtils;
 @Setter
 public class CommonFile {
 
-    @Getter
     private final String path;
     public static final String separator = "/";
     private boolean isDirectory;

@@ -82,7 +82,7 @@ public class UserFile {
     /** 删除标志 */
     @ApiModelProperty(value = "删除标志", position = 10)
     @TableLogic
-    @TableField(fill = FieldFill.INSERT)
+    @TableField(fill = FieldFill.INSERT_UPDATE)
     private String deleteFlag;
 
     /** 创建时间 */

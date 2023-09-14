@@ -25,4 +25,10 @@
         where (FILE_PATH = #{filePath} or FILE_PATH like concat(#{filePath},'/%'))
           and USER_ID = #{userId} and DELETE_FLAG = 'NOT_DELETE'
     </select>
+
+    <update id="updateDelete" parameterType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        update  PAN_USER_FILE set DELETE_FLAG = "DELETED" ,DELETE_BATCH_NUM = #{userFile.deleteBatchNum},DELETE_TIME= #{userFile.deleteTime},
+                                  UPDATE_USER = #{userFile.updateUser},UPDATE_TIME= #{userFile.updateTime} where ID = #{userFile.id}
+
+    </update>
 </mapper>

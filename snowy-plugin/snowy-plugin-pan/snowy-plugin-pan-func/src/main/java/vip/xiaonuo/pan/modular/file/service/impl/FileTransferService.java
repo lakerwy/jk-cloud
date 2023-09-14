@@ -115,15 +115,9 @@ public class FileTransferService implements IFileTransferService {
         List<PanFile> list = panFileService.list(lambdaQueryWrapper);
         String filePath = uploadFileParam.getFilePath();
         if(StrUtil.isNotEmpty(filePath)){
-            if(!filePath.equals("/")){
-                UserFile one = userFileService.getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFilePath, filePath));
-                if(ObjectUtil.isNotEmpty(one)){
-                    uploadFileParam.setParentId(one.getId());
-                }else {
-                    throw new CommonException("文件路径对应文件夹不存在。");
-                }
-            }else {
-                uploadFileParam.setParentId(ROOT_FOLD_ID);
+            String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+            if(StrUtil.isNotEmpty(parentId)){
+                uploadFileParam.setParentId(parentId);
             }
         }
         String relativePath = uploadFileParam.getRelativePath();
@@ -137,12 +131,6 @@ public class FileTransferService implements IFileTransferService {
         if (list != null && !list.isEmpty()) {
             PanFile file = list.get(0);
             UserFile userFile = new UserFile(commonFile, StpLoginUserUtil.getLoginUser().getId(), file.getId());
-//            userFile.setFileId(file.getId());
-//            userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
-//            userFile.setFilePath(commonFile.getParent());
-//            userFile.setFileName(commonFile.getNameNotExtend());
-//            userFile.setExtendName(commonFile.getExtendName());
-//            userFile.setIsDir(commonFile.isDirectory()?1:0);
             userFile.setParentId(uploadFileParam.getParentId());
             userFileService.save(userFile);
 

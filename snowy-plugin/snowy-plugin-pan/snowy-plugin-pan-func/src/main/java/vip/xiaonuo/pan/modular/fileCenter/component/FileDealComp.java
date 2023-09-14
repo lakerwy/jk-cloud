@@ -143,7 +143,7 @@ public class FileDealComp {
                     .eq(UserFile::getIsDir, 1)
                     .eq(UserFile::getUserId, sessionUserId);
             List<UserFile> userFileList = userFileService.list(lambdaQueryWrapper);
-            if (userFileList.size() == 0) {
+            if (userFileList.isEmpty()) {
                 UserFile userFile = FileCommonUtil.getFileDir(sessionUserId, parentFilePath, fileName);
                 try {
                     userFileService.save(userFile);

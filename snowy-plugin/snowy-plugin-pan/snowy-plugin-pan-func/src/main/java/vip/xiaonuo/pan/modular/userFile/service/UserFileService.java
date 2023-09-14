@@ -147,4 +147,6 @@ public interface UserFileService extends IService<UserFile> {
     List<UserFile> getRootFold();
 
     String getParentIdByPath(String filePath);
+
+    void updateDelete(UserFile userFile);
 }

@@ -43,7 +43,6 @@ import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
 import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
@@ -146,19 +145,23 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         //1、如果是文件夹，则文件夹下所有文件都应该被标记为删除，如果不被标记的话，文件夹下分享出去的文件还是会被展示，就有问题
         List<UserFile> userFiles = listByIds(CollStreamUtil.toList(userFileIdParamList, UserFileIdParam::getId));
         String uuid = UUID.randomUUID().toString();
+        String userId = StpLoginUserUtil.getLoginUser().getId();
         if(CollUtil.isNotEmpty(userFiles)){
             for (UserFile userFile : userFiles) {
                 if(userFile.isDirectory()){
                     String filePath = new CommonFile(userFile.getFilePath(), userFile.getFileName(), true).getPath();
-                    updateFileDeleteStateByFilePath(filePath,uuid ,StpLoginUserUtil.getLoginUser().getId());
+                    updateFileDeleteStateByFilePath(filePath,uuid ,userId);
                 }else {
                     executor.execute(()->{
                         userFile.setDeleteBatchNum(uuid);
-                        userFile.setDeleteFlag("DELETE");
+                        userFile.setDeleteFlag("DELETED");
                         userFile.setDeleteTime(DateUtil.date());
-                        updateById(userFile);
+                        userFile.setUpdateUser(userId);
+                        userFile.setUpdateTime(DateUtil.date());
+                        updateDelete(userFile);
                     });
                 }
+                //回收站
                 PanRecoveryFile recoveryFile = new PanRecoveryFile();
                 recoveryFile.setUserFileId(userFile.getId());
                 recoveryFile.setDeleteTime(DateUtil.date());
@@ -713,5 +716,10 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 updateById(userFile);
             }
         });
+    }
+
+    @Override
+    public void updateDelete(UserFile userFile){
+        userFileMapper.updateDelete(userFile);
     }
 }
