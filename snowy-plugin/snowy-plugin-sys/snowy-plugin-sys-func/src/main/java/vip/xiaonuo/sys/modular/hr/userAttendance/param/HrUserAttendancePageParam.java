@@ -60,4 +60,15 @@ public class HrUserAttendancePageParam {
     @ApiModelProperty(value = "上下班标识；OnDuty：上班；OffDuty：下班")
     private String checkType;
 
+    /** 打卡时间 */
+    @ApiModelProperty(value = "打卡时间")
+    private String checkTime;
+
+    /** 开始时间 */
+    @ApiModelProperty(value = "开始时间")
+    private String startTime;
+
+    /** 结束时间 */
+    @ApiModelProperty(value = "结束时间")
+    private String endTime;
 }
