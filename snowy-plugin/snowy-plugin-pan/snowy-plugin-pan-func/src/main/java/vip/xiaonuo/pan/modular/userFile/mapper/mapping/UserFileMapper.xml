@@ -7,7 +7,7 @@
         FROM(
                 SELECT
                     @ids AS p_ids,
-                    (SELECT @ids := GROUP_CONCAT(ID) FROM PAN_USER_FILE WHERE FIND_IN_SET(PARENT_ID, @ids)) AS c_ids,
+                    (SELECT @ids := GROUP_CONCAT(ID) FROM PAN_USER_FILE WHERE DELETE_FLAG = 'NOT_DELETE'  AND  FIND_IN_SET(PARENT_ID, @ids)) AS c_ids,
             @l := @l+1 AS LE
         FROM PAN_USER_FILE, (SELECT @ids := ${id}, @l := 0 ) b
             WHERE @ids IS NOT NULL

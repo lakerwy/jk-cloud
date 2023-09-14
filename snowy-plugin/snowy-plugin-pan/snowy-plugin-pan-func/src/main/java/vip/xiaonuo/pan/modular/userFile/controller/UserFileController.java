@@ -212,7 +212,7 @@ public class UserFileController {
          * 1、复制不受文件夹限制
          * 2、复制文件夹 同时还要复制文件夹下文件，递归处理
          */
-        userFileService.checkMove(userFileOperateParam);
+        //userFileService.checkMove(userFileOperateParam);
         userFileService.userFileCopy(userFileOperateParam);
         return CommonResult.ok();
     }

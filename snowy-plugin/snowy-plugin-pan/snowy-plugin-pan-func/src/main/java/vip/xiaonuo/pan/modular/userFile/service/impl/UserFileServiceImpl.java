@@ -275,21 +275,21 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Override
     public void checkMove(UserFileOperateParam userFileOperateParam) {
-        UserFile sourceUserFile = getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getId, userFileOperateParam.getSourceFoldId()));
-        if(ObjectUtil.isEmpty(sourceUserFile)){
-            throw  new CommonException(ExceptionEnum.SOURCE_FOLD_IS_NOT_EXIT.getValue());
-        }
-        UserFile targetUserFile = getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getId, userFileOperateParam.getTargetFoldId()));
-        if(ObjectUtil.isEmpty(targetUserFile)){
-            throw  new CommonException(ExceptionEnum.TARGET_FOLD_IS_NOT_EXIT.getValue());
-        }
-        if(Objects.equals(UserFileEnum.GROUP_FOLD_TYPE.getLevel(), sourceUserFile.getFoldType()) &&
-                Objects.equals(UserFileEnum.SELF_FOLD_TYPE.getLevel(), targetUserFile.getFoldType())){
-            throw  new CommonException(ExceptionEnum.FOLD_MOVE_NOT_SUPPORT.getValue());
-        }
-        if(checkFoldLock(userFileOperateParam.getSourceFoldId())){
-            throw new CommonException(ExceptionEnum.FOLD_MOVE_NOT_SUPPORT.getValue());
-        }
+//        List<UserFile> sourceUserFile = list(new LambdaQueryWrapper<UserFile>().in(UserFile::getId, Arrays.stream(userFileOperateParam.getSourceFoldId())));
+//        if(ObjectUtil.isEmpty(sourceUserFile)){
+//            throw  new CommonException(ExceptionEnum.SOURCE_FOLD_IS_NOT_EXIT.getValue());
+//        }
+//        UserFile targetUserFile = getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getId, userFileOperateParam.getTargetFoldId()));
+//        if(ObjectUtil.isEmpty(targetUserFile)){
+//            throw  new CommonException(ExceptionEnum.TARGET_FOLD_IS_NOT_EXIT.getValue());
+//        }
+//        if(Objects.equals(UserFileEnum.GROUP_FOLD_TYPE.getLevel(), sourceUserFile.getFoldType()) &&
+//                Objects.equals(UserFileEnum.SELF_FOLD_TYPE.getLevel(), targetUserFile.getFoldType())){
+//            throw  new CommonException(ExceptionEnum.FOLD_MOVE_NOT_SUPPORT.getValue());
+//        }
+//        if(checkFoldLock(userFileOperateParam.getSourceFoldId())){
+//            throw new CommonException(ExceptionEnum.FOLD_MOVE_NOT_SUPPORT.getValue());
+//        }
     }
 
     /**
@@ -305,15 +305,15 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Override
     public void moveFold(UserFileOperateParam userFileOperateParam) {
-        UserFile destFile = getById(userFileOperateParam.getTargetFoldId());
+        String parentId = getParentIdByPath(userFileOperateParam.getTargetFoldPath());
 
-        if(ObjectUtil.isEmpty(destFile)){
+        if(ObjectUtil.isEmpty(parentId)){
             throw  new CommonException("目标文件夹不存在");
         }
         String targetFoldPath = userFileOperateParam.getTargetFoldPath();
-        if(ObjectUtil.isEmpty(targetFoldPath)){
-            targetFoldPath = destFile.getFilePath()+FileUtil.FILE_SEPARATOR+destFile.getFileName()+FileUtil.FILE_SEPARATOR;
-        }
+//        if(ObjectUtil.isEmpty(targetFoldPath)){
+//            targetFoldPath = destFile.getFilePath()+FileUtil.FILE_SEPARATOR+destFile.getFileName()+FileUtil.FILE_SEPARATOR;
+//        }
         String fianlTargetFoldPath = targetFoldPath;
         for (String s : userFileOperateParam.getSourceFoldId()) {
             UserFile userFile = getById(s);
@@ -331,10 +331,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             String fileName = userFile.getFileName();
 
             if (userFile.getIsDir() == 0) {
-                String repeatFileName = fileDealComp.getRepeatFileName(userFile, userFile.getFilePath());
+                String repeatFileName = fileDealComp.getRepeatFileName(userFile, userFileOperateParam.getTargetFoldPath());
                 userFile.setFileName(repeatFileName);
             }
-            updateById(userFile);
 
             oldfilePath = new CommonFile(oldfilePath, fileName, true).getPath();
             targetFoldPath = new CommonFile(targetFoldPath, fileName, true).getPath();
@@ -357,6 +356,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                     }
                 }
             }
+            userFile.setFilePath(fianlTargetFoldPath);
+            userFile.setParentId(parentId);
+            updateById(userFile);
             fileDealComp.deleteRepeatSubDirFile(fianlTargetFoldPath,StpLoginUserUtil.getLoginUser().getId());
         }
     }
@@ -613,15 +615,15 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Override
     public void userFileCopy(UserFileOperateParam userFileOperateParam) {
-        UserFile destFile = getById(userFileOperateParam.getTargetFoldId());
+        String parentId = getParentIdByPath(userFileOperateParam.getTargetFoldPath());
 
-        if(ObjectUtil.isEmpty(destFile)){
+        if(ObjectUtil.isEmpty(parentId)){
             throw  new CommonException("目标文件夹不存在");
         }
         String targetFoldPath = userFileOperateParam.getTargetFoldPath();
-        if(ObjectUtil.isEmpty(targetFoldPath)){
-            targetFoldPath = destFile.getFilePath()+FileUtil.FILE_SEPARATOR+destFile.getFileName()+FileUtil.FILE_SEPARATOR;
-        }
+//        if(ObjectUtil.isEmpty(targetFoldPath)){
+//            targetFoldPath = destFile.getFilePath()+FileUtil.FILE_SEPARATOR+destFile.getFileName()+FileUtil.FILE_SEPARATOR;
+//        }
         String fianlTargetFoldPath = targetFoldPath;
         for (String s : userFileOperateParam.getSourceFoldId()) {
             UserFile userFile = getById(s);
@@ -637,7 +639,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             String oldfilePath = userFile.getFilePath();
             String oldUserId = userFile.getUserId();
             String fileName = userFile.getFileName();
-
+//            UserFile saveFile = new UserFile();
             //可能有问题
             userFile.setFilePath(targetFoldPath);
             userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
@@ -645,6 +647,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 String repeatFileName = fileDealComp.getRepeatFileName(userFile, userFile.getFilePath());
                 userFile.setFileName(repeatFileName);
             }
+            userFile.setParentId(parentId);
+            userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+            userFile.setId(null);
             save(userFile);
 
             oldfilePath = new CommonFile(oldfilePath, fileName, true).getPath();
@@ -662,6 +667,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                     }
                     newUserFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
                     try {
+                        newUserFile.setId(null);
                         save(newUserFile);
                     } catch (Exception e) {
                         log.warn(e.getMessage());

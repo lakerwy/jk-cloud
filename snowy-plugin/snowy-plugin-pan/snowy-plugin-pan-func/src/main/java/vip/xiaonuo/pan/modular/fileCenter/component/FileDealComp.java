@@ -173,7 +173,7 @@ public class FileDealComp {
                 .eq(UserFile::getIsDir, 1)
                 .eq(UserFile::getUserId, sessionUserId)
                 .groupBy(UserFile::getFilePath, UserFile::getFileName)
-                .having("count(fileName) >= 2");
+                .having("count(FILE_NAME) >= 2");
         List<UserFile> repeatList = userFileService.list(lambdaQueryWrapper);
 
         for (UserFile userFile : repeatList) {
