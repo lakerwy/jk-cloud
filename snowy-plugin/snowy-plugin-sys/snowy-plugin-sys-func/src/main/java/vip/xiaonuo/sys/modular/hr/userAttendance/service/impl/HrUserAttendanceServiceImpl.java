@@ -237,7 +237,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     }
 
     @Override
-    public List<UserAttendanceDayInfoEntity> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
+    public Map<String,List<UserAttendanceDayInfoEntity>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
 
         //需求还未完全明确，这地方逻辑暂时这么处理，需求明确后再修改
@@ -253,9 +253,11 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             UserAttendanceDayInfoEntity userAttendanceDayInfoEntity = BeanUtil.toBean(hrUserAttendance, UserAttendanceDayInfoEntity.class);
             userAttendanceDayInfoEntityList.add(userAttendanceDayInfoEntity);
         }
+        Map<String,List<UserAttendanceDayInfoEntity>> map = new HashMap<>();
+        map.put("OnDuty",userAttendanceDayInfoEntityList);
+        map.put("OffDuty",userAttendanceDayInfoEntityList);
+        map.put("REST",userAttendanceDayInfoEntityList);
 
-
-
-        return userAttendanceDayInfoEntityList;
+        return map;
     }
 }
