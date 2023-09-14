@@ -40,6 +40,9 @@ public class NodeFold {
     @ApiModelProperty(value = "创建时间", position = 6)
     private Date createTime;
 
+    @ApiModelProperty(value = "当前文件路径", position = 3)
+    private String currentPath;
+
     @ApiModelProperty(value = "子孙节点",position = 7)
     private List<NodeFold> children = new ArrayList<>();
 
