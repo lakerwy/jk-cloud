@@ -71,7 +71,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
         //审核通过的合同
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.eq("a.STATUS","1");
+//        queryWrapper.eq("a.STATUS","1");
         if (ObjectUtil.isNotEmpty(hetongPageParam.getSearchKey())) {
             List<String> keys = StrUtil.splitTrim(hetongPageParam.getSearchKey().replace(" ",",").replace("，",","),",");
             if(keys.size() > 1){
@@ -167,6 +167,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             Hetong tmpht = this.getOne(new QueryWrapper<Hetong>().lambda().orderByDesc(Hetong::getCreateTime).last("limit 1"));
             String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
             hetong.setContractNo(newSn);
+            hetong.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
         this.save(hetong);
     }
