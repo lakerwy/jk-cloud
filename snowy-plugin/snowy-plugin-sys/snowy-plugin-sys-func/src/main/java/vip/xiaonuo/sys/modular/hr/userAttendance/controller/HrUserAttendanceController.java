@@ -27,6 +27,8 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceCountEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceDayInfoEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceIdParam;
@@ -36,6 +38,8 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 打卡记录表控制器
@@ -142,5 +146,35 @@ public class HrUserAttendanceController {
     @PostMapping("/sys/userAttendance/attendance")
     public CommonResult<String> attendance(@RequestBody @Valid HrUserAttendanceAddParam hrUserAttendanceAddParam) {
         return CommonResult.data(hrUserAttendanceService.attendance(hrUserAttendanceAddParam));
+    }
+
+    /**
+     * 用戶打卡月统计接口
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("用戶打卡月统计接口")
+    @CommonLog("用戶打卡月统计接口")
+    //@SaCheckPermission("/sys/userAttendance/attendancemonthcount")
+    @PostMapping("/sys/userAttendance/attendancemonthcount")
+    public CommonResult<List<UserAttendanceCountEntity>> attendanceMonthCount() {
+        return CommonResult.data(hrUserAttendanceService.attendanceMonthCount());
+    }
+
+    /**
+     * 用戶每天打卡详情
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("用戶每天打卡详情数据")
+    @CommonLog("用戶每天打卡详情数据")
+    //@SaCheckPermission("/sys/userAttendance/attendancedayinfo")
+    @PostMapping("/sys/userAttendance/attendancedayinfo")
+    public CommonResult<List<UserAttendanceDayInfoEntity>> attendanceDayInfo(@RequestBody @Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
+        return CommonResult.data(hrUserAttendanceService.attendanceDayInfo(hrUserAttendancePageParam));
     }
 }

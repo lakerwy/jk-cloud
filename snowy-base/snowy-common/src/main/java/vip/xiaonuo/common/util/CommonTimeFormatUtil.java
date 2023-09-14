@@ -21,8 +21,10 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 时间格式化工具类
@@ -291,4 +293,76 @@ public class CommonTimeFormatUtil {
             c.add(Calendar.MINUTE, minuteDate);
             return c.getTime();
         }
-    }
+
+        /**
+         * 获取一个月的开始和结束时间
+         * @author ljy
+         * @date  2023/9/12
+         * @return date
+         * */
+        public static List<Date> getMonthFirstAndEndDay(Date date) {
+            List<Date> result = new ArrayList<>();
+            Calendar c = Calendar.getInstance();
+            c.setTime(date);
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+
+            c.set(Calendar.DAY_OF_MONTH, 1);//设置为1号
+            result.add(c.getTime());
+
+            c.add(Calendar.MONTH, 1);//加一个月
+            c.add(Calendar.MILLISECOND, -1);//减一毫秒
+
+            result.add(c.getTime());
+            return result;
+        }
+        /**
+         * 获取一年的开始和结束时间
+         * @author ljy
+         * @date  2023/9/12
+         * @return date
+         * */
+        public static List<Date> getYearFirstAndEndDay(Date date) {
+            List<Date> result = new ArrayList<>();
+            Calendar c = Calendar.getInstance();
+            c.setTime(date);
+            c.set(Calendar.MONTH, 0);
+            c.set(Calendar.DATE, 1);
+            c.set(Calendar.HOUR_OF_DAY, 0);
+            c.set(Calendar.MINUTE, 0);
+            c.set(Calendar.SECOND, 0);
+            c.set(Calendar.MILLISECOND, 0);
+
+            result.add(c.getTime());
+
+            c.add(Calendar.YEAR, 1);//加一年
+            c.add(Calendar.MILLISECOND, -1);//减一毫秒
+            result.add(c.getTime());
+
+            return result;
+        }
+
+        /**
+         * 获取两个时间中的每一天
+         * @param startTime
+         * @param endTime
+         * @return
+         */
+        public static List<String> getPerStrDayList(Date startTime,Date endTime ){
+            List<String> lDate = new ArrayList<String>(); //定义一个接受时间的集合
+            lDate.add(dateToStr(startTime,DATE_FORMAT));
+            Calendar calBegin = Calendar.getInstance();
+            calBegin.setTime(startTime);// 使用给定的 Date 设置此 Calendar 的时间
+            Calendar calEnd = Calendar.getInstance();
+            calEnd.setTime(endTime);// 使用给定的 Date 设置此 Calendar 的时间
+
+            while (endTime.after(calBegin.getTime()))  {
+                calBegin.add(Calendar.DAY_OF_MONTH, 1);// 根据日历的规则，为给定的日历字段添加或减去指定的时间量
+                lDate.add(dateToStr(calBegin.getTime(),DATE_FORMAT));
+            }
+            return  lDate;
+        }
+
+}

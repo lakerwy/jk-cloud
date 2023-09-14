@@ -15,13 +15,18 @@ package vip.xiaonuo.sys.modular.hr.userAttendance.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceCountEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceDayInfoEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 打卡记录表Service接口
@@ -89,11 +94,27 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
     HrUserAttendance queryEntity(String id);
 
     /**
-     *  缓存考勤配置数据
+     *  根据人员ID获取打卡配置，处理班次配置缓存
      *
      * @author ljy
      * @date  2023/09/13 15:24
      **/
-    //List<> getValueByKey()
+    List<AttendanceTimeSlot> getAttendanceConfigValueByKey(Date dateNow);
 
+
+    /**
+     * 用戶打卡月统计接口
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    List<UserAttendanceCountEntity> attendanceMonthCount();
+
+    /**
+     * 用戶每天打卡详情
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    List<UserAttendanceDayInfoEntity> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam);
 }
