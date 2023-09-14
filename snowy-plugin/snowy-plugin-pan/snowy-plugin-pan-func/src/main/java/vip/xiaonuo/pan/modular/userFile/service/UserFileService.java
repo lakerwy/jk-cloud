@@ -143,4 +143,8 @@ public interface UserFileService extends IService<UserFile> {
     void createFile(UserFileAddParam userFileAddParam);
 
     void userFileCopy(UserFileOperateParam userFileOperateParam);
+
+    List<UserFile> getRootFold();
+
+    String getParentIdByPath(String filePath);
 }

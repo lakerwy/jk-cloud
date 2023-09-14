@@ -13,7 +13,7 @@ import lombok.Setter;
 @Setter
 public class UploadFileParam {
 
-    @ApiModelProperty(value = "文件路径")
+    @ApiModelProperty(value = "文件路径",required = true)
     private String filePath;
 
     @ApiModelProperty(value = "文件名")

@@ -59,7 +59,10 @@ public class UserFilePageParam {
     @ApiModelProperty(value = "目录ID (默认根目录ID为0)")
     private String id;
 
-    @ApiModelProperty(value = "查询所有的个人或者群组文件---标记 默认false   true 表示查询所有")
+    @ApiModelProperty(value = "查询所有自己可见的个人或者群组文件---标记 默认false   true 表示查询所有")
     private Boolean allFlag;
+
+    @ApiModelProperty(value = "文件夹路径")
+    private String filePath;
 
 }

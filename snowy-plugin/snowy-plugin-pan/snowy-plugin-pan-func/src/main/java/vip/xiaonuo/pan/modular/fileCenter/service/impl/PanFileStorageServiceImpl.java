@@ -102,13 +102,14 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
 
     @Override
     public Boolean checkStorage(long totalSize) {
-        LambdaQueryWrapper<PanFileStorage> lambdaQueryWrapper = new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getCreateUser, StpLoginUserUtil.getLoginUser().getId());
+        LambdaQueryWrapper<PanFileStorage> lambdaQueryWrapper = new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, StpLoginUserUtil.getLoginUser().getId());
         PanFileStorage panFileStorage = getOne(lambdaQueryWrapper);
         Long totalStorageSize = 0L;
         if(ObjectUtil.isEmpty(panFileStorage) || ObjectUtil.isEmpty(panFileStorage.getTotalStorageSize())){
              panFileStorage = new PanFileStorage();
              totalStorageSize = FileConstant.totalStorageSize;
              panFileStorage.setTotalStorageSize(FileConstant.totalStorageSize);
+             panFileStorage.setUserId(StpLoginUserUtil.getLoginUser().getId());
              save(panFileStorage);
         }else {
            totalStorageSize = panFileStorage.getTotalStorageSize();

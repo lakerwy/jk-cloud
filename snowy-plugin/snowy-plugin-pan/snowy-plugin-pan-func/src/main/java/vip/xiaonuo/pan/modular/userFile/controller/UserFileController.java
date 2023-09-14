@@ -78,50 +78,52 @@ public class UserFileController {
     private final Integer storageType =1;
 
     /**
+     * 获取根目录文件夹
+     * @return
+     */
+
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取根目录文件夹")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/getRootFold")
+    public CommonResult<List<UserFile>> getRootFold() {
+        return CommonResult.data(userFileService.getRootFold());
+    }
+
+
+    /**
      * 获取文件主表分页
      *
      * @author mayike
      * @date  2023/08/28 10:09
      */
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("获取文件夹分页")
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
-//    @GetMapping("/pan/fold/page")
-    public CommonResult<Page<UserFile>> page(UserFilePageParam userFilePageParam) {
-        return CommonResult.data(userFileService.page(userFilePageParam));
+    @GetMapping("/pan/fold/pageList")
+    public CommonResult<Page<UserFile>> pageList(UserFilePageParam userFilePageParam) {
+        return CommonResult.data(userFileService.pageList(userFilePageParam));
     }
 
     /**
-     * 添加文件主表
+     * 本地文件创建文件夹
      *
-     * @author mayike
-     * @date  2023/08/28 10:09
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("添加文件夹")
-    @CommonLog("添加文件夹")
-//    @SaCheckPermission("/pan/fold/add")
-//    @PostMapping("/pan/fold/add")
-    public CommonResult<String> add(@RequestBody @Valid UserFileAddParam userFileAddParam) {
+     **/
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("本地文件创建文件夹(不允许在根目录下创建文件夹)")
+    @CommonLog("本地文件创建文件夹")
+    @PostMapping("/pan/fold/createFold")
+    public CommonResult<String> createFold(@Valid @RequestBody UserFileAddParam userFileAddParam) {
+        //判断文件夹是否存在
+        UserFile userFile = BeanUtil.copyProperties(userFileAddParam, UserFile.class);
+        Boolean dirExist = userFileService.isDirExist(userFile);
+        if(!dirExist){
+            return  CommonResult.error("同名文件夹已存在,请修改名称后在操作");
+        }
         userFileService.add(userFileAddParam);
         return CommonResult.ok();
     }
 
-    /**
-     * 编辑文件主表
-     *
-     * @author mayike
-     * @date  2023/08/28 10:09
-     */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑文件夹")
-    @CommonLog("编辑文件夹")
-//    @SaCheckPermission("/pan/fold/edit")
-//    @PostMapping("/pan/fold/edit")
-    public CommonResult<String> edit(@RequestBody @Valid UserFileEditParam userFileEditParam) {
-        userFileService.edit(userFileEditParam);
-        return CommonResult.ok();
-    }
 
     /**
      * 删除文件主表
@@ -154,30 +156,12 @@ public class UserFileController {
         return CommonResult.data(userFileService.detail(userFileIdParam));
     }
 
-    /**
-     * 本地文件创建文件夹
-     *
-     **/
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("本地文件创建文件夹(不允许在根目录下创建文件夹)")
-    @CommonLog("本地文件创建文件夹")
-    @PostMapping("/pan/fold/createFold")
-    public CommonResult<String> createFold(@Valid @RequestBody UserFileAddParam userFileAddParam) {
-        //判断文件夹是否存在
-        UserFile userFile = BeanUtil.copyProperties(userFileAddParam, UserFile.class);
-        Boolean dirExist = userFileService.isDirExist(userFile);
-        if(!dirExist){
-            return  CommonResult.error("同名文件夹已存在,请修改名称后在操作");
-        }
-        userFileService.add(userFileAddParam);
-        return CommonResult.ok();
-    }
 
     /**
      * 文件夹重命名
      *
      **/
-    @ApiOperationSupport(order = 7)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("文件夹重命名")
     @CommonLog("文件夹重命名")
     @PostMapping("/pan/fold/reNameFold")
@@ -219,7 +203,7 @@ public class UserFileController {
      * 文件夹重命名
      *
      **/
-    @ApiOperationSupport(order = 7)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("文件夹复制")
     @CommonLog("文件夹复制")
     @PostMapping("/pan/fold/copyFold")
@@ -234,119 +218,13 @@ public class UserFileController {
     }
 
 
-
-
-    //***********************************文件操作**************************************************//
     /**
-     * 动态上传文件返回id
-     *
-     * @author mayike
-     * @date 2023/09/08
-     **/
-    @ApiOperationSupport(order = 7)
-    @ApiOperation("动态上传文件返回文件信息")
-    @CommonLog("动态上传文件返回文件信息")
-//    @PostMapping("/pan/file/uploadDynamicReturnBean")
-    public CommonResult<List<DevFile>> uploadDynamicReturnId(@RequestPart("file") MultipartFile[] file, @RequestParam(value = "parentId",required = false) String parentId) {
-        return CommonResult.data(userFileService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
-    }
-
-    /**
-     * 获取文件主表分页
-     *
-     * @author mayike
-     * @date  2023/08/28 10:09
-     */
-    @ApiOperationSupport(order = 8)
-    @ApiOperation("文件夹列表")
-//    @SaCheckPermission("/pan/fold/page")
-    @PostMapping("/pan/fold/pageList")
-    public CommonResult<Page<UserFile>> pageList(@Valid @RequestBody UserFilePageParam userFilePageParam) {
-        return CommonResult.data(userFileService.pageList(userFilePageParam));
-    }
-
-    /**
-     * 所有个人文件夹列表
-     *
-     * @author mayike
-     * @date  2023/08/28 10:09
-     */
-    @ApiOperationSupport(order = 9)
-    @ApiOperation("所有个人文件夹列表")
-//    @SaCheckPermission("/pan/fold/page")
-//    @GetMapping("/pan/fold/selfAllPageList")
-    public CommonResult<Page<UserFile>> selfAllPageList(UserFilePageParam userFilePageParam) {
-        userFilePageParam.setFoldType(UserFileEnum.SELF_FOLD_TYPE.getLevel());
-        return CommonResult.data(userFileService.pageList(userFilePageParam));
-    }
-
-    /**
-     * 所有群组文件夹列表
+     * 获取所在部门的文件夹列表
      *
      * @author mayike
      * @date  2023/08/28 10:09
      */
     @ApiOperationSupport(order = 10)
-    @ApiOperation("所有群组文件夹列表")
-//    @SaCheckPermission("/pan/fold/page")
-//    @GetMapping("/pan/fold/groupAllPageList")
-    public CommonResult<Page<UserFile>> groupAllPageList(UserFilePageParam userFilePageParam) {
-        userFilePageParam.setFoldType(UserFileEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(userFileService.pageList(userFilePageParam));
-    }
-
-    /**
-     * 所有群组文件夹列表
-     *
-     * @author mayike
-     * @date  2023/08/28 10:09
-     */
-    @ApiOperationSupport(order = 11)
-    @ApiOperation("获取所见文件夹列表(包含个人和群组)")
-//    @SaCheckPermission("/pan/fold/page")
-    @GetMapping("/pan/fold/showPageList")
-    public CommonResult<Page<UserFile>> showPageList(UserFilePageParam userFilePageParam) {
-        //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(userFileService.pageList(userFilePageParam));
-    }
-
-    /**
-     * 获取所在部门的文件夹列表
-     *
-     * @author mayike
-     * @date  2023/08/28 10:09
-     */
-    @ApiOperationSupport(order = 12)
-    @ApiOperation("获取所在部门的文件夹列表")
-//    @SaCheckPermission("/pan/fold/page")
-//    @GetMapping("/pan/fold/groupPageList")
-    public CommonResult<Page<UserFile>> groupPageList(UserFilePageParam userFilePageParam) {
-        //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(userFileService.groupPageList(userFilePageParam));
-    }
-
-    /**
-     * 获取所在部门的文件夹列表
-     *
-     * @author mayike
-     * @date  2023/08/28 10:09
-     */
-    @ApiOperationSupport(order = 12)
-    @ApiOperation("获取当前登录人的个人文件夹列表")
-//    @SaCheckPermission("/pan/fold/page")
-//    @GetMapping("/pan/fold/selfPageList")
-    public CommonResult<Page<UserFile>> selfPageList(UserFilePageParam userFilePageParam) {
-        //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(userFileService.selfPageList(userFilePageParam));
-    }
-
-    /**
-     * 获取所在部门的文件夹列表
-     *
-     * @author mayike
-     * @date  2023/08/28 10:09
-     */
-    @ApiOperationSupport(order = 13)
     @ApiOperation("根据id获取文件树")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/getFoldTree")
@@ -361,7 +239,7 @@ public class UserFileController {
      * 创建文件
      *
      **/
-    @ApiOperationSupport(order = 14)
+    @ApiOperationSupport(order = 11)
     @ApiOperation("创建文件")
     @CommonLog("创建文件")
     @PostMapping("/pan/fold/createFile")
@@ -377,6 +255,38 @@ public class UserFileController {
         }
         userFileService.createFile(userFileAddParam);
         return CommonResult.ok();
+    }
+
+
+
+    //***********************************文件操作**************************************************//
+    /**
+     * 动态上传文件返回id
+     *
+     * @author mayike
+     * @date 2023/09/08
+     **/
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("动态上传文件返回文件信息")
+    @CommonLog("动态上传文件返回文件信息")
+//    @PostMapping("/pan/file/uploadDynamicReturnBean")
+    public CommonResult<List<DevFile>> uploadDynamicReturnId(@RequestPart("file") MultipartFile[] file, @RequestParam(value = "parentId",required = false) String parentId) {
+        return CommonResult.data(userFileService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
+    }
+
+    /**
+     * 所有群组文件夹列表
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("获取所见文件夹列表(包含个人和群组)")
+//    @SaCheckPermission("/pan/fold/page")
+    @GetMapping("/pan/fold/showPageList")
+    public CommonResult<Page<UserFile>> showPageList(UserFilePageParam userFilePageParam) {
+        //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
+        return CommonResult.data(userFileService.pageList(userFilePageParam));
     }
 
 }

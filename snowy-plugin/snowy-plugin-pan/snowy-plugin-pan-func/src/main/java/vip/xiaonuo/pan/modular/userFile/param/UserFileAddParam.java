@@ -31,7 +31,7 @@ import javax.validation.constraints.Pattern;
 public class UserFileAddParam {
 
     /** 父目录文件夹ID */
-    @ApiModelProperty(value = "父目录文件夹ID", required = true,  position = 2)
+    @ApiModelProperty(value = "父目录文件夹ID",  position = 2)
     @NotBlank(message = "父目录文件夹ID ---根目录为0")
     private String parentId;
 
@@ -42,7 +42,8 @@ public class UserFileAddParam {
     private String fileName;
 
     /** 文件路径 */
-    @ApiModelProperty(value = "文件路径", position = 4)
+    @ApiModelProperty(value = "文件路径",required = true, position = 4)
+    @NotBlank(message = "文件路径不能为空")
     private String filePath;
 
     /** 是否是目录(0-否,1-是) */

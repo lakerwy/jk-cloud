@@ -1,6 +1,7 @@
 package vip.xiaonuo.pan.modular.file.service.impl;
 
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
@@ -72,6 +73,11 @@ import java.util.zip.ZipOutputStream;
 @Service
 public class FileTransferService implements IFileTransferService {
 
+    /**顶级父目录id*/
+    private final static  String ROOT_FOLD_ID = "0";
+
+    private final static  String ROOT_FOLD_PATH = "/";
+
     @Resource
     PanFileService panFileService;
 
@@ -107,8 +113,19 @@ public class FileTransferService implements IFileTransferService {
         LambdaQueryWrapper<PanFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(PanFile::getIdentifier,uploadFileParam.getIdentifier());
         List<PanFile> list = panFileService.list(lambdaQueryWrapper);
-
         String filePath = uploadFileParam.getFilePath();
+        if(StrUtil.isNotEmpty(filePath)){
+            if(!filePath.equals("/")){
+                UserFile one = userFileService.getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFilePath, filePath));
+                if(ObjectUtil.isNotEmpty(one)){
+                    uploadFileParam.setParentId(one.getId());
+                }else {
+                    throw new CommonException("文件路径对应文件夹不存在。");
+                }
+            }else {
+                uploadFileParam.setParentId(ROOT_FOLD_ID);
+            }
+        }
         String relativePath = uploadFileParam.getRelativePath();
         CommonFile commonFile = null;
         if (relativePath.contains("/")) {
@@ -215,7 +232,11 @@ public class FileTransferService implements IFileTransferService {
                 }
 
                 UserFile userFile = new UserFile(commonFile, StpLoginUserUtil.getLoginUser().getId(), panFile.getId());
-                userFile.setParentId(uploadFileParam.getParentId());
+                //根据filePath
+                String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+                if(StrUtil.isNotEmpty(parentId)){
+                    userFile.setParentId(parentId);
+                }
 
                 try {
                     userFileService.save(userFile);
@@ -499,4 +520,5 @@ public class FileTransferService implements IFileTransferService {
     public Long selectStorageSizeByUserId() {
         return userFileService.getTotalStorageSize();
     }
+
 }

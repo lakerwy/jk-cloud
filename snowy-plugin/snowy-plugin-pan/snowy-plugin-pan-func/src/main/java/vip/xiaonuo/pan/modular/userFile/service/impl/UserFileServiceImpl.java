@@ -74,6 +74,8 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     /**顶级父目录id*/
     private final static  String ROOT_FOLD_ID = "0";
 
+    private final static  String ROOT_FOLD_PATH= "/";
+
     private final static String DEFAULT_BUCKET_NAME = "jk";
 
     private final static  Integer IS_DIR = 1;
@@ -124,6 +126,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         UserFile userFile = BeanUtil.toBean(userFileAddParam, UserFile.class);
         userFile.setIsDir(IS_DIR);
         userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+        userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
         this.save(userFile);
     }
 
@@ -191,14 +194,13 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Override
     public List<UserFile> getFolds(UserFile userFile) {
-        if(ObjectUtil.isEmpty(userFile.getParentId())){
-            userFile.setParentId(ROOT_FOLD_ID);
-        }
         LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        lambdaQueryWrapper.eq(UserFile::getParentId, userFile.getParentId())
-                .eq(UserFile::getFileName, userFile.getFileName())
+        if(ObjectUtil.isNotEmpty(userFile.getParentId())){
+            lambdaQueryWrapper.eq(UserFile::getParentId,userFile.getParentId());
+        }
+        lambdaQueryWrapper.eq(UserFile::getFileName, userFile.getFileName())
                 .eq(UserFile::getFilePath,userFile.getFilePath())
-                .eq(UserFile::getCreateUser, StpLoginUserUtil.getLoginUser().getId())
+                .eq(UserFile::getUserId, StpLoginUserUtil.getLoginUser().getId())
                 .eq(UserFile::getDeleteFlag,"NOT_DELETE");
         return list(lambdaQueryWrapper);
     }
@@ -241,6 +243,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         userFile.setRootDir(UserFileEnum.SELF_ROOT.getLevel());
         userFile.setFoldType(UserFileEnum.SELF_FOLD_TYPE.getLevel());
         userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+        userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
         //个人根目录文件夹名不允许修改、移动和删除
         String name = StpLoginUserUtil.getLoginUser().getName();
         userFile.setFileName(name+"的个人文件夹");
@@ -264,6 +267,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         userFile.setRootDir(UserFileEnum.GROUP_ROOT.getLevel());
         userFile.setFoldType(UserFileEnum.GROUP_FOLD_TYPE.getLevel());
         userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+        userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
         //部门根目录文件夹名不允许修改、移动和删除
         String name = StpLoginUserUtil.getLoginUser().getOrgName();
         userFile.setFileName(name+"部门文件夹");
@@ -371,21 +375,30 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 //        if(ObjectUtil.isEmpty(devFoldPageParam.getFoldType())){
 //            devFoldPageParam.setFoldType(DevFoldEnum.SELF_FOLD_TYPE.getLevel());
 //        }
-        if(ObjectUtil.isEmpty(userFilePageParam.getId())){
+        if(ObjectUtil.isEmpty(userFilePageParam.getFilePath())){
+            UserFile one = null;
             if(Objects.equals(userFilePageParam.getRootDir(), UserFileEnum.GROUP_ROOT.getLevel())){
-                buildGroupPageParam(userFilePageParam);
+               one = buildGroupPageParam(userFilePageParam);
             }else  if(Objects.equals(userFilePageParam.getRootDir(), UserFileEnum.SELF_ROOT.getLevel())){
-                buildSelfPageParam(userFilePageParam);
+               one = buildSelfPageParam(userFilePageParam);
             }else {
-                userFilePageParam.setId(ROOT_FOLD_ID);
+                one = new UserFile();
+                one.setFilePath(ROOT_FOLD_PATH);
+                one.setId(ROOT_FOLD_ID);
+            }
+            if(null != one){
+                userFilePageParam.setId(one.getId());
+                userFilePageParam.setFilePath(one.getId().equals(ROOT_FOLD_ID)?ROOT_FOLD_PATH: (one.getFilePath()+FileUtil.FILE_SEPARATOR+one.getFileName()));
+            }else {
+                throw  new CommonException("父目录文件不存在");
             }
         }
+        queryWrapper.lambda().eq(UserFile::getFilePath,userFilePageParam.getFilePath());
         if(ObjectUtil.isNotEmpty(userFilePageParam.getFoldType())){
             queryWrapper.lambda().in(UserFile::getFoldType, userFilePageParam.getFoldType());
         }
-        if(!userFilePageParam.getAllFlag()){
+        if(ObjectUtil.isNotEmpty(userFilePageParam.getAllFlag()) && !userFilePageParam.getAllFlag()){
             queryWrapper.lambda().eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
-            queryWrapper.lambda().eq(UserFile::getParentId, userFilePageParam.getId());
         }
         if(ObjectUtil.isNotEmpty(userFilePageParam.getFileName())) {
             queryWrapper.lambda().like(UserFile::getFileName, userFilePageParam.getFileName());
@@ -395,7 +408,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             queryWrapper.orderBy(true, userFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(userFilePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(UserFile::getIsDir).orderByAsc(UserFile::getCreateTime);
+            queryWrapper.lambda().orderByAsc(UserFile::getFoldType).orderByDesc(UserFile::getIsDir).orderByAsc(UserFile::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -442,25 +455,31 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         }
     }
 
-    private void  buildGroupPageParam(UserFilePageParam userFilePageParam){
+    private UserFile  buildGroupPageParam(UserFilePageParam userFilePageParam){
         QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.GROUP_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
         UserFile one = getOne(queryWrapper);
         if(ObjectUtil.isNotEmpty(one)){
-            userFilePageParam.setId(one.getId());
+            return one;
+//            userFilePageParam.setId(one.getId());
+//            userFilePageParam.setFilePath(one.getFilePath()+FileUtil.FILE_SEPARATOR+one.getFileName());
         }
+        return null;
     }
 
-    private void  buildSelfPageParam(UserFilePageParam userFilePageParam){
+    private UserFile  buildSelfPageParam(UserFilePageParam userFilePageParam){
         QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.SELF_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId())
                 .eq(UserFile::getCreateUser,StpLoginUserUtil.getLoginUser().getId());
         UserFile one = getOne(queryWrapper);
         if(ObjectUtil.isNotEmpty(one)){
-            userFilePageParam.setId(one.getId());
+            return one;
+//            userFilePageParam.setId(one.getId());
+//            userFilePageParam.setFilePath(one.getFilePath()+FileUtil.FILE_SEPARATOR+one.getFileName());
         }
-    }
+        return null;
 
+    }
     @Override
     public Page<UserFile> selfPageList(UserFilePageParam userFilePageParam) {
         if(ObjectUtil.isEmpty(userFilePageParam.getId())){
@@ -650,6 +669,38 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         }
 
 
+    }
+
+    @Override
+    public List<UserFile> getRootFold() {
+        List<UserFile> userFiles = new ArrayList<>();
+        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.SELF_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId())
+                .eq(UserFile::getCreateUser,StpLoginUserUtil.getLoginUser().getId());
+        UserFile one = getOne(queryWrapper);
+        userFiles.add(one);
+
+        queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.GROUP_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
+        one = getOne(queryWrapper);
+        userFiles.add(one);
+        return userFiles;
+    }
+
+    @Override
+    public String getParentIdByPath(String filePath) {
+        if(filePath.equals(ROOT_FOLD_PATH)){
+            //如果是 “/” 就是根目录
+            return ROOT_FOLD_ID;
+        }
+        int index = filePath.lastIndexOf(ROOT_FOLD_PATH);
+        String pathName = filePath.substring(index + 1);
+        String parentPath = filePath.substring(0, index);
+        UserFile one = getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFilePath, parentPath).eq(UserFile::getFileName, pathName));
+        if(null!=one){
+            return one.getId();
+        }
+        return null;
     }
 
     private void updateFileDeleteStateByFilePath(String filePath, String deleteBatchNum, String userId) {
