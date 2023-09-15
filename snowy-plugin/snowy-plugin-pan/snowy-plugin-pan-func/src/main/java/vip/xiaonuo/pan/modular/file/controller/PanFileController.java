@@ -88,68 +88,6 @@ public class PanFileController {
     @Resource
     FileFactory fileFactory;
 
-    /**
-     * 获取文件分页
-     *
-     * @author mayike
-     * @date  2023/09/06 21:15
-     */
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("获取文件分页")
-    @SaCheckPermission("/pan/file/page")
-    @GetMapping("/pan/file/page")
-    public CommonResult<Page<PanFile>> page(PanFilePageParam panFilePageParam) {
-        return CommonResult.data(panFileService.page(panFilePageParam));
-    }
-
-    /**
-     * 添加文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:15
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("添加文件")
-    @CommonLog("添加文件")
-    @SaCheckPermission("/pan/file/add")
-    @PostMapping("/pan/file/add")
-    public CommonResult<String> add(@RequestBody @Valid PanFileAddParam panFileAddParam) {
-        panFileService.add(panFileAddParam);
-        return CommonResult.ok();
-    }
-
-    /**
-     * 编辑文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:15
-     */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑文件")
-    @CommonLog("编辑文件")
-    @SaCheckPermission("/pan/file/edit")
-    @PostMapping("/pan/file/edit")
-    public CommonResult<String> edit(@RequestBody @Valid PanFileEditParam panFileEditParam) {
-        panFileService.edit(panFileEditParam);
-        return CommonResult.ok();
-    }
-
-    /**
-     * 删除文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:15
-     */
-    @ApiOperationSupport(order = 4)
-    @ApiOperation("删除文件")
-    @CommonLog("删除文件")
-    @SaCheckPermission("/pan/file/delete")
-    @PostMapping("/pan/file/delete")
-    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<PanFileIdParam> panFileIdParamList) {
-        panFileService.delete(panFileIdParamList);
-        return CommonResult.ok();
-    }
 
     /**
      * 获取文件详情
@@ -159,7 +97,7 @@ public class PanFileController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取文件详情")
-    @SaCheckPermission("/pan/file/detail")
+//    @SaCheckPermission("/pan/file/detail")
     @GetMapping("/pan/file/detail")
     public CommonResult<PanFile> detail(@Valid PanFileIdParam panFileIdParam) {
         return CommonResult.data(panFileService.detail(panFileIdParam));

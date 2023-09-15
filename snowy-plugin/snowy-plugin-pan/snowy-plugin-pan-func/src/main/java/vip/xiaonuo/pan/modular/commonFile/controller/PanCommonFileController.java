@@ -54,83 +54,6 @@ public class PanCommonFileController {
     private PanCommonFileService panCommonFileService;
 
     /**
-     * 获取共享文件分页
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("获取共享文件分页")
-//    @SaCheckPermission("/pan/commonFile/page")
-    @GetMapping("/pan/commonFile/page")
-    public CommonResult<Page<PanCommonFile>> page(PanCommonFilePageParam panCommonFilePageParam) {
-        return CommonResult.data(panCommonFileService.page(panCommonFilePageParam));
-    }
-
-    /**
-     * 添加共享文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("添加共享文件")
-    @CommonLog("添加共享文件")
-//    @SaCheckPermission("/pan/commonFile/add")
-    @PostMapping("/pan/commonFile/add")
-    public CommonResult<String> add(@RequestBody @Valid PanCommonFileAddParam panCommonFileAddParam) {
-        panCommonFileService.add(panCommonFileAddParam);
-        return CommonResult.ok();
-    }
-
-    /**
-     * 编辑共享文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑共享文件")
-    @CommonLog("编辑共享文件")
-//    @SaCheckPermission("/pan/commonFile/edit")
-    @PostMapping("/pan/commonFile/edit")
-    public CommonResult<String> edit(@RequestBody @Valid PanCommonFileEditParam panCommonFileEditParam) {
-        panCommonFileService.edit(panCommonFileEditParam);
-        return CommonResult.ok();
-    }
-
-    /**
-     * 删除共享文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    @ApiOperationSupport(order = 4)
-    @ApiOperation("删除共享文件")
-    @CommonLog("删除共享文件")
-//    @SaCheckPermission("/pan/commonFile/delete")
-    @PostMapping("/pan/commonFile/delete")
-    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<PanCommonFileIdParam> panCommonFileIdParamList) {
-        panCommonFileService.delete(panCommonFileIdParamList);
-        return CommonResult.ok();
-    }
-
-    /**
-     * 获取共享文件详情
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    @ApiOperationSupport(order = 5)
-    @ApiOperation("获取共享文件详情")
-//    @SaCheckPermission("/pan/commonFile/detail")
-    @GetMapping("/pan/commonFile/detail")
-    public CommonResult<PanCommonFile> detail(@Valid PanCommonFileIdParam panCommonFileIdParam) {
-        return CommonResult.data(panCommonFileService.detail(panCommonFileIdParam));
-    }
-
-    /**
      * 将文件共享给他人
      *
      * 共享文件统一接口
@@ -166,7 +89,7 @@ public class PanCommonFileController {
 
     /**
      * 获取共享用户文件列表
-     *
+     * 收到的共享
      * 用来做前台列表展示
      *
      * @author mayike
@@ -182,7 +105,7 @@ public class PanCommonFileController {
 
     /**
      * 获取共享空间中某个用户的文件列表
-     *
+     *我的共享
      * 用来做前台列表展示
      *
      * @author mayike
