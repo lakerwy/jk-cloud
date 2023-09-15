@@ -73,13 +73,13 @@ public class PanCommonFileController {
     /**
      * 获取共享空间的全量用户列表
      *
-     * 共享文件用户接口
+     * 共享文件用户接口(共享给我文件的所有用户集合)
      *
      * @author mayike
      * @date  2023/09/06 21:07
      */
     @ApiOperationSupport(order = 7)
-    @ApiOperation("获取共享空间的全量用户列表")
+    @ApiOperation("获取共享空间的全量用户列表(共享给我文件的所有用户集合)")
 //    @SaCheckPermission("/pan/commonFile/commonFileUser")
     @GetMapping("/pan/commonFile/commonFileUser")
     public CommonResult<List<CommonFileUserVo>> commonFileUser() {
@@ -89,14 +89,14 @@ public class PanCommonFileController {
 
     /**
      * 获取共享用户文件列表
-     * 收到的共享
+     * 收到的共享(某人共享给我的文件列表)
      * 用来做前台列表展示
      *
      * @author mayike
      * @date  2023/09/06 21:07
      */
     @ApiOperationSupport(order = 8)
-    @ApiOperation("获取共享用户的文件列表")
+    @ApiOperation("获取共享用户的文件列表，收到的共享(某人共享给我的文件列表)")
 //    @SaCheckPermission("/pan/commonFile/commonFileByUser")
     @GetMapping("/pan/commonFile/commonFileByUser")
     public CommonResult<List<CommonFileVo>> commonFileByUser(@Valid String userId) {
@@ -104,18 +104,17 @@ public class PanCommonFileController {
     }
 
     /**
-     * 获取共享空间中某个用户的文件列表
-     *我的共享
+     * 我的共享
      * 用来做前台列表展示
      *
      * @author mayike
      * @date  2023/09/06 21:07
      */
     @ApiOperationSupport(order = 9)
-    @ApiOperation("获取共享文件分页")
+    @ApiOperation("获取共享文件分页（我的共享）")
 //    @SaCheckPermission("/pan/commonFile/commonFileList")
     @GetMapping("/pan/commonFile/commonFileList")
-    public CommonResult<IPage<PanCommonFile>> commonFileList(PanCommonFilePageParam panCommonFilePageParam) {
+    public CommonResult<IPage<CommonFileVo>> commonFileList(PanCommonFilePageParam panCommonFilePageParam) {
         return CommonResult.data(panCommonFileService.commonFileList(panCommonFilePageParam));
     }
 

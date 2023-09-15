@@ -2,21 +2,30 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.pan.modular.commonFile.mapper.PanCommonFileMapper">
     <select id="selectCommonFileUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo">
-        SELECT c.USER_ID as userId ,d.NAME as userName
+        SELECT distinct c.USER_ID as userId ,d.NAME as userName
         FROM PAN_COMMON_FILE a
-             LEFT JOIN PAN_PERMISSION b ON a.ID = b.commonFileId
+             LEFT JOIN PAN_PERMISSION b ON a.ID = b.commonFileId and b.DELETE_FLAG = 'NOT_DELETE'
              LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
              LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
-        WHERE b.USER_ID = #{userId}
+        WHERE b.USER_ID = #{userId} and a.DELETE_FLAG = 'NOT_DELETE'
     </select>
 
     <select id="selectCommonFileByUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
         SELECT a.ID as id,c.FILE_NAME as fileName, c.USER_ID as userId ,a.USER_FILE_ID as userFileId
         FROM PAN_COMMON_FILE a
-                 LEFT JOIN PAN_PERMISSION b ON a.ID = b.commonFileId
+                 LEFT JOIN PAN_PERMISSION b ON a.ID = b.commonFileId and b.DELETE_FLAG = 'NOT_DELETE'
                  LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
                  LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
-        WHERE c.USER_ID = #{userId} and b.USER_ID = #{sessionUserId}
+        WHERE c.USER_ID = #{userId} and b.USER_ID = #{sessionUserId} and a.DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
+    <select id="myCommonFile" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
+        SELECT a.ID as id,c.FILE_NAME as fileName, b.USER_ID as userId ,a.USER_FILE_ID as userFileId
+        FROM PAN_COMMON_FILE a
+                 LEFT JOIN PAN_PERMISSION b ON a.ID = b.commonFileId and b.DELETE_FLAG = 'NOT_DELETE'
+                 LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
+                 LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
+        WHERE c.USER_ID = #{userId} and c.DELETE_FLAG = 'NOT_DELETE'
     </select>
 
 </mapper>

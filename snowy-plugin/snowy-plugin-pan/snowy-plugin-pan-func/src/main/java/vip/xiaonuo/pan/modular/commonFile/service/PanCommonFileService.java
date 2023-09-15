@@ -108,5 +108,5 @@ public interface PanCommonFileService extends IService<PanCommonFile> {
      * @author mayike
      * @date  2023/09/06 21:07
      */
-    IPage<PanCommonFile> commonFileList(PanCommonFilePageParam panCommonFilePageParam);
+    IPage<CommonFileVo> commonFileList(PanCommonFilePageParam panCommonFilePageParam);
 }
