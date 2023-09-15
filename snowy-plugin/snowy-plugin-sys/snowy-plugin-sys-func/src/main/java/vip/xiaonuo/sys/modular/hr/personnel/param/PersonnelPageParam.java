@@ -52,6 +52,10 @@ public class PersonnelPageParam {
     @ApiModelProperty(value = "姓名")
     private String name;
 
+    /** 性别 */
+    @ApiModelProperty(value = "性别")
+    private String sex;
+
     @ApiModelProperty(value = "部门")
     private String dept;
 
@@ -65,6 +69,14 @@ public class PersonnelPageParam {
     /** 入职时间结束 */
     @ApiModelProperty(value = "入职时间结束")
     private String endHireDate;
+
+    /** 转正时间开始 */
+    @ApiModelProperty(value = "转正时间开始")
+    private String startPositiveTime;
+
+    /** 转正时间结束 */
+    @ApiModelProperty(value = "转正时间结束")
+    private String endPositiveTime;
 
     @ApiModelProperty(value = "状态")
     private String status;

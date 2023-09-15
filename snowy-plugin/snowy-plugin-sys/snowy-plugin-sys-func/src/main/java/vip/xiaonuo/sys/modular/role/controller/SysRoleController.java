@@ -315,4 +315,17 @@ public class SysRoleController {
     public CommonResult<Page<SysUser>> userSelector(SysRoleSelectorUserParam sysRoleSelectorUserParam) {
         return CommonResult.data(sysRoleService.userSelector(sysRoleSelectorUserParam));
     }
+
+    /**
+     * 获取用户选择器(新增对外使用)
+     *
+     * @author xuyuxiang
+     * @date 2023/9/15 20:00
+     */
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("获取用户选择器(新增对外使用)")
+    @GetMapping("/sys/center/role/userSelector")
+    public CommonResult<Page<SysUser>> userSelectorEx(SysRoleSelectorUserParam sysRoleSelectorUserParam) {
+        return CommonResult.data(sysRoleService.userSelector(sysRoleSelectorUserParam));
+    }
 }

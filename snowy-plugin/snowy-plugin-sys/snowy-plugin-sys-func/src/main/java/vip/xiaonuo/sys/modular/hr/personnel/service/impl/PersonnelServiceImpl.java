@@ -100,6 +100,30 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if (ObjectUtil.isNotEmpty(personnelPageParam.getName())) {
             queryWrapper.lambda().like(Personnel::getName, personnelPageParam.getName());
         }
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getSex())) {
+            queryWrapper.lambda().eq(Personnel::getSex, personnelPageParam.getSex());
+        }
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getDept())) {
+            queryWrapper.lambda().like(Personnel::getDept, personnelPageParam.getDept());
+        }
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getDuty())) {
+            queryWrapper.lambda().like(Personnel::getDuty, personnelPageParam.getDuty());
+        }
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getStartHireDate()) && ObjectUtil.isNotEmpty(personnelPageParam.getEndHireDate())) {
+            queryWrapper.lambda().between(Personnel::getHireDate, personnelPageParam.getStartHireDate(), personnelPageParam.getEndHireDate());
+        }
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getStartPositiveTime()) && ObjectUtil.isNotEmpty(personnelPageParam.getEndPositiveTime())) {
+            queryWrapper.lambda().between(Personnel::getPositiveTime, personnelPageParam.getStartPositiveTime(), personnelPageParam.getEndPositiveTime());
+        }
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(Personnel::getName,personnelPageParam.getSearchKey())
+                    .or().like(Personnel::getFileNo,personnelPageParam.getSearchKey())
+                    .or().like(Personnel::getDept,personnelPageParam.getSearchKey())
+                    .or().like(Personnel::getDuty,personnelPageParam.getSearchKey())
+                    .or().like(Personnel::getIdNumber,personnelPageParam.getSearchKey())
+                    .or().like(Personnel::getPhone,personnelPageParam.getSearchKey()));
+        }
+
         if (ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -319,8 +343,14 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if (ObjectUtil.isNotEmpty(personnelPageParam.getName())) {
             queryWrapper.like("a.`NAME`", personnelPageParam.getName());
         }
-        if (ObjectUtil.isNotEmpty(personnelPageParam.getStartHireDate()) && ObjectUtil.isNotEmpty(personnelPageParam.getEndHireDate())) {
-            queryWrapper.between("a.HIRE_DATE", personnelPageParam.getStartHireDate(), personnelPageParam.getEndHireDate());
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getSex())) {
+            queryWrapper.eq("a.SEX", personnelPageParam.getSex());
+        }
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getStartHireDate())) {
+            queryWrapper.ge("a.HIRE_DATE", personnelPageParam.getStartHireDate());
+        }
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getStartPositiveTime())) {
+            queryWrapper.ge("a.POSITIVE_TIME", personnelPageParam.getStartPositiveTime());
         }
         if (ObjectUtil.isNotEmpty(personnelPageParam.getDept())) {
             queryWrapper.like("b.`NAME`", personnelPageParam.getDept());
