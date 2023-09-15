@@ -10,6 +10,14 @@ public class UserAttendanceCountEntity implements Serializable {
     private String dayAttendanceStatus;
     private String dayDate;
 
+    public UserAttendanceCountEntity(){}
+
+    public UserAttendanceCountEntity(String userName,String dayAttendanceStatus,String dayDate){
+        this.userName = userName;
+        this.dayAttendanceStatus = dayAttendanceStatus;
+        this.dayDate = dayDate;
+    }
+
     public String getDayAttendanceStatus() {
         return dayAttendanceStatus;
     }

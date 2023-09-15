@@ -236,20 +236,29 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         /** 获取当月有效工作日时间列表 */
         Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
         List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
-        List<String> montyDayList = CommonTimeFormatUtil.getPerStrDayList(CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getStartTime()),CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getEndTime()));
-
-
+        //List<String> montyDayList = CommonTimeFormatUtil.getPerStrDayList(CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getStartTime()),CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getEndTime()));
 
         /**  list循环一次，获取-1  循环二次获取 1*/
-        /*Map<String,UserAttendanceCountEntity> map = new HashMap<>();
+        Map<String,UserAttendanceCountEntity> map = new HashMap<>();
         for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
             String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT);
-            UserAttendanceCountEntity
-        }*/
+            map.put(day,new UserAttendanceCountEntity("",hrUserAttendance.getAbnormalFlag() != null ? "0" : "1",day));
+        }
 
+        List<HrUserAttendance> userAttendances = hrUserAttendanceList.stream().filter(attendance ->
+                attendance.getAbnormalFlag() != null && attendance.getAbnormalFlag() == -1).collect(Collectors.toList());/**  筛选打卡异常的数据*/
 
-        List<UserAttendanceCountEntity> userAttendanceCountEntities = new ArrayList<>(); /** 需求还未完全明确，这地方逻辑暂时用for简单解决，需求完全明确后，再修改完善*/
-        for(String day : montyDayList){
+        /** 打卡异常的数据 */
+        userAttendances.stream().forEach(attendance ->  {
+            String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DATE_FORMAT);
+            if(map.get(day) != null){
+                map.get(day).setDayAttendanceStatus("1");
+            }
+        });
+
+        List<UserAttendanceCountEntity> userAttendanceCountEntities  = map.keySet().stream().map(key -> map.get(key)).collect(Collectors.toList());
+        //List<UserAttendanceCountEntity> userAttendanceCountEntities = new ArrayList<>(); /** 需求还未完全明确，这地方逻辑暂时用for简单解决，需求完全明确后，再修改完善*/
+        /*for(String day : montyDayList){
             UserAttendanceCountEntity userAttendanceCountEntity = new UserAttendanceCountEntity();
             userAttendanceCountEntity.setDayDate(day);
             userAttendanceCountEntity.setUserName(loginUser.getName());
@@ -264,12 +273,13 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                 userAttendanceCountEntity.setDayAttendanceStatus("0");
             }
             userAttendanceCountEntities.add(userAttendanceCountEntity);
-        }
+        }*/
         return userAttendanceCountEntities;
     }
 
     @Override
     public Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
+
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         hrUserAttendancePageParam.setUserId(loginUser.getId());
         hrUserAttendancePageParam.setAbnormalFlag(1);
@@ -280,31 +290,46 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
         hrUserAttendanceList = hrUserAttendanceList.stream().sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
 
-        Map<String,List<HrUserAttendance>> map = new HashMap<>();/** 获取班次逻辑，配置功能未完善，此处逻辑暂时缺损，直接取固定班次*/
+        hrUserAttendancePageParam.setAbnormalFlag(-1);
+        Page<HrUserAttendance> pageFault = page(hrUserAttendancePageParam);
+        List<HrUserAttendance> hrUserAttendanceFaultList = pageFault.getRecords();
+        hrUserAttendanceFaultList = hrUserAttendanceFaultList.stream().sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
+        hrUserAttendanceFaultList = hrUserAttendanceFaultList.stream().map( attendance -> {attendance.setAbnormalFlag(2);return attendance;}).collect(Collectors.toList());//异常数据为2
 
+
+        Map<String,List<HrUserAttendance>> map = new HashMap<>();/** 获取班次逻辑，配置功能未完善，此处逻辑暂时缺损，直接取固定班次*/
         //特殊处理
         List<HrUserAttendance> hrUserAttendancesAll = hrUserAttendanceList.stream().map(attendance -> {
             HrUserAttendance hrUserAttendance =  BeanUtil.toBean(attendance, HrUserAttendance.class);
-            hrUserAttendance.setAbnormalFlag(-1);
+            hrUserAttendance.setAbnormalFlag(1);//先全部设置数据无效   1 为无效
             return hrUserAttendance;
         }).collect(Collectors.toList());
 
         List<HrUserAttendance> hrUserAttendancesOnes = hrUserAttendancesAll.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue())).collect(Collectors.toList());
         if(hrUserAttendancesOnes.size() > 0){
-            hrUserAttendancesOnes.get(0).setAbnormalFlag(1);
+            hrUserAttendancesOnes.get(0).setAbnormalFlag(0);//排序后第一个数据为有效
         }
+        //增加异常数据
+        List<HrUserAttendance> hrUserAttendancesOnesFault = hrUserAttendanceFaultList.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue())).collect(Collectors.toList());
+        hrUserAttendancesOnes.addAll(hrUserAttendancesOnesFault);
         map.put("0",hrUserAttendancesOnes);
 
         List<HrUserAttendance> hrUserAttendancesTwos = hrUserAttendancesAll.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_REST.getValue())).collect(Collectors.toList());
         if(hrUserAttendancesTwos.size() > 0){
-            hrUserAttendancesTwos.get(hrUserAttendancesTwos.size()-1).setAbnormalFlag(1);
+            hrUserAttendancesTwos.get(hrUserAttendancesTwos.size()-1).setAbnormalFlag(0);
         }
+        //增加异常数据
+        List<HrUserAttendance> hrUserAttendancesTwosFault = hrUserAttendanceFaultList.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_REST.getValue())).collect(Collectors.toList());
+        hrUserAttendancesTwos.addAll(hrUserAttendancesTwosFault);
         map.put("1",hrUserAttendancesTwos);
 
         List<HrUserAttendance> hrUserAttendancesThs = hrUserAttendancesAll.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue())).collect(Collectors.toList());
         if(hrUserAttendancesThs.size() > 0){
-            hrUserAttendancesThs.get(hrUserAttendancesThs.size()-1).setAbnormalFlag(1);
+            hrUserAttendancesThs.get(hrUserAttendancesThs.size()-1).setAbnormalFlag(0);
         }
+        //增加异常数据
+        List<HrUserAttendance> hrUserAttendancesThsFault = hrUserAttendanceFaultList.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue())).collect(Collectors.toList());
+        hrUserAttendancesThs.addAll(hrUserAttendancesThsFault);
         map.put("2",hrUserAttendancesThs);
 
         return map;
