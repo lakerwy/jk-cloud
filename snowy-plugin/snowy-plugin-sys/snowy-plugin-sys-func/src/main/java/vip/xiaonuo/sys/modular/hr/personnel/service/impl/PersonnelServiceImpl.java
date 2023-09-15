@@ -237,6 +237,20 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             collect.forEach(personnelFileRegister -> personnelFileRegister.setFileId(personnel.getId()));
             personnelFileRegisterService.saveBatch(collect);
         }
+
+        /** 增加一个逻辑：编辑时，若组织架构中不存在该账号，则新增 **/
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()));
+        if(ObjectUtil.isEmpty(user)){
+            SysUserAddParam sysUserAddParam = new SysUserAddParam();
+            sysUserAddParam.setAccount(personnel.getPhone());
+            sysUserAddParam.setOrgId(personnel.getDeptId());
+            sysUserAddParam.setName(personnel.getName());
+            sysUserAddParam.setPhone(personnel.getPhone());
+            sysUserAddParam.setPositionId(personnel.getDutyId());
+            sysUserAddParam.setEmpNo(personnel.getFileNo());
+            sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+            sysUserService.addAndGrantRole(sysUserAddParam);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
