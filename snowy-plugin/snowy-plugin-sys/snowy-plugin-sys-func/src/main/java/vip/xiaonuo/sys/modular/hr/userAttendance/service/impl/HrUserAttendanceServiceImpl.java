@@ -68,6 +68,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     private HrUserAttendanceRelationService hrUserAttendanceRelationService;
     @Resource
     private CommonCacheOperator commonCacheOperator;
+    private List<HrUserAttendance> hrUserAttendancesAll;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -259,16 +260,47 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     }
 
     @Override
-    public List<HrUserAttendance> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
+    public Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         hrUserAttendancePageParam.setUserId(loginUser.getId());
+        hrUserAttendancePageParam.setAbnormalFlag(1);
         if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
-            return new ArrayList<>();
+            return new HashMap<>();
         }
-        //需求还未完全明确，新增查询接口，需求确定后会增加逻辑
-        Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
+        Page<HrUserAttendance> page = page(hrUserAttendancePageParam);  /** 需求还未完全明确，新增查询接口，需求确定后会增加逻辑*/
         List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
         hrUserAttendanceList = hrUserAttendanceList.stream().sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
-        return hrUserAttendanceList;
+
+        Map<String,List<HrUserAttendance>> map = new HashMap<>();/** 获取班次逻辑，配置功能未完善，此处逻辑暂时缺损，直接取固定班次*/
+        HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue();//下班
+        HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue();// 下班
+        HrUserAttendanceEnum.ATTENDANCE_REST.getValue();// 休息
+
+        //特殊处理
+        List<HrUserAttendance> hrUserAttendancesAll = hrUserAttendanceList.stream().map(attendance -> {
+            HrUserAttendance hrUserAttendance =  BeanUtil.toBean(attendance, HrUserAttendance.class);
+            hrUserAttendance.setAbnormalFlag(-1);
+            return hrUserAttendance;
+        }).collect(Collectors.toList());
+
+        List<HrUserAttendance> hrUserAttendancesOnes = hrUserAttendancesAll.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue())).collect(Collectors.toList());
+        if(hrUserAttendancesOnes.size() > 0){
+            hrUserAttendancesOnes.get(0).setAbnormalFlag(1);
+        }
+        map.put("0",hrUserAttendancesOnes);
+
+        List<HrUserAttendance> hrUserAttendancesTwos = hrUserAttendancesAll.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_REST.getValue())).collect(Collectors.toList());
+        if(hrUserAttendancesTwos.size() > 0){
+            hrUserAttendancesTwos.get(hrUserAttendancesTwos.size()-1).setAbnormalFlag(1);
+        }
+        map.put("1",hrUserAttendancesTwos);
+
+        List<HrUserAttendance> hrUserAttendancesThs = hrUserAttendancesAll.stream().filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue())).collect(Collectors.toList());
+        if(hrUserAttendancesThs.size() > 0){
+            hrUserAttendancesThs.get(hrUserAttendancesThs.size()-1).setAbnormalFlag(1);
+        }
+        map.put("2",hrUserAttendancesThs);
+
+        return map;
     }
 }
