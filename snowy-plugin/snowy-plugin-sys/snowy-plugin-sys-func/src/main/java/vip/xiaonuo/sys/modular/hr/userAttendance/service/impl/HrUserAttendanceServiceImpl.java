@@ -228,15 +228,16 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     }
 
     @Override
-    public List<UserAttendanceCountEntity> attendanceMonthCount(){
+    public List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam) {
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        HrUserAttendancePageParam hrUserAttendancePageParam = new HrUserAttendancePageParam();
+
+        if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
+            return new ArrayList<>();
+        }
+        /** 获取当月有效工作日时间列表 */
         Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
         List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
-        Date dateNow = DateUtil.date();
-        List<Date> monthList = CommonTimeFormatUtil.getMonthFirstAndEndDay(dateNow);
-        /** 获取当月有效工作日时间列表 */
-        List<String> montyDayList = CommonTimeFormatUtil.getPerStrDayList(monthList.get(0),dateNow);
+        List<String> montyDayList = CommonTimeFormatUtil.getPerStrDayList(CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getStartTime()),CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getEndTime()));
 
         //需求还未完全明确，这地方逻辑暂时用for简单解决，需求完全明确后，再修改完善
         List<UserAttendanceCountEntity> userAttendanceCountEntities = new ArrayList<>();
@@ -272,9 +273,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         hrUserAttendanceList = hrUserAttendanceList.stream().sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
 
         Map<String,List<HrUserAttendance>> map = new HashMap<>();/** 获取班次逻辑，配置功能未完善，此处逻辑暂时缺损，直接取固定班次*/
-        HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue();//下班
-        HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue();// 下班
-        HrUserAttendanceEnum.ATTENDANCE_REST.getValue();// 休息
 
         //特殊处理
         List<HrUserAttendance> hrUserAttendancesAll = hrUserAttendanceList.stream().map(attendance -> {

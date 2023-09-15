@@ -108,7 +108,7 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * @author ljy
      * @date  2023/09/07 14:24
      */
-    List<UserAttendanceCountEntity> attendanceMonthCount();
+    List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam);
 
     /**
      * 用戶每天打卡详情

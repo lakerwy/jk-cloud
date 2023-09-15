@@ -159,8 +159,8 @@ public class HrUserAttendanceController {
     @CommonLog("用戶打卡月统计接口")
     //@SaCheckPermission("/sys/userAttendance/attendancemonthcount")
     @GetMapping("/sys/userAttendance/attendancemonthcount")
-    public CommonResult<List<UserAttendanceCountEntity>> attendanceMonthCount() {
-        return CommonResult.data(hrUserAttendanceService.attendanceMonthCount());
+    public CommonResult<List<UserAttendanceCountEntity>> attendanceMonthCount(@Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
+        return CommonResult.data(hrUserAttendanceService.attendanceMonthCount(hrUserAttendancePageParam));
     }
 
     /**
@@ -174,7 +174,7 @@ public class HrUserAttendanceController {
     @CommonLog("用戶每天打卡详情数据")
     //@SaCheckPermission("/sys/userAttendance/attendancedayinfo")
     @GetMapping("/sys/userAttendance/attendancedayinfo")
-    public CommonResult<Map<String,List<HrUserAttendance>>> attendanceDayInfo(@RequestBody @Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
+    public CommonResult<Map<String,List<HrUserAttendance>>> attendanceDayInfo(@Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
         return CommonResult.data(hrUserAttendanceService.attendanceDayInfo(hrUserAttendancePageParam));
     }
 }
