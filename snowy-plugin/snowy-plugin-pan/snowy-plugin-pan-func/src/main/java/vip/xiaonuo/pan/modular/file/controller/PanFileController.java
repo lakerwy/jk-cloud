@@ -15,6 +15,7 @@ package vip.xiaonuo.pan.modular.file.controller;
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
@@ -23,12 +24,15 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
@@ -36,6 +40,11 @@ import vip.xiaonuo.pan.modular.file.service.impl.FileTransferService;
 import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanFileStorage;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Type;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Action;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.FileModel;
+import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.FileConfigurer;
+import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers.DefaultFileWrapper;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.Range;
@@ -59,6 +68,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.stream.Collectors;
 
 /**
@@ -87,6 +97,18 @@ public class PanFileController {
 
     @Resource
     FileFactory fileFactory;
+
+    @Resource
+    private CommonProperties commonProperties;
+
+    @Resource
+    private FileConfigurer<DefaultFileWrapper> fileConfigurer;
+
+    @Value("${files.docservice.url.site}")
+    private String docServiceSite;
+
+    @Value("${files.docservice.url.api}")
+    private String docServiceApiUrl;
 
 
     /**
@@ -281,5 +303,75 @@ public class PanFileController {
         PanFileStorage panFileStorage = panFileStorageService.getOne(new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, StpLoginUserUtil.getLoginUser().getId()));
         panFileStorage.setStorageSize(storageSize);
         return CommonResult.data(panFileStorage);
+    }
+
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("预览office文件")
+    @GetMapping(value = "/pan/file/previewOfficeFile")
+    public CommonResult<JSONObject> previewOfficeFile(HttpServletRequest request, PreviewOfficeFileParam previewOfficeFileParam) {
+        CommonResult<JSONObject> result;
+        try {
+            String previewUrl = commonProperties.getBackendUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
+            UserFile userFile = userFileService.getById(previewOfficeFileParam.getUserFileId());
+
+            Action action = Action.view;
+            Type type = Type.desktop;
+            Locale locale = new Locale("zh");
+            FileModel fileModel = fileConfigurer.getFileModel(
+                    DefaultFileWrapper
+                            .builder()
+                            .userFile(userFile)
+                            .type(type)
+                            .lang(locale.toLanguageTag())
+                            .action(action)
+//                            .user(user)
+                            .actionData(previewUrl)
+                            .build()
+            );
+
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("file",fileModel);
+//            jsonObject.put("fileHistory", historyManager.getHistory(fileModel.getDocument()));  // get file history and add it to the model
+            jsonObject.put("docServiceApiUrl", docServiceSite + docServiceApiUrl);
+            jsonObject.put("reportName",userFile.getFileName());
+            result = CommonResult.data(jsonObject);
+        } catch (Exception e) {
+            result = CommonResult.error(e.getMessage());
+        }
+        return result;
+    }
+
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("编辑office文件")
+    @PostMapping(value = "/pan/file/editOfficeFile")
+    public CommonResult<JSONObject> editOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
+        CommonResult<JSONObject> result;
+        String previewUrl = commonProperties.getBackendUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
+        try {
+            UserFile userFile = userFileService.getById(previewOfficeFileParam.getUserFileId());
+
+            Action action = Action.edit;
+            Type type = Type.desktop;
+            Locale locale = new Locale("zh");
+            FileModel fileModel = fileConfigurer.getFileModel(
+                    DefaultFileWrapper
+                            .builder()
+                            .userFile(userFile)
+                            .type(type)
+                            .lang(locale.toLanguageTag())
+                            .action(action)
+//                            .user(user)
+                            .actionData(previewUrl)
+                            .build()
+            );
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("file",fileModel);
+            jsonObject.put("docServiceApiUrl", docServiceSite + docServiceApiUrl);
+            jsonObject.put("reportName",userFile.getFileName());
+            result = CommonResult.data(jsonObject);
+        } catch (Exception e) {
+            result = CommonResult.error();
+        }
+        return result;
     }
 }
