@@ -260,19 +260,6 @@ public class UserFileController {
 
 
     //***********************************文件操作**************************************************//
-    /**
-     * 动态上传文件返回id
-     *
-     * @author mayike
-     * @date 2023/09/08
-     **/
-    @ApiOperationSupport(order = 12)
-    @ApiOperation("动态上传文件返回文件信息")
-    @CommonLog("动态上传文件返回文件信息")
-//    @PostMapping("/pan/file/uploadDynamicReturnBean")
-    public CommonResult<List<DevFile>> uploadDynamicReturnId(@RequestPart("file") MultipartFile[] file, @RequestParam(value = "parentId",required = false) String parentId) {
-        return CommonResult.data(userFileService.uploadReturnBean(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY), file, parentId));
-    }
 
     /**
      * 所有群组文件夹列表
