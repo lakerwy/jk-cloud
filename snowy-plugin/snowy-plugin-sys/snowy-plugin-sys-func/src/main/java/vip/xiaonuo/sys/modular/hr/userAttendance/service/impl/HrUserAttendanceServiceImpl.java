@@ -111,8 +111,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     public String attendance(HrUserAttendanceAddParam hrUserAttendanceAddParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         hrUserAttendanceAddParam.setUserId(loginUser.getId());
-        //Date dateNow =DateUtil.date();/** 当前打卡时间*/
-        Date dateNow = hrUserAttendanceAddParam.getCheckTime();
+        Date dateNow =DateUtil.date();/** 当前打卡时间*/
         if(ObjectUtil.isEmpty(hrUserAttendanceAddParam.getCheckTime())){
             hrUserAttendanceAddParam.setCheckTime(dateNow);
         }
@@ -239,8 +238,17 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
         List<String> montyDayList = CommonTimeFormatUtil.getPerStrDayList(CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getStartTime()),CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getEndTime()));
 
-        //需求还未完全明确，这地方逻辑暂时用for简单解决，需求完全明确后，再修改完善
-        List<UserAttendanceCountEntity> userAttendanceCountEntities = new ArrayList<>();
+
+
+        /**  list循环一次，获取-1  循环二次获取 1*/
+        /*Map<String,UserAttendanceCountEntity> map = new HashMap<>();
+        for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
+            String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT);
+            UserAttendanceCountEntity
+        }*/
+
+
+        List<UserAttendanceCountEntity> userAttendanceCountEntities = new ArrayList<>(); /** 需求还未完全明确，这地方逻辑暂时用for简单解决，需求完全明确后，再修改完善*/
         for(String day : montyDayList){
             UserAttendanceCountEntity userAttendanceCountEntity = new UserAttendanceCountEntity();
             userAttendanceCountEntity.setDayDate(day);
