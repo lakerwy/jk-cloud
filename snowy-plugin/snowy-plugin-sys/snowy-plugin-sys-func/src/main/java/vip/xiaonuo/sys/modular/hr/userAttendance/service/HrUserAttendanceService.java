@@ -116,5 +116,5 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * @author ljy
      * @date  2023/09/07 14:24
      */
-    Map<String,List<UserAttendanceDayInfoEntity>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam);
+    List<HrUserAttendance> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam);
 }

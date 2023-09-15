@@ -85,6 +85,9 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         if(ObjectUtil.isNotEmpty(hrUserAttendancePageParam.getCheckType())) {
             queryWrapper.lambda().eq(HrUserAttendance::getCheckType, hrUserAttendancePageParam.getCheckType());
         }
+        if(ObjectUtil.isNotEmpty(hrUserAttendancePageParam.getAbnormalFlag())) {
+            queryWrapper.lambda().eq(HrUserAttendance::getAbnormalFlag, hrUserAttendancePageParam.getAbnormalFlag());
+        }
         if(ObjectUtil.isAllNotEmpty(hrUserAttendancePageParam.getSortField(), hrUserAttendancePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hrUserAttendancePageParam.getSortOrder());
             queryWrapper.orderBy(true, hrUserAttendancePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -107,7 +110,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     public String attendance(HrUserAttendanceAddParam hrUserAttendanceAddParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         hrUserAttendanceAddParam.setUserId(loginUser.getId());
-        Date dateNow =DateUtil.date();/** 当前打卡时间*/
+        //Date dateNow =DateUtil.date();/** 当前打卡时间*/
+        Date dateNow = hrUserAttendanceAddParam.getCheckTime();
         if(ObjectUtil.isEmpty(hrUserAttendanceAddParam.getCheckTime())){
             hrUserAttendanceAddParam.setCheckTime(dateNow);
         }
@@ -125,6 +129,22 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                 return HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
             }
         }
+        //判断迟到早退
+        attendanceTimeSlotList = attendanceTimeSlotList.stream().filter(solt ->
+                solt.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()) || solt.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue())).collect(Collectors.toList());
+
+        Long  minSecond = 0l;
+        String dutyType = "";
+        for(AttendanceTimeSlot attendanceTimeSlot : attendanceTimeSlotList){
+            Long second = CommonTimeFormatUtil.twoTimeDiffSecond(dateNow,attendanceTimeSlot.getCompareTime());
+            if(minSecond == 0l){
+                minSecond = second;
+                dutyType = attendanceTimeSlot.getDutyType();
+            }
+            dutyType = second < minSecond ? attendanceTimeSlot.getDutyType() : dutyType;
+            minSecond = minSecond < second ? minSecond :second;
+        }
+        hrUserAttendance.setCheckType(dutyType);
         hrUserAttendance.setAbnormalFlag(-1); /** 打卡异常*/
         this.save(hrUserAttendance);
         return HrUserAttendanceEnum.ATTENDANCE_ABNORMAL.getValue();
@@ -133,12 +153,14 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);
         List<HrUserAttendanceConfig> configList = pageList.getRecords();
         List<AttendanceTimeSlot>  attendanceTimeSlotList = new ArrayList<>();
+        configList = configList.stream().sorted(Comparator.comparing(HrUserAttendanceConfig::getOrderNumber)).collect(Collectors.toList());
         for(HrUserAttendanceConfig attendanceConfig : configList){
             AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
             attendanceTimeSlot.setDutyType(attendanceConfig.getDutyType());
             Date time = CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,DATE_FORMAT),attendanceConfig.getCheckTime());
             attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(attendanceConfig.getBeginMinTime()),2));
             attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(attendanceConfig.getEndMinTime()),1));
+            attendanceTimeSlot.setCompareTime(time);
             attendanceTimeSlotList.add(attendanceTimeSlot);
         }
         return attendanceTimeSlotList;
@@ -224,12 +246,12 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
                 if(ObjectUtil.isNotEmpty(hrUserAttendance.getCheckTime()) && CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT).equals(day) &&
                         ObjectUtil.isNotEmpty(hrUserAttendance) && hrUserAttendance.getAbnormalFlag() == -1){
-                    userAttendanceCountEntity.setDayAttendanceStatus("-1");
+                    userAttendanceCountEntity.setDayAttendanceStatus("1");
                     break;
                 }
             }
             if(StringUtils.isEmpty(userAttendanceCountEntity.getDayAttendanceStatus())){
-                userAttendanceCountEntity.setDayAttendanceStatus("1");
+                userAttendanceCountEntity.setDayAttendanceStatus("0");
             }
             userAttendanceCountEntities.add(userAttendanceCountEntity);
         }
@@ -237,27 +259,16 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     }
 
     @Override
-    public Map<String,List<UserAttendanceDayInfoEntity>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
+    public List<HrUserAttendance> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-
-        //需求还未完全明确，这地方逻辑暂时这么处理，需求明确后再修改
-        HrUserAttendancePageParam hrUserAttendancePageParamNew = new HrUserAttendancePageParam();
-        hrUserAttendancePageParamNew.setUserId(loginUser.getId());
-        hrUserAttendancePageParamNew.setStartTime(hrUserAttendancePageParam.getCheckTime() + " 00:00:00");
-        hrUserAttendancePageParamNew.setEndTime(hrUserAttendancePageParam.getCheckTime() + " 23:59:59");
-        List<UserAttendanceDayInfoEntity> userAttendanceDayInfoEntityList = new ArrayList<>();
-        Page<HrUserAttendance> page = page(hrUserAttendancePageParamNew);
-        List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
-        /**  上班，休息，下班 */
-        for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
-            UserAttendanceDayInfoEntity userAttendanceDayInfoEntity = BeanUtil.toBean(hrUserAttendance, UserAttendanceDayInfoEntity.class);
-            userAttendanceDayInfoEntityList.add(userAttendanceDayInfoEntity);
+        hrUserAttendancePageParam.setUserId(loginUser.getId());
+        if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
+            return new ArrayList<>();
         }
-        Map<String,List<UserAttendanceDayInfoEntity>> map = new HashMap<>();
-        map.put("OnDuty",userAttendanceDayInfoEntityList);
-        map.put("OffDuty",userAttendanceDayInfoEntityList);
-        map.put("REST",userAttendanceDayInfoEntityList);
-
-        return map;
+        //需求还未完全明确，新增查询接口，需求确定后会增加逻辑
+        Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
+        List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
+        hrUserAttendanceList = hrUserAttendanceList.stream().sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
+        return hrUserAttendanceList;
     }
 }

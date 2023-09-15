@@ -9,6 +9,7 @@ public class AttendanceTimeSlot implements Serializable {
     private String dutyType;
     private Date beginTime;
     private Date endTime;
+    private Date compareTime;
 
     public Date getBeginTime() {
         return beginTime;
@@ -32,5 +33,13 @@ public class AttendanceTimeSlot implements Serializable {
 
     public void setDutyType(String dutyType) {
         this.dutyType = dutyType;
+    }
+
+    public Date getCompareTime() {
+        return compareTime;
+    }
+
+    public void setCompareTime(Date compareTime) {
+        this.compareTime = compareTime;
     }
 }

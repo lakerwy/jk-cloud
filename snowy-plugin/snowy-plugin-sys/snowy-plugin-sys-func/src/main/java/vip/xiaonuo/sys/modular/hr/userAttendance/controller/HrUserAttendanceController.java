@@ -39,7 +39,6 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 打卡记录表控制器
@@ -158,7 +157,7 @@ public class HrUserAttendanceController {
     @ApiOperation("用戶打卡月统计接口")
     @CommonLog("用戶打卡月统计接口")
     //@SaCheckPermission("/sys/userAttendance/attendancemonthcount")
-    @PostMapping("/sys/userAttendance/attendancemonthcount")
+    @GetMapping("/sys/userAttendance/attendancemonthcount")
     public CommonResult<List<UserAttendanceCountEntity>> attendanceMonthCount() {
         return CommonResult.data(hrUserAttendanceService.attendanceMonthCount());
     }
@@ -173,8 +172,8 @@ public class HrUserAttendanceController {
     @ApiOperation("用戶每天打卡详情数据")
     @CommonLog("用戶每天打卡详情数据")
     //@SaCheckPermission("/sys/userAttendance/attendancedayinfo")
-    @PostMapping("/sys/userAttendance/attendancedayinfo")
-    public CommonResult<Map<String,List<UserAttendanceDayInfoEntity>>> attendanceDayInfo(@RequestBody @Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
+    @GetMapping("/sys/userAttendance/attendancedayinfo")
+    public CommonResult<List<HrUserAttendance>> attendanceDayInfo(@RequestBody @Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
         return CommonResult.data(hrUserAttendanceService.attendanceDayInfo(hrUserAttendancePageParam));
     }
 }
