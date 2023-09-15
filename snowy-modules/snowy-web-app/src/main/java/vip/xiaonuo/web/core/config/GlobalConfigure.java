@@ -195,7 +195,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/sys/menu/**",
             "/sys/module/**",
             "/sys/spa/**",
-            "/sys/role/**",
+//            "/sys/role/**",      //便于用户选择组件应用
             /*
             *权限拆分 不在用通配符区分  /sys/user/**
             */

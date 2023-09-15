@@ -69,7 +69,7 @@ public class Bidopen {
 
     /** 中标金额（万元）（历史表BidOpen.BidPrice） */
     @ApiModelProperty(value = "中标金额（万元）（历史表BidOpen.BidPrice）", position = 10)
-    private BigDecimal bidPrice;
+    private String bidPrice;
 
     /** 中标通知书（历史表BidOpen.Attachments） */
     @ApiModelProperty(value = "中标通知书（历史表BidOpen.Attachments）", position = 11)
