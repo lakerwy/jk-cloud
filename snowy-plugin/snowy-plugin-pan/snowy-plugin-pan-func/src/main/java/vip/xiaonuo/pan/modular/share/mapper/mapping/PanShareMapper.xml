@@ -7,7 +7,7 @@
                a.SHARE_BATCH_NUM as shareBatchNum,a.SHARE_TYPE as shareType,a.SHARE_STATUS as shareStatus,
                b.ID as shareFileId,b.USER_FILE_ID as userFileId,b.SHARE_FILE_PATH as shareFilePath,
                c.PARENT_ID as parentId,c.FILE_NAME as fileName,c.FILE_PATH as filePath,c.IS_DIR as isDir,c.FILE_ID as fileId,
-               c.ROOT_DIR as rootDir,c.RIGHT as right,c.ORG_ID as orgId,c.DATA_SCOPE_ID as dataScopeId,c.LOCK_FLAG as lockFlag,
+               c.ROOT_DIR as rootDir,c.`RIGHT` as `right`,c.ORG_ID as orgId,c.DATA_SCOPE_ID as dataScopeId,c.LOCK_FLAG as lockFlag,
                c.FOLD_TYPE as foldType,c.EXTEND_NAME as extendName,
                d.FILE_SIZE as fileSize,d.SUFFIX as suffix,d.FILE_STATUS as fileStatus,d.FILE_URL as fileUrl,d.IDENTIFIER as identifier,
                d.STORAGE_TYPE as storageType,d.EXT_JSON as extJson
@@ -23,7 +23,7 @@
                a.SHARE_BATCH_NUM as shareBatchNum,a.SHARE_TYPE as shareType,a.SHARE_STATUS as shareStatus,
                b.ID as shareFileId,b.USER_FILE_ID as userFileId,b.SHARE_FILE_PATH as shareFilePath,
                c.PARENT_ID as parentId,c.FILE_NAME as fileName,c.FILE_PATH as filePath,c.IS_DIR as isDir,c.FILE_ID as fileId,
-               c.ROOT_DIR as rootDir,c.RIGHT as right,c.ORG_ID as orgId,c.DATA_SCOPE_ID as dataScopeId,c.LOCK_FLAG as lockFlag,
+               c.ROOT_DIR as rootDir,c.`RIGHT` as `right`,c.ORG_ID as orgId,c.DATA_SCOPE_ID as dataScopeId,c.LOCK_FLAG as lockFlag,
                c.FOLD_TYPE as foldType,c.EXTEND_NAME as extendName,
                d.FILE_SIZE as fileSize,d.SUFFIX as suffix,d.FILE_STATUS as fileStatus,d.FILE_URL as fileUrl,d.IDENTIFIER as identifier,
                d.STORAGE_TYPE as storageType,d.EXT_JSON as extJson
