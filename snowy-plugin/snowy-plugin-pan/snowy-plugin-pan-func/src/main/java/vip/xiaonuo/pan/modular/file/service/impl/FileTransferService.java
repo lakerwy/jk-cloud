@@ -225,7 +225,7 @@ public class FileTransferService implements IFileTransferService {
                 if(StrUtil.isNotEmpty(parentId)){
                     userFile.setParentId(parentId);
                 }
-
+                userFile.setFileSize(uploadFileParam.getTotalSize());
                 try {
                     userFileService.save(userFile);
                     //fileDealComp.uploadESByUserFileId(userFile.getUserFileId());
@@ -408,7 +408,7 @@ public class FileTransferService implements IFileTransferService {
         try {
             Downloader downloader = fileFactory.getDownloader(StorageTypeEnum.LOCAL.getCode());
             DownloadFile downloadFile = new DownloadFile();
-            downloadFile.setFileUrl("temp" + File.separator + fileName + ".zip");
+            downloadFile.setFileUrl(FileCenterUtil.getStaticPath()+"temp" + File.separator + fileName + ".zip");
             File tempFile = new File(FileCenterUtil.getStaticPath() + downloadFile.getFileUrl());
             httpServletResponse.setContentLengthLong(tempFile.length());
             downloader.download(httpServletResponse, downloadFile);

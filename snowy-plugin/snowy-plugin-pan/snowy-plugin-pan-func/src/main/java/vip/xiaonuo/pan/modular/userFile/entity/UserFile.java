@@ -123,7 +123,6 @@ public class UserFile {
 
     /** 文件大小 */
     @ApiModelProperty(value = "文件大小", position = 18)
-    @TableField(exist = false)
     private Long fileSize;
 
 

@@ -23,7 +23,7 @@ import java.util.Date;
  * 文件操作帮助类
  */
 public class FileCenterUtil {
-    public static String LOCAL_STORAGE_PATH ;
+//    public static String LOCAL_STORAGE_PATH ;
     public static String ROOT_PATH ;
     public static final String[] IMG_FILE = {"bmp", "jpg", "png", "tif", "gif", "jpeg"};
     public static final String[] DOC_FILE = {"doc", "docx", "ppt", "pptx", "xls", "xlsx", "txt", "hlp", "wps", "rtf", "html", "pdf"};
@@ -41,6 +41,15 @@ public class FileCenterUtil {
     private static void  init(){
         JSONObject client = DevFileLocalUtil.getOOSClient();
         ROOT_PATH = client.getStr("localFileUploadFolder");
+    }
+
+    public static String getRootPath(){
+        //StrUtil.isNotEmpty(ROOT_PATH) 不能判断 null ?
+        if(StrUtil.isEmpty(ROOT_PATH)){
+            init();
+            return ROOT_PATH;
+        }
+        return ROOT_PATH;
     }
 
 
@@ -128,9 +137,10 @@ public class FileCenterUtil {
     }
 
     public static String getStaticPath() {
-        String localStoragePath = LOCAL_STORAGE_PATH;
+        String localStoragePath = getRootPath();
+
         if (StringUtils.isNotEmpty(localStoragePath)) {
-            return new File(localStoragePath).getPath() + File.separator;
+            return new File(localStoragePath).getPath() + FileUtil.FILE_SEPARATOR;
         }else {
             String projectRootAbsolutePath = getProjectRootPath();
 
@@ -139,7 +149,7 @@ public class FileCenterUtil {
                 projectRootAbsolutePath = projectRootAbsolutePath.substring(0, index);
             }
 
-            return new File(projectRootAbsolutePath + "static").getPath() + File.separator;
+            return new File(projectRootAbsolutePath + "static").getPath() + FileUtil.FILE_SEPARATOR;
         }
 
 
@@ -188,9 +198,9 @@ public class FileCenterUtil {
      * @return 返回上传文件路径
      */
     public static String getUploadFileUrl(String identifier, String extendName) {
-        init();
+//        init();
         SimpleDateFormat formater = new SimpleDateFormat("yyyyMMdd");
-        String path = ROOT_PATH + "/" + formater.format(new Date()) + "/";
+        String path = getStaticPath() + formater.format(new Date()) + FileUtil.FILE_SEPARATOR;
 
         File dir = new File(path);
 
