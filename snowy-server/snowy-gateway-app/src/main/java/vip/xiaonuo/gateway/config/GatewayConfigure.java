@@ -178,7 +178,7 @@ public class GatewayConfigure {
             "/api/webapp/sys/menu/**",
             "/api/webapp/sys/module/**",
             "/api/webapp/sys/spa/**",
-            "/api/webapp/sys/role/**",
+//            "/api/webapp/sys/role/**",   //便于用户选择组件应用
             /*
              *权限拆分 不在用通配符区分
             */
