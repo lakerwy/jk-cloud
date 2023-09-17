@@ -14,7 +14,6 @@ package vip.xiaonuo.pan.modular.file.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -23,13 +22,15 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.mapper.PanFileMapper;
-import vip.xiaonuo.pan.modular.file.param.*;
+import vip.xiaonuo.pan.modular.file.param.PanFileAddParam;
+import vip.xiaonuo.pan.modular.file.param.PanFileEditParam;
+import vip.xiaonuo.pan.modular.file.param.PanFileIdParam;
+import vip.xiaonuo.pan.modular.file.param.PanFilePageParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.component.AsyncTaskComp;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
@@ -38,7 +39,6 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
 import vip.xiaonuo.pan.modular.fileCenter.param.UnzipFileParam;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
-import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
@@ -48,9 +48,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -178,5 +176,22 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
         for (String entryName : fileEntryNameList) {
             asyncTaskComp.saveUnzipFile(userFile, panFile, unzipFileParam.getUnzipMode(), entryName, unzipFileParam.getFilePath());
         }
+    }
+
+    @Override
+    public void updateFileDetail(String userFileId, String identifier, long fileSize) {
+        UserFile userFile = userFileService.getById(userFileId);
+        //String currentTime = DateUtil.getCurrentTime();
+        PanFile fileBean = new PanFile();
+        fileBean.setIdentifier(identifier);
+        fileBean.setFileSize(fileSize);
+//        fileBean.setModifyTime(currentTime);
+//        fileBean.setModifyUserId(SessionUtil.getUserId());
+        fileBean.setId(userFile.getFileId());
+        updateById(fileBean);
+//        userFile.setUploadTime(currentTime);
+//        userFile.setModifyTime(currentTime);
+//        userFile.setModifyUserId(SessionUtil.getUserId());
+        userFileService.updateById(userFile);
     }
 }

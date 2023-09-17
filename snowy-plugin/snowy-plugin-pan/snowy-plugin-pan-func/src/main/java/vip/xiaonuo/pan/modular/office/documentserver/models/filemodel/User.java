@@ -18,11 +18,11 @@
 
 package vip.xiaonuo.pan.modular.office.documentserver.models.filemodel;
 
-import vip.xiaonuo.pan.modular.office.documentserver.models.AbstractModel;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
+import vip.xiaonuo.pan.modular.office.documentserver.models.AbstractModel;
 
 @Component
 @Scope("prototype")
