@@ -10,7 +10,7 @@
                d.FILE_SIZE as fileSize,d.SUFFIX as suffix,d.FILE_STATUS as fileStatus,d.FILE_URL as fileUrl,d.IDENTIFIER as identifier,
                d.STORAGE_TYPE as storageType,d.EXT_JSON as extJson
         from PAN_RECOVERY_FILE a
-            left join PAN_USER_FILE c on a.USER_FILE_ID = c.ID and c.DELETE_FLAG = 'NOT_DELETE'
+            left join PAN_USER_FILE c on a.USER_FILE_ID = c.ID
             left join PAN_FILE d on c.FILE_ID = d.ID and d.DELETE_FLAG = 'NOT_DELETE'
             ${ew.customSqlSegment}
     </select>
