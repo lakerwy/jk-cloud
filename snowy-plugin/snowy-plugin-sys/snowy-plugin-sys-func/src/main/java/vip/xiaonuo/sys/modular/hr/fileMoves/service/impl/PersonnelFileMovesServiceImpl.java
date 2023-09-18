@@ -43,8 +43,12 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.fileMoves.vo.PersonnelFileMovesVo;
+import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
+import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -65,6 +69,12 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
     @Resource
     private SysPositionService sysPositionService;
 
+    @Resource
+    private PersonnelService personnelService;
+
+    @Resource
+    private SysUserService sysUserService;
+
     @Override
     public Page<PersonnelFileMoves> page(PersonnelFileMovesPageParam personnelFileMovesPageParam) {
         QueryWrapper<PersonnelFileMoves> queryWrapper = new QueryWrapper<>();
@@ -83,6 +93,17 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
     public void add(PersonnelFileMovesAddParam personnelFileMovesAddParam) {
         PersonnelFileMoves personnelFileMoves = BeanUtil.toBean(personnelFileMovesAddParam, PersonnelFileMoves.class);
         String processInstanceId = personnelFileMovesAddParam.getProcessInstanceId();
+
+        /** 职位处理 提前 **/
+        SysPositionAddParam positionAddParam = new SysPositionAddParam();
+        positionAddParam.setName(personnelFileMovesAddParam.getNowDuty());
+        positionAddParam.setOrgId(personnelFileMovesAddParam.getNowDeptId());
+        positionAddParam.setCategory("LOW");
+        positionAddParam.setSortCode(99);
+        String dutyId = sysPositionService.newAdd(positionAddParam).getId();
+        personnelFileMoves.setNowDutyId(dutyId);
+
+        /** 走审批流程 **/
         if(ObjectUtil.isNotEmpty(processInstanceId)){
             String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
             String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
@@ -96,19 +117,49 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
             formRelationTableApi.save(modelId, BizCommonEnum.PERSONNEL_FILE_MOVES.getBizTable(),id,processInstanceId,dbName);
-        }
-        personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
-        personnelFileMoves.setApplyTime(DateUtil.date());
-        personnelFileMoves.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
 
-        SysPositionAddParam positionAddParam = new SysPositionAddParam();
-        positionAddParam.setName(personnelFileMovesAddParam.getNowDuty());
-        positionAddParam.setOrgId(personnelFileMovesAddParam.getNowDeptId());
-        positionAddParam.setCategory("LOW");
-        positionAddParam.setSortCode(99);
-        String dutyId = sysPositionService.newAdd(positionAddParam).getId();
-        personnelFileMoves.setNowDutyId(dutyId);
-        this.save(personnelFileMoves);
+            /** 逻辑整理 **/
+            personnelFileMoves.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            this.save(personnelFileMoves);
+        }
+        /** 不走审批流程 **/
+        else {
+            personnelFileMoves.setApplyUser(StpLoginUserUtil.getLoginUser().getName());
+            personnelFileMoves.setApplyTime(DateUtil.date());
+            personnelFileMoves.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+            //保存异动信息
+            this.save(personnelFileMoves);
+            /**
+             * 逻辑处理：1. 转正 ，总部人员 用工性质 改为 “正式”
+             *         2. 调岗 ，总部人员 所属部门 改为 “新部门” 组织架构更新所属部门、所在职位
+             *         3. 离职 ，总部人员 在职状态 改为 “离职” 组织架构删除该用户
+             * **/
+            Personnel personnel = personnelService.getById(personnelFileMoves.getFileId());
+            if("0".equals(personnelFileMoves.getMoveType())){
+                //转正
+                personnel.setEmployNature("正式");
+                personnelService.updateById(personnel);
+            }else if("1".equals(personnelFileMoves.getMoveType())){
+                //调岗
+                personnel.setDeptId(personnelFileMoves.getNowDeptId());
+                personnel.setDutyId(personnelFileMoves.getNowDutyId());
+                personnelService.updateById(personnel);
+                if(StrUtil.isNotEmpty(personnel.getPhone())){
+                    SysUser sysUser = sysUserService.getOne(new QueryWrapper<SysUser>().lambda().eq(SysUser::getAccount,personnel.getPhone()));
+                    sysUser.setOrgId(personnelFileMoves.getNowDeptId());
+                    sysUser.setPositionId(personnelFileMoves.getNowDutyId());
+                    sysUserService.updateById(sysUser);
+                }
+            }else if("2".equals(personnelFileMoves.getMoveType())){
+                //离职
+                personnel.setEmployNature("离职");
+                personnelService.updateById(personnel);
+                if(StrUtil.isNotEmpty(personnel.getPhone())){
+                    SysUser sysUser = sysUserService.getOne(new QueryWrapper<SysUser>().lambda().eq(SysUser::getAccount,personnel.getPhone()));
+                    sysUserService.removeById(sysUser);
+                }
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
