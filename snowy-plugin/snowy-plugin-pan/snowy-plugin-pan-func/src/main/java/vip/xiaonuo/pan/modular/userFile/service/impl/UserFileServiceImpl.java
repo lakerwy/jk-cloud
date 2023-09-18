@@ -34,7 +34,6 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
-import vip.xiaonuo.pan.core.ExceptionEnum;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
@@ -731,5 +730,13 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     @Override
     public void updateDelete(String deleteBatchNum,String userId,List<String> userFileIds){
         userFileMapper.updateDelete(deleteBatchNum,userId,userFileIds);
+    }
+
+    @Override
+    public Long getFilePointCount(String fileId) {
+        LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.eq(UserFile::getFileId, fileId);
+        long count = userFileMapper.selectCount(lambdaQueryWrapper);
+        return count;
     }
 }

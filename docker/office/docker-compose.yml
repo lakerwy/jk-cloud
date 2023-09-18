@@ -1,0 +1,20 @@
+version: '3'
+services:
+  onlyoffice-document-server:
+    image: onlyoffice/documentserver
+    ports:
+      - 9998:80
+    environment:
+      - JWT_ENABLED=true
+    volumes:
+      - ./app/onlyoffice/DocumentServer/data:/var/www/onlyoffice/Data
+      - ./app/onlyoffice/DocumentServer/logs:/var/log/onlyoffice
+    restart: always
+
+#  onlyoffice-control-panel:
+#    image: onlyoffice/control-panel
+#    ports:
+#      - 9997:80
+#    environment:
+#      - DOCUMENT_SERVER_PORT_80_TCP_ADDR=onlyoffice-document-server
+#    restart: always

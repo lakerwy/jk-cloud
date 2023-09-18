@@ -162,7 +162,9 @@ public class GatewayConfigure {
             "/api/bizapp/biz/recruit/resume/registerDetail",
 
             "/api/webapp/dev/deployConf/getInfo",
-            "/api/webapp/pan/file/fileUpload"
+            "/api/webapp/pan/file/fileUpload",
+            "/api/webapp/pan/file/preview",
+            "/api/webapp/pan/file/previewOfficeFile"
 
     };
 

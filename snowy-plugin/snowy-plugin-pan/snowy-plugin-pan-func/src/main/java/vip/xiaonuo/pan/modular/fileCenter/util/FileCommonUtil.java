@@ -13,6 +13,7 @@ public class FileCommonUtil {
         userFile.setFilePath(CommonFile.formatPath(filePath));
         userFile.setExtendName(null);
         userFile.setIsDir(1);
+        userFile.setFileSize(0L);
         //userFile.setDeleteBatchNum(null);
         return userFile;
     }

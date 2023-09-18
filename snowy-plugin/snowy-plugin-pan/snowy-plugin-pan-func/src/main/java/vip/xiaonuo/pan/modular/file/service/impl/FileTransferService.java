@@ -132,6 +132,7 @@ public class FileTransferService implements IFileTransferService {
             PanFile file = list.get(0);
             UserFile userFile = new UserFile(commonFile, StpLoginUserUtil.getLoginUser().getId(), file.getId());
             userFile.setParentId(uploadFileParam.getParentId());
+            userFile.setFileSize(file.getFileSize());
             userFileService.save(userFile);
 
             if (relativePath.contains("/")) {

@@ -90,18 +90,21 @@ public class FileCenterUtil {
     }
 
     public static File getLocalSaveFile(String fileUrl) {
-        String uploadFileFolder = DevFileLocalUtil.getUploadFileFolder()+ FileUtil.FILE_SEPARATOR+fileUrl;
-        return new File(uploadFileFolder);
+        //String uploadFileFolder = DevFileLocalUtil.getUploadFileFolder()+ FileUtil.FILE_SEPARATOR+fileUrl;
+       // String uploadFileFolder = fileUrl;
+        return new File(fileUrl);
     }
 
     public static File getCacheFile(String fileUrl) {
-        String cachePath = DevFileLocalUtil.getUploadFileFolder() + FileUtil.FILE_SEPARATOR + "cache" + FileUtil.FILE_SEPARATOR + fileUrl;
+        String url = fileUrl.replace(getStaticPath(), "");
+        String cachePath = getStaticPath() + "cache" + FileUtil.FILE_SEPARATOR + url;
 
         return new File(cachePath);
     }
 
     public static File getTempFile(String fileUrl) {
-        String tempPath = DevFileLocalUtil.getUploadFileFolder() + FileUtil.FILE_SEPARATOR+ "temp" + FileUtil.FILE_SEPARATOR + fileUrl;
+        String url = fileUrl.replace(getStaticPath(), "");
+        String tempPath = getStaticPath()+ "temp" + FileUtil.FILE_SEPARATOR + url;
         File tempFile = new File(tempPath);
         File parentFile = tempFile.getParentFile();
         if (!parentFile.exists()) {
@@ -112,7 +115,8 @@ public class FileCenterUtil {
     }
 
     public static File getProcessFile(String fileUrl) {
-        String processPath = DevFileLocalUtil.getUploadFileFolder() + FileUtil.FILE_SEPARATOR+ "temp" + FileUtil.FILE_SEPARATOR+ "process" + File.separator + fileUrl;
+        String url = fileUrl.replace(getStaticPath(), "");
+        String processPath = getStaticPath()+ "temp" + FileUtil.FILE_SEPARATOR+ "process" + File.separator + url;
         File processFile = new File(processPath);
         File parentFile = processFile.getParentFile();
         if (!parentFile.exists()) {

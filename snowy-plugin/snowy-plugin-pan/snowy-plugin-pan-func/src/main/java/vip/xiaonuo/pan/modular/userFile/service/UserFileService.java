@@ -149,4 +149,6 @@ public interface UserFileService extends IService<UserFile> {
     String getParentIdByPath(String filePath);
 
     void updateDelete(String deleteBatchNum,String userId,List<String> userFileIds);
+
+    Long getFilePointCount(String fileId);
 }

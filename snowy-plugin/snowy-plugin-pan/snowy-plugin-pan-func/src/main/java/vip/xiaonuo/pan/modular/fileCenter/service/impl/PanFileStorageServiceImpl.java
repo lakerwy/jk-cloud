@@ -14,6 +14,7 @@ package vip.xiaonuo.pan.modular.fileCenter.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -103,7 +104,11 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
     @Override
     public Boolean checkStorage(long totalSize) {
         LambdaQueryWrapper<PanFileStorage> lambdaQueryWrapper = new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, StpLoginUserUtil.getLoginUser().getId());
-        PanFileStorage panFileStorage = getOne(lambdaQueryWrapper);
+        List<PanFileStorage> panFileStorages = list(lambdaQueryWrapper);
+        PanFileStorage panFileStorage =null;
+        if(CollUtil.isNotEmpty(panFileStorages)){
+            panFileStorage = panFileStorages.get(0);
+        }
         Long totalStorageSize = 0L;
         if(ObjectUtil.isEmpty(panFileStorage) || ObjectUtil.isEmpty(panFileStorage.getTotalStorageSize())){
              panFileStorage = new PanFileStorage();

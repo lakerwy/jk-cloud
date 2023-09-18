@@ -1,0 +1,22 @@
+version: "3.7"
+services:
+  registry:
+    privileged: true     #这里把权限配置成true
+    image: registry      #镜像来源
+    restart: on-failure      #开机后自己启动
+    container_name: docker-hub   #自定义服务名
+    ports:               #暴露端口
+      - 5000:5000
+    volumes:            #挂载目录配置
+      - /usr/local/docker/registry/data:/var/lib/registry
+  web:
+    image: konradkleine/docker-registry-frontend:v2
+    container_name: docker-hub-web
+    links:
+      - registry:docker-registry.com # 服务名：这里适使用自定义的名字 ，env可以直接使用这个名字去调用
+    restart: always
+    ports:
+      - 18080:80
+    environment:
+      - ENV_DOCKER_REGISTRY_HOST=docker-registry.com #配置links的自定义名字
+      - ENV_DOCKER_REGISTRY_PORT=5000
