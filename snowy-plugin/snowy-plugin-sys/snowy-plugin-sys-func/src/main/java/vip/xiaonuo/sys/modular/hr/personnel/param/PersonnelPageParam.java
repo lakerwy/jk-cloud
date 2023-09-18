@@ -80,4 +80,8 @@ public class PersonnelPageParam {
 
     @ApiModelProperty(value = "状态")
     private String status;
+
+    /** 用工性质 */
+    @ApiModelProperty(value = "用工性质")
+    private String employNature;
 }

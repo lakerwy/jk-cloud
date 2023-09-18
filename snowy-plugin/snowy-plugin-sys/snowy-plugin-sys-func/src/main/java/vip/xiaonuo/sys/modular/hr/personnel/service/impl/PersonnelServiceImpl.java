@@ -379,6 +379,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
 
+        if (ObjectUtil.isNotEmpty(personnelPageParam.getEmployNature())) {
+            queryWrapper.eq("a.EMPLOY_NATURE", personnelPageParam.getEmployNature());
+        }
+
         if (ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
