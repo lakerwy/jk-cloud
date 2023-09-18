@@ -67,14 +67,9 @@ public class LocalFileStorage implements FileStorageMutator, FileStoragePathBuil
 
     @Autowired
     private FileUtility fileUtility;
-//    @Value("${deployment.host}")
-//    private String deploymentHost;
-//    @Value("${server.port}")
-//    private String port;
 
     @javax.annotation.Resource
     private CommonProperties commonProperties;
-
 
     @Autowired
     private HttpServletRequest request;
@@ -329,7 +324,7 @@ public class LocalFileStorage implements FileStorageMutator, FileStoragePathBuil
         if (forDocumentServer && !docserviceUrlExample.equals("")) {
             return docserviceUrlExample;
         } else {
-            return commonProperties.getBackendUrl()+ request.getContextPath();
+            return commonProperties.getFrontUrl() + request.getContextPath();
 //            return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
         }
     }

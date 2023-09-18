@@ -18,12 +18,12 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.documentserver.callbacks.implementations;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.callbacks.Callback;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.callbacks.Status;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.callback.CallbackManager;
 import vip.xiaonuo.pan.modular.fileCenter.office.dto.Track;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class ForcesaveCallback implements Callback {

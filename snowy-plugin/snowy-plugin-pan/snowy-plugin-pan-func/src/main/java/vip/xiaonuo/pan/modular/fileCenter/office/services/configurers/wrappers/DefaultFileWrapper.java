@@ -18,11 +18,12 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers;
 
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Action;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Type;
+import vip.xiaonuo.pan.modular.fileCenter.office.entities.User;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Action;
-import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Type;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 
 @Getter
@@ -31,7 +32,7 @@ import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 public class DefaultFileWrapper {
     private UserFile userFile;
     private Type type;
-//    private User user;
+    private User user;
     private String lang;
     private Action action;
     private String actionData;

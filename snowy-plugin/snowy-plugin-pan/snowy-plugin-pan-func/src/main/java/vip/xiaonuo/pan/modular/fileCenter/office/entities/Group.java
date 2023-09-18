@@ -28,4 +28,5 @@ import java.util.List;
 @Setter
 public class Group extends AbstractEntity {
     private String name;
+    private List<User> users;
 }

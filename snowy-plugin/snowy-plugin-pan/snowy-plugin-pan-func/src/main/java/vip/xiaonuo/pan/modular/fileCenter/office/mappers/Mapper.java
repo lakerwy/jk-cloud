@@ -20,6 +20,7 @@ package vip.xiaonuo.pan.modular.fileCenter.office.mappers;
 
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.AbstractModel;
 import vip.xiaonuo.pan.modular.fileCenter.office.entities.AbstractEntity;
+
 // specify the model mapper functions
 public interface Mapper<E extends AbstractEntity, M extends AbstractModel> {
    M toModel(E entity);  // convert the entity to the model

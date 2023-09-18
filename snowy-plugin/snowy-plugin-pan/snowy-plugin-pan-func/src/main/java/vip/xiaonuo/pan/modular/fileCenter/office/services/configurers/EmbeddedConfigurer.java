@@ -18,7 +18,6 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.services.configurers;
 
-
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.configurations.Embedded;
 
 public interface EmbeddedConfigurer<W> extends Configurer<Embedded, W> {

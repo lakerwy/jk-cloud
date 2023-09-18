@@ -18,9 +18,9 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers;
 
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Type;
 import lombok.Builder;
 import lombok.Getter;
-import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Type;
 
 @Getter
 @Builder

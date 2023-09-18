@@ -18,16 +18,16 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.mappers;
 
-import org.modelmapper.Converter;
-import org.modelmapper.ModelMapper;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.AbstractModel;
 import vip.xiaonuo.pan.modular.fileCenter.office.entities.AbstractEntity;
+import org.modelmapper.Converter;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
 
-import javax.annotation.Resource;
 import java.util.Objects;
 
 public abstract class AbstractMapper<E extends AbstractEntity, M extends AbstractModel> implements Mapper<E, M> {
-    @Resource
+    @Autowired
     ModelMapper mapper;
 
     private Class<M> modelClass;

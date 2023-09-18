@@ -18,10 +18,7 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.implementations;
 
-import org.springframework.beans.factory.ObjectFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Primary;
-import org.springframework.stereotype.Service;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.jwt.JwtManager;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Action;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.DocumentType;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.FileModel;
@@ -31,8 +28,11 @@ import vip.xiaonuo.pan.modular.fileCenter.office.mappers.Mapper;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.FileConfigurer;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers.DefaultDocumentWrapper;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers.DefaultFileWrapper;
+import org.springframework.beans.factory.ObjectFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Primary;
+import org.springframework.stereotype.Service;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
-import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -46,15 +46,17 @@ public class DefaultFileConfigurer implements FileConfigurer<DefaultFileWrapper>
     @Autowired
     private FileUtility fileUtility;
 
-    
+    @Autowired
+    private JwtManager jwtManager;
+
+    @Autowired
+    private Mapper<vip.xiaonuo.pan.modular.fileCenter.office.entities.Permission, Permission> mapper;
+
     @Autowired
     private DefaultDocumentConfigurer defaultDocumentConfigurer;
 
     @Autowired
     private DefaultEditorConfigConfigurer defaultEditorConfigConfigurer;
-
-    @Autowired
-    UserFileService userFileService;
 
     public void configure(FileModel fileModel, DefaultFileWrapper wrapper){  // define the file configurer
         if (fileModel != null){  // check if the file model is specified
@@ -81,7 +83,7 @@ public class DefaultFileConfigurer implements FileConfigurer<DefaultFileWrapper>
                     .userFile(userFile)
 //                    .fileName(userFile.getFileName() + "." + userFile.getExtendName())
                     .permission(updatePermissions(userPermissions, action, canEdit))
-//                    .favorite(wrapper.getUser().getFavorite())
+                    .favorite(wrapper.getUser().getFavorite())
                     .previewUrl(wrapper.getActionData())
                     .build();
 
@@ -94,7 +96,7 @@ public class DefaultFileConfigurer implements FileConfigurer<DefaultFileWrapper>
             map.put("document", fileModel.getDocument());
             map.put("editorConfig", fileModel.getEditorConfig());
 
-//            fileModel.setToken(jwtManager.createToken(map));  // create a token and set it to the file model
+            fileModel.setToken(jwtManager.createToken(map));  // create a token and set it to the file model
 
         }
     }

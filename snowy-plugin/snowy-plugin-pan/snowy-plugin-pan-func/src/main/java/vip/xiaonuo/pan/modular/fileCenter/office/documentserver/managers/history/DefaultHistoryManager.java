@@ -22,6 +22,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.document.DocumentManager;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.jwt.JwtManager;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.Document;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.storage.FileStoragePathBuilder;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.util.file.FileUtility;
@@ -42,6 +43,9 @@ public class DefaultHistoryManager implements HistoryManager {
 
     @Autowired
     private DocumentManager documentManager;
+
+    @Autowired
+    private JwtManager jwtManager;
 
     @Autowired
     private FileUtility fileUtility;
@@ -113,8 +117,8 @@ public class DefaultHistoryManager implements HistoryManager {
                     Integer verdiff = i - 1;
                     dataObj.put("changesUrl", documentManager.getHistoryFileUrl(document.getTitle(), verdiff, "diff.zip", true));
                 }
-                //todo
-                //if (jwtManager.tokenEnabled()) dataObj.put("token", jwtManager.createToken(dataObj));
+
+                if (jwtManager.tokenEnabled()) dataObj.put("token", jwtManager.createToken(dataObj));
 
                 hist.add(obj);
                 histData.put(Integer.toString(i - 1), dataObj);

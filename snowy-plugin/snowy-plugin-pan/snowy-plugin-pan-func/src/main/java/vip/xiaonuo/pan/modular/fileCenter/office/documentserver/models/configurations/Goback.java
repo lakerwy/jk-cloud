@@ -18,11 +18,11 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.configurations;
 
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.storage.FileStoragePathBuilder;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.storage.FileStoragePathBuilder;
 
 import javax.annotation.PostConstruct;
 

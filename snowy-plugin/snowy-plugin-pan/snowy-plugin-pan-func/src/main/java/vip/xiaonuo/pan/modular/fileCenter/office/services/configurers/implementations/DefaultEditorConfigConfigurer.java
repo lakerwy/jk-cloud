@@ -25,7 +25,10 @@ import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Act
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Mode;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.EditorConfig;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.util.file.FileUtility;
+import vip.xiaonuo.pan.modular.fileCenter.office.entities.User;
+import vip.xiaonuo.pan.modular.fileCenter.office.mappers.Mapper;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.EditorConfigConfigurer;
+import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers.DefaultCustomizationWrapper;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers.DefaultEmbeddedWrapper;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers.DefaultFileWrapper;
 import lombok.SneakyThrows;
@@ -41,6 +44,8 @@ import java.util.HashMap;
 @Primary
 public class DefaultEditorConfigConfigurer implements EditorConfigConfigurer<DefaultFileWrapper> {
 
+    @Autowired
+    private Mapper<User, vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.User> mapper;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -51,6 +56,9 @@ public class DefaultEditorConfigConfigurer implements EditorConfigConfigurer<Def
     @Autowired
     @Qualifier("sample")
     private TemplateManager templateManager;
+
+    @Autowired
+    private DefaultCustomizationConfigurer defaultCustomizationConfigurer;
 
     @Autowired
     private DefaultEmbeddedConfigurer defaultEmbeddedConfigurer;
@@ -67,15 +75,15 @@ public class DefaultEditorConfigConfigurer implements EditorConfigConfigurer<Def
         UserFile userFile = wrapper.getUserFile();
 //        String fileExt = fileUtility.getFileExtension(fileName);
         String fileName = userFile.getFileName() + "." + userFile.getExtendName();
-//        boolean userIsAnon = wrapper.getUser().getName().equals("Anonymous");  // check if the user from the editorConfig wrapper is anonymous or not
+        boolean userIsAnon = wrapper.getUser().getName().equals("Anonymous");  // check if the user from the editorConfig wrapper is anonymous or not
 
-        config.setTemplates(templateManager.createTemplates(fileName));  // set a template to the editorConfig if the user is not anonymous
+        config.setTemplates(userIsAnon ? null : templateManager.createTemplates(fileName));  // set a template to the editorConfig if the user is not anonymous
         config.setCallbackUrl(documentManager.getCallback(userFile.getId()));  // set the callback URL to the editorConfig
-        config.setCreateUrl(documentManager.getCreateUrl(fileName, false));  // set the document URL where it will be created to the editorConfig if the user is not anonymous
+        config.setCreateUrl(userIsAnon ? null : documentManager.getCreateUrl(fileName, false));  // set the document URL where it will be created to the editorConfig if the user is not anonymous
         config.setLang(wrapper.getLang());  // set the language to the editorConfig
         Boolean canEdit = wrapper.getCanEdit();  // check if the file of the specified type can be edited or not
         Action action = wrapper.getAction();  // get the action parameter from the editorConfig wrapper
-        config.setCoEditing(action.equals(Action.view)? new HashMap<String, Object>()  {{
+        config.setCoEditing(action.equals(Action.view) && userIsAnon ? new HashMap<String, Object>()  {{ 
             put("mode", "strict");
             put("change", false);
         }} : new HashMap<String, Object>()  {{
@@ -83,7 +91,12 @@ public class DefaultEditorConfigConfigurer implements EditorConfigConfigurer<Def
             put("change", true);
         }});
 
+        defaultCustomizationConfigurer.configure(config.getCustomization(), DefaultCustomizationWrapper.builder()  // define the customization configurer
+                .action(action)
+                .user(userIsAnon ? null : wrapper.getUser())
+                .build());
         config.setMode(canEdit && !action.equals(Action.view) ? Mode.edit : Mode.view);
+        config.setUser(mapper.toModel(wrapper.getUser()));
         defaultEmbeddedConfigurer.configure(config.getEmbedded(), DefaultEmbeddedWrapper.builder()
                 .type(wrapper.getType())
                 .fileName(fileName)

@@ -21,6 +21,7 @@ package vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.callba
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.document.DocumentManager;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.jwt.JwtManager;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.storage.FileStorageMutator;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.storage.FileStoragePathBuilder;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.util.file.FileUtility;
@@ -58,8 +59,8 @@ public class DefaultCallbackManager implements CallbackManager {
 
     @Autowired
     private DocumentManager documentManager;
-//    @Autowired
-//    private JwtManager jwtManager;
+    @Autowired
+    private JwtManager jwtManager;
     @Autowired
     private FileUtility fileUtility;
     @Autowired
@@ -170,16 +171,16 @@ public class DefaultCallbackManager implements CallbackManager {
         }
 
         String headerToken;
-//        if (jwtManager.tokenEnabled())  // check if a secret key to generate token exists or not
-//        {
-//            Map<String, Object> payloadMap = new HashMap<>();
-//            payloadMap.put("payload", params);
-//            headerToken = jwtManager.createToken(payloadMap);  // encode a payload object into a header token
-//            connection.setRequestProperty(documentJwtHeader.equals("") ? "Authorization" : documentJwtHeader, "Bearer " + headerToken);  // add a header Authorization with a header token and Authorization prefix in it
-//
-//            String token = jwtManager.createToken(params);  // encode a payload object into a body token
-//            params.put("token", token);
-//        }
+        if (jwtManager.tokenEnabled())  // check if a secret key to generate token exists or not
+        {
+            Map<String, Object> payloadMap = new HashMap<>();
+            payloadMap.put("payload", params);
+            headerToken = jwtManager.createToken(payloadMap);  // encode a payload object into a header token
+            connection.setRequestProperty(documentJwtHeader.equals("") ? "Authorization" : documentJwtHeader, "Bearer " + headerToken);  // add a header Authorization with a header token and Authorization prefix in it
+
+            String token = jwtManager.createToken(params);  // encode a payload object into a body token
+            params.put("token", token);
+        }
 
         String bodyString = JSON.toJSONString(params);
 

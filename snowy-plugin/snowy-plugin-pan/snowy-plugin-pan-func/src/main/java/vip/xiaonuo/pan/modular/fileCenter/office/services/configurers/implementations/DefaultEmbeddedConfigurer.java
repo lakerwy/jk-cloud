@@ -28,13 +28,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
-
 @Service
 @Primary
 public class DefaultEmbeddedConfigurer implements EmbeddedConfigurer<DefaultEmbeddedWrapper> {
 
-    @Resource
+    @Autowired
     private DocumentManager documentManager;
 
     public void configure(Embedded embedded, DefaultEmbeddedWrapper wrapper){  // define the embedded configurer

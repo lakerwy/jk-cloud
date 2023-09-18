@@ -18,7 +18,6 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.services.configurers;
 
-
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.EditorConfig;
 
 public interface EditorConfigConfigurer<W> extends Configurer<EditorConfig, W> {

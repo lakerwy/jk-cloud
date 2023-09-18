@@ -19,6 +19,7 @@
 package vip.xiaonuo.pan.modular.fileCenter.office.dto;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.User;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -34,6 +35,6 @@ public class History {
     private String key;
     private Integer version;
     private String created;
-//    private User user;
+    private User user;
     private List<ChangesHistory> changes;
 }

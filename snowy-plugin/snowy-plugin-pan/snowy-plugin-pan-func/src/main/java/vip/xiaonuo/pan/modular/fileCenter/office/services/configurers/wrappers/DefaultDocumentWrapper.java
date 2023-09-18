@@ -18,9 +18,9 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers;
 
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.Permission;
 import lombok.Builder;
 import lombok.Getter;
-import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.Permission;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 
 @Getter

@@ -18,11 +18,11 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.configurations;
 
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.ToolbarDocked;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
-import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.ToolbarDocked;
 
 @Component
 @Scope("prototype")

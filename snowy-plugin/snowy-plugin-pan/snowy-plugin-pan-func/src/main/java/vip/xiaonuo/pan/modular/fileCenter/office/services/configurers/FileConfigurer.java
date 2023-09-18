@@ -18,7 +18,6 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.services.configurers;
 
-
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.FileModel;
 
 public interface FileConfigurer<W> extends Configurer<FileModel, W> {

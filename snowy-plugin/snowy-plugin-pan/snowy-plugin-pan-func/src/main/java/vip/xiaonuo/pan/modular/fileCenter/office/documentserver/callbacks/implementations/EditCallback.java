@@ -18,15 +18,13 @@
 
 package vip.xiaonuo.pan.modular.fileCenter.office.documentserver.callbacks.implementations;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.callbacks.Callback;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.callbacks.Status;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.callback.CallbackManager;
 import vip.xiaonuo.pan.modular.fileCenter.office.dto.Action;
 import vip.xiaonuo.pan.modular.fileCenter.office.dto.Track;
-
-import static vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Action.edit;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 @Component
 public class EditCallback implements Callback {
@@ -36,7 +34,7 @@ public class EditCallback implements Callback {
     public int handle(Track body, String fileName) {  // handle the callback when the document is being edited
         int result = 0;
         Action action =  body.getActions().get(0);  // get the user ID who is editing the document
-        if (action.getType().equals(edit)) {  // if this value is not equal to the user ID
+        if (action.getType().equals(vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Action.edit)) {  // if this value is not equal to the user ID
             String user =  action.getUserid();  // get user ID
             if (!body.getUsers().contains(user)) {  // if this user is not specified in the body
                 String key = body.getKey();  // get document key

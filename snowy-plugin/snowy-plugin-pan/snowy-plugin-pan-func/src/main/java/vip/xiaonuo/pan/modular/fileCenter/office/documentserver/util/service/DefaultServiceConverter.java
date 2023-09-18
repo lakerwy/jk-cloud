@@ -21,6 +21,7 @@ package vip.xiaonuo.pan.modular.fileCenter.office.documentserver.util.service;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.managers.jwt.JwtManager;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.util.file.FileUtility;
 import vip.xiaonuo.pan.modular.fileCenter.office.dto.Convert;
 import lombok.SneakyThrows;
@@ -54,8 +55,8 @@ public class DefaultServiceConverter implements ServiceConverter
     private String docserviceTimeout;
     private int convertTimeout = 120000;
 
-//    @Autowired
-//    private JwtManager jwtManager;
+    @Autowired
+    private JwtManager jwtManager;
     @Autowired
     private FileUtility fileUtility;
 //    @Autowired
@@ -90,12 +91,12 @@ public class DefaultServiceConverter implements ServiceConverter
             connection.setConnectTimeout(convertTimeout);
 
             // check if the token is enabled
-//            if (jwtManager.tokenEnabled())
-//            {
-//                // set the JWT header to the request
-//                connection.setRequestProperty(StringUtils.isBlank(documentJwtHeader) ?
-//                        "Authorization" : documentJwtHeader, "Bearer " + headerToken);
-//            }
+            if (jwtManager.tokenEnabled())
+            {
+                // set the JWT header to the request
+                connection.setRequestProperty(StringUtils.isBlank(documentJwtHeader) ?
+                        "Authorization" : documentJwtHeader, "Bearer " + headerToken);
+            }
 
             connection.connect();
             try (OutputStream os = connection.getOutputStream()) {
@@ -141,27 +142,27 @@ public class DefaultServiceConverter implements ServiceConverter
             body.setAsync(true);
 
         String headerToken = "";
-//        if (jwtManager.tokenEnabled())
-//        {
-//            HashMap<String, Object> map = new HashMap<String, Object>();
-//            map.put("region", lang);
-//            map.put("url", body.getUrl());
-//            map.put("outputtype", body.getOutputtype());
-//            map.put("filetype", body.getFiletype());
-//            map.put("title", body.getTitle());
-//            map.put("key", body.getKey());
-//            map.put("password", body.getFilePass());
-//            if (isAsync)
-//                map.put("async", body.getAsync());
-//
-//            // add token to the body if it is enabled
-//            String token = jwtManager.createToken(map);
-//            body.setToken(token);
-//
-//            Map<String, Object> payloadMap = new HashMap<String, Object>();
-//            payloadMap.put("payload", map);  // create payload object
-//            headerToken = jwtManager.createToken(payloadMap);  // create header token
-//        }
+        if (jwtManager.tokenEnabled())
+        {
+            HashMap<String, Object> map = new HashMap<String, Object>();
+            map.put("region", lang);
+            map.put("url", body.getUrl());
+            map.put("outputtype", body.getOutputtype());
+            map.put("filetype", body.getFiletype());
+            map.put("title", body.getTitle());
+            map.put("key", body.getKey());
+            map.put("password", body.getFilePass());
+            if (isAsync)
+                map.put("async", body.getAsync());
+
+            // add token to the body if it is enabled
+            String token = jwtManager.createToken(map);
+            body.setToken(token);
+
+            Map<String, Object> payloadMap = new HashMap<String, Object>();
+            payloadMap.put("payload", map);  // create payload object
+            headerToken = jwtManager.createToken(payloadMap);  // create header token
+        }
 
         String jsonString = postToServer(body, headerToken);
 
