@@ -246,7 +246,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         QueryWrapper<SysUser> queryWrapper = new QueryWrapper<>();
         if (ObjectUtil.isNotEmpty(sysUserPageParam.getSearchKey())) {
             queryWrapper.lambda().like(SysUser::getAccount, sysUserPageParam.getSearchKey()).or()
-                    .like(SysUser::getName, sysUserPageParam.getSearchKey());
+                    .like(SysUser::getName, sysUserPageParam.getSearchKey()).or()
+                    .like(SysUser::getPhone,CommonCryptogramUtil.doSm4CbcEncrypt(sysUserPageParam.getSearchKey()));
         }
         if (ObjectUtil.isNotEmpty(sysUserPageParam.getOrgId())) {
             queryWrapper.lambda().eq(SysUser::getOrgId, sysUserPageParam.getOrgId());
