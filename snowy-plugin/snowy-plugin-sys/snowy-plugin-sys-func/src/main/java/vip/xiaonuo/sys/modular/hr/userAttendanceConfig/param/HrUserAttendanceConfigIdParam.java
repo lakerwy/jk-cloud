@@ -32,4 +32,12 @@ public class HrUserAttendanceConfigIdParam {
     @ApiModelProperty(value = "主键id", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
+
+    /** 考勤班次类别 */
+    @ApiModelProperty(value = "考勤班次类别名", position = 13)
+    private String attendanceTypeName;
+
+    /** 班次工时，单位：小时 */
+    @ApiModelProperty(value = "班次工时，单位：小时", position = 14)
+    private String workHours;
 }

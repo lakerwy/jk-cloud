@@ -71,4 +71,11 @@ public class HrUserAttendanceConfigAddParam {
     @ApiModelProperty(value = "扩展信息", position = 12)
     private String extJson;
 
+    /** 考勤班次类别 */
+    @ApiModelProperty(value = "考勤班次类别名", position = 13)
+    private String attendanceTypeName;
+
+    /** 班次工时，单位：小时 */
+    @ApiModelProperty(value = "班次工时，单位：小时", position = 14)
+    private String workHours;
 }

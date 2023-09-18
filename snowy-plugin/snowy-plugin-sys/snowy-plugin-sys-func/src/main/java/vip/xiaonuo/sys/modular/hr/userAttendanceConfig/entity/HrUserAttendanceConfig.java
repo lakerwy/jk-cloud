@@ -102,4 +102,8 @@ public class HrUserAttendanceConfig {
     @ApiModelProperty(value = "修改用户", position = 15)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 班次工时，单位：小时 */
+    @ApiModelProperty(value = "班次工时，单位：小时", position = 16)
+    private String workHours;
 }
