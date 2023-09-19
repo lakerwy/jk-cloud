@@ -10,6 +10,10 @@ public class AttendanceTimeSlot implements Serializable {
     private Date beginTime;
     private Date endTime;
     private Date compareTime;
+    private String workHours;
+    private Integer orderNumber;
+    private Date workBeginTime;//工作开始i时间
+    private Date workEndTime;//工作结束时间
 
     public Date getBeginTime() {
         return beginTime;
@@ -41,5 +45,37 @@ public class AttendanceTimeSlot implements Serializable {
 
     public void setCompareTime(Date compareTime) {
         this.compareTime = compareTime;
+    }
+
+    public String getWorkHours() {
+        return workHours;
+    }
+
+    public void setWorkHours(String workHours) {
+        this.workHours = workHours;
+    }
+
+    public Integer getOrderNumber() {
+        return orderNumber;
+    }
+
+    public void setOrderNumber(Integer orderNumber) {
+        this.orderNumber = orderNumber;
+    }
+
+    public Date getWorkBeginTime() {
+        return workBeginTime;
+    }
+
+    public void setWorkBeginTime(Date workBeginTime) {
+        this.workBeginTime = workBeginTime;
+    }
+
+    public Date getWorkEndTime() {
+        return workEndTime;
+    }
+
+    public void setWorkEndTime(Date workEndTime) {
+        this.workEndTime = workEndTime;
     }
 }

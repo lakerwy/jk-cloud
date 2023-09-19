@@ -279,18 +279,18 @@ public class CommonTimeFormatUtil {
          * @author ljy
          * @date  2023/9/12
          * @type 1 增加，2 减少
+         * @param minute  传正数
          * @return date
          * */
         public static Date addOrUpMinute(Date date, int minute,int type) {
             if (date == null) return null;
-            int minuteDate = minute > 0 ? minute : -minute;
             if(type == 1){
             }else if(type == 2){
-                minuteDate = -minuteDate;
+                minute = -minute;
             }
             Calendar c = Calendar.getInstance();
             c.setTime(date);
-            c.add(Calendar.MINUTE, minuteDate);
+            c.add(Calendar.MINUTE, minute);
             return c.getTime();
         }
 

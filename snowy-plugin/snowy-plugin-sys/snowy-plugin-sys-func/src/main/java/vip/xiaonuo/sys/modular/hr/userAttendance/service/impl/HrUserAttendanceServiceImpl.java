@@ -118,42 +118,32 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             hrUserAttendanceAddParam.setCheckTime(dateNow);
         }
         HrUserAttendance hrUserAttendance = BeanUtil.toBean(hrUserAttendanceAddParam, HrUserAttendance.class);
+        hrUserAttendance.setAbnormalFlag(-1);/** 初始化默认值*/
 
         /** 计算有效打卡时间区间*/
         List<AttendanceTimeSlot> attendanceTimeSlotList =  getAttendanceTimeSlotList(new HrUserAttendanceConfigPageParam(),dateNow);//getAttendanceConfigValueByKey(dateNow);
 
         /** 上下班休息标识；OnDuty：上班；OffDuty：下班；休息 REST */
-        for(AttendanceTimeSlot attendanceTimeSlot : attendanceTimeSlotList){
-            if(dateNow.after(attendanceTimeSlot.getBeginTime()) && dateNow.before(attendanceTimeSlot.getEndTime())){
+        attendanceTimeSlotList.stream().forEach(slot -> {
+            if(dateNow.after(slot.getBeginTime()) && dateNow.before(slot.getEndTime())){
                 hrUserAttendance.setAbnormalFlag(1);/** 打卡正常*/
-                hrUserAttendance.setCheckType(attendanceTimeSlot.getDutyType());
-                this.save(hrUserAttendance);
-                return HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
+                hrUserAttendance.setCheckType(slot.getDutyType());
+                hrUserAttendance.setConfigOrderNumber(slot.getOrderNumber());
             }
-        }
-        //判断迟到早退
-        attendanceTimeSlotList = attendanceTimeSlotList.stream().filter(solt ->
-                solt.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()) || solt.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue())).collect(Collectors.toList());
+            if(dateNow.after(slot.getWorkBeginTime()) && dateNow.before(slot.getWorkEndTime())){
+                hrUserAttendance.setAbnormalFlag(2);/** 打卡正常*/
+                hrUserAttendance.setCheckType(slot.getDutyType());
+                hrUserAttendance.setConfigOrderNumber(slot.getOrderNumber());
+            }
+        });
 
-        Long  minSecond = 0l;
-        String dutyType = "";
-        for(AttendanceTimeSlot attendanceTimeSlot : attendanceTimeSlotList){
-            Long second = CommonTimeFormatUtil.twoTimeDiffSecond(dateNow,attendanceTimeSlot.getCompareTime());
-            if(minSecond == 0l){
-                minSecond = second;
-                dutyType = attendanceTimeSlot.getDutyType();
-            }
-            dutyType = second < minSecond ? attendanceTimeSlot.getDutyType() : dutyType;
-            minSecond = minSecond < second ? minSecond :second;
-        }
-        hrUserAttendance.setCheckType(dutyType);
-        hrUserAttendance.setAbnormalFlag(-1); /** 打卡异常*/
         this.save(hrUserAttendance);
-        return HrUserAttendanceEnum.ATTENDANCE_ABNORMAL.getValue();
+        return  hrUserAttendance.getAbnormalFlag() == 1 ? HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue() : HrUserAttendanceEnum.ATTENDANCE_ABNORMAL.getValue();
     }
     private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam,Date dateNow){
-        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);
-        List<HrUserAttendanceConfig> configList = pageList.getRecords();
+        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);//一般用list
+        List<HrUserAttendanceConfig> configList = pageList.getRecords(); /**  该数据后续取缓存*/
+
         List<AttendanceTimeSlot>  attendanceTimeSlotList = new ArrayList<>();
         configList = configList.stream().sorted(Comparator.comparing(HrUserAttendanceConfig::getOrderNumber)).collect(Collectors.toList());
         for(HrUserAttendanceConfig attendanceConfig : configList){
@@ -163,6 +153,20 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(attendanceConfig.getBeginMinTime()),2));
             attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(attendanceConfig.getEndMinTime()),1));
             attendanceTimeSlot.setCompareTime(time);
+            attendanceTimeSlot.setWorkHours(StringUtils.isEmpty(attendanceConfig.getWorkHours()) ? "0" : attendanceConfig.getWorkHours());
+            attendanceTimeSlot.setOrderNumber(attendanceConfig.getOrderNumber());
+            attendanceTimeSlot.setWorkEndTime(time);//初始化默认值
+            attendanceTimeSlot.setWorkBeginTime(time);//初始化默认值
+            //获取工作区间
+            Double minute =  Double.valueOf(attendanceConfig.getWorkHours())*60;
+            if(attendanceConfig.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()) && minute > 0){
+                attendanceTimeSlot.setWorkBeginTime(time);
+                attendanceTimeSlot.setWorkEndTime(CommonTimeFormatUtil.addOrUpMinute(time,minute.intValue(),1));
+            }
+            if(attendanceConfig.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue()) && minute > 0){
+                attendanceTimeSlot.setWorkBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,minute.intValue(),2));
+                attendanceTimeSlot.setWorkEndTime(time);
+            }
             attendanceTimeSlotList.add(attendanceTimeSlot);
         }
         return attendanceTimeSlotList;
@@ -223,6 +227,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             Date time = CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,DATE_FORMAT),map.get(HrUserAttendanceEnum.ATTENDANCE_CHECK_TIME.getValue()).toString());
             attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(map.get(HrUserAttendanceEnum.ATTENDANCE_BEGINMINTIME.getValue()).toString()),2));
             attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(map.get(HrUserAttendanceEnum.ATTENDANCE_ENDMINTIME.getValue()).toString()),1));
+            //attendanceTimeSlot.setWorkHours(StringUtils.isEmpty(attendanceConfig.getWorkHours()) ? "0" : attendanceConfig.getWorkHours());
             attendanceTimeSlotList.add(attendanceTimeSlot);
         }
         return attendanceTimeSlotList;
@@ -274,9 +279,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         /** 暂时取固定班次  -- 上班 OnDuty，休息 REST，下班 OffDuty   返回数据：0 有效且唯一，1 无效  ，2 早退或迟到 */
         List<HrUserAttendance>  hrUserAttendanceOnDutyList = hrUserAttendanceList.stream()
                 .filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()))
-                .map(attendance -> {
-                    if(attendance.getAbnormalFlag() == -1){ attendance.setAbnormalFlag(2);return BeanUtil.toBean(attendance, HrUserAttendance.class);}
-                    return attendance; })
                 .sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
         if(hrUserAttendanceOnDutyList.size() > 0 && hrUserAttendanceOnDutyList.get(0).getAbnormalFlag() == 1){
             hrUserAttendanceOnDutyList.get(0).setAbnormalFlag(0);
@@ -293,9 +295,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
 
         List<HrUserAttendance>  hrUserAttendanceOffDutyList = hrUserAttendanceList.stream()
                 .filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue()))
-                .map(attendance -> {
-                    if(attendance.getAbnormalFlag() == -1){ attendance.setAbnormalFlag(2);return BeanUtil.toBean(attendance, HrUserAttendance.class);}
-                    return attendance; })
                 .sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
         if(hrUserAttendanceOffDutyList.size() > 0 && hrUserAttendanceOffDutyList.get(hrUserAttendanceOffDutyList.size() - 1).getAbnormalFlag() == 1){
             hrUserAttendanceOffDutyList.get(hrUserAttendanceOffDutyList.size()-1).setAbnormalFlag(0);

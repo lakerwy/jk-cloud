@@ -96,4 +96,8 @@ public class HrUserAttendance {
     @ApiModelProperty(value = "修改用户", position = 15)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 考勤班次排序号 */
+    @ApiModelProperty(value = "考勤班次排序号", position = 16)
+    private Integer configOrderNumber;
 }
