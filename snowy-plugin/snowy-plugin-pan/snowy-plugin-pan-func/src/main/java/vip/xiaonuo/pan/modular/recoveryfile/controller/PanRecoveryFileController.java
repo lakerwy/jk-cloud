@@ -33,6 +33,7 @@ import vip.xiaonuo.pan.modular.recoveryfile.param.dto.BatchDeleteDto;
 import vip.xiaonuo.pan.modular.recoveryfile.param.dto.RestoreFileDto;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
+import vip.xiaonuo.pan.modular.userFile.param.UserFileIdParam;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -76,8 +77,9 @@ public class PanRecoveryFileController {
     @ApiOperation("删除网盘-回收站(支持批量删除)")
     @CommonLog("删除网盘-回收站(支持批量删除)")
     @PostMapping("/pan/recovery/batchDelete")
-    public CommonResult<String> batchDelete(@RequestBody @Valid BatchDeleteDto batchDeleteDto) {
-        panRecoveryFileService.batchDelete(batchDeleteDto);
+    public CommonResult<String> batchDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                                CommonValidList<PanRecoveryFileIdParam> recoveryFileIdParamList) {
+        panRecoveryFileService.batchDelete(recoveryFileIdParamList);
         return CommonResult.ok();
     }
 

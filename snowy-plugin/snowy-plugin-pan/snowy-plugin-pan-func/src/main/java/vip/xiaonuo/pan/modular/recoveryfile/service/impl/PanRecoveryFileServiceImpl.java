@@ -149,8 +149,9 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
     }
 
     @Override
-    public void batchDelete(BatchDeleteDto batchDeleteDto) {
-        for (String userFileId:batchDeleteDto.getUserFileIds()) {
+    public void batchDelete(List<PanRecoveryFileIdParam> recoveryFileIdParamList) {
+       List<String> Ids = CollStreamUtil.toList(recoveryFileIdParamList, PanRecoveryFileIdParam::getId);
+        for (String userFileId:Ids) {
             PanRecoveryFile panRecoveryFile = this.getOne(new QueryWrapper<PanRecoveryFile>().lambda().eq(PanRecoveryFile::getUserFileId,userFileId));
             if(ObjectUtil.isNotEmpty(panRecoveryFile)){
                 asyncTaskComp.deleteUserFile(panRecoveryFile.getUserFileId());
