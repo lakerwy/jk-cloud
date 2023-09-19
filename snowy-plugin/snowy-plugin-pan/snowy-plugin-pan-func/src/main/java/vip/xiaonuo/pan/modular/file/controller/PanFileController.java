@@ -165,8 +165,8 @@ public class PanFileController {
     @ApiOperationSupport(order = 9)
     @ApiOperation("下载文件(支持批量)")
 //    @SaCheckPermission("/pan/file/uploadFile")
-    @GetMapping("/pan/file/downloadFile")
-    public void downloadFile(HttpServletResponse httpServletResponse, DownloadFileParam downloadFileParam){
+    @PostMapping("/pan/file/downloadFile")
+    public CommonResult<String> downloadFile(HttpServletResponse httpServletResponse, DownloadFileParam downloadFileParam){
         //todo
         // 按时不判断是否有下载权限
 
@@ -216,6 +216,7 @@ public class PanFileController {
                 }
             }
         }
+        return CommonResult.ok();
     }
 
     @ApiOperationSupport(order = 11)

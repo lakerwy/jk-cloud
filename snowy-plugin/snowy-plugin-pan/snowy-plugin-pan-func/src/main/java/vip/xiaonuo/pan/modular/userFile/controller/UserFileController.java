@@ -66,16 +66,16 @@ public class UserFileController {
     @Resource
     private UserFileService userFileService;
 
-    @Resource
-    private DevConfigApi devConfigApi;
-
-    @Resource
-    FileFactory fileFactory;
-
-    @Resource
-    PanFileService panFileService;
-
-    private final Integer storageType =1;
+//    @Resource
+//    private DevConfigApi devConfigApi;
+//
+//    @Resource
+//    FileFactory fileFactory;
+//
+//    @Resource
+//    PanFileService panFileService;
+//
+//    private final Integer storageType =1;
 
     /**
      * 获取根目录文件夹
