@@ -16,24 +16,36 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
+import vip.xiaonuo.biz.modular.emp.param.*;
+import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
 import vip.xiaonuo.biz.modular.emp.mapper.BizEmpPerformanceMapper;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceAddParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceEditParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceIdParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformancePageParam;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 
+import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 业务表-员工绩效考核-季度评分审批流程Service接口实现类
@@ -45,6 +57,12 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceMapper, BizEmpPerformance> implements BizEmpPerformanceService {
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private BizEmpTaskService bizEmpTaskService;
 
     @Override
     public Page<BizEmpPerformance> page(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
@@ -87,15 +105,57 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
     @Override
     public void add(BizEmpPerformanceAddParam bizEmpPerformanceAddParam) {
         BizEmpPerformance bizEmpPerformance = BeanUtil.toBean(bizEmpPerformanceAddParam, BizEmpPerformance.class);
+        //走合同审批流程
+        String processInstanceId = bizEmpPerformanceAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            bizEmpPerformance.setId(id);
+            bizEmpPerformance.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            bizEmpPerformance.setModelId(modelId);
+            bizEmpPerformance.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            formRelationTableApi.save(modelId, BizCommonEnum.BIZ_EMP_PERFORMANCE.getBizTable(),id,processInstanceId,dbName);
+        }else{
+            bizEmpPerformance.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
         this.save(bizEmpPerformance);
+        //反写流程中的任务信息
+        try{
+            List<EmpTaskParam> paramList = JSONUtil.toList(bizEmpPerformanceAddParam.getEmpTaskJson(), EmpTaskParam.class);
+            List<BizEmpTask> bizEmpTaskList = BeanUtil.copyToList(paramList,BizEmpTask.class);
+            bizEmpTaskService.updateBatchById(bizEmpTaskList);
+        }catch (Exception ex){
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizEmpPerformanceEditParam bizEmpPerformanceEditParam) {
+        String id = bizEmpPerformanceEditParam.getId();
+        //判断是否走合同审批流程内的修改
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(bizEmpPerformanceEditParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(bizEmpPerformanceEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id = formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                bizEmpPerformanceEditParam.setId(id);
+            }
+        }
         BizEmpPerformance bizEmpPerformance = this.queryEntity(bizEmpPerformanceEditParam.getId());
         BeanUtil.copyProperties(bizEmpPerformanceEditParam, bizEmpPerformance);
         this.updateById(bizEmpPerformance);
+        //反写流程中的任务信息
+        try{
+            List<EmpTaskParam> paramList = JSONUtil.toList(bizEmpPerformanceEditParam.getEmpTaskJson(), EmpTaskParam.class);
+            List<BizEmpTask> bizEmpTaskList = BeanUtil.copyToList(paramList,BizEmpTask.class);
+            bizEmpTaskService.updateBatchById(bizEmpTaskList);
+        }catch (Exception ex){
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

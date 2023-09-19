@@ -14,7 +14,8 @@ public enum BizCommonEnum {
     BIZ_RECRUIT_PLAN("BIZ_RECRUIT_PLAN","BIZ_RECRUIT_PLAN","BizRecruitPlanServiceImpl"), //招聘-部门计划-计划表（1-n）
 
     BIZ_EMP_TASK_FLW("BIZ_EMP_TASK_FLW","BIZ_EMP_TASK_FLW","BizEmpTaskFlwServiceImpl"), //员工绩效-季度计划-流程单
-    BIZ_EMP_TASK("BIZ_EMP_TASK","BIZ_EMP_TASK","BizEmpTaskServiceImpl"); //员工绩效-季度计划-计划表（1-n）
+    BIZ_EMP_TASK("BIZ_EMP_TASK","BIZ_EMP_TASK","BizEmpTaskServiceImpl"), //员工绩效-季度计划-计划表（1-n）
+    BIZ_EMP_PERFORMANCE("BIZ_EMP_PERFORMANCE","BIZ_EMP_PERFORMANCE","BizEmpPerformanceServiceImpl"); //员工绩效-季度考核分（1-1）
 
     String bizModel;
     String bizTable;

@@ -23,14 +23,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceAddParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceEditParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceIdParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformancePageParam;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
 
 import javax.annotation.Resource;
@@ -128,6 +125,5 @@ public class BizEmpPerformanceController {
     public CommonResult<BizEmpPerformance> detail(@Valid BizEmpPerformanceIdParam bizEmpPerformanceIdParam) {
         return CommonResult.data(bizEmpPerformanceService.detail(bizEmpPerformanceIdParam));
     }
-
 
 }

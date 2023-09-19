@@ -20,6 +20,7 @@ import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceEditParam;
 import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceIdParam;
 import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformancePageParam;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -77,4 +78,5 @@ public interface BizEmpPerformanceService extends IService<BizEmpPerformance> {
      * @date  2023/09/19 08:45
      **/
     BizEmpPerformance queryEntity(String id);
+
 }
