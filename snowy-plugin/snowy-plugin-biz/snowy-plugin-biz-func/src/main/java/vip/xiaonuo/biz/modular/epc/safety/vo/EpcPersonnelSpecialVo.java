@@ -26,82 +26,82 @@ public class EpcPersonnelSpecialVo extends EpcPersonnelSpecial {
     /** 主键Id|编号 */
     @TableId
     @ApiModelProperty(value = "主键Id|编号", position = 1)
-    private String id_p;
+    private String idP;
 
     /** 租户Id */
     @ApiModelProperty(value = "租户Id", position = 2)
-    private String tenantId_p;
+    private String tenantIdP;
 
     /** 项目ID(外键) */
     @ApiModelProperty(value = "项目ID(外键)", position = 3)
-    private String projectId_p;
+    private String projectIdP;
 
     /** 姓名 */
     @ApiModelProperty(value = "姓名", position = 4)
-    private String name_p;
+    private String nameP;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号", position = 5)
-    private String idCard_p;
+    private String idCardP;
 
     /** 性别 */
     @ApiModelProperty(value = "性别", position = 6)
-    private String gender_p;
+    private String genderP;
 
     /** 年龄 */
     @ApiModelProperty(value = "年龄", position = 7)
-    private String age_p;
+    private String ageP;
 
     /** 联系电话 */
     @ApiModelProperty(value = "联系电话", position = 8)
-    private String phone_p;
+    private String phoneP;
 
     /** 在职状态 */
     @ApiModelProperty(value = "在职状态", position = 9)
-    private String hireStatus_p;
+    private String hireStatusP;
 
     /** 所属单位 */
     @ApiModelProperty(value = "所属单位", position = 10)
-    private String belongCompany_p;
+    private String belongCompanyP;
 
     /** 职务工种 */
     @ApiModelProperty(value = "职务工种", position = 11)
-    private String workType_p;
+    private String workTypeP;
 
     /** 进场时间 */
     @ApiModelProperty(value = "进场时间", position = 12)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date enterTime_p;
+    private Date enterTimeP;
 
     /** 退场时间 */
     @ApiModelProperty(value = "退场时间", position = 13)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date outTime_p;
+    private Date outTimeP;
 
     /** 是否在保 */
     @ApiModelProperty(value = "是否在保", position = 14)
-    private String isInsured_p;
+    private String isInsuredP;
 
     /** 保额（元） */
     @ApiModelProperty(value = "保额（元）", position = 15)
-    private BigDecimal insureAmount_p;
+    private BigDecimal insureAmountP;
 
     /** 保险单据 */
     @ApiModelProperty(value = "保险单据", position = 16)
-    private String insureAttach_p;
+    private String insureAttachP;
 
     /** 是否进行了三级安全教育 */
     @ApiModelProperty(value = "是否进行了三级安全教育", position = 17)
-    private String isSafety_p;
+    private String isSafetyP;
 
     /** 三级安全教育试卷 */
     @ApiModelProperty(value = "三级安全教育试卷", position = 18)
-    private String safetyAttach_p;
+    private String safetyAttachP;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 19)
-    private String memo_p;
+    private String memoP;
 
 }

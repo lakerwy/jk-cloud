@@ -105,18 +105,20 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
 
     @Override
     public void commonFile(CommonFileParam commonFileParam) {
-        PanCommonFile commonFile = new PanCommonFile();
-        commonFile.setUserFileId(commonFileParam.getUserFileId());
-        this.save(commonFile);
-        //权限
-        List<PanFilePermission> filePermissionList = new ArrayList<>();
-        for (String userId : commonFileParam.getCommonUserList()) {
-            PanFilePermission filePermission = new PanFilePermission();
-            filePermission.setCommonFileId(commonFile.getId());
-            filePermission.setUserId(userId);
-            filePermissionList.add(filePermission);
+        for (String userFileId:commonFileParam.getUserFileIdList()) {
+            PanCommonFile commonFile = new PanCommonFile();
+            commonFile.setUserFileId(userFileId);
+            this.save(commonFile);
+            //权限
+            List<PanFilePermission> filePermissionList = new ArrayList<>();
+            for (String userId : commonFileParam.getCommonUserList()) {
+                PanFilePermission filePermission = new PanFilePermission();
+                filePermission.setCommonFileId(commonFile.getId());
+                filePermission.setUserId(userId);
+                filePermissionList.add(filePermission);
+            }
+            panFilePermissionService.saveBatch(filePermissionList);
         }
-        panFilePermissionService.saveBatch(filePermissionList);
     }
 
     @Override

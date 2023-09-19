@@ -27,7 +27,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-@TableName("pan_file_permission")
+@TableName("PAN_FILE_PERMISSION")
 public class PanFilePermission {
 
     /** ID */
