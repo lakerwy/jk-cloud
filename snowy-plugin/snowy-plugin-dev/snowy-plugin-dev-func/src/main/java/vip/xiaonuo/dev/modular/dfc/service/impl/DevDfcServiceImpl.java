@@ -32,6 +32,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dev.modular.dfc.entity.DevDfc;
+import vip.xiaonuo.dev.modular.dfc.enums.DevDfcEnum;
 import vip.xiaonuo.dev.modular.dfc.mapper.DevDfcMapper;
 import vip.xiaonuo.dev.modular.dfc.param.*;
 import vip.xiaonuo.dev.modular.dfc.result.DevDfcDbsSelectorResult;
@@ -96,6 +97,7 @@ public class DevDfcServiceImpl extends ServiceImpl<DevDfcMapper, DevDfc> impleme
         if(repeatName) {
             throw new CommonException("存在重复的表单域属性名，表单域属性名为：{}", devDfc.getName());
         }
+        devDfc.setStatus(DevDfcEnum.ENABLE.getValue());
         this.save(devDfc);
     }
 
@@ -199,6 +201,7 @@ public class DevDfcServiceImpl extends ServiceImpl<DevDfcMapper, DevDfc> impleme
         if(ObjectUtil.isNotEmpty(tableName)) {
             queryWrapper.lambda().eq(DevDfc::getTableName, tableName);
         }
+        queryWrapper.lambda().eq(DevDfc::getStatus, DevDfcEnum.ENABLE.getValue());
         queryWrapper.lambda().orderByAsc(DevDfc::getSortCode);
         return this.list(queryWrapper)
                 .stream()

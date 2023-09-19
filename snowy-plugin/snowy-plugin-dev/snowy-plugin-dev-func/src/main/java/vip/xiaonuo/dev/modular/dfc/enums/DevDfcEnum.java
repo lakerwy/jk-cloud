@@ -23,8 +23,15 @@ import lombok.Getter;
 @Getter
 public enum DevDfcEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /**
+     * 正常
+     */
+    ENABLE("ENABLE"),
+
+    /**
+     * 停用
+     */
+    DISABLED("DISABLED");
 
     private final String value;
 

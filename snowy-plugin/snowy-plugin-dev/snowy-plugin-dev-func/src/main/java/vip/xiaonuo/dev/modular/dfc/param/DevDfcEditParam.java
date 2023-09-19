@@ -88,4 +88,7 @@ public class DevDfcEditParam {
     @ApiModelProperty(value = "是否多选", position = 14)
     private Integer isMultiple;
 
+    /** 状态 */
+    @ApiModelProperty(value = "状态", position = 15)
+    private String status;
 }

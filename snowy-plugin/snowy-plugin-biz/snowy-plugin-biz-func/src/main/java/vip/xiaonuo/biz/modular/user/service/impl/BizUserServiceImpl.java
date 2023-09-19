@@ -747,7 +747,7 @@ public class BizUserServiceImpl extends ServiceImpl<BizUserMapper, BizUser> impl
     }
 
     @Override
-    public List<JSONObject> getDynamicFieldConfigList() {
+    public List<JSONObject> dynamicFieldConfigList() {
         String currentDataSourceId = dbsApi.getCurrentDataSourceId();
         String tableName = AnnotationUtil.getAnnotationValue(BizUser.class, TableName.class);
         return devDfcApi.getTableFieldList(currentDataSourceId, tableName);

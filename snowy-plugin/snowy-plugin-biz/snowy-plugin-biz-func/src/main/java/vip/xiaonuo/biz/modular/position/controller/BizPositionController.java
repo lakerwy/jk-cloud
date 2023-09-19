@@ -159,18 +159,19 @@ public class BizPositionController {
     }
 
     /**
-     * 获取动态字段的配置
+     * 获取岗位动态字段的配置
      *
      * @author 每天一点
      * @date 2022/4/24 20:00
      */
     @ApiOperationSupport(order = 8)
-    @ApiOperation("获取动态字段的配置")
-    @SaCheckPermission("/biz/position/getDynamicFieldConfigList")
-    @GetMapping("/biz/position/getDynamicFieldConfigList")
-    public CommonResult<List<JSONObject>> getDynamicFieldConfigList() {
-        return CommonResult.data(bizPositionService.getDynamicFieldConfigList());
+    @ApiOperation("获取岗位动态字段的配置")
+    @SaCheckPermission("/biz/position/dynamicFieldConfigList")
+    @GetMapping("/biz/position/dynamicFieldConfigList")
+    public CommonResult<List<JSONObject>> dynamicFieldConfigList() {
+        return CommonResult.data(bizPositionService.dynamicFieldConfigList());
     }
+
 
 
 }

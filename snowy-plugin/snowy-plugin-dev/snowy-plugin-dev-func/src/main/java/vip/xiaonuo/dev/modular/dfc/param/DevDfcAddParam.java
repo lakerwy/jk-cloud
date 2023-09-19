@@ -79,7 +79,6 @@ public class DevDfcAddParam {
     @ApiModelProperty(value = "已选择数据api地址", position = 12)
     private String selDataApiUrl;
 
-
     /** 是否多选 */
     @ApiModelProperty(value = "是否多选", position = 13)
     private Integer isMultiple;

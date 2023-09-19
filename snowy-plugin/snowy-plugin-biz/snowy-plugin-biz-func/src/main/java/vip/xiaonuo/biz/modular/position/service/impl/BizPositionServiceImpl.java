@@ -222,7 +222,7 @@ public class BizPositionServiceImpl extends ServiceImpl<BizPositionMapper, BizPo
 
 
     @Override
-    public List<JSONObject> getDynamicFieldConfigList() {
+    public List<JSONObject> dynamicFieldConfigList() {
         String currentDataSourceId = dbsApi.getCurrentDataSourceId();
         String tableName = AnnotationUtil.getAnnotationValue(BizPosition.class, TableName.class);
         return devDfcApi.getTableFieldList(currentDataSourceId, tableName);

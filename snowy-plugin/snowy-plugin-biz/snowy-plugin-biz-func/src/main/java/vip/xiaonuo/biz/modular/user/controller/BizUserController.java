@@ -319,18 +319,19 @@ public class BizUserController {
     }
 
     /**
-     * 获取动态字段的配置
+     * 获取人员动态字段的配置
      *
      * @author 每天一点
      * @date 2022/4/24 20:00
      */
     @ApiOperationSupport(order = 18)
-    @ApiOperation("获取动态字段的配置")
-    @SaCheckPermission("/biz/user/getDynamicFieldConfigList")
-    @GetMapping("/biz/user/getDynamicFieldConfigList")
-    public CommonResult<List<JSONObject>> getDynamicFieldConfigList() {
-        return CommonResult.data(bizUserService.getDynamicFieldConfigList());
+    @ApiOperation("获取人员动态字段的配置")
+    @SaCheckPermission("/biz/user/dynamicFieldConfigList")
+    @GetMapping("/biz/user/dynamicFieldConfigList")
+    public CommonResult<List<JSONObject>> dynamicFieldConfigList() {
+        return CommonResult.data(bizUserService.dynamicFieldConfigList());
     }
+
 
 
 }
