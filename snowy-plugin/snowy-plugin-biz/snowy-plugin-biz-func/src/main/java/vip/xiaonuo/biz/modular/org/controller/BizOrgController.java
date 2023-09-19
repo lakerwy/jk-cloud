@@ -175,17 +175,17 @@ public class BizOrgController {
     }
 
     /**
-     * 获取动态字段的配置
+     * 获取机构动态字段的配置
      *
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
     @ApiOperationSupport(order = 9)
-    @ApiOperation("获取动态字段的配置")
-    @SaCheckPermission("/biz/org/getDynamicFieldConfigList")
-    @GetMapping("/biz/org/getDynamicFieldConfigList")
-    public CommonResult<List<JSONObject>> getDynamicFieldConfigList() {
-        return CommonResult.data(bizOrgService.getDynamicFieldConfigList());
+    @ApiOperation("获取机构动态字段的配置")
+    @SaCheckPermission("/biz/org/dynamicFieldConfigList")
+    @GetMapping("/biz/org/dynamicFieldConfigList")
+    public CommonResult<List<JSONObject>> dynamicFieldConfigList() {
+        return CommonResult.data(bizOrgService.dynamicFieldConfigList());
     }
 
 

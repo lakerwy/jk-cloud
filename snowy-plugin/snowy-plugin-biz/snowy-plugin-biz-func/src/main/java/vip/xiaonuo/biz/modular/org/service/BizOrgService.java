@@ -180,6 +180,6 @@ public interface BizOrgService extends IService<BizOrg> {
      * @author 每天一点
      * @date 2022/8/5 3：23
      */
-    List<JSONObject> getDynamicFieldConfigList();
+    List<JSONObject> dynamicFieldConfigList();
 
 }

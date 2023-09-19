@@ -13,9 +13,12 @@
 package vip.xiaonuo.dev.modular.dfc.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fhs.core.trans.vo.TransPojo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.common.pojo.CommonEntity;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -28,7 +31,7 @@ import java.util.Date;
 @Getter
 @Setter
 @TableName("DEV_DFC")
-public class DevDfc {
+public class DevDfc extends CommonEntity implements TransPojo {
 
     /** 主键 */
     @TableId
@@ -91,29 +94,7 @@ public class DevDfc {
     @ApiModelProperty(value = "是否多选", position = 15)
     private Integer isMultiple;
 
-    /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 16)
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
-    private String deleteFlag;
-
-    /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 17)
-    @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
-
-    /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 18)
-    @TableField(fill = FieldFill.INSERT)
-    private String createUser;
-
-    /** 更新时间 */
-    @ApiModelProperty(value = "更新时间", position = 19)
-    @TableField(fill = FieldFill.UPDATE)
-    private Date updateTime;
-
-    /** 更新用户 */
-    @ApiModelProperty(value = "更新用户", position = 20)
-    @TableField(fill = FieldFill.UPDATE)
-    private String updateUser;
+    /** 状态 */
+    @ApiModelProperty(value = "状态", position = 16)
+    private String status;
 }

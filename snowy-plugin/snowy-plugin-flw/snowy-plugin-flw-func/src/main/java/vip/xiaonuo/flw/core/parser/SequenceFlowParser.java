@@ -33,9 +33,11 @@ public class SequenceFlowParser {
             conditionItem.append("(");
             StringBuilder finalConditionItem = conditionItem;
             flwNodeConditionProps.forEach(flwNodeConditionProp -> {
-                String fieldOrigin = flwNodeConditionProp.getField();
+                String fieldOrigin;
                 if(flwNodeConditionProp.getField().contains(StrUtil.UNDERLINE)) {
                     fieldOrigin = StrUtil.toCamelCase(flwNodeConditionProp.getField().toLowerCase());
+                } else {
+                    fieldOrigin = flwNodeConditionProp.getField().toLowerCase();
                 }
                 String field = StrUtil.replace(fieldOrigin, StrUtil.DOT, StrUtil.UNDERLINE);
                 String logic = flwNodeConditionProp.getOperator();
