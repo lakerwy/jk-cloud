@@ -20,7 +20,7 @@ public interface IFileTransferService {
 
     void uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam);
 
-    void downloadFile(HttpServletResponse httpServletResponse, DownloadFileParam downloadFileParam);
+    void downloadFile(HttpServletResponse httpServletResponse, List<String> fileIds);
     void downloadUserFileList(HttpServletResponse httpServletResponse, String filePath, String fileName, List<String> userFileIds);
     void previewFile(HttpServletResponse httpServletResponse, PreviewParam previewParam);
     void previewPictureFile(HttpServletResponse httpServletResponse, PreviewParam previewParam);

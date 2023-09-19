@@ -12,8 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.file.controller;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -24,7 +23,6 @@ import io.swagger.annotations.ApiOperation;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -67,6 +65,7 @@ import javax.validation.constraints.NotEmpty;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -165,16 +164,16 @@ public class PanFileController {
     @ApiOperationSupport(order = 9)
     @ApiOperation("下载文件(支持批量)")
 //    @SaCheckPermission("/pan/file/uploadFile")
-    @PostMapping("/pan/file/downloadFile")
-    public CommonResult<String> downloadFile(HttpServletResponse httpServletResponse, DownloadFileParam downloadFileParam){
+    @GetMapping("/pan/file/downloadFile")
+    public void downloadFile(HttpServletResponse httpServletResponse, @RequestParam(value = "fileIds",required = true) String fileIds){
         //todo
         // 按时不判断是否有下载权限
 
         httpServletResponse.setContentType("application/force-download");// 设置强制下载不打开
-        if(ObjectUtil.isNotNull(downloadFileParam)){
-            if(CollUtil.isNotEmpty(downloadFileParam.getIds())){
-                if(downloadFileParam.getIds().size() == 1){
-                    UserFile userFile = userFileService.getById(downloadFileParam.getIds().get(0));
+        if(StrUtil.isNotEmpty(fileIds)){
+            List<String> collect = Arrays.stream(fileIds.split(", ")).collect(Collectors.toList());
+            if(collect.size() == 1){
+                    UserFile userFile = userFileService.getById(collect.get(0));
                     String fileName = "";
                     if (userFile.getIsDir() == 1) {
                         fileName = userFile.getFileName() + ".zip";
@@ -182,19 +181,14 @@ public class PanFileController {
                         fileName = userFile.getFileName() + "." + userFile.getExtendName();
 
                     }
-                    try {
-                        fileName = new String(fileName.getBytes("utf-8"), "ISO-8859-1");
-                    } catch (UnsupportedEncodingException e) {
-                        e.printStackTrace();
-                    }
+                fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
 
-                    httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName);// 设置文件名
+                httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName);// 设置文件名
 
-                    fileTransferService.downloadFile(httpServletResponse, downloadFileParam);
-                }else if(downloadFileParam.getIds().size() >1){
-                    List<String> ids = downloadFileParam.getIds();
+                fileTransferService.downloadFile(httpServletResponse, collect);
+                }else if(collect.size() >1){
                     List<String> userFileIds = new ArrayList<>();
-                    for(String userFileId : ids) {
+                    for(String userFileId : collect) {
                         UserFile userFile = userFileService.getById(userFileId);
                         if (userFile.getIsDir() == 0) {
                             userFileIds.add(userFileId);
@@ -207,16 +201,14 @@ public class PanFileController {
                         }
 
                     }
-                    UserFile userFile = userFileService.getById(downloadFileParam.getIds().get(0));
+                    UserFile userFile = userFileService.getById(collect.get(0));
                     httpServletResponse.setContentType("application/force-download");// 设置强制下载不打开
                     Date date = new Date();
                     String fileName = String.valueOf(date.getTime());
                     httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName + ".zip");// 设置文件名
                     fileTransferService.downloadUserFileList(httpServletResponse, userFile.getFilePath(), fileName, userFileIds);
                 }
-            }
         }
-        return CommonResult.ok();
     }
 
     @ApiOperationSupport(order = 11)
