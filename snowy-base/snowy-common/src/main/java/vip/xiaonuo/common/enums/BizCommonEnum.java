@@ -11,8 +11,10 @@ public enum BizCommonEnum {
     BIZ_TASK("BIZ_TASK","BIZ_TASK","BizTaskServiceImpl"), //任务中心-部门绩效业务-实际业务表（1-n）
     BIZ_CRM_HETONG("BIZ_CRM_HETONG","BIZ_CRM_HETONG","HetongServiceImpl"), //CRM-收入合同业务
     BIZ_RECRUIT_FLW("BIZ_RECRUIT_FLW","BIZ_RECRUIT_FLW","BizRecruitFlwServiceImpl"), //招聘-部门计划-流程单
-    BIZ_RECRUIT_PLAN("BIZ_RECRUIT_PLAN","BIZ_RECRUIT_PLAN","BizRecruitPlanServiceImpl"); //招聘-部门计划-计划表（1-n）
+    BIZ_RECRUIT_PLAN("BIZ_RECRUIT_PLAN","BIZ_RECRUIT_PLAN","BizRecruitPlanServiceImpl"), //招聘-部门计划-计划表（1-n）
 
+    BIZ_EMP_TASK_FLW("BIZ_EMP_TASK_FLW","BIZ_EMP_TASK_FLW","BizEmpTaskFlwServiceImpl"), //员工绩效-季度计划-流程单
+    BIZ_EMP_TASK("BIZ_EMP_TASK","BIZ_EMP_TASK","BizEmpTaskServiceImpl"); //员工绩效-季度计划-计划表（1-n）
 
     String bizModel;
     String bizTable;
