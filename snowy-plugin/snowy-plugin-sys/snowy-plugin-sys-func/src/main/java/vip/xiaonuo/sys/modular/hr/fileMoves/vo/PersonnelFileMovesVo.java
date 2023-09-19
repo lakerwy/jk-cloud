@@ -192,4 +192,12 @@ public class PersonnelFileMovesVo {
     @ApiModelProperty(value = "申请人", position = 31)
     private String applyUser;
 
+
+    /** 职级 */
+    @ApiModelProperty(value = "职级", position = 50)
+    private String titleProfession;
+
+    /** 转正职级 */
+    @ApiModelProperty(value = "转正职级", position = 51)
+    private String nowJobLevel;
 }

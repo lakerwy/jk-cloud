@@ -212,4 +212,13 @@ public class PersonnelFileMovesEditParam {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 49)
     private String status;
+
+
+    /** 职级 */
+    @ApiModelProperty(value = "职级", position = 50)
+    private String titleProfession;
+
+    /** 转正职级 */
+    @ApiModelProperty(value = "转正职级", position = 51)
+    private String nowJobLevel;
 }
