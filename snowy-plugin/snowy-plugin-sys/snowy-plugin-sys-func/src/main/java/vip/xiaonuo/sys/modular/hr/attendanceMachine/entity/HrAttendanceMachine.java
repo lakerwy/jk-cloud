@@ -76,4 +76,16 @@ public class HrAttendanceMachine {
     @ApiModelProperty(value = "修改用户", position = 10)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 设备广播的uuid */
+    @ApiModelProperty(value = "设备广播的uuid", position = 11)
+    private String uuid;
+
+    /** 设备的主ID */
+    @ApiModelProperty(value = "设备的主ID", position = 12)
+    private String major;
+
+    /** 设备的次ID */
+    @ApiModelProperty(value = "设备的次ID", position = 13)
+    private String minor;
 }
