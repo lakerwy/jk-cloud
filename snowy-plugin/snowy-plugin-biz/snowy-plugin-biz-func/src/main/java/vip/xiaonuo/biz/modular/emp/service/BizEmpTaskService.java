@@ -41,7 +41,7 @@ public interface BizEmpTaskService extends IService<BizEmpTask> {
      * @author yong.ye
      * @date  2023/09/19 08:47
      */
-    void add(BizEmpTaskAddParam bizEmpTaskAddParam);
+    void add(EmpTaskFlwParam empTaskFlwParam);
 
     /**
      * 编辑业务表-员工绩效考核-季度任务表
@@ -82,4 +82,20 @@ public interface BizEmpTaskService extends IService<BizEmpTask> {
      * @date  2023/09/19 08:47
      */
     void flwAdd(EmpTaskFlwParam empTaskFlwParam);
+
+    /**
+     * 编辑业务表-员工绩效考核-季度任务表(流程中编辑 - 批量)
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:47
+     */
+    void flwEdit(EmpTaskFlwParam empTaskFlwParam);
+
+    /**
+     * 根据 用户Id+考核年度+考核季度 获取员工当前季度下的任务集合
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:47
+     */
+    List<BizEmpTask> listByUserId(EmpTaskUserIdParam empTaskUserIdParam);
 }

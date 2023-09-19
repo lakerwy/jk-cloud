@@ -128,4 +128,6 @@ public class BizEmpPerformanceController {
     public CommonResult<BizEmpPerformance> detail(@Valid BizEmpPerformanceIdParam bizEmpPerformanceIdParam) {
         return CommonResult.data(bizEmpPerformanceService.detail(bizEmpPerformanceIdParam));
     }
+
+
 }

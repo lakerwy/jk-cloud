@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -50,6 +51,7 @@ import vip.xiaonuo.flw.api.FormRelationTableApi;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-员工绩效考核-季度任务表Service接口实现类
@@ -103,9 +105,17 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(BizEmpTaskAddParam bizEmpTaskAddParam) {
-        BizEmpTask bizEmpTask = BeanUtil.toBean(bizEmpTaskAddParam, BizEmpTask.class);
-        this.save(bizEmpTask);
+    public void add(EmpTaskFlwParam empTaskFlwParam) {
+        List<BizEmpTask> bizEmpTaskList = BeanUtil.copyToList(empTaskFlwParam.getParamList(),BizEmpTask.class);
+        bizEmpTaskList.forEach(x->{
+            x.setUserId(empTaskFlwParam.getUserId());
+            x.setUserName(empTaskFlwParam.getUserName());
+            x.setOrgId(empTaskFlwParam.getOrgId());
+            x.setYear(empTaskFlwParam.getYear());
+            x.setSeason(empTaskFlwParam.getSeason());
+            x.setStatus(BizTaskStatusEnum.COMPLETED_STATUS.getValue());
+        });
+        this.saveBatch(bizEmpTaskList);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -177,5 +187,90 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
                 this.saveBatch(bizEmpTaskList);
             }
         }
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void flwEdit(EmpTaskFlwParam empTaskFlwParam) {
+        //任务流程清单主键Id，与流程表单对应
+        String taskFlwId = "";
+        //判断审批流程内的修改
+        if(ObjectUtil.isNotEmpty(empTaskFlwParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(empTaskFlwParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                taskFlwId = formRelationTable.getStr("id");
+            }
+        }
+        if(StrUtil.isNotEmpty(taskFlwId)){
+            BizEmpTaskFlw bizEmpTaskFlw = bizEmpTaskFlwService.queryEntity(taskFlwId);
+            bizEmpTaskFlw.setExtJson(JsonUtils.object2json(empTaskFlwParam));
+            bizEmpTaskFlwService.updateById(bizEmpTaskFlw);
+            //处理该流程的业务数据(业务数据主键由前端提供)
+            //格式化前端数据
+            List<BizEmpTask> tmpBizEmpTaskList = BeanUtil.copyToList(empTaskFlwParam.getParamList(),BizEmpTask.class);
+            tmpBizEmpTaskList.forEach(x->{
+                x.setUserId(empTaskFlwParam.getUserId());
+                x.setUserName(empTaskFlwParam.getUserName());
+                x.setOrgId(empTaskFlwParam.getOrgId());
+                x.setYear(empTaskFlwParam.getYear());
+                x.setSeason(empTaskFlwParam.getSeason());
+                x.setFlwId(bizEmpTaskFlw.getId());
+            });
+
+            if(CollUtil.isNotEmpty(tmpBizEmpTaskList)) {
+                //历史数据
+                List<BizEmpTask> oldBizEmpTaskList = this.list(new QueryWrapper<BizEmpTask>().lambda().eq(BizEmpTask::getFlwId, taskFlwId));
+                List<String> oldIds = oldBizEmpTaskList.stream().map(BizEmpTask::getId).collect(Collectors.toList());
+                //待更新的
+                List<BizEmpTask> updateList = tmpBizEmpTaskList.stream().filter(x -> oldIds.contains(x.getId())).collect(Collectors.toList());
+                //待新增的
+                List<BizEmpTask> addList = tmpBizEmpTaskList.stream().filter(x -> !oldIds.contains(x.getId())).collect(Collectors.toList());
+                //待删除的
+                List<String> updateIds = updateList.stream().map(BizEmpTask::getId).collect(Collectors.toList());
+                List<BizEmpTask> removeList = oldBizEmpTaskList.stream().filter(x -> !updateIds.contains(x.getId())).collect(Collectors.toList());
+
+                //更新数据库
+                if (CollUtil.isNotEmpty(addList)) {
+                    this.saveBatch(addList);
+                }
+                if (CollUtil.isNotEmpty(updateList)) {
+                    this.updateBatchById(updateList);
+                }
+                if (CollUtil.isNotEmpty(removeList)) {
+                    this.removeByIds(removeList);
+                }
+            }
+            else{
+                //历史数据
+                List<BizEmpTask> oldBizEmpTaskList = this.list(new QueryWrapper<BizEmpTask>().lambda().eq(BizEmpTask::getFlwId, taskFlwId));
+                if (CollUtil.isNotEmpty(oldBizEmpTaskList)) {
+                    this.removeByIds(oldBizEmpTaskList);
+                }
+            }
+        }
+    }
+
+    @Override
+    public List<BizEmpTask> listByUserId(EmpTaskUserIdParam empTaskUserIdParam) {
+        QueryWrapper<BizEmpTask> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(empTaskUserIdParam.getUserId())){
+            queryWrapper.lambda().eq(BizEmpTask::getUserId,empTaskUserIdParam.getUserId());
+        }
+        if(ObjectUtil.isNotEmpty(empTaskUserIdParam.getOrgId())){
+            queryWrapper.lambda().eq(BizEmpTask::getOrgId,empTaskUserIdParam.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(empTaskUserIdParam.getYear())){
+            queryWrapper.lambda().eq(BizEmpTask::getYear,empTaskUserIdParam.getYear());
+        }
+        if(ObjectUtil.isNotEmpty(empTaskUserIdParam.getSeason())){
+            queryWrapper.lambda().eq(BizEmpTask::getSeason,empTaskUserIdParam.getSeason());
+        }
+        if(ObjectUtil.isNotEmpty(empTaskUserIdParam.getStatus())){
+            queryWrapper.lambda().eq(BizEmpTask::getStatus,empTaskUserIdParam.getStatus());
+        }else{
+            queryWrapper.lambda().eq(BizEmpTask::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
+        return this.list(queryWrapper);
     }
 }

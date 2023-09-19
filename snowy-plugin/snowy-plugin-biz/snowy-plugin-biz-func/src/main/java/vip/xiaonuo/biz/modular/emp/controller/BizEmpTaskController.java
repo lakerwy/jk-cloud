@@ -33,6 +33,7 @@ import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 业务表-员工绩效考核-季度任务表控制器
@@ -74,8 +75,8 @@ public class BizEmpTaskController {
     @CommonLog("添加业务表-员工绩效考核-季度任务表")
 //    @SaCheckPermission("/biz/emp/task/add")
     @PostMapping("/biz/emp/task/add")
-    public CommonResult<String> add(@RequestBody @Valid BizEmpTaskAddParam bizEmpTaskAddParam) {
-        bizEmpTaskService.add(bizEmpTaskAddParam);
+    public CommonResult<String> add(@RequestBody @Valid EmpTaskFlwParam empTaskFlwParam) {
+        bizEmpTaskService.add(empTaskFlwParam);
         return CommonResult.ok();
     }
 
@@ -140,5 +141,36 @@ public class BizEmpTaskController {
     public CommonResult<String> flwAdd(@RequestBody @Valid EmpTaskFlwParam empTaskFlwParam) {
         bizEmpTaskService.flwAdd(empTaskFlwParam);
         return CommonResult.ok();
+    }
+
+    /**
+     * 编辑业务表-员工绩效考核-季度任务表(流程中编辑 - 批量)
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:47
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("编辑业务表-员工绩效考核-季度任务表(流程中编辑 - 批量)")
+    @CommonLog("编辑业务表-员工绩效考核-季度任务表(流程中编辑 - 批量)")
+//    @SaCheckPermission("/biz/emp/task/add")
+    @PostMapping("/biz/emp/task/flwEdit")
+    public CommonResult<String> flwEdit(@RequestBody @Valid EmpTaskFlwParam empTaskFlwParam) {
+        bizEmpTaskService.flwEdit(empTaskFlwParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 根据 用户Id+考核年度+考核季度 获取员工当前季度下的任务集合
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:47
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("根据 用户Id+考核年度+考核季度 获取员工当前季度下的任务集合")
+//    @SaCheckPermission("/biz/emp/task/detail")
+    @GetMapping("/biz/emp/task/listByUserId")
+    public CommonResult<List<BizEmpTask>> listByUserId(@Valid EmpTaskUserIdParam empTaskUserIdParam) {
+        return CommonResult.data(bizEmpTaskService.listByUserId(empTaskUserIdParam));
     }
 }
