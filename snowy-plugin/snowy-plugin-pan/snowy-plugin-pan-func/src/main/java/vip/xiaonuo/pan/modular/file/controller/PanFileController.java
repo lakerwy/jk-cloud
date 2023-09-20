@@ -42,6 +42,7 @@ import vip.xiaonuo.pan.modular.fileCenter.entity.PanFileStorage;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Action;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Type;
+import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.EditorConfig;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.FileModel;
 import vip.xiaonuo.pan.modular.fileCenter.office.entities.User;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.FileConfigurer;
@@ -61,7 +62,6 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -350,7 +350,7 @@ public class PanFileController {
     public CommonResult<JSONObject> editOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
         CommonResult<JSONObject> result;
         //String token = request.getHeader("Token");
-        String previewUrl = commonProperties.getFrontUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
+        String previewUrl = commonProperties.getBackendUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
         try {
             UserFile userFile = userFileService.getById(previewOfficeFileParam.getUserFileId());
 
@@ -373,6 +373,9 @@ public class PanFileController {
                             .actionData(previewUrl)
                             .build()
             );
+            EditorConfig editorConfig = fileModel.getEditorConfig();
+            editorConfig.setCallbackUrl(null);
+            fileModel.setEditorConfig(editorConfig);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("file",fileModel);
             jsonObject.put("docServiceApiUrl", docServiceSite + docServiceApiUrl);

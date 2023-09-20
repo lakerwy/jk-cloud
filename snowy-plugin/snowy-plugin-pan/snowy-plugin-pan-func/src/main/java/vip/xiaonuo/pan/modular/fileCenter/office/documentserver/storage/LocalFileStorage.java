@@ -321,10 +321,10 @@ public class LocalFileStorage implements FileStorageMutator, FileStoragePathBuil
 
     // get the server URL
     public String getServerUrl(Boolean forDocumentServer) {
-        if (forDocumentServer && !docserviceUrlExample.equals("")) {
+        if (forDocumentServer && !docserviceUrlExample.isEmpty()) {
             return docserviceUrlExample;
         } else {
-            return commonProperties.getFrontUrl() + request.getContextPath();
+            return commonProperties.getBackendUrl() + request.getContextPath();
 //            return request.getScheme() + "://" + request.getServerName() + ":" + request.getServerPort() + request.getContextPath();
         }
     }
@@ -348,7 +348,7 @@ public class LocalFileStorage implements FileStorageMutator, FileStoragePathBuil
 
         try (Stream<Path> stream = Files.walk(path, 1)) {  // run through all the files in the history directory
             return stream
-                    .filter(file -> Files.isDirectory(file))  // take only directories from the history folder
+                    .filter(Files::isDirectory)  // take only directories from the history folder
                     .map(Path::getFileName)  // get file names
                     .map(Path::toString)  // and convert them into strings
                     .collect(Collectors.toSet()).size();  // convert stream into set and get its size which specifies the file version
