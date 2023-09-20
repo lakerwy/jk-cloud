@@ -52,6 +52,12 @@ public class EpcFacilityDangerServiceImpl extends ServiceImpl<EpcFacilityDangerM
         if(ObjectUtil.isNotEmpty(epcFacilityDangerPageParam.getDangerSource())) {
             queryWrapper.lambda().like(EpcFacilityDanger::getDangerSource, epcFacilityDangerPageParam.getDangerSource());
         }
+        if(ObjectUtil.isNotEmpty(epcFacilityDangerPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcFacilityDanger::getDangerSource,epcFacilityDangerPageParam.getSearchKey())
+                    .or().like(EpcFacilityDanger::getHarm,epcFacilityDangerPageParam.getSearchKey())
+                    .or().like(EpcFacilityDanger::getMeasure,epcFacilityDangerPageParam.getSearchKey()));
+        }
+
         if(ObjectUtil.isAllNotEmpty(epcFacilityDangerPageParam.getSortField(), epcFacilityDangerPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcFacilityDangerPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcFacilityDangerPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

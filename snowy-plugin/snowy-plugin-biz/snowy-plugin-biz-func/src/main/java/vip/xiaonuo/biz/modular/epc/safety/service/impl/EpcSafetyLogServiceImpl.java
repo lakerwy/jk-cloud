@@ -52,6 +52,10 @@ public class EpcSafetyLogServiceImpl extends ServiceImpl<EpcSafetyLogMapper, Epc
         if(ObjectUtil.isNotEmpty(epcSafetyLogPageParam.getStartLogTime()) && ObjectUtil.isNotEmpty(epcSafetyLogPageParam.getEndLogTime())) {
             queryWrapper.lambda().between(EpcSafetyLog::getLogTime, epcSafetyLogPageParam.getStartLogTime(), epcSafetyLogPageParam.getEndLogTime());
         }
+        if(ObjectUtil.isNotEmpty(epcSafetyLogPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcSafetyLog::getWeekDay,epcSafetyLogPageParam.getSearchKey())
+                    .or().like(EpcSafetyLog::getWeather,epcSafetyLogPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(epcSafetyLogPageParam.getSortField(), epcSafetyLogPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcSafetyLogPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcSafetyLogPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

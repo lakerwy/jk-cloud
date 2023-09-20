@@ -55,6 +55,12 @@ public class EpcSafetySubmitServiceImpl extends ServiceImpl<EpcSafetySubmitMappe
         if(ObjectUtil.isNotEmpty(epcSafetySubmitPageParam.getStartSubmitTime()) && ObjectUtil.isNotEmpty(epcSafetySubmitPageParam.getEndSubmitTime())) {
             queryWrapper.lambda().between(EpcSafetySubmit::getSubmitTime, epcSafetySubmitPageParam.getStartSubmitTime(), epcSafetySubmitPageParam.getEndSubmitTime());
         }
+        if(ObjectUtil.isNotEmpty(epcSafetySubmitPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcSafetySubmit::getSubmitName,epcSafetySubmitPageParam.getSearchKey())
+                    .or().like(EpcSafetySubmit::getSubmitPerson,epcSafetySubmitPageParam.getSearchKey())
+                    .or().like(EpcSafetySubmit::getSubmitObject,epcSafetySubmitPageParam.getSearchKey()));
+        }
+
         if(ObjectUtil.isAllNotEmpty(epcSafetySubmitPageParam.getSortField(), epcSafetySubmitPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcSafetySubmitPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcSafetySubmitPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

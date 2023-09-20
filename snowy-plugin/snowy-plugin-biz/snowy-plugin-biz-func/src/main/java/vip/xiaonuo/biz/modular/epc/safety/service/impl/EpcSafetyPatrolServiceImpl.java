@@ -55,6 +55,11 @@ public class EpcSafetyPatrolServiceImpl extends ServiceImpl<EpcSafetyPatrolMappe
         if(ObjectUtil.isNotEmpty(epcSafetyPatrolPageParam.getLevel())) {
             queryWrapper.lambda().eq(EpcSafetyPatrol::getLevel, epcSafetyPatrolPageParam.getLevel());
         }
+        if(ObjectUtil.isNotEmpty(epcSafetyPatrolPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcSafetyPatrol::getPosition,epcSafetyPatrolPageParam.getSearchKey())
+                    .or().like(EpcSafetyPatrol::getItems,epcSafetyPatrolPageParam.getSearchKey())
+                    .or().like(EpcSafetyPatrol::getLevel,epcSafetyPatrolPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(epcSafetyPatrolPageParam.getSortField(), epcSafetyPatrolPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcSafetyPatrolPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcSafetyPatrolPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

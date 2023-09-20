@@ -52,6 +52,10 @@ public class EpcWorkerPoolServiceImpl extends ServiceImpl<EpcWorkerPoolMapper, E
         if(ObjectUtil.isNotEmpty(epcWorkerPoolPageParam.getIdCard())) {
             queryWrapper.lambda().like(EpcWorkerPool::getIdCard, epcWorkerPoolPageParam.getIdCard());
         }
+        if(ObjectUtil.isNotEmpty(epcWorkerPoolPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcWorkerPool::getIdCard,epcWorkerPoolPageParam.getSearchKey())
+                    .or().like(EpcWorkerPool::getName,epcWorkerPoolPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(epcWorkerPoolPageParam.getSortField(), epcWorkerPoolPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcWorkerPoolPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcWorkerPoolPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -65,6 +69,12 @@ public class EpcWorkerPoolServiceImpl extends ServiceImpl<EpcWorkerPoolMapper, E
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(EpcWorkerPoolAddParam epcWorkerPoolAddParam) {
+        //判断当前身份证是否已存在
+        EpcWorkerPool old = this.getOne(new QueryWrapper<EpcWorkerPool>().lambda().eq(EpcWorkerPool::getIdCard,epcWorkerPoolAddParam.getIdCard()));
+        if(ObjectUtil.isNotEmpty(old)) {
+            throw new CommonException("身份证：{}已存在", epcWorkerPoolAddParam.getIdCard());
+        }
+
         EpcWorkerPool epcWorkerPool = BeanUtil.toBean(epcWorkerPoolAddParam, EpcWorkerPool.class);
         this.save(epcWorkerPool);
     }
@@ -72,6 +82,13 @@ public class EpcWorkerPoolServiceImpl extends ServiceImpl<EpcWorkerPoolMapper, E
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(EpcWorkerPoolEditParam epcWorkerPoolEditParam) {
+        //修改身份证号校验
+        EpcWorkerPool old = this.getOne(new QueryWrapper<EpcWorkerPool>().lambda().eq(EpcWorkerPool::getIdCard,epcWorkerPoolEditParam.getIdCard())
+                .ne(EpcWorkerPool::getId,epcWorkerPoolEditParam.getId()));
+        if(ObjectUtil.isNotEmpty(old)) {
+            throw new CommonException("身份证：{}已存在", epcWorkerPoolEditParam.getIdCard());
+        }
+
         EpcWorkerPool epcWorkerPool = this.queryEntity(epcWorkerPoolEditParam.getId());
         BeanUtil.copyProperties(epcWorkerPoolEditParam, epcWorkerPool);
         this.updateById(epcWorkerPool);

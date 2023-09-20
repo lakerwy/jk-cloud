@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelLedger;
 import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelSpecial;
 import vip.xiaonuo.biz.modular.epc.safety.mapper.EpcPersonnelSpecialMapper;
 import vip.xiaonuo.biz.modular.epc.safety.param.*;
@@ -61,6 +62,17 @@ public class EpcPersonnelSpecialServiceImpl extends ServiceImpl<EpcPersonnelSpec
         if(ObjectUtil.isNotEmpty(epcPersonnelSpecialPageParam.getIssuingUnit())) {
             queryWrapper.like("a.ISSUING_UNIT", epcPersonnelSpecialPageParam.getIssuingUnit());
         }
+        if(ObjectUtil.isNotEmpty(epcPersonnelSpecialPageParam.getProjectId())){
+            queryWrapper.eq("b.PROJECT_ID", epcPersonnelSpecialPageParam.getProjectId());
+        }
+        if(ObjectUtil.isNotEmpty(epcPersonnelSpecialPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.ISSUING_UNIT",epcPersonnelSpecialPageParam.getSearchKey())
+                    .or().like("b.NAME",epcPersonnelSpecialPageParam.getSearchKey())
+                    .or().like("b.ID_CARD",epcPersonnelSpecialPageParam.getSearchKey())
+                    .or().like("b.BELONG_COMPANY",epcPersonnelSpecialPageParam.getSearchKey())
+                    .or().like("b.PHONE",epcPersonnelSpecialPageParam.getSearchKey()));
+        }
+
         if(ObjectUtil.isAllNotEmpty(epcPersonnelSpecialPageParam.getSortField(), epcPersonnelSpecialPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcPersonnelSpecialPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcPersonnelSpecialPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -74,6 +86,11 @@ public class EpcPersonnelSpecialServiceImpl extends ServiceImpl<EpcPersonnelSpec
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(EpcPersonnelSpecialAddParam epcPersonnelSpecialAddParam) {
+        //判断当前项目、当前身份证是否已存在
+        EpcPersonnelSpecial old = this.getOne(new QueryWrapper<EpcPersonnelSpecial>().lambda().eq(EpcPersonnelSpecial::getPersonnelId,epcPersonnelSpecialAddParam.getPersonnelId()));
+        if(ObjectUtil.isNotEmpty(old)) {
+            throw new CommonException("该人员已存在");
+        }
         EpcPersonnelSpecial epcPersonnelSpecial = BeanUtil.toBean(epcPersonnelSpecialAddParam, EpcPersonnelSpecial.class);
         this.save(epcPersonnelSpecial);
     }
@@ -81,6 +98,12 @@ public class EpcPersonnelSpecialServiceImpl extends ServiceImpl<EpcPersonnelSpec
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(EpcPersonnelSpecialEditParam epcPersonnelSpecialEditParam) {
+        //判断当前项目、当前身份证是否已存在
+        EpcPersonnelSpecial old = this.getOne(new QueryWrapper<EpcPersonnelSpecial>().lambda().eq(EpcPersonnelSpecial::getPersonnelId,epcPersonnelSpecialEditParam.getPersonnelId())
+                .ne(EpcPersonnelSpecial::getId,epcPersonnelSpecialEditParam.getId()));
+        if(ObjectUtil.isNotEmpty(old)) {
+            throw new CommonException("该人员已存在");
+        }
         EpcPersonnelSpecial epcPersonnelSpecial = this.queryEntity(epcPersonnelSpecialEditParam.getId());
         BeanUtil.copyProperties(epcPersonnelSpecialEditParam, epcPersonnelSpecial);
         this.updateById(epcPersonnelSpecial);

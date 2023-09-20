@@ -62,4 +62,7 @@ public class EpcPersonnelSpecialPageParam {
     @ApiModelProperty(value = "发放单位")
     private String issuingUnit;
 
+    /** 项目ID(外键) */
+    @ApiModelProperty(value = "项目ID(外键)")
+    private String projectId;
 }

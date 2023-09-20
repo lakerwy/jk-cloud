@@ -49,6 +49,10 @@ public class EpcProjectServiceImpl extends ServiceImpl<EpcProjectMapper, EpcProj
         if(ObjectUtil.isNotEmpty(epcProjectPageParam.getProjectName())) {
             queryWrapper.lambda().like(EpcProject::getProjectName, epcProjectPageParam.getProjectName());
         }
+        if(ObjectUtil.isNotEmpty(epcProjectPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcProject::getProjectName,epcProjectPageParam.getSearchKey())
+                    .or().like(EpcProject::getMemo,epcProjectPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(epcProjectPageParam.getSortField(), epcProjectPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcProjectPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

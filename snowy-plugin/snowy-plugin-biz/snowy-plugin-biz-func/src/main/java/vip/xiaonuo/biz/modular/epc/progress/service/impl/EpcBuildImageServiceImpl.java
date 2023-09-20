@@ -55,6 +55,12 @@ public class EpcBuildImageServiceImpl extends ServiceImpl<EpcBuildImageMapper, E
         if(ObjectUtil.isNotEmpty(epcBuildImagePageParam.getStartShootTime()) && ObjectUtil.isNotEmpty(epcBuildImagePageParam.getEndShootTime())) {
             queryWrapper.lambda().between(EpcBuildImage::getShootTime, epcBuildImagePageParam.getStartShootTime(), epcBuildImagePageParam.getEndShootTime());
         }
+        if(ObjectUtil.isNotEmpty(epcBuildImagePageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcBuildImage::getShootPosition,epcBuildImagePageParam.getSearchKey())
+                    .or().like(EpcBuildImage::getContent,epcBuildImagePageParam.getSearchKey())
+                    .or().like(EpcBuildImage::getStage,epcBuildImagePageParam.getSearchKey())
+                    .or().like(EpcBuildImage::getType,epcBuildImagePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(epcBuildImagePageParam.getSortField(), epcBuildImagePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcBuildImagePageParam.getSortOrder());
             queryWrapper.orderBy(true, epcBuildImagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

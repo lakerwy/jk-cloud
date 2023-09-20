@@ -23,6 +23,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelLedger;
 import vip.xiaonuo.biz.modular.epc.safety.entity.EpcPersonnelSpecial;
+import vip.xiaonuo.biz.modular.epc.safety.entity.EpcWorkerPool;
 import vip.xiaonuo.biz.modular.epc.safety.mapper.EpcPersonnelLedgerMapper;
 import vip.xiaonuo.biz.modular.epc.safety.param.*;
 import vip.xiaonuo.biz.modular.epc.safety.service.EpcPersonnelLedgerService;
@@ -88,6 +89,15 @@ public class EpcPersonnelLedgerServiceImpl extends ServiceImpl<EpcPersonnelLedge
         if(ObjectUtil.isNotEmpty(epcPersonnelLedgerPageParam.getIsSafety())) {
             queryWrapper.lambda().eq(EpcPersonnelLedger::getIsSafety, epcPersonnelLedgerPageParam.getIsSafety());
         }
+        if(ObjectUtil.isNotEmpty(epcPersonnelLedgerPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcPersonnelLedger::getName,epcPersonnelLedgerPageParam.getSearchKey())
+                    .or().like(EpcPersonnelLedger::getIdCard,epcPersonnelLedgerPageParam.getSearchKey())
+                    .or().like(EpcPersonnelLedger::getGender,epcPersonnelLedgerPageParam.getSearchKey())
+                    .or().like(EpcPersonnelLedger::getPhone,epcPersonnelLedgerPageParam.getSearchKey())
+                    .or().like(EpcPersonnelLedger::getBelongCompany,epcPersonnelLedgerPageParam.getSearchKey())
+                    .or().like(EpcPersonnelLedger::getWorkType,epcPersonnelLedgerPageParam.getSearchKey()));
+        }
+
         if(ObjectUtil.isAllNotEmpty(epcPersonnelLedgerPageParam.getSortField(), epcPersonnelLedgerPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcPersonnelLedgerPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcPersonnelLedgerPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -106,6 +116,11 @@ public class EpcPersonnelLedgerServiceImpl extends ServiceImpl<EpcPersonnelLedge
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(EpcPersonnelLedgerAddParam epcPersonnelLedgerAddParam) {
+        //判断当前项目、当前身份证是否已存在
+        EpcPersonnelLedger old = this.getOne(new QueryWrapper<EpcPersonnelLedger>().lambda().eq(EpcPersonnelLedger::getIdCard,epcPersonnelLedgerAddParam.getIdCard()));
+        if(ObjectUtil.isNotEmpty(old)) {
+            throw new CommonException("身份证：{}已存在", epcPersonnelLedgerAddParam.getIdCard());
+        }
         EpcPersonnelLedger epcPersonnelLedger = BeanUtil.toBean(epcPersonnelLedgerAddParam, EpcPersonnelLedger.class);
         this.save(epcPersonnelLedger);
     }
@@ -113,6 +128,12 @@ public class EpcPersonnelLedgerServiceImpl extends ServiceImpl<EpcPersonnelLedge
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(EpcPersonnelLedgerEditParam epcPersonnelLedgerEditParam) {
+        //判断当前项目、当前身份证是否已存在
+        EpcPersonnelLedger old = this.getOne(new QueryWrapper<EpcPersonnelLedger>().lambda().eq(EpcPersonnelLedger::getIdCard,epcPersonnelLedgerEditParam.getIdCard())
+                .ne(EpcPersonnelLedger::getId,epcPersonnelLedgerEditParam.getId()));
+        if(ObjectUtil.isNotEmpty(old)) {
+            throw new CommonException("身份证：{}已存在", epcPersonnelLedgerEditParam.getIdCard());
+        }
         EpcPersonnelLedger epcPersonnelLedger = this.queryEntity(epcPersonnelLedgerEditParam.getId());
         BeanUtil.copyProperties(epcPersonnelLedgerEditParam, epcPersonnelLedger);
         this.updateById(epcPersonnelLedger);

@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.epc.flw.entity.EpcJobAudit;
 import vip.xiaonuo.biz.modular.epc.flw.entity.EpcTicketAudit;
 import vip.xiaonuo.biz.modular.epc.flw.mapper.EpcTicketAuditMapper;
 import vip.xiaonuo.biz.modular.epc.flw.param.*;
@@ -75,6 +74,12 @@ public class EpcTicketAuditServiceImpl extends ServiceImpl<EpcTicketAuditMapper,
         if(ObjectUtil.isNotEmpty(epcTicketAuditPageParam.getStartPenaltyTime()) && ObjectUtil.isNotEmpty(epcTicketAuditPageParam.getEndPenaltyTime())) {
             queryWrapper.lambda().between(EpcTicketAudit::getPenaltyTime, epcTicketAuditPageParam.getStartPenaltyTime(), epcTicketAuditPageParam.getEndPenaltyTime());
         }
+        if(ObjectUtil.isNotEmpty(epcTicketAuditPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcTicketAudit::getSn,epcTicketAuditPageParam.getSearchKey())
+                    .or().like(EpcTicketAudit::getPenaltyUnit,epcTicketAuditPageParam.getSearchKey())
+                    .or().like(EpcTicketAudit::getPenaltyContent,epcTicketAuditPageParam.getSearchKey()));
+        }
+
         if(ObjectUtil.isAllNotEmpty(epcTicketAuditPageParam.getSortField(), epcTicketAuditPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcTicketAuditPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcTicketAuditPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

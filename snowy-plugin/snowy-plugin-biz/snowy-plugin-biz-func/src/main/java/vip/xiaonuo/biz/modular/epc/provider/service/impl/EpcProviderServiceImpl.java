@@ -56,6 +56,14 @@ public class EpcProviderServiceImpl extends ServiceImpl<EpcProviderMapper, EpcPr
         if(ObjectUtil.isNotEmpty(epcProviderPageParam.getSocialCode())) {
             queryWrapper.lambda().like(EpcProvider::getSocialCode, epcProviderPageParam.getSocialCode());
         }
+        if(ObjectUtil.isNotEmpty(epcProviderPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcProvider::getPrvName,epcProviderPageParam.getSearchKey())
+                    .or().like(EpcProvider::getSocialCode,epcProviderPageParam.getSearchKey())
+                    .or().like(EpcProvider::getBusinessLicense,epcProviderPageParam.getSearchKey())
+                    .or().like(EpcProvider::getSignAddress,epcProviderPageParam.getSearchKey())
+                    .or().like(EpcProvider::getWorkAddress,epcProviderPageParam.getSearchKey()));
+        }
+
         if(ObjectUtil.isAllNotEmpty(epcProviderPageParam.getSortField(), epcProviderPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcProviderPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcProviderPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

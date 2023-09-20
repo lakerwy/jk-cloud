@@ -183,7 +183,7 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
             }
             PanShareFile shareFile = new PanShareFile();
             shareFile.setUserFileId(userFileId);
-            shareFile.setShareFilePath("/");
+            shareFile.setShareFilePath(userFile.getFilePath());
             shareFile.setShareBatchNum(batchId);
             panShareFileList.add(shareFile);
         }

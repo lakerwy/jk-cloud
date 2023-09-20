@@ -74,6 +74,12 @@ public class EpcJobAuditServiceImpl extends ServiceImpl<EpcJobAuditMapper, EpcJo
         if(ObjectUtil.isNotEmpty(epcJobAuditPageParam.getConstractionUnit())) {
             queryWrapper.lambda().like(EpcJobAudit::getConstractionUnit, epcJobAuditPageParam.getConstractionUnit());
         }
+        if(ObjectUtil.isNotEmpty(epcJobAuditPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(EpcJobAudit::getSn,epcJobAuditPageParam.getSearchKey())
+                    .or().like(EpcJobAudit::getConstractionUnit,epcJobAuditPageParam.getSearchKey())
+                    .or().like(EpcJobAudit::getPosition,epcJobAuditPageParam.getSearchKey())
+                    .or().like(EpcJobAudit::getType,epcJobAuditPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(epcJobAuditPageParam.getSortField(), epcJobAuditPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(epcJobAuditPageParam.getSortOrder());
             queryWrapper.orderBy(true, epcJobAuditPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
