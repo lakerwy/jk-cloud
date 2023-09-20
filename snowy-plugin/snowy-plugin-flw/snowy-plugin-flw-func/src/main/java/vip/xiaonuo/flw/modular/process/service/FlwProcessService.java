@@ -343,7 +343,9 @@ public interface FlwProcessService {
      * @author xuyuxiang
      * @date 2023/8/28 10:04
      **/
-    FlwModel modelDetail(FlwProcessModelIdParam flwProcessModelIdParam);
+    FlwModel  modelDetail(FlwProcessModelIdParam flwProcessModelIdParam);
 
     Map<String,Long> count(Boolean flag);
+
+    Boolean getInstance(String processInstanceId);
 }

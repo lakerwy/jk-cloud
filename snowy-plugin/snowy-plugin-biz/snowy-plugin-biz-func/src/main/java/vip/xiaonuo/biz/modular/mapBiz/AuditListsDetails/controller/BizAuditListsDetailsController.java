@@ -173,7 +173,7 @@ public class BizAuditListsDetailsController {
             List<String> ids = new ArrayList<>();
             ids.add(auditLists.getCreateUser());
             //ids.add(auditLists.getReader());
-            if(ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getCondition())) {
+            if(ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getCondition()) || ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getReviseAttachments())) {
                 iDingDingService.batchSend(entries, ids);
             }
         }catch (Exception e){

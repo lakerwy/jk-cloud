@@ -1183,4 +1183,16 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         return hashMap;
     }
 
+    @Override
+    public Boolean getInstance(String processInstanceId) {
+        Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).active().singleResult();
+        if(ObjectUtil.isEmpty(task)){
+            return false;
+        }
+        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(processInstanceId).singleResult();
+        String startUserId = historicProcessInstance.getStartUserId();
+        return task.getAssignee().equals(startUserId);
+    }
+
 }
