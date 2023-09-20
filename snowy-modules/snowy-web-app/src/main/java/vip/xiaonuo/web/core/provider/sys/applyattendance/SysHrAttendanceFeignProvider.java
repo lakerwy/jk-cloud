@@ -9,10 +9,10 @@ import vip.xiaonuo.sys.api.SysAttendanceApi;
 import vip.xiaonuo.sys.feign.SysHrAttendanceFeign;
 
 /**
- * 用户Feign提供者
+ * 补卡Feign提供者
  *
- * @author dongxiayu
- * @date 2022/11/22 16:16
+ * @author ljy
+ * @date 2023/09/20 15:19
  */
 @Slf4j
 @RequiredArgsConstructor
