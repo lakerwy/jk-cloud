@@ -100,4 +100,14 @@ public class HrUserAttendance {
     /** 考勤班次排序号 */
     @ApiModelProperty(value = "考勤班次排序号", position = 16)
     private Integer configOrderNumber;
+
+    /** 是否补卡标识 */
+    @ApiModelProperty(value = "是否补卡标识", position = 17)
+    private Integer isResubmitAttendanceFlag;
+
+    /** 申请补卡ID */
+    @ApiModelProperty(value = "申请补卡ID", position = 18)
+    private String applyResubmitAttendanceId;
+
+
 }

@@ -59,6 +59,8 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
+
+    /**  必传值：orderNumber[排序-用户选择]，attendanceTypeName[考勤类型-取字典表]，dutyType[班次类型-取字典表]，beginMinTime[提前时间-用户计算填写]，checkTime[班次时间-用户填写]，endMinTime[延迟时间-用户填写]，workHours[工时-用户计算填写]*/
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(HrUserAttendanceConfigAddParam hrUserAttendanceConfigAddParam) {

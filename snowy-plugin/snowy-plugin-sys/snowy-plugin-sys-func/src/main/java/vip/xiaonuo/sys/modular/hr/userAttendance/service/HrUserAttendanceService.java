@@ -117,4 +117,13 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * @date  2023/09/07 14:24
      */
     Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam);
+
+    /**
+     * 添加补卡记录
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    void resubmitAttendance(String processInstanceId, String applyType);
+
 }

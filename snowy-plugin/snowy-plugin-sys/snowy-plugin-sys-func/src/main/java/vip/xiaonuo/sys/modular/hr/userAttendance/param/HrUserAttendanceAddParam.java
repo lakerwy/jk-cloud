@@ -63,4 +63,12 @@ public class HrUserAttendanceAddParam {
     @ApiModelProperty(value = "扩展信息", position = 10)
     private String extJson;
 
+    /** 是否补卡标识 */
+    @ApiModelProperty(value = "是否补卡标识", position = 17)
+    private Integer isResubmitAttendanceFlag;
+
+    /** 申请补卡ID */
+    @ApiModelProperty(value = "申请补卡ID", position = 18)
+    private String applyResubmitAttendanceId;
+
 }

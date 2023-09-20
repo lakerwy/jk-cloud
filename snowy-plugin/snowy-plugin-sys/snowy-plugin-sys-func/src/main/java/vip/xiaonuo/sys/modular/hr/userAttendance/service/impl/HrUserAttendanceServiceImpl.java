@@ -141,7 +141,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return  hrUserAttendance.getAbnormalFlag() == 1 ? HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue() : HrUserAttendanceEnum.ATTENDANCE_ABNORMAL.getValue();
     }
     private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam,Date dateNow){
-        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);//一般用list
+        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);//一般用list查询
         List<HrUserAttendanceConfig> configList = pageList.getRecords(); /**  该数据后续取缓存*/
 
         List<AttendanceTimeSlot>  attendanceTimeSlotList = new ArrayList<>();
@@ -244,6 +244,12 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
         List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
 
+        LambdaQueryWrapper<HrUserAttendance> lambdaQueryWrapper = new LambdaQueryWrapper();
+        lambdaQueryWrapper.eq(HrUserAttendance::getUserId, hrUserAttendancePageParam.getUserId())
+                .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
+                .eq(HrUserAttendance::getUserId,loginUser.getId());
+        List<HrUserAttendance> hrUserAttendanceListCount = this.list(lambdaQueryWrapper);
+
         /**  list循环一次，获取-1  循环二次获取 1*/
         Map<String,UserAttendanceCountEntity> map = new HashMap<>();
         for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
@@ -252,7 +258,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         }
 
         List<HrUserAttendance> userAttendances = hrUserAttendanceList.stream().filter(attendance ->
-                attendance.getAbnormalFlag() != null && attendance.getAbnormalFlag() == -1).collect(Collectors.toList());/**  筛选打卡异常的数据*/
+                attendance.getAbnormalFlag() != null && attendance.getAbnormalFlag() == 2).collect(Collectors.toList());/**  筛选打卡异常的数据*/
 
         /** 打卡异常的数据 */
         userAttendances.stream().forEach(attendance ->  {
@@ -301,5 +307,14 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         }
         map.put("2",hrUserAttendanceOffDutyList);
         return map;
+    }
+
+    /** 接口测试 */
+    public void resubmitAttendance(String processInstanceId, String applyType){
+        HrUserAttendance hrUserAttendance = new HrUserAttendance();
+        hrUserAttendance.setAbnormalFlag(1);
+        hrUserAttendance.setCheckType("OnDuty");
+        hrUserAttendance.setCheckTime(new Date());
+        this.save(hrUserAttendance);
     }
 }
