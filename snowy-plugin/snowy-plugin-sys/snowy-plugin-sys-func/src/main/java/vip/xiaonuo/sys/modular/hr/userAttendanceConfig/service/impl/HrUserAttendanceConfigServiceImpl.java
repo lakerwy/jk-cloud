@@ -32,6 +32,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -43,6 +44,8 @@ import java.util.List;
 @Service
 public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttendanceConfigMapper, HrUserAttendanceConfig> implements HrUserAttendanceConfigService {
 
+    @Resource
+    HrUserAttendanceConfigMapper hrUserAttendanceConfigMapper;
     @Override
     public Page<HrUserAttendanceConfig> page(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam) {
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
@@ -95,5 +98,13 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
             throw new CommonException("打卡班次配置表不存在，id值为：{}", id);
         }
         return hrUserAttendanceConfig;
+    }
+
+    @Override
+    public List<HrUserAttendanceConfig> attendanceConfigList(){
+        QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("ATTENDANCE_TYPE_NAME").groupBy("ATTENDANCE_TYPE_NAME");
+        List<HrUserAttendanceConfig> userAttendanceConfigList = hrUserAttendanceConfigMapper.selectList(queryWrapper);
+        return userAttendanceConfigList;
     }
 }

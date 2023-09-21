@@ -42,4 +42,42 @@ public class HrUserAttendanceRelation {
     /** 考勤班次标志 */
     @ApiModelProperty(value = "考勤班次标志", position = 3)
     private String attendanceType;
+
+    /** 班次生效开始时间  */
+    @ApiModelProperty(value = "班次生效开始时间", position = 4)
+    private Date beginTime;
+
+    /** 班次生效结束时间  */
+    @ApiModelProperty(value = "班次生效结束时间", position = 5)
+    private Date endTime;
+
+    /** 扩展信息 */
+    @ApiModelProperty(value = "扩展信息", position = 6)
+    private String extJson;
+
+    /** 删除标志 */
+    @ApiModelProperty(value = "删除标志", position = 7)
+    @TableLogic
+    @TableField(fill = FieldFill.INSERT)
+    private String deleteFlag;
+
+    /** 创建时间  */
+    @ApiModelProperty(value = "创建时间 ", position = 8)
+    @TableField(fill = FieldFill.INSERT)
+    private Date createTime;
+
+    /** 创建用户 */
+    @ApiModelProperty(value = "创建用户", position = 9)
+    @TableField(fill = FieldFill.INSERT)
+    private String createUser;
+
+    /** 修改时间 */
+    @ApiModelProperty(value = "修改时间", position = 10)
+    @TableField(fill = FieldFill.UPDATE)
+    private Date updateTime;
+
+    /** 修改用户 */
+    @ApiModelProperty(value = "修改用户", position = 11)
+    @TableField(fill = FieldFill.UPDATE)
+    private String updateUser;
 }

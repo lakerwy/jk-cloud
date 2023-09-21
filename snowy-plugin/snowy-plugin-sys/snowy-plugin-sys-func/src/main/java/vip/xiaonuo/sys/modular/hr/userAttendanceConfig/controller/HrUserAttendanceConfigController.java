@@ -36,6 +36,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceC
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 打卡班次配置表控制器
@@ -127,5 +128,19 @@ public class HrUserAttendanceConfigController {
     @GetMapping("/sys/userAttendanceConfig/detail")
     public CommonResult<HrUserAttendanceConfig> detail(@Valid HrUserAttendanceConfigIdParam hrUserAttendanceConfigIdParam) {
         return CommonResult.data(hrUserAttendanceConfigService.detail(hrUserAttendanceConfigIdParam));
+    }
+
+    /**
+     * 获取打卡班次列表
+     *
+     * @author ljy
+     * @date  2023/09/07 13:07
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取打卡班次列表")
+    //@SaCheckPermission("/sys/userAttendanceConfig/attendanceconfiglist")
+    @GetMapping("/sys/userAttendanceConfig/attendanceconfiglist")
+    public CommonResult<List<HrUserAttendanceConfig>> attendanceConfigList() {
+        return CommonResult.data(hrUserAttendanceConfigService.attendanceConfigList());
     }
 }

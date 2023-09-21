@@ -19,12 +19,14 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
+import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.enums.HrUserAttendanceRelationEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.mapper.HrUserAttendanceRelationMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.param.HrUserAttendanceRelationAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.param.HrUserAttendanceRelationEditParam;
@@ -64,9 +66,14 @@ public class HrUserAttendanceRelationServiceImpl extends ServiceImpl<HrUserAtten
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(HrUserAttendanceRelationAddParam hrUserAttendanceRelationAddParam) {
+    public String add(HrUserAttendanceRelationAddParam hrUserAttendanceRelationAddParam) {
+        if(StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getUserId()) || StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getAttendanceType())
+            || ObjectUtil.isEmpty(hrUserAttendanceRelationAddParam.getBeginTime()) || ObjectUtil.isEmpty(hrUserAttendanceRelationAddParam.getEndTime())){
+            return HrUserAttendanceRelationEnum.FAIL.getValue();
+        }
         HrUserAttendanceRelation hrUserAttendanceRelation = BeanUtil.toBean(hrUserAttendanceRelationAddParam, HrUserAttendanceRelation.class);
         this.save(hrUserAttendanceRelation);
+        return HrUserAttendanceRelationEnum.SUCESS.getValue();
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -77,4 +77,12 @@ public interface HrUserAttendanceConfigService extends IService<HrUserAttendance
      * @date  2023/09/07 13:07
      **/
     HrUserAttendanceConfig queryEntity(String id);
+
+    /**
+     * 获取打卡班次配置名称列表
+     *
+     * @author ljy
+     * @date  2023/09/21 10:07
+     **/
+    List<HrUserAttendanceConfig> attendanceConfigList();
 }
