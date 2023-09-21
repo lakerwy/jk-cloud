@@ -44,4 +44,11 @@ public class HrUserAttendanceRelationEditParam {
     @ApiModelProperty(value = "考勤班次标志", position = 3)
     private String attendanceType;
 
+    /** 班次生效开始时间  */
+    @ApiModelProperty(value = "班次生效开始时间", position = 4)
+    private Date beginTime;
+
+    /** 班次生效结束时间  */
+    @ApiModelProperty(value = "班次生效结束时间", position = 5)
+    private Date endTime;
 }

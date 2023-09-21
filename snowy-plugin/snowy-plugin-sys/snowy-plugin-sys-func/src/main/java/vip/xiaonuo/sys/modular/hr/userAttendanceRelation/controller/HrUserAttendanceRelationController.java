@@ -60,7 +60,7 @@ public class HrUserAttendanceRelationController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取人员考勤班次关联表分页")
-    @SaCheckPermission("/sys/userAttendanceRelation/page")
+    //@SaCheckPermission("/sys/userAttendanceRelation/page")
     @GetMapping("/sys/userAttendanceRelation/page")
     public CommonResult<Page<HrUserAttendanceRelation>> page(HrUserAttendanceRelationPageParam hrUserAttendanceRelationPageParam) {
         return CommonResult.data(hrUserAttendanceRelationService.page(hrUserAttendanceRelationPageParam));
@@ -75,11 +75,10 @@ public class HrUserAttendanceRelationController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加人员考勤班次关联表")
     @CommonLog("添加人员考勤班次关联表")
-    @SaCheckPermission("/sys/userAttendanceRelation/add")
+    //@SaCheckPermission("/sys/userAttendanceRelation/add")
     @PostMapping("/sys/userAttendanceRelation/add")
     public CommonResult<String> add(@RequestBody @Valid HrUserAttendanceRelationAddParam hrUserAttendanceRelationAddParam) {
-        hrUserAttendanceRelationService.add(hrUserAttendanceRelationAddParam);
-        return CommonResult.ok();
+        return CommonResult.data(hrUserAttendanceRelationService.add(hrUserAttendanceRelationAddParam));
     }
 
     /**
@@ -91,7 +90,7 @@ public class HrUserAttendanceRelationController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑人员考勤班次关联表")
     @CommonLog("编辑人员考勤班次关联表")
-    @SaCheckPermission("/sys/userAttendanceRelation/edit")
+    //@SaCheckPermission("/sys/userAttendanceRelation/edit")
     @PostMapping("/sys/userAttendanceRelation/edit")
     public CommonResult<String> edit(@RequestBody @Valid HrUserAttendanceRelationEditParam hrUserAttendanceRelationEditParam) {
         hrUserAttendanceRelationService.edit(hrUserAttendanceRelationEditParam);
@@ -107,7 +106,7 @@ public class HrUserAttendanceRelationController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除人员考勤班次关联表")
     @CommonLog("删除人员考勤班次关联表")
-    @SaCheckPermission("/sys/userAttendanceRelation/delete")
+    //@SaCheckPermission("/sys/userAttendanceRelation/delete")
     @PostMapping("/sys/userAttendanceRelation/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<HrUserAttendanceRelationIdParam> hrUserAttendanceRelationIdParamList) {
@@ -123,7 +122,7 @@ public class HrUserAttendanceRelationController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取人员考勤班次关联表详情")
-    @SaCheckPermission("/sys/userAttendanceRelation/detail")
+    //@SaCheckPermission("/sys/userAttendanceRelation/detail")
     @GetMapping("/sys/userAttendanceRelation/detail")
     public CommonResult<HrUserAttendanceRelation> detail(@Valid HrUserAttendanceRelationIdParam hrUserAttendanceRelationIdParam) {
         return CommonResult.data(hrUserAttendanceRelationService.detail(hrUserAttendanceRelationIdParam));

@@ -44,7 +44,7 @@ public interface HrUserAttendanceRelationService extends IService<HrUserAttendan
      * @author ljy
      * @date  2023/09/13 14:44
      */
-    void add(HrUserAttendanceRelationAddParam hrUserAttendanceRelationAddParam);
+    String add(HrUserAttendanceRelationAddParam hrUserAttendanceRelationAddParam);
 
     /**
      * 编辑人员考勤班次关联表
