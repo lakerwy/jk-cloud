@@ -152,7 +152,7 @@ public class PersonnelFileMovesServiceImpl extends ServiceImpl<PersonnelFileMove
                 }
             }else if("2".equals(personnelFileMoves.getMoveType())){
                 //离职
-                personnel.setEmployNature("离职");
+                personnel.setStatus("1");
                 personnelService.updateById(personnel);
                 if(StrUtil.isNotEmpty(personnel.getPhone())){
                     SysUser sysUser = sysUserService.getOne(new QueryWrapper<SysUser>().lambda().eq(SysUser::getAccount,personnel.getPhone()));

@@ -107,4 +107,7 @@ public class BizEmpPerformanceAddParam {
     @ApiModelProperty(value = "备注", position = 25)
     private String memo;
 
+    /** 数据权限控制字段 */
+    @ApiModelProperty(value = "数据权限控制字段", position = 6)
+    private String dataScopeId;
 }

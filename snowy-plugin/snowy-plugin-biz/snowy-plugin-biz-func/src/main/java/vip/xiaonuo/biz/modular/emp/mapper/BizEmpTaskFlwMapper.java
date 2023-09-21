@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.emp.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 
 /**
  * 业务表-员工绩效考核-季度任务流程审批单Mapper接口
@@ -22,4 +28,12 @@ import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
  * @date  2023/09/19 08:48
  **/
 public interface BizEmpTaskFlwMapper extends BaseMapper<BizEmpTaskFlw> {
+
+    /***
+     * 员工目标填报，每年每季度一条，关联到本季度的 绩效评估
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    IPage<BizEmpTaskFlwVo> getPageList(Page<BizEmpTaskFlwVo> page, @Param(Constants.WRAPPER) Wrapper<BizEmpTaskFlw> queryWrapper);
 }

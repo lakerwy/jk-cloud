@@ -18,10 +18,15 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import jdk.nashorn.internal.ir.annotations.Reference;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
+import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +38,7 @@ import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwIdParam;
 import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwPageParam;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -46,6 +52,12 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, BizEmpTaskFlw> implements BizEmpTaskFlwService {
+
+    @Resource
+    private BizEmpTaskFlwMapper bizEmpTaskFlwMapper;
+
+    @Resource
+    private BizEmpTaskService bizEmpTaskService;
 
     @Override
     public Page<BizEmpTaskFlw> page(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam) {
@@ -84,8 +96,16 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<BizEmpTaskFlwIdParam> bizEmpTaskFlwIdParamList) {
-        // 执行删除
-        this.removeByIds(CollStreamUtil.toList(bizEmpTaskFlwIdParamList, BizEmpTaskFlwIdParam::getId));
+        // 执行删除（逻辑，删除 绩效目标流程记录，同时删除 BizEmpTask绩效目标任务记录 ,删除逻辑(已有绩效评分的流程不能删除)）
+        List<String> ids = CollStreamUtil.toList(bizEmpTaskFlwIdParamList, BizEmpTaskFlwIdParam::getId);
+        List<BizEmpTaskFlw> bizEmpTaskFlwList = this.list(new QueryWrapper<BizEmpTaskFlw>().lambda().in(BizEmpTaskFlw::getId,ids));
+        for (BizEmpTaskFlw empTaskFlw : bizEmpTaskFlwList) {
+            bizEmpTaskService.remove(new QueryWrapper<BizEmpTask>().lambda()
+                    .eq(BizEmpTask::getYear,empTaskFlw.getYear())
+                    .eq(BizEmpTask::getSeason,empTaskFlw.getSeason())
+                    .eq(BizEmpTask::getUserId,empTaskFlw.getUserId()));
+            this.removeById(empTaskFlw);
+        }
     }
 
     @Override
@@ -100,5 +120,47 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
             throw new CommonException("业务表-员工绩效考核-季度任务流程审批单不存在，id值为：{}", id);
         }
         return bizEmpTaskFlw;
+    }
+
+    @Override
+    public IPage<BizEmpTaskFlwVo> pageList(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam) {
+        QueryWrapper<BizEmpTaskFlw> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSn())) {
+            queryWrapper.like("a.SN", bizEmpTaskFlwPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getStatus())) {
+            queryWrapper.eq("a.STATUS", bizEmpTaskFlwPageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getUserId())) {
+            queryWrapper.eq("a.USER_ID", bizEmpTaskFlwPageParam.getUserId());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getOrgId())) {
+            queryWrapper.eq("a.ORG_ID", bizEmpTaskFlwPageParam.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getYear())) {
+            queryWrapper.eq("a.YEAR", bizEmpTaskFlwPageParam.getYear());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSeason())) {
+            queryWrapper.eq("a.SEASON", bizEmpTaskFlwPageParam.getSeason());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getUserName())) {
+            queryWrapper.like("a.USER_NAME", bizEmpTaskFlwPageParam.getUserName());
+        }
+        //关键字
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.SN",bizEmpTaskFlwPageParam.getSearchKey())
+                    .or().like("a.USER_NAME",bizEmpTaskFlwPageParam.getSearchKey())
+                    .or().eq("a.YEAR",bizEmpTaskFlwPageParam.getSearchKey())
+                    .or().eq("a.SEASON",bizEmpTaskFlwPageParam.getSearchKey()));
+        }
+
+        if(ObjectUtil.isAllNotEmpty(bizEmpTaskFlwPageParam.getSortField(), bizEmpTaskFlwPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(bizEmpTaskFlwPageParam.getSortOrder());
+            queryWrapper.orderBy(true, bizEmpTaskFlwPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(bizEmpTaskFlwPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("a.YEAR").orderByDesc("a.SEASON").orderByDesc("a.ORG_ID").orderByAsc("a.USER_ID");
+        }
+        return bizEmpTaskFlwMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }

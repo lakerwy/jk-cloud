@@ -13,9 +13,13 @@
 package vip.xiaonuo.biz.modular.emp.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fhs.core.trans.anno.Trans;
+import com.fhs.core.trans.constant.TransType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.org.entity.BizOrg;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -80,4 +84,33 @@ public class BizEmpTaskFlw {
     /** 入参信息 */
     @ApiModelProperty(value = "入参信息", position = 11)
     private String extJson;
+
+    /** 用户Id */
+    @ApiModelProperty(value = "用户Id", position = 2)
+    private String userId;
+
+    /** 用户名 */
+    @ApiModelProperty(value = "用户名", position = 3)
+    private String userName;
+
+    /** 组织Id */
+    @ApiModelProperty(value = "组织Id", position = 4)
+    @Trans(type = TransType.SIMPLE, target = BizOrg.class, fields = "name", alias = "org", ref = "orgName")
+    private String orgId;
+
+    /** 年度(如：2023) */
+    @ApiModelProperty(value = "年度(如：2023)", position = 5)
+    private String year;
+
+    /** 季度(如:1) */
+    @ApiModelProperty(value = "季度(如:1)", position = 6)
+    private String season;
+
+    /** 数据权限控制字段 */
+    @ApiModelProperty(value = "数据权限控制字段", position = 6)
+    private String dataScopeId;
+
+    @ApiModelProperty(value = "机构名称", position = 10)
+    @TableField(exist = false)
+    private String orgName;
 }

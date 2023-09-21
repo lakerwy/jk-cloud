@@ -51,4 +51,27 @@ public class BizEmpTaskFlwAddParam {
     @ApiModelProperty(value = "入参信息", position = 11)
     private String extJson;
 
+    /** 用户Id */
+    @ApiModelProperty(value = "用户Id", position = 2)
+    private String userId;
+
+    /** 用户名 */
+    @ApiModelProperty(value = "用户名", position = 3)
+    private String userName;
+
+    /** 组织Id */
+    @ApiModelProperty(value = "组织Id", position = 4)
+    private String orgId;
+
+    /** 年度(如：2023) */
+    @ApiModelProperty(value = "年度(如：2023)", position = 5)
+    private String year;
+
+    /** 季度(如:1) */
+    @ApiModelProperty(value = "季度(如:1)", position = 6)
+    private String season;
+
+    /** 数据权限控制字段 */
+    @ApiModelProperty(value = "数据权限控制字段", position = 6)
+    private String dataScopeId;
 }

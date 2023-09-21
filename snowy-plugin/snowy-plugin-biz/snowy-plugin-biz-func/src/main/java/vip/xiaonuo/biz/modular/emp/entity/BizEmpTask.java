@@ -13,9 +13,13 @@
 package vip.xiaonuo.biz.modular.emp.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fhs.core.trans.anno.Trans;
+import com.fhs.core.trans.constant.TransType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.org.entity.BizOrg;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -45,6 +49,7 @@ public class BizEmpTask {
 
     /** 组织Id */
     @ApiModelProperty(value = "组织Id", position = 4)
+    @Trans(type = TransType.SIMPLE, target = BizOrg.class, fields = "name", alias = "org", ref = "orgName")
     private String orgId;
 
     /** 年度(如：2023) */
@@ -116,4 +121,12 @@ public class BizEmpTask {
     /** 状态 */
     @ApiModelProperty(value = "状态", position = 20)
     private String status;
+
+    /** 数据权限控制字段 */
+    @ApiModelProperty(value = "数据权限控制字段", position = 6)
+    private String dataScopeId;
+
+    @ApiModelProperty(value = "机构名称", position = 10)
+    @TableField(exist = false)
+    private String orgName;
 }

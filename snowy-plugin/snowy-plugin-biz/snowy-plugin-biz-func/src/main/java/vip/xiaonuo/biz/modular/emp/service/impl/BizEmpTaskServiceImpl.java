@@ -150,7 +150,7 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
         String processInstanceId = empTaskFlwParam.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){
             //第一步： 任务流程
-            BizEmpTaskFlw bizEmpTaskFlw = new BizEmpTaskFlw();
+            BizEmpTaskFlw bizEmpTaskFlw = BeanUtil.copyProperties(empTaskFlwParam,BizEmpTaskFlw.class);
             String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
             String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
             bizEmpTaskFlw.setId(id);
@@ -159,6 +159,7 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
             bizEmpTaskFlw.setProcessInstanceId(processInstanceId);
             bizEmpTaskFlw.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
             bizEmpTaskFlw.setExtJson(JsonUtils.object2json(empTaskFlwParam));
+
             bizEmpTaskFlwService.save(bizEmpTaskFlw);
 
             //第二步： 存储流程表对应关系

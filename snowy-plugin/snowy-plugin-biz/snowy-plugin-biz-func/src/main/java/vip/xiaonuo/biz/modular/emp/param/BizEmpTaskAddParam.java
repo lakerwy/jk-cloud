@@ -87,4 +87,7 @@ public class BizEmpTaskAddParam {
     @ApiModelProperty(value = "状态", position = 20)
     private String status;
 
+    /** 数据权限控制字段 */
+    @ApiModelProperty(value = "数据权限控制字段", position = 6)
+    private String dataScopeId;
 }

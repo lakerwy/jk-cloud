@@ -103,4 +103,8 @@ public class EmpTaskParam {
 //    @ApiModelProperty(value = "外键（流程单主键Id）", position = 19)
 //    private String flwId;
 
+    /** 状态 */
+    @ApiModelProperty(value = "状态", position = 20)
+    private String status;
+
 }

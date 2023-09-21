@@ -2,4 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.emp.mapper.BizEmpTaskFlwMapper">
 
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo" >
+        select a.*,
+               b.ID as epId,b.SN as epSn,b.MODEL_ID as epModelId,b.PROCESS_INSTANCE_ID as epProcessInstanceId,
+               b.EMP_TASK_SELF_SCORE as epEmpTaskSelfScore,b.EMP_EXPRESSION_SELF_SCORE as epEmpExpressionSelfScore,
+               b.EMP_TASK_SCORE as epEmpTaskScore,b.EMP_EXPRESSION_SCORE as epEmpExpressionScore,
+               b.EMP_SEASON_SCORE as epEmpSeasonScore,b.EMP_SEASON_LEVEL as epEmpSeasonLevel,b.STATUS as epStatus
+        from BIZ_EMP_TASK_FLW a
+            left join BIZ_EMP_PERFORMANCE b on a.USER_ID = b.USER_ID
+                                                   and a.YEAR = b.YEAR
+                                                   and a.SEASON = b.SEASON
+                                                   and b.DELETE_FLAG = 'NOT_DELETE'
+                                                   and b.STATUS in ('0','1')
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>
