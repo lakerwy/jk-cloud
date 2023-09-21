@@ -11,7 +11,7 @@
                d.STORAGE_TYPE as storageType,d.EXT_JSON as extJson
         from PAN_RECOVERY_FILE a
             left join PAN_USER_FILE c on a.USER_FILE_ID = c.ID
-            left join PAN_FILE d on c.FILE_ID = d.ID and d.DELETE_FLAG = 'NOT_DELETE'
+            left join PAN_FILE d on c.FILE_ID = d.ID
             ${ew.customSqlSegment}
     </select>
 

@@ -146,10 +146,10 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         //this.removeByIds(CollStreamUtil.toList(userFileIdParamList, UserFileIdParam::getId));
         //1、如果是文件夹，则文件夹下所有文件都应该被标记为删除，如果不被标记的话，文件夹下分享出去的文件还是会被展示，就有问题
         List<UserFile> userFiles = listByIds(CollStreamUtil.toList(userFileIdParamList, UserFileIdParam::getId));
-        String uuid = UUID.randomUUID().toString();
         String userId = StpLoginUserUtil.getLoginUser().getId();
         if(CollUtil.isNotEmpty(userFiles)){
             for (UserFile userFile : userFiles) {
+                String uuid = UUID.randomUUID().toString();
                 if(userFile.isDirectory()){
                     String filePath = new CommonFile(userFile.getFilePath(), userFile.getFileName(), true).getPath();
                     updateFileDeleteStateByFilePath(filePath,uuid ,userId);

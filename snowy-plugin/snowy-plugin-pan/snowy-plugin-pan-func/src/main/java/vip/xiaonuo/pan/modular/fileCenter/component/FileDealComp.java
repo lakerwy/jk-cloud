@@ -36,6 +36,7 @@ import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.service.PanShareService;
 import vip.xiaonuo.pan.modular.share.service.PanShareFileService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
@@ -55,6 +56,10 @@ import java.util.concurrent.Executors;
 public class FileDealComp {
     @Resource
     private UserFileService userFileService;
+
+    @Resource
+    private UserFileMapper userFileMapper;
+
     @Resource
     private PanFileService panFileService;
     @Resource
@@ -93,7 +98,7 @@ public class FileDealComp {
         if (userFile.isFile()) {
             lambdaQueryWrapper.eq(UserFile::getExtendName, extendName);
         }
-        List<UserFile> list = userFileService.list(lambdaQueryWrapper);
+        List<UserFile> list = userFileMapper.mySelectList(lambdaQueryWrapper);
         if (CollectionUtils.isEmpty(list)) {
             return fileName;
         }
@@ -111,7 +116,7 @@ public class FileDealComp {
             if (userFile.isFile()) {
                 lambdaQueryWrapper1.eq(UserFile::getExtendName, extendName);
             }
-            list = userFileService.list(lambdaQueryWrapper1);
+            list = userFileMapper.mySelectList(lambdaQueryWrapper1);
 
         }
 
@@ -142,11 +147,11 @@ public class FileDealComp {
                     .eq(UserFile::getDeleteFlag, "NOT_DELETE")
                     .eq(UserFile::getIsDir, 1)
                     .eq(UserFile::getUserId, sessionUserId);
-            List<UserFile> userFileList = userFileService.list(lambdaQueryWrapper);
+            List<UserFile> userFileList = userFileMapper.mySelectList(lambdaQueryWrapper);
             if (userFileList.isEmpty()) {
                 UserFile userFile = FileCommonUtil.getFileDir(sessionUserId, parentFilePath, fileName);
                 try {
-                    userFileService.save(userFile);
+                    userFileMapper.insert(userFile);
                 } catch (Exception e) {
                     //ignore
                 }
@@ -171,19 +176,20 @@ public class FileDealComp {
         lambdaQueryWrapper.select(UserFile::getFileName, UserFile::getFilePath)
                 .likeRight(UserFile::getFilePath, FileCommonUtil.formatLikePath(filePath))
                 .eq(UserFile::getIsDir, 1)
+                .eq(UserFile::getDeleteFlag, "NOT_DELETE")
                 .eq(UserFile::getUserId, sessionUserId)
                 .groupBy(UserFile::getFilePath, UserFile::getFileName)
                 .having("count(FILE_NAME) >= 2");
-        List<UserFile> repeatList = userFileService.list(lambdaQueryWrapper);
+        List<UserFile> repeatList = userFileMapper.mySelectList(lambdaQueryWrapper);
 
         for (UserFile userFile : repeatList) {
             LambdaQueryWrapper<UserFile> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
             lambdaQueryWrapper1.eq(UserFile::getFilePath, userFile.getFilePath())
                     .eq(UserFile::getFileName, userFile.getFileName())
                     .eq(UserFile::getDeleteFlag, "NOT_DELETE");
-            List<UserFile> userFiles = userFileService.list(lambdaQueryWrapper1);
+            List<UserFile> userFiles = userFileMapper.mySelectList(lambdaQueryWrapper1);
             for (int i = 0; i < userFiles.size() - 1; i++) {
-                userFileService.removeById(userFiles.get(i).getId());
+                userFileMapper.deleteById(userFiles.get(i).getId());
             }
         }
     }
@@ -283,7 +289,7 @@ public class FileDealComp {
         String[] userFileIdArr = userFileIds.split(",");
         for (String userFileId : userFileIdArr) {
 
-            UserFile userFile = userFileService.getById(userFileId);
+            UserFile userFile = userFileMapper.mySelectById(userFileId);
             log.debug(JSON.toJSONString(userFile));
             if ("undefined".equals(shareBatchNum) || StringUtils.isEmpty(shareBatchNum)) {
 
@@ -350,7 +356,7 @@ public class FileDealComp {
         panFile.setFileUrl(fileUrl);
         panFileService.save(panFile);
         userFile.setFileId(panFile.getId());
-        userFileService.updateById(userFile);
+        userFileMapper.updateById(userFile);
         return fileUrl;
     }
 
@@ -376,7 +382,7 @@ public class FileDealComp {
                 .eq(UserFile::getFilePath, CommonFile.formatPath(filePath))
                 .eq(UserFile::getUserId, userId)
                 .eq(UserFile::getIsDir, 1);
-        List<UserFile> list = userFileService.list(lambdaQueryWrapper);
+        List<UserFile> list = userFileMapper.mySelectList(lambdaQueryWrapper);
         if (list != null && !list.isEmpty()) {
             return true;
         }

@@ -34,11 +34,11 @@ import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.mapper.PanRecoveryFileMapper;
 import vip.xiaonuo.pan.modular.recoveryfile.param.*;
-import vip.xiaonuo.pan.modular.recoveryfile.param.dto.BatchDeleteDto;
 import vip.xiaonuo.pan.modular.recoveryfile.param.dto.RestoreFileDto;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
@@ -55,6 +55,9 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
 
     @Resource
     UserFileService userFileService;
+
+    @Resource
+    UserFileMapper userFileMapper;
 
     @Resource
     PanRecoveryFileMapper panRecoveryFileMapper;
@@ -150,9 +153,10 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
 
     @Override
     public void batchDelete(List<PanRecoveryFileIdParam> recoveryFileIdParamList) {
-       List<String> Ids = CollStreamUtil.toList(recoveryFileIdParamList, PanRecoveryFileIdParam::getId);
-        for (String userFileId:Ids) {
-            PanRecoveryFile panRecoveryFile = this.getOne(new QueryWrapper<PanRecoveryFile>().lambda().eq(PanRecoveryFile::getUserFileId,userFileId));
+        //主键
+        List<String> Ids = CollStreamUtil.toList(recoveryFileIdParamList, PanRecoveryFileIdParam::getId);
+        for (String id:Ids) {
+            PanRecoveryFile panRecoveryFile = this.getOne(new QueryWrapper<PanRecoveryFile>().lambda().eq(PanRecoveryFile::getId,id));
             if(ObjectUtil.isNotEmpty(panRecoveryFile)){
                 asyncTaskComp.deleteUserFile(panRecoveryFile.getUserFileId());
                 this.removeById(panRecoveryFile.getId());
@@ -162,25 +166,29 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
 
     @Override
     public void restoreFile(RestoreFileDto restoreFileDto) {
-        List<UserFile> restoreUserFileList = userFileService.list(new QueryWrapper<UserFile>().lambda().eq(UserFile::getDeleteBatchNum, restoreFileDto.getDeleteBatchNum()));
+        List<UserFile> restoreUserFileList = userFileMapper.mySelectList(new QueryWrapper<UserFile>().lambda().eq(UserFile::getDeleteBatchNum, restoreFileDto.getDeleteBatchNum()));
         for (UserFile restoreUserFile : restoreUserFileList) {
             restoreUserFile.setDeleteFlag("NOT_DELETE");
             restoreUserFile.setDeleteBatchNum(restoreFileDto.getDeleteBatchNum());
             String fileName = fileDealComp.getRepeatFileName(restoreUserFile, restoreUserFile.getFilePath());
             if (restoreUserFile.isDirectory()) {
                 if (!StringUtils.equals(fileName, restoreUserFile.getFileName())) {
-                    userFileService.removeById(restoreUserFile);
+                    userFileMapper.deleteById(restoreUserFile);
                 } else {
-                    userFileService.updateById(restoreUserFile);
+                    userFileMapper.myUpdateById(restoreUserFile);
                 }
             } else if (restoreUserFile.isFile()) {
                 restoreUserFile.setFileName(fileName);
-                userFileService.updateById(restoreUserFile);
+                userFileMapper.myUpdateById(restoreUserFile);
             }
         }
         CommonFile qiwenFile = new CommonFile(restoreFileDto.getFilePath(), true);
         fileDealComp.restoreParentFilePath(qiwenFile, StpLoginUserUtil.getLoginUser().getId());
 
+        //回收站恢复后，删除回收站记录
+        QueryWrapper<PanRecoveryFile> queryWrapper1 = new QueryWrapper<>();
+        queryWrapper1.lambda().eq(PanRecoveryFile::getDeleteBatchNum,restoreFileDto.getDeleteBatchNum());
+        this.remove(queryWrapper1);
     }
 
     @Override

@@ -1,5 +1,8 @@
 package vip.xiaonuo.pan.modular.share.vo;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -126,6 +129,10 @@ public class ShareListVo {
     /** 文件拓展名 */
     @ApiModelProperty(value = "文件拓展名", position = 16)
     private String extendName;
+
+    /** 删除状态标记 */
+    @ApiModelProperty(value = "删除状态标记", position = 11)
+    private String deleteFlag;
 
     /*************** PanFile表数据 ***************/
 

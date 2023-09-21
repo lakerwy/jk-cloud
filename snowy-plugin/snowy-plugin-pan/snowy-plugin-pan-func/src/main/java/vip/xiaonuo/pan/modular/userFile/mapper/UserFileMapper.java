@@ -12,7 +12,9 @@
  */
 package vip.xiaonuo.pan.modular.userFile.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
@@ -34,4 +36,10 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
     List<UserFile> selectUserFileByLikeRightFilePath(@Param("filePath") String filePath, @Param("userId") String userId);
 
     void updateDelete(@Param("deleteBatchNum") String deleteBatchNum,@Param("userId") String userId,@Param("userFileIds") List<String> userFileIds);
+
+    UserFile mySelectById(String id);
+
+    List<UserFile> mySelectList(@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
+
+    void myUpdateById(UserFile userFile);
 }

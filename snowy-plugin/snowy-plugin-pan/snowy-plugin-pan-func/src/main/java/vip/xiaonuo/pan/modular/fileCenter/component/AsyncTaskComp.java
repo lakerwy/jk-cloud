@@ -19,6 +19,7 @@ import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
@@ -38,6 +39,9 @@ import java.util.concurrent.Future;
 @Component
 @Async("asyncTaskExecutor")
 public class AsyncTaskComp {
+
+    @Resource
+    UserFileMapper userFileMapper;   //某些操作不能过滤 DELETE_FLAG
 
     @Resource
     PanRecoveryFileService recoveryFileService;
@@ -63,11 +67,11 @@ public class AsyncTaskComp {
     }
 
     public Future<String> deleteUserFile(String userFileId) {
-        UserFile userFile = userFileService.getById(userFileId);
+        UserFile userFile = userFileMapper.mySelectById(userFileId);
         if (userFile.getIsDir() == 1) {
             LambdaQueryWrapper<UserFile> userFileLambdaQueryWrapper = new LambdaQueryWrapper<>();
             userFileLambdaQueryWrapper.eq(UserFile::getDeleteBatchNum, userFile.getDeleteBatchNum());
-            List<UserFile> list = userFileService.list(userFileLambdaQueryWrapper);
+            List<UserFile> list = userFileMapper.mySelectList(userFileLambdaQueryWrapper);
             recoveryFileService.deleteUserFileByDeleteBatchNum(userFile.getDeleteBatchNum());
             for (UserFile userFileItem : list) {
 

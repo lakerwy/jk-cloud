@@ -34,4 +34,70 @@
         </foreach>
 
     </update>
+
+    <select id="mySelectById" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select * from PAN_USER_FILE where ID = #{id}
+    </select>
+
+    <select id="mySelectList" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select * from PAN_USER_FILE  ${ew.customSqlSegment}
+    </select>
+
+    <update id="myUpdateById" parameterType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        update PAN_USER_FILE
+        <set>
+            <if test="parentId != null">
+                PARENT_ID = #{parentId},
+            </if>
+            <if test="fileName != null">
+                FILE_NAME = #{fileName},
+            </if>
+            <if test="filePath != null">
+                FILE_PATH = #{filePath},
+            </if>
+            <if test="isDir != null">
+                IS_DIR = #{isDir},
+            </if>
+            <if test="fileId != null">
+                FILE_ID = #{fileId},
+            </if>
+            <if test="rootDir != null">
+                ROOT_DIR = #{rootDir},
+            </if>
+            <if test="orgId != null">
+                ORG_ID = #{orgId},
+            </if>
+            <if test="right != null">
+                `RIGHT` = #{right},
+            </if>
+            <if test="deleteFlag != null">
+                DELETE_FLAG = #{deleteFlag},
+            </if>
+            <if test="lockFlag != null">
+                LOCK_FLAG = #{lockFlag},
+            </if>
+            <if test="foldType != null">
+                FOLD_TYPE = #{foldType},
+            </if>
+            <if test="extendName != null">
+                EXTEND_NAME = #{extendName},
+            </if>
+            <if test="userId != null">
+                USER_ID = #{userId},
+            </if>
+            <if test="fileSize != null">
+                FILE_SIZE = #{fileSize},
+            </if>
+            <if test="deleteBatchNum != null">
+                DELETE_BATCH_NUM = #{deleteBatchNum},
+            </if>
+            <if test="deleteTime != null">
+                DELETE_TIME = #{deleteTime},
+            </if>
+            UPDATE_TIME = now()
+        </set>
+       where ID = #{id}
+
+    </update>
+
 </mapper>
