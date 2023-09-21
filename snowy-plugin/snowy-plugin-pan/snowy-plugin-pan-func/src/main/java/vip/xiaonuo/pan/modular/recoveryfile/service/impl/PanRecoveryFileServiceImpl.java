@@ -16,7 +16,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -33,7 +32,10 @@ import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.mapper.PanRecoveryFileMapper;
-import vip.xiaonuo.pan.modular.recoveryfile.param.*;
+import vip.xiaonuo.pan.modular.recoveryfile.param.PanRecoveryFileAddParam;
+import vip.xiaonuo.pan.modular.recoveryfile.param.PanRecoveryFileEditParam;
+import vip.xiaonuo.pan.modular.recoveryfile.param.PanRecoveryFileIdParam;
+import vip.xiaonuo.pan.modular.recoveryfile.param.PanRecoveryFilePageParam;
 import vip.xiaonuo.pan.modular.recoveryfile.param.dto.RestoreFileDto;
 import vip.xiaonuo.pan.modular.recoveryfile.service.PanRecoveryFileService;
 import vip.xiaonuo.pan.modular.recoveryfile.vo.RecoveryFileVo;
@@ -171,6 +173,7 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
             restoreUserFile.setDeleteFlag("NOT_DELETE");
             restoreUserFile.setDeleteBatchNum(restoreFileDto.getDeleteBatchNum());
             String fileName = fileDealComp.getRepeatFileName(restoreUserFile, restoreUserFile.getFilePath());
+            //根据filePath
             if (restoreUserFile.isDirectory()) {
                 if (!StringUtils.equals(fileName, restoreUserFile.getFileName())) {
                     userFileMapper.deleteById(restoreUserFile);
@@ -182,8 +185,12 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
                 userFileMapper.myUpdateById(restoreUserFile);
             }
         }
-        CommonFile qiwenFile = new CommonFile(restoreFileDto.getFilePath(), true);
-        fileDealComp.restoreParentFilePath(qiwenFile, StpLoginUserUtil.getLoginUser().getId());
+        CommonFile commonFile = new CommonFile(restoreFileDto.getFilePath(), true);
+//        //根据filePath
+//        commonFile.setParentId(parentId);
+        //TODO 父目录不存在的时候怎么处理，这个parentID 怎么处理
+        //将restoreUserFileList 中的id 传入到 restoreParentFilePath 方法中去，然后在创建完成父目录的后，将restoreUserFileList中的userFile 的parentId 更新
+        fileDealComp.restoreParentFilePath(commonFile, StpLoginUserUtil.getLoginUser().getId());
 
         //回收站恢复后，删除回收站记录
         QueryWrapper<PanRecoveryFile> queryWrapper1 = new QueryWrapper<>();

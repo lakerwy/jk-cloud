@@ -1,7 +1,9 @@
 package vip.xiaonuo.pan.modular.fileCenter.component;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.collections4.CollectionUtils;
@@ -157,6 +159,45 @@ public class FileDealComp {
                 }
             }
             commonFile = new CommonFile(parentFilePath, true);
+        }
+    }
+
+    /**
+     * 秒传和上传夹的时候处理文件夹的创建  更新文件parentId
+     * @param commonFile
+     * @param sessionUserId
+     * @param userFileId
+     */
+
+    public void restoreParentFilePath(CommonFile commonFile, String sessionUserId,String userFileId) {
+
+        if (commonFile.isFile()) {
+            commonFile = commonFile.getParentFile();
+        }
+        while (commonFile.getParent() != null) {
+            String fileName = commonFile.getName();
+            String parentFilePath = commonFile.getParent();
+
+            LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+            lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
+                    .eq(UserFile::getFileName, fileName)
+                    .eq(UserFile::getDeleteFlag, "NOT_DELETE")
+                    .eq(UserFile::getIsDir, 1)
+                    .eq(UserFile::getUserId, sessionUserId);
+            List<UserFile> userFileList = userFileMapper.mySelectList(lambdaQueryWrapper);
+            if (userFileList.isEmpty()) {
+                UserFile userFile = FileCommonUtil.getFileDir(sessionUserId, parentFilePath, fileName);
+                userFile.setParentId(commonFile.getParentId());
+                try {
+                    userFileMapper.insert(userFile);
+                } catch (Exception e) {
+                    //ignore
+                }
+            }
+            commonFile = new CommonFile(parentFilePath, true,commonFile.getParentId());
+        }
+        if(StrUtil.isNotEmpty(userFileId)){
+            userFileService.update(null,new UpdateWrapper<UserFile>().eq("ID",userFileId).set("PARENT_ID",commonFile.getParentId()));
         }
     }
 

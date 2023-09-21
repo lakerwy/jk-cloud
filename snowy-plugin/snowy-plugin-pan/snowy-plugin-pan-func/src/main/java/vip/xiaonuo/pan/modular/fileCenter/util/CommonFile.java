@@ -17,10 +17,17 @@ public class CommonFile {
     private final String path;
     public static final String separator = "/";
     private boolean isDirectory;
+    private String parentId;
 
     public CommonFile(String pathname, boolean isDirectory) {
         this.path = formatPath(pathname);
         this.isDirectory = isDirectory;
+    }
+
+    public CommonFile(String path, boolean isDirectory, String parentId) {
+        this.path = path;
+        this.isDirectory = isDirectory;
+        this.parentId = parentId;
     }
 
     public CommonFile(String parent, String child, boolean isDirectory) {
@@ -36,7 +43,6 @@ public class CommonFile {
         }
         this.isDirectory = isDirectory;
     }
-
     public static String formatPath(String path) {
         path = FileCenterUtil.pathSplitFormat(path);
         if ("/".equals(path)) {

@@ -6,7 +6,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.FilenameUtils;
 import org.apache.commons.io.IOUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
@@ -26,9 +25,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.Future;
 
@@ -187,8 +184,10 @@ public class AsyncTaskComp {
             //如果是目录，而且重复，什么也不做
         } else {
             saveUserFile.setFileName(fileName);
+            userFile.setParentId(userFile.getParentId());
             userFileService.save(saveUserFile);
         }
+        commonFile.setParentId(userFile.getParentId());
         fileDealComp.restoreParentFilePath(commonFile, userFile.getUserId());
 
         return new AsyncResult<>("saveUnzipFile");

@@ -1,7 +1,6 @@
 package vip.xiaonuo.pan.modular.file.service.impl;
 
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
@@ -16,13 +15,14 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
-import vip.xiaonuo.pan.modular.file.param.DownloadFileParam;
 import vip.xiaonuo.pan.modular.file.param.PreviewParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
 import vip.xiaonuo.pan.modular.file.service.IFileTransferService;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
+import vip.xiaonuo.pan.modular.fileCenter.entity.PanImage;
+import vip.xiaonuo.pan.modular.fileCenter.entity.PanPictureFile;
 import vip.xiaonuo.pan.modular.fileCenter.enums.StorageTypeEnum;
 import vip.xiaonuo.pan.modular.fileCenter.enums.UploadFileStatusEnum;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
@@ -35,17 +35,15 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.preview.domain.PreviewFile;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.Uploader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFile;
 import vip.xiaonuo.pan.modular.fileCenter.operation.upload.domain.UploadFileResult;
+import vip.xiaonuo.pan.modular.fileCenter.service.PanImageService;
+import vip.xiaonuo.pan.modular.fileCenter.service.PanPictureFileService;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.MimeUtils;
-import vip.xiaonuo.pan.modular.fileCenter.entity.PanImage;
-import vip.xiaonuo.pan.modular.fileCenter.service.PanImageService;
-import vip.xiaonuo.pan.modular.fileCenter.entity.PanPictureFile;
-import vip.xiaonuo.pan.modular.fileCenter.service.PanPictureFileService;
 import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTask;
-import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskService;
 import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTaskDetail;
 import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskDetailService;
+import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
@@ -131,14 +129,20 @@ public class FileTransferService implements IFileTransferService {
         if (list != null && !list.isEmpty()) {
             PanFile file = list.get(0);
             UserFile userFile = new UserFile(commonFile, StpLoginUserUtil.getLoginUser().getId(), file.getId());
-            userFile.setParentId(uploadFileParam.getParentId());
+            //根据filePath
+            String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+            if(StrUtil.isNotEmpty(parentId)){
+                commonFile.setParentId(parentId);
+                userFile.setParentId(parentId);
+            }
+            //userFile.setParentId(uploadFileParam.getParentId());
             userFile.setFileSize(file.getFileSize());
             userFileService.save(userFile);
 
             if (relativePath.contains("/")) {
                 CommonFile finalCommonFile = commonFile;
                 exec.execute(()->{
-                    fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId());
+                    fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId(),userFile.getId());
                 });
 
             }
@@ -223,6 +227,7 @@ public class FileTransferService implements IFileTransferService {
                 UserFile userFile = new UserFile(commonFile, StpLoginUserUtil.getLoginUser().getId(), panFile.getId());
                 //根据filePath
                 String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+                commonFile.setParentId(parentId);
                 if(StrUtil.isNotEmpty(parentId)){
                     userFile.setParentId(parentId);
                 }
@@ -251,7 +256,8 @@ public class FileTransferService implements IFileTransferService {
                 if (relativePath.contains("/")) {
                     CommonFile finalCommonFile = commonFile;
                     exec.execute(() -> {
-                        fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId());
+                        fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId(),userFile.getId());
+                        //需要更新下 userFile 的parentId
                     });
 
                 }
