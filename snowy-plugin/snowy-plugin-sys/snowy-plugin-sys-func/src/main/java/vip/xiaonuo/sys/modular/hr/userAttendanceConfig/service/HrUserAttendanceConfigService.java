@@ -84,7 +84,7 @@ public interface HrUserAttendanceConfigService extends IService<HrUserAttendance
      * @author ljy
      * @date  2023/09/21 10:07
      **/
-    List<HrUserAttendanceConfig> attendanceConfigList();
+    List<HrUserAttendanceConfig> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam);
 
     /**
      * 批量添加打卡班次配置表

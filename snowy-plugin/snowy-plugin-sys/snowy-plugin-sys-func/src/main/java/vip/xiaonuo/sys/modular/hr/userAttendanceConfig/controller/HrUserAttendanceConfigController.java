@@ -140,8 +140,8 @@ public class HrUserAttendanceConfigController {
     @ApiOperation("获取打卡班次列表")
     //@SaCheckPermission("/sys/userAttendanceConfig/attendanceconfiglist")
     @GetMapping("/sys/userAttendanceConfig/attendanceconfiglist")
-    public CommonResult<List<HrUserAttendanceConfig>> attendanceConfigList() {
-        return CommonResult.data(hrUserAttendanceConfigService.attendanceConfigList());
+    public CommonResult<List<HrUserAttendanceConfig>> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam) {
+        return CommonResult.data(hrUserAttendanceConfigService.attendanceConfigList(hrUserAttendanceConfigPageParam));
     }
 
     /**

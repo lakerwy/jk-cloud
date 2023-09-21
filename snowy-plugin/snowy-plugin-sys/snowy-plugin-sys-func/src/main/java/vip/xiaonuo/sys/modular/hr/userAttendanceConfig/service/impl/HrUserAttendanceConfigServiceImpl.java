@@ -19,6 +19,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -34,6 +35,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -103,9 +105,12 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
     }
 
     @Override
-    public List<HrUserAttendanceConfig> attendanceConfigList(){
+    public List<HrUserAttendanceConfig> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam){
+        if(StringUtils.isEmpty(hrUserAttendanceConfigPageParam.getAttendanceTypeId())){
+            return new ArrayList<>();
+        }
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("ATTENDANCE_TYPE_NAME").groupBy("ATTENDANCE_TYPE_NAME");
+        queryWrapper.eq("ATTENDANCE_TYPE_ID",hrUserAttendanceConfigPageParam.getAttendanceTypeId());
         List<HrUserAttendanceConfig> userAttendanceConfigList = hrUserAttendanceConfigMapper.selectList(queryWrapper);
         return userAttendanceConfigList;
     }
