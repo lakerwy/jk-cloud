@@ -33,6 +33,7 @@ public class HrUserAttendanceConfigAddParam {
 
     /** 排班顺序 */
     @ApiModelProperty(value = "排班顺序", position = 3)
+    @NotNull(message = "排班顺序orderNumber不能为空")
     private Integer orderNumber;
 
     /** 上班允许最早多少时间打卡：单位分钟 */
@@ -72,7 +73,8 @@ public class HrUserAttendanceConfigAddParam {
     private String extJson;
 
     /** 考勤班次类别 */
-    @ApiModelProperty(value = "考勤班次类别名", position = 13)
+    @ApiModelProperty(value = "考勤班次类别", position = 13)
+    @NotNull(message = "考勤班次类别不能为空-attendanceTypeName")
     private String attendanceTypeName;
 
     /** 班次工时，单位：小时 */
