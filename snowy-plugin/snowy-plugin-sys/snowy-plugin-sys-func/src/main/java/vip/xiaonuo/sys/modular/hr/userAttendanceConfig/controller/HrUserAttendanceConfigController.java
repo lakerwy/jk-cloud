@@ -74,8 +74,8 @@ public class HrUserAttendanceConfigController {
      * @date  2023/09/07 13:07
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加打卡班次配置表")
-    @CommonLog("添加打卡班次配置表")
+    @ApiOperation("添加单个打卡班次配置表")
+    @CommonLog("添加单个打卡班次配置表")
     //@SaCheckPermission("/sys/userAttendanceConfig/add")
     @PostMapping("/sys/userAttendanceConfig/add")
     public CommonResult<String> add(@RequestBody @Valid HrUserAttendanceConfigAddParam hrUserAttendanceConfigAddParam) {
@@ -140,7 +140,22 @@ public class HrUserAttendanceConfigController {
     @ApiOperation("获取打卡班次列表")
     //@SaCheckPermission("/sys/userAttendanceConfig/attendanceconfiglist")
     @GetMapping("/sys/userAttendanceConfig/attendanceconfiglist")
-    public CommonResult<List<HrUserAttendanceConfig>> attendanceConfigList() {
-        return CommonResult.data(hrUserAttendanceConfigService.attendanceConfigList());
+    public CommonResult<List<HrUserAttendanceConfig>> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam) {
+        return CommonResult.data(hrUserAttendanceConfigService.attendanceConfigList(hrUserAttendanceConfigPageParam));
+    }
+
+    /**
+     * 批量添加打卡班次配置表
+     *
+     * @author ljy
+     * @date  2023/09/21 11:07
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("批量添加打卡班次配置表")
+    @CommonLog("批量添加打卡班次配置表")
+    //@SaCheckPermission("/sys/userAttendanceConfig/addlist")
+    @PostMapping("/sys/userAttendanceConfig/addlist")
+    public CommonResult<String> addList(@RequestBody @Valid List<HrUserAttendanceConfigAddParam> hrUserAttendanceConfigAddParamList) {
+        return CommonResult.data(hrUserAttendanceConfigService.addList(hrUserAttendanceConfigAddParamList));
     }
 }

@@ -19,12 +19,14 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.enums.HrUserAttendanceConfigEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.mapper.HrUserAttendanceConfigMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigEditParam;
@@ -33,7 +35,9 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 打卡班次配置表Service接口实现类
@@ -101,10 +105,23 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
     }
 
     @Override
-    public List<HrUserAttendanceConfig> attendanceConfigList(){
+    public List<HrUserAttendanceConfig> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam){
+        if(StringUtils.isEmpty(hrUserAttendanceConfigPageParam.getAttendanceTypeId())){
+            return new ArrayList<>();
+        }
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("ATTENDANCE_TYPE_NAME").groupBy("ATTENDANCE_TYPE_NAME");
+        queryWrapper.eq("ATTENDANCE_TYPE_ID",hrUserAttendanceConfigPageParam.getAttendanceTypeId());
         List<HrUserAttendanceConfig> userAttendanceConfigList = hrUserAttendanceConfigMapper.selectList(queryWrapper);
         return userAttendanceConfigList;
     }
+
+    @Override
+    public String addList(List<HrUserAttendanceConfigAddParam> hrUserAttendanceConfigAddParamList){
+        if(ObjectUtil.isEmpty(hrUserAttendanceConfigAddParamList)){
+            return HrUserAttendanceConfigEnum.FAIL.getValue();
+        }
+        List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigAddParamList.stream().map(param -> BeanUtil.toBean(param, HrUserAttendanceConfig.class)).collect(Collectors.toList());
+        return this.saveBatch(hrUserAttendanceConfigList) ? HrUserAttendanceConfigEnum.SUCESS.getValue() : HrUserAttendanceConfigEnum.FAIL.getValue();
+    }
+
 }

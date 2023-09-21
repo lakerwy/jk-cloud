@@ -52,4 +52,7 @@ public class HrUserAttendanceConfigPageParam {
     @ApiModelProperty(value = "租户id")
     private String tenantId;
 
+    /** 考勤班次类别组ID */
+    @ApiModelProperty(value = "考勤班次类别组ID", position = 17)
+    private String attendanceTypeId;
 }

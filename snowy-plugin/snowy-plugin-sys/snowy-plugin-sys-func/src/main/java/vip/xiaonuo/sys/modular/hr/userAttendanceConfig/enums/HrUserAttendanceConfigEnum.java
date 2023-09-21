@@ -23,8 +23,8 @@ import lombok.Getter;
 @Getter
 public enum HrUserAttendanceConfigEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    SUCESS("1"),
+    FAIL("-1");
 
     private final String value;
 

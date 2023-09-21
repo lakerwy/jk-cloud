@@ -57,7 +57,7 @@ public class HrUserAttendanceConfig {
     @ApiModelProperty(value = "允许最早多少时间打卡", position = 5)
     private String BeginMinTime;
 
-    /** 下班打卡时间 */
+    /** 打卡时间 */
     @ApiModelProperty(value = "打卡时间", position = 6)
     private String checkTime;
 
@@ -106,4 +106,8 @@ public class HrUserAttendanceConfig {
     /** 班次工时，单位：小时 */
     @ApiModelProperty(value = "班次工时，单位：小时", position = 16)
     private String workHours;
+
+    /** 考勤班次类别组ID */
+    @ApiModelProperty(value = "考勤班次类别组ID", position = 17)
+    private String attendanceTypeId;
 }
