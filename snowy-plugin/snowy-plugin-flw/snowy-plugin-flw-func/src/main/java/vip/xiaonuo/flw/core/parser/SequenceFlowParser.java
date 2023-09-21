@@ -37,7 +37,7 @@ public class SequenceFlowParser {
                 if(flwNodeConditionProp.getField().contains(StrUtil.UNDERLINE)) {
                     fieldOrigin = StrUtil.toCamelCase(flwNodeConditionProp.getField().toLowerCase());
                 } else {
-                    fieldOrigin = flwNodeConditionProp.getField().toLowerCase();
+                    fieldOrigin = flwNodeConditionProp.getField();
                 }
                 String field = StrUtil.replace(fieldOrigin, StrUtil.DOT, StrUtil.UNDERLINE);
                 String logic = flwNodeConditionProp.getOperator();
