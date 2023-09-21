@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.emp.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -28,6 +29,10 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
 import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
+import vip.xiaonuo.biz.modular.user.entity.BizUser;
+import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -39,13 +44,13 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
 import vip.xiaonuo.biz.modular.emp.mapper.BizEmpPerformanceMapper;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
+import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-员工绩效考核-季度评分审批流程Service接口实现类
@@ -63,6 +68,9 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
 
     @Resource
     private BizEmpTaskService bizEmpTaskService;
+
+    @Resource
+    private BizUserService bizUserService;
 
     @Override
     public Page<BizEmpPerformance> page(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
@@ -178,4 +186,127 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         }
         return bizEmpPerformance;
     }
+
+    @Override
+    public Boolean check(EmpCheckParam empCheckParam) {
+        QueryWrapper<BizEmpPerformance> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizEmpPerformance::getUserId,empCheckParam.getUserId())
+                .eq(BizEmpPerformance::getYear,empCheckParam.getYear())
+                .eq(BizEmpPerformance::getSeason,empCheckParam.getSeason())
+                .in(BizEmpPerformance::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        return this.list(queryWrapper).size() > 0;
+    }
+
+    @Override
+    public Page<BizEmpPerformanceVo> pageList(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
+        if(ObjectUtil.isEmpty(bizEmpPerformancePageParam.getYear())){
+            throw new CommonException("考核年度参数必填");
+        }
+        QueryWrapper<BizEmpPerformance> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getUserId())) {
+            queryWrapper.lambda().eq(BizEmpPerformance::getUserId, bizEmpPerformancePageParam.getUserId());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getOrgId())) {
+            queryWrapper.lambda().eq(BizEmpPerformance::getOrgId, bizEmpPerformancePageParam.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getYear())) {
+            queryWrapper.lambda().eq(BizEmpPerformance::getYear, bizEmpPerformancePageParam.getYear());
+        }
+        if(ObjectUtil.isAllNotEmpty(bizEmpPerformancePageParam.getSortField(), bizEmpPerformancePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(bizEmpPerformancePageParam.getSortOrder());
+            queryWrapper.orderBy(true, bizEmpPerformancePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(bizEmpPerformancePageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByAsc(BizEmpPerformance::getId);
+        }
+        List<BizEmpPerformance> result = this.list(queryWrapper);
+        return completeResult(result,bizEmpPerformancePageParam);
+    }
+
+
+
+    /***
+     * 员工绩效统计表查询页面，数据构造
+     *
+     * 根据需求：需要展示组织架构全员，每年，四个季度的考评，没有考评显示空
+     *
+     * 例如： 姓名  年份  一季度  二季度  三季度  四季度  是否填报
+     *       A    2023  10      20
+     *       B    2023  40      12     32
+     * @param result       员工绩效考评结果
+     * @param bizEmpTaskPageParam  查询参数
+     * @return
+     */
+    public Page<BizEmpPerformanceVo> completeResult(List<BizEmpPerformance> result, BizEmpPerformancePageParam bizEmpTaskPageParam){
+        //最终返回结果
+        Page<BizEmpPerformanceVo> pageVo = new Page<>();
+        List<BizEmpPerformanceVo> newResult = new ArrayList<>();
+        //统计年度
+        String year = bizEmpTaskPageParam.getYear();
+        //季度
+        List<String> seasons = Arrays.asList("1","2","3","4");
+        //需要补充的组织架构人员
+        QueryWrapper<BizUser> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getOrgId())){
+            queryWrapper.lambda().eq(BizUser::getOrgId,bizEmpTaskPageParam.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getUserId())){
+            queryWrapper.lambda().eq(BizUser::getId,bizEmpTaskPageParam.getUserId());
+        }
+        //关键字
+        if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(BizUser::getName,bizEmpTaskPageParam.getSearchKey())
+                    .or().like(BizUser::getOrgName,bizEmpTaskPageParam.getSearchKey()));
+        }
+        queryWrapper.lambda().orderByAsc(BizUser::getOrgId);
+
+        //构造分页
+        long current = ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getCurrent()) ? bizEmpTaskPageParam.getCurrent() : 1;
+        long size =  ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSize()) ? bizEmpTaskPageParam.getSize() : 10;
+        Page<BizUser> objectPage = new Page<>(current, size);
+
+        DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+        dbsApi.changeDataSource(dbsApi.getDefaultDataSourceName());
+        Page<BizUser> needUserList = bizUserService.page(objectPage,queryWrapper);
+        dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
+
+        for (BizUser user:needUserList.getRecords()) {
+            BizEmpPerformanceVo performanceVo = new BizEmpPerformanceVo();
+            performanceVo.setOrgName(user.getOrgName());
+            performanceVo.setYear(year);
+            performanceVo.setOrgId(user.getOrgId());
+            performanceVo.setUserId(user.getId());
+            performanceVo.setUserName(user.getName());
+            //循环四个季度
+            for (String season:seasons)
+            {
+                Optional<BizEmpPerformance> first = result.stream().filter(x -> x.getYear().equals(year)
+                        && x.getUserId().equals(user.getId()) && x.getSeason().equals(season)).findFirst();
+                if(season.equals("1")){
+                    performanceVo.setSeasonLevel1(first.isPresent() ? first.get().getEmpSeasonLevel() : null);
+                    performanceVo.setSeasonScore1(first.isPresent() ? first.get().getEmpSeasonScore() : null);
+                }
+                if(season.equals("2")){
+                    performanceVo.setSeasonLevel2(first.isPresent() ? first.get().getEmpSeasonLevel() : null);
+                    performanceVo.setSeasonScore2(first.isPresent() ? first.get().getEmpSeasonScore() : null);
+                }
+                if(season.equals("3")){
+                    performanceVo.setSeasonLevel3(first.isPresent() ? first.get().getEmpSeasonLevel() : null);
+                    performanceVo.setSeasonScore3(first.isPresent() ? first.get().getEmpSeasonScore() : null);
+                }
+                if(season.equals("4")){
+                    performanceVo.setSeasonLevel4(first.isPresent() ? first.get().getEmpSeasonLevel() : null);
+                    performanceVo.setSeasonScore4(first.isPresent() ? first.get().getEmpSeasonScore() : null);
+                }
+            }
+            newResult.add(performanceVo);
+        }
+        pageVo.setCurrent(current);
+        pageVo.setSize(size);
+        pageVo.setPages(needUserList.getPages());
+        pageVo.setTotal(needUserList.getTotal());
+        pageVo.setRecords(newResult);
+        return pageVo;
+    }
+
 }

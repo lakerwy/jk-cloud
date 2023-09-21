@@ -21,6 +21,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 
+import java.util.List;
+
 /**
  * 业务表-员工绩效考核-季度任务流程审批单Mapper接口
  *
@@ -36,4 +38,12 @@ public interface BizEmpTaskFlwMapper extends BaseMapper<BizEmpTaskFlw> {
      * @return
      */
     IPage<BizEmpTaskFlwVo> getPageList(Page<BizEmpTaskFlwVo> page, @Param(Constants.WRAPPER) Wrapper<BizEmpTaskFlw> queryWrapper);
+
+
+    /***
+     * 员工目标填报，每年每季度一条，关联到本季度的 绩效评估
+     * @param queryWrapper
+     * @return
+     */
+    List<BizEmpTaskFlwVo> getList(@Param(Constants.WRAPPER) Wrapper<BizEmpTaskFlw> queryWrapper);
 }

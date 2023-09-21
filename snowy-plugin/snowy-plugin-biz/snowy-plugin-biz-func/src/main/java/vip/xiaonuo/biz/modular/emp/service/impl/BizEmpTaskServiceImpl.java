@@ -45,7 +45,6 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -269,5 +268,15 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
             queryWrapper.lambda().eq(BizEmpTask::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
         return this.list(queryWrapper);
+    }
+
+    @Override
+    public Boolean check(EmpCheckParam empTaskCheckParam) {
+        QueryWrapper<BizEmpTask> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizEmpTask::getUserId,empTaskCheckParam.getUserId())
+                .eq(BizEmpTask::getYear,empTaskCheckParam.getYear())
+                .eq(BizEmpTask::getSeason,empTaskCheckParam.getSeason())
+                .in(BizEmpTask::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        return this.list(queryWrapper).size() > 0;
     }
 }

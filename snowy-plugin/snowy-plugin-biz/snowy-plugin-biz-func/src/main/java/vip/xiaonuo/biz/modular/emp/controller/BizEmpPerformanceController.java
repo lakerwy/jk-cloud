@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.biz.modular.emp.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -24,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.emp.param.*;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -124,6 +124,39 @@ public class BizEmpPerformanceController {
     @GetMapping("/biz/emp/performance/detail")
     public CommonResult<BizEmpPerformance> detail(@Valid BizEmpPerformanceIdParam bizEmpPerformanceIdParam) {
         return CommonResult.data(bizEmpPerformanceService.detail(bizEmpPerformanceIdParam));
+    }
+
+
+    /**
+     * 根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过绩效评估
+     *
+     * true : 本人本年本季度已提交过绩效评估（审核中+审核通过）
+     * false: 未提交过
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:47
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过绩效评估")
+//    @SaCheckPermission("/biz/emp/task/detail")
+    @GetMapping("/biz/emp/performance/check")
+    public CommonResult<Boolean> check(@Valid EmpCheckParam empCheckParam) {
+        return CommonResult.data(bizEmpPerformanceService.check(empCheckParam));
+    }
+
+
+    /**
+     * 获取业务表-员工绩效考核-季度评分审批流程分页(绩效考评统计表)
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:45
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取业务表-员工绩效考核-季度评分审批流程分页")
+//    @SaCheckPermission("/biz/emp/performance/page")
+    @GetMapping("/biz/emp/performance/pageList")
+    public CommonResult<Page<BizEmpPerformanceVo>> pageList(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
+        return CommonResult.data(bizEmpPerformanceService.pageList(bizEmpPerformancePageParam));
     }
 
 }

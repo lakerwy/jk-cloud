@@ -92,10 +92,18 @@ public interface BizEmpTaskService extends IService<BizEmpTask> {
     void flwEdit(EmpTaskFlwParam empTaskFlwParam);
 
     /**
-     * 根据 用户Id+考核年度+考核季度 获取员工当前季度下的任务集合
+     * 根据 用户Id+考核年度+考核季度 获取员工当前季度下【审核通过】的任务集合
      *
      * @author yong.ye
      * @date  2023/09/19 08:47
      */
     List<BizEmpTask> listByUserId(EmpTaskUserIdParam empTaskUserIdParam);
+
+    /**
+     * 根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过季度目标
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:47
+     */
+    Boolean check(EmpCheckParam empTaskCheckParam);
 }

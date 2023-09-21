@@ -15,12 +15,9 @@ package vip.xiaonuo.biz.modular.emp.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceAddParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceEditParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformanceIdParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpPerformancePageParam;
+import vip.xiaonuo.biz.modular.emp.param.*;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -78,5 +75,21 @@ public interface BizEmpPerformanceService extends IService<BizEmpPerformance> {
      * @date  2023/09/19 08:45
      **/
     BizEmpPerformance queryEntity(String id);
+
+    /**
+     * 根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过绩效评估
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:47
+     */
+    Boolean check(EmpCheckParam empCheckParam);
+
+    /**
+     * 获取业务表-员工绩效考核-季度评分审批流程分页（绩效考评统计表）
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:45
+     */
+    Page<BizEmpPerformanceVo> pageList(BizEmpPerformancePageParam bizEmpPerformancePageParam);
 
 }
