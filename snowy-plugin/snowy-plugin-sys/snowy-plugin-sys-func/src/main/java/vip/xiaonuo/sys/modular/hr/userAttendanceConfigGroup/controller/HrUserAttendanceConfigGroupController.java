@@ -60,7 +60,7 @@ public class HrUserAttendanceConfigGroupController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取考勤班次组配置表分页")
-    @SaCheckPermission("/sys/userAttendanceConfigGroup/page")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/page")
     @GetMapping("/sys/userAttendanceConfigGroup/page")
     public CommonResult<Page<HrUserAttendanceConfigGroup>> page(HrUserAttendanceConfigGroupPageParam hrUserAttendanceConfigGroupPageParam) {
         return CommonResult.data(hrUserAttendanceConfigGroupService.page(hrUserAttendanceConfigGroupPageParam));
@@ -75,7 +75,7 @@ public class HrUserAttendanceConfigGroupController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加考勤班次组配置表")
     @CommonLog("添加考勤班次组配置表")
-    @SaCheckPermission("/sys/userAttendanceConfigGroup/add")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/add")
     @PostMapping("/sys/userAttendanceConfigGroup/add")
     public CommonResult<String> add(@RequestBody @Valid HrUserAttendanceConfigGroupAddParam hrUserAttendanceConfigGroupAddParam) {
         hrUserAttendanceConfigGroupService.add(hrUserAttendanceConfigGroupAddParam);
@@ -91,7 +91,7 @@ public class HrUserAttendanceConfigGroupController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑考勤班次组配置表")
     @CommonLog("编辑考勤班次组配置表")
-    @SaCheckPermission("/sys/userAttendanceConfigGroup/edit")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/edit")
     @PostMapping("/sys/userAttendanceConfigGroup/edit")
     public CommonResult<String> edit(@RequestBody @Valid HrUserAttendanceConfigGroupEditParam hrUserAttendanceConfigGroupEditParam) {
         hrUserAttendanceConfigGroupService.edit(hrUserAttendanceConfigGroupEditParam);
@@ -107,7 +107,7 @@ public class HrUserAttendanceConfigGroupController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除考勤班次组配置表")
     @CommonLog("删除考勤班次组配置表")
-    @SaCheckPermission("/sys/userAttendanceConfigGroup/delete")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/delete")
     @PostMapping("/sys/userAttendanceConfigGroup/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<HrUserAttendanceConfigGroupIdParam> hrUserAttendanceConfigGroupIdParamList) {
@@ -123,7 +123,7 @@ public class HrUserAttendanceConfigGroupController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取考勤班次组配置表详情")
-    @SaCheckPermission("/sys/userAttendanceConfigGroup/detail")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/detail")
     @GetMapping("/sys/userAttendanceConfigGroup/detail")
     public CommonResult<HrUserAttendanceConfigGroup> detail(@Valid HrUserAttendanceConfigGroupIdParam hrUserAttendanceConfigGroupIdParam) {
         return CommonResult.data(hrUserAttendanceConfigGroupService.detail(hrUserAttendanceConfigGroupIdParam));
