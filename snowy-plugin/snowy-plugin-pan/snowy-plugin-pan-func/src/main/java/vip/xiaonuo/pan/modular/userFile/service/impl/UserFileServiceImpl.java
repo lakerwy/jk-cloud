@@ -24,14 +24,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.xmlbeans.ResourceLoader;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.prop.CommonProperties;
+import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
@@ -76,7 +79,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     private final static String DEFAULT_BUCKET_NAME = "jk";
 
-    private final static  Integer IS_DIR = 1;
+    public final static  Integer IS_DIR = 1;
     @Resource
     private DevFileService devFileService;
 
@@ -96,7 +99,14 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     private PanRecoveryFileService panRecoveryFileService;
 
     @Resource
+    private DevConfigService devConfigService;
+
+    @Resource
     FileDealComp fileDealComp;
+
+    private  static final String INIT_FILE_NAME = "INIT_FILE_NAME";
+
+    private  static final String INIT_FILE_PATH = "INIT_FILE_PATH";
 
     public static Executor executor = Executors.newFixedThreadPool(20);
 
@@ -256,6 +266,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 .eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
         UserFile one = getOne(queryWrapper);
         if(ObjectUtil.isNotEmpty(one)){
+            initFile(one);
             return  one.getId();
         }
         UserFile userFile = new UserFile();
@@ -270,6 +281,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         String name = StpLoginUserUtil.getLoginUser().getOrgName();
         userFile.setFileName(name+"部门文件夹");
         save(userFile);
+        initFile(userFile);
         return  userFile.getId();
     }
 
@@ -739,4 +751,82 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         long count = userFileMapper.selectCount(lambdaQueryWrapper);
         return count;
     }
+
+    /**
+     * epc项目初始化文件夹
+     */
+    public void initFile(UserFile userFile){
+        String initFileName = devConfigService.getValueByKey(INIT_FILE_NAME); //需要创建的文件夹
+        String initFileFold = devConfigService.getValueByKey(INIT_FILE_PATH); //这些文件夹下创建模板文件
+        List<String> foldS = new ArrayList<>();
+        if(StrUtil.isNotEmpty(initFileFold)){
+            String[] split = initFileFold.split(StrUtil.COMMA);
+            foldS = Arrays.asList(split);
+        }
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        String userId = loginUser.getId();
+        String orgId = loginUser.getOrgId();
+        if(StrUtil.isNotEmpty(initFileName)){
+            String[] split = initFileName.split(StrUtil.COMMA);
+            List<UserFile>  userFiles= new ArrayList<>();
+            for (String s : split) {
+                String id = createFold(userFile.getId(), userFile.getFilePath() + FileUtil.FILE_SEPARATOR + userFile.getFileName(), userId, orgId, s, userFiles);
+//                if(foldS.contains(s)){
+//
+//                }
+            }
+        }
+    }
+
+    public String createFold(String parentId,String filePath,String userId,String orgId,String foldName,List<UserFile> userFiles){
+        LambdaQueryWrapper<UserFile> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserFile::getParentId,parentId).eq(UserFile::getIsDir,IS_DIR)
+                .eq(UserFile::getOrgId,orgId);
+        UserFile one = getOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(one)){
+            return one.getId();
+        }
+        UserFile userFile = new UserFile();
+        userFile.setParentId(parentId);
+        userFile.setIsDir(IS_DIR);
+        userFile.setFilePath(filePath);
+        userFile.setFoldType(UserFileEnum.GROUP_FOLD_TYPE.getLevel());
+        userFile.setOrgId(orgId);
+        userFile.setUserId(userId);
+        //部门根目录文件夹名不允许修改、移动和删除
+        userFile.setFileName(foldName);
+        userFiles.add(userFile);
+        save(userFile);
+        return userFile.getId();
+    }
+
+
+//    private String initFile(String templateFilePath){
+//        InputStream inputStream = POICacheManager.getFile(templateFilePath);
+//
+//        Copier copier = fileFactory.getCopier();
+//        CopyFile copyFile = new CopyFile();
+//        copyFile.setExtendName();
+//        String fileUrl = copier.copy(inputStream, copyFile);
+//        PanFile panFile = new PanFile();
+//        panFile.setFileUrl(fileUrl);
+//        panFile.setFileStatus(1);
+//        panFile.setFileSize(0L);
+//        panFile.setStorageType(storageType);
+//        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+//        panFile.setIdentifier(uuid);
+//        panFileService.save(panFile);
+//
+//        UserFile userFile = new UserFile();
+//        userFile.setFilePath(userFileAddParam.getFilePath());
+//        userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
+//        userFile.setFileName(userFileAddParam.getFileName());
+//        userFile.setFileId(panFile.getId());
+//        userFile.setIsDir(0);
+//        userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+//        userFile.setParentId(userFileAddParam.getParentId());
+//        userFile.setExtendName(userFileAddParam.getExtendName());
+//        userFile.setFoldType(userFileAddParam.getFoldType());
+//        save(userFile);
+//    }
 }

@@ -113,8 +113,9 @@ public class SysApiProvider implements SysApi {
         // ==============给租户初始化模块=================
         Map<String, String> moduleIdRelation = MapUtil.newHashMap();
         List<SysModule> sysModuleList = sysModuleService.list(new LambdaQueryWrapper<SysModule>().eq(SysModule::getCategory,
-                SysResourceCategoryEnum.MODULE.getValue()).in(SysModule::getCode, SysBuildInEnum.BUILD_IN_MODULE_CODE.getValue(),
-                SysBuildInEnum.BUILD_IN_MODULE_CODE_BIZ.getValue()))
+                SysResourceCategoryEnum.MODULE.getValue()))
+//                        .in(SysModule::getCode, SysBuildInEnum.BUILD_IN_MODULE_CODE.getValue(),
+//                SysBuildInEnum.BUILD_IN_MODULE_CODE_BIZ.getValue()))
                 .stream().peek(sysModule -> {
                     String oldId = sysModule.getId();
                     String newId = IdWorker.getIdStr();

@@ -1,6 +1,6 @@
 package vip.xiaonuo.pan.modular.fileCenter.component;
 
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.collection.CollUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -162,45 +162,71 @@ public class FileDealComp {
         }
     }
 
+//    /**
+//     * 秒传和上传夹的时候处理文件夹的创建  更新文件parentId
+//     * @param commonFile
+//     * @param sessionUserId
+//     * @param userFileId
+//     */
+//
+//    public void restoreParentFilePath(CommonFile commonFile, String sessionUserId,String userFileId) {
+//        if (commonFile.isFile()) {
+//            commonFile = commonFile.getParentFile();
+//        }
+//        commonFile.setDirPath(commonFile.getPath());
+//        commonFile.setParentId("0");
+//        StringBuilder parentPath = new StringBuilder();
+//        while (StrUtil.isNotEmpty(commonFile.getDirPath())) {
+//            //String parentFilePath = commonFile.getChild();
+//            String fileName = commonFile.getChildName();
+//            parentPath.append(separator);
+//            LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+//            lambdaQueryWrapper.eq(UserFile::getParentId, commonFile.getParentId())
+//                    .eq(UserFile::getFileName, fileName)
+//                    .eq(UserFile::getDeleteFlag, "NOT_DELETE")
+//                    .eq(UserFile::getIsDir, 1)
+//                    .eq(UserFile::getUserId, sessionUserId);
+//            List<UserFile> userFileList = userFileMapper.mySelectList(lambdaQueryWrapper);
+//            String parentId = null;
+//            if (userFileList.isEmpty()) {
+//                UserFile userFile = FileCommonUtil.getFileDir(sessionUserId, parentPath.toString(), fileName);
+//                userFile.setParentId(commonFile.getParentId());
+//                try {
+//                    userFileMapper.insert(userFile);
+//                    parentId = userFile.getId();
+//                } catch (Exception e) {
+//                    //ignore
+//                }
+//            }else {
+//                parentId = userFileList.get(0).getId();
+//            }
+//            parentPath.append(fileName);
+//            String childPath = commonFile.getChildPath();
+//            commonFile = new CommonFile(childPath, true,parentId,childPath);
+//            commonFile.setParentPath(parentPath.toString());
+//        }
+//        if(StrUtil.isNotEmpty(userFileId)){
+//            userFileService.update(null,new UpdateWrapper<UserFile>().eq("ID",userFileId).set("PARENT_ID",commonFile.getParentId()));
+//        }
+//    }
+
     /**
-     * 秒传和上传夹的时候处理文件夹的创建  更新文件parentId
-     * @param commonFile
-     * @param sessionUserId
-     * @param userFileId
+     * 通过parentId 和第一层目录名称更新文件夹parentId
+     * @param filePath
+     * @param parentId
      */
-
-    public void restoreParentFilePath(CommonFile commonFile, String sessionUserId,String userFileId) {
-
-        if (commonFile.isFile()) {
-            commonFile = commonFile.getParentFile();
+    public void restoreParentId(String filePath,String parentId) {
+        List<UserFile> list = userFileService.list(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFilePath, filePath));
+        if(CollUtil.isEmpty(list)){
+            return;
         }
-        while (commonFile.getParent() != null) {
-            String fileName = commonFile.getName();
-            String parentFilePath = commonFile.getParent();
-
-            LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-            lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
-                    .eq(UserFile::getFileName, fileName)
-                    .eq(UserFile::getDeleteFlag, "NOT_DELETE")
-                    .eq(UserFile::getIsDir, 1)
-                    .eq(UserFile::getUserId, sessionUserId);
-            List<UserFile> userFileList = userFileMapper.mySelectList(lambdaQueryWrapper);
-            if (userFileList.isEmpty()) {
-                UserFile userFile = FileCommonUtil.getFileDir(sessionUserId, parentFilePath, fileName);
-                userFile.setParentId(commonFile.getParentId());
-                try {
-                    userFileMapper.insert(userFile);
-                } catch (Exception e) {
-                    //ignore
-                }
+        for (UserFile userFile : list) {
+            userFileService.update(null,new UpdateWrapper<UserFile>().eq("ID",userFile.getId()).set("PARENT_ID",parentId));
+            if(userFile.isDirectory()){
+                restoreParentId(userFile.getFilePath(), userFile.getId());
             }
-            commonFile = new CommonFile(parentFilePath, true,commonFile.getParentId());
-        }
-        if(StrUtil.isNotEmpty(userFileId)){
-            userFileService.update(null,new UpdateWrapper<UserFile>().eq("ID",userFileId).set("PARENT_ID",commonFile.getParentId()));
         }
     }
-
 
     /**
      * 删除重复的子目录文件

@@ -45,6 +45,7 @@ import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTaskDetail;
 import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskDetailService;
 import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.enums.UserFileEnum;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
@@ -52,8 +53,10 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
+import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -61,6 +64,9 @@ import java.util.zip.Adler32;
 import java.util.zip.CheckedOutputStream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import static vip.xiaonuo.pan.modular.fileCenter.util.CommonFile.separator;
+import static vip.xiaonuo.pan.modular.userFile.service.impl.UserFileServiceImpl.IS_DIR;
 
 /**
  * @author mayike
@@ -122,19 +128,22 @@ public class FileTransferService implements IFileTransferService {
         CommonFile commonFile = null;
         if (relativePath.contains("/")) {
             commonFile = new CommonFile(filePath, relativePath, false);
+           // uploadFileParam.setParentId(buildFold(commonFile.getPath().substring(0,commonFile.getPath().lastIndexOf(ROOT_FOLD_PATH)),ROOT_FOLD_PATH,ROOT_FOLD_ID));
         } else {
             commonFile = new CommonFile(filePath, uploadFileParam.getFilename(), false);
         }
 
+        String uid = StpLoginUserUtil.getLoginUser().getId();
         if (list != null && !list.isEmpty()) {
             PanFile file = list.get(0);
-            UserFile userFile = new UserFile(commonFile, StpLoginUserUtil.getLoginUser().getId(), file.getId());
-            //根据filePath
-            String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
-            if(StrUtil.isNotEmpty(parentId)){
-                commonFile.setParentId(parentId);
-                userFile.setParentId(parentId);
-            }
+            UserFile userFile = new UserFile(commonFile, uid, file.getId());
+//            commonFile.setParentId(uploadFileParam.getParentId());
+            userFile.setParentId(uploadFileParam.getParentId());
+//            //根据filePath
+//            String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+//            if(StrUtil.isNotEmpty(parentId)){
+//
+//            }
             //userFile.setParentId(uploadFileParam.getParentId());
             userFile.setFileSize(file.getFileSize());
             userFileService.save(userFile);
@@ -142,7 +151,7 @@ public class FileTransferService implements IFileTransferService {
             if (relativePath.contains("/")) {
                 CommonFile finalCommonFile = commonFile;
                 exec.execute(()->{
-                    fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId(),userFile.getId());
+                    fileDealComp.restoreParentFilePath(finalCommonFile, uid);
                 });
 
             }
@@ -202,13 +211,15 @@ public class FileTransferService implements IFileTransferService {
         }
         for (UploadFileResult uploadFileResult : uploadFileResultList) {
             String relativePath = uploadFileParam.getRelativePath();
+            //  1231/33333/新建 DOC 文档.doc     /马义可的个人文件夹/2222222/231.doc              commonFile.getPath()
             CommonFile commonFile = null;
             if (relativePath.contains("/")) {
+                //说明是文件夹上传
                 commonFile = new CommonFile(uploadFileParam.getFilePath(), relativePath, false);
+                //uploadFileParam.setParentId(buildFold(commonFile.getPath().substring(0,commonFile.getPath().lastIndexOf(ROOT_FOLD_PATH)),ROOT_FOLD_PATH,ROOT_FOLD_ID));
             } else {
                 commonFile = new CommonFile(uploadFileParam.getFilePath(), uploadFileParam.getFilename(), false);
             }
-
             if (UploadFileStatusEnum.SUCCESS.equals(uploadFileResult.getStatus())) {
                 PanFile panFile = new PanFile();
                 panFile.setFileUrl(uploadFileResult.getFileUrl());
@@ -256,7 +267,7 @@ public class FileTransferService implements IFileTransferService {
                 if (relativePath.contains("/")) {
                     CommonFile finalCommonFile = commonFile;
                     exec.execute(() -> {
-                        fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId(),userFile.getId());
+                        fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId());
                         //需要更新下 userFile 的parentId
                     });
 
@@ -310,6 +321,68 @@ public class FileTransferService implements IFileTransferService {
                 panUploadTaskService.update(lambdaUpdateWrapper);
             }
         }
+    }
+
+//    public static void main(String[] args) {
+//        //  /马义可的个人文件夹/2222222/231.doc
+//        String path = "/马义可的个人文件夹/2222222/3333/6666/231.doc";
+//        int lastIndex = path.lastIndexOf("/");
+//        String parentPath = path.substring(0, lastIndex);
+//        check(parentPath,"/",0);
+//        //parentPath = "/马义可的个人文件夹";
+////        int lastIndex2 = parentPath.lastIndexOf("/");
+////        String parentPath2 = parentPath.substring(0, lastIndex2);
+////        String dirName = parentPath.substring(lastIndex2+1);
+////        System.out.println(parentPath2);
+////        System.out.println(dirName);
+//    }
+
+    /***
+     * 循环查询创建文件夹
+     * @param parentPath
+     * @param path
+     * @param parentId
+     * @return
+     */
+    private  String buildFold(String parentPath,String path,String parentId){
+//        System.out.println(path);
+        int index = parentPath.indexOf(ROOT_FOLD_PATH);
+//        String parentPath2 = parentPath.substring(0, index+1);
+        parentPath = parentPath.substring(index+1);
+        String dirName;
+        if(!parentPath.contains(ROOT_FOLD_PATH)){
+            dirName = parentPath;
+            UserFile userFile = userFileService.getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFileName, dirName).eq(UserFile::getFilePath, path));
+            if(ObjectUtil.isNotNull(userFile)){
+                return userFile.getParentId();
+            }else {
+                userFile = new UserFile();
+                userFile.setParentId(parentId);
+                userFile.setIsDir(IS_DIR);
+                userFile.setFilePath(path);
+                userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+                userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
+                userFile.setFileName(dirName);
+                userFileService.save(userFile);
+                return userFile.getId();
+            }
+        }
+        int index1 = parentPath.indexOf(ROOT_FOLD_PATH);
+        dirName = parentPath.substring(0,index1);
+        UserFile userFile = userFileService.getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFileName, dirName).eq(UserFile::getFilePath, path));
+        if(ObjectUtil.isNull(userFile)){
+            userFile = new UserFile();
+            userFile.setParentId(parentId);
+            userFile.setIsDir(IS_DIR);
+            userFile.setFilePath(path);
+            userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
+            userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
+            userFile.setFileName(dirName);
+            userFileService.save(userFile);
+            parentId = userFile.getId();
+        }
+        path += path.equals("/")?dirName:"/"+dirName;
+        return buildFold(parentPath,path,parentId);
     }
 
     @Override
@@ -396,7 +469,7 @@ public class FileTransferService implements IFileTransferService {
                 } else {
                     CommonFile commonFile = new CommonFile(StrUtil.removePrefix(userFile1.getFilePath(), filePath), userFile1.getFileName(), true);
                     // 空文件夹的处理
-                    zos.putNextEntry(new ZipEntry(commonFile.getPath() + CommonFile.separator));
+                    zos.putNextEntry(new ZipEntry(commonFile.getPath() + separator));
                     // 没有文件，不需要文件的copy
                     zos.closeEntry();
                 }

@@ -18,6 +18,8 @@ public class CommonFile {
     public static final String separator = "/";
     private boolean isDirectory;
     private String parentId;
+    private String dirPath;
+    private String parentPath;
 
     public CommonFile(String pathname, boolean isDirectory) {
         this.path = formatPath(pathname);
@@ -28,6 +30,13 @@ public class CommonFile {
         this.path = path;
         this.isDirectory = isDirectory;
         this.parentId = parentId;
+    }
+
+    public CommonFile(String path, boolean isDirectory, String parentId,String dirPath) {
+        this.path = path;
+        this.isDirectory = isDirectory;
+        this.parentId = parentId;
+        this.dirPath = dirPath;
     }
 
     public CommonFile(String parent, String child, boolean isDirectory) {
@@ -72,6 +81,72 @@ public class CommonFile {
         }
         return path.substring(0, index);
     }
+
+    /**
+     * /a/b/c
+     * @return
+     */
+    public String getChild() {
+        if (separator.equals(dirPath)) {
+            return null;
+        }
+        if (!dirPath.contains(separator)) {
+            return null;
+        }
+        int firstSlashIndex = dirPath.indexOf(separator);
+        if(firstSlashIndex!=-1){
+            return dirPath.substring(0,firstSlashIndex+1);  //  /   /a  /a/b
+        }
+
+        return "";
+    }
+
+    public String getChildPath() {
+        if (separator.equals(dirPath)) {
+            return null;
+        }
+        if (!dirPath.contains(separator)) {
+            return null;
+        }
+        int firstSlashIndex = dirPath.indexOf(separator);
+        int secondSlashIndex = dirPath.indexOf(separator, firstSlashIndex + 1);
+
+        if (firstSlashIndex != -1 && secondSlashIndex != -1) {
+            //this.dirPath = dirPath.substring(secondSlashIndex);
+            return dirPath.substring(secondSlashIndex);  //  /a
+        }else {
+            if(secondSlashIndex == -1){
+                // /c
+                return "";
+            }
+        }
+
+        return "";
+    }
+
+    public String getChildName() {
+        if (separator.equals(dirPath)) {
+            return null;
+        }
+        if (!dirPath.contains(separator)) {
+            return null;
+        }
+        int firstSlashIndex = dirPath.indexOf(separator);
+        int secondSlashIndex = dirPath.indexOf(separator, firstSlashIndex + 1);
+
+        if (firstSlashIndex != -1 && secondSlashIndex != -1) {
+            //this.dirPath = dirPath.substring(secondSlashIndex);
+            return dirPath.substring(firstSlashIndex+1,secondSlashIndex);  //  /a
+        }else {
+            if(secondSlashIndex == -1){
+                // /c
+                return dirPath.substring(firstSlashIndex+1);
+            }
+        }
+         return "";
+    }
+
+
 
     public CommonFile getParentFile() {
         String parentPath = this.getParent();
