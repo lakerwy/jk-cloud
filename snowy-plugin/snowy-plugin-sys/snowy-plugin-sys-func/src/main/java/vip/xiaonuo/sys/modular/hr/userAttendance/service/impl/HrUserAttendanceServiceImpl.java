@@ -328,6 +328,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void attendanceStatJobHandle(){
-        System.out.println("接口调用成功！");
+        //System.out.println("接口调用成功！");
     }
 }
