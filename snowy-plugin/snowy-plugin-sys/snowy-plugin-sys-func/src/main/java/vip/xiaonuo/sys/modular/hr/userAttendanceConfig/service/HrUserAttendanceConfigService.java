@@ -93,7 +93,7 @@ public interface HrUserAttendanceConfigService extends IService<HrUserAttendance
      * @author ljy
      * @date  2023/09/21 11:07
      */
-    String addList(List<HrUserAttendanceConfigAddParam> hrUserAttendanceConfigAddParamList);
+    String addList(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam);
 
     /**
      * 编辑打卡班次配置表

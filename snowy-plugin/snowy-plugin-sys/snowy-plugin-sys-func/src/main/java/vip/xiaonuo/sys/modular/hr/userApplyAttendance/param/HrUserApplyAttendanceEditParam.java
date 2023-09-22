@@ -79,4 +79,7 @@ public class HrUserApplyAttendanceEditParam {
     /** 补卡申请结束时间 */
     @ApiModelProperty(value = "补卡申请结束时间", position = 18)
     private String resubmitAttendanceEndTime;
+
+    @ApiModelProperty(value = "申请理由", position = 19)
+    private String applyReason;
 }

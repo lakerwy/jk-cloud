@@ -92,4 +92,6 @@ public class HrUserApplyAttendancePageParam {
     @ApiModelProperty(value = "流程状态")
     private String status;
 
+    @ApiModelProperty(value = "申请理由", position = 19)
+    private String applyReason;
 }

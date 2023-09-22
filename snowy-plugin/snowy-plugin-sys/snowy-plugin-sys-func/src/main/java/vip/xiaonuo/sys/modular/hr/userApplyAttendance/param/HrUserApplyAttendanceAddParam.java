@@ -70,4 +70,7 @@ public class HrUserApplyAttendanceAddParam {
     /** 补卡申请结束时间 */
     @ApiModelProperty(value = "补卡申请结束时间：时-分-秒 (若申请补卡，则必传)", position = 18)
     private String resubmitAttendanceEndTime;
+
+    @ApiModelProperty(value = "申请理由", position = 19)
+    private String applyReason;
 }

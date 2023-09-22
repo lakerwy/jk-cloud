@@ -156,11 +156,24 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String addList(List<HrUserAttendanceConfigAddParam> hrUserAttendanceConfigAddParamList){
-        if(ObjectUtil.isEmpty(hrUserAttendanceConfigAddParamList)){
+    public String addList(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam){
+        if(ObjectUtil.isEmpty(hrUserAttendanceConfigEditParam)){
             return HrUserAttendanceConfigEnum.FAIL.getValue();
         }
-        List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigAddParamList.stream().map(param -> BeanUtil.toBean(param, HrUserAttendanceConfig.class)).collect(Collectors.toList());
+        HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = new HrUserAttendanceConfigGroup();
+        hrUserAttendanceConfigGroup.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName());
+        hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigEditParam.getLeadId());
+        hrUserAttendanceConfigGroup.setLeadName(hrUserAttendanceConfigEditParam.getLeadName());
+        hrUserAttendanceConfigGroup.setAttendanceUserNum(hrUserAttendanceConfigEditParam.getAttendanceUserNum());
+        hrUserAttendanceConfigGroupService.save(hrUserAttendanceConfigGroup);
+        String id = hrUserAttendanceConfigGroup.getId();
+
+        List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigEditParam.getUserAttendanceConfigEntityList().stream()
+                .map(param -> {
+                    param.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName());
+                    param.setAttendanceTypeId(id);
+                   return BeanUtil.toBean(param, HrUserAttendanceConfig.class);
+                }).collect(Collectors.toList());
         return this.saveBatch(hrUserAttendanceConfigList) ? HrUserAttendanceConfigEnum.SUCESS.getValue() : HrUserAttendanceConfigEnum.FAIL.getValue();
     }
 }

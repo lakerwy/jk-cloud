@@ -94,4 +94,8 @@ public class HrUserAttendanceConfigEditParam {
 
     @ApiModelProperty(value = "考勤配置list", position = 21)
     private List<HrUserAttendanceConfigEntity>  userAttendanceConfigEntityList;
+
+    /** 班次应用人数 */
+    @ApiModelProperty(value = "班次应用人数", position = 5)
+    private Integer attendanceUserNum;
 }
