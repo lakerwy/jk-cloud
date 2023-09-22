@@ -160,7 +160,6 @@ public class HrUserAttendanceConfigController {
         return CommonResult.data(hrUserAttendanceConfigService.addList(hrUserAttendanceConfigAddParamList));
     }
 
-
     /**
      * 编辑打卡班次配置表
      *

@@ -33,17 +33,14 @@ public class HrUserAttendanceConfigEditParam {
 
     /** 主键id */
     @ApiModelProperty(value = "主键id", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
     private String id;
 
     /** 排班顺序 */
     @ApiModelProperty(value = "排班顺序", position = 3)
-    @NotNull(message = "排班顺序orderNumber不能为空")
     private Integer orderNumber;
 
     /** 考勤班次类别名 */
     @ApiModelProperty(value = "考勤班次类别名", position = 4)
-    @NotNull(message = "考勤班次类别名不能为空-attendanceTypeName")
     private String attendanceTypeName;
 
     /** 班次打卡类别 */
