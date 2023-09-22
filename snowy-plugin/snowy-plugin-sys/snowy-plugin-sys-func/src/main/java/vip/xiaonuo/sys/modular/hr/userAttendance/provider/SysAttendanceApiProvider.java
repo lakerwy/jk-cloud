@@ -19,4 +19,9 @@ public class SysAttendanceApiProvider implements SysAttendanceApi {
     public void resubmitAttendance(String processInstanceId, String applyType) {
         hrUserAttendanceService.resubmitAttendance(processInstanceId,applyType);
     }
+
+    @Override
+    public void attendanceStatJobHandle(){
+        hrUserAttendanceService.attendanceStatJobHandle();
+    }
 }

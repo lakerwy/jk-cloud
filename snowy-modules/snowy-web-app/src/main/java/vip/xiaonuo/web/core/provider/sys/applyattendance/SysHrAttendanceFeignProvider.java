@@ -33,4 +33,10 @@ public class SysHrAttendanceFeignProvider implements SysHrAttendanceFeign {
         attendanceApi.resubmitAttendance(processInstanceId,applyType);
     }
 
+    @Override
+    @RequestMapping("/feign/sys/applyattendance/attendanceStatJobHandle")
+    public void attendanceStatJobHandle(){
+        attendanceApi.attendanceStatJobHandle();
+    }
+
 }

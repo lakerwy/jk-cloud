@@ -126,4 +126,10 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      */
     void resubmitAttendance(String processInstanceId, String applyType);
 
+    /**
+     * 打卡记录同步考勤统计表
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    void attendanceStatJobHandle();
 }
