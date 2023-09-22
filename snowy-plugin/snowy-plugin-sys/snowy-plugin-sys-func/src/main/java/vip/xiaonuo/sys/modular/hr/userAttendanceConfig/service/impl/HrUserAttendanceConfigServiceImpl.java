@@ -33,10 +33,14 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +54,9 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
 
     @Resource
     HrUserAttendanceConfigMapper hrUserAttendanceConfigMapper;
+    @Resource
+    HrUserAttendanceConfigGroupService hrUserAttendanceConfigGroupService;
+
     @Override
     public Page<HrUserAttendanceConfig> page(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam) {
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
@@ -105,14 +112,16 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
     }
 
     @Override
-    public List<HrUserAttendanceConfig> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam){
+    public Map<String,Object> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam){
         if(StringUtils.isEmpty(hrUserAttendanceConfigPageParam.getAttendanceTypeId())){
-            return new ArrayList<>();
+            return new HashMap<>();
         }
+        Map<String,Object> map = new HashMap<>();
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ATTENDANCE_TYPE_ID",hrUserAttendanceConfigPageParam.getAttendanceTypeId());
-        List<HrUserAttendanceConfig> userAttendanceConfigList = hrUserAttendanceConfigMapper.selectList(queryWrapper);
-        return userAttendanceConfigList;
+        map.put("attendanceConfigList",hrUserAttendanceConfigMapper.selectList(queryWrapper));
+        //map.put("elasticity","0");
+        return map;
     }
 
     @Override
@@ -123,5 +132,20 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigAddParamList.stream().map(param -> BeanUtil.toBean(param, HrUserAttendanceConfig.class)).collect(Collectors.toList());
         return this.saveBatch(hrUserAttendanceConfigList) ? HrUserAttendanceConfigEnum.SUCESS.getValue() : HrUserAttendanceConfigEnum.FAIL.getValue();
     }
+
+    @Override
+    public String editConfig(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam){
+        /*if(StringUtils.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeName()) && ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeId())){
+            QueryWrapper<HrUserAttendanceConfigGroup> queryWrapper = new QueryWrapper<>();
+
+            hrUserAttendanceConfigGroupService.getOne();
+        }*/
+        Map<String,List<HrUserAttendanceConfig>> map = new HashMap<>();
+        QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("ATTENDANCE_TYPE_ID",hrUserAttendanceConfigEditParam.getAttendanceTypeId());
+        map.put("attendanceConfigList",hrUserAttendanceConfigMapper.selectList(queryWrapper));
+        return "1";
+    }
+
 
 }

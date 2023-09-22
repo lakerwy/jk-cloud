@@ -15,11 +15,11 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfigEntity;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
+import java.util.List;
 
 /**
  * 打卡班次配置表编辑参数
@@ -81,4 +81,19 @@ public class HrUserAttendanceConfigEditParam {
     /** 考勤班次类别组ID */
     @ApiModelProperty(value = "考勤班次类别组ID", position = 17)
     private String attendanceTypeId;
+
+    /** 考勤班次类别组名称 */
+    @ApiModelProperty(value = "考勤班次类别组名称", position = 18)
+    private String attendanceTypName;
+
+    /** 负责人ID */
+    @ApiModelProperty(value = "负责人ID", position = 19)
+    private String leadId;
+
+    /** 负责人名称 */
+    @ApiModelProperty(value = "负责人名称", position = 20)
+    private String leadName;
+
+    @ApiModelProperty(value = "考勤配置list", position = 21)
+    private List<HrUserAttendanceConfigEntity>  userAttendanceConfigEntityList;
 }

@@ -21,6 +21,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 打卡班次配置表Service接口
@@ -84,7 +85,7 @@ public interface HrUserAttendanceConfigService extends IService<HrUserAttendance
      * @author ljy
      * @date  2023/09/21 10:07
      **/
-    List<HrUserAttendanceConfig> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam);
+    Map<String,Object> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam);
 
     /**
      * 批量添加打卡班次配置表
@@ -93,4 +94,12 @@ public interface HrUserAttendanceConfigService extends IService<HrUserAttendance
      * @date  2023/09/21 11:07
      */
     String addList(List<HrUserAttendanceConfigAddParam> hrUserAttendanceConfigAddParamList);
+
+    /**
+     * 编辑打卡班次配置表
+     *
+     * @author ljy
+     * @date  2023/09/07 13:07
+     */
+    String editConfig(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam);
 }
