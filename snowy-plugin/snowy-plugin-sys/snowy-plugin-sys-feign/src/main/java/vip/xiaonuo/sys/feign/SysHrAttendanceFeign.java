@@ -22,4 +22,13 @@ public interface SysHrAttendanceFeign {
      **/
     @RequestMapping("/feign/sys/applyattendance/dealApplyAttendance")
     void dealApplyAttendance(@RequestParam(value = "processInstanceId",required = true) String processInstanceId,@RequestParam(value = "applyType",required = true) String applyType);
+
+    /**
+     * 处理考勤申请的业务
+     *
+     * @author ljy
+     * @date 2023/9/20 15:19
+     **/
+    @RequestMapping("/feign/sys/applyattendance/attendanceStatJobHandle")
+    void attendanceStatJobHandle();
 }

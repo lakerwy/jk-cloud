@@ -7,4 +7,5 @@ package vip.xiaonuo.sys.api;
  */
 public interface SysAttendanceApi {
     void  resubmitAttendance(String processInstanceId, String applyType);
+    void  attendanceStatJobHandle();
 }

@@ -34,6 +34,8 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.attendanceMachine.entity.HrAttendanceMachine;
 import vip.xiaonuo.sys.modular.hr.attendanceMachine.enums.HrAttendanceMachineEnum;
+import vip.xiaonuo.sys.modular.hr.userApplyAttendance.entity.HrUserApplyAttendance;
+import vip.xiaonuo.sys.modular.hr.userApplyAttendance.service.HrUserApplyAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendance.mapper.HrUserAttendanceMapper;
@@ -49,6 +51,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendance
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
 
 import javax.annotation.Resource;
+import java.sql.Time;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -70,7 +73,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     private HrUserAttendanceRelationService hrUserAttendanceRelationService;
     @Resource
     private CommonCacheOperator commonCacheOperator;
-    private List<HrUserAttendance> hrUserAttendancesAll;
+    @Resource
+    private HrUserApplyAttendanceService hrUserApplyAttendanceService;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -149,7 +153,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         for(HrUserAttendanceConfig attendanceConfig : configList){
             AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
             attendanceTimeSlot.setDutyType(attendanceConfig.getDutyType());
-            Date time = CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,DATE_FORMAT),attendanceConfig.getCheckTime());
+            Date time = CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,DATE_FORMAT),attendanceConfig.getCheckTime().toString());
             attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(attendanceConfig.getBeginMinTime()),2));
             attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(attendanceConfig.getEndMinTime()),1));
             attendanceTimeSlot.setCompareTime(time);
@@ -309,12 +313,22 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return map;
     }
 
-    /** 接口测试 */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
     public void resubmitAttendance(String processInstanceId, String applyType){
+        HrUserApplyAttendance hrUserApplyAttendance = hrUserApplyAttendanceService.getOne(new QueryWrapper<HrUserApplyAttendance>().lambda().eq(HrUserApplyAttendance::getProcessInstanceId,processInstanceId));
         HrUserAttendance hrUserAttendance = new HrUserAttendance();
         hrUserAttendance.setAbnormalFlag(1);
         hrUserAttendance.setCheckType("OnDuty");
         hrUserAttendance.setCheckTime(new Date());
+        hrUserAttendance.setIsResubmitAttendanceFlag(1);
+        hrUserAttendance.setApplyResubmitAttendanceId(hrUserApplyAttendance.getId());
         this.save(hrUserAttendance);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void attendanceStatJobHandle(){
+        //System.out.println("接口调用成功！");
     }
 }

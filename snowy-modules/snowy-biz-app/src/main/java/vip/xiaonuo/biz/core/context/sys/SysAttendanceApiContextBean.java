@@ -23,4 +23,9 @@ public class SysAttendanceApiContextBean implements SysAttendanceApi {
     public void  resubmitAttendance(String processInstanceId, String applyType){
         sysHrAttendanceFeign.dealApplyAttendance(processInstanceId,applyType);
     }
+
+    @Override
+    public void attendanceStatJobHandle(){
+        sysHrAttendanceFeign.attendanceStatJobHandle();
+    }
 }
