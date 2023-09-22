@@ -74,7 +74,7 @@ public class BizEmpPerformancePageParam {
 
     /** 员工季度-绩效等级 */
     @ApiModelProperty(value = "员工季度-绩效等级")
-    private Double empSeasonLevel;
+    private String empSeasonLevel;
 
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态")

@@ -62,7 +62,7 @@ public class BizEmpTaskFlwController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-员工绩效考核-季度任务流程审批单分页")
-//    @SaCheckPermission("/biz/emp/taskFlw/page")
+    @SaCheckPermission("/biz/emp/taskFlw/page")
     @GetMapping("/biz/emp/taskFlw/page")
     public CommonResult<IPage<BizEmpTaskFlwVo>> page(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam) {
         return CommonResult.data(bizEmpTaskFlwService.pageList(bizEmpTaskFlwPageParam));

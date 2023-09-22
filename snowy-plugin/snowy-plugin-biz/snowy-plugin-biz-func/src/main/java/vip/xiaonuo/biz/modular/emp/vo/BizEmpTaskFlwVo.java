@@ -52,7 +52,7 @@ public class BizEmpTaskFlwVo extends BizEmpTaskFlw {
 
     /** 员工季度-绩效等级 */
     @ApiModelProperty(value = "员工季度-绩效等级", position = 17)
-    private Double epEmpSeasonLevel;
+    private String epEmpSeasonLevel;
 
     /** 流程状态(绩效评估流程) */
     @ApiModelProperty(value = "流程状态(绩效评估流程)", position = 23)

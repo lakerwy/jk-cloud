@@ -13,12 +13,9 @@
 package vip.xiaonuo.biz.modular.emp.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
-import com.fhs.core.trans.anno.Trans;
-import com.fhs.core.trans.constant.TransType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -61,7 +58,6 @@ public class BizEmpPerformance {
 
     /** 组织Id */
     @ApiModelProperty(value = "组织Id", position = 7)
-    @Trans(type = TransType.SIMPLE, target = BizOrg.class, fields = "name", alias = "org", ref = "orgName")
     private String orgId;
 
     /** 年度(如：2023) */
@@ -102,7 +98,7 @@ public class BizEmpPerformance {
 
     /** 员工季度-绩效等级 */
     @ApiModelProperty(value = "员工季度-绩效等级", position = 17)
-    private Double empSeasonLevel;
+    private String empSeasonLevel;
 
     /** 删除状态标记 */
     @ApiModelProperty(value = "删除状态标记", position = 18)

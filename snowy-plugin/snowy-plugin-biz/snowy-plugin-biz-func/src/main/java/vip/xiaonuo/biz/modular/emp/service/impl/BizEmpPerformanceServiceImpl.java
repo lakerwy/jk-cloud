@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.emp.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -26,11 +27,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
 import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
+import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -71,6 +75,9 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
 
     @Resource
     private BizUserService bizUserService;
+
+    @Resource
+    private SysOrgService sysOrgService;
 
     @Override
     public Page<BizEmpPerformance> page(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
@@ -241,10 +248,12 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         //最终返回结果
         Page<BizEmpPerformanceVo> pageVo = new Page<>();
         List<BizEmpPerformanceVo> newResult = new ArrayList<>();
+
         //统计年度
         String year = bizEmpTaskPageParam.getYear();
         //季度
         List<String> seasons = Arrays.asList("1","2","3","4");
+
         //需要补充的组织架构人员
         QueryWrapper<BizUser> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getOrgId())){
@@ -253,10 +262,19 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getUserId())){
             queryWrapper.lambda().eq(BizUser::getId,bizEmpTaskPageParam.getUserId());
         }
-        //关键字
+
+        //关键字查询
         if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSearchKey())){
             queryWrapper.and(q->q.lambda().like(BizUser::getName,bizEmpTaskPageParam.getSearchKey())
                     .or().like(BizUser::getOrgName,bizEmpTaskPageParam.getSearchKey()));
+        }
+
+        // 校验数据范围（由于本列表是根据组织架构决定的）
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BizUser::getOrgId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BizUser::getId, StpUtil.getLoginIdAsString());
         }
         queryWrapper.lambda().orderByAsc(BizUser::getOrgId);
 
@@ -265,14 +283,20 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         long size =  ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSize()) ? bizEmpTaskPageParam.getSize() : 10;
         Page<BizUser> objectPage = new Page<>(current, size);
 
+        //切换数据库，查询组织机构人员信息
         DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
         dbsApi.changeDataSource(dbsApi.getDefaultDataSourceName());
         Page<BizUser> needUserList = bizUserService.page(objectPage,queryWrapper);
         dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
 
+        //获取组织翻译
+        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
+
+        //构造每个人的年度绩效数据（组织架构中每个人均有一条年度绩效评分记录）
         for (BizUser user:needUserList.getRecords()) {
             BizEmpPerformanceVo performanceVo = new BizEmpPerformanceVo();
-            performanceVo.setOrgName(user.getOrgName());
+            Optional<BizSysOrgVo> orgInfo = orgList.stream().filter(x -> x.getOrgId().equals(user.getOrgId())).findFirst();
+            performanceVo.setOrgName(orgInfo.isPresent()?orgInfo.get().getOrgName():"");
             performanceVo.setYear(year);
             performanceVo.setOrgId(user.getOrgId());
             performanceVo.setUserId(user.getId());

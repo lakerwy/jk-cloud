@@ -98,7 +98,7 @@ public class BizEmpPerformanceEditParam {
 
     /** 员工季度-绩效等级 */
     @ApiModelProperty(value = "员工季度-绩效等级", position = 17)
-    private Double empSeasonLevel;
+    private String empSeasonLevel;
 
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 23)

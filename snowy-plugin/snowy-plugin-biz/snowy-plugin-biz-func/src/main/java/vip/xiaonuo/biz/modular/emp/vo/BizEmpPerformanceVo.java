@@ -45,7 +45,7 @@ public class BizEmpPerformanceVo {
 
     /** 员工第一季度-绩效等级 */
     @ApiModelProperty(value = "员工第一季度-绩效等级", position = 17)
-    private Double SeasonLevel1;
+    private String SeasonLevel1;
 
     /** 员工第二季度-评估得分 */
     @ApiModelProperty(value = "员工第二季度-评估得分", position = 16)
@@ -53,7 +53,7 @@ public class BizEmpPerformanceVo {
 
     /** 员工第二季度-绩效等级 */
     @ApiModelProperty(value = "员工第二季度-绩效等级", position = 17)
-    private Double SeasonLevel2;
+    private String SeasonLevel2;
 
     /** 员工第三季度-评估得分 */
     @ApiModelProperty(value = "员工第三季度-评估得分", position = 16)
@@ -61,7 +61,7 @@ public class BizEmpPerformanceVo {
 
     /** 员工第三季度-绩效等级 */
     @ApiModelProperty(value = "员工第三季度-绩效等级", position = 17)
-    private Double SeasonLevel3;
+    private String SeasonLevel3;
 
     /** 员工第四季度-评估得分 */
     @ApiModelProperty(value = "员工第四季度-评估得分", position = 16)
@@ -69,5 +69,5 @@ public class BizEmpPerformanceVo {
 
     /** 员工第四季度-绩效等级 */
     @ApiModelProperty(value = "员工第四季度-绩效等级", position = 17)
-    private Double SeasonLevel4;
+    private String SeasonLevel4;
 }

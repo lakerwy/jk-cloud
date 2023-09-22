@@ -48,10 +48,6 @@ public class BizEmpTaskFlwPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** SN */
-    @ApiModelProperty(value = "SN")
-    private String sn;
-
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态")
     private String status;
@@ -59,10 +55,6 @@ public class BizEmpTaskFlwPageParam {
     /** 用户Id */
     @ApiModelProperty(value = "用户Id", position = 2)
     private String userId;
-
-    /** 用户名 */
-    @ApiModelProperty(value = "用户名", position = 3)
-    private String userName;
 
     /** 组织Id */
     @ApiModelProperty(value = "组织Id", position = 4)
@@ -75,4 +67,8 @@ public class BizEmpTaskFlwPageParam {
     /** 季度(如:1) */
     @ApiModelProperty(value = "季度(如:1)", position = 6)
     private String season;
+
+    /** 是否已填报 1: 已填报  2：未填报 */
+    @ApiModelProperty(value = "是否已填报 1: 已填报  2：未填报", position = 7)
+    private String IsFill;
 }

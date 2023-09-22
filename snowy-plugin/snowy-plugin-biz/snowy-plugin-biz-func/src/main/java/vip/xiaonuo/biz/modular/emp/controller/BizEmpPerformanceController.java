@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.emp.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -153,7 +154,7 @@ public class BizEmpPerformanceController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-员工绩效考核-季度评分审批流程分页")
-//    @SaCheckPermission("/biz/emp/performance/page")
+    @SaCheckPermission("/biz/emp/performance/pageList")
     @GetMapping("/biz/emp/performance/pageList")
     public CommonResult<Page<BizEmpPerformanceVo>> pageList(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
         return CommonResult.data(bizEmpPerformanceService.pageList(bizEmpPerformancePageParam));
