@@ -19,6 +19,7 @@ import lombok.Setter;
 import lombok.experimental.Accessors;
 
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -59,7 +60,7 @@ public class HrUserAttendanceConfig {
 
     /** 打卡时间 */
     @ApiModelProperty(value = "打卡时间", position = 6)
-    private String checkTime;
+    private Time checkTime;
 
     /** 允许最晚多少时间打卡 */
     @ApiModelProperty(value = "允许最晚多少时间打卡", position = 7)
