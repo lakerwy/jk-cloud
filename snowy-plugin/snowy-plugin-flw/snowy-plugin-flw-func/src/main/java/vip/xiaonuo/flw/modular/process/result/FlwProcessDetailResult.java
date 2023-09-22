@@ -58,6 +58,15 @@ public class FlwProcessDetailResult {
     @ApiModelProperty(value = "审批记录", position = 7)
     private List<FlwTaskDetailResult.FlwProcessComment> commentList;
 
+    /** 状态值 （后期增加） */
+    @ApiModelProperty(value = "状态值", position = 18)
+    private String stateText;
+
+    /** 状态码 （后期增加） */
+    @ApiModelProperty(value = "状态码", position = 19)
+    private String stateCode;
+
+
     /**
      * 审批记录类
      *
