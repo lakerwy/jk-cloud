@@ -37,6 +37,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 打卡班次配置表控制器
@@ -84,17 +85,17 @@ public class HrUserAttendanceConfigController {
     }
 
     /**
-     * 编辑打卡班次配置表
+     * 编辑打卡班次配置表--未启用
      *
      * @author ljy
      * @date  2023/09/07 13:07
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑打卡班次配置表")
-    @CommonLog("编辑打卡班次配置表")
+    @ApiOperation("编辑打卡班次配置表--未启用")
+    @CommonLog("编辑打卡班次配置表--未启用")
     //@SaCheckPermission("/sys/userAttendanceConfig/edit")
     @PostMapping("/sys/userAttendanceConfig/edit")
-    public CommonResult<String> edit(@RequestBody @Valid HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam) {
+    public CommonResult<String> editNo(@RequestBody @Valid HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam) {
         hrUserAttendanceConfigService.edit(hrUserAttendanceConfigEditParam);
         return CommonResult.ok();
     }
@@ -140,7 +141,7 @@ public class HrUserAttendanceConfigController {
     @ApiOperation("获取打卡班次列表")
     //@SaCheckPermission("/sys/userAttendanceConfig/attendanceconfiglist")
     @GetMapping("/sys/userAttendanceConfig/attendanceconfiglist")
-    public CommonResult<List<HrUserAttendanceConfig>> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam) {
+    public CommonResult<Map<String,Object>> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam) {
         return CommonResult.data(hrUserAttendanceConfigService.attendanceConfigList(hrUserAttendanceConfigPageParam));
     }
 
@@ -157,5 +158,20 @@ public class HrUserAttendanceConfigController {
     @PostMapping("/sys/userAttendanceConfig/addlist")
     public CommonResult<String> addList(@RequestBody @Valid List<HrUserAttendanceConfigAddParam> hrUserAttendanceConfigAddParamList) {
         return CommonResult.data(hrUserAttendanceConfigService.addList(hrUserAttendanceConfigAddParamList));
+    }
+
+    /**
+     * 编辑打卡班次配置表
+     *
+     * @author ljy
+     * @date  2023/09/07 13:07
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("编辑打卡班次配置表")
+    @CommonLog("编辑打卡班次配置表")
+    //@SaCheckPermission("/sys/userAttendanceConfig/edit")
+    @PostMapping("/sys/userAttendanceConfig/editConfig")
+    public CommonResult<String> editConfig(@RequestBody @Valid HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam) {
+        return CommonResult.data(hrUserAttendanceConfigService.editConfig(hrUserAttendanceConfigEditParam));
     }
 }

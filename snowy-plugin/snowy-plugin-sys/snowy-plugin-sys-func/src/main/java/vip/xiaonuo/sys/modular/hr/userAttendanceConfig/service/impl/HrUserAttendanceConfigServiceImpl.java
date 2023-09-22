@@ -19,6 +19,7 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,6 +27,7 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.enums.HrUserAttendanceConfigEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.mapper.HrUserAttendanceConfigMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigAddParam;
@@ -33,10 +35,14 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -46,10 +52,14 @@ import java.util.stream.Collectors;
  * @date  2023/09/07 13:07
  **/
 @Service
+@Slf4j
 public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttendanceConfigMapper, HrUserAttendanceConfig> implements HrUserAttendanceConfigService {
 
     @Resource
     HrUserAttendanceConfigMapper hrUserAttendanceConfigMapper;
+    @Resource
+    HrUserAttendanceConfigGroupService hrUserAttendanceConfigGroupService;
+
     @Override
     public Page<HrUserAttendanceConfig> page(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam) {
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
@@ -105,16 +115,45 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
     }
 
     @Override
-    public List<HrUserAttendanceConfig> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam){
+    public Map<String,Object> attendanceConfigList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam){
         if(StringUtils.isEmpty(hrUserAttendanceConfigPageParam.getAttendanceTypeId())){
-            return new ArrayList<>();
+            return new HashMap<>();
         }
+        Map<String,Object> map = new HashMap<>();
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ATTENDANCE_TYPE_ID",hrUserAttendanceConfigPageParam.getAttendanceTypeId());
-        List<HrUserAttendanceConfig> userAttendanceConfigList = hrUserAttendanceConfigMapper.selectList(queryWrapper);
-        return userAttendanceConfigList;
+        map.put("attendanceConfigList",hrUserAttendanceConfigMapper.selectList(queryWrapper));
+        map.put("elasticity","");
+        map.put("seriousLate","");
+        map.put("absenteeismLate","");
+        return map;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public String editConfig(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam){
+        /** 修改考勤配置组 */
+        if(StringUtils.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeName()) && ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeId())){
+            HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.getById(hrUserAttendanceConfigEditParam.getAttendanceTypeId());
+            if(ObjectUtil.isNotEmpty(hrUserAttendanceConfigGroup)){
+                hrUserAttendanceConfigGroup.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName());
+                hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigEditParam.getLeadId());
+                hrUserAttendanceConfigGroup.setLeadName(hrUserAttendanceConfigEditParam.getLeadName());
+                hrUserAttendanceConfigGroupService.updateById(hrUserAttendanceConfigGroup);
+            }
+        }
+        List<HrUserAttendanceConfigEntity> attendanceConfigEntityList = ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getUserAttendanceConfigEntityList()) ?
+                hrUserAttendanceConfigEditParam.getUserAttendanceConfigEntityList() : new ArrayList<>();
+        attendanceConfigEntityList.stream().forEach(entity -> entity.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName()));
+        List<HrUserAttendanceConfig> attendanceConfigList = attendanceConfigEntityList.stream().map(entity -> BeanUtil.toBean(entity, HrUserAttendanceConfig.class)).collect(Collectors.toList());
+        log.info("editConfig更新条数-----"+attendanceConfigList.size());
+        if(attendanceConfigList.size() == 0){
+            return "1";
+        }
+        return this.saveOrUpdateBatch(attendanceConfigList) ? "1" : "-1";
+    }
+
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public String addList(List<HrUserAttendanceConfigAddParam> hrUserAttendanceConfigAddParamList){
         if(ObjectUtil.isEmpty(hrUserAttendanceConfigAddParamList)){
@@ -123,5 +162,4 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigAddParamList.stream().map(param -> BeanUtil.toBean(param, HrUserAttendanceConfig.class)).collect(Collectors.toList());
         return this.saveBatch(hrUserAttendanceConfigList) ? HrUserAttendanceConfigEnum.SUCESS.getValue() : HrUserAttendanceConfigEnum.FAIL.getValue();
     }
-
 }
