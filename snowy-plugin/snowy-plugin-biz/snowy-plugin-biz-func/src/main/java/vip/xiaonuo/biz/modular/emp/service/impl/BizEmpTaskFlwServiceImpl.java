@@ -37,6 +37,7 @@ import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
@@ -50,7 +51,9 @@ import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -156,6 +159,7 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         //筛选业务数据
         QueryWrapper<BizEmpTaskFlw> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("a.STATUS", FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getUserId())) {
             queryWrapper.eq("a.USER_ID", bizEmpTaskFlwPageParam.getUserId());
         }
@@ -217,10 +221,31 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
             queryWrapper.lambda().eq(BizUser::getId,bizEmpTaskFlwPageParam.getUserId());
         }
 
+        //若筛选（已填报|未填报）
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getIsFill())){
+            //已经填报过的员工id集合
+            List<String> haveFillUserIds = result.stream().map(x->x.getUserId()).distinct().collect(Collectors.toList());
+            //若没有填报记录，则置为空
+            if(CollUtil.isEmpty(haveFillUserIds)) haveFillUserIds = Arrays.asList("");
+            //筛选是否填报
+            if("1".equals(bizEmpTaskFlwPageParam.getIsFill())){
+                queryWrapper.lambda().in(BizUser::getId,haveFillUserIds);
+            }else{
+                queryWrapper.lambda().notIn(BizUser::getId,haveFillUserIds);
+            }
+        }
+
+        //若筛选流程审批状态
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getStatus())){
+            //根据流程状态筛选 员工id集合
+            List<String> statusUserIds = result.stream().filter(x->x.getStatus().equals(bizEmpTaskFlwPageParam.getStatus())).map(x->x.getUserId()).distinct().collect(Collectors.toList());
+            if(CollUtil.isEmpty(statusUserIds)) statusUserIds = Arrays.asList("");
+            queryWrapper.lambda().in(BizUser::getId,statusUserIds);
+        }
+
         //关键字
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSearchKey())){
-            queryWrapper.and(q->q.lambda().like(BizUser::getName,bizEmpTaskFlwPageParam.getSearchKey())
-                    .or().like(BizUser::getOrgName,bizEmpTaskFlwPageParam.getSearchKey()));
+            queryWrapper.lambda().like(BizUser::getName,bizEmpTaskFlwPageParam.getSearchKey());
         }
 
         // 校验数据范围（由于本列表是根据组织架构决定的）
@@ -262,27 +287,14 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
                 newResult.add(bizEmpTaskFlwVo);
             }else{
                 BizEmpTaskFlwVo addVo = new BizEmpTaskFlwVo();
+                addVo.setYear(year);
+                addVo.setSeason(season);
                 addVo.setUserId(user.getId());
                 addVo.setOrgId(user.getOrgId());
                 addVo.setUserName(user.getName());
                 addVo.setOrgName(tmpOrgName);
                 newResult.add(addVo);
            }
-        }
-
-        //若筛选（已填报|未填报）
-        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getIsFill())){
-            //已填报
-            if("1".equals(bizEmpTaskFlwPageParam.getIsFill())){
-                newResult = newResult.stream().filter(x->ObjectUtil.isNotEmpty(x.getId())).collect(Collectors.toList());
-            }else{
-                newResult = newResult.stream().filter(x->ObjectUtil.isEmpty(x.getId())).collect(Collectors.toList());
-            }
-        }
-
-        //若筛选流程审批状态
-        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getStatus())){
-            newResult = newResult.stream().filter(x->x.getStatus().equals(bizEmpTaskFlwPageParam.getStatus())).collect(Collectors.toList());
         }
 
         //构造返回体

@@ -210,6 +210,8 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
             throw new CommonException("考核年度参数必填");
         }
         QueryWrapper<BizEmpPerformance> queryWrapper = new QueryWrapper<>();
+        //只有 审批中、审批通过 才有效
+        queryWrapper.lambda().in(BizEmpPerformance::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getUserId())) {
             queryWrapper.lambda().eq(BizEmpPerformance::getUserId, bizEmpPerformancePageParam.getUserId());
         }
@@ -265,8 +267,7 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
 
         //关键字查询
         if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSearchKey())){
-            queryWrapper.and(q->q.lambda().like(BizUser::getName,bizEmpTaskPageParam.getSearchKey())
-                    .or().like(BizUser::getOrgName,bizEmpTaskPageParam.getSearchKey()));
+            queryWrapper.and(q->q.lambda().like(BizUser::getName,bizEmpTaskPageParam.getSearchKey()));
         }
 
         // 校验数据范围（由于本列表是根据组织架构决定的）
