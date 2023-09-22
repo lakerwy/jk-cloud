@@ -154,6 +154,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             /* actuator */
             "/actuator",
             "/actuator/**",
+            "/flw/process/getInstance",
     };
 
     /**
