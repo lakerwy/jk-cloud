@@ -31,13 +31,17 @@ import java.util.Date;
 @Setter
 public class HrUserAttendanceRelationAddParam {
 
-    /** 用户ID */
-    @ApiModelProperty(value = "用户ID", position = 2)
-    private String userId;
+    /** 公司部门或人员ID */
+    @ApiModelProperty(value = "公司部门或人员ID", position = 2)
+    private String employId;
 
-    /** 考勤班次标志 */
-    @ApiModelProperty(value = "考勤班次标志", position = 3)
-    private String attendanceType;
+    /** 部门或人员类别 */
+    @ApiModelProperty(value = "部门或人员类别", position = 14)
+    private String employType;
+
+    /** 考勤组ID */
+    @ApiModelProperty(value = "考勤组ID", position = 3)
+    private String attendanceTypeId;
 
     /** 班次生效开始时间  */
     @ApiModelProperty(value = "班次生效开始时间", position = 4)
@@ -46,4 +50,9 @@ public class HrUserAttendanceRelationAddParam {
     /** 班次生效结束时间  */
     @ApiModelProperty(value = "班次生效结束时间", position = 5)
     private Date endTime;
+
+    /** 考勤组名称 */
+    @ApiModelProperty(value = "考勤组名称", position = 6)
+    private String attendanceType;
+
 }

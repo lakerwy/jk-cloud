@@ -207,7 +207,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     @Override
     public List<AttendanceTimeSlot> getAttendanceConfigValueByKey(Date dateNow){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        HrUserAttendanceRelation hrUserAttendanceRelationServiceOne = hrUserAttendanceRelationService.getOne(new LambdaQueryWrapper<HrUserAttendanceRelation>().eq(HrUserAttendanceRelation::getUserId,loginUser.getId()));
+        //HrUserAttendanceRelation hrUserAttendanceRelationServiceOne = hrUserAttendanceRelationService.getOne(new LambdaQueryWrapper<HrUserAttendanceRelation>().eq(HrUserAttendanceRelation::getUserId,loginUser.getId()));
+        HrUserAttendanceRelation hrUserAttendanceRelationServiceOne = new HrUserAttendanceRelation();
         if(ObjectUtil.isEmpty(hrUserAttendanceRelationServiceOne) || StringUtils.isEmpty(hrUserAttendanceRelationServiceOne.getAttendanceType())){
             return new ArrayList<>();
         }
