@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.task.service;
 
+import vip.xiaonuo.biz.modular.task.vo.BizFirstOrgVo;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 
 import java.util.List;
@@ -41,5 +42,11 @@ public interface SysOrgService {
     BizSysOrgVo getOrgById(String orgId);
 
     BizSysOrgVo getOrgByName(String orgName);
+
+    /**
+     * 获取组织架构中的所有一级部门信息
+     * @return
+     */
+    List<BizFirstOrgVo> getFirstOrgList();
 
 }

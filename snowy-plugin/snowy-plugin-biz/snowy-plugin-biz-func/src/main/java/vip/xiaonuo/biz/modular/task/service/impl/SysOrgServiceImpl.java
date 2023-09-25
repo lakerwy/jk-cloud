@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.core.mapper.Mapper;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.biz.modular.task.mapper.SysOrgMapper;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizFirstOrgVo;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 
 import javax.annotation.Resource;
@@ -36,4 +37,10 @@ public class SysOrgServiceImpl implements Mapper<SysOrgMapper>, SysOrgService {
     public BizSysOrgVo getOrgByName(String orgName) {
         return sysOrgMapper.getOrgByOrgName(orgName);
     }
+
+    @Override
+    public List<BizFirstOrgVo> getFirstOrgList() {
+        return sysOrgMapper.getFirstOrgList();
+    }
+
 }

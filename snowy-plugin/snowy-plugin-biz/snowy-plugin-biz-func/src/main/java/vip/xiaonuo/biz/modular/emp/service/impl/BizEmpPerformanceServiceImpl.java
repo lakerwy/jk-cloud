@@ -34,6 +34,7 @@ import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizFirstOrgVo;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
@@ -268,6 +269,13 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         //关键字查询
         if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSearchKey())){
             queryWrapper.and(q->q.lambda().like(BizUser::getName,bizEmpTaskPageParam.getSearchKey()));
+        }
+
+        //过滤掉所有一级部门的负责人（SysOrg.directorId）
+        List<BizFirstOrgVo> firstOrgVoList = sysOrgService.getFirstOrgList();
+        List<String> firstOrgUserIds = firstOrgVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getDirectorId())).map(x->x.getDirectorId()).distinct().collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(firstOrgUserIds)){
+            queryWrapper.lambda().notIn(BizUser::getId,firstOrgUserIds);
         }
 
         // 校验数据范围（由于本列表是根据组织架构决定的）

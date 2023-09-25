@@ -13,4 +13,14 @@
         select ID as orgId,NAME as orgName from SYS_ORG where DELETE_FLAG = 'NOT_DELETE'  and NAME like CONCAT('%',#{orgName},'%')
     </select>
 
+    <select id="getFirstOrgList" resultType="vip.xiaonuo.biz.modular.task.vo.BizFirstOrgVo">
+        select id as orgId,NAME as orgName,PARENT_ID as parentId,DIRECTOR_ID as directorId
+        from SYS_ORG
+                 where DELETE_FLAG = 'NOT_DELETE'
+                   and CATEGORY = 'DEPT'
+                   and PARENT_ID in
+                       (select ID FROM SYS_ORG where PARENT_ID in
+                                                     (select ID FROM SYS_ORG where PARENT_ID = '0'))
+    </select>
+
 </mapper>

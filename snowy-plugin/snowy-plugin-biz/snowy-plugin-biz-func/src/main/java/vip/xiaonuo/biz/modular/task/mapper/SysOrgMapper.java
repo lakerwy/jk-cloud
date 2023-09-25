@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.task.mapper;
 
+import vip.xiaonuo.biz.modular.task.vo.BizFirstOrgVo;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 
 import java.util.List;
@@ -29,5 +30,7 @@ public interface SysOrgMapper {
     BizSysOrgVo getOrgById(String orgId);
 
     BizSysOrgVo getOrgByOrgName(String orgName);
+
+    List<BizFirstOrgVo> getFirstOrgList();
 
 }
