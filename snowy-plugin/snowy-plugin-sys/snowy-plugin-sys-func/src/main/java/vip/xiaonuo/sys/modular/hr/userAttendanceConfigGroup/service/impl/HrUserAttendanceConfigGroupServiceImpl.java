@@ -24,6 +24,8 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.mapper.HrUserAttendanceConfigGroupMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupAddParam;
@@ -32,7 +34,9 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendan
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 考勤班次组配置表Service接口实现类
@@ -42,6 +46,10 @@ import java.util.List;
  **/
 @Service
 public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAttendanceConfigGroupMapper, HrUserAttendanceConfigGroup> implements HrUserAttendanceConfigGroupService {
+
+
+    @Resource
+    HrUserAttendanceConfigService hrUserAttendanceConfigService;
 
     @Override
     public Page<HrUserAttendanceConfigGroup> page(HrUserAttendanceConfigGroupPageParam hrUserAttendanceConfigGroupPageParam) {
@@ -83,8 +91,14 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<HrUserAttendanceConfigGroupIdParam> hrUserAttendanceConfigGroupIdParamList) {
-        // 执行删除
+        // 执行考勤配置组删除，以及删除配置详情
         this.removeByIds(CollStreamUtil.toList(hrUserAttendanceConfigGroupIdParamList, HrUserAttendanceConfigGroupIdParam::getId));
+        List<HrUserAttendanceConfigIdParam> attendanceTypeIds = hrUserAttendanceConfigGroupIdParamList.stream().map(param -> {
+            HrUserAttendanceConfigIdParam hrUserAttendanceConfigIdParam = new HrUserAttendanceConfigIdParam();
+            hrUserAttendanceConfigIdParam.setAttendanceTypeId(param.getId());
+            return hrUserAttendanceConfigIdParam;
+        }).collect(Collectors.toList());
+        hrUserAttendanceConfigService.delete(attendanceTypeIds);
     }
 
     @Override
