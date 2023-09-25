@@ -48,12 +48,20 @@ public class HrUserAttendanceRelationPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 用户ID */
-    @ApiModelProperty(value = "用户ID")
-    private String userId;
+    /** 公司部门或人员ID */
+    @ApiModelProperty(value = "公司部门或人员ID", position = 2)
+    private String employId;
+
+    /** 部门或人员类别 */
+    @ApiModelProperty(value = "部门或人员类别", position = 14)
+    private String employType;
 
     /** 考勤班次标志 */
     @ApiModelProperty(value = "考勤班次标志，(比如叫标准考勤，移动考勤等)")
     private String attendanceType;
+
+    /** 租户id */
+    @ApiModelProperty(value = "租户id", position = 2)
+    private String tenantId;
 
 }

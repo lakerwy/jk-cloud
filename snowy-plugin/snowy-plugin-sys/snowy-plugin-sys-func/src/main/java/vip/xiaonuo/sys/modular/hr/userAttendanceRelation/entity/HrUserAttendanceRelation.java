@@ -35,9 +35,9 @@ public class HrUserAttendanceRelation {
     @ApiModelProperty(value = "主键", position = 1)
     private String id;
 
-    /** 用户ID */
-    @ApiModelProperty(value = "用户ID", position = 2)
-    private String userId;
+    /** 公司部门或人员ID */
+    @ApiModelProperty(value = "公司部门或人员ID", position = 2)
+    private String employId;
 
     /** 考勤班次标志 */
     @ApiModelProperty(value = "考勤班次标志", position = 3)
@@ -80,4 +80,12 @@ public class HrUserAttendanceRelation {
     @ApiModelProperty(value = "修改用户", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 租户id */
+    @ApiModelProperty(value = "租户id", position = 12)
+    private String tenantId;
+
+    /** 部门或人员类别 */
+    @ApiModelProperty(value = "部门或人员类别", position = 14)
+    private String employType;
 }

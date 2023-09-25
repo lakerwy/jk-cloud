@@ -48,8 +48,11 @@ public class HrUserAttendanceRelationServiceImpl extends ServiceImpl<HrUserAtten
     @Override
     public Page<HrUserAttendanceRelation> page(HrUserAttendanceRelationPageParam hrUserAttendanceRelationPageParam) {
         QueryWrapper<HrUserAttendanceRelation> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(hrUserAttendanceRelationPageParam.getUserId())) {
-            queryWrapper.lambda().eq(HrUserAttendanceRelation::getUserId, hrUserAttendanceRelationPageParam.getUserId());
+        if(ObjectUtil.isNotEmpty(hrUserAttendanceRelationPageParam.getEmployId())) {
+            queryWrapper.lambda().eq(HrUserAttendanceRelation::getEmployId, hrUserAttendanceRelationPageParam.getEmployId());
+        }
+        if(ObjectUtil.isNotEmpty(hrUserAttendanceRelationPageParam.getEmployType())) {
+            queryWrapper.lambda().eq(HrUserAttendanceRelation::getEmployType, hrUserAttendanceRelationPageParam.getEmployType());
         }
         if(ObjectUtil.isNotEmpty(hrUserAttendanceRelationPageParam.getAttendanceType())) {
             queryWrapper.lambda().eq(HrUserAttendanceRelation::getAttendanceType, hrUserAttendanceRelationPageParam.getAttendanceType());
@@ -67,7 +70,7 @@ public class HrUserAttendanceRelationServiceImpl extends ServiceImpl<HrUserAtten
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String add(HrUserAttendanceRelationAddParam hrUserAttendanceRelationAddParam) {
-        if(StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getUserId()) || StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getAttendanceType())
+        if(StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getEmployId()) || StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getAttendanceType())
             || ObjectUtil.isEmpty(hrUserAttendanceRelationAddParam.getBeginTime()) || ObjectUtil.isEmpty(hrUserAttendanceRelationAddParam.getEndTime())){
             return HrUserAttendanceRelationEnum.FAIL.getValue();
         }
