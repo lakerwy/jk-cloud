@@ -56,8 +56,12 @@ public class HrUserAttendanceRelationPageParam {
     @ApiModelProperty(value = "部门或人员类别", position = 14)
     private String employType;
 
-    /** 考勤班次标志 */
-    @ApiModelProperty(value = "考勤班次标志，(比如叫标准考勤，移动考勤等)")
+    /** 考勤组ID */
+    @ApiModelProperty(value = "考勤组ID")
+    private String attendanceTypeId;
+
+    /** 考勤组ID */
+    @ApiModelProperty(value = "考勤组ID")
     private String attendanceType;
 
     /** 租户id */

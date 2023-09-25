@@ -70,10 +70,10 @@ public class HrUserAttendanceRelationServiceImpl extends ServiceImpl<HrUserAtten
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String add(HrUserAttendanceRelationAddParam hrUserAttendanceRelationAddParam) {
-        if(StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getEmployId()) || StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getAttendanceType())
+       /* if(StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getEmployId()) || StringUtils.isEmpty(hrUserAttendanceRelationAddParam.getAttendanceType())
             || ObjectUtil.isEmpty(hrUserAttendanceRelationAddParam.getBeginTime()) || ObjectUtil.isEmpty(hrUserAttendanceRelationAddParam.getEndTime())){
             return HrUserAttendanceRelationEnum.FAIL.getValue();
-        }
+        }*/
         HrUserAttendanceRelation hrUserAttendanceRelation = BeanUtil.toBean(hrUserAttendanceRelationAddParam, HrUserAttendanceRelation.class);
         this.save(hrUserAttendanceRelation);
         return HrUserAttendanceRelationEnum.SUCESS.getValue();

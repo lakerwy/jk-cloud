@@ -39,9 +39,9 @@ public class HrUserAttendanceRelationAddParam {
     @ApiModelProperty(value = "部门或人员类别", position = 14)
     private String employType;
 
-    /** 考勤班次标志 */
-    @ApiModelProperty(value = "考勤班次标志", position = 3)
-    private String attendanceType;
+    /** 考勤组ID */
+    @ApiModelProperty(value = "考勤组ID", position = 3)
+    private String attendanceTypeId;
 
     /** 班次生效开始时间  */
     @ApiModelProperty(value = "班次生效开始时间", position = 4)
@@ -51,5 +51,8 @@ public class HrUserAttendanceRelationAddParam {
     @ApiModelProperty(value = "班次生效结束时间", position = 5)
     private Date endTime;
 
+    /** 考勤组名称 */
+    @ApiModelProperty(value = "考勤组名称", position = 6)
+    private String attendanceType;
 
 }
