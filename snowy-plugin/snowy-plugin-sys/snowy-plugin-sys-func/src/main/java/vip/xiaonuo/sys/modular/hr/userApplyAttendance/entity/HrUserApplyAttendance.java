@@ -49,7 +49,7 @@ public class HrUserApplyAttendance {
 
     /** 申请时间 */
     @ApiModelProperty(value = "申请时间", position = 5)
-    private String applyTime;
+    private String applyAttendanceTime;
 
     /** 申请开始时间 */
     @ApiModelProperty(value = "申请开始时间", position = 6)

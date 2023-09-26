@@ -56,6 +56,10 @@ public class HrUserApplyAttendancePageParam {
     @ApiModelProperty(value = "申请类型：是否加班考勤  1 ，是否弹性   2，是否异地   3，是否免打卡  4，申请补卡 5")
     private Integer applyType;
 
+    /** 申请时间 */
+    @ApiModelProperty(value = "申请时间")
+    private String applyAttendanceTime;
+
     /** 申请时间开始 */
     @ApiModelProperty(value = "申请时间开始")
     private String startApplyTime;

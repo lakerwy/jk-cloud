@@ -69,7 +69,7 @@ public class HrUserApplyAttendanceServiceImpl extends ServiceImpl<HrUserApplyAtt
             queryWrapper.lambda().eq(HrUserApplyAttendance::getApplyType, hrUserApplyAttendancePageParam.getApplyType());
         }
         if(ObjectUtil.isNotEmpty(hrUserApplyAttendancePageParam.getStartApplyTime()) && ObjectUtil.isNotEmpty(hrUserApplyAttendancePageParam.getEndApplyTime())) {
-            queryWrapper.lambda().between(HrUserApplyAttendance::getApplyTime, hrUserApplyAttendancePageParam.getStartApplyTime(), hrUserApplyAttendancePageParam.getEndApplyTime());
+            queryWrapper.lambda().between(HrUserApplyAttendance::getApplyAttendanceTime, hrUserApplyAttendancePageParam.getStartApplyTime(), hrUserApplyAttendancePageParam.getEndApplyTime());
         }
         if(ObjectUtil.isNotEmpty(hrUserApplyAttendancePageParam.getStartApplyBeginTime()) && ObjectUtil.isNotEmpty(hrUserApplyAttendancePageParam.getEndApplyBeginTime())) {
             queryWrapper.lambda().between(HrUserApplyAttendance::getApplyBeginTime, hrUserApplyAttendancePageParam.getStartApplyBeginTime(), hrUserApplyAttendancePageParam.getEndApplyBeginTime());

@@ -24,10 +24,9 @@ public class FlwResHolidayApplyListener implements ExecutionListener {
         String processInstanceId = execution.getProcessInstanceId();
         try{
             //attendanceApi.resubmitAttendance(processInstanceId,"5");
-            log.info("处理考勤审批！");
+            log.info("处理申请假期审批----流程实例id----"+processInstanceId);
         }catch (Exception e){
-            log.info("处理考勤审批失败-----"+e.getMessage());
+            log.info("处理申请假期审批-----"+e.getMessage());
         }
-
     }
 }

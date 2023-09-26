@@ -121,9 +121,17 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
 
     @Override
     public Map<String,Object> attendanceConfigGroupMap(HrAttendanceConfigAndUserParam hrAttendanceConfigAndUserParam){
-
+        Map<String,Object> map = new HashMap<>();
         QueryWrapper<HrUserAttendanceRelation> queryWrapper = new QueryWrapper<>();
-        //hrUserAttendanceRelationService.list;
+        List<HrUserAttendanceRelation> userAttendanceRelationList = hrUserAttendanceRelationService.list(queryWrapper);
+        Map<String,Object> relationMap = new HashMap<>();
+        relationMap.put("invalid",userAttendanceRelationList.stream().filter(relation -> relation.getIsValid() == 1));/** 未生效考勤班次*/
+        relationMap.put("valid",userAttendanceRelationList.stream().filter(relation -> relation.getIsValid() == 0));/** 生效考勤班次*/
+        map.put("relationDat",relationMap);
+
+        map.put("groupData",this.getById(hrAttendanceConfigAndUserParam.getAttendanceTypeId()));/** 负责人数据*/
+
+
 
         return new HashMap<>();
     }
