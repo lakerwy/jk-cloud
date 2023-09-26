@@ -96,7 +96,7 @@ public class EpcProviderAddParam {
     private String qualityLevel;
 
     /** 专业类别 */
-    @ApiModelProperty(value = "专业类别", position = 20)
+    @ApiModelProperty(value = "专业|类别", position = 20)
     private String majorType;
 
     /** 资质证书 */
