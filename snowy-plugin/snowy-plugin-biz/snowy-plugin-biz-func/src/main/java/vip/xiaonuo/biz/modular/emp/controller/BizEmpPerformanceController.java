@@ -137,7 +137,7 @@ public class BizEmpPerformanceController {
      * @author yong.ye
      * @date  2023/09/19 08:47
      */
-    @ApiOperationSupport(order = 8)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过绩效评估")
 //    @SaCheckPermission("/biz/emp/task/detail")
     @GetMapping("/biz/emp/performance/check")
@@ -152,7 +152,7 @@ public class BizEmpPerformanceController {
      * @author yong.ye
      * @date  2023/09/19 08:45
      */
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("获取业务表-员工绩效考核-季度评分审批流程分页")
     @SaCheckPermission("/biz/emp/performance/pageList")
     @GetMapping("/biz/emp/performance/pageList")
@@ -160,4 +160,20 @@ public class BizEmpPerformanceController {
         return CommonResult.data(bizEmpPerformanceService.pageList(bizEmpPerformancePageParam));
     }
 
+
+
+    /**
+     * 更新指定字段（评分等级 empSeasonLevel）
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:45
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("更新指定字段（评分等级 empSeasonLevel）")
+    @CommonLog("更新指定字段（评分等级 empSeasonLevel）")
+    @PostMapping("/biz/emp/performance/update")
+    public CommonResult<String> update(@RequestBody @Valid EmpAssUpdateParam empAssUpdateParam) {
+        bizEmpPerformanceService.updateCol(empAssUpdateParam);
+        return CommonResult.ok();
+    }
 }

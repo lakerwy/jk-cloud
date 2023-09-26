@@ -222,6 +222,16 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         return completeResult(result,bizEmpPerformancePageParam);
     }
 
+    @Override
+    public void updateCol(EmpAssUpdateParam empAssUpdateParam) {
+        //主键Id
+        BizEmpPerformance bizEmpPerformance = this.queryEntity(empAssUpdateParam.getEpId());
+        String colName = empAssUpdateParam.getColName().toLowerCase();
+        if("empSeasonLevel".equals(colName)){
+            bizEmpPerformance.setEmpSeasonLevel(empAssUpdateParam.getColValue());
+        }
+        this.updateById(bizEmpPerformance);
+    }
 
 
     /***

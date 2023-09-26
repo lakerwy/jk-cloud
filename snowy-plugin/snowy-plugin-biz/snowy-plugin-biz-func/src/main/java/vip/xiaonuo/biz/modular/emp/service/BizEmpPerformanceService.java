@@ -92,4 +92,12 @@ public interface BizEmpPerformanceService extends IService<BizEmpPerformance> {
      */
     Page<BizEmpPerformanceVo> pageList(BizEmpPerformancePageParam bizEmpPerformancePageParam);
 
+    /**
+     * 更新字段
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:45
+     */
+    void updateCol(EmpAssUpdateParam empAssUpdateParam);
+
 }
