@@ -104,23 +104,10 @@ public class HrUserApplyAttendanceServiceImpl extends ServiceImpl<HrUserApplyAtt
         if(ObjectUtil.isEmpty(hrUserApplyAttendanceAddParam.getApplyType()) && StringUtils.isEmpty(hrUserApplyAttendanceAddParam.getProcessInstanceId())){
             return;
         }
-        switch (hrUserApplyAttendanceAddParam.getApplyType()){
-            case 1:  //是否加班考勤  1
-                break;
-            case 2:  //是否弹性考勤  2
-                break;
-            case 3:  //是否异地考勤  3
-                break;
-            case 4:  //是否免打卡  4
-                break;
-            case 5:  //申请补卡  5
-                resubmitAttendanceApply(hrUserApplyAttendanceAddParam);
-                break;
-            default:
-                break;
+        if(5!=hrUserApplyAttendanceAddParam.getApplyType()){
+            return;
         }
-        //HrUserApplyAttendance hrUserApplyAttendance = BeanUtil.toBean(hrUserApplyAttendanceAddParam, HrUserApplyAttendance.class);
-        //this.save(hrUserApplyAttendance);
+        resubmitAttendanceApply(hrUserApplyAttendanceAddParam);
     }
 
     /** 补卡申请 */
@@ -138,8 +125,8 @@ public class HrUserApplyAttendanceServiceImpl extends ServiceImpl<HrUserApplyAtt
         hrUserApplyAttendance.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
         FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
         //将流程实例和业务表关联起来
-        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-        formRelationTableApi.save(modelId, BizCommonEnum.BIZ_AUDIT_LISTS.getBizTable(),id,processInstanceId,dbName);
+        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME));
+        formRelationTableApi.save(modelId, BizCommonEnum.HR_APPLY_ATTENDANCE.getBizTable(),id,processInstanceId,dbName);
         hrUserApplyAttendance.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
         this.save(hrUserApplyAttendance);
     }

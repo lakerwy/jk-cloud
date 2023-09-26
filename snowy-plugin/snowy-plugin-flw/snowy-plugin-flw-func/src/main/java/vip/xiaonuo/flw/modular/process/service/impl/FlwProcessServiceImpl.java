@@ -167,7 +167,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         flwRelationService.saveOrUpdate(flwRelation);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
     @Override
     public String start(FlwProcessStartParam flwProcessStartParam) {
         NodeRuntimeUtil.handleTenAuth();

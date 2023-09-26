@@ -32,7 +32,7 @@ public class HrUserApplyAttendanceAddParam {
     private String applyUserId;
 
     /** 申请类型：是否加班考勤  1 ，是否弹性   2，是否异地   3，是否免打卡  4，申请补卡 5 */
-    @ApiModelProperty(value = "申请类型：是否加班考勤  1 ，是否弹性   2，是否异地   3，是否免打卡  4，申请补卡 5，申请异常 -1 (必传)", position = 4)
+    @ApiModelProperty(value = "申请类型：是否加班考勤  1 ，是否弹性   2，是否异地   3，是否免打卡  4，申请补卡 5，申请异常 -1 (必传)", position = 4,required = true)
     private Integer applyType;
 
     /** 申请时间 */
