@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.ten.modular.service.impl;
 
+import cn.dev33.satoken.session.SaSession;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
@@ -27,13 +28,23 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.handler.TenantLineHandler;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.TenantLineInnerInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.baomidou.mybatisplus.extension.toolkit.SqlRunner;
+import net.sf.jsqlparser.expression.Expression;
+import net.sf.jsqlparser.expression.StringValue;
 import org.apache.ibatis.jdbc.SQL;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.Bean;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -66,7 +77,9 @@ import java.util.stream.Collectors;
 @Service
 public class TenServiceImpl extends ServiceImpl<TenMapper, TenStorage> implements TenService {
 
-    private static final String TEN_CACHE_KEY = "ext-tenant:";
+    public static final String TEN_CACHE_KEY = "ext-tenant:";
+
+    public static final String PROJECT_CACHE_KEY = "PROJECT_CACHE_KEY";
 
     @Resource
     private MybatisPlusProperties mybatisPlusProperties;
@@ -88,6 +101,9 @@ public class TenServiceImpl extends ServiceImpl<TenMapper, TenStorage> implement
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Autowired
+    private ApplicationContext applicationContext;
 
     @Override
     public String getCurrentTenDomain() {
@@ -471,5 +487,157 @@ public class TenServiceImpl extends ServiceImpl<TenMapper, TenStorage> implement
         } finally {
             JdbcUtils.closeConnection(conn);
         }
+    }
+
+
+    /**
+     * 返回当前的项目id 默认 为空  ，可以看所有
+     * @return
+     */
+    @Override
+    public String getNewCurrentTenDomain() {
+
+        String projectId = CommonServletUtil.getRequest().getHeader("ProjectId");
+        //初始化登录系统时，无次参数
+        if(StrUtil.isEmpty(projectId)){
+            projectId = "-1";
+        }
+        return  projectId;
+    }
+
+    @Override
+    public TenStorage getNewCurrentTen() {
+
+        // 获取当前租户域名
+        String projectId = this.getNewCurrentTenDomain();
+
+        // 从缓存中取
+        Object cacheValue = commonCacheOperator.get(TEN_CACHE_KEY + projectId);
+        if(ObjectUtil.isNotEmpty(cacheValue)) {
+            return BeanUtil.toBean(cacheValue, TenStorage.class);
+        }
+
+        TenStorage tenStorage;
+        // 如果当前域名是主租户域名，则使用主租户
+        if(projectId.equals("-1")) {
+            TenStorage mainTen = new TenStorage();
+            mainTen.setId(tenProperties.getDefaultTenId());
+            tenStorage = mainTen;
+        } else {
+            // 否则根据域名获取租户, 先切换主数据源为master，因为租户数据源无租户表
+            dbsApi.changeDataSource(dbsApi.getDefaultDataSourceName());
+            if(isDmDb()) {
+                // 使用此方式来兼容DOMAIN与达梦数据库的关键字冲突的问题，DOMAIN查询条件使用单引号，查询的字段不查询DOMAIN
+                tenStorage = this.getOne(new QueryWrapper<TenStorage>().eq("'DOMAIN'", projectId).lambda()
+                        .select(TenStorage::getId, TenStorage::getTenantId, TenStorage::getDbsId, TenStorage::getDbsName,
+                                TenStorage::getName, TenStorage::getCode, TenStorage::getCategory, TenStorage::getSortCode,
+                                TenStorage:: getExtJson));
+            } else {
+//                tenStorage = this.getOne(new LambdaQueryWrapper<TenStorage>().eq(TenStorage::getDomain, projectId));
+                tenStorage = this.getById(projectId);
+            }
+            if(ObjectUtil.isEmpty(tenStorage)) {
+                throw new CommonException("项目不存在，项目ID为：{}", projectId);
+            } else {
+                // 设置DOMAIN字段
+               // tenStorage.setDomain(domain);
+            }
+        }
+        // 更新到缓存
+        commonCacheOperator.put(TEN_CACHE_KEY + projectId, tenStorage);
+        return tenStorage;
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void newAdd(TenStorageAddParam tenStorageAddParam) {
+        checkNewParam(tenStorageAddParam);
+        TenStorage tenStorage = BeanUtil.toBean(tenStorageAddParam, TenStorage.class);
+        tenStorage.setCode(RandomUtil.randomString(10));
+        this.save(tenStorage);
+        // 初始化ID类型的租户系统模块数据
+        sysApi.initTenDataForCategoryId(tenStorage.getId(), tenStorage.getName());
+
+        // 初始化ID类型的租户开发工具模块数据
+        devApi.initTenDataForCategoryId(tenStorage.getId(), tenStorage.getName());
+    }
+
+
+    private void checkNewParam(TenStorageAddParam tenStorageAddParam) {
+        if(!tenProperties.getEnabled()) {
+            throw new CommonException("请先开启租户功能");
+        }
+        String tenCategory = tenStorageAddParam.getCategory();
+        TenCategoryEnum.validate(tenCategory);
+        if(TenCategoryEnum.DB.getValue().equals(tenCategory)) {
+            String dbsId = tenStorageAddParam.getDbsId();
+            String dbsName = tenStorageAddParam.getDbsName();
+            if(ObjectUtil.isEmpty(dbsId)) {
+                throw new CommonException("dbsId不能为空");
+            }
+            if(ObjectUtil.isEmpty(dbsName)) {
+                throw new CommonException("dbsName不能为空");
+            }
+        } else {
+            tenStorageAddParam.setDbsId(null);
+            tenStorageAddParam.setDbsName(null);
+        }
+        boolean hasSameTen = this.count(new LambdaQueryWrapper<TenStorage>()
+                .eq(TenStorage::getName, tenStorageAddParam.getName())) > 0;
+        if(hasSameTen) {
+            throw new CommonException("存在重复的项目名称，名称为：{}", tenStorageAddParam.getName());
+        }
+    }
+
+    @Override
+    public void buildMybatisPlusInterceptor() {
+        MybatisPlusInterceptor mybatisPlusInterceptorPrimary = new MybatisPlusInterceptor();
+        // 添加行级动态租户插件
+        mybatisPlusInterceptorPrimary.addInnerInterceptor(new TenantLineInnerInterceptor(new TenantLineHandler() {
+            @Override
+            public Expression getTenantId() {
+                // 获取当前租户的ID    //选择项目的时候设置下
+                SaSession tokenSession = StpUtil.getTokenSession();
+                String projectId = null;
+                if(ObjectUtil.isNotEmpty(tokenSession)){
+                    SaBaseLoginUser loginUser = (SaBaseLoginUser) tokenSession.get("loginUser");
+                    if(ObjectUtil.isNotEmpty(loginUser)){
+                        String id = loginUser.getId();
+                        projectId = String.valueOf(commonCacheOperator.get(PROJECT_CACHE_KEY + id));
+                    }
+                }
+//                String currentTenantId = TenContextHolder.get();
+//                Object cacheValue = commonCacheOperator.get(TEN_CACHE_KEY + projectId);
+                return ObjectUtil.isEmpty(projectId)?new StringValue(tenProperties.getDefaultTenId()):new StringValue(projectId);
+            }
+
+            @Override
+            public boolean ignoreTable(String tableName) {
+                // 未开启多租户则返回true，表示所有表都不需要拼多租户条件
+                if(!tenProperties.getEnabled()) {
+                    return true;
+                } else {
+                    // 根据配置的忽略表名决定是否拼接
+                    String ignoreTableNames = tenProperties.getIgnoreTableNames();
+                    if(ObjectUtil.isNotEmpty(ignoreTableNames)) {
+                        List<String> ignoreTableNameList = StrUtil.split(ignoreTableNames.toLowerCase(), StrUtil.COMMA);
+                        return ignoreTableNameList.contains(tableName.toLowerCase());
+                    } else {
+                        // 未配置则返回false表示所有表都需要拼多租户条件
+                        return false;
+                    }
+                }
+            }
+
+            @Override
+            public String getTenantIdColumn() {
+                // 租户字段名称
+                return tenProperties.getTenIdColumnName();
+            }
+        }));
+        // 添加分页插件
+        mybatisPlusInterceptorPrimary.addInnerInterceptor(new PaginationInnerInterceptor());
+        // 将Bean注入到Spring容器中
+        applicationContext.getAutowireCapableBeanFactory().autowireBean(mybatisPlusInterceptorPrimary);
     }
 }

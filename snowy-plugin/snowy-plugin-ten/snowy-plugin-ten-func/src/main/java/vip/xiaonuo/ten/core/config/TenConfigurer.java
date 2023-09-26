@@ -12,6 +12,8 @@
  */
 package vip.xiaonuo.ten.core.config;
 
+import cn.dev33.satoken.session.SaSession;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -22,7 +24,6 @@ import com.github.xiaoymin.knife4j.spring.extension.OpenApiExtensionResolver;
 import io.swagger.annotations.ApiOperation;
 import net.sf.jsqlparser.expression.Expression;
 import net.sf.jsqlparser.expression.StringValue;
-import org.springframework.boot.web.servlet.FilterRegistrationBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -33,13 +34,16 @@ import springfox.documentation.builders.RequestHandlerSelectors;
 import springfox.documentation.service.Contact;
 import springfox.documentation.spi.DocumentationType;
 import springfox.documentation.spring.web.plugins.Docket;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.ten.core.context.TenContextHolder;
-import vip.xiaonuo.ten.core.filter.TenResolveFilter;
 import vip.xiaonuo.ten.core.prop.TenProperties;
 
 import javax.annotation.Resource;
 import java.util.List;
+
+import static vip.xiaonuo.ten.modular.service.impl.TenServiceImpl.PROJECT_CACHE_KEY;
+import static vip.xiaonuo.ten.modular.service.impl.TenServiceImpl.TEN_CACHE_KEY;
 
 /**
  * 动态租户解析过滤器配置
@@ -56,18 +60,21 @@ public class TenConfigurer implements WebMvcConfigurer {
     @Resource
     private OpenApiExtensionResolver openApiExtensionResolver;
 
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
     /**
      * 动态租户解析过滤器
      *
      * @author xuyuxiang
      * @date 2022/6/15 9:19
      **/
-    @Bean
-    public FilterRegistrationBean<TenResolveFilter> dynamicTenResolveFilter() {
-        FilterRegistrationBean<TenResolveFilter> registration = new FilterRegistrationBean<>(new TenResolveFilter());
-        registration.addUrlPatterns("/*");
-        return registration;
-    }
+//    @Bean
+//    public FilterRegistrationBean<TenResolveFilter> dynamicTenResolveFilter() {
+//        FilterRegistrationBean<TenResolveFilter> registration = new FilterRegistrationBean<>(new TenResolveFilter());
+//        registration.addUrlPatterns("/*");
+//        return registration;
+//    }
 
     /**
      * 共享库方式数据隔离动态租户插件，优先于分页插件添加，当开启后，会在增删改查的sql中拼接TENANT_ID
@@ -75,16 +82,74 @@ public class TenConfigurer implements WebMvcConfigurer {
      * @author xuyuxiang
      * @date 2022/3/11 10:59
      **/
-    @Bean
-    public MybatisPlusInterceptor mybatisPlusInterceptorPrimary() {
+//    @Bean
+//    public MybatisPlusInterceptor mybatisPlusInterceptorPrimary() {
+//        MybatisPlusInterceptor mybatisPlusInterceptorPrimary = new MybatisPlusInterceptor();
+//        // 添加行级动态租户插件
+//        mybatisPlusInterceptorPrimary.addInnerInterceptor(new TenantLineInnerInterceptor(new TenantLineHandler() {
+//            @Override
+//            public Expression getTenantId() {
+//                // 获取当前租户的ID    //选择项目的时候设置下
+//                String currentTenantId = TenContextHolder.get();
+//                return ObjectUtil.isEmpty(currentTenantId)?new StringValue(tenProperties.getDefaultTenId()):new StringValue(currentTenantId);
+//            }
+//
+//            @Override
+//            public boolean ignoreTable(String tableName) {
+//                // 未开启多租户则返回true，表示所有表都不需要拼多租户条件
+//                if(!tenProperties.getEnabled()) {
+//                    return true;
+//                } else {
+//                    // 根据配置的忽略表名决定是否拼接
+//                    String ignoreTableNames = tenProperties.getIgnoreTableNames();
+//                    if(ObjectUtil.isNotEmpty(ignoreTableNames)) {
+//                        List<String> ignoreTableNameList = StrUtil.split(ignoreTableNames.toLowerCase(), StrUtil.COMMA);
+//                        return ignoreTableNameList.contains(tableName.toLowerCase());
+//                    } else {
+//                        // 未配置则返回false表示所有表都需要拼多租户条件
+//                        return false;
+//                    }
+//                }
+//            }
+//
+//            @Override
+//            public String getTenantIdColumn() {
+//                // 租户字段名称
+//                return tenProperties.getTenIdColumnName();
+//            }
+//        }));
+//        // 添加分页插件
+//        mybatisPlusInterceptorPrimary.addInnerInterceptor(new PaginationInnerInterceptor());
+//        return mybatisPlusInterceptorPrimary;
+//    }
+
+
+    /**
+     * 共享库方式数据隔离动态租户插件，优先于分页插件添加，当开启后，会在增删改查的sql中拼接TENANT_ID
+     *
+     * @author xuyuxiang
+     * @date 2022/3/11 10:59
+     **/
+    //@Bean
+    public MybatisPlusInterceptor mybatisPlusProjectIdInterceptorPrimary() {
         MybatisPlusInterceptor mybatisPlusInterceptorPrimary = new MybatisPlusInterceptor();
         // 添加行级动态租户插件
         mybatisPlusInterceptorPrimary.addInnerInterceptor(new TenantLineInnerInterceptor(new TenantLineHandler() {
             @Override
             public Expression getTenantId() {
-                // 获取当前租户的ID
-                String currentTenantId = TenContextHolder.get();
-                return ObjectUtil.isEmpty(currentTenantId)?new StringValue(tenProperties.getDefaultTenId()):new StringValue(currentTenantId);
+                // 获取当前租户的ID    //选择项目的时候设置下
+                SaSession tokenSession = StpUtil.getTokenSession();
+                String projectId = null;
+                if(ObjectUtil.isNotEmpty(tokenSession)){
+                    SaBaseLoginUser loginUser = (SaBaseLoginUser) tokenSession.get("loginUser");
+                    if(ObjectUtil.isNotEmpty(loginUser)){
+                        String id = loginUser.getId();
+                        projectId = String.valueOf(commonCacheOperator.get(PROJECT_CACHE_KEY + id));
+                    }
+                }
+//                String currentTenantId = TenContextHolder.get();
+//                Object cacheValue = commonCacheOperator.get(TEN_CACHE_KEY + projectId);
+                return ObjectUtil.isEmpty(projectId)?new StringValue(tenProperties.getDefaultTenId()):new StringValue(projectId);
             }
 
             @Override

@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.ten.modular.service;
 
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.ten.modular.entity.TenStorage;
@@ -107,4 +108,32 @@ public interface TenService extends IService<TenStorage> {
      * @date 2022/7/11 17:53
      */
     List<TenDbsSelectorResult> dbsList();
+
+
+    //---------------------------租户魔改为项目ID------------------------------------//
+    /**
+     * 获取当前租户域名
+     *
+     * @author xuyuxiang
+     * @date 2022/4/22 14:52
+     **/
+    String getNewCurrentTenDomain();
+
+    /**
+     * 获取当前租户
+     *
+     * @author xuyuxiang
+     * @date 2022/7/18 18:31
+     **/
+    TenStorage getNewCurrentTen();
+
+    /**
+     * 添加租户
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:48
+     */
+    void newAdd(TenStorageAddParam tenStorageAddParam);
+
+    void buildMybatisPlusInterceptor();
 }

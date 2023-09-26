@@ -24,6 +24,8 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.api.SaBaseLoginUserApi;
 import vip.xiaonuo.auth.core.enums.SaClientTypeEnum;
@@ -47,6 +49,7 @@ import vip.xiaonuo.common.util.CommonEmailUtil;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
 import vip.xiaonuo.pan.api.DevFoldApi;
+import vip.xiaonuo.ten.api.TenApi;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
@@ -90,6 +93,11 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private DevFoldApi devFoldApi;
+
+    @Resource
+    private TenApi tenApi;
+
+    private MybatisPlusInterceptor mybatisPlusInterceptor;
 
     @Override
     public AuthPicValidCodeResult getPicCaptcha(String type) {
@@ -344,6 +352,7 @@ public class AuthServiceImpl implements AuthService {
         devFoldApi.createSelfFold();
         devFoldApi.createGroupFold();
         // 返回token
+        tenApi.buildMybatisPlusInterceptor();
         return StpUtil.getTokenInfo().tokenValue;
     }
 
