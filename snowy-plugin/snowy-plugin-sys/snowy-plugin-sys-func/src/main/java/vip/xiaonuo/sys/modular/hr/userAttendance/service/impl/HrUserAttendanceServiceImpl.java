@@ -135,7 +135,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                 hrUserAttendance.setConfigOrderNumber(slot.getOrderNumber());
             }
             if(dateNow.after(slot.getWorkBeginTime()) && dateNow.before(slot.getWorkEndTime())){
-                hrUserAttendance.setAbnormalFlag(2);/** 打卡正常*/
+                hrUserAttendance.setAbnormalFlag(2);/** 打卡异常*/
                 hrUserAttendance.setCheckType(slot.getDutyType());
                 hrUserAttendance.setConfigOrderNumber(slot.getOrderNumber());
             }

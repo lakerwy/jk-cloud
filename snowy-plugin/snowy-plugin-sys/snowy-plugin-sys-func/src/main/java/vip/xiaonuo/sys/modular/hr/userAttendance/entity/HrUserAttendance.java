@@ -51,8 +51,8 @@ public class HrUserAttendance {
     @ApiModelProperty(value = "打卡点位(机位)", position = 5)
     private String machineCode;
 
-    /** 打卡类别：1 上班，2 下班 */
-    @ApiModelProperty(value = "打卡类别：1 上班，2 下班", position = 6)
+    /** 打卡结果：1 打卡正常 ，2 打卡异常 */
+    @ApiModelProperty(value = "打卡结果：1 打卡正常 ，2 打卡异常", position = 6)
     private Integer abnormalFlag;
 
     /** 上下班标识；OnDuty：上班；OffDuty：下班 */

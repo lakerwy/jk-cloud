@@ -48,8 +48,8 @@ public class HrUserAttendanceEditParam {
     @ApiModelProperty(value = "打卡点位(机位)", position = 5)
     private String machineId;
 
-    /** 打卡是否异常：1 异常，0 正常 */
-    @ApiModelProperty(value = "打卡是否异常：1 异常，0 正常", position = 6)
+    /** 打卡是否异常：2 异常，1 正常 */
+    @ApiModelProperty(value = "打卡是否异常：2 异常，1 正常", position = 6)
     private Integer abnormalFlag;
 
     /** 上下班标识；OnDuty：上班；OffDuty：下班 */

@@ -72,8 +72,8 @@ public class HrUserAttendancePageParam {
     @ApiModelProperty(value = "结束时间")
     private String endTime;
 
-    /** 打卡有效标识 */
-    @ApiModelProperty(value = "打卡有效标识，1 有效，-1 无效")
+    /** 打卡是否正常标识 */
+    @ApiModelProperty(value = "打卡有效标识，1 正常，2 异常")
     private Integer abnormalFlag;
 
 }
