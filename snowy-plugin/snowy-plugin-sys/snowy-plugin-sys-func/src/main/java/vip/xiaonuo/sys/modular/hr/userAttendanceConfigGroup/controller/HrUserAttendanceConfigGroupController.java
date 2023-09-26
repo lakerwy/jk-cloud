@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.core.lang.hash.Hash;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -27,15 +28,13 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupPageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.Map;
 
 /**
  * 考勤班次组配置表控制器
@@ -127,5 +126,19 @@ public class HrUserAttendanceConfigGroupController {
     @GetMapping("/sys/userAttendanceConfigGroup/detail")
     public CommonResult<HrUserAttendanceConfigGroup> detail(@Valid HrUserAttendanceConfigGroupIdParam hrUserAttendanceConfigGroupIdParam) {
         return CommonResult.data(hrUserAttendanceConfigGroupService.detail(hrUserAttendanceConfigGroupIdParam));
+    }
+
+    /**
+     * 获取考勤班次组配置表详情
+     *
+     * @author ljy
+     * @date  2023/09/21 15:55
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取考勤班次组配置表详情")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/detail")
+    @GetMapping("/sys/userAttendanceConfigGroup/configAndUserData")
+    public CommonResult<Map<String,Object>> attendanceConfigGroupMap(@Valid HrAttendanceConfigAndUserParam hrAttendanceConfigAndUserParam) {
+        return CommonResult.data(hrUserAttendanceConfigGroupService.attendanceConfigGroupMap(hrAttendanceConfigAndUserParam));
     }
 }

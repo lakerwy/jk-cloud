@@ -15,12 +15,10 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupPageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 考勤班次组配置表Service接口
@@ -77,4 +75,6 @@ public interface HrUserAttendanceConfigGroupService extends IService<HrUserAtten
      * @date  2023/09/21 15:55
      **/
     HrUserAttendanceConfigGroup queryEntity(String id);
+
+    Map<String,Object> attendanceConfigGroupMap(HrAttendanceConfigAndUserParam hrAttendanceConfigAndUserParam);
 }

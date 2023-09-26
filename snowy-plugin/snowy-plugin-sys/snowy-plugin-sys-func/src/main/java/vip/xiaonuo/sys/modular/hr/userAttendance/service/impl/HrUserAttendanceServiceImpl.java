@@ -142,7 +142,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         });
 
         this.save(hrUserAttendance);
-        return  hrUserAttendance.getAbnormalFlag() == 1 ? HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue() : HrUserAttendanceEnum.ATTENDANCE_ABNORMAL.getValue();
+        return  HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
     }
     private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam,Date dateNow){
         Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);//一般用list查询
@@ -287,6 +287,12 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
         List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
         Map<String,List<HrUserAttendance>> map = new HashMap<>();
+        if(hrUserAttendanceList.size() == 0){
+            map.put("0",new ArrayList<>());
+            map.put("1",new ArrayList<>());
+            map.put("2",new ArrayList<>());
+            return map;
+        }
         /** 暂时取固定班次  -- 上班 OnDuty，休息 REST，下班 OffDuty   返回数据：0 有效且唯一，1 无效  ，2 早退或迟到 */
         List<HrUserAttendance>  hrUserAttendanceOnDutyList = hrUserAttendanceList.stream()
                 .filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()))

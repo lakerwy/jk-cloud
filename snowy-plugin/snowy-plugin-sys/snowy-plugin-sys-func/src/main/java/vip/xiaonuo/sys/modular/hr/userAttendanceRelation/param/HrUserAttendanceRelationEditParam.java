@@ -41,7 +41,7 @@ public class HrUserAttendanceRelationEditParam {
     private String employId;
 
     /** 部门或人员类别 */
-    @ApiModelProperty(value = "部门或人员类别", position = 14)
+    @ApiModelProperty(value = "部门或人员类别：1 部门，2 人员", position = 14)
     private String employType;
 
     /** 考勤组ID */

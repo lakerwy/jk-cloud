@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -28,14 +29,15 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.mapper.HrUserAttendanceConfigGroupMapper;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.HrUserAttendanceConfigGroupPageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
+import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -50,6 +52,8 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
 
     @Resource
     HrUserAttendanceConfigService hrUserAttendanceConfigService;
+    @Resource
+    HrUserAttendanceRelationService hrUserAttendanceRelationService;
 
     @Override
     public Page<HrUserAttendanceConfigGroup> page(HrUserAttendanceConfigGroupPageParam hrUserAttendanceConfigGroupPageParam) {
@@ -114,4 +118,14 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         }
         return hrUserAttendanceConfigGroup;
     }
+
+    @Override
+    public Map<String,Object> attendanceConfigGroupMap(HrAttendanceConfigAndUserParam hrAttendanceConfigAndUserParam){
+
+        QueryWrapper<HrUserAttendanceRelation> queryWrapper = new QueryWrapper<>();
+        //hrUserAttendanceRelationService.list;
+
+        return new HashMap<>();
+    }
+
 }
