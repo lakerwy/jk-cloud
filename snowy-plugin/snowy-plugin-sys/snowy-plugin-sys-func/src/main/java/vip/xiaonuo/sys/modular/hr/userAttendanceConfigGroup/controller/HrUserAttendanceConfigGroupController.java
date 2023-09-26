@@ -134,11 +134,27 @@ public class HrUserAttendanceConfigGroupController {
      * @author ljy
      * @date  2023/09/21 15:55
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("获取考勤班次组配置表详情")
     //@SaCheckPermission("/sys/userAttendanceConfigGroup/detail")
     @GetMapping("/sys/userAttendanceConfigGroup/configAndUserData")
     public CommonResult<Map<String,Object>> attendanceConfigGroupMap(@Valid HrAttendanceConfigAndUserParam hrAttendanceConfigAndUserParam) {
         return CommonResult.data(hrUserAttendanceConfigGroupService.attendanceConfigGroupMap(hrAttendanceConfigAndUserParam));
     }
+
+    /**
+     * 考勤组负责人及考勤人员信息设置
+     *
+     * @author ljy
+     * @date  2023/09/26 15:55
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("考勤组负责人及考勤人员信息设置")
+    @CommonLog("考勤组负责人及考勤人员信息设置")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/delete")
+    @PostMapping("/sys/userAttendanceConfigGroup/configAndUserDataEdit")
+    public CommonResult<String> configAndUserDataEdit(@RequestBody @Valid HrAttendanceConfigAndUserDataParam hrAttendanceConfigAndUserDataParam) {
+        return CommonResult.data(hrUserAttendanceConfigGroupService.configAndUserDataEdit(hrAttendanceConfigAndUserDataParam));
+    }
+
 }

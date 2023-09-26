@@ -28,6 +28,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.enums.HrUserAttendanceConfigGroupEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.mapper.HrUserAttendanceConfigGroupMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
@@ -131,9 +132,25 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
 
         map.put("groupData",this.getById(hrAttendanceConfigAndUserParam.getAttendanceTypeId()));/** 负责人数据*/
 
+        return map;
+    }
 
+    @Override
+    public String configAndUserDataEdit(HrAttendanceConfigAndUserDataParam hrAttendanceConfigAndUserDataParam){
+        HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = this.getById(hrAttendanceConfigAndUserDataParam.getId());
+        hrUserAttendanceConfigGroup.setLeadId(hrAttendanceConfigAndUserDataParam.getLeadId());
+        this.updateById(hrUserAttendanceConfigGroup);
 
-        return new HashMap<>();
+        List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList = hrAttendanceConfigAndUserDataParam.getHrAttendanceConfigAndUserData();
+        if(ObjectUtil.isNotEmpty(hrAttendanceConfigAndUserDataList)){
+            List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrAttendanceConfigAndUserDataList.stream().map(relation -> {
+                //HrUserAttendanceRelation hrUserAttendanceRelation = BeanUtil.toBean(relation, HrUserAttendanceRelation.class);
+                //hrUserAttendanceRelation.setAttendanceTypeId(hrAttendanceConfigAndUserDataParam.getId());
+                return BeanUtil.toBean(relation, HrUserAttendanceRelation.class);
+            }).collect(Collectors.toList());
+            hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelationList);
+        }
+        return HrUserAttendanceConfigGroupEnum.SUCCESS.getValue();
     }
 
 }
