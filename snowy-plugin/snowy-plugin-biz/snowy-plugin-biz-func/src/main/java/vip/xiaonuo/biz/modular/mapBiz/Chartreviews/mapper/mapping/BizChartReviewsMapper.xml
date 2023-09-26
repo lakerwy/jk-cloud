@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.mapper.BizChartReviewsMapper">
+    <resultMap id="BaseResultMap" type="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsDetailsVo">
+        <id column="ID" jdbcType="VARCHAR" property="id" />
+        <id column="TASK_ID" jdbcType="VARCHAR" property="taskId"/>
+
+        <id column="SN" jdbcType="VARCHAR" property="sn"/>
+        <id column="OPT" jdbcType="VARCHAR" property="opt"/>
+        <id column="OPT_DATE" jdbcType="TIMESTAMP" property="optDate"/>
+        <id column="PROJECT_NO" jdbcType="VARCHAR" property="projectNo"/>
+        <id column="SENDER" jdbcType="VARCHAR" property="sender"/>
+        <id column="COMPANY_OR_DEPARTMENT" jdbcType="VARCHAR" property="companyOrDepartment"/>
+        <id column="PROJECT_LEADER" jdbcType="VARCHAR" property="projectLeader"/>
+        <id column="DESIGN_STAGE" jdbcType="VARCHAR" property="designStage"/>
+        <id column="DESIGNER" jdbcType="VARCHAR" property="designer"/>
+        <id column="MAP_DATE" jdbcType="TIMESTAMP" property="mapDate"/>
+        <id column="MAP_COPIES" jdbcType="VARCHAR" property="mapCopies"/>
+        <id column="REMARK" jdbcType="VARCHAR" property="remark"/>
+        <id column="NOTE" jdbcType="VARCHAR" property="note"/>
+        <id column="REVIEW_ATTACHMENTS" jdbcType="VARCHAR" property="reviewAttachments"/>
+        <id column="ATTACHMENTS1" jdbcType="VARCHAR" property="attachments1"/>
+        <id column="VALIDATED_ATTACHMENTS" jdbcType="VARCHAR" property="validatedAttachments"/>
+        <id column="OTHER_ATTACHMENTS" jdbcType="VARCHAR" property="otherAttachments"/>
+        <id column="SEAL_DATE" jdbcType="TIMESTAMP" property="sealDate"/>
+        <id column="IS_FILE" jdbcType="VARCHAR" property="isFile"/>
+        <id column="IS_LOGISTICS" jdbcType="VARCHAR" property="isLogistics"/>
+        <id column="STATUS" jdbcType="VARCHAR" property="status"/>
+
+        <result column="DELETE_FLAG" jdbcType="VARCHAR" property="deleteFlag" />
+        <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="CREATE_USER" jdbcType="VARCHAR" property="createUser" />
+
+        <result column="SECOND_LEVEL" jdbcType="VARCHAR" property="secondLevel" />
+        <result column="CONTRACT_NO" jdbcType="VARCHAR" property="contractNo" />
+        <result column="PROJECT_NAME" jdbcType="VARCHAR" property="projectName" />
+        <collection property="bizMapRegisterList" column="ID" select="getMapList"/>
+        <collection property="bizAuditListsList" column="ID" select="getAuditList"/>
+    </resultMap>
+
+    <select id="getCRMDetailById" resultMap="BaseResultMap" parameterType="String">
+        SELECT
+            a.ID,
+            a.TASK_ID,
+            a.SN,
+            a.OPT,
+            a.OPT_DATE,
+            a.PROJECT_NO,
+            a.SENDER,
+            a.COMPANY_OR_DEPARTMENT,
+            a.PROJECT_LEADER,
+            a.DESIGN_STAGE,
+            a.DESIGNER,
+            a.REVIEW_ATTACHMENTS,
+            a.ATTACHMENTS1,
+            a.VALIDATED_ATTACHMENTS,
+            a.OTHER_ATTACHMENTS,
+            a.CREATE_TIME,
+            a.CREATE_USER,
+            a.DELETE_FLAG,
+            a.`STATUS`,
+            a.NOTE as REMARK,
+            b.CONTRACT_NO,
+            b.PROJECT_NAME,
+            b.SECOND_LEVEL,
+            c.SEAL_DATE,
+            c.MAP_COPIES,
+            c.NOTE,
+            c.IS_FILE,
+            c.IS_LOGISTICS
+        FROM
+            BIZ_CHART_REVIEWS a
+                LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO
+                LEFT JOIN BIZ_MAP_REGISTER c ON c.REVIEW_ID = a.ID
+        WHERE
+            a.DELETE_FLAG = 'NOT_DELETE'
+          AND a.ID = ${id} LIMIT 1
+    </select>
+
+    <select id="getMapList" resultType="vip.xiaonuo.biz.modular.mapBiz.MapRegister.entity.BizMapRegister">
+        SELECT * FROM BIZ_MAP_REGISTER WHERE DELETE_FLAG = 'NOT_DELETE' AND REVIEW_ID = #{ID}  order by  CREATE_TIME desc
+    </select>
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo">
+        SELECT a.*, b.CONTRACT_NO,b.PROJECT_NAME,b.SECOND_LEVEL FROM BIZ_CHART_REVIEWS a
+            LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO  ${ew.customSqlSegment}
+    </select>
+
+    <select id="getAuditList" resultType="vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists">
+        SELECT * FROM BIZ_AUDIT_LISTS WHERE DELETE_FLAG = 'NOT_DELETE' AND REVIEW_ID = #{ID}  ORDER BY CREATE_TIME ,OPT_DATE
+    </select>
+
+</mapper>

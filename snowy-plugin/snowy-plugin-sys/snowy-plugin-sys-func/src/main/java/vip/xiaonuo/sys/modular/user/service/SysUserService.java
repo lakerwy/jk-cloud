@@ -491,7 +491,7 @@ public interface SysUserService extends IService<SysUser> {
      * @author yong.ye
      * @date 2023/7/13 20:48
      */
-//    void syncToUserAdd(SyncToUserAddParam syncToUserAddParam);
+    void syncToUserAdd(SyncToUserAddParam syncToUserAddParam);
 
     /**
      * 添加用户

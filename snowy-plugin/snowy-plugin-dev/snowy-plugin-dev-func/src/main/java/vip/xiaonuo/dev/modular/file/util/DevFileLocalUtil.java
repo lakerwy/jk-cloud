@@ -44,9 +44,6 @@ public class DevFileLocalUtil {
     private static final String SNOWY_FILE_LOCAL_FOLDER_FOR_WINDOWS_KEY = "SNOWY_FILE_LOCAL_FOLDER_FOR_WINDOWS";
     private static final String SNOWY_FILE_LOCAL_FOLDER_FOR_UNIX_KEY = "SNOWY_FILE_LOCAL_FOLDER_FOR_UNIX";
 
-    public static volatile JSONObject oosClient;
-
-
     /**
      * 初始化操作的客户端
      *
@@ -83,19 +80,6 @@ public class DevFileLocalUtil {
         }
         client = JSONUtil.createObj();
         client.set("localFileUploadFolder", uploadFileFolder);
-    }
-
-
-    public static JSONObject getOOSClient(){
-        if(oosClient == null){
-            synchronized (DevFileLocalUtil.class){
-                if(oosClient == null){
-                    initClient();
-                    oosClient = client;
-                }
-            }
-        }
-        return oosClient;
     }
 
     /**

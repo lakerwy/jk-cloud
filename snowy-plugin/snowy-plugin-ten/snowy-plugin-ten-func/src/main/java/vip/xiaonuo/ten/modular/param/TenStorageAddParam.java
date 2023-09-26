@@ -35,7 +35,7 @@ public class TenStorageAddParam {
     private String name;
 
     /** 绑定域名 */
-    @ApiModelProperty(value = "绑定域名", position = 2)
+    @ApiModelProperty(value = "绑定域名", required = true, position = 2)
     @NotBlank(message = "domain不能为空")
     private String domain;
 

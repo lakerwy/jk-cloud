@@ -1,0 +1,183 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.biz.modular.cms.article.controller;
+
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
+import com.github.xiaoymin.knife4j.annotations.ApiSupport;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.cms.article.vo.ArticleInfoVo;
+import vip.xiaonuo.biz.modular.cms.article.param.*;
+import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.biz.modular.cms.article.entity.Article;
+import vip.xiaonuo.biz.modular.cms.article.service.ArticleService;
+
+import javax.annotation.Resource;
+import javax.validation.Valid;
+import javax.validation.constraints.NotEmpty;
+
+/**
+ * 业务表-CMS-文章管理控制器
+ *
+ * @author yong.ye
+ * @date  2023/07/10 14:36
+ */
+@Api(tags = "业务表-CMS-文章管理控制器")
+@ApiSupport(author = "SNOWY_TEAM", order = 1)
+@RestController
+@Validated
+public class ArticleController {
+
+    @Resource
+    private ArticleService articleService;
+
+    /**
+     * 获取业务表-CMS-文章管理分页 [管理员-全部数据]
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取业务表-CMS-文章管理分页")
+    @GetMapping("/biz/cms/article/page")
+    public CommonResult<Page<Article>> page(ArticlePageParam articlePageParam) {
+        return CommonResult.data(articleService.page(articlePageParam));
+    }
+
+    /**
+     * 添加业务表-CMS-文章管理
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("添加业务表-CMS-文章管理")
+    @CommonLog("添加业务表-CMS-文章管理")
+    @PostMapping("/biz/cms/article/add")
+    public CommonResult<String> add(@RequestBody @Valid ArticleAddParam articleAddParam) {
+        articleService.add(articleAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑业务表-CMS-文章管理
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("编辑业务表-CMS-文章管理")
+    @CommonLog("编辑业务表-CMS-文章管理")
+    @PostMapping("/biz/cms/article/edit")
+    public CommonResult<String> edit(@RequestBody @Valid ArticleEditParam articleEditParam) {
+        articleService.edit(articleEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除业务表-CMS-文章管理
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("删除业务表-CMS-文章管理")
+    @CommonLog("删除业务表-CMS-文章管理")
+    @PostMapping("/biz/cms/article/delete")
+    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                                   CommonValidList<ArticleIdParam> articleIdParamList) {
+        articleService.delete(articleIdParamList);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取业务表-CMS-文章管理详情
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取业务表-CMS-文章管理详情")
+    @GetMapping("/biz/cms/article/detail")
+    public CommonResult<ArticleInfoVo> detail(@Valid ArticleIdParam articleIdParam) {
+        return CommonResult.data(articleService.detail(articleIdParam));
+    }
+
+    /**
+     * 点击业务表-CMS-文章管理（新增点击量）
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("点击业务表-CMS-文章管理（新增点击量）")
+    @CommonLog("点击业务表-CMS-文章管理（新增点击量）")
+    @PostMapping("/biz/cms/article/click")
+    public CommonResult<String> click(@RequestBody @Valid ArticleIdParam articleIdParam) {
+        articleService.click(articleIdParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取业务表-CMS-文章管理分页 [内网用 有权限控制] 已上架+（全员|有权限）
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取业务表-CMS-文章管理分页 [内网用 有权限控制]")
+    @GetMapping("/biz/cms/article/listPage")
+    public CommonResult<IPage<Article>> listPage(ArticlePageParam articlePageParam) {
+        return CommonResult.data(articleService.listPage(articlePageParam));
+    }
+
+    /**
+     * 业务表-CMS-文章管理（上架|下架）
+     *
+     * @author yong.ye
+     * @date  2023/07/10 14:36
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("业务表-CMS-文章管理（上架|下架）")
+    @CommonLog("业务表-CMS-文章管理（上架|下架）")
+    @PostMapping("/biz/cms/article/shelf")
+    public CommonResult<String> shelf(@RequestBody @Valid ArticleShelfParam articleShelfParam) {
+        articleService.shelf(articleShelfParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 业务表-CMS-文章管理（置顶 1 |取消置顶 0）
+     *
+     * @author yong.ye
+     * @date  2023/07/17 14:36
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("业务表-CMS-文章管理（置顶|取消置顶）")
+    @CommonLog("业务表-CMS-文章管理（置顶|取消置顶）")
+    @PostMapping("/biz/cms/article/top")
+    public CommonResult<String> top(@RequestBody @Valid ArticleTopParam articleTopParam) {
+        articleService.top(articleTopParam);
+        return CommonResult.ok();
+    }
+
+}

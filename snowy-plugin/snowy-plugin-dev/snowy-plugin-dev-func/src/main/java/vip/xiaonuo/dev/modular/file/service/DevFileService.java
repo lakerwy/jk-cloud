@@ -106,13 +106,7 @@ public interface DevFileService extends IService<DevFile> {
     String uploadReturnUrl(MultipartFile file, String bucketName);
 
 
-    /**
-     * MultipartFile文件上传，返回文件信息
-     *
-     * @author xuyuxiang
-     * @date 2022/4/22 15:53
-     **/
-    DevFile uploadReturnBean(String engine, MultipartFile file);
+    void mkDir(String engine, String dirName);
 
-    void panStorageFold(String engine, String parentPath, String bucketName);
+    void pageList(String engine, String dirPath);
 }

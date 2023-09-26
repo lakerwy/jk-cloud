@@ -1,6 +1,5 @@
 package vip.xiaonuo.sys.modular.sys;
 
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.tree.Tree;
@@ -21,8 +20,6 @@ import vip.xiaonuo.common.enums.SysBuildInEnum;
 import vip.xiaonuo.common.util.CommonAvatarUtil;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.sys.api.SysApi;
-import vip.xiaonuo.sys.core.enums.EpcDeptEnum;
-import vip.xiaonuo.sys.core.enums.EpcRoleEnum;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -50,7 +47,6 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -96,7 +92,6 @@ public class SysApiProvider implements SysApi {
     public void initTenDataForCategoryId(String tenId, String tenName) {
         // ==============给租户初始化组织=================
         SysOrg sysOrg = new SysOrg();
-        sysOrg.setId(tenId);  //项目id
         sysOrg.setTenantId(tenId);
         sysOrg.setParentId("0");
         sysOrg.setName(tenName);
@@ -115,15 +110,11 @@ public class SysApiProvider implements SysApi {
         sysPosition.setSortCode(1);
         sysPositionService.save(sysPosition);
 
-        //初始化Epc部门数据
-        initEpcData(tenId,sysOrg.getId());
-
         // ==============给租户初始化模块=================
         Map<String, String> moduleIdRelation = MapUtil.newHashMap();
         List<SysModule> sysModuleList = sysModuleService.list(new LambdaQueryWrapper<SysModule>().eq(SysModule::getCategory,
-                SysResourceCategoryEnum.MODULE.getValue()))
-//                        .in(SysModule::getCode, SysBuildInEnum.BUILD_IN_MODULE_CODE.getValue(),
-//                SysBuildInEnum.BUILD_IN_MODULE_CODE_BIZ.getValue()))
+                        SysResourceCategoryEnum.MODULE.getValue()).in(SysModule::getCode, SysBuildInEnum.BUILD_IN_MODULE_CODE.getValue(),
+                        SysBuildInEnum.BUILD_IN_MODULE_CODE_BIZ.getValue()))
                 .stream().peek(sysModule -> {
                     String oldId = sysModule.getId();
                     String newId = IdWorker.getIdStr();
@@ -135,7 +126,7 @@ public class SysApiProvider implements SysApi {
 
         // ==============给租户初始化单页=================
         List<SysSpa> sysSpaList = sysSpaService.list(new LambdaQueryWrapper<SysSpa>().eq(SysSpa::getCategory,
-                SysResourceCategoryEnum.SPA.getValue()).eq(SysSpa::getCode,  SysBuildInEnum.BUILD_IN_SPA_CODE.getValue()))
+                        SysResourceCategoryEnum.SPA.getValue()).eq(SysSpa::getCode,  SysBuildInEnum.BUILD_IN_SPA_CODE.getValue()))
                 .stream().peek(sysSpa -> {
                     sysSpa.setId(null);
                     sysSpa.setTenantId(tenId);
@@ -144,16 +135,16 @@ public class SysApiProvider implements SysApi {
 
         // ==============给租户初始化模块菜单与按钮=================
         List<SysMenu> sysMenuAndButtonList = sysMenuService.list(new LambdaQueryWrapper<SysMenu>().in(SysMenu::getCategory,
-                SysResourceCategoryEnum.MENU.getValue(), SysResourceCategoryEnum.BUTTON.getValue())
+                        SysResourceCategoryEnum.MENU.getValue(), SysResourceCategoryEnum.BUTTON.getValue())
                 .ne(SysMenu::getCode, SysBuildInEnum.BUILD_IN_NO_TEN_MENU_CODE.getValue())).stream().peek(sysMenu -> {
-                    if(sysMenu.getCategory().equals(SysResourceCategoryEnum.MENU.getValue())) {
-                        sysMenu.setModule(moduleIdRelation.get(sysMenu.getModule()));
-                    }
+            if(sysMenu.getCategory().equals(SysResourceCategoryEnum.MENU.getValue())) {
+                sysMenu.setModule(moduleIdRelation.get(sysMenu.getModule()));
+            }
         }).collect(Collectors.toList());
 
         List<TreeNode<String>> treeNodeList = sysMenuAndButtonList.stream().map(sysMenu ->
-                new TreeNode<>(sysMenu.getId(), sysMenu.getParentId(), sysMenu.getTitle(), sysMenu.getSortCode())
-                        .setExtra(JSONUtil.parseObj(sysMenu).set("originName", sysMenu.getName())))
+                        new TreeNode<>(sysMenu.getId(), sysMenu.getParentId(), sysMenu.getTitle(), sysMenu.getSortCode())
+                                .setExtra(JSONUtil.parseObj(sysMenu).set("originName", sysMenu.getName())))
                 .collect(Collectors.toList());
         List<Tree<String>> treeList = TreeUtil.build(treeNodeList, "0");
         // 批量保存菜单与按钮
@@ -277,73 +268,5 @@ public class SysApiProvider implements SysApi {
                 execRecursionInsertMenuOrButton(resultList, menuId, children, tenId);
             }
         });
-    }
-
-    private void  initEpcData(String tenId,String parentId){
-        List<String> sjbLists = new ArrayList<String>() {{
-            add(EpcRoleEnum.EPC_PROJECT_SJGLY.getName());
-            add(EpcRoleEnum.EPC_PROJECT_YLJSY.getName());
-            add(EpcRoleEnum.EPC_PROJECT_ZLY.getName());
-        }};
-        initEpcDeptAndRole(tenId,parentId,EpcDeptEnum.EPC_DEP_SJB.getName(),sjbLists);
-
-        List<String> gcglLists = new ArrayList<String>() {{
-            add(EpcRoleEnum.EPC_PROJECT_SGY.getName());
-            add(EpcRoleEnum.EPC_PROJECT_CLY.getName());
-        }};
-        initEpcDeptAndRole(tenId,parentId,EpcDeptEnum.EPC_DEP_GCGL.getName(),gcglLists);
-
-        List<String> zlaqLists = new ArrayList<String>() {{
-            add(EpcRoleEnum.EPC_PROJECT_ZHLY.getName());
-            add(EpcRoleEnum.EPC_PROJECT_SYY.getName());
-            add(EpcRoleEnum.EPC_PROJECT_AQY.getName());
-        }};
-        initEpcDeptAndRole(tenId,parentId,EpcDeptEnum.EPC_DEP_ZLAQ.getName(),zlaqLists);
-
-        List<String> wzsbLists = new ArrayList<String>() {{
-            add(EpcRoleEnum.EPC_PROJECT_CLIY.getName());
-            add(EpcRoleEnum.EPC_PROJECT_JDSBY.getName());
-        }};
-        initEpcDeptAndRole(tenId,parentId,EpcDeptEnum.EPC_DEP_WZZB.getName(),wzsbLists);
-
-        List<String> hyysList = new ArrayList<String>() {{
-            add(EpcRoleEnum.EPC_PROJECT_YSY.getName());
-        }};
-        initEpcDeptAndRole(tenId,parentId,EpcDeptEnum.EPC_DEP_HYYS.getName(),hyysList);
-
-        List<String> zhglList = new ArrayList<String>() {{
-            add(EpcRoleEnum.EPC_PROJECT_XZHQ.getName());
-        }};
-        initEpcDeptAndRole(tenId,parentId,EpcDeptEnum.EPC_DEP_ZHGL.getName(),zhglList);
-    }
-
-    /**
-     * 初始化设计技术部门 项目经理、项目副经理、项目总工
-     * @param tenId
-     */
-    private void initEpcDeptAndRole(String tenId,String parentId,String name,List<String> roles){
-        SysOrg sysOrg = new SysOrg();//项目id
-        sysOrg.setTenantId(tenId);
-        sysOrg.setParentId(parentId);
-        sysOrg.setName(name);
-        sysOrg.setCode(RandomUtil.randomString(10));
-        sysOrg.setCategory(SysOrgCategoryEnum.DEPT.getValue());
-        sysOrg.setSortCode(1);
-        sysOrgService.save(sysOrg);
-        if(CollUtil.isNotEmpty(roles)){
-            List<SysRole> sysRoles = new ArrayList<>();
-            for (String role : roles) {
-                SysRole sysRole = new SysRole();
-                sysRole.setTenantId(tenId);
-                sysRole.setName(role);
-                sysRole.setCode(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue());
-                sysRole.setCategory(SysRoleCategoryEnum.ORG.getValue());
-                sysRole.setSortCode(1);
-                sysRole.setOrgId(sysOrg.getId());
-                sysRoles.add(sysRole);
-                //sysRoleService.save(sysRole);
-            }
-            sysRoleService.saveBatch(sysRoles);
-        }
     }
 }

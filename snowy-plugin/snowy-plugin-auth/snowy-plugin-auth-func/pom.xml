@@ -34,11 +34,6 @@
             <artifactId>snowy-plugin-ten-api</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>vip.xiaonuo.pan</groupId>
-            <artifactId>snowy-plugin-pan-api</artifactId>
-        </dependency>
-
         <!-- sa-token -->
         <dependency>
             <groupId>cn.dev33</groupId>

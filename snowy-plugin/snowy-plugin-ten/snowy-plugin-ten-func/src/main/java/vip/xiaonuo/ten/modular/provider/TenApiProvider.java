@@ -59,9 +59,4 @@ public class TenApiProvider implements TenApi {
     public String getCurrentTenDomain() {
         return tenService.getCurrentTenDomain();
     }
-
-    @Override
-    public void buildMybatisPlusInterceptor() {
-        tenService.buildMybatisPlusInterceptor();
-    }
 }

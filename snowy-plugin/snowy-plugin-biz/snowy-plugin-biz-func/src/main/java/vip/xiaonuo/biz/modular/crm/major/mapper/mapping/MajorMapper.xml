@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.crm.major.mapper.MajorMapper">
+
+    <resultMap id="BaseResultMap" type="vip.xiaonuo.biz.modular.crm.major.vo.MajorInfoVo">
+        <id column="ID" jdbcType="VARCHAR" property="id" />
+
+        <result column="MAJOR_NAME" jdbcType="VARCHAR" property="majorName" />
+        <result column="MAJOR_NO" jdbcType="VARCHAR" property="majorNo" />
+
+        <result column="DELETE_FLAG" jdbcType="VARCHAR" property="deleteFlag" />
+        <result column="CREATE_TIME" jdbcType="TIMESTAMP" property="createTime" />
+        <result column="CREATE_USER" jdbcType="VARCHAR" property="createUser" />
+        <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime" />
+
+        <collection property="majorleaders" column="ID" select="getMajorleaders" />
+    </resultMap>
+
+    <select id="getMajorleaders" resultType="vip.xiaonuo.biz.modular.crm.majorleader.entity.Majorleader">
+        select * from BIZ_CRM_MAJORLEADER where MAJOR_ID = #{ID} and DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
+    <select id="getPageList" resultMap="BaseResultMap" >
+        select * from BIZ_CRM_MAJOR  ${ew.customSqlSegment}
+    </select>
+
+</mapper>
