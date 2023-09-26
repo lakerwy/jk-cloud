@@ -13,6 +13,7 @@
 package vip.xiaonuo.flw.core.util;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
@@ -768,7 +769,7 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/13 17:35
      **/
-    public static void handleProcessCompleteNotice(DelegateExecution delegateExecution) throws Exception{
+    public static void handleProcessCompleteNotice(DelegateExecution delegateExecution){
         handleProcessNotice(null, delegateExecution, "COMPLETE", "processEnableCompleteNotice",
                 "processCompleteNoticeChannel", "processCompleteNoticeTemplate");
     }
@@ -784,146 +785,161 @@ public class NodeRuntimeUtil {
                                             String noticeType,
                                             String processNoticeEnablePropertyKey,
                                             String processNoticeChannelPropertyKey,
-                                            String processNoticeTemplatePropertyKey)  throws Exception{
-        RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
-        final boolean[] processNoticeEnabled = {false};
-        AtomicReference<List<String>> processNoticeChannelList = new AtomicReference<>();
-        AtomicReference<String> processNoticeTemplate = new AtomicReference<>();
-        Collection<ExtensionElements> processExtensionElementsCollection;
+                                            String processNoticeTemplatePropertyKey) {
+        try {
+            RepositoryService repositoryService = SpringUtil.getBean(RepositoryService.class);
+            final boolean[] processNoticeEnabled = {false};
+            AtomicReference<List<String>> processNoticeChannelList = new AtomicReference<>();
+            AtomicReference<String> processNoticeTemplate = new AtomicReference<>();
+            Collection<ExtensionElements> processExtensionElementsCollection;
 
-        if(noticeType.equals("TODO") || noticeType.equals("BACK")) {
-            if(noticeType.equals("BACK")) {
-                processExtensionElementsCollection = repositoryService.getBpmnModelInstance(delegateTask.getProcessDefinitionId())
-                        .getDocumentElement().getUniqueChildElementByType(Process.class).getChildElementsByType(ExtensionElements.class);
+            if(noticeType.equals("TODO") || noticeType.equals("BACK")) {
+                if(noticeType.equals("BACK")) {
+                    processExtensionElementsCollection = repositoryService.getBpmnModelInstance(delegateTask.getProcessDefinitionId())
+                            .getDocumentElement().getUniqueChildElementByType(Process.class).getChildElementsByType(ExtensionElements.class);
+                } else {
+                    processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance()
+                            .getParentElement().getChildElementsByType(ExtensionElements.class);
+                }
             } else {
-                processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance()
+                processExtensionElementsCollection = delegateExecution.getBpmnModelElementInstance()
                         .getParentElement().getChildElementsByType(ExtensionElements.class);
             }
-        } else {
-            processExtensionElementsCollection = delegateExecution.getBpmnModelElementInstance()
-                    .getParentElement().getChildElementsByType(ExtensionElements.class);
+
+            if(ObjectUtil.isNotEmpty(processExtensionElementsCollection)) {
+                processExtensionElementsCollection.forEach(processExtensionElements ->
+                        processExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(processCamundaProperties ->
+                                processCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(processCamundaProperty -> {
+                                    if (processCamundaProperty.getCamundaName().equals("configInfo")) {
+                                        JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
+                                        processNoticeEnabled[0] = processConfigInfo.getBool(processNoticeEnablePropertyKey);
+                                        if(processNoticeEnabled[0]) {
+                                            processNoticeChannelList.set(JSONUtil.toList(JSONUtil.parseArray(processConfigInfo.getStr(processNoticeChannelPropertyKey)), String.class));
+                                            processNoticeTemplate.set(processConfigInfo.getStr(processNoticeTemplatePropertyKey));
+                                        }
+                                    }
+                                })));
+            }
+            if(processNoticeEnabled[0]) {
+                if(noticeType.equals("TODO") || noticeType.equals("BACK")) {
+                    handleProcessNoticeExecute(delegateTask, null, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
+                } else {
+                    handleProcessNoticeExecute(null, delegateExecution, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
+                }
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
         }
 
-        if(ObjectUtil.isNotEmpty(processExtensionElementsCollection)) {
-            processExtensionElementsCollection.forEach(processExtensionElements ->
-                    processExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(processCamundaProperties ->
-                            processCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(processCamundaProperty -> {
-                                if (processCamundaProperty.getCamundaName().equals("configInfo")) {
-                                    JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
-                                    processNoticeEnabled[0] = processConfigInfo.getBool(processNoticeEnablePropertyKey);
-                                    if(processNoticeEnabled[0]) {
-                                        processNoticeChannelList.set(JSONUtil.toList(JSONUtil.parseArray(processConfigInfo.getStr(processNoticeChannelPropertyKey)), String.class));
-                                        processNoticeTemplate.set(processConfigInfo.getStr(processNoticeTemplatePropertyKey));
-                                    }
-                                }
-                            })));
-        }
-        if(processNoticeEnabled[0]) {
-            if(noticeType.equals("TODO") || noticeType.equals("BACK")) {
-                handleProcessNoticeExecute(delegateTask, null, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
-            } else {
-                handleProcessNoticeExecute(null, delegateExecution, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
-            }
-        }
     }
 
     private static void handleProcessNoticeExecute(DelegateTask delegateTask, DelegateExecution delegateExecution, String noticeType, String processNoticeTemplate,
-                                                   List<String> processNoticeChannelList) throws Exception {
-        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
-        DevMessageApi devMessageApi = SpringUtil.getBean(DevMessageApi.class);
-        DevEmailApi devEmailApi = SpringUtil.getBean(DevEmailApi.class);
-        // DevSmsApi devSmsApi = SpringUtil.getBean(DevSmsApi.class);
-        SysUserApi sysUserApi = SpringUtil.getBean(SysUserApi.class);
-        List<String> participateUserIdList = CollectionUtil.newArrayList();
-        String processNoticeTemplateFormat;
-        switch (noticeType) {
-            case "TODO":
-                participateUserIdList = Convert.toList(String.class, delegateTask
-                        .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
-                processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
-                break;
-            case "COPY":
-                AtomicReference<String> participateInfo = new AtomicReference<>();
-                delegateExecution.getBpmnModelElementInstance().getChildElementsByType(ExtensionElements.class).forEach(extensionElements ->
-                        extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
-                                camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
-                                    if (camundaProperty.getCamundaName().equals("participateInfo")) {
-                                        participateInfo.set(camundaProperty.getCamundaValue());
-                                    }
-                                })));
-                if (ObjectUtil.isNotEmpty(participateInfo.get())) {
-                    participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), participateInfo.get());
-                }
-                processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateExecution(delegateExecution, processNoticeTemplate);
-                break;
-            case "COMPLETE":
-                Object initiatorObjForComplete = delegateExecution.getVariable("initiator");
-                if(ObjectUtil.isNotEmpty(initiatorObjForComplete)) {
-                    participateUserIdList = CollectionUtil.newArrayList(Convert.toStr(initiatorObjForComplete));
-                }
-                processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateExecution(delegateExecution, processNoticeTemplate);
-                break;
-            case "BACK":
-                Object initiatorObjForBack;
-                try {
-                    initiatorObjForBack = delegateTask.getVariable("initiator");
-                } catch (Exception e) {
-                    initiatorObjForBack = runtimeService.getVariable(delegateTask.getProcessInstanceId(), "initiator");
-                }
-                if(ObjectUtil.isNotEmpty(initiatorObjForBack)) {
-                    participateUserIdList = CollectionUtil.newArrayList(Convert.toStr(initiatorObjForBack));
-                }
-                processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
-                break;
-            default:
-                throw new CommonException("不支持的通知类型：{}", noticeType);
-        }
-
-        List<String> finalParticipateUserIdList = participateUserIdList;
-        processNoticeChannelList.forEach(processNoticeChannel -> {
-            if(ObjectUtil.isNotEmpty(finalParticipateUserIdList)) {
-                switch (processNoticeChannel) {
-                    case "MSG":
-                        // TODO 执行发送消息
-                        //delegateTask.getTaskDefinitionKey()
-                        Map<String,String> taskMap = new HashMap<>();
-                        taskMap.put("processInstanceId",delegateTask.getProcessInstanceId());
-                        taskMap.put("taskId",delegateTask.getId());
-                        taskMap.put("taskDefKey",delegateTask.getTaskDefinitionKey());
-                        taskMap.put("initiatorProcessTitle",String.valueOf(delegateTask.getVariable("initiatorProcessTitle")));
-                        taskMap.put("initiatorProcessAbstract",String.valueOf(delegateTask.getVariable("initiatorProcessAbstract")));
-                        taskMap.put("initiatorProcessSn",String.valueOf(delegateTask.getVariable("initiatorProcessSn")));
-                        taskMap.put("initiatorTime",String.valueOf(delegateTask.getVariable("initiatorTime")));
-                        taskMap.put("initiatorName",String.valueOf(delegateTask.getVariable("initiatorName")));
-                        taskMap.put("processDefinitionId",delegateTask.getProcessDefinitionId());
-                        devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId(),taskMap);
-                        log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
-                        break;
-                    case "EMAIL":
-                        // TODO 执行发送邮件，使用本地邮件，可改为其他邮件引擎
-                        List<String> userEmailList = sysUserApi.getUserListByIdListWithoutException(finalParticipateUserIdList).stream()
-                                .map(jsonObject -> jsonObject.getStr("email")).collect(Collectors.toList());
-                        if(ObjectUtil.isNotEmpty(userEmailList)) {
-                            devEmailApi.sendTextEmailLocal(StrUtil.join(StrUtil.COMMA, userEmailList),
-                                    processNoticeTemplateFormat, processNoticeTemplateFormat, CollectionUtil.newArrayList());
+                                                   List<String> processNoticeChannelList){
+        try {
+            RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+            DevMessageApi devMessageApi = SpringUtil.getBean(DevMessageApi.class);
+            DevEmailApi devEmailApi = SpringUtil.getBean(DevEmailApi.class);
+            // DevSmsApi devSmsApi = SpringUtil.getBean(DevSmsApi.class);
+            SysUserApi sysUserApi = SpringUtil.getBean(SysUserApi.class);
+            List<String> participateUserIdList = CollectionUtil.newArrayList();
+            String processNoticeTemplateFormat;
+            switch (noticeType) {
+                case "TODO":
+                    participateUserIdList = Convert.toList(String.class, delegateTask
+                            .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
+                    if(CollUtil.isNotEmpty(participateUserIdList)){
+                        if(participateUserIdList.size() == 1 && participateUserIdList.get(0).equals("AUTO_COMPLETE") ){
+                            return;
                         }
-                        log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的EMAIL");
-                        break;
-                    case "SMS":
-                        // TODO 执行发送短信，使用阿里云短信，可改为其他短信引擎
-                        List<String> userPhoneList = sysUserApi.getUserListByIdListWithoutException(finalParticipateUserIdList).stream()
-                                .map(jsonObject -> jsonObject.getStr("phone")).collect(Collectors.toList());
-                        if(ObjectUtil.isNotEmpty(userPhoneList)) {
-                            /*devSmsApi.sendSmsAliyun(StrUtil.join(StrUtil.COMMA, userPhoneList), null, "模板编码", "模板参数");*/
-                        }
-                        log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的SMS");
-                        break;
-                    default:
-                        throw new CommonException("不支持的通知渠道类型：{}", processNoticeChannel);
-                }
+                    }
+                    processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
+                    break;
+                case "COPY":
+                    AtomicReference<String> participateInfo = new AtomicReference<>();
+                    delegateExecution.getBpmnModelElementInstance().getChildElementsByType(ExtensionElements.class).forEach(extensionElements ->
+                            extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
+                                    camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
+                                        if (camundaProperty.getCamundaName().equals("participateInfo")) {
+                                            participateInfo.set(camundaProperty.getCamundaValue());
+                                        }
+                                    })));
+                    if (ObjectUtil.isNotEmpty(participateInfo.get())) {
+                        participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), participateInfo.get());
+                    }
+                    processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateExecution(delegateExecution, processNoticeTemplate);
+                    break;
+                case "COMPLETE":
+                    Object initiatorObjForComplete = delegateExecution.getVariable("initiator");
+                    if(ObjectUtil.isNotEmpty(initiatorObjForComplete)) {
+                        participateUserIdList = CollectionUtil.newArrayList(Convert.toStr(initiatorObjForComplete));
+                    }
+                    processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateExecution(delegateExecution, processNoticeTemplate);
+                    break;
+                case "BACK":
+                    Object initiatorObjForBack;
+                    try {
+                        initiatorObjForBack = delegateTask.getVariable("initiator");
+                    } catch (Exception e) {
+                        initiatorObjForBack = runtimeService.getVariable(delegateTask.getProcessInstanceId(), "initiator");
+                    }
+                    if(ObjectUtil.isNotEmpty(initiatorObjForBack)) {
+                        participateUserIdList = CollectionUtil.newArrayList(Convert.toStr(initiatorObjForBack));
+                    }
+                    processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
+                    break;
+                default:
+                    throw new CommonException("不支持的通知类型：{}", noticeType);
             }
 
-        });
+            List<String> finalParticipateUserIdList = participateUserIdList;
+            processNoticeChannelList.forEach(processNoticeChannel -> {
+                if(ObjectUtil.isNotEmpty(finalParticipateUserIdList)) {
+                    switch (processNoticeChannel) {
+                        case "MSG":
+                            // TODO 执行发送消息
+                            //delegateTask.getTaskDefinitionKey()
+                            Map<String,String> taskMap = new HashMap<>();
+                            taskMap.put("processInstanceId",delegateTask.getProcessInstanceId());
+                            taskMap.put("taskId",delegateTask.getId());
+                            taskMap.put("taskDefKey",delegateTask.getTaskDefinitionKey());
+                            taskMap.put("initiatorProcessTitle",String.valueOf(delegateTask.getVariable("initiatorProcessTitle")));
+                            taskMap.put("initiatorProcessAbstract",String.valueOf(delegateTask.getVariable("initiatorProcessAbstract")));
+                            taskMap.put("initiatorProcessSn",String.valueOf(delegateTask.getVariable("initiatorProcessSn")));
+                            taskMap.put("initiatorTime",String.valueOf(delegateTask.getVariable("initiatorTime")));
+                            taskMap.put("initiatorName",String.valueOf(delegateTask.getVariable("initiatorName")));
+                            taskMap.put("processDefinitionId",delegateTask.getProcessDefinitionId());
+                            devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId(),taskMap);
+                            log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
+                            break;
+                        case "EMAIL":
+                            // TODO 执行发送邮件，使用本地邮件，可改为其他邮件引擎
+                            List<String> userEmailList = sysUserApi.getUserListByIdListWithoutException(finalParticipateUserIdList).stream()
+                                    .map(jsonObject -> jsonObject.getStr("email")).collect(Collectors.toList());
+                            if(ObjectUtil.isNotEmpty(userEmailList)) {
+                                devEmailApi.sendTextEmailLocal(StrUtil.join(StrUtil.COMMA, userEmailList),
+                                        processNoticeTemplateFormat, processNoticeTemplateFormat, CollectionUtil.newArrayList());
+                            }
+                            log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的EMAIL");
+                            break;
+                        case "SMS":
+                            // TODO 执行发送短信，使用阿里云短信，可改为其他短信引擎
+                            List<String> userPhoneList = sysUserApi.getUserListByIdListWithoutException(finalParticipateUserIdList).stream()
+                                    .map(jsonObject -> jsonObject.getStr("phone")).collect(Collectors.toList());
+                            if(ObjectUtil.isNotEmpty(userPhoneList)) {
+                                /*devSmsApi.sendSmsAliyun(StrUtil.join(StrUtil.COMMA, userPhoneList), null, "模板编码", "模板参数");*/
+                            }
+                            log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的SMS");
+                            break;
+                        default:
+                            throw new CommonException("不支持的通知渠道类型：{}", processNoticeChannel);
+                    }
+                }
+
+            });
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
+
     }
 
     private static String handleProcessNoticeTemplateForDelegateTask(DelegateTask delegateTask, String processNoticeTemplate) throws Exception {

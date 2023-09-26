@@ -239,7 +239,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 //设置sn
                 jsonObject.set("initiatorProcessSn",sn);
             }
-             processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
+                processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
         }
         if(ObjectUtil.isNotEmpty(processInstance)){
             String processInstanceId = processInstance.getProcessInstanceId();
@@ -1161,7 +1161,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         }
     }
 
-    public String getSn(FlwModel flwModel) {
+    public  synchronized  String getSn(FlwModel flwModel) {
         if(ObjectUtil.isNotNull(flwModel)){
             String processSnTemplate = "";
             String processJson = flwModel.getProcessJson();
