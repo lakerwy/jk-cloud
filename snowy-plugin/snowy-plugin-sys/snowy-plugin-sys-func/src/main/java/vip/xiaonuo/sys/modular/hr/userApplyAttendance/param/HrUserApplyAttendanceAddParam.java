@@ -36,8 +36,8 @@ public class HrUserApplyAttendanceAddParam {
     private Integer applyType;
 
     /** 申请时间 */
-    @ApiModelProperty(value = "申请时间：年-月-日，(若申请补卡，则传补卡当日时间)", position = 5)
-    private String applyTime;
+    @ApiModelProperty(value = "申请时间", position = 5)
+    private String applyAttendanceTime;
 
     /** 申请开始时间 */
     @ApiModelProperty(value = "申请开始时间：年-月-日 时-分-秒 ", position = 6)

@@ -31,4 +31,9 @@ public class HrAttendanceConfigAndUserParam {
     /** 考勤组ID */
     @ApiModelProperty(value = "考勤组ID")
     private String attendanceTypeId;
+
+
+    /** 当前的人或者部门是否生效这个考勤班次：0 -- 生效，1 未生效 */
+    @ApiModelProperty(value = "当前的人或者部门是否生效这个考勤班次：0生效, 1未生效", position = 16)
+    private String isValid;
 }
