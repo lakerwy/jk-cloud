@@ -77,4 +77,12 @@ public interface HrUserAttendanceConfigGroupService extends IService<HrUserAtten
     HrUserAttendanceConfigGroup queryEntity(String id);
 
     Map<String,Object> attendanceConfigGroupMap(HrAttendanceConfigAndUserParam hrAttendanceConfigAndUserParam);
+
+    /**
+     * 考勤组负责人及考勤人员信息设置
+     *
+     * @author ljy
+     * @date  2023/09/26 15:55
+     **/
+    String configAndUserDataEdit(HrAttendanceConfigAndUserDataParam hrAttendanceConfigAndUserDataParam);
 }
