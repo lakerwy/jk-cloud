@@ -16,10 +16,8 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwAddParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwEditParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwIdParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwPageParam;
+import vip.xiaonuo.biz.modular.emp.param.*;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssTotalVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 
 import java.util.List;
@@ -88,4 +86,11 @@ public interface BizEmpTaskFlwService extends IService<BizEmpTaskFlw> {
      * @date  2023/09/19 08:48
      */
     IPage<BizEmpTaskFlwVo> pageList(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam);
+
+    /**
+     * 统计 年度+季度+组织+考核等级
+     * @param empAssTotalParam
+     * @return
+     */
+    BizEmpAssTotalVo total(EmpAssTotalParam empAssTotalParam);
 }

@@ -289,18 +289,18 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         Page<BizEmpAssList> needUserList = bizEmpAssListService.page(objectPage,queryWrapper);
 
         //构造每个人的年度绩效数据（组织架构中每个人均有一条年度绩效评分记录）
-        for (BizEmpAssList user:needUserList.getRecords()) {
+        for (BizEmpAssList empAss:needUserList.getRecords()) {
             BizEmpPerformanceVo performanceVo = new BizEmpPerformanceVo();
-            performanceVo.setOrgName(user.getOrgName());
+            performanceVo.setOrgName(empAss.getOrgName());
             performanceVo.setYear(year);
-            performanceVo.setOrgId(user.getOrgId());
-            performanceVo.setUserId(user.getId());
-            performanceVo.setUserName(user.getUserName());
+            performanceVo.setOrgId(empAss.getOrgId());
+            performanceVo.setUserId(empAss.getUserId());
+            performanceVo.setUserName(empAss.getUserName());
             //循环四个季度
             for (String season:seasons)
             {
                 Optional<BizEmpPerformance> first = result.stream().filter(x -> x.getYear().equals(year)
-                        && x.getUserId().equals(user.getId()) && x.getSeason().equals(season)).findFirst();
+                        && x.getUserId().equals(empAss.getUserId()) && x.getSeason().equals(season)).findFirst();
                 if(season.equals("1")){
                     performanceVo.setSeasonLevel1(first.isPresent() ? first.get().getEmpSeasonLevel() : null);
                     performanceVo.setSeasonScore1(first.isPresent() ? first.get().getEmpSeasonScore() : null);

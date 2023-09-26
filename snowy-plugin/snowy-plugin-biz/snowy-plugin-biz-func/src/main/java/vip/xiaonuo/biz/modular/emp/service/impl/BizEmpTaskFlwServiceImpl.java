@@ -30,20 +30,21 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpAssList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
+import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpAssListService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssTotalVo;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
+import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
 import vip.xiaonuo.biz.modular.emp.mapper.BizEmpTaskFlwMapper;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwAddParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwEditParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwIdParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwPageParam;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
 
 import javax.annotation.Resource;
@@ -75,6 +76,9 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
 
     @Resource
     private BizEmpAssListService bizEmpAssListService;
+
+    @Resource
+    private SysOrgService sysOrgService;
 
     @Override
     public Page<BizEmpTaskFlw> page(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam) {
@@ -174,6 +178,65 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         return completeResult(result,bizEmpTaskFlwPageParam);
     }
 
+    @Override
+    public BizEmpAssTotalVo total(EmpAssTotalParam empAssTotalParam) {
+        // 数据权限 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        //权限组织
+        List<String> dataScopeOrgIds = new ArrayList<>();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            dataScopeOrgIds = loginUserDataScope;
+        } else {
+            dataScopeOrgIds = Arrays.asList(StpLoginUserUtil.getLoginUser().getOrgId());
+        }
+
+        //统计年度
+        String year = empAssTotalParam.getYear();
+        //统计季度
+        String season = empAssTotalParam.getSeason();
+        //统计 年度+季度+组织+考核等级
+        BizEmpAssTotalVo bizEmpAssTotalVo = new BizEmpAssTotalVo();
+        bizEmpAssTotalVo.setYear(year);
+        bizEmpAssTotalVo.setSeason(season);
+
+        //考核 名单
+        List<BizEmpAssList> assListList = bizEmpAssListService.list(new QueryWrapper<BizEmpAssList>().lambda()
+                .eq(BizEmpAssList::getYear,year)
+                .eq(BizEmpAssList::getSeason,season)
+                .in(BizEmpAssList::getOrgId,dataScopeOrgIds));
+
+        //考核 记录信息
+        List<BizEmpPerformance> assEmpPerformanceList = bizEmpPerformanceService.list(new QueryWrapper<BizEmpPerformance>().lambda()
+                .eq(BizEmpPerformance::getYear,year)
+                .eq(BizEmpPerformance::getSeason,season)
+                .in(BizEmpPerformance::getOrgId,dataScopeOrgIds)
+                .in(BizEmpPerformance::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue()));
+
+        //获取组织翻译
+        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
+
+        //统计 各年 各季度 各等级
+        List<BizEmpAssVo> empAssVoList = new ArrayList<>();
+        for (String assOrgId:dataScopeOrgIds) {
+            List<BizEmpPerformance> tmpPerformanceList = assEmpPerformanceList.stream().filter(x->x.getOrgId().equals(assOrgId)).collect(Collectors.toList());
+            List<String> assLevels = tmpPerformanceList.stream().map(x->x.getEmpSeasonLevel()).distinct().collect(Collectors.toList());
+            //该部门参加考核人数
+            Integer empAssNums = assListList.stream().filter(x->x.getOrgId().equals(assOrgId)).collect(Collectors.toList()).size();
+            Optional<BizSysOrgVo> orgInfo = orgList.stream().filter(x -> x.getOrgId().equals(assOrgId)).findFirst();
+            //循环
+            for (String level : assLevels){
+                BizEmpAssVo empAssVo = new BizEmpAssVo();
+                empAssVo.setOrgId(assOrgId);
+                empAssVo.setOrgName(orgInfo.isPresent()?orgInfo.get().getOrgName():"");
+                empAssVo.setEmpAssNums(empAssNums);
+                empAssVo.setEmpSeasonLevel(level);
+                empAssVo.setEmpSeasonLevelNums(tmpPerformanceList.stream().filter(x->x.getEmpSeasonLevel().equals(level)).collect(Collectors.toList()).size());
+                empAssVoList.add(empAssVo);
+            }
+        }
+        return bizEmpAssTotalVo;
+    }
+
 
     /***
      * 员工绩效查询页面，数据构造（必须输入年度、季度）
@@ -258,22 +321,22 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         Page<BizEmpAssList> needUserList = bizEmpAssListService.page(objectPage,queryWrapper);
 
         //构造每个人的年度绩效数据（组织架构中每个人均有4条本年度四个季度的目标填报记录）
-        for (BizEmpAssList user:needUserList.getRecords()) {
+        for (BizEmpAssList empAss:needUserList.getRecords()) {
             //判断 当前年 当前季度 当前员工  是否存在记录，若不存在，则生产一条记录
-            Optional<BizEmpTaskFlwVo> first = result.stream().filter(x -> x.getUserId().equals(user.getId())
+            Optional<BizEmpTaskFlwVo> first = result.stream().filter(x -> x.getUserId().equals(empAss.getUserId())
                     && x.getYear().equals(year) && x.getSeason().equals(season)).findFirst();
             if(first.isPresent()){
                 BizEmpTaskFlwVo bizEmpTaskFlwVo = first.get();
-                bizEmpTaskFlwVo.setOrgName(user.getOrgName());
+                bizEmpTaskFlwVo.setOrgName(empAss.getOrgName());
                 newResult.add(bizEmpTaskFlwVo);
             }else{
                 BizEmpTaskFlwVo addVo = new BizEmpTaskFlwVo();
                 addVo.setYear(year);
                 addVo.setSeason(season);
-                addVo.setUserId(user.getId());
-                addVo.setOrgId(user.getOrgId());
-                addVo.setUserName(user.getUserName());
-                addVo.setOrgName(user.getOrgName());
+                addVo.setUserId(empAss.getUserId());
+                addVo.setOrgId(empAss.getOrgId());
+                addVo.setUserName(empAss.getUserName());
+                addVo.setOrgName(empAss.getOrgName());
                 newResult.add(addVo);
            }
         }

@@ -26,8 +26,10 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.emp.entity.BizEmpAssList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
 import vip.xiaonuo.biz.modular.emp.param.*;
+import vip.xiaonuo.biz.modular.emp.service.BizEmpAssListService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
 import vip.xiaonuo.biz.modular.task.enums.BizTaskStatusEnum;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -63,6 +65,9 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
 
     @Resource
     private BizEmpTaskFlwService bizEmpTaskFlwService;
+
+    @Resource
+    private BizEmpAssListService bizEmpAssListService;
 
     @Override
     public Page<BizEmpTask> page(BizEmpTaskPageParam bizEmpTaskPageParam) {
@@ -272,6 +277,17 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
 
     @Override
     public Boolean check(EmpCheckParam empTaskCheckParam) {
+        //1. 校验当前 员工+年度+季度 是否 需要参与考核
+        QueryWrapper<BizEmpAssList> empAssListQueryWrapper = new QueryWrapper<>();
+        empAssListQueryWrapper.lambda().eq(BizEmpAssList::getYear,empTaskCheckParam.getYear())
+                .eq(BizEmpAssList::getSeason,empTaskCheckParam.getSeason())
+                .eq(BizEmpAssList::getUserId,empTaskCheckParam.getUserId());
+        List<BizEmpAssList> empAssLists = bizEmpAssListService.list(empAssListQueryWrapper);
+        if(CollUtil.isEmpty(empAssLists)){
+            throw new CommonException("当前员工不在季度考核范围内");
+        }
+
+        //2. 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过季度目标
         QueryWrapper<BizEmpTask> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(BizEmpTask::getUserId,empTaskCheckParam.getUserId())
                 .eq(BizEmpTask::getYear,empTaskCheckParam.getYear())

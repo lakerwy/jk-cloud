@@ -24,15 +24,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.emp.param.*;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssTotalVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwAddParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwEditParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwIdParam;
-import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwPageParam;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
 
 import javax.annotation.Resource;
@@ -117,18 +115,18 @@ public class BizEmpTaskFlwController {
         return CommonResult.ok();
     }
 
-//    /**
-//     * 获取业务表-员工绩效考核-季度任务流程审批单详情
-//     *
-//     * @author yong.ye
-//     * @date  2023/09/19 08:48
-//     */
-//    @ApiOperationSupport(order = 5)
-//    @ApiOperation("获取业务表-员工绩效考核-季度任务流程审批单详情")
-//    //@SaCheckPermission("/biz/emp/taskFlw/detail")
-//    @GetMapping("/biz/emp/taskFlw/detail")
-//    public CommonResult<BizEmpTaskFlw> detail(@Valid BizEmpTaskFlwIdParam bizEmpTaskFlwIdParam) {
-//        return CommonResult.data(bizEmpTaskFlwService.detail(bizEmpTaskFlwIdParam));
-//    }
+    /**
+     * 获取 统计 年度+季度+组织+考核等级
+     *
+     * @author yong.ye
+     * @date  2023/09/19 08:48
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("统计 年度+季度+组织+考核等级")
+    @SaCheckPermission("/biz/emp/taskFlw/total")
+    @GetMapping("/biz/emp/taskFlw/total")
+    public CommonResult<BizEmpAssTotalVo> total(@Valid EmpAssTotalParam empAssTotalParam) {
+        return CommonResult.data(bizEmpTaskFlwService.total(empAssTotalParam));
+    }
 
 }
