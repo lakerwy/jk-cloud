@@ -15,7 +15,6 @@ package vip.xiaonuo.biz.modular.emp.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -28,16 +27,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.emp.entity.BizEmpAssList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
 import vip.xiaonuo.biz.modular.emp.param.*;
+import vip.xiaonuo.biz.modular.emp.service.BizEmpAssListService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
-import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
-import vip.xiaonuo.biz.modular.task.service.SysOrgService;
-import vip.xiaonuo.biz.modular.task.vo.BizFirstOrgVo;
-import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
-import vip.xiaonuo.biz.modular.user.entity.BizUser;
-import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -49,13 +44,11 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
 import vip.xiaonuo.biz.modular.emp.mapper.BizEmpPerformanceMapper;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
-import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * 业务表-员工绩效考核-季度评分审批流程Service接口实现类
@@ -67,7 +60,6 @@ import java.util.stream.Collectors;
 @DS("slave_1")
 @Service
 public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceMapper, BizEmpPerformance> implements BizEmpPerformanceService {
-
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
@@ -75,10 +67,7 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
     private BizEmpTaskService bizEmpTaskService;
 
     @Resource
-    private BizUserService bizUserService;
-
-    @Resource
-    private SysOrgService sysOrgService;
+    private BizEmpAssListService bizEmpAssListService;
 
     @Override
     public Page<BizEmpPerformance> page(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
@@ -257,59 +246,46 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         //季度
         List<String> seasons = Arrays.asList("1","2","3","4");
 
-        //需要补充的组织架构人员
-        QueryWrapper<BizUser> queryWrapper = new QueryWrapper<>();
+        //需要参与考核的人员
+        QueryWrapper<BizEmpAssList> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getOrgId())){
-            queryWrapper.lambda().eq(BizUser::getOrgId,bizEmpTaskPageParam.getOrgId());
+            queryWrapper.lambda().eq(BizEmpAssList::getOrgId,bizEmpTaskPageParam.getOrgId());
         }
         if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getUserId())){
-            queryWrapper.lambda().eq(BizUser::getId,bizEmpTaskPageParam.getUserId());
+            queryWrapper.lambda().eq(BizEmpAssList::getUserId,bizEmpTaskPageParam.getUserId());
         }
 
         //关键字查询
         if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSearchKey())){
-            queryWrapper.and(q->q.lambda().like(BizUser::getName,bizEmpTaskPageParam.getSearchKey()));
-        }
-
-        //过滤掉所有一级部门的负责人（SysOrg.directorId）
-        List<BizFirstOrgVo> firstOrgVoList = sysOrgService.getFirstOrgList();
-        List<String> firstOrgUserIds = firstOrgVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getDirectorId())).map(x->x.getDirectorId()).distinct().collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(firstOrgUserIds)){
-            queryWrapper.lambda().notIn(BizUser::getId,firstOrgUserIds);
+            queryWrapper.and(q->q.lambda().like(BizEmpAssList::getUserName,bizEmpTaskPageParam.getSearchKey())
+                    .like(BizEmpAssList::getOrgName,bizEmpTaskPageParam.getSearchKey()));
         }
 
         // 校验数据范围（由于本列表是根据组织架构决定的）
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            queryWrapper.lambda().in(BizUser::getOrgId, loginUserDataScope);
+            queryWrapper.lambda().in(BizEmpAssList::getOrgId, loginUserDataScope);
         } else {
-            queryWrapper.lambda().eq(BizUser::getId, StpUtil.getLoginIdAsString());
+            queryWrapper.lambda().eq(BizEmpAssList::getUserId, StpUtil.getLoginIdAsString());
         }
-        queryWrapper.lambda().orderByAsc(BizUser::getOrgId);
+        queryWrapper.lambda().orderByAsc(BizEmpAssList::getOrgId).orderByAsc(BizEmpAssList::getUserId);
 
         //构造分页
         long current = ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getCurrent()) ? bizEmpTaskPageParam.getCurrent() : 1;
-        long size =  ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSize()) ? bizEmpTaskPageParam.getSize() : 10;
-        Page<BizUser> objectPage = new Page<>(current, size);
+        long size =  ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSize()) ? bizEmpTaskPageParam.getSize() : Integer.MAX_VALUE;
+        Page<BizEmpAssList> objectPage = new Page<>(current, size);
 
-        //切换数据库，查询组织机构人员信息
-        DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
-        dbsApi.changeDataSource(dbsApi.getDefaultDataSourceName());
-        Page<BizUser> needUserList = bizUserService.page(objectPage,queryWrapper);
-        dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
-
-        //获取组织翻译
-        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
+        //根据条件查询考核人员
+        Page<BizEmpAssList> needUserList = bizEmpAssListService.page(objectPage,queryWrapper);
 
         //构造每个人的年度绩效数据（组织架构中每个人均有一条年度绩效评分记录）
-        for (BizUser user:needUserList.getRecords()) {
+        for (BizEmpAssList user:needUserList.getRecords()) {
             BizEmpPerformanceVo performanceVo = new BizEmpPerformanceVo();
-            Optional<BizSysOrgVo> orgInfo = orgList.stream().filter(x -> x.getOrgId().equals(user.getOrgId())).findFirst();
-            performanceVo.setOrgName(orgInfo.isPresent()?orgInfo.get().getOrgName():"");
+            performanceVo.setOrgName(user.getOrgName());
             performanceVo.setYear(year);
             performanceVo.setOrgId(user.getOrgId());
             performanceVo.setUserId(user.getId());
-            performanceVo.setUserName(user.getName());
+            performanceVo.setUserName(user.getUserName());
             //循环四个季度
             for (String season:seasons)
             {
@@ -341,5 +317,4 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         pageVo.setRecords(newResult);
         return pageVo;
     }
-
 }

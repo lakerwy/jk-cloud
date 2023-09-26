@@ -27,16 +27,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.emp.entity.BizEmpAssList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpPerformance;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
+import vip.xiaonuo.biz.modular.emp.service.BizEmpAssListService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
-import vip.xiaonuo.biz.modular.task.service.SysOrgService;
-import vip.xiaonuo.biz.modular.task.vo.BizFirstOrgVo;
-import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
-import vip.xiaonuo.biz.modular.user.entity.BizUser;
-import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -48,11 +45,8 @@ import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwEditParam;
 import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwIdParam;
 import vip.xiaonuo.biz.modular.emp.param.BizEmpTaskFlwPageParam;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
-import vip.xiaonuo.dbs.api.DbsApi;
-import vip.xiaonuo.dbs.core.consts.DbsConstant;
 
 import javax.annotation.Resource;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -70,7 +64,6 @@ import java.util.stream.Collectors;
 @DS("slave_1")
 @Service
 public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, BizEmpTaskFlw> implements BizEmpTaskFlwService {
-
     @Resource
     private BizEmpTaskFlwMapper bizEmpTaskFlwMapper;
 
@@ -81,10 +74,7 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
     private BizEmpPerformanceService bizEmpPerformanceService;
 
     @Resource
-    private BizUserService bizUserService;
-
-    @Resource
-    private SysOrgService sysOrgService;
+    private BizEmpAssListService bizEmpAssListService;
 
     @Override
     public Page<BizEmpTaskFlw> page(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam) {
@@ -214,12 +204,12 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         String season = bizEmpTaskFlwPageParam.getSeason();
 
         //需要补充的组织架构人员
-        QueryWrapper<BizUser> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<BizEmpAssList> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getOrgId())){
-            queryWrapper.lambda().eq(BizUser::getOrgId,bizEmpTaskFlwPageParam.getOrgId());
+            queryWrapper.lambda().eq(BizEmpAssList::getOrgId,bizEmpTaskFlwPageParam.getOrgId());
         }
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getUserId())){
-            queryWrapper.lambda().eq(BizUser::getId,bizEmpTaskFlwPageParam.getUserId());
+            queryWrapper.lambda().eq(BizEmpAssList::getUserId,bizEmpTaskFlwPageParam.getUserId());
         }
 
         //若筛选（已填报|未填报）
@@ -230,9 +220,9 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
             if(CollUtil.isEmpty(haveFillUserIds)) haveFillUserIds = Arrays.asList("");
             //筛选是否填报
             if("1".equals(bizEmpTaskFlwPageParam.getIsFill())){
-                queryWrapper.lambda().in(BizUser::getId,haveFillUserIds);
+                queryWrapper.lambda().in(BizEmpAssList::getUserId,haveFillUserIds);
             }else{
-                queryWrapper.lambda().notIn(BizUser::getId,haveFillUserIds);
+                queryWrapper.lambda().notIn(BizEmpAssList::getUserId,haveFillUserIds);
             }
         }
 
@@ -241,57 +231,40 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
             //根据流程状态筛选 员工id集合
             List<String> statusUserIds = result.stream().filter(x->x.getStatus().equals(bizEmpTaskFlwPageParam.getStatus())).map(x->x.getUserId()).distinct().collect(Collectors.toList());
             if(CollUtil.isEmpty(statusUserIds)) statusUserIds = Arrays.asList("");
-            queryWrapper.lambda().in(BizUser::getId,statusUserIds);
+            queryWrapper.lambda().in(BizEmpAssList::getUserId,statusUserIds);
         }
 
         //关键字
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSearchKey())){
-            queryWrapper.lambda().like(BizUser::getName,bizEmpTaskFlwPageParam.getSearchKey());
-        }
-
-        //过滤掉 一级部门的负责人（SysOrg.directorId）
-        List<BizFirstOrgVo> firstOrgVoList = sysOrgService.getFirstOrgList();
-        List<String> firstOrgUserIds = firstOrgVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getDirectorId())).map(x->x.getDirectorId()).distinct().collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(firstOrgUserIds)){
-            queryWrapper.lambda().notIn(BizUser::getId,firstOrgUserIds);
+            queryWrapper.and(q->q.lambda().like(BizEmpAssList::getUserName,bizEmpTaskFlwPageParam.getSearchKey())
+                    .like(BizEmpAssList::getOrgName,bizEmpTaskFlwPageParam.getSearchKey()));
         }
 
         // 校验数据范围（由于本列表是根据组织架构决定的）
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            queryWrapper.lambda().in(BizUser::getOrgId, loginUserDataScope);
+            queryWrapper.lambda().in(BizEmpAssList::getOrgId, loginUserDataScope);
         } else {
-            queryWrapper.lambda().eq(BizUser::getId, StpUtil.getLoginIdAsString());
+            queryWrapper.lambda().eq(BizEmpAssList::getUserId, StpUtil.getLoginIdAsString());
         }
-        queryWrapper.lambda().orderByAsc(BizUser::getOrgId);
+        queryWrapper.lambda().orderByAsc(BizEmpAssList::getOrgId).orderByAsc(BizEmpAssList::getUserId);
 
         //构造分页
         long current = ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getCurrent())?bizEmpTaskFlwPageParam.getCurrent():1;
-        long size =  ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSize())?bizEmpTaskFlwPageParam.getSize():10;
-        Page<BizUser> objectPage = new Page<>(current, size);
+        long size =  ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSize())?bizEmpTaskFlwPageParam.getSize():Integer.MAX_VALUE;
+        Page<BizEmpAssList> objectPage = new Page<>(current, size);
 
-        //切换数据库查询组织架构人员信息
-        DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
-        dbsApi.changeDataSource(dbsApi.getDefaultDataSourceName());
-        Page<BizUser> needUserList = bizUserService.page(objectPage,queryWrapper);
-        dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
-
-        //获取组织翻译
-        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
+        //查询考核人员列表
+        Page<BizEmpAssList> needUserList = bizEmpAssListService.page(objectPage,queryWrapper);
 
         //构造每个人的年度绩效数据（组织架构中每个人均有4条本年度四个季度的目标填报记录）
-        for (BizUser user:needUserList.getRecords()) {
-            //获取组织
-            Optional<BizSysOrgVo> orgInfo = orgList.stream().filter(x -> x.getOrgId().equals(user.getOrgId())).findFirst();
-            String tmpOrgName = orgInfo.isPresent() ? orgInfo.get().getOrgName() : "";
-
+        for (BizEmpAssList user:needUserList.getRecords()) {
             //判断 当前年 当前季度 当前员工  是否存在记录，若不存在，则生产一条记录
             Optional<BizEmpTaskFlwVo> first = result.stream().filter(x -> x.getUserId().equals(user.getId())
                     && x.getYear().equals(year) && x.getSeason().equals(season)).findFirst();
-
             if(first.isPresent()){
                 BizEmpTaskFlwVo bizEmpTaskFlwVo = first.get();
-                bizEmpTaskFlwVo.setOrgName(tmpOrgName);
+                bizEmpTaskFlwVo.setOrgName(user.getOrgName());
                 newResult.add(bizEmpTaskFlwVo);
             }else{
                 BizEmpTaskFlwVo addVo = new BizEmpTaskFlwVo();
@@ -299,12 +272,11 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
                 addVo.setSeason(season);
                 addVo.setUserId(user.getId());
                 addVo.setOrgId(user.getOrgId());
-                addVo.setUserName(user.getName());
-                addVo.setOrgName(tmpOrgName);
+                addVo.setUserName(user.getUserName());
+                addVo.setOrgName(user.getOrgName());
                 newResult.add(addVo);
            }
         }
-
         //构造返回体
         pageVo.setTotal(needUserList.getTotal());
         pageVo.setRecords(newResult);
