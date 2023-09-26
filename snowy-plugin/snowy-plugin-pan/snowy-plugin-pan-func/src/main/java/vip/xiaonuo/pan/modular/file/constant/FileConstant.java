@@ -10,4 +10,9 @@ public interface FileConstant {
      * 默认初始化空间大小 最大1024M
      */
     public static final  Long totalStorageSize = 1024*5L;
+
+    /**
+     * 默认初始化空间大小 最大1024M
+     */
+    public static final  Long totalGroupStorageSize = 1024*500L;
 }
