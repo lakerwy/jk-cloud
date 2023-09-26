@@ -45,7 +45,6 @@ import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTaskDetail;
 import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskDetailService;
 import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
-import vip.xiaonuo.pan.modular.userFile.enums.UserFileEnum;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
@@ -53,10 +52,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.util.Arrays;
 import java.util.Base64;
 import java.util.List;
-import java.util.concurrent.Callable;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;

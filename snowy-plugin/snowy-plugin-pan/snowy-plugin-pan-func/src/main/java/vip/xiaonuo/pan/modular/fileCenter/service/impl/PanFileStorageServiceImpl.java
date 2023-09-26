@@ -101,9 +101,19 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
         return panFileStorage;
     }
 
+    /**
+     *
+     * @param totalSize
+     * @param type  个人空间还是群组空间  0 个人 1 群组
+     * @return
+     */
     @Override
-    public Boolean checkStorage(long totalSize) {
-        LambdaQueryWrapper<PanFileStorage> lambdaQueryWrapper = new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, StpLoginUserUtil.getLoginUser().getId());
+    public Boolean checkStorage(long totalSize,int type) {
+        String useId = StpLoginUserUtil.getLoginUser().getId();
+        if(1==type){
+            useId = StpLoginUserUtil.getLoginUser().getOrgId();
+        }
+        LambdaQueryWrapper<PanFileStorage> lambdaQueryWrapper = new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, useId);
         List<PanFileStorage> panFileStorages = list(lambdaQueryWrapper);
         PanFileStorage panFileStorage =null;
         if(CollUtil.isNotEmpty(panFileStorages)){
@@ -112,7 +122,10 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
         Long totalStorageSize = 0L;
         if(ObjectUtil.isEmpty(panFileStorage) || ObjectUtil.isEmpty(panFileStorage.getTotalStorageSize())){
              panFileStorage = new PanFileStorage();
-             totalStorageSize = FileConstant.totalStorageSize;
+            totalStorageSize = FileConstant.totalStorageSize;
+            if(1==type){
+                totalStorageSize = FileConstant.totalGroupStorageSize;
+             }
              panFileStorage.setTotalStorageSize(FileConstant.totalStorageSize);
              panFileStorage.setUserId(StpLoginUserUtil.getLoginUser().getId());
              save(panFileStorage);

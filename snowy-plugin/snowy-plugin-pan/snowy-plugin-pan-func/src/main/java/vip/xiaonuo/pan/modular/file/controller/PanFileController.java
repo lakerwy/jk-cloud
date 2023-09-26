@@ -143,7 +143,7 @@ public class PanFileController {
     @GetMapping("/pan/file/uploadFile")
     public CommonResult<UploadFileVo> uploadFileSpeed(UploadFileParam uploadFileParam) {
 
-        boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize());
+        boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize(),0);
         if (!isCheckSuccess) {
             return CommonResult.error("存储空间不足");
         }
