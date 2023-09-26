@@ -59,4 +59,6 @@ public interface TenApi {
      * @date 2022/6/14 15:04
      **/
     String getCurrentTenDomain();
+
+    void buildMybatisPlusInterceptor();
 }

@@ -80,4 +80,5 @@ public class DevFile extends CommonEntity {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 13)
     private String extJson;
+
 }

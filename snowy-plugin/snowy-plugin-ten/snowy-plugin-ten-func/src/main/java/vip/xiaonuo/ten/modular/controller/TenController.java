@@ -87,7 +87,7 @@ public class TenController {
     @CommonLog("添加租户")
     @PostMapping("/ten/storage/add")
     public CommonResult<String> add(@RequestBody @Valid TenStorageAddParam tenStorageAddParam) {
-        tenService.add(tenStorageAddParam);
+        tenService.newAdd(tenStorageAddParam);
         return CommonResult.ok();
     }
 

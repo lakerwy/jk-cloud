@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.epc.provider.mapper.EpcProviderAssMapper">
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.epc.provider.vo.ProviderAssVo" >
+        select a.ID,a.YEAR as year, b.PRV_TYPE as prvType,b.PRV_NAME as prvName
+        from EPC_PROVIDER_ASS a left join EPC_PROVIDER b on a.PRV_ID = b.ID  ${ew.customSqlSegment}
+    </select>
+
+    <select id="getAssList" resultType="vip.xiaonuo.biz.modular.epc.provider.vo.ProviderAssVo" >
+        select distinct a.PRV_ID as prvId,a.YEAR as year,a.ASS_TYPE as assType,b.PRV_TYPE as prvType,b.PRV_NAME as prvName
+        from EPC_PROVIDER_ASS a left join EPC_PROVIDER b on a.PRV_ID = b.ID  ${ew.customSqlSegment}
+    </select>
+</mapper>

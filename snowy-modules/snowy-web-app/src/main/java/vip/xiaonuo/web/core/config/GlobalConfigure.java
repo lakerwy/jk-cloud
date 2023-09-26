@@ -180,6 +180,9 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/sys/third/bindECard",
 
             "/dev/deployConf/getInfo",
+            "/pan/file/fileUpload",
+            "/pan/file/preview",
+            "/pan/file/previewOfficeFile"
     };
 
     /**

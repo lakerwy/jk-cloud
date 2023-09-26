@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.pan.modular.share.mapper.PanShareMapper">
+
+    <select id="getShareList" resultType="vip.xiaonuo.pan.modular.share.vo.ShareListVo" >
+        select a.ID as id,a.TENANT_ID as tenantId,a.USER_ID as userId,a.SHARE_TIME as shareTime,a.END_TIME as endTime,a.EXTRACTION_CODE as extractionCode,
+               a.SHARE_BATCH_NUM as shareBatchNum,a.SHARE_TYPE as shareType,a.SHARE_STATUS as shareStatus,
+               b.ID as shareFileId,b.USER_FILE_ID as userFileId,b.SHARE_FILE_PATH as shareFilePath,
+               c.PARENT_ID as parentId,c.FILE_NAME as fileName,c.FILE_PATH as filePath,c.IS_DIR as isDir,c.FILE_ID as fileId,c.DELETE_FLAG as deleteFlag,
+               c.ROOT_DIR as rootDir,c.`RIGHT` as `right`,c.ORG_ID as orgId,c.DATA_SCOPE_ID as dataScopeId,c.LOCK_FLAG as lockFlag,
+               c.FOLD_TYPE as foldType,c.EXTEND_NAME as extendName,
+               d.FILE_SIZE as fileSize,d.SUFFIX as suffix,d.FILE_STATUS as fileStatus,d.FILE_URL as fileUrl,d.IDENTIFIER as identifier,
+               d.STORAGE_TYPE as storageType,d.EXT_JSON as extJson
+        from PAN_SHARE a
+        left join PAN_SHARE_FILE b on a.SHARE_BATCH_NUM = b.SHARE_BATCH_NUM and b.DELETE_FLAG = 'NOT_DELETE'
+        left join PAN_USER_FILE c on b.USER_FILE_ID = c.ID and c.DELETE_FLAG = 'NOT_DELETE'
+        left join PAN_FILE d on c.FILE_ID = d.ID and d.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getShareFileList" resultType="vip.xiaonuo.pan.modular.share.vo.ShareListVo" >
+        select a.ID as id,a.TENANT_ID as tenantId,a.USER_ID as userId,a.SHARE_TIME as shareTime,a.END_TIME as endTime,a.EXTRACTION_CODE as extractionCode,
+               a.SHARE_BATCH_NUM as shareBatchNum,a.SHARE_TYPE as shareType,a.SHARE_STATUS as shareStatus,
+               b.ID as shareFileId,b.USER_FILE_ID as userFileId,b.SHARE_FILE_PATH as shareFilePath,
+               c.PARENT_ID as parentId,c.FILE_NAME as fileName,c.FILE_PATH as filePath,c.IS_DIR as isDir,c.FILE_ID as fileId,c.DELETE_FLAG as deleteFlag,
+               c.ROOT_DIR as rootDir,c.`RIGHT` as `right`,c.ORG_ID as orgId,c.DATA_SCOPE_ID as dataScopeId,c.LOCK_FLAG as lockFlag,
+               c.FOLD_TYPE as foldType,c.EXTEND_NAME as extendName,
+               d.FILE_SIZE as fileSize,d.SUFFIX as suffix,d.FILE_STATUS as fileStatus,d.FILE_URL as fileUrl,d.IDENTIFIER as identifier,
+               d.STORAGE_TYPE as storageType,d.EXT_JSON as extJson
+        from PAN_SHARE_FILE b
+            left join PAN_SHARE a on a.SHARE_BATCH_NUM = b.SHARE_BATCH_NUM and a.DELETE_FLAG = 'NOT_DELETE'
+            left join PAN_USER_FILE c on b.USER_FILE_ID = c.ID and c.DELETE_FLAG = 'NOT_DELETE'
+            left join PAN_FILE d on c.FILE_ID = d.ID and d.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
+    </select>
+
+</mapper>
