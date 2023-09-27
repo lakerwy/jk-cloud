@@ -31,7 +31,7 @@ public class CommonUtils {
      * 该方法适合 xb2023050001 其余规则慎用
      * @return
      */
-    public static String getTableSn(BizTableCommon bizTableCommon,String type){
+    public static synchronized String getTableSn(BizTableCommon bizTableCommon,String type){
         String id = newHandleSqlIdExecution(bizTableCommon.getBizTable(),type);
         String idPre = "";
         String newId = "";

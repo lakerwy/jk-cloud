@@ -75,12 +75,12 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
     @Override
     public String uploadReturnId(String engine, MultipartFile file) {
-        return this.storageFile(engine, file, true,null);
+        return this.storageFile(engine, file, null).getId();
     }
 
     @Override
     public String uploadReturnUrl(String engine, MultipartFile file) {
-        return this.storageFile(engine, file, false,null);
+        return this.storageFile(engine, file, null).getDownloadPath();
     }
 
     @Override
@@ -157,7 +157,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
      * @author xuyuxiang
      * @date 2022/6/16 16:24
      **/
-    private String storageFile(String engine, MultipartFile file, boolean returnFileId, String bucketName) {
+    private DevFile storageFile(String engine, MultipartFile file, String bucketName) {
 
         // 如果引擎为空，默认使用本地
         if(ObjectUtil.isEmpty(engine)) {
@@ -253,12 +253,13 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
         this.save(devFile);
 
-        // 如果是返回id则返回文件id
-        if(returnFileId) {
-            return fullFileId;
-        } else {
-            return downloadUrl;
-        }
+        return  devFile;
+//        // 如果是返回id则返回文件id
+//        if(returnFileId) {
+//            return fullFileId;
+//        } else {
+//            return downloadUrl;
+//        }
     }
 
     /**
@@ -360,7 +361,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         String storageUrl;
 
         //获取一天中最后一条数据的id
-        DevFile devFile = new DevFile();
+//        DevFile devFile = new DevFile();
 //        String fileIdPre = getFileIdPre();
         String fileIdPre = DateUtil.date().toString("yyyyMMdd");
         String fileName = RandomUtil.randomNumbers(10);
@@ -404,7 +405,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
 
         // 将文件信息保存到数据库
-        devFile = new DevFile();
+        DevFile devFile = new DevFile();
         //String fullFileId = fileIdPre+fileName;
         // 设置文件id
         devFile.setId(fullFileId);
@@ -527,7 +528,12 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
     @Override
     public String uploadReturnUrl(MultipartFile file, String bucketName) {
-        return this.storageFile(null, file, false,bucketName);
+        return this.storageFile(null, file,bucketName).getDownloadPath();
+    }
+
+    @Override
+    public DevFile uploadReturnBean(String engine, MultipartFile file) {
+        return this.storageFile(null, file,null);
     }
 
     @Override
@@ -564,37 +570,57 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
     }
 
-    @Override
-    public void pageList(String engine, String dirPath) {
-        // 如果引擎为空，默认使用本地
-//        if (ObjectUtil.isEmpty(engine)) {
+//    public void pageList(String engine, String dirPath) {
+//        // 如果引擎为空，默认使用本地
+//        if(ObjectUtil.isEmpty(engine)) {
 //            engine = DevFileEngineTypeEnum.LOCAL.getValue();
 //        }
+//
+//
+//        // 定义存储的url，本地文件返回文件实际路径，其他引擎返回网络地址
+//        String storageUrl;
+//        String dirPath = parentPath + FileUtil.FILE_SEPARATOR + bucketName + FileUtil.FILE_SEPARATOR;
 //        // 根据引擎类型执行不同方法
-//        if (engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
-//
-//            // 使用固定名称defaultBucketName
-//            if (StrUtil.isBlank(dirPath)) {
-//                dirName = "jk";
-//            }
-//            DevFileLocalUtil.mkdirBucket(dirName);
-//        } else if (engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
-//            //todo
-//            // 使用阿里云默认配置的bucketName
-//            //bucketName = DevFileAliyunUtil.getDefaultBucketName();
-//            //storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(dirName, genNewFileKey(fileName, file), file);
-//        } else if (engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
-//            //todo
-//            // 使用腾讯云默认配置的bucketName
-//            //bucketName = DevFileTencentUtil.getDefaultBucketName();
-//            // storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
-//        } else if (engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
-//
-//            // 使用MINIO默认配置的bucketName
-//            //bucketName = DevFileMinIoUtil.getDefaultBucketName();
-//            DevFileMinIoUtil.mkdirBucket(dirName);
+//        if(engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+//            DevFileLocalUtil.mkdirBucket(dirPath);
+//        } else if(engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
+//            DevFileAliyunUtil.mkdirDirPath(dirPath);
+//        } else if(engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
+//            DevFileTencentUtil.mkdirDirPath(dirPath);
+//        } else if(engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
+//            DevFileMinIoUtil.mkdirBucket(dirPath);
 //        } else {
 //            throw new CommonException("不支持的文件引擎：{}", engine);
 //        }
-    }
+//
+////        if (ObjectUtil.isEmpty(engine)) {
+////            engine = DevFileEngineTypeEnum.LOCAL.getValue();
+////        }
+////        // 根据引擎类型执行不同方法
+////        if (engine.equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+////
+////            // 使用固定名称defaultBucketName
+////            if (StrUtil.isBlank(dirPath)) {
+////                dirName = "jk";
+////            }
+////            DevFileLocalUtil.mkdirBucket(dirName);
+////        } else if (engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
+////            //todo
+////            // 使用阿里云默认配置的bucketName
+////            //bucketName = DevFileAliyunUtil.getDefaultBucketName();
+////            //storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(dirName, genNewFileKey(fileName, file), file);
+////        } else if (engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
+////            //todo
+////            // 使用腾讯云默认配置的bucketName
+////            //bucketName = DevFileTencentUtil.getDefaultBucketName();
+////            // storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+////        } else if (engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
+////
+////            // 使用MINIO默认配置的bucketName
+////            //bucketName = DevFileMinIoUtil.getDefaultBucketName();
+////            DevFileMinIoUtil.mkdirBucket(dirName);
+////        } else {
+////            throw new CommonException("不支持的文件引擎：{}", engine);
+////        }
+//    }
 }

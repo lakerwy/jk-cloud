@@ -363,11 +363,11 @@ public class DevFileController {
         return CommonResult.ok();
     }
 
-    @ApiOperationSupport(order = 20)
-    @ApiOperation("本地文件 获取文件列表")
-    @GetMapping("/dev/file/pageList")
-    public CommonResult<String> pageList(@RequestParam(value = "dirPath") String dirPath) {
-        devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
-        return CommonResult.ok();
-    }
+//    @ApiOperationSupport(order = 20)
+//    @ApiOperation("本地文件 获取文件列表")
+//    @GetMapping("/dev/file/pageList")
+//    public CommonResult<String> pageList(@RequestParam(value = "dirPath") String dirPath) {
+//        devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
+//        return CommonResult.ok();
+//    }
 }
