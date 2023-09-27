@@ -218,6 +218,8 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
     public BizEmpAssTotalVo total(EmpAssTotalParam empAssTotalParam) {
         // 数据权限 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(loginUserDataScope.size() != 1) return null;
+
         //权限组织
         List<String> dataScopeOrgIds = new ArrayList<>();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
@@ -225,7 +227,6 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         } else {
             dataScopeOrgIds = Arrays.asList(StpLoginUserUtil.getLoginUser().getOrgId());
         }
-
         //统计年度
         String year = empAssTotalParam.getYear();
         //统计季度
@@ -234,23 +235,19 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         BizEmpAssTotalVo bizEmpAssTotalVo = new BizEmpAssTotalVo();
         bizEmpAssTotalVo.setYear(year);
         bizEmpAssTotalVo.setSeason(season);
-
         //考核 名单
         List<BizEmpAssList> assListList = bizEmpAssListService.list(new QueryWrapper<BizEmpAssList>().lambda()
                 .eq(BizEmpAssList::getYear,year)
                 .eq(BizEmpAssList::getSeason,season)
                 .in(BizEmpAssList::getOrgId,dataScopeOrgIds));
-
         //考核 记录信息
         List<BizEmpPerformance> assEmpPerformanceList = bizEmpPerformanceService.list(new QueryWrapper<BizEmpPerformance>().lambda()
                 .eq(BizEmpPerformance::getYear,year)
                 .eq(BizEmpPerformance::getSeason,season)
                 .in(BizEmpPerformance::getOrgId,dataScopeOrgIds)
                 .in(BizEmpPerformance::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue()));
-
         //获取组织翻译
         List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
-
         //统计 各年 各季度 各等级
         List<BizEmpAssVo> empAssVoList = new ArrayList<>();
         for (String assOrgId:dataScopeOrgIds) {
@@ -260,7 +257,6 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
             List<String> assLevels = tmpPerformanceList.stream()
                     .filter(x->ObjectUtil.isNotEmpty(x.getEmpSeasonLevel()))
                     .map(x->x.getEmpSeasonLevel()).distinct().collect(Collectors.toList());
-
             //该部门参加考核人数
             Integer empAssNums = assListList.stream().filter(x->x.getOrgId().equals(assOrgId)).collect(Collectors.toList()).size();
             Optional<BizSysOrgVo> orgInfo = orgList.stream().filter(x -> x.getOrgId().equals(assOrgId)).findFirst();
