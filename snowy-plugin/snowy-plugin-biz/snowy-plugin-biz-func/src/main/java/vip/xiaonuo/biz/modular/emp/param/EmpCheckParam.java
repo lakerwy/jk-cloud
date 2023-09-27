@@ -13,6 +13,10 @@ import lombok.Setter;
 @Setter
 public class EmpCheckParam {
 
+    /** 考核对象-组织Id */
+    @ApiModelProperty(value = "考核对象-组织Id", position = 2)
+    private String orgId;
+
     /** 用户Id */
     @ApiModelProperty(value = "用户Id", position = 1)
     private String userId;

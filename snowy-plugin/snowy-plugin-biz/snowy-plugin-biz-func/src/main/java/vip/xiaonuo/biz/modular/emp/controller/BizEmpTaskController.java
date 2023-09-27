@@ -160,13 +160,13 @@ public class BizEmpTaskController {
 
 
     /**
-     * 根据 用户Id+考核年度+考核季度 获取员工当前季度下的任务集合
+     * 根据 组织Id+用户Id+考核年度+考核季度 获取员工当前季度下的任务集合
      *
      * @author yong.ye
      * @date  2023/09/19 08:47
      */
     @ApiOperationSupport(order = 8)
-    @ApiOperation("根据 用户Id+考核年度+考核季度 获取员工当前季度下的任务集合")
+    @ApiOperation("根据 组织Id+用户Id+考核年度+考核季度 获取员工当前季度下的任务集合")
 //    @SaCheckPermission("/biz/emp/task/detail")
     @GetMapping("/biz/emp/task/listByUserId")
     public CommonResult<List<BizEmpTask>> listByUserId(@Valid EmpTaskUserIdParam empTaskUserIdParam) {
@@ -175,7 +175,7 @@ public class BizEmpTaskController {
 
 
     /**
-     * 根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过季度目标
+     * 根据 组织Id+用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过季度目标
      *
      * true : 本人本年本季度已提交过目标任务（审核中+审核通过）
      * false: 未提交过
@@ -184,7 +184,7 @@ public class BizEmpTaskController {
      * @date  2023/09/19 08:47
      */
     @ApiOperationSupport(order = 8)
-    @ApiOperation("根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过季度目标")
+    @ApiOperation("根据 组织Id+用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过季度目标")
 //    @SaCheckPermission("/biz/emp/task/detail")
     @GetMapping("/biz/emp/task/check")
     public CommonResult<Boolean> check(@Valid EmpCheckParam empTaskCheckParam) {

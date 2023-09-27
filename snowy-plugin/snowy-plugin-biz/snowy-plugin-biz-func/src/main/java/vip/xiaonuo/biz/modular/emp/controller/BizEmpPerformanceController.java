@@ -129,7 +129,7 @@ public class BizEmpPerformanceController {
 
 
     /**
-     * 根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过绩效评估
+     * 根据 组织Id+用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过绩效评估
      *
      * true : 本人本年本季度已提交过绩效评估（审核中+审核通过）
      * false: 未提交过
@@ -138,7 +138,7 @@ public class BizEmpPerformanceController {
      * @date  2023/09/19 08:47
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("根据 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过绩效评估")
+    @ApiOperation("根据 组织Id+用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过绩效评估(考虑换部门)")
 //    @SaCheckPermission("/biz/emp/task/detail")
     @GetMapping("/biz/emp/performance/check")
     public CommonResult<Boolean> check(@Valid EmpCheckParam empCheckParam) {

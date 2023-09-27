@@ -277,19 +277,21 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
 
     @Override
     public Boolean check(EmpCheckParam empTaskCheckParam) {
-        //1. 校验当前 员工+年度+季度 是否 需要参与考核
+        //1. 校验当前（考虑换部门） 员工+组织+年度+季度 是否 需要参与考核
         QueryWrapper<BizEmpAssList> empAssListQueryWrapper = new QueryWrapper<>();
         empAssListQueryWrapper.lambda().eq(BizEmpAssList::getYear,empTaskCheckParam.getYear())
                 .eq(BizEmpAssList::getSeason,empTaskCheckParam.getSeason())
-                .eq(BizEmpAssList::getUserId,empTaskCheckParam.getUserId());
+                .eq(BizEmpAssList::getUserId,empTaskCheckParam.getUserId())
+                .eq(BizEmpAssList::getOrgId,empTaskCheckParam.getOrgId());
         List<BizEmpAssList> empAssLists = bizEmpAssListService.list(empAssListQueryWrapper);
         if(CollUtil.isEmpty(empAssLists)){
             throw new CommonException("当前员工不在季度考核范围内");
         }
 
-        //2. 用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过季度目标
+        //2. 组织ID+用户Id+考核年度+考核季度 校验当前员工本年本季度是否已经提交过季度目标
         QueryWrapper<BizEmpTask> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(BizEmpTask::getUserId,empTaskCheckParam.getUserId())
+                .eq(BizEmpTask::getOrgId,empTaskCheckParam.getOrgId())
                 .eq(BizEmpTask::getYear,empTaskCheckParam.getYear())
                 .eq(BizEmpTask::getSeason,empTaskCheckParam.getSeason())
                 .in(BizEmpTask::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());

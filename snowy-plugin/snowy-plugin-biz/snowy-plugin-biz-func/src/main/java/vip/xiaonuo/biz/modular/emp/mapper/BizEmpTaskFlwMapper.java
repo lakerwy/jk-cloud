@@ -45,5 +45,5 @@ public interface BizEmpTaskFlwMapper extends BaseMapper<BizEmpTaskFlw> {
      * @param queryWrapper
      * @return
      */
-    List<BizEmpTaskFlwVo> getList(@Param(Constants.WRAPPER) Wrapper<BizEmpTaskFlw> queryWrapper);
+    IPage<BizEmpTaskFlwVo> getList(Page<BizEmpTaskFlwVo> page, @Param(Constants.WRAPPER) Wrapper<BizEmpTaskFlw> queryWrapper);
 }

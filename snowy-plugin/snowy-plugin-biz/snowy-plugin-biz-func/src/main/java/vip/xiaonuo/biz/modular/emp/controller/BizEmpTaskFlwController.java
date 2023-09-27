@@ -14,7 +14,6 @@ package vip.xiaonuo.biz.modular.emp.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -30,7 +29,6 @@ import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.emp.entity.BizEmpTaskFlw;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
 
 import javax.annotation.Resource;
@@ -65,38 +63,6 @@ public class BizEmpTaskFlwController {
     public CommonResult<IPage<BizEmpTaskFlwVo>> page(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam) {
         return CommonResult.data(bizEmpTaskFlwService.pageList(bizEmpTaskFlwPageParam));
     }
-
-//    /**
-//     * 添加业务表-员工绩效考核-季度任务流程审批单
-//     *
-//     * @author yong.ye
-//     * @date  2023/09/19 08:48
-//     */
-//    @ApiOperationSupport(order = 2)
-//    @ApiOperation("添加业务表-员工绩效考核-季度任务流程审批单")
-//    @CommonLog("添加业务表-员工绩效考核-季度任务流程审批单")
-////    @SaCheckPermission("/biz/emp/taskFlw/add")
-//    @PostMapping("/biz/emp/taskFlw/add")
-//    public CommonResult<String> add(@RequestBody @Valid BizEmpTaskFlwAddParam bizEmpTaskFlwAddParam) {
-//        bizEmpTaskFlwService.add(bizEmpTaskFlwAddParam);
-//        return CommonResult.ok();
-//    }
-
-//    /**
-//     * 编辑业务表-员工绩效考核-季度任务流程审批单
-//     *
-//     * @author yong.ye
-//     * @date  2023/09/19 08:48
-//     */
-//    @ApiOperationSupport(order = 3)
-//    @ApiOperation("编辑业务表-员工绩效考核-季度任务流程审批单")
-//    @CommonLog("编辑业务表-员工绩效考核-季度任务流程审批单")
-////    @SaCheckPermission("/biz/emp/taskFlw/edit")
-//    @PostMapping("/biz/emp/taskFlw/edit")
-//    public CommonResult<String> edit(@RequestBody @Valid BizEmpTaskFlwEditParam bizEmpTaskFlwEditParam) {
-//        bizEmpTaskFlwService.edit(bizEmpTaskFlwEditParam);
-//        return CommonResult.ok();
-//    }
 
     /**
      * 删除业务表-员工绩效考核-季度任务流程审批单

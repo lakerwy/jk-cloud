@@ -22,6 +22,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -29,9 +30,11 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpAssList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
+import vip.xiaonuo.biz.modular.emp.mapper.BizEmpAssListMapper;
 import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpAssListService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
+import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssListVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
@@ -68,6 +71,9 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
 
     @Resource
     private BizEmpAssListService bizEmpAssListService;
+
+    @Resource
+    private BizEmpAssListMapper bizEmpAssListMapper;
 
     @Override
     public Page<BizEmpPerformance> page(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
@@ -188,49 +194,11 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
     public Boolean check(EmpCheckParam empCheckParam) {
         QueryWrapper<BizEmpPerformance> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(BizEmpPerformance::getUserId,empCheckParam.getUserId())
+                .eq(BizEmpPerformance::getOrgId,empCheckParam.getOrgId())
                 .eq(BizEmpPerformance::getYear,empCheckParam.getYear())
                 .eq(BizEmpPerformance::getSeason,empCheckParam.getSeason())
                 .in(BizEmpPerformance::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         return this.list(queryWrapper).size() > 0;
-    }
-
-    @Override
-    public Page<BizEmpPerformanceVo> pageList(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
-        if(ObjectUtil.isEmpty(bizEmpPerformancePageParam.getYear())){
-            throw new CommonException("考核年度参数必填");
-        }
-        QueryWrapper<BizEmpPerformance> queryWrapper = new QueryWrapper<>();
-        //只有 审批中、审批通过 才有效
-        queryWrapper.lambda().in(BizEmpPerformance::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
-        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getUserId())) {
-            queryWrapper.lambda().eq(BizEmpPerformance::getUserId, bizEmpPerformancePageParam.getUserId());
-        }
-        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getOrgId())) {
-            queryWrapper.lambda().eq(BizEmpPerformance::getOrgId, bizEmpPerformancePageParam.getOrgId());
-        }
-        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getYear())) {
-            queryWrapper.lambda().eq(BizEmpPerformance::getYear, bizEmpPerformancePageParam.getYear());
-        }
-        if(ObjectUtil.isAllNotEmpty(bizEmpPerformancePageParam.getSortField(), bizEmpPerformancePageParam.getSortOrder())) {
-            CommonSortOrderEnum.validate(bizEmpPerformancePageParam.getSortOrder());
-            queryWrapper.orderBy(true, bizEmpPerformancePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
-                    StrUtil.toUnderlineCase(bizEmpPerformancePageParam.getSortField()));
-        } else {
-            queryWrapper.lambda().orderByAsc(BizEmpPerformance::getId);
-        }
-        List<BizEmpPerformance> result = this.list(queryWrapper);
-        return completeResult(result,bizEmpPerformancePageParam);
-    }
-
-    @Override
-    public void updateCol(EmpAssUpdateParam empAssUpdateParam) {
-        //主键Id
-        BizEmpPerformance bizEmpPerformance = this.queryEntity(empAssUpdateParam.getEpId());
-        String colName = empAssUpdateParam.getColName().toLowerCase();
-        if("empSeasonLevel".equals(colName)){
-            bizEmpPerformance.setEmpSeasonLevel(empAssUpdateParam.getColValue());
-        }
-        this.updateById(bizEmpPerformance);
     }
 
 
@@ -242,35 +210,29 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
      * 例如： 姓名  年份  一季度  二季度  三季度  四季度  是否填报
      *       A    2023  10      20
      *       B    2023  40      12     32
-     * @param result       员工绩效考评结果
-     * @param bizEmpTaskPageParam  查询参数
-     * @return
-     */
-    public Page<BizEmpPerformanceVo> completeResult(List<BizEmpPerformance> result, BizEmpPerformancePageParam bizEmpTaskPageParam){
-        //最终返回结果
-        Page<BizEmpPerformanceVo> pageVo = new Page<>();
-        List<BizEmpPerformanceVo> newResult = new ArrayList<>();
-
-        //统计年度
-        String year = bizEmpTaskPageParam.getYear();
-        //季度
-        List<String> seasons = Arrays.asList("1","2","3","4");
-
-        //需要参与考核的人员
+     *
+     ***/
+    @Override
+    public Page<BizEmpPerformanceVo> pageList(BizEmpPerformancePageParam bizEmpPerformancePageParam) {
+        if(ObjectUtil.isEmpty(bizEmpPerformancePageParam.getYear())){
+            throw new CommonException("考核年度参数必填");
+        }
+        /* 考核人员列表 */
         QueryWrapper<BizEmpAssList> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getOrgId())){
-            queryWrapper.lambda().eq(BizEmpAssList::getOrgId,bizEmpTaskPageParam.getOrgId());
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getYear())) {
+            queryWrapper.lambda().eq(BizEmpAssList::getYear, bizEmpPerformancePageParam.getYear());
         }
-        if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getUserId())){
-            queryWrapper.lambda().eq(BizEmpAssList::getUserId,bizEmpTaskPageParam.getUserId());
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getOrgId())){
+            queryWrapper.lambda().eq(BizEmpAssList::getOrgId,bizEmpPerformancePageParam.getOrgId());
         }
-
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getUserId())){
+            queryWrapper.lambda().eq(BizEmpAssList::getUserId,bizEmpPerformancePageParam.getUserId());
+        }
         //关键字查询
-        if(ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSearchKey())){
-            queryWrapper.and(q->q.lambda().like(BizEmpAssList::getUserName,bizEmpTaskPageParam.getSearchKey())
-                    .like(BizEmpAssList::getOrgName,bizEmpTaskPageParam.getSearchKey()));
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(BizEmpAssList::getUserName,bizEmpPerformancePageParam.getSearchKey())
+                    .or().like(BizEmpAssList::getOrgName,bizEmpPerformancePageParam.getSearchKey()));
         }
-
         // 校验数据范围（由于本列表是根据组织架构决定的）
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
@@ -278,29 +240,43 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         } else {
             queryWrapper.lambda().eq(BizEmpAssList::getUserId, StpUtil.getLoginIdAsString());
         }
-        queryWrapper.lambda().orderByAsc(BizEmpAssList::getOrgId).orderByAsc(BizEmpAssList::getUserId);
+        IPage<BizEmpAssListVo> result = bizEmpAssListMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);
 
-        //构造分页
-        long current = ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getCurrent()) ? bizEmpTaskPageParam.getCurrent() : 1;
-        long size =  ObjectUtil.isNotEmpty(bizEmpTaskPageParam.getSize()) ? bizEmpTaskPageParam.getSize() : Integer.MAX_VALUE;
-        Page<BizEmpAssList> objectPage = new Page<>(current, size);
 
-        //根据条件查询考核人员
-        Page<BizEmpAssList> needUserList = bizEmpAssListService.page(objectPage,queryWrapper);
+        //处理结果（获取绩效评估分记录）
+        Page<BizEmpPerformanceVo> pageVo = new Page<>();
+        List<BizEmpPerformanceVo> newResult = new ArrayList<>();
+        //查询条件
+        QueryWrapper<BizEmpPerformance> queryWrapper1 = new QueryWrapper<>();
+        //只有 审批中、审批通过 才有效
+        queryWrapper1.lambda().in(BizEmpPerformance::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getUserId())) {
+            queryWrapper1.lambda().eq(BizEmpPerformance::getUserId, bizEmpPerformancePageParam.getUserId());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getOrgId())) {
+            queryWrapper1.lambda().eq(BizEmpPerformance::getOrgId, bizEmpPerformancePageParam.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getYear())) {
+            queryWrapper1.lambda().eq(BizEmpPerformance::getYear, bizEmpPerformancePageParam.getYear());
+        }
+        List<BizEmpPerformance> bizEmpPerformanceList = this.list(queryWrapper1);
 
-        //构造每个人的年度绩效数据（组织架构中每个人均有一条年度绩效评分记录）
-        for (BizEmpAssList empAss:needUserList.getRecords()) {
+        //季度
+        List<String> seasons = Arrays.asList("1","2","3","4");
+        //构造每个人的年度绩效数据
+        for (BizEmpAssListVo empAss:result.getRecords()) {
             BizEmpPerformanceVo performanceVo = new BizEmpPerformanceVo();
-            performanceVo.setOrgName(empAss.getOrgName());
-            performanceVo.setYear(year);
+            performanceVo.setYear(empAss.getYear());
             performanceVo.setOrgId(empAss.getOrgId());
+            performanceVo.setOrgName(empAss.getOrgName());
             performanceVo.setUserId(empAss.getUserId());
             performanceVo.setUserName(empAss.getUserName());
             //循环四个季度
             for (String season:seasons)
             {
-                Optional<BizEmpPerformance> first = result.stream().filter(x -> x.getYear().equals(year)
-                        && x.getUserId().equals(empAss.getUserId()) && x.getSeason().equals(season)).findFirst();
+                Optional<BizEmpPerformance> first = bizEmpPerformanceList.stream()
+                        .filter(x -> x.getYear().equals(empAss.getYear()) && x.getSeason().equals(season)
+                        && x.getUserId().equals(empAss.getUserId()) && x.getOrgId().equals(empAss.getOrgId())).findFirst();
                 if(season.equals("1")){
                     performanceVo.setSeasonLevel1(first.isPresent() ? first.get().getEmpSeasonLevel() : null);
                     performanceVo.setSeasonScore1(first.isPresent() ? first.get().getEmpSeasonScore() : null);
@@ -320,11 +296,23 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
             }
             newResult.add(performanceVo);
         }
-        pageVo.setCurrent(current);
-        pageVo.setSize(size);
-        pageVo.setPages(needUserList.getPages());
-        pageVo.setTotal(needUserList.getTotal());
+        pageVo.setCurrent(result.getCurrent());
+        pageVo.setSize(result.getSize());
+        pageVo.setPages(result.getPages());
+        pageVo.setTotal(result.getTotal());
         pageVo.setRecords(newResult);
         return pageVo;
+    }
+
+    @Override
+    public void updateCol(EmpAssUpdateParam empAssUpdateParam) {
+        //主键Id
+        BizEmpPerformance bizEmpPerformance = this.queryEntity(empAssUpdateParam.getEpId());
+        String colName = empAssUpdateParam.getColName().toLowerCase();
+        //员工季度评级
+        if("empseasonlevel".equals(colName)){
+            bizEmpPerformance.setEmpSeasonLevel(empAssUpdateParam.getColValue());
+        }
+        this.updateById(bizEmpPerformance);
     }
 }

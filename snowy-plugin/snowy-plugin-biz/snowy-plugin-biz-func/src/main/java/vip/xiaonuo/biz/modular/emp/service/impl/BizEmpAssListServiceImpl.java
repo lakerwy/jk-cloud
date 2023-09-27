@@ -37,7 +37,9 @@ import vip.xiaonuo.biz.modular.emp.mapper.BizEmpAssListMapper;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpAssListService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -84,7 +86,7 @@ public class BizEmpAssListServiceImpl extends ServiceImpl<BizEmpAssListMapper, B
         //关键字
         if(ObjectUtil.isNotEmpty(bizEmpAssListPageParam.getSearchKey())){
             queryWrapper.and(q->q.lambda().like(BizEmpAssList::getUserName,bizEmpAssListPageParam.getSearchKey())
-                    .like(BizEmpAssList::getOrgName,bizEmpAssListPageParam.getSearchKey()));
+                    .or().like(BizEmpAssList::getOrgName,bizEmpAssListPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(bizEmpAssListPageParam.getSortField(), bizEmpAssListPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizEmpAssListPageParam.getSortOrder());
@@ -108,8 +110,12 @@ public class BizEmpAssListServiceImpl extends ServiceImpl<BizEmpAssListMapper, B
         List<BizEmpAssList> oldEmpAssLists = this.list(new QueryWrapper<BizEmpAssList>().lambda()
                 .eq(BizEmpAssList::getYear,empAssListBatchParam.getYear())
                 .eq(BizEmpAssList::getSeason,empAssListBatchParam.getSeason()));
-        List<String> oldUserIds = oldEmpAssLists.stream().map(x->x.getUserId()).distinct().collect(Collectors.toList());
-        List<BizEmpAssList> addList = empAssLists.stream().filter(x-> !oldUserIds.contains(x.getUserId())).collect(Collectors.toList());
+        //判断需要添加的人
+        List<BizEmpAssList> addList = new ArrayList<>();
+        for (BizEmpAssList item:empAssLists) {
+            Optional<BizEmpAssList> first = oldEmpAssLists.stream().filter(x -> x.getOrgId().equals(item.getOrgId()) && x.getUserId().equals(item.getUserId())).findFirst();
+            if(!first.isPresent()) addList.add(item);
+        }
         //添加新增的考核人员
         this.saveBatch(addList);
     }
@@ -133,17 +139,20 @@ public class BizEmpAssListServiceImpl extends ServiceImpl<BizEmpAssListMapper, B
             bizEmpTaskFlwService.remove(new QueryWrapper<BizEmpTaskFlw>().lambda()
                     .eq(BizEmpTaskFlw::getYear,obj.getYear())
                     .eq(BizEmpTaskFlw::getSeason,obj.getSeason())
-                    .eq(BizEmpTaskFlw::getUserId,obj.getUserId()));
+                    .eq(BizEmpTaskFlw::getUserId,obj.getUserId())
+                    .eq(BizEmpTaskFlw::getOrgId,obj.getOrgId()));
 
             bizEmpTaskService.remove(new QueryWrapper<BizEmpTask>().lambda()
                     .eq(BizEmpTask::getYear,obj.getYear())
                     .eq(BizEmpTask::getSeason,obj.getSeason())
-                    .eq(BizEmpTask::getUserId,obj.getUserId()));
+                    .eq(BizEmpTask::getUserId,obj.getUserId())
+                    .eq(BizEmpTask::getOrgId,obj.getOrgId()));
 
             bizEmpPerformanceService.remove(new QueryWrapper<BizEmpPerformance>().lambda()
                     .eq(BizEmpPerformance::getYear,obj.getYear())
                     .eq(BizEmpPerformance::getSeason,obj.getSeason())
-                    .eq(BizEmpPerformance::getUserId,obj.getUserId()));
+                    .eq(BizEmpPerformance::getUserId,obj.getUserId())
+                    .eq(BizEmpPerformance::getOrgId,obj.getOrgId()));
 
             this.removeById(obj);
         }
