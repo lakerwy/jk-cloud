@@ -113,8 +113,8 @@ public class SysApiProvider implements SysApi {
         // ==============给租户初始化模块=================
         Map<String, String> moduleIdRelation = MapUtil.newHashMap();
         List<SysModule> sysModuleList = sysModuleService.list(new LambdaQueryWrapper<SysModule>().eq(SysModule::getCategory,
-                SysResourceCategoryEnum.MODULE.getValue()).in(SysModule::getCode, SysBuildInEnum.BUILD_IN_MODULE_CODE.getValue(),
-                SysBuildInEnum.BUILD_IN_MODULE_CODE_BIZ.getValue()))
+                        SysResourceCategoryEnum.MODULE.getValue()).in(SysModule::getCode, SysBuildInEnum.BUILD_IN_MODULE_CODE.getValue(),
+                        SysBuildInEnum.BUILD_IN_MODULE_CODE_BIZ.getValue()))
                 .stream().peek(sysModule -> {
                     String oldId = sysModule.getId();
                     String newId = IdWorker.getIdStr();
@@ -126,7 +126,7 @@ public class SysApiProvider implements SysApi {
 
         // ==============给租户初始化单页=================
         List<SysSpa> sysSpaList = sysSpaService.list(new LambdaQueryWrapper<SysSpa>().eq(SysSpa::getCategory,
-                SysResourceCategoryEnum.SPA.getValue()).eq(SysSpa::getCode,  SysBuildInEnum.BUILD_IN_SPA_CODE.getValue()))
+                        SysResourceCategoryEnum.SPA.getValue()).eq(SysSpa::getCode,  SysBuildInEnum.BUILD_IN_SPA_CODE.getValue()))
                 .stream().peek(sysSpa -> {
                     sysSpa.setId(null);
                     sysSpa.setTenantId(tenId);
@@ -135,16 +135,16 @@ public class SysApiProvider implements SysApi {
 
         // ==============给租户初始化模块菜单与按钮=================
         List<SysMenu> sysMenuAndButtonList = sysMenuService.list(new LambdaQueryWrapper<SysMenu>().in(SysMenu::getCategory,
-                SysResourceCategoryEnum.MENU.getValue(), SysResourceCategoryEnum.BUTTON.getValue())
+                        SysResourceCategoryEnum.MENU.getValue(), SysResourceCategoryEnum.BUTTON.getValue())
                 .ne(SysMenu::getCode, SysBuildInEnum.BUILD_IN_NO_TEN_MENU_CODE.getValue())).stream().peek(sysMenu -> {
-                    if(sysMenu.getCategory().equals(SysResourceCategoryEnum.MENU.getValue())) {
-                        sysMenu.setModule(moduleIdRelation.get(sysMenu.getModule()));
-                    }
+            if(sysMenu.getCategory().equals(SysResourceCategoryEnum.MENU.getValue())) {
+                sysMenu.setModule(moduleIdRelation.get(sysMenu.getModule()));
+            }
         }).collect(Collectors.toList());
 
         List<TreeNode<String>> treeNodeList = sysMenuAndButtonList.stream().map(sysMenu ->
-                new TreeNode<>(sysMenu.getId(), sysMenu.getParentId(), sysMenu.getTitle(), sysMenu.getSortCode())
-                        .setExtra(JSONUtil.parseObj(sysMenu).set("originName", sysMenu.getName())))
+                        new TreeNode<>(sysMenu.getId(), sysMenu.getParentId(), sysMenu.getTitle(), sysMenu.getSortCode())
+                                .setExtra(JSONUtil.parseObj(sysMenu).set("originName", sysMenu.getName())))
                 .collect(Collectors.toList());
         List<Tree<String>> treeList = TreeUtil.build(treeNodeList, "0");
         // 批量保存菜单与按钮

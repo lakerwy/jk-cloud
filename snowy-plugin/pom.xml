@@ -53,6 +53,9 @@
 
         <!-- 报表设计插件 -->
         <module>snowy-plugin-urp</module>
+
+        <!--云盘插件-->
+        <module>snowy-plugin-pan</module>
     </modules>
 
 </project>

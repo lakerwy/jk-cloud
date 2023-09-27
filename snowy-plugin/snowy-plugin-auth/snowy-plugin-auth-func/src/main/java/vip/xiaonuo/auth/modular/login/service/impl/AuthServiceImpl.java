@@ -46,7 +46,7 @@ import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.common.util.CommonEmailUtil;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
-
+import vip.xiaonuo.pan.api.DevFoldApi;
 import javax.annotation.Resource;
 import java.net.URLEncoder;
 import java.util.HashMap;
@@ -86,6 +86,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private DevFoldApi devFoldApi;
 
     @Override
     public AuthPicValidCodeResult getPicCaptcha(String type) {
@@ -337,6 +340,8 @@ public class AuthServiceImpl implements AuthService {
         // 缓存用户信息，此处使用TokenSession为了指定时间内无操作则自动下线
         StpUtil.getTokenSession().set("loginUser", saBaseLoginUser);
         commonCacheOperator.put(CacheConstant.USER_INFO+saBaseLoginUser.getId(),saBaseLoginUser.getAccount());
+        devFoldApi.createSelfFold();
+        devFoldApi.createGroupFold();
         // 返回token
         return StpUtil.getTokenInfo().tokenValue;
     }

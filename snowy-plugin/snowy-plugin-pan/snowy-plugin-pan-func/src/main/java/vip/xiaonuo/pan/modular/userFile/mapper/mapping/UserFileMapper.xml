@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper">
+
+    <select id="nodeList" resultType="vip.xiaonuo.pan.modular.userFile.entity.NodeFold">
+        SELECT u2.ID, u2.FILE_NAME,u1.LE as LEVEL,u2.PARENT_ID,u2.CREATE_TIME,u2.FILE_PATH
+        FROM(
+                SELECT
+                    @ids AS p_ids,
+                    (SELECT @ids := GROUP_CONCAT(ID) FROM PAN_USER_FILE WHERE DELETE_FLAG = 'NOT_DELETE'  AND  FIND_IN_SET(PARENT_ID, @ids)) AS c_ids,
+            @l := @l+1 AS LE
+        FROM PAN_USER_FILE, (SELECT @ids := ${id}, @l := 0 ) b
+            WHERE @ids IS NOT NULL
+            ) u1
+            JOIN PAN_USER_FILE u2
+        ON FIND_IN_SET(u2.ID, u1.p_ids) AND IS_DIR = 1
+    </select>
+
+    <select id="getTotalStorageSize" resultType="java.lang.Long" parameterType="java.lang.String">
+        SELECT SUM(b.FILE_SIZE) FROM PAN_USER_FILE a LEFT JOIN PAN_FILE b ON a.FILE_ID = b.ID  WHERE USER_ID = #{userId}
+    </select>
+
+    <select id="selectUserFileByLikeRightFilePath" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select * from PAN_USER_FILE
+        where (FILE_PATH = #{filePath} or FILE_PATH like concat(#{filePath},'/%'))
+          and USER_ID = #{userId} and DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
+    <update id="updateDelete" >
+        update  PAN_USER_FILE set DELETE_FLAG = "DELETED" ,DELETE_BATCH_NUM = #{deleteBatchNum},DELETE_TIME= CURRENT_TIME,
+                                  UPDATE_USER = #{userId},UPDATE_TIME= CURRENT_TIME where ID in
+        <foreach collection="userFileIds" item="item" open="(" close=")" separator="," >
+            #{item}
+        </foreach>
+
+    </update>
+
+    <select id="mySelectById" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select * from PAN_USER_FILE where ID = #{id}
+    </select>
+
+    <select id="mySelectList" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select * from PAN_USER_FILE  ${ew.customSqlSegment}
+    </select>
+
+    <update id="myUpdateById" parameterType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        update PAN_USER_FILE
+        <set>
+            <if test="parentId != null">
+                PARENT_ID = #{parentId},
+            </if>
+            <if test="fileName != null">
+                FILE_NAME = #{fileName},
+            </if>
+            <if test="filePath != null">
+                FILE_PATH = #{filePath},
+            </if>
+            <if test="isDir != null">
+                IS_DIR = #{isDir},
+            </if>
+            <if test="fileId != null">
+                FILE_ID = #{fileId},
+            </if>
+            <if test="rootDir != null">
+                ROOT_DIR = #{rootDir},
+            </if>
+            <if test="orgId != null">
+                ORG_ID = #{orgId},
+            </if>
+            <if test="right != null">
+                `RIGHT` = #{right},
+            </if>
+            <if test="deleteFlag != null">
+                DELETE_FLAG = #{deleteFlag},
+            </if>
+            <if test="lockFlag != null">
+                LOCK_FLAG = #{lockFlag},
+            </if>
+            <if test="foldType != null">
+                FOLD_TYPE = #{foldType},
+            </if>
+            <if test="extendName != null">
+                EXTEND_NAME = #{extendName},
+            </if>
+            <if test="userId != null">
+                USER_ID = #{userId},
+            </if>
+            <if test="fileSize != null">
+                FILE_SIZE = #{fileSize},
+            </if>
+            <if test="deleteBatchNum != null">
+                DELETE_BATCH_NUM = #{deleteBatchNum},
+            </if>
+            <if test="deleteTime != null">
+                DELETE_TIME = #{deleteTime},
+            </if>
+            UPDATE_TIME = now()
+        </set>
+       where ID = #{id}
+
+    </update>
+
+</mapper>

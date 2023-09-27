@@ -116,4 +116,38 @@ public class CommonCacheOperator {
             }
         });
     }
+
+    /**
+     * 根据前缀删除
+     * @param key
+     */
+    public void delete(String key){
+        Set<String> keys = redisTemplate.keys(key + "*");
+        assert keys != null;
+        redisTemplate.delete(keys);
+    }
+
+    /**
+     * 设置hash 类型的缓存
+     * @param key
+     * @param hashKey
+     * @param value
+     */
+    public void putHash(String key, String hashKey, String value){
+        redisTemplate.opsForHash().put(key,hashKey,value);
+    }
+
+    /**
+     * hash 判断是否存在该值
+     * @param key
+     * @param hashKey
+     * @return
+     */
+    public Boolean hasHashKey(String key, String hashKey){
+        return redisTemplate.opsForHash().hasKey(key, hashKey);
+    }
+
+    public Boolean hasKey(String key){
+        return  redisTemplate.hasKey(key);
+    }
 }
