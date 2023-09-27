@@ -218,7 +218,7 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
     public BizEmpAssTotalVo total(EmpAssTotalParam empAssTotalParam) {
         // 数据权限 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-        if(loginUserDataScope.size() != 1) return null;
+        if(loginUserDataScope.size() < 1) return null;
 
         //权限组织
         List<String> dataScopeOrgIds = new ArrayList<>();
@@ -246,32 +246,22 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
                 .eq(BizEmpPerformance::getSeason,season)
                 .in(BizEmpPerformance::getOrgId,dataScopeOrgIds)
                 .in(BizEmpPerformance::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue()));
-        //获取组织翻译
-        List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
         //统计 各年 各季度 各等级
-        for (String assOrgId:dataScopeOrgIds) {
-            List<BizEmpPerformance> tmpPerformanceList = assEmpPerformanceList.stream()
-                    .filter(x->x.getOrgId().equals(assOrgId)).collect(Collectors.toList());
-
-            List<String> assLevels = tmpPerformanceList.stream()
-                    .filter(x->ObjectUtil.isNotEmpty(x.getEmpSeasonLevel()))
-                    .map(x->x.getEmpSeasonLevel()).distinct().collect(Collectors.toList());
-            //该部门参加考核人数
-            Integer empAssNums = assListList.stream().filter(x->x.getOrgId().equals(assOrgId)).collect(Collectors.toList()).size();
-            Optional<BizSysOrgVo> orgInfo = orgList.stream().filter(x -> x.getOrgId().equals(assOrgId)).findFirst();
-            bizEmpAssTotalVo.setOrgId(assOrgId);
-            bizEmpAssTotalVo.setOrgName(orgInfo.isPresent()?orgInfo.get().getOrgName():"");
-            bizEmpAssTotalVo.setEmpAssNums(empAssNums);
-            //循环
-            List<BizEmpAssVo> empAssVoList = new ArrayList<>();
-            for (String level : assLevels){
-                BizEmpAssVo empAssVo = new BizEmpAssVo();
-                empAssVo.setEmpSeasonLevel(level);
-                empAssVo.setEmpSeasonLevelNums(tmpPerformanceList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getEmpSeasonLevel()) && x.getEmpSeasonLevel().equals(level)).collect(Collectors.toList()).size());
-                empAssVoList.add(empAssVo);
-            }
-            bizEmpAssTotalVo.setEmpAssVoList(empAssVoList);
+        List<String> assLevels = assEmpPerformanceList.stream()
+                .filter(x->ObjectUtil.isNotEmpty(x.getEmpSeasonLevel()))
+                .map(x->x.getEmpSeasonLevel()).distinct().collect(Collectors.toList());
+        //该部门参加考核人数
+        Integer empAssNums = assListList.size();
+        bizEmpAssTotalVo.setEmpAssNums(empAssNums);
+        //循环
+        List<BizEmpAssVo> empAssVoList = new ArrayList<>();
+        for (String level : assLevels){
+            BizEmpAssVo empAssVo = new BizEmpAssVo();
+            empAssVo.setEmpSeasonLevel(level);
+            empAssVo.setEmpSeasonLevelNums(assEmpPerformanceList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getEmpSeasonLevel()) && x.getEmpSeasonLevel().equals(level)).collect(Collectors.toList()).size());
+            empAssVoList.add(empAssVo);
         }
+        bizEmpAssTotalVo.setEmpAssVoList(empAssVoList);
         return bizEmpAssTotalVo;
     }
 }
