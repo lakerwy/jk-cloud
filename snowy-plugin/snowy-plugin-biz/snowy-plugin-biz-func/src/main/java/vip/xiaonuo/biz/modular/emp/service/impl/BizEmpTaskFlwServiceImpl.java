@@ -249,7 +249,6 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         //获取组织翻译
         List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
         //统计 各年 各季度 各等级
-        List<BizEmpAssVo> empAssVoList = new ArrayList<>();
         for (String assOrgId:dataScopeOrgIds) {
             List<BizEmpPerformance> tmpPerformanceList = assEmpPerformanceList.stream()
                     .filter(x->x.getOrgId().equals(assOrgId)).collect(Collectors.toList());
@@ -260,18 +259,19 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
             //该部门参加考核人数
             Integer empAssNums = assListList.stream().filter(x->x.getOrgId().equals(assOrgId)).collect(Collectors.toList()).size();
             Optional<BizSysOrgVo> orgInfo = orgList.stream().filter(x -> x.getOrgId().equals(assOrgId)).findFirst();
+            bizEmpAssTotalVo.setOrgId(assOrgId);
+            bizEmpAssTotalVo.setOrgName(orgInfo.isPresent()?orgInfo.get().getOrgName():"");
+            bizEmpAssTotalVo.setEmpAssNums(empAssNums);
             //循环
+            List<BizEmpAssVo> empAssVoList = new ArrayList<>();
             for (String level : assLevels){
                 BizEmpAssVo empAssVo = new BizEmpAssVo();
-                empAssVo.setOrgId(assOrgId);
-                empAssVo.setOrgName(orgInfo.isPresent()?orgInfo.get().getOrgName():"");
-                empAssVo.setEmpAssNums(empAssNums);
                 empAssVo.setEmpSeasonLevel(level);
                 empAssVo.setEmpSeasonLevelNums(tmpPerformanceList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getEmpSeasonLevel()) && x.getEmpSeasonLevel().equals(level)).collect(Collectors.toList()).size());
                 empAssVoList.add(empAssVo);
             }
+            bizEmpAssTotalVo.setEmpAssVoList(empAssVoList);
         }
-        bizEmpAssTotalVo.setEmpAssVoList(empAssVoList);
         return bizEmpAssTotalVo;
     }
 }
