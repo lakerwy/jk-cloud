@@ -41,7 +41,7 @@ import javax.validation.constraints.NotEmpty;
  * @author yong.ye
  * @date  2023/09/28 11:36
  */
-@Api(tags = "业务表-项目计划付款单控制器")
+@Api(tags = "业务表-项目款结算单控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
@@ -51,13 +51,13 @@ public class BizPrjSettleController {
     private BizPrjSettleService bizPrjSettleService;
 
     /**
-     * 获取业务表-项目计划付款单分页
+     * 获取业务表-项目款结算单分页
      *
      * @author yong.ye
      * @date  2023/09/28 11:36
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-项目计划付款单分页")
+    @ApiOperation("获取业务表-项目款结算单分页")
 //    @SaCheckPermission("/biz/prj/settle/page")
     @GetMapping("/biz/prj/settle/page")
     public CommonResult<Page<BizPrjSettleVo>> page(BizPrjSettlePageParam bizPrjSettlePageParam) {
@@ -65,14 +65,14 @@ public class BizPrjSettleController {
     }
 
     /**
-     * 添加业务表-项目计划付款单
+     * 添加业务表-项目款结算单
      *
      * @author yong.ye
      * @date  2023/09/28 11:36
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-项目计划付款单")
-    @CommonLog("添加业务表-项目计划付款单")
+    @ApiOperation("添加业务表-项目款结算单")
+    @CommonLog("添加业务表-项目款结算单")
 //    @SaCheckPermission("/biz/prj/settle/add")
     @PostMapping("/biz/prj/settle/add")
     public CommonResult<String> add(@RequestBody @Valid PrjSettleParam prjSettleParam) {
@@ -81,14 +81,14 @@ public class BizPrjSettleController {
     }
 
     /**
-     * 编辑业务表-项目计划付款单
+     * 编辑业务表-项目款结算单
      *
      * @author yong.ye
      * @date  2023/09/28 11:36
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-项目计划付款单")
-    @CommonLog("编辑业务表-项目计划付款单")
+    @ApiOperation("编辑业务表-项目款结算单")
+    @CommonLog("编辑业务表-项目款结算单")
 //    @SaCheckPermission("/biz/prj/settle/edit")
     @PostMapping("/biz/prj/settle/edit")
     public CommonResult<String> edit(@RequestBody @Valid PrjSettleParam prjSettleParam) {
@@ -97,14 +97,14 @@ public class BizPrjSettleController {
     }
 
     /**
-     * 删除业务表-项目计划付款单
+     * 删除业务表-项目款结算单
      *
      * @author yong.ye
      * @date  2023/09/28 11:36
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-项目计划付款单")
-    @CommonLog("删除业务表-项目计划付款单")
+    @ApiOperation("删除业务表-项目款结算单")
+    @CommonLog("删除业务表-项目款结算单")
 //    @SaCheckPermission("/biz/prj/settle/delete")
     @PostMapping("/biz/prj/settle/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -114,13 +114,13 @@ public class BizPrjSettleController {
     }
 
     /**
-     * 获取业务表-项目计划付款单详情
+     * 获取业务表-项目款结算单
      *
      * @author yong.ye
      * @date  2023/09/28 11:36
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-项目计划付款单详情")
+    @ApiOperation("获取业务表-项目款结算单详情")
 //    @SaCheckPermission("/biz/prj/settle/detail")
     @GetMapping("/biz/prj/settle/detail")
     public CommonResult<BizPrjSettle> detail(@Valid BizPrjSettleIdParam bizPrjSettleIdParam) {

@@ -38,12 +38,12 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 
 /**
- * 业务表-项目计划付款单控制器
+ * 业务表-项目拨付款申请单控制器
  *
  * @author yong.ye
  * @date  2023/09/28 11:30
  */
-@Api(tags = "业务表-项目计划付款单控制器")
+@Api(tags = "业务表-项目拨付款申请单控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
@@ -53,13 +53,13 @@ public class BizPrjAllotmentController {
     private BizPrjAllotmentService bizPrjAllotmentService;
 
     /**
-     * 获取业务表-项目计划付款单分页
+     * 获取业务表-项目拨付款申请单分页
      *
      * @author yong.ye
      * @date  2023/09/28 11:30
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取业务表-项目计划付款单分页")
+    @ApiOperation("获取业务表-项目拨付款申请单分页")
 //    @SaCheckPermission("/biz/prj/allotment/page")
     @GetMapping("/biz/prj/allotment/page")
     public CommonResult<Page<BizPrjAllotment>> page(BizPrjAllotmentPageParam bizPrjAllotmentPageParam) {
@@ -67,14 +67,14 @@ public class BizPrjAllotmentController {
     }
 
     /**
-     * 添加业务表-项目计划付款单
+     * 添加业务表-项目拨付款申请单
      *
      * @author yong.ye
      * @date  2023/09/28 11:30
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-项目计划付款单")
-    @CommonLog("添加业务表-项目计划付款单")
+    @ApiOperation("添加业务表-项目拨付款申请单")
+    @CommonLog("添加业务表-项目拨付款申请单")
 //    @SaCheckPermission("/biz/prj/allotment/add")
     @PostMapping("/biz/prj/allotment/add")
     public CommonResult<String> add(@RequestBody @Valid BizPrjAllotmentAddParam bizPrjAllotmentAddParam) {
@@ -83,14 +83,14 @@ public class BizPrjAllotmentController {
     }
 
     /**
-     * 编辑业务表-项目计划付款单
+     * 编辑业务表-项目拨付款申请单
      *
      * @author yong.ye
      * @date  2023/09/28 11:30
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-项目计划付款单")
-    @CommonLog("编辑业务表-项目计划付款单")
+    @ApiOperation("编辑业务表-项目拨付款申请单")
+    @CommonLog("编辑业务表-项目拨付款申请单")
 //    @SaCheckPermission("/biz/prj/allotment/edit")
     @PostMapping("/biz/prj/allotment/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizPrjAllotmentEditParam bizPrjAllotmentEditParam) {
@@ -99,14 +99,14 @@ public class BizPrjAllotmentController {
     }
 
     /**
-     * 删除业务表-项目计划付款单
+     * 删除业务表-项目拨付款申请单
      *
      * @author yong.ye
      * @date  2023/09/28 11:30
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除业务表-项目计划付款单")
-    @CommonLog("删除业务表-项目计划付款单")
+    @ApiOperation("删除业务表-项目拨付款申请单")
+    @CommonLog("删除业务表-项目拨付款申请单")
 //    @SaCheckPermission("/biz/prj/allotment/delete")
     @PostMapping("/biz/prj/allotment/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -116,13 +116,13 @@ public class BizPrjAllotmentController {
     }
 
     /**
-     * 获取业务表-项目计划付款单详情
+     * 获取业务表-项目拨付款申请单详情
      *
      * @author yong.ye
      * @date  2023/09/28 11:30
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取业务表-项目计划付款单详情")
+    @ApiOperation("获取业务表-项目拨付款申请单详情")
 //    @SaCheckPermission("/biz/prj/allotment/detail")
     @GetMapping("/biz/prj/allotment/detail")
     public CommonResult<BizPrjAllotment> detail(@Valid BizPrjAllotmentIdParam bizPrjAllotmentIdParam) {
