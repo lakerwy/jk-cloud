@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.prj.settle.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettle;
+import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
 
 /**
  * 业务表-项目计划付款单Mapper接口
@@ -22,4 +27,6 @@ import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettle;
  * @date  2023/09/28 11:36
  **/
 public interface BizPrjSettleMapper extends BaseMapper<BizPrjSettle> {
+
+    Page<BizPrjSettleVo> getPageList(Page<BizPrjSettleVo> page, @Param(Constants.WRAPPER) Wrapper<BizPrjSettle> queryWrapper);
 }

@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.prj.allotment.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -22,6 +23,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -117,6 +119,8 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
         }else{
             bizPrjAllotment.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
+        bizPrjAllotment.setApplyDate(DateTime.now());
+        bizPrjAllotment.setExtJson(JsonUtils.object2json(bizPrjAllotmentAddParam));
         this.save(bizPrjAllotment);
     }
 
@@ -136,6 +140,7 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
         }
         BizPrjAllotment bizPrjAllotment = this.queryEntity(bizPrjAllotmentEditParam.getId());
         BeanUtil.copyProperties(bizPrjAllotmentEditParam, bizPrjAllotment);
+        bizPrjAllotment.setExtJson(JsonUtils.object2json(bizPrjAllotmentEditParam));
         this.updateById(bizPrjAllotment);
     }
 

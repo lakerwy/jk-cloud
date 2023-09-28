@@ -46,10 +46,10 @@ public class BizPrjPlanEditParam {
     private String hzfName;
 
     /** 申请日期 */
-    @ApiModelProperty(value = "申请日期", position = 4)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date applyDate;
+//    @ApiModelProperty(value = "申请日期", position = 4)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+//    private Date applyDate;
 
     /** 计划付款单编号 */
     @ApiModelProperty(value = "计划付款单编号", position = 5)

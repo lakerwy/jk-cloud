@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.prj.settle.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -23,11 +24,13 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettleInvoice;
 import vip.xiaonuo.biz.modular.prj.settle.param.*;
 import vip.xiaonuo.biz.modular.prj.settle.service.BizPrjSettleInvoiceService;
+import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -61,10 +64,12 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
     private CommonCacheOperator commonCacheOperator;
     @Resource
     private BizPrjSettleInvoiceService bizPrjSettleInvoiceService;
+    @Resource
+    private BizPrjSettleMapper bizPrjSettleMapper;
 
 
     @Override
-    public Page<BizPrjSettle> page(BizPrjSettlePageParam bizPrjSettlePageParam) {
+    public Page<BizPrjSettleVo> page(BizPrjSettlePageParam bizPrjSettlePageParam) {
         QueryWrapper<BizPrjSettle> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(bizPrjSettlePageParam.getHzfCode())) {
             queryWrapper.lambda().like(BizPrjSettle::getHzfCode, bizPrjSettlePageParam.getHzfCode());
@@ -76,7 +81,7 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
             queryWrapper.lambda().between(BizPrjSettle::getApplyDate, bizPrjSettlePageParam.getStartApplyDate(), bizPrjSettlePageParam.getEndApplyDate());
         }
         if(ObjectUtil.isNotEmpty(bizPrjSettlePageParam.getSettleNo())) {
-            queryWrapper.lambda().eq(BizPrjSettle::getSettleNo, bizPrjSettlePageParam.getSettleNo());
+            queryWrapper.lambda().like(BizPrjSettle::getSettleNo, bizPrjSettlePageParam.getSettleNo());
         }
         if(ObjectUtil.isNotEmpty(bizPrjSettlePageParam.getXyContractNo())) {
             queryWrapper.lambda().eq(BizPrjSettle::getXyContractNo, bizPrjSettlePageParam.getXyContractNo());
@@ -103,7 +108,11 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
         } else {
             queryWrapper.lambda().orderByAsc(BizPrjSettle::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizPrjSettleVo> result = bizPrjSettleMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        for (BizPrjSettleVo vo:result.getRecords()) {
+            vo.setSettleInvoiceList(bizPrjSettleInvoiceService.list(new QueryWrapper<BizPrjSettleInvoice>().lambda().eq(BizPrjSettleInvoice::getSettleId,vo.getId())));
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -127,6 +136,8 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
         }else{
             bizPrjSettle.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
+        bizPrjSettle.setApplyDate(DateTime.now());
+        bizPrjSettle.setExtJson(JsonUtils.object2json(prjSettleParam));
         this.save(bizPrjSettle);
         //处理发票
         if(CollUtil.isNotEmpty(prjSettleParam.getSettleInvoiceList())){
@@ -154,6 +165,7 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
         }
         BizPrjSettle bizPrjSettle = this.queryEntity(prjSettleParam.getId());
         BeanUtil.copyProperties(prjSettleParam, bizPrjSettle);
+        bizPrjSettle.setExtJson(JsonUtils.object2json(prjSettleParam));
         this.updateById(bizPrjSettle);
         //处理发票
         if(CollUtil.isNotEmpty(prjSettleParam.getSettleInvoiceList())){

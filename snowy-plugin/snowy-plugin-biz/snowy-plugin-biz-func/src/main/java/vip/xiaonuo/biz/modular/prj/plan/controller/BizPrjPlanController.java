@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlan;
 import vip.xiaonuo.biz.modular.prj.plan.param.*;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanService;
+import vip.xiaonuo.biz.modular.prj.plan.vo.BizPrjPlanVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -59,7 +60,7 @@ public class BizPrjPlanController {
     @ApiOperation("获取业务表-项目计划付款单分页")
 //    @SaCheckPermission("/biz/prj/plan/page")
     @GetMapping("/biz/prj/plan/page")
-    public CommonResult<Page<BizPrjPlan>> page(BizPrjPlanPageParam bizPrjPlanPageParam) {
+    public CommonResult<Page<BizPrjPlanVo>> page(BizPrjPlanPageParam bizPrjPlanPageParam) {
         return CommonResult.data(bizPrjPlanService.page(bizPrjPlanPageParam));
     }
 

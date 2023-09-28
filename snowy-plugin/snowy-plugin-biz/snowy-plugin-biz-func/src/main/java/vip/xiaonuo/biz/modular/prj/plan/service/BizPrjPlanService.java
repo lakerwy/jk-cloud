@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlan;
 import vip.xiaonuo.biz.modular.prj.plan.param.*;
+import vip.xiaonuo.biz.modular.prj.plan.vo.BizPrjPlanVo;
 
 import java.util.List;
 
@@ -33,7 +34,7 @@ public interface BizPrjPlanService extends IService<BizPrjPlan> {
      * @author yong.ye
      * @date  2023/09/28 11:25
      */
-    Page<BizPrjPlan> page(BizPrjPlanPageParam bizPrjPlanPageParam);
+    Page<BizPrjPlanVo> page(BizPrjPlanPageParam bizPrjPlanPageParam);
 
     /**
      * 添加业务表-项目计划付款单

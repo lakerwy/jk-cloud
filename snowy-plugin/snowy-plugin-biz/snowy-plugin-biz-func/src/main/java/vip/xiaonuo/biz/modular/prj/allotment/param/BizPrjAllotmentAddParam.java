@@ -42,10 +42,10 @@ public class BizPrjAllotmentAddParam {
     private String hzfName;
 
     /** 申请日期 */
-    @ApiModelProperty(value = "申请日期", position = 4)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date applyDate;
+//    @ApiModelProperty(value = "申请日期", position = 4)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    private Date applyDate;
 
     /** 拨付款申请单编号 */
     @ApiModelProperty(value = "拨付款申请单编号", position = 5)

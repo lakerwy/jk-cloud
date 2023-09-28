@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.settle.param.*;
+import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -59,7 +60,7 @@ public class BizPrjSettleController {
     @ApiOperation("获取业务表-项目计划付款单分页")
 //    @SaCheckPermission("/biz/prj/settle/page")
     @GetMapping("/biz/prj/settle/page")
-    public CommonResult<Page<BizPrjSettle>> page(BizPrjSettlePageParam bizPrjSettlePageParam) {
+    public CommonResult<Page<BizPrjSettleVo>> page(BizPrjSettlePageParam bizPrjSettlePageParam) {
         return CommonResult.data(bizPrjSettleService.page(bizPrjSettlePageParam));
     }
 

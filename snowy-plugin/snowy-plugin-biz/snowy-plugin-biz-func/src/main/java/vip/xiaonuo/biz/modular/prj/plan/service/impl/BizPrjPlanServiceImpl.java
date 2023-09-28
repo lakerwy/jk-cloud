@@ -15,6 +15,8 @@ package vip.xiaonuo.biz.modular.prj.plan.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -23,6 +25,7 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlan;
@@ -33,6 +36,7 @@ import vip.xiaonuo.biz.modular.prj.plan.param.*;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanCollectionService;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanInvoiceService;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanService;
+import vip.xiaonuo.biz.modular.prj.plan.vo.BizPrjPlanVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -68,8 +72,11 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
     @Resource
     private BizPrjPlanCollectionService bizPrjPlanCollectionService;
 
+    @Resource
+    private BizPrjPlanMapper bizPrjPlanMapper;
+
     @Override
-    public Page<BizPrjPlan> page(BizPrjPlanPageParam bizPrjPlanPageParam) {
+    public Page<BizPrjPlanVo> page(BizPrjPlanPageParam bizPrjPlanPageParam) {
         QueryWrapper<BizPrjPlan> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getHzfCode())) {
             queryWrapper.lambda().like(BizPrjPlan::getHzfCode, bizPrjPlanPageParam.getHzfCode());
@@ -81,7 +88,7 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
             queryWrapper.lambda().between(BizPrjPlan::getApplyDate, bizPrjPlanPageParam.getStartApplyDate(), bizPrjPlanPageParam.getEndApplyDate());
         }
         if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getPlanNo())) {
-            queryWrapper.lambda().eq(BizPrjPlan::getPlanNo, bizPrjPlanPageParam.getPlanNo());
+            queryWrapper.lambda().like(BizPrjPlan::getPlanNo, bizPrjPlanPageParam.getPlanNo());
         }
         if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getContractNo())) {
             queryWrapper.lambda().eq(BizPrjPlan::getContractNo, bizPrjPlanPageParam.getContractNo());
@@ -117,7 +124,12 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         } else {
             queryWrapper.lambda().orderByAsc(BizPrjPlan::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizPrjPlanVo> result = bizPrjPlanMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        for (BizPrjPlanVo vo:result.getRecords()) {
+            vo.setPlanInvoiceList(bizPrjPlanInvoiceService.list(new QueryWrapper<BizPrjPlanInvoice>().lambda().eq(BizPrjPlanInvoice::getPlanId,vo.getId())));
+            vo.setPlanCollectionList(bizPrjPlanCollectionService.list(new QueryWrapper<BizPrjPlanCollection>().lambda().eq(BizPrjPlanCollection::getPlanId,vo.getId())));
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -141,6 +153,8 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         }else{
             bizPrjPlan.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
+        bizPrjPlan.setExtJson(JsonUtils.object2json(prjPlanParam));
+        bizPrjPlan.setApplyDate(DateTime.now());
         this.save(bizPrjPlan);
         //处理发票
         if(CollUtil.isNotEmpty(prjPlanParam.getPlanInvoiceList())){
@@ -176,6 +190,7 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         }
         BizPrjPlan bizPrjPlan = this.queryEntity(prjPlanParam.getId());
         BeanUtil.copyProperties(prjPlanParam, bizPrjPlan);
+        bizPrjPlan.setExtJson(JsonUtils.object2json(prjPlanParam));
         this.updateById(bizPrjPlan);
         //处理发票
         if(CollUtil.isNotEmpty(prjPlanParam.getPlanInvoiceList())){
