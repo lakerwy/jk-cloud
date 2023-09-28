@@ -17,6 +17,9 @@ public enum BizCommonEnum {
     BIZ_EMP_TASK("BIZ_EMP_TASK","BIZ_EMP_TASK","BizEmpTaskServiceImpl"), //员工绩效-季度计划-计划表（1-n）
     BIZ_EMP_PERFORMANCE("BIZ_EMP_PERFORMANCE","BIZ_EMP_PERFORMANCE","BizEmpPerformanceServiceImpl"), //员工绩效-季度考核分（1-1）
 
+    BIZ_PRJ_PLAN("BIZ_PRJ_PLAN","BIZ_PRJ_PLAN","BizPrjPlanServiceImpl"),  //项目计划付款单
+    BIZ_PRJ_SETTLE("BIZ_PRJ_SETTLE","BIZ_PRJ_SETTLE","BizPrjSettleServiceImpl"),  //项目款结算单
+    BIZ_PRJ_ALLOTMENT("BIZ_PRJ_ALLOTMENT","BIZ_PRJ_ALLOTMENT","BizPrjAllotmentServiceImpl"),  //项目拨付款申请单
     HR_APPLY_ATTENDANCE("HR_USER_APPLY_ATTENDANCE","HR_USER_APPLY_ATTENDANCE","HrUserApplyAttendanceServiceImpl");
 
 

@@ -33,8 +33,8 @@ import java.util.Date;
 public class HetongEditParam {
 
     /** 主键ID（历史表Hetong.Id） */
-    @ApiModelProperty(value = "主键ID（历史表Hetong.Id）", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
+    @ApiModelProperty(value = "主键ID（历史表Hetong.Id）", position = 1)
+//    @NotBlank(message = "id不能为空")
     private String id;
 
     /** 登记人（历史表Hetong.Opt） */
