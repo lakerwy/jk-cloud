@@ -129,7 +129,7 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
     /**
      * 打卡记录同步考勤统计表
      * @author ljy
-     * @date  2023/09/07 14:24
+     * @date  2023/09/26 14:24
      */
     void attendanceStatJobHandle();
 }

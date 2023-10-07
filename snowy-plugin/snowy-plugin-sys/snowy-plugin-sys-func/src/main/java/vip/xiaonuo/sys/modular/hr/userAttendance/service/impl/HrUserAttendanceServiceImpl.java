@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
@@ -49,6 +50,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
 
 import javax.annotation.Resource;
 import java.sql.Time;
@@ -75,6 +77,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     private CommonCacheOperator commonCacheOperator;
     @Resource
     private HrUserApplyAttendanceService hrUserApplyAttendanceService;
+    @Resource
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -140,8 +144,12 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                 hrUserAttendance.setConfigOrderNumber(slot.getOrderNumber());
             }
         });
-
         this.save(hrUserAttendance);
+
+        /** 异步处理打卡同步考勤统计表 */
+        HrUserAttendanceStatEvent attendanceStatEvent = BeanUtil.toBean(hrUserAttendance, HrUserAttendanceStatEvent.class);
+        eventPublisher.publishEvent(attendanceStatEvent);
+
         return  HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
     }
     private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam,Date dateNow){
@@ -333,9 +341,16 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         this.save(hrUserAttendance);
     }
 
+    /**
+     * 打卡记录同步考勤统计表
+     * @author ljy
+     * @date  2023/09/26 14:24
+     */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void attendanceStatJobHandle(){
+
+
         //System.out.println("接口调用成功！");
     }
 }

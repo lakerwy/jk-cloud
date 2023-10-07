@@ -36,6 +36,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendance
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -141,16 +142,16 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         hrUserAttendanceConfigGroup.setLeadId(hrAttendanceConfigAndUserDataParam.getLeadId());
         this.updateById(hrUserAttendanceConfigGroup);
 
+        /*JSONObject dataObject = JSONUtil.parseObj(hrAttendanceConfigAndUserDataParam.getEmployJson());
+        List<HrUserAttendanceRelation> hrUserAttendanceRelations= JSONUtil.toList(JSONUtil.parseArray(dataObject.get("hrAttendanceConfigAndUserData")), HrUserAttendanceRelation.class);*/
+        //hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelations);
+
         List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList = hrAttendanceConfigAndUserDataParam.getHrAttendanceConfigAndUserData();
         if(ObjectUtil.isNotEmpty(hrAttendanceConfigAndUserDataList)){
-            List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrAttendanceConfigAndUserDataList.stream().map(relation -> {
-                //HrUserAttendanceRelation hrUserAttendanceRelation = BeanUtil.toBean(relation, HrUserAttendanceRelation.class);
-                //hrUserAttendanceRelation.setAttendanceTypeId(hrAttendanceConfigAndUserDataParam.getId());
-                return BeanUtil.toBean(relation, HrUserAttendanceRelation.class);
-            }).collect(Collectors.toList());
+            List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrAttendanceConfigAndUserDataList.stream().map(relation ->
+                    BeanUtil.toBean(relation, HrUserAttendanceRelation.class)).collect(Collectors.toList());
             hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelationList);
         }
         return HrUserAttendanceConfigGroupEnum.SUCCESS.getValue();
     }
-
 }
