@@ -20,6 +20,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -36,10 +37,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendance
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -142,16 +140,29 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         hrUserAttendanceConfigGroup.setLeadId(hrAttendanceConfigAndUserDataParam.getLeadId());
         this.updateById(hrUserAttendanceConfigGroup);
 
-        /*JSONObject dataObject = JSONUtil.parseObj(hrAttendanceConfigAndUserDataParam.getEmployJson());
-        List<HrUserAttendanceRelation> hrUserAttendanceRelations= JSONUtil.toList(JSONUtil.parseArray(dataObject.get("hrAttendanceConfigAndUserData")), HrUserAttendanceRelation.class);*/
-        //hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelations);
-
         List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList = hrAttendanceConfigAndUserDataParam.getHrAttendanceConfigAndUserData();
+
+        List<HrUserAttendanceRelation> hrUserAttendanceRelationList = new ArrayList<>();
+                hrAttendanceConfigAndUserDataList.stream().forEach(config -> {
+            List<String> employIdList = Arrays.asList(config.getEmployIds().split(","));
+            for(String employId : employIdList){
+                HrUserAttendanceRelation hrUserAttendanceRelation = new HrUserAttendanceRelation();
+                hrUserAttendanceRelation.setAttendanceTypeId(hrAttendanceConfigAndUserDataParam.getId());
+                hrUserAttendanceRelation.setBeginTime(hrAttendanceConfigAndUserDataParam.getBeginTime());
+                hrUserAttendanceRelation.setEndTime(hrAttendanceConfigAndUserDataParam.getEndTime());
+                hrUserAttendanceRelation.setEmployId(employId);
+                hrUserAttendanceRelation.setEmployType(config.getEmployType());
+                hrUserAttendanceRelation.setIsValid(ObjectUtil.isEmpty(config.getIsValid()) ? 0 : config.getIsValid());
+                hrUserAttendanceRelationList.add(hrUserAttendanceRelation);
+            }
+        });
+        hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelationList);
+        /*List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList = hrAttendanceConfigAndUserDataParam.getHrAttendanceConfigAndUserData();
         if(ObjectUtil.isNotEmpty(hrAttendanceConfigAndUserDataList)){
             List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrAttendanceConfigAndUserDataList.stream().map(relation ->
                     BeanUtil.toBean(relation, HrUserAttendanceRelation.class)).collect(Collectors.toList());
             hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelationList);
-        }
+        }*/
         return HrUserAttendanceConfigGroupEnum.SUCCESS.getValue();
     }
 }

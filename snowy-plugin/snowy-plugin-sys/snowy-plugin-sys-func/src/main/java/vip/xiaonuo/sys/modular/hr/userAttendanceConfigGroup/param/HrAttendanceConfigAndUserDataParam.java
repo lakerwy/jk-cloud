@@ -5,6 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -25,6 +26,14 @@ public class HrAttendanceConfigAndUserDataParam {
     /** 负责人ID */
     @ApiModelProperty(value = "负责人ID")
     private String leadId;
+
+    /** 班次生效开始时间  */
+    @ApiModelProperty(value = "班次生效开始时间")
+    private Date beginTime;
+
+    /** 班次生效结束时间  */
+    @ApiModelProperty(value = "班次生效结束时间")
+    private Date endTime;
 
     /** 考勤人或部门信息 */
     @ApiModelProperty(value = "考勤人或部门信息")
