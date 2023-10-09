@@ -334,6 +334,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         HrUserApplyAttendance hrUserApplyAttendance = hrUserApplyAttendanceService.getOne(new QueryWrapper<HrUserApplyAttendance>().lambda().eq(HrUserApplyAttendance::getProcessInstanceId,processInstanceId));
         HrUserAttendance hrUserAttendance = new HrUserAttendance();
         hrUserAttendance.setAbnormalFlag(1);
+        hrUserAttendance.setUserId(hrUserApplyAttendance.getApplyUserId());
         hrUserAttendance.setCheckType("OnDuty");
         hrUserAttendance.setCheckTime(new Date());
         hrUserAttendance.setIsResubmitAttendanceFlag(1);
