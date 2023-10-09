@@ -123,10 +123,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @EventListener
     @Async
     public void handleAttendanceEvent(HrUserAttendanceStatEvent hrUserAttendanceStatEvent){
-        if(HrUserAttendanceStatEnum.FAIL.getValue().equals(hrUserAttendanceStatEvent.getAbnormalFlag().toString())){
-            return;
-        }
-        String time = DateUtil.format(new Date(), DatePattern.NORM_DATE_PATTERN);
+        String time = DateUtil.format(hrUserAttendanceStatEvent.getCheckTime(), DatePattern.NORM_DATE_PATTERN);
         /**  查询 */
         QueryWrapper<HrUserAttendanceStat> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(HrUserAttendanceStat::getUserId, hrUserAttendanceStatEvent.getUserId()).
@@ -138,9 +135,11 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             return;
         }
 
-        if(ON_DUTY.equals(hrUserAttendanceStatEvent.getCheckType()) && hrUserAttendanceStatEvent.getCheckTime().before(hrUserAttendanceStat.getCheckTime())){
-            this.removeById(hrUserAttendanceStat.getId());
-            this.save(BeanUtil.toBean(hrUserAttendanceStatEvent, HrUserAttendanceStat.class));
+        if(ON_DUTY.equals(hrUserAttendanceStatEvent.getCheckType())){
+            if(hrUserAttendanceStatEvent.getCheckTime().before(hrUserAttendanceStat.getCheckTime())){
+                this.removeById(hrUserAttendanceStat.getId());
+                this.save(BeanUtil.toBean(hrUserAttendanceStatEvent, HrUserAttendanceStat.class));
+            }
             return;
         }
         if(hrUserAttendanceStatEvent.getCheckTime().after(hrUserAttendanceStat.getCheckTime())){

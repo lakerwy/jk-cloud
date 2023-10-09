@@ -50,7 +50,9 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 
 import javax.annotation.Resource;
 import java.sql.Time;
@@ -79,6 +81,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     private HrUserApplyAttendanceService hrUserApplyAttendanceService;
     @Resource
     private ApplicationEventPublisher eventPublisher;
+    @Resource
+    private HrUserAttendanceStatService hrUserAttendanceStatService;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -119,9 +123,11 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String attendance(HrUserAttendanceAddParam hrUserAttendanceAddParam){
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        hrUserAttendanceAddParam.setUserId(loginUser.getId());
-        Date dateNow =DateUtil.date();/** 当前打卡时间*/
+        if(StringUtils.isEmpty(hrUserAttendanceAddParam.getUserId())){
+            SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+            hrUserAttendanceAddParam.setUserId(loginUser.getId());
+        }
+        Date dateNow = DateUtil.date();/** 当前打卡时间*/
         if(ObjectUtil.isEmpty(hrUserAttendanceAddParam.getCheckTime())){
             hrUserAttendanceAddParam.setCheckTime(dateNow);
         }
@@ -129,16 +135,16 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         hrUserAttendance.setAbnormalFlag(-1);/** 初始化默认值*/
 
         /** 计算有效打卡时间区间*/
-        List<AttendanceTimeSlot> attendanceTimeSlotList =  getAttendanceTimeSlotList(new HrUserAttendanceConfigPageParam(),dateNow);//getAttendanceConfigValueByKey(dateNow);
+        List<AttendanceTimeSlot> attendanceTimeSlotList =  getAttendanceTimeSlotList(new HrUserAttendanceConfigPageParam(),hrUserAttendance.getCheckTime());//getAttendanceConfigValueByKey(dateNow);
 
         /** 上下班休息标识；OnDuty：上班；OffDuty：下班；休息 REST */
         attendanceTimeSlotList.stream().forEach(slot -> {
-            if(dateNow.after(slot.getBeginTime()) && dateNow.before(slot.getEndTime())){
+            if(hrUserAttendance.getCheckTime().after(slot.getBeginTime()) && hrUserAttendance.getCheckTime().before(slot.getEndTime())){
                 hrUserAttendance.setAbnormalFlag(1);/** 打卡正常*/
                 hrUserAttendance.setCheckType(slot.getDutyType());
                 hrUserAttendance.setConfigOrderNumber(slot.getOrderNumber());
             }
-            if(dateNow.after(slot.getWorkBeginTime()) && dateNow.before(slot.getWorkEndTime())){
+            if(hrUserAttendance.getCheckTime().after(slot.getWorkBeginTime()) && hrUserAttendance.getCheckTime().before(slot.getWorkEndTime())){
                 hrUserAttendance.setAbnormalFlag(2);/** 打卡异常*/
                 hrUserAttendance.setCheckType(slot.getDutyType());
                 hrUserAttendance.setConfigOrderNumber(slot.getOrderNumber());
@@ -149,11 +155,11 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         /** 异步处理打卡同步考勤统计表 */
         HrUserAttendanceStatEvent attendanceStatEvent = BeanUtil.toBean(hrUserAttendance, HrUserAttendanceStatEvent.class);
         eventPublisher.publishEvent(attendanceStatEvent);
-
         return  HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
     }
-    private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam,Date dateNow){
-        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);//一般用list查询
+
+    private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam,Date dateNow){ /** 修改逻辑：人员查配置  */
+        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);//改 list查询
         List<HrUserAttendanceConfig> configList = pageList.getRecords(); /**  该数据后续取缓存*/
 
         List<AttendanceTimeSlot>  attendanceTimeSlotList = new ArrayList<>();
@@ -254,14 +260,18 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             return new ArrayList<>();
         }
         /** 获取当月有效工作日时间列表 */
-        Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
-        List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
+        /*Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
+        List<HrUserAttendance> hrUserAttendanceList = page.getRecords();*/
+
+        LambdaQueryWrapper<HrUserAttendanceStat> lambdaQueryWrapperStat = new LambdaQueryWrapper();
+        lambdaQueryWrapperStat.eq(HrUserAttendanceStat::getUserId,loginUser.getId())
+                .between(HrUserAttendanceStat::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime());
+        List<HrUserAttendanceStat> hrUserAttendanceStatList = hrUserAttendanceStatService.list(lambdaQueryWrapperStat);
 
         LambdaQueryWrapper<HrUserAttendance> lambdaQueryWrapper = new LambdaQueryWrapper();
-        lambdaQueryWrapper.eq(HrUserAttendance::getUserId, hrUserAttendancePageParam.getUserId())
-                .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
-                .eq(HrUserAttendance::getUserId,loginUser.getId());
-        List<HrUserAttendance> hrUserAttendanceListCount = this.list(lambdaQueryWrapper);
+        lambdaQueryWrapper.eq(HrUserAttendance::getUserId,loginUser.getId())
+                .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime());
+        List<HrUserAttendance> hrUserAttendanceList = this.list(lambdaQueryWrapper);
 
         /**  list循环一次，获取-1  循环二次获取 1*/
         Map<String,UserAttendanceCountEntity> map = new HashMap<>();
@@ -292,8 +302,11 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
             return new HashMap<>();
         }
-        Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
-        List<HrUserAttendance> hrUserAttendanceList = page.getRecords();
+        QueryWrapper<HrUserAttendance> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
+                .eq(HrUserAttendance::getUserId,loginUser.getId());
+
+        List<HrUserAttendance> hrUserAttendanceList = this.list(queryWrapper);
         Map<String,List<HrUserAttendance>> map = new HashMap<>();
         if(hrUserAttendanceList.size() == 0){
             map.put("0",new ArrayList<>());
@@ -328,18 +341,20 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return map;
     }
 
+    /**
+     * 申请补卡通过之后的流程
+     *
+     * */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void resubmitAttendance(String processInstanceId, String applyType){
         HrUserApplyAttendance hrUserApplyAttendance = hrUserApplyAttendanceService.getOne(new QueryWrapper<HrUserApplyAttendance>().lambda().eq(HrUserApplyAttendance::getProcessInstanceId,processInstanceId));
-        HrUserAttendance hrUserAttendance = new HrUserAttendance();
-        hrUserAttendance.setAbnormalFlag(1);
-        hrUserAttendance.setUserId(hrUserApplyAttendance.getApplyUserId());
-        hrUserAttendance.setCheckType("OnDuty");
-        hrUserAttendance.setCheckTime(new Date());
-        hrUserAttendance.setIsResubmitAttendanceFlag(1);
-        hrUserAttendance.setApplyResubmitAttendanceId(hrUserApplyAttendance.getId());
-        this.save(hrUserAttendance);
+        HrUserAttendanceAddParam hrUserAttendanceAddParam = new HrUserAttendanceAddParam();
+        hrUserAttendanceAddParam.setUserId(hrUserApplyAttendance.getApplyUserId());
+        hrUserAttendanceAddParam.setCheckTime(CommonTimeFormatUtil.strToDate(hrUserApplyAttendance.getApplyAttendanceTime()));
+        hrUserAttendanceAddParam.setIsResubmitAttendanceFlag(1);
+        hrUserAttendanceAddParam.setApplyResubmitAttendanceId(hrUserApplyAttendance.getId());
+        attendance(hrUserAttendanceAddParam);
     }
 
     /**
