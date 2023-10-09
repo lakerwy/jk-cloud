@@ -39,6 +39,7 @@ import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 存储实体类Service接口实现类 ----  StorageService
@@ -120,14 +121,14 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
             panFileStorage = panFileStorages.get(0);
         }
         Long totalStorageSize = 0L;
-        if(ObjectUtil.isEmpty(panFileStorage) || ObjectUtil.isEmpty(panFileStorage.getTotalStorageSize())){
+        if(ObjectUtil.isEmpty(panFileStorage) || ObjectUtil.isEmpty(Objects.requireNonNull(panFileStorage).getTotalStorageSize())){
              panFileStorage = new PanFileStorage();
             totalStorageSize = FileConstant.totalStorageSize;
             if(1==type){
                 totalStorageSize = FileConstant.totalGroupStorageSize;
              }
              panFileStorage.setTotalStorageSize(FileConstant.totalStorageSize);
-             panFileStorage.setUserId(StpLoginUserUtil.getLoginUser().getId());
+             panFileStorage.setUserId(useId);
              save(panFileStorage);
         }else {
            totalStorageSize = panFileStorage.getTotalStorageSize();

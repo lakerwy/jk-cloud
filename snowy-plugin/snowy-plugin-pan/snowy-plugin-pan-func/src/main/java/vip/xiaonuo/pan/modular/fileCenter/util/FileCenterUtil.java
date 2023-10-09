@@ -38,6 +38,9 @@ public class FileCenterUtil {
     public static final int SHARE_FILE = 6;
     public static final int RECYCLE_FILE = 7;
 
+    //云盘文件真实存储地址，区别系统文件
+    public static final String BAST_PAN_PATH = "pan";
+
     private static void  init(){
         JSONObject client = DevFileLocalUtil.getOOSClient();
         ROOT_PATH = client.getStr("localFileUploadFolder");
@@ -144,7 +147,7 @@ public class FileCenterUtil {
         String localStoragePath = getRootPath();
 
         if (StringUtils.isNotEmpty(localStoragePath)) {
-            return new File(localStoragePath).getPath() + FileUtil.FILE_SEPARATOR;
+            return new File(localStoragePath).getPath() + FileUtil.FILE_SEPARATOR + BAST_PAN_PATH + FileUtil.FILE_SEPARATOR;
         }else {
             String projectRootAbsolutePath = getProjectRootPath();
 

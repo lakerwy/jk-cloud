@@ -226,11 +226,7 @@ public class PanFileController {
         UserFile userFile = userFileService.getById(previewParam.getUserFileId());
 
         String fileName = userFile.getFileName() + "." + userFile.getExtendName();
-        try {
-            fileName = new String(fileName.getBytes("utf-8"), "ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
 
         httpServletResponse.addHeader("Content-Disposition", "fileName=" + fileName);// 设置文件名
         String mime = MimeUtils.getMime(userFile.getExtendName());
