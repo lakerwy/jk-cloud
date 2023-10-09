@@ -123,7 +123,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @EventListener
     @Async
     public void handleAttendanceEvent(HrUserAttendanceStatEvent hrUserAttendanceStatEvent){
-        if(hrUserAttendanceStatEvent.getAbnormalFlag().intValue() == hrUserAttendanceStatEvent.getAbnormalFlag()){
+        if(HrUserAttendanceStatEnum.FAIL.getValue().equals(hrUserAttendanceStatEvent.getAbnormalFlag().toString())){
             return;
         }
         String time = DateUtil.format(new Date(), DatePattern.NORM_DATE_PATTERN);

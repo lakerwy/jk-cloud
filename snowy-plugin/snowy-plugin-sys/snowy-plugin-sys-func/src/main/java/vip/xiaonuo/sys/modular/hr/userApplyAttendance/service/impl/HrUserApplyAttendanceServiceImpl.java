@@ -125,7 +125,7 @@ public class HrUserApplyAttendanceServiceImpl extends ServiceImpl<HrUserApplyAtt
         hrUserApplyAttendance.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
         FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
         //将流程实例和业务表关联起来
-        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME));
+        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));/**  数据库名一定得是小写*/
         formRelationTableApi.save(modelId, BizCommonEnum.HR_APPLY_ATTENDANCE.getBizTable(),id,processInstanceId,dbName);
         hrUserApplyAttendance.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
         this.save(hrUserApplyAttendance);
