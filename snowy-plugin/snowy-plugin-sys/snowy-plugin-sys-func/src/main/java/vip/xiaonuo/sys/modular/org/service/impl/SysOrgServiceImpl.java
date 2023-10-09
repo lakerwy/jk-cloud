@@ -435,6 +435,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             Map<String, String> map = new HashMap<>();
             map.put("name", org.getName());
             map.put("id", org.getId());
+            map.put("directorId",org.getDirectorId());
             return map;
         }).collect(Collectors.toList());
     }
