@@ -2,11 +2,11 @@ spring:
   application:
     name: snowy-web-app
   profiles:
-    active: dev
+    active: test
   cloud:
     nacos:
       config:
-        server-addr: 10.0.33.82:8858
+        server-addr: 127.0.0.1:8848
         namespace: snowy-cloud-2x-ent-${spring.profiles.active}
         group: ${spring.profiles.active}
         prefix: ${spring.application.name}
