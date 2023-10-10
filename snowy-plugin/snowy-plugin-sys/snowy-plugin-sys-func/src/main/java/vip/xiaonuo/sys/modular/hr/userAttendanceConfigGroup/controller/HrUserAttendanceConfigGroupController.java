@@ -135,7 +135,7 @@ public class HrUserAttendanceConfigGroupController {
      */
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取考勤班次组配置表详情")
-    //@SaCheckPermission("/sys/userAttendanceConfigGroup/detail")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/configAndUserData")
     @GetMapping("/sys/userAttendanceConfigGroup/configAndUserData")
     public CommonResult<Map<String,Object>> attendanceConfigGroupMap(@Valid HrAttendanceConfigAndUserParam hrAttendanceConfigAndUserParam) {
         return CommonResult.data(hrUserAttendanceConfigGroupService.attendanceConfigGroupMap(hrAttendanceConfigAndUserParam));

@@ -60,4 +60,7 @@ public class HrUserAttendanceConfigGroupPageParam {
     @ApiModelProperty(value = "负责人名称")
     private String leadName;
 
+    /** 是否默认考勤配置 */
+    @ApiModelProperty(value = "是否默认考勤配置, 0 为默认，空或者其他值为非默认")
+    private String isDefaultConfig;//IS_DEFAULT_CONFIG
 }

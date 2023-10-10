@@ -17,6 +17,8 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -33,8 +35,6 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
-import vip.xiaonuo.sys.modular.hr.attendanceMachine.entity.HrAttendanceMachine;
-import vip.xiaonuo.sys.modular.hr.attendanceMachine.enums.HrAttendanceMachineEnum;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.entity.HrUserApplyAttendance;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.service.HrUserApplyAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.*;
@@ -48,11 +48,17 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.service.SysOrgService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.sql.Time;
@@ -68,7 +74,9 @@ import java.util.stream.Collectors;
 @Service
 public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMapper, HrUserAttendance> implements HrUserAttendanceService {
 
-    private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
+    private static final String HR_ATTENDANCE_CONFIG_RELATION_USER_KEY = "HR_ATTENDANCE_CONFIG_RELATION_USER_KEY";
+    private static final String HR_ATTENDANCE_CONFIG_DEFAULT_KEY = "HR_ATTENDANCE_CONFIG_DEFAULT_KEY";
+
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Autowired
@@ -83,6 +91,12 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     private ApplicationEventPublisher eventPublisher;
     @Resource
     private HrUserAttendanceStatService hrUserAttendanceStatService;
+    @Resource
+    private SysOrgService sysOrgService;
+    @Resource
+    private SysUserService sysUserService;
+    @Resource
+    private HrUserAttendanceConfigGroupService hrUserAttendanceConfigGroupService;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -158,10 +172,37 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return  HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
     }
 
-    private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(HrUserAttendanceConfigPageParam hrUserAttendanceConfigPageParam,Date dateNow){ /** 修改逻辑：人员查配置  */
-        Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(hrUserAttendanceConfigPageParam);//改 list查询
-        List<HrUserAttendanceConfig> configList = pageList.getRecords(); /**  该数据后续取缓存*/
+    private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(String userId,Date dateNow){
 
+        List<HrUserAttendanceConfig> configList = new ArrayList<>();
+        String relations = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_RELATION_USER_KEY));//取缓存
+        List<String> relationList = Arrays.asList(relations.split(","));
+
+        for(String key : relationList){
+            if( String.valueOf(commonCacheOperator.get(key)).contains(userId)){
+                String keyConfig = key.replaceAll(HrUserAttendanceEnum.RELATION_KEY.getValue(),"");
+                String configData = StringUtils.isEmpty(keyConfig) ? "" : String.valueOf(commonCacheOperator.get(keyConfig+HrUserAttendanceEnum.GROUP_KEY.getValue()));
+                if(StringUtils.isNotEmpty(configData) ){
+                    List<UserAttendanceConfigEntity> configEntityList = JSONArray.parseArray(configData, UserAttendanceConfigEntity.class);
+                    configList = configEntityList.stream().map(config -> BeanUtil.toBean(config, HrUserAttendanceConfig.class)).collect(Collectors.toList());
+                    return getAttendanceTimeSlotData(configList,dateNow);
+                }
+            }
+        }
+        //取默认数据
+        QueryWrapper<HrUserAttendanceConfigGroup> hrUserAttendanceConfigGroupQueryWrapper = new QueryWrapper<>();
+        hrUserAttendanceConfigGroupQueryWrapper.lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0");
+        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(hrUserAttendanceConfigGroupQueryWrapper);
+        if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroupList)){
+            return new ArrayList<>();
+        }
+        QueryWrapper<HrUserAttendanceConfig> queryWrapperConfig = new QueryWrapper<>();
+        queryWrapperConfig.lambda().eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId());
+        configList = hrUserAttendanceConfigService.list();
+        return getAttendanceTimeSlotData(configList,dateNow);
+    }
+
+    private List<AttendanceTimeSlot> getAttendanceTimeSlotData(List<HrUserAttendanceConfig> configList,Date dateNow){
         List<AttendanceTimeSlot>  attendanceTimeSlotList = new ArrayList<>();
         configList = configList.stream().sorted(Comparator.comparing(HrUserAttendanceConfig::getOrderNumber)).collect(Collectors.toList());
         for(HrUserAttendanceConfig attendanceConfig : configList){
@@ -218,38 +259,41 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return hrUserAttendance;
     }
 
-    @Override
-    public List<AttendanceTimeSlot> getAttendanceConfigValueByKey(Date dateNow){
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        //HrUserAttendanceRelation hrUserAttendanceRelationServiceOne = hrUserAttendanceRelationService.getOne(new LambdaQueryWrapper<HrUserAttendanceRelation>().eq(HrUserAttendanceRelation::getUserId,loginUser.getId()));
-        HrUserAttendanceRelation hrUserAttendanceRelationServiceOne = new HrUserAttendanceRelation();
-        if(ObjectUtil.isEmpty(hrUserAttendanceRelationServiceOne) || StringUtils.isEmpty(hrUserAttendanceRelationServiceOne.getAttendanceType())){
-            return new ArrayList<>();
+    public  void attendanceConfigCache() {
+        List<HrUserAttendanceConfigGroup> hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list();//考勤组全表查询
+        List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigService.list();//考勤配置全表查询
+        Map<String,String> mapConfig = new HashMap<>();
+        hrUserAttendanceConfigGroupList.stream().forEach(group -> {
+            List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = new ArrayList<>();
+            hrUserAttendanceConfigList.stream().forEach(config -> {
+                if(group.getId().equals(config.getAttendanceTypeId())){
+                    userAttendanceConfigEntityList.add(BeanUtil.toBean(config, UserAttendanceConfigEntity.class));
+                }
+            });
+            mapConfig.put(group.getId()+HrUserAttendanceEnum.GROUP_KEY.getValue(),JSON.toJSONString(userAttendanceConfigEntityList));
+        });
+        //缓存
+        for(String key : mapConfig.keySet()){
+            commonCacheOperator.put(key,mapConfig.get(key));
         }
-        /** 开始取缓存的数据 */
-        if(ObjectUtil.isEmpty(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY))){
-            Page<HrUserAttendanceConfig> pageList = hrUserAttendanceConfigService.page(new HrUserAttendanceConfigPageParam());
-            List<HrUserAttendanceConfig> configList = pageList.getRecords();
-            commonCacheOperator.put(HR_ATTENDANCE_CONFIG_KEY, configList.stream().map(config -> BeanUtil.toBean(config, UserAttendanceConfigEntity.class)).collect(Collectors.toList())
-            );
-        }
-        List<LinkedHashMap> configEntityMapList= (List<LinkedHashMap>) commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY);
 
-        /** 计算考勤时间区间*/
-        List<AttendanceTimeSlot>  attendanceTimeSlotList = new ArrayList<>();
-        for(LinkedHashMap map : configEntityMapList){
-            if(!hrUserAttendanceRelationServiceOne.getAttendanceType().equals(map.get(HrUserAttendanceEnum.ATTENDANCE_TYPE_NAME.getValue()))){
-                continue;
+        List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrUserAttendanceRelationService.list();//考勤关联全表查询
+        Map<String,String> mapRelation = new HashMap<>();
+        StringBuffer relationStr = new StringBuffer();
+        hrUserAttendanceRelationList.stream().forEach(relation -> {
+            String key = relation.getAttendanceTypeId()+HrUserAttendanceEnum.RELATION_KEY.getValue();
+            relationStr.append(key).append(",");
+            if(relation.getEmployType().equals(HrUserAttendanceEnum.ORG_TYPE.getValue())){ //部门
+                mapRelation.put(key,getOrgAndUserId(relation.getEmployId()));
             }
-            AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
-            attendanceTimeSlot.setDutyType(map.get(HrUserAttendanceEnum.ATTENDANCE_DUTY_TYPE.getValue()).toString());
-            Date time = CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,DATE_FORMAT),map.get(HrUserAttendanceEnum.ATTENDANCE_CHECK_TIME.getValue()).toString());
-            attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(map.get(HrUserAttendanceEnum.ATTENDANCE_BEGINMINTIME.getValue()).toString()),2));
-            attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.valueOf(map.get(HrUserAttendanceEnum.ATTENDANCE_ENDMINTIME.getValue()).toString()),1));
-            //attendanceTimeSlot.setWorkHours(StringUtils.isEmpty(attendanceConfig.getWorkHours()) ? "0" : attendanceConfig.getWorkHours());
-            attendanceTimeSlotList.add(attendanceTimeSlot);
+            if(relation.getEmployType().equals(HrUserAttendanceEnum.USER_TYPE.getValue())){ //人员
+                mapRelation.put(key,relation.getEmployId());
+            }
+        });
+        for(String key : mapRelation.keySet()){
+            commonCacheOperator.put(key,mapRelation.get(key));
         }
-        return attendanceTimeSlotList;
+        commonCacheOperator.put(HR_ATTENDANCE_CONFIG_RELATION_USER_KEY,relationStr);//缓存
     }
 
     @Override
@@ -365,8 +409,41 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void attendanceStatJobHandle(){
-
-
         //System.out.println("接口调用成功！");
+    }
+
+    /**
+     * 递归该部门下面有多少人员
+     * author ljy
+     * @date  2023/10/09 16:24
+     * */
+    public String getOrgAndUserId(String orgId){
+        StringBuffer userIds = new StringBuffer();
+        if(StringUtils.isEmpty(orgId)){
+            return userIds.toString();
+        }
+        List<SysOrg> bizOrgList = sysOrgService.list();//全表查询
+        List<SysOrg> bizOrgListNew = recursionOrg(new ArrayList<>(),orgId,bizOrgList);
+        List<String> orgList = new ArrayList<>();
+        bizOrgListNew.stream().forEach(org -> orgList.add(org.getId()));
+        if(ObjectUtil.isEmpty(bizOrgListNew)){
+            return userIds.toString();
+        }
+        QueryWrapper<SysUser> wrapper = new QueryWrapper<SysUser>().select("id");
+        wrapper.lambda().in(SysUser::getOrgId,orgList);
+        List<SysUser> userList = sysUserService.list(wrapper);
+        if(ObjectUtil.isEmpty(userList)){
+            return userIds.toString();
+        }
+        userList.stream().forEach(user -> userIds.append(user.getId()).append(","));
+        return userIds.toString();
+    }
+
+    private List<SysOrg> recursionOrg(List<SysOrg> bizOrgListNew,String orgId,List<SysOrg> bizOrgList){
+        bizOrgList.stream().forEach(org -> {if(org.getParentId().equals(orgId)){
+            bizOrgListNew.add(org);
+            recursionOrg(bizOrgListNew,org.getId(),bizOrgList);
+        }});
+        return bizOrgListNew;
     }
 }

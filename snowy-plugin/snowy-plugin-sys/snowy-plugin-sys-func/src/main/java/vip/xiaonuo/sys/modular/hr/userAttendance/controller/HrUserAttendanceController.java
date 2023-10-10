@@ -177,4 +177,24 @@ public class HrUserAttendanceController {
     public CommonResult<Map<String,List<HrUserAttendance>>> attendanceDayInfo(@Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
         return CommonResult.data(hrUserAttendanceService.attendanceDayInfo(hrUserAttendancePageParam));
     }
+
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("预留接口--传入部门ID,获取部门下面人员ID")
+    @CommonLog("预留接口--传入部门ID,获取部门下面人员ID")
+    //@SaCheckPermission("/sys/userAttendance/orgIdToUserIds")
+    @GetMapping("/sys/userAttendance/orgIdToUserIds")
+    public CommonResult<String> orgIdToUserIds(@Valid String orgId) {
+        return CommonResult.data(hrUserAttendanceService.getOrgAndUserId(orgId));
+    }
+
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("预留接口--手动缓存考勤配置")
+    @CommonLog("预留接口--手动缓存考勤配置")
+    //@SaCheckPermission("/sys/userAttendance/attendanceConfigCache")
+    @GetMapping("/sys/userAttendance/attendanceConfigCache")
+    public CommonResult<String> attendanceConfigCache() {
+        hrUserAttendanceService.attendanceConfigCache();
+        return CommonResult.ok();
+    }
+
 }

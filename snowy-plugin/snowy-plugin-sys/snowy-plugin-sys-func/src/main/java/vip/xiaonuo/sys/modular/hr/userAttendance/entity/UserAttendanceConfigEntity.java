@@ -11,6 +11,7 @@ public class UserAttendanceConfigEntity implements Serializable {
     private String BeginMinTime;
     private String checkTime;
     private String endMinTime;
+    private String workHours;
 
     public Integer getOrderNumber() {
         return orderNumber;
@@ -58,5 +59,13 @@ public class UserAttendanceConfigEntity implements Serializable {
 
     public void setEndMinTime(String endMinTime) {
         this.endMinTime = endMinTime;
+    }
+
+    public String getWorkHours() {
+        return workHours;
+    }
+
+    public void setWorkHours(String workHours) {
+        this.workHours = workHours;
     }
 }

@@ -85,7 +85,40 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(HrUserApplyHolidayAddParam hrUserApplyHolidayAddParam) {
+    public String add(HrUserApplyHolidayAddParam hrUserApplyHolidayAddParam) {
+
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        Long hour=DateUtil.between(hrUserApplyHolidayAddParam.getApplyBeginTime(),hrUserApplyHolidayAddParam.getApplyEndTime(), DateUnit.HOUR);
+        QueryWrapper<HrUserHolidayData> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(HrUserHolidayData::getUserId,loginUser.getId());
+        List<HrUserHolidayData> hrUserHolidayDataList = hrUserHolidayDataService.list(queryWrapper);
+        if(ObjectUtil.isEmpty(hrUserHolidayDataList)){
+            return HrUserApplyHolidayEnum.NOT_DATA.getValue();
+        }
+        HrUserHolidayData hrUserHolidayData = hrUserHolidayDataList.get(0);
+
+        if(HrUserApplyHolidayEnum.PERSONAL_LEAVE.getValue().equals(hrUserApplyHolidayAddParam.getApplyType().toString())){/**  事假限制规则*/}
+
+        /** 计算剩余假期  */
+        Double result  = hour.intValue()/7  +  hour.intValue()/7 > 0 ? 0.5 : 0;
+        Double remainDays = 0.0;
+        if(HrUserApplyHolidayEnum.COMPENSATORY_LEAVE.getValue().equals(hrUserApplyHolidayAddParam.getApplyType().toString())){  /**  调休；天工时后面取配置*/
+            if(result > Double.valueOf(hrUserHolidayData.getCompensatoryLeave())){
+                return HrUserApplyHolidayEnum.NOT_COMPENSATORY_LEAVE_DATA.getValue();
+            }
+            remainDays = Double.valueOf(hrUserHolidayData.getCompensatoryLeave()) - result;
+        }
+
+        if(HrUserApplyHolidayEnum.ANNUAL_LEAVE.getValue().equals(hrUserApplyHolidayAddParam.getApplyType().toString())){  /**  年假 */
+            if(result > Double.valueOf(hrUserHolidayData.getAnnualLeave())){
+                return HrUserApplyHolidayEnum.NOT_ANNUAL_LEAVE_DATA.getValue();
+            }
+            remainDays = Double.valueOf(hrUserHolidayData.getAnnualLeave()) - result;
+        }
+        hrUserHolidayData.setCompensatoryLeave(remainDays.toString());
+        hrUserHolidayDataService.updateById(hrUserHolidayData);
+
+        /** 申请流程 */
         HrUserApplyHoliday hrUserApplyHoliday = BeanUtil.toBean(hrUserApplyHolidayAddParam, HrUserApplyHoliday.class);
         String processInstanceId = hrUserApplyHolidayAddParam.getProcessInstanceId();
         String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
