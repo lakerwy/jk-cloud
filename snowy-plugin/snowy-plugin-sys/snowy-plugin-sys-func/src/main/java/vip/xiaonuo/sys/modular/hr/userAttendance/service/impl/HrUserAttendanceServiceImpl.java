@@ -74,8 +74,8 @@ import java.util.stream.Collectors;
 @Service
 public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMapper, HrUserAttendance> implements HrUserAttendanceService {
 
-    private static final String HR_ATTENDANCE_CONFIG_RELATION_USER_KEY = "HR_ATTENDANCE_CONFIG_RELATION_USER_KEY";
     private static final String HR_ATTENDANCE_CONFIG_DEFAULT_KEY = "HR_ATTENDANCE_CONFIG_DEFAULT_KEY";
+    private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
@@ -173,32 +173,26 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     }
 
     private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(String userId,Date dateNow){
-
         List<HrUserAttendanceConfig> configList = new ArrayList<>();
-        String relations = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_RELATION_USER_KEY));//取缓存
-        List<String> relationList = Arrays.asList(relations.split(","));
-
-        for(String key : relationList){
-            if( String.valueOf(commonCacheOperator.get(key)).contains(userId)){
-                String keyConfig = key.replaceAll(HrUserAttendanceEnum.RELATION_KEY.getValue(),"");
-                String configData = StringUtils.isEmpty(keyConfig) ? "" : String.valueOf(commonCacheOperator.get(keyConfig+HrUserAttendanceEnum.GROUP_KEY.getValue()));
-                if(StringUtils.isNotEmpty(configData) ){
-                    List<UserAttendanceConfigEntity> configEntityList = JSONArray.parseArray(configData, UserAttendanceConfigEntity.class);
-                    configList = configEntityList.stream().map(config -> BeanUtil.toBean(config, HrUserAttendanceConfig.class)).collect(Collectors.toList());
+        String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));//取考勤缓存数据
+        if(StringUtils.isNotEmpty(cache)){
+            List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
+            for(AttendanceConfigCacheEntity entity : configCacheEntityList){
+                if(entity.getUserIds().contains(userId)){
+                    List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = entity.getUserAttendanceConfigEntityList();
+                    configList = userAttendanceConfigEntityList.stream().map(config -> BeanUtil.toBean(config, HrUserAttendanceConfig.class)).collect(Collectors.toList());
                     return getAttendanceTimeSlotData(configList,dateNow);
                 }
             }
         }
-        //取默认数据
-        QueryWrapper<HrUserAttendanceConfigGroup> hrUserAttendanceConfigGroupQueryWrapper = new QueryWrapper<>();
-        hrUserAttendanceConfigGroupQueryWrapper.lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0");
-        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(hrUserAttendanceConfigGroupQueryWrapper);
+        //取默认考勤配置
+        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
+                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
         if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroupList)){
             return new ArrayList<>();
         }
-        QueryWrapper<HrUserAttendanceConfig> queryWrapperConfig = new QueryWrapper<>();
-        queryWrapperConfig.lambda().eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId());
-        configList = hrUserAttendanceConfigService.list();
+        configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
+                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
         return getAttendanceTimeSlotData(configList,dateNow);
     }
 
@@ -262,26 +256,26 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     public  void attendanceConfigCache() {
         List<HrUserAttendanceConfigGroup> hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list();//考勤组全表查询
         List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigService.list();//考勤配置全表查询
-        Map<String,String> mapConfig = new HashMap<>();
-        hrUserAttendanceConfigGroupList.stream().forEach(group -> {
-            List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = new ArrayList<>();
-            hrUserAttendanceConfigList.stream().forEach(config -> {
-                if(group.getId().equals(config.getAttendanceTypeId())){
-                    userAttendanceConfigEntityList.add(BeanUtil.toBean(config, UserAttendanceConfigEntity.class));
+
+        List<AttendanceConfigCacheEntity> attendanceConfigCacheEntityList = hrUserAttendanceConfigGroupList.stream().map(group -> {
+            AttendanceConfigCacheEntity attendanceConfigCacheEntity = new AttendanceConfigCacheEntity();
+            attendanceConfigCacheEntity.setAttendanceTypeId(group.getId());
+            List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = hrUserAttendanceConfigList.stream().map(config -> {
+                UserAttendanceConfigEntity userAttendanceConfigEntity = new UserAttendanceConfigEntity();
+                if(config.getAttendanceTypeId().equals(group.getId())){
+                    return userAttendanceConfigEntity = BeanUtil.toBean(config, UserAttendanceConfigEntity.class);
                 }
-            });
-            mapConfig.put(group.getId()+HrUserAttendanceEnum.GROUP_KEY.getValue(),JSON.toJSONString(userAttendanceConfigEntityList));
-        });
-        //缓存
-        for(String key : mapConfig.keySet()){
-            commonCacheOperator.put(key,mapConfig.get(key));
-        }
+                return userAttendanceConfigEntity;
+            }).collect(Collectors.toList());
+            attendanceConfigCacheEntity.setUserAttendanceConfigEntityList(userAttendanceConfigEntityList);
+            return attendanceConfigCacheEntity;
+        }).collect(Collectors.toList());
 
         List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrUserAttendanceRelationService.list();//考勤关联全表查询
         Map<String,String> mapRelation = new HashMap<>();
         StringBuffer relationStr = new StringBuffer();
         hrUserAttendanceRelationList.stream().forEach(relation -> {
-            String key = relation.getAttendanceTypeId()+HrUserAttendanceEnum.RELATION_KEY.getValue();
+            String key = relation.getAttendanceTypeId();
             relationStr.append(key).append(",");
             if(relation.getEmployType().equals(HrUserAttendanceEnum.ORG_TYPE.getValue())){ //部门
                 mapRelation.put(key,getOrgAndUserId(relation.getEmployId()));
@@ -290,10 +284,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                 mapRelation.put(key,relation.getEmployId());
             }
         });
-        for(String key : mapRelation.keySet()){
-            commonCacheOperator.put(key,mapRelation.get(key));
-        }
-        commonCacheOperator.put(HR_ATTENDANCE_CONFIG_RELATION_USER_KEY,relationStr);//缓存
+        attendanceConfigCacheEntityList.stream().forEach(cache -> cache.setUserIds(mapRelation.get(cache.getAttendanceTypeId())));
+        commonCacheOperator.put(HR_ATTENDANCE_CONFIG_KEY,JSON.toJSONString(attendanceConfigCacheEntityList)); //缓存
     }
 
     @Override

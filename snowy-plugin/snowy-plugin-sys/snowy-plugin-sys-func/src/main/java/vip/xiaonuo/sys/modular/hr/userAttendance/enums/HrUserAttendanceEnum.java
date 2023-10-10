@@ -35,8 +35,6 @@ public enum HrUserAttendanceEnum {
     ATTENDANCE_CHECK_TIME("checkTime"),
     ATTENDANCE_BEGINMINTIME("beginMinTime"),
     ATTENDANCE_ENDMINTIME("endMinTime"),
-    GROUP_KEY("_GROUP_KEY"),
-    RELATION_KEY("_RELATION_KEY"),
     ORG_TYPE("1"),//部门
     USER_TYPE("2");//人员
 
