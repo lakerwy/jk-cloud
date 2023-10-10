@@ -23,9 +23,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
@@ -49,7 +51,12 @@ import java.util.stream.Collectors;
 @Service
 public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAttendanceConfigGroupMapper, HrUserAttendanceConfigGroup> implements HrUserAttendanceConfigGroupService {
 
+    private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
 
+    @Resource
+    private HrUserAttendanceService hrUserAttendanceService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
     @Resource
     HrUserAttendanceConfigService hrUserAttendanceConfigService;
     @Resource
@@ -82,6 +89,8 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
     public void add(HrUserAttendanceConfigGroupAddParam hrUserAttendanceConfigGroupAddParam) {
         HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = BeanUtil.toBean(hrUserAttendanceConfigGroupAddParam, HrUserAttendanceConfigGroup.class);
         this.save(hrUserAttendanceConfigGroup);
+        commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
+        hrUserAttendanceService.attendanceConfigCache();
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -90,6 +99,8 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = this.queryEntity(hrUserAttendanceConfigGroupEditParam.getId());
         BeanUtil.copyProperties(hrUserAttendanceConfigGroupEditParam, hrUserAttendanceConfigGroup);
         this.updateById(hrUserAttendanceConfigGroup);
+        commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
+        hrUserAttendanceService.attendanceConfigCache();
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -163,6 +174,8 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
                     BeanUtil.toBean(relation, HrUserAttendanceRelation.class)).collect(Collectors.toList());
             hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelationList);
         }*/
+        commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
+        hrUserAttendanceService.attendanceConfigCache();
         return HrUserAttendanceConfigGroupEnum.SUCCESS.getValue();
     }
 }

@@ -23,10 +23,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.enums.HrUserAttendanceConfigEnum;
@@ -38,6 +40,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceCon
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.enums.HrUserAttendanceRelationEnum;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -56,6 +59,12 @@ import java.util.stream.Collectors;
 @Slf4j
 public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttendanceConfigMapper, HrUserAttendanceConfig> implements HrUserAttendanceConfigService {
 
+    private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
+
+    @Resource
+    private HrUserAttendanceService hrUserAttendanceService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
     @Resource
     HrUserAttendanceConfigMapper hrUserAttendanceConfigMapper;
     @Resource
@@ -84,6 +93,9 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
     public void add(HrUserAttendanceConfigAddParam hrUserAttendanceConfigAddParam) {
         HrUserAttendanceConfig hrUserAttendanceConfig = BeanUtil.toBean(hrUserAttendanceConfigAddParam, HrUserAttendanceConfig.class);
         this.save(hrUserAttendanceConfig);
+        /** 先删除原有缓存，再计算最新的缓存 */
+        commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
+        hrUserAttendanceService.attendanceConfigCache();
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -92,6 +104,9 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         HrUserAttendanceConfig hrUserAttendanceConfig = this.queryEntity(hrUserAttendanceConfigEditParam.getId());
         BeanUtil.copyProperties(hrUserAttendanceConfigEditParam, hrUserAttendanceConfig);
         this.updateById(hrUserAttendanceConfig);
+        /** 先删除原有缓存，再计算最新的缓存 */
+        commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
+        hrUserAttendanceService.attendanceConfigCache();
     }
 
     @Transactional(rollbackFor = Exception.class)
