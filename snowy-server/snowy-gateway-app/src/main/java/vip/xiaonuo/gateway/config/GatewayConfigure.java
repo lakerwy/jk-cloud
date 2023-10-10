@@ -165,7 +165,8 @@ public class GatewayConfigure {
             "/api/flwapp/flw/process/getInstance",
             "/api/webapp/pan/file/fileUpload",
             "/api/webapp/pan/file/preview",
-            "/api/webapp/pan/file/previewOfficeFile"
+            "/api/webapp/pan/file/previewOfficeFile",
+            "/api/net/api/AutocadService/**",
 
     };
 
