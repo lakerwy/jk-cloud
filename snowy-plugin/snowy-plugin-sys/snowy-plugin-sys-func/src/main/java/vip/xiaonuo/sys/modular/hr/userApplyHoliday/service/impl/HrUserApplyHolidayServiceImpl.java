@@ -14,6 +14,8 @@ package vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -22,6 +24,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -33,12 +37,15 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
+import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.mapper.HrUserApplyHolidayMapper;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayAddParam;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayEditParam;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayIdParam;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayPageParam;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.HrUserApplyHolidayService;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -54,6 +61,8 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
 
     @Resource
     CommonCacheOperator commonCacheOperator;
+    @Resource
+    HrUserHolidayDataService hrUserHolidayDataService;
 
     @Override
     public Page<HrUserApplyHoliday> page(HrUserApplyHolidayPageParam hrUserApplyHolidayPageParam) {
@@ -78,7 +87,6 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
     @Override
     public void add(HrUserApplyHolidayAddParam hrUserApplyHolidayAddParam) {
         HrUserApplyHoliday hrUserApplyHoliday = BeanUtil.toBean(hrUserApplyHolidayAddParam, HrUserApplyHoliday.class);
-
         String processInstanceId = hrUserApplyHolidayAddParam.getProcessInstanceId();
         String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
         String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
@@ -87,11 +95,12 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
         hrUserApplyHoliday.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
         FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
         //将流程实例和业务表关联起来
-        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));/**  数据库名一定得是小写*/
         formRelationTableApi.save(modelId, BizCommonEnum.BIZ_AUDIT_LISTS.getBizTable(),id,processInstanceId,dbName);
         hrUserApplyHoliday.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
 
         this.save(hrUserApplyHoliday);
+        return HrUserApplyHolidayEnum.SUCCESS.getValue();
     }
 
     @Transactional(rollbackFor = Exception.class)

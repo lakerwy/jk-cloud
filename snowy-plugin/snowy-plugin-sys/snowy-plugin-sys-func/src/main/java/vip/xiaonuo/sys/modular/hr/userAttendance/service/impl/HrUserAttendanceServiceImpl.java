@@ -135,7 +135,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         hrUserAttendance.setAbnormalFlag(-1);/** 初始化默认值*/
 
         /** 计算有效打卡时间区间*/
-        List<AttendanceTimeSlot> attendanceTimeSlotList =  getAttendanceTimeSlotList(new HrUserAttendanceConfigPageParam(),hrUserAttendance.getCheckTime());//getAttendanceConfigValueByKey(dateNow);
+        List<AttendanceTimeSlot> attendanceTimeSlotList =  getAttendanceTimeSlotList(hrUserAttendanceAddParam.getUserId(),hrUserAttendance.getCheckTime());//getAttendanceConfigValueByKey(dateNow);
 
         /** 上下班休息标识；OnDuty：上班；OffDuty：下班；休息 REST */
         attendanceTimeSlotList.stream().forEach(slot -> {
