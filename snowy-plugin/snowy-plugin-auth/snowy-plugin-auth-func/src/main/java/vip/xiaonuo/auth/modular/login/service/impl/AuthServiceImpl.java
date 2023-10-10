@@ -494,11 +494,12 @@ public class AuthServiceImpl implements AuthService {
             throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
         }
         // 执行B端登录
-        execLoginB(saBaseLoginUser, device);
+        String token = execLoginB(saBaseLoginUser, device);
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         Map<String, String> result = new HashMap<>();
         result.put("account",loginUser.getAccount());
         result.put("name",loginUser.getName());
+        result.put("Token",token);
         return result;
     }
 }
