@@ -401,14 +401,14 @@ public class FileTransferService implements IFileTransferService {
         String tempPath = staticPath + "temp" + File.separator;
         File tempDirFile = new File(tempPath);
         if (!tempDirFile.exists()) {
-            tempDirFile.mkdirs();
+             tempDirFile.mkdirs();
         }
 
         FileOutputStream f = null;
         try {
             f = new FileOutputStream(tempPath + fileName + ".zip");
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("" + e);
         }
         CheckedOutputStream csum = new CheckedOutputStream(f, new Adler32());
         ZipOutputStream zos = new ZipOutputStream(csum);
@@ -440,13 +440,12 @@ public class FileTransferService implements IFileTransferService {
                         }
                     } catch (IOException e) {
                         log.error("" + e);
-                        e.printStackTrace();
                     } finally {
                         IOUtils.closeQuietly(bis);
                         try {
                             out.flush();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            log.error("" + e);
                         }
                     }
                 } else {
