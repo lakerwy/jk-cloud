@@ -181,11 +181,15 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         if(StringUtils.isNotEmpty(cache)){
             List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
             for(AttendanceConfigCacheEntity entity : configCacheEntityList){
-                //todo string contains 有问题
-                if(entity.getUserIds().contains(userId)){
-                    List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = entity.getUserAttendanceConfigEntityList();
-                    configList = userAttendanceConfigEntityList.stream().map(config -> BeanUtil.toBean(config, HrUserAttendanceConfig.class)).collect(Collectors.toList());
-                    return getAttendanceTimeSlotData(configList,dateNow);
+                //todo string contains 有问题     -- 已修改，2023-10-11 22:10:20
+                List<String> userIds = Arrays.asList(entity.getUserIds().split(","));
+                for(String userIdSTr : userIds){  //双层for，待优化
+                    if(userIdSTr.equals(userId)){
+                    //if(entity.getUserIds().contains(userId)){
+                        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = entity.getUserAttendanceConfigEntityList();
+                        configList = userAttendanceConfigEntityList.stream().map(config -> BeanUtil.toBean(config, HrUserAttendanceConfig.class)).collect(Collectors.toList());
+                        return getAttendanceTimeSlotData(configList,dateNow);
+                    }
                 }
             }
         }
@@ -278,7 +282,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
 
         List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrUserAttendanceRelationService.list();//考勤关联全表查询
         Map<String,String> mapRelation = new HashMap<>();
-        //todo 用字符串拼接存会有问题----
+        //todo 用字符串拼接存会有问题----  -- 已修改，2023-10-11 22:10:20
         StringBuffer relationStr = new StringBuffer();
         hrUserAttendanceRelationList.forEach(relation -> {
             String key = relation.getAttendanceTypeId();
