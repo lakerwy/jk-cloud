@@ -22,6 +22,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatI
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 考勤统计表Service接口
@@ -86,4 +87,12 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @date  2023/10/07 10:28
      **/
     void handleAttendanceEvent(HrUserAttendanceStatEvent hrUserAttendanceStatEvent);
+
+    /**
+     * 获取考勤统计天数据
+     *
+     * @author ljy
+     * @date  2023/10/10 16:28
+     */
+    Map<String,Object> dayStatInfo();
 }

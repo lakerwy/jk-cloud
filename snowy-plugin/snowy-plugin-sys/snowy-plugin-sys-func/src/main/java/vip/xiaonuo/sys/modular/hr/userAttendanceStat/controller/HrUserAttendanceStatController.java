@@ -36,6 +36,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceSta
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.Map;
 
 /**
  * 考勤统计表控制器
@@ -60,7 +61,7 @@ public class HrUserAttendanceStatController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取考勤统计表分页")
-    @SaCheckPermission("/sys/userAttendanceStat/page")
+    //@SaCheckPermission("/sys/userAttendanceStat/page")
     @GetMapping("/sys/userAttendanceStat/page")
     public CommonResult<Page<HrUserAttendanceStat>> page(HrUserAttendanceStatPageParam hrUserAttendanceStatPageParam) {
         return CommonResult.data(hrUserAttendanceStatService.page(hrUserAttendanceStatPageParam));
@@ -75,7 +76,7 @@ public class HrUserAttendanceStatController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加考勤统计表")
     @CommonLog("添加考勤统计表")
-    @SaCheckPermission("/sys/userAttendanceStat/add")
+    //@SaCheckPermission("/sys/userAttendanceStat/add")
     @PostMapping("/sys/userAttendanceStat/add")
     public CommonResult<String> add(@RequestBody @Valid HrUserAttendanceStatAddParam hrUserAttendanceStatAddParam) {
         hrUserAttendanceStatService.add(hrUserAttendanceStatAddParam);
@@ -91,7 +92,7 @@ public class HrUserAttendanceStatController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑考勤统计表")
     @CommonLog("编辑考勤统计表")
-    @SaCheckPermission("/sys/userAttendanceStat/edit")
+    //@SaCheckPermission("/sys/userAttendanceStat/edit")
     @PostMapping("/sys/userAttendanceStat/edit")
     public CommonResult<String> edit(@RequestBody @Valid HrUserAttendanceStatEditParam hrUserAttendanceStatEditParam) {
         hrUserAttendanceStatService.edit(hrUserAttendanceStatEditParam);
@@ -107,7 +108,7 @@ public class HrUserAttendanceStatController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除考勤统计表")
     @CommonLog("删除考勤统计表")
-    @SaCheckPermission("/sys/userAttendanceStat/delete")
+    //@SaCheckPermission("/sys/userAttendanceStat/delete")
     @PostMapping("/sys/userAttendanceStat/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<HrUserAttendanceStatIdParam> hrUserAttendanceStatIdParamList) {
@@ -123,9 +124,24 @@ public class HrUserAttendanceStatController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取考勤统计表详情")
-    @SaCheckPermission("/sys/userAttendanceStat/detail")
+    //@SaCheckPermission("/sys/userAttendanceStat/detail")
     @GetMapping("/sys/userAttendanceStat/detail")
     public CommonResult<HrUserAttendanceStat> detail(@Valid HrUserAttendanceStatIdParam hrUserAttendanceStatIdParam) {
         return CommonResult.data(hrUserAttendanceStatService.detail(hrUserAttendanceStatIdParam));
     }
+
+    /**
+     * 获取考勤统计天数据
+     *
+     * @author ljy
+     * @date  2023/10/10 16:28
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取考勤统计天数据")
+    //@SaCheckPermission("/sys/userAttendanceStat/detail")
+    @GetMapping("/sys/userAttendanceStat/dayStatInfo")
+    public CommonResult<Map<String,Object>> dayStatInfo() {
+        return CommonResult.data(hrUserAttendanceStatService.dayStatInfo());
+    }
+
 }

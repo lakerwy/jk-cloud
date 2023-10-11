@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.hr.userAttendance.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -25,6 +26,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -38,8 +40,10 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.entity.HrUserApplyAttendance;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.service.HrUserApplyAttendanceService;
+import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
+import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserDayTimeEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendance.mapper.HrUserAttendanceMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
@@ -252,6 +256,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return hrUserAttendance;
     }
 
+    @Override
     public  void attendanceConfigCache() {
         List<HrUserAttendanceConfigGroup> hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list();//考勤组全表查询
         List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigService.list();//考勤配置全表查询
@@ -296,13 +301,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             return new ArrayList<>();
         }
         /** 获取当月有效工作日时间列表 */
-        /*Page<HrUserAttendance> page = page(hrUserAttendancePageParam);
-        List<HrUserAttendance> hrUserAttendanceList = page.getRecords();*/
-
-//        LambdaQueryWrapper<HrUserAttendanceStat> lambdaQueryWrapperStat = new LambdaQueryWrapper();
-//        lambdaQueryWrapperStat.eq(HrUserAttendanceStat::getUserId,loginUser.getId())
-//                .between(HrUserAttendanceStat::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime());
-//        List<HrUserAttendanceStat> hrUserAttendanceStatList = hrUserAttendanceStatService.list(lambdaQueryWrapperStat);
         List<HrUserAttendance> hrUserAttendanceList = this.list(new LambdaQueryWrapper<HrUserAttendance>().eq(HrUserAttendance::getUserId,loginUser.getId())
                 .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime()));
 
@@ -310,7 +308,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         Map<String,UserAttendanceCountEntity> map = new HashMap<>();
         for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
             String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT);
-            map.put(day,new UserAttendanceCountEntity("",hrUserAttendance.getAbnormalFlag() != null ? "0" : "1",day));
+            map.put(day,new UserAttendanceCountEntity("",hrUserAttendance.getAbnormalFlag() != null ? "0" : "1",day,hrUserAttendance.getCheckTime()));
         }
 
         List<HrUserAttendance> userAttendances = hrUserAttendanceList.stream().filter(attendance ->
@@ -326,7 +324,51 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
 
         return map.keySet().stream().map(map::get).collect(Collectors.toList());
     }
-
+    private Integer getUserConfigCachCount(String userId){ //获取打卡次数
+        String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));
+        if(StringUtils.isNotEmpty(cache)){
+            List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
+            for(AttendanceConfigCacheEntity entity : configCacheEntityList){
+                if(entity.getUserIds().contains(userId)){
+                    List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = entity.getUserAttendanceConfigEntityList();
+                    return userAttendanceConfigEntityList.size();//打卡次数
+                }
+            }
+        }
+        return defaultConfig(DateUtil.date()).size();
+    }
+    //取默认考勤配置
+    private List<AttendanceTimeSlot> defaultConfig(Date dateNow){
+        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
+                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
+        if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroupList)){
+            return new ArrayList<>();
+        }
+        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
+                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
+        return getAttendanceTimeSlotData(configList,dateNow);
+    }
+    private Map<String,Object> countHolidayData(HrUserApplyHoliday holiday){
+        Map<String,Object> map = new HashMap<>();
+        Double halfData = holiday.getLeaveDays()%1;
+        Double dayData =  holiday.getLeaveDays()/1;
+        //开始时间 时分秒
+        boolean flag = CommonTimeFormatUtil.dateToStr(holiday.getApplyBeginTime(), DatePattern.NORM_TIME_PATTERN).equals(HrUserDayTimeEnum.NOON.getValue());
+        if(halfData.doubleValue() > 0.0){
+            String dayTime =  flag ? CommonTimeFormatUtil.dateToStr(holiday.getApplyBeginTime(), DatePattern.NORM_DATE_PATTERN)
+                    :CommonTimeFormatUtil.dateToStr(holiday.getApplyEndTime(), DatePattern.NORM_DATE_PATTERN);
+            map.put(dayTime,flag ? HrUserDayTimeEnum.AM.getValue():HrUserDayTimeEnum.PM.getValue());
+        }
+        if(dayData > 0.0){
+            Date beginTime = flag ? DateUtils.addDays(holiday.getApplyBeginTime(), 1) : holiday.getApplyBeginTime();
+            for(int i=0;i<Integer.valueOf(holiday.getLeaveDays().toString());i++){
+                Date dateTemp = DateUtils.addDays(beginTime, i);
+                String day = CommonTimeFormatUtil.dateToStr(dateTemp,DatePattern.NORM_DATE_PATTERN);
+                map.put(day,HrUserDayTimeEnum.DAY.getValue());
+            }
+        }
+        return map;
+    }
     @Override
     public Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();

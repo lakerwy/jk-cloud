@@ -1,6 +1,7 @@
 package vip.xiaonuo.sys.modular.hr.userAttendance.entity;
 
 import java.io.Serializable;
+import java.util.Date;
 
 public class UserAttendanceCountEntity implements Serializable {
 
@@ -9,13 +10,15 @@ public class UserAttendanceCountEntity implements Serializable {
     private String userName;
     private String dayAttendanceStatus;
     private String dayDate;
+    private Date checkTime;
 
     public UserAttendanceCountEntity(){}
 
-    public UserAttendanceCountEntity(String userName,String dayAttendanceStatus,String dayDate){
+    public UserAttendanceCountEntity(String userName,String dayAttendanceStatus,String dayDate,Date checkTime){
         this.userName = userName;
         this.dayAttendanceStatus = dayAttendanceStatus;
         this.dayDate = dayDate;
+        this.checkTime = checkTime;
     }
 
     public String getDayAttendanceStatus() {
@@ -40,5 +43,13 @@ public class UserAttendanceCountEntity implements Serializable {
 
     public void setDayDate(String dayDate) {
         this.dayDate = dayDate;
+    }
+
+    public Date getCheckTime() {
+        return checkTime;
+    }
+
+    public void setCheckTime(Date checkTime) {
+        this.checkTime = checkTime;
     }
 }

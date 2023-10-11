@@ -18,16 +18,31 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.AttendanceConfigCacheEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.AttendanceTimeSlot;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceConfigEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
@@ -39,8 +54,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatP
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 
 import javax.annotation.Resource;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
 
 /**
  * 考勤统计表Service接口实现类
@@ -52,9 +66,16 @@ import java.util.List;
 public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanceStatMapper, HrUserAttendanceStat> implements HrUserAttendanceStatService {
 
     private final String ON_DUTY = "OnDuty";
+    private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
 
     @Resource
     HrUserAttendanceStatService hrUserAttendanceStatService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+    @Autowired
+    private HrUserAttendanceConfigService hrUserAttendanceConfigService;
+    @Autowired
+    private HrUserAttendanceConfigGroupService hrUserAttendanceConfigGroupService;
 
     @Override
     public Page<HrUserAttendanceStat> page(HrUserAttendanceStatPageParam hrUserAttendanceStatPageParam) {
@@ -148,4 +169,39 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             return;
         }
     }
+
+    @Override
+    public Map<String,Object> dayStatInfo(){
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        Map<String,Object> map = new HashMap<>();
+        Date beginDate = DateUtil.beginOfDay(DateUtil.date());
+        Date endDate = DateUtil.endOfDay(DateUtil.date());
+        List<HrUserAttendanceStat> hrUserAttendanceStatList = this.list(new QueryWrapper<HrUserAttendanceStat>().lambda()
+                .eq(HrUserAttendanceStat::getUserId,loginUser.getId())
+                .between(HrUserAttendanceStat::getCheckTime,beginDate,endDate));
+        Integer dayAttendanceNum = getUserConfigCachCount(loginUser.getId());
+        map.put("dayAttendanceNum",dayAttendanceNum);
+        map.put("attendance",hrUserAttendanceStatList);
+        return map;
+    }
+
+    private Integer getUserConfigCachCount(String userId){ //获取打卡次数
+        String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));
+        if(StringUtils.isNotEmpty(cache)){
+            List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
+            for(AttendanceConfigCacheEntity entity : configCacheEntityList){
+                if(entity.getUserIds().contains(userId)){
+                    List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = entity.getUserAttendanceConfigEntityList();
+                    return userAttendanceConfigEntityList.size();
+                }
+            }
+        }
+        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
+                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
+
+        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
+                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
+        return configList.size();
+    }
+
 }
