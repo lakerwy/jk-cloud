@@ -241,6 +241,9 @@ public class BizProjectRegister {
 
     @ApiModelProperty(value = "区域负责人", position = 63)
     private String areaLeader;
+
+    @ApiModelProperty(value = "新增备注信息",position = 63)
+    private String brief;
 }
 
 

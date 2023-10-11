@@ -70,4 +70,8 @@ public class BizProjectRegisterPageParam {
     @ApiModelProperty(value = "申请时间结束")
     private String endApplyTime;
 
+    /** 过滤标识 */
+    @ApiModelProperty(value = "过滤标识 true 标识 查询审批通过的 ，默认false")
+    private Boolean filterFlag;
+
 }

@@ -226,6 +226,9 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
             if(ObjectUtil.isEmpty(processJson)) {
                 throw new CommonException("请先完成模型设计，名称为：{}", flwModel.getName());
             }
+            FlwNode process = JSONUtil.toBean(processJson, FlwNode.class);
+            process.setTitle(flwModel.getName());
+            processJson = JSONUtil.toJsonStr(process);
             BpmnModelInstance bpmnModelInstance = ProcessParser.buildBpmnModelInstance(processJson);
             String flowXml = Bpmn.convertToString(bpmnModelInstance);
             DeploymentBuilder deploymentBuilder = repositoryService.createDeployment().addString(flwModel.getName() + ".bpmn", flowXml)
