@@ -210,7 +210,7 @@ public class CommonTimeFormatUtil {
         public static String dateToStr(Date date, String format) {
             if (date == null) return null;
             // 如果没有指定字符串转换的格式，则用默认格式进行转换
-            if (null == format || "".equals(format)) {
+            if (null == format || format.isEmpty()) {
                 format = DATETIME_FORMAT;
             }
             SimpleDateFormat sdf = new SimpleDateFormat(format);
