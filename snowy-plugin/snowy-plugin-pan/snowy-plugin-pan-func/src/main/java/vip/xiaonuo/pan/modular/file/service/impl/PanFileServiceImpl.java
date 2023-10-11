@@ -62,9 +62,6 @@ import java.util.concurrent.Executors;
 public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> implements PanFileService {
 
     @Resource
-    private PanFileMapper panFileMapper;
-
-    @Resource
     private UserFileService userFileService;
 
     @Resource
@@ -181,17 +178,11 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
     @Override
     public void updateFileDetail(String userFileId, String identifier, long fileSize) {
         UserFile userFile = userFileService.getById(userFileId);
-        //String currentTime = DateUtil.getCurrentTime();
         PanFile fileBean = new PanFile();
         fileBean.setIdentifier(identifier);
         fileBean.setFileSize(fileSize);
-//        fileBean.setModifyTime(currentTime);
-//        fileBean.setModifyUserId(SessionUtil.getUserId());
         fileBean.setId(userFile.getFileId());
         updateById(fileBean);
-//        userFile.setUploadTime(currentTime);
-//        userFile.setModifyTime(currentTime);
-//        userFile.setModifyUserId(SessionUtil.getUserId());
         userFileService.updateById(userFile);
     }
 }

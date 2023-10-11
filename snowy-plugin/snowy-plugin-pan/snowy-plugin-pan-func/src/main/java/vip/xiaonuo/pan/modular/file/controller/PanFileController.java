@@ -292,6 +292,7 @@ public class PanFileController {
     public CommonResult<PanFileStorage> getStorage(){
         Long storageSize = fileTransferService.selectStorageSizeByUserId();
         PanFileStorage panFileStorage = panFileStorageService.getOne(new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, StpLoginUserUtil.getLoginUser().getId()));
+        panFileStorage.setTotalStorageSize(panFileStorage.getTotalStorageSize()*1024*1024*1024);
         panFileStorage.setStorageSize(storageSize);
         return CommonResult.data(panFileStorage);
     }

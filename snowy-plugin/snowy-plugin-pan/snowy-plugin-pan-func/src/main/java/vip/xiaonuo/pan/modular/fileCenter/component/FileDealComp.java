@@ -247,7 +247,7 @@ public class FileDealComp {
                 .eq(UserFile::getUserId, sessionUserId)
                 .groupBy(UserFile::getFilePath, UserFile::getFileName)
                 .having("count(FILE_NAME) >= 2");
-        List<UserFile> repeatList = userFileMapper.mySelectList(lambdaQueryWrapper);
+        List<UserFile> repeatList = userFileMapper.selectList(lambdaQueryWrapper);
 
         for (UserFile userFile : repeatList) {
             LambdaQueryWrapper<UserFile> lambdaQueryWrapper1 = new LambdaQueryWrapper<>();
