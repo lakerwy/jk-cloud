@@ -80,4 +80,7 @@ public class HrUserApplyHolidayEditParam {
     @ApiModelProperty(value = "扩展信息", position = 13)
     private String extJson;
 
+    /** 请假天数 */
+    @ApiModelProperty(value = "请假天数", position = 19)
+    private Double leaveDays;
 }
