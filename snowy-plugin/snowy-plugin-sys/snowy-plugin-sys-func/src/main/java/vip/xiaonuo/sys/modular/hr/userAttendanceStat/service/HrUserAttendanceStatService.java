@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceStat.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
@@ -95,4 +96,12 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @date  2023/10/10 16:28
      */
     Map<String,Object> dayStatInfo();
+
+    /**
+     * 获取打卡配置数据
+     *
+     * @author ljy
+     * @date  2023/10/11 22:28
+     */
+    List<UserAttendanceConfigEntity> getUserConfigCachData(String userId);
 }

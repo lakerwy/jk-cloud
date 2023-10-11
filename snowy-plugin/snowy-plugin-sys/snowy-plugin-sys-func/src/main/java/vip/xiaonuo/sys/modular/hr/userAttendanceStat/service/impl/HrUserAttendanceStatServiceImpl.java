@@ -180,7 +180,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         List<HrUserAttendanceStat> hrUserAttendanceStatList = this.list(new QueryWrapper<HrUserAttendanceStat>().lambda()
                 .eq(HrUserAttendanceStat::getUserId,loginUser.getId())
                 .between(HrUserAttendanceStat::getCheckTime,beginDate,endDate));
-        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = getUserConfigCachCount(loginUser.getId());
+        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = getUserConfigCachData(loginUser.getId());
         List<Map<String,Object>> mapList = new ArrayList<>();
         for(UserAttendanceConfigEntity entity : userAttendanceConfigEntityList){
             Map<String,Object> attendanceMap = new HashMap<>();
@@ -203,7 +203,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         return map;
     }
 
-    private List<UserAttendanceConfigEntity> getUserConfigCachCount(String userId){ //获取打卡次数
+    @Override
+    public List<UserAttendanceConfigEntity> getUserConfigCachData(String userId){ //获取打卡次数
         String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));
         if(StringUtils.isNotEmpty(cache)){
             List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);

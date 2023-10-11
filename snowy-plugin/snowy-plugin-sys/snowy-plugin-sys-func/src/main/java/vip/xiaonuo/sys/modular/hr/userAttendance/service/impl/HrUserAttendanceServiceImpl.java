@@ -56,6 +56,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttenda
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
@@ -310,10 +311,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT);
             map.put(day,new UserAttendanceCountEntity("",hrUserAttendance.getAbnormalFlag() != null ? "0" : "1",day,hrUserAttendance.getCheckTime()));
         }
-
         List<HrUserAttendance> userAttendances = hrUserAttendanceList.stream().filter(attendance ->
                 attendance.getAbnormalFlag() != null && attendance.getAbnormalFlag() == 2).collect(Collectors.toList());/**  筛选打卡异常的数据*/
-
         /** 打卡异常的数据 */
         userAttendances.forEach(attendance ->  {
             String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DATE_FORMAT);
@@ -321,54 +320,9 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                 map.get(day).setDayAttendanceStatus("1");
             }
         });
-
         return map.keySet().stream().map(map::get).collect(Collectors.toList());
     }
-    private Integer getUserConfigCachCount(String userId){ //获取打卡次数
-        String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));
-        if(StringUtils.isNotEmpty(cache)){
-            List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
-            for(AttendanceConfigCacheEntity entity : configCacheEntityList){
-                if(entity.getUserIds().contains(userId)){
-                    List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = entity.getUserAttendanceConfigEntityList();
-                    return userAttendanceConfigEntityList.size();//打卡次数
-                }
-            }
-        }
-        return defaultConfig(DateUtil.date()).size();
-    }
-    //取默认考勤配置
-    private List<AttendanceTimeSlot> defaultConfig(Date dateNow){
-        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
-                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
-        if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroupList)){
-            return new ArrayList<>();
-        }
-        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
-                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
-        return getAttendanceTimeSlotData(configList,dateNow);
-    }
-    private Map<String,Object> countHolidayData(HrUserApplyHoliday holiday){
-        Map<String,Object> map = new HashMap<>();
-        Double halfData = holiday.getLeaveDays()%1;
-        Double dayData =  holiday.getLeaveDays()/1;
-        //开始时间 时分秒
-        boolean flag = CommonTimeFormatUtil.dateToStr(holiday.getApplyBeginTime(), DatePattern.NORM_TIME_PATTERN).equals(HrUserDayTimeEnum.NOON.getValue());
-        if(halfData.doubleValue() > 0.0){
-            String dayTime =  flag ? CommonTimeFormatUtil.dateToStr(holiday.getApplyBeginTime(), DatePattern.NORM_DATE_PATTERN)
-                    :CommonTimeFormatUtil.dateToStr(holiday.getApplyEndTime(), DatePattern.NORM_DATE_PATTERN);
-            map.put(dayTime,flag ? HrUserDayTimeEnum.AM.getValue():HrUserDayTimeEnum.PM.getValue());
-        }
-        if(dayData > 0.0){
-            Date beginTime = flag ? DateUtils.addDays(holiday.getApplyBeginTime(), 1) : holiday.getApplyBeginTime();
-            for(int i=0;i<Integer.valueOf(holiday.getLeaveDays().toString());i++){
-                Date dateTemp = DateUtils.addDays(beginTime, i);
-                String day = CommonTimeFormatUtil.dateToStr(dateTemp,DatePattern.NORM_DATE_PATTERN);
-                map.put(day,HrUserDayTimeEnum.DAY.getValue());
-            }
-        }
-        return map;
-    }
+
     @Override
     public Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
@@ -418,34 +372,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             offDutyAttendances.get(offDutyAttendances.size() -1).setAbnormalFlag(0);
         }
         map.put("2",offDutyAttendances);
-
         return  map;
-
-
-//        List<HrUserAttendance>  hrUserAttendanceOnDutyList = hrUserAttendanceList.stream()
-//                .filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()))
-//                .sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
-//        if(!hrUserAttendanceOnDutyList.isEmpty() && hrUserAttendanceOnDutyList.get(0).getAbnormalFlag() == 1){
-//            hrUserAttendanceOnDutyList.get(0).setAbnormalFlag(0);
-//        }
-//        map.put("0",hrUserAttendanceOnDutyList);
-//
-//        List<HrUserAttendance>  hrUserAttendanceRestList = hrUserAttendanceList.stream()
-//                .filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_REST.getValue()))
-//                .sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
-//        if(!hrUserAttendanceRestList.isEmpty()){
-//            hrUserAttendanceRestList.get(hrUserAttendanceRestList.size() -1).setAbnormalFlag(0);
-//        }
-//        map.put("1",hrUserAttendanceRestList);
-//
-//        List<HrUserAttendance>  hrUserAttendanceOffDutyList = hrUserAttendanceList.stream()
-//                .filter(attendance -> attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue()))
-//                .sorted(Comparator.comparing(HrUserAttendance::getCheckTime)).collect(Collectors.toList());
-//        if(!hrUserAttendanceOffDutyList.isEmpty() && hrUserAttendanceOffDutyList.get(hrUserAttendanceOffDutyList.size() - 1).getAbnormalFlag() == 1){
-//            hrUserAttendanceOffDutyList.get(hrUserAttendanceOffDutyList.size()-1).setAbnormalFlag(0);
-//        }
-//        map.put("2",hrUserAttendanceOffDutyList);
-//        return map;
     }
 
 
