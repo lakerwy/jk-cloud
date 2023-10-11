@@ -167,6 +167,7 @@ public class GatewayConfigure {
             "/api/webapp/pan/file/preview",
             "/api/webapp/pan/file/previewOfficeFile",
             "/api/net/api/AutocadService/**",
+            "/api/webapp/pan/file/downloadFile"
 
     };
 
