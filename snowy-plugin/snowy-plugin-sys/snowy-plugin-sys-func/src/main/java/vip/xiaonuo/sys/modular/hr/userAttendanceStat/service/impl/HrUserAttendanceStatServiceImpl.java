@@ -55,6 +55,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceSta
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 考勤统计表Service接口实现类
@@ -179,20 +180,36 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         List<HrUserAttendanceStat> hrUserAttendanceStatList = this.list(new QueryWrapper<HrUserAttendanceStat>().lambda()
                 .eq(HrUserAttendanceStat::getUserId,loginUser.getId())
                 .between(HrUserAttendanceStat::getCheckTime,beginDate,endDate));
-        Integer dayAttendanceNum = getUserConfigCachCount(loginUser.getId());
-        map.put("dayAttendanceNum",dayAttendanceNum);
-        map.put("attendance",hrUserAttendanceStatList);
+        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = getUserConfigCachCount(loginUser.getId());
+        List<Map<String,Object>> mapList = new ArrayList<>();
+        for(UserAttendanceConfigEntity entity : userAttendanceConfigEntityList){
+            Map<String,Object> attendanceMap = new HashMap<>();
+            attendanceMap.put("DutyType",entity.getDutyType());
+            attendanceMap.put("checkTime",entity.getCheckTime());
+            attendanceMap.put("attendanceTime","");
+            attendanceMap.put("status","0");//状态
+            for(HrUserAttendanceStat stat : hrUserAttendanceStatList){
+                if(entity.getDutyType().equals(stat.getCheckType())){
+                    attendanceMap.put("attendanceTime",stat.getCheckTime());
+                    if(stat.getAbnormalFlag() == 2){
+                        attendanceMap.put("status",stat.equals("OnDuty") ? "1" : "2");
+                    }
+                }
+            }
+            mapList.add(attendanceMap);
+        }
+        map.put("dayAttendanceNum",hrUserAttendanceStatList.size());//已经打卡次数
+        map.put("attendance",mapList);
         return map;
     }
 
-    private Integer getUserConfigCachCount(String userId){ //获取打卡次数
+    private List<UserAttendanceConfigEntity> getUserConfigCachCount(String userId){ //获取打卡次数
         String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));
         if(StringUtils.isNotEmpty(cache)){
             List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
             for(AttendanceConfigCacheEntity entity : configCacheEntityList){
                 if(entity.getUserIds().contains(userId)){
-                    List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = entity.getUserAttendanceConfigEntityList();
-                    return userAttendanceConfigEntityList.size();
+                    return entity.getUserAttendanceConfigEntityList();
                 }
             }
         }
@@ -201,7 +218,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
         List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
                 .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
-        return configList.size();
+        return configList.stream().map(config -> BeanUtil.toBean(config, UserAttendanceConfigEntity.class)).collect(Collectors.toList());
     }
 
 }
