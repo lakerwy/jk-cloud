@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.personnel.service.impl;
 
-import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -27,14 +26,14 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.sys.modular.hr.fileCert.entity.PersonnelFileCert;
-import vip.xiaonuo.sys.modular.hr.fileCert.service.PersonnelFileCertService;
+import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileCert;
+import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileCertService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
 import vip.xiaonuo.sys.modular.hr.fileMoves.service.PersonnelFileMovesService;
-import vip.xiaonuo.sys.modular.hr.fileRegister.entity.PersonnelFileRegister;
-import vip.xiaonuo.sys.modular.hr.fileRegister.service.PersonnelFileRegisterService;
-import vip.xiaonuo.sys.modular.hr.fileTitle.entity.PersonnelFileTitle;
-import vip.xiaonuo.sys.modular.hr.fileTitle.service.PersonnelFileTitleService;
+import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileRegister;
+import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileRegisterService;
+import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileTitle;
+import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileTitleService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.*;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
 import vip.xiaonuo.sys.modular.hr.personnel.mapper.PersonnelMapper;
@@ -52,7 +51,6 @@ import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
-import vip.xiaonuo.sys.modular.user.param.SysUserGrantRoleParam;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
