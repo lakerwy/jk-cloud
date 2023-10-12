@@ -88,6 +88,16 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
         if(ObjectUtil.isNotEmpty(bizPrjAllotmentPageParam.getStatus())) {
             queryWrapper.lambda().eq(BizPrjAllotment::getStatus, bizPrjAllotmentPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizPrjAllotmentPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BizPrjAllotment::getHzfCode,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getHzfName,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getAllotmentNo,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getXmContractNo,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getXmContractName,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getSettleNo,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getPlanNo,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getSn,bizPrjAllotmentPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(bizPrjAllotmentPageParam.getSortField(), bizPrjAllotmentPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizPrjAllotmentPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizPrjAllotmentPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

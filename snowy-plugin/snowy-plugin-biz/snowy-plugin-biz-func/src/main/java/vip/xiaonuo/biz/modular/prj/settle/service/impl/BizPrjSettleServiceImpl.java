@@ -101,6 +101,14 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
         if(ObjectUtil.isNotEmpty(bizPrjSettlePageParam.getStatus())) {
             queryWrapper.lambda().eq(BizPrjSettle::getStatus, bizPrjSettlePageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizPrjSettlePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BizPrjSettle::getSettleNo,bizPrjSettlePageParam.getSearchKey())
+                    .or().like(BizPrjSettle::getSettleNo,bizPrjSettlePageParam.getSearchKey())
+                    .or().like(BizPrjSettle::getHzfCode,bizPrjSettlePageParam.getSearchKey())
+                    .or().like(BizPrjSettle::getHzfName,bizPrjSettlePageParam.getSearchKey())
+                    .or().like(BizPrjSettle::getXyContractNo,bizPrjSettlePageParam.getSearchKey())
+                    .or().like(BizPrjSettle::getXyContractName,bizPrjSettlePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(bizPrjSettlePageParam.getSortField(), bizPrjSettlePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizPrjSettlePageParam.getSortOrder());
             queryWrapper.orderBy(true, bizPrjSettlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

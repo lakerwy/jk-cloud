@@ -117,6 +117,14 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getStatus())) {
             queryWrapper.lambda().eq(BizPrjPlan::getStatus, bizPrjPlanPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BizPrjPlan::getPlanNo,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getHzfCode,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getHzfName,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getContractNo,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getContractName,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getSn,bizPrjPlanPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(bizPrjPlanPageParam.getSortField(), bizPrjPlanPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizPrjPlanPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizPrjPlanPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
