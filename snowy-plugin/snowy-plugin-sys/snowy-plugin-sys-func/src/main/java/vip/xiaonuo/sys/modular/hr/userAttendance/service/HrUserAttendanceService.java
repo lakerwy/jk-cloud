@@ -99,22 +99,6 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
     void attendanceConfigCache();
 
     /**
-     * 用戶打卡月统计接口
-     *
-     * @author ljy
-     * @date  2023/09/07 14:24
-     */
-    List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam);
-
-    /**
-     * 用戶每天打卡详情
-     *
-     * @author ljy
-     * @date  2023/09/07 14:24
-     */
-    Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam);
-
-    /**
      * 添加补卡记录
      *
      * @author ljy

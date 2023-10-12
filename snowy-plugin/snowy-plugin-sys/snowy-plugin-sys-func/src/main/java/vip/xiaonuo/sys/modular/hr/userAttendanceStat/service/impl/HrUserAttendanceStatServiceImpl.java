@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -34,8 +35,14 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
+import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceConfigCacheEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
@@ -64,15 +71,18 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
     private final String ON_DUTY = "OnDuty";
     private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
+    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Resource
     HrUserAttendanceStatService hrUserAttendanceStatService;
     @Resource
     private CommonCacheOperator commonCacheOperator;
-    @Autowired
+    @Resource
     private HrUserAttendanceConfigService hrUserAttendanceConfigService;
-    @Autowired
+    @Resource
     private HrUserAttendanceConfigGroupService hrUserAttendanceConfigGroupService;
+    @Resource
+    private HrUserAttendanceService hrUserAttendanceService;
 
     @Override
     public Page<HrUserAttendanceStat> page(HrUserAttendanceStatPageParam hrUserAttendanceStatPageParam) {
@@ -218,6 +228,87 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
                 .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
         return configList.stream().map(config -> BeanUtil.toBean(config, UserAttendanceConfigEntity.class)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        hrUserAttendancePageParam.setUserId(loginUser.getId());
+        if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
+            return new HashMap<>();
+        }
+        QueryWrapper<HrUserAttendance> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
+                .eq(HrUserAttendance::getUserId,loginUser.getId());
+
+        List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(queryWrapper);
+        Map<String,List<HrUserAttendance>> map = new HashMap<>();
+        if(hrUserAttendanceList.isEmpty()){
+            map.put("0",new ArrayList<>());
+            map.put("1",new ArrayList<>());
+            map.put("2",new ArrayList<>());
+            return map;
+        }
+        /** 暂时取固定班次  -- 上班 OnDuty，休息 REST，下班 OffDuty   返回数据：0 有效且唯一，1 无效  ，2 早退或迟到 */
+        List<HrUserAttendance> onDutyAttendances = new ArrayList<>();
+        List<HrUserAttendance> restAttendances = new ArrayList<>();
+        List<HrUserAttendance> offDutyAttendances = new ArrayList<>();
+        //减少遍历的次数
+        for (HrUserAttendance hrUserAttendance : hrUserAttendanceList) {
+            String checkType = hrUserAttendance.getCheckType();
+            if(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue().equals(checkType)){
+                onDutyAttendances.add(hrUserAttendance);
+            }else if(HrUserAttendanceEnum.ATTENDANCE_REST.getValue().equals(checkType)){
+                restAttendances.add(hrUserAttendance);
+            }else {
+                offDutyAttendances.add(hrUserAttendance);
+            }
+        }
+        onDutyAttendances.sort(Comparator.comparing(HrUserAttendance::getCheckTime));
+        if(CollUtil.isNotEmpty(onDutyAttendances) && onDutyAttendances.get(0).getAbnormalFlag() == 1){
+            onDutyAttendances.get(0).setAbnormalFlag(0);
+        }
+        map.put("0",onDutyAttendances);
+
+        if(CollUtil.isNotEmpty(restAttendances)){
+            restAttendances.get(restAttendances.size() -1).setAbnormalFlag(0);
+        }
+        map.put("1",restAttendances);
+
+        if(CollUtil.isNotEmpty(offDutyAttendances) && offDutyAttendances.get(offDutyAttendances.size() - 1).getAbnormalFlag() == 1){
+            offDutyAttendances.get(offDutyAttendances.size() -1).setAbnormalFlag(0);
+        }
+        map.put("2",offDutyAttendances);
+        return  map;
+    }
+
+    @Override
+    public List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam) {
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+
+        if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
+            return new ArrayList<>();
+        }
+        /** 获取当月有效工作日时间列表 */
+        List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(new LambdaQueryWrapper<HrUserAttendance>().eq(HrUserAttendance::getUserId,loginUser.getId())
+                .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime()));
+
+        /**  list循环一次，获取-1  循环二次获取 1*/
+        Map<String,UserAttendanceCountEntity> map = new HashMap<>();
+        for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
+            String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT);
+            map.put(day,new UserAttendanceCountEntity("",hrUserAttendance.getAbnormalFlag() != null ? "0" : "1",day,hrUserAttendance.getCheckTime()));
+        }
+        List<HrUserAttendance> userAttendances = hrUserAttendanceList.stream().filter(attendance ->
+                attendance.getAbnormalFlag() != null && attendance.getAbnormalFlag() == 2).collect(Collectors.toList());/**  筛选打卡异常的数据*/
+        /** 打卡异常的数据 */
+        userAttendances.forEach(attendance ->  {
+            String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DATE_FORMAT);
+            if(map.get(day) != null){
+                map.get(day).setDayAttendanceStatus("1");
+            }
+        });
+        return map.keySet().stream().map(map::get).collect(Collectors.toList());
     }
 
 }

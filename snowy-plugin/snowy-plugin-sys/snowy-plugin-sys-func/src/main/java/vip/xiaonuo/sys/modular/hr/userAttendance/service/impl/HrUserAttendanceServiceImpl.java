@@ -56,6 +56,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttenda
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
@@ -308,88 +309,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         attendanceConfigCacheEntityList.forEach(cache -> cache.setUserIds(mapRelation.get(cache.getAttendanceTypeId())));
         commonCacheOperator.put(HR_ATTENDANCE_CONFIG_KEY,JSON.toJSONString(attendanceConfigCacheEntityList)); //缓存
     }
-
-    @Override
-    public List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam) {
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-
-        if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
-            return new ArrayList<>();
-        }
-        /** 获取当月有效工作日时间列表 */
-        List<HrUserAttendance> hrUserAttendanceList = this.list(new LambdaQueryWrapper<HrUserAttendance>().eq(HrUserAttendance::getUserId,loginUser.getId())
-                .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime()));
-
-        /**  list循环一次，获取-1  循环二次获取 1*/
-        Map<String,UserAttendanceCountEntity> map = new HashMap<>();
-        for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
-            String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT);
-            map.put(day,new UserAttendanceCountEntity("",hrUserAttendance.getAbnormalFlag() != null ? "0" : "1",day,hrUserAttendance.getCheckTime()));
-        }
-        List<HrUserAttendance> userAttendances = hrUserAttendanceList.stream().filter(attendance ->
-                attendance.getAbnormalFlag() != null && attendance.getAbnormalFlag() == 2).collect(Collectors.toList());/**  筛选打卡异常的数据*/
-        /** 打卡异常的数据 */
-        userAttendances.forEach(attendance ->  {
-            String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DATE_FORMAT);
-            if(map.get(day) != null){
-                map.get(day).setDayAttendanceStatus("1");
-            }
-        });
-        return map.keySet().stream().map(map::get).collect(Collectors.toList());
-    }
-
-    @Override
-    public Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        hrUserAttendancePageParam.setUserId(loginUser.getId());
-        if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
-            return new HashMap<>();
-        }
-        QueryWrapper<HrUserAttendance> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
-                .eq(HrUserAttendance::getUserId,loginUser.getId());
-
-        List<HrUserAttendance> hrUserAttendanceList = this.list(queryWrapper);
-        Map<String,List<HrUserAttendance>> map = new HashMap<>();
-        if(hrUserAttendanceList.isEmpty()){
-            map.put("0",new ArrayList<>());
-            map.put("1",new ArrayList<>());
-            map.put("2",new ArrayList<>());
-            return map;
-        }
-        /** 暂时取固定班次  -- 上班 OnDuty，休息 REST，下班 OffDuty   返回数据：0 有效且唯一，1 无效  ，2 早退或迟到 */
-        List<HrUserAttendance> onDutyAttendances = new ArrayList<>();
-        List<HrUserAttendance> restAttendances = new ArrayList<>();
-        List<HrUserAttendance> offDutyAttendances = new ArrayList<>();
-        //减少遍历的次数
-        for (HrUserAttendance hrUserAttendance : hrUserAttendanceList) {
-            String checkType = hrUserAttendance.getCheckType();
-            if(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue().equals(checkType)){
-                onDutyAttendances.add(hrUserAttendance);
-            }else if(HrUserAttendanceEnum.ATTENDANCE_REST.getValue().equals(checkType)){
-                restAttendances.add(hrUserAttendance);
-            }else {
-                offDutyAttendances.add(hrUserAttendance);
-            }
-        }
-        onDutyAttendances.sort(Comparator.comparing(HrUserAttendance::getCheckTime));
-        if(CollUtil.isNotEmpty(onDutyAttendances) && onDutyAttendances.get(0).getAbnormalFlag() == 1){
-            onDutyAttendances.get(0).setAbnormalFlag(0);
-        }
-        map.put("0",onDutyAttendances);
-
-        if(CollUtil.isNotEmpty(restAttendances)){
-            restAttendances.get(restAttendances.size() -1).setAbnormalFlag(0);
-        }
-        map.put("1",restAttendances);
-
-        if(CollUtil.isNotEmpty(offDutyAttendances) && offDutyAttendances.get(offDutyAttendances.size() - 1).getAbnormalFlag() == 1){
-            offDutyAttendances.get(offDutyAttendances.size() -1).setAbnormalFlag(0);
-        }
-        map.put("2",offDutyAttendances);
-        return  map;
-    }
-
 
     /**
      * 申请补卡通过之后的流程

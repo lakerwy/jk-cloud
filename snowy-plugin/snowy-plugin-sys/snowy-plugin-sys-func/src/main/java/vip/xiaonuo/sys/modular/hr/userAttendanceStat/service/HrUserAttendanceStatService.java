@@ -14,7 +14,10 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceStat.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
@@ -104,4 +107,20 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @date  2023/10/11 22:28
      */
     List<UserAttendanceConfigEntity> getUserConfigCachData(String userId);
+
+    /**
+     * 用戶每天打卡详情
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam);
+
+    /**
+     * 用戶打卡月统计接口
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam);
 }
