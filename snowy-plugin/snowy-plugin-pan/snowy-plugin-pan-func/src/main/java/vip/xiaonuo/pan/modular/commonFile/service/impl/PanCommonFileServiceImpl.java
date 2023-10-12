@@ -34,7 +34,6 @@ import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanFilePermission;
 import vip.xiaonuo.pan.modular.fileCenter.service.PanFilePermissionService;
-import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
