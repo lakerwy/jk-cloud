@@ -136,6 +136,7 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
             bizPrjSettle.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             bizPrjSettle.setModelId(modelId);
             bizPrjSettle.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            bizPrjSettle.setSettleNo(bizPrjSettle.getSn());
             FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
