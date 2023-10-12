@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -70,6 +71,7 @@ import java.util.stream.Collectors;
 public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanceStatMapper, HrUserAttendanceStat> implements HrUserAttendanceStatService {
 
     private final String ON_DUTY = "OnDuty";
+    private final String OFF_DUTY = "OffDuty";
     private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
     private static final String DATE_FORMAT = "yyyy-MM-dd";
 
@@ -237,50 +239,51 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
             return new HashMap<>();
         }
-        QueryWrapper<HrUserAttendance> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
-                .eq(HrUserAttendance::getUserId,loginUser.getId());
+        List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(new LambdaQueryWrapper<HrUserAttendance>()
+                .eq(HrUserAttendance::getUserId,loginUser.getId())
+                .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
+                .orderByAsc(HrUserAttendance::getCheckTime));
 
-        List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(queryWrapper);
+        List<HrUserAttendanceStat> hrUserAttendanceStatList = hrUserAttendanceStatService.list(new LambdaQueryWrapper<HrUserAttendanceStat>()
+                .eq(HrUserAttendanceStat::getUserId,loginUser.getId())
+                .between(HrUserAttendanceStat::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
+                .orderByAsc(HrUserAttendanceStat::getCheckTime));
+
+        Map<String,HrUserAttendance> statMap = new HashMap<>();/** 判断考勤数据是否存在迟到或者早退*/
+        hrUserAttendanceStatList.forEach(stat -> {
+            if(stat.getCheckType().equals(ON_DUTY)){
+                stat.setAbnormalFlag(3);//迟到
+            }else if(stat.getCheckType().equals(OFF_DUTY)){
+                stat.setAbnormalFlag(4);//早退
+            }
+            statMap.put(stat.getCheckType(),BeanUtil.toBean(stat,HrUserAttendance.class));
+        });
+        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = hrUserAttendanceStatService.getUserConfigCachData(loginUser.getId());/** 获取打卡配置*/
+
         Map<String,List<HrUserAttendance>> map = new HashMap<>();
-        if(hrUserAttendanceList.isEmpty()){
-            map.put("0",new ArrayList<>());
-            map.put("1",new ArrayList<>());
-            map.put("2",new ArrayList<>());
-            return map;
-        }
-        /** 暂时取固定班次  -- 上班 OnDuty，休息 REST，下班 OffDuty   返回数据：0 有效且唯一，1 无效  ，2 早退或迟到 */
-        List<HrUserAttendance> onDutyAttendances = new ArrayList<>();
-        List<HrUserAttendance> restAttendances = new ArrayList<>();
-        List<HrUserAttendance> offDutyAttendances = new ArrayList<>();
-        //减少遍历的次数
-        for (HrUserAttendance hrUserAttendance : hrUserAttendanceList) {
-            String checkType = hrUserAttendance.getCheckType();
-            if(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue().equals(checkType)){
-                onDutyAttendances.add(hrUserAttendance);
-            }else if(HrUserAttendanceEnum.ATTENDANCE_REST.getValue().equals(checkType)){
-                restAttendances.add(hrUserAttendance);
-            }else {
-                offDutyAttendances.add(hrUserAttendance);
+        for(int i=0;i<userAttendanceConfigEntityList.size();i++){
+            String dutyType = userAttendanceConfigEntityList.get(i).getDutyType();
+            HrUserAttendance hrUserAttendance = statMap.get(dutyType);
+            List<HrUserAttendance> list = new ArrayList<>();
+            list.add(hrUserAttendance);
+            if(ObjectUtil.isEmpty(hrUserAttendance)){
+                list = hrUserAttendanceList.stream().filter(attendance -> attendance.getCheckType().equals(dutyType)
+                ).collect(Collectors.toList());
+                /** 防止打卡记录表存在数据，而统计表没有数据，且对数据做异常判断 */
+                if(CollectionUtil.isNotEmpty(list) && list.get(0).getAbnormalFlag() == 2){
+                    list.get(0).setAbnormalFlag(3);
+                }
+                map.put(String.valueOf(i),list);
+            }else{
+                list.addAll(hrUserAttendanceList.stream().filter(attendance ->
+                        attendance.getCheckType().equals(dutyType) && attendance.getCheckTime().compareTo(hrUserAttendance.getCheckTime()) != 0
+                ).collect(Collectors.toList()));
+                map.put(String.valueOf(i),list);
             }
         }
-        onDutyAttendances.sort(Comparator.comparing(HrUserAttendance::getCheckTime));
-        if(CollUtil.isNotEmpty(onDutyAttendances) && onDutyAttendances.get(0).getAbnormalFlag() == 1){
-            onDutyAttendances.get(0).setAbnormalFlag(0);
-        }
-        map.put("0",onDutyAttendances);
-
-        if(CollUtil.isNotEmpty(restAttendances)){
-            restAttendances.get(restAttendances.size() -1).setAbnormalFlag(0);
-        }
-        map.put("1",restAttendances);
-
-        if(CollUtil.isNotEmpty(offDutyAttendances) && offDutyAttendances.get(offDutyAttendances.size() - 1).getAbnormalFlag() == 1){
-            offDutyAttendances.get(offDutyAttendances.size() -1).setAbnormalFlag(0);
-        }
-        map.put("2",offDutyAttendances);
-        return  map;
+        return map;
     }
+
 
     @Override
     public List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam) {
