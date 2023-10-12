@@ -12,8 +12,11 @@
  */
 package vip.xiaonuo.pan.modular.commonFile.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
@@ -36,5 +39,5 @@ public interface PanCommonFileMapper extends BaseMapper<PanCommonFile> {
     List<CommonFileVo> selectCommonFileByUser(@Param("userId") String userId, @Param("sessionUserId") String sessionUserId);
 
     /** 我的共享 - 所共享的文件列表 **/
-    IPage<CommonFileVo> myCommonFile(@Param("userId") String userId);
+    IPage<CommonFileVo> myCommonFile(Page<CommonFileVo> page, @Param(Constants.WRAPPER) Wrapper<PanCommonFile> queryWrapper);
 }

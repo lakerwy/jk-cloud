@@ -35,7 +35,7 @@
                  LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
                  LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
                  LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
-        WHERE c.USER_ID = #{userId} and c.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
     </select>
 
 </mapper>
