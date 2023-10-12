@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.userAttendance.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -27,8 +26,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceCountEntity;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceDayInfoEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceIdParam;
@@ -148,37 +146,7 @@ public class HrUserAttendanceController {
         return CommonResult.data(hrUserAttendanceService.attendance(hrUserAttendanceAddParam));
     }
 
-    /**
-     * 用戶打卡月统计接口
-     *
-     * @author ljy
-     * @date  2023/09/07 14:24
-     */
     @ApiOperationSupport(order = 7)
-    @ApiOperation("用戶打卡月统计接口")
-    @CommonLog("用戶打卡月统计接口")
-    //@SaCheckPermission("/sys/userAttendance/attendancemonthcount")
-    @GetMapping("/sys/userAttendance/attendancemonthcount")
-    public CommonResult<List<UserAttendanceCountEntity>> attendanceMonthCount(@Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
-        return CommonResult.data(hrUserAttendanceService.attendanceMonthCount(hrUserAttendancePageParam));
-    }
-
-    /**
-     * 用戶每天打卡详情
-     *
-     * @author ljy
-     * @date  2023/09/07 14:24
-     */
-    @ApiOperationSupport(order = 8)
-    @ApiOperation("用戶每天打卡详情数据")
-    @CommonLog("用戶每天打卡详情数据")
-    //@SaCheckPermission("/sys/userAttendance/attendancedayinfo")
-    @GetMapping("/sys/userAttendance/attendancedayinfo")
-    public CommonResult<Map<String,List<HrUserAttendance>>> attendanceDayInfo(@Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
-        return CommonResult.data(hrUserAttendanceService.attendanceDayInfo(hrUserAttendancePageParam));
-    }
-
-    @ApiOperationSupport(order = 9)
     @ApiOperation("预留接口--传入部门ID,获取部门下面人员ID")
     @CommonLog("预留接口--传入部门ID,获取部门下面人员ID")
     //@SaCheckPermission("/sys/userAttendance/orgIdToUserIds")
@@ -187,7 +155,7 @@ public class HrUserAttendanceController {
         return CommonResult.data(hrUserAttendanceService.getOrgAndUserId(orgId));
     }
 
-    @ApiOperationSupport(order = 10)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("预留接口--手动缓存考勤配置")
     @CommonLog("预留接口--手动缓存考勤配置")
     //@SaCheckPermission("/sys/userAttendance/attendanceConfigCache")

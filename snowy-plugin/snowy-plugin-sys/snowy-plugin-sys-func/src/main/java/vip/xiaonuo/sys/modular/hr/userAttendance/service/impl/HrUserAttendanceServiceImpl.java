@@ -15,7 +15,6 @@ package vip.xiaonuo.sys.modular.hr.userAttendance.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -26,7 +25,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
@@ -40,16 +38,18 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.entity.HrUserApplyAttendance;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.service.HrUserApplyAttendanceService;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
-import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserDayTimeEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendance.mapper.HrUserAttendanceMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceConfigCacheEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
@@ -57,7 +57,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttend
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -152,9 +152,13 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         hrUserAttendance.setAbnormalFlag(-1);/** 初始化默认值*/
 
         /** 计算有效打卡时间区间*/
-        List<AttendanceTimeSlot> attendanceTimeSlotList =  getAttendanceTimeSlotList(hrUserAttendanceAddParam.getUserId(),hrUserAttendance.getCheckTime());//getAttendanceConfigValueByKey(dateNow);
-
-        /** 上下班休息标识；OnDuty：上班；OffDuty：下班；休息 REST */
+        List<AttendanceTimeSlot> attendanceTimeSlotList =  getAttendanceTimeSlotList(hrUserAttendanceAddParam.getUserId(),hrUserAttendance.getCheckTime());
+        /**
+         * 上下班休息标识；OnDuty：上班；OffDuty：下班；休息 REST
+         * 根据区间判断，在打卡时间区间里，打卡正常
+         * 在工作时间区间里，打卡异常
+         * 根据区间属性：打卡类型-dutyType，判断是属于迟到还是早退
+         * */
         attendanceTimeSlotList.forEach(slot -> {
             if(hrUserAttendance.getCheckTime().after(slot.getBeginTime()) && hrUserAttendance.getCheckTime().before(slot.getEndTime())){
                 hrUserAttendance.setAbnormalFlag(1);/** 打卡正常*/
@@ -193,7 +197,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                 }
             }
         }
-        //取默认考勤配置
+        /** 缓存没有，则取默认配置 */
         List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
                 .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
         if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroupList)){
@@ -206,14 +210,19 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
 
     private List<AttendanceTimeSlot> getAttendanceTimeSlotData(List<HrUserAttendanceConfig> configList,Date dateNow){
         List<AttendanceTimeSlot>  attendanceTimeSlotList = new ArrayList<>();
-        configList = configList.stream().sorted(Comparator.comparing(HrUserAttendanceConfig::getOrderNumber)).collect(Collectors.toList());
+        configList = configList.stream().sorted(Comparator.comparing(HrUserAttendanceConfig::getOrderNumber)).collect(Collectors.toList());//按照num排序，防止顺序错乱
+        /**
+         * 根据考勤配置，获取用户打卡时间区间和工作时间区间，分别用来判断正常打卡,迟到,早退的情况
+         * beginTime - endTime 打卡时间区间
+         * workBeginTime - workEndTime 工作时间区间
+         * */
         for(HrUserAttendanceConfig attendanceConfig : configList){
             AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
             attendanceTimeSlot.setDutyType(attendanceConfig.getDutyType());
             Date time = CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,DATE_FORMAT),attendanceConfig.getCheckTime().toString());
             attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getBeginMinTime()),2));
             attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getEndMinTime()),1));
-            attendanceTimeSlot.setCompareTime(time);
+            attendanceTimeSlot.setCompareTime(time);//存打卡点时间
             attendanceTimeSlot.setWorkHours(StringUtils.isEmpty(attendanceConfig.getWorkHours()) ? "0" : attendanceConfig.getWorkHours());
             attendanceTimeSlot.setOrderNumber(attendanceConfig.getOrderNumber());
             attendanceTimeSlot.setWorkEndTime(time);//初始化默认值
@@ -261,6 +270,9 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return hrUserAttendance;
     }
 
+    /**
+     * 缓存考勤配置数据
+     * */
     @Override
     public  void attendanceConfigCache() {
         List<HrUserAttendanceConfigGroup> hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list();//考勤组全表查询
@@ -298,91 +310,10 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         commonCacheOperator.put(HR_ATTENDANCE_CONFIG_KEY,JSON.toJSONString(attendanceConfigCacheEntityList)); //缓存
     }
 
-    @Override
-    public List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam) {
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-
-        if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
-            return new ArrayList<>();
-        }
-        /** 获取当月有效工作日时间列表 */
-        List<HrUserAttendance> hrUserAttendanceList = this.list(new LambdaQueryWrapper<HrUserAttendance>().eq(HrUserAttendance::getUserId,loginUser.getId())
-                .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime()));
-
-        /**  list循环一次，获取-1  循环二次获取 1*/
-        Map<String,UserAttendanceCountEntity> map = new HashMap<>();
-        for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
-            String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT);
-            map.put(day,new UserAttendanceCountEntity("",hrUserAttendance.getAbnormalFlag() != null ? "0" : "1",day,hrUserAttendance.getCheckTime()));
-        }
-        List<HrUserAttendance> userAttendances = hrUserAttendanceList.stream().filter(attendance ->
-                attendance.getAbnormalFlag() != null && attendance.getAbnormalFlag() == 2).collect(Collectors.toList());/**  筛选打卡异常的数据*/
-        /** 打卡异常的数据 */
-        userAttendances.forEach(attendance ->  {
-            String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DATE_FORMAT);
-            if(map.get(day) != null){
-                map.get(day).setDayAttendanceStatus("1");
-            }
-        });
-        return map.keySet().stream().map(map::get).collect(Collectors.toList());
-    }
-
-    @Override
-    public Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        hrUserAttendancePageParam.setUserId(loginUser.getId());
-        if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
-            return new HashMap<>();
-        }
-        QueryWrapper<HrUserAttendance> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
-                .eq(HrUserAttendance::getUserId,loginUser.getId());
-
-        List<HrUserAttendance> hrUserAttendanceList = this.list(queryWrapper);
-        Map<String,List<HrUserAttendance>> map = new HashMap<>();
-        if(hrUserAttendanceList.isEmpty()){
-            map.put("0",new ArrayList<>());
-            map.put("1",new ArrayList<>());
-            map.put("2",new ArrayList<>());
-            return map;
-        }
-        /** 暂时取固定班次  -- 上班 OnDuty，休息 REST，下班 OffDuty   返回数据：0 有效且唯一，1 无效  ，2 早退或迟到 */
-        List<HrUserAttendance> onDutyAttendances = new ArrayList<>();
-        List<HrUserAttendance> restAttendances = new ArrayList<>();
-        List<HrUserAttendance> offDutyAttendances = new ArrayList<>();
-        //减少遍历的次数
-        for (HrUserAttendance hrUserAttendance : hrUserAttendanceList) {
-            String checkType = hrUserAttendance.getCheckType();
-            if(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue().equals(checkType)){
-                onDutyAttendances.add(hrUserAttendance);
-            }else if(HrUserAttendanceEnum.ATTENDANCE_REST.getValue().equals(checkType)){
-                restAttendances.add(hrUserAttendance);
-            }else {
-                offDutyAttendances.add(hrUserAttendance);
-            }
-        }
-        onDutyAttendances.sort(Comparator.comparing(HrUserAttendance::getCheckTime));
-        if(CollUtil.isNotEmpty(onDutyAttendances) && onDutyAttendances.get(0).getAbnormalFlag() == 1){
-            onDutyAttendances.get(0).setAbnormalFlag(0);
-        }
-        map.put("0",onDutyAttendances);
-
-        if(CollUtil.isNotEmpty(restAttendances)){
-            restAttendances.get(restAttendances.size() -1).setAbnormalFlag(0);
-        }
-        map.put("1",restAttendances);
-
-        if(CollUtil.isNotEmpty(offDutyAttendances) && offDutyAttendances.get(offDutyAttendances.size() - 1).getAbnormalFlag() == 1){
-            offDutyAttendances.get(offDutyAttendances.size() -1).setAbnormalFlag(0);
-        }
-        map.put("2",offDutyAttendances);
-        return  map;
-    }
-
-
     /**
      * 申请补卡通过之后的流程
-     *
+     * 补卡或是异常打卡(早退，迟到)申请
+     * 传入新打卡时间，直接调打卡attendance接口，走打卡流程
      * */
     @Transactional(rollbackFor = Exception.class)
     @Override
