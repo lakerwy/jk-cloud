@@ -14,16 +14,15 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONArray;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.time.DateUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -35,17 +34,14 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.common.util.CommonTimeFormatUtil;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.AttendanceConfigCacheEntity;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.AttendanceTimeSlot;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceConfigEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceConfigCacheEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.mapper.HrUserAttendanceStatMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatEditParam;
@@ -145,14 +141,16 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @EventListener
     @Async
     public void handleAttendanceEvent(HrUserAttendanceStatEvent hrUserAttendanceStatEvent){
-        String time = DateUtil.format(hrUserAttendanceStatEvent.getCheckTime(), DatePattern.NORM_DATE_PATTERN);
-        /**  查询 */
-        QueryWrapper<HrUserAttendanceStat> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(HrUserAttendanceStat::getUserId, hrUserAttendanceStatEvent.getUserId()).
-                eq(HrUserAttendanceStat::getCheckType, hrUserAttendanceStatEvent.getCheckType()).
-                between(HrUserAttendanceStat::getCheckTime, time+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(), time+HrUserAttendanceStatEnum.END_TIME.getValue());
-        HrUserAttendanceStat hrUserAttendanceStat = hrUserAttendanceStatService.getOne(queryWrapper);
-        if(ObjectUtil.isEmpty(hrUserAttendanceStat)){/** 若无记录，则直接存 */
+        HrUserAttendanceStat hrUserAttendanceStat = hrUserAttendanceStatService.getOne(new LambdaQueryWrapper<HrUserAttendanceStat>()
+                .eq(HrUserAttendanceStat::getUserId, hrUserAttendanceStatEvent.getUserId()).
+                eq(HrUserAttendanceStat::getCheckType, hrUserAttendanceStatEvent.getCheckType())
+                .between(HrUserAttendanceStat::getCheckTime, DateUtil.beginOfDay(hrUserAttendanceStatEvent.getCheckTime()), DateUtil.endOfDay(hrUserAttendanceStatEvent.getCheckTime())));
+        /**
+         * 查询stat统计表中是否存在当前时段的打卡记录，
+         * 若不存在，则直接存stat表
+         * 若存在，判断是属于上班(取最早数据)，还是属于下班(取最晚数据)
+         * */
+        if(ObjectUtil.isEmpty(hrUserAttendanceStat)){
             this.save(BeanUtil.toBean(hrUserAttendanceStatEvent, HrUserAttendanceStat.class));
             return;
         }

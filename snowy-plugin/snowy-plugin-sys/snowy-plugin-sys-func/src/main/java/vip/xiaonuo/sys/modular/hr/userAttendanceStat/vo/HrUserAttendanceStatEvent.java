@@ -1,4 +1,4 @@
-package vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity;
+package vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -58,27 +58,21 @@ public class HrUserAttendanceStatEvent {
 
     /** 删除标识 */
     @ApiModelProperty(value = "删除标识", position = 13)
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
     @ApiModelProperty(value = "创建时间", position = 14)
-    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建人 */
     @ApiModelProperty(value = "创建人", position = 15)
-    @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 更新时间 */
     @ApiModelProperty(value = "更新时间", position = 16)
-    @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 更新人 */
     @ApiModelProperty(value = "更新人", position = 17)
-    @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 }

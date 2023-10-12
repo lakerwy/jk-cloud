@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity;
+package vip.xiaonuo.sys.modular.hr.userAttendanceConfig.vo;
 
 import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
@@ -29,7 +29,6 @@ import java.util.Date;
 @Setter
 public class HrUserAttendanceConfigEntity {
     /** 主键id */
-    @TableId
     @ApiModelProperty(value = "主键id", position = 1)
     private String id;
 
@@ -75,28 +74,22 @@ public class HrUserAttendanceConfigEntity {
 
     /** 删除标志 */
     @ApiModelProperty(value = "删除标志", position = 11)
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间  */
     @ApiModelProperty(value = "创建时间 ", position = 12)
-    @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
     @ApiModelProperty(value = "创建用户", position = 13)
-    @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
     @ApiModelProperty(value = "修改时间", position = 14)
-    @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
     @ApiModelProperty(value = "修改用户", position = 15)
-    @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 班次工时，单位：小时 */

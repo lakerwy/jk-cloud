@@ -1,7 +1,7 @@
 package vip.xiaonuo.sys.modular.hr.userAttendance.event;
 
 import org.springframework.context.ApplicationEvent;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 
 /**
  * 打卡记录event
