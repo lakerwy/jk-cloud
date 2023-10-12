@@ -108,4 +108,9 @@ public class HrUserApplyHoliday {
     @ApiModelProperty(value = "更新人", position = 18)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 请假天数 */
+    @ApiModelProperty(value = "请假天数", position = 19)
+    private Double leaveDays;
+
 }

@@ -44,7 +44,8 @@
     <select id="getHtFilingPageList" resultType="vip.xiaonuo.biz.modular.report.result.HTFilingPageResult" >
         select ID as id,SECOND_LEVEL as secondLevel,SECONDPARTY as secondparty,COMPANY_OR_DEPARTMENT as companyOrDepartment,
                CONTRACT_NO as contractNo,PROJECT_NAME as projectName,CONTRACT_AMOUNT as contractAmount,
-               COUNTERPARTY as counterparty,IS_FILING as isFiling,SEAL_DATE as sealDate,FILING_DATE as filingDate
+               COUNTERPARTY as counterparty,IS_FILING as isFiling,SEAL_DATE as sealDate,FILING_DATE as filingDate,
+               PARTYC as partyc,COMPLE_DATE as compleDate,COMPLE_DATA as compleData
         from BIZ_CRM_HETONG ${ew.customSqlSegment}
     </select>
 

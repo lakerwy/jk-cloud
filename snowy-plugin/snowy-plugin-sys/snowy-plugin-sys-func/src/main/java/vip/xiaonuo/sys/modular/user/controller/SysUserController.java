@@ -328,8 +328,8 @@ public class SysUserController {
     @ApiOperationSupport(order = 19)
     @ApiOperation("获取组织树选择器")
     @GetMapping("/sys/user/orgTreeSelector")
-    public CommonResult<List<Tree<String>>> orgTreeSelector() {
-        return CommonResult.data(sysUserService.orgTreeSelector());
+    public CommonResult<List<Tree<String>>> orgTreeSelector(@RequestParam(value = "selfFlag",required = false) Boolean selfFlag) {
+        return CommonResult.data(sysUserService.orgTreeSelector(selfFlag));
     }
 
     /**

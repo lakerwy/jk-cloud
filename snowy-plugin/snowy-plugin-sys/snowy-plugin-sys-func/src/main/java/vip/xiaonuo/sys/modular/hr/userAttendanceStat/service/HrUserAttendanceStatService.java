@@ -14,14 +14,19 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceStat.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStatEvent;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatEditParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 考勤统计表Service接口
@@ -86,4 +91,36 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @date  2023/10/07 10:28
      **/
     void handleAttendanceEvent(HrUserAttendanceStatEvent hrUserAttendanceStatEvent);
+
+    /**
+     * 获取考勤统计天数据
+     *
+     * @author ljy
+     * @date  2023/10/10 16:28
+     */
+    Map<String,Object> dayStatInfo();
+
+    /**
+     * 获取打卡配置数据
+     *
+     * @author ljy
+     * @date  2023/10/11 22:28
+     */
+    List<UserAttendanceConfigEntity> getUserConfigCachData(String userId);
+
+    /**
+     * 用戶每天打卡详情
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam);
+
+    /**
+     * 用戶打卡月统计接口
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam);
 }

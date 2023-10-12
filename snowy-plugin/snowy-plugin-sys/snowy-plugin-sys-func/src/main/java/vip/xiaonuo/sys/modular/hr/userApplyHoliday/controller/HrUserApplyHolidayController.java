@@ -78,8 +78,7 @@ public class HrUserApplyHolidayController {
     //@SaCheckPermission("/sys/userApplyHoliday/add")
     @PostMapping("/sys/userApplyHoliday/add")
     public CommonResult<String> add(@RequestBody @Valid HrUserApplyHolidayAddParam hrUserApplyHolidayAddParam) {
-        hrUserApplyHolidayService.add(hrUserApplyHolidayAddParam);
-        return CommonResult.ok();
+        return CommonResult.data(hrUserApplyHolidayService.add(hrUserApplyHolidayAddParam));
     }
 
     /**

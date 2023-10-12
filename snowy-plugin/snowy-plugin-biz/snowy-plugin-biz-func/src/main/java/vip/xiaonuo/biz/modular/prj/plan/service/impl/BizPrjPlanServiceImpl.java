@@ -117,6 +117,14 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getStatus())) {
             queryWrapper.lambda().eq(BizPrjPlan::getStatus, bizPrjPlanPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BizPrjPlan::getPlanNo,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getHzfCode,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getHzfName,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getContractNo,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getContractName,bizPrjPlanPageParam.getSearchKey())
+                    .or().like(BizPrjPlan::getSn,bizPrjPlanPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(bizPrjPlanPageParam.getSortField(), bizPrjPlanPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizPrjPlanPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizPrjPlanPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -145,6 +153,7 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
             bizPrjPlan.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             bizPrjPlan.setModelId(modelId);
             bizPrjPlan.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            bizPrjPlan.setPlanNo(bizPrjPlan.getSn());
             FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题

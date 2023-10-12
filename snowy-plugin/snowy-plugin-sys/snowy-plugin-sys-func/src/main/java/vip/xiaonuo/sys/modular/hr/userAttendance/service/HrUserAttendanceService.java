@@ -14,17 +14,13 @@ package vip.xiaonuo.sys.modular.hr.userAttendance.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceCountEntity;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.UserAttendanceDayInfoEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -93,30 +89,14 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      **/
     HrUserAttendance queryEntity(String id);
 
+
     /**
-     *  根据人员ID获取打卡配置，处理班次配置缓存
+     *  数据缓存
      *
      * @author ljy
-     * @date  2023/09/13 15:24
+     * @date  2023/10/10 11:23
      **/
-    List<AttendanceTimeSlot> getAttendanceConfigValueByKey(Date dateNow);
-
-
-    /**
-     * 用戶打卡月统计接口
-     *
-     * @author ljy
-     * @date  2023/09/07 14:24
-     */
-    List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam);
-
-    /**
-     * 用戶每天打卡详情
-     *
-     * @author ljy
-     * @date  2023/09/07 14:24
-     */
-    Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam);
+    void attendanceConfigCache();
 
     /**
      * 添加补卡记录
@@ -132,4 +112,12 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * @date  2023/09/26 14:24
      */
     void attendanceStatJobHandle();
+
+    /**
+     * 递归该部门下面有多少人员
+     * author ljy
+     * @date  2023/10/09 16:24
+     * */
+    String getOrgAndUserId(String orgId);
+
 }

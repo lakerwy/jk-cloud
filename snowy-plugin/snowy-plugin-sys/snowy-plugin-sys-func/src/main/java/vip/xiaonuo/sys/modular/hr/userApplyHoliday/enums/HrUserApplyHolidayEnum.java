@@ -23,8 +23,16 @@ import lombok.Getter;
 @Getter
 public enum HrUserApplyHolidayEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 申请类型：1 事假，2 调休，3 年假 */
+    NOT_LIMIT("-1"),/** 无限制假期 */
+    PERSONAL_LEAVE("1"),
+    COMPENSATORY_LEAVE("2"),
+    NOT_DATA("1"),//无假期数据，请先添加！
+    NOT_COMPENSATORY_LEAVE_DATA("2"),//申请时间超过剩余调休时间，请重新申请！
+    ANNUAL_LEAVE("3"),
+    NOT_ANNUAL_LEAVE_DATA("3"),//申请时间超过剩余年假时间，请重新申请！
+    SUCCESS("0"),/** 成功 */
+    FAIL("1");/** 失败 */
 
     private final String value;
 

@@ -17,14 +17,11 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import vip.xiaonuo.sys.modular.hr.fileCert.param.PersonnelFileCertAddParam;
+import vip.xiaonuo.sys.modular.hr.hrCenter.param.PersonnelFileCertAddParam;
 import vip.xiaonuo.sys.modular.hr.fileMoves.param.PersonnelFileMovesAddParam;
-import vip.xiaonuo.sys.modular.hr.fileRegister.param.PersonnelFileRegisterAddParam;
-import vip.xiaonuo.sys.modular.hr.fileTitle.param.PersonnelFileTitleAddParam;
+import vip.xiaonuo.sys.modular.hr.hrCenter.param.PersonnelFileRegisterAddParam;
+import vip.xiaonuo.sys.modular.hr.hrCenter.param.PersonnelFileTitleAddParam;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 

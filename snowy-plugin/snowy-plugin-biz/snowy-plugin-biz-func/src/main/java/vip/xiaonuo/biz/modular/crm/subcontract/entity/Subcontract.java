@@ -77,14 +77,17 @@ public class Subcontract {
 
     /** 合同盖章日期（历史表SubContract.SealDate） */
     @ApiModelProperty(value = "合同盖章日期（历史表SubContract.SealDate）", position = 12)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date sealDate;
 
     /** 归档日期（历史表SubContract.FilingDate） */
     @ApiModelProperty(value = "归档日期（历史表SubContract.FilingDate）", position = 13)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date filingDate;
 
     /** 合同金额（历史表SubContract.ContractAmount） */
     @ApiModelProperty(value = "合同金额（历史表SubContract.ContractAmount）", position = 14)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal contractAmount;
 
     /** 源合同信息-合同ID主键（历史表SubContract.HetongId） */

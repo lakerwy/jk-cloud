@@ -226,11 +226,7 @@ public class PanFileController {
         UserFile userFile = userFileService.getById(previewParam.getUserFileId());
 
         String fileName = userFile.getFileName() + "." + userFile.getExtendName();
-        try {
-            fileName = new String(fileName.getBytes("utf-8"), "ISO-8859-1");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+        fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
 
         httpServletResponse.addHeader("Content-Disposition", "fileName=" + fileName);// 设置文件名
         String mime = MimeUtils.getMime(userFile.getExtendName());
@@ -296,6 +292,7 @@ public class PanFileController {
     public CommonResult<PanFileStorage> getStorage(){
         Long storageSize = fileTransferService.selectStorageSizeByUserId();
         PanFileStorage panFileStorage = panFileStorageService.getOne(new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, StpLoginUserUtil.getLoginUser().getId()));
+        panFileStorage.setTotalStorageSize(panFileStorage.getTotalStorageSize()*1024*1024*1024);
         panFileStorage.setStorageSize(storageSize);
         return CommonResult.data(panFileStorage);
     }

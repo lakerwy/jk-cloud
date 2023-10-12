@@ -44,7 +44,7 @@ public interface HrUserApplyHolidayService extends IService<HrUserApplyHoliday> 
      * @author ljy
      * @date  2023/09/22 17:05
      */
-    void add(HrUserApplyHolidayAddParam hrUserApplyHolidayAddParam);
+    String add(HrUserApplyHolidayAddParam hrUserApplyHolidayAddParam);
 
     /**
      * 编辑请假申请表

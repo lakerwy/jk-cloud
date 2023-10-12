@@ -88,6 +88,16 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
         if(ObjectUtil.isNotEmpty(bizPrjAllotmentPageParam.getStatus())) {
             queryWrapper.lambda().eq(BizPrjAllotment::getStatus, bizPrjAllotmentPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizPrjAllotmentPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BizPrjAllotment::getHzfCode,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getHzfName,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getAllotmentNo,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getXmContractNo,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getXmContractName,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getSettleNo,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getPlanNo,bizPrjAllotmentPageParam.getSearchKey())
+                    .or().like(BizPrjAllotment::getSn,bizPrjAllotmentPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(bizPrjAllotmentPageParam.getSortField(), bizPrjAllotmentPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizPrjAllotmentPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizPrjAllotmentPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -111,6 +121,7 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
             bizPrjAllotment.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             bizPrjAllotment.setModelId(modelId);
             bizPrjAllotment.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            bizPrjAllotment.setAllotmentNo(bizPrjAllotment.getSn());
             FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题

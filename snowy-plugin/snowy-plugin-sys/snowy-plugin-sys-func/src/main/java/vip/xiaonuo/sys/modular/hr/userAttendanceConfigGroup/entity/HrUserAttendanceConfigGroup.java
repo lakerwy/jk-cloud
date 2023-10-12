@@ -80,4 +80,8 @@ public class HrUserAttendanceConfigGroup {
     @ApiModelProperty(value = "更新人", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 是否默认考勤配置 */
+    @ApiModelProperty(value = "是否默认考勤配置", position = 12)
+    private String isDefaultConfig;//IS_DEFAULT_CONFIG
 }

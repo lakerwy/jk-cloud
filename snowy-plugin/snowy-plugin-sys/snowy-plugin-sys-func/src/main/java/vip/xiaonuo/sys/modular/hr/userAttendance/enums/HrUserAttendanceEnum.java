@@ -34,7 +34,9 @@ public enum HrUserAttendanceEnum {
     ATTENDANCE_TYPE_NAME("attendanceTypeName"),
     ATTENDANCE_CHECK_TIME("checkTime"),
     ATTENDANCE_BEGINMINTIME("beginMinTime"),
-    ATTENDANCE_ENDMINTIME("endMinTime");
+    ATTENDANCE_ENDMINTIME("endMinTime"),
+    ORG_TYPE("1"),//部门
+    USER_TYPE("2");//人员
 
     private final String value;
 

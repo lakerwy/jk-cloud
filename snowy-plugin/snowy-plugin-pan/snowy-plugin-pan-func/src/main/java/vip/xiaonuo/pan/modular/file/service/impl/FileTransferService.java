@@ -320,20 +320,6 @@ public class FileTransferService implements IFileTransferService {
         }
     }
 
-//    public static void main(String[] args) {
-//        //  /马义可的个人文件夹/2222222/231.doc
-//        String path = "/马义可的个人文件夹/2222222/3333/6666/231.doc";
-//        int lastIndex = path.lastIndexOf("/");
-//        String parentPath = path.substring(0, lastIndex);
-//        check(parentPath,"/",0);
-//        //parentPath = "/马义可的个人文件夹";
-////        int lastIndex2 = parentPath.lastIndexOf("/");
-////        String parentPath2 = parentPath.substring(0, lastIndex2);
-////        String dirName = parentPath.substring(lastIndex2+1);
-////        System.out.println(parentPath2);
-////        System.out.println(dirName);
-//    }
-
     /***
      * 循环查询创建文件夹
      * @param parentPath
@@ -415,14 +401,14 @@ public class FileTransferService implements IFileTransferService {
         String tempPath = staticPath + "temp" + File.separator;
         File tempDirFile = new File(tempPath);
         if (!tempDirFile.exists()) {
-            tempDirFile.mkdirs();
+             tempDirFile.mkdirs();
         }
 
         FileOutputStream f = null;
         try {
             f = new FileOutputStream(tempPath + fileName + ".zip");
         } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            log.error("" + e);
         }
         CheckedOutputStream csum = new CheckedOutputStream(f, new Adler32());
         ZipOutputStream zos = new ZipOutputStream(csum);
@@ -454,13 +440,12 @@ public class FileTransferService implements IFileTransferService {
                         }
                     } catch (IOException e) {
                         log.error("" + e);
-                        e.printStackTrace();
                     } finally {
                         IOUtils.closeQuietly(bis);
                         try {
                             out.flush();
                         } catch (IOException e) {
-                            e.printStackTrace();
+                            log.error("" + e);
                         }
                     }
                 } else {

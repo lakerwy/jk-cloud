@@ -27,7 +27,7 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.pan.modular.file.constant.FileConstant;
+import vip.xiaonuo.pan.core.FileConfig;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanFileStorage;
 import vip.xiaonuo.pan.modular.fileCenter.mapper.PanFileStorageMapper;
 import vip.xiaonuo.pan.modular.fileCenter.param.PanFileStorageAddParam;
@@ -39,6 +39,7 @@ import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * 存储实体类Service接口实现类 ----  StorageService
@@ -49,9 +50,12 @@ import java.util.List;
 @Service
 public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper, PanFileStorage> implements PanFileStorageService {
 
-    public static  Long TOTAL_STORAGE_SIZE = 1024*1024*50L;
     @Resource
     private UserFileService userFileService;
+
+    @Resource
+    private FileConfig fileConfig;
+
     @Override
     public Page<PanFileStorage> page(PanFileStoragePageParam panFileStoragePageParam) {
         QueryWrapper<PanFileStorage> queryWrapper = new QueryWrapper<>();
@@ -120,21 +124,23 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
             panFileStorage = panFileStorages.get(0);
         }
         Long totalStorageSize = 0L;
-        if(ObjectUtil.isEmpty(panFileStorage) || ObjectUtil.isEmpty(panFileStorage.getTotalStorageSize())){
-             panFileStorage = new PanFileStorage();
-            totalStorageSize = FileConstant.totalStorageSize;
+        if(ObjectUtil.isEmpty(panFileStorage) || ObjectUtil.isEmpty(Objects.requireNonNull(panFileStorage).getTotalStorageSize())){
+            panFileStorage = new PanFileStorage();
+            totalStorageSize = fileConfig.getTotalStorageSize();
             if(1==type){
-                totalStorageSize = FileConstant.totalGroupStorageSize;
-             }
-             panFileStorage.setTotalStorageSize(FileConstant.totalStorageSize);
-             panFileStorage.setUserId(StpLoginUserUtil.getLoginUser().getId());
-             save(panFileStorage);
+                totalStorageSize = fileConfig.getTotalGroupStorageSize();
+            }
+            panFileStorage.setTotalStorageSize(totalStorageSize);
+            panFileStorage.setUserId(useId);
+            save(panFileStorage);
         }else {
-           totalStorageSize = panFileStorage.getTotalStorageSize();
+            totalStorageSize = panFileStorage.getTotalStorageSize();
         }
-        if(null!=totalStorageSize){
-            totalStorageSize = totalStorageSize*1024*1024;
+        if(totalStorageSize>0){
+            //G 转化为B
+            totalStorageSize = totalStorageSize * 1024*1024*1024;
         }
+        //文件大小的单位是B
         //获取文件的总文件大小
         Long storageSize = userFileService.getTotalStorageSize();
         if(storageSize == null){
@@ -145,25 +151,5 @@ public class PanFileStorageServiceImpl extends ServiceImpl<PanFileStorageMapper,
         }
 
         return Boolean.TRUE;
-    }
-
-    @Override
-    public Long getTotalStorageSize(String userId) {
-        PanFileStorage panFileStorage = getOne(new LambdaQueryWrapper<PanFileStorage>().eq(PanFileStorage::getUserId, StpLoginUserUtil.getLoginUser().getId()));
-        //判断是否给该用户设置了网盘空间大小
-        Long totalStorageSize = null;
-        if(panFileStorage == null || panFileStorage.getTotalStorageSize() ==null){
-            totalStorageSize = TOTAL_STORAGE_SIZE;
-            panFileStorage = new PanFileStorage();
-            panFileStorage.setUserId(StpLoginUserUtil.getLoginUser().getId());
-           panFileStorage.setStorageSize(totalStorageSize);
-           save(panFileStorage);
-        }else {
-            totalStorageSize = panFileStorage.getTotalStorageSize();
-        }
-        if(null!=totalStorageSize){
-            totalStorageSize = totalStorageSize * 1024 * 1024;
-        }
-        return totalStorageSize;
     }
 }

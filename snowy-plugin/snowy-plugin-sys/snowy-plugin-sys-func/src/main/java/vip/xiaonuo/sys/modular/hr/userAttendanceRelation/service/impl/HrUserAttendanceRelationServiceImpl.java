@@ -22,9 +22,11 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.enums.HrUserAttendanceRelationEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.mapper.HrUserAttendanceRelationMapper;
@@ -34,6 +36,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.param.HrUserAttendanceR
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.param.HrUserAttendanceRelationPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -44,6 +47,13 @@ import java.util.List;
  **/
 @Service
 public class HrUserAttendanceRelationServiceImpl extends ServiceImpl<HrUserAttendanceRelationMapper, HrUserAttendanceRelation> implements HrUserAttendanceRelationService {
+
+    private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
+
+    @Resource
+    private HrUserAttendanceService hrUserAttendanceService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<HrUserAttendanceRelation> page(HrUserAttendanceRelationPageParam hrUserAttendanceRelationPageParam) {
@@ -76,6 +86,9 @@ public class HrUserAttendanceRelationServiceImpl extends ServiceImpl<HrUserAtten
         }*/
         HrUserAttendanceRelation hrUserAttendanceRelation = BeanUtil.toBean(hrUserAttendanceRelationAddParam, HrUserAttendanceRelation.class);
         this.save(hrUserAttendanceRelation);
+        /** 先删除原有缓存，再计算最新的缓存 */
+        commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
+        hrUserAttendanceService.attendanceConfigCache();
         return HrUserAttendanceRelationEnum.SUCESS.getValue();
     }
 
@@ -85,6 +98,9 @@ public class HrUserAttendanceRelationServiceImpl extends ServiceImpl<HrUserAtten
         HrUserAttendanceRelation hrUserAttendanceRelation = this.queryEntity(hrUserAttendanceRelationEditParam.getId());
         BeanUtil.copyProperties(hrUserAttendanceRelationEditParam, hrUserAttendanceRelation);
         this.updateById(hrUserAttendanceRelation);
+        /** 先删除原有缓存，再计算最新的缓存 */
+        commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
+        hrUserAttendanceService.attendanceConfigCache();
     }
 
     @Transactional(rollbackFor = Exception.class)

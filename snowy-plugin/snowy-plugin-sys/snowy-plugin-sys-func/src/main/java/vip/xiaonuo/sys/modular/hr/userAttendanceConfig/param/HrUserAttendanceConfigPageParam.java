@@ -15,10 +15,8 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfigEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.vo.HrUserAttendanceConfigEntity;
 
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 /**

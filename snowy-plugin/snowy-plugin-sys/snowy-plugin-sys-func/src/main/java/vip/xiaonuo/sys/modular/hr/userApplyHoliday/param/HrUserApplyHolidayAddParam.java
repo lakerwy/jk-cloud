@@ -40,7 +40,7 @@ public class HrUserApplyHolidayAddParam {
     private String applyUserName;
 
     /** 申请类型：1 事假，2 调休，3 年假 */
-    @ApiModelProperty(value = "申请类型：1 事假，2 调休，3 年假", position = 5)
+    @ApiModelProperty(value = "申请类型：1 事假，2 调休，3 年假", position = 5,required = true)
     private Integer applyType;
 
     /** 申请开始时间 */
@@ -75,4 +75,7 @@ public class HrUserApplyHolidayAddParam {
     @ApiModelProperty(value = "扩展信息", position = 13)
     private String extJson;
 
+    /** 请假天数 */
+    @ApiModelProperty(value = "请假天数", position = 19)
+    private Double leaveDays;
 }

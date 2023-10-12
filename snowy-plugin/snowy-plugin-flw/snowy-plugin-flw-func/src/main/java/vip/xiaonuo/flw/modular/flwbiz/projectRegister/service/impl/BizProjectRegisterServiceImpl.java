@@ -95,9 +95,11 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         } else {
             queryWrapper.lambda().eq(BizProjectRegister::getCreateUser,StpUtil.getLoginIdAsString());
         }
-
-//        queryWrapper.lambda().eq(BizProjectRegister::getStatus,"1");
-        queryWrapper.lambda().in(BizProjectRegister::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(bizProjectRegisterPageParam.getFilterFlag()) && bizProjectRegisterPageParam.getFilterFlag()){
+            queryWrapper.lambda().in(BizProjectRegister::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }else {
+            queryWrapper.lambda().in(BizProjectRegister::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
         if(ObjectUtil.isAllNotEmpty(bizProjectRegisterPageParam.getSortField(), bizProjectRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizProjectRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizProjectRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -128,7 +130,6 @@ public class BizProjectRegisterServiceImpl extends ServiceImpl<BizProjectRegiste
         }
         bizProjectRegister.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         this.save(bizProjectRegister);
-        //formRelationTableService.updateTable(bizProjectRegisterAddParam.getModelId(),BizCommon.PROJECT_REGISTER.getBizTable());
     }
 
     @Transactional(rollbackFor = Exception.class)

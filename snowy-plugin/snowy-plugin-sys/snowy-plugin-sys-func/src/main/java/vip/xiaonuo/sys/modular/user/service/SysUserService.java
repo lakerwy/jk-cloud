@@ -401,7 +401,7 @@ public interface SysUserService extends IService<SysUser> {
      * @author xuyuxiang
      * @date 2022/5/13 21:00
      */
-    List<Tree<String>> orgTreeSelector();
+    List<Tree<String>> orgTreeSelector(Boolean selfFlag);
 
     /**
      * 获取组织列表选择器

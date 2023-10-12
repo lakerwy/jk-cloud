@@ -182,7 +182,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/dev/deployConf/getInfo",
             "/pan/file/fileUpload",
             "/pan/file/preview",
-            "/pan/file/previewOfficeFile"
+            "/pan/file/previewOfficeFile",
+            "/pan/file/downloadFile"
     };
 
     /**

@@ -42,6 +42,10 @@ public class HTFilingPageResult {
     @ApiModelProperty(value = "乙方", position = 9)
     private String secondparty;
 
+    /** 丙方 */
+    @ApiModelProperty(value = "丙方", position = 48)
+    private String partyc;
+
     /** 合作伙伴责任单位 */
     @ApiModelProperty(value = "合作伙伴责任单位", position = 12)
     private String companyOrDepartment;
@@ -77,4 +81,12 @@ public class HTFilingPageResult {
     /** 所属责任单位：超过3个月未归档数 */
     @ApiModelProperty(value = "所属责任单位：超过3个月未归档数", position = 56)
     private Integer threeUnFilingNum;
+
+    /** 竣工日期 */
+    @ApiModelProperty(value = "竣工日期", position = 33)
+    private Date compleDate;
+
+    /** 竣工材料 */
+    @ApiModelProperty(value = "竣工材料", position = 34)
+    private String compleData;
 }

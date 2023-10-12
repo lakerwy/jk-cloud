@@ -1476,12 +1476,21 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     /* ====用户部分所需要用到的选择器==== */
 
     @Override
-    public List<Tree<String>> orgTreeSelector() {
+    public List<Tree<String>> orgTreeSelector(Boolean selfFlag) {
+        String parentId = "0";
         List<SysOrg> sysOrgList = sysOrgService.getAllOrgList();
         List<TreeNode<String>> treeNodeList = sysOrgList.stream().map(sysOrg ->
                         new TreeNode<>(sysOrg.getId(), sysOrg.getParentId(), sysOrg.getName(), sysOrg.getSortCode()))
                 .collect(Collectors.toList());
-        return TreeUtil.build(treeNodeList, "0");
+        if(ObjectUtil.isNotEmpty(selfFlag) && selfFlag){
+            String orgId= String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + StpLoginUserUtil.getLoginUser().getOrgId()));
+            SysOrg sysOrg = sysOrgService.getById(orgId);
+            if(ObjectUtil.isNotEmpty(sysOrg)){
+                parentId = sysOrg.getParentId();
+                treeNodeList.removeIf(node->node.getParentId().equals(sysOrg.getParentId()) && !node.getId().equals(sysOrg.getId()));
+            }
+        }
+        return TreeUtil.build(treeNodeList, parentId);
     }
 
     @Override

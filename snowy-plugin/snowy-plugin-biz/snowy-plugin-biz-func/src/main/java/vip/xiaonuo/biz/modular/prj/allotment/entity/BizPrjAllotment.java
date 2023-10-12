@@ -122,6 +122,10 @@ public class BizPrjAllotment {
     @ApiModelProperty(value = "项目付款扣款信息-前期累计拨付金额", position = 21)
     private Double fkLjPreAmount;
 
+    /** 项目付款扣款信息-累计收取管理费 */
+    @ApiModelProperty(value = "项目付款扣款信息-累计收取管理费", position = 21)
+    private Double fkLjManageAmount;
+
     /** 项目付款扣款信息-累计收取税差 */
     @ApiModelProperty(value = "项目付款扣款信息-累计收取税差", position = 22)
     private Double fkLjTaxAmount;

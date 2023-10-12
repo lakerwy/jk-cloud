@@ -134,14 +134,16 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
     @Override
     public IPage<CommonFileVo> commonFileList(PanCommonFilePageParam panCommonFilePageParam) {
         QueryWrapper<PanCommonFile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("c.USER_ID",StpLoginUserUtil.getLoginUser().getId());
+        queryWrapper.eq("c.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isAllNotEmpty(panCommonFilePageParam.getSortField(), panCommonFilePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(panCommonFilePageParam.getSortOrder());
             queryWrapper.orderBy(true, panCommonFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(panCommonFilePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(PanCommonFile::getId);
+            queryWrapper.orderByAsc("a.ID");
         }
-        return panCommonFileMapper.myCommonFile(StpLoginUserUtil.getLoginUser().getId());
+        return panCommonFileMapper.myCommonFile(CommonPageRequest.defaultPage(), queryWrapper);
 
     }
 }

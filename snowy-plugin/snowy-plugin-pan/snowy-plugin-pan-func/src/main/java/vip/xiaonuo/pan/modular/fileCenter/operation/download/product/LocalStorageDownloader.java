@@ -4,9 +4,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 
 import java.io.*;
+import java.nio.file.Files;
 
 @Slf4j
 @Component
@@ -26,10 +26,10 @@ public class LocalStorageDownloader extends Downloader {
                 randowAccessFile.read(bytes);
                 inputStream = new ByteArrayInputStream(bytes);
             } else {
-                inputStream = new FileInputStream(file);
+                inputStream = Files.newInputStream(file.toPath());
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            log.error(""+e);
         }
         return inputStream;
 

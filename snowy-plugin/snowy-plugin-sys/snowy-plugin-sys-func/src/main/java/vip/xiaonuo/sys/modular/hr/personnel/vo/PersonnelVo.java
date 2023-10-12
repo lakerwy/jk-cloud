@@ -9,9 +9,9 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
-import vip.xiaonuo.sys.modular.hr.fileRegister.entity.PersonnelFileRegister;
-import vip.xiaonuo.sys.modular.hr.fileTitle.entity.PersonnelFileTitle;
-import vip.xiaonuo.sys.modular.hr.fileCert.entity.PersonnelFileCert;
+import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileRegister;
+import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileTitle;
+import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileCert;
 
 import java.util.Date;
 import java.util.List;
