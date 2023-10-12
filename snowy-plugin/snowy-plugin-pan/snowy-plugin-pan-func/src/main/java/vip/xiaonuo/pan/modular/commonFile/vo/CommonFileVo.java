@@ -100,4 +100,8 @@ public class CommonFileVo {
     @ApiModelProperty(value = "删除时间", position = 20)
     private Date deleteTime;
 
+    /** 删除标志 */
+    @ApiModelProperty(value = "删除标志", position = 5)
+    private String deleteFlag;
+
 }
