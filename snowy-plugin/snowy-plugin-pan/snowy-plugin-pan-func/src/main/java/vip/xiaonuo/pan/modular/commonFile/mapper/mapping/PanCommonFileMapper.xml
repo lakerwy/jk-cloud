@@ -11,7 +11,12 @@
     </select>
 
     <select id="selectCommonFileByUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
-        SELECT a.ID as id,c.FILE_NAME as fileName, c.USER_ID as userId ,a.USER_FILE_ID as userFileId
+        SELECT a.ID as id,
+               c.FILE_NAME as fileName, c.USER_ID as userId ,d.NAME as userName,a.USER_FILE_ID as userFileId,
+               c.PARENT_ID as parentId, c.FILE_PATH as filePath,c.IS_DIR as isDir, c.FILE_ID as fileId,
+               c.ROOT_DIR as rootDir, c.ORG_ID as orgId, c.`right` as right, c.DATA_SCOPE_ID as dataScopeId,
+               c.LOCK_FLAG as lockFlag, c.FOLD_TYPE as foldType, c.EXTEND_NAME as extendName,
+               c.FILE_SIZE as fileSize, c.DELETE_BATCH_NUM as deleteBatchNum, c.DELETE_TIME as deleteTime
         FROM PAN_COMMON_FILE a
                  LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
                  LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
@@ -20,7 +25,12 @@
     </select>
 
     <select id="myCommonFile" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
-        SELECT a.ID as id,c.FILE_NAME as fileName, b.USER_ID as userId ,a.USER_FILE_ID as userFileId
+        SELECT a.ID as id,
+               c.FILE_NAME as fileName, b.USER_ID as userId ,d.NAME as userName,a.USER_FILE_ID as userFileId,
+               c.PARENT_ID as parentId, c.FILE_PATH as filePath,c.IS_DIR as isDir, c.FILE_ID as fileId,
+               c.ROOT_DIR as rootDir, c.ORG_ID as orgId, c.`right` as right, c.DATA_SCOPE_ID as dataScopeId,
+               c.LOCK_FLAG as lockFlag, c.FOLD_TYPE as foldType, c.EXTEND_NAME as extendName,
+               c.FILE_SIZE as fileSize, c.DELETE_BATCH_NUM as deleteBatchNum, c.DELETE_TIME as deleteTime
         FROM PAN_COMMON_FILE a
                  LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
                  LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
