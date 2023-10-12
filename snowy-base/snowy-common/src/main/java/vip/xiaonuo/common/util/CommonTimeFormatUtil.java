@@ -230,6 +230,20 @@ public class CommonTimeFormatUtil {
             return strToDate(yearDate+" "+hourDate);
         }
 
+        public static String strToStr(String strDate,String formatter) {
+            SimpleDateFormat format = new SimpleDateFormat(formatter);
+            ParsePosition pos = new ParsePosition(0);
+            Date strtodate = format.parse(strDate, pos);
+            return dateToStr(strtodate,formatter);
+        }
+
+        public static Date strToDate(String strDate,String formatter) {
+            SimpleDateFormat format = new SimpleDateFormat(formatter);
+            ParsePosition pos = new ParsePosition(0);
+            Date strtodate = format.parse(strDate, pos);
+            return strtodate;
+        }
+
         public static Date strToDate(String time) {
             if (StringUtils.isBlank(time)) return null;
             SimpleDateFormat formatter;
