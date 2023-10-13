@@ -241,7 +241,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @Override
     public Map<String,List<HrUserAttendance>> attendanceDayInfo(HrUserAttendancePageParam hrUserAttendancePageParam){
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        hrUserAttendancePageParam.setUserId(loginUser.getId());
+        String userId = StringUtils.isNotEmpty(hrUserAttendancePageParam.getUserId()) ? hrUserAttendancePageParam.getUserId() : loginUser.getId();
+        hrUserAttendancePageParam.setUserId(userId);
         if(StringUtils.isEmpty(hrUserAttendancePageParam.getStartTime()) || StringUtils.isEmpty(hrUserAttendancePageParam.getEndTime())){
             return new HashMap<>();
         }
@@ -274,11 +275,11 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         }catch (Exception e){
             log.error("格式化时间失败！e:"+e.toString());
         }
-        return attendanceDayInfoCore(userAttendanceConfigEntityList,mergeList,startTime,nowDate);
+        return attendanceDayInfoCore(userAttendanceConfigEntityList,mergeList,startTime,nowDate,userId);
     }
 
     private Map<String,List<HrUserAttendance>> attendanceDayInfoCore(List<UserAttendanceConfigEntity> userAttendanceConfigEntityList,
-            List<HrUserAttendance> hrUserAttendanceList,Date startTime,Date nowDate){
+            List<HrUserAttendance> hrUserAttendanceList,Date startTime,Date nowDate,String userId){
         Map<String,List<HrUserAttendance>> map = new HashMap<>();
         for(int i=0;i<userAttendanceConfigEntityList.size();i++){
             String dutyType = userAttendanceConfigEntityList.get(i).getDutyType();
@@ -287,33 +288,32 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             List<HrUserAttendance> list = hrUserAttendanceList.stream().filter(attendance -> attendance.getCheckType().equals(dutyType)).collect(Collectors.toList());
             if(CollectionUtil.isEmpty(list)){
                 HrUserAttendance hrUserAttendance = new HrUserAttendance();
-                if(nowDate.compareTo(startTime) < 0){//查询未来数据，未来数据不存在缺卡的情况，直接空即可
-                }else if(nowDate.compareTo(startTime) == 0){ //是否为当天数据，存在和当前时间比较得出是否缺卡情况
-                    /**  预留：后续要加请假，调休，年假的情况   -- 逻辑还需要优化*/
-                    /**
-                     * 先判断这个dutyType对应的checkTime与当前时间
-                     * 若checkTime <= 当前时间，已过了dutyType对应的打卡时间，无数据则标识缺卡
-                     * */
-                    if(checkTime.compareTo(DateUtil.date()) <= 0){
-                        hrUserAttendance.setAbnormalFlag(-1);
-                        hrUserAttendance.setCheckTime(userAttendanceConfigEntityList.get(i).getCheckTime());
-                        hrUserAttendance.setCheckType(userAttendanceConfigEntityList.get(i).getDutyType());
-                        hrUserAttendance.setConfigOrderNumber(userAttendanceConfigEntityList.get(i).getOrderNumber());
-                        list.add(hrUserAttendance);
-                    }
-                }else{ //是否为历史数据
-                    /**  预留：后续要加请假，调休，年假的情况 */
-                    hrUserAttendance.setAbnormalFlag(-1);
-                    hrUserAttendance.setCheckTime(userAttendanceConfigEntityList.get(i).getCheckTime());
-                    hrUserAttendance.setCheckType(userAttendanceConfigEntityList.get(i).getDutyType());
-                    hrUserAttendance.setConfigOrderNumber(userAttendanceConfigEntityList.get(i).getOrderNumber());
-                    list.add(hrUserAttendance);
+                /**
+                 * 先判断这个dutyType对应的checkTime与当前时间
+                 * 若checkTime <= 当前时间，已过了dutyType对应的打卡时间，无数据则标识缺卡
+                 * */
+                if(nowDate.compareTo(startTime) < 0 || (nowDate.compareTo(startTime) == 0 && checkTime.compareTo(DateUtil.date()) > 0)){
+                    //查询未来数据，未来数据不存在缺卡的情况，直接空即可
+                    map.put(String.valueOf(i),list);
+                    continue;
                 }
+                /**  预留：后续要加请假，调休，年假的情况 */
+
+                hrUserAttendance.setUserId(userId);
+                hrUserAttendance.setAbnormalFlag(-1);
+                hrUserAttendance.setCheckTime(userAttendanceConfigEntityList.get(i).getCheckTime());
+                hrUserAttendance.setCheckType(userAttendanceConfigEntityList.get(i).getDutyType());
+                hrUserAttendance.setConfigOrderNumber(userAttendanceConfigEntityList.get(i).getOrderNumber());
+                list.add(hrUserAttendance);
+                map.put(String.valueOf(i),list);
+                continue;
             }
             map.put(String.valueOf(i),list);
         }
         return map;
     }
+
+
 
     @Override
     public List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam) {

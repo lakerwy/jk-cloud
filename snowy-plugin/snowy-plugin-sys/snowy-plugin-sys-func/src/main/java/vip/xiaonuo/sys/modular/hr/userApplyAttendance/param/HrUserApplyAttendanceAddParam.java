@@ -73,4 +73,8 @@ public class HrUserApplyAttendanceAddParam {
 
     @ApiModelProperty(value = "申请理由", position = 19)
     private String applyReason;
+
+    /** 班次打卡类别 */
+    @ApiModelProperty(value = "班次打卡类别 (上班OnDuty，下班 OffDuty，休息 REST)", position = 20)
+    private String dutyType;
 }
