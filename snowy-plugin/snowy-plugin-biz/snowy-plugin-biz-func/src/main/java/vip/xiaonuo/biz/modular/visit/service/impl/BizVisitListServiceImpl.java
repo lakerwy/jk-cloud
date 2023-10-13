@@ -3,10 +3,12 @@ package vip.xiaonuo.biz.modular.visit.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisitList;
 import vip.xiaonuo.biz.modular.visit.mapper.BizVisitListMapper;
@@ -19,7 +21,8 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 
 import java.util.List;
-
+@Service
+@DS("slave_1")
 public class BizVisitListServiceImpl extends ServiceImpl<BizVisitListMapper, BizVisitList> implements BizVisitListService {
     @Override
     public Page<BizVisitList> page(BizVisitListPageParam bizVisitListPageParam) {

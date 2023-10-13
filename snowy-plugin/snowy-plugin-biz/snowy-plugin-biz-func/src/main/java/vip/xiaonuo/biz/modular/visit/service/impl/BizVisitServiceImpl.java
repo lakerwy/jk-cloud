@@ -17,14 +17,17 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.rule.entity.BizRuleManage;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisitList;
 import vip.xiaonuo.biz.modular.visit.param.*;
 import vip.xiaonuo.biz.modular.visit.service.BizVisitListService;
+import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -43,12 +46,15 @@ import java.util.stream.Collectors;
  * @date 2023/10/12 10:35
  **/
 @Service
+@DS("slave_1")
 public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> implements BizVisitService {
     @Resource
-    BizVisitListService bizVisitListService;
+    private BizVisitListService bizVisitListService;
+    @Resource
+    private BizVisitMapper bizVisitMapper;
 
     @Override
-    public Page<BizVisit> page(BizVisitPageParam bizVisitPageParam) {
+    public Page<BizVisitVo> page(BizVisitPageParam bizVisitPageParam) {
         QueryWrapper<BizVisit> queryWrapper = new QueryWrapper<>();
         if (ObjectUtil.isAllNotEmpty(bizVisitPageParam.getSortField(), bizVisitPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizVisitPageParam.getSortOrder());
@@ -57,7 +63,14 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         } else {
             queryWrapper.lambda().orderByAsc(BizVisit::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        if (ObjectUtil.isNotEmpty(bizVisitPageParam.getPurpose())) {
+            queryWrapper.lambda().like(BizVisit::getPurpose, bizVisitPageParam.getPurpose());
+        }
+        Page<BizVisitVo> result = bizVisitMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        for (BizVisitVo vo : result.getRecords()) {
+            vo.setParamList(bizVisitListService.list(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, vo.getId())));
+        }
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -68,7 +81,7 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         if (CollUtil.isNotEmpty(bizVisitAddParam.getParamList())) {
             List<BizVisitList> bizVisitList = bizVisitAddParam.getParamList();
             bizVisitList.forEach(v -> {
-                v.setKey(bizVisit.getId());
+                v.setVisitId(bizVisit.getId());
             });
             bizVisitListService.saveBatch(bizVisitList);
         }
@@ -85,18 +98,18 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
             //本次传入的数据
             List<BizVisitList> bizVisitList = bizVisitEditParam.getParamList();
             bizVisitList.forEach(v -> {
-                v.setKey(bizVisit.getId());
+                v.setVisitId(bizVisit.getId());
             });
             List<BizVisitList> oldVizVisitList = bizVisitListService.list(
-                    new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getId, bizVisit.getId()));
+                    new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, bizVisit.getId()));
             List<String> oldIds = oldVizVisitList.stream().map(v -> v.getId()).collect(Collectors.toList());
             //待新增
             List<BizVisitList> addList = bizVisitList.stream().filter(v -> !oldIds.contains(v.getId())).collect(Collectors.toList());
             //待更新
             List<BizVisitList> updateList = bizVisitList.stream().filter(v -> oldIds.contains(v.getId())).collect(Collectors.toList());
             //待删除的
-            List<String> uodateIds = updateList.stream().map(v -> v.getId()).collect(Collectors.toList());
-            List<BizVisitList> removeList = oldVizVisitList.stream().filter(v -> !uodateIds.contains(v.getId())).collect(Collectors.toList());
+            List<String> updateIds = updateList.stream().map(v -> v.getId()).collect(Collectors.toList());
+            List<BizVisitList> removeList = oldVizVisitList.stream().filter(v -> !updateIds.contains(v.getId())).collect(Collectors.toList());
             if (CollUtil.isNotEmpty(addList)) {
                 bizVisitListService.saveBatch(addList);
             }
@@ -116,19 +129,23 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         List<String> ids = CollStreamUtil.toList(bizVisitIdParamList, BizVisitIdParam::getId);
         // 执行删除
         this.removeByIds(ids);
-        bizVisitListService.remove((new QueryWrapper<BizVisitList>().lambda().in(BizVisitList::getKey, ids)));
+        bizVisitListService.remove((new QueryWrapper<BizVisitList>().lambda().in(BizVisitList::getVisitId, ids)));
     }
 
     @Override
-    public BizVisit detail(BizVisitIdParam bizVisitIdParam) {
-        return this.queryEntity(bizVisitIdParam.getId());
+    public BizVisitVo detail(BizVisitIdParam bizVisitIdParam) {
+        BizVisit bizVisit = this.queryEntity(bizVisitIdParam.getId());
+        BizVisitVo result = BeanUtil.toBean(bizVisit, BizVisitVo.class);
+        result.setParamList(bizVisitListService.list(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, bizVisitIdParam.getId())));
+        return result;
+
     }
 
     @Override
     public BizVisit queryEntity(String id) {
         BizVisit bizVisit = this.getById(id);
         if (ObjectUtil.isEmpty(bizVisit)) {
-            throw new CommonException("外访表不存在，id值为：{}", id);
+            throw new CommonException("业务表-外访计划表，id值为：{}", id);
         }
         return bizVisit;
     }

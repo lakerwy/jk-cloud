@@ -10,8 +10,8 @@ import java.util.Date;
 public class BizVisitListAddParam {
 
 
-    @ApiModelProperty(value = "外键", position = 10)
-    private String key;
+    @ApiModelProperty(value = "Biz_visit主键ID", position = 10)
+    private String visitId;
     /**
      * 计划时间
      */

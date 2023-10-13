@@ -12,14 +12,21 @@
  */
 package vip.xiaonuo.biz.modular.visit.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisit;
+import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
 
 /**
  * 外访表Mapper接口
  *
  * @author kaiminglu
- * @date  2023/10/12 10:35
+ * @date 2023/10/12 10:35
  **/
 public interface BizVisitMapper extends BaseMapper<BizVisit> {
+     Page<BizVisitVo> getPageList(Page<BizVisitVo> page, @Param(Constants.WRAPPER) Wrapper<BizVisit> queryWrapper);
+
 }

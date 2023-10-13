@@ -13,8 +13,8 @@ public class BizVisitListEditParam {
     @ApiModelProperty(value = "主键ID", required = true, position = 1)
     @NotBlank(message = "id不能为空")
     private String id;
-    @ApiModelProperty(value = "外键", position = 10)
-    private String key;
+    @ApiModelProperty(value = "Biz_visit主键ID", position = 10)
+    private String visitId;
     /**
      * 计划时间
      */

@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.visit.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisitList;
 
 import javax.validation.constraints.NotBlank;
@@ -64,6 +66,8 @@ public class BizVisitEditParam {
      * 出发时间
      */
     @ApiModelProperty(value = "出发时间", position = 10)
+    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date goTime;
 
     /**
@@ -112,6 +116,8 @@ public class BizVisitEditParam {
      * 出发时间
      */
     @ApiModelProperty(value = "出发时间", position = 18)
+    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date backTime;
 
     /**

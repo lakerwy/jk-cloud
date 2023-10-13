@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.visit.param.BizVisitAddParam;
 import vip.xiaonuo.biz.modular.visit.param.BizVisitEditParam;
 import vip.xiaonuo.biz.modular.visit.param.BizVisitIdParam;
 import vip.xiaonuo.biz.modular.visit.param.BizVisitPageParam;
+import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface BizVisitService extends IService<BizVisit> {
      * @author kaiminglu
      * @date  2023/10/12 10:35
      */
-    Page<BizVisit> page(BizVisitPageParam bizVisitPageParam);
+    Page<BizVisitVo> page(BizVisitPageParam bizVisitPageParam);
 
     /**
      * 添加外访表
@@ -68,7 +69,7 @@ public interface BizVisitService extends IService<BizVisit> {
      * @author kaiminglu
      * @date  2023/10/12 10:35
      */
-    BizVisit detail(BizVisitIdParam bizVisitIdParam);
+    BizVisitVo detail(BizVisitIdParam bizVisitIdParam);
 
     /**
      * 获取外访表详情

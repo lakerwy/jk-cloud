@@ -12,7 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.visit.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
+
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -60,9 +61,8 @@ public class BizVisitController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取外访表分页")
-    @SaCheckPermission("/biz/visit/page")
     @GetMapping("/biz/visit/page")
-    public CommonResult<Page<BizVisit>> page(BizVisitPageParam bizVisitPageParam) {
+    public CommonResult<Page<BizVisitVo>> page(BizVisitPageParam bizVisitPageParam) {
         return CommonResult.data(bizVisitService.page(bizVisitPageParam));
     }
 
@@ -75,7 +75,6 @@ public class BizVisitController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加外访表")
     @CommonLog("添加外访表")
-    @SaCheckPermission("/biz/visit/add")
     @PostMapping("/biz/visit/add")
     public CommonResult<String> add(@RequestBody @Valid BizVisitAddParam bizVisitAddParam) {
         bizVisitService.add(bizVisitAddParam);
@@ -91,7 +90,6 @@ public class BizVisitController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑外访表")
     @CommonLog("编辑外访表")
-    @SaCheckPermission("/biz/visit/edit")
     @PostMapping("/biz/visit/edit")
     public CommonResult<String> edit(@RequestBody @Valid BizVisitEditParam bizVisitEditParam) {
         bizVisitService.edit(bizVisitEditParam);
@@ -107,7 +105,6 @@ public class BizVisitController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除外访表")
     @CommonLog("删除外访表")
-    @SaCheckPermission("/biz/visit/delete")
     @PostMapping("/biz/visit/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<BizVisitIdParam> bizVisitIdParamList) {
@@ -123,7 +120,6 @@ public class BizVisitController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取外访表详情")
-    @SaCheckPermission("/biz/visit/detail")
     @GetMapping("/biz/visit/detail")
     public CommonResult<BizVisit> detail(@Valid BizVisitIdParam bizVisitIdParam) {
         return CommonResult.data(bizVisitService.detail(bizVisitIdParam));

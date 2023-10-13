@@ -13,9 +13,11 @@
 package vip.xiaonuo.biz.modular.visit.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -66,6 +68,8 @@ public class BizVisit {
      * 出发时间
      */
     @ApiModelProperty(value = "出发时间", position = 10)
+    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date goTime;
 
     /**
@@ -114,6 +118,8 @@ public class BizVisit {
      * 出发时间
      */
     @ApiModelProperty(value = "返回时间", position = 18)
+    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date backTime;
 
     /**
