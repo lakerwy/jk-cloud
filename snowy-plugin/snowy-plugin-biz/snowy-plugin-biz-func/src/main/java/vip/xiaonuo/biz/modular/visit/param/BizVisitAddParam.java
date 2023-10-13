@@ -17,12 +17,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import vip.xiaonuo.biz.modular.emp.param.EmpTaskParam;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisitList;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
