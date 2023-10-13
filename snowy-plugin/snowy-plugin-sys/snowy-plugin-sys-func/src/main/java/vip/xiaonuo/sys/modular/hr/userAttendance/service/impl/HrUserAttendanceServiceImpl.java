@@ -295,15 +295,14 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrUserAttendanceRelationService.list();//考勤关联全表查询
         Map<String,String> mapRelation = new HashMap<>();
         //todo 用字符串拼接存会有问题----  -- 已修改，2023-10-11 22:10:20
-        StringBuffer relationStr = new StringBuffer();
         hrUserAttendanceRelationList.forEach(relation -> {
             String key = relation.getAttendanceTypeId();
-            relationStr.append(key).append(",");
+            String userIds = ObjectUtil.isNotEmpty(mapRelation.get(key)) ? mapRelation.get(key):"";
             if(relation.getEmployType().equals(HrUserAttendanceEnum.ORG_TYPE.getValue())){ //部门
-                mapRelation.put(key,getOrgAndUserId(relation.getEmployId()));
+                mapRelation.put(key,userIds+getOrgAndUserId(relation.getEmployId()));
             }
             if(relation.getEmployType().equals(HrUserAttendanceEnum.USER_TYPE.getValue())){ //人员
-                mapRelation.put(key,relation.getEmployId());
+                mapRelation.put(key,userIds+relation.getEmployId());
             }
         });
         attendanceConfigCacheEntityList.forEach(cache -> cache.setUserIds(mapRelation.get(cache.getAttendanceTypeId())));
@@ -351,13 +350,12 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         List<SysOrg> bizOrgList = sysOrgService.list();//全表查询
         List<SysOrg> bizOrgListNew = recursionOrg(new ArrayList<>(),orgId,bizOrgList);
         List<String> orgList = new ArrayList<>();
+        orgList.add(orgId);//包含本身
         bizOrgListNew.forEach(org -> orgList.add(org.getId()));
-        if(ObjectUtil.isEmpty(bizOrgListNew)){
+        if(ObjectUtil.isEmpty(orgList)){
             return userIds.toString();
         }
-        QueryWrapper<SysUser> wrapper = new QueryWrapper<SysUser>().select("id");
-        wrapper.lambda().in(SysUser::getOrgId,orgList);
-        List<SysUser> userList = sysUserService.list(wrapper);
+        List<SysUser> userList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getOrgId,orgList));
         if(ObjectUtil.isEmpty(userList)){
             return userIds.toString();
         }

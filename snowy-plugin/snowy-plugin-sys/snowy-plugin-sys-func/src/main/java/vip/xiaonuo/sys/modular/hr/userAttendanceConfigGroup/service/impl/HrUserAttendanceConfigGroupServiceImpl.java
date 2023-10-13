@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -154,10 +155,14 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList = hrAttendanceConfigAndUserDataParam.getHrAttendanceConfigAndUserData();
 
         List<HrUserAttendanceRelation> hrUserAttendanceRelationList = new ArrayList<>();
-                hrAttendanceConfigAndUserDataList.stream().forEach(config -> {
+        hrAttendanceConfigAndUserDataList.stream().forEach(config -> {
             List<String> employIdList = Arrays.asList(config.getEmployIds().split(","));
+            Map<String,HrUserAttendanceRelation> relationMap = new HashMap<>();
+            hrUserAttendanceRelationService.list(new LambdaQueryWrapper<HrUserAttendanceRelation>().in(HrUserAttendanceRelation::getEmployId,employIdList))
+                    .forEach(relation -> relationMap.put(relation.getEmployId(),relation));/** 存在相同数据，更新 */
             for(String employId : employIdList){
-                HrUserAttendanceRelation hrUserAttendanceRelation = new HrUserAttendanceRelation();
+                HrUserAttendanceRelation hrUserAttendanceRelation = ObjectUtil.isEmpty(relationMap.get(employId)) ?
+                        new HrUserAttendanceRelation() : relationMap.get(employId);
                 hrUserAttendanceRelation.setAttendanceTypeId(hrAttendanceConfigAndUserDataParam.getId());
                 hrUserAttendanceRelation.setBeginTime(hrAttendanceConfigAndUserDataParam.getBeginTime());
                 hrUserAttendanceRelation.setEndTime(hrAttendanceConfigAndUserDataParam.getEndTime());
@@ -167,13 +172,9 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
                 hrUserAttendanceRelationList.add(hrUserAttendanceRelation);
             }
         });
-        hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelationList);
-        /*List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList = hrAttendanceConfigAndUserDataParam.getHrAttendanceConfigAndUserData();
-        if(ObjectUtil.isNotEmpty(hrAttendanceConfigAndUserDataList)){
-            List<HrUserAttendanceRelation> hrUserAttendanceRelationList = hrAttendanceConfigAndUserDataList.stream().map(relation ->
-                    BeanUtil.toBean(relation, HrUserAttendanceRelation.class)).collect(Collectors.toList());
-            hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelationList);
-        }*/
+        hrUserAttendanceRelationService.saveOrUpdateBatch(hrUserAttendanceRelationList);
+
+        /** 重置缓存数据*/
         commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
         hrUserAttendanceService.attendanceConfigCache();
         return HrUserAttendanceConfigGroupEnum.SUCCESS.getValue();
