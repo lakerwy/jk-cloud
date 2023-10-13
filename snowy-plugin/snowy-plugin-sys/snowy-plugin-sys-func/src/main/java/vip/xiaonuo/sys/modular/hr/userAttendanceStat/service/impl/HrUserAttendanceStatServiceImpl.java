@@ -16,9 +16,11 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.util.DateUtils;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -157,26 +159,31 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 .eq(HrUserAttendanceStat::getUserId, hrUserAttendanceStatEvent.getUserId()).
                 eq(HrUserAttendanceStat::getCheckType, hrUserAttendanceStatEvent.getCheckType())
                 .between(HrUserAttendanceStat::getCheckTime, DateUtil.beginOfDay(hrUserAttendanceStatEvent.getCheckTime()), DateUtil.endOfDay(hrUserAttendanceStatEvent.getCheckTime())));
+
+        /** 同步数据时，判断异常数据是否为迟到还是早退  3 迟到，4 早退 */
+        HrUserAttendanceStat stat = BeanUtil.toBean(hrUserAttendanceStatEvent, HrUserAttendanceStat.class);
+        Integer abnormalFlag = stat.getAbnormalFlag() == 1 ?
+                1 : stat.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue())? 3 : 4;
+        stat.setAbnormalFlag(abnormalFlag);
         /**
          * 查询stat统计表中是否存在当前时段的打卡记录，
          * 若不存在，则直接存stat表
          * 若存在，判断是属于上班(取最早数据)，还是属于下班(取最晚数据)
          * */
         if(ObjectUtil.isEmpty(hrUserAttendanceStat)){
-            this.save(BeanUtil.toBean(hrUserAttendanceStatEvent, HrUserAttendanceStat.class));
+            this.save(stat);
             return;
         }
-
         if(ON_DUTY.equals(hrUserAttendanceStatEvent.getCheckType())){
             if(hrUserAttendanceStatEvent.getCheckTime().before(hrUserAttendanceStat.getCheckTime())){
                 this.removeById(hrUserAttendanceStat.getId());
-                this.save(BeanUtil.toBean(hrUserAttendanceStatEvent, HrUserAttendanceStat.class));
+                this.save(stat);
             }
             return;
         }
         if(hrUserAttendanceStatEvent.getCheckTime().after(hrUserAttendanceStat.getCheckTime())){
             this.removeById(hrUserAttendanceStat.getId());
-            this.save(BeanUtil.toBean(hrUserAttendanceStatEvent, HrUserAttendanceStat.class));
+            this.save(stat);
             return;
         }
     }
@@ -248,42 +255,63 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 .eq(HrUserAttendanceStat::getUserId,loginUser.getId())
                 .between(HrUserAttendanceStat::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
                 .orderByAsc(HrUserAttendanceStat::getCheckTime));
-
-        Map<String,HrUserAttendance> statMap = new HashMap<>();/** 判断考勤数据是否存在迟到或者早退*/
-        hrUserAttendanceStatList.forEach(stat -> {
-            if(stat.getCheckType().equals(ON_DUTY)){
-                stat.setAbnormalFlag(3);//迟到
-            }else if(stat.getCheckType().equals(OFF_DUTY)){
-                stat.setAbnormalFlag(4);//早退
-            }
-            statMap.put(stat.getCheckType(),BeanUtil.toBean(stat,HrUserAttendance.class));
-        });
+        /** 把记录表和统计表合并 -- 合并迟到早退数据 */
+        hrUserAttendanceStatList.forEach(stat ->
+            hrUserAttendanceList.forEach(attendance -> {
+                attendance.setAbnormalFlag(2);//默认值
+                if(stat.getCheckTime().compareTo(attendance.getCheckTime()) == 0){
+                    attendance.setAbnormalFlag(stat.getAbnormalFlag());
+                }
+            })
+        );
         List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = hrUserAttendanceStatService.getUserConfigCachData(loginUser.getId());/** 获取打卡配置*/
+        Date startTime =  CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getStartTime(),DatePattern.NORM_DATE_PATTERN);
+        Date nowDate = DateUtil.date();
+        try{
+            nowDate = DateUtils.parseDate(DateUtil.now(),DateUtils.DATE_FORMAT_10);
+        }catch (Exception e){
+            log.error("格式化时间失败！e:"+e.toString());
+        }
+        return attendanceDayInfoCore(userAttendanceConfigEntityList,hrUserAttendanceList,startTime,nowDate);
+    }
 
+    private Map<String,List<HrUserAttendance>> attendanceDayInfoCore(List<UserAttendanceConfigEntity> userAttendanceConfigEntityList,
+            List<HrUserAttendance> hrUserAttendanceList,Date startTime,Date nowDate){
         Map<String,List<HrUserAttendance>> map = new HashMap<>();
         for(int i=0;i<userAttendanceConfigEntityList.size();i++){
             String dutyType = userAttendanceConfigEntityList.get(i).getDutyType();
-            HrUserAttendance hrUserAttendance = statMap.get(dutyType);
-            List<HrUserAttendance> list = new ArrayList<>();
-            list.add(hrUserAttendance);
-            if(ObjectUtil.isEmpty(hrUserAttendance)){
-                list = hrUserAttendanceList.stream().filter(attendance -> attendance.getCheckType().equals(dutyType)
-                ).collect(Collectors.toList());
-                /** 防止打卡记录表存在数据，而统计表没有数据，且对数据做异常判断 */
-                if(CollectionUtil.isNotEmpty(list) && list.get(0).getAbnormalFlag() == 2){
-                    list.get(0).setAbnormalFlag(3);
+            String dayTime = DateUtil.format(DateUtil.date(),DatePattern.NORM_DATE_PATTERN);
+            Date checkTime = CommonTimeFormatUtil.strToDate(dayTime+" "+userAttendanceConfigEntityList.get(i).getCheckTime(),DatePattern.NORM_DATETIME_PATTERN);
+            List<HrUserAttendance> list = hrUserAttendanceList.stream().filter(attendance -> attendance.getCheckType().equals(dutyType)).collect(Collectors.toList());
+            if(CollectionUtil.isEmpty(list)){
+                HrUserAttendance hrUserAttendance = new HrUserAttendance();
+                if(nowDate.compareTo(startTime) < 0){//查询未来数据，未来数据不存在缺卡的情况，直接空即可
+                }else if(nowDate.compareTo(startTime) == 0){ //是否为当天数据，存在和当前时间比较得出是否缺卡情况
+                    /**  预留：后续要加请假，调休，年假的情况   -- 逻辑还需要优化*/
+                    /**
+                     * 先判断这个dutyType对应的checkTime与当前时间
+                     * 若checkTime <= 当前时间，已过了dutyType对应的打卡时间，无数据则标识缺卡
+                     * */
+                    if(checkTime.compareTo(DateUtil.date()) <= 0){
+                        hrUserAttendance.setAbnormalFlag(-1);
+                        hrUserAttendance.setCheckTime(userAttendanceConfigEntityList.get(i).getCheckTime());
+                        hrUserAttendance.setCheckType(userAttendanceConfigEntityList.get(i).getDutyType());
+                        hrUserAttendance.setConfigOrderNumber(userAttendanceConfigEntityList.get(i).getOrderNumber());
+                        list.add(hrUserAttendance);
+                    }
+                }else{ //是否为历史数据
+                    /**  预留：后续要加请假，调休，年假的情况 */
+                    hrUserAttendance.setAbnormalFlag(-1);
+                    hrUserAttendance.setCheckTime(userAttendanceConfigEntityList.get(i).getCheckTime());
+                    hrUserAttendance.setCheckType(userAttendanceConfigEntityList.get(i).getDutyType());
+                    hrUserAttendance.setConfigOrderNumber(userAttendanceConfigEntityList.get(i).getOrderNumber());
+                    list.add(hrUserAttendance);
                 }
-                map.put(String.valueOf(i),list);
-            }else{
-                list.addAll(hrUserAttendanceList.stream().filter(attendance ->
-                        attendance.getCheckType().equals(dutyType) && attendance.getCheckTime().compareTo(hrUserAttendance.getCheckTime()) != 0
-                ).collect(Collectors.toList()));
-                map.put(String.valueOf(i),list);
             }
+            map.put(String.valueOf(i),list);
         }
         return map;
     }
-
 
     @Override
     public List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam) {
