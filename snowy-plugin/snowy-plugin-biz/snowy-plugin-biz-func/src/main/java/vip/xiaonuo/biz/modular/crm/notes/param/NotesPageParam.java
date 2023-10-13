@@ -52,6 +52,9 @@ public class NotesPageParam {
     @ApiModelProperty(value = "流水号SN（历史表Notes.SN）")
     private String sn;
 
+    @ApiModelProperty(value = "备注")
+    private String note;
+
     /** 登记人（历史表Notes.Opt） */
     @ApiModelProperty(value = "登记人（历史表Notes.Opt）")
     private String opt;

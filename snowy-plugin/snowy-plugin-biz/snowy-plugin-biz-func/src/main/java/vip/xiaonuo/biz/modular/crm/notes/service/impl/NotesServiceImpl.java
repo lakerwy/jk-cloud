@@ -157,6 +157,7 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
             queryWrapper.like("a.SN", notesPageParam.getSearchKey()).or()
                     .like("a.CONTRACT_NO", notesPageParam.getSearchKey()).or()
                     .like("a.PARTNER_NO", notesPageParam.getSearchKey()).or()
+                    .like("a.NOTE", notesPageParam.getSearchKey()).or()
                     .like("b.PROJECT_NAME", notesPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(notesPageParam.getSn())) {
