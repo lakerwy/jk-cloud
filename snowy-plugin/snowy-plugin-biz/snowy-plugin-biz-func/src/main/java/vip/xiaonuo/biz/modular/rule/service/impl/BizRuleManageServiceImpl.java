@@ -28,7 +28,7 @@ public class BizRuleManageServiceImpl extends ServiceImpl<BizRuleMapper, BizRule
     public Page<BizRuleManage> page(BizRuleMangePageParam bizRuleMangePageParam) {
         QueryWrapper<BizRuleManage> qw = new QueryWrapper<>();
         if (ObjectUtil.isNotEmpty(bizRuleMangePageParam.getTitle())) {
-            qw.lambda().eq(BizRuleManage::getTitle, bizRuleMangePageParam.getTitle());
+            qw.lambda().like(BizRuleManage::getTitle, bizRuleMangePageParam.getTitle());
         }
         return this.page(CommonPageRequest.defaultPage(), qw);
     }

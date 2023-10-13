@@ -119,7 +119,7 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
                 bizVisitListService.removeByIds(removeList);
             }
         }
-        ;
+
     }
 
     @Transactional(rollbackFor = Exception.class)
