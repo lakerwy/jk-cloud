@@ -73,7 +73,7 @@ public class HrUserAttendancePageParam {
     private String endTime;
 
     /** 打卡是否正常标识 */
-    @ApiModelProperty(value = "打卡结果：1 打卡正常 ，2 打卡异常，3 迟到，4 早退，-1 缺卡")
+    @ApiModelProperty(value = "打卡结果：-1 缺卡，0 管理员修改，1 打卡正常 ，2 打卡异常，3 迟到，4 早退，5 请假")
     private Integer abnormalFlag;
 
 }

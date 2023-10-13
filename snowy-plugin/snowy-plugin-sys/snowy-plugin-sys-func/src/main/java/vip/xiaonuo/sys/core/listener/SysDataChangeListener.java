@@ -13,14 +13,25 @@
 package vip.xiaonuo.sys.core.listener;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.SysDataTypeEnum;
 import vip.xiaonuo.common.listener.CommonDataChangeListener;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
 
+import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 系统模块数据变化侦听器
@@ -30,6 +41,9 @@ import java.util.List;
  **/
 @Component
 public class SysDataChangeListener implements CommonDataChangeListener {
+
+    @Resource
+    HrUserHolidayDataService hrUserHolidayDataService;
 
     @Override
     public void doAddWithDataIdList(String dataType, List<String> dataIdList) {
@@ -46,6 +60,19 @@ public class SysDataChangeListener implements CommonDataChangeListener {
     @Override
     public void doAddWithDataList(String dataType, JSONArray jsonArray) {
         // 此处可做额外处理
+        if(dataType.equals(SysDataTypeEnum.USER.getValue())) {//如果存在新增人员,假期表新增数据
+            jsonArray.forEach(json -> {
+                JSONObject obj = JSONUtil.parseObj(json);
+                HrUserHolidayData hrUserHolidayData = new HrUserHolidayData();
+                String userId = ObjectUtil.isNotEmpty(obj.get("id")) ? obj.get("id").toString() : "";
+                String name = ObjectUtil.isNotEmpty(obj.get("name")) ? obj.get("name").toString() : "";
+                String orgId = ObjectUtil.isNotEmpty(obj.get("orgId")) ? obj.get("orgId").toString() : "";
+                hrUserHolidayData.setUserId(userId);
+                hrUserHolidayData.setUserName(name);
+                hrUserHolidayData.setDeparId(orgId);
+                hrUserHolidayDataService.save(hrUserHolidayData);
+            });
+        }
     }
 
     @Override
@@ -61,5 +88,7 @@ public class SysDataChangeListener implements CommonDataChangeListener {
     @Override
     public void doDeleteWithDataIdList(String dataType, List<String> dataIdList) {
         // 此处可做额外处理
+        // 删除人员数据，相应删除人员假期数据
+        hrUserHolidayDataService.remove(new LambdaQueryWrapper<HrUserHolidayData>().in(HrUserHolidayData::getUserId,dataIdList));
     }
 }
