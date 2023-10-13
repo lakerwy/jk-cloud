@@ -75,7 +75,6 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     private final String ON_DUTY = "OnDuty";
     private final String OFF_DUTY = "OffDuty";
     private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
-    private static final String DATE_FORMAT = "yyyy-MM-dd";
 
     @Resource
     HrUserAttendanceStatService hrUserAttendanceStatService;
@@ -256,14 +255,17 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 .between(HrUserAttendanceStat::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
                 .orderByAsc(HrUserAttendanceStat::getCheckTime));
         /** 把记录表和统计表合并 -- 合并迟到早退数据 */
-        hrUserAttendanceStatList.forEach(stat ->
-            hrUserAttendanceList.forEach(attendance -> {
-                attendance.setAbnormalFlag(2);//默认值
+        List<HrUserAttendance> mergeList = new ArrayList<>();
+        hrUserAttendanceList.forEach(attendance ->{
+            attendance.setAbnormalFlag(2);//默认值
+            hrUserAttendanceStatList.forEach(stat -> {
                 if(stat.getCheckTime().compareTo(attendance.getCheckTime()) == 0){
                     attendance.setAbnormalFlag(stat.getAbnormalFlag());
                 }
-            })
-        );
+            });
+            mergeList.add(attendance);
+        });
+
         List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = hrUserAttendanceStatService.getUserConfigCachData(loginUser.getId());/** 获取打卡配置*/
         Date startTime =  CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getStartTime(),DatePattern.NORM_DATE_PATTERN);
         Date nowDate = DateUtil.date();
@@ -272,7 +274,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         }catch (Exception e){
             log.error("格式化时间失败！e:"+e.toString());
         }
-        return attendanceDayInfoCore(userAttendanceConfigEntityList,hrUserAttendanceList,startTime,nowDate);
+        return attendanceDayInfoCore(userAttendanceConfigEntityList,mergeList,startTime,nowDate);
     }
 
     private Map<String,List<HrUserAttendance>> attendanceDayInfoCore(List<UserAttendanceConfigEntity> userAttendanceConfigEntityList,
@@ -327,14 +329,14 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         /**  list循环一次，获取-1  循环二次获取 1*/
         Map<String,UserAttendanceCountEntity> map = new HashMap<>();
         for(HrUserAttendance hrUserAttendance : hrUserAttendanceList){
-            String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DATE_FORMAT);
+            String day = CommonTimeFormatUtil.dateToStr(hrUserAttendance.getCheckTime(),DatePattern.NORM_DATE_PATTERN);
             map.put(day,new UserAttendanceCountEntity("",hrUserAttendance.getAbnormalFlag() != null ? "0" : "1",day,hrUserAttendance.getCheckTime()));
         }
         List<HrUserAttendance> userAttendances = hrUserAttendanceList.stream().filter(attendance ->
                 attendance.getAbnormalFlag() != null && attendance.getAbnormalFlag() == 2).collect(Collectors.toList());/**  筛选打卡异常的数据*/
         /** 打卡异常的数据 */
         userAttendances.forEach(attendance ->  {
-            String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DATE_FORMAT);
+            String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DatePattern.NORM_DATE_PATTERN);
             if(map.get(day) != null){
                 map.get(day).setDayAttendanceStatus("1");
             }
