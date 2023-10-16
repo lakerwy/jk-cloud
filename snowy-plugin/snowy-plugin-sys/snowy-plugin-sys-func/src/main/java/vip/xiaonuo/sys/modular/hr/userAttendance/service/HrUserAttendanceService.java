@@ -17,7 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
-import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 
 import java.util.Date;
 import java.util.List;
@@ -127,5 +127,5 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * @date  2023/10/16 11:24
      * */
     List<AttendanceTimeSlot> getAttendanceTimeSlotList(String userId, Date dateNow);
-    List<AttendanceTimeSlot> userConfigCache(ConfigCacheListParam configCacheListParam);
+    List<HrUserAttendanceConfig> userConfigCache(ConfigCacheListParam configCacheListParam);
 }

@@ -46,7 +46,6 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceConfigCacheEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
-import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
@@ -176,11 +175,33 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return  HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
     }
     @Override
-    public List<AttendanceTimeSlot> userConfigCache(ConfigCacheListParam configCacheListParam){
-        if(ObjectUtil.isEmpty(configCacheListParam.getUserId()) || ObjectUtil.isEmpty(configCacheListParam.getTime())){
+    public List<HrUserAttendanceConfig> userConfigCache(ConfigCacheListParam configCacheListParam){
+        String  userId = ObjectUtil.isEmpty(configCacheListParam.getUserId()) ? StpLoginUserUtil.getLoginUser().getId() : configCacheListParam.getUserId();
+
+        String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));//取考勤缓存数据
+        if(StringUtils.isNotEmpty(cache)){
+            List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
+            for(AttendanceConfigCacheEntity entity : configCacheEntityList){
+                List<String> userIds = Arrays.asList(entity.getUserIds().split(","));
+                for(String userIdSTr : userIds){
+                    if(userIdSTr.equals(userId)){
+                        return hrUserAttendanceConfigService.list(new LambdaQueryWrapper<HrUserAttendanceConfig>()
+                                .eq(HrUserAttendanceConfig::getAttendanceTypeId,configCacheEntityList.get(0).getAttendanceTypeId()));
+                    }
+                }
+            }
+        }
+
+        //取默认配置
+        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
+                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
+        if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroupList)){
             return new ArrayList<>();
         }
-        return getAttendanceTimeSlotList(configCacheListParam.getUserId(),configCacheListParam.getTime());
+        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
+                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
+
+        return configList;
     }
 
     @Override
