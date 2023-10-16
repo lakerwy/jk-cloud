@@ -175,4 +175,18 @@ public class HrUserAttendanceStatController {
     public CommonResult<List<UserAttendanceCountEntity>> attendanceMonthCount(@Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
         return CommonResult.data(hrUserAttendanceStatService.attendanceMonthCount(hrUserAttendancePageParam));
     }
+
+
+    /**
+     * 用户考勤概览接口
+     * */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("用户考勤概览接口")
+    @CommonLog("用户考勤概览接口")
+    //@SaCheckPermission("/sys/userAttendance/attendancemonthcount")
+    @GetMapping("/sys/userAttendance/attendancemonthPreview")
+    public CommonResult<Map<String,Object>> attendancemonthPreview() {
+        return CommonResult.data(hrUserAttendanceStatService.attendancemonthPreview());
+    }
+
 }
