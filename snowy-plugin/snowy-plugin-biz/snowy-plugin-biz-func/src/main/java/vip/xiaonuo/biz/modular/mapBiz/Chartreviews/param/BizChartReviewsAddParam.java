@@ -120,4 +120,7 @@ public class BizChartReviewsAddParam {
     @ApiModelProperty(value = "受理状态", position = 22)
     private String status;
 
+    /** 项目(合同)主键ID */
+    @ApiModelProperty(value = "项目(合同)主键ID", position = 23)
+    private String projectId;
 }

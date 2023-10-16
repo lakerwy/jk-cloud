@@ -156,4 +156,8 @@ public class BizChartReviews {
     @ApiModelProperty(value = "数据权限字段",position = 62)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 项目(合同)主键ID */
+    @ApiModelProperty(value = "项目(合同)主键ID", position = 63)
+    private String projectId;
 }
