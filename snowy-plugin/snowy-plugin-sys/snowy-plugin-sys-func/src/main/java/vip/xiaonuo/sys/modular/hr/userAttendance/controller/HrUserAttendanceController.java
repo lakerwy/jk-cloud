@@ -26,16 +26,15 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -163,6 +162,15 @@ public class HrUserAttendanceController {
     public CommonResult<String> attendanceConfigCache() {
         hrUserAttendanceService.attendanceConfigCache();
         return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("获取用户考勤配置")
+    @CommonLog("获取用户考勤配置-优先取缓存")
+    //@SaCheckPermission("/sys/userAttendance/userConfigCache")
+    @GetMapping("/sys/userAttendance/userConfigCache")
+    public CommonResult<List<AttendanceTimeSlot>> userConfigCache(@Valid ConfigCacheListParam configCacheListParam) {
+        return CommonResult.data(hrUserAttendanceService.userConfigCache(configCacheListParam));
     }
 
 }

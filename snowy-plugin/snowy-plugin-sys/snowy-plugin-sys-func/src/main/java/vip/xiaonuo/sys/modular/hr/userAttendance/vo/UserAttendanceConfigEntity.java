@@ -26,4 +26,6 @@ public class UserAttendanceConfigEntity implements Serializable {
     private String endMinTime;
     @ApiModelProperty(value = "工时-工作时间", position = 7)
     private String workHours;
+    @ApiModelProperty(value = "考勤班次类别组ID", position = 9)
+    private String attendanceTypeId;
 }

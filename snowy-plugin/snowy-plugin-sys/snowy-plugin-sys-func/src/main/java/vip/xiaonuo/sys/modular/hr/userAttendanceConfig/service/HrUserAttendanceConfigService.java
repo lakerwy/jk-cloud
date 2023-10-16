@@ -15,10 +15,7 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.*;
 
 import java.util.List;
 import java.util.Map;
@@ -45,7 +42,7 @@ public interface HrUserAttendanceConfigService extends IService<HrUserAttendance
      * @author ljy
      * @date  2023/09/07 13:07
      */
-    void add(HrUserAttendanceConfigAddParam hrUserAttendanceConfigAddParam);
+    void add(HrUserAttendanceConfigListAddParam hrUserAttendanceConfigListAddParam);
 
     /**
      * 编辑打卡班次配置表

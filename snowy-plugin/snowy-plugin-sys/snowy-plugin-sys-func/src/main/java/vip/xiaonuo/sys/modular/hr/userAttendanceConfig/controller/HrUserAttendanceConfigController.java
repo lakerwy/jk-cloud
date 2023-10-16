@@ -27,10 +27,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 
 import javax.annotation.Resource;
@@ -79,8 +76,8 @@ public class HrUserAttendanceConfigController {
     @CommonLog("添加单个打卡班次配置表")
     //@SaCheckPermission("/sys/userAttendanceConfig/add")
     @PostMapping("/sys/userAttendanceConfig/add")
-    public CommonResult<String> add(@RequestBody @Valid HrUserAttendanceConfigAddParam hrUserAttendanceConfigAddParam) {
-        hrUserAttendanceConfigService.add(hrUserAttendanceConfigAddParam);
+    public CommonResult<String> add(@RequestBody @Valid HrUserAttendanceConfigListAddParam hrUserAttendanceConfigListAddParam) {
+        hrUserAttendanceConfigService.add(hrUserAttendanceConfigListAddParam);
         return CommonResult.ok();
     }
 

@@ -15,12 +15,11 @@ package vip.xiaonuo.sys.modular.hr.userAttendance.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -120,4 +119,13 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * */
     String getOrgAndUserId(String orgId);
 
+    //获取用户考勤配置-优先取缓存
+
+    /**
+     * 获取用户考勤配置-优先取缓存
+     * author ljy
+     * @date  2023/10/16 11:24
+     * */
+    List<AttendanceTimeSlot> getAttendanceTimeSlotList(String userId, Date dateNow);
+    List<AttendanceTimeSlot> userConfigCache(ConfigCacheListParam configCacheListParam);
 }

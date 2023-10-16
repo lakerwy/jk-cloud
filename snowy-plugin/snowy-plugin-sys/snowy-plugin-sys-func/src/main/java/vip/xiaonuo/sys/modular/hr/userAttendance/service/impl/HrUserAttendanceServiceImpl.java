@@ -41,10 +41,7 @@ import vip.xiaonuo.sys.modular.hr.userApplyAttendance.service.HrUserApplyAttenda
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendance.mapper.HrUserAttendanceMapper;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceConfigCacheEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
@@ -178,8 +175,16 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         eventPublisher.publishEvent(attendanceStatEvent);
         return  HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
     }
+    @Override
+    public List<AttendanceTimeSlot> userConfigCache(ConfigCacheListParam configCacheListParam){
+        if(ObjectUtil.isEmpty(configCacheListParam.getUserId()) || ObjectUtil.isEmpty(configCacheListParam.getTime())){
+            return new ArrayList<>();
+        }
+        return getAttendanceTimeSlotList(configCacheListParam.getUserId(),configCacheListParam.getTime());
+    }
 
-    private  List<AttendanceTimeSlot> getAttendanceTimeSlotList(String userId,Date dateNow){
+    @Override
+    public   List<AttendanceTimeSlot> getAttendanceTimeSlotList(String userId,Date dateNow){
         List<HrUserAttendanceConfig> configList = new ArrayList<>();
         String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));//取考勤缓存数据
         if(StringUtils.isNotEmpty(cache)){
@@ -218,6 +223,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
          * */
         for(HrUserAttendanceConfig attendanceConfig : configList){
             AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
+            attendanceTimeSlot.setAttendanceTypeId(attendanceConfig.getAttendanceTypeId());
             attendanceTimeSlot.setDutyType(attendanceConfig.getDutyType());
             Date time = CommonTimeFormatUtil.yearAndHourConnect(CommonTimeFormatUtil.dateToStr(dateNow,DATE_FORMAT),attendanceConfig.getCheckTime().toString());
             attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getBeginMinTime()),2));
@@ -370,4 +376,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         }});
         return bizOrgListNew;
     }
+
+
 }

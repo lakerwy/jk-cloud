@@ -29,13 +29,10 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.vo.HrUserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.enums.HrUserAttendanceConfigEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.mapper.HrUserAttendanceConfigMapper;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
@@ -88,9 +85,18 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
     /**  必传值：orderNumber[排序-用户选择]，attendanceTypeName[考勤类型-取字典表]，dutyType[班次类型-取字典表]，beginMinTime[提前时间-用户计算填写]，checkTime[班次时间-用户填写]，endMinTime[延迟时间-用户填写]，workHours[工时-用户计算填写]*/
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(HrUserAttendanceConfigAddParam hrUserAttendanceConfigAddParam) {
-        HrUserAttendanceConfig hrUserAttendanceConfig = BeanUtil.toBean(hrUserAttendanceConfigAddParam, HrUserAttendanceConfig.class);
-        this.save(hrUserAttendanceConfig);
+    public void add(HrUserAttendanceConfigListAddParam hrUserAttendanceConfigListAddParam) {
+        HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.getById(hrUserAttendanceConfigListAddParam.getAttendanceTypeId());
+        if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroup)){
+            hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigListAddParam.getLeadId());
+            hrUserAttendanceConfigGroupService.saveOrUpdate(hrUserAttendanceConfigGroup);
+        }
+
+        List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigListAddParam.getHrUserAttendanceConfigAddParamList().stream().map(config ->
+            BeanUtil.toBean(config, HrUserAttendanceConfig.class)).collect(Collectors.toList());
+        this.saveBatch(hrUserAttendanceConfigList);
+        //HrUserAttendanceConfig hrUserAttendanceConfig = BeanUtil.toBean(hrUserAttendanceConfigAddParam, HrUserAttendanceConfig.class);
+        //this.save(hrUserAttendanceConfig);
         /** 先删除原有缓存，再计算最新的缓存 */
         commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
         hrUserAttendanceService.attendanceConfigCache();
