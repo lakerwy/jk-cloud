@@ -183,10 +183,10 @@ public class HrUserAttendanceStatController {
     @ApiOperationSupport(order = 9)
     @ApiOperation("用户考勤概览接口")
     @CommonLog("用户考勤概览接口")
-    //@SaCheckPermission("/sys/userAttendance/attendancemonthcount")
-    @GetMapping("/sys/userAttendance/attendancemonthPreview")
-    public CommonResult<Map<String,Object>> attendancemonthPreview() {
-        return CommonResult.data(hrUserAttendanceStatService.attendancemonthPreview());
+    //@SaCheckPermission("/sys/userAttendance/attendancemonthPreview")
+    @GetMapping("/sys/userAttendance/attendanceDayPreview")
+    public CommonResult<Map<String,Object>> attendanceDayPreview() {
+        return CommonResult.data(hrUserAttendanceStatService.attendanceDayPreview());
     }
 
 }

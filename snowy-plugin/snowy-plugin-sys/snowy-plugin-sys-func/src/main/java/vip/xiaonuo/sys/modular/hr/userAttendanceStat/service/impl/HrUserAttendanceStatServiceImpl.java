@@ -349,7 +349,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public Map<String,Object> attendancemonthPreview(){
+    public Map<String,Object> attendanceDayPreview(){
         /** 获取一天的开始时间，结束时间 */
         Map<String,Object> map = new HashMap<>();
         Date beginDate = DateUtil.beginOfDay(DateUtil.date());

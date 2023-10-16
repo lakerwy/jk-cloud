@@ -124,5 +124,5 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      */
     List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam);
 
-    Map<String,Object> attendancemonthPreview();
+    Map<String,Object> attendanceDayPreview();
 }
