@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatE
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -183,10 +184,12 @@ public class HrUserAttendanceStatController {
     @ApiOperationSupport(order = 9)
     @ApiOperation("用户考勤概览接口")
     @CommonLog("用户考勤概览接口")
-    //@SaCheckPermission("/sys/userAttendance/attendancemonthPreview")
+    //@SaCheckPermission("/sys/userAttendance/attendanceDayPreview")
     @GetMapping("/sys/userAttendance/attendanceDayPreview")
-    public CommonResult<Map<String,Object>> attendanceDayPreview() {
+    public CommonResult<AttendanceStatNumData> attendanceDayPreview() {
         return CommonResult.data(hrUserAttendanceStatService.attendanceDayPreview());
     }
+
+
 
 }

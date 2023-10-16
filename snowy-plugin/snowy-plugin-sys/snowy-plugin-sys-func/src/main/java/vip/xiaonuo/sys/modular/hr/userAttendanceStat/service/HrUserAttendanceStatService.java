@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatEditParam;
@@ -124,5 +125,5 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      */
     List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam);
 
-    Map<String,Object> attendanceDayPreview();
+    AttendanceStatNumData attendanceDayPreview();
 }

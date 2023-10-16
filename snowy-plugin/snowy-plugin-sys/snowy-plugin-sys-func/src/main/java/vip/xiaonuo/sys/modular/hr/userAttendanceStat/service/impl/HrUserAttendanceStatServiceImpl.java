@@ -51,6 +51,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceC
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.mapper.HrUserAttendanceStatMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
@@ -349,32 +350,32 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public Map<String,Object> attendanceDayPreview(){
+    public AttendanceStatNumData attendanceDayPreview(){
         /** 获取一天的开始时间，结束时间 */
-        Map<String,Object> map = new HashMap<>();
         Date beginDate = DateUtil.beginOfDay(DateUtil.date());
         Date endDate = DateUtil.endOfDay(DateUtil.date());
+        AttendanceStatNumData attendanceStatNumData = new AttendanceStatNumData();
         Long attendanceNum = this.count(new LambdaQueryWrapper<HrUserAttendanceStat>()
                 .between(HrUserAttendanceStat::getCheckTime,beginDate,endDate)
                 .groupBy(HrUserAttendanceStat::getUserId));
-        map.put("attendanceNum",attendanceNum);//打卡人数
+        attendanceStatNumData.setAttendanceNum(attendanceNum);//打卡人数
+
         Long userNum = sysUserService.count();
-        map.put("userNum",userNum);//应到人数
-        map.put("noAttendanceNum",userNum-attendanceNum);//未打卡人数
+        attendanceStatNumData.setUserNum(userNum); //应到人数
+        attendanceStatNumData.setNoAttendanceNum(userNum-attendanceNum); //未打卡人数
 
         List<HrUserAttendanceStat> hrUserAttendanceStats = this.list(new LambdaQueryWrapper<HrUserAttendanceStat>()
                 .between(HrUserAttendanceStat::getCheckTime,beginDate,endDate));
-        map.put("lateUserNum",0);//迟到人数
+        attendanceStatNumData.setLateUserNum(0l);
         hrUserAttendanceStats.forEach(stat -> {
             if(stat.getAbnormalFlag() == 3){
-                Integer lateUserNum = Integer.parseInt(map.get("lateUserNum").toString());
-                map.put("lateUserNum",lateUserNum++);//应到人数
+                Long lateUserNum = attendanceStatNumData.getLateUserNum();
+                attendanceStatNumData.setLateUserNum(lateUserNum++);//迟到人数
             }
         });
 
         //外勤人数  -- 暂时不确定外勤人数
-        map.put("egressNum",0);
-
-        return map;
+        attendanceStatNumData.setEgressNum(0l);
+        return attendanceStatNumData;
     }
 }
