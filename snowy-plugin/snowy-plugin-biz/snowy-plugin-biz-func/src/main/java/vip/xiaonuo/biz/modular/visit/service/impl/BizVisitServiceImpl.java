@@ -84,7 +84,6 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
             });
             bizVisitListService.saveBatch(bizVisitList);
         }
-
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -118,8 +117,10 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
             if (CollUtil.isNotEmpty(removeList)) {
                 bizVisitListService.removeByIds(removeList);
             }
+        }else{
+            //删除历史数据（历史有数据，本次全部删除）
+            bizVisitListService.remove(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId,bizVisit.getId()));
         }
-
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -137,7 +138,6 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         BizVisitVo result = BeanUtil.toBean(bizVisit, BizVisitVo.class);
         result.setParamList(bizVisitListService.list(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, bizVisitIdParam.getId())));
         return result;
-
     }
 
     @Override
