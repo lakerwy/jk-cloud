@@ -70,7 +70,8 @@
             c.IS_LOGISTICS
         FROM
             BIZ_CHART_REVIEWS a
-                LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO AND a.PROJECT_ID = b.ID
+                LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO
+                AND (a.PROJECT_ID IS NULL OR a.PROJECT_ID = b.ID)
                 LEFT JOIN BIZ_MAP_REGISTER c ON c.REVIEW_ID = a.ID
         WHERE
             a.DELETE_FLAG = 'NOT_DELETE'
@@ -83,7 +84,9 @@
 
     <select id="getPageList" resultType="vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo">
         SELECT a.*, b.CONTRACT_NO,b.PROJECT_NAME,b.SECOND_LEVEL FROM BIZ_CHART_REVIEWS a
-            LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO and a.PROJECT_ID = b.ID ${ew.customSqlSegment}
+            LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO
+            AND (a.PROJECT_ID IS NULL OR a.PROJECT_ID = b.ID)
+             ${ew.customSqlSegment}
     </select>
 
     <select id="getAuditList" resultType="vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists">
