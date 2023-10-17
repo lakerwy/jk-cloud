@@ -73,7 +73,7 @@ import java.util.stream.Collectors;
 @Service
 public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMapper, HrUserAttendance> implements HrUserAttendanceService {
 
-    private static final String HR_ATTENDANCE_CONFIG_DEFAULT_KEY = "HR_ATTENDANCE_CONFIG_DEFAULT_KEY";
+    private static final String HR_ATTENDANCE_CONFIG_DEFAULT_KEY = "HR_ATTENDANCE_CONFIG_DEFAULT_KEY";  //默认配置
     private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
 
     private static final String DATE_FORMAT = "yyyy-MM-dd";
@@ -191,17 +191,10 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                 }
             }
         }
-
         //取默认配置
-        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
-                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
-        if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroupList)){
-            return new ArrayList<>();
-        }
-        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
-                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
+        String defaultConfig = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_DEFAULT_KEY));
 
-        return configList;
+        return JSONArray.parseArray(defaultConfig, HrUserAttendanceConfig.class);
     }
 
     @Override
@@ -224,14 +217,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             }
         }
         /** 缓存没有，则取默认配置 */
-        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
-                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
-        if(ObjectUtil.isEmpty(hrUserAttendanceConfigGroupList)){
-            return new ArrayList<>();
-        }
-        configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
-                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
-        return getAttendanceTimeSlotData(configList,dateNow);
+        String defaultConfig = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_DEFAULT_KEY));
+        return getAttendanceTimeSlotData(JSONArray.parseArray(defaultConfig, HrUserAttendanceConfig.class),dateNow);
     }
 
     private List<AttendanceTimeSlot> getAttendanceTimeSlotData(List<HrUserAttendanceConfig> configList,Date dateNow){
@@ -254,6 +241,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             attendanceTimeSlot.setOrderNumber(attendanceConfig.getOrderNumber());
             attendanceTimeSlot.setWorkEndTime(time);//初始化默认值
             attendanceTimeSlot.setWorkBeginTime(time);//初始化默认值
+            attendanceTimeSlot.setAttendanceTypeName(attendanceConfig.getAttendanceTypeName());
             //获取工作区间
             double minute =  Double.parseDouble(attendanceConfig.getWorkHours())*60;
             if(attendanceConfig.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()) && minute > 0){
@@ -334,6 +322,17 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         });
         attendanceConfigCacheEntityList.forEach(cache -> cache.setUserIds(mapRelation.get(cache.getAttendanceTypeId())));
         commonCacheOperator.put(HR_ATTENDANCE_CONFIG_KEY,JSON.toJSONString(attendanceConfigCacheEntityList)); //缓存
+        cacheDefaultConfig();
+    }
+
+    /**  缓存默认考勤配置*/
+    @Override
+    public void cacheDefaultConfig(){
+        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
+                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
+        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
+                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
+        commonCacheOperator.put(HR_ATTENDANCE_CONFIG_DEFAULT_KEY,JSON.toJSONString(configList)); //缓存
     }
 
     /**

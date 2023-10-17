@@ -45,6 +45,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.param.ConfigCacheListParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceConfigCacheEntity;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
@@ -66,6 +67,7 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -81,6 +83,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     private final String ON_DUTY = "OnDuty";
     private final String OFF_DUTY = "OffDuty";
     private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
+    private static final String HR_ATTENDANCE_CONFIG_DEFAULT_KEY = "HR_ATTENDANCE_CONFIG_DEFAULT_KEY";  //默认配置
+
 
     @Resource
     HrUserAttendanceStatService hrUserAttendanceStatService;
@@ -238,11 +242,9 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 }
             }
         }
-        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
-                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
-
-        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
-                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
+        //取默认配置
+        String defaultConfig = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_DEFAULT_KEY));
+        List<HrUserAttendanceConfig> configList = JSONArray.parseArray(defaultConfig, HrUserAttendanceConfig.class);
         return configList.stream().map(config -> BeanUtil.toBean(config, UserAttendanceConfigEntity.class)).collect(Collectors.toList());
     }
 
@@ -385,7 +387,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @Override
     public List<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam){
         List<AttendanceDayStatParam> attendanceDayStatList = new ArrayList<>();
-        List<String> dayLits = CommonTimeFormatUtil.getPerStrDayList(attendanceDayStatParam.getBeginTime(),attendanceDayStatParam.getEndTime());//时间处理
+        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(attendanceDayStatParam.getBeginTime(),attendanceDayStatParam.getEndTime());//时间处理
 
         List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(new LambdaQueryWrapper<HrUserAttendance>()
                 .between(HrUserAttendance::getCheckTime,attendanceDayStatParam.getBeginTime(),attendanceDayStatParam.getEndTime())); // 查询该时间段内所有人打卡数据
@@ -406,23 +408,36 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             attendanceDayStat.setUserName(user.getName());
             attendanceDayStat.setOrgId(user.getOrgId());
             List<Map<String,List<AttendanceDayStatData>>> dayCheckTimeMapList = new ArrayList<>();
-            Map<String,List<AttendanceDayStatData>> statMap = new HashMap<>();//key - day , value - AttendanceDayStatData
+            Map<String,List<AttendanceDayStatData>> statTempMap = new HashMap<>();//key - day , value - List<AttendanceDayStatData>
             hrUserAttendanceList.forEach(attendance -> {
                 String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DatePattern.NORM_DATE_PATTERN);
                 String userId = attendance.getUserId();
                 if(user.getId().equals(userId)){
-                    List<AttendanceDayStatData> attendanceDayStatDataList = statMap.get(day) == null ? new ArrayList<>() :  statMap.get(day);
+                    List<AttendanceDayStatData> attendanceDayStatDataList = statTempMap.get(day) == null ? new ArrayList<>() :  statTempMap.get(day);
                     attendanceDayStatDataList.add(new AttendanceDayStatData(attendance.getCheckTime(),attendance.getAbnormalFlag(),day));
-                    statMap.put(day,attendanceDayStatDataList);
+                    statTempMap.put(day,attendanceDayStatDataList);
                 }
             });
+            /**  打卡时间数据和传入时间合并 */
+            TreeMap<String,List<AttendanceDayStatData>> statMap = new TreeMap<>();//key - day , value - List<AttendanceDayStatData>
+            dayList.forEach(time ->{
+                List<AttendanceDayStatData> attendanceDayStatDataList = statTempMap.get(time) == null ? new ArrayList<>() : statTempMap.get(time);
+                if(CollectionUtil.isEmpty(attendanceDayStatDataList)){
+                    attendanceDayStatDataList.add(new AttendanceDayStatData(null,-1,CommonTimeFormatUtil.dayAndSunday(time)));
+                }
+                SimpleDateFormat sdf = new SimpleDateFormat("dd");
+                statMap.put(sdf.format(CommonTimeFormatUtil.strToDate(time,DatePattern.NORM_DATE_PATTERN)),attendanceDayStatDataList);
+            });
+
+            /** 一次轮询结束，开始保存数据 */
             dayCheckTimeMapList.add(statMap);
-            List<HrUserAttendanceConfig> configList = hrUserAttendanceService.userConfigCache( new ConfigCacheListParam(user.getId()));
-            attendanceDayStat.setAttendanceTypeName(configList.get(0).getAttendanceTypeName());
-            attendanceDayStat.setAttendanceTypeId(configList.get(0).getAttendanceTypeId());
+            List<AttendanceTimeSlot> attendanceTimeSlotList = hrUserAttendanceService.getAttendanceTimeSlotList(user.getId(),attendanceDayStatParam.getBeginTime());
+            attendanceDayStat.setAttendanceTypeName(attendanceTimeSlotList.get(0).getAttendanceTypeName());
+            attendanceDayStat.setAttendanceTypeId(attendanceTimeSlotList.get(0).getAttendanceTypeId());
             attendanceDayStat.setDayCheckTimeMapList(dayCheckTimeMapList);
             attendanceDayStatList.add(attendanceDayStat);
         });
+
         return attendanceDayStatList;
     }
 }

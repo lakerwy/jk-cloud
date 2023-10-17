@@ -128,4 +128,7 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * */
     List<AttendanceTimeSlot> getAttendanceTimeSlotList(String userId, Date dateNow);
     List<HrUserAttendanceConfig> userConfigCache(ConfigCacheListParam configCacheListParam);
+
+    /**  缓存默认考勤配置*/
+    void cacheDefaultConfig();
 }

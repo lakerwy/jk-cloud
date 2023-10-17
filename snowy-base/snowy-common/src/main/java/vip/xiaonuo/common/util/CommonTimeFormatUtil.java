@@ -386,6 +386,26 @@ public class CommonTimeFormatUtil {
             int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
             return dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY;
         }
+
+
+        public static String dayAndSunday(String time) {
+            Date date = strToDate(time,DatePattern.NORM_DATE_PATTERN);
+            // 创建Calendar类实例
+            Calendar instance = Calendar.getInstance();
+            // 根据指定日期获取周几
+            instance.setTime(date);
+            int week = instance.get(Calendar.DAY_OF_WEEK);
+            // 周日的编号是1，周六的编号是7
+            if (week == Calendar.SUNDAY ) {
+                return "日";
+            }
+            if(week == Calendar.SATURDAY){
+                return "六";
+            }
+            SimpleDateFormat sdf = new SimpleDateFormat("dd");
+            return sdf.format(date);
+        }
+
         public static void main(String[] args) {
             Date beginTime = strToDate("2023-10-01",DATE_FORMAT);
             Date endTime = strToDate("2023-10-30",DATE_FORMAT);
