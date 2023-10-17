@@ -204,7 +204,7 @@ public class HrUserAttendanceStatController {
     @CommonLog("用户考勤概览-每日统计接口")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
     @GetMapping("/sys/userAttendance/dayStatPreview")
-    public CommonResult<List<AttendanceDayStatParam>> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam) {
+    public CommonResult<List<AttendanceDayStatParam>> dayStatPreview(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.dayStatPreview(attendanceDayStatParam));
     }
 }
