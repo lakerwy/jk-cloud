@@ -379,4 +379,18 @@ public class CommonTimeFormatUtil {
             return  lDate;
         }
 
+        /** 是否为周末*/
+        public static boolean isWeekend(Date date) {
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(date);
+            int dayOfWeek = calendar.get(Calendar.DAY_OF_WEEK);
+            return dayOfWeek == Calendar.SATURDAY || dayOfWeek == Calendar.SUNDAY;
+        }
+        public static void main(String[] args) {
+            Date beginTime = strToDate("2023-10-01",DATE_FORMAT);
+            Date endTime = strToDate("2023-10-30",DATE_FORMAT);
+            List<String> list = getPerStrDayList(beginTime,endTime);
+            System.out.println("");
+        }
+
 }

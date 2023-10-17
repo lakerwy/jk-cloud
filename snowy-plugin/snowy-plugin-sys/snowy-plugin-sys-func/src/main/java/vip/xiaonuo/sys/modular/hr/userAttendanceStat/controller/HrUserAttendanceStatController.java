@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.userAttendanceStat.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -35,6 +34,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatE
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
 
 import javax.annotation.Resource;
@@ -180,6 +180,9 @@ public class HrUserAttendanceStatController {
 
     /**
      * 用户考勤概览接口
+     *
+     * @author ljy
+     * @date  2023/09/07 15:24
      * */
     @ApiOperationSupport(order = 9)
     @ApiOperation("用户考勤概览接口")
@@ -190,6 +193,18 @@ public class HrUserAttendanceStatController {
         return CommonResult.data(hrUserAttendanceStatService.attendanceDayPreview());
     }
 
-
-
+    /**
+     * 用户考勤概览每日统计接口
+     *
+     * @author ljy
+     * @date  2023/10/16 16:24
+     * */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("用户考勤概览-每日统计接口")
+    @CommonLog("用户考勤概览-每日统计接口")
+    //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
+    @GetMapping("/sys/userAttendance/dayStatPreview")
+    public CommonResult<List<AttendanceDayStatParam>> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam) {
+        return CommonResult.data(hrUserAttendanceStatService.dayStatPreview(attendanceDayStatParam));
+    }
 }

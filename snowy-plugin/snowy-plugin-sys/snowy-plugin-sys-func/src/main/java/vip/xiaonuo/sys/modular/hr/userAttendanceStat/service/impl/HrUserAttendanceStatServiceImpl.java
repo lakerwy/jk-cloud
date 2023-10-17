@@ -41,6 +41,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
+import vip.xiaonuo.sys.modular.hr.userAttendance.param.ConfigCacheListParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceConfigCacheEntity;
@@ -51,6 +52,8 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceC
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatData;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.mapper.HrUserAttendanceStatMapper;
@@ -377,5 +380,54 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         //外勤人数  -- 暂时不确定外勤人数
         attendanceStatNumData.setEgressNum(0l);
         return attendanceStatNumData;
+    }
+
+    @Override
+    public List<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam){
+        //测试
+        Date beginTime = CommonTimeFormatUtil.strToDate("2023-10-01 00:00:00",DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate("2023-10-20 00:00:00",DatePattern.NORM_DATETIME_PATTERN);
+        attendanceDayStatParam.setBeginTime(beginTime);
+        attendanceDayStatParam.setEndTime(endTime);
+        List<AttendanceDayStatParam> attendanceDayStatList = new ArrayList<>();
+        List<String> dayLits = CommonTimeFormatUtil.getPerStrDayList(attendanceDayStatParam.getBeginTime(),attendanceDayStatParam.getEndTime());//时间处理
+
+        List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(new LambdaQueryWrapper<HrUserAttendance>()
+                .between(HrUserAttendance::getCheckTime,attendanceDayStatParam.getBeginTime(),attendanceDayStatParam.getEndTime())); // 查询该时间段内所有人打卡数据
+
+        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper();
+        if(ObjectUtil.isNotEmpty(attendanceDayStatParam.getUserList())){
+            sysUserLambdaQueryWrapper.notIn(SysUser::getId,attendanceDayStatParam.getUserList());
+        }
+        if(ObjectUtil.isNotEmpty(attendanceDayStatParam.getOrgList())){
+            sysUserLambdaQueryWrapper.notIn(SysUser::getOrgId,attendanceDayStatParam.getOrgList());
+        }
+        List<SysUser> userList = sysUserService.list(sysUserLambdaQueryWrapper);// 查所有人，并去除不需要统计的人员或部门
+
+        /**  开始统计 */
+        userList.forEach(user -> {
+            AttendanceDayStatParam attendanceDayStat = new AttendanceDayStatParam();
+            attendanceDayStat.setUserId(user.getId());
+            attendanceDayStat.setUserName(user.getName());
+            attendanceDayStat.setOrgId(user.getOrgId());
+            List<Map<String,List<AttendanceDayStatData>>> dayCheckTimeMapList = new ArrayList<>();
+            Map<String,List<AttendanceDayStatData>> statMap = new HashMap<>();//key - day , value - AttendanceDayStatData
+            hrUserAttendanceList.forEach(attendance -> {
+                String day = CommonTimeFormatUtil.dateToStr(attendance.getCheckTime(),DatePattern.NORM_DATE_PATTERN);
+                String userId = attendance.getUserId();
+                if(user.getId().equals(userId)){
+                    List<AttendanceDayStatData> attendanceDayStatDataList = statMap.get(day) == null ? new ArrayList<>() :  statMap.get(day);
+                    attendanceDayStatDataList.add(new AttendanceDayStatData(attendance.getCheckTime(),attendance.getAbnormalFlag()));
+                    statMap.put(day,attendanceDayStatDataList);
+                }
+            });
+            dayCheckTimeMapList.add(statMap);
+            List<HrUserAttendanceConfig> configList = hrUserAttendanceService.userConfigCache( new ConfigCacheListParam(user.getId()));
+            attendanceDayStat.setAttendanceTypeName(configList.get(0).getAttendanceTypeName());
+            attendanceDayStat.setAttendanceTypeId(configList.get(0).getAttendanceTypeId());
+            attendanceDayStat.setDayCheckTimeMapList(dayCheckTimeMapList);
+            attendanceDayStatList.add(attendanceDayStat);
+        });
+        return attendanceDayStatList;
     }
 }

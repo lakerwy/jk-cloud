@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
@@ -126,4 +127,12 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
     List<UserAttendanceCountEntity> attendanceMonthCount(HrUserAttendancePageParam hrUserAttendancePageParam);
 
     AttendanceStatNumData attendanceDayPreview();
+
+    /**
+     * 用户考勤概览每日统计接口
+     *
+     * @author ljy
+     * @date  2023/10/16 16:24
+     * */
+    List<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam);
 }
