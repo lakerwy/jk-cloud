@@ -384,11 +384,6 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
     @Override
     public List<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam){
-        //测试
-        Date beginTime = CommonTimeFormatUtil.strToDate("2023-10-01 00:00:00",DatePattern.NORM_DATETIME_PATTERN);
-        Date endTime = CommonTimeFormatUtil.strToDate("2023-10-20 00:00:00",DatePattern.NORM_DATETIME_PATTERN);
-        attendanceDayStatParam.setBeginTime(beginTime);
-        attendanceDayStatParam.setEndTime(endTime);
         List<AttendanceDayStatParam> attendanceDayStatList = new ArrayList<>();
         List<String> dayLits = CommonTimeFormatUtil.getPerStrDayList(attendanceDayStatParam.getBeginTime(),attendanceDayStatParam.getEndTime());//时间处理
 
@@ -417,7 +412,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 String userId = attendance.getUserId();
                 if(user.getId().equals(userId)){
                     List<AttendanceDayStatData> attendanceDayStatDataList = statMap.get(day) == null ? new ArrayList<>() :  statMap.get(day);
-                    attendanceDayStatDataList.add(new AttendanceDayStatData(attendance.getCheckTime(),attendance.getAbnormalFlag()));
+                    attendanceDayStatDataList.add(new AttendanceDayStatData(attendance.getCheckTime(),attendance.getAbnormalFlag(),day));
                     statMap.put(day,attendanceDayStatDataList);
                 }
             });

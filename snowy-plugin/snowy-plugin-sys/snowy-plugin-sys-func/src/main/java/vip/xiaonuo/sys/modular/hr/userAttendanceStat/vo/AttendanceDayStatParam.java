@@ -37,21 +37,13 @@ public class AttendanceDayStatParam {
     @ApiModelProperty(value = "打卡记录和状态", position = 8)
     private List<Map<String,List<AttendanceDayStatData>>> dayCheckTimeMapList;
 
-    @ApiModelProperty(value = "开始时间",position = 9)
-    @NotNull(message = "beginTime不能为空")
-    private Date beginTime;
-
-    @ApiModelProperty(value = "结束时间" ,position = 10)
-    @NotNull(message = "endTime不能为空")
-    private Date endTime;
-
-   /* @ApiModelProperty(value = "开始时间", required = true,position = 9)
+    @ApiModelProperty(value = "开始时间", required = true,position = 9)
     @NotNull(message = "beginTime不能为空")
     private Date beginTime;
 
     @ApiModelProperty(value = "结束时间", required = true,position = 10)
     @NotNull(message = "endTime不能为空")
-    private Date endTime;*/
+    private Date endTime;
 
     @ApiModelProperty(value = "无需统计人员ID列表", position = 11)
     private List<String> userList;

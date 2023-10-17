@@ -17,10 +17,14 @@ public class AttendanceDayStatData {
     @ApiModelProperty(value = "状态，1 正常，2 无效，3 迟到，4 早退，5 补卡，6 请假", position = 2)
     private Integer status;
 
+    @ApiModelProperty(value = "日期)", position = 3)
+    private String day;
+
     public AttendanceDayStatData(){}
 
-    public AttendanceDayStatData(Date checkTime,Integer status){
+    public AttendanceDayStatData(Date checkTime,Integer status,String day){
         this.checkTime = checkTime;
         this.status = status;
+        this.day = day;
     }
 }
