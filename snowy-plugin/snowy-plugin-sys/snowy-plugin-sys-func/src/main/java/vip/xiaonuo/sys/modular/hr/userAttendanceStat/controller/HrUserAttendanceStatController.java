@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatI
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatParam;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceMonthStatParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
 
 import javax.annotation.Resource;
@@ -206,5 +207,20 @@ public class HrUserAttendanceStatController {
     @GetMapping("/sys/userAttendance/dayStatPreview")
     public CommonResult<List<AttendanceDayStatParam>> dayStatPreview(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.dayStatPreview(attendanceDayStatParam));
+    }
+
+    /**
+     * 用户考勤概览- 月统计接口
+     *
+     * @author ljy
+     * @date  2023/10/16 16:24
+     * */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("用户考勤概览-月统计接口")
+    @CommonLog("用户考勤概览-月统计接口")
+    //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
+    @GetMapping("/sys/userAttendance/monthStatPreview")
+    public CommonResult<List<AttendanceMonthStatParam>> monthStatPreview(@Valid AttendanceMonthStatParam attendanceMonthStatParam) {
+        return CommonResult.data(hrUserAttendanceStatService.monthStatPreview(attendanceMonthStatParam));
     }
 }

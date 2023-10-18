@@ -39,11 +39,11 @@ public class AttendanceDayStatParam {
 
     @ApiModelProperty(value = "开始时间", required = true,position = 9)
     @NotNull(message = "beginTime不能为空")
-    private Date beginTime;
+    private String beginTime;
 
     @ApiModelProperty(value = "结束时间", required = true,position = 10)
     @NotNull(message = "endTime不能为空")
-    private Date endTime;
+    private String endTime;
 
     @ApiModelProperty(value = "无需统计人员ID列表", position = 11)
     private List<String> userList;

@@ -53,10 +53,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceC
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatData;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.mapper.HrUserAttendanceStatMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatEditParam;
@@ -386,11 +383,13 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
     @Override
     public List<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam){
+        Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
         List<AttendanceDayStatParam> attendanceDayStatList = new ArrayList<>();
-        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(attendanceDayStatParam.getBeginTime(),attendanceDayStatParam.getEndTime());//时间处理
+        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
 
         List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(new LambdaQueryWrapper<HrUserAttendance>()
-                .between(HrUserAttendance::getCheckTime,attendanceDayStatParam.getBeginTime(),attendanceDayStatParam.getEndTime())); // 查询该时间段内所有人打卡数据
+                .between(HrUserAttendance::getCheckTime,beginTime,endTime)); // 查询该时间段内所有人打卡数据
 
         LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper();
         if(ObjectUtil.isNotEmpty(attendanceDayStatParam.getUserList())){
@@ -431,7 +430,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
             /** 一次轮询结束，开始保存数据 */
             dayCheckTimeMapList.add(statMap);
-            List<AttendanceTimeSlot> attendanceTimeSlotList = hrUserAttendanceService.getAttendanceTimeSlotList(user.getId(),attendanceDayStatParam.getBeginTime());
+            List<AttendanceTimeSlot> attendanceTimeSlotList = hrUserAttendanceService.getAttendanceTimeSlotList(user.getId(),beginTime);
             attendanceDayStat.setAttendanceTypeName(attendanceTimeSlotList.get(0).getAttendanceTypeName());
             attendanceDayStat.setAttendanceTypeId(attendanceTimeSlotList.get(0).getAttendanceTypeId());
             attendanceDayStat.setDayCheckTimeMapList(dayCheckTimeMapList);
@@ -439,5 +438,10 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         });
 
         return attendanceDayStatList;
+    }
+    @Override
+    public List<AttendanceMonthStatParam> monthStatPreview(AttendanceMonthStatParam attendanceMonthStatParam){
+
+        return new ArrayList<>();
     }
 }
