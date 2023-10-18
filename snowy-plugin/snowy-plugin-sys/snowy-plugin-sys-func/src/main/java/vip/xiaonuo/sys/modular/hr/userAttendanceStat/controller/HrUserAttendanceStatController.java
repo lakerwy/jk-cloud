@@ -43,6 +43,7 @@ import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * 考勤统计表控制器
@@ -198,14 +199,29 @@ public class HrUserAttendanceStatController {
      * 用户考勤概览每日统计接口
      *
      * @author ljy
-     * @date  2023/10/16 16:24
+     * @date  2023/10/18 14:24
      * */
     @ApiOperationSupport(order = 10)
+    @ApiOperation("用户考勤概览-每日统计接口日期列表")
+    @CommonLog("用户考勤概览-每日统计接口日期列表")
+    //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
+    @GetMapping("/sys/userAttendance/statPreviewDateList")
+    public CommonResult<TreeMap<String,Object>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
+        return CommonResult.data(hrUserAttendanceStatService.statPreviewDateList(attendanceDayStatParam));
+    }
+
+    /**
+     * 用户考勤概览每日统计接口
+     *
+     * @author ljy
+     * @date  2023/10/16 16:24
+     * */
+    @ApiOperationSupport(order = 11)
     @ApiOperation("用户考勤概览-每日统计接口")
     @CommonLog("用户考勤概览-每日统计接口")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
     @GetMapping("/sys/userAttendance/dayStatPreview")
-    public CommonResult<List<AttendanceDayStatParam>> dayStatPreview(@Valid AttendanceDayStatParam attendanceDayStatParam) {
+    public CommonResult<Page<AttendanceDayStatParam>> dayStatPreview(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.dayStatPreview(attendanceDayStatParam));
     }
 
@@ -215,7 +231,7 @@ public class HrUserAttendanceStatController {
      * @author ljy
      * @date  2023/10/16 16:24
      * */
-    @ApiOperationSupport(order = 10)
+    @ApiOperationSupport(order = 12)
     @ApiOperation("用户考勤概览-月统计接口")
     @CommonLog("用户考勤概览-月统计接口")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
