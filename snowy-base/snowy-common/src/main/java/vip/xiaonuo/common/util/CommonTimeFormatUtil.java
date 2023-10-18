@@ -402,6 +402,22 @@ public class CommonTimeFormatUtil {
             if(week == Calendar.SATURDAY){
                 return "六";
             }
+            if(week == Calendar.MONDAY){
+                return "1";
+            }
+            if(week == Calendar.TUESDAY){
+                return "2";
+            }
+            if(week == Calendar.WEDNESDAY){
+                return "3";
+            }
+            if(week == Calendar.THURSDAY){
+                return "4";
+            }
+            if(week == Calendar.FRIDAY){
+                return "5";
+            }
+
             SimpleDateFormat sdf = new SimpleDateFormat("dd");
             return sdf.format(date);
         }

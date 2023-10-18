@@ -382,11 +382,14 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public List<String> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
+    public TreeMap<String,Object> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
         Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
         Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
         List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
-        return dayList.stream().map(day -> CommonTimeFormatUtil.dayAndSunday(day)).collect(Collectors.toList());
+        TreeMap<String,Object> map = new TreeMap<>();
+        SimpleDateFormat sdf = new SimpleDateFormat("dd");
+        dayList.forEach(day -> map.put(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)),CommonTimeFormatUtil.dayAndSunday(day)));
+        return map;
     }
 
     @Override
