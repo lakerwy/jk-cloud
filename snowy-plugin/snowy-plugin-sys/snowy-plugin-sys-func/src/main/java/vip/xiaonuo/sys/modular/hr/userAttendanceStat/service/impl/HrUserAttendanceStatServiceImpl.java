@@ -382,15 +382,21 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public List<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam){
+    public List<String> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
+        Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
+        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
+        return dayList.stream().map(day -> CommonTimeFormatUtil.dayAndSunday(day)).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam){
         Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
         Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
         List<AttendanceDayStatParam> attendanceDayStatList = new ArrayList<>();
         List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
 
-        List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(new LambdaQueryWrapper<HrUserAttendance>()
-                .between(HrUserAttendance::getCheckTime,beginTime,endTime)); // 查询该时间段内所有人打卡数据
-
+        /** 人员查询分页*/
         LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper();
         if(ObjectUtil.isNotEmpty(attendanceDayStatParam.getUserList())){
             sysUserLambdaQueryWrapper.notIn(SysUser::getId,attendanceDayStatParam.getUserList());
@@ -398,10 +404,15 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         if(ObjectUtil.isNotEmpty(attendanceDayStatParam.getOrgList())){
             sysUserLambdaQueryWrapper.notIn(SysUser::getOrgId,attendanceDayStatParam.getOrgList());
         }
-        List<SysUser> userList = sysUserService.list(sysUserLambdaQueryWrapper);// 查所有人，并去除不需要统计的人员或部门
+        Page<SysUser> userList = sysUserService.page(CommonPageRequest.defaultPage(),sysUserLambdaQueryWrapper);// 查所有人，并去除不需要统计的人员或部门
+        /** 打卡记录只查询当前返回的人员*/
+        List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(new LambdaQueryWrapper<HrUserAttendance>()
+                .between(HrUserAttendance::getCheckTime,beginTime,endTime)
+                .in(HrUserAttendance::getUserId,userList.getRecords().stream().map(user -> user.getId()).collect(Collectors.toList()))); // 查询该时间段内所有人打卡数据
+
 
         /**  开始统计 */
-        userList.forEach(user -> {
+        userList.getRecords().forEach(user -> {
             AttendanceDayStatParam attendanceDayStat = new AttendanceDayStatParam();
             attendanceDayStat.setUserId(user.getId());
             attendanceDayStat.setUserName(user.getName());
@@ -437,7 +448,10 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             attendanceDayStatList.add(attendanceDayStat);
         });
 
-        return attendanceDayStatList;
+        //做分页处理
+        Page<AttendanceDayStatParam> attendanceDayStatParamPage = new Page<>();
+        attendanceDayStatParamPage.setRecords(attendanceDayStatList);
+        return attendanceDayStatParamPage;
     }
     @Override
     public List<AttendanceMonthStatParam> monthStatPreview(AttendanceMonthStatParam attendanceMonthStatParam){

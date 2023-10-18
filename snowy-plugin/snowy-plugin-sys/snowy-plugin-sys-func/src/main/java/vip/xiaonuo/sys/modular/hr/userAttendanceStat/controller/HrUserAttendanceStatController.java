@@ -198,6 +198,21 @@ public class HrUserAttendanceStatController {
      * 用户考勤概览每日统计接口
      *
      * @author ljy
+     * @date  2023/10/18 14:24
+     * */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("用户考勤概览-每日统计接口日期列表")
+    @CommonLog("用户考勤概览-每日统计接口日期列表")
+    //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
+    @GetMapping("/sys/userAttendance/statPreviewDateList")
+    public CommonResult<List<String>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
+        return CommonResult.data(hrUserAttendanceStatService.statPreviewDateList(attendanceDayStatParam));
+    }
+
+    /**
+     * 用户考勤概览每日统计接口
+     *
+     * @author ljy
      * @date  2023/10/16 16:24
      * */
     @ApiOperationSupport(order = 10)
@@ -205,7 +220,7 @@ public class HrUserAttendanceStatController {
     @CommonLog("用户考勤概览-每日统计接口")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
     @GetMapping("/sys/userAttendance/dayStatPreview")
-    public CommonResult<List<AttendanceDayStatParam>> dayStatPreview(@Valid AttendanceDayStatParam attendanceDayStatParam) {
+    public CommonResult<Page<AttendanceDayStatParam>> dayStatPreview(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.dayStatPreview(attendanceDayStatParam));
     }
 

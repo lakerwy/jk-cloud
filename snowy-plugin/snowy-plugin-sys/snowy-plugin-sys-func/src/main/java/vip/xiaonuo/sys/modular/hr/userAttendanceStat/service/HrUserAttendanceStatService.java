@@ -133,9 +133,16 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * 用户考勤概览每日统计接口
      *
      * @author ljy
+     * @date  2023/10/18 14:24
+     * */
+    List<String> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam);
+    /**
+     * 用户考勤概览每日统计接口
+     *
+     * @author ljy
      * @date  2023/10/16 16:24
      * */
-    List<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam);
+    Page<AttendanceDayStatParam> dayStatPreview(AttendanceDayStatParam attendanceDayStatParam);
 
     /**
      * 用户考勤概览 -- 月统计接口
