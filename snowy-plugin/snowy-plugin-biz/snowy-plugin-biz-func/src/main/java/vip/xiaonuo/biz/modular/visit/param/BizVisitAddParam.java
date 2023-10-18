@@ -71,9 +71,13 @@ public class BizVisitAddParam {
 //    @ApiModelProperty(value = "主要人员", position = 9)
 //    private String mainPerson;
 //
-//    /** 出发时间 */
-//    @ApiModelProperty(value = "出发时间", position = 10)
-//    private Date goTime;
+    /**
+     * 出发时间
+     */
+    @ApiModelProperty(value = "出发时间", position = 10)
+    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date goTime;
 
     @ApiModelProperty(value = "计划路线集合", position = 10)
     private List<BizVisitList> paramList;
