@@ -72,9 +72,9 @@ public class FileMD5Util{
                     try {
                         Method getCleanerMethod = mappedByteBuffer.getClass().getMethod("cleaner", new Class[0]);
                         getCleanerMethod.setAccessible(true);
-//                        sun.misc.Cleaner cleaner = (sun.misc.Cleaner) getCleanerMethod.invoke(mappedByteBuffer,
-//                                new Object[0]);
-//                        cleaner.clean();
+                        sun.misc.Cleaner cleaner = (sun.misc.Cleaner) getCleanerMethod.invoke(mappedByteBuffer,
+                                new Object[0]);
+                        cleaner.clean();
                     } catch (Exception e) {
                         log.error("clean MappedByteBuffer error!!!", e);
                     }
