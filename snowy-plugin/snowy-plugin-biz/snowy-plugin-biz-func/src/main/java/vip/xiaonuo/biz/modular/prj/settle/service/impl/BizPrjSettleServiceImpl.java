@@ -31,6 +31,7 @@ import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettleInvoice;
 import vip.xiaonuo.biz.modular.prj.settle.param.*;
 import vip.xiaonuo.biz.modular.prj.settle.service.BizPrjSettleInvoiceService;
 import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
+import vip.xiaonuo.biz.modular.prj.settle.vo.SettleInvoiceVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -228,5 +229,35 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
             throw new CommonException("业务表-项目计划付款单不存在，id值为：{}", id);
         }
         return bizPrjSettle;
+    }
+
+    @Override
+    public List<SettleInvoiceVo> invoiceList(InvoiceParam invoiceParam) {
+        QueryWrapper<BizPrjSettle> queryWrapper = new QueryWrapper<>();
+        //审核通过
+        queryWrapper.eq("a.STATUS","1");
+        //有效数据
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        //合同编号
+        if(ObjectUtil.isNotEmpty(invoiceParam.getContractNo())){
+            queryWrapper.eq("a.ZB_CONTRACT_NO",invoiceParam.getContractNo());
+        }
+        queryWrapper.orderByAsc("a.SETTLE_NO").orderByAsc("b.CREATE_TIME");
+        return bizPrjSettleMapper.getInvoiceList(queryWrapper);
+    }
+
+    @Override
+    public List<BizPrjSettle> settleList(InvoiceParam invoiceParam) {
+        QueryWrapper<BizPrjSettle> queryWrapper = new QueryWrapper<>();
+        //审核通过
+        queryWrapper.lambda().eq(BizPrjSettle::getStatus,"1");
+        //有效数据
+        queryWrapper.lambda().eq(BizPrjSettle::getDeleteFlag,"NOT_DELETE");
+        //合同编号
+        if(ObjectUtil.isNotEmpty(invoiceParam.getContractNo())){
+            queryWrapper.lambda().eq(BizPrjSettle::getZbContractNo,invoiceParam.getContractNo());
+        }
+        queryWrapper.lambda().orderByAsc(BizPrjSettle::getSettleNo);
+        return this.list(queryWrapper);
     }
 }

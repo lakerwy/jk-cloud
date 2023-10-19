@@ -26,6 +26,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.prj.plan.param.InvoiceParam;
+import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettle;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -174,5 +176,20 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
             throw new CommonException("业务表-项目计划付款单不存在，id值为：{}", id);
         }
         return bizPrjAllotment;
+    }
+
+    @Override
+    public List<BizPrjAllotment> allotmentList(InvoiceParam invoiceParam) {
+        QueryWrapper<BizPrjAllotment> queryWrapper = new QueryWrapper<>();
+        //审核通过
+        queryWrapper.lambda().eq(BizPrjAllotment::getStatus,"1");
+        //有效数据
+        queryWrapper.lambda().eq(BizPrjAllotment::getDeleteFlag,"NOT_DELETE");
+        //合同编号
+        if(ObjectUtil.isNotEmpty(invoiceParam.getContractNo())){
+            queryWrapper.lambda().eq(BizPrjAllotment::getXmContractNo,invoiceParam.getContractNo());
+        }
+        queryWrapper.lambda().orderByAsc(BizPrjAllotment::getAllotmentNo);
+        return this.list(queryWrapper);
     }
 }

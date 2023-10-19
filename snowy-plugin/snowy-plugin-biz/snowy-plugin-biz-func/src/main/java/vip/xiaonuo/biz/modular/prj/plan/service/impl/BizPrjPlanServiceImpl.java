@@ -16,7 +16,6 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -37,6 +36,7 @@ import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanCollectionService;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanInvoiceService;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanService;
 import vip.xiaonuo.biz.modular.prj.plan.vo.BizPrjPlanVo;
+import vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -282,5 +282,20 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
             throw new CommonException("业务表-项目计划付款单不存在，id值为：{}", id);
         }
         return bizPrjPlan;
+    }
+
+    @Override
+    public List<PlanInvoiceVo> invoiceList(InvoiceParam invoiceParam) {
+        QueryWrapper<BizPrjPlan> queryWrapper = new QueryWrapper<>();
+        //审核通过
+        queryWrapper.eq("a.STATUS","1");
+        //有效数据
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        //合同编号
+        if(ObjectUtil.isNotEmpty(invoiceParam.getContractNo())){
+            queryWrapper.eq("a.CONTRACT_NO",invoiceParam.getContractNo());
+        }
+        queryWrapper.orderByAsc("b.CREATE_TIME");
+        return bizPrjPlanMapper.getInvoiceList(queryWrapper);
     }
 }

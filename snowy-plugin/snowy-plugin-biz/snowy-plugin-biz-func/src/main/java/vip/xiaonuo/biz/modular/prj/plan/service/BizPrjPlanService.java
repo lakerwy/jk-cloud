@@ -17,7 +17,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlan;
 import vip.xiaonuo.biz.modular.prj.plan.param.*;
 import vip.xiaonuo.biz.modular.prj.plan.vo.BizPrjPlanVo;
+import vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -75,4 +77,12 @@ public interface BizPrjPlanService extends IService<BizPrjPlan> {
      * @date  2023/09/28 11:25
      **/
     BizPrjPlan queryEntity(String id);
+
+    /**
+     * 根据 【合同编号】 - 获取 审核通过 的历史发票集合
+     *
+     * @param invoiceParam
+     * @return
+     */
+    List<PlanInvoiceVo> invoiceList(InvoiceParam invoiceParam);
 }
