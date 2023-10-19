@@ -221,6 +221,14 @@ public class BizPrjSettleEditParam {
     @ApiModelProperty(value = "财务部-累计应收税差", position = 42)
     private Double cwbScLjAmount;
 
+    /** 财务部-本次实际收取税差 */
+    @ApiModelProperty(value = "财务部-本次实际收取税差", position = 41)
+    private Double cwbSsThisAmount;
+
+    /** 财务部-累计实际收取税差 */
+    @ApiModelProperty(value = "财务部-累计实际收取税差", position = 42)
+    private Double cwbSsLjAmount;
+
     /** 财务部-税差计算方式 */
     @ApiModelProperty(value = "财务部-税差计算方式", position = 43)
     private String cwbScType;
