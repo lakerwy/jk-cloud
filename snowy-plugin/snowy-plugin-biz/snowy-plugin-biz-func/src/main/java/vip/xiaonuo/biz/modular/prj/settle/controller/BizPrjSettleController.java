@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.settle.param.*;
 import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
+import vip.xiaonuo.biz.modular.prj.settle.vo.SettleInvoiceVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -34,9 +35,10 @@ import vip.xiaonuo.biz.modular.prj.settle.service.BizPrjSettleService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
- * 业务表-项目计划付款单控制器
+ * 业务表-项目款结算单控制器
  *
  * @author yong.ye
  * @date  2023/09/28 11:36
@@ -126,4 +128,33 @@ public class BizPrjSettleController {
     public CommonResult<BizPrjSettle> detail(@Valid BizPrjSettleIdParam bizPrjSettleIdParam) {
         return CommonResult.data(bizPrjSettleService.detail(bizPrjSettleIdParam));
     }
+
+    /**
+     * 根据 【合同编号】 - 获取 审核通过 的【项目款结算单】历史发票集合
+     *
+     * @author yong.ye
+     * @date  2023/10/19 16:36
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("根据 【合同编号】 - 获取 审核通过 的【项目款结算单】历史发票集合")
+//    @SaCheckPermission("/biz/prj/settle/detail")
+    @GetMapping("/biz/prj/settle/invoiceList")
+    public CommonResult<List<SettleInvoiceVo>> invoiceList(@Valid InvoiceParam invoiceParam) {
+        return CommonResult.data(bizPrjSettleService.invoiceList(invoiceParam));
+    }
+
+    /**
+     * 根据 【合同编号】 - 获取 审核通过 的历史【项目款结算单】集合
+     *
+     * @author yong.ye
+     * @date  2023/10/19 16:36
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("根据 【合同编号】 - 获取 审核通过 的历史【项目款结算单】集合")
+//    @SaCheckPermission("/biz/prj/settle/settleList")
+    @GetMapping("/biz/prj/settle/settleList")
+    public CommonResult<List<BizPrjSettle>> settleList(@Valid InvoiceParam invoiceParam) {
+        return CommonResult.data(bizPrjSettleService.settleList(invoiceParam));
+    }
+
 }

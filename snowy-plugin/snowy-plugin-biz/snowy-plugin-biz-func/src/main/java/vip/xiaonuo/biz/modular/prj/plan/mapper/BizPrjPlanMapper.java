@@ -19,6 +19,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlan;
 import vip.xiaonuo.biz.modular.prj.plan.vo.BizPrjPlanVo;
+import vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo;
+
+import java.util.List;
 
 /**
  * 业务表-项目计划付款单Mapper接口
@@ -29,4 +32,6 @@ import vip.xiaonuo.biz.modular.prj.plan.vo.BizPrjPlanVo;
 public interface BizPrjPlanMapper extends BaseMapper<BizPrjPlan> {
 
     Page<BizPrjPlanVo> getPageList(Page<BizPrjPlanVo> page, @Param(Constants.WRAPPER) Wrapper<BizPrjPlan> queryWrapper);
+
+    List<PlanInvoiceVo> getInvoiceList(@Param(Constants.WRAPPER) Wrapper<BizPrjPlan> queryWrapper);
 }
