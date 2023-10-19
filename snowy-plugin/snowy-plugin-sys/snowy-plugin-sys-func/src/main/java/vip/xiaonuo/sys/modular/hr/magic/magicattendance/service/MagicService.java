@@ -1,8 +1,12 @@
 package vip.xiaonuo.sys.modular.hr.magic.magicattendance.service;
 
 
+import com.moredian.oapi.model.member.response.*;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicCallback;
+import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicMemberParam;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicResult;
+
+import java.io.File;
 
 public interface MagicService {
 
@@ -12,4 +16,29 @@ public interface MagicService {
     String getAppToken();
 
     MagicResult attendanceCallback(MagicCallback magicCallback);
+
+    /**
+     * 魔点考勤创建成员
+     * */
+    CreateMemberResponse magicMemberCreate(MagicMemberParam magicMemberParam);
+
+    /**
+     * 魔点删除创建成员
+     * */
+    DeleteMemberResponse deleteVerifyImg(Long memberId);
+
+    /**
+     * 魔点删除更新成员信息
+     * */
+    UpdateMemberResponse magicMemberUpdate(MagicMemberParam magicMemberParam);
+
+    /**
+     * 更新识别人脸图片
+     * */
+    UpdateMemberVerifyImageResponse updateVerifyImage(File face, Long memberId);
+
+    /**
+     * 查询成员信息列表
+     * */
+    ListMemberResponse magicMemberList(Integer offset, Integer size);
 }

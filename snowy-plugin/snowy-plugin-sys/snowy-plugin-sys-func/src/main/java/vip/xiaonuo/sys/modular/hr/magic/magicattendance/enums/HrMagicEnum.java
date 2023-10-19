@@ -26,7 +26,14 @@ public enum HrMagicEnum {
     /** 测试 */
     GET_APP_TOKEN("getAppToken"),
     SUCESS_CODE("0"),
-    SUCESS_INFO("操作成功");
+    SUCESS_INFO("操作成功"),
+    FAIL_CODE("1"),
+    FAIL_INFO("操作失败"),
+    MAGIC_MEMBER_CREATE("magicMemberCreate"),
+    MAGIC_MENBER_UPDATE("magicMemberUpdate"),
+    MAGIC_MEMBER_DELTE("deleteVerifyImg"),
+    MAGIC_MEMBER_UPDATE_IMAGE("updateVerifyImage"),
+    MAGIC_MEMBER_LIST("magicMemberList");
 
     private final String value;
 
