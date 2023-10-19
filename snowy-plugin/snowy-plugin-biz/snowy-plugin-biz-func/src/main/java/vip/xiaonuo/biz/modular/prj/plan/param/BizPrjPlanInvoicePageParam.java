@@ -48,4 +48,12 @@ public class BizPrjPlanInvoicePageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 收款单位编码 */
+    @ApiModelProperty(value = "收款单位编码")
+    private String unitCode;
+
+    /** 收款单位名称 */
+    @ApiModelProperty(value = "收款单位名称")
+    private String unitName;
+
 }

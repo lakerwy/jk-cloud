@@ -140,31 +140,31 @@ public class BizPrjSettle {
 
 
 
-    /** 累计开票（含本次）- 累计税额  -- 删除字段，暂不用 */
-    @ApiModelProperty(value = "累计开票（含本次）- 累计税额  -- 删除字段，暂不用", position = 25)
-    private Double kpLjsAmount;
+//    /** 累计开票（含本次）- 累计税额  -- 删除字段，暂不用 */
+//    @ApiModelProperty(value = "累计开票（含本次）- 累计税额  -- 删除字段，暂不用", position = 25)
+//    private Double kpLjsAmount;
+//
+//    /** 累计开票（含本次）- 累计不含税金额  -- 删除字段，暂不用*/
+//    @ApiModelProperty(value = "累计开票（含本次）- 累计不含税金额  -- 删除字段，暂不用", position = 26)
+//    private Double kpLjnsAmount;
+//
+//    /** 累计开票（含本次）- 累计金额（含税） -- 删除字段，暂不用*/
+//    @ApiModelProperty(value = "累计开票（含本次）- 累计金额（含税） -- 删除字段，暂不用", position = 27)
+//    private Double kpLjAmount;
+//
+//    /** 累计开票（含本次）- 小计 */
+//    @ApiModelProperty(value = "累计开票（含本次）- 小计", position = 28)
+//    private Double kpTotalAmount;
+//
+//    /** 累计开票（含本次）- 累计回款金额 */
+//    @ApiModelProperty(value = "累计开票（含本次）- 累计回款金额", position = 28)
+//    private Double kpLjhkAmount;
+//
+//    /** 累计开票（含本次）- 本次申请内部结算金额 */
+//    @ApiModelProperty(value = "累计开票（含本次）- 本次申请内部结算金额", position = 29)
+//    private Double kpLjjsAmount;
 
-    /** 累计开票（含本次）- 累计不含税金额  -- 删除字段，暂不用*/
-    @ApiModelProperty(value = "累计开票（含本次）- 累计不含税金额  -- 删除字段，暂不用", position = 26)
-    private Double kpLjnsAmount;
 
-    /** 累计开票（含本次）- 累计金额（含税） -- 删除字段，暂不用*/
-    @ApiModelProperty(value = "累计开票（含本次）- 累计金额（含税） -- 删除字段，暂不用", position = 27)
-    private Double kpLjAmount;
-
-
-
-    /** 累计开票（含本次）- 小计 */
-    @ApiModelProperty(value = "累计开票（含本次）- 小计", position = 28)
-    private Double kpTotalAmount;
-
-    /** 累计开票（含本次）- 累计回款金额 */
-    @ApiModelProperty(value = "累计开票（含本次）- 累计回款金额", position = 28)
-    private Double kpLjhkAmount;
-
-    /** 累计开票（含本次）- 本次申请内部结算金额 */
-    @ApiModelProperty(value = "累计开票（含本次）- 本次申请内部结算金额", position = 29)
-    private Double kpLjjsAmount;
 
     /** 行政部-意见 */
     @ApiModelProperty(value = "行政部-意见", position = 30)
