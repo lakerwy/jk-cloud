@@ -62,7 +62,7 @@ public class BizVisitController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取外访表分页")
     @GetMapping("/biz/visit/page")
-    public CommonResult<Page<BizVisitVo>> page(BizVisitPageParam bizVisitPageParam) {
+    public CommonResult<Page<BizVisit>> page(BizVisitPageParam bizVisitPageParam) {
         return CommonResult.data(bizVisitService.page(bizVisitPageParam));
     }
 

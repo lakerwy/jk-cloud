@@ -17,4 +17,9 @@ public class ConfigCacheListParam {
     @ApiModelProperty(value = "时间")
     Date time;
 
+    public ConfigCacheListParam(){};
+
+    public ConfigCacheListParam(String userId){
+        this.userId = userId;
+    }
 }

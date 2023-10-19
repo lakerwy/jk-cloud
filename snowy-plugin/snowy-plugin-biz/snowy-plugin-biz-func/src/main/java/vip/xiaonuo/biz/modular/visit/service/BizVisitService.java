@@ -37,7 +37,7 @@ public interface BizVisitService extends IService<BizVisit> {
      * @author kaiminglu
      * @date  2023/10/12 10:35
      */
-    Page<BizVisitVo> page(BizVisitPageParam bizVisitPageParam);
+    Page<BizVisit> page(BizVisitPageParam bizVisitPageParam);
 
     /**
      * 添加外访表

@@ -30,4 +30,6 @@ public class AttendanceTimeSlot implements Serializable {
     private Date workEndTime;
     @ApiModelProperty(value = "考勤班次类别组ID", position = 9)
     private String attendanceTypeId;
+    @ApiModelProperty(value = "考勤班次类别组名称", position = 10)
+    private String attendanceTypeName;
 }

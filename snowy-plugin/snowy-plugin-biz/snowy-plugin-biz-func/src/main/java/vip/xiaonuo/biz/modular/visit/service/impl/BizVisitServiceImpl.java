@@ -53,8 +53,11 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
     private BizVisitMapper bizVisitMapper;
 
     @Override
-    public Page<BizVisitVo> page(BizVisitPageParam bizVisitPageParam) {
+    public Page<BizVisit> page(BizVisitPageParam bizVisitPageParam) {
         QueryWrapper<BizVisit> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(bizVisitPageParam.getPurpose())) {
+            queryWrapper.lambda().like(BizVisit::getPurpose, bizVisitPageParam.getPurpose());
+        }
         if (ObjectUtil.isAllNotEmpty(bizVisitPageParam.getSortField(), bizVisitPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizVisitPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizVisitPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -62,14 +65,16 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         } else {
             queryWrapper.lambda().orderByAsc(BizVisit::getId);
         }
-        if (ObjectUtil.isNotEmpty(bizVisitPageParam.getPurpose())) {
-            queryWrapper.lambda().like(BizVisit::getPurpose, bizVisitPageParam.getPurpose());
-        }
-        Page<BizVisitVo> result = bizVisitMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        for (BizVisitVo vo : result.getRecords()) {
-            vo.setParamList(bizVisitListService.list(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, vo.getId())));
-        }
-        return result;
+//        Page<BizVisitVo> result = bizVisitMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+
+//        Page<BizVisit> result = this.page(CommonPageRequest.defaultPage(),queryWrapper);
+//
+//
+//        for (BizVisitVo vo : result.getRecords()) {
+//            vo.setParamList(bizVisitListService.list(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, vo.getId())));
+//        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -117,9 +122,9 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
             if (CollUtil.isNotEmpty(removeList)) {
                 bizVisitListService.removeByIds(removeList);
             }
-        }else{
+        } else {
             //删除历史数据（历史有数据，本次全部删除）
-            bizVisitListService.remove(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId,bizVisit.getId()));
+            bizVisitListService.remove(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, bizVisit.getId()));
         }
     }
 
