@@ -164,6 +164,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/sys/userCenter/findPasswordGetEmailValidCode",
             "/sys/userCenter/findPasswordByPhone",
             "/sys/userCenter/findPasswordByEmail",
+            /* 魔点打卡回调免登录接口*/
+            "/sys/magic/third/callback",
 
             /* 租户选择器*/
             "/ten/storage/tenSelector",
