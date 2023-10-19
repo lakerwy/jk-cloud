@@ -453,6 +453,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
         //做分页处理
         Page<AttendanceDayStatParam> attendanceDayStatParamPage = new Page<>();
+        attendanceDayStatParamPage.setTotal(sysUserService.count(sysUserLambdaQueryWrapper));
         attendanceDayStatParamPage.setRecords(attendanceDayStatList);
         return attendanceDayStatParamPage;
     }
