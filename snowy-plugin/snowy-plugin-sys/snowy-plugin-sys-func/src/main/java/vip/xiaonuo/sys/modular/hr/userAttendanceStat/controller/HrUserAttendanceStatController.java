@@ -41,6 +41,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -206,7 +207,7 @@ public class HrUserAttendanceStatController {
     @CommonLog("用户考勤概览-每日统计接口日期列表")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
     @GetMapping("/sys/userAttendance/statPreviewDateList")
-    public CommonResult<TreeMap<String,Object>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
+    public CommonResult<LinkedHashMap<String,Object>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.statPreviewDateList(attendanceDayStatParam));
     }
 
