@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -382,14 +383,29 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public LinkedHashMap<String,Object> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
-        Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
-        Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
-        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
-        LinkedHashMap<String,Object> map = new LinkedHashMap<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd");
-        dayList.forEach(day -> map.put(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)),CommonTimeFormatUtil.dayAndSunday(day)));
-        return map;
+    public LinkedHashMap<Integer, Integer> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
+        Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATE_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATE_PATTERN);
+        LinkedHashMap<Integer, Integer> resultMap = new LinkedHashMap<>();
+        handDayList(beginTime,endTime,resultMap);
+//        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
+//        LinkedHashMap<String,Object> map = new LinkedHashMap<>();
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd");
+//        dayList.forEach(day -> map.put(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)),CommonTimeFormatUtil.dayAndSunday(day)));
+        return resultMap;
+    }
+
+    private void handDayList(Date beginTime,Date endTime,Map<Integer, Integer> map){
+        // 遍历时间段中的每一天
+        Date current = beginTime;
+        while (current.compareTo(endTime) <= 0) {
+            // 获取当前日期的周几
+            int dayOfWeek = DateUtil.dayOfWeek(current);
+            int datDate = DateUtil.dayOfMonth(current);
+            map.put(datDate,dayOfWeek);
+            // 将日期加1天
+            current = DateUtil.offset(current, DateField.DAY_OF_MONTH, 1);
+        }
     }
 
     @Override

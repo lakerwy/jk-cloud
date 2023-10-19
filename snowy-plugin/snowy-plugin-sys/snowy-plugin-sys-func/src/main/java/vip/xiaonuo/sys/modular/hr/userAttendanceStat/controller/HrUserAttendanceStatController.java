@@ -17,6 +17,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.models.auth.In;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -207,7 +208,7 @@ public class HrUserAttendanceStatController {
     @CommonLog("用户考勤概览-每日统计接口日期列表")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
     @GetMapping("/sys/userAttendance/statPreviewDateList")
-    public CommonResult<LinkedHashMap<String,Object>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
+    public CommonResult<LinkedHashMap<Integer, Integer>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.statPreviewDateList(attendanceDayStatParam));
     }
 
