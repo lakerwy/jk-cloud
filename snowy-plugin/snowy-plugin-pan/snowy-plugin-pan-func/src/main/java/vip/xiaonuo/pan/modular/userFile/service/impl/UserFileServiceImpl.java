@@ -269,7 +269,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Override
     public String createGroupFold() {
-        panFileStorageService.checkStorage(0L,0);
+        panFileStorageService.checkStorage(0L,1);
         LambdaQueryWrapper<UserFile> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UserFile::getParentId,ROOT_FOLD_ID).eq(UserFile::getIsDir,IS_DIR).eq(UserFile::getRootDir, UserFileEnum.GROUP_ROOT.getLevel())
                 .eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
@@ -715,22 +715,21 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Override
     public List<UserFile> getRootFold(PanRootFoldParam panRootFoldParam) {
-//        List<UserFile> userFiles = new ArrayList<>();
         if(ObjectUtil.isEmpty(panRootFoldParam.getType())){
             panRootFoldParam.setType(UserFileEnum.SELF_ROOT.getLevel());
         }
-        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(UserFile::getRootDir, panRootFoldParam.getType()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId())
-                .eq(UserFile::getCreateUser,StpLoginUserUtil.getLoginUser().getId());
+        LambdaQueryWrapper<UserFile> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(UserFile::getFoldType, panRootFoldParam.getType());
+        if(0==panRootFoldParam.getType()){
+            queryWrapper.eq(UserFile::getUserId,StpLoginUserUtil.getLoginUser().getId());
+        }else {
+            String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
+            //queryWrapper.eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
+            //上级部门可以看到下级部门的文件
+            queryWrapper.in(UserFile::getOrgId,childrenIds);
+        }
         return list(queryWrapper);
-//        userFiles.add(one);
-//
-//
-//        queryWrapper = new QueryWrapper<>();
-//        queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.GROUP_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
-//        one = getOne(queryWrapper);
-//        userFiles.add(one);
-//        return userFiles;
     }
 
     @Override
