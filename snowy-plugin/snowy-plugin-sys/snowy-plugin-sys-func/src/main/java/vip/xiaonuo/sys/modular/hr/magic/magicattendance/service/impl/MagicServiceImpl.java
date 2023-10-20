@@ -1,5 +1,6 @@
 package vip.xiaonuo.sys.modular.hr.magic.magicattendance.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
@@ -7,12 +8,17 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.moredian.oapi.DefaultOpenApiClient;
 import com.moredian.oapi.IOpenApiClient;
+import com.moredian.oapi.model.app.request.GetAppOrgAccessTokenRequest;
 import com.moredian.oapi.model.app.request.GetAppTokenRequest;
+import com.moredian.oapi.model.app.request.GetOrgAccessTokenRequest;
+import com.moredian.oapi.model.app.response.GetAppOrgAccessTokenResponse;
 import com.moredian.oapi.model.app.response.GetAppTokenResponse;
+import com.moredian.oapi.model.app.response.GetOrgAccessTokenResponse;
 import com.moredian.oapi.model.member.request.*;
 import com.moredian.oapi.model.member.response.*;
 import com.moredian.oapi.profile.DefaultProfile;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.sys.modular.hr.magic.magicAttendanceCallback.entity.HrMagicAttendanceCallback;
 import vip.xiaonuo.sys.modular.hr.magic.magicAttendanceCallback.service.HrMagicAttendanceCallbackService;
@@ -33,10 +39,8 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -64,7 +68,7 @@ public class MagicServiceImpl implements MagicService {
         }
         HrMagicConfig hrMagicConfig = hrMagicConfigList.get(0);
         JSONObject jsonObject = new JSONObject(hrMagicConfig.getExtJson());
-        GetAppTokenResponse response = new GetAppTokenResponse();
+        GetAppTokenResponse  response = new GetAppTokenResponse();
         try{
             IOpenApiClient client = new DefaultOpenApiClient(DefaultProfile.getProfile(hrMagicConfig.getMagicUrl()));
             GetAppTokenRequest request = new GetAppTokenRequest();
@@ -72,9 +76,21 @@ public class MagicServiceImpl implements MagicService {
             request.setAppKey(jsonObject.get("appKey").toString());
             response = client.getResponse(request);
         }catch (Exception e){
-            log.error("魔点获取token失败：e"+e.toString());
+            log.error("魔点获取token失败-1：e:"+e.toString()+",response:"+response.toString());
         }
-        return response.getData().getAppToken();
+
+        GetAppOrgAccessTokenResponse appResponse = new GetAppOrgAccessTokenResponse();
+        try{
+            IOpenApiClient client = new DefaultOpenApiClient(DefaultProfile.getProfile(hrMagicConfig.getMagicUrl()));
+            GetAppOrgAccessTokenRequest request = new GetAppOrgAccessTokenRequest();
+            request.setAppToken(StringUtils.isNotEmpty(response.getData().getAppToken())? response.getData().getAppToken() : "");
+            request.setOrgId(jsonObject.get("orgId").toString());
+            request.setOrgAuthKey(jsonObject.get("orgAuthKey").toString());
+            appResponse = client.getResponse(request);
+        }catch (Exception e){
+            log.error("魔点获取token失败-2：e:"+e.toString()+",response:"+appResponse.toString());
+        }
+        return StringUtils.isNotEmpty(appResponse.getData().getAccessToken()) ? appResponse.getData().getAccessToken() : "";
     }
 
     @Override
@@ -110,13 +126,6 @@ public class MagicServiceImpl implements MagicService {
         hrUserAttendanceAddParam.setUserId(hrMagicUserRelationList.get(0).getJkUserId());
         hrUserAttendanceAddParam.setMachineCode(magicCallback.getData().getDeviceSn());
         hrUserAttendanceService.attendance(hrUserAttendanceAddParam);
-
-        /*HrUserAttendance hrUserAttendance = new HrUserAttendance();
-        hrUserAttendance.setUserId(magicCallback.getData().getPersonId() == null ? "测试": magicCallback.getData().getPersonId().toString());
-        Date date = new Date(magicCallback.getData().getRecognizeTime());
-        hrUserAttendance.setCheckTime(date);
-        hrUserAttendance.setMachineCode(magicCallback.getData().getDeviceSn());
-        hrUserAttendanceService.save(hrUserAttendance);*/
     }
 
     @Override
@@ -132,20 +141,7 @@ public class MagicServiceImpl implements MagicService {
             IOpenApiClient client = new DefaultOpenApiClient(DefaultProfile.getProfile(hrMagicConfig.getMagicUrl()));
             CreateMemberRequest createMemberRequest = new CreateMemberRequest();
             createMemberRequest.setAccessToken(getAppToken());
-            CreateMemberRequest.CreateMemberRequestBody createMemberRequestBody = new CreateMemberRequest.CreateMemberRequestBody();
-            createMemberRequestBody.setMemberName(magicMemberParam.getMemberName());
-            createMemberRequestBody.setTpId(magicMemberParam.getTpId());
-            createMemberRequestBody.setShowFace(magicMemberParam.getShowFace());
-            createMemberRequestBody.setVerifyFace(magicMemberParam.getVerifyFace());
-            createMemberRequestBody.setMobile(magicMemberParam.getMobile());
-            createMemberRequestBody.setNickName(magicMemberParam.getNickName());
-            createMemberRequestBody.setJobNum(magicMemberParam.getJobNum());
-            createMemberRequestBody.setSex(magicMemberParam.getSex());
-            createMemberRequestBody.setBirthday(magicMemberParam.getBirthday().getTime());
-            createMemberRequestBody.setEnterTime(magicMemberParam.getEnterTime().getTime());
-            createMemberRequestBody.setEmail(magicMemberParam.getEmail());
-            createMemberRequestBody.setTelephone(magicMemberParam.getTelephone());
-            createMemberRequestBody.setPost(magicMemberParam.getPost());
+            CreateMemberRequest.CreateMemberRequestBody createMemberRequestBody = BeanUtil.toBean(magicMemberParam,CreateMemberRequest.CreateMemberRequestBody.class);
             createMemberRequest.setBody(createMemberRequestBody);
             createMemberResponse = client.getResponse(createMemberRequest);
         }catch (Exception e){
@@ -155,20 +151,26 @@ public class MagicServiceImpl implements MagicService {
     }
 
     @Override
-    public DeleteMemberResponse deleteVerifyImg(Long memberId){
+    public DeleteMemberResponse deleteVerifyImg(String userId){
         List<HrMagicConfig> hrMagicConfigList = hrMagicConfigService.list(new LambdaQueryWrapper<HrMagicConfig>()
                 .eq(HrMagicConfig::getMagicConfigType, HrMagicEnum.MAGIC_MEMBER_DELTE.getValue()));
         DeleteMemberResponse deleteMemberResponse = new DeleteMemberResponse();
         if(CollectionUtil.isEmpty(hrMagicConfigList)){
             return deleteMemberResponse;
         }
+        List<HrMagicUserRelation> hrMagicUserRelationList = hrMagicUserRelationService.list(new LambdaQueryWrapper<HrMagicUserRelation>()
+                .eq(HrMagicUserRelation::getJkUserId,userId));
+        if(CollectionUtil.isEmpty(hrMagicUserRelationList)){
+            return deleteMemberResponse;
+        }
+
         try{
             HrMagicConfig hrMagicConfig = hrMagicConfigList.get(0);
             IOpenApiClient client = new DefaultOpenApiClient(DefaultProfile.getProfile(hrMagicConfig.getMagicUrl()));
             DeleteMemberRequest deleteMemberRequest = new DeleteMemberRequest();
             deleteMemberRequest.setAccessToken(getAppToken());
             DeleteMemberRequest.DeleteMemberRequestBody deleteMemberRequestBody = new DeleteMemberRequest.DeleteMemberRequestBody();
-            deleteMemberRequestBody.setMemberId(memberId);
+            deleteMemberRequestBody.setMemberId(hrMagicUserRelationList.get(0).getMagicPersonId());
             deleteMemberRequest.setBody(deleteMemberRequestBody);
             deleteMemberResponse = client.getResponse(deleteMemberRequest);
         }catch (Exception e){
@@ -186,13 +188,19 @@ public class MagicServiceImpl implements MagicService {
         if(CollectionUtil.isEmpty(hrMagicConfigList)){
             return updateMemberResponse;
         }
+        List<HrMagicUserRelation> hrMagicUserRelationList = hrMagicUserRelationService.list(new LambdaQueryWrapper<HrMagicUserRelation>()
+                .eq(HrMagicUserRelation::getJkUserId,magicMemberParam.getUserId()));
+        if(CollectionUtil.isEmpty(hrMagicUserRelationList)){
+            return updateMemberResponse;
+        }
+
         HrMagicConfig hrMagicConfig = hrMagicConfigList.get(0);
         try {
             IOpenApiClient client = new DefaultOpenApiClient(DefaultProfile.getProfile(hrMagicConfig.getMagicUrl()));
             UpdateMemberRequest updateMemberRequest = new UpdateMemberRequest();
             updateMemberRequest.setAccessToken(getAppToken());
             UpdateMemberRequest.UpdateMemberRequestBody updateMemberRequestBody = new UpdateMemberRequest.UpdateMemberRequestBody();
-            updateMemberRequestBody.setMemberId(magicMemberParam.getMemberId());
+            updateMemberRequestBody.setMemberId(hrMagicUserRelationList.get(0).getMagicPersonId());
             updateMemberRequestBody.setMemberName(magicMemberParam.getMemberName());
             updateMemberRequestBody.setNickName(magicMemberParam.getNickName());
             updateMemberRequestBody.setJobNum(magicMemberParam.getJobNum());
@@ -212,7 +220,7 @@ public class MagicServiceImpl implements MagicService {
     }
 
     @Override
-    public UpdateMemberVerifyImageResponse updateVerifyImage(File face, Long memberId){
+    public UpdateMemberVerifyImageResponse updateVerifyImage(File face, String userId){
         List<HrMagicConfig> hrMagicConfigList = hrMagicConfigService.list(new LambdaQueryWrapper<HrMagicConfig>()
                 .eq(HrMagicConfig::getMagicConfigType, HrMagicEnum.MAGIC_MEMBER_UPDATE_IMAGE.getValue()));
 
@@ -221,13 +229,17 @@ public class MagicServiceImpl implements MagicService {
             return updateMemberVerifyImageResponse;
         }
         HrMagicConfig hrMagicConfig = hrMagicConfigList.get(0);
-
+        List<HrMagicUserRelation> hrMagicUserRelationList = hrMagicUserRelationService.list(new LambdaQueryWrapper<HrMagicUserRelation>()
+                .eq(HrMagicUserRelation::getJkUserId,userId));
+        if(CollectionUtil.isEmpty(hrMagicUserRelationList)){
+            return updateMemberVerifyImageResponse;
+        }
         try {
             IOpenApiClient client = new DefaultOpenApiClient(DefaultProfile.getProfile(hrMagicConfig.getMagicUrl()));
             UpdateMemberVerifyImageRequest updateMemberVerifyImageRequest = new UpdateMemberVerifyImageRequest();
             updateMemberVerifyImageRequest.setAccessToken(getAppToken());
             UpdateMemberVerifyImageRequest.UpdateMemberVerifyImageRequestBody updateMemberVerifyImageRequestBody = new UpdateMemberVerifyImageRequest.UpdateMemberVerifyImageRequestBody();
-            updateMemberVerifyImageRequestBody.setMemberId(memberId);
+            updateMemberVerifyImageRequestBody.setMemberId(hrMagicUserRelationList.get(0).getMagicPersonId());
             updateMemberVerifyImageRequestBody.setFace(face);
             updateMemberVerifyImageRequest.setBody(updateMemberVerifyImageRequestBody);
             updateMemberVerifyImageResponse = client.getResponse(updateMemberVerifyImageRequest);
@@ -272,10 +284,27 @@ public class MagicServiceImpl implements MagicService {
         List<HrMagicUserRelation> hrMagicUserRelationList = hrMagicUserRelationService.list();
         hrMagicUserRelationList.forEach(magic -> map.put(magic.getJkUserId(),magic));
 
-        /*List<SysUser> sysUserList = userList.stream().filter(user -> );
-
-        magicMemberCreate();*/
-
+        List<HrMagicUserRelation> hrMagicUserRelations = new ArrayList<>();
+       for(SysUser sysUser : userList){
+           if(map.get(sysUser.getId()) != null){
+               continue;
+           }
+           MagicMemberParam magicMemberParam = new MagicMemberParam();
+           magicMemberParam.setMemberName(sysUser.getName());
+           magicMemberParam.setNickName(sysUser.getName());
+           magicMemberParam.setTpId(sysUser.getId());
+           CreateMemberResponse createMemberResponse = magicMemberCreate(magicMemberParam);
+           if(!createMemberResponse.getResult().equals(HrMagicEnum.SUCESS_CODE.getValue())){
+               log.error("创建魔点人员失败！"+createMemberResponse.toString());
+               continue;
+           }
+           /** 保存关系表 */
+           HrMagicUserRelation hrMagicUserRelation = new HrMagicUserRelation();
+           hrMagicUserRelation.setJkUserId(sysUser.getId());
+           hrMagicUserRelation.setMagicPersonId(createMemberResponse.getData());
+           hrMagicUserRelations.add(hrMagicUserRelation);
+       }
+        hrMagicUserRelationService.saveBatch(hrMagicUserRelations);
 
         return HrMagicEnum.SUCESS_CODE.getValue();
     }

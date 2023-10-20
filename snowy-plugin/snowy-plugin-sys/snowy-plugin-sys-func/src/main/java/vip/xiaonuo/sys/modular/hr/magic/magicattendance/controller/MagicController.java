@@ -63,8 +63,8 @@ public class MagicController {
     @ApiOperation("魔点考勤删除成员")
     @CommonLog("魔点考勤删除成员")
     @GetMapping("/sys/magic/member/deleteVerifyImg")
-    public CommonResult<DeleteMemberResponse> deleteVerifyImg(@Valid Long memberId) {
-        return CommonResult.data(magicService.deleteVerifyImg(memberId));
+    public CommonResult<DeleteMemberResponse> deleteVerifyImg(@Valid String userId) {
+        return CommonResult.data(magicService.deleteVerifyImg(userId));
     }
 
     @ApiOperationSupport(order = 5)
@@ -79,8 +79,8 @@ public class MagicController {
     @ApiOperation("魔点考勤更新识别人脸图片")
     @CommonLog("魔点考勤更新识别人脸图片")
     @GetMapping("/sys/magic/member/updateVerifyImage")
-    public CommonResult<UpdateMemberVerifyImageResponse> updateVerifyImage(@Valid File face, Long memberId) {
-        return CommonResult.data(magicService.updateVerifyImage(face,memberId));
+    public CommonResult<UpdateMemberVerifyImageResponse> updateVerifyImage(@Valid File face, String userId) {
+        return CommonResult.data(magicService.updateVerifyImage(face,userId));
     }
 
     @ApiOperationSupport(order = 7)
@@ -92,8 +92,8 @@ public class MagicController {
     }
 
     @ApiOperationSupport(order = 8)
-    @ApiOperation("批量导入建科人员信息到魔点考勤--暂勿使用")
-    @CommonLog("批量导入建科人员信息到魔点考勤--暂勿使用")
+    @ApiOperation("批量导入建科人员信息到魔点考勤--外调请勿使用")
+    @CommonLog("批量导入建科人员信息到魔点考勤--外调请勿使用")
     @GetMapping("/sys/magic/member/jkUserToMagic")
     public CommonResult<String> jkUserToMagicBatch() {
         return CommonResult.data(magicService.jkUserToMagic());

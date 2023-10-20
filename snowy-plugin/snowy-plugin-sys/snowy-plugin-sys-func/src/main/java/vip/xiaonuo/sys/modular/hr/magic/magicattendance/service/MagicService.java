@@ -25,7 +25,7 @@ public interface MagicService {
     /**
      * 魔点删除创建成员
      * */
-    DeleteMemberResponse deleteVerifyImg(Long memberId);
+    DeleteMemberResponse deleteVerifyImg(String userId);
 
     /**
      * 魔点删除更新成员信息
@@ -35,7 +35,7 @@ public interface MagicService {
     /**
      * 更新识别人脸图片
      * */
-    UpdateMemberVerifyImageResponse updateVerifyImage(File face, Long memberId);
+    UpdateMemberVerifyImageResponse updateVerifyImage(File face, String userId);
 
     /**
      * 查询成员信息列表

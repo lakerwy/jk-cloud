@@ -34,12 +34,13 @@ public class MagicMemberParam {
     private String jobNum;
     @ApiModelProperty(value = "性别 -- 0：未知，1：男，2：女", position = 11)
     private Integer sex;
-    @ApiModelProperty(value = "生日", position = 10)
+    @ApiModelProperty(value = "生日", position = 12)
     private Date birthday;
-    @ApiModelProperty(value = "邮箱", position = 10)
+    @ApiModelProperty(value = "邮箱", position = 13)
     private String email;
-
-    @ApiModelProperty(value = "成员ID", position = 10)
+    @ApiModelProperty(value = "建科成员ID", position = 14)
+    private String userId;
+    @ApiModelProperty(value = "成员ID", position = 15)
     private Long memberId;
 
 }

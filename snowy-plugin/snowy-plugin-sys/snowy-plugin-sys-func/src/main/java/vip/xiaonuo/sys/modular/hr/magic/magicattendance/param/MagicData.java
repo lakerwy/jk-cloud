@@ -22,6 +22,6 @@ public class MagicData {
     private Boolean recognizeGroupFlag;
     @ApiModelProperty(value = "抓拍照图片在oss对应bucket根目录下的文件名称", position = 7)
     private String fileKey;
-    @ApiModelProperty(value = "第三方人员ID", position = 8)
+    @ApiModelProperty(value = "第三方人员ID-对应建科人员ID", position = 8)
     private String tpId;
 }
