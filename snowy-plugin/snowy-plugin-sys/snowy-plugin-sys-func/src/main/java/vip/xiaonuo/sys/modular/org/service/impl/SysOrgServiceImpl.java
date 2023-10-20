@@ -79,6 +79,9 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
+    @Resource
+    private SysOrgMapper sysOrgMapper;
+
     @Override
     public Page<SysOrg> page(SysOrgPageParam sysOrgPageParam) {
         QueryWrapper<SysOrg> queryWrapper = new QueryWrapper<>();
@@ -438,5 +441,10 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             map.put("directorId",org.getDirectorId());
             return map;
         }).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<SysOrg> getChildren(String orgId) {
+        return sysOrgMapper.getChildren(orgId);
     }
 }

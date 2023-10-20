@@ -19,6 +19,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
+import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
+import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
+import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
 import vip.xiaonuo.pan.modular.userFile.param.*;
@@ -131,7 +134,7 @@ public interface UserFileService extends IService<UserFile> {
 
     Page<UserFile> selfPageList(UserFilePageParam userFilePageParam);
 
-    List<NodeFold> buildTree(String id);
+    List<NodeFold> buildTree(UserFileTreeParam userFileTreeParam);
 
     @Transactional
     List<DevFile> uploadReturnBean(String engine, MultipartFileParam param);
@@ -144,11 +147,13 @@ public interface UserFileService extends IService<UserFile> {
 
     void userFileCopy(UserFileOperateParam userFileOperateParam);
 
-    List<UserFile> getRootFold();
+    List<UserFile> getRootFold(PanRootFoldParam panRootFoldParam);
 
-    String getParentIdByPath(String filePath);
+    UserFile getParentIdByPath(String filePath);
 
     void updateDelete(String deleteBatchNum,String userId,List<String> userFileIds);
 
     Long getFilePointCount(String fileId);
+
+    Boolean checkHomonym(UploadFileParam uploadFileParam);
 }

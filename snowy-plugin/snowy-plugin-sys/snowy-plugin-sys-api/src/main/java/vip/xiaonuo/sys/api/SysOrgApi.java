@@ -57,4 +57,6 @@ public interface SysOrgApi {
      * @date 2022/7/22 14:45
      **/
     Page<JSONObject> orgListSelector(String parentId);
+
+    List<String> getChildrenIds(String orgId);
 }

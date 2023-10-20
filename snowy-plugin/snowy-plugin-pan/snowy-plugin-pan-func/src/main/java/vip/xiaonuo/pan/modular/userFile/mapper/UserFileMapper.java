@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
 
@@ -29,7 +30,7 @@ import java.util.List;
  **/
 public interface UserFileMapper extends BaseMapper<UserFile> {
 
-    List<NodeFold> nodeList(@Param(value = "id") String id);
+    List<NodeFold> nodeList(UserFileTreeParam userFileTreeParam);
 
     Long getTotalStorageSize(@Param("userId") String userId);
 

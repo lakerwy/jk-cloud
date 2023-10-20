@@ -18,8 +18,6 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.io.resource.ResourceUtil;
-import cn.hutool.core.util.ClassUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -27,12 +25,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.ResourceLoader;
-import org.springframework.core.io.support.ResourcePatternResolver;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.ResourceUtils;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -44,6 +38,9 @@ import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
+import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
+import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
+import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
@@ -59,6 +56,7 @@ import vip.xiaonuo.pan.modular.userFile.enums.UserFileEnum;
 import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 import vip.xiaonuo.pan.modular.userFile.param.*;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
+import vip.xiaonuo.sys.api.SysOrgApi;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -105,13 +103,13 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     FileDealComp fileDealComp;
 
     @Resource
-    private CommonCacheOperator commonCacheOperator;
-
-    @Resource
     private DevConfigApi devConfigApi;
 
     @Resource
     private PanFileStorageService panFileStorageService;
+
+    @Resource
+    private SysOrgApi sysOrgApi;
     public static Executor executor = Executors.newFixedThreadPool(20);
 
     private static final String TEMPLATE_FOLD = "TEMPLATE_FOLD";
@@ -141,8 +139,11 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         userFile.setIsDir(IS_DIR);
         userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
         userFile.setUserId(StpLoginUserUtil.getLoginUser().getId());
-        String parentId = getParentIdByPath(userFileAddParam.getFilePath());
-        userFile.setParentId(parentId);
+        UserFile parentUserFile = getParentIdByPath(userFileAddParam.getFilePath());
+        if(ObjectUtil.isNotEmpty(parentUserFile)){
+            userFile.setParentId(parentUserFile.getId());
+            userFile.setFoldType(parentUserFile.getFoldType());
+        }
         userFile.setFileSize(0L);
         this.save(userFile);
     }
@@ -274,8 +275,6 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 .eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
         UserFile one = getOne(queryWrapper);
         if(ObjectUtil.isNotEmpty(one)){
-            log.info("处理模板文件--------------");
-            handleEpcFile(one.getId(), one.getFilePath()+FileUtil.FILE_SEPARATOR+one.getFileName(),StpLoginUserUtil.getLoginUser().getId(), StpLoginUserUtil.getLoginUser().getOrgId());
             return  one.getId();
         }
         UserFile userFile = new UserFile();
@@ -290,7 +289,6 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         String name = StpLoginUserUtil.getLoginUser().getOrgName();
         userFile.setFileName(name+"部门文件夹");
         save(userFile);
-        handleEpcFile(userFile.getId(), userFile.getFilePath()+userFile.getFileName(),StpLoginUserUtil.getLoginUser().getId(), StpLoginUserUtil.getLoginUser().getOrgId());
         return  userFile.getId();
     }
 
@@ -326,9 +324,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Override
     public void moveFold(UserFileOperateParam userFileOperateParam) {
-        String parentId = getParentIdByPath(userFileOperateParam.getTargetFoldPath());
+        UserFile parentUserFile = getParentIdByPath(userFileOperateParam.getTargetFoldPath());
 
-        if(ObjectUtil.isEmpty(parentId)){
+        if(ObjectUtil.isEmpty(parentUserFile)){
             throw  new CommonException("目标文件夹不存在");
         }
         String targetFoldPath = userFileOperateParam.getTargetFoldPath();
@@ -378,7 +376,8 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 }
             }
             userFile.setFilePath(fianlTargetFoldPath);
-            userFile.setParentId(parentId);
+            userFile.setParentId(parentUserFile.getId());
+            userFile.setFoldType(parentUserFile.getFoldType());
             updateById(userFile);
             fileDealComp.deleteRepeatSubDirFile(fianlTargetFoldPath,StpLoginUserUtil.getLoginUser().getId());
         }
@@ -520,10 +519,22 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     }
 
     @Override
-    public List<NodeFold> buildTree(String id) {
-        List<NodeFold> nodeFolds = userFileMapper.nodeList(id);
-        return buildDeptTreeByStream(nodeFolds,id);
-       // return buildTree(nodeFolds,NodeFold::getId,NodeFold::getParentId,NodeFold::getCreateTime,NodeFold::setChildren);
+    public List<NodeFold> buildTree(UserFileTreeParam userFileTreeParam) {
+        Integer foldType = userFileTreeParam.getFoldType();
+        if(0==foldType){
+            userFileTreeParam.setUserId(StpLoginUserUtil.getLoginUser().getId());
+            userFileTreeParam.setFoldTypes(new ArrayList<>(Collections.singletonList(0)));
+        } else if (1==foldType) {
+            String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
+            userFileTreeParam.setOrgIds(childrenIds);
+            userFileTreeParam.setFoldTypes(new ArrayList<>(Collections.singletonList(1)));
+        }else{
+            userFileTreeParam.setFoldTypes(new ArrayList<>(Arrays.asList(1,2)));
+        }
+        List<NodeFold> nodeFolds = userFileMapper.nodeList(userFileTreeParam);
+        return buildDeptTreeByStream(nodeFolds,userFileTreeParam.getId());
+        // return buildTree(nodeFolds,NodeFold::getId,NodeFold::getParentId,NodeFold::getCreateTime,NodeFold::setChildren);
     }
 
 
@@ -636,9 +647,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Override
     public void userFileCopy(UserFileOperateParam userFileOperateParam) {
-        String parentId = getParentIdByPath(userFileOperateParam.getTargetFoldPath());
+        UserFile parentUserFile = getParentIdByPath(userFileOperateParam.getTargetFoldPath());
 
-        if(ObjectUtil.isEmpty(parentId)){
+        if(ObjectUtil.isEmpty(parentUserFile)){
             throw  new CommonException("目标文件夹不存在");
         }
         String targetFoldPath = userFileOperateParam.getTargetFoldPath();
@@ -668,7 +679,8 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 String repeatFileName = fileDealComp.getRepeatFileName(userFile, userFile.getFilePath());
                 userFile.setFileName(repeatFileName);
             }
-            userFile.setParentId(parentId);
+            userFile.setParentId(parentUserFile.getId());
+            userFile.setFoldType(parentUserFile.getFoldType());
             userFile.setOrgId(StpLoginUserUtil.getLoginUser().getOrgId());
             userFile.setId(null);
             save(userFile);
@@ -702,26 +714,33 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     }
 
     @Override
-    public List<UserFile> getRootFold() {
-        List<UserFile> userFiles = new ArrayList<>();
+    public List<UserFile> getRootFold(PanRootFoldParam panRootFoldParam) {
+//        List<UserFile> userFiles = new ArrayList<>();
+        if(ObjectUtil.isEmpty(panRootFoldParam.getType())){
+            panRootFoldParam.setType(UserFileEnum.SELF_ROOT.getLevel());
+        }
         QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.SELF_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId())
+        queryWrapper.lambda().eq(UserFile::getRootDir, panRootFoldParam.getType()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId())
                 .eq(UserFile::getCreateUser,StpLoginUserUtil.getLoginUser().getId());
-        UserFile one = getOne(queryWrapper);
-        userFiles.add(one);
-
-        queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.GROUP_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
-        one = getOne(queryWrapper);
-        userFiles.add(one);
-        return userFiles;
+        return list(queryWrapper);
+//        userFiles.add(one);
+//
+//
+//        queryWrapper = new QueryWrapper<>();
+//        queryWrapper.lambda().eq(UserFile::getRootDir, UserFileEnum.GROUP_ROOT.getLevel()).eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
+//        one = getOne(queryWrapper);
+//        userFiles.add(one);
+//        return userFiles;
     }
 
     @Override
-    public String getParentIdByPath(String filePath) {
+    public UserFile getParentIdByPath(String filePath) {
         if(filePath.equals(ROOT_FOLD_PATH)){
             //如果是 “/” 就是根目录
-            return ROOT_FOLD_ID;
+            UserFile userFile = new UserFile();
+            userFile.setId(ROOT_FOLD_ID);
+//            return ROOT_FOLD_ID;
+            return userFile;
         }
         int index = filePath.lastIndexOf(ROOT_FOLD_PATH);
         String pathName = filePath.substring(index + 1);
@@ -731,11 +750,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 parentPath = filePath.substring(0,index);
             }
         }
-        UserFile one = getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFilePath, parentPath).eq(UserFile::getFileName, pathName));
-        if(null!=one){
-            return one.getId();
-        }
-        return null;
+        return getOne(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFilePath, parentPath).eq(UserFile::getFileName, pathName));
     }
 
     private void updateFileDeleteStateByFilePath(String filePath, String deleteBatchNum, String userId) {
@@ -858,5 +873,11 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 //        userFiles.add(userFile);
         save(userFile);
         return userFile;
+    }
+
+
+    @Override
+    public Boolean checkHomonym(UploadFileParam uploadFileParam){
+        return false;
     }
 }

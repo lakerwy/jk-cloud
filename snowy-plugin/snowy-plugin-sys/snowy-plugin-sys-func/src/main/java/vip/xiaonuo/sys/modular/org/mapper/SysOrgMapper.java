@@ -15,6 +15,8 @@ package vip.xiaonuo.sys.modular.org.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 
+import java.util.List;
+
 /**
  * 组织Mapper接口
  *
@@ -22,4 +24,5 @@ import vip.xiaonuo.sys.modular.org.entity.SysOrg;
  * @date 2022/4/21 18:37
  **/
 public interface SysOrgMapper extends BaseMapper<SysOrg> {
+    List<SysOrg> getChildren(String orgId);
 }

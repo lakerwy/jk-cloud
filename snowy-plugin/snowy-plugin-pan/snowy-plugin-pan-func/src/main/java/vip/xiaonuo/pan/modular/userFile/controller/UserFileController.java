@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.pan.modular.userFile.controller;
 
-import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,33 +22,20 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.dev.api.DevConfigApi;
-import vip.xiaonuo.dev.modular.file.entity.DevFile;
-import vip.xiaonuo.pan.modular.file.entity.PanFile;
-import vip.xiaonuo.pan.modular.file.service.PanFileService;
-import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
-import vip.xiaonuo.pan.modular.fileCenter.operation.copy.Copier;
-import vip.xiaonuo.pan.modular.fileCenter.operation.copy.domain.CopyFile;
-import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
+import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
+import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
-import vip.xiaonuo.pan.modular.userFile.enums.UserFileEnum;
 import vip.xiaonuo.pan.modular.userFile.param.*;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.io.FileInputStream;
-import java.io.InputStream;
 import java.util.List;
-import java.util.UUID;
-
-import static vip.xiaonuo.pan.core.FileCommonConstant.SNOWY_SYS_DEFAULT_FILE_ENGINE_KEY;
 
 /**
  * 文件主表控制器
@@ -86,8 +72,8 @@ public class UserFileController {
     @ApiOperation("获取根目录文件夹")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/getRootFold")
-    public CommonResult<List<UserFile>> getRootFold() {
-        return CommonResult.data(userFileService.getRootFold());
+    public CommonResult<List<UserFile>> getRootFold(PanRootFoldParam panRootFoldParam) {
+        return CommonResult.data(userFileService.getRootFold(panRootFoldParam));
     }
 
 
@@ -228,9 +214,13 @@ public class UserFileController {
     @ApiOperation("根据id获取文件树")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/getFoldTree")
-    public CommonResult<List<NodeFold>> getFoldTree(@RequestParam(value = "id",required = true) String id) {
+    public CommonResult<List<NodeFold>> getFoldTree(@Valid UserFileTreeParam userFileTreeParam) {
+        /**
+         * 1、个人只能移动到自己所见个人
+         * 2、群组只能在当前群组下移动、复制
+         */
         //devFoldPageParam.setFoldType(DevFoldEnum.GROUP_FOLD_TYPE.getLevel());
-        return CommonResult.data(userFileService.buildTree(id));
+        return CommonResult.data(userFileService.buildTree(userFileTreeParam));
     }
 
     //***********************************文件操作**************************************************//

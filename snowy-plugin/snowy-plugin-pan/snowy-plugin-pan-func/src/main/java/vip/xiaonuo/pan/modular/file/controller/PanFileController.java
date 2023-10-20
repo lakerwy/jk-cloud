@@ -142,8 +142,11 @@ public class PanFileController {
 //    @SaCheckPermission("/pan/file/uploadFile")
     @GetMapping("/pan/file/uploadFile")
     public CommonResult<UploadFileVo> uploadFileSpeed(UploadFileParam uploadFileParam) {
-
-        boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize(),0);
+//        Boolean isHomonym = userFileService.checkHomonym(uploadFileParam);
+//        if(!isHomonym){
+//            return CommonResult.error("用重名文件，重命名后再上传");
+//        }
+        boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize(),uploadFileParam.getType());
         if (!isCheckSuccess) {
             return CommonResult.error("存储空间不足");
         }
@@ -165,49 +168,50 @@ public class PanFileController {
     @ApiOperation("下载文件(支持批量)")
 //    @SaCheckPermission("/pan/file/uploadFile")
     @GetMapping("/pan/file/downloadFile")
-    public void downloadFile(HttpServletResponse httpServletResponse, @RequestParam(value = "fileIds",required = true) String fileIds){
+    public void downloadFile(HttpServletResponse httpServletResponse,DownloadParam downloadParam){
         //todo
         // 按时不判断是否有下载权限
 
         httpServletResponse.setContentType("application/force-download");// 设置强制下载不打开
-        if(StrUtil.isNotEmpty(fileIds)){
-            List<String> collect = Arrays.stream(fileIds.split(", ")).collect(Collectors.toList());
+        if(StrUtil.isNotEmpty(downloadParam.getFileIds())){
+//            ProjectContextHolder.put(downloadParam.getTenantId());
+            List<String> collect = Arrays.stream(downloadParam.getFileIds().split(", ")).collect(Collectors.toList());
             if(collect.size() == 1){
-                    UserFile userFile = userFileService.getById(collect.get(0));
-                    String fileName = "";
-                    if (userFile.getIsDir() == 1) {
-                        fileName = userFile.getFileName() + ".zip";
-                    } else {
-                        fileName = userFile.getFileName() + "." + userFile.getExtendName();
+                UserFile userFile = userFileService.getById(collect.get(0));
+                String fileName = "";
+                if (userFile.getIsDir() == 1) {
+                    fileName = userFile.getFileName() + ".zip";
+                } else {
+                    fileName = userFile.getFileName() + "." + userFile.getExtendName();
 
-                    }
+                }
                 fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
 
                 httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName);// 设置文件名
 
                 fileTransferService.downloadFile(httpServletResponse, collect);
-                }else if(collect.size() >1){
-                    List<String> userFileIds = new ArrayList<>();
-                    for(String userFileId : collect) {
-                        UserFile userFile = userFileService.getById(userFileId);
-                        if (userFile.getIsDir() == 0) {
-                            userFileIds.add(userFileId);
-                        } else {
-                            CommonFile commonFile = new CommonFile(userFile.getFilePath(), userFile.getFileName(), true);
-                            List<UserFile> userFileList = userFileService.selectUserFileByLikeRightFilePath(commonFile.getPath(), userFile.getUserId());
-                            List<String> userFileIds1 = userFileList.stream().map(UserFile::getId).collect(Collectors.toList());
-                            userFileIds.add(userFile.getId());
-                            userFileIds.addAll(userFileIds1);
-                        }
-
+            }else if(collect.size() >1){
+                List<String> userFileIds = new ArrayList<>();
+                for(String userFileId : collect) {
+                    UserFile userFile = userFileService.getById(userFileId);
+                    if (userFile.getIsDir() == 0) {
+                        userFileIds.add(userFileId);
+                    } else {
+                        CommonFile commonFile = new CommonFile(userFile.getFilePath(), userFile.getFileName(), true);
+                        List<UserFile> userFileList = userFileService.selectUserFileByLikeRightFilePath(commonFile.getPath(), userFile.getUserId());
+                        List<String> userFileIds1 = userFileList.stream().map(UserFile::getId).collect(Collectors.toList());
+                        userFileIds.add(userFile.getId());
+                        userFileIds.addAll(userFileIds1);
                     }
-                    UserFile userFile = userFileService.getById(collect.get(0));
-                    httpServletResponse.setContentType("application/force-download");// 设置强制下载不打开
-                    Date date = new Date();
-                    String fileName = String.valueOf(date.getTime());
-                    httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName + ".zip");// 设置文件名
-                    fileTransferService.downloadUserFileList(httpServletResponse, userFile.getFilePath(), fileName, userFileIds);
+
                 }
+                UserFile userFile = userFileService.getById(collect.get(0));
+                httpServletResponse.setContentType("application/force-download");// 设置强制下载不打开
+                Date date = new Date();
+                String fileName = String.valueOf(date.getTime());
+                httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName + ".zip");// 设置文件名
+                fileTransferService.downloadUserFileList(httpServletResponse, userFile.getFilePath(), fileName, userFileIds);
+            }
         }
     }
 
