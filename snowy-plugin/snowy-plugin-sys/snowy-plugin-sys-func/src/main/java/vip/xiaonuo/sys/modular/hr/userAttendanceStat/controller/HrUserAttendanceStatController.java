@@ -208,7 +208,7 @@ public class HrUserAttendanceStatController {
     @CommonLog("用户考勤概览-每日统计接口日期列表")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
     @GetMapping("/sys/userAttendance/statPreviewDateList")
-    public CommonResult<LinkedHashMap<Integer, Integer>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
+    public CommonResult<LinkedHashMap<Integer, String>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.statPreviewDateList(attendanceDayStatParam));
     }
 

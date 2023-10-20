@@ -6,9 +6,7 @@ import com.moredian.oapi.model.member.response.*;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicCallback;
@@ -49,7 +47,7 @@ public class MagicController {
     @ApiOperation("打卡回调接口(免登录)")
     @CommonLog("打卡回调接口(免登录)")
     @PostMapping("/sys/magic/third/callback")
-    public CommonResult<MagicResult> attendanceCallback(@Valid MagicCallback magicCallback) {
+    public CommonResult<MagicResult> attendanceCallback(@RequestBody @Valid MagicCallback magicCallback) {
         return CommonResult.data(magicService.attendanceCallback(magicCallback));
     }
 

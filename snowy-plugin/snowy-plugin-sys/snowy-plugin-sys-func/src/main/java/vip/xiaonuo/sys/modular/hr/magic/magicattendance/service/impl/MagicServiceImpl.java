@@ -1,7 +1,9 @@
 package vip.xiaonuo.sys.modular.hr.magic.magicattendance.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.moredian.oapi.DefaultOpenApiClient;
 import com.moredian.oapi.IOpenApiClient;
@@ -12,14 +14,19 @@ import com.moredian.oapi.model.member.response.*;
 import com.moredian.oapi.profile.DefaultProfile;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.sys.modular.hr.magic.magicAttendanceCallback.entity.HrMagicAttendanceCallback;
+import vip.xiaonuo.sys.modular.hr.magic.magicAttendanceCallback.service.HrMagicAttendanceCallbackService;
 import vip.xiaonuo.sys.modular.hr.magic.magicConfig.entity.HrMagicConfig;
 import vip.xiaonuo.sys.modular.hr.magic.magicConfig.service.HrMagicConfigService;
+import vip.xiaonuo.sys.modular.hr.magic.magicUserRelation.entity.HrMagicUserRelation;
+import vip.xiaonuo.sys.modular.hr.magic.magicUserRelation.service.HrMagicUserRelationService;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.enums.HrMagicEnum;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicCallback;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicMemberParam;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicResult;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.service.MagicService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 
 import javax.annotation.Resource;
@@ -36,6 +43,11 @@ public class MagicServiceImpl implements MagicService {
     private HrMagicConfigService hrMagicConfigService;
     @Resource
     private HrUserAttendanceService hrUserAttendanceService;
+    @Resource
+    private HrMagicAttendanceCallbackService hrMagicAttendanceCallbackService;
+    @Resource
+    private HrMagicUserRelationService hrMagicUserRelationService;
+
 
     @Override
     public String getAppToken( ){
@@ -61,18 +73,43 @@ public class MagicServiceImpl implements MagicService {
 
     @Override
     public MagicResult attendanceCallback(MagicCallback magicCallback){
+        log.info("attendanceCallback:"+JSONUtil.toJsonStr(magicCallback));
 
-        log.info("magicCallback_callbackTag:"+magicCallback.getCallbackTag()+",magicCallback_callbackTag:"+magicCallback.getData());
+        /** 保存回调数据*/
+        savehrMagicAttendanceCallback(magicCallback);
+        attendanceMagic(magicCallback);
+        return new MagicResult(HrMagicEnum.SUCESS_CODE.getValue(),HrMagicEnum.SUCESS_INFO.getValue());
+    }
 
-        HrUserAttendance hrUserAttendance = new HrUserAttendance();
+    private void savehrMagicAttendanceCallback(MagicCallback magicCallback){
+        HrMagicAttendanceCallback hrMagicAttendanceCallback = new HrMagicAttendanceCallback();
+        hrMagicAttendanceCallback.setCreateTime(DateUtil.date());
+        hrMagicAttendanceCallback.setExtJson(JSONUtil.toJsonStr(magicCallback));
+        hrMagicAttendanceCallback.setMagicPersonId(magicCallback.getData().getPersonId());
+        hrMagicAttendanceCallbackService.save(hrMagicAttendanceCallback);
+    }
+
+    private void attendanceMagic(MagicCallback magicCallback){
+        Date checkTime = new Date(magicCallback.getData().getRecognizeTime());
+
+        List<HrMagicUserRelation> hrMagicUserRelationList = hrMagicUserRelationService.list(new LambdaQueryWrapper<HrMagicUserRelation>()
+                .eq(HrMagicUserRelation::getMagicPersonId,magicCallback.getData().getPersonId()));
+        if(CollectionUtil.isEmpty(hrMagicUserRelationList)){
+            log.error("魔点打卡回调接口，未在建科反查到人员信息，请创建人员关联信息！magicPersonId:"+magicCallback.getData().getPersonId().toString());
+            return;
+        }
+
+        HrUserAttendanceAddParam hrUserAttendanceAddParam = new HrUserAttendanceAddParam();
+        hrUserAttendanceAddParam.setCheckTime(checkTime);
+        hrUserAttendanceAddParam.setUserId(hrMagicUserRelationList.get(0).getJkUserId());
+        hrUserAttendanceService.attendance(hrUserAttendanceAddParam);
+
+        /*HrUserAttendance hrUserAttendance = new HrUserAttendance();
         hrUserAttendance.setUserId(magicCallback.getData().getPersonId() == null ? "测试": magicCallback.getData().getPersonId().toString());
         Date date = new Date(magicCallback.getData().getRecognizeTime());
         hrUserAttendance.setCheckTime(date);
         hrUserAttendance.setMachineCode(magicCallback.getData().getDeviceSn());
-        hrUserAttendanceService.save(hrUserAttendance);
-
-
-        return new MagicResult(HrMagicEnum.SUCESS_CODE.getValue(),HrMagicEnum.SUCESS_INFO.getValue());
+        hrUserAttendanceService.save(hrUserAttendance);*/
     }
 
     @Override

@@ -137,7 +137,7 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @author ljy
      * @date  2023/10/18 14:24
      * */
-    LinkedHashMap<Integer, Integer> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam);
+    LinkedHashMap<Integer, String> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam);
     /**
      * 用户考勤概览每日统计接口
      *

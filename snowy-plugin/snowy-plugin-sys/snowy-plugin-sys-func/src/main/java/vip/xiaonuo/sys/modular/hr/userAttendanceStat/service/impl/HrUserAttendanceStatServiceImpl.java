@@ -383,10 +383,10 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public LinkedHashMap<Integer, Integer> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
+    public LinkedHashMap<Integer, String> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
         Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATE_PATTERN);
         Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATE_PATTERN);
-        LinkedHashMap<Integer, Integer> resultMap = new LinkedHashMap<>();
+        LinkedHashMap<Integer, String> resultMap = new LinkedHashMap<>();
         handDayList(beginTime,endTime,resultMap);
 //        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
 //        LinkedHashMap<String,Object> map = new LinkedHashMap<>();
@@ -395,14 +395,21 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         return resultMap;
     }
 
-    private void handDayList(Date beginTime,Date endTime,Map<Integer, Integer> map){
+    private void handDayList(Date beginTime,Date endTime,Map<Integer, String> map){
         // 遍历时间段中的每一天
         Date current = beginTime;
         while (current.compareTo(endTime) <= 0) {
             // 获取当前日期的周几
-            int dayOfWeek = DateUtil.dayOfWeek(current);
-            int datDate = DateUtil.dayOfMonth(current);
-            map.put(datDate,dayOfWeek);
+            Integer dayOfWeek = DateUtil.dayOfWeek(current);
+            Integer datDate = DateUtil.dayOfMonth(current);
+            String dayStr = dayOfWeek.toString();
+            if(dayOfWeek == 6){
+                dayStr = "六";
+            }
+            if(dayOfWeek == 7){
+                dayStr = "日";
+            }
+            map.put(datDate,dayStr);
             // 将日期加1天
             current = DateUtil.offset(current, DateField.DAY_OF_MONTH, 1);
         }
