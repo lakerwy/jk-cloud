@@ -282,6 +282,14 @@ public class BizPrjAllotment {
     @ApiModelProperty(value = "部门审批-资产财务中心-小计", position = 60)
     private Double cwTotalAmount;
 
+    /** 出纳支付信息-本次付款单位编号 */
+    @ApiModelProperty(value = "出纳支付信息-本次付款单位编号", position = 61)
+    private String cnUnitCode;
+
+    /** 出纳支付信息-付款单位名称 */
+    @ApiModelProperty(value = "出纳支付信息-付款单位名称", position = 62)
+    private String cnUnitName;
+
     /** 出纳支付信息-本次付款合同编号 */
     @ApiModelProperty(value = "出纳支付信息-本次付款合同编号", position = 61)
     private String cnContractNo;
