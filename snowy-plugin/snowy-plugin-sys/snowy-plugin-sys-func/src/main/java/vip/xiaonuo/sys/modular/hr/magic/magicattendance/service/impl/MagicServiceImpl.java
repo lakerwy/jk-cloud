@@ -102,6 +102,7 @@ public class MagicServiceImpl implements MagicService {
         HrUserAttendanceAddParam hrUserAttendanceAddParam = new HrUserAttendanceAddParam();
         hrUserAttendanceAddParam.setCheckTime(checkTime);
         hrUserAttendanceAddParam.setUserId(hrMagicUserRelationList.get(0).getJkUserId());
+        hrUserAttendanceAddParam.setMachineCode(magicCallback.getData().getDeviceSn());
         hrUserAttendanceService.attendance(hrUserAttendanceAddParam);
 
         /*HrUserAttendance hrUserAttendance = new HrUserAttendance();
