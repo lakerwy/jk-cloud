@@ -41,4 +41,9 @@ public interface MagicService {
      * 查询成员信息列表
      * */
     ListMemberResponse magicMemberList(Integer offset, Integer size);
+
+    /**
+     * 批量导入建科人员信息到魔点考勤
+     * */
+    String jkUserToMagic();
 }

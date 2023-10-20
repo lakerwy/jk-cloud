@@ -91,5 +91,13 @@ public class MagicController {
         return CommonResult.data(magicService.magicMemberList(offset,size));
     }
 
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("批量导入建科人员信息到魔点考勤--暂勿使用")
+    @CommonLog("批量导入建科人员信息到魔点考勤--暂勿使用")
+    @GetMapping("/sys/magic/member/jkUserToMagic")
+    public CommonResult<String> jkUserToMagicBatch() {
+        return CommonResult.data(magicService.jkUserToMagic());
+    }
+
 
 }

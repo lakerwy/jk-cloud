@@ -28,11 +28,15 @@ import vip.xiaonuo.sys.modular.hr.magic.magicattendance.service.MagicService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 @Service
@@ -47,6 +51,8 @@ public class MagicServiceImpl implements MagicService {
     private HrMagicAttendanceCallbackService hrMagicAttendanceCallbackService;
     @Resource
     private HrMagicUserRelationService hrMagicUserRelationService;
+    @Resource
+    private SysUserService sysUserService;
 
 
     @Override
@@ -258,4 +264,19 @@ public class MagicServiceImpl implements MagicService {
         return listMemberResponse;
     }
 
+    @Override
+    public String jkUserToMagic(){
+        List<SysUser> userList = sysUserService.list();
+
+        Map<String,HrMagicUserRelation> map = new HashMap<>();
+        List<HrMagicUserRelation> hrMagicUserRelationList = hrMagicUserRelationService.list();
+        hrMagicUserRelationList.forEach(magic -> map.put(magic.getJkUserId(),magic));
+
+        /*List<SysUser> sysUserList = userList.stream().filter(user -> );
+
+        magicMemberCreate();*/
+
+
+        return HrMagicEnum.SUCESS_CODE.getValue();
+    }
 }
