@@ -19,6 +19,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettle;
 import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
+import vip.xiaonuo.biz.modular.prj.settle.vo.SettleInvoiceVo;
+
+import java.util.List;
 
 /**
  * 业务表-项目计划付款单Mapper接口
@@ -29,4 +32,6 @@ import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
 public interface BizPrjSettleMapper extends BaseMapper<BizPrjSettle> {
 
     Page<BizPrjSettleVo> getPageList(Page<BizPrjSettleVo> page, @Param(Constants.WRAPPER) Wrapper<BizPrjSettle> queryWrapper);
+
+    List<SettleInvoiceVo> getInvoiceList(@Param(Constants.WRAPPER) Wrapper<BizPrjSettle> queryWrapper);
 }

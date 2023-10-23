@@ -138,6 +138,8 @@ public class GatewayConfigure {
 
             "/api/webapp/dev/attachment/fileUpload",
             "/api/webapp/dev/attachment/onlinePreview",
+            /* 魔点打卡回调免登录接口*/
+            "/api/webapp/sys/magic/third/callback",
 
             /*第三方钉钉免登*/
             "/api/webapp/sys/third/toDoDingDingApplication",

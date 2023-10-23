@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.prj.allotment.param.BizPrjAllotmentAddParam;
 import vip.xiaonuo.biz.modular.prj.allotment.param.BizPrjAllotmentEditParam;
 import vip.xiaonuo.biz.modular.prj.allotment.param.BizPrjAllotmentIdParam;
 import vip.xiaonuo.biz.modular.prj.allotment.param.BizPrjAllotmentPageParam;
+import vip.xiaonuo.biz.modular.prj.plan.param.InvoiceParam;
 
 import java.util.List;
 
@@ -77,4 +78,11 @@ public interface BizPrjAllotmentService extends IService<BizPrjAllotment> {
      * @date  2023/09/28 11:30
      **/
     BizPrjAllotment queryEntity(String id);
+
+    /**
+     * 根据 【合同编号】 - 获取 审核通过 的历史【项目付款单申请】集合
+     * @param invoiceParam
+     * @return
+     */
+    List<BizPrjAllotment> allotmentList(InvoiceParam invoiceParam);
 }

@@ -21,6 +21,8 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.sys.feign.SysOrgFeign;
 import vip.xiaonuo.sys.modular.org.provider.SysOrgApiProvider;
 
+import java.util.List;
+
 /**
  * 组织Feign提供者
  *
@@ -83,5 +85,11 @@ public class SysOrgFeignProvider implements SysOrgFeign {
     @RequestMapping("/feign/sys/org/orgListSelector")
     public String orgListSelector(@RequestParam(value = "parentId",required = false) String parentId) {
         return JSONUtil.toJsonStr(sysOrgApiProvider.orgListSelector(parentId));
+    }
+
+    @Override
+    @RequestMapping("/feign/sys/org/getChildren")
+    public List<String> getChildren(String orgId) {
+        return sysOrgApiProvider.getChildrenIds(orgId);
     }
 }

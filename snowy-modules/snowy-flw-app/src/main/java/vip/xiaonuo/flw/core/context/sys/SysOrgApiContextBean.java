@@ -107,4 +107,9 @@ public class SysOrgApiContextBean implements SysOrgApi {
         return resp;
     }
 
+    @Override
+    public List<String> getChildrenIds(String orgId) {
+        return sysOrgFeign.getChildren(orgId);
+    }
+
 }

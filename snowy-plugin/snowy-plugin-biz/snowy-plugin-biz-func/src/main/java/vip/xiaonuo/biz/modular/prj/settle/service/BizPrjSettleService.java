@@ -17,7 +17,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettle;
 import vip.xiaonuo.biz.modular.prj.settle.param.*;
 import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
+import vip.xiaonuo.biz.modular.prj.settle.vo.SettleInvoiceVo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -75,4 +77,18 @@ public interface BizPrjSettleService extends IService<BizPrjSettle> {
      * @date  2023/09/28 11:36
      **/
     BizPrjSettle queryEntity(String id);
+
+    /**
+     * 根据 【合同编号】 - 获取 审核通过 的历史发票集合
+     * @param invoiceParam
+     * @return
+     */
+    List<SettleInvoiceVo> invoiceList(InvoiceParam invoiceParam);
+
+    /**
+     * 根据 【合同编号】 - 获取 审核通过 的历史【项目款结算单】集合
+     * @param invoiceParam
+     * @return
+     */
+    List<BizPrjSettle> settleList(InvoiceParam invoiceParam);
 }

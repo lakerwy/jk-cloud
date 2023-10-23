@@ -2,18 +2,37 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper">
 
-    <select id="nodeList" resultType="vip.xiaonuo.pan.modular.userFile.entity.NodeFold">
+    <select id="nodeList" resultType="vip.xiaonuo.pan.modular.userFile.entity.NodeFold" parameterType="vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam">
         SELECT u2.ID, u2.FILE_NAME,u1.LE as LEVEL,u2.PARENT_ID,u2.CREATE_TIME,u2.FILE_PATH
         FROM(
                 SELECT
                     @ids AS p_ids,
-                    (SELECT @ids := GROUP_CONCAT(ID) FROM PAN_USER_FILE WHERE DELETE_FLAG = 'NOT_DELETE'  AND  FIND_IN_SET(PARENT_ID, @ids)) AS c_ids,
+                    (SELECT @ids := GROUP_CONCAT(ID) FROM PAN_USER_FILE
+                                <where>
+                                    DELETE_FLAG = 'NOT_DELETE' AND IS_DIR = 1
+                                    <if test="foldTypes != null and foldTypes.size() > 0">
+                                        AND FOLD_TYPE IN
+                                        <foreach item="foldType" collection="foldTypes" open="(" close=")" separator=",">
+                                            #{foldType}
+                                        </foreach>
+                                    </if>
+                                    <if test="userId != null ">
+                                        AND USER_ID  = #{userId}
+                                    </if>
+                                    <if test="orgIds != null and orgIds.size() > 0">
+                                        AND ORG_ID IN
+                                        <foreach item="orgId" collection="orgIds" open="(" close=")" separator=",">
+                                            #{orgId}
+                                        </foreach>
+                                    </if>
+                                </where>
+                            AND  FIND_IN_SET(PARENT_ID, @ids)) AS c_ids,
             @l := @l+1 AS LE
         FROM PAN_USER_FILE, (SELECT @ids := ${id}, @l := 0 ) b
             WHERE @ids IS NOT NULL
             ) u1
             JOIN PAN_USER_FILE u2
-        ON FIND_IN_SET(u2.ID, u1.p_ids) AND IS_DIR = 1
+        ON FIND_IN_SET(u2.ID, u1.p_ids)
     </select>
 
     <select id="getTotalStorageSize" resultType="java.lang.Long" parameterType="java.lang.String">

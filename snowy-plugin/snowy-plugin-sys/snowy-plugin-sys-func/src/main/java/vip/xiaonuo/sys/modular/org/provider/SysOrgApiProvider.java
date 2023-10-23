@@ -67,4 +67,9 @@ public class SysOrgApiProvider implements SysOrgApi {
         return BeanUtil.toBean(sysOrgService.orgListSelector(sysOrgSelectorOrgListParam), Page.class);
     }
 
+    @Override
+    public List<String> getChildrenIds(String orgId) {
+        return sysOrgService.getChildren(orgId).stream().map(SysOrg::getId).collect(Collectors.toList());
+    }
+
 }

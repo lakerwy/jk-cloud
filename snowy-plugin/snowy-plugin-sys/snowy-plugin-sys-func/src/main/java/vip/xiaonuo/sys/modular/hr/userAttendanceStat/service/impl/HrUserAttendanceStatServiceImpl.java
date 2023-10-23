@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -382,14 +383,36 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public TreeMap<String,Object> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
-        Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
-        Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
-        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
-        TreeMap<String,Object> map = new TreeMap<>();
-        SimpleDateFormat sdf = new SimpleDateFormat("dd");
-        dayList.forEach(day -> map.put(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)),CommonTimeFormatUtil.dayAndSunday(day)));
-        return map;
+    public LinkedHashMap<Integer, String> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam){
+        Date beginTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getBeginTime(),DatePattern.NORM_DATE_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(attendanceDayStatParam.getEndTime(),DatePattern.NORM_DATE_PATTERN);
+        LinkedHashMap<Integer, String> resultMap = new LinkedHashMap<>();
+        handDayList(beginTime,endTime,resultMap);
+//        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);//时间处理
+//        LinkedHashMap<String,Object> map = new LinkedHashMap<>();
+//        SimpleDateFormat sdf = new SimpleDateFormat("dd");
+//        dayList.forEach(day -> map.put(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)),CommonTimeFormatUtil.dayAndSunday(day)));
+        return resultMap;
+    }
+
+    private void handDayList(Date beginTime,Date endTime,Map<Integer, String> map){
+        // 遍历时间段中的每一天
+        Date current = beginTime;
+        while (current.compareTo(endTime) <= 0) {
+            // 获取当前日期的周几
+            Integer dayOfWeek = DateUtil.dayOfWeek(current);
+            Integer datDate = DateUtil.dayOfMonth(current);
+            String dayStr = dayOfWeek.toString();
+            if(dayOfWeek == 6){
+                dayStr = "六";
+            }
+            if(dayOfWeek == 7){
+                dayStr = "日";
+            }
+            map.put(datDate,dayStr);
+            // 将日期加1天
+            current = DateUtil.offset(current, DateField.DAY_OF_MONTH, 1);
+        }
     }
 
     @Override
@@ -453,6 +476,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
         //做分页处理
         Page<AttendanceDayStatParam> attendanceDayStatParamPage = new Page<>();
+        attendanceDayStatParamPage.setTotal(sysUserService.count(sysUserLambdaQueryWrapper));
         attendanceDayStatParamPage.setRecords(attendanceDayStatList);
         return attendanceDayStatParamPage;
     }

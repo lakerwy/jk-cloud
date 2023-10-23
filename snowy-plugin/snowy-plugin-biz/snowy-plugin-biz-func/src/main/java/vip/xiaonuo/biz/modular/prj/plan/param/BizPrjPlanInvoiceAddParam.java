@@ -31,6 +31,14 @@ import java.util.Date;
 @Setter
 public class BizPrjPlanInvoiceAddParam {
 
+    /** 收款单位编码 */
+    @ApiModelProperty(value = "收款单位编码", position = 2)
+    private String unitCode;
+
+    /** 收款单位名称 */
+    @ApiModelProperty(value = "收款单位名称", position = 3)
+    private String unitName;
+
     /** 发票内容 */
     @ApiModelProperty(value = "发票内容", position = 2)
     private String content;

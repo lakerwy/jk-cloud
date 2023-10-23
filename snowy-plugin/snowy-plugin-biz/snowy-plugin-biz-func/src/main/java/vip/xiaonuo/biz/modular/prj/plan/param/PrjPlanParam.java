@@ -130,25 +130,33 @@ public class PrjPlanParam {
     @ApiModelProperty(value = "收款单位", position = 25)
     private String collectingUnit;
 
-    /** 累计提供发票（含本次）- 开票金额(不含税) */
-    @ApiModelProperty(value = "累计提供发票（含本次）- 开票金额(不含税)", position = 26)
-    private Double fpKpAmount;
 
-    /** 累计提供发票（含本次）- 税额(专票) */
-    @ApiModelProperty(value = "累计提供发票（含本次）- 税额(专票)", position = 27)
-    private Double fpSeAmount;
 
-    /** 累计提供发票（含本次）- 累计发票金额 */
-    @ApiModelProperty(value = "累计提供发票（含本次）- 累计发票金额", position = 28)
-    private Double fpLjAmount;
+//    /** 累计提供发票（含本次）- 开票金额(不含税)  -- 删除字段，暂不用 */
+//    @ApiModelProperty(value = "累计提供发票（含本次）- 开票金额(不含税) -- 删除字段，暂不用", position = 26)
+//    private Double fpKpAmount;
+//
+//    /** 累计提供发票（含本次）- 税额(专票) -- 删除字段，暂不用 */
+//    @ApiModelProperty(value = "累计提供发票（含本次）- 税额(专票) -- 删除字段，暂不用", position = 27)
+//    private Double fpSeAmount;
+//
+//    /** 累计提供发票（含本次）- 累计发票金额  -- 删除字段，暂不用*/
+//    @ApiModelProperty(value = "累计提供发票（含本次）- 累计发票金额 -- 删除字段，暂不用", position = 28)
+//    private Double fpLjAmount;
+//
+//    /** 累计提供发票（含本次）- 小计 */
+//    @ApiModelProperty(value = "累计提供发票（含本次）- 小计", position = 29)
+//    private Double fpTotalAmount;
+//
+//    /** 累计提供发票（含本次）- 累计支付金额 */
+//    @ApiModelProperty(value = "累计提供发票（含本次）- 累计支付金额", position = 29)
+//    private Double fpZfAmount;
+//
+//    /** 累计提供发票（含本次）- 开票未付金额 */
+//    @ApiModelProperty(value = "累计提供发票（含本次）- 开票未付金额", position = 30)
+//    private Double fpWfAmount;
 
-    /** 累计提供发票（含本次）- 累计支付金额 */
-    @ApiModelProperty(value = "累计提供发票（含本次）- 累计支付金额", position = 29)
-    private Double fpZfAmount;
 
-    /** 累计提供发票（含本次）- 开票未付金额 */
-    @ApiModelProperty(value = "累计提供发票（含本次）- 开票未付金额", position = 30)
-    private Double fpWfAmount;
 
     /** 工程总承包事业部意见 */
     @ApiModelProperty(value = "工程总承包事业部意见", position = 31)

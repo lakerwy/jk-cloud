@@ -1,5 +1,6 @@
 package vip.xiaonuo.pan.modular.file.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -52,6 +53,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -115,10 +117,12 @@ public class FileTransferService implements IFileTransferService {
         lambdaQueryWrapper.eq(PanFile::getIdentifier,uploadFileParam.getIdentifier());
         List<PanFile> list = panFileService.list(lambdaQueryWrapper);
         String filePath = uploadFileParam.getFilePath();
+        Integer foldType = 0;
         if(StrUtil.isNotEmpty(filePath)){
-            String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
-            if(StrUtil.isNotEmpty(parentId)){
-                uploadFileParam.setParentId(parentId);
+            UserFile userFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+            if(ObjectUtil.isNotEmpty(userFile)){
+                uploadFileParam.setParentId(userFile.getId());
+                foldType =userFile.getFoldType();
             }
         }
         String relativePath = uploadFileParam.getRelativePath();
@@ -136,6 +140,7 @@ public class FileTransferService implements IFileTransferService {
             UserFile userFile = new UserFile(commonFile, uid, file.getId());
 //            commonFile.setParentId(uploadFileParam.getParentId());
             userFile.setParentId(uploadFileParam.getParentId());
+            userFile.setFoldType(foldType);
 //            //根据filePath
 //            String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
 //            if(StrUtil.isNotEmpty(parentId)){
@@ -234,16 +239,29 @@ public class FileTransferService implements IFileTransferService {
 
                 UserFile userFile = new UserFile(commonFile, StpLoginUserUtil.getLoginUser().getId(), panFile.getId());
                 //根据filePath
-                String parentId = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
-                commonFile.setParentId(parentId);
-                if(StrUtil.isNotEmpty(parentId)){
-                    userFile.setParentId(parentId);
+                UserFile parentUserFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+                if(ObjectUtil.isNotEmpty(parentUserFile)){
+                    commonFile.setParentId(parentUserFile.getId());
+                    userFile.setParentId(parentUserFile.getId());
+                    userFile.setFoldType(parentUserFile.getFoldType());
                 }
                 userFile.setFileSize(uploadFileParam.getTotalSize());
+                List<UserFile> userFiles = new ArrayList<>();
                 try {
+                     userFiles = userFileService.list(new QueryWrapper<UserFile>().lambda()
+                            .eq(UserFile::getUserId, userFile.getUserId())
+                            .eq(UserFile::getFilePath, userFile.getFilePath())
+                            .eq(UserFile::getFileName, userFile.getFileName())
+                            .eq(UserFile::getExtendName, userFile.getExtendName())
+                            .eq(UserFile::getIsDir, userFile.getIsDir()));
+                    if(CollUtil.isNotEmpty(userFiles)){
+                        String fileName = fileDealComp.getRepeatFileName(userFile, userFile.getFilePath());
+                        userFile.setFileName(fileName);
+                    }
                     userFileService.save(userFile);
                     //fileDealComp.uploadESByUserFileId(userFile.getUserFileId());
                 } catch (Exception e) {
+                    //todo 代码过于重复，基本不会走到该处
                     UserFile userFile1 = userFileService.getOne(new QueryWrapper<UserFile>().lambda()
                             .eq(UserFile::getUserId, userFile.getUserId())
                             .eq(UserFile::getFilePath, userFile.getFilePath())
@@ -401,17 +419,17 @@ public class FileTransferService implements IFileTransferService {
         String tempPath = staticPath + "temp" + File.separator;
         File tempDirFile = new File(tempPath);
         if (!tempDirFile.exists()) {
-             tempDirFile.mkdirs();
+            tempDirFile.mkdirs();
         }
 
         FileOutputStream f = null;
         try {
             f = new FileOutputStream(tempPath + fileName + ".zip");
         } catch (FileNotFoundException e) {
-            log.error("" + e);
+            log.error("创建zip文件错误：",e);
         }
-        CheckedOutputStream csum = new CheckedOutputStream(f, new Adler32());
-        ZipOutputStream zos = new ZipOutputStream(csum);
+        CheckedOutputStream cos = new CheckedOutputStream(f, new Adler32());
+        ZipOutputStream zos = new ZipOutputStream(cos);
         BufferedOutputStream out = new BufferedOutputStream(zos);
 
         try {
@@ -439,7 +457,7 @@ public class FileTransferService implements IFileTransferService {
                             i = bis.read(buffer);
                         }
                     } catch (IOException e) {
-                        log.error("" + e);
+                        log.error("写入zip文件异常：" + e);
                     } finally {
                         IOUtils.closeQuietly(bis);
                         try {
@@ -463,7 +481,7 @@ public class FileTransferService implements IFileTransferService {
             try {
                 out.close();
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error("" + e);
             }
         }
         String zipPath = "";
@@ -471,7 +489,7 @@ public class FileTransferService implements IFileTransferService {
             Downloader downloader = fileFactory.getDownloader(StorageTypeEnum.LOCAL.getCode());
             DownloadFile downloadFile = new DownloadFile();
             downloadFile.setFileUrl(FileCenterUtil.getStaticPath()+"temp" + File.separator + fileName + ".zip");
-            File tempFile = new File(FileCenterUtil.getStaticPath() + downloadFile.getFileUrl());
+            File tempFile = new File(downloadFile.getFileUrl());
             httpServletResponse.setContentLengthLong(tempFile.length());
             downloader.download(httpServletResponse, downloadFile);
             zipPath = FileCenterUtil.getStaticPath() + "temp" + File.separator + fileName + ".zip";
@@ -490,7 +508,6 @@ public class FileTransferService implements IFileTransferService {
             }
         }
     }
-
     @Override
     public void previewFile(HttpServletResponse httpServletResponse, PreviewParam previewParam) {
         UserFile userFile = userFileService.getById(previewParam.getUserFileId());

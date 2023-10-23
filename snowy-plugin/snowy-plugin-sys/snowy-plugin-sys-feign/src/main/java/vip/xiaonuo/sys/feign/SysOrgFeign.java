@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vip.xiaonuo.common.consts.FeignConstant;
 
+import java.util.List;
+
 /**
  * 组织Feign
  *
@@ -61,5 +63,8 @@ public interface SysOrgFeign {
      **/
     @RequestMapping("/feign/sys/org/orgListSelector")
     String orgListSelector(@RequestParam(value = "parentId",required = false) String parentId);
+
+    @RequestMapping("/feign/sys/org/getChildren")
+    List<String> getChildren(@RequestParam(value = "orgId",required = true) String orgId);
 
 }

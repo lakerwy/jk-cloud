@@ -42,4 +42,7 @@ public class UploadFileParam {
     @ApiModelProperty(value = "父目录id")
     private String parentId;
 
+    @ApiModelProperty(value = "0个人文件夹内上传 1 群组内文件上传")
+    private int type = 0;
+
 }

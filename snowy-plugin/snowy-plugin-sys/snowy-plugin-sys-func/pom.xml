@@ -49,6 +49,13 @@
             <artifactId>snowy-plugin-flw-api</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>open.jdk.magic</groupId>
+            <artifactId>open-jdk-1.0.4</artifactId>
+            <version>1.0.4</version>
+            <scope>system</scope>
+            <systemPath>${project.basedir}/src/main/resources/lib/open-sdk-1.0.4-jar-with-dependencies .jar</systemPath>
+        </dependency>
         <!-- 引入工作流接口，用于sn获取 -->
     </dependencies>
 </project>
