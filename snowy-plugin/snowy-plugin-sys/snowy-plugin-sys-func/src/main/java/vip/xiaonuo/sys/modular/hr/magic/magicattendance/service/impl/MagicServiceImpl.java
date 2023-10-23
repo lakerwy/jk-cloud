@@ -10,10 +10,8 @@ import com.moredian.oapi.DefaultOpenApiClient;
 import com.moredian.oapi.IOpenApiClient;
 import com.moredian.oapi.model.app.request.GetAppOrgAccessTokenRequest;
 import com.moredian.oapi.model.app.request.GetAppTokenRequest;
-import com.moredian.oapi.model.app.request.GetOrgAccessTokenRequest;
 import com.moredian.oapi.model.app.response.GetAppOrgAccessTokenResponse;
 import com.moredian.oapi.model.app.response.GetAppTokenResponse;
-import com.moredian.oapi.model.app.response.GetOrgAccessTokenResponse;
 import com.moredian.oapi.model.member.request.*;
 import com.moredian.oapi.model.member.response.*;
 import com.moredian.oapi.profile.DefaultProfile;
@@ -31,7 +29,6 @@ import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicCallback;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicMemberParam;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicResult;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.service.MagicService;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
@@ -40,7 +37,6 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 import javax.annotation.Resource;
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @Service
@@ -199,17 +195,10 @@ public class MagicServiceImpl implements MagicService {
             IOpenApiClient client = new DefaultOpenApiClient(DefaultProfile.getProfile(hrMagicConfig.getMagicUrl()));
             UpdateMemberRequest updateMemberRequest = new UpdateMemberRequest();
             updateMemberRequest.setAccessToken(getAppToken());
-            UpdateMemberRequest.UpdateMemberRequestBody updateMemberRequestBody = new UpdateMemberRequest.UpdateMemberRequestBody();
-            updateMemberRequestBody.setMemberId(hrMagicUserRelationList.get(0).getMagicPersonId());
-            updateMemberRequestBody.setMemberName(magicMemberParam.getMemberName());
-            updateMemberRequestBody.setNickName(magicMemberParam.getNickName());
-            updateMemberRequestBody.setJobNum(magicMemberParam.getJobNum());
-            updateMemberRequestBody.setSex(magicMemberParam.getSex());
+            UpdateMemberRequest.UpdateMemberRequestBody updateMemberRequestBody = BeanUtil.toBean(magicMemberParam,UpdateMemberRequest.UpdateMemberRequestBody.class);
             updateMemberRequestBody.setBirthday(magicMemberParam.getBirthday() != null ? magicMemberParam.getBirthday().getTime() : 0);
             updateMemberRequestBody.setEnterTime(magicMemberParam.getEnterTime() != null ? magicMemberParam.getEnterTime().getTime() : 0);
-            updateMemberRequestBody.setEmail(magicMemberParam.getEmail());
-            updateMemberRequestBody.setTelephone(magicMemberParam.getTelephone());
-            updateMemberRequestBody.setPost(magicMemberParam.getPost());
+            updateMemberRequestBody.setMemberId(hrMagicUserRelationList.get(0).getMagicPersonId());
             updateMemberRequest.setBody(updateMemberRequestBody);
             updateMemberResponse = client.getResponse(updateMemberRequest);
         }catch (Exception e){
