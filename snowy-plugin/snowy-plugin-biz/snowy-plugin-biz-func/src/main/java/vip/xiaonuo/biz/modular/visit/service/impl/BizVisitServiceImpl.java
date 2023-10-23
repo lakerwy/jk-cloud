@@ -63,16 +63,8 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
             queryWrapper.orderBy(true, bizVisitPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizVisitPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizVisit::getId);
+            queryWrapper.lambda().orderByDesc(BizVisit::getCreateTime);
         }
-//        Page<BizVisitVo> result = bizVisitMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-
-//        Page<BizVisit> result = this.page(CommonPageRequest.defaultPage(),queryWrapper);
-//
-//
-//        for (BizVisitVo vo : result.getRecords()) {
-//            vo.setParamList(bizVisitListService.list(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, vo.getId())));
-//        }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
 
     }

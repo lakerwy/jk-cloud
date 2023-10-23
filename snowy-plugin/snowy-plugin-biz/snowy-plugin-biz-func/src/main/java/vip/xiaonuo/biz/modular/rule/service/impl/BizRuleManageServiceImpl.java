@@ -3,6 +3,7 @@ package vip.xiaonuo.biz.modular.rule.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -16,6 +17,8 @@ import vip.xiaonuo.biz.modular.rule.param.BizRuleMangeEditParam;
 import vip.xiaonuo.biz.modular.rule.param.BizRuleMangeIdParam;
 import vip.xiaonuo.biz.modular.rule.param.BizRuleMangePageParam;
 import vip.xiaonuo.biz.modular.rule.service.BizRuleManageService;
+import vip.xiaonuo.biz.modular.visit.entity.BizVisit;
+import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 
@@ -29,6 +32,13 @@ public class BizRuleManageServiceImpl extends ServiceImpl<BizRuleMapper, BizRule
         QueryWrapper<BizRuleManage> qw = new QueryWrapper<>();
         if (ObjectUtil.isNotEmpty(bizRuleMangePageParam.getTitle())) {
             qw.lambda().like(BizRuleManage::getTitle, bizRuleMangePageParam.getTitle());
+        }
+        if (ObjectUtil.isAllNotEmpty(bizRuleMangePageParam.getSortField(), bizRuleMangePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(bizRuleMangePageParam.getSortOrder());
+            qw.orderBy(true, bizRuleMangePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(bizRuleMangePageParam.getSortField()));
+        } else {
+            qw.lambda().orderByDesc(BizRuleManage::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), qw);
     }
