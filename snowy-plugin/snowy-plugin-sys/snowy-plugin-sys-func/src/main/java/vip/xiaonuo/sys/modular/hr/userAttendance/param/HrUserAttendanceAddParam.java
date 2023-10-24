@@ -71,4 +71,7 @@ public class HrUserAttendanceAddParam {
     @ApiModelProperty(value = "申请补卡ID", position = 18)
     private String applyResubmitAttendanceId;
 
+    /** 创建人 */
+    @ApiModelProperty(value = "创建人", position = 19)
+    private String createUser;
 }

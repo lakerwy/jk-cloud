@@ -140,6 +140,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
             hrUserAttendanceAddParam.setUserId(loginUser.getId());
         }
+        hrUserAttendanceAddParam.setCreateUser(hrUserAttendanceAddParam.getUserId());
         Date dateNow = DateUtil.date();/** 当前打卡时间*/
         if(ObjectUtil.isEmpty(hrUserAttendanceAddParam.getCheckTime())){
             hrUserAttendanceAddParam.setCheckTime(dateNow);
