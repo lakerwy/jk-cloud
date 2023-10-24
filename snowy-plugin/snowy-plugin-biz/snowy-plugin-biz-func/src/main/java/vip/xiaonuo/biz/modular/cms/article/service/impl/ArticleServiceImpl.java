@@ -94,7 +94,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             queryWrapper.orderBy(true, articlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(articlePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Article::getIsTop).orderByDesc(Article::getTopTime).orderByDesc(Article::getCreateTime);
+            queryWrapper.lambda().orderByDesc(Article::getIsTop).orderByDesc(Article::getTopTime).orderByDesc(Article::getShelfTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -229,7 +229,7 @@ public class ArticleServiceImpl extends ServiceImpl<ArticleMapper, Article> impl
             queryWrapper.orderBy(true, articlePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(articlePageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("a.IS_TOP").orderByDesc("a.TOP_TIME").orderByDesc("a.CREATE_TIME");
+            queryWrapper.orderByDesc("a.IS_TOP").orderByDesc("a.TOP_TIME").orderByDesc("a.SHELF_TIME");
         }
 
         return articleMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
