@@ -213,12 +213,27 @@ public class HrUserAttendanceStatController {
     }
 
     /**
+     * 用户考勤概览月统计接口
+     *
+     * @author ljy
+     * @date  2023/10/18 14:24
+     * */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("用户考勤概览-月统计接口日期列表")
+    @CommonLog("用户考勤概览-月统计接口日期列表")
+    //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
+    @GetMapping("/sys/userAttendance/statPreviewMonthList")
+    public CommonResult<LinkedHashMap<Integer, String>> statPreviewMonthList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
+        return CommonResult.data(hrUserAttendanceStatService.statPreviewMonthList(attendanceDayStatParam));
+    }
+
+    /**
      * 用户考勤概览每日统计接口
      *
      * @author ljy
      * @date  2023/10/16 16:24
      * */
-    @ApiOperationSupport(order = 11)
+    @ApiOperationSupport(order = 12)
     @ApiOperation("用户考勤概览-每日统计接口")
     @CommonLog("用户考勤概览-每日统计接口")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
@@ -233,12 +248,28 @@ public class HrUserAttendanceStatController {
      * @author ljy
      * @date  2023/10/16 16:24
      * */
-    @ApiOperationSupport(order = 12)
+    @ApiOperationSupport(order = 13)
     @ApiOperation("用户考勤概览-月统计接口")
     @CommonLog("用户考勤概览-月统计接口")
-    //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
+    //@SaCheckPermission("/sys/userAttendance/monthStatPreview")
     @GetMapping("/sys/userAttendance/monthStatPreview")
-    public CommonResult<List<AttendanceMonthStatParam>> monthStatPreview(@Valid AttendanceMonthStatParam attendanceMonthStatParam) {
+    public CommonResult<Page<AttendanceMonthStatParam>> monthStatPreview(@Valid AttendanceMonthStatParam attendanceMonthStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.monthStatPreview(attendanceMonthStatParam));
+    }
+
+
+    /**
+     * 用户考勤概览- 月统计接口
+     *
+     * @author ljy
+     * @date  2023/10/16 16:24
+     * */
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("判断是否为节假日")
+    @CommonLog("判断是否为节假日")
+    //@SaCheckPermission("/sys/userAttendance/isFestival")
+    @GetMapping("/sys/userAttendance/isFestival")
+    public CommonResult<Boolean> isFestival(@Valid String date,Integer type) {
+        return CommonResult.data(hrUserAttendanceStatService.isFestival(date,type));
     }
 }

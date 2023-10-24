@@ -138,6 +138,15 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @date  2023/10/18 14:24
      * */
     LinkedHashMap<Integer, String> statPreviewDateList(AttendanceDayStatParam attendanceDayStatParam);
+
+    /**
+     * 用户考勤概览月统计接口
+     *
+     * @author ljy
+     * @date  2023/10/18 14:24
+     * */
+    LinkedHashMap<Integer, String> statPreviewMonthList(AttendanceDayStatParam attendanceDayStatParam);
+
     /**
      * 用户考勤概览每日统计接口
      *
@@ -152,5 +161,8 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @author ljy
      * @date  2023/10/17 16:24
      * */
-    List<AttendanceMonthStatParam> monthStatPreview(AttendanceMonthStatParam attendanceMonthStatParam);
+    Page<AttendanceMonthStatParam> monthStatPreview(AttendanceMonthStatParam attendanceMonthStatParam);
+
+    /** 判断当前的时间是否为节假日或者是加班日,type = 1 是否法定节假日，type = 2 是否法定加班日  */
+    Boolean isFestival(String date,Integer type);
 }

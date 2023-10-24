@@ -25,7 +25,8 @@ public enum HrUserAttendanceStatEnum {
 
     BEGIN_TIMNE(" 00:00:00"),
     END_TIME(" 23:59:59"),
-    FAIL("2");
+    FAIL("2"),
+    NOW_YEAR("2023-01-01 00:00:00");
 
     private final String value;
 

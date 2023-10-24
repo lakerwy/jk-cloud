@@ -54,7 +54,7 @@ public class AttendanceDayStatParam {
     private String position;
 
     @ApiModelProperty(value = "打卡记录和状态", position = 8)
-    private List<Map<String,List<AttendanceDayStatData>>> dayCheckTimeMapList;
+    private List<Map<Integer,List<AttendanceDayStatData>>> dayCheckTimeMapList;
 
     @ApiModelProperty(value = "开始时间", required = true,position = 9)
     @NotNull(message = "beginTime不能为空")
@@ -72,4 +72,7 @@ public class AttendanceDayStatParam {
 
     @ApiModelProperty(value = "是否为工作日", position = 13)
     private Boolean isWorkDay;
+
+    @ApiModelProperty(value = "员工编号", position = 14)
+    private String empNo;
 }
