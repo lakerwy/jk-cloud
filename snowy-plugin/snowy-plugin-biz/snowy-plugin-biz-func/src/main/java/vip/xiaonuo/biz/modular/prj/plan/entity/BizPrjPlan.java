@@ -128,21 +128,21 @@ public class BizPrjPlan {
     @ApiModelProperty(value = "合同归档率", position = 21)
     private String filingRate;
 
-    /** 分包合同编号 */
-    @ApiModelProperty(value = "分包合同编号", position = 22)
-    private String subContractNo;
-
-    /** 分包合同名称 */
-    @ApiModelProperty(value = "分包合同名称", position = 23)
-    private String subContractName;
-
-    /** 分包合同金额 */
-    @ApiModelProperty(value = "分包合同金额", position = 24)
-    private Double subContractAmount;
-
-    /** 收款单位 */
-    @ApiModelProperty(value = "收款单位", position = 25)
-    private String collectingUnit;
+//    /** 分包合同编号 */
+//    @ApiModelProperty(value = "分包合同编号", position = 22)
+//    private String subContractNo;
+//
+//    /** 分包合同名称 */
+//    @ApiModelProperty(value = "分包合同名称", position = 23)
+//    private String subContractName;
+//
+//    /** 分包合同金额 */
+//    @ApiModelProperty(value = "分包合同金额", position = 24)
+//    private Double subContractAmount;
+//
+//    /** 收款单位 */
+//    @ApiModelProperty(value = "收款单位", position = 25)
+//    private String collectingUnit;
 
 
 

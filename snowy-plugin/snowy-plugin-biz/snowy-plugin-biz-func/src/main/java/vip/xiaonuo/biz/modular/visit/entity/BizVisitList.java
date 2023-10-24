@@ -19,87 +19,74 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 业务表-员工绩效考核-季度任务表实体
+ * 董事办-外访-计划路线表实体
  *
  * @author yong.ye
- * @date 2023/09/19 08:47
+ * @date  2023/10/24 09:21
  **/
 @Getter
 @Setter
 @TableName("BIZ_VISIT_LIST")
 public class BizVisitList {
 
-    /**
-     * 主键ID
-     */
+    /** 主键ID */
     @TableId
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
-    @ApiModelProperty(value = "Biz_visit主键ID", position = 10)
-    private String visitId;
-    /**
-     * 计划时间
-     */
-    @ApiModelProperty(value = "计划时间", position = 6)
-    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd")
+
+    /** 租户Id */
+    @ApiModelProperty(value = "租户Id", position = 2)
+    private String tenantId;
+
+    /** 计划路线表：时间 */
+    @ApiModelProperty(value = "计划路线表：时间", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date planDate;
 
-    /**
-     * 拜访单位
-     */
-    @ApiModelProperty(value = "拜访单位", position = 7)
+    /** 计划路线表：拜访单位 */
+    @ApiModelProperty(value = "计划路线表：拜访单位", position = 4)
     private String visitUnit;
 
-    /**
-     * 主题
-     */
-    @ApiModelProperty(value = "主题", position = 8)
+    /** 计划路线表：主题 */
+    @ApiModelProperty(value = "计划路线表：主题", position = 5)
     private String theme;
 
-    /**
-     * 主要人员
-     */
-    @ApiModelProperty(value = "主要人员", position = 9)
+    /** 计划路线表：主要人员 */
+    @ApiModelProperty(value = "计划路线表：主要人员", position = 6)
     private String mainPerson;
 
-    /**
-     * 删除状态标记
-     */
-    @ApiModelProperty(value = "删除状态标记", position = 14)
+    /** 删除状态标记 */
+    @ApiModelProperty(value = "删除状态标记", position = 7)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
-    /**
-     * 创建时间
-     */
-    @ApiModelProperty(value = "创建时间", position = 15)
+    /** 创建时间 */
+    @ApiModelProperty(value = "创建时间", position = 8)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
-    /**
-     * 创建人
-     */
-    @ApiModelProperty(value = "创建人", position = 16)
+    /** 创建人 */
+    @ApiModelProperty(value = "创建人", position = 9)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
-    /**
-     * 更新时间
-     */
-    @ApiModelProperty(value = "更新时间", position = 17)
+    /** 更新时间 */
+    @ApiModelProperty(value = "更新时间", position = 10)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
-    /**
-     * 更新人
-     */
-    @ApiModelProperty(value = "更新人", position = 18)
+    /** 更新人 */
+    @ApiModelProperty(value = "更新人", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
+    /** Biz_visit主键ID */
+    @ApiModelProperty(value = "Biz_visit主键ID", position = 12)
+    private String visitId;
 }

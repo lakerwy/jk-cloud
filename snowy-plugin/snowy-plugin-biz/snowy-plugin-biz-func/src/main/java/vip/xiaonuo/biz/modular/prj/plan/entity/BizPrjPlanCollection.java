@@ -108,4 +108,16 @@ public class BizPrjPlanCollection {
     /** 项目计划付款单主表主键BIZ_PRJ_PLAN.Id */
     @ApiModelProperty(value = "项目计划付款单主表主键BIZ_PRJ_PLAN.Id", position = 18)
     private String planId;
+
+    /** 分包合同编号 */
+    @ApiModelProperty(value = "分包合同编号", position = 22)
+    private String subContractNo;
+
+    /** 分包合同名称 */
+    @ApiModelProperty(value = "分包合同名称", position = 23)
+    private String subContractName;
+
+    /** 分包合同金额 */
+    @ApiModelProperty(value = "分包合同金额", position = 24)
+    private Double subContractAmount;
 }

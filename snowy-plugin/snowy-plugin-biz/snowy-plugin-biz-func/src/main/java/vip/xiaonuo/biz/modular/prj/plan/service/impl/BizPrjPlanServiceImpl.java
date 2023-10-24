@@ -105,12 +105,6 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getCtmName())) {
             queryWrapper.lambda().like(BizPrjPlan::getCtmName, bizPrjPlanPageParam.getCtmName());
         }
-        if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getSubContractNo())) {
-            queryWrapper.lambda().eq(BizPrjPlan::getSubContractNo, bizPrjPlanPageParam.getSubContractNo());
-        }
-        if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getSubContractName())) {
-            queryWrapper.lambda().like(BizPrjPlan::getSubContractName, bizPrjPlanPageParam.getSubContractName());
-        }
         if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getSn())) {
             queryWrapper.lambda().eq(BizPrjPlan::getSn, bizPrjPlanPageParam.getSn());
         }

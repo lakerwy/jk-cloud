@@ -15,50 +15,44 @@ package vip.xiaonuo.biz.modular.visit.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-
-
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
- * 外访表查询参数
+ * 董事办-外访表查询参数
  *
- * @author kaiminglu
- * @date 2023/10/12 10:35
+ * @author yong.ye
+ * @date  2023/10/24 09:20
  **/
 @Getter
 @Setter
 public class BizVisitPageParam {
 
-    /**
-     * 当前页
-     */
+    /** 当前页 */
     @ApiModelProperty(value = "当前页码")
     private Integer current;
 
-    /**
-     * 每页条数
-     */
+    /** 每页条数 */
     @ApiModelProperty(value = "每页条数")
     private Integer size;
 
-    /**
-     * 排序字段
-     */
+    /** 排序字段 */
     @ApiModelProperty(value = "排序字段，字段驼峰名称，如：userName")
     private String sortField;
 
-    /**
-     * 排序方式
-     */
+    /** 排序方式 */
     @ApiModelProperty(value = "排序方式，升序：ASCEND；降序：DESCEND")
     private String sortOrder;
 
-    /**
-     * 关键词
-     */
+    /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
-    @ApiModelProperty(value = "目的")
-    private String Purpose;
 
+    /** SN */
+    @ApiModelProperty(value = "SN", position = 50)
+    private String sn;
 
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态", position = 50)
+    private String status;
 }

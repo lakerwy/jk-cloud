@@ -17,22 +17,32 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisitList;
 import vip.xiaonuo.biz.modular.visit.param.*;
 import vip.xiaonuo.biz.modular.visit.service.BizVisitListService;
 import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisit;
 import vip.xiaonuo.biz.modular.visit.mapper.BizVisitMapper;
 import vip.xiaonuo.biz.modular.visit.service.BizVisitService;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -49,14 +59,20 @@ import java.util.stream.Collectors;
 public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> implements BizVisitService {
     @Resource
     private BizVisitListService bizVisitListService;
+
     @Resource
-    private BizVisitMapper bizVisitMapper;
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<BizVisit> page(BizVisitPageParam bizVisitPageParam) {
         QueryWrapper<BizVisit> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(bizVisitPageParam.getPurpose())) {
-            queryWrapper.lambda().like(BizVisit::getPurpose, bizVisitPageParam.getPurpose());
+        if(ObjectUtil.isNotEmpty(bizVisitPageParam.getStatus())){
+            queryWrapper.lambda().eq(BizVisit::getStatus,bizVisitPageParam.getStatus());
+        }
+        if (ObjectUtil.isNotEmpty(bizVisitPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(BizVisit::getPurpose, bizVisitPageParam.getSearchKey())
+                    .or().like(BizVisit::getUnit,bizVisitPageParam.getSearchKey())
+                    .or().like(BizVisit::getSn,bizVisitPageParam.getSearchKey()));
         }
         if (ObjectUtil.isAllNotEmpty(bizVisitPageParam.getSortField(), bizVisitPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizVisitPageParam.getSortOrder());
@@ -73,6 +89,24 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
     @Override
     public void add(BizVisitAddParam bizVisitAddParam) {
         BizVisit bizVisit = BeanUtil.toBean(bizVisitAddParam, BizVisit.class);
+        //走审批流程
+        String processInstanceId = bizVisitAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            bizVisit.setId(id);
+            bizVisit.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            bizVisit.setModelId(modelId);
+            bizVisit.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            formRelationTableApi.save(modelId, BizCommonEnum.BIZ_VISIT.getBizTable(),id,processInstanceId,dbName);
+        }else{
+            bizVisit.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
+        bizVisit.setExtJson(JsonUtils.object2json(bizVisit));
         this.save(bizVisit);
         if (CollUtil.isNotEmpty(bizVisitAddParam.getParamList())) {
             List<BizVisitList> bizVisitList = bizVisitAddParam.getParamList();
@@ -86,8 +120,20 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizVisitEditParam bizVisitEditParam) {
+        String id = bizVisitEditParam.getId();
+        //判断是否走审批流程内的修改
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(bizVisitEditParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(bizVisitEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id = formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                bizVisitEditParam.setId(id);
+            }
+        }
         BizVisit bizVisit = this.queryEntity(bizVisitEditParam.getId());
         BeanUtil.copyProperties(bizVisitEditParam, bizVisit);
+        bizVisit.setExtJson(JsonUtils.object2json(bizVisit));
         this.updateById(bizVisit);
         if (CollUtil.isNotEmpty(bizVisitEditParam.getParamList())) {
             //本次传入的数据
@@ -133,7 +179,7 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
     public BizVisitVo detail(BizVisitIdParam bizVisitIdParam) {
         BizVisit bizVisit = this.queryEntity(bizVisitIdParam.getId());
         BizVisitVo result = BeanUtil.toBean(bizVisit, BizVisitVo.class);
-        result.setParamList(bizVisitListService.list(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, bizVisitIdParam.getId())));
+        result.setParamList(bizVisitListService.list(new QueryWrapper<BizVisitList>().lambda().eq(BizVisitList::getVisitId, bizVisitIdParam.getId()).orderByAsc(BizVisitList::getPlanDate)));
         return result;
     }
 
@@ -144,5 +190,15 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
             throw new CommonException("业务表-外访计划表，id值为：{}", id);
         }
         return bizVisit;
+    }
+
+    @Override
+    public void summary(SummaryParam summaryParam) {
+        BizVisit bizVisit = this.queryEntity(summaryParam.getId());
+        bizVisit.setSumPurpose(summaryParam.getSumPurpose());
+        bizVisit.setSumImplComplete(summaryParam.getSumImplComplete());
+        bizVisit.setSumPlanComplete(summaryParam.getSumPlanComplete());
+        bizVisit.setSumSummary(summaryParam.getSumSummary());
+        this.updateById(bizVisit);
     }
 }

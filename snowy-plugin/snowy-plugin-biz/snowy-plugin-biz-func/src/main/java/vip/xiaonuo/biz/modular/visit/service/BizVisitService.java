@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.visit.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisit;
-import vip.xiaonuo.biz.modular.visit.param.BizVisitAddParam;
-import vip.xiaonuo.biz.modular.visit.param.BizVisitEditParam;
-import vip.xiaonuo.biz.modular.visit.param.BizVisitIdParam;
-import vip.xiaonuo.biz.modular.visit.param.BizVisitPageParam;
+import vip.xiaonuo.biz.modular.visit.param.*;
 import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
 
 import java.util.List;
@@ -78,4 +75,12 @@ public interface BizVisitService extends IService<BizVisit> {
      * @date  2023/10/12 10:35
      **/
     BizVisit queryEntity(String id);
+
+    /**
+     * 编辑外访表(总结)
+     *
+     * @author yong.ye
+     * @date  2023/10/24 10:35
+     */
+    void summary(SummaryParam summaryParam);
 }

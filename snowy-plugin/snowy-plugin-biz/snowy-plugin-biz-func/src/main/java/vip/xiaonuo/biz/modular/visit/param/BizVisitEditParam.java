@@ -20,162 +20,181 @@ import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisitList;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
 /**
- * 外访表编辑参数
+ * 董事办-外访表编辑参数
  *
- * @author kaiminglu
- * @date 2023/10/12 10:35
+ * @author yong.ye
+ * @date  2023/10/24 09:20
  **/
 @Getter
 @Setter
 public class BizVisitEditParam {
 
-    /**
-     * 主键ID
-     */
-    @ApiModelProperty(value = "主键ID", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
+    /** 主键ID */
+    @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
-    /**
-     * 外访目的
-     */
+    /** 外访目的 */
     @ApiModelProperty(value = "外访目的", position = 3)
     private String purpose;
 
-    /**
-     * 外访人员
-     */
+    /** 外访人员 */
     @ApiModelProperty(value = "外访人员", position = 4)
     private String person;
 
-    /**
-     * 外访单位及主要领导情况
-     */
+    /** 外访单位及主要领导情况 */
     @ApiModelProperty(value = "外访单位及主要领导情况", position = 5)
     private String unit;
 
-    @ApiModelProperty(value = "计划路线集合", position = 10)
-    private List<BizVisitList> paramList;
-    /**
-     * 出发时间
-     */
-    @ApiModelProperty(value = "出发时间", position = 10)
-    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    /** 出行计划：出差地点 */
+    @ApiModelProperty(value = "出行计划：出差地点", position = 6)
+    private String tripLocation;
+
+    /** 出行计划：出差人员 */
+    @ApiModelProperty(value = "出行计划：出差人员", position = 7)
+    private String tripPerson;
+
+    /** 出行计划：出行 */
+    @ApiModelProperty(value = "出行计划：出行", position = 8)
+    private String tripDescrip;
+
+    /** 出行计划：出发时间 */
+    @ApiModelProperty(value = "出行计划：出发时间", position = 9)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date goTime;
 
-    /**
-     * 出发地点
-     */
-    @ApiModelProperty(value = "出发地点", position = 11)
+    /** 出行计划：出发地点 */
+    @ApiModelProperty(value = "出行计划：出发地点", position = 10)
     private String goLocation;
 
-    /**
-     * 出发交通工具
-     */
-    @ApiModelProperty(value = "出发交通工具", position = 12)
-    private String goTransportation;
+    /** 出行计划：市内交通工具 */
+    @ApiModelProperty(value = "出行计划：市内交通工具", position = 11)
+    private String cityVehicle;
 
-    /**
-     * 出发航班号/车次
-     */
-    @ApiModelProperty(value = "出发航班号/车次", position = 13)
+    /** 出行计划：出差乘坐交通工具 */
+    @ApiModelProperty(value = "出行计划：出差乘坐交通工具", position = 12)
+    private String tripVehicle;
+
+    /** 出行计划：航班号/车次 */
+    @ApiModelProperty(value = "出行计划：航班号/车次", position = 13)
     private String goNo;
 
-    /**
-     * 飞机火车起始时间
-     */
-    @ApiModelProperty(value = "飞机火车起始时间", position = 14)
+    /** 出行计划：飞机/火车(起始时间) */
+    @ApiModelProperty(value = "出行计划：飞机/火车(起始时间)", position = 14)
     private String goStart;
 
-    /**
-     * 入住酒店(房型、数量)
-     */
-    @ApiModelProperty(value = "入住酒店(房型、数量)", position = 15)
+    /** 出行计划：抵达目的地交通 */
+    @ApiModelProperty(value = "出行计划：抵达目的地交通", position = 15)
+    private String arriveVehicle;
+
+    /** 出行计划：入住酒店(房型、数量) */
+    @ApiModelProperty(value = "出行计划：入住酒店(房型、数量)", position = 16)
     private String goHotel;
 
-    /**
-     * 天气
-     */
-    @ApiModelProperty(value = "天气", position = 16)
+    /** 出行计划：当地天气及气温 */
+    @ApiModelProperty(value = "出行计划：当地天气及气温", position = 17)
     private String goWeather;
 
-    /**
-     * 出发备注
-     */
-    @ApiModelProperty(value = "出发备注", position = 17)
+    /** 出行计划：备注 */
+    @ApiModelProperty(value = "出行计划：备注", position = 18)
     private String goMemo;
 
-    /**
-     * 出发时间
-     */
-    @ApiModelProperty(value = "出发时间", position = 18)
-    @JsonFormat(locale = "zh", timezone = "GMT+8", pattern = "yyyy-MM-dd")
+    /** 返程计划：出发地点 */
+    @ApiModelProperty(value = "返程计划：出发地点", position = 19)
+    private String backLocation;
+
+    /** 返程计划：返程人员 */
+    @ApiModelProperty(value = "返程计划：返程人员", position = 20)
+    private String backPerson;
+
+    /** 返程计划：返程 */
+    @ApiModelProperty(value = "返程计划：返程", position = 21)
+    private String backDescrip;
+
+    /** 返程计划：出发时间 */
+    @ApiModelProperty(value = "返程计划：出发时间", position = 22)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date backTime;
 
-    /**
-     * 出发地点
-     */
-    @ApiModelProperty(value = "出发地点", position = 19)
-    private String backLocation;
+    /** 返程计划：接送人及电话 */
+    @ApiModelProperty(value = "返程计划：接送人及电话", position = 23)
+    private String pickPerson;
 
-    /**
-     * 出发交通工具
-     */
-    @ApiModelProperty(value = "出发交通工具", position = 20)
-    private String backTransportation;
+    /** 返程计划：接送交通工具及车牌号 */
+    @ApiModelProperty(value = "返程计划：接送交通工具及车牌号", position = 24)
+    private String pickVehicle;
 
-    /**
-     * 出发航班号/车次
-     */
-    @ApiModelProperty(value = "出发航班号/车次", position = 21)
+    /** 返程计划：返程乘坐交通工具 */
+    @ApiModelProperty(value = "返程计划：返程乘坐交通工具", position = 25)
+    private String backVehicle;
+
+    /** 返程计划：航班号/车次 */
+    @ApiModelProperty(value = "返程计划：航班号/车次", position = 26)
     private String backNo;
 
-    /**
-     * 飞机火车起始时间
-     */
-    @ApiModelProperty(value = "飞机火车起始时间", position = 22)
+    /** 返程计划：飞机/火车(起始时间) */
+    @ApiModelProperty(value = "返程计划：飞机/火车(起始时间)", position = 27)
     private String backStart;
 
-    /**
-     * 入住酒店(房型、数量)
-     */
-    @ApiModelProperty(value = "入住酒店(房型、数量)", position = 23)
-    private String backHotel;
+    /** 返程计划：返程后接送人及电话 */
+    @ApiModelProperty(value = "返程计划：返程后接送人及电话", position = 28)
+    private String backPickPerson;
 
-    /**
-     * 天气
-     */
-    @ApiModelProperty(value = "天气", position = 24)
+    /** 返程计划：返程后接送车牌号 */
+    @ApiModelProperty(value = "返程计划：返程后接送车牌号", position = 29)
+    private String backPickVehicle;
+
+    /** 返程计划：当地天气及气温 */
+    @ApiModelProperty(value = "返程计划：当地天气及气温", position = 30)
     private String backWeather;
 
-    /**
-     * 返回备注
-     */
-    @ApiModelProperty(value = "返回备注", position = 25)
+    /** 返程计划：备注 */
+    @ApiModelProperty(value = "返程计划：备注", position = 31)
     private String backMemo;
 
-    /**
-     * 出差材料
-     */
-    @ApiModelProperty(value = "出差材料", position = 26)
+    /** 总结：外访目的 */
+    @ApiModelProperty(value = "总结：外访目的", position = 32)
+    private String sumPurpose;
+
+    /** 总结：工作计划完成情况 */
+    @ApiModelProperty(value = "总结：工作计划完成情况", position = 33)
+    private String sumPlanComplete;
+
+    /** 总结：工作开展情况 */
+    @ApiModelProperty(value = "总结：工作开展情况", position = 34)
+    private String sumImplComplete;
+
+    /** 总结：工作总结 */
+    @ApiModelProperty(value = "总结：工作总结", position = 35)
+    private String sumSummary;
+
+    /** 出差物料领用单JSON */
+    @ApiModelProperty(value = "出差物料领用单JSON", position = 36)
     private String material;
 
-    /**
-     * 备注
-     */
-    @ApiModelProperty(value = "备注", position = 27)
-    private String memo;
+    /** SN */
+    @ApiModelProperty(value = "SN", position = 50)
+    private String sn;
 
-    /**
-     * 总结
-     */
-    @ApiModelProperty(value = "总结", position = 28)
-    private String summarize;
+    /** 模型Id */
+    @ApiModelProperty(value = "模型Id", position = 50)
+    private String modelId;
 
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id", position = 50)
+    private String processInstanceId;
+
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态", position = 50)
+    private String status;
+
+    @ApiModelProperty(value = "外访-计划表", position = 50)
+    private List<BizVisitList> paramList;
 }

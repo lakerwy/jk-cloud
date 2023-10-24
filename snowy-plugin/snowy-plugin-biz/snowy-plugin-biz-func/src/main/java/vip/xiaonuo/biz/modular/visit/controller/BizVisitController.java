@@ -23,15 +23,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.visit.param.*;
 import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisit;
-import vip.xiaonuo.biz.modular.visit.param.BizVisitAddParam;
-import vip.xiaonuo.biz.modular.visit.param.BizVisitEditParam;
-import vip.xiaonuo.biz.modular.visit.param.BizVisitIdParam;
-import vip.xiaonuo.biz.modular.visit.param.BizVisitPageParam;
 import vip.xiaonuo.biz.modular.visit.service.BizVisitService;
 
 import javax.annotation.Resource;
@@ -121,7 +118,22 @@ public class BizVisitController {
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取外访表详情")
     @GetMapping("/biz/visit/detail")
-    public CommonResult<BizVisit> detail(@Valid BizVisitIdParam bizVisitIdParam) {
+    public CommonResult<BizVisitVo> detail(@Valid BizVisitIdParam bizVisitIdParam) {
         return CommonResult.data(bizVisitService.detail(bizVisitIdParam));
+    }
+
+    /**
+     * 编辑外访表(添加总结)
+     *
+     * @author yong.ye
+     * @date  2023/10/24 10:35
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("编辑外访表(添加总结)")
+    @CommonLog("编辑外访表(添加总结)")
+    @PostMapping("/biz/visit/summary")
+    public CommonResult<String> summary(@RequestBody @Valid SummaryParam summaryParam) {
+        bizVisitService.summary(summaryParam);
+        return CommonResult.ok();
     }
 }

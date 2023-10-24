@@ -19,10 +19,10 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 外访表Id参数
+ * 董事办-外访表Id参数
  *
- * @author kaiminglu
- * @date  2023/10/12 10:35
+ * @author yong.ye
+ * @date  2023/10/24 09:20
  **/
 @Getter
 @Setter

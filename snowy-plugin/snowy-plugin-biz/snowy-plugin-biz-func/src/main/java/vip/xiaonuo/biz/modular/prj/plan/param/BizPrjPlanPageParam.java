@@ -92,14 +92,6 @@ public class BizPrjPlanPageParam {
     @ApiModelProperty(value = "客户名称")
     private String ctmName;
 
-    /** 分包合同编号 */
-    @ApiModelProperty(value = "分包合同编号")
-    private String subContractNo;
-
-    /** 分包合同名称 */
-    @ApiModelProperty(value = "分包合同名称")
-    private String subContractName;
-
     /** SN */
     @ApiModelProperty(value = "SN")
     private String sn;
