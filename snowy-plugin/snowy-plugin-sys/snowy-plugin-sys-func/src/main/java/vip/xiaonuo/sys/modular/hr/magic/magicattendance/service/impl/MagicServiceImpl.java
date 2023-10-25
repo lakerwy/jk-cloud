@@ -221,7 +221,7 @@ public class MagicServiceImpl implements MagicService {
     }
 
     @Override
-    public void updateVerifyImage(MultipartFile face, String userId){
+    public String updateVerifyImage(MultipartFile face, String userId){
         List<HrMagicConfig> hrMagicConfigList = hrMagicConfigService.list(new LambdaQueryWrapper<HrMagicConfig>()
                 .eq(HrMagicConfig::getMagicConfigType, HrMagicEnum.MAGIC_MEMBER_UPDATE_IMAGE.getValue()));
 
@@ -254,14 +254,15 @@ public class MagicServiceImpl implements MagicService {
             log.error("魔点考勤更新识别人脸图片失败："+e.toString());
             throw new CommonException(HrMagicEnum.JK_USER_FAIL_INFO.getValue());
         }
-        updateJiankVerifyImage(multipartFile,userId,updateMemberVerifyImageResponse);
+        return updateJiankVerifyImage(multipartFile,userId,updateMemberVerifyImageResponse);
     }
-    public void updateJiankVerifyImage(MultipartFile file, String userId,UpdateMemberVerifyImageResponse updateMemberVerifyImageResponse){
+    public String updateJiankVerifyImage(MultipartFile file, String userId,UpdateMemberVerifyImageResponse updateMemberVerifyImageResponse){
+        String devFileId = "";
         if(!updateMemberVerifyImageResponse.getResult().equals(HrMagicEnum.SUCESS_CODE.getValue())){
             throw new CommonException(updateMemberVerifyImageResponse.getMessage());
         }
         try{
-            String devFileId = devFileService.uploadReturnId(DevFileEngineTypeEnum.LOCAL.getValue(),file);
+            devFileId = devFileService.uploadReturnId(DevFileEngineTypeEnum.LOCAL.getValue(),file);
             SysUser user = sysUserService.queryEntity(userId);
             if(ObjectUtil.isNotEmpty(user)){
                 user.setDevFileId(devFileId);
@@ -270,6 +271,7 @@ public class MagicServiceImpl implements MagicService {
             log.error("建科云保存数据失败！");
             throw new CommonException(HrMagicEnum.JK_FAIL_INFO.getValue());
         }
+        return devFileId;
     }
 
 

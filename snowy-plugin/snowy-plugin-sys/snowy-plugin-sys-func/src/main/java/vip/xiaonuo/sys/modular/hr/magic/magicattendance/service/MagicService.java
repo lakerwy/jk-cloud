@@ -37,7 +37,7 @@ public interface MagicService {
     /**
      * 更新识别人脸图片
      * */
-    void updateVerifyImage(MultipartFile face, String userId);
+    String updateVerifyImage(MultipartFile face, String userId);
 
     /**
      * 查询成员信息列表
