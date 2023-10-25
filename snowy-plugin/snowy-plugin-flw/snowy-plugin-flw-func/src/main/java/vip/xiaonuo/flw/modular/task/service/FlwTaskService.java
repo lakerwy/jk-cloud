@@ -14,6 +14,8 @@ package vip.xiaonuo.flw.modular.task.service;
 
 import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.task.param.*;
 import vip.xiaonuo.flw.modular.task.result.*;
 
@@ -151,4 +153,7 @@ public interface FlwTaskService {
     Page<FlwTaskUserResult> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam);
 
     List<FlwTodoTaskResult> todoListByType(String processDefinitionId, String activityInstanceId);
+
+    @Transactional(rollbackFor = Exception.class)
+    void addComment(FlwCommentParam flwCommentParam);
 }

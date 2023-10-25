@@ -62,9 +62,9 @@ import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
@@ -371,19 +371,19 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     flwProcessResult.setBusinessKey(historicProcessInstance.getBusinessKey());
                     String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
                     flwProcessResult.setProcessDefinitionId(processDefinitionId);
-
-                    //流程名称从flwModel中读取 保证和流程设计页面的流程名称同步
-                    Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-                    if(ObjectUtil.isNotEmpty(o)){
-                        flwProcessResult.setProcessDefinitionName(String.valueOf(o));
-                    }else {
-                        //FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
-                        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-                        if (ObjectUtil.isNotEmpty(processDefinition)) {
-                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
-                            flwProcessResult.setProcessDefinitionName(processDefinition.getName());
-                        }
-                    }
+                    flwProcessResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
+//                    //流程名称从flwModel中读取 保证和流程设计页面的流程名称同步
+//                    Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+//                    if(ObjectUtil.isNotEmpty(o)){
+//                        flwProcessResult.setProcessDefinitionName(String.valueOf(o));
+//                    }else {
+//                        //FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
+//                        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+//                        if (ObjectUtil.isNotEmpty(processDefinition)) {
+//                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
+//                            flwProcessResult.setProcessDefinitionName(processDefinition.getName());
+//                        }
+//                    }
 
                     //flwProcessResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
                     flwProcessResult.setProcessDefinitionVersion(StrUtil.format("V{}.0", historicProcessInstance.getProcessDefinitionVersion()));
@@ -860,8 +860,13 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             getTaskCommentList(processInstanceCommentList, historicTaskInstance.getId()).forEach(taskComment -> {
                 FlwTaskDetailResult.FlwProcessComment flwProcessComment = new FlwTaskDetailResult.FlwProcessComment();
                 flwProcessComment.setTaskId(historicTaskInstance.getId());
-                flwProcessComment.setTaskName(historicTaskInstance.getName());
                 JSONObject commonObject = JSONUtil.parseObj(taskComment.getFullMessage());
+                String operateType = commonObject.getStr("OPERATE_TYPE");
+                if(NodeApproveOperateTypeEnum.COMMENT.getValue().equals(operateType)){
+                    flwProcessComment.setTaskName("评论");
+                }else {
+                    flwProcessComment.setTaskName(historicTaskInstance.getName());
+                }
                 flwProcessComment.setActivityId(historicTaskInstance.getTaskDefinitionKey());
                 flwProcessComment.setUserId(taskComment.getUserId());
                 flwProcessComment.setUserName(commonObject.getStr("USER_NAME"));
@@ -877,6 +882,31 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 }).collect(Collectors.toList()));
                 commonList.add(flwProcessComment);
             });
+        });
+        getNoTaskIdCommentList(processInstanceCommentList,historicTaskInstanceList.get(0).getProcessInstanceId()).forEach(taskComment -> {
+            FlwTaskDetailResult.FlwProcessComment flwProcessComment = new FlwTaskDetailResult.FlwProcessComment();
+            flwProcessComment.setTaskId(historicTaskInstanceList.get(0).getId());
+            JSONObject commonObject = JSONUtil.parseObj(taskComment.getFullMessage());
+            String operateType = commonObject.getStr("OPERATE_TYPE");
+            if(NodeApproveOperateTypeEnum.COMMENT.getValue().equals(operateType)){
+                flwProcessComment.setTaskName("评论");
+            }else {
+                flwProcessComment.setTaskName(historicTaskInstanceList.get(0).getName());
+            }
+            flwProcessComment.setActivityId(historicTaskInstanceList.get(0).getTaskDefinitionKey());
+            flwProcessComment.setUserId(taskComment.getUserId());
+            flwProcessComment.setUserName(commonObject.getStr("USER_NAME"));
+            flwProcessComment.setOperateType(commonObject.getStr("OPERATE_TYPE"));
+            flwProcessComment.setOperateText(commonObject.getStr("OPERATE_TEXT"));
+            flwProcessComment.setComment(ObjectUtil.isNotEmpty(commonObject.getStr("COMMENT"))?commonObject.getStr("COMMENT") : "无");
+            flwProcessComment.setApproveTime(DateUtil.formatDateTime(taskComment.getTime()));
+            flwProcessComment.setAttachmentList(taskService.getProcessInstanceAttachments(historicTaskInstanceList.get(0).getProcessInstanceId()).stream().filter(f->taskComment.getId().equals(f.getDescription())).map(attachment -> {
+                FlwTaskAttachmentResult flwTaskAttachmentResult = new FlwTaskAttachmentResult();
+                flwTaskAttachmentResult.setAttachmentName(attachment.getName());
+                flwTaskAttachmentResult.setAttachmentUrl(attachment.getUrl());
+                return flwTaskAttachmentResult;
+            }).collect(Collectors.toList()));
+            commonList.add(flwProcessComment);
         });
         CollectionUtil.sort(commonList, Comparator.comparing(FlwTaskDetailResult.FlwProcessComment::getApproveTime));
         flwProcessDetailResult.setCommentList(commonList);
@@ -1112,7 +1142,17 @@ public class FlwProcessServiceImpl implements FlwProcessService {
      * @date 2020/8/13 16:35
      **/
     public List<Comment> getTaskCommentList(List<Comment> originDataList, String taskId) {
-        return originDataList.stream().filter(comment -> comment.getTaskId().equals(taskId)).collect(Collectors.toList());
+        return originDataList.stream().filter(comment -> StrUtil.isNotEmpty(comment.getTaskId()) && comment.getTaskId().equals(taskId)).collect(Collectors.toList());
+    }
+
+    /**
+     * 获取任务审批记录
+     *
+     * @author xuyuxiang
+     * @date 2020/8/13 16:35
+     **/
+    public List<Comment> getNoTaskIdCommentList(List<Comment> originDataList, String processInstanceId) {
+        return originDataList.stream().filter(comment -> StrUtil.isEmpty(comment.getTaskId()) && StrUtil.isNotEmpty(comment.getProcessInstanceId()) && comment.getProcessInstanceId().equals(processInstanceId)).collect(Collectors.toList());
     }
 
     /**
