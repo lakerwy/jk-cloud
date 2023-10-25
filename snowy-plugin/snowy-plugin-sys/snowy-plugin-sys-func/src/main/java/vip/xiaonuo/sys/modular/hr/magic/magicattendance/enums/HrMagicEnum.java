@@ -33,7 +33,10 @@ public enum HrMagicEnum {
     MAGIC_MENBER_UPDATE("magicMemberUpdate"),
     MAGIC_MEMBER_DELTE("deleteVerifyImg"),
     MAGIC_MEMBER_UPDATE_IMAGE("updateVerifyImage"),
-    MAGIC_MEMBER_LIST("magicMemberList");
+    MAGIC_MEMBER_LIST("magicMemberList"),
+    JK_FAIL_CODE("1"),
+    JK_FAIL_INFO("建科云图像上传失败！"),
+    JK_USER_FAIL_INFO("建科人员信息未同步到魔点，无法上传人脸识别图片！");
 
     private final String value;
 

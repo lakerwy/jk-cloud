@@ -298,5 +298,9 @@ public class SysUser extends CommonEntity implements TransPojo {
     @TableField(exist = false)
     private String firstOrgName;
 
+    /**建科人脸识别图片ID，对应DEX_FILE表ID*/
+    @ApiModelProperty(value = "建科人脸识别图片ID，对应DEV_FILE表ID", position = 61)
+    @TableField(exist = false)
+    private String devFileId;
 
 }

@@ -2,6 +2,7 @@ package vip.xiaonuo.sys.modular.hr.magic.magicattendance.service;
 
 
 import com.moredian.oapi.model.member.response.*;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicCallback;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicMemberParam;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicResult;
@@ -35,7 +36,7 @@ public interface MagicService {
     /**
      * 更新识别人脸图片
      * */
-    UpdateMemberVerifyImageResponse updateVerifyImage(File face, String userId);
+    UpdateMemberVerifyImageResponse updateVerifyImage(MultipartFile face, String userId);
 
     /**
      * 查询成员信息列表

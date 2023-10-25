@@ -279,4 +279,9 @@ public class BizUser extends CommonEntity implements TransPojo {
     @ApiModelProperty(value = "主管名称", position = 51)
     @TableField(exist = false)
     private String directorName;
+
+    /**建科人脸识别图片ID，对应DEX_FILE表ID*/
+    @ApiModelProperty(value = "建科人脸识别图片ID，对应DEV_FILE表ID", position = 52)
+    @TableField(exist = false)
+    private String devFileId;
 }

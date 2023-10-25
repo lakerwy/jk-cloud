@@ -7,6 +7,7 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicCallback;
@@ -70,7 +71,7 @@ public class MagicController {
     @ApiOperationSupport(order = 5)
     @ApiOperation("魔点考勤更新成员")
     @CommonLog("魔点考勤更新成员")
-    @GetMapping("/sys/magic/member/update")
+    @PostMapping("/sys/magic/member/update")
     public CommonResult<UpdateMemberResponse> magicMemberUpdate(@Valid MagicMemberParam magicMemberParam) {
         return CommonResult.data(magicService.magicMemberUpdate(magicMemberParam));
     }
@@ -78,8 +79,8 @@ public class MagicController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("魔点考勤更新识别人脸图片")
     @CommonLog("魔点考勤更新识别人脸图片")
-    @GetMapping("/sys/magic/member/updateVerifyImage")
-    public CommonResult<UpdateMemberVerifyImageResponse> updateVerifyImage(@Valid File face, String userId) {
+    @PostMapping("/sys/magic/member/updateVerifyImage")
+    public CommonResult<UpdateMemberVerifyImageResponse> updateVerifyImage(@Valid MultipartFile face, String userId) {
         return CommonResult.data(magicService.updateVerifyImage(face,userId));
     }
 
@@ -98,6 +99,4 @@ public class MagicController {
     public CommonResult<String> jkUserToMagicBatch() {
         return CommonResult.data(magicService.jkUserToMagic());
     }
-
-
 }

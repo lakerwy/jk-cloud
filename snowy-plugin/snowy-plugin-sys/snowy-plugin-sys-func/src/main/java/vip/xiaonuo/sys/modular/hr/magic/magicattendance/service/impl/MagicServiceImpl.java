@@ -3,6 +3,7 @@ package vip.xiaonuo.sys.modular.hr.magic.magicattendance.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -17,7 +18,12 @@ import com.moredian.oapi.model.member.response.*;
 import com.moredian.oapi.profile.DefaultProfile;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import vip.xiaonuo.dev.api.DevConfigApi;
+import vip.xiaonuo.dev.modular.file.enums.DevFileEngineTypeEnum;
+import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.sys.modular.hr.magic.magicAttendanceCallback.entity.HrMagicAttendanceCallback;
 import vip.xiaonuo.sys.modular.hr.magic.magicAttendanceCallback.service.HrMagicAttendanceCallbackService;
 import vip.xiaonuo.sys.modular.hr.magic.magicConfig.entity.HrMagicConfig;
@@ -36,6 +42,8 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.io.File;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.*;
 
 
@@ -53,7 +61,10 @@ public class MagicServiceImpl implements MagicService {
     private HrMagicUserRelationService hrMagicUserRelationService;
     @Resource
     private SysUserService sysUserService;
-
+    @Resource
+    private DevFileService devFileService;
+    @Resource
+    private DevConfigApi devConfigApi;
 
     @Override
     public String getAppToken( ){
@@ -204,12 +215,11 @@ public class MagicServiceImpl implements MagicService {
         }catch (Exception e){
             log.error("魔点考勤更新成员失败："+e.toString());
         }
-
         return updateMemberResponse;
     }
 
     @Override
-    public UpdateMemberVerifyImageResponse updateVerifyImage(File face, String userId){
+    public UpdateMemberVerifyImageResponse updateVerifyImage(MultipartFile face, String userId){
         List<HrMagicConfig> hrMagicConfigList = hrMagicConfigService.list(new LambdaQueryWrapper<HrMagicConfig>()
                 .eq(HrMagicConfig::getMagicConfigType, HrMagicEnum.MAGIC_MEMBER_UPDATE_IMAGE.getValue()));
 
@@ -221,23 +231,47 @@ public class MagicServiceImpl implements MagicService {
         List<HrMagicUserRelation> hrMagicUserRelationList = hrMagicUserRelationService.list(new LambdaQueryWrapper<HrMagicUserRelation>()
                 .eq(HrMagicUserRelation::getJkUserId,userId));
         if(CollectionUtil.isEmpty(hrMagicUserRelationList)){
+            updateMemberVerifyImageResponse.setResult(HrMagicEnum.FAIL_CODE.getValue());
+            updateMemberVerifyImageResponse.setData(HrMagicEnum.JK_USER_FAIL_INFO.getValue());
             return updateMemberVerifyImageResponse;
         }
         try {
+            String fileName = face.getOriginalFilename();
+            File file = File.createTempFile(fileName, fileName.substring(fileName.lastIndexOf(".")));
+            face.transferTo(file);
             IOpenApiClient client = new DefaultOpenApiClient(DefaultProfile.getProfile(hrMagicConfig.getMagicUrl()));
             UpdateMemberVerifyImageRequest updateMemberVerifyImageRequest = new UpdateMemberVerifyImageRequest();
             updateMemberVerifyImageRequest.setAccessToken(getAppToken());
             UpdateMemberVerifyImageRequest.UpdateMemberVerifyImageRequestBody updateMemberVerifyImageRequestBody = new UpdateMemberVerifyImageRequest.UpdateMemberVerifyImageRequestBody();
             updateMemberVerifyImageRequestBody.setMemberId(hrMagicUserRelationList.get(0).getMagicPersonId());
-            updateMemberVerifyImageRequestBody.setFace(face);
+            updateMemberVerifyImageRequestBody.setFace(file);
             updateMemberVerifyImageRequest.setBody(updateMemberVerifyImageRequestBody);
             updateMemberVerifyImageResponse = client.getResponse(updateMemberVerifyImageRequest);
         }catch (Exception e){
             log.error("魔点考勤更新识别人脸图片失败："+e.toString());
         }
-
+        return updateJiankVerifyImage(face,userId,updateMemberVerifyImageResponse);
+    }
+    public UpdateMemberVerifyImageResponse updateJiankVerifyImage(MultipartFile file, String userId,UpdateMemberVerifyImageResponse updateMemberVerifyImageResponse){
+        if(!updateMemberVerifyImageResponse.getResult().equals(HrMagicEnum.SUCESS_CODE.getValue())){
+            return updateMemberVerifyImageResponse;
+        }
+        try{
+            /*byte[] bytes = Files.readAllBytes(Paths.get(file.toURI())); // 获取文件的字节数组
+            MultipartFile multipartFile = new MockMultipartFile(file.getName(), bytes);// 创建MultipartFile对象并设置文件内容*/
+            String devFileId = devFileService.uploadReturnId(DevFileEngineTypeEnum.LOCAL.getValue(),file);
+            SysUser user = sysUserService.queryEntity(userId);
+            if(ObjectUtil.isNotEmpty(user)){
+                user.setDevFileId(devFileId);
+                sysUserService.updateById(user); }
+        }catch (Exception e){
+            log.error("建科云保存数据失败！");
+            updateMemberVerifyImageResponse.setResult(HrMagicEnum.JK_FAIL_CODE.getValue());
+            updateMemberVerifyImageResponse.setData(HrMagicEnum.JK_FAIL_INFO.getValue());
+        }
         return updateMemberVerifyImageResponse;
     }
+
 
     @Override
     public ListMemberResponse magicMemberList(Integer offset, Integer size){
