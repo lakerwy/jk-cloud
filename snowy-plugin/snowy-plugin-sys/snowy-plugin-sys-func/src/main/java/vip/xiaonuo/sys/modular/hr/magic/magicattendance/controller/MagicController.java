@@ -80,8 +80,9 @@ public class MagicController {
     @ApiOperation("魔点考勤更新识别人脸图片")
     @CommonLog("魔点考勤更新识别人脸图片")
     @PostMapping("/sys/magic/member/updateVerifyImage")
-    public CommonResult<UpdateMemberVerifyImageResponse> updateVerifyImage(@Valid MultipartFile face, String userId) {
-        return CommonResult.data(magicService.updateVerifyImage(face,userId));
+    public CommonResult updateVerifyImage(@Valid MultipartFile face, String userId) {
+        magicService.updateVerifyImage(face,userId);
+        return CommonResult.ok();
     }
 
     @ApiOperationSupport(order = 7)

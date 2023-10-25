@@ -21,6 +21,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.enums.DevFileEngineTypeEnum;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
@@ -219,22 +221,21 @@ public class MagicServiceImpl implements MagicService {
     }
 
     @Override
-    public UpdateMemberVerifyImageResponse updateVerifyImage(MultipartFile face, String userId){
+    public void updateVerifyImage(MultipartFile face, String userId){
         List<HrMagicConfig> hrMagicConfigList = hrMagicConfigService.list(new LambdaQueryWrapper<HrMagicConfig>()
                 .eq(HrMagicConfig::getMagicConfigType, HrMagicEnum.MAGIC_MEMBER_UPDATE_IMAGE.getValue()));
 
         UpdateMemberVerifyImageResponse updateMemberVerifyImageResponse = new UpdateMemberVerifyImageResponse();
         if(CollectionUtil.isEmpty(hrMagicConfigList)){
-            return updateMemberVerifyImageResponse;
+            throw new CommonException(HrMagicEnum.JK_USER_FAIL_INFO.getValue());
         }
         HrMagicConfig hrMagicConfig = hrMagicConfigList.get(0);
         List<HrMagicUserRelation> hrMagicUserRelationList = hrMagicUserRelationService.list(new LambdaQueryWrapper<HrMagicUserRelation>()
                 .eq(HrMagicUserRelation::getJkUserId,userId));
         if(CollectionUtil.isEmpty(hrMagicUserRelationList)){
-            updateMemberVerifyImageResponse.setResult(HrMagicEnum.FAIL_CODE.getValue());
-            updateMemberVerifyImageResponse.setData(HrMagicEnum.JK_USER_FAIL_INFO.getValue());
-            return updateMemberVerifyImageResponse;
+            throw new CommonException(HrMagicEnum.JK_USER_FAIL_INFO.getValue());
         }
+        MultipartFile multipartFile = null;
         try {
             String fileName = face.getOriginalFilename();
             File file = File.createTempFile(fileName, fileName.substring(fileName.lastIndexOf(".")));
@@ -247,18 +248,19 @@ public class MagicServiceImpl implements MagicService {
             updateMemberVerifyImageRequestBody.setFace(file);
             updateMemberVerifyImageRequest.setBody(updateMemberVerifyImageRequestBody);
             updateMemberVerifyImageResponse = client.getResponse(updateMemberVerifyImageRequest);
+            byte[] bytes = Files.readAllBytes(Paths.get(file.toURI())); // 获取文件的字节数组
+            multipartFile = new MockMultipartFile(file.getName(), bytes);// 创建MultipartFile对象并设置文件内容
         }catch (Exception e){
             log.error("魔点考勤更新识别人脸图片失败："+e.toString());
+            throw new CommonException(HrMagicEnum.JK_USER_FAIL_INFO.getValue());
         }
-        return updateJiankVerifyImage(face,userId,updateMemberVerifyImageResponse);
+        updateJiankVerifyImage(multipartFile,userId,updateMemberVerifyImageResponse);
     }
-    public UpdateMemberVerifyImageResponse updateJiankVerifyImage(MultipartFile file, String userId,UpdateMemberVerifyImageResponse updateMemberVerifyImageResponse){
+    public void updateJiankVerifyImage(MultipartFile file, String userId,UpdateMemberVerifyImageResponse updateMemberVerifyImageResponse){
         if(!updateMemberVerifyImageResponse.getResult().equals(HrMagicEnum.SUCESS_CODE.getValue())){
-            return updateMemberVerifyImageResponse;
+            throw new CommonException(updateMemberVerifyImageResponse.getMessage());
         }
         try{
-            /*byte[] bytes = Files.readAllBytes(Paths.get(file.toURI())); // 获取文件的字节数组
-            MultipartFile multipartFile = new MockMultipartFile(file.getName(), bytes);// 创建MultipartFile对象并设置文件内容*/
             String devFileId = devFileService.uploadReturnId(DevFileEngineTypeEnum.LOCAL.getValue(),file);
             SysUser user = sysUserService.queryEntity(userId);
             if(ObjectUtil.isNotEmpty(user)){
@@ -266,10 +268,8 @@ public class MagicServiceImpl implements MagicService {
                 sysUserService.updateById(user); }
         }catch (Exception e){
             log.error("建科云保存数据失败！");
-            updateMemberVerifyImageResponse.setResult(HrMagicEnum.JK_FAIL_CODE.getValue());
-            updateMemberVerifyImageResponse.setData(HrMagicEnum.JK_FAIL_INFO.getValue());
+            throw new CommonException(HrMagicEnum.JK_FAIL_INFO.getValue());
         }
-        return updateMemberVerifyImageResponse;
     }
 
 
