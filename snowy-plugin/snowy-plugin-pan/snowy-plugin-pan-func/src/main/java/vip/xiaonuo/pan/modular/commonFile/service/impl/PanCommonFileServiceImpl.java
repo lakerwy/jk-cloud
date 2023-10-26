@@ -34,6 +34,9 @@ import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanFilePermission;
 import vip.xiaonuo.pan.modular.fileCenter.service.PanFilePermissionService;
+import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
+import vip.xiaonuo.pan.modular.fileRight.param.ObjectRight;
+import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -53,6 +56,9 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
 
     @Resource
     PanCommonFileMapper panCommonFileMapper;
+
+    @Resource
+    PanFileRightService panFileRightService;
 
     @Override
     public Page<PanCommonFile> page(PanCommonFilePageParam panCommonFilePageParam) {
@@ -109,15 +115,26 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
             PanCommonFile commonFile = new PanCommonFile();
             commonFile.setUserFileId(userFileId);
             this.save(commonFile);
-            //权限
+            //共享批次记录
             List<PanFilePermission> filePermissionList = new ArrayList<>();
-            for (String userId : commonFileParam.getCommonUserList()) {
+            for (ObjectRight obj : commonFileParam.getCommonUserList()) {
                 PanFilePermission filePermission = new PanFilePermission();
                 filePermission.setCommonFileId(commonFile.getId());
-                filePermission.setUserId(userId);
+                filePermission.setUserId(obj.getObjectId());
                 filePermissionList.add(filePermission);
             }
             panFilePermissionService.saveBatch(filePermissionList);
+
+            //新增权限配置记录
+            List<PanFileRight> panFileRightList = new ArrayList<>();
+            for (ObjectRight obj: commonFileParam.getCommonUserList()) {
+                PanFileRight panFileRight = new PanFileRight();
+                panFileRight.setObjectId(obj.getObjectId());
+                panFileRight.setRightValue(obj.getRightValue());
+                panFileRight.setUserFileId(userFileId);
+                panFileRightList.add(panFileRight);
+            }
+            panFileRightService.saveBatch(panFileRightList);
         }
     }
 

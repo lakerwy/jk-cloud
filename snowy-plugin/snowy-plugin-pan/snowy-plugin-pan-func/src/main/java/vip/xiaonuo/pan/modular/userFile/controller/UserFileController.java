@@ -25,7 +25,9 @@ import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.pan.modular.file.constant.FileRight;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
+import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
@@ -51,6 +53,9 @@ public class UserFileController {
 
     @Resource
     private UserFileService userFileService;
+
+    @Resource
+    private PanFileRightService panFileRightService;
 
 //    @Resource
 //    private DevConfigApi devConfigApi;
@@ -154,6 +159,10 @@ public class UserFileController {
     public CommonResult<String> reNameFold(@Valid @RequestBody UserFileEditParam userFileEditParam) {
         //判断文件夹是否存在
         UserFile userFile = BeanUtil.copyProperties(userFileEditParam, UserFile.class);
+
+
+        panFileRightService.CheckFileRight(userFile.getId(), FileRight.RENAME);
+
         List<UserFile> userFiles =  userFileService.getFolds(userFile);
         if(CollUtil.isNotEmpty(userFiles)){
             //如果修改的名字为自己的原始名称，就直接返回

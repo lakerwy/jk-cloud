@@ -32,6 +32,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
+import vip.xiaonuo.pan.modular.file.constant.FileRight;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
@@ -55,6 +56,7 @@ import vip.xiaonuo.pan.modular.fileCenter.service.PanFileStorageService;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.MimeUtils;
+import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
@@ -111,6 +113,8 @@ public class PanFileController {
     @Value("${files.docservice.url.api}")
     private String docServiceApiUrl;
 
+    @Resource
+    private PanFileRightService panFileRightService;
 
     /**
      * 获取文件详情

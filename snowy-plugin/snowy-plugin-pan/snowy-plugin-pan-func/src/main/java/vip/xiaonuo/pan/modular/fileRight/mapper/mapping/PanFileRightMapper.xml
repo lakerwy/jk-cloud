@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.pan.modular.fileRight.mapper.PanFileRightMapper">
+
+    <select id="getFileRightByFileId" resultType="vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo">
+        select a.*,b.NAME as userName
+        from PAN_FILE_RIGHT a left join SYS_USER b on a.OBJECT_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' order by b.NAME
+    </select>
+
+    <select id="getFileRight" resultType="vip.xiaonuo.pan.modular.fileRight.vo.UserFileRightVo">
+        select a.*,b.ID as rightId,b.RIGHT_VALUE as rightValue
+        from PAN_USER_FILE a
+            left join PAN_FILE_RIGHT b
+                on a.ID = b.USER_FILE_ID and b.OBJECT_ID = #{userId} and b.DELETE_FLAG = 'NOT_DELETE'
+        where a.ID = #{userFileId}
+    </select>
+</mapper>

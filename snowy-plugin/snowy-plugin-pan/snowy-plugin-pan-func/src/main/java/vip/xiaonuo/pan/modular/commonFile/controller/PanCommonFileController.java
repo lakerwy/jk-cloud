@@ -54,7 +54,7 @@ public class PanCommonFileController {
     private PanCommonFileService panCommonFileService;
 
     /**
-     * 将文件共享给他人
+     * 将文件共享给他人(并设置权限)
      *
      * 共享文件统一接口
      *
@@ -62,8 +62,8 @@ public class PanCommonFileController {
      * @date  2023/09/06 21:07
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("将文件共享给他人")
-    @CommonLog("将文件共享给他人")
+    @ApiOperation("将文件共享给他人(并设置权限)")
+    @CommonLog("将文件共享给他人(并设置权限)")
     @PostMapping("/pan/commonFile/commonFile")
     public CommonResult<String> commonFile(@RequestBody @Valid CommonFileParam commonFileParam) {
         panCommonFileService.commonFile(commonFileParam);
