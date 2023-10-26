@@ -22,8 +22,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.HistoryService;
@@ -32,7 +30,6 @@ import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
-import org.camunda.bpm.engine.history.HistoricProcessInstanceQuery;
 import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.history.HistoricTaskInstanceQuery;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -44,7 +41,6 @@ import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -57,8 +53,8 @@ import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
-import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
+import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.process.param.FlwProcessIdParam;
 import vip.xiaonuo.flw.modular.process.result.FlwProcessDetailResult;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
@@ -732,5 +728,19 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setTenantId(task.getTenantId());
                     return flwTodoTaskResult;
                 }).collect(Collectors.toList());
+    }
+
+    @Override
+    public void addComment(FlwCommentParam flwcommentParam) {
+        //Task task = validTask(flwTaskPassParam.getId(), flwTaskPassParam.getComment());
+        String taskId = null;
+        String processInstanceId = flwcommentParam.getProcessInstanceId();
+        if(StrUtil.isNotEmpty(flwcommentParam.getId())){
+            Task task = taskService.createTaskQuery().taskId(flwcommentParam.getId()).singleResult();
+            taskId = task.getId();
+            processInstanceId = task.getProcessInstanceId();
+        }
+        NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.COMMENT.getValue(), "追加评论",
+                flwcommentParam.getComment(), flwcommentParam.getAttachmentList());
     }
 }

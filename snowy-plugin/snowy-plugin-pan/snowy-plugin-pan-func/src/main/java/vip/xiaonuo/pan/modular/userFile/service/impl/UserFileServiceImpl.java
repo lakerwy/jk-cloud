@@ -526,8 +526,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             userFileTreeParam.setFoldTypes(new ArrayList<>(Collections.singletonList(0)));
         } else if (1==foldType) {
             String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
-            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
-            userFileTreeParam.setOrgIds(childrenIds);
+//            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
+            //暂时只能看自己部门的
+            userFileTreeParam.setOrgIds(new ArrayList<>(Collections.singletonList(orgId)));
             userFileTreeParam.setFoldTypes(new ArrayList<>(Collections.singletonList(1)));
         }else{
             userFileTreeParam.setFoldTypes(new ArrayList<>(Arrays.asList(1,2)));
@@ -719,15 +720,15 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             panRootFoldParam.setType(UserFileEnum.SELF_ROOT.getLevel());
         }
         LambdaQueryWrapper<UserFile> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(UserFile::getFoldType, panRootFoldParam.getType());
+        queryWrapper.eq(UserFile::getFoldType, panRootFoldParam.getType()).eq(UserFile::getFilePath,ROOT_FOLD_PATH);
         if(0==panRootFoldParam.getType()){
             queryWrapper.eq(UserFile::getUserId,StpLoginUserUtil.getLoginUser().getId());
         }else {
-            String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
-            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
-            //queryWrapper.eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
+//            String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+//            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
+            queryWrapper.eq(UserFile::getOrgId,StpLoginUserUtil.getLoginUser().getOrgId());
             //上级部门可以看到下级部门的文件
-            queryWrapper.in(UserFile::getOrgId,childrenIds);
+//            queryWrapper.in(UserFile::getOrgId,childrenIds);
         }
         return list(queryWrapper);
     }

@@ -246,7 +246,7 @@ public class FileTransferService implements IFileTransferService {
                     userFile.setFoldType(parentUserFile.getFoldType());
                 }
                 userFile.setFileSize(uploadFileParam.getTotalSize());
-                List<UserFile> userFiles = new ArrayList<>();
+                List<UserFile> userFiles;
                 try {
                      userFiles = userFileService.list(new QueryWrapper<UserFile>().lambda()
                             .eq(UserFile::getUserId, userFile.getUserId())

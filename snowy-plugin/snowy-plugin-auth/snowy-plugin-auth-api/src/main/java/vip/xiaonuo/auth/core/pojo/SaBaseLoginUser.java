@@ -249,6 +249,10 @@ public abstract class SaBaseLoginUser {
     @ApiModelProperty(value = "用户密码hash值", position = 55)
     private String password;
 
+    /**建科人脸识别图片ID，对应DEX_FILE表ID*/
+    @ApiModelProperty(value = "建科人脸识别图片ID，对应DEV_FILE表ID", position = 56)
+    private String devFileId;
+
     /** 是否可登录，由继承类实现 */
     public abstract Boolean getEnabled();
 

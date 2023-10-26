@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.flw.core.util.CommonHandleUtil;
+import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.task.param.*;
 import vip.xiaonuo.flw.modular.task.result.*;
 import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
@@ -254,6 +254,19 @@ public class FlwTaskController {
     @GetMapping("/flw/task/userSelector")
     public CommonResult<Page<FlwTaskUserResult>> userSelector(FlwTaskSelectorUserParam flwTaskSelectorUserParam) {
         return CommonResult.data(flwTaskService.userSelector(flwTaskSelectorUserParam));
+    }
+
+    /**
+     * 添加评论
+     *
+     */
+    @ApiOperationSupport(order = 16)
+    @ApiOperation("添加评论")
+    @CommonLog("添加评论")
+    @PostMapping("/flw/task/addComment")
+    public CommonResult<String> addComment(@RequestBody @Valid FlwCommentParam flwCommentParam) {
+        flwTaskService.addComment(flwCommentParam);
+        return CommonResult.ok();
     }
 
 }
