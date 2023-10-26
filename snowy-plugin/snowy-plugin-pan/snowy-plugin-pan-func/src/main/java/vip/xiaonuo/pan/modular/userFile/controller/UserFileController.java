@@ -159,10 +159,6 @@ public class UserFileController {
     public CommonResult<String> reNameFold(@Valid @RequestBody UserFileEditParam userFileEditParam) {
         //判断文件夹是否存在
         UserFile userFile = BeanUtil.copyProperties(userFileEditParam, UserFile.class);
-
-
-        panFileRightService.CheckFileRight(userFile.getId(), FileRight.RENAME);
-
         List<UserFile> userFiles =  userFileService.getFolds(userFile);
         if(CollUtil.isNotEmpty(userFiles)){
             //如果修改的名字为自己的原始名称，就直接返回
