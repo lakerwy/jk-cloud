@@ -12,16 +12,12 @@
  */
 package vip.xiaonuo.pan.modular.fileRight.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightEditParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
-import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightPageParam;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
-import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 
 import java.util.List;
 
@@ -32,14 +28,6 @@ import java.util.List;
  * @date  2023/10/25 14:32
  **/
 public interface PanFileRightService extends IService<PanFileRight> {
-
-//    /**
-//     * 获取网盘权限配置表分页
-//     *
-//     * @author yong.ye
-//     * @date  2023/10/25 14:32
-//     */
-//    Page<PanFileRight> page(PanFileRightPageParam panFileRightPageParam);
 
     /**
      * 添加网盘权限配置表
@@ -57,13 +45,6 @@ public interface PanFileRightService extends IService<PanFileRight> {
      */
     void edit(PanFileRightEditParam panFileRightEditParam);
 
-//    /**
-//     * 删除网盘权限配置表
-//     *
-//     * @author yong.ye
-//     * @date  2023/10/25 14:32
-//     */
-//    void delete(List<PanFileRightIdParam> panFileRightIdParamList);
 
     /**
      * 获取网盘权限配置表详情
@@ -93,5 +74,5 @@ public interface PanFileRightService extends IService<PanFileRight> {
      *                   2.1 若当前userFileId，当前用户，存在权限配置，直接根据配置校验
      *                   2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
      */
-    boolean CheckFileRight(String userFileId,long checkRight);
+    boolean checkFileRight(String userFileId,long checkRight);
 }

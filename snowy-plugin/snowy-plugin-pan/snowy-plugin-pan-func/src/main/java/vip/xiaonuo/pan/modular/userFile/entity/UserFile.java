@@ -137,6 +137,10 @@ public class UserFile {
     @ApiModelProperty(value = "删除时间", position = 20)
     private Date deleteTime;
 
+    /** 文件负者人（管理者） */
+    @ApiModelProperty(value = "文件负者人（管理者）", position = 20)
+    private String fileManager;
+
     public boolean isFile() {
         return this.isDir == 0;
     }

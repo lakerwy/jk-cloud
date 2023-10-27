@@ -142,4 +142,18 @@ public class BizPrjPlanController {
     public CommonResult<List<PlanInvoiceVo>> invoiceList(@Valid InvoiceParam invoiceParam) {
         return CommonResult.data(bizPrjPlanService.invoiceList(invoiceParam));
     }
+
+
+    /**
+     * 根据 【合同编号】 - 获取 审核通过 的历史【项目款计划单】集合
+     *
+     * @author yong.ye
+     * @date  2023/10/19 16:36
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("根据 【合同编号】 - 获取 审核通过 的历史【项目款计划单】集合")
+    @GetMapping("/biz/prj/plan/planList")
+    public CommonResult<List<BizPrjPlanVo>> planList(@Valid InvoiceParam invoiceParam) {
+        return CommonResult.data(bizPrjPlanService.planList(invoiceParam));
+    }
 }

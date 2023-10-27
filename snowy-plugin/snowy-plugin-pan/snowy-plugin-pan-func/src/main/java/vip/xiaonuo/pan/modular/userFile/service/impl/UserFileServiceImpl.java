@@ -40,6 +40,7 @@ import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
+import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
@@ -879,5 +880,22 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     @Override
     public Boolean checkHomonym(UploadFileParam uploadFileParam){
         return false;
+    }
+
+    @Override
+    public List<UserFile> getGroupFold() {
+        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("b.OBJECT_ID",StpLoginUserUtil.getLoginUser().getId());
+        queryWrapper.eq("a.FOLD_TYPE","1");
+        queryWrapper.eq("a.FILE_PATH",ROOT_FOLD_PATH);
+        queryWrapper.apply(" (b.RIGHT_VALUE & {0} >0 or b.RIGHT_VALUE & {1} >0) ", FileRight.LIST,FileRight.PENETRATE);
+        return userFileMapper.getGroupFold(queryWrapper);
+    }
+
+
+    @Override
+    public Page<UserFile> groupPage(UserFilePageParam userFilePageParam) {
+        //todo
+        return null;
     }
 }

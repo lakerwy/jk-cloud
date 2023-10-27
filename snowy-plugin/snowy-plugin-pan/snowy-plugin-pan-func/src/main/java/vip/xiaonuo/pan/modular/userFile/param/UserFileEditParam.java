@@ -73,4 +73,8 @@ public class UserFileEditParam {
     /** 用户ID */
     @ApiModelProperty(value = "用户ID", position = 16)
     private String userId;
+
+    /** 文件负者人（管理者） */
+    @ApiModelProperty(value = "文件负者人（管理者）", position = 20)
+    private String fileManager;
 }

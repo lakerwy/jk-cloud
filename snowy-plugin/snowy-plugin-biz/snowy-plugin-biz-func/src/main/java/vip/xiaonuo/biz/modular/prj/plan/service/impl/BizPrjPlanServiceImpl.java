@@ -49,6 +49,7 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -291,5 +292,25 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         }
         queryWrapper.orderByAsc("b.CREATE_TIME");
         return bizPrjPlanMapper.getInvoiceList(queryWrapper);
+    }
+
+    @Override
+    public List<BizPrjPlanVo> planList(InvoiceParam invoiceParam) {
+        QueryWrapper<BizPrjPlan> queryWrapper = new QueryWrapper<>();
+        //审核通过
+        queryWrapper.lambda().eq(BizPrjPlan::getStatus,"1");
+        //有效数据
+        queryWrapper.lambda().eq(BizPrjPlan::getDeleteFlag,"NOT_DELETE");
+        //合同编号
+        if(ObjectUtil.isNotEmpty(invoiceParam.getContractNo())){
+            queryWrapper.lambda().eq(BizPrjPlan::getContractNo,invoiceParam.getContractNo());
+        }
+        queryWrapper.lambda().orderByAsc(BizPrjPlan::getPlanNo);
+        List<BizPrjPlan> tmp = this.list(queryWrapper);
+        List<BizPrjPlanVo> result = BeanUtil.copyToList(tmp,BizPrjPlanVo.class);
+        result.forEach(x->{
+            x.setPlanCollectionList(bizPrjPlanCollectionService.list(new QueryWrapper<BizPrjPlanCollection>().lambda().eq(BizPrjPlanCollection::getPlanId,x.getId())));
+        });
+        return result;
     }
 }

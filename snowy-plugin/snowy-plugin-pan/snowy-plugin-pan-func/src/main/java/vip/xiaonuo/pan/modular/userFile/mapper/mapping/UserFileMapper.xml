@@ -118,5 +118,12 @@
        where ID = #{id}
 
     </update>
+    
+    <select id="getGroupFold" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select a.*
+        from PAN_USER_FILE a join PAN_FILE_RIGHT b
+            on a.ID = b.USER_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
+    </select>
 
 </mapper>

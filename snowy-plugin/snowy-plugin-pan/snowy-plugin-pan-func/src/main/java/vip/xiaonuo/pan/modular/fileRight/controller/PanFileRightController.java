@@ -12,8 +12,6 @@
  */
 package vip.xiaonuo.pan.modular.fileRight.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -50,20 +48,6 @@ public class PanFileRightController {
     @Resource
     private PanFileRightService panFileRightService;
 
-//    /**
-//     * 获取网盘权限配置表分页
-//     *
-//     * @author yong.ye
-//     * @date  2023/10/25 14:32
-//     */
-//    @ApiOperationSupport(order = 1)
-//    @ApiOperation("获取网盘权限配置表分页")
-//    @SaCheckPermission("/pan/fileRight/page")
-//    @GetMapping("/pan/fileRight/page")
-//    public CommonResult<Page<PanFileRight>> page(PanFileRightPageParam panFileRightPageParam) {
-//        return CommonResult.data(panFileRightService.page(panFileRightPageParam));
-//    }
-
     /**
      * 添加网盘权限配置表 - 文件夹|文件设置配置权限
      *
@@ -95,23 +79,6 @@ public class PanFileRightController {
         panFileRightService.edit(panFileRightEditParam);
         return CommonResult.ok();
     }
-
-//    /**
-//     * 删除网盘权限配置表
-//     *
-//     * @author yong.ye
-//     * @date  2023/10/25 14:32
-//     */
-//    @ApiOperationSupport(order = 4)
-//    @ApiOperation("删除网盘权限配置表")
-//    @CommonLog("删除网盘权限配置表")
-//    @SaCheckPermission("/pan/fileRight/delete")
-//    @PostMapping("/pan/fileRight/delete")
-//    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-//                                                   CommonValidList<PanFileRightIdParam> panFileRightIdParamList) {
-//        panFileRightService.delete(panFileRightIdParamList);
-//        return CommonResult.ok();
-//    }
 
     /**
      * 获取网盘权限配置表详情 - 根据 文件夹|文件 Id 获取权限管理详情

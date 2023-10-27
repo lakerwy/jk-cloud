@@ -18,11 +18,13 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.bytedeco.opencv.presets.opencv_core;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.enums.SysBuildInEnum;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.pan.modular.file.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
 import vip.xiaonuo.pan.modular.fileRight.mapper.PanFileRightMapper;
 import vip.xiaonuo.pan.modular.fileRight.param.*;
@@ -33,6 +35,7 @@ import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -50,18 +53,6 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
     @Resource
     private PanFileRightMapper panFileRightMapper;
 
-//    @Override
-//    public Page<PanFileRight> page(PanFileRightPageParam panFileRightPageParam) {
-//        QueryWrapper<PanFileRight> queryWrapper = new QueryWrapper<>();
-//        if(ObjectUtil.isAllNotEmpty(panFileRightPageParam.getSortField(), panFileRightPageParam.getSortOrder())) {
-//            CommonSortOrderEnum.validate(panFileRightPageParam.getSortOrder());
-//            queryWrapper.orderBy(true, panFileRightPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
-//                    StrUtil.toUnderlineCase(panFileRightPageParam.getSortField()));
-//        } else {
-//            queryWrapper.lambda().orderByAsc(PanFileRight::getId);
-//        }
-//        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
-//    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -69,6 +60,10 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         List<PanFileRight> panFileRightList = BeanUtil.copyToList(panFileRightAddParam.getObjectRightList(),PanFileRight.class);
         panFileRightList.forEach(x->{x.setUserFileId(panFileRightAddParam.getUserFileId());});
         this.saveBatch(panFileRightList);
+        //处理父级递归默认权限
+        initParentFileRight(panFileRightAddParam.getUserFileId(), panFileRightAddParam.getObjectRightList(), FileRight.PENETRATE);
+        //处理当前文件权限问题
+        initCurrentFileRight(panFileRightAddParam.getUserFileId(),FileRight.PENETRATE);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -95,19 +90,18 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
         if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
         if(CollUtil.isNotEmpty(oldIds)) this.removeByIds(oldIds);
+
+        //处理父级递归默认权限
+        List<ObjectRight> objIds = BeanUtil.copyToList(panFileRightEditParam.getObjectRightList(),ObjectRight.class);
+        initParentFileRight(panFileRightEditParam.getUserFileId(), objIds,FileRight.PENETRATE);
+        //处理当前文件权限问题
+        initCurrentFileRight(panFileRightEditParam.getUserFileId(),FileRight.PENETRATE);
     }
 
-//    @Transactional(rollbackFor = Exception.class)
-//    @Override
-//    public void delete(List<PanFileRightIdParam> panFileRightIdParamList) {
-//        // 执行删除
-//        this.removeByIds(CollStreamUtil.toList(panFileRightIdParamList, PanFileRightIdParam::getId));
-//    }
 
     @Override
     public List<PanFileRightVo> detail(PanFileRightIdParam panFileRightIdParam) {
         return panFileRightMapper.getFileRightByFileId(panFileRightIdParam.getUserFileId());
-
     }
 
     @Override
@@ -132,12 +126,19 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
      *                   2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
      */
     @Override
-    public boolean CheckFileRight(String userFileId, long checkRight) {
+    public boolean checkFileRight(String userFileId, long checkRight) {
         //1. 获取当前用户
         String userId = StpLoginUserUtil.getLoginUser().getId();
 
         //2. 获取文件相关信息
         UserFile userFile = userFileService.getById(userFileId);
+
+        //超管，拥有所有权限
+        if(StpLoginUserUtil.getLoginUser().getRoleCodeList().contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue()))
+            return true;
+        //文件管理者，拥有所有权限
+        if(userId.equals(getFileManager(userFileId)))
+            return true;
 
         //3. check 1. 若当前用户为userFileId文件所有者，拥有全部操作权限
         if(ObjectUtil.isNotEmpty(userFile) && userFile.getUserId().equals(userId))
@@ -169,6 +170,19 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
 
 
     /***
+     * 递归，获取当前文件的 文件管理者
+     * @param userFileId
+     * @return
+     */
+    public String getFileManager(String userFileId){
+        UserFile userFile = userFileService.getById(userFileId);
+        if(ObjectUtil.isEmpty(userFile)) return "";
+        if(StrUtil.isNotEmpty(userFile.getFileManager())) return userFile.getFileManager();
+        return getFileManager(userFile.getParentId());
+    }
+
+
+    /***
      * 递归获取，就近权限
      * @param userFileId
      * @param userId
@@ -186,4 +200,117 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
             return getParentRight(rightVo.getParentId(),userId);
     }
 
+
+    /***
+     * 根据userFileId，获取所有父级文件信息
+     * @param userFileId 用户文件Id
+     * @return 所有的父级文件信息
+     */
+    public List<UserFile> getParents(String userFileId){
+        List<UserFile> userFileList = new ArrayList<>();
+        UserFile userFile = userFileService.getById(userFileId);
+        if(ObjectUtil.isEmpty(userFile)) return userFileList;
+        if(userFile.getParentId().equals("0")) return userFileList;
+        //父级文件
+        String parentId = userFile.getParentId();
+        while (!parentId.equals("0")){
+            UserFile parentFile = userFileService.getById(parentId);
+            if(ObjectUtil.isNotEmpty(parentFile)) {
+                userFileList.add(parentFile);
+                parentId = parentFile.getParentId();
+            }
+            if(ObjectUtil.isEmpty(parentFile)) break;
+        }
+        return userFileList;
+    }
+
+    /***
+     * 当为userFileId设置权限时，反向递归，为其父级（父级没有权限）赋予默认权限
+     * @param userFileId 当前设置权限的用户文件Id
+     * @param objects 被赋予权限的个人集合
+     * @param right 初试化的权限值（穿透权限）
+     *
+     * 注意：在确定是否插入初试权限记录前，先要判断是否存在权限记录，即同一个userFileId，同一个userId,只能存在一条有效记录
+     */
+    public void initParentFileRight(String userFileId,List<ObjectRight> objects,long right){
+        //1. 获取父级文件
+        List<UserFile> parentFiles = getParents(userFileId);
+        if(CollUtil.isEmpty(parentFiles)) return;
+        List<String> userFileIds = parentFiles.stream().map(UserFile::getId).collect(Collectors.toList());
+
+        //2. 判断处理赋值初试权限
+        List<PanFileRight> addList = new ArrayList<>();
+        List<PanFileRight> updateList = new ArrayList<>();
+        for (ObjectRight obj:objects) {
+            List<PanFileRight> oldFileRights = this.list(new QueryWrapper<PanFileRight>().lambda()
+                    .eq(PanFileRight::getObjectId,obj.getObjectId())
+                    .in(PanFileRight::getUserFileId,userFileIds));
+
+            for (String fileId:userFileIds) {
+                PanFileRight temp = oldFileRights.stream()
+                        .filter(x->x.getUserFileId().equals(fileId)).findFirst().orElse(null);
+                if(ObjectUtil.isEmpty(temp)){
+                    PanFileRight newTemp = new PanFileRight();
+                    newTemp.setUserFileId(fileId);
+                    newTemp.setObjectId(obj.getObjectId());
+                    newTemp.setRightValue(right);
+                    addList.add(newTemp);
+                }else{
+                    if(temp.getRightValue() == FileRight.RIGHT_NULL){
+                        temp.setRightValue(temp.getRightValue() | right);
+                        updateList.add(temp);
+                    }
+                }
+            }
+        }
+        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
+        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
+    }
+
+
+    /**
+     * 处理当前userFileId
+     * 原因：在给当前userFileId设置权限的时候，需要校验子集（儿子）是否被其他人有权限操作
+     *      若（儿子）被设置操作，则需要处理当前文件权限（有权限不处理，无权限者需要穿透）
+     * @param userFileId
+     * @param right
+     */
+    public void initCurrentFileRight(String userFileId,Long right){
+        //根据userFileId，获取其直接子集（儿子）
+        List<UserFile> sonFiles = userFileService.list(new QueryWrapper<UserFile>().lambda().eq(UserFile::getParentId,userFileId));
+        List<String> sonUserFileIds = sonFiles.stream().map(UserFile::getId).collect(Collectors.toList());
+
+        //这些儿子文件，在FileRight中是否已有人使用[有权限]
+        List<PanFileRight> sonFileRights = this.list(new QueryWrapper<PanFileRight>().lambda().in(PanFileRight::getUserFileId,sonUserFileIds));
+        List<String> objectIds = sonFileRights.stream()
+                .filter(x-> x.getRightValue() > FileRight.RIGHT_NULL)
+                .map(PanFileRight::getObjectId).distinct().collect(Collectors.toList());
+
+        //获取objectIds这些人中，是否存在当前文件权限
+        List<PanFileRight> currentFileRights = this.list(new QueryWrapper<PanFileRight>().lambda()
+                .eq(PanFileRight::getUserFileId,userFileId)
+                .in(PanFileRight::getObjectId,objectIds));
+
+        //2. 判断处理赋值初试权限
+        List<PanFileRight> addList = new ArrayList<>();
+        List<PanFileRight> updateList = new ArrayList<>();
+        for (String objectId:objectIds) {
+            PanFileRight temp = currentFileRights.stream()
+                    .filter(x->x.getObjectId().equals(objectId)).findFirst().orElse(null);
+            if(ObjectUtil.isEmpty(temp)){
+                PanFileRight newTemp = new PanFileRight();
+                newTemp.setUserFileId(userFileId);
+                newTemp.setObjectId(objectId);
+                newTemp.setRightValue(right);
+                addList.add(newTemp);
+            }else {
+                if(temp.getRightValue() == FileRight.RIGHT_NULL) {
+                    temp.setRightValue(temp.getRightValue() | right);
+                    updateList.add(temp);
+                }
+            }
+        }
+        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
+        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
+    }
 }

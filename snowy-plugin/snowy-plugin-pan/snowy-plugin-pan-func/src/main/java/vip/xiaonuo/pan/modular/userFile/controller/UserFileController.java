@@ -271,4 +271,33 @@ public class UserFileController {
         return CommonResult.data(userFileService.pageList(userFilePageParam));
     }
 
+
+
+    /************************************** 群组文件夹 列表 *****************************************/
+
+    /**
+     * 获取根目录文件夹（群组文件）
+     * @return
+     */
+
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("获取根目录文件夹（群组文件）")
+    @GetMapping("/pan/fold/getGroupFold")
+    public CommonResult<List<UserFile>> getGroupFold() {
+        return CommonResult.data(userFileService.getGroupFold());
+    }
+
+
+    /**
+     * 获取文件主表分页(群组文件)
+     *
+     * @author mayike
+     * @date  2023/08/28 10:09
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("文件夹列表(群组文件)")
+    @GetMapping("/pan/fold/groupPage")
+    public CommonResult<Page<UserFile>> groupPage(UserFilePageParam userFilePageParam) {
+        return CommonResult.data(userFileService.groupPage(userFilePageParam));
+    }
 }

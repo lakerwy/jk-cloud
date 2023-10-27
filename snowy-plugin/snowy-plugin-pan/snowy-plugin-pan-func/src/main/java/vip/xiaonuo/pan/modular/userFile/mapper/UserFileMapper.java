@@ -43,4 +43,11 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
     List<UserFile> mySelectList(@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
 
     void myUpdateById(UserFile userFile);
+
+
+    /***
+     * 获取群组根目录
+     * @return
+     */
+    List<UserFile> getGroupFold(@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
 }

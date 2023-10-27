@@ -85,4 +85,11 @@ public interface BizPrjPlanService extends IService<BizPrjPlan> {
      * @return
      */
     List<PlanInvoiceVo> invoiceList(InvoiceParam invoiceParam);
+
+    /***
+     * 根据 【合同编号】 - 获取 审核通过 的历史【项目款计划单】集合
+     * @param invoiceParam
+     * @return
+     */
+    List<BizPrjPlanVo> planList(InvoiceParam invoiceParam);
 }
