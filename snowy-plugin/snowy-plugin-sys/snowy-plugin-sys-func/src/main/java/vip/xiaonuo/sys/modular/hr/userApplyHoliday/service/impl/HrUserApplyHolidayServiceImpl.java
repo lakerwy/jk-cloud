@@ -19,6 +19,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -39,15 +40,13 @@ import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.mapper.HrUserApplyHolidayMapper;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayAddParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayEditParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayIdParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayPageParam;
+import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.*;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.HrUserApplyHolidayService;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -86,39 +85,28 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
     @Transactional(rollbackFor = Exception.class)
     @Override
     public String add(HrUserApplyHolidayAddParam hrUserApplyHolidayAddParam) {
-
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        // 测试需要，暂时去掉代码
-       /* Long hour=DateUtil.between(hrUserApplyHolidayAddParam.getApplyBeginTime(),hrUserApplyHolidayAddParam.getApplyEndTime(), DateUnit.HOUR);
-        QueryWrapper<HrUserHolidayData> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(HrUserHolidayData::getUserId,loginUser.getId());
-        List<HrUserHolidayData> hrUserHolidayDataList = hrUserHolidayDataService.list(queryWrapper);
+        List<HrUserHolidayData> hrUserHolidayDataList = hrUserHolidayDataService.list(new LambdaQueryWrapper<HrUserHolidayData>().eq(HrUserHolidayData::getUserId,loginUser.getId()));
         if(ObjectUtil.isEmpty(hrUserHolidayDataList)){
             return HrUserApplyHolidayEnum.NOT_DATA.getValue();
         }
         HrUserHolidayData hrUserHolidayData = hrUserHolidayDataList.get(0);
 
-        if(HrUserApplyHolidayEnum.PERSONAL_LEAVE.getValue().equals(hrUserApplyHolidayAddParam.getApplyType().toString())){*//**  事假限制规则*//*}
-
-        *//** 计算剩余假期  *//*
-        Double result  = hour.intValue()/7  +  hour.intValue()/7 > 0 ? 0.5 : 0;
-        Double remainDays = 0.0;
-        if(HrUserApplyHolidayEnum.COMPENSATORY_LEAVE.getValue().equals(hrUserApplyHolidayAddParam.getApplyType().toString())){  *//**  调休；天工时后面取配置*//*
-            if(result > Double.valueOf(hrUserHolidayData.getCompensatoryLeave())){
+        /**  只有年假和调休余额限制*/
+        Double leaveDays  = hrUserApplyHolidayAddParam.getLeaveDays();
+        if(HrUserApplyHolidayEnum.COMPENSATORY_LEAVE.getValue().equals(hrUserApplyHolidayAddParam.getApplyType().toString())){  /**  调休 */
+            if(leaveDays > Double.valueOf(hrUserHolidayData.getCompensatoryLeave())){
                 return HrUserApplyHolidayEnum.NOT_COMPENSATORY_LEAVE_DATA.getValue();
             }
-            remainDays = Double.valueOf(hrUserHolidayData.getCompensatoryLeave()) - result;
         }
-
-        if(HrUserApplyHolidayEnum.ANNUAL_LEAVE.getValue().equals(hrUserApplyHolidayAddParam.getApplyType().toString())){  *//**  年假 *//*
-            if(result > Double.valueOf(hrUserHolidayData.getAnnualLeave())){
-                return HrUserApplyHolidayEnum.NOT_ANNUAL_LEAVE_DATA.getValue();
-            }
-            remainDays = Double.valueOf(hrUserHolidayData.getAnnualLeave()) - result;
+        if(HrUserApplyHolidayEnum.ANNUAL_LEAVE.getValue().equals(hrUserApplyHolidayAddParam.getApplyType().toString())){  /**  年假 */
+            if(leaveDays > Double.valueOf(hrUserHolidayData.getAnnualLeave())){
+                return HrUserApplyHolidayEnum.NOT_ANNUAL_LEAVE_DATA.getValue(); }
         }
-        hrUserHolidayData.setCompensatoryLeave(remainDays.toString());
-        hrUserHolidayDataService.updateById(hrUserHolidayData);*/
+        return saveProcessInstance(hrUserApplyHolidayAddParam);
+    }
 
+    private String saveProcessInstance(HrUserApplyHolidayAddParam hrUserApplyHolidayAddParam){
         /** 申请流程 */
         HrUserApplyHoliday hrUserApplyHoliday = BeanUtil.toBean(hrUserApplyHolidayAddParam, HrUserApplyHoliday.class);
         String processInstanceId = hrUserApplyHolidayAddParam.getProcessInstanceId();
@@ -164,5 +152,36 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
             throw new CommonException("请假申请表不存在，id值为：{}", id);
         }
         return hrUserApplyHoliday;
+    }
+
+    @Override
+    public Double calculate(CalculateDayParam calculateDayParam){
+        /** 开始时间和结束时间是同一天 */
+        if(calculateDayParam.getBeginTime().equals(calculateDayParam.getEndTime())){
+            HrUserApplyHolidayEnum.MORNING_DATA.getValue();
+            HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue();
+            return calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) ?
+                    0.5 : calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) ?
+                    0.5 : 1;
+        }
+
+        /** 开始时间和结束时间不是同一天 */
+        Date beginTime = DateUtil.parseDate(calculateDayParam.getBeginTime());
+        Date endTime = DateUtil.parseDate(calculateDayParam.getEndTime());
+        Long day= DateUtil.between(beginTime,endTime, DateUnit.DAY); //计算天数差
+        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue())){
+            /** 上午 - 上午 */
+            return day+0.5;
+        }
+        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue())){
+            /** 下午 - 下午*/
+            return day+0.5;
+        }
+        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue())){
+            /** 下午 - 上午*/
+            return Double.parseDouble(day.toString());
+        }
+        /** 上午 - 下午*/
+        return day+1.0;
     }
 }

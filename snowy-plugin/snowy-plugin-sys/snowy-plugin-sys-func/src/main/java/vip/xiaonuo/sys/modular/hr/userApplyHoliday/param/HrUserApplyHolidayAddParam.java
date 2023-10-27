@@ -39,8 +39,8 @@ public class HrUserApplyHolidayAddParam {
     @ApiModelProperty(value = "申请人名称", position = 4)
     private String applyUserName;
 
-    /** 申请类型：1 事假，2 调休，3 年假 */
-    @ApiModelProperty(value = "申请类型：1 事假，2 调休，3 年假", position = 5,required = true)
+    /** 申请类型：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7，出差 8*/
+    @ApiModelProperty(value = "申请类型：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7，出差 8", position = 5,required = true)
     private Integer applyType;
 
     /** 申请开始时间 */

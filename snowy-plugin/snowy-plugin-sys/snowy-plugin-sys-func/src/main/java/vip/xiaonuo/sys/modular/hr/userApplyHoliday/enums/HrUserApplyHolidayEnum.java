@@ -23,16 +23,18 @@ import lombok.Getter;
 @Getter
 public enum HrUserApplyHolidayEnum {
 
-    /** 申请类型：1 事假，2 调休，3 年假 */
+    /** 申请类型：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7，出差 8*/
     NOT_LIMIT("-1"),/** 无限制假期 */
-    PERSONAL_LEAVE("1"),
-    COMPENSATORY_LEAVE("2"),
+    COMPENSATORY_LEAVE("6"),//调休
+    ANNUAL_LEAVE("5"), //年假
     NOT_DATA("1"),//无假期数据，请先添加！
     NOT_COMPENSATORY_LEAVE_DATA("2"),//申请时间超过剩余调休时间，请重新申请！
-    ANNUAL_LEAVE("3"),
     NOT_ANNUAL_LEAVE_DATA("3"),//申请时间超过剩余年假时间，请重新申请！
     SUCCESS("0"),/** 成功 */
-    FAIL("1");/** 失败 */
+    FAIL("1"),/** 失败 */
+    MORNING_DATA("1"),/** 上午*/
+    AFTERNOON_DATA("2"),/** 下午*/
+    TIMNE(" 00:00:00");
 
     private final String value;
 

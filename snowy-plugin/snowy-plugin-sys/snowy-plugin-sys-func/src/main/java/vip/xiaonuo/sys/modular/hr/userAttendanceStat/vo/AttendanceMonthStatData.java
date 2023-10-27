@@ -13,10 +13,19 @@ public class AttendanceMonthStatData {
     @ApiModelProperty(value = "考勤结果)", position = 2)
     private String status;
 
+    @ApiModelProperty(value = "考勤状态code)", position = 2)
+    private String statusCode;
+
     public AttendanceMonthStatData(){}
 
     public AttendanceMonthStatData(String day,String status){
         this.day = day;
         this.status = status;
+    }
+
+    public AttendanceMonthStatData(String day,String status,String statusCode){
+        this.day = day;
+        this.status = status;
+        this.statusCode = statusCode;
     }
 }

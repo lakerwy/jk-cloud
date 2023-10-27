@@ -86,7 +86,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     private final String OFF_DUTY = "OffDuty";
     private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
     private static final String HR_ATTENDANCE_CONFIG_DEFAULT_KEY = "HR_ATTENDANCE_CONFIG_DEFAULT_KEY";  //默认配置
-
+    List<HrFestivalData> FESTIVAL_DATA_LIST = new ArrayList<>();//暂时，后续改为redis
 
     @Resource
     HrUserAttendanceStatService hrUserAttendanceStatService;
@@ -659,13 +659,28 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         return attendanceMonthStatData;
     }
 
+    /*private void countData(List<String> days,List<HrUserAttendanceStat> statList,List<HrUserApplyHoliday> hrUserApplyHolidayList){
+        Map<String,String> dayMap = new HashMap<>();
+        days.forEach(day -> {
+            if(isFestival(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),1)){
+
+            }else{
+
+            }
+        });
+
+    }*/
+
     @Override
     public  Boolean isFestival(String date,Integer type){
         Boolean isTrue = false;
         try{
             Date isTrueDate = DateUtils.parseDate(date,DateUtils.DATE_FORMAT_19);
             Date holidayTime = DateUtils.parseDate(HrUserAttendanceStatEnum.NOW_YEAR.getValue(),DateUtils.DATE_FORMAT_19);
-            List<HrFestivalData> festivalDataList = hrFestivalDataService.list();  //后续改为缓存
+            if(CollectionUtil.isEmpty(FESTIVAL_DATA_LIST)){
+                FESTIVAL_DATA_LIST = hrFestivalDataService.list();  //后续改为缓存
+            }
+            List<HrFestivalData> festivalDataList = FESTIVAL_DATA_LIST;
 
             if(CollectionUtil.isEmpty(festivalDataList)){
                 return false; }
