@@ -672,7 +672,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }*/
 
     @Override
-    public  Boolean isFestival(String date,Integer type){
+    public  Boolean isFestival(String date,Integer type){//type类别：1 判断是法定节假日，2 判断是法定加班日
         Boolean isTrue = false;
         try{
             Date isTrueDate = DateUtils.parseDate(date,DateUtils.DATE_FORMAT_19);

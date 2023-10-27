@@ -19,6 +19,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -35,6 +36,7 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
@@ -42,6 +44,7 @@ import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.mapper.HrUserApplyHolidayMapper;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.*;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.HrUserApplyHolidayService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
 
@@ -62,6 +65,8 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
     CommonCacheOperator commonCacheOperator;
     @Resource
     HrUserHolidayDataService hrUserHolidayDataService;
+    @Resource
+    HrUserAttendanceStatService hrUserAttendanceStatService;
 
     @Override
     public Page<HrUserApplyHoliday> page(HrUserApplyHolidayPageParam hrUserApplyHolidayPageParam) {
@@ -158,30 +163,89 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
     public Double calculate(CalculateDayParam calculateDayParam){
         /** 开始时间和结束时间是同一天 */
         if(calculateDayParam.getBeginTime().equals(calculateDayParam.getEndTime())){
-            HrUserApplyHolidayEnum.MORNING_DATA.getValue();
-            HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue();
-            return calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) ?
-                    0.5 : calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) ?
-                    0.5 : 1;
+            return alikeDay(calculateDayParam);
         }
 
         /** 开始时间和结束时间不是同一天 */
         Date beginTime = DateUtil.parseDate(calculateDayParam.getBeginTime());
         Date endTime = DateUtil.parseDate(calculateDayParam.getEndTime());
         Long day= DateUtil.between(beginTime,endTime, DateUnit.DAY); //计算天数差
-        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue())){
+        Double festivalDou = calculateFestival(beginTime,endTime,calculateDayParam);
+        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue())
+                && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue())){
             /** 上午 - 上午 */
-            return day+0.5;
+            return day+0.5-festivalDou;
         }
-        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue())){
+        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue())
+                && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue())){
             /** 下午 - 下午*/
-            return day+0.5;
+            return day+0.5-festivalDou;
         }
-        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue())){
+        if(calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue())
+                && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue())){
             /** 下午 - 上午*/
-            return Double.parseDouble(day.toString());
+            return Double.parseDouble(day.toString())-festivalDou;
         }
         /** 上午 - 下午*/
-        return day+1.0;
+        return day+1.0-festivalDou;
+    }
+    private Double alikeDay(CalculateDayParam calculateDayParam){
+        Boolean isWork = hrUserAttendanceStatService.isFestival(calculateDayParam.getBeginTime()+HrUserApplyHolidayEnum.TIMNE.getValue(),2);
+        Boolean isWeek = DateUtil.isWeekend(DateUtil.parseDate(calculateDayParam.getBeginTime()));
+        if(isWeek && !isWork){//周末，非法定加班日
+            return 0.0;
+        }
+        return calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue())
+                && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) ?
+                0.5 : calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue())
+                && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) ? 0.5 : 1;
+    }
+
+
+    private Double calculateFestival(Date beginTime,Date endTime,CalculateDayParam calculateDayParam){
+        Double festivalDou = 0.0;
+        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);
+        //判断法定加班日，type类别：1 法定节假日，2 法定加班日，
+        Boolean isWorkBegin = hrUserAttendanceStatService.isFestival(calculateDayParam.getBeginTime()+HrUserApplyHolidayEnum.TIMNE.getValue(),2);
+        /**
+         * 特殊处理，避免用户骚操作，周末为开始时间和下午
+         * 1.当开始时间选择为周末，类型为下午(只选半天)，且不为法定加班日
+         * 2.则从第二天开始计算
+         * 3.若符合条件，则说明开始时间选择的是周末的半天，故总天数需要减 0.5，festivalDou = 0.5，dayList去掉第一个数据
+         * */
+        if(DateUtil.isWeekend(beginTime) && calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) && !isWorkBegin){
+            dayList = dayList.subList(1,dayList.size());
+            festivalDou = 0.5;
+        }else if(DateUtil.isWeekend(beginTime) && calculateDayParam.getBeginType().equals(HrUserApplyHolidayEnum.AFTERNOON_DATA.getValue()) && isWorkBegin){
+            /** 是周末，且是法定加班日，festivalDou不变*/
+            dayList = dayList.subList(1,dayList.size());
+        }
+        /** 同理，当结束时间为周末，且选择上午半天，判断是否为法定加班日 */
+        Boolean isWorkEnd = hrUserAttendanceStatService.isFestival(calculateDayParam.getEndTime()+HrUserApplyHolidayEnum.TIMNE.getValue(),2);
+        if(DateUtil.isWeekend(endTime) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) && !isWorkEnd){
+            dayList = dayList.subList(0,dayList.size()-1);
+            festivalDou = festivalDou+0.5;
+        }else if(DateUtil.isWeekend(endTime) && calculateDayParam.getEndType().equals(HrUserApplyHolidayEnum.MORNING_DATA.getValue()) && isWorkEnd){
+            /** 是周末，且是法定加班日，festivalDou不变*/
+            dayList = dayList.subList(0,dayList.size()-1);
+        }
+        for(String day : dayList){
+            try{
+                Date time = DateUtils.parseDate(day+HrUserApplyHolidayEnum.TIMNE.getValue());
+                Boolean isWeek = DateUtil.isWeekend(time);
+                /** 是否为法定加班日 */
+                Boolean isWork = hrUserAttendanceStatService.isFestival(day+HrUserApplyHolidayEnum.TIMNE.getValue(),2);
+                /** 是否为法定休息日 */
+                Boolean isFestival = hrUserAttendanceStatService.isFestival(day+HrUserApplyHolidayEnum.TIMNE.getValue(),1);
+                if(isFestival)//法定节假日
+                    festivalDou = festivalDou+1;
+                if(isWeek && !isWork) //周末+非法定加班日
+                    festivalDou = festivalDou+1;
+            }catch (Exception e){
+                log.error("计算时间差失败！e:"+e.toString());
+                throw new CommonException("计算时间差失败！");
+            }
+       }
+        return festivalDou;
     }
 }
