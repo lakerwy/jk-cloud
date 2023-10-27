@@ -132,14 +132,15 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
      *                   2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
      */
     @Override
-    public boolean CheckFileRight(String userFileId, long checkRight) {
+    public boolean checkFileRight(String userFileId, long checkRight) {
         //1. 获取当前用户
         String userId = StpLoginUserUtil.getLoginUser().getId();
 
         //2. 获取文件相关信息
         UserFile userFile = userFileService.getById(userFileId);
 
-        //3. check 1. 若当前用户为userFileId文件所有者，拥有全部操作权限
+        //todo
+        //3. check 1. 若当前用户为userFileId文件所有者，拥有全部操作权限   2、若当前用户是文件管理员 --- 拥有所有操作权限
         if(ObjectUtil.isNotEmpty(userFile) && userFile.getUserId().equals(userId))
             return true;
 

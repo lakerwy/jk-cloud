@@ -214,7 +214,7 @@ public class DingDingServiceImpl implements IDingDingService {
     }
 
     @Override
-    public OapiMessageCorpconversationAsyncsendV2Response baseAsyncSend(JSONObject jsonObject, String phone) {
+    public OapiMessageCorpconversationAsyncsendV2Response baseAsyncSend(JSONObject jsonObject, String phone,String title) {
         return null;
     }
 
@@ -249,6 +249,11 @@ public class DingDingServiceImpl implements IDingDingService {
 
     @Override
     public void baseBatchSend(JSONObject entries, List<String> receiverIdList) {
+
+    }
+
+    @Override
+    public void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, String title) {
 
     }
 }
