@@ -58,7 +58,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
     @Override
     public void add(PanFileRightAddParam panFileRightAddParam) {
         List<PanFileRight> panFileRightList = BeanUtil.copyToList(panFileRightAddParam.getObjectRightList(),PanFileRight.class);
-        panFileRightList.forEach(x->{x.setUserFileId(panFileRightAddParam.getUserFileId());});
+        panFileRightList.forEach(x-> x.setUserFileId(panFileRightAddParam.getUserFileId()));
         this.saveBatch(panFileRightList);
         //处理父级递归默认权限
         initParentFileRight(panFileRightAddParam.getUserFileId(), panFileRightAddParam.getObjectRightList(), FileRight.PENETRATE);
@@ -256,6 +256,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
                     newTemp.setRightValue(right);
                     addList.add(newTemp);
                 }else{
+                    assert temp != null;
                     if(temp.getRightValue() == FileRight.RIGHT_NULL){
                         temp.setRightValue(temp.getRightValue() | right);
                         updateList.add(temp);

@@ -138,6 +138,17 @@ public class FileTransferService implements IFileTransferService {
         if (list != null && !list.isEmpty()) {
             PanFile file = list.get(0);
             UserFile userFile = new UserFile(commonFile, uid, file.getId());
+
+            List<UserFile> userFiles = userFileService.list(new QueryWrapper<UserFile>().lambda()
+                    .eq(UserFile::getUserId, userFile.getUserId())
+                    .eq(UserFile::getFilePath, userFile.getFilePath())
+                    .eq(UserFile::getFileName, userFile.getFileName())
+                    .eq(UserFile::getExtendName, userFile.getExtendName())
+                    .eq(UserFile::getIsDir, userFile.getIsDir()));
+            if(CollUtil.isNotEmpty(userFiles)){
+                String fileName = fileDealComp.getRepeatFileName(userFile, userFile.getFilePath());
+                userFile.setFileName(fileName);
+            }
 //            commonFile.setParentId(uploadFileParam.getParentId());
             userFile.setParentId(uploadFileParam.getParentId());
             userFile.setFoldType(foldType);
