@@ -116,6 +116,7 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
                 PanFilePermission filePermission = new PanFilePermission();
                 filePermission.setCommonFileId(commonFile.getId());
                 filePermission.setUserId(obj.getObjectId());
+                filePermission.setFilePermissionCode(obj.getRightValue());
                 filePermissionList.add(filePermission);
             }
             panFilePermissionService.saveBatch(filePermissionList);

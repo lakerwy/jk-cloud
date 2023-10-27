@@ -280,11 +280,15 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         List<UserFile> sonFiles = userFileService.list(new QueryWrapper<UserFile>().lambda().eq(UserFile::getParentId,userFileId));
         List<String> sonUserFileIds = sonFiles.stream().map(UserFile::getId).collect(Collectors.toList());
 
+        if(CollUtil.isEmpty(sonUserFileIds)) return;
+
         //这些儿子文件，在FileRight中是否已有人使用[有权限]
         List<PanFileRight> sonFileRights = this.list(new QueryWrapper<PanFileRight>().lambda().in(PanFileRight::getUserFileId,sonUserFileIds));
         List<String> objectIds = sonFileRights.stream()
                 .filter(x-> x.getRightValue() > FileRight.RIGHT_NULL)
                 .map(PanFileRight::getObjectId).distinct().collect(Collectors.toList());
+
+        if(CollUtil.isEmpty(objectIds)) return;
 
         //获取objectIds这些人中，是否存在当前文件权限
         List<PanFileRight> currentFileRights = this.list(new QueryWrapper<PanFileRight>().lambda()
