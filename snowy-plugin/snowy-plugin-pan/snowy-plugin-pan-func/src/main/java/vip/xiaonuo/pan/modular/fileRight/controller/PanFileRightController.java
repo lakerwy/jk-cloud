@@ -48,37 +48,37 @@ public class PanFileRightController {
     @Resource
     private PanFileRightService panFileRightService;
 
-    /**
-     * 添加网盘权限配置表 - 文件夹|文件设置配置权限
-     *
-     * @author yong.ye
-     * @date  2023/10/25 14:32
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("添加网盘权限配置表 - 文件夹|文件设置配置权限")
-    @CommonLog("添加网盘权限配置表 - 文件夹|文件设置配置权限")
-//    @SaCheckPermission("/pan/fileRight/add")
-    @PostMapping("/pan/fileRight/add")
-    public CommonResult<String> add(@RequestBody @Valid PanFileRightAddParam panFileRightAddParam) {
-        panFileRightService.add(panFileRightAddParam);
-        return CommonResult.ok();
-    }
+//    /**
+//     * 添加网盘权限配置表 - 文件夹|文件设置配置权限
+//     *
+//     * @author yong.ye
+//     * @date  2023/10/25 14:32
+//     */
+//    @ApiOperationSupport(order = 2)
+//    @ApiOperation("添加网盘权限配置表 - 文件夹|文件设置配置权限")
+//    @CommonLog("添加网盘权限配置表 - 文件夹|文件设置配置权限")
+////    @SaCheckPermission("/pan/fileRight/add")
+//    @PostMapping("/pan/fileRight/add")
+//    public CommonResult<String> add(@RequestBody @Valid PanFileRightAddParam panFileRightAddParam) {
+//        panFileRightService.add(panFileRightAddParam);
+//        return CommonResult.ok();
+//    }
 
-    /**
-     * 编辑网盘权限配置表 -  修改 文件夹|文件设置配置权限
-     *
-     * @author yong.ye
-     * @date  2023/10/25 14:32
-     */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑网盘权限配置表 -  修改 文件夹|文件设置配置权限")
-    @CommonLog("编辑网盘权限配置表 -  修改 文件夹|文件设置配置权限")
-//    @SaCheckPermission("/pan/fileRight/edit")
-    @PostMapping("/pan/fileRight/edit")
-    public CommonResult<String> edit(@RequestBody @Valid PanFileRightEditParam panFileRightEditParam) {
-        panFileRightService.edit(panFileRightEditParam);
-        return CommonResult.ok();
-    }
+//    /**
+//     * 编辑网盘权限配置表 -  修改 文件夹|文件设置配置权限
+//     *
+//     * @author yong.ye
+//     * @date  2023/10/25 14:32
+//     */
+//    @ApiOperationSupport(order = 3)
+//    @ApiOperation("编辑网盘权限配置表 -  修改 文件夹|文件设置配置权限")
+//    @CommonLog("编辑网盘权限配置表 -  修改 文件夹|文件设置配置权限")
+////    @SaCheckPermission("/pan/fileRight/edit")
+//    @PostMapping("/pan/fileRight/edit")
+//    public CommonResult<String> edit(@RequestBody @Valid PanFileRightEditParam panFileRightEditParam) {
+//        panFileRightService.edit(panFileRightEditParam);
+//        return CommonResult.ok();
+//    }
 
     /**
      * 获取网盘权限配置表详情 - 根据 文件夹|文件 Id 获取权限管理详情
@@ -92,5 +92,21 @@ public class PanFileRightController {
     @GetMapping("/pan/fileRight/detail")
     public CommonResult<List<PanFileRightVo>> detail(@Valid PanFileRightIdParam panFileRightIdParam) {
         return CommonResult.data(panFileRightService.detail(panFileRightIdParam));
+    }
+
+
+    /**
+     * 保存网盘权限配置表 - 文件夹|文件设置配置权限
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("保存网盘权限配置表 - 文件夹|文件设置配置权限")
+    @CommonLog("保存网盘权限配置表 - 文件夹|文件设置配置权限")
+    @PostMapping("/pan/fileRight/save")
+    public CommonResult<String> save(@RequestBody @Valid PanFileRightAddParam panFileRightAddParam) {
+        panFileRightService.save(panFileRightAddParam);
+        return CommonResult.ok();
     }
 }

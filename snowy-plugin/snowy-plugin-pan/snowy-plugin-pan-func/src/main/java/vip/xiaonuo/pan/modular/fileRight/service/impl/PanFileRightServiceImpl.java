@@ -18,7 +18,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.bytedeco.opencv.presets.opencv_core;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -71,9 +70,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
     public void edit(PanFileRightEditParam panFileRightEditParam) {
         //最新设置
         List<PanFileRight> newPanFileRights = BeanUtil.copyToList(panFileRightEditParam.getObjectRightList(),PanFileRight.class);
-        newPanFileRights.forEach(x->{
-            x.setUserFileId(panFileRightEditParam.getUserFileId());
-        });
+        newPanFileRights.forEach(x-> x.setUserFileId(panFileRightEditParam.getUserFileId()));
 
         //根据文件Id获取历史权限设置
         List<PanFileRight> oldFileRights = this.list(new QueryWrapper<PanFileRight>().lambda().eq(PanFileRight::getUserFileId,panFileRightEditParam.getUserFileId()));
@@ -166,6 +163,46 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
             else
                 throw new CommonException("无操作权限");
         }
+    }
+
+
+    /***
+     * 权限配置保存（整合新增|修改）
+     * @param panFileRightAddParam
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void save(PanFileRightAddParam panFileRightAddParam) {
+        //最新设置
+        List<PanFileRight> newFileRights = BeanUtil.copyToList(panFileRightAddParam.getObjectRightList(),PanFileRight.class);
+        newFileRights.forEach(x->x.setUserFileId(panFileRightAddParam.getUserFileId()));
+
+        //根据文件Id获取历史权限设置
+        List<PanFileRight> oldFileRights = this.list(new QueryWrapper<PanFileRight>().lambda().eq(PanFileRight::getUserFileId,panFileRightAddParam.getUserFileId()));
+        //历史权限配置【拥有权限的用户】
+        List<String> oldObjectIds = oldFileRights.stream().map(PanFileRight::getObjectId).collect(Collectors.toList());
+
+        //最新权限配置的用户
+        List<String> newObjectIds = newFileRights.stream().map(PanFileRight::getObjectId).collect(Collectors.toList());
+
+        //新增
+        List<PanFileRight> addList = newFileRights.stream().filter(x->!oldObjectIds.contains(x.getObjectId())).collect(Collectors.toList());
+        //更新
+        List<PanFileRight> updateList = oldFileRights.stream().filter(x->newObjectIds.contains(x.getObjectId())).collect(Collectors.toList());
+        //删除
+        oldFileRights.removeAll(updateList);
+        //处理更新
+        updateList.forEach(x->x.setRightValue(newFileRights.stream().filter(e->e.getObjectId().equals(x.getObjectId())).findFirst().orElse(null).getRightValue()));
+
+        //新增 | 更新 | 删除
+        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
+        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
+        if(CollUtil.isNotEmpty(oldFileRights)) this.removeByIds(oldFileRights);
+
+        //处理父级递归默认权限
+        initParentFileRight(panFileRightAddParam.getUserFileId(), panFileRightAddParam.getObjectRightList(),FileRight.PENETRATE);
+        //处理当前文件权限问题
+        initCurrentFileRight(panFileRightAddParam.getUserFileId(),FileRight.PENETRATE);
     }
 
 

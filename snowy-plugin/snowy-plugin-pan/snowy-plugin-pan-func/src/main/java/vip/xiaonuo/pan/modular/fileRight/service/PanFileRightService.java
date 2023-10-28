@@ -75,4 +75,13 @@ public interface PanFileRightService extends IService<PanFileRight> {
      *                   2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
      */
     boolean checkFileRight(String userFileId,long checkRight);
+
+
+    /**
+     * 保存网盘权限配置
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    void save(PanFileRightAddParam panFileRightAddParam);
 }
