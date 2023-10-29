@@ -133,12 +133,13 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         //超管，拥有所有权限
         if(StpLoginUserUtil.getLoginUser().getRoleCodeList().contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue()))
             return true;
-        //文件管理者，拥有所有权限
-        if(userId.equals(getFileManager(userFileId)))
-            return true;
 
         //3. check 1. 若当前用户为userFileId文件所有者，拥有全部操作权限
         if(ObjectUtil.isNotEmpty(userFile) && userFile.getUserId().equals(userId))
+            return true;
+
+        //文件管理者(含父级)，拥有所有权限
+        if(getFileManager(userFile).contains(userId))
             return true;
 
         //4. check 2. 若当前用户不为userFileId文件所有者，根据权限配置校验权限
@@ -147,22 +148,16 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
 
         //5. check 2.1 若当前userFileId，当前用户，存在权限配置，直接根据配置校验
         if(ObjectUtil.isNotEmpty(fileRight)) {
-            if(ObjectUtil.isNotEmpty(fileRight.getRightValue()) &&
-                    FileRight.hasRight(fileRight.getRightValue(),checkRight))
-                return true;
-            else
+            if(!FileRight.hasRight(fileRight.getRightValue(),checkRight))
                 throw new CommonException("无操作权限");
         }
         //5. check 2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
         else{
             UserFileRightVo rightVo = getParentRight(userFile.getParentId(),userId);
-            if(ObjectUtil.isNotEmpty(rightVo) &&
-                    ObjectUtil.isNotEmpty(rightVo.getRightValue()) &&
-                    FileRight.hasRight(rightVo.getRightValue(),checkRight))
-                return true;
-            else
+            if(ObjectUtil.isEmpty(rightVo) || !FileRight.hasRight(rightVo.getRightValue(),checkRight))
                 throw new CommonException("无操作权限");
         }
+        return true;
     }
 
 
@@ -207,15 +202,30 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
 
 
     /***
-     * 递归，获取当前文件的 文件管理者
-     * @param userFileId
+     * 递归，获取当前文件的  所有 文件管理者
+     * 比如 ：   A -- B -- C -- d.doc
+     * 管理者：  a     b         c
+     * 则 d.doc 的 管理者 a,b,c 均可操作该文件
+     *
+     * @param userFile 当前文件实体信息
      * @return
      */
-    public String getFileManager(String userFileId){
-        UserFile userFile = userFileService.getById(userFileId);
-        if(ObjectUtil.isEmpty(userFile)) return "";
-        if(StrUtil.isNotEmpty(userFile.getFileManager())) return userFile.getFileManager();
-        return getFileManager(userFile.getParentId());
+    public List<String> getFileManager(UserFile userFile){
+        List<String> fileManagerList = new ArrayList<>();
+        //当前文件不存在
+        if(ObjectUtil.isEmpty(userFile)) return fileManagerList;
+
+        //获取所有的父级管理者
+        List<UserFile> parents = getParents(userFile.getId());
+        if(CollUtil.isNotEmpty(parents))
+            fileManagerList = parents.stream().filter(x->StrUtil.isNotEmpty(x.getFileManager()))
+                    .map(UserFile::getFileManager).collect(Collectors.toList());
+
+        //获取自身的管理者
+        if(StrUtil.isNotEmpty(userFile.getFileManager()) && !fileManagerList.contains(userFile.getFileManager()))
+            fileManagerList.add(userFile.getFileManager());
+
+        return fileManagerList;
     }
 
 
@@ -239,7 +249,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
 
 
     /***
-     * 根据userFileId，获取所有父级文件信息
+     * 根据userFileId，获取所有父级文件信息（顶级 0 除外）
      * @param userFileId 用户文件Id
      * @return 所有的父级文件信息
      */
