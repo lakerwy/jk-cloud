@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtAddParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtEditParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtIdParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtPageParam;
+import vip.xiaonuo.sys.modular.hr.applyWorkOt.vo.UserWorkOtVo;
 
 import java.util.List;
 
@@ -77,4 +78,12 @@ public interface HrApplyWorkOtService extends IService<HrApplyWorkOt> {
      * @date  2023/10/29 19:57
      **/
     HrApplyWorkOt queryEntity(String id);
+
+    /**
+     * 获取当前时间该用户的加班时长(可调休最低单位为半天[4小时]，不足4小时不计算，且减去21.5小时的基础时间)
+     *
+     * @author ljy
+     * @date  2023/10/29 19:57
+     */
+    Page<UserWorkOtVo> userWorkOtVoPage(UserWorkOtVo UserWorkOtVo);
 }

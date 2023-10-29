@@ -16,14 +16,23 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.entity.HrApplyWorkOt;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.mapper.HrApplyWorkOtMapper;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtAddParam;
@@ -31,8 +40,14 @@ import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtEditParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtIdParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtPageParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.service.HrApplyWorkOtService;
+import vip.xiaonuo.sys.modular.hr.applyWorkOt.vo.UserWorkOtVo;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 考勤-申请加班数据表Service接口实现类
@@ -42,6 +57,9 @@ import java.util.List;
  **/
 @Service
 public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, HrApplyWorkOt> implements HrApplyWorkOtService {
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<HrApplyWorkOt> page(HrApplyWorkOtPageParam hrApplyWorkOtPageParam) {
@@ -68,7 +86,26 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(HrApplyWorkOtAddParam hrApplyWorkOtAddParam) {
+        /*HrApplyWorkOt hrApplyWorkOt = BeanUtil.toBean(hrApplyWorkOtAddParam, HrApplyWorkOt.class);
+        this.save(hrApplyWorkOt);*/
+        saveProcessInstance(hrApplyWorkOtAddParam);
+    }
+
+    private void saveProcessInstance(HrApplyWorkOtAddParam hrApplyWorkOtAddParam){
+        /** 申请流程 */
         HrApplyWorkOt hrApplyWorkOt = BeanUtil.toBean(hrApplyWorkOtAddParam, HrApplyWorkOt.class);
+        String processInstanceId = hrApplyWorkOtAddParam.getProcessInstanceId();
+        String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+        String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+        hrApplyWorkOt.setId(id);
+        hrApplyWorkOt.setModelId(modelId);
+        hrApplyWorkOt.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+        FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+        //将流程实例和业务表关联起来
+        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));/**  数据库名一定得是小写*/
+        formRelationTableApi.save(modelId, BizCommonEnum.BIZ_AUDIT_LISTS.getBizTable(),id,processInstanceId,dbName);
+        hrApplyWorkOt.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
+
         this.save(hrApplyWorkOt);
     }
 
@@ -99,5 +136,29 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
             throw new CommonException("考勤-申请加班数据表不存在，id值为：{}", id);
         }
         return hrApplyWorkOt;
+    }
+
+    @Override
+    public  Page<UserWorkOtVo> userWorkOtVoPage(UserWorkOtVo UserWorkOtVo){
+        Page<UserWorkOtVo> page = new Page<>();
+        List<HrApplyWorkOt> hrApplyWorkOtList = this.list();
+        Long total = this.count(new LambdaQueryWrapper<HrApplyWorkOt>().isNotNull(HrApplyWorkOt::getApplyUserId).groupBy(HrApplyWorkOt::getApplyUserId));
+        Map<String,UserWorkOtVo> map = new HashMap<>();
+        hrApplyWorkOtList.forEach(workOt -> {
+            UserWorkOtVo userWorkOtVo = ObjectUtil.isNotEmpty(map.get(workOt.getApplyUserId())) ? map.get(workOt.getApplyUserId()) : new UserWorkOtVo();
+            Double workOtHours = userWorkOtVo.getWorkHours()!= null ?  userWorkOtVo.getWorkHours() : 0.0;
+            userWorkOtVo.setApplyUserId(workOt.getApplyUserId());
+            userWorkOtVo.setApplyUserName(workOt.getApplyUserName());
+            userWorkOtVo.setWorkHours( workOtHours+workOt.getWorkHours());
+            map.put(workOt.getApplyUserId(),userWorkOtVo);
+        });
+        List<UserWorkOtVo> userWorkOtVoList = map.entrySet().stream().map(entry  -> {
+            UserWorkOtVo vo = entry.getValue();
+            vo.setWorkDays(vo.getWorkHours()/8);
+            return vo;
+        }).collect(Collectors.toList());
+        page.setRecords(userWorkOtVoList);
+        page.setTotal(total);
+        return page;
     }
 }

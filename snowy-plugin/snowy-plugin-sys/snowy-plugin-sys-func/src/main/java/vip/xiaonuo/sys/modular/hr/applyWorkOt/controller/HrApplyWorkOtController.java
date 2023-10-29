@@ -32,6 +32,7 @@ import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtEditParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtIdParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtPageParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.service.HrApplyWorkOtService;
+import vip.xiaonuo.sys.modular.hr.applyWorkOt.vo.UserWorkOtVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -60,7 +61,7 @@ public class HrApplyWorkOtController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取考勤-申请加班数据表分页")
-    @SaCheckPermission("/sys/applyWorkOt/page")
+    //@SaCheckPermission("/sys/applyWorkOt/page")
     @GetMapping("/sys/applyWorkOt/page")
     public CommonResult<Page<HrApplyWorkOt>> page(HrApplyWorkOtPageParam hrApplyWorkOtPageParam) {
         return CommonResult.data(hrApplyWorkOtService.page(hrApplyWorkOtPageParam));
@@ -75,7 +76,7 @@ public class HrApplyWorkOtController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加考勤-申请加班数据表")
     @CommonLog("添加考勤-申请加班数据表")
-    @SaCheckPermission("/sys/applyWorkOt/add")
+    //@SaCheckPermission("/sys/applyWorkOt/add")
     @PostMapping("/sys/applyWorkOt/add")
     public CommonResult<String> add(@RequestBody @Valid HrApplyWorkOtAddParam hrApplyWorkOtAddParam) {
         hrApplyWorkOtService.add(hrApplyWorkOtAddParam);
@@ -91,7 +92,7 @@ public class HrApplyWorkOtController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑考勤-申请加班数据表")
     @CommonLog("编辑考勤-申请加班数据表")
-    @SaCheckPermission("/sys/applyWorkOt/edit")
+    //@SaCheckPermission("/sys/applyWorkOt/edit")
     @PostMapping("/sys/applyWorkOt/edit")
     public CommonResult<String> edit(@RequestBody @Valid HrApplyWorkOtEditParam hrApplyWorkOtEditParam) {
         hrApplyWorkOtService.edit(hrApplyWorkOtEditParam);
@@ -107,7 +108,7 @@ public class HrApplyWorkOtController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除考勤-申请加班数据表")
     @CommonLog("删除考勤-申请加班数据表")
-    @SaCheckPermission("/sys/applyWorkOt/delete")
+    //@SaCheckPermission("/sys/applyWorkOt/delete")
     @PostMapping("/sys/applyWorkOt/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<HrApplyWorkOtIdParam> hrApplyWorkOtIdParamList) {
@@ -123,9 +124,23 @@ public class HrApplyWorkOtController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取考勤-申请加班数据表详情")
-    @SaCheckPermission("/sys/applyWorkOt/detail")
+    //@SaCheckPermission("/sys/applyWorkOt/detail")
     @GetMapping("/sys/applyWorkOt/detail")
     public CommonResult<HrApplyWorkOt> detail(@Valid HrApplyWorkOtIdParam hrApplyWorkOtIdParam) {
         return CommonResult.data(hrApplyWorkOtService.detail(hrApplyWorkOtIdParam));
+    }
+
+    /**
+     * 获取考勤-申请加班数据表分页
+     *
+     * @author ljy
+     * @date  2023/10/29 19:57
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取考勤-申请加班数据表分页数据")
+    //@SaCheckPermission("/sys/applyWorkOt/userWorkOtPage")
+    @GetMapping("/sys/applyWorkOt/userWorkOtPage")
+    public CommonResult<Page<UserWorkOtVo>> userWorkOtVoPage(UserWorkOtVo UserWorkOtVo) {
+        return CommonResult.data(hrApplyWorkOtService.userWorkOtVoPage(UserWorkOtVo));
     }
 }

@@ -32,7 +32,8 @@ import java.util.Date;
 public class HrApplyWorkOtAddParam {
 
     /** 申请人ID */
-    @ApiModelProperty(value = "申请人ID", position = 3)
+    @ApiModelProperty(value = "申请人ID", required = true,position = 3)
+    @NotBlank(message = "申请人ID不能为空")
     private String applyUserId;
 
     /** 申请人名称 */
@@ -52,7 +53,8 @@ public class HrApplyWorkOtAddParam {
     private String applyWorkReason;
 
     /** 加班时长单位：小时 */
-    @ApiModelProperty(value = "加班时长单位：小时", position = 8)
+    @ApiModelProperty(value = "加班时长单位：小时", required = true,position = 8)
+    @NotBlank(message = "加班时长单位不能为空,单位-小时")
     private Double workHours;
 
     /** 项目编号 */
