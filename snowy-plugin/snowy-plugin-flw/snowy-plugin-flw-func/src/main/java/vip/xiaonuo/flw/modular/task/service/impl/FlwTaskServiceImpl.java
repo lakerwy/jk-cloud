@@ -46,6 +46,7 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -801,6 +802,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("发起于：");
         form.setValue(initiatorTime+" | "+ initiatorName);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("评论人：");
+        form.setValue(StpLoginUserUtil.getLoginUser().getName());
 
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("评论内容为：");
