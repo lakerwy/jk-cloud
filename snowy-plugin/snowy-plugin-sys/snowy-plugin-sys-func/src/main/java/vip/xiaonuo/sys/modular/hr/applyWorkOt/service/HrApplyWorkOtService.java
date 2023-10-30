@@ -85,5 +85,5 @@ public interface HrApplyWorkOtService extends IService<HrApplyWorkOt> {
      * @author ljy
      * @date  2023/10/29 19:57
      */
-    Page<UserWorkOtVo> userWorkOtVoPage(UserWorkOtVo UserWorkOtVo);
+    Page<UserWorkOtVo> userWorkOtVoPage(UserWorkOtVo userWorkOtVo);
 }

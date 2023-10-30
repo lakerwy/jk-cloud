@@ -140,7 +140,7 @@ public class HrApplyWorkOtController {
     @ApiOperation("获取考勤-申请加班数据表分页数据")
     //@SaCheckPermission("/sys/applyWorkOt/userWorkOtPage")
     @GetMapping("/sys/applyWorkOt/userWorkOtPage")
-    public CommonResult<Page<UserWorkOtVo>> userWorkOtVoPage(UserWorkOtVo UserWorkOtVo) {
-        return CommonResult.data(hrApplyWorkOtService.userWorkOtVoPage(UserWorkOtVo));
+    public CommonResult<Page<UserWorkOtVo>> userWorkOtVoPage(UserWorkOtVo userWorkOtVo) {
+        return CommonResult.data(hrApplyWorkOtService.userWorkOtVoPage(userWorkOtVo));
     }
 }

@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -139,26 +140,46 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
     }
 
     @Override
-    public  Page<UserWorkOtVo> userWorkOtVoPage(UserWorkOtVo UserWorkOtVo){
+    public  Page<UserWorkOtVo> userWorkOtVoPage(UserWorkOtVo userWorkOtVo){
         Page<UserWorkOtVo> page = new Page<>();
-        List<HrApplyWorkOt> hrApplyWorkOtList = this.list();
-        Long total = this.count(new LambdaQueryWrapper<HrApplyWorkOt>().isNotNull(HrApplyWorkOt::getApplyUserId).groupBy(HrApplyWorkOt::getApplyUserId));
+        LambdaQueryWrapper<HrApplyWorkOt> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        if (StringUtils.isNotEmpty(userWorkOtVo.getApplyUserId())){ //查单人
+            lambdaQueryWrapper.eq(HrApplyWorkOt::getApplyUserId,userWorkOtVo.getApplyUserId());
+        }
+        List<HrApplyWorkOt> hrApplyWorkOtList = this.list(lambdaQueryWrapper);
+        Long total = this.count(lambdaQueryWrapper.isNotNull(HrApplyWorkOt::getApplyUserId).groupBy(HrApplyWorkOt::getApplyUserId));
         Map<String,UserWorkOtVo> map = new HashMap<>();
         hrApplyWorkOtList.forEach(workOt -> {
-            UserWorkOtVo userWorkOtVo = ObjectUtil.isNotEmpty(map.get(workOt.getApplyUserId())) ? map.get(workOt.getApplyUserId()) : new UserWorkOtVo();
-            Double workOtHours = userWorkOtVo.getWorkHours()!= null ?  userWorkOtVo.getWorkHours() : 0.0;
-            userWorkOtVo.setApplyUserId(workOt.getApplyUserId());
-            userWorkOtVo.setApplyUserName(workOt.getApplyUserName());
-            userWorkOtVo.setWorkHours( workOtHours+workOt.getWorkHours());
-            map.put(workOt.getApplyUserId(),userWorkOtVo);
+            UserWorkOtVo vo = ObjectUtil.isNotEmpty(map.get(workOt.getApplyUserId())) ? map.get(workOt.getApplyUserId()) : new UserWorkOtVo();
+            Double workOtHours = vo.getWorkHours()!= null ?  vo.getWorkHours() : 0.0;
+            vo.setApplyUserId(workOt.getApplyUserId());
+            vo.setApplyUserName(workOt.getApplyUserName());
+            vo.setWorkHours( workOtHours+workOt.getWorkHours());
+            map.put(workOt.getApplyUserId(),vo);
         });
         List<UserWorkOtVo> userWorkOtVoList = map.entrySet().stream().map(entry  -> {
             UserWorkOtVo vo = entry.getValue();
-            vo.setWorkDays(vo.getWorkHours()/8);
+            if(vo.getWorkHours() < (21.5 + 4)){
+                vo.setWorkDays(0.0);
+                return vo;
+            }
+            vo.setWorkDays(count(vo.getWorkHours()));
             return vo;
         }).collect(Collectors.toList());
         page.setRecords(userWorkOtVoList);
         page.setTotal(total);
         return page;
+    }
+
+    private static Double count(Double workHours){
+        if(workHours < (21.5 + 4)){  //需要去掉21.5的基础小时
+            return 0.0;
+        }
+        Double workDay = (workHours-21.5)/8;
+        Double floor = Math.floor(workDay);//向下取整 - 直接舍去小数数据
+        if(workDay > (floor+0.5)){
+            return (floor+0.5);
+        }
+        return floor;
     }
 }
