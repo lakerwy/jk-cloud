@@ -802,10 +802,12 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("发起于：");
         form.setValue(initiatorTime+" | "+ initiatorName);
+        forms.add(form);
 
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("评论人：");
         form.setValue(StpLoginUserUtil.getLoginUser().getName());
+        forms.add(form);
 
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("评论内容为：");
