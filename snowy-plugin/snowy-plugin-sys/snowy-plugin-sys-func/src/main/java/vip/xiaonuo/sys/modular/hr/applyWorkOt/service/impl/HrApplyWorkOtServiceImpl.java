@@ -172,6 +172,9 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
     }
 
     private static Double count(Double workHours){
+        if(ObjectUtil.isEmpty(workHours)){
+            return 0.0;
+        }
         if(workHours < (21.5 + 4)){  //需要去掉21.5的基础小时
             return 0.0;
         }
