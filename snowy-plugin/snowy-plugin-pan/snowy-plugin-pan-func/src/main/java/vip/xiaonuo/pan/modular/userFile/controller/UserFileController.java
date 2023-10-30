@@ -276,19 +276,6 @@ public class UserFileController {
     /************************************** 群组文件夹 列表 *****************************************/
 
     /**
-     * 获取根目录文件夹（群组文件）
-     * @return
-     */
-
-    @ApiOperationSupport(order = 20)
-    @ApiOperation("获取根目录文件夹（群组文件）")
-    @GetMapping("/pan/fold/getGroupFold")
-    public CommonResult<List<UserFile>> getGroupFold() {
-        return CommonResult.data(userFileService.getGroupFold());
-    }
-
-
-    /**
      * 获取文件主表分页(群组文件)
      *
      * @author mayike

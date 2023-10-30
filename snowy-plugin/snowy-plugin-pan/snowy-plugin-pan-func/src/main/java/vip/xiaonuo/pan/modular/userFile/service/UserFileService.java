@@ -159,12 +159,6 @@ public interface UserFileService extends IService<UserFile> {
 
 
     /***
-     * 获取根目录文件夹（群组文件）
-     * @return
-     */
-    List<UserFile> getGroupFold();
-
-    /***
      * 获取文件主表分页(群组文件)
      * @param userFilePageParam
      * @return

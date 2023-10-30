@@ -15,4 +15,24 @@
                 on a.ID = b.USER_FILE_ID and b.OBJECT_ID = #{userId} and b.DELETE_FLAG = 'NOT_DELETE'
         where a.ID = #{userFileId}
     </select>
+
+    <select id="getFileRightList" resultType="java.lang.String">
+        select USER_FILE_ID
+        from PAN_FILE_RIGHT
+        where DELETE_FLAG = 'NOT_DELETE' and RIGHT_VALUE &amp; 1 = 0
+        and ( OBJECT_ID = #{userId}
+        <if test="orgIds != null and orgIds.size() !=0  ">
+            or OBJECT_ID in
+            <foreach collection="orgIds" item="item" open="(" close=")" separator="," >
+                #{item}
+            </foreach>
+        </if>
+        <if test="roleIds != null and roleIds.size()!=0 ">
+            or OBJECT_ID in
+            <foreach collection="roleIds" item="item" open="(" close=")" separator="," >
+                #{item}
+            </foreach>
+        </if>
+        )
+    </select>
 </mapper>

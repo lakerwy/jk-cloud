@@ -41,6 +41,7 @@ import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.mapper.PanFileRightMapper;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
@@ -114,6 +115,10 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     public static Executor executor = Executors.newFixedThreadPool(20);
 
     private static final String TEMPLATE_FOLD = "TEMPLATE_FOLD";
+
+    @Resource
+    private PanFileRightMapper panFileRightMapper;
+
 
     @Override
     public Page<UserFile> page(UserFilePageParam userFilePageParam) {
@@ -882,20 +887,38 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         return false;
     }
 
-    @Override
-    public List<UserFile> getGroupFold() {
-        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("b.OBJECT_ID",StpLoginUserUtil.getLoginUser().getId());
-        queryWrapper.eq("a.FOLD_TYPE","1");
-        queryWrapper.eq("a.FILE_PATH",ROOT_FOLD_PATH);
-        queryWrapper.apply(" (b.RIGHT_VALUE & {0} >0 or b.RIGHT_VALUE & {1} >0) ", FileRight.LIST,FileRight.PENETRATE);
-        return userFileMapper.getGroupFold(queryWrapper);
-    }
+
+
 
 
     @Override
     public Page<UserFile> groupPage(UserFilePageParam userFilePageParam) {
-        //todo
-        return null;
+        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
+        String userId = StpLoginUserUtil.getLoginUser().getId();
+        List<String> roleIds = StpLoginUserUtil.getLoginUser().getRoleCodeList();
+        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId());
+        //判断是否为顶级目录
+        if(ROOT_FOLD_PATH.equals(userFilePageParam.getFilePath())){
+            //构造sql条件参数
+            queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+            queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+            queryWrapper.eq("a.FOLD_TYPE","1");
+            queryWrapper.eq("a.FILE_PATH",userFilePageParam.getFilePath());
+            queryWrapper.apply(" (b.RIGHT_VALUE & {0} > 0 ) ",FileRight.LIST);
+            queryWrapper.and(q->{
+                q.eq("b.OBJECT_ID",userId);
+                if(CollUtil.isNotEmpty(orgIds)) q.or().in("b.OBJECT_ID",orgIds);
+                if(CollUtil.isNotEmpty(roleIds)) q.or().in("b.OBJECT_ID",roleIds);
+            });
+            return userFileMapper.getGroupPage(CommonPageRequest.defaultPage(),queryWrapper);
+        }else{
+            List<String> userFileIds = panFileRightMapper.getFileRightList(userId,orgIds,roleIds);
+            queryWrapper.eq("DELETE_FLAG","NOT_DELETE");
+            queryWrapper.eq("FOLD_TYPE","1");
+            queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());
+            if(CollUtil.isNotEmpty(userFileIds))
+                queryWrapper.notIn("ID",userFileIds);
+            return userFileMapper.getGroupPage2(CommonPageRequest.defaultPage(),queryWrapper);
+        }
     }
 }

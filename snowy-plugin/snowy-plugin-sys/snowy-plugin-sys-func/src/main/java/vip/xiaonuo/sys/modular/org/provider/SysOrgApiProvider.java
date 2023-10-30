@@ -25,6 +25,7 @@ import vip.xiaonuo.sys.modular.org.param.SysOrgSelectorOrgListParam;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -70,6 +71,12 @@ public class SysOrgApiProvider implements SysOrgApi {
     @Override
     public List<String> getChildrenIds(String orgId) {
         return sysOrgService.getChildren(orgId).stream().map(SysOrg::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public List<String> getParentIds(String orgId) {
+        List<SysOrg> result = sysOrgService.getParentListById(sysOrgService.list(),orgId,false);
+        return result.stream().map(SysOrg::getId).collect(Collectors.toList());
     }
 
 }

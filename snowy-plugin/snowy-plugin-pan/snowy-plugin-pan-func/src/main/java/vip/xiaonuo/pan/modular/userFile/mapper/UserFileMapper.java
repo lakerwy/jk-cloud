@@ -15,6 +15,7 @@ package vip.xiaonuo.pan.modular.userFile.mapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
@@ -45,9 +46,23 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
     void myUpdateById(UserFile userFile);
 
 
-    /***
-     * 获取群组根目录
+    /**
+     * 获取顶级目录
+     *
+//     * @param userId 用户Id
+//     * @param filePath 文件路径
+//     * @param orgIds 组织集合（自身及上级）
+//     * @param roleIds 角色集合
      * @return
      */
-    List<UserFile> getGroupFold(@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
+    Page<UserFile> getGroupPage(Page<UserFile> page,@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
+
+    /**
+     * 获取非顶级目录
+     *
+//     * @param filePath
+//     * @param ids
+     * @return
+     */
+    Page<UserFile> getGroupPage2(Page<UserFile> page,@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
 }

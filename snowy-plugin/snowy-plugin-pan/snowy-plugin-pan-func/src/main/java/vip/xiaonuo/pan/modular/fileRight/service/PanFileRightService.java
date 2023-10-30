@@ -14,8 +14,8 @@ package vip.xiaonuo.pan.modular.fileRight.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
+import vip.xiaonuo.pan.modular.fileRight.param.ManagerParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
-import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightEditParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
 
@@ -28,23 +28,6 @@ import java.util.List;
  * @date  2023/10/25 14:32
  **/
 public interface PanFileRightService extends IService<PanFileRight> {
-
-    /**
-     * 添加网盘权限配置表
-     *
-     * @author yong.ye
-     * @date  2023/10/25 14:32
-     */
-    void add(PanFileRightAddParam panFileRightAddParam);
-
-    /**
-     * 编辑网盘权限配置表
-     *
-     * @author yong.ye
-     * @date  2023/10/25 14:32
-     */
-    void edit(PanFileRightEditParam panFileRightEditParam);
-
 
     /**
      * 获取网盘权限配置表详情
@@ -84,4 +67,12 @@ public interface PanFileRightService extends IService<PanFileRight> {
      * @date  2023/10/25 14:32
      */
     void save(PanFileRightAddParam panFileRightAddParam);
+
+    /**
+     * 给文件夹|文件设置管理员
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    void setManager(ManagerParam managerParam);
 }

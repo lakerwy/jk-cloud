@@ -35,6 +35,7 @@ import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -51,50 +52,6 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
     private UserFileService userFileService;
     @Resource
     private PanFileRightMapper panFileRightMapper;
-
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void add(PanFileRightAddParam panFileRightAddParam) {
-        List<PanFileRight> panFileRightList = BeanUtil.copyToList(panFileRightAddParam.getObjectRightList(),PanFileRight.class);
-        panFileRightList.forEach(x-> x.setUserFileId(panFileRightAddParam.getUserFileId()));
-        this.saveBatch(panFileRightList);
-        //处理父级递归默认权限
-        initParentFileRight(panFileRightAddParam.getUserFileId(), panFileRightAddParam.getObjectRightList(), FileRight.PENETRATE);
-        //处理当前文件权限问题
-        initCurrentFileRight(panFileRightAddParam.getUserFileId(),FileRight.PENETRATE);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void edit(PanFileRightEditParam panFileRightEditParam) {
-        //最新设置
-        List<PanFileRight> newPanFileRights = BeanUtil.copyToList(panFileRightEditParam.getObjectRightList(),PanFileRight.class);
-        newPanFileRights.forEach(x-> x.setUserFileId(panFileRightEditParam.getUserFileId()));
-
-        //根据文件Id获取历史权限设置
-        List<PanFileRight> oldFileRights = this.list(new QueryWrapper<PanFileRight>().lambda().eq(PanFileRight::getUserFileId,panFileRightEditParam.getUserFileId()));
-        List<String> oldIds = oldFileRights.stream().map(PanFileRight::getId).collect(Collectors.toList());
-
-        //新增 | 更新 | 删除
-        //新增
-        List<PanFileRight> addList = newPanFileRights.stream().filter(x -> StrUtil.isEmpty(x.getId())).collect(Collectors.toList());
-        //更新
-        List<PanFileRight> updateList = newPanFileRights.stream().filter(x -> StrUtil.isNotEmpty(x.getId())).collect(Collectors.toList());
-        //删除
-        List<String> updateIds = updateList.stream().map(PanFileRight::getId).collect(Collectors.toList());
-        oldIds.removeAll(updateIds);
-        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
-        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
-        if(CollUtil.isNotEmpty(oldIds)) this.removeByIds(oldIds);
-
-        //处理父级递归默认权限
-        List<ObjectRight> objIds = BeanUtil.copyToList(panFileRightEditParam.getObjectRightList(),ObjectRight.class);
-        initParentFileRight(panFileRightEditParam.getUserFileId(), objIds,FileRight.PENETRATE);
-        //处理当前文件权限问题
-        initCurrentFileRight(panFileRightEditParam.getUserFileId(),FileRight.PENETRATE);
-    }
-
 
     @Override
     public List<PanFileRightVo> detail(PanFileRightIdParam panFileRightIdParam) {
@@ -193,11 +150,15 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
         if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
         if(CollUtil.isNotEmpty(oldFileRights)) this.removeByIds(oldFileRights);
+    }
 
-        //处理父级递归默认权限
-        initParentFileRight(panFileRightAddParam.getUserFileId(), panFileRightAddParam.getObjectRightList(),FileRight.PENETRATE);
-        //处理当前文件权限问题
-        initCurrentFileRight(panFileRightAddParam.getUserFileId(),FileRight.PENETRATE);
+    @Override
+    public void setManager(ManagerParam managerParam) {
+        UserFile userFile = userFileService.getById(managerParam.getUserFileId());
+        if(ObjectUtil.isNotEmpty(userFile)){
+            userFile.setFileManager(managerParam.getFileManager());
+            userFileService.updateById(userFile);
+        }
     }
 
 
@@ -216,15 +177,19 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         if(ObjectUtil.isEmpty(userFile)) return fileManagerList;
 
         //获取所有的父级管理者
+        List<String> tmpManagers = new ArrayList<>();
         List<UserFile> parents = getParents(userFile.getId());
-        if(CollUtil.isNotEmpty(parents))
-            fileManagerList = parents.stream().filter(x->StrUtil.isNotEmpty(x.getFileManager()))
+        if(CollUtil.isNotEmpty(parents)) {
+            List<String> managers = parents.stream().filter(x -> StrUtil.isNotEmpty(x.getFileManager()))
                     .map(UserFile::getFileManager).collect(Collectors.toList());
+            managers.forEach(x-> tmpManagers.addAll(Arrays.stream(x.split(",")).distinct().collect(Collectors.toList())));
+        }
 
         //获取自身的管理者
-        if(StrUtil.isNotEmpty(userFile.getFileManager()) && !fileManagerList.contains(userFile.getFileManager()))
-            fileManagerList.add(userFile.getFileManager());
+        if(StrUtil.isNotEmpty(userFile.getFileManager()))
+            tmpManagers.addAll(Arrays.stream(userFile.getFileManager().split(",")).distinct().collect(Collectors.toList()));
 
+        tmpManagers.forEach(x->{if(!fileManagerList.contains(x)) fileManagerList.add(x);});
         return fileManagerList;
     }
 
@@ -271,98 +236,105 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         return userFileList;
     }
 
-    /***
-     * 当为userFileId设置权限时，反向递归，为其父级（父级没有权限）赋予默认权限
-     * @param userFileId 当前设置权限的用户文件Id
-     * @param objects 被赋予权限的个人集合
-     * @param right 初试化的权限值（穿透权限）
-     *
-     * 注意：在确定是否插入初试权限记录前，先要判断是否存在权限记录，即同一个userFileId，同一个userId,只能存在一条有效记录
-     */
-    public void initParentFileRight(String userFileId,List<ObjectRight> objects,long right){
-        //1. 获取父级文件
-        List<UserFile> parentFiles = getParents(userFileId);
-        if(CollUtil.isEmpty(parentFiles)) return;
-        List<String> userFileIds = parentFiles.stream().map(UserFile::getId).collect(Collectors.toList());
-
-        //2. 判断处理赋值初试权限
-        List<PanFileRight> addList = new ArrayList<>();
-        List<PanFileRight> updateList = new ArrayList<>();
-        for (ObjectRight obj:objects) {
-            List<PanFileRight> oldFileRights = this.list(new QueryWrapper<PanFileRight>().lambda()
-                    .eq(PanFileRight::getObjectId,obj.getObjectId())
-                    .in(PanFileRight::getUserFileId,userFileIds));
-
-            for (String fileId:userFileIds) {
-                PanFileRight temp = oldFileRights.stream()
-                        .filter(x->x.getUserFileId().equals(fileId)).findFirst().orElse(null);
-                if(ObjectUtil.isEmpty(temp)){
-                    PanFileRight newTemp = new PanFileRight();
-                    newTemp.setUserFileId(fileId);
-                    newTemp.setObjectId(obj.getObjectId());
-                    newTemp.setRightValue(right);
-                    addList.add(newTemp);
-                }else{
-                    assert temp != null;
-                    if(temp.getRightValue() == FileRight.RIGHT_NULL){
-                        temp.setRightValue(temp.getRightValue() | right);
-                        updateList.add(temp);
-                    }
-                }
-            }
-        }
-        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
-        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
-    }
 
 
-    /**
-     * 处理当前userFileId
-     * 原因：在给当前userFileId设置权限的时候，需要校验子集（儿子）是否被其他人有权限操作
-     *      若（儿子）被设置操作，则需要处理当前文件权限（有权限不处理，无权限者需要穿透）
-     * @param userFileId
-     * @param right
-     */
-    public void initCurrentFileRight(String userFileId,Long right){
-        //根据userFileId，获取其直接子集（儿子）
-        List<UserFile> sonFiles = userFileService.list(new QueryWrapper<UserFile>().lambda().eq(UserFile::getParentId,userFileId));
-        List<String> sonUserFileIds = sonFiles.stream().map(UserFile::getId).collect(Collectors.toList());
 
-        if(CollUtil.isEmpty(sonUserFileIds)) return;
 
-        //这些儿子文件，在FileRight中是否已有人使用[有权限]
-        List<PanFileRight> sonFileRights = this.list(new QueryWrapper<PanFileRight>().lambda().in(PanFileRight::getUserFileId,sonUserFileIds));
-        List<String> objectIds = sonFileRights.stream()
-                .filter(x-> x.getRightValue() > FileRight.RIGHT_NULL)
-                .map(PanFileRight::getObjectId).distinct().collect(Collectors.toList());
 
-        if(CollUtil.isEmpty(objectIds)) return;
 
-        //获取objectIds这些人中，是否存在当前文件权限
-        List<PanFileRight> currentFileRights = this.list(new QueryWrapper<PanFileRight>().lambda()
-                .eq(PanFileRight::getUserFileId,userFileId)
-                .in(PanFileRight::getObjectId,objectIds));
-
-        //2. 判断处理赋值初试权限
-        List<PanFileRight> addList = new ArrayList<>();
-        List<PanFileRight> updateList = new ArrayList<>();
-        for (String objectId:objectIds) {
-            PanFileRight temp = currentFileRights.stream()
-                    .filter(x->x.getObjectId().equals(objectId)).findFirst().orElse(null);
-            if(ObjectUtil.isEmpty(temp)){
-                PanFileRight newTemp = new PanFileRight();
-                newTemp.setUserFileId(userFileId);
-                newTemp.setObjectId(objectId);
-                newTemp.setRightValue(right);
-                addList.add(newTemp);
-            }else {
-                if(temp.getRightValue() == FileRight.RIGHT_NULL) {
-                    temp.setRightValue(temp.getRightValue() | right);
-                    updateList.add(temp);
-                }
-            }
-        }
-        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
-        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
-    }
+//
+//    /***
+//     * 当为userFileId设置权限时，反向递归，为其父级（父级没有权限）赋予默认权限
+//     * @param userFileId 当前设置权限的用户文件Id
+//     * @param objects 被赋予权限的个人集合
+//     * @param right 初试化的权限值（穿透权限）
+//     *
+//     * 注意：在确定是否插入初试权限记录前，先要判断是否存在权限记录，即同一个userFileId，同一个userId,只能存在一条有效记录
+//     */
+//    public void initParentFileRight(String userFileId,List<ObjectRight> objects,long right){
+//        //1. 获取父级文件
+//        List<UserFile> parentFiles = getParents(userFileId);
+//        if(CollUtil.isEmpty(parentFiles)) return;
+//        List<String> userFileIds = parentFiles.stream().map(UserFile::getId).collect(Collectors.toList());
+//
+//        //2. 判断处理赋值初试权限
+//        List<PanFileRight> addList = new ArrayList<>();
+//        List<PanFileRight> updateList = new ArrayList<>();
+//        for (ObjectRight obj:objects) {
+//            List<PanFileRight> oldFileRights = this.list(new QueryWrapper<PanFileRight>().lambda()
+//                    .eq(PanFileRight::getObjectId,obj.getObjectId())
+//                    .in(PanFileRight::getUserFileId,userFileIds));
+//
+//            for (String fileId:userFileIds) {
+//                PanFileRight temp = oldFileRights.stream()
+//                        .filter(x->x.getUserFileId().equals(fileId)).findFirst().orElse(null);
+//                if(ObjectUtil.isEmpty(temp)){
+//                    PanFileRight newTemp = new PanFileRight();
+//                    newTemp.setUserFileId(fileId);
+//                    newTemp.setObjectId(obj.getObjectId());
+//                    newTemp.setRightValue(right);
+//                    addList.add(newTemp);
+//                }else{
+//                    assert temp != null;
+//                    if(temp.getRightValue() == FileRight.RIGHT_NULL){
+//                        temp.setRightValue(temp.getRightValue() | right);
+//                        updateList.add(temp);
+//                    }
+//                }
+//            }
+//        }
+//        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
+//        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
+//    }
+//
+//
+//    /**
+//     * 处理当前userFileId
+//     * 原因：在给当前userFileId设置权限的时候，需要校验子集（儿子）是否被其他人有权限操作
+//     *      若（儿子）被设置操作，则需要处理当前文件权限（有权限不处理，无权限者需要穿透）
+//     * @param userFileId
+//     * @param right
+//     */
+//    public void initCurrentFileRight(String userFileId,Long right){
+//        //根据userFileId，获取其直接子集（儿子）
+//        List<UserFile> sonFiles = userFileService.list(new QueryWrapper<UserFile>().lambda().eq(UserFile::getParentId,userFileId));
+//        List<String> sonUserFileIds = sonFiles.stream().map(UserFile::getId).collect(Collectors.toList());
+//
+//        if(CollUtil.isEmpty(sonUserFileIds)) return;
+//
+//        //这些儿子文件，在FileRight中是否已有人使用[有权限]
+//        List<PanFileRight> sonFileRights = this.list(new QueryWrapper<PanFileRight>().lambda().in(PanFileRight::getUserFileId,sonUserFileIds));
+//        List<String> objectIds = sonFileRights.stream()
+//                .filter(x-> x.getRightValue() > FileRight.RIGHT_NULL)
+//                .map(PanFileRight::getObjectId).distinct().collect(Collectors.toList());
+//
+//        if(CollUtil.isEmpty(objectIds)) return;
+//
+//        //获取objectIds这些人中，是否存在当前文件权限
+//        List<PanFileRight> currentFileRights = this.list(new QueryWrapper<PanFileRight>().lambda()
+//                .eq(PanFileRight::getUserFileId,userFileId)
+//                .in(PanFileRight::getObjectId,objectIds));
+//
+//        //2. 判断处理赋值初试权限
+//        List<PanFileRight> addList = new ArrayList<>();
+//        List<PanFileRight> updateList = new ArrayList<>();
+//        for (String objectId:objectIds) {
+//            PanFileRight temp = currentFileRights.stream()
+//                    .filter(x->x.getObjectId().equals(objectId)).findFirst().orElse(null);
+//            if(ObjectUtil.isEmpty(temp)){
+//                PanFileRight newTemp = new PanFileRight();
+//                newTemp.setUserFileId(userFileId);
+//                newTemp.setObjectId(objectId);
+//                newTemp.setRightValue(right);
+//                addList.add(newTemp);
+//            }else {
+//                if(temp.getRightValue() == FileRight.RIGHT_NULL) {
+//                    temp.setRightValue(temp.getRightValue() | right);
+//                    updateList.add(temp);
+//                }
+//            }
+//        }
+//        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
+//        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
+//    }
 }
