@@ -19,7 +19,7 @@
     <select id="getFileRightList" resultType="java.lang.String">
         select USER_FILE_ID
         from PAN_FILE_RIGHT
-        where DELETE_FLAG = 'NOT_DELETE' and RIGHT_VALUE &amp; 1 = 0
+        where DELETE_FLAG = 'NOT_DELETE' and RIGHT_VALUE &amp; #{right} = 0
         and ( OBJECT_ID = #{userId}
         <if test="orgIds != null and orgIds.size() !=0  ">
             or OBJECT_ID in

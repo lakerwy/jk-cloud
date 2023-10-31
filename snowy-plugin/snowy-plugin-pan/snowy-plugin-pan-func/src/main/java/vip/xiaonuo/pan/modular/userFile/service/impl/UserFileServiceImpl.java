@@ -888,15 +888,12 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     }
 
 
-
-
-
     @Override
     public Page<UserFile> groupPage(UserFilePageParam userFilePageParam) {
         QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
         String userId = StpLoginUserUtil.getLoginUser().getId();
         List<String> roleIds = StpLoginUserUtil.getLoginUser().getRoleCodeList();
-        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId());
+        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
         //判断是否为顶级目录
         if(ROOT_FOLD_PATH.equals(userFilePageParam.getFilePath())){
             //构造sql条件参数
@@ -910,9 +907,12 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 if(CollUtil.isNotEmpty(orgIds)) q.or().in("b.OBJECT_ID",orgIds);
                 if(CollUtil.isNotEmpty(roleIds)) q.or().in("b.OBJECT_ID",roleIds);
             });
+            List<String> userFileIds = panFileRightMapper.getFileRightList(userId,FileRight.LIST, orgIds,roleIds);
+            if(CollUtil.isNotEmpty(userFileIds))
+                queryWrapper.notIn("a.ID",userFileIds);
             return userFileMapper.getGroupPage(CommonPageRequest.defaultPage(),queryWrapper);
         }else{
-            List<String> userFileIds = panFileRightMapper.getFileRightList(userId,orgIds,roleIds);
+            List<String> userFileIds = panFileRightMapper.getFileRightList(userId,FileRight.LIST, orgIds,roleIds);
             queryWrapper.eq("DELETE_FLAG","NOT_DELETE");
             queryWrapper.eq("FOLD_TYPE","1");
             queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());

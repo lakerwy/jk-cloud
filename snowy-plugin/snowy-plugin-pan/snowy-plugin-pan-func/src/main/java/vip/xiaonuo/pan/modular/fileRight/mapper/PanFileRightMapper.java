@@ -34,10 +34,11 @@ public interface PanFileRightMapper extends BaseMapper<PanFileRight> {
     /**
      * 获取无读取权限的文件
      * @param userId
+     * @param right
      * @param orgIds
      * @param roleIds
      * @return
      */
-    List<String> getFileRightList(String userId,List<String> orgIds,List<String> roleIds);
+    List<String> getFileRightList(String userId,long right,List<String> orgIds,List<String> roleIds);
 
 }

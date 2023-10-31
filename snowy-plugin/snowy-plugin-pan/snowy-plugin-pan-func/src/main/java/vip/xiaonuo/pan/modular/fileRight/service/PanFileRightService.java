@@ -14,11 +14,13 @@ package vip.xiaonuo.pan.modular.fileRight.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
+import vip.xiaonuo.pan.modular.fileRight.param.FileRightParam;
 import vip.xiaonuo.pan.modular.fileRight.param.ManagerParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -75,4 +77,12 @@ public interface PanFileRightService extends IService<PanFileRight> {
      * @date  2023/10/25 14:32
      */
     void setManager(ManagerParam managerParam);
+
+
+    /**
+     * 根据当前用户+所选择的文件，获取拥有的权限(若选中多个文件，则取交集)
+     * @param fileRightParam
+     * @return
+     */
+    Long getRightById(FileRightParam fileRightParam);
 }

@@ -65,5 +65,12 @@ public interface SysOrgApi {
      * @param orgId
      * @return
      */
-    List<String> getParentIds(String orgId);
+    List<String> getParentIds(String orgId,Boolean includeSelf);
+
+    /**
+     * 获取当前部门的上一级部门
+     * @param orgId
+     * @return
+     */
+    String getParentId(String orgId);
 }

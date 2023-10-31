@@ -35,6 +35,9 @@ public class CommonFileVo {
     @ApiModelProperty(value = "用户文件Id", position = 4)
     private String userFileId;
 
+    /** 用户对文件的权限码 */
+    @ApiModelProperty(value = "用户对文件的权限码", position = 4)
+    private Long filePermissionCode;
 
 
 

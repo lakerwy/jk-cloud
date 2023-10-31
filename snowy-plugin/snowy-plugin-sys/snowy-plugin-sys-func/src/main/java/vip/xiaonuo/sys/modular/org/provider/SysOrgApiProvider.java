@@ -74,9 +74,15 @@ public class SysOrgApiProvider implements SysOrgApi {
     }
 
     @Override
-    public List<String> getParentIds(String orgId) {
-        List<SysOrg> result = sysOrgService.getParentListById(sysOrgService.list(),orgId,false);
+    public List<String> getParentIds(String orgId,Boolean includeSelf) {
+        List<SysOrg> result = sysOrgService.getParentListById(sysOrgService.list(),orgId,includeSelf);
         return result.stream().map(SysOrg::getId).collect(Collectors.toList());
+    }
+
+    @Override
+    public String getParentId(String orgId) {
+        SysOrg org = sysOrgService.getById(orgId);
+        return ObjectUtil.isNotEmpty(org)? org.getParentId() : "";
     }
 
 }

@@ -11,7 +11,7 @@
     </select>
 
     <select id="selectCommonFileByUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
-        SELECT a.ID as id,
+        SELECT a.ID as id,b.FILE_PERMISSION_CODE as filePermissionCode,
                c.FILE_NAME as fileName, c.USER_ID as userId ,d.NAME as userName,a.USER_FILE_ID as userFileId,
                c.PARENT_ID as parentId, c.FILE_PATH as filePath,c.IS_DIR as isDir, c.FILE_ID as fileId,
                c.ROOT_DIR as rootDir, c.ORG_ID as orgId, c.`right` as `right`, c.DATA_SCOPE_ID as dataScopeId,
@@ -26,7 +26,7 @@
     </select>
 
     <select id="myCommonFile" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
-        SELECT a.ID as id,
+        SELECT a.ID as id,b.FILE_PERMISSION_CODE as filePermissionCode,
                c.FILE_NAME as fileName, b.USER_ID as userId ,d.NAME as userName,a.USER_FILE_ID as userFileId,
                c.PARENT_ID as parentId, c.FILE_PATH as filePath,c.IS_DIR as isDir, c.FILE_ID as fileId,
                c.ROOT_DIR as rootDir, c.ORG_ID as orgId, c.`right` as `right`, c.DATA_SCOPE_ID as dataScopeId,

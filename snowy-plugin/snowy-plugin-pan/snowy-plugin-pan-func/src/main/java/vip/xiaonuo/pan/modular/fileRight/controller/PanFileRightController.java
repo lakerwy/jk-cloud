@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.pan.modular.fileRight.param.FileRightParam;
 import vip.xiaonuo.pan.modular.fileRight.param.ManagerParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
@@ -54,7 +55,7 @@ public class PanFileRightController {
      * @author yong.ye
      * @date  2023/10/25 14:32
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 3)
     @ApiOperation("获取网盘权限配置表详情 - 根据 文件夹|文件 Id 获取权限管理详情")
     @GetMapping("/pan/fileRight/detail")
     public CommonResult<List<PanFileRightVo>> detail(@Valid PanFileRightIdParam panFileRightIdParam) {
@@ -68,7 +69,7 @@ public class PanFileRightController {
      * @author yong.ye
      * @date  2023/10/25 14:32
      */
-    @ApiOperationSupport(order = 6)
+    @ApiOperationSupport(order = 1)
     @ApiOperation("保存网盘权限配置表 - 文件夹|文件设置配置权限")
     @CommonLog("保存网盘权限配置表 - 文件夹|文件设置配置权限")
     @PostMapping("/pan/fileRight/save")
@@ -83,7 +84,7 @@ public class PanFileRightController {
      * @author yong.ye
      * @date  2023/10/25 14:32
      */
-    @ApiOperationSupport(order = 6)
+    @ApiOperationSupport(order = 2)
     @ApiOperation("给文件夹|文件设置管理员")
     @CommonLog("给文件夹|文件设置管理员")
     @PostMapping("/pan/fileRight/setManager")
@@ -91,4 +92,19 @@ public class PanFileRightController {
         panFileRightService.setManager(managerParam);
         return CommonResult.ok();
     }
+
+
+    /**
+     * 根据当前用户+所选择的文件，获取拥有的权限(若选中多个文件，则取交集)
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("根据当前用户+所选择的文件，获取拥有的权限")
+    @GetMapping("/pan/fileRight/getRightById")
+    public CommonResult<Long> getRightById(@Valid FileRightParam fileRightParam) {
+        return CommonResult.data(panFileRightService.getRightById(fileRightParam));
+    }
+
 }
