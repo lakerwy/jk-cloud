@@ -1,11 +1,13 @@
 package vip.xiaonuo.dev.api;
 
 import cn.hutool.json.JSONObject;
+import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
 
 import java.util.List;
+import java.util.Set;
 
 public interface IDingDingService {
     /**
@@ -35,9 +37,11 @@ public interface IDingDingService {
      */
     OapiMessageCorpconversationAsyncsendV2Response asyncsendV2(JSONObject message , String phone);
 
-    OapiMessageCorpconversationAsyncsendV2Response baseAsyncSend(JSONObject jsonObject, String phone);
+    OapiMessageCorpconversationAsyncsendV2Response baseAsyncSend(JSONObject jsonObject, String phone, String title);
 
     void batchSend(JSONObject entries, List<String> receiverIdList);
 
     void baseBatchSend(JSONObject entries,List<String> receiverIdList);
+
+    void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, String title);
 }

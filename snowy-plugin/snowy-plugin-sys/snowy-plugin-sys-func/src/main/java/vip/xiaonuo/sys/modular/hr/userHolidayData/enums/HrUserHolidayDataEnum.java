@@ -24,7 +24,9 @@ import lombok.Getter;
 public enum HrUserHolidayDataEnum {
 
     /** 测试 */
-    TEST("TEST");
+    TEST("TEST"),
+    COMPENSATORY_LEAVE("6"),//调休
+    ANNUAL_LEAVE("5");//年假;
 
     private final String value;
 

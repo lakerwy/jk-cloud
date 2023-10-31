@@ -77,4 +77,6 @@ public interface HrUserHolidayDataService extends IService<HrUserHolidayData> {
      * @date  2023/09/22 16:48
      **/
     HrUserHolidayData queryEntity(String id);
+
+    void calculateHolidayJobHandle(String processInstanceId);
 }

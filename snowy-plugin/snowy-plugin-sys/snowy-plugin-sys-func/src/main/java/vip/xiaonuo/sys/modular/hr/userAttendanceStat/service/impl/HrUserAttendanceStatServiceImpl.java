@@ -40,9 +40,12 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.sys.modular.hr.applyWorkOt.entity.HrApplyWorkOt;
+import vip.xiaonuo.sys.modular.hr.applyWorkOt.service.HrApplyWorkOtService;
 import vip.xiaonuo.sys.modular.hr.festivalData.entity.HrFestivalData;
 import vip.xiaonuo.sys.modular.hr.festivalData.service.HrFestivalDataService;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
+import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.HrUserApplyHolidayService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
@@ -68,6 +71,8 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -86,7 +91,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     private final String OFF_DUTY = "OffDuty";
     private static final String HR_ATTENDANCE_CONFIG_KEY = "HR_ATTENDANCE_CONFIG_KEY";
     private static final String HR_ATTENDANCE_CONFIG_DEFAULT_KEY = "HR_ATTENDANCE_CONFIG_DEFAULT_KEY";  //默认配置
-
+    List<HrFestivalData> FESTIVAL_DATA_LIST = new ArrayList<>();//暂时，后续改为redis
 
     @Resource
     HrUserAttendanceStatService hrUserAttendanceStatService;
@@ -104,6 +109,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     private HrUserApplyHolidayService hrUserApplyHolidayService;
     @Resource
     private HrFestivalDataService hrFestivalDataService;
+    @Resource
+    private HrApplyWorkOtService hrApplyWorkOtService;
 
     @Override
     public Page<HrUserAttendanceStat> page(HrUserAttendanceStatPageParam hrUserAttendanceStatPageParam) {
@@ -659,13 +666,28 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         return attendanceMonthStatData;
     }
 
+    /*private void countData(List<String> days,List<HrUserAttendanceStat> statList,List<HrUserApplyHoliday> hrUserApplyHolidayList){
+        Map<String,String> dayMap = new HashMap<>();
+        days.forEach(day -> {
+            if(isFestival(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),1)){
+
+            }else{
+
+            }
+        });
+
+    }*/
+
     @Override
-    public  Boolean isFestival(String date,Integer type){
+    public  Boolean isFestival(String date,Integer type){//type类别：1 判断是法定节假日，2 判断是法定加班日
         Boolean isTrue = false;
         try{
             Date isTrueDate = DateUtils.parseDate(date,DateUtils.DATE_FORMAT_19);
             Date holidayTime = DateUtils.parseDate(HrUserAttendanceStatEnum.NOW_YEAR.getValue(),DateUtils.DATE_FORMAT_19);
-            List<HrFestivalData> festivalDataList = hrFestivalDataService.list();  //后续改为缓存
+            if(CollectionUtil.isEmpty(FESTIVAL_DATA_LIST)){
+                FESTIVAL_DATA_LIST = hrFestivalDataService.list();  //后续改为缓存
+            }
+            List<HrFestivalData> festivalDataList = FESTIVAL_DATA_LIST;
 
             if(CollectionUtil.isEmpty(festivalDataList)){
                 return false; }
@@ -688,4 +710,175 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             log.error("判断是否为节假日失败！e:"+e.toString());}
         return isTrue;
     }
+
+    @Override
+    public void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws IOException{
+        List<DayStatExcelParam>  dayStatExcelList = dayAttendanceList(dayStatExcelParam);
+    }
+
+    public List<DayStatExcelParam> dayAttendanceList(DayStatExcelParam dayStatExcelParam){
+        Date beginTime = CommonTimeFormatUtil.strToDate(dayStatExcelParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(dayStatExcelParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
+
+        /**  筛选部门*/
+        LambdaQueryWrapper<SysUser> userQuery = new LambdaQueryWrapper<>();
+        if(CollectionUtil.isNotEmpty(dayStatExcelParam.getUserList())){ userQuery.in(SysUser::getOrgId,dayStatExcelParam.getOrgList());}
+        List<SysUser> userList = sysUserService.list();
+        List<String> userIds = userList.stream().map(user -> user.getId()).collect(Collectors.toList());
+
+
+        /** 获取这段时间的每一天*/
+        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);
+
+        /** 筛选人员打卡数据 */
+        List<String> listUserIds = new ArrayList<>();
+        LambdaQueryWrapper<HrUserAttendanceStat> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.between(HrUserAttendanceStat::getCheckTime,beginTime,endTime);
+        if(CollectionUtil.isNotEmpty(dayStatExcelParam.getUserList())){
+            listUserIds.addAll(dayStatExcelParam.getUserList());
+        }
+        if(CollectionUtil.isNotEmpty(userIds)){
+            listUserIds.addAll(userIds);
+        }
+        if(CollectionUtil.isNotEmpty(listUserIds)){
+            lambdaQueryWrapper.in(HrUserAttendanceStat::getUserId,listUserIds);
+        }
+        List<HrUserAttendanceStat> userAttendanceStatList = this.list(lambdaQueryWrapper);
+        Map<String,Map<String,List<HrUserAttendanceStat>>> attendanceDayMap = new HashMap<>();/**  打卡数据预处理：key -userId，value(key-年月日，value-打卡记录)*/
+        userAttendanceStatList.forEach(stat -> {
+            String userId = stat.getUserId();
+            Map<String,List<HrUserAttendanceStat>> attendanceMap = attendanceDayMap.get(userId) == null ? new HashMap<>() : attendanceDayMap.get(userId);
+            String date = DateUtil.format(stat.getCheckTime(), DatePattern.NORM_DATE_PATTERN);
+            List<HrUserAttendanceStat> statList = attendanceMap.get(date) == null ? new ArrayList<>() : attendanceMap.get(date);
+            statList.add(stat);
+            attendanceMap.put(date,statList);
+            attendanceDayMap.put(userId,attendanceMap);
+        });
+
+        /** 查询加班数据 */
+        LambdaQueryWrapper<HrApplyWorkOt> workOtQuery = new LambdaQueryWrapper<>();
+        workOtQuery.between(HrApplyWorkOt::getApplyBeginTime,beginTime,endTime);
+        workOtQuery.between(HrApplyWorkOt::getApplyEndTime,beginTime,endTime);
+        if(CollectionUtil.isNotEmpty(listUserIds)){ workOtQuery.in(HrApplyWorkOt::getApplyUserId,listUserIds);}
+        List<HrApplyWorkOt> hrApplyWorkOtList = hrApplyWorkOtService.list(workOtQuery);
+        Map<String,List<HrApplyWorkOt>> workOtMap = new HashMap<>();
+        hrApplyWorkOtList.forEach(workOt -> {
+            List<HrApplyWorkOt> workOtList = workOtMap.get(workOt.getApplyUserId()) != null ? workOtMap.get(workOt.getApplyUserId()) : new ArrayList<>();
+            workOtList.add(workOt);
+            workOtMap.put(workOt.getApplyUserId(),workOtList);
+        });
+        Map<String,List<DayStatExcelParam>> datStatMap = dayStat(attendanceDayMap,dayList,userList);
+        return new ArrayList<>();
+    }
+
+    /**
+     * 计算这段时间的打卡记录
+     * user - 循环
+     * userAttendanceStatList - 循环
+     * */
+    private Map<String,List<DayStatExcelParam>> dayStat(Map<String,Map<String,List<HrUserAttendanceStat>>> attendanceDayMap,List<String> dayList,
+                                                        List<SysUser> userList){
+
+        Map<String,List<DayStatExcelParam>> listMap = new HashMap<>();
+        userList.forEach(user ->{
+            List<DayStatExcelParam> dayStatExcelParamList = listMap.get(user.getId()) == null ? new ArrayList<>() : listMap.get(user.getId());
+            String userId = user.getId();
+            Map<String,List<HrUserAttendanceStat>>  attendanceMap = attendanceDayMap.get(userId) == null ? new HashMap<>() : attendanceDayMap.get(userId);// key - day,value - 打卡记录
+            dayList.forEach(day -> {
+                /** 当前这天的打卡数据 */
+                List<HrUserAttendanceStat> statList = attendanceMap.get(day) == null ? new ArrayList<>() : attendanceMap.get(day);
+                Boolean isWork = false;
+                dayStatExcelParamList.add(hrUserAttendanceStat(user,statList,isWork,day));
+                listMap.put(userId,dayStatExcelParamList);
+            });
+        });
+
+        return listMap;
+    }
+
+    /** 开始赋值 */
+    private DayStatExcelParam hrUserAttendanceStat(SysUser sysUser,List<HrUserAttendanceStat> statList,Boolean isWork,String day){
+        DayStatExcelParam dayStatExcelParam = new DayStatExcelParam();
+        dayStatExcelParam.setUserId(sysUser.getId());  //userId
+        dayStatExcelParam.setUserName(sysUser.getName()); //姓名
+        dayStatExcelParam.setEmpNo(sysUser.getEmpNo());//编号
+        dayStatExcelParam.setOrgId(sysUser.getOrgId());//岗位ID
+        dayStatExcelParam.setOrgName(sysUser.getOrgName());//岗位
+        dayStatExcelParam.setPosition(sysUser.getPositionName());//职位
+        /** 数据暂时固定 */
+        dayStatExcelParam.setAttendanceTypeId("1671734716242948621");//修改SysUser表的字段，增加考勤字段，可以直接拿来用
+        dayStatExcelParam.setAttendanceTypeDetails("标准班次 08:30-12:00 14:00-17:30");
+        Date dayDate = CommonTimeFormatUtil.strToDate(day+ HrUserApplyHolidayEnum.TIMNE.getValue(),DatePattern.NORM_DATETIME_PATTERN);
+        String dateStr = day+ HrUserApplyHolidayEnum.TIMNE.getValue();
+        if(DateUtil.isWeekend(dayDate) && !isFestival(day+ HrUserApplyHolidayEnum.TIMNE.getValue(), 2)){//是周末,且非法定加班日
+            dayStatExcelParam.setAttendanceTypeDetails("休息");
+        }
+        if(isFestival(day+ HrUserApplyHolidayEnum.TIMNE.getValue(), 1)){//是法定节假日
+            dayStatExcelParam.setAttendanceTypeDetails("休息");
+        }
+
+        dayStatExcelParam.setAttendanceTypeName("建科标准考勤");
+        dayStatExcelParam.setDate(CommonTimeFormatUtil.dayAndWeek(day));
+        dayStatExcelParam.setDay(day);
+
+
+        if(dayStatExcelParam.getAttendanceTypeDetails().equals("休息")){
+            if(CollectionUtil.isNotEmpty(statList)){ //存在周末上班打卡的情况
+                dayStatExcelParam.setUserAttendanceStatList(statList);
+            }
+            dayStatExcelParam.setRestDays(1.0);
+        }else{
+            statAttendanceDeal(statList,dayStatExcelParam);
+            dayStatExcelParam.setAttendanceDays(1.0);
+        }
+        return dayStatExcelParam;
+    }
+
+    /** 请假以及外出数据会在审核通过之后做后置处理，数据会到打卡统计表*/
+    private void statAttendanceDeal(List<HrUserAttendanceStat> statList,DayStatExcelParam dayStatExcelParam){
+        Integer lackAttendance = dayStatExcelParam.getLackAttendance() == null ? 0 : dayStatExcelParam.getLackAttendance(); //缺卡次数
+        Integer lateNum = dayStatExcelParam.getLateNum() == null ? 0 : dayStatExcelParam.getLateNum(); //迟到次数
+        Integer lateMinute = dayStatExcelParam.getLateMinute() == null ? 0 : dayStatExcelParam.getLateMinute(); //迟到分钟
+        Integer leaveEarlyNum = dayStatExcelParam.getLeaveEarlyNum() == null ? 0: dayStatExcelParam.getLeaveEarlyNum();//早退
+        Map<String,HrUserAttendanceStat> map = new HashMap<>();
+        statList.forEach(stat -> map.put(stat.getCheckType(),stat));
+        HrUserAttendanceStat hrUserAttendanceStat = new HrUserAttendanceStat();
+        hrUserAttendanceStat.setAbnormalFlag(-1);
+        hrUserAttendanceStat.setUserId(dayStatExcelParam.getUserId());
+
+        List<HrUserAttendanceStat> list = new ArrayList<>();
+        if(ObjectUtil.isEmpty(map.get("OnDuty"))){//上下班标识；OnDuty：上班；OffDuty：下班；休息 REST
+            hrUserAttendanceStat.setCheckType("OnDuty");
+            dayStatExcelParam.setLackAttendance(++lackAttendance);//缺卡
+            list.add(hrUserAttendanceStat);
+        }else {
+            if(map.get("OnDuty").getAbnormalFlag() == 3){
+                dayStatExcelParam.setLateNum(lateNum+1);
+                dayStatExcelParam.setLateMinute(0);
+            }
+            list.add(hrUserAttendanceStat);
+        }
+
+        if(ObjectUtil.isEmpty(map.get("REST"))){//上下班标识；OnDuty：上班；OffDuty：下班；休息 REST
+            hrUserAttendanceStat.setCheckType("REST");
+            dayStatExcelParam.setLackAttendance(++lackAttendance);//缺卡
+            list.add(hrUserAttendanceStat);
+        }else {
+            list.add(hrUserAttendanceStat);
+        }
+
+        if(ObjectUtil.isEmpty(map.get("OffDuty"))){//上下班标识；OnDuty：上班；OffDuty：下班；休息 REST
+            hrUserAttendanceStat.setCheckType("OffDuty");
+            dayStatExcelParam.setLackAttendance(++lackAttendance);//缺卡
+            list.add(hrUserAttendanceStat);
+        }else {
+            if(map.get("OffDuty").getAbnormalFlag() == 4){
+                dayStatExcelParam.setLeaveEarlyNum(leaveEarlyNum+1);//早退
+                dayStatExcelParam.setLeaveEarlyNum(0);
+            }
+            list.add(hrUserAttendanceStat);
+        }
+        dayStatExcelParam.setUserAttendanceStatList(list);
+    }
+
 }

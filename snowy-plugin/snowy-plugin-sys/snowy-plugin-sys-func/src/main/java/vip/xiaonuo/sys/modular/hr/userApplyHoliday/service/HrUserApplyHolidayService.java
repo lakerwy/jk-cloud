@@ -15,10 +15,7 @@ package vip.xiaonuo.sys.modular.hr.userApplyHoliday.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayAddParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayEditParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayIdParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayPageParam;
+import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,9 @@ public interface HrUserApplyHolidayService extends IService<HrUserApplyHoliday> 
      * @date  2023/09/22 17:05
      **/
     HrUserApplyHoliday queryEntity(String id);
+
+    /**
+     * 计算时间差
+     * */
+    Double calculate(CalculateDayParam calculateDayParam);
 }

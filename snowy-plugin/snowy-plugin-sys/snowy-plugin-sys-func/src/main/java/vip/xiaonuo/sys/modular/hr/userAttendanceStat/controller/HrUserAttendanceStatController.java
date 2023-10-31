@@ -18,6 +18,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.models.auth.In;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -35,13 +36,13 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatE
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceMonthStatParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -271,5 +272,19 @@ public class HrUserAttendanceStatController {
     @GetMapping("/sys/userAttendance/isFestival")
     public CommonResult<Boolean> isFestival(@Valid String date,Integer type) {
         return CommonResult.data(hrUserAttendanceStatService.isFestival(date,type));
+    }
+
+    /**
+     * 下载文件
+     *
+     * @author xuyuxiang
+     * @date 2022/6/21 15:44
+     **/
+    @ApiOperationSupport(order = 15)
+    @ApiOperation("每日统计接口-下载Excel文件")
+    @CommonLog("每日统计接口-下载Excel文件")
+    @GetMapping(value = "/sys/userAttendance/dayexcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void dayDownloadExcel(@Valid DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws IOException {
+        hrUserAttendanceStatService.downloadExcel(dayStatExcelParam, response);
     }
 }

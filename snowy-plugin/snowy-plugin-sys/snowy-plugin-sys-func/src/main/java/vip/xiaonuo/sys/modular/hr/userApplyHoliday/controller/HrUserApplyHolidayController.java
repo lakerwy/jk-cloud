@@ -27,15 +27,13 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayAddParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayEditParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayIdParam;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.HrUserApplyHolidayPageParam;
+import vip.xiaonuo.sys.modular.hr.userApplyHoliday.param.*;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.HrUserApplyHolidayService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 请假申请表控制器
@@ -127,4 +125,20 @@ public class HrUserApplyHolidayController {
     public CommonResult<HrUserApplyHoliday> detail(@Valid HrUserApplyHolidayIdParam hrUserApplyHolidayIdParam) {
         return CommonResult.data(hrUserApplyHolidayService.detail(hrUserApplyHolidayIdParam));
     }
+
+    /**
+     * 计算时间差
+     *
+     * @author ljy
+     * @date  2023/09/22 17:05
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("计算时间差")
+    //@SaCheckPermission("/sys/userApplyHoliday/detail")
+    @GetMapping("/sys/userApplyHoliday/calculateDay")
+    public CommonResult<Double> calculateDay(@Valid CalculateDayParam calculateDayParam) {
+        return CommonResult.data(hrUserApplyHolidayService.calculate(calculateDayParam));
+    }
+
+
 }

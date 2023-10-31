@@ -52,7 +52,7 @@ public class HrUserAttendanceStat {
     private String machineCode;
 
     /** 打卡是否异常：2 异常，1 正常 */
-    @ApiModelProperty(value = "打卡是否异常：2 异常，1 正常", position = 6)
+    @ApiModelProperty(value = "打卡是否异常：-1 缺卡，1 正常,3 迟到，4 早退，5 请假，6 管理员修改 ", position = 6)
     private Integer abnormalFlag;
 
     /** 上下班标识；OnDuty：上班；OffDuty：下班；休息 REST */

@@ -31,4 +31,13 @@ public interface SysHrAttendanceFeign {
      **/
     @RequestMapping("/feign/sys/applyattendance/attendanceStatJobHandle")
     void attendanceStatJobHandle();
+
+    /**
+     * 处理请假之后的流程
+     *
+     * @author ljy
+     * @date 2023/10/27 10:19
+     **/
+    @RequestMapping("/feign/sys/applyattendance/calculateHolidayJobHandle")
+    void calculateHolidayJobHandle(String processInstanceId);
 }

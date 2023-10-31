@@ -301,4 +301,5 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         }
         return userFileList;
     }
+
 }

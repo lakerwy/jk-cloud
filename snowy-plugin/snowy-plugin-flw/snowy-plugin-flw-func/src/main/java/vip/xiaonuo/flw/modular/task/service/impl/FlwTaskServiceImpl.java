@@ -14,6 +14,7 @@ package vip.xiaonuo.flw.modular.task.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
@@ -23,17 +24,17 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.history.HistoricProcessInstance;
-import org.camunda.bpm.engine.history.HistoricTaskInstance;
-import org.camunda.bpm.engine.history.HistoricTaskInstanceQuery;
+import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
+import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
@@ -41,13 +42,17 @@ import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
+import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
@@ -68,8 +73,11 @@ import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.camunda.bpm.engine.task.IdentityLinkType.ASSIGNEE;
@@ -110,10 +118,16 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     private FormRelationTableService formRelationTableService;
 
     @Resource
-    private FlwModelService flwModelService;
+    private CommonCacheOperator commonCacheOperator;
+
 
     @Resource
-    private CommonCacheOperator commonCacheOperator;
+    IDingDingService iDingDingService;
+
+    /**
+     * 异步任务线程池
+     */
+    public static Executor messageExec = Executors.newFixedThreadPool(20);
 
     @Override
     public Page<FlwTodoTaskResult> todoPage(FlwTaskPageTodoParam flwTaskPageTodoParam) {
@@ -733,14 +747,74 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     @Override
     public void addComment(FlwCommentParam flwcommentParam) {
         //Task task = validTask(flwTaskPassParam.getId(), flwTaskPassParam.getComment());
-        String taskId = null;
+        String taskId = flwcommentParam.getId();
         String processInstanceId = flwcommentParam.getProcessInstanceId();
         if(StrUtil.isNotEmpty(flwcommentParam.getId())){
             Task task = taskService.createTaskQuery().taskId(flwcommentParam.getId()).singleResult();
-            taskId = task.getId();
-            processInstanceId = task.getProcessInstanceId();
+            if(ObjectUtil.isNotEmpty(task)){
+                taskId = task.getId();
+                processInstanceId = task.getProcessInstanceId();
+            }
         }
         NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.COMMENT.getValue(), "追加评论",
                 flwcommentParam.getComment(), flwcommentParam.getAttachmentList());
+        List<Comment> comments = taskService.getProcessInstanceComments(processInstanceId);
+        if(CollUtil.isNotEmpty(comments)){
+            Set<String> collect = comments.stream().map(Comment::getUserId).collect(Collectors.toSet());
+            iDingDingService.customBatchSend(buildForms(processInstanceId,flwcommentParam.getComment()),collect,"【评论知晓】");
+        }
     }
+
+    @NotNull
+    private List<OapiMessageCorpconversationAsyncsendV2Request.Form> buildForms(String processInstanceId,String comment) {
+        HistoricVariableInstanceQuery historicVariableInstanceQuery = historyService
+                .createHistoricVariableInstanceQuery().processInstanceId(processInstanceId)
+                .orderByVariableName().desc();
+        List<HistoricVariableInstance> list = historicVariableInstanceQuery.list();
+        String processDefinitionId = list.get(0).getProcessDefinitionId();
+        Map<String, Object> taskMap = list.stream().collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue));
+//        String processDefinitionName = historicProcessInstance.getProcessDefinitionName();
+//        Map taskMap = jsonObject.get("taskMap", Map.class);
+//        Object processDefinitionId = taskMap.get("processDefinitionId");
+        //摘要
+        Object initiatorProcessAbstract = taskMap.get("initiatorProcessAbstract");
+        Object initiatorProcessSn = taskMap.get("initiatorProcessSn");
+        Object initiatorTime = taskMap.get("initiatorTime");
+        Object initiatorName = taskMap.get("initiatorName");
+        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("流程名称： ");
+
+        Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+        form.setValue(String.valueOf(o));
+        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("基本信息： ");
+        form.setValue(String.valueOf(initiatorProcessAbstract));
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("流水号：");
+        form.setValue(String.valueOf(initiatorProcessSn));
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("发起于：");
+        form.setValue(initiatorTime+" | "+ initiatorName);
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("评论人：");
+        form.setValue(StpLoginUserUtil.getLoginUser().getName());
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("评论内容为：");
+        form.setValue(comment);
+
+        forms.add(form);
+        return forms;
+    }
+
 }
