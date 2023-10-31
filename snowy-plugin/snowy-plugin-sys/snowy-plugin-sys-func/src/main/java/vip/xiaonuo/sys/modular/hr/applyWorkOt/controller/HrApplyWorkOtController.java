@@ -143,4 +143,18 @@ public class HrApplyWorkOtController {
     public CommonResult<Page<UserWorkOtVo>> userWorkOtVoPage(UserWorkOtVo userWorkOtVo) {
         return CommonResult.data(hrApplyWorkOtService.userWorkOtVoPage(userWorkOtVo));
     }
+
+    /**
+     * 获取考勤-申请加班数据表分页
+     *
+     * @author ljy
+     * @date  2023/10/29 19:57
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("申请加班的时间计算")
+    //@SaCheckPermission("/sys/applyWorkOt/userWorkOtPage")
+    @GetMapping("/sys/applyWorkOt/countWorkHours")
+    public CommonResult<Long> countWorkHours(String beginTime,String endTime) {
+        return CommonResult.data(hrApplyWorkOtService.countWorkHours(beginTime,endTime));
+    }
 }

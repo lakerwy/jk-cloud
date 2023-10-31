@@ -19,15 +19,14 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceDayStatParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceMonthStatParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceStatNumData;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatEditParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -165,4 +164,9 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
 
     /** 判断当前的时间是否为节假日或者是加班日,type = 1 是否法定节假日，type = 2 是否法定加班日  */
     Boolean isFestival(String date,Integer type);
+
+    /**
+    * 下载打卡时间excel数据
+    * */
+    void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws IOException;
 }

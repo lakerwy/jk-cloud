@@ -1,8 +1,10 @@
 package vip.xiaonuo.sys.modular.hr.applyWorkOt.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
@@ -49,11 +51,15 @@ public class UserWorkOtVo {
     /** 开始时间 */
     @ApiModelProperty(value = "开始时间", required = true,position = 5)
     @NotBlank(message = "开始时间不能为空")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date applyBeginTime;
 
     /** 结束时间 */
     @ApiModelProperty(value = "结束时间", required = true,position = 6)
     @NotBlank(message = "结束时间不能为空")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date applyEndTime;
 
 }

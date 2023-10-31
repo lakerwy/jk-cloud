@@ -86,4 +86,6 @@ public interface HrApplyWorkOtService extends IService<HrApplyWorkOt> {
      * @date  2023/10/29 19:57
      */
     Page<UserWorkOtVo> userWorkOtVoPage(UserWorkOtVo userWorkOtVo);
+
+    Long countWorkHours(String beginTime,String endTime);
 }

@@ -422,10 +422,44 @@ public class CommonTimeFormatUtil {
             return sdf.format(date);
         }
 
+
+    public static String dayAndWeek(String time) {
+        Date date = strToDate(time,DatePattern.NORM_DATE_PATTERN);
+        // 创建Calendar类实例
+        Calendar instance = Calendar.getInstance();
+        // 根据指定日期获取周几
+        instance.setTime(date);
+        int week = instance.get(Calendar.DAY_OF_WEEK);
+        // 周日的编号是1，周六的编号是7
+        if (week == Calendar.SUNDAY ) {
+            return time+" 星期日";
+        }
+        if(week == Calendar.SATURDAY){
+            return time+" 星期六";
+        }
+        if(week == Calendar.MONDAY){
+            return time+" 星期一";
+        }
+        if(week == Calendar.TUESDAY){
+            return time+" 星期二";
+        }
+        if(week == Calendar.WEDNESDAY){
+            return time+" 星期三";
+        }
+        if(week == Calendar.THURSDAY){
+            return time+" 星期四";
+        }
+        if(week == Calendar.FRIDAY){
+            return time+" 星期五";
+        }
+
+        return time;
+    }
+
         public static void main(String[] args) {
             Date beginTime = strToDate("2023-10-01",DATE_FORMAT);
             Date endTime = strToDate("2023-10-30",DATE_FORMAT);
-            List<String> list = getPerStrDayList(beginTime,endTime);
+            String string= dayAndWeek("2023-10-01");
             System.out.println("");
         }
 

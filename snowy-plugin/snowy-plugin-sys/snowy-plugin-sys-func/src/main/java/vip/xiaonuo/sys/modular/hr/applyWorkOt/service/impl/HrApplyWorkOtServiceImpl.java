@@ -14,9 +14,13 @@ package vip.xiaonuo.sys.modular.hr.applyWorkOt.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUnit;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -32,6 +36,7 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.entity.HrApplyWorkOt;
@@ -44,10 +49,7 @@ import vip.xiaonuo.sys.modular.hr.applyWorkOt.service.HrApplyWorkOtService;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.vo.UserWorkOtVo;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -184,5 +186,41 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
             return (floor+0.5);
         }
         return floor;
+    }
+
+    @Override
+    public Long countWorkHours(String beginTime,String endTime){
+        Long hours = 0l;
+        try{
+            /**1.开始和结束时间，包含考勤区间
+             * 2.开始时间在考勤区间之后
+             * 3.开始时间在考勤开始之前，结束时间在考勤区间
+             * 4.结束时间在考勤结束之后，开始时间在考勤区间
+             * */
+            Date applyBeginTime = CommonTimeFormatUtil.strToDate(beginTime,DatePattern.NORM_DATETIME_PATTERN);
+            Date applyEndTime = CommonTimeFormatUtil.strToDate(endTime,DatePattern.NORM_DATETIME_PATTERN);;
+
+            String day = DateUtils.format(applyBeginTime, DatePattern.NORM_DATE_PATTERN);
+            Date attendanceBeginTime = DateUtils.parseDate(day+" 08:30:00",DatePattern.NORM_DATETIME_PATTERN);
+            Date attendanceEndTime = DateUtils.parseDate(day+" 17:30:00",DatePattern.NORM_DATETIME_PATTERN);
+            if(applyBeginTime.compareTo(attendanceBeginTime) < 0 && applyEndTime.compareTo(attendanceEndTime) > 0){//1.
+                Long hours1 = DateUtil.between(applyBeginTime,attendanceBeginTime, DateUnit.HOUR);
+                Long hours2 = DateUtil.between(applyEndTime,attendanceEndTime, DateUnit.HOUR);
+                hours = hours1+hours2;
+            }
+            if(applyBeginTime.compareTo(attendanceEndTime) > 0 ){//2.
+                hours = DateUtil.between(applyBeginTime,applyEndTime, DateUnit.HOUR);
+            }
+            if(applyBeginTime.compareTo(attendanceBeginTime) < 0 && applyEndTime.compareTo(attendanceEndTime) < 0){//3.
+                hours = DateUtil.between(applyBeginTime,attendanceBeginTime, DateUnit.HOUR);
+            }
+            if(applyBeginTime.compareTo(attendanceBeginTime) > 0 && applyEndTime.compareTo(attendanceEndTime) > 0){//4.
+                hours = DateUtil.between(applyBeginTime,attendanceEndTime, DateUnit.HOUR);
+            }
+        }catch (Exception e){
+            log.error("时间计算失败！e:"+e.toString());
+            throw new CommonException("时间计算失败！");
+        }
+        return hours;
     }
 }
