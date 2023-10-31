@@ -92,4 +92,16 @@ public class SysOrgFeignProvider implements SysOrgFeign {
     public List<String> getChildren(String orgId) {
         return sysOrgApiProvider.getChildrenIds(orgId);
     }
+
+    @Override
+    @RequestMapping("/feign/sys/org/getParentIds")
+    public List<String> getParentIds(String orgId, Boolean includeSelf) {
+        return sysOrgApiProvider.getParentIds(orgId,includeSelf);
+    }
+
+    @Override
+    @RequestMapping("/feign/sys/org/getParentId")
+    public String getParentId(String orgId) {
+        return sysOrgApiProvider.getParentId(orgId);
+    }
 }

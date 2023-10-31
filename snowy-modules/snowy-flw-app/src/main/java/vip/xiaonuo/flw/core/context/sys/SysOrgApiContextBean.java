@@ -112,4 +112,14 @@ public class SysOrgApiContextBean implements SysOrgApi {
         return sysOrgFeign.getChildren(orgId);
     }
 
+    @Override
+    public List<String> getParentIds(String orgId, Boolean includeSelf) {
+        return sysOrgFeign.getParentIds(orgId,includeSelf);
+    }
+
+    @Override
+    public String getParentId(String orgId) {
+        return sysOrgFeign.getParentId(orgId);
+    }
+
 }
