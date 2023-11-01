@@ -409,9 +409,9 @@ public class DingDingServiceImpl implements IDingDingService {
 
     @Override
     public void baseBatchSend(JSONObject entries, List<String> receiverIdList) {
-//        if(!dingTalkProperties.getIsSend()){
-//            return;
-//        }
+        if(!dingTalkProperties.getIsSend()){
+            return;
+        }
         List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(receiverIdList);
         //手机号集合
         List<String> collect = users.stream().map(u -> u.getStr("account")).collect(Collectors.toList());
