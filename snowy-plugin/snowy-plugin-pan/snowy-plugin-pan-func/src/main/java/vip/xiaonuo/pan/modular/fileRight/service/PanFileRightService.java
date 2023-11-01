@@ -19,6 +19,7 @@ import vip.xiaonuo.pan.modular.fileRight.param.ManagerParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
+import vip.xiaonuo.pan.modular.fileRight.vo.UserRightVo;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -38,14 +39,6 @@ public interface PanFileRightService extends IService<PanFileRight> {
      * @date  2023/10/25 14:32
      */
     List<PanFileRightVo> detail(PanFileRightIdParam panFileRightIdParam);
-
-    /**
-     * 获取网盘权限配置表详情
-     *
-     * @author yong.ye
-     * @date  2023/10/25 14:32
-     **/
-    PanFileRight queryEntity(String id);
 
 
     /***
@@ -85,4 +78,12 @@ public interface PanFileRightService extends IService<PanFileRight> {
      * @return
      */
     Long getRightById(FileRightParam fileRightParam);
+
+    /**
+     * 根据文件Id，获取当前文件的权限列表（有设置取设置，无设置取继承的）
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    List<UserRightVo> rightDetail(PanFileRightIdParam panFileRightIdParam);
 }

@@ -29,6 +29,7 @@ import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
+import vip.xiaonuo.pan.modular.fileRight.vo.UserRightVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -51,6 +52,7 @@ public class PanFileRightController {
 
     /**
      * 获取网盘权限配置表详情 - 根据 文件夹|文件 Id 获取权限管理详情
+     * 【注意：本接口 获取的是 当前文件 实际设置的权限列表（设置 一个 部门 | 一个人 就是对应的一条记录）】
      *
      * @author yong.ye
      * @date  2023/10/25 14:32
@@ -105,6 +107,20 @@ public class PanFileRightController {
     @GetMapping("/pan/fileRight/getRightById")
     public CommonResult<Long> getRightById(@Valid FileRightParam fileRightParam) {
         return CommonResult.data(panFileRightService.getRightById(fileRightParam));
+    }
+
+
+    /**
+     * 根据文件Id，获取当前文件的权限列表（有设置取设置，无设置取继承的）
+     * [注意：此处获取的是当前 群组文件夹 顶级目录 用户范围 内 所有用户的权限详情列表]
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("根据文件Id，获取当前文件的权限列表（有设置取设置，无设置取继承的）")
+    @GetMapping("/pan/fileRight/rightDetail")
+    public CommonResult<List<UserRightVo>> rightDetail(@Valid PanFileRightIdParam panFileRightIdParam) {
+        return CommonResult.data(panFileRightService.rightDetail(panFileRightIdParam));
     }
 
 }

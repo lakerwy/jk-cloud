@@ -15,7 +15,7 @@ package vip.xiaonuo.pan.modular.fileRight.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
-import vip.xiaonuo.pan.modular.fileRight.vo.UserFileRightVo;
+import vip.xiaonuo.pan.modular.fileRight.vo.UserInfoVo;
 
 import java.util.List;
 
@@ -34,9 +34,15 @@ public interface PanFileRightMapper extends BaseMapper<PanFileRight> {
      * @param userId
      * @param right
      * @param orgIds
-     * @param roleIds
      * @return
      */
-    List<String> getFileRightList(String userId,long right,List<String> orgIds,List<String> roleIds);
+    List<String> getFileRightList(String userId,long right,List<String> orgIds);
+
+    /**
+     * 根据顶级文件 群组设置范围 ，获取其所有用户信息
+     * @param objIds
+     * @return
+     */
+    List<UserInfoVo> getUserInfos(List<String> objIds);
 
 }
