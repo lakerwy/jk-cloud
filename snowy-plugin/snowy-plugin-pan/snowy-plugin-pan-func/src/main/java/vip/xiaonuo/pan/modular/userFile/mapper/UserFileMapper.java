@@ -49,10 +49,6 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
     /**
      * 获取顶级目录
      *
-//     * @param userId 用户Id
-//     * @param filePath 文件路径
-//     * @param orgIds 组织集合（自身及上级）
-//     * @param roleIds 角色集合
      * @return
      */
     Page<UserFile> getGroupPage(Page<UserFile> page,@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
@@ -60,8 +56,6 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
     /**
      * 获取非顶级目录
      *
-//     * @param filePath
-//     * @param ids
      * @return
      */
     Page<UserFile> getGroupPage2(Page<UserFile> page,@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);

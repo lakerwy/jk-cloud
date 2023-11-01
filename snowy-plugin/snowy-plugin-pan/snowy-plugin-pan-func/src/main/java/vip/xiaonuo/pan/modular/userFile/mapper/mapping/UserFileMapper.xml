@@ -123,37 +123,12 @@
         select a.*
         from PAN_USER_FILE a join PAN_FILE_RIGHT b on a.ID = b.USER_FILE_ID
         ${ew.customSqlSegment}
-<!--        where a.DELETE_FLAG = 'NOT_DELETE' and b.DELETE_FLAG = 'NOT_DELETE'-->
-<!--        and a.FOLD_TYPE = '1' and a.FILE_PATH = #{filePath}-->
-<!--        and b.RIGHT_VALUE &amp; 1 > 0-->
-<!--        and ( b.OBJECT_ID = #{userId}-->
-<!--            <if test="orgIds ! = null ">-->
-<!--            or b.OBJECT_ID in-->
-<!--                <foreach collection="orgIds" item="item" open="(" close=")" separator="," >-->
-<!--                    #{item}-->
-<!--                </foreach>-->
-<!--            </if>-->
-<!--            <if test="roleIds ! = null ">-->
-<!--                or b.OBJECT_ID in-->
-<!--                <foreach collection="roleIds" item="item" open="(" close=")" separator="," >-->
-<!--                    #{item}-->
-<!--                </foreach>-->
-<!--            </if>-->
-<!--        )-->
     </select>
 
     <select id="getGroupPage2" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
         select *
         from PAN_USER_FILE
         ${ew.customSqlSegment}
-<!--        where DELETE_FLAG = 'NOT_DELETE'-->
-<!--        and FOLD_TYPE = '1' and FILE_PATH = #{filePath}-->
-<!--        <if test="ids ! = null ">-->
-<!--            and b.ID not in-->
-<!--            <foreach collection="ids" item="item" open="(" close=")" separator="," >-->
-<!--                #{item}-->
-<!--            </foreach>-->
-<!--        </if>-->
     </select>
 
 </mapper>

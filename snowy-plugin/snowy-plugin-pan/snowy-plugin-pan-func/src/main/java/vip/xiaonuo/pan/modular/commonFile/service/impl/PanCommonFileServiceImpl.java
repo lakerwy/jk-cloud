@@ -14,6 +14,7 @@ package vip.xiaonuo.pan.modular.commonFile.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -35,6 +36,7 @@ import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanFilePermission;
 import vip.xiaonuo.pan.modular.fileCenter.service.PanFilePermissionService;
 import vip.xiaonuo.pan.modular.fileRight.param.ObjectRight;
+import vip.xiaonuo.sys.api.SysOrgApi;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -54,6 +56,9 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
 
     @Resource
     PanCommonFileMapper panCommonFileMapper;
+
+    @Resource
+    SysOrgApi sysOrgApi;
 
     @Override
     public Page<PanCommonFile> page(PanCommonFilePageParam panCommonFilePageParam) {
@@ -125,19 +130,22 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
 
     @Override
     public List<CommonFileUserVo> commonFileUser() {
-        return panCommonFileMapper.selectCommonFileUser(StpLoginUserUtil.getLoginUser().getId());
+        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
+        return panCommonFileMapper.selectCommonFileUser(StpLoginUserUtil.getLoginUser().getId(),orgIds);
     }
 
     @Override
     public List<CommonFileVo> commonFileByUser(String userId) {
-        return panCommonFileMapper.selectCommonFileByUser(userId,StpLoginUserUtil.getLoginUser().getId());
+        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
+        return panCommonFileMapper.selectCommonFileByUser(userId,StpLoginUserUtil.getLoginUser().getId(),orgIds);
     }
 
     @Override
     public IPage<CommonFileVo> commonFileList(PanCommonFilePageParam panCommonFilePageParam) {
         QueryWrapper<PanCommonFile> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("c.USER_ID",StpLoginUserUtil.getLoginUser().getId());
+        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
         queryWrapper.eq("c.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("c.USER_ID",StpLoginUserUtil.getLoginUser().getId());
         if(ObjectUtil.isAllNotEmpty(panCommonFilePageParam.getSortField(), panCommonFilePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(panCommonFilePageParam.getSortOrder());
             queryWrapper.orderBy(true, panCommonFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

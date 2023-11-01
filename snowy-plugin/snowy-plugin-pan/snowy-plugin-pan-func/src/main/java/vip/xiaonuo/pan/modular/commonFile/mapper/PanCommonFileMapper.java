@@ -33,10 +33,10 @@ import java.util.List;
 public interface PanCommonFileMapper extends BaseMapper<PanCommonFile> {
 
     /** 共享给我 - 共享用户列表 **/
-    List<CommonFileUserVo> selectCommonFileUser(@Param("userId") String userId);
+    List<CommonFileUserVo> selectCommonFileUser(@Param("userId") String userId,List<String> orgIds);
 
     /** 共享给我 - 某人共享的文件列表 **/
-    List<CommonFileVo> selectCommonFileByUser(@Param("userId") String userId, @Param("sessionUserId") String sessionUserId);
+    List<CommonFileVo> selectCommonFileByUser(@Param("userId") String userId, @Param("sessionUserId") String sessionUserId,List<String> orgIds);
 
     /** 我的共享 - 所共享的文件列表 **/
     IPage<CommonFileVo> myCommonFile(Page<CommonFileVo> page, @Param(Constants.WRAPPER) Wrapper<PanCommonFile> queryWrapper);

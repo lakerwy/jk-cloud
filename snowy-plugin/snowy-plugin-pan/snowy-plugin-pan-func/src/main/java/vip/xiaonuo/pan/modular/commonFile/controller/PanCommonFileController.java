@@ -99,7 +99,7 @@ public class PanCommonFileController {
     @ApiOperation("获取共享用户的文件列表，收到的共享(某人共享给我的文件列表)")
 //    @SaCheckPermission("/pan/commonFile/commonFileByUser")
     @GetMapping("/pan/commonFile/commonFileByUser")
-    public CommonResult<List<CommonFileVo>> commonFileByUser(@Valid String userId) {
+    public CommonResult<List<CommonFileVo>> commonFileByUser(String userId) {
         return CommonResult.data(panCommonFileService.commonFileByUser(userId));
     }
 

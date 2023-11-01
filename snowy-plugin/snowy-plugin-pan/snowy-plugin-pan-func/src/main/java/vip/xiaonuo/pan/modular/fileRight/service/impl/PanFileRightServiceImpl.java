@@ -70,28 +70,6 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         return panFileRight;
     }
 
-
-    /***
-     * 根据 用户文件Id，校验当前用户是否有对应操作权限
-     * @param userFileId 用户文件Id(UserFile.Id)
-     * @param checkRight 操作权限(FileRight)
-     *
-     *  check 逻辑说明：
-     *                1. 若当前用户为userFileId文件所有者，拥有全部操作权限
-     *                2. 若当前用户不为userFileId文件所有者，根据权限配置校验权限
-     *                   2.1 若当前userFileId，当前用户，存在权限配置，直接根据配置校验
-     *                   2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
-     */
-    @Override
-    public boolean checkFileRight(String userFileId, long checkRight) {
-        UserFile userFile = userFileService.getById(userFileId);
-        Long right = getRightByUserFile(userFile);
-        Boolean hasRight = FileRight.hasRight(right,checkRight);
-        if(!hasRight) throw new CommonException("无操作权限");
-        return true;
-    }
-
-
     /***
      * 权限配置保存（整合新增|修改）
      * @param panFileRightAddParam
@@ -172,14 +150,14 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
            || getFileManager(userFile).contains(userId))
             return FileRight.ALL_RIGHT;
 
-        //3. 当前用户 >> 所属组织 >> 所属角色 对当前文件userFileId是否有权限配置
+        //3. 当前用户 >> 所属组织  对当前文件userFileId是否有权限配置
         String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
         List<String> orgIds = sysOrgApi.getParentIds(orgId,true);
-        PanFileRight currentRight = getRightByUser(userFile.getId(),userId,orgId,orgIds,roleIds);
+        PanFileRight currentRight = getRightByUser(userFile.getId(),userId,orgId,orgIds,null);
         if(ObjectUtil.isNotEmpty(currentRight)) return currentRight.getRightValue();
 
-        //4. 当前用户 >> 所属组织 >> 所属角色 对当前文件userFileId无权限配置，递归看其上级文件
-        PanFileRight parentRight = getParentRight(userFile.getParentId(),userId,orgId,orgIds,roleIds);
+        //4. 当前用户 >> 所属组织 对当前文件userFileId无权限配置，递归看其上级文件
+        PanFileRight parentRight = getParentRight(userFile.getParentId(),userId,orgId,orgIds,null);
         if(ObjectUtil.isNotEmpty(parentRight)) return parentRight.getRightValue();
 
         return FileRight.RIGHT_NULL;
@@ -188,7 +166,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
     /***
      * 获取当前用户，是否存在权限配置
      *
-     * 规则：当前用户 >> 所属角色 >> 所属部门（一次向上） 是否有权限配置
+     * 规则：当前用户 >> 所属部门（一次向上） 是否有权限配置 [暂不支持 角色]
      *
      * @return
      */
@@ -204,14 +182,14 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         //先取用户
         PanFileRight userObj = fileRights.stream().filter(x -> x.getObjectId().equals(userId)).findFirst().orElse(null);
         if(ObjectUtil.isNotEmpty(userObj)) return userObj;
-        //再取角色
-        if(CollUtil.isNotEmpty(roleIds)) {
-            PanFileRight roleObj = fileRights.stream().filter(x -> roleIds.contains(x.getObjectId())).findFirst().orElse(null);
-            if (ObjectUtil.isNotEmpty(roleObj)) return roleObj;
-        }
         //再递归取组织
         if(CollUtil.isNotEmpty(orgIds)){
             return getRightByOrg(fileRights,orgId);
+        }
+        //再取角色(同一个人多个角色没法控制)
+        if(CollUtil.isNotEmpty(roleIds)) {
+            PanFileRight roleObj = fileRights.stream().filter(x -> roleIds.contains(x.getObjectId())).findFirst().orElse(null);
+            if (ObjectUtil.isNotEmpty(roleObj)) return roleObj;
         }
         return null;
     }
@@ -264,7 +242,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
 
 
     /***
-     * 递归获取，就近权限
+     * 递归获取，就近权限 [暂不支持 角色]
      * @param parentFileId 父级文件userFileId
      * @param userId 用户Id
      * @return
@@ -300,6 +278,28 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
             if(ObjectUtil.isEmpty(parentFile)) break;
         }
         return userFileList;
+    }
+
+
+
+    /***
+     * 根据 用户文件Id，校验当前用户是否有对应操作权限
+     * @param userFileId 用户文件Id(UserFile.Id)
+     * @param checkRight 操作权限(FileRight)
+     *
+     *  check 逻辑说明：
+     *                1. 若当前用户为userFileId文件所有者，拥有全部操作权限
+     *                2. 若当前用户不为userFileId文件所有者，根据权限配置校验权限
+     *                   2.1 若当前userFileId，当前用户，存在权限配置，直接根据配置校验
+     *                   2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
+     */
+    @Override
+    public boolean checkFileRight(String userFileId, long checkRight) {
+        UserFile userFile = userFileService.getById(userFileId);
+        Long right = getRightByUserFile(userFile);
+        Boolean hasRight = FileRight.hasRight(right,checkRight);
+        if(!hasRight) throw new CommonException("无操作权限");
+        return true;
     }
 
 }

@@ -2,17 +2,27 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.pan.modular.commonFile.mapper.PanCommonFileMapper">
     <select id="selectCommonFileUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo">
-        SELECT distinct c.USER_ID as userId ,d.NAME as userName
+        SELECT distinct c.USER_ID as objId , IF(d.ID is not null,d.NAME,e.NAME) as objName,
+        IF(d.ID is not null,'1','2') as objType
         FROM PAN_COMMON_FILE a
              LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
              LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
-             LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
-        WHERE b.USER_ID = #{userId} and a.DELETE_FLAG = 'NOT_DELETE'
+             LEFT JOIN SYS_USER d ON c.USER_ID = d.ID
+            left join SYS_ORG e on c.USER_ID = e.ID
+        WHERE a.DELETE_FLAG = 'NOT_DELETE' and (b.USER_ID = #{userId}
+        <if test="orgIds != null and orgIds.size() !=0  ">
+            or b.USER_ID in
+            <foreach collection="orgIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        )
     </select>
 
     <select id="selectCommonFileByUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
-        SELECT a.ID as id,b.FILE_PERMISSION_CODE as filePermissionCode,
-               c.FILE_NAME as fileName, c.USER_ID as userId ,d.NAME as userName,a.USER_FILE_ID as userFileId,
+        SELECT a.ID as id,b.FILE_PERMISSION_CODE as filePermissionCode,c.USER_ID as userId ,c.FILE_NAME as fileName,
+               b.USER_ID as objId , IF(d.ID is not null,d.NAME,e.NAME) as objName,IF(d.ID is not null,'1','2') as objType,
+               a.USER_FILE_ID as userFileId,
                c.PARENT_ID as parentId, c.FILE_PATH as filePath,c.IS_DIR as isDir, c.FILE_ID as fileId,
                c.ROOT_DIR as rootDir, c.ORG_ID as orgId, c.`right` as `right`, c.DATA_SCOPE_ID as dataScopeId,
                c.LOCK_FLAG as lockFlag, c.FOLD_TYPE as foldType, c.EXTEND_NAME as extendName,
@@ -22,12 +32,22 @@
                  LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
                  LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
                  LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
-        WHERE c.USER_ID = #{userId} and b.USER_ID = #{sessionUserId} and a.DELETE_FLAG = 'NOT_DELETE'
+                 left join SYS_ORG e on b.USER_ID = e.ID
+        WHERE c.USER_ID = #{userId}  and a.DELETE_FLAG = 'NOT_DELETE' and (b.USER_ID = #{sessionUserId}
+        <if test="orgIds != null and orgIds.size() !=0  ">
+            or b.USER_ID in
+            <foreach collection="orgIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        )
     </select>
 
     <select id="myCommonFile" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
         SELECT a.ID as id,b.FILE_PERMISSION_CODE as filePermissionCode,
-               c.FILE_NAME as fileName, b.USER_ID as userId ,d.NAME as userName,a.USER_FILE_ID as userFileId,
+               c.FILE_NAME as fileName, c.USER_ID as userId ,
+               b.USER_ID as objId , IF(d.ID is not null,d.NAME,e.NAME) as objName,IF(d.ID is not null,'1','2') as objType,
+               a.USER_FILE_ID as userFileId,
                c.PARENT_ID as parentId, c.FILE_PATH as filePath,c.IS_DIR as isDir, c.FILE_ID as fileId,
                c.ROOT_DIR as rootDir, c.ORG_ID as orgId, c.`right` as `right`, c.DATA_SCOPE_ID as dataScopeId,
                c.LOCK_FLAG as lockFlag, c.FOLD_TYPE as foldType, c.EXTEND_NAME as extendName,
@@ -37,6 +57,7 @@
                  LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
                  LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
                  LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
+                 left join SYS_ORG e on b.USER_ID = e.ID
             ${ew.customSqlSegment}
     </select>
 

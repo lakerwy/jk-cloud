@@ -29,8 +29,6 @@ public interface PanFileRightMapper extends BaseMapper<PanFileRight> {
 
     List<PanFileRightVo> getFileRightByFileId(String userFileId);
 
-    UserFileRightVo getFileRight(String userFileId,String userId);
-
     /**
      * 获取无读取权限的文件
      * @param userId

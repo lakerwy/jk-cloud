@@ -47,7 +47,7 @@ public class PanFilePermission {
     @ApiModelProperty(value = "用户对文件的权限码", position = 4)
     private Long filePermissionCode;
 
-    /** 用户ID */
+    /** 用户ID | 部门Id */
     @ApiModelProperty(value = "用户ID", position = 5)
     private String userId;
 

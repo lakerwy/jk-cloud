@@ -892,7 +892,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     public Page<UserFile> groupPage(UserFilePageParam userFilePageParam) {
         QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
         String userId = StpLoginUserUtil.getLoginUser().getId();
-        List<String> roleIds = StpLoginUserUtil.getLoginUser().getRoleCodeList();
+        List<String> roleIds = null; // StpLoginUserUtil.getLoginUser().getRoleCodeList(); 暂不支持角色
         List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
         //判断是否为顶级目录
         if(ROOT_FOLD_PATH.equals(userFilePageParam.getFilePath())){
@@ -905,11 +905,23 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             queryWrapper.and(q->{
                 q.eq("b.OBJECT_ID",userId);
                 if(CollUtil.isNotEmpty(orgIds)) q.or().in("b.OBJECT_ID",orgIds);
-                if(CollUtil.isNotEmpty(roleIds)) q.or().in("b.OBJECT_ID",roleIds);
+                if(CollUtil.isNotEmpty(roleIds)) q.or().in("b.OBJECT_ID",roleIds);  //暂不考虑角色
             });
             List<String> userFileIds = panFileRightMapper.getFileRightList(userId,FileRight.LIST, orgIds,roleIds);
             if(CollUtil.isNotEmpty(userFileIds))
                 queryWrapper.notIn("a.ID",userFileIds);
+
+            if(ObjectUtil.isNotEmpty(userFilePageParam.getFileName())) {
+                queryWrapper.like("a.FILE_NAME", userFilePageParam.getFileName());
+            }
+            if(ObjectUtil.isAllNotEmpty(userFilePageParam.getSortField(), userFilePageParam.getSortOrder())) {
+                CommonSortOrderEnum.validate(userFilePageParam.getSortOrder());
+                queryWrapper.orderBy(true, userFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                        StrUtil.toUnderlineCase(userFilePageParam.getSortField()));
+            } else {
+                queryWrapper.orderByDesc("a.IS_DIR").orderByAsc("a.CREATE_TIME");
+            }
+
             return userFileMapper.getGroupPage(CommonPageRequest.defaultPage(),queryWrapper);
         }else{
             List<String> userFileIds = panFileRightMapper.getFileRightList(userId,FileRight.LIST, orgIds,roleIds);
@@ -918,6 +930,17 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());
             if(CollUtil.isNotEmpty(userFileIds))
                 queryWrapper.notIn("ID",userFileIds);
+
+            if(ObjectUtil.isNotEmpty(userFilePageParam.getFileName())) {
+                queryWrapper.like("FILE_NAME", userFilePageParam.getFileName());
+            }
+            if(ObjectUtil.isAllNotEmpty(userFilePageParam.getSortField(), userFilePageParam.getSortOrder())) {
+                CommonSortOrderEnum.validate(userFilePageParam.getSortOrder());
+                queryWrapper.orderBy(true, userFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                        StrUtil.toUnderlineCase(userFilePageParam.getSortField()));
+            } else {
+                queryWrapper.orderByDesc("IS_DIR").orderByAsc("CREATE_TIME");
+            }
             return userFileMapper.getGroupPage2(CommonPageRequest.defaultPage(),queryWrapper);
         }
     }
