@@ -31,10 +31,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 
@@ -174,8 +171,8 @@ public class HrUserAttendanceStatController {
      * @date  2023/09/07 14:24
      */
     @ApiOperationSupport(order = 8)
-    @ApiOperation("用戶打卡月统计接口")
-    @CommonLog("用戶打卡月统计接口")
+    @ApiOperation("(个人)用戶打卡月统计接口")
+    @CommonLog("(个人)用戶打卡月统计接口")
     //@SaCheckPermission("/sys/userAttendance/attendancemonthcount")
     @GetMapping("/sys/userAttendance/attendancemonthcount")
     public CommonResult<List<UserAttendanceCountEntity>> attendanceMonthCount(@Valid HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -205,9 +202,9 @@ public class HrUserAttendanceStatController {
      * @date  2023/10/18 14:24
      * */
     @ApiOperationSupport(order = 10)
-    @ApiOperation("用户考勤概览-每日统计接口日期列表")
-    @CommonLog("用户考勤概览-每日统计接口日期列表")
-    //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
+    @ApiOperation("用户考勤概览-获取日期列表")
+    @CommonLog("用户考勤概览-获取日期列表")
+    //@SaCheckPermission("/sys/userAttendance/statPreviewDateList")
     @GetMapping("/sys/userAttendance/statPreviewDateList")
     public CommonResult<LinkedHashMap<Integer, String>> statPreviewDateList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.statPreviewDateList(attendanceDayStatParam));
@@ -222,7 +219,7 @@ public class HrUserAttendanceStatController {
     @ApiOperationSupport(order = 11)
     @ApiOperation("用户考勤概览-月统计接口日期列表")
     @CommonLog("用户考勤概览-月统计接口日期列表")
-    //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
+    //@SaCheckPermission("/sys/userAttendance/statPreviewMonthList")
     @GetMapping("/sys/userAttendance/statPreviewMonthList")
     public CommonResult<LinkedHashMap<Integer, String>> statPreviewMonthList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.statPreviewMonthList(attendanceDayStatParam));
@@ -235,8 +232,8 @@ public class HrUserAttendanceStatController {
      * @date  2023/10/16 16:24
      * */
     @ApiOperationSupport(order = 12)
-    @ApiOperation("用户考勤概览-每日统计接口")
-    @CommonLog("用户考勤概览-每日统计接口")
+    @ApiOperation("用户考勤概览-打卡时间接口")
+    @CommonLog("用户考勤概览-打卡时间接口")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
     @GetMapping("/sys/userAttendance/dayStatPreview")
     public CommonResult<Page<AttendanceDayStatParam>> dayStatPreview(@Valid AttendanceDayStatParam attendanceDayStatParam) {
@@ -274,17 +271,47 @@ public class HrUserAttendanceStatController {
         return CommonResult.data(hrUserAttendanceStatService.isFestival(date,type));
     }
 
+
+    /**
+     * 月统计考勤概览-日考勤数据汇总接口
+     *
+     * @author ljy
+     * @date  2023/10/16 16:24
+     * */
+    @ApiOperationSupport(order = 15)
+    @ApiOperation("月统计考勤概览-每日统计")
+    @CommonLog("月统计考勤概览-每日统计")
+    //@SaCheckPermission("/sys/userAttendance/monthPreDayStat")
+    @GetMapping("/sys/userAttendance/monthPreDayStat")
+    public CommonResult<Page<DayStatExcel>> monthPreDayStat(@Valid DayStatExcelParam dayStatExcelParam) {
+        return CommonResult.data(hrUserAttendanceStatService.monthPreDayStat(dayStatExcelParam));
+    }
+
     /**
      * 下载文件
      *
      * @author xuyuxiang
      * @date 2022/6/21 15:44
      **/
-    @ApiOperationSupport(order = 15)
-    @ApiOperation("每日统计接口-下载Excel文件")
-    @CommonLog("每日统计接口-下载Excel文件")
+    @ApiOperationSupport(order = 16)
+    @ApiOperation("月度汇总-下载Excel文件")
+    @CommonLog("月度汇总-下载Excel文件")
     @GetMapping(value = "/sys/userAttendance/dayexcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public void dayDownloadExcel(@Valid DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws IOException {
+    public void dayDownloadExcel(@Valid DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws Exception {
         hrUserAttendanceStatService.downloadExcel(dayStatExcelParam, response);
+    }
+
+    /**
+     * 下载文件
+     *
+     * @author xuyuxiang
+     * @date 2022/6/21 15:44
+     **/
+    @ApiOperationSupport(order = 17)
+    @ApiOperation("月统计考勤概览-假勤分析")
+    @CommonLog("月度汇总-假勤分析")
+    @GetMapping(value = "/sys/userAttendance/attendanceAnalysis")
+    public  CommonResult<AttendanceAnalysisData> attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam){
+        return CommonResult.data(hrUserAttendanceStatService.attendanceAnalysis(attendanceAnalysisParam));
     }
 }

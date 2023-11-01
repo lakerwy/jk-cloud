@@ -19,11 +19,8 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -166,7 +163,20 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
     Boolean isFestival(String date,Integer type);
 
     /**
+     * 月统计考勤概览-日考勤数据汇总接口
+     *
+     * @author ljy
+     * @date  2023/10/16 16:24
+     * */
+    Page<DayStatExcel> monthPreDayStat(DayStatExcelParam dayStatExcelParam);
+
+    /**
     * 下载打卡时间excel数据
     * */
-    void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws IOException;
+    void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws Exception;
+
+    void workbookExcelDay(List<DayStatExcelParam> dayStatExcelList,HttpServletResponse response) throws Exception;
+
+    /** 月统计考勤概览-假勤分析*/
+    AttendanceAnalysisData attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam);
 }

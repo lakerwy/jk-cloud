@@ -28,6 +28,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCellStyle;
+import org.apache.poi.ss.usermodel.*;
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -60,19 +63,20 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceC
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.mapper.HrUserAttendanceStatMapper;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatEditParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatIdParam;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.HrUserAttendanceStatPageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
+import java.lang.reflect.Field;
+import java.net.URLEncoder;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -712,8 +716,48 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws IOException{
+    public Page<DayStatExcel> monthPreDayStat(DayStatExcelParam dayStatExcelParam){
+        Date beginTime = CommonTimeFormatUtil.strToDate(dayStatExcelParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(dayStatExcelParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
+        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);
+
+
+        List<DayStatExcelParam>  dayStatExcelParamList = dayAttendanceList(dayStatExcelParam);
+        List<DayStatExcel> dayStatExcelList = new ArrayList<>();
+        dayStatExcelParamList.forEach(param -> {
+            DayStatExcel dayStatExcel = BeanUtil.toBean(param,DayStatExcel.class);
+            isNeedStyle(param,dayStatExcel);
+            dayStatExcelList.add(dayStatExcel);
+        });
+
+        /** 计算总数 total*/
+        Long total = 0l;
+        LambdaQueryWrapper<SysUser> userQuery = new LambdaQueryWrapper<>();
+        if(CollectionUtil.isNotEmpty(dayStatExcelParam.getUserList())){ userQuery.in(SysUser::getOrgId,dayStatExcelParam.getOrgList());}
+        List<SysUser> userList = sysUserService.list(userQuery);
+
+        if(CollectionUtil.isNotEmpty(userList)){
+            total = total + userList.size();
+        }
+        if(CollectionUtil.isNotEmpty(dayStatExcelParam.getUserList())){
+            total = total + dayStatExcelParam.getUserList().size();
+        }
+        if(total == 0){
+            total = sysUserService.count();
+        }
+
+
+        /** 分页 */
+        Page<DayStatExcel> page = new Page<>();
+        page.setRecords(dayStatExcelList);
+        page.setTotal(total*dayList.size());
+        return page;
+    }
+
+    @Override
+    public void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws Exception{
         List<DayStatExcelParam>  dayStatExcelList = dayAttendanceList(dayStatExcelParam);
+        workbookExcelDay(dayStatExcelList,response);
     }
 
     public List<DayStatExcelParam> dayAttendanceList(DayStatExcelParam dayStatExcelParam){
@@ -723,7 +767,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         /**  筛选部门*/
         LambdaQueryWrapper<SysUser> userQuery = new LambdaQueryWrapper<>();
         if(CollectionUtil.isNotEmpty(dayStatExcelParam.getUserList())){ userQuery.in(SysUser::getOrgId,dayStatExcelParam.getOrgList());}
-        List<SysUser> userList = sysUserService.list();
+        List<SysUser> userList = sysUserService.list(userQuery);
         List<String> userIds = userList.stream().map(user -> user.getId()).collect(Collectors.toList());
 
 
@@ -767,8 +811,11 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             workOtList.add(workOt);
             workOtMap.put(workOt.getApplyUserId(),workOtList);
         });
-        Map<String,List<DayStatExcelParam>> datStatMap = dayStat(attendanceDayMap,dayList,userList);
-        return new ArrayList<>();
+        Map<String,List<DayStatExcelParam>> dayStatMap = dayStat(attendanceDayMap,dayList,userList);
+        List<DayStatExcelParam> dayStatExcelParamList = new ArrayList<>();
+        dayStatMap.entrySet().forEach(entry -> dayStatExcelParamList.addAll(entry.getValue()));
+
+        return dayStatExcelParamList;
     }
 
     /**
@@ -847,38 +894,290 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         hrUserAttendanceStat.setUserId(dayStatExcelParam.getUserId());
 
         List<HrUserAttendanceStat> list = new ArrayList<>();
+
         if(ObjectUtil.isEmpty(map.get("OnDuty"))){//上下班标识；OnDuty：上班；OffDuty：下班；休息 REST
-            hrUserAttendanceStat.setCheckType("OnDuty");
+            HrUserAttendanceStat stat = BeanUtil.toBean(hrUserAttendanceStat,HrUserAttendanceStat.class);
+            stat.setCheckType("OnDuty");
             dayStatExcelParam.setLackAttendance(++lackAttendance);//缺卡
-            list.add(hrUserAttendanceStat);
+            list.add(stat);
         }else {
             if(map.get("OnDuty").getAbnormalFlag() == 3){
                 dayStatExcelParam.setLateNum(lateNum+1);
                 dayStatExcelParam.setLateMinute(0);
             }
-            list.add(hrUserAttendanceStat);
+            list.add(map.get("OnDuty"));
         }
 
         if(ObjectUtil.isEmpty(map.get("REST"))){//上下班标识；OnDuty：上班；OffDuty：下班；休息 REST
-            hrUserAttendanceStat.setCheckType("REST");
+            HrUserAttendanceStat stat = BeanUtil.toBean(hrUserAttendanceStat,HrUserAttendanceStat.class);
+            stat.setCheckType("REST");
             dayStatExcelParam.setLackAttendance(++lackAttendance);//缺卡
-            list.add(hrUserAttendanceStat);
+            list.add(stat);
         }else {
-            list.add(hrUserAttendanceStat);
+            list.add(map.get("REST"));
         }
 
         if(ObjectUtil.isEmpty(map.get("OffDuty"))){//上下班标识；OnDuty：上班；OffDuty：下班；休息 REST
-            hrUserAttendanceStat.setCheckType("OffDuty");
+            HrUserAttendanceStat stat = BeanUtil.toBean(hrUserAttendanceStat,HrUserAttendanceStat.class);
+            stat.setCheckType("OffDuty");
             dayStatExcelParam.setLackAttendance(++lackAttendance);//缺卡
-            list.add(hrUserAttendanceStat);
+            list.add(stat);
         }else {
             if(map.get("OffDuty").getAbnormalFlag() == 4){
                 dayStatExcelParam.setLeaveEarlyNum(leaveEarlyNum+1);//早退
                 dayStatExcelParam.setLeaveEarlyNum(0);
             }
-            list.add(hrUserAttendanceStat);
+            list.add(map.get("OffDuty"));
         }
         dayStatExcelParam.setUserAttendanceStatList(list);
     }
 
+    /**
+    * 每日统计数据下载
+    * */
+    @Override
+    public void workbookExcelDay(List<DayStatExcelParam> dayStatExcelList,HttpServletResponse response) throws Exception{
+        Workbook workbook = new XSSFWorkbook();
+        Sheet sheet = workbook.createSheet("Sheet1");
+        setHerd(sheet,workbook,"");
+        setContent(workbook,sheet,dayStatExcelList);
+
+        OutputStream outputStream = new FileOutputStream("output.xlsx");
+        try{
+            workbook.write(outputStream);
+        }catch (Exception e){
+            System.out.println("");
+        }finally {
+            workbook.close();
+            outputStream.close();
+        }
+    }
+    /** 设置内容 */
+    private void setContent(Workbook workbook,Sheet sheet,List<DayStatExcelParam> dayStatExcelList){
+        Integer rowSize = dayStatExcelList.size();
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);// 设置水平居中
+        style.setVerticalAlignment(VerticalAlignment.CENTER);// 设置垂直居中
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short) 12); //字体
+        style.setFont(font);//增加字体样式
+        for (int i = 1; i <= rowSize; i++) {//i=1,表头占一行
+            Row row = sheet.createRow(i); // 创建行
+            Short height = (short) 360;
+            row.setHeight(height);
+
+            //打卡是否异常：-1 缺卡，1 正常,3 迟到，4 早退，5 请假，6 管理员修改
+            DayStatExcelParam dayStatExcelParam = dayStatExcelList.get(i-1);
+            DayStatExcel dayStatExcel = BeanUtil.toBean(dayStatExcelParam,DayStatExcel.class);
+            isNeedStyle(dayStatExcelParam,dayStatExcel);
+            int j=0;
+            for (Field field : DayStatExcel.class.getDeclaredFields()) {
+                field.setAccessible(true); // 确保可以访问私有属性
+                try {
+                    Object value = field.get(dayStatExcel);
+                    Cell cell = row.createCell(j); // 创建单元格
+                    String cellValue = ObjectUtil.isNotEmpty(value) ? value.toString() : "";
+                    cell.setCellValue(cellValue); // 设置单元格的值
+                    setColorStyle(workbook,cell,dayStatExcelParam,dayStatExcel,cellValue);
+                    j++;
+                } catch (IllegalAccessException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private void isNeedStyle(DayStatExcelParam dayStatExcelParam,DayStatExcel dayStatExcel){
+        List<HrUserAttendanceStat> hrUserAttendanceStatList =  dayStatExcelParam.getUserAttendanceStatList();
+        if(dayStatExcelParam.getAttendanceTypeDetails().equals("休息") && CollectionUtil.isEmpty(hrUserAttendanceStatList)){
+            return;
+        }
+        /*if(dayStatExcelParam.getAttendanceTypeDetails().equals("休息")){
+            return;
+        }*/
+        Map<String,HrUserAttendanceStat> map = new HashMap<>();
+        hrUserAttendanceStatList.forEach(stat -> map.put(stat.getCheckType(),stat));
+        //OnDuty：上班；OffDuty：下班；休息 REST
+        //打卡是否异常：-1 缺卡，0 管理员修改,1 正常,3 迟到，4 早退，5 请假，6 外出，7 出差
+        HrUserAttendanceStat onDutyStat = map.get("OnDuty");
+        if(onDutyStat.getAbnormalFlag() == -1){//缺卡
+            dayStatExcel.setOnDutyStatus("缺卡");
+        }else if(onDutyStat.getAbnormalFlag() == 0){//管理员修改
+            String admin = "管理员"+onDutyStat.getUpdateUser()+"改为正常";
+            dayStatExcel.setOnDutyStatus(admin);
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(onDutyStat.getCheckTime()));
+        }else if(onDutyStat.getAbnormalFlag() == 1){//正常
+            dayStatExcel.setOnDutyStatus("正常");
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(onDutyStat.getCheckTime()));
+        }else if(onDutyStat.getAbnormalFlag() == 3){//迟到
+            dayStatExcel.setOnDutyStatus("迟到");
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(onDutyStat.getCheckTime()));
+        }else if(onDutyStat.getAbnormalFlag() == 4){//早退
+            dayStatExcel.setOnDutyStatus("早退");
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(onDutyStat.getCheckTime()));
+        }else if(ObjectUtil.isNotEmpty(onDutyStat.getApplyResubmitAttendanceId())){
+            dayStatExcel.setOnDutyStatus("补卡审批通过");
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(onDutyStat.getCheckTime()));
+        }
+
+        HrUserAttendanceStat restStat = map.get("REST");
+        if(restStat.getAbnormalFlag() == -1){//缺卡
+            dayStatExcel.setRestStatus("缺卡");
+        }else if(onDutyStat.getAbnormalFlag() == 0){//管理员修改
+            String admin = "管理员"+onDutyStat.getUpdateUser()+"改为正常";
+            dayStatExcel.setRestStatus(admin);
+            dayStatExcel.setRestTime(DateUtil.formatDateTime(restStat.getCheckTime()));
+        }else if(ObjectUtil.isNotEmpty(restStat.getApplyResubmitAttendanceId())){
+            dayStatExcel.setRestStatus("补卡审批通过");
+            dayStatExcel.setRestTime(DateUtil.formatDateTime(onDutyStat.getCheckTime()));
+        }
+
+        HrUserAttendanceStat offDutyStat = map.get("OffDuty");
+        if(offDutyStat.getAbnormalFlag() == -1){//缺卡
+            dayStatExcel.setOffDutyStatus("缺卡");
+        }else if(onDutyStat.getAbnormalFlag() == 0){//管理员修改
+            String admin = "管理员"+onDutyStat.getUpdateUser()+"改为正常";
+            dayStatExcel.setOffDutyStatus(admin);
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(offDutyStat.getCheckTime()));
+        }else if(offDutyStat.getAbnormalFlag() == 1){//正常
+            dayStatExcel.setOffDutyStatus("正常");
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(offDutyStat.getCheckTime()));
+        }else if(offDutyStat.getAbnormalFlag() == 3){//迟到
+            dayStatExcel.setOffDutyStatus("迟到");
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(offDutyStat.getCheckTime()));
+        }else if(offDutyStat.getAbnormalFlag() == 4){//早退
+            dayStatExcel.setOffDutyStatus("早退");
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(offDutyStat.getCheckTime()));
+        }else if(ObjectUtil.isNotEmpty(offDutyStat.getApplyResubmitAttendanceId())){
+            dayStatExcel.setOffDutyStatus("补卡审批通过");
+            dayStatExcel.setOffDutyTime(DateUtil.formatDateTime(onDutyStat.getCheckTime()));
+        }
+    }
+
+    private void setColorStyle(Workbook workbook,Cell cell,DayStatExcelParam dayStatExcelParam,DayStatExcel dayStatExcel,String status){
+        if (StringUtils.isEmpty(status)){
+            return;
+        }
+        if("正常".equals(status)){
+            return;
+        }
+        CellStyle style = workbook.createCellStyle();
+        style.setAlignment(HorizontalAlignment.CENTER);// 设置水平居中
+        style.setVerticalAlignment(VerticalAlignment.CENTER);// 设置垂直居中
+        Font font = workbook.createFont();
+        font.setBold(true);//设置字体加粗
+        style.setFont(font);//增加字体样式
+        if("缺卡".equals(status)){
+            style.setFillForegroundColor(IndexedColors.RED.getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            cell.setCellStyle(style);
+            return;
+        }
+
+        if(status.contains("管理员")){
+            style.setFillForegroundColor(IndexedColors.RED.getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            cell.setCellStyle(style);
+            return;
+        }
+
+        if("迟到".equals(status)){
+            style.setFillForegroundColor(IndexedColors.RED.getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            cell.setCellStyle(style);
+            return;
+        }
+
+        if("早退".equals(status)){
+            style.setFillForegroundColor(IndexedColors.RED.getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            cell.setCellStyle(style);
+            return;
+        }
+
+        if("请假".equals(status)){
+            style.setFillForegroundColor(IndexedColors.RED.getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            cell.setCellStyle(style);
+            return;
+        }
+
+        if("补卡审批通过".equals(status)){
+            style.setFillForegroundColor(IndexedColors.RED.getIndex());
+            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+            cell.setCellStyle(style);
+            return;
+        }
+
+    }
+
+    /** 设置表头,暂时先固定 */
+    private void setHerd(Sheet sheet,Workbook workbook,String headStr){
+        headStr = "姓名,考勤组,部门,工号,职位,日期,班次,上班打卡时间,上班打卡结果,休息打卡时间,休息打卡结果,下班打卡时间,下班打卡结果,"+
+                "关联的审批单,出勤天数,休息天数,工作时长,迟到次数,迟到时长,严重迟到次数,严重迟到时长,早退次数,早退时长,缺卡次数,"+
+                "旷工天数,出差时长,外出时长,事假(天),病假(天),婚假(天),产假(天),丧假(天),年假(天),调休(小时),加班总时长";
+        List<String> list = Arrays.asList(headStr.split(","));
+
+        Row row = sheet.createRow(0); // 创建第一行：当作标题
+        Short height = (short) 500;
+        row.setHeight(height);
+
+        /** 设置背景颜色 */
+        CellStyle style = workbook.createCellStyle();
+        style.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
+        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
+        /** 设置设置边框 */
+        style.setBorderBottom(BorderStyle.THIN);//下边框
+        style.setBorderLeft(BorderStyle.THIN);//左边框
+        style.setBorderTop(BorderStyle.THIN);//上边框
+        style.setBorderRight(BorderStyle.THIN);//右边框
+
+        /** 字体剧中 */
+        style.setAlignment(HorizontalAlignment.CENTER);// 设置水平居中
+        style.setVerticalAlignment(VerticalAlignment.CENTER);// 设置垂直居中
+
+        /** 字体大小和样式*/
+        Font font = workbook.createFont();
+        font.setFontHeightInPoints((short) 15);
+        font.setFontName("仿宋_GB2312");
+        font.setBold(true);//设置字体加粗
+        style.setFont(font);//增加字体样式
+
+        for(int i=0;i<list.size();i++){
+            Cell cell = row.createCell(i); // 创建单元格
+            cell.setCellValue(list.get(i)); // 设置单元格的值
+            /** 设置宽度*/
+            sheet.setColumnWidth(i, 256 * 25); // 设置第一列的列宽为30个字符宽度
+            /** 应用样式*/
+            cell.setCellStyle(style);
+        }
+    }
+
+    /** 月统计考勤概览-假勤分析*/
+    @Override
+    public AttendanceAnalysisData attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam){
+        /**
+         * 时间计算
+         * */
+        List<String> dayList = new ArrayList<>();
+        if(attendanceAnalysisParam.getTimeType() == 1){ //日
+
+        }
+
+        if(attendanceAnalysisParam.getTimeType() == 2){//周
+
+        }
+
+        if(attendanceAnalysisParam.getTimeType() == 3){//月
+
+        }
+
+        return new AttendanceAnalysisData();
+    }
+
+    private AttendanceAnalysisData countAnalysisData(AttendanceAnalysisParam attendanceAnalysisParam,List<String> dayList){
+
+
+        return new AttendanceAnalysisData();
+    }
 }
