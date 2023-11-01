@@ -8,4 +8,9 @@
               UPDATE_TIME = current_time
           where ID = #{id}
     </update>
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.crm.bidopen.entity.Bidopen">
+        SELECT  a.*,b.LOCATION,b.PROJECT_HEADER FROM BIZ_CRM_BIDOPEN a left join  BIZ_PROJECT b on  a.PROJECT_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

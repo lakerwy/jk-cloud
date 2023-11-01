@@ -94,4 +94,9 @@ public class BidopenEditParam {
     @ApiModelProperty(value = "立项-所属部门（历史表BidOpen.Dept）", position = 15)
     private String dept;
 
+    /** 联合体金额 */
+    @ApiModelProperty(value = "联合体金额（万元）", position = 23)
+    private String amount;
+
+
 }

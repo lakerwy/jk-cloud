@@ -13,6 +13,7 @@
 package vip.xiaonuo.flw.core.util;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -908,6 +909,9 @@ public class NodeRuntimeUtil {
                             taskMap.put("initiatorTime",String.valueOf(delegateTask.getVariable("initiatorTime")));
                             taskMap.put("initiatorName",String.valueOf(delegateTask.getVariable("initiatorName")));
                             taskMap.put("processDefinitionId",delegateTask.getProcessDefinitionId());
+//                            TaskService taskService = SpringUtil.getBean(TaskService.class);
+//                            Task task = taskService.createTaskQuery().processInstanceId(delegateTask.getProcessInstanceId()).singleResult();
+                            taskMap.put("currentActivityId",delegateTask.getTaskDefinitionKey());
                             devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId(),taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                             break;

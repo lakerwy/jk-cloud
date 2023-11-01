@@ -58,47 +58,49 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
     public Page<Bidopen> page(BidopenPageParam bidopenPageParam) {
         QueryWrapper<Bidopen> queryWrapper = new QueryWrapper<>();
         if (ObjectUtil.isNotEmpty(bidopenPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Bidopen::getSn, bidopenPageParam.getSearchKey()).or()
-                    .like(Bidopen::getOpt, bidopenPageParam.getSearchKey()).or()
-                    .like(Bidopen::getProjectName, bidopenPageParam.getSearchKey()).or()
-                    .like(Bidopen::getBidNo, bidopenPageParam.getSearchKey()).or()
-                    .like(Bidopen::getType, bidopenPageParam.getSearchKey());
+            queryWrapper.like("a.SN",bidopenPageParam.getSearchKey()).or()
+                    .like("a.OPT", bidopenPageParam.getSearchKey()).or()
+                    .like("a.PROJECT_NAME", bidopenPageParam.getSearchKey()).or()
+                    .like("a.BID_NO", bidopenPageParam.getSearchKey()).or()
+                    .like("a.TYPE", bidopenPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getOpt())) {
-            queryWrapper.lambda().like(Bidopen::getOpt, bidopenPageParam.getOpt());
+            queryWrapper.like("a.OPT",bidopenPageParam.getOpt());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getStartOptDate()) && ObjectUtil.isNotEmpty(bidopenPageParam.getEndOptDate())) {
-            queryWrapper.lambda().between(Bidopen::getOptDate, bidopenPageParam.getStartOptDate(), bidopenPageParam.getEndOptDate());
+            queryWrapper.between("a.OPT_DATE",bidopenPageParam.getStartOptDate(), bidopenPageParam.getEndOptDate());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getSn())) {
-            queryWrapper.lambda().like(Bidopen::getSn, bidopenPageParam.getSn());
+            queryWrapper.like("a.SN", bidopenPageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getProjectId())) {
-            queryWrapper.lambda().eq(Bidopen::getProjectId, bidopenPageParam.getProjectId());
+            queryWrapper.like("a.PROJECT_ID", bidopenPageParam.getProjectId());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getProjectName())) {
-            queryWrapper.lambda().like(Bidopen::getProjectName, bidopenPageParam.getProjectName());
+            queryWrapper.like("a.PROJECT_NAME", bidopenPageParam.getProjectName());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getBidNo())) {
-            queryWrapper.lambda().like(Bidopen::getBidNo, bidopenPageParam.getBidNo());
+            queryWrapper.like("a.BID_NO", bidopenPageParam.getBidNo());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getType())) {
-            queryWrapper.lambda().eq(Bidopen::getType, bidopenPageParam.getType());
+            queryWrapper.eq("a.TYPE", bidopenPageParam.getType());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getStates())) {
-            queryWrapper.lambda().eq(Bidopen::getStates, bidopenPageParam.getStates());
+            queryWrapper.eq("a.STATES", bidopenPageParam.getStates());
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getDept())) {
-            queryWrapper.lambda().like(Bidopen::getDept, bidopenPageParam.getDept());
+            queryWrapper.like("a.DEPT", bidopenPageParam.getDept());
         }
         if(ObjectUtil.isAllNotEmpty(bidopenPageParam.getSortField(), bidopenPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bidopenPageParam.getSortOrder());
             queryWrapper.orderBy(true, bidopenPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bidopenPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Bidopen::getSn);
+            queryWrapper.orderByDesc("a.SN");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+//        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        queryWrapper.eq("a.DELETE_FLAG" ,"NOT_DELETE");
+        return bidopenMapper.getPageList(CommonPageRequest.defaultPage(),queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -116,4 +116,20 @@ public class Bidopen {
     @ApiModelProperty(value = "更新人", position = 20)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 联合体金额 */
+    @ApiModelProperty(value = "联合体金额（万元）", position = 23)
+    private String amount;
+
+    /** 建设地点 */
+    @ApiModelProperty(value = "建设地点", position = 21)
+    @TableField(exist = false)
+    private String location;
+
+    /** 项目负责人 */
+    @ApiModelProperty(value = "项目负责人", position = 22)
+    @TableField(exist = false)
+    private String projectHeader;
+
+
 }

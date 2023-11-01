@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.crm.bidopen.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.bidopen.entity.Bidopen;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.entity.BizChartReviews;
+import vip.xiaonuo.biz.modular.mapBiz.Chartreviews.vo.BizChartReviewsVo;
 
 /**
  * 业务表-CRM-开标登记Mapper接口
@@ -23,4 +29,6 @@ import vip.xiaonuo.biz.modular.crm.bidopen.entity.Bidopen;
  **/
 public interface BidopenMapper extends BaseMapper<Bidopen> {
     void updateBizProjectStates(String id,String states);
+
+    Page<Bidopen> getPageList(Page<Bidopen> page, @Param(Constants.WRAPPER) Wrapper<Bidopen> queryWrapper);
 }

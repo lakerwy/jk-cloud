@@ -15,6 +15,7 @@ import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -213,29 +214,28 @@ public class DingDingServiceImpl implements IDingDingService {
         request.setAgentId(dingTalkProperties.getAgentId());
         request.setUseridList(result.getUserid());
         request.setToAllUser(false);
-
-        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
-        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
-        head.setText("流程处理通知单");
-        head.setBgcolor("FFBBBBBB");
-        oa.setHead(head);
-        
-//        oa.setPcMessageUrl("https://yun.jianke.co");
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-        //String sn = String.valueOf(jsonObject.get("sn"));
-//        body.setTitle("【流程处理通知单】");
-        body.setTitle(title);
-
-        body.setForm(buildForms(jsonObject));
+//        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
+//        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
+//        head.setText("流程处理通知单");
+//        head.setBgcolor("FFBBBBBB");
+//        oa.setHead(head);
+////        oa.setPcMessageUrl("https://yun.jianke.co");
+//        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+//        //String sn = String.valueOf(jsonObject.get("sn"));
+////        body.setTitle("【流程处理通知单】");
+//        body.setTitle(title);
+//
+//        body.setForm(buildForms(jsonObject));
         String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
         body.setContent(mg);
-        oa.setBody(body);
+//        oa.setBody(body);
 
 
         OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
 //        msg.setOa(oa);
         msg.setMsgtype("oa");
-        msg.setOa(oa);
+        msg.setOa(buildOa(jsonObject,title));
 //        msg.setText(new OapiMessageCorpconversationAsyncsendV2Request.Text());
 //        msg.getText().setContent(message);
         request.setMsg(msg);
@@ -248,6 +248,61 @@ public class DingDingServiceImpl implements IDingDingService {
             e.printStackTrace();
         }
         return null;
+    }
+
+    private OapiMessageCorpconversationAsyncsendV2Request.OA buildOa(JSONObject jsonObject,String title){
+        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
+        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
+        head.setText("流程处理通知单");
+        head.setBgcolor("FFBBBBBB");
+        oa.setHead(head);
+
+//        oa.setPcMessageUrl("https://yun.jianke.co");
+        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+        //String sn = String.valueOf(jsonObject.get("sn"));
+//        body.setTitle("【流程处理通知单】");
+        body.setTitle(title);
+
+        Map taskMap = jsonObject.get("taskMap", Map.class);
+        Object processDefinitionId = taskMap.get("processDefinitionId");
+        //摘要
+        Object initiatorProcessAbstract = taskMap.get("initiatorProcessAbstract");
+        Object initiatorProcessSn = taskMap.get("initiatorProcessSn");
+        Object initiatorTime = taskMap.get("initiatorTime");
+        Object initiatorName = taskMap.get("initiatorName");
+        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("流程名称： ");
+
+        Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+        form.setValue(String.valueOf(o));
+        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("基本信息： ");
+        form.setValue(String.valueOf(initiatorProcessAbstract));
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("流水号：");
+        form.setValue(String.valueOf(initiatorProcessSn));
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("发起于：");
+        form.setValue(initiatorTime+" | "+ initiatorName);
+        forms.add(form);
+
+        body.setForm(forms);
+        String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
+        body.setContent(mg);
+        oa.setBody(body);
+        //小程序地址
+        Object currentActivityId = taskMap.get("currentActivityId");
+        Object processInstanceId = taskMap.get("processInstanceId");
+        String url = String.format("%s/h5/#/pages/flw/task/todoTask/todo-process?processInstanceId=%s&currentActivityId=%s",dingTalkProperties.getWebUrl(),processInstanceId,currentActivityId);
+        oa.setMessageUrl(url);
+        return oa;
     }
 
 
@@ -312,6 +367,7 @@ public class DingDingServiceImpl implements IDingDingService {
         String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
         body.setContent(mg);
         oa.setBody(body);
+//        oa.setMessageUrl("https://webapp1.jianke.co/h5/#/pages/flw/task/todoTask/todo-process?id=e6b5287b-4246-11ee-865a-0242ac110009&processInstanceId=959a37ea-4246-11ee-865a-0242ac110009&currentActivityId=xn41ae86-a393-4fdc-8eea-68808a659fc7");
 
 
         OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
@@ -353,9 +409,9 @@ public class DingDingServiceImpl implements IDingDingService {
 
     @Override
     public void baseBatchSend(JSONObject entries, List<String> receiverIdList) {
-        if(!dingTalkProperties.getIsSend()){
-            return;
-        }
+//        if(!dingTalkProperties.getIsSend()){
+//            return;
+//        }
         List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(receiverIdList);
         //手机号集合
         List<String> collect = users.stream().map(u -> u.getStr("account")).collect(Collectors.toList());

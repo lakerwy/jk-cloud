@@ -249,4 +249,28 @@ public class BizProjectEditParam {
     @ApiModelProperty(value = "投标专员", position = 70)
     private String bidManger;
 
+    /**
+     * 合作引进人信息
+     */
+    @ApiModelProperty(value = "引进人所在部门ID", position = 71)
+    private String deptId;
+
+    @ApiModelProperty(value = "引进人所在部门名称", position = 72)
+    private String deptName;
+
+    @ApiModelProperty(value = "引进人用户ID", position = 73)
+    private String userId;
+
+    @ApiModelProperty(value = "引进人用户姓名", position = 74)
+    private String userName;
+
+    @ApiModelProperty(value = "是否为零星", position = 75)
+    private String isSporadic;
+
+    @ApiModelProperty(value = "引进人所在院ID", position = 76)
+    private String orgId;
+
+    @ApiModelProperty(value = "引进人所在院名称", position = 77)
+    private String orgName;
+
 }

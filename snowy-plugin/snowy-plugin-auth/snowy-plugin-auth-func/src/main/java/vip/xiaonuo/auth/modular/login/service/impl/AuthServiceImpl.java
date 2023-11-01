@@ -341,7 +341,7 @@ public class AuthServiceImpl implements AuthService {
         StpUtil.getTokenSession().set("loginUser", saBaseLoginUser);
         commonCacheOperator.put(CacheConstant.USER_INFO+saBaseLoginUser.getId(),saBaseLoginUser.getAccount());
         devFoldApi.createSelfFold();
-        devFoldApi.createGroupFold();
+//        devFoldApi.createGroupFold();
         // 返回token
         return StpUtil.getTokenInfo().tokenValue;
     }

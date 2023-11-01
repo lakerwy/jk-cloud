@@ -756,12 +756,16 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 processInstanceId = task.getProcessInstanceId();
             }
         }
-        NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.COMMENT.getValue(), "追加评论",
+        NodeRuntimeUtil.handleUserTaskCommentAndAttachment(null, processInstanceId, NodeApproveOperateTypeEnum.COMMENT.getValue(), "追加评论",
                 flwcommentParam.getComment(), flwcommentParam.getAttachmentList());
         List<Comment> comments = taskService.getProcessInstanceComments(processInstanceId);
         if(CollUtil.isNotEmpty(comments)){
             Set<String> collect = comments.stream().map(Comment::getUserId).collect(Collectors.toSet());
-            iDingDingService.customBatchSend(buildForms(processInstanceId,flwcommentParam.getComment()),collect,"【评论知晓】");
+            try {
+                iDingDingService.customBatchSend(buildForms(processInstanceId,flwcommentParam.getComment()),collect,"【评论知晓】");
+            }catch (Exception e){
+                log.error(e.getMessage());
+            }
         }
     }
 
@@ -771,50 +775,53 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 .createHistoricVariableInstanceQuery().processInstanceId(processInstanceId)
                 .orderByVariableName().desc();
         List<HistoricVariableInstance> list = historicVariableInstanceQuery.list();
-        String processDefinitionId = list.get(0).getProcessDefinitionId();
-        Map<String, Object> taskMap = list.stream().collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue));
+        if(CollUtil.isNotEmpty(list)){
+            String processDefinitionId = list.get(0).getProcessDefinitionId();
+            Map<String, Object> taskMap = list.stream().filter(f->ObjectUtil.isNotEmpty(f.getName()) && ObjectUtil.isNotEmpty(f.getValue())).collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue,(v1,v2)->v2));
 //        String processDefinitionName = historicProcessInstance.getProcessDefinitionName();
 //        Map taskMap = jsonObject.get("taskMap", Map.class);
 //        Object processDefinitionId = taskMap.get("processDefinitionId");
-        //摘要
-        Object initiatorProcessAbstract = taskMap.get("initiatorProcessAbstract");
-        Object initiatorProcessSn = taskMap.get("initiatorProcessSn");
-        Object initiatorTime = taskMap.get("initiatorTime");
-        Object initiatorName = taskMap.get("initiatorName");
-        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("流程名称： ");
+            //摘要
+            Object initiatorProcessAbstract = taskMap.get("initiatorProcessAbstract");
+            Object initiatorProcessSn = taskMap.get("initiatorProcessSn");
+            Object initiatorTime = taskMap.get("initiatorTime");
+            Object initiatorName = taskMap.get("initiatorName");
+            OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("流程名称： ");
 
-        Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-        form.setValue(String.valueOf(o));
-        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
-        forms.add(form);
+            Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+            form.setValue(String.valueOf(o));
+            List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
+            forms.add(form);
 
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("基本信息： ");
-        form.setValue(String.valueOf(initiatorProcessAbstract));
-        forms.add(form);
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("基本信息： ");
+            form.setValue(String.valueOf(initiatorProcessAbstract));
+            forms.add(form);
 
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("流水号：");
-        form.setValue(String.valueOf(initiatorProcessSn));
-        forms.add(form);
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("流水号：");
+            form.setValue(String.valueOf(initiatorProcessSn));
+            forms.add(form);
 
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("发起于：");
-        form.setValue(initiatorTime+" | "+ initiatorName);
-        forms.add(form);
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("发起于：");
+            form.setValue(initiatorTime+" | "+ initiatorName);
+            forms.add(form);
 
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("评论人：");
-        form.setValue(StpLoginUserUtil.getLoginUser().getName());
-        forms.add(form);
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("评论人：");
+            form.setValue(StpLoginUserUtil.getLoginUser().getName());
+            forms.add(form);
 
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("评论内容为：");
-        form.setValue(comment);
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("评论内容为：");
+            form.setValue(comment);
 
-        forms.add(form);
-        return forms;
+            forms.add(form);
+            return forms;
+        }
+        return new ArrayList<>();
     }
 
 }

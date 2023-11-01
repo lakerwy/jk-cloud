@@ -66,7 +66,7 @@ public class DefaultDocumentManager implements DocumentManager {
     // get URL to the created file
     public String getCreateUrl(String fileName, Boolean sample){
         String fileExt = fileName.substring(fileName.length() - 4);
-        return storagePathBuilder.getServerUrl(true) + "/pan/fold/createFile?fileExt=" + fileExt + "&sample=" + sample;
+        return storagePathBuilder.getServerUrl(true) + "/api/webapp/pan/fold/createFile?fileExt=" + fileExt + "&sample=" + sample;
     }
 
     // get a file name with an index if the file with such a name already exists
@@ -138,7 +138,7 @@ public class DefaultDocumentManager implements DocumentManager {
 
             String query = "?type=edit&userFileId="+userFileId+"&token="+request.getHeader("token");
 
-            return serverPath + "/pan/file/IndexServlet" + query;
+            return serverPath + "/api/webapp/pan/file/IndexServlet" + query;
 
 
     }

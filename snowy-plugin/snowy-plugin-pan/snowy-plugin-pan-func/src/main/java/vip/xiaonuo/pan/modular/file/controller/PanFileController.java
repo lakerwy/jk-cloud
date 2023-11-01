@@ -45,6 +45,7 @@ import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Act
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Type;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.EditorConfig;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.FileModel;
+import vip.xiaonuo.pan.modular.fileCenter.office.entities.Permission;
 import vip.xiaonuo.pan.modular.fileCenter.office.entities.User;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.FileConfigurer;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers.DefaultFileWrapper;
@@ -312,7 +313,7 @@ public class PanFileController {
     public CommonResult<Object> previewOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
         CommonResult<Object> result = new CommonResult<>();
         try {
-            String token = request.getHeader("Token");
+//            String token = request.getHeader("Token");
             String previewUrl = commonProperties.getBackendUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
             //String previewUrl = request.getScheme() + "://" + deploymentHost + ":" + port + "/filetransfer/preview?userFileId=" + previewOfficeFileDTO.getUserFileId() + "&isMin=false&shareBatchNum=undefined&extractionCode=undefined&token=" + token;
             UserFile userFile = userFileService.getById(previewOfficeFileParam.getUserFileId());

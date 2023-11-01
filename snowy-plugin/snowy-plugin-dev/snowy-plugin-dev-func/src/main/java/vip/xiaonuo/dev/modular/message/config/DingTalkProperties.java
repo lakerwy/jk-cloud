@@ -1,6 +1,7 @@
 package vip.xiaonuo.dev.modular.message.config;
 
 import lombok.Data;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.context.annotation.Configuration;
 
@@ -33,5 +34,7 @@ public class DingTalkProperties {
     private String appSecret;
 
     private Boolean isSend;
+
+    private String webUrl;
 
 }
