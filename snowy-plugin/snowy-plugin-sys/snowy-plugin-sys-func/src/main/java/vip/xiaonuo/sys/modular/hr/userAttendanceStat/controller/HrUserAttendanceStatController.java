@@ -214,8 +214,8 @@ public class HrUserAttendanceStatController {
      * @date  2023/10/18 14:24
      * */
     @ApiOperationSupport(order = 11)
-    @ApiOperation("用户考勤概览-月统计接口日期列表")
-    @CommonLog("用户考勤概览-月统计接口日期列表")
+    @ApiOperation("用户考勤概览-月统计日期列表")
+    @CommonLog("用户考勤概览-月统计日期列表")
     //@SaCheckPermission("/sys/userAttendance/statPreviewMonthList")
     @GetMapping("/sys/userAttendance/statPreviewMonthList")
     public CommonResult<LinkedHashMap<Integer, String>> statPreviewMonthList(@Valid AttendanceDayStatParam attendanceDayStatParam) {
@@ -302,8 +302,8 @@ public class HrUserAttendanceStatController {
      * @date 2022/6/21 15:44
      **/
     @ApiOperationSupport(order = 16)
-    @ApiOperation("月度汇总-下载Excel文件")
-    @CommonLog("月度汇总-下载Excel文件")
+    @ApiOperation("每日汇总-下载Excel文件")
+    @CommonLog("每日汇总-下载Excel文件")
     @GetMapping(value = "/sys/userAttendance/dayexcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public void dayDownloadExcel(@Valid DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws Exception {
         hrUserAttendanceStatService.downloadExcel(dayStatExcelParam, response);
@@ -317,7 +317,7 @@ public class HrUserAttendanceStatController {
      **/
     @ApiOperationSupport(order = 17)
     @ApiOperation("月统计考勤概览-假勤分析")
-    @CommonLog("月度汇总-假勤分析")
+    @CommonLog("月统计考勤概览-假勤分析")
     @GetMapping(value = "/sys/userAttendance/attendanceAnalysis")
     public  CommonResult<AttendanceAnalysisData> attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam){
         return CommonResult.data(hrUserAttendanceStatService.attendanceAnalysis(attendanceAnalysisParam));
