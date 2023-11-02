@@ -70,4 +70,12 @@ public class HetongInfoVo {
     @ApiModelProperty(value = "零星单位名称", position = 21)
     private String unitsName;
 
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 52)
+    private String modelId;
+
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 53)
+    private String processInstanceId;
+
 }

@@ -66,6 +66,7 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
     @Override
     public Page<BizVisit> page(BizVisitPageParam bizVisitPageParam) {
         QueryWrapper<BizVisit> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(BizVisit::getStatus,"0","1");
         if(ObjectUtil.isNotEmpty(bizVisitPageParam.getStatus())){
             queryWrapper.lambda().eq(BizVisit::getStatus,bizVisitPageParam.getStatus());
         }

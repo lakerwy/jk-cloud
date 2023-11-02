@@ -71,7 +71,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
         //审核通过的合同
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-//        queryWrapper.eq("a.STATUS","1");
+        queryWrapper.in("a.STATUS","1","0");
         if (ObjectUtil.isNotEmpty(hetongPageParam.getSearchKey())) {
             List<String> keys = StrUtil.splitTrim(hetongPageParam.getSearchKey().replace(" ",",").replace("，",","),",");
             if(keys.size() > 1){

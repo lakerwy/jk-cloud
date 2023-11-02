@@ -221,7 +221,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         }
         lambdaQueryWrapper.eq(UserFile::getFileName, userFile.getFileName())
                 .eq(UserFile::getFilePath,userFile.getFilePath())
-                .eq(UserFile::getUserId, StpLoginUserUtil.getLoginUser().getId())
+//                .eq(UserFile::getUserId, StpLoginUserUtil.getLoginUser().getId())
                 .eq(UserFile::getDeleteFlag,"NOT_DELETE");
         return list(lambdaQueryWrapper);
     }
