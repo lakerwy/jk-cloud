@@ -39,6 +39,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -59,16 +60,6 @@ public class UserFileController {
     @Resource
     private PanFileRightService panFileRightService;
 
-//    @Resource
-//    private DevConfigApi devConfigApi;
-//
-//    @Resource
-//    FileFactory fileFactory;
-//
-//    @Resource
-//    PanFileService panFileService;
-//
-//    private final Integer storageType =1;
 
     /**
      * 获取根目录文件夹
@@ -110,7 +101,7 @@ public class UserFileController {
 
         //校验权限
         UserFile parentUserFile = userFileService.getParentIdByPath(userFileAddParam.getFilePath());
-        panFileRightService.checkFileRight(Arrays.asList(parentUserFile.getId()), FileRight.CREATE,userFileAddParam.getRightType());
+        panFileRightService.checkFileRight(Collections.singletonList(parentUserFile.getId()), FileRight.CREATE,userFileAddParam.getRightType());
 
 
         //判断文件夹是否存在
@@ -139,7 +130,6 @@ public class UserFileController {
                                                    CommonValidList<UserFileIdParam> userFileIdParamList,String rightType) {
         //校验权限
         panFileRightService.checkFileRight(CollStreamUtil.toList(userFileIdParamList,UserFileIdParam::getId), FileRight.DELETE,rightType);
-
 
         userFileService.delete(userFileIdParamList);
         return CommonResult.ok();

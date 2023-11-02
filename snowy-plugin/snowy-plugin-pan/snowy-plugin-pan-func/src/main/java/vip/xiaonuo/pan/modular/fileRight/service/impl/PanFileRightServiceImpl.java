@@ -41,6 +41,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -99,7 +100,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         //删除
         oldFileRights.removeAll(updateList);
         //处理更新
-        updateList.forEach(x->x.setRightValue(newFileRights.stream().filter(e->e.getObjectId().equals(x.getObjectId())).findFirst().orElse(null).getRightValue()));
+        updateList.forEach(x->x.setRightValue(Objects.requireNonNull(newFileRights.stream().filter(e -> e.getObjectId().equals(x.getObjectId())).findFirst().orElse(null)).getRightValue()));
 
         //新增 | 更新 | 删除
         if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
