@@ -59,4 +59,25 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
      * @return
      */
     Page<UserFile> getGroupPage2(Page<UserFile> page,@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
+
+    /***
+     * 根据文件Id，获取自身及其子集文件集合（递归查询）
+     * @param userFileId
+     * @return
+     */
+    List<UserFile> getChildren(String userFileId);
+
+    /***
+     * 根据文件Id，获取自身及其父集文件集合（递归查询）
+     * @param userFileId
+     * @return
+     */
+    List<UserFile> getParent(String userFileId);
+
+    /**
+     * 根据文件Id，获取最顶级文件夹（递归查询）
+     * @param userFileId
+     * @return
+     */
+    UserFile getTopParent(String userFileId);
 }

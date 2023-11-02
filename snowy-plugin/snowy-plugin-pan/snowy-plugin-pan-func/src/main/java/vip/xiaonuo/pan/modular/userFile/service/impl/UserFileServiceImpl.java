@@ -42,6 +42,7 @@ import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.fileRight.mapper.PanFileRightMapper;
+import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
@@ -117,7 +118,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     private static final String TEMPLATE_FOLD = "TEMPLATE_FOLD";
 
     @Resource
-    private PanFileRightMapper panFileRightMapper;
+    private PanFileRightService panFileRightService;
 
 
     @Override
@@ -366,6 +367,12 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
             if (userFile.isDirectory()) {
                 List<UserFile> subUserFileList = selectUserFileByLikeRightFilePath(oldfilePath, oldUserId);
+
+                //移动的时候处理权限过滤（单个文件 权限校验通过后，不用过滤 ，文件夹需要处理）
+                List<String> userFileIds = subUserFileList.stream().map(UserFile::getId).collect(Collectors.toList());
+                List<String> newUserFileIds = panFileRightService.filterUserFileIds(userFileIds, FileRight.MOVE,userFileOperateParam.getRightType());
+                subUserFileList = subUserFileList.stream().filter(x->newUserFileIds.contains(x.getId())).collect(Collectors.toList());
+
 
                 for (UserFile newUserFile : subUserFileList) {
                     newUserFile.setFilePath(newUserFile.getFilePath().replaceFirst(oldfilePath, targetFoldPath));
@@ -699,6 +706,12 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             if (userFile.isDirectory()) {
                 List<UserFile> subUserFileList = selectUserFileByLikeRightFilePath(oldfilePath, oldUserId);
 
+                //移动的时候处理权限过滤（单个文件 权限校验通过后，不用过滤 ，文件夹需要处理）
+                List<String> userFileIds = subUserFileList.stream().map(UserFile::getId).collect(Collectors.toList());
+                List<String> newUserFileIds = panFileRightService.filterUserFileIds(userFileIds, FileRight.COPY,userFileOperateParam.getRightType());
+                subUserFileList = subUserFileList.stream().filter(x->newUserFileIds.contains(x.getId())).collect(Collectors.toList());
+
+
                 for (UserFile newUserFile : subUserFileList) {
                     newUserFile.setFilePath(newUserFile.getFilePath().replaceFirst(oldfilePath, targetFoldPath));
                     if (newUserFile.isDirectory()) {
@@ -892,7 +905,8 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     public Page<UserFile> groupPage(UserFilePageParam userFilePageParam) {
         QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
         String userId = StpLoginUserUtil.getLoginUser().getId();
-        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
+        String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+        List<String> orgIds = sysOrgApi.getParentIds(orgId,true);
         //判断是否为顶级目录
         if(ROOT_FOLD_PATH.equals(userFilePageParam.getFilePath())){
             //构造sql条件参数
@@ -905,7 +919,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 q.eq("b.OBJECT_ID",userId);
                 if(CollUtil.isNotEmpty(orgIds)) q.or().in("b.OBJECT_ID",orgIds);
             });
-            List<String> userFileIds = panFileRightMapper.getFileRightList(userId,FileRight.LIST, orgIds);
+            List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
             if(CollUtil.isNotEmpty(userFileIds))
                 queryWrapper.notIn("a.ID",userFileIds);
 
@@ -922,7 +936,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
             return userFileMapper.getGroupPage(CommonPageRequest.defaultPage(),queryWrapper);
         }else{
-            List<String> userFileIds = panFileRightMapper.getFileRightList(userId,FileRight.LIST, orgIds);
+            List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
             queryWrapper.eq("DELETE_FLAG","NOT_DELETE");
             queryWrapper.eq("FOLD_TYPE","1");
             queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());

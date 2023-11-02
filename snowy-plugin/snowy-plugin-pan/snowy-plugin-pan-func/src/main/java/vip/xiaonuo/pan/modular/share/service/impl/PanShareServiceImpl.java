@@ -31,6 +31,8 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
+import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.enums.PanShareStatusEnum;
 import vip.xiaonuo.pan.modular.share.enums.PanShareTypeEnum;
@@ -47,10 +49,7 @@ import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /**
  * 网盘-分享表Service接口实现类
@@ -72,6 +71,9 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
 
     @Resource
     PanShareMapper panShareMapper;
+
+    @Resource
+    PanFileRightService panFileRightService;
 
     @Override
     public Page<PanShare> page(PanSharePageParam panSharePageParam) {
@@ -142,6 +144,11 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
 
     @Override
     public ShareFileVo shareFile(ShareFileDto shareFileDto) {
+
+        //校验权限
+        panFileRightService.checkFileRight(shareFileDto.getUserFileIds(), FileRight.SHARE_LINK,shareFileDto.getRightType());
+
+
         //返回结果
         ShareFileVo shareFileVo = new ShareFileVo();
         //用户Id

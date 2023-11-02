@@ -30,13 +30,19 @@ public interface PanFileRightMapper extends BaseMapper<PanFileRight> {
     List<PanFileRightVo> getFileRightByFileId(String userFileId);
 
     /**
-     * 获取无读取权限的文件
+     * 获取 用户userId+orgIds权限配置
+     *
+     * 用户有设置，以用户设置为准
+     * 用户没设置，再逐级看部门权限
+     *
+     * 查询结果：1.当前用户不可见数据
+     *         2.无用户设置，仅有部门设置的权限配置记录（用于逐级筛选）
+     *
      * @param userId
-     * @param right
      * @param orgIds
      * @return
      */
-    List<String> getFileRightList(String userId,long right,List<String> orgIds);
+    List<PanFileRight> getFileRightList(String userId,List<String> orgIds,long checkRight);
 
     /**
      * 根据顶级文件 群组设置范围 ，获取其所有用户信息
@@ -44,5 +50,6 @@ public interface PanFileRightMapper extends BaseMapper<PanFileRight> {
      * @return
      */
     List<UserInfoVo> getUserInfos(List<String> objIds);
+
 
 }

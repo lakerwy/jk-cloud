@@ -21,14 +21,16 @@ import lombok.Getter;
  * @date  2023/10/25 14:32
  **/
 @Getter
-public enum PanFileRightEnum {
+public enum PanFileRightTypeEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 群组权限校验 */
+    GROUP("GROUP"),
+    /** 共享权限校验 */
+    COMMON("COMMON");
 
     private final String value;
 
-    PanFileRightEnum(String value) {
+    PanFileRightTypeEnum(String value) {
         this.value = value;
     }
 }

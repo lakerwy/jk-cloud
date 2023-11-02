@@ -13,6 +13,7 @@
 package vip.xiaonuo.pan.modular.userFile.controller;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -25,8 +26,8 @@ import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.pan.modular.file.constant.FileRight;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
+import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
@@ -37,6 +38,7 @@ import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -105,6 +107,12 @@ public class UserFileController {
     @CommonLog("本地文件创建文件夹")
     @PostMapping("/pan/fold/createFold")
     public CommonResult<String> createFold(@Valid @RequestBody UserFileAddParam userFileAddParam) {
+
+        //校验权限
+        UserFile parentUserFile = userFileService.getParentIdByPath(userFileAddParam.getFilePath());
+        panFileRightService.checkFileRight(Arrays.asList(parentUserFile.getId()), FileRight.CREATE,userFileAddParam.getRightType());
+
+
         //判断文件夹是否存在
         UserFile userFile = BeanUtil.copyProperties(userFileAddParam, UserFile.class);
         Boolean dirExist = userFileService.isDirExist(userFile);
@@ -128,7 +136,11 @@ public class UserFileController {
 //    @SaCheckPermission("/pan/fold/delete")
     @PostMapping("/pan/fold/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<UserFileIdParam> userFileIdParamList) {
+                                                   CommonValidList<UserFileIdParam> userFileIdParamList,String rightType) {
+        //校验权限
+        panFileRightService.checkFileRight(CollStreamUtil.toList(userFileIdParamList,UserFileIdParam::getId), FileRight.DELETE,rightType);
+
+
         userFileService.delete(userFileIdParamList);
         return CommonResult.ok();
     }
@@ -157,6 +169,11 @@ public class UserFileController {
     @CommonLog("文件夹重命名")
     @PostMapping("/pan/fold/reNameFold")
     public CommonResult<String> reNameFold(@Valid @RequestBody UserFileEditParam userFileEditParam) {
+
+        //校验权限
+        panFileRightService.checkFileRight(Arrays.asList(userFileEditParam.getId()), FileRight.RENAME,userFileEditParam.getRightType());
+
+
         //判断文件夹是否存在
         UserFile userFile = BeanUtil.copyProperties(userFileEditParam, UserFile.class);
         List<UserFile> userFiles =  userFileService.getFolds(userFile);
@@ -185,6 +202,10 @@ public class UserFileController {
          * 2、检查原文件夹下，是否有文件被操作。（如果有文件被操作，是不能移动的） ----文件修改或者预览时都要给文件夹上锁
          * 3、判断目标文件夹是否存在同名文件夹
          */
+
+        //校验权限
+        panFileRightService.checkFileRight(Arrays.asList(userFileOperateParam.getSourceFoldId()), FileRight.MOVE,userFileOperateParam.getRightType());
+
         userFileService.checkMove(userFileOperateParam);
         userFileService.moveFold(userFileOperateParam);
         return CommonResult.ok();
@@ -204,6 +225,11 @@ public class UserFileController {
          * 2、复制文件夹 同时还要复制文件夹下文件，递归处理
          */
         //userFileService.checkMove(userFileOperateParam);
+
+        //校验权限
+        panFileRightService.checkFileRight(Arrays.asList(userFileOperateParam.getSourceFoldId()), FileRight.COPY,userFileOperateParam.getRightType());
+
+
         userFileService.userFileCopy(userFileOperateParam);
         return CommonResult.ok();
     }
@@ -239,6 +265,11 @@ public class UserFileController {
     @CommonLog("创建文件")
     @PostMapping("/pan/fold/createFile")
     public CommonResult<String> createFile(@Valid @RequestBody UserFileAddParam userFileAddParam) {
+
+        //校验权限
+        panFileRightService.checkFileRight(Arrays.asList(userFileAddParam.getParentId()), FileRight.CREATE_FILE,userFileAddParam.getRightType());
+
+
         if(StrUtil.isEmpty(userFileAddParam.getExtendName())){
             return CommonResult.error("拓展名不能为空");
         }

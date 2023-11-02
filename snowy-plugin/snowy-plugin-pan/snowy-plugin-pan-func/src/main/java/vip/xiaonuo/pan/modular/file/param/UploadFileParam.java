@@ -45,4 +45,10 @@ public class UploadFileParam {
     @ApiModelProperty(value = "0个人文件夹内上传 1 群组内文件上传")
     private int type = 0;
 
+    @ApiModelProperty(value = "权限校验类型：GROUP 群组  COMMON 共享 注：（不传或不在指定范围） 不做权限校验")
+    private String rightType;
+
+    @ApiModelProperty(value = "0个人文件夹内上传 1 群组内文件上传")
+    private Integer foldType;
+
 }

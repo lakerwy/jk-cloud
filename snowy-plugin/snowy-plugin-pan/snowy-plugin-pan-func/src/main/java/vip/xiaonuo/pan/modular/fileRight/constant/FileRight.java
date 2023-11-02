@@ -14,36 +14,72 @@ import java.util.Map;
 @Setter
 public class FileRight {
 
+    /**
+     * 无权限
+     */
     public static final long RIGHT_NULL = 0L; //无权限
-
+    /**
+     * 可见
+     */
     public static final long LIST = 1L; //列表可见
-
+    /**
+     * 下载
+     */
     public static final long DOWNLOAD = 1L << 1; //下载
-
+    /**
+     * 创建文件夹
+     */
     public static final long CREATE = 1L << 2; //创建文件夹
-
+    /**
+     * 编辑
+     */
     public static final long EDIT = 1L << 3; //编辑
-
+    /**
+     * 移动
+     */
     public static final long MOVE = 1L << 4; //移动
-
+    /**
+     * 删除
+     */
     public static final long DELETE = 1L << 5; //删除
-
+    /**
+     * 预览
+     */
     public static final long PREVIEW = 1L << 6; //预览
-
+    /**
+     * 文件上传
+     */
     public static final long UPLOAD = 1L << 7; //文件上传
-
+    /**
+     * 复制
+     */
     public static final long COPY = 1L << 8; //复制
-
+    /**
+     * 重命名
+     */
     public static final long RENAME = 1L << 9; //重命名
-
+    /**
+     * 共享
+     */
     public static final long SHARE = 1L << 10; //共享
-
+    /**
+     * 分享
+     */
     public static final long SHARE_LINK = 1L << 11; //生成外链（分享）
+    /**
+     * 创建文件
+     */
+    public static final long CREATE_FILE = 1L << 12; //创建文件
+    /**
+     * 权限设置
+     */
+    public static final long RIGHT_SET = 1L << 13; //权限设置
+
 
 
     // 全部权限
     public static final long ALL_RIGHT = LIST | DOWNLOAD | CREATE | EDIT | MOVE | DELETE |
-            UPLOAD | COPY | RENAME | PREVIEW | SHARE | SHARE_LINK ;
+            UPLOAD | COPY | RENAME | PREVIEW | SHARE | SHARE_LINK | CREATE_FILE | RIGHT_SET;
 
     /**
      * 权限校验：right(已有权限)/ checkRight权限校验值(所需权限) 拥有所需权限里面的所有权限才可以

@@ -25,6 +25,7 @@ import vip.xiaonuo.common.enums.SysBuildInEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
+import vip.xiaonuo.pan.modular.fileRight.enums.PanFileRightTypeEnum;
 import vip.xiaonuo.pan.modular.fileRight.mapper.PanFileRightMapper;
 import vip.xiaonuo.pan.modular.fileRight.param.*;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
@@ -32,6 +33,7 @@ import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
 import vip.xiaonuo.pan.modular.fileRight.vo.UserInfoVo;
 import vip.xiaonuo.pan.modular.fileRight.vo.UserRightVo;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 
@@ -57,6 +59,9 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
 
     @Resource
     private SysOrgApi sysOrgApi;
+
+    @Resource
+    private UserFileMapper userFileMapper;
 
     /***
      * 仅获取当前文件的权限配置（明确设置的记录）
@@ -194,7 +199,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         //2. 超管、文件管理者、文件所有者 拥有全部权限
         if(roleCodes.contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue())
            || userFile.getUserId().equals(userId)
-           || getFileManager(userFile).contains(userId))
+           || getFileManager(userFile.getId()).contains(userId))
             return FileRight.ALL_RIGHT;
 
         //3. 当前用户 >> 所属组织  对当前文件userFileId是否有权限配置  指定的用户所属组织及其父组织集合
@@ -255,29 +260,19 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
      * 管理者：  a     b         c
      * 则 d.doc 的 管理者 a,b,c 均可操作该文件
      *
-     * @param userFile 当前文件实体信息
+     * @param userFileId 当前文件实体信息
      * @return
      */
-    public List<String> getFileManager(UserFile userFile){
-        List<String> fileManagerList = new ArrayList<>();
-        //当前文件不存在
-        if(ObjectUtil.isEmpty(userFile)) return fileManagerList;
-
-        //获取所有的父级管理者
+    public List<String> getFileManager(String userFileId){
+        List<UserFile> parents = getParents(userFileId);
+        //获取自身及所有的父级管理者
         List<String> tmpManagers = new ArrayList<>();
-        List<UserFile> parents = getParents(userFile.getId());
         if(CollUtil.isNotEmpty(parents)) {
             List<String> managers = parents.stream().filter(x -> StrUtil.isNotEmpty(x.getFileManager()))
-                    .map(UserFile::getFileManager).collect(Collectors.toList());
+                    .map(UserFile::getFileManager).distinct().collect(Collectors.toList());
             managers.forEach(x-> tmpManagers.addAll(Arrays.stream(x.split(",")).distinct().collect(Collectors.toList())));
         }
-
-        //获取自身的管理者
-        if(StrUtil.isNotEmpty(userFile.getFileManager()))
-            tmpManagers.addAll(Arrays.stream(userFile.getFileManager().split(",")).distinct().collect(Collectors.toList()));
-
-        tmpManagers.forEach(x->{if(!fileManagerList.contains(x)) fileManagerList.add(x);});
-        return fileManagerList;
+        return tmpManagers;
     }
 
 
@@ -298,48 +293,12 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
 
 
     /***
-     * 根据userFileId，获取所有父级文件信息（顶级 0 除外）
+     * 根据userFileId，获取自身及所有父级文件信息
      * @param userFileId 用户文件Id
      * @return 所有的父级文件信息
      */
     public List<UserFile> getParents(String userFileId){
-        List<UserFile> userFileList = new ArrayList<>();
-        UserFile userFile = userFileService.getById(userFileId);
-        if(ObjectUtil.isEmpty(userFile)) return userFileList;
-        if(ObjectUtil.isEmpty(userFile.getParentId()) || userFile.getParentId().equals("0")) return userFileList;
-        //父级文件
-        String parentId = userFile.getParentId();
-        while (!parentId.equals("0") && ObjectUtil.isNotEmpty(parentId)){
-            UserFile parentFile = userFileService.getById(parentId);
-            if(ObjectUtil.isNotEmpty(parentFile)) {
-                userFileList.add(parentFile);
-                parentId = parentFile.getParentId();
-            }
-            if(ObjectUtil.isEmpty(parentFile)) break;
-        }
-        return userFileList;
-    }
-
-
-
-    /***
-     * 根据 用户文件Id，校验当前用户是否有对应操作权限
-     * @param userFileId 用户文件Id(UserFile.Id)
-     * @param checkRight 操作权限(FileRight)
-     *
-     *  check 逻辑说明：
-     *                1. 若当前用户为userFileId文件所有者，拥有全部操作权限
-     *                2. 若当前用户不为userFileId文件所有者，根据权限配置校验权限
-     *                   2.1 若当前userFileId，当前用户，存在权限配置，直接根据配置校验
-     *                   2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
-     */
-    @Override
-    public boolean checkFileRight(String userFileId, long checkRight) {
-        UserFile userFile = userFileService.getById(userFileId);
-        Long right = getRightByUserFile(userFile,StpLoginUserUtil.getLoginUser().getId(),StpLoginUserUtil.getLoginUser().getOrgId(),StpLoginUserUtil.getLoginUser().getRoleCodeList());
-        Boolean hasRight = FileRight.hasRight(right,checkRight);
-        if(!hasRight) throw new CommonException("无操作权限");
-        return true;
+        return userFileMapper.getParent(userFileId);
     }
 
 
@@ -349,20 +308,121 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
      * @return 顶级文件信息
      */
     public UserFile getTopUserFile(String userFileId){
-        UserFile userFile = userFileService.getById(userFileId);
-        if(ObjectUtil.isEmpty(userFile)) return null;
-        if(ObjectUtil.isEmpty(userFile.getParentId()) || userFile.getParentId().equals("0")) return userFile;
-        //父级文件
-        String parentId = userFile.getParentId();
-        while (!parentId.equals("0") && ObjectUtil.isNotEmpty(parentId)){
-            UserFile parentFile = userFileService.getById(parentId);
-            if(ObjectUtil.isNotEmpty(parentFile) && !parentId.equals("0") && ObjectUtil.isNotEmpty(parentId)) {
-                parentId = parentFile.getParentId();
-            }else{
-                return parentFile;
-            }
-        }
-        return null;
+        return userFileMapper.getTopParent(userFileId);
     }
 
+
+    /***
+     * 根据 用户文件Id，校验当前用户是否有对应操作权限(支持批量，批量就是交集权限)
+     * @param userFileIds 用户文件Id(UserFile.Id)
+     * @param checkRight 操作权限(FileRight)
+     */
+    @Override
+    public void checkFileRight(List<String> userFileIds, long checkRight,String type) {
+        if(StrUtil.isEmpty(type)) return;
+        if(CollUtil.isEmpty(userFileIds)) return;
+        if(type.equals(PanFileRightTypeEnum.GROUP.getValue())) {
+            if(userFileIds.size() == 1) {
+                UserFile userFile = userFileService.getById(userFileIds.get(0));
+                Long right = getRightByUserFile(userFile, StpLoginUserUtil.getLoginUser().getId(), StpLoginUserUtil.getLoginUser().getOrgId(), StpLoginUserUtil.getLoginUser().getRoleCodeList());
+                if (!FileRight.hasRight(right, checkRight)) throw new CommonException("无操作权限");
+            }else{
+                FileRightParam fileRightParam = new FileRightParam();
+                fileRightParam.setUserFileIds(userFileIds);
+                Long right = getRightById(fileRightParam);
+                if (!FileRight.hasRight(right, checkRight)) throw new CommonException("无操作权限");
+            }
+        }
+    }
+
+
+    /***
+     * 根据文件id集合，过滤没有权限的文件
+     *
+     * 主要针对文件夹中包含文件|文件夹
+     *
+     * 例如：上层文件夹A有下载权限，子文件夹|文件 无下载权限，需要过滤
+     *
+     * @param userFileIds
+     * @param checkRight
+     * @return
+     */
+    public List<String> filterUserFileIds(List<String> userFileIds,long checkRight,String type){
+        if(StrUtil.isEmpty(type)) return userFileIds;
+        if(CollUtil.isEmpty(userFileIds)) return null;
+        if(type.equals(PanFileRightTypeEnum.GROUP.getValue())) {
+            String userId = StpLoginUserUtil.getLoginUser().getId();
+            String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+            List<String> roleCodes = StpLoginUserUtil.getLoginUser().getRoleCodeList();
+            List<UserFile> userFileList = userFileService.list(new QueryWrapper<UserFile>().lambda().in(UserFile::getId, userFileIds));
+            List<UserFile> delUserFileList = new ArrayList<>();
+            for (UserFile userFile : userFileList) {
+                Long right = getRightByUserFile(userFile, userId, orgId, roleCodes);
+                if (!FileRight.hasRight(right, checkRight)) {
+                    List<UserFile> tmp = userFileMapper.getChildren(userFile.getId());
+                    delUserFileList.addAll(tmp);
+                }
+            }
+            List<String> delUserFileIds = delUserFileList.stream().map(UserFile::getId).collect(Collectors.toList());
+            userFileIds.removeAll(delUserFileIds);
+        }
+        return userFileIds;
+    }
+
+
+    /***
+     * 在列表页过滤的时候，需要排除不可见的权限设置
+     * 登录用户 A （属于数字院）
+     * 比如：文件A 对于数字院可见  但对 员工A 不可见  需要排除   员工A不可见A文件
+     *      文件A 对于数字院不可见  但特定设置对 员工A 可见  不排除  员工A可见A文件
+     *      文件A 对于数字院不可见  无其他设置  需要排除   员工A不可见A文件
+     *
+     *  数字院(权限设置)    可见    可见    不可见   不可见    不可见    可见    X       X       可见      不可见
+     *  软件中心(权限设置)   可见    可见   不可见   不可见    不可见    可见    X       X       不可见     可见
+     *  员工A (权限设置)    可见   不可见   可见     不可见      X       X    可见    不可见      X        X
+     *  员工A（结果）       可见   不可见   可见     不可见    不可见    可见   可见    不可见    不可见     可见
+     *
+     *  结论： 若针对员工设置了权限，优先看员工配置，无员工配置看组织设置（组织递归）
+     *
+     * @param userId
+     * @param orgIds
+     * @return
+     */
+    public List<String> notInUserFileIds(String userId,String orgId,List<String> orgIds){
+        long checkRight = FileRight.LIST;
+        //获取当前用户、部门的权限配置记录
+        List<PanFileRight> fileRightList = panFileRightMapper.getFileRightList(userId,orgIds,checkRight);
+
+        //情况1：先过滤有用户userId权限配置的（userid都是不可见数据）
+        List<PanFileRight> userFileRightList = fileRightList.stream().filter(x->x.getObjectId().equals(userId)).collect(Collectors.toList());
+        List<String> notInIds = userFileRightList.stream().map(PanFileRight::getUserFileId).distinct().collect(Collectors.toList());
+
+        //移除 已处理数据
+        fileRightList.removeAll(userFileRightList);
+
+        String tmpOrgId = orgId;
+        //情况2：存在 仅 设置了部门权限 情况
+        while(CollUtil.isNotEmpty(fileRightList)) {
+            //先找自己组织的配置数据
+            String finalTmpOrgId = tmpOrgId;
+            List<PanFileRight> tmpOrgFileRightList = fileRightList.stream().filter(x -> x.getObjectId().equals(finalTmpOrgId)).collect(Collectors.toList());
+
+            //本级组织不可见
+            List<String> tmpNotInIds = tmpOrgFileRightList.stream().filter(x -> !FileRight.hasRight(x.getRightValue(), checkRight)).map(PanFileRight::getUserFileId).distinct().collect(Collectors.toList());
+            if (CollUtil.isNotEmpty(tmpNotInIds)) notInIds.addAll(tmpNotInIds);
+
+            //获取其涉及到的userFileId（本级组织控制是否可见）
+            List<String> tmpUserFileIds = tmpOrgFileRightList.stream().map(PanFileRight::getUserFileId).distinct().collect(Collectors.toList());
+
+            //移除已处理的userFileId
+            if(CollUtil.isNotEmpty(tmpUserFileIds)) {
+                fileRightList.removeAll(fileRightList.stream().filter(x -> tmpUserFileIds.contains(x.getUserFileId())).collect(Collectors.toList()));
+            }
+
+            //找父级
+            tmpOrgId = sysOrgApi.getParentId(tmpOrgId);
+            if(StrUtil.isEmpty(tmpOrgId) || !orgIds.contains(tmpOrgId)) break;
+        }
+        return notInIds;
+    }
 }
