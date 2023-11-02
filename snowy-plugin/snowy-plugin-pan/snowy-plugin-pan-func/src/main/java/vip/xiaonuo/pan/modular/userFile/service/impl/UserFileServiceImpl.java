@@ -897,14 +897,16 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         if(ROOT_FOLD_PATH.equals(userFilePageParam.getFilePath())){
             //构造sql条件参数
             queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-            queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
             queryWrapper.eq("a.FOLD_TYPE","1");
             queryWrapper.eq("a.FILE_PATH",userFilePageParam.getFilePath());
-            queryWrapper.apply(" (b.RIGHT_VALUE & {0} > 0 ) ",FileRight.LIST);
-            queryWrapper.and(q->{
-                q.eq("b.OBJECT_ID",userId);
-                if(CollUtil.isNotEmpty(orgIds)) q.or().in("b.OBJECT_ID",orgIds);
-            });
+            queryWrapper.and(q->q.eq("a.USER_ID",userId)
+                             .or(q1-> q1.apply(" (IF(b.RIGHT_VALUE is null,0,b.RIGHT_VALUE) & {0} > 0 ) ",FileRight.LIST)
+                                             .and(q2-> {
+                                             q2.eq("b.OBJECT_ID", userId);
+                                             if(CollUtil.isNotEmpty(orgIds)) q2.or().in("b.OBJECT_ID",orgIds);
+                                         })
+                                     )
+            );
             List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
             if(CollUtil.isNotEmpty(userFileIds))
                 queryWrapper.notIn("a.ID",userFileIds);
