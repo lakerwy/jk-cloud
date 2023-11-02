@@ -22,8 +22,10 @@ public enum BizCommonEnum {
     BIZ_PRJ_ALLOTMENT("BIZ_PRJ_ALLOTMENT","BIZ_PRJ_ALLOTMENT","BizPrjAllotmentServiceImpl"),  //项目拨付款申请单
     HR_APPLY_ATTENDANCE("HR_USER_APPLY_ATTENDANCE","HR_USER_APPLY_ATTENDANCE","HrUserApplyAttendanceServiceImpl"),
 
-    BIZ_VISIT("BIZ_VISIT","BIZ_VISIT","BizVisitServiceImpl");  //董事办-外访记录
+    BIZ_VISIT("BIZ_VISIT","BIZ_VISIT","BizVisitServiceImpl"),  //董事办-外访记录
 
+    HR_USER_BUSINESS_TRIP_FLW("HR_USER_BUSINESS_TRIP_FLW","HR_USER_BUSINESS_TRIP_FLW","HrUserBusinessTripFlwServiceImpl"), //申请出差流程表
+    HR_USER_BUSINESS_TRIP("HR_USER_BUSINESS_TRIP","HR_USER_BUSINESS_TRIP","HrUserBusinessTripServiceImpl"); //申请出差主体表（1-n）
 
     String bizModel;
     String bizTable;

@@ -10,25 +10,26 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.userApplyBusinessTrip.enums;
+package vip.xiaonuo.sys.modular.hr.userBusinessTripFlw.param;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
 
 /**
- * 用户出差申请表枚举
+ * 业务表-考勤-用户出差申请流程表Id参数
  *
  * @author ljy
- * @date  2023/11/01 23:12
+ * @date  2023/11/02 08:58
  **/
 @Getter
-public enum HrUserApplyBusinessTripEnum {
+@Setter
+public class HrUserBusinessTripFlwIdParam {
 
-    /** 测试 */
-    TEST("TEST");
-
-    private final String value;
-
-    HrUserApplyBusinessTripEnum(String value) {
-        this.value = value;
-    }
+    /** 主键ID */
+    @ApiModelProperty(value = "主键ID", required = true)
+    @NotBlank(message = "id不能为空")
+    private String id;
 }

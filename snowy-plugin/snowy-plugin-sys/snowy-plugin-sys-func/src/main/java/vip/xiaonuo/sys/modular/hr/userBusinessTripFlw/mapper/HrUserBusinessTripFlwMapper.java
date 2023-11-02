@@ -10,16 +10,16 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.userApplyBusinessTrip.mapper;
+package vip.xiaonuo.sys.modular.hr.userBusinessTripFlw.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import vip.xiaonuo.sys.modular.hr.userApplyBusinessTrip.entity.HrUserApplyBusinessTrip;
+import vip.xiaonuo.sys.modular.hr.userBusinessTripFlw.entity.HrUserBusinessTripFlw;
 
 /**
- * 用户出差申请表Mapper接口
+ * 业务表-考勤-用户出差申请流程表Mapper接口
  *
  * @author ljy
- * @date  2023/11/01 23:12
+ * @date  2023/11/02 08:58
  **/
-public interface HrUserApplyBusinessTripMapper extends BaseMapper<HrUserApplyBusinessTrip> {
+public interface HrUserBusinessTripFlwMapper extends BaseMapper<HrUserBusinessTripFlw> {
 }

@@ -10,34 +10,26 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.userApplyBusinessTrip.entity;
+package vip.xiaonuo.sys.modular.hr.userBusinessTrip.param;
 
-import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 用户出差申请表实体
+ * 业务表-考勤-用户出差申请实体数据表添加参数
  *
  * @author ljy
- * @date  2023/11/01 23:12
+ * @date  2023/11/02 09:03
  **/
 @Getter
 @Setter
-@TableName("HR_USER_APPLY_BUSINESS_TRIP")
-public class HrUserApplyBusinessTrip {
-
-    /** 主键 */
-    @TableId
-    @ApiModelProperty(value = "主键", position = 1)
-    private String id;
-
-    /** 租户ID */
-    @ApiModelProperty(value = "租户ID", position = 2)
-    private String tenantId;
+public class HrUserBusinessTripAddParam {
 
     /** 申请人ID */
     @ApiModelProperty(value = "申请人ID", position = 3)
@@ -83,57 +75,20 @@ public class HrUserApplyBusinessTrip {
     @ApiModelProperty(value = "往返类别；1 单程，2 往返", position = 13)
     private Integer returnType;
 
-    /** 模型ID */
-    @ApiModelProperty(value = "模型ID", position = 14)
-    private String modelId;
-
-    /** 流程实例id */
-    @ApiModelProperty(value = "流程实例id", position = 15)
-    private String processInstanceId;
-
     /** 项目编号 */
-    @ApiModelProperty(value = "项目编号", position = 16)
+    @ApiModelProperty(value = "项目编号", position = 14)
     private String projectId;
 
     /** 项目名称 */
-    @ApiModelProperty(value = "项目名称", position = 17)
+    @ApiModelProperty(value = "项目名称", position = 15)
     private String projectName;
 
-    /** SN单号 */
-    @ApiModelProperty(value = "SN单号", position = 18)
-    private String sn;
-
-    /** 流程状态 */
-    @ApiModelProperty(value = "流程状态", position = 19)
-    private String status;
-
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 20)
+    @ApiModelProperty(value = "扩展信息", position = 16)
     private String extJson;
 
-    /** 删除标识 */
-    @ApiModelProperty(value = "删除标识", position = 21)
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
-    private String deleteFlag;
+    /** 外键（流程单主键Id） */
+    @ApiModelProperty(value = "外键（流程单主键Id）", position = 22)
+    private String flwId;
 
-    /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 22)
-    @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
-
-    /** 创建人 */
-    @ApiModelProperty(value = "创建人", position = 23)
-    @TableField(fill = FieldFill.INSERT)
-    private String createUser;
-
-    /** 更新时间 */
-    @ApiModelProperty(value = "更新时间", position = 24)
-    @TableField(fill = FieldFill.UPDATE)
-    private Date updateTime;
-
-    /** 更新人 */
-    @ApiModelProperty(value = "更新人", position = 25)
-    @TableField(fill = FieldFill.UPDATE)
-    private String updateUser;
 }
