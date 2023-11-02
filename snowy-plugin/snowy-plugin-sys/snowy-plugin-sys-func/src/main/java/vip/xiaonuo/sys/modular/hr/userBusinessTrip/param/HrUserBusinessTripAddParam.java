@@ -48,8 +48,8 @@ public class HrUserBusinessTripAddParam {
     private Date applyEndTime;
 
     /** 申请理由 */
-    @ApiModelProperty(value = "申请理由", position = 7)
-    private String applyReason;
+//    @ApiModelProperty(value = "申请理由", position = 7)
+//    private String applyReason;
 
     /** 申请出差天数 */
     @ApiModelProperty(value = "申请出差天数", position = 8)

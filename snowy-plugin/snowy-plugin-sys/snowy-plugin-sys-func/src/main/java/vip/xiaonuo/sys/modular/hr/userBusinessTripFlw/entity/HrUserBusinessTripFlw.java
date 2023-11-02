@@ -82,6 +82,14 @@ public class HrUserBusinessTripFlw {
     private String extJson;
 
     /** 申请出差总天数 */
-    @ApiModelProperty(value = "申请出差总天数", position = 8)
+    @ApiModelProperty(value = "申请出差总天数", position = 12)
     private Double totalDays;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 13)
+    private String remark;
+
+    /** 申请理由 */
+    @ApiModelProperty(value = "申请理由", position = 14)
+    private String applyReason;
 }

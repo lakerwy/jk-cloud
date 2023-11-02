@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 @Setter
 @Getter
@@ -83,7 +85,9 @@ public class MonthStatData {
     @ApiModelProperty(value = "加班总时长", position = 22)
     private Double workOtHours;
 
-    @ApiModelProperty(value = "考勤结果", position = 23)
+    @ApiModelProperty(value = "考勤结果List", position = 23)
     private List<MonthStatDataStatus> monthStatDataStatusList;
 
+    @ApiModelProperty(value = "考勤结果Map", position = 24)
+    TreeMap<Integer,MonthStatDataStatus> treeMap;
 }

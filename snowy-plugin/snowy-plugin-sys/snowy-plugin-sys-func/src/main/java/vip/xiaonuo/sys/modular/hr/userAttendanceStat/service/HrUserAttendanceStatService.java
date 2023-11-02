@@ -175,7 +175,7 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
     * */
     void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws Exception;
 
-    void workbookExcelDay(List<DayStatExcelParam> dayStatExcelList,HttpServletResponse response) throws Exception;
+    //void workbookExcelDay(List<DayStatExcelParam> dayStatExcelList,HttpServletResponse response) throws Exception;
 
     /** 月统计考勤概览-假勤分析*/
     AttendanceAnalysisData attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam);

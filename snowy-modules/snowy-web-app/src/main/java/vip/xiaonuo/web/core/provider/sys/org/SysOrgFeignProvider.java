@@ -16,6 +16,7 @@ import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.sys.feign.SysOrgFeign;
@@ -94,8 +95,8 @@ public class SysOrgFeignProvider implements SysOrgFeign {
     }
 
     @Override
-    @RequestMapping("/feign/sys/org/getParentIds")
-    public List<String> getParentIds(String orgId, Boolean includeSelf) {
+    @RequestMapping(value = "/feign/sys/org/getParentIds",method = RequestMethod.GET)
+    public List<String> getParentIds(@RequestParam("orgId") String orgId, @RequestParam("includeSelf") Boolean includeSelf) {
         return sysOrgApiProvider.getParentIds(orgId,includeSelf);
     }
 

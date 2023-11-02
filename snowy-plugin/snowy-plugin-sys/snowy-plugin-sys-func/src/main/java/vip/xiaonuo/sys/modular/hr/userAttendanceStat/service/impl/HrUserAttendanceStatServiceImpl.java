@@ -63,6 +63,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttend
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.*;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.util.ExcelUtil;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.mapper.HrUserAttendanceStatMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
@@ -587,6 +588,16 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 log.error("统计数据失败！"+e.toString());
             }*/
         });
+        monthStatDataList.forEach(month -> {
+            TreeMap<Integer,MonthStatDataStatus> map = new TreeMap<>();
+            List<MonthStatDataStatus> statusList = month.getMonthStatDataStatusList();
+            statusList.forEach(status -> {
+                SimpleDateFormat sdf = new SimpleDateFormat("dd");
+                Integer key = Integer.parseInt(sdf.format(CommonTimeFormatUtil.strToDate(status.getTime(),DatePattern.NORM_DATE_PATTERN)));
+                map.put(key,status);
+            });
+            month.setTreeMap(map);
+        });
 
         Page<MonthStatData> page = new Page<>();
         page.setRecords(monthStatDataList);
@@ -669,17 +680,15 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             Date date = DateUtil.parse(day+" 5:30:00",DatePattern.NORM_DATETIME_PATTERN);
             return "早退"+DateUtil.between(hrUserAttendanceStat.getCheckTime(),date,DateUnit.MINUTE)+"分钟";
         }
-
         return "";
     }
 
     @Override
     public void downloadMonthExcel(AttendanceMonthStatParam attendanceMonthStatParam, HttpServletResponse response) throws Exception{
-
+        Page<MonthStatData>  page = monthStatPreview(attendanceMonthStatParam);
+        List<MonthStatData> monthStatDataList = page.getRecords();
+        ExcelUtil.workbookExcelMonth(monthStatDataList,response);
     }
-
-
-
 
 
     private Map<String,Map<String,List<HrUserAttendanceStat>>> statToMap(List<HrUserAttendanceStat> userAttendanceStatList){
@@ -695,109 +704,6 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         });
         return attendanceDayMap;
     }
-
-    /** 计算 出勤天数 迟到次数 迟到时长 上班缺卡次数 下班缺卡次数 旷工天数*/
-    /*private AttendanceMonthStatParam countWorkData(List<HrUserAttendanceStat> hrUserAttendanceStatList,String timeStr,AttendanceMonthStatParam attendanceMonthStatParam,SysUser sysUser) {
-        Integer lateNum = 0;//迟到次数
-        Long lateTime = 0l;//迟到时长
-        Integer onDutyLackNum = 0;//上班缺卡次数
-        Integer offDutyLackNum = 0;//下班缺卡次数
-        Integer absenteeismNum = 0;//旷工天数
-        Integer onDutyNum = 0;//上班打卡次数
-        Integer offDutyNum = 0;//下班打卡次数
-        Map<String,Integer> dayMap = new HashMap<>();//出勤的天时间
-        for(HrUserAttendanceStat hrUserAttendanceStat : hrUserAttendanceStatList){
-            if(!hrUserAttendanceStat.getUserId().equals(sysUser.getId())){
-                continue; }
-            if(hrUserAttendanceStat.getAbnormalFlag() == 3){
-                lateNum++;
-                try{
-                    Date onDutyTime = DateUtils.parseDate(DateUtil.format(hrUserAttendanceStat.getCheckTime(),DatePattern.NORM_DATE_PATTERN)+timeStr,DatePattern.NORM_DATETIME_PATTERN);
-                    lateTime = lateTime + DateUtil.between(hrUserAttendanceStat.getCheckTime(),onDutyTime,DateUnit.MINUTE);
-                }catch (ParseException e){
-                    log.error("时间转换失败！"+e.toString()); } }
-            if(hrUserAttendanceStat.getCheckType().equals("OnDuty")){
-                onDutyNum++; }
-            if(hrUserAttendanceStat.getCheckType().equals("OffDuty")){
-                offDutyNum++; }
-        }
-        attendanceMonthStatParam.setWorkDays(dayMap.keySet().size());
-        attendanceMonthStatParam.setLateNum(lateNum);
-        attendanceMonthStatParam.setLateTime(lateTime);
-        attendanceMonthStatParam.setOffDutyLackNum(offDutyLackNum);
-        attendanceMonthStatParam.setOnDutyLackNum(onDutyLackNum);
-        attendanceMonthStatParam.setAbsenteeismNum(absenteeismNum);
-        attendanceMonthStatParam.setUserId(sysUser.getId());
-        attendanceMonthStatParam.setUserName(sysUser.getName());
-        return attendanceMonthStatParam;
-    }*/
-
-    /**
-     *
-     * */
-    /*private AttendanceMonthStatParam dayListMonth(List<HrUserAttendanceStat> hrUserAttendanceStatList,AttendanceMonthStatParam statParam,List<String> dayList,SysUser sysUser,List<HrUserApplyHoliday> hrUserApplyHolidayList){
-
-        List<Map<Integer,AttendanceMonthStatData>> mapList = new ArrayList<>();
-        Map<Integer,List<HrUserAttendanceStat>> statMap = new HashMap<>();
-        hrUserAttendanceStatList.forEach(stat -> {
-            if(stat.getUserId().equals(sysUser.getId())){
-                String day = DateUtil.format(stat.getCheckTime(),DatePattern.NORM_DATE_PATTERN);
-                List<HrUserAttendanceStat> statList = statMap.get(day) == null ? new ArrayList<>() : statMap.get(day);
-                SimpleDateFormat sdf = new SimpleDateFormat("dd");
-                Integer key = Integer.parseInt(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)));
-                statMap.put(key,statList);
-            }
-        });
-        dayList.forEach(day -> {
-            Map<Integer,AttendanceMonthStatData> monthStatDataMap = new HashMap<>();
-            if(CommonTimeFormatUtil.dayAndSunday(day).equals("六") || CommonTimeFormatUtil.dayAndSunday(day).equals("日")){
-                AttendanceMonthStatData attendanceMonthStatData = new AttendanceMonthStatData();
-                attendanceMonthStatData.setDay(CommonTimeFormatUtil.dayAndSunday(day));
-                attendanceMonthStatData.setStatus("休息");
-
-                SimpleDateFormat sdf = new SimpleDateFormat("dd");
-                Integer key = Integer.parseInt(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)));
-                monthStatDataMap.put(key,attendanceMonthStatData);
-                mapList.add(monthStatDataMap);
-            }else{
-                List<HrUserAttendanceStat> statList = statMap.get(day);
-                AttendanceMonthStatData attendanceMonthStatData = countStatData(statList,new AttendanceMonthStatData(),day);
-                SimpleDateFormat sdf = new SimpleDateFormat("dd");
-                Integer key = Integer.parseInt(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)));
-                monthStatDataMap.put(key,attendanceMonthStatData);
-                mapList.add(monthStatDataMap);
-            }
-
-        });
-        statParam.setMonthStatList(mapList);
-        return statParam;
-    }*/
-
-
-    /*private AttendanceMonthStatData countStatData(List<HrUserAttendanceStat> statList,AttendanceMonthStatData attendanceMonthStatData,String day){
-        if(CollectionUtil.isEmpty(statList)){
-            attendanceMonthStatData.setStatus("旷工");
-            attendanceMonthStatData.setDay(CommonTimeFormatUtil.dayAndSunday(day));
-            return attendanceMonthStatData;
-        }
-        if(statList.size() < 3){
-            attendanceMonthStatData.setStatus("缺卡");
-            attendanceMonthStatData.setDay(CommonTimeFormatUtil.dayAndSunday(day));
-            return attendanceMonthStatData;
-        }
-
-        Date date = DateUtil.parse(day+" 8:30:00",DatePattern.NORM_DATETIME_PATTERN);
-        for(HrUserAttendanceStat stat : statList){
-            if(stat.getCheckType().equals("OnDuty") && stat.getCheckTime().compareTo(date) >0){
-                attendanceMonthStatData.setStatus("迟到"+DateUtil.between(stat.getCheckTime(),date,DateUnit.MINUTE)+"分钟");
-                attendanceMonthStatData.setDay(CommonTimeFormatUtil.dayAndSunday(day));
-                return attendanceMonthStatData;
-            }
-        }
-        attendanceMonthStatData.setStatus("正常");
-        attendanceMonthStatData.setDay(CommonTimeFormatUtil.dayAndSunday(day));
-        return attendanceMonthStatData;
-    }*/
 
     @Override
     public  Boolean isFestival(String date,Integer type){//type类别：1 判断是法定节假日，2 判断是法定加班日
@@ -874,7 +780,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @Override
     public void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws Exception{
         List<DayStatExcelParam>  dayStatExcelList = dayAttendanceList(dayStatExcelParam);
-        workbookExcelDay(dayStatExcelList,response);
+        ExcelUtil.workbookExcelDay(dayStatExcelList,response);
     }
 
     public List<DayStatExcelParam> dayAttendanceList(DayStatExcelParam dayStatExcelParam){
@@ -1049,64 +955,6 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         dayStatExcelParam.setUserAttendanceStatList(list);
     }
 
-    /**
-    * 每日统计数据下载
-    * */
-    @Override
-    public void workbookExcelDay(List<DayStatExcelParam> dayStatExcelList,HttpServletResponse response) throws Exception{
-        Workbook workbook = new XSSFWorkbook();
-        Sheet sheet = workbook.createSheet("Sheet1");
-        setHerd(sheet,workbook,"");
-        setContent(workbook,sheet,dayStatExcelList);
-
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        try{
-            workbook.write(outputStream);
-            byte[] byteArr = outputStream.toByteArray();
-            String fileName = "月统计"+DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN);
-            CommonDownloadUtil.download(fileName+".xlsx",byteArr,response);
-        }catch (Exception e){
-            log.error("下载excel表格失败！e:"+e.toString());
-        }finally {
-            workbook.close();
-            outputStream.close();
-        }
-    }
-    /** 设置内容 */
-    private void setContent(Workbook workbook,Sheet sheet,List<DayStatExcelParam> dayStatExcelList){
-        Integer rowSize = dayStatExcelList.size();
-        CellStyle style = workbook.createCellStyle();
-        style.setAlignment(HorizontalAlignment.CENTER);// 设置水平居中
-        style.setVerticalAlignment(VerticalAlignment.CENTER);// 设置垂直居中
-        Font font = workbook.createFont();
-        font.setFontHeightInPoints((short) 12); //字体
-        style.setFont(font);//增加字体样式
-        for (int i = 1; i <= rowSize; i++) {//i=1,表头占一行
-            Row row = sheet.createRow(i); // 创建行
-            Short height = (short) 360;
-            row.setHeight(height);
-
-            //打卡是否异常：-1 缺卡，1 正常,3 迟到，4 早退，5 请假，6 管理员修改
-            DayStatExcelParam dayStatExcelParam = dayStatExcelList.get(i-1);
-            DayStatExcel dayStatExcel = BeanUtil.toBean(dayStatExcelParam,DayStatExcel.class);
-            isNeedStyle(dayStatExcelParam,dayStatExcel);
-            int j=0;
-            for (Field field : DayStatExcel.class.getDeclaredFields()) {
-                field.setAccessible(true); // 确保可以访问私有属性
-                try {
-                    Object value = field.get(dayStatExcel);
-                    Cell cell = row.createCell(j); // 创建单元格
-                    String cellValue = ObjectUtil.isNotEmpty(value) ? value.toString() : "";
-                    cell.setCellValue(cellValue); // 设置单元格的值
-                    setColorStyle(workbook,cell,dayStatExcelParam,dayStatExcel,cellValue);
-                    j++;
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
     private void isNeedStyle(DayStatExcelParam dayStatExcelParam,DayStatExcel dayStatExcel){
         List<HrUserAttendanceStat> hrUserAttendanceStatList =  dayStatExcelParam.getUserAttendanceStatList();
         if(dayStatExcelParam.getAttendanceTypeDetails().equals("休息") && CollectionUtil.isEmpty(hrUserAttendanceStatList)){
@@ -1174,104 +1022,6 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         }
     }
 
-    private void setColorStyle(Workbook workbook,Cell cell,DayStatExcelParam dayStatExcelParam,DayStatExcel dayStatExcel,String status){
-        if (StringUtils.isEmpty(status)){
-            return;
-        }
-        if("正常".equals(status)){
-            return;
-        }
-        CellStyle style = workbook.createCellStyle();
-        style.setAlignment(HorizontalAlignment.CENTER);// 设置水平居中
-        style.setVerticalAlignment(VerticalAlignment.CENTER);// 设置垂直居中
-        Font font = workbook.createFont();
-        font.setBold(true);//设置字体加粗
-        style.setFont(font);//增加字体样式
-        if("缺卡".equals(status)){
-            style.setFillForegroundColor(IndexedColors.RED.getIndex());
-            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            cell.setCellStyle(style);
-            return;
-        }
-
-        if(status.contains("管理员")){
-            style.setFillForegroundColor(IndexedColors.RED.getIndex());
-            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            cell.setCellStyle(style);
-            return;
-        }
-
-        if("迟到".equals(status)){
-            style.setFillForegroundColor(IndexedColors.RED.getIndex());
-            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            cell.setCellStyle(style);
-            return;
-        }
-
-        if("早退".equals(status)){
-            style.setFillForegroundColor(IndexedColors.RED.getIndex());
-            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            cell.setCellStyle(style);
-            return;
-        }
-
-        if("请假".equals(status)){
-            style.setFillForegroundColor(IndexedColors.RED.getIndex());
-            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            cell.setCellStyle(style);
-            return;
-        }
-
-        if("补卡审批通过".equals(status)){
-            style.setFillForegroundColor(IndexedColors.RED.getIndex());
-            style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-            cell.setCellStyle(style);
-            return;
-        }
-
-    }
-
-    /** 设置表头,暂时先固定 */
-    private void setHerd(Sheet sheet,Workbook workbook,String headStr){
-        headStr = "姓名,考勤组,部门,工号,职位,日期,班次,上班打卡时间,上班打卡结果,休息打卡时间,休息打卡结果,下班打卡时间,下班打卡结果,"+
-                "关联的审批单,出勤天数,休息天数,工作时长,迟到次数,迟到时长,严重迟到次数,严重迟到时长,早退次数,早退时长,缺卡次数,"+
-                "旷工天数,出差时长,外出时长,事假(天),病假(天),婚假(天),产假(天),丧假(天),年假(天),调休(小时),加班总时长";
-        List<String> list = Arrays.asList(headStr.split(","));
-
-        Row row = sheet.createRow(0); // 创建第一行：当作标题
-        Short height = (short) 500;
-        row.setHeight(height);
-
-        /** 设置背景颜色 */
-        CellStyle style = workbook.createCellStyle();
-        style.setFillForegroundColor(IndexedColors.YELLOW.getIndex());
-        style.setFillPattern(FillPatternType.SOLID_FOREGROUND);
-        /** 设置设置边框 */
-        style.setBorderBottom(BorderStyle.THIN);//下边框
-        style.setBorderLeft(BorderStyle.THIN);//左边框
-        style.setBorderTop(BorderStyle.THIN);//上边框
-        style.setBorderRight(BorderStyle.THIN);//右边框
-
-        /** 字体剧中 */
-        style.setAlignment(HorizontalAlignment.CENTER);// 设置水平居中
-        style.setVerticalAlignment(VerticalAlignment.CENTER);// 设置垂直居中
-
-        /** 字体大小和样式*/
-        Font font = workbook.createFont();
-        font.setFontHeightInPoints((short) 15);
-        font.setFontName("仿宋_GB2312");
-        font.setBold(true);//设置字体加粗
-        style.setFont(font);//增加字体样式
-
-        for(int i=0;i<list.size();i++){
-            Cell cell = row.createCell(i); // 创建单元格
-            cell.setCellValue(list.get(i)); // 设置单元格的值
-            /** 设置宽度*/
-            sheet.setColumnWidth(i, 256 * 25); // 设置第一列的列宽为30个字符宽度
-            /** 应用样式*/
-            cell.setCellStyle(style);
-        }
-    }
 
     /** 月统计考勤概览-假勤分析
      * 若不传部门ID，固定返回一级部门：子公司，直属事业部，直属设计院，职能中心，研究院
