@@ -129,11 +129,9 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
     @Override
     public Long getRightById(FileRightParam fileRightParam) {
         if(CollUtil.isEmpty(fileRightParam.getUserFileIds())) throw new CommonException("请选择文件");
-        List<UserFile> userFileList = userFileService.list(
-                new QueryWrapper<UserFile>().lambda().in(UserFile::getId,fileRightParam.getUserFileIds()));
         Long right = FileRight.ALL_RIGHT;
-        for (UserFile userfile:userFileList) {
-            right = right & getRightByUserFile(userfile,StpLoginUserUtil.getLoginUser().getId(), StpLoginUserUtil.getLoginUser().getOrgId(),StpLoginUserUtil.getLoginUser().getRoleCodeList());
+        for (String userFileId:fileRightParam.getUserFileIds()) {
+            right = right & getRightByUserFile(userFileId,StpLoginUserUtil.getLoginUser().getId(), StpLoginUserUtil.getLoginUser().getOrgId(),StpLoginUserUtil.getLoginUser().getRoleCodeList());
         }
         return right;
     }
@@ -147,9 +145,8 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
      */
     @Override
     public List<UserRightVo> rightDetail(PanFileRightIdParam panFileRightIdParam) {
-        UserFile userFile = userFileService.getById(panFileRightIdParam.getUserFileId());
         //1. 获取顶层父级文件夹群组范围配置
-        UserFile topUserFile = getTopUserFile(userFile.getId());
+        UserFile topUserFile = getTopUserFile(panFileRightIdParam.getUserFileId());
         if(ObjectUtil.isEmpty(topUserFile)) return null;
         List<PanFileRight> fileRightList = this.list(new QueryWrapper<PanFileRight>().lambda().eq(PanFileRight::getUserFileId,topUserFile.getId()));
         if(CollUtil.isEmpty(fileRightList)) return null;
@@ -179,7 +176,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
             userRightVo.setOrgName(tmp.getOrgName());
             //获取当前用户的角色集合
             List<String> roleCodes = userInfoVoList.stream().filter(x->x.getUserId().equals(userId) && StrUtil.isNotEmpty(x.getRoleCode())).map(UserInfoVo::getRoleCode).collect(Collectors.toList());
-            userRightVo.setRightValue(getRightByUserFile(userFile,userId,tmp.getOrgId(),roleCodes));
+            userRightVo.setRightValue(getRightByUserFile(panFileRightIdParam.getUserFileId(),userId,tmp.getOrgId(),roleCodes));
             result.add(userRightVo);
         }
         return result;
@@ -188,13 +185,20 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
 
     /***
      * 获取指定用户，对指定文件拥有哪些操作权限
-     * @param userFile 指定的文件实体
+     * @param userFileId 指定的文件Id
      * @param userId   指定的用户Id
      * @param orgId    指定的用户所属组织
      * @param roleCodes 指定用户所拥有的角色code集合
      * @return
      */
-    public Long getRightByUserFile(UserFile userFile,String userId,String orgId,List<String> roleCodes){
+    public Long getRightByUserFile(String userFileId,String userId,String orgId,List<String> roleCodes){
+        //系统管理员对顶级目录拥有全部操作权限
+        if("0".equals(userFileId) && roleCodes.contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue()) )
+        {
+            return FileRight.ALL_RIGHT;
+        }
+        //获取文件信息
+        UserFile userFile = userFileService.getById(userFileId);
         if(ObjectUtil.isEmpty(userFile)) return FileRight.RIGHT_NULL;
 
         //2. 超管、文件管理者、文件所有者 拥有全部权限
@@ -324,8 +328,7 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         if(CollUtil.isEmpty(userFileIds)) return;
         if(type.equals(PanFileRightTypeEnum.GROUP.getValue())) {
             if(userFileIds.size() == 1) {
-                UserFile userFile = userFileService.getById(userFileIds.get(0));
-                Long right = getRightByUserFile(userFile, StpLoginUserUtil.getLoginUser().getId(), StpLoginUserUtil.getLoginUser().getOrgId(), StpLoginUserUtil.getLoginUser().getRoleCodeList());
+                Long right = getRightByUserFile(userFileIds.get(0), StpLoginUserUtil.getLoginUser().getId(), StpLoginUserUtil.getLoginUser().getOrgId(), StpLoginUserUtil.getLoginUser().getRoleCodeList());
                 if (!FileRight.hasRight(right, checkRight)) throw new CommonException("无操作权限");
             }else{
                 FileRightParam fileRightParam = new FileRightParam();
@@ -355,12 +358,11 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
             String userId = StpLoginUserUtil.getLoginUser().getId();
             String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
             List<String> roleCodes = StpLoginUserUtil.getLoginUser().getRoleCodeList();
-            List<UserFile> userFileList = userFileService.list(new QueryWrapper<UserFile>().lambda().in(UserFile::getId, userFileIds));
             List<UserFile> delUserFileList = new ArrayList<>();
-            for (UserFile userFile : userFileList) {
-                Long right = getRightByUserFile(userFile, userId, orgId, roleCodes);
+            for (String userFileId : userFileIds) {
+                Long right = getRightByUserFile(userFileId, userId, orgId, roleCodes);
                 if (!FileRight.hasRight(right, checkRight)) {
-                    List<UserFile> tmp = userFileMapper.getChildren(userFile.getId());
+                    List<UserFile> tmp = userFileMapper.getChildren(userFileId);
                     delUserFileList.addAll(tmp);
                 }
             }
