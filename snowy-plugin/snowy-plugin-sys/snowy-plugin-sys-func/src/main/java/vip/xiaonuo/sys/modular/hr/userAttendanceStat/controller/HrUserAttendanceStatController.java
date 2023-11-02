@@ -257,10 +257,10 @@ public class HrUserAttendanceStatController {
      * @author xuyuxiang
      * @date 2022/6/21 15:44
      **/
-    @ApiOperationSupport(order = 16)
+    @ApiOperationSupport(order = 14)
     @ApiOperation("月度汇总-下载Excel文件")
     @CommonLog("月度汇总-下载Excel文件")
-    @GetMapping(value = "/sys/userAttendance/monthexcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    @GetMapping(value = "/sys/userAttendance/monthExcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public void monthDownloadExcel(@Valid AttendanceMonthStatParam attendanceMonthStatParam, HttpServletResponse response) throws Exception {
         hrUserAttendanceStatService.downloadMonthExcel(attendanceMonthStatParam, response);
     }
@@ -271,7 +271,7 @@ public class HrUserAttendanceStatController {
      * @author ljy
      * @date  2023/10/16 16:24
      * */
-    @ApiOperationSupport(order = 14)
+    @ApiOperationSupport(order = 15)
     @ApiOperation("判断是否为节假日")
     @CommonLog("判断是否为节假日")
     //@SaCheckPermission("/sys/userAttendance/isFestival")
@@ -287,7 +287,7 @@ public class HrUserAttendanceStatController {
      * @author ljy
      * @date  2023/10/16 16:24
      * */
-    @ApiOperationSupport(order = 15)
+    @ApiOperationSupport(order = 16)
     @ApiOperation("月统计考勤概览-每日统计")
     @CommonLog("月统计考勤概览-每日统计")
     //@SaCheckPermission("/sys/userAttendance/monthPreDayStat")
@@ -301,7 +301,7 @@ public class HrUserAttendanceStatController {
      * @author xuyuxiang
      * @date 2022/6/21 15:44
      **/
-    @ApiOperationSupport(order = 16)
+    @ApiOperationSupport(order = 17)
     @ApiOperation("每日汇总-下载Excel文件")
     @CommonLog("每日汇总-下载Excel文件")
     @GetMapping(value = "/sys/userAttendance/dayexcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
@@ -315,7 +315,7 @@ public class HrUserAttendanceStatController {
      * @author xuyuxiang
      * @date 2022/6/21 15:44
      **/
-    @ApiOperationSupport(order = 17)
+    @ApiOperationSupport(order = 18)
     @ApiOperation("月统计考勤概览-假勤分析")
     @CommonLog("月统计考勤概览-假勤分析")
     @GetMapping(value = "/sys/userAttendance/attendanceAnalysis")
