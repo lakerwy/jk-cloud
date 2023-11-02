@@ -23,18 +23,21 @@ public class CommonFileVo {
     @ApiModelProperty(value = "CommonFile.Id 共享主键id", position = 1)
     private String id;
 
-    /** 用户ID */
-    @ApiModelProperty(value = "用户ID", position = 3)
+    /** 用户ID 文件所有者 */
+    @ApiModelProperty(value = "用户ID 文件所有者", position = 3)
     private String userId;
 
-    /** 用户名称 */
-    @ApiModelProperty(value = "用户名称", position = 3)
+    /** 用户名称 -- 文件所有者 */
+    @ApiModelProperty(value = "用户名称 文件所有者", position = 3)
     private String userName;
 
     /** 用户文件Id */
     @ApiModelProperty(value = "用户文件Id", position = 4)
     private String userFileId;
 
+    /** 用户对文件的权限码 */
+    @ApiModelProperty(value = "用户对文件的权限码", position = 4)
+    private Long filePermissionCode;
 
 
 
@@ -104,4 +107,16 @@ public class CommonFileVo {
     @ApiModelProperty(value = "删除标志", position = 5)
     private String deleteFlag;
 
+
+    /** 用户ID | 组织ID 被共享者 */
+    @ApiModelProperty(value = "用户ID", position = 1)
+    private String objId;
+
+    /** 用户姓名 被共享者*/
+    @ApiModelProperty(value = "用户姓名 被共享者", position = 2)
+    private String objName;
+
+    /** 用户类型：1 用户  2 部门 */
+    @ApiModelProperty(value = "用户类型：1 用户  2 部门 ", position = 3)
+    private String objType;
 }

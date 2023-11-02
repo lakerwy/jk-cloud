@@ -12,17 +12,16 @@
  */
 package vip.xiaonuo.pan.modular.fileRight.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
+import vip.xiaonuo.pan.modular.fileRight.param.FileRightParam;
+import vip.xiaonuo.pan.modular.fileRight.param.ManagerParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
-import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightEditParam;
 import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
-import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightPageParam;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
-import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.fileRight.vo.UserRightVo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -33,38 +32,6 @@ import java.util.List;
  **/
 public interface PanFileRightService extends IService<PanFileRight> {
 
-//    /**
-//     * 获取网盘权限配置表分页
-//     *
-//     * @author yong.ye
-//     * @date  2023/10/25 14:32
-//     */
-//    Page<PanFileRight> page(PanFileRightPageParam panFileRightPageParam);
-
-    /**
-     * 添加网盘权限配置表
-     *
-     * @author yong.ye
-     * @date  2023/10/25 14:32
-     */
-    void add(PanFileRightAddParam panFileRightAddParam);
-
-    /**
-     * 编辑网盘权限配置表
-     *
-     * @author yong.ye
-     * @date  2023/10/25 14:32
-     */
-    void edit(PanFileRightEditParam panFileRightEditParam);
-
-//    /**
-//     * 删除网盘权限配置表
-//     *
-//     * @author yong.ye
-//     * @date  2023/10/25 14:32
-//     */
-//    void delete(List<PanFileRightIdParam> panFileRightIdParamList);
-
     /**
      * 获取网盘权限配置表详情
      *
@@ -73,25 +40,75 @@ public interface PanFileRightService extends IService<PanFileRight> {
      */
     List<PanFileRightVo> detail(PanFileRightIdParam panFileRightIdParam);
 
+    /***
+     * 根据 用户文件Id，校验当前用户是否有对应操作权限
+     * @param userFileIds 用户文件Id(UserFile.Id)
+     * @param checkRight 操作全新(FileRight)
+     */
+    void checkFileRight(List<String> userFileIds,long checkRight,String type);
+
     /**
-     * 获取网盘权限配置表详情
+     * 保存网盘权限配置
      *
      * @author yong.ye
      * @date  2023/10/25 14:32
-     **/
-    PanFileRight queryEntity(String id);
+     */
+    void save(PanFileRightAddParam panFileRightAddParam);
+
+    /**
+     * 给文件夹|文件设置管理员
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    void setManager(ManagerParam managerParam);
+
+
+    /**
+     * 根据当前用户+所选择的文件，获取拥有的权限(若选中多个文件，则取交集)
+     * @param fileRightParam
+     * @return
+     */
+    Long getRightById(FileRightParam fileRightParam);
+
+    /**
+     * 根据文件Id，获取当前文件的权限列表（有设置取设置，无设置取继承的）
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    List<UserRightVo> rightDetail(PanFileRightIdParam panFileRightIdParam);
+
+    /**
+     * 根据文件id集合，过滤没有权限的文件
+     *
+     * 主要针对文件夹中包含文件|文件夹
+     *
+     * 例如：上层文件夹A有下载权限，子文件夹|文件 无下载权限，需要过滤
+     * @param userFileIds
+     * @param checkRight
+     * @return
+     */
+    List<String> filterUserFileIds(List<String> userFileIds,long checkRight,String type);
 
 
     /***
-     * 根据 用户文件Id，校验当前用户是否有对应操作权限
-     * @param userFileId 用户文件Id(UserFile.Id)
-     * @param checkRight 操作全新(FileRight)
+     * 在列表页过滤的时候，需要排除不可见的权限设置
+     * 登录用户 A （属于数字院）
+     * 比如：文件A 对于数字院可见  但对 员工A 不可见  需要排除   员工A不可见A文件
+     *      文件A 对于数字院不可见  但特定设置对 员工A 可见  不排除  员工A可见A文件
+     *      文件A 对于数字院不可见  无其他设置  需要排除   员工A不可见A文件
      *
-     *  check 逻辑说明：
-     *                1. 若当前用户为userFileId文件所有者，拥有全部操作权限
-     *                2. 若当前用户不为userFileId文件所有者，根据权限配置校验权限
-     *                   2.1 若当前userFileId，当前用户，存在权限配置，直接根据配置校验
-     *                   2.2 若当前userFileId，当前用户，不存在权限配置，递归父级权限（就近原则），校验权限
+     *  数字院(权限设置)    可见    可见    不可见   不可见    不可见    可见    X       X       可见      不可见
+     *  软件中心(权限设置)   可见    可见   不可见   不可见    不可见    可见    X       X       不可见     可见
+     *  员工A (权限设置)    可见   不可见   可见     不可见      X       X    可见    不可见      X        X
+     *  员工A（结果）       可见   不可见   可见     不可见    不可见    可见   可见    不可见    不可见     可见
+     *
+     *  结论： 若针对员工设置了权限，优先看员工配置，无员工配置看组织设置（组织递归）
+     *
+     * @param userId
+     * @param orgIds
+     * @return
      */
-    boolean checkFileRight(String userFileId,long checkRight);
+    List<String> notInUserFileIds(String userId,String orgId,List<String> orgIds);
 }

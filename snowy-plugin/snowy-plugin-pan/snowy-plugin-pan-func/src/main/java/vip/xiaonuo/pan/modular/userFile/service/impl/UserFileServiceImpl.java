@@ -40,6 +40,8 @@ import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
+import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
@@ -113,6 +115,10 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     public static Executor executor = Executors.newFixedThreadPool(20);
 
     private static final String TEMPLATE_FOLD = "TEMPLATE_FOLD";
+
+    @Resource
+    private PanFileRightService panFileRightService;
+
 
     @Override
     public Page<UserFile> page(UserFilePageParam userFilePageParam) {
@@ -878,5 +884,62 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     @Override
     public Boolean checkHomonym(UploadFileParam uploadFileParam){
         return false;
+    }
+
+
+    @Override
+    public Page<UserFile> groupPage(UserFilePageParam userFilePageParam) {
+        QueryWrapper<UserFile> queryWrapper = new QueryWrapper<>();
+        String userId = StpLoginUserUtil.getLoginUser().getId();
+        String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+        List<String> orgIds = sysOrgApi.getParentIds(orgId,true);
+        //判断是否为顶级目录
+        if(ROOT_FOLD_PATH.equals(userFilePageParam.getFilePath())){
+            //构造sql条件参数
+            queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+            queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+            queryWrapper.eq("a.FOLD_TYPE","1");
+            queryWrapper.eq("a.FILE_PATH",userFilePageParam.getFilePath());
+            queryWrapper.apply(" (b.RIGHT_VALUE & {0} > 0 ) ",FileRight.LIST);
+            queryWrapper.and(q->{
+                q.eq("b.OBJECT_ID",userId);
+                if(CollUtil.isNotEmpty(orgIds)) q.or().in("b.OBJECT_ID",orgIds);
+            });
+            List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
+            if(CollUtil.isNotEmpty(userFileIds))
+                queryWrapper.notIn("a.ID",userFileIds);
+
+            if(ObjectUtil.isNotEmpty(userFilePageParam.getFileName())) {
+                queryWrapper.like("a.FILE_NAME", userFilePageParam.getFileName());
+            }
+            if(ObjectUtil.isAllNotEmpty(userFilePageParam.getSortField(), userFilePageParam.getSortOrder())) {
+                CommonSortOrderEnum.validate(userFilePageParam.getSortOrder());
+                queryWrapper.orderBy(true, userFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                        StrUtil.toUnderlineCase(userFilePageParam.getSortField()));
+            } else {
+                queryWrapper.orderByDesc("a.IS_DIR").orderByAsc("a.CREATE_TIME");
+            }
+
+            return userFileMapper.getGroupPage(CommonPageRequest.defaultPage(),queryWrapper);
+        }else{
+            List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
+            queryWrapper.eq("DELETE_FLAG","NOT_DELETE");
+            queryWrapper.eq("FOLD_TYPE","1");
+            queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());
+            if(CollUtil.isNotEmpty(userFileIds))
+                queryWrapper.notIn("ID",userFileIds);
+
+            if(ObjectUtil.isNotEmpty(userFilePageParam.getFileName())) {
+                queryWrapper.like("FILE_NAME", userFilePageParam.getFileName());
+            }
+            if(ObjectUtil.isAllNotEmpty(userFilePageParam.getSortField(), userFilePageParam.getSortOrder())) {
+                CommonSortOrderEnum.validate(userFilePageParam.getSortOrder());
+                queryWrapper.orderBy(true, userFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                        StrUtil.toUnderlineCase(userFilePageParam.getSortField()));
+            } else {
+                queryWrapper.orderByDesc("IS_DIR").orderByAsc("CREATE_TIME");
+            }
+            return userFileMapper.getGroupPage2(CommonPageRequest.defaultPage(),queryWrapper);
+        }
     }
 }

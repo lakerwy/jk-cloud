@@ -14,6 +14,7 @@ package vip.xiaonuo.pan.modular.commonFile.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -34,9 +35,8 @@ import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanFilePermission;
 import vip.xiaonuo.pan.modular.fileCenter.service.PanFilePermissionService;
-import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
 import vip.xiaonuo.pan.modular.fileRight.param.ObjectRight;
-import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
+import vip.xiaonuo.sys.api.SysOrgApi;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
     PanCommonFileMapper panCommonFileMapper;
 
     @Resource
-    PanFileRightService panFileRightService;
+    SysOrgApi sysOrgApi;
 
     @Override
     public Page<PanCommonFile> page(PanCommonFilePageParam panCommonFilePageParam) {
@@ -121,38 +121,31 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
                 PanFilePermission filePermission = new PanFilePermission();
                 filePermission.setCommonFileId(commonFile.getId());
                 filePermission.setUserId(obj.getObjectId());
+                filePermission.setFilePermissionCode(obj.getRightValue());
                 filePermissionList.add(filePermission);
             }
             panFilePermissionService.saveBatch(filePermissionList);
-
-            //新增权限配置记录
-            List<PanFileRight> panFileRightList = new ArrayList<>();
-            for (ObjectRight obj: commonFileParam.getCommonUserList()) {
-                PanFileRight panFileRight = new PanFileRight();
-                panFileRight.setObjectId(obj.getObjectId());
-                panFileRight.setRightValue(obj.getRightValue());
-                panFileRight.setUserFileId(userFileId);
-                panFileRightList.add(panFileRight);
-            }
-            panFileRightService.saveBatch(panFileRightList);
         }
     }
 
     @Override
     public List<CommonFileUserVo> commonFileUser() {
-        return panCommonFileMapper.selectCommonFileUser(StpLoginUserUtil.getLoginUser().getId());
+        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
+        return panCommonFileMapper.selectCommonFileUser(StpLoginUserUtil.getLoginUser().getId(),orgIds);
     }
 
     @Override
     public List<CommonFileVo> commonFileByUser(String userId) {
-        return panCommonFileMapper.selectCommonFileByUser(userId,StpLoginUserUtil.getLoginUser().getId());
+        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
+        return panCommonFileMapper.selectCommonFileByUser(userId,StpLoginUserUtil.getLoginUser().getId(),orgIds);
     }
 
     @Override
     public IPage<CommonFileVo> commonFileList(PanCommonFilePageParam panCommonFilePageParam) {
         QueryWrapper<PanCommonFile> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("c.USER_ID",StpLoginUserUtil.getLoginUser().getId());
+        List<String> orgIds = sysOrgApi.getParentIds(StpLoginUserUtil.getLoginUser().getOrgId(),true);
         queryWrapper.eq("c.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("c.USER_ID",StpLoginUserUtil.getLoginUser().getId());
         if(ObjectUtil.isAllNotEmpty(panCommonFilePageParam.getSortField(), panCommonFilePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(panCommonFilePageParam.getSortOrder());
             queryWrapper.orderBy(true, panCommonFilePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

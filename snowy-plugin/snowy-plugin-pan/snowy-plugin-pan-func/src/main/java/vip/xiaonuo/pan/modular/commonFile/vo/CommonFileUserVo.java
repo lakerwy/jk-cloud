@@ -13,12 +13,16 @@ import lombok.Setter;
 @Setter
 public class CommonFileUserVo {
 
-    /** 用户ID */
+    /** 用户ID | 组织ID */
     @ApiModelProperty(value = "用户ID", position = 1)
-    private String userId;
+    private String objId;
 
     /** 用户姓名 */
     @ApiModelProperty(value = "用户姓名", position = 2)
-    private String userName;
+    private String objName;
+
+    /** 用户类型：1 用户  2 部门 */
+    @ApiModelProperty(value = "用户类型：1 用户  2 部门 ", position = 3)
+    private String objType;
 
 }

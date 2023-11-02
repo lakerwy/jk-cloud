@@ -59,4 +59,18 @@ public interface SysOrgApi {
     Page<JSONObject> orgListSelector(String parentId);
 
     List<String> getChildrenIds(String orgId);
+
+    /**
+     * 获取所有父级部门
+     * @param orgId
+     * @return
+     */
+    List<String> getParentIds(String orgId,Boolean includeSelf);
+
+    /**
+     * 获取当前部门的上一级部门
+     * @param orgId
+     * @return
+     */
+    String getParentId(String orgId);
 }

@@ -21,4 +21,5 @@ public class UserFileRightVo extends UserFile {
     /** 权限值 */
     @ApiModelProperty(value = "权限值", position = 5)
     private Long rightValue;
+
 }

@@ -22,4 +22,7 @@ public class PreviewParam {
     private Integer platform;
     private String url;
     private String token;
+
+    @ApiModelProperty(value = "权限校验类型：GROUP 群组  COMMON 共享  注：（不传或不在指定范围） 不做权限校验")
+    private String rightType;
 }

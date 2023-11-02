@@ -143,6 +143,7 @@ public class BizPrjPlanController {
         return CommonResult.data(bizPrjPlanService.invoiceList(invoiceParam));
     }
 
+
     /**
      * 根据 【合同编号】 - 获取 审核通过 的历史【项目款计划单】集合
      *
@@ -155,5 +156,4 @@ public class BizPrjPlanController {
     public CommonResult<List<BizPrjPlanVo>> planList(@Valid InvoiceParam invoiceParam) {
         return CommonResult.data(bizPrjPlanService.planList(invoiceParam));
     }
-
 }

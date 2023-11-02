@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.file.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONObject;
@@ -32,7 +33,6 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
-import vip.xiaonuo.pan.modular.file.constant.FileRight;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
@@ -57,6 +57,7 @@ import vip.xiaonuo.pan.modular.fileCenter.service.PanFileStorageService;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.MimeUtils;
+import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
@@ -151,6 +152,18 @@ public class PanFileController {
 //        if(!isHomonym){
 //            return CommonResult.error("用重名文件，重命名后再上传");
 //        }
+        Integer foldType = 0;
+        if(StrUtil.isNotEmpty(uploadFileParam.getFilePath())){
+            UserFile userFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+            if(ObjectUtil.isNotEmpty(userFile)){
+                uploadFileParam.setParentId(userFile.getId());
+                foldType =userFile.getFoldType();
+                uploadFileParam.setFoldType(foldType);
+            }
+        }
+        //校验权限
+        panFileRightService.checkFileRight(Arrays.asList(uploadFileParam.getParentId()), FileRight.UPLOAD,uploadFileParam.getRightType());
+
         boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize(),uploadFileParam.getType());
         if (!isCheckSuccess) {
             return CommonResult.error("存储空间不足");
@@ -165,6 +178,11 @@ public class PanFileController {
 //    @SaCheckPermission("/pan/file/uploadFile")
     @PostMapping("/pan/file/uploadFile")
     public CommonResult<String> uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam){
+
+        UserFile parentUserFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+        //校验权限
+        panFileRightService.checkFileRight(Arrays.asList(parentUserFile.getId()),FileRight.UPLOAD,uploadFileParam.getRightType());
+
         fileTransferService.uploadFile(request,uploadFileParam);
         return CommonResult.ok();
     }
@@ -181,6 +199,10 @@ public class PanFileController {
         if(StrUtil.isNotEmpty(downloadParam.getFileIds())){
 //            ProjectContextHolder.put(downloadParam.getTenantId());
             List<String> collect = Arrays.stream(downloadParam.getFileIds().split(", ")).collect(Collectors.toList());
+
+            //校验权限
+            panFileRightService.checkFileRight(collect,FileRight.DOWNLOAD,downloadParam.getRightType());
+
             if(collect.size() == 1){
                 UserFile userFile = userFileService.getById(collect.get(0));
                 String fileName = "";
@@ -194,7 +216,7 @@ public class PanFileController {
 
                 httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName);// 设置文件名
 
-                fileTransferService.downloadFile(httpServletResponse, collect);
+                fileTransferService.downloadFile(httpServletResponse, collect,downloadParam.getRightType());
             }else if(collect.size() >1){
                 List<String> userFileIds = new ArrayList<>();
                 for(String userFileId : collect) {
@@ -215,7 +237,7 @@ public class PanFileController {
                 Date date = new Date();
                 String fileName = String.valueOf(date.getTime());
                 httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName + ".zip");// 设置文件名
-                fileTransferService.downloadUserFileList(httpServletResponse, userFile.getFilePath(), fileName, userFileIds);
+                fileTransferService.downloadUserFileList(httpServletResponse, userFile.getFilePath(), fileName, userFileIds,downloadParam.getRightType());
             }
         }
     }
@@ -231,6 +253,9 @@ public class PanFileController {
         }
         //todo
         // 暂时不判断是否有下载权限
+
+        //校验权限
+        panFileRightService.checkFileRight(Arrays.asList(previewParam.getUserFileId()),FileRight.PREVIEW,previewParam.getRightType());
 
         UserFile userFile = userFileService.getById(previewParam.getUserFileId());
 

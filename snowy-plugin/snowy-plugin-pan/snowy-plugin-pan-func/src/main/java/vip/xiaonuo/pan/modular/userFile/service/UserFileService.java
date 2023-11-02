@@ -156,4 +156,13 @@ public interface UserFileService extends IService<UserFile> {
     Long getFilePointCount(String fileId);
 
     Boolean checkHomonym(UploadFileParam uploadFileParam);
+
+
+    /***
+     * 获取文件主表分页(群组文件)
+     * @param userFilePageParam
+     * @return
+     */
+    Page<UserFile> groupPage(UserFilePageParam userFilePageParam);
+
 }

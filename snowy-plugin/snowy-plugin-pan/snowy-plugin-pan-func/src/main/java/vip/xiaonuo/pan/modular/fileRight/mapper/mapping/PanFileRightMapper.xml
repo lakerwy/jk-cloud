@@ -3,16 +3,47 @@
 <mapper namespace="vip.xiaonuo.pan.modular.fileRight.mapper.PanFileRightMapper">
 
     <select id="getFileRightByFileId" resultType="vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo">
-        select a.*,b.NAME as userName
-        from PAN_FILE_RIGHT a left join SYS_USER b on a.OBJECT_ID = b.ID
-        where a.DELETE_FLAG = 'NOT_DELETE' order by b.NAME
+        select a.*,IF(b.ID is not null,b.NAME,c.NAME) as objName,
+               IF(b.ID is not null,'1','2') as objType
+        from PAN_FILE_RIGHT a
+            left join SYS_USER b on a.OBJECT_ID = b.ID
+            left join SYS_ORG c on a.OBJECT_ID = c.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.USER_FILE_ID = #{userFileId}
     </select>
 
-    <select id="getFileRight" resultType="vip.xiaonuo.pan.modular.fileRight.vo.UserFileRightVo">
-        select a.*,b.ID as rightId,b.RIGHT_VALUE as rightValue
-        from PAN_USER_FILE a
-            left join PAN_FILE_RIGHT b
-                on a.ID = b.USER_FILE_ID and b.OBJECT_ID = #{userId} and b.DELETE_FLAG = 'NOT_DELETE'
-        where a.ID = #{userFileId}
+    <select id="getFileRightList" resultType="vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight">
+        select *
+        from PAN_FILE_RIGHT
+        where DELETE_FLAG = 'NOT_DELETE'
+        and (   ( OBJECT_ID = #{userId} and RIGHT_VALUE &amp; #{checkRight} = 0 )
+                <if test="orgIds != null and orgIds.size() !=0  ">
+                    or (OBJECT_ID in
+                    <foreach collection="orgIds" item="item" open="(" close=")" separator=",">
+                        #{item}
+                    </foreach>
+                       and USER_FILE_ID not in
+                           (select USER_FILE_ID from PAN_FILE_RIGHT where DELETE_FLAG = 'NOT_DELETE' and OBJECT_ID = #{userId} )  )
+                </if>
+        )
+    </select>
+
+    <select id="getUserInfos" resultType="vip.xiaonuo.pan.modular.fileRight.vo.UserInfoVo">
+        select a.ID as userId,a.NAME as userName,b.ID as orgId,b.NAME as orgName,d.ID as roleId,d.NAME as roleName,d.CODE as roleCode
+        from SYS_USER a
+                 left join SYS_ORG b on a.ORG_ID = b.ID
+                 left join SYS_RELATION c on a.ID = c.OBJECT_ID and c.CATEGORY = 'SYS_USER_HAS_ROLE'
+                 left join SYS_ROLE d on c.TARGET_ID = d.ID
+        where a.DELETE_FLAG = 'NOT_DELETE'
+        <if test="objIds != null and objIds.size() !=0  ">
+            and ( a.ID in
+            <foreach collection="objIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+            or a.ORG_ID in
+            <foreach collection="objIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+                )
+        </if>
     </select>
 </mapper>

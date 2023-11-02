@@ -16,5 +16,9 @@ public class PanFileRightVo extends PanFileRight {
 
     /** 用户名称 */
     @ApiModelProperty(value = "用户名称", position = 3)
-    private String userName;
+    private String objName;
+
+    /** 用户类型：1 用户  2 部门 */
+    @ApiModelProperty(value = "用户类型：1 用户  2 部门 ", position = 3)
+    private String objType;
 }

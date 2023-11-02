@@ -15,6 +15,7 @@ package vip.xiaonuo.pan.modular.userFile.mapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
@@ -43,4 +44,40 @@ public interface UserFileMapper extends BaseMapper<UserFile> {
     List<UserFile> mySelectList(@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
 
     void myUpdateById(UserFile userFile);
+
+
+    /**
+     * 获取顶级目录
+     *
+     * @return
+     */
+    Page<UserFile> getGroupPage(Page<UserFile> page,@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
+
+    /**
+     * 获取非顶级目录
+     *
+     * @return
+     */
+    Page<UserFile> getGroupPage2(Page<UserFile> page,@Param(Constants.WRAPPER) Wrapper<UserFile> queryWrapper);
+
+    /***
+     * 根据文件Id，获取自身及其子集文件集合（递归查询）
+     * @param userFileId
+     * @return
+     */
+    List<UserFile> getChildren(String userFileId);
+
+    /***
+     * 根据文件Id，获取自身及其父集文件集合（递归查询）
+     * @param userFileId
+     * @return
+     */
+    List<UserFile> getParent(String userFileId);
+
+    /**
+     * 根据文件Id，获取最顶级文件夹（递归查询）
+     * @param userFileId
+     * @return
+     */
+    UserFile getTopParent(String userFileId);
 }

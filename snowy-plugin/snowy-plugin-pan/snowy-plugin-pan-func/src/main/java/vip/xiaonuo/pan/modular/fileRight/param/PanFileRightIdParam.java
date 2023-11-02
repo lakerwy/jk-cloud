@@ -32,4 +32,5 @@ public class PanFileRightIdParam {
     @ApiModelProperty(value = "文件夹|文件 ID", required = true)
     @NotBlank(message = "userFileId不能为空")
     private String userFileId;
+
 }

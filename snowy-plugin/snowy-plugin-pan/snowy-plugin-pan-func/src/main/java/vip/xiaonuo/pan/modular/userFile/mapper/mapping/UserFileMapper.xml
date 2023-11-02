@@ -118,5 +118,73 @@
        where ID = #{id}
 
     </update>
+    
+    <select id="getGroupPage" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select a.*
+        from PAN_USER_FILE a join PAN_FILE_RIGHT b on a.ID = b.USER_FILE_ID
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="getGroupPage2" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select *
+        from PAN_USER_FILE
+        ${ew.customSqlSegment}
+    </select>
+
+    <select id="getChildren" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        SELECT
+            a.*
+        FROM
+            (
+                SELECT
+                    @ids AS _ids,
+                    ( SELECT @ids := GROUP_CONCAT( id ) FROM PAN_USER_FILE WHERE DELETE_FLAG = 'NOT_DELETE' and FIND_IN_SET( PARENT_ID, @ids ) ) AS cids,
+            @l := @l + 1 AS LEVEL
+        FROM
+            PAN_USER_FILE,
+            ( SELECT @ids := ${userFileId}, @l := 0 ) b
+        WHERE
+            @ids IS NOT NULL
+            ) b,
+            PAN_USER_FILE a
+        WHERE
+            FIND_IN_SET( a.id, b._ids )
+        ORDER BY
+            LEVEL,
+            id
+    </select>
+
+
+    <select id="getParent" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        SELECT t2.*
+        FROM
+            (
+            SELECT
+                @r AS _id,
+                (SELECT @r := PARENT_ID FROM PAN_USER_FILE WHERE ID = _id) AS parent_id,
+                @l := @l + 1 AS lvl
+            FROM
+                (SELECT @r := ${userFileId}, @l := 0) vars, PAN_USER_FILE AS h
+            WHERE @r != '0' and @r is not null
+            ) t1
+        JOIN PAN_USER_FILE t2
+            ON t1._id = t2.ID  ORDER BY  t1.lvl DESC
+    </select>
+
+    <select id="getTopParent" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        SELECT t2.*
+        FROM
+            (
+                SELECT
+                    @r AS _id,
+                    (SELECT @r := PARENT_ID FROM PAN_USER_FILE WHERE ID = _id) AS parent_id,
+            @l := @l + 1 AS lvl
+        FROM
+            (SELECT @r := ${userFileId}, @l := 0) vars, PAN_USER_FILE AS h
+        WHERE @r != '0' and @r is not null
+            ) t1
+            JOIN PAN_USER_FILE t2
+        ON t1._id = t2.ID  ORDER BY  t1.lvl DESC LIMIT 1
+    </select>
 
 </mapper>

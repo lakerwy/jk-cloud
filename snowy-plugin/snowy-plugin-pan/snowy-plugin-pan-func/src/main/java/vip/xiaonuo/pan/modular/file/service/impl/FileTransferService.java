@@ -41,6 +41,8 @@ import vip.xiaonuo.pan.modular.fileCenter.service.PanPictureFileService;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.MimeUtils;
+import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTask;
 import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTaskDetail;
 import vip.xiaonuo.pan.modular.uploadTask.service.PanUploadTaskDetailService;
@@ -105,6 +107,9 @@ public class FileTransferService implements IFileTransferService {
     @Resource
     PanPictureFileService panPictureFileService;
 
+    @Resource
+    PanFileRightService panFileRightService;
+
 
     public static Executor exec = Executors.newFixedThreadPool(20);
 
@@ -117,14 +122,15 @@ public class FileTransferService implements IFileTransferService {
         lambdaQueryWrapper.eq(PanFile::getIdentifier,uploadFileParam.getIdentifier());
         List<PanFile> list = panFileService.list(lambdaQueryWrapper);
         String filePath = uploadFileParam.getFilePath();
-        Integer foldType = 0;
-        if(StrUtil.isNotEmpty(filePath)){
-            UserFile userFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
-            if(ObjectUtil.isNotEmpty(userFile)){
-                uploadFileParam.setParentId(userFile.getId());
-                foldType =userFile.getFoldType();
-            }
-        }
+        Integer foldType = uploadFileParam.getFoldType();
+//        Integer foldType = 0;
+//        if(StrUtil.isNotEmpty(filePath)){
+//            UserFile userFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+//            if(ObjectUtil.isNotEmpty(userFile)){
+//                uploadFileParam.setParentId(userFile.getId());
+//                foldType =userFile.getFoldType();
+//            }
+//        }
         String relativePath = uploadFileParam.getRelativePath();
         CommonFile commonFile = null;
         if (relativePath.contains("/")) {
@@ -138,6 +144,17 @@ public class FileTransferService implements IFileTransferService {
         if (list != null && !list.isEmpty()) {
             PanFile file = list.get(0);
             UserFile userFile = new UserFile(commonFile, uid, file.getId());
+
+            List<UserFile> userFiles = userFileService.list(new QueryWrapper<UserFile>().lambda()
+                    .eq(UserFile::getUserId, userFile.getUserId())
+                    .eq(UserFile::getFilePath, userFile.getFilePath())
+                    .eq(UserFile::getFileName, userFile.getFileName())
+                    .eq(UserFile::getExtendName, userFile.getExtendName())
+                    .eq(UserFile::getIsDir, userFile.getIsDir()));
+            if(CollUtil.isNotEmpty(userFiles)){
+                String fileName = fileDealComp.getRepeatFileName(userFile, userFile.getFilePath());
+                userFile.setFileName(fileName);
+            }
 //            commonFile.setParentId(uploadFileParam.getParentId());
             userFile.setParentId(uploadFileParam.getParentId());
             userFile.setFoldType(foldType);
@@ -387,10 +404,11 @@ public class FileTransferService implements IFileTransferService {
     }
 
     @Override
-    public void downloadFile(HttpServletResponse httpServletResponse, List<String> fileIds) {
+    public void downloadFile(HttpServletResponse httpServletResponse, List<String> fileIds,String rightType) {
         UserFile userFile = userFileService.getById(fileIds.get(0));
 
         if (userFile.isFile()) {
+            //下载的时候处理权限过滤（单个文件 权限校验通过后，不用过滤）
 
             PanFile fileBean = panFileService.getById(userFile.getFileId());
             Downloader downloader = fileFactory.getDownloader(fileBean.getStorageType());
@@ -409,12 +427,12 @@ public class FileTransferService implements IFileTransferService {
             List<UserFile> userFileList = userFileService.selectUserFileByLikeRightFilePath(commonFile.getPath(),StpLoginUserUtil.getLoginUser().getId());
             List<String> userFileIds = userFileList.stream().map(UserFile::getId).collect(Collectors.toList());
 
-            downloadUserFileList(httpServletResponse, userFile.getFilePath(), userFile.getFileName(), userFileIds);
+            downloadUserFileList(httpServletResponse, userFile.getFilePath(), userFile.getFileName(), userFileIds,rightType);
         }
     }
 
     @Override
-    public void downloadUserFileList(HttpServletResponse httpServletResponse, String filePath, String fileName, List<String> userFileIds) {
+    public void downloadUserFileList(HttpServletResponse httpServletResponse, String filePath, String fileName, List<String> userFileIds,String rightType) {
         String staticPath = FileCenterUtil.getStaticPath();
         String tempPath = staticPath + "temp" + File.separator;
         File tempDirFile = new File(tempPath);
@@ -431,6 +449,9 @@ public class FileTransferService implements IFileTransferService {
         CheckedOutputStream cos = new CheckedOutputStream(f, new Adler32());
         ZipOutputStream zos = new ZipOutputStream(cos);
         BufferedOutputStream out = new BufferedOutputStream(zos);
+
+        //下载的时候处理权限过滤（单个文件 权限校验通过后，不用过滤 ，文件夹需要处理）
+        userFileIds = panFileRightService.filterUserFileIds(userFileIds, FileRight.DOWNLOAD,rightType);
 
         try {
             for (String userFileId : userFileIds) {

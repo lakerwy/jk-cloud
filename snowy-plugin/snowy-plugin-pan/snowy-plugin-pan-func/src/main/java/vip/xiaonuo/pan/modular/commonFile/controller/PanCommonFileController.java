@@ -12,9 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.commonFile.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -26,8 +24,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
 import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.service.PanCommonFileService;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
@@ -35,7 +31,6 @@ import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -99,7 +94,7 @@ public class PanCommonFileController {
     @ApiOperation("获取共享用户的文件列表，收到的共享(某人共享给我的文件列表)")
 //    @SaCheckPermission("/pan/commonFile/commonFileByUser")
     @GetMapping("/pan/commonFile/commonFileByUser")
-    public CommonResult<List<CommonFileVo>> commonFileByUser(@Valid String userId) {
+    public CommonResult<List<CommonFileVo>> commonFileByUser(String userId) {
         return CommonResult.data(panCommonFileService.commonFileByUser(userId));
     }
 

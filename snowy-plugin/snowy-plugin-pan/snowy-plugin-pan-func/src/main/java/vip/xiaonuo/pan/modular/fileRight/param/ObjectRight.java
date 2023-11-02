@@ -13,8 +13,8 @@ import lombok.Setter;
 @Setter
 public class ObjectRight {
 
-    /** 用户Id */
-    @ApiModelProperty(value = "用户Id", position = 4)
+    /** 用户Id | 部门Id */
+    @ApiModelProperty(value = " 用户Id | 部门Id", position = 4)
     private String objectId;
 
     /** 权限值 */

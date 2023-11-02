@@ -67,4 +67,10 @@ public interface SysOrgFeign {
     @RequestMapping("/feign/sys/org/getChildren")
     List<String> getChildren(@RequestParam(value = "orgId",required = true) String orgId);
 
+    @RequestMapping("/feign/sys/org/getParentIds")
+    List<String> getParentIds(String orgId, Boolean includeSelf);
+
+    @RequestMapping("/feign/sys/org/getParentId")
+    String getParentId(String orgId);
+
 }
