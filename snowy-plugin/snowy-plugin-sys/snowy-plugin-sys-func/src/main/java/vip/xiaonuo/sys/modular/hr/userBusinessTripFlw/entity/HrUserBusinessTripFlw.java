@@ -80,4 +80,8 @@ public class HrUserBusinessTripFlw {
     /** 入参信息 */
     @ApiModelProperty(value = "入参信息", position = 11)
     private String extJson;
+
+    /** 申请出差总天数 */
+    @ApiModelProperty(value = "申请出差总天数", position = 8)
+    private Double totalDays;
 }

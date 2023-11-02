@@ -154,7 +154,7 @@ public class HrApplyWorkOtController {
     @ApiOperation("申请加班的时间计算")
     //@SaCheckPermission("/sys/applyWorkOt/userWorkOtPage")
     @GetMapping("/sys/applyWorkOt/countWorkHours")
-    public CommonResult<Long> countWorkHours(String beginTime,String endTime) {
+    public CommonResult<Double> countWorkHours(String beginTime,String endTime) {
         return CommonResult.data(hrApplyWorkOtService.countWorkHours(beginTime,endTime));
     }
 }

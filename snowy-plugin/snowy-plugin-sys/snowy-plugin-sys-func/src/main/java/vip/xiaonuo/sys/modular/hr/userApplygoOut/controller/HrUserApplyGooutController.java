@@ -128,4 +128,19 @@ public class HrUserApplyGooutController {
     public CommonResult<HrUserApplyGoout> detail(@Valid HrUserApplyGooutIdParam hrUserApplyGooutIdParam) {
         return CommonResult.data(hrUserApplyGooutService.detail(hrUserApplyGooutIdParam));
     }
+
+    /**
+     * 计算外出时长
+     *
+     * @author ljy
+     * @date  2023/11/01 22:53
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("计算外出时长")
+    @CommonLog("计算外出时长")
+    //@SaCheckPermission("/sys/userApplygoOut/countTime")
+    @GetMapping("/sys/userApplygoOut/countTime")
+    public CommonResult<Double> countTime(@Valid HrUserApplyGooutAddParam hrUserApplyGooutAddParam) {
+        return CommonResult.data(hrUserApplyGooutService.countTime(hrUserApplyGooutAddParam));
+    }
 }

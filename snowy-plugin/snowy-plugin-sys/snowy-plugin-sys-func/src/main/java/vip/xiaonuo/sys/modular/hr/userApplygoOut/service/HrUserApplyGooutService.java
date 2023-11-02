@@ -77,4 +77,12 @@ public interface HrUserApplyGooutService extends IService<HrUserApplyGoout> {
      * @date  2023/11/01 22:53
      **/
     HrUserApplyGoout queryEntity(String id);
+
+    /**
+     * 计算外出时长
+     *
+     * @author ljy
+     * @date  2023/11/01 22:53
+     **/
+    Double countTime(HrUserApplyGooutAddParam hrUserApplyGooutAddParam);
 }

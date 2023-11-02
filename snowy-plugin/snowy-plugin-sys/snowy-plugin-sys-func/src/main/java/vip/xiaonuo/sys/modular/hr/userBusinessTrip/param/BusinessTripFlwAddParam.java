@@ -32,6 +32,9 @@ public class BusinessTripFlwAddParam {
     @ApiModelProperty(value = "组织Id", position = 5)
     private String orgId;
 
+    /** 申请出差总天数 */
+    @ApiModelProperty(value = "申请出差总天数", position = 8)
+    private Double totalDays;
 
 
     /** 第三部分： 任务参数 **/

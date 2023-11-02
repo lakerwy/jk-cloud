@@ -123,4 +123,11 @@ public class HrUserApplyGooutServiceImpl extends ServiceImpl<HrUserApplyGooutMap
         }
         return hrUserApplyGoout;
     }
+
+    @Override
+    public  Double countTime(HrUserApplyGooutAddParam hrUserApplyGooutAddParam){
+
+        //暂时默认先给个3
+        return 3.0;
+    }
 }

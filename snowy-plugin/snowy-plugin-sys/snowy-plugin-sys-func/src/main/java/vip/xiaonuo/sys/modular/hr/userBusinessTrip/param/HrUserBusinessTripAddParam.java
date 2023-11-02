@@ -56,7 +56,7 @@ public class HrUserBusinessTripAddParam {
     private Double businessTripDays;
 
     /** 交通工具类别 */
-    @ApiModelProperty(value = "交通工具类别", position = 9)
+    @ApiModelProperty(value = "交通工具类别(交通工具：1 飞机，2 火车，3 汽车，4 其他(自定义))", position = 9)
     private Integer trafficType;
 
     /** 交通工具名称 */

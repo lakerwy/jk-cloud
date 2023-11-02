@@ -87,5 +87,5 @@ public interface HrApplyWorkOtService extends IService<HrApplyWorkOt> {
      */
     Page<UserWorkOtVo> userWorkOtVoPage(UserWorkOtVo userWorkOtVo);
 
-    Long countWorkHours(String beginTime,String endTime);
+    Double countWorkHours(String beginTime,String endTime);
 }

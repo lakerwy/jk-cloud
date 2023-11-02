@@ -189,7 +189,7 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
     }
 
     @Override
-    public Long countWorkHours(String beginTime,String endTime){
+    public Double countWorkHours(String beginTime,String endTime){
         Long hours = 0l;
         try{
             /**1.开始和结束时间，包含考勤区间
@@ -221,6 +221,6 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
             log.error("时间计算失败！e:"+e.toString());
             throw new CommonException("时间计算失败！");
         }
-        return hours;
+        return Double.parseDouble(hours.toString());
     }
 }

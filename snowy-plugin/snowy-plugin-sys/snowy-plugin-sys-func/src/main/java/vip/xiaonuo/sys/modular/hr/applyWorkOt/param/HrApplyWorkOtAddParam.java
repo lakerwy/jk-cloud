@@ -55,7 +55,7 @@ public class HrApplyWorkOtAddParam {
     /** 加班时长单位：小时 */
     @ApiModelProperty(value = "加班时长单位：小时", required = true,position = 8)
     @NotBlank(message = "加班时长单位不能为空,单位-小时")
-    private Double workHours;
+    private String workHours;
 
     /** 项目编号 */
     @ApiModelProperty(value = "项目编号", position = 9)
