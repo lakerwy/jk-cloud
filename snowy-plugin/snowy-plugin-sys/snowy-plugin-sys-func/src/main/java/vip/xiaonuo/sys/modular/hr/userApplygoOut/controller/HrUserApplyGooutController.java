@@ -60,7 +60,7 @@ public class HrUserApplyGooutController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取用户外出申请表分页")
-    @SaCheckPermission("/sys/userApplygoOut/page")
+    //@SaCheckPermission("/sys/userApplygoOut/page")
     @GetMapping("/sys/userApplygoOut/page")
     public CommonResult<Page<HrUserApplyGoout>> page(HrUserApplyGooutPageParam hrUserApplyGooutPageParam) {
         return CommonResult.data(hrUserApplyGooutService.page(hrUserApplyGooutPageParam));
@@ -75,7 +75,7 @@ public class HrUserApplyGooutController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加用户外出申请表")
     @CommonLog("添加用户外出申请表")
-    @SaCheckPermission("/sys/userApplygoOut/add")
+    //@SaCheckPermission("/sys/userApplygoOut/add")
     @PostMapping("/sys/userApplygoOut/add")
     public CommonResult<String> add(@RequestBody @Valid HrUserApplyGooutAddParam hrUserApplyGooutAddParam) {
         hrUserApplyGooutService.add(hrUserApplyGooutAddParam);
@@ -91,7 +91,7 @@ public class HrUserApplyGooutController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑用户外出申请表")
     @CommonLog("编辑用户外出申请表")
-    @SaCheckPermission("/sys/userApplygoOut/edit")
+    //@SaCheckPermission("/sys/userApplygoOut/edit")
     @PostMapping("/sys/userApplygoOut/edit")
     public CommonResult<String> edit(@RequestBody @Valid HrUserApplyGooutEditParam hrUserApplyGooutEditParam) {
         hrUserApplyGooutService.edit(hrUserApplyGooutEditParam);
@@ -107,7 +107,7 @@ public class HrUserApplyGooutController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除用户外出申请表")
     @CommonLog("删除用户外出申请表")
-    @SaCheckPermission("/sys/userApplygoOut/delete")
+    //@SaCheckPermission("/sys/userApplygoOut/delete")
     @PostMapping("/sys/userApplygoOut/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<HrUserApplyGooutIdParam> hrUserApplyGooutIdParamList) {
@@ -123,7 +123,7 @@ public class HrUserApplyGooutController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取用户外出申请表详情")
-    @SaCheckPermission("/sys/userApplygoOut/detail")
+    //@SaCheckPermission("/sys/userApplygoOut/detail")
     @GetMapping("/sys/userApplygoOut/detail")
     public CommonResult<HrUserApplyGoout> detail(@Valid HrUserApplyGooutIdParam hrUserApplyGooutIdParam) {
         return CommonResult.data(hrUserApplyGooutService.detail(hrUserApplyGooutIdParam));
