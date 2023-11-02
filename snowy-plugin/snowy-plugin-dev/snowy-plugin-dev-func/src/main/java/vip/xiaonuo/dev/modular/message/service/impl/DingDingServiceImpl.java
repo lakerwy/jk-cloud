@@ -298,9 +298,12 @@ public class DingDingServiceImpl implements IDingDingService {
         body.setContent(mg);
         oa.setBody(body);
         //小程序地址
-        Object currentActivityId = taskMap.get("currentActivityId");
-        Object processInstanceId = taskMap.get("processInstanceId");
-        String url = String.format("%s/h5/#/pages/flw/task/todoTask/todo-process?processInstanceId=%s&currentActivityId=%s",dingTalkProperties.getH5webUrl(),processInstanceId,currentActivityId);
+//        Object currentActivityId = taskMap.get("currentActivityId");
+//        Object processInstanceId = taskMap.get("processInstanceId");
+//        Object taskId = taskMap.get("nextTaskId");
+//        System.out.println(taskId);
+        String url = String.format("%s/h5/#/pages/home/index",dingTalkProperties.getH5webUrl());
+//        String url = String.format("%s/h5/#/pages/flw/task/todoTask/todo-process?id=%s&processInstanceId=%s&currentActivityId=%s",dingTalkProperties.getH5webUrl(),taskId,processInstanceId,currentActivityId);
         oa.setMessageUrl(url);
         return oa;
     }

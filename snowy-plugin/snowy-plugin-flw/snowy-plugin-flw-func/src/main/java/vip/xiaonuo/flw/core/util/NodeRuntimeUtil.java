@@ -56,13 +56,11 @@ import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.modular.task.param.FlwTaskAttachmentParam;
-import vip.xiaonuo.flw.modular.template.service.FlwTemplateSnService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysRelationApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 import vip.xiaonuo.ten.api.TenApi;
 
-import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
@@ -911,6 +909,7 @@ public class NodeRuntimeUtil {
                             taskMap.put("processDefinitionId",delegateTask.getProcessDefinitionId());
 //                            TaskService taskService = SpringUtil.getBean(TaskService.class);
 //                            Task task = taskService.createTaskQuery().processInstanceId(delegateTask.getProcessInstanceId()).singleResult();
+//                            taskMap.put("nextTaskId",task.getId());
                             taskMap.put("currentActivityId",delegateTask.getTaskDefinitionKey());
                             devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId(),taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
