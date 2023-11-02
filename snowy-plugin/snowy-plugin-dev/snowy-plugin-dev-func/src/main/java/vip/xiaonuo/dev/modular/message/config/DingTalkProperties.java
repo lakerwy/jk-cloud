@@ -35,6 +35,6 @@ public class DingTalkProperties {
 
     private Boolean isSend;
 
-    private String webUrl;
+    private String h5webUrl;
 
 }
