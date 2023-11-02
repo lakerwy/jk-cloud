@@ -380,7 +380,7 @@ public class PanFileController {
                             .build()
             );
             EditorConfig editorConfig = fileModel.getEditorConfig();
-            editorConfig.setCallbackUrl(null);
+//            editorConfig.setCallbackUrl(null);
             fileModel.setEditorConfig(editorConfig);
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("file",fileModel);
@@ -400,12 +400,12 @@ public class PanFileController {
     public void IndexServlet(HttpServletResponse response, HttpServletRequest request) throws IOException {
 //        String token = request.getParameter("token");
 //        String userId = userService.getUserIdByToken(token);
-        try {
-            String id = StpLoginUserUtil.getLoginUser().getId();
-
-        }catch (Exception e) {
-            throw new CommonException(e.getMessage());
-        }
+//        try {
+//            String id = StpLoginUserUtil.getLoginUser().getId();
+//
+//        }catch (Exception e) {
+//            throw new CommonException(e.getMessage());
+//        }
 
         PrintWriter writer = response.getWriter();
         Scanner scanner = new Scanner(request.getInputStream()).useDelimiter("\\A");

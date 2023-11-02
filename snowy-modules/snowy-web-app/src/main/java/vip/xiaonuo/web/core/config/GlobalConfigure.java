@@ -185,7 +185,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/pan/file/fileUpload",
             "/pan/file/preview",
             "/pan/file/previewOfficeFile",
-            "/pan/file/downloadFile"
+            "/pan/file/downloadFile",
+            "/pan/file/IndexServlet"
     };
 
     /**

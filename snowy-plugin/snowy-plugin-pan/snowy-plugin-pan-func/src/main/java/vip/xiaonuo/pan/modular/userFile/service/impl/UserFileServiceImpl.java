@@ -772,8 +772,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     public Long getFilePointCount(String fileId) {
         LambdaQueryWrapper<UserFile> lambdaQueryWrapper = new LambdaQueryWrapper<>();
         lambdaQueryWrapper.eq(UserFile::getFileId, fileId);
-        long count = userFileMapper.selectCount(lambdaQueryWrapper);
-        return count;
+        return userFileMapper.selectCount(lambdaQueryWrapper);
     }
 
     /**
