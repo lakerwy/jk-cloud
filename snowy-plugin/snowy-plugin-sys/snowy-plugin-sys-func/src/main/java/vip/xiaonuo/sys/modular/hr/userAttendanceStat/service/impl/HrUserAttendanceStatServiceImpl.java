@@ -691,9 +691,6 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
 
-
-
-
     private Map<String,Map<String,List<HrUserAttendanceStat>>> statToMap(List<HrUserAttendanceStat> userAttendanceStatList){
         Map<String,Map<String,List<HrUserAttendanceStat>>> attendanceDayMap = new HashMap<>();/**  打卡数据预处理：key -userId，value(key-年月日，value-打卡记录)*/
         userAttendanceStatList.forEach(stat -> {
