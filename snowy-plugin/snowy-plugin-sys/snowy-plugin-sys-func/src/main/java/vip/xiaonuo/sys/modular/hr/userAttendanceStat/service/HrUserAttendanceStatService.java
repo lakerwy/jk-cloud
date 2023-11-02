@@ -23,11 +23,9 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * 考勤统计表Service接口
@@ -157,7 +155,9 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @author ljy
      * @date  2023/10/17 16:24
      * */
-    Page<AttendanceMonthStatParam> monthStatPreview(AttendanceMonthStatParam attendanceMonthStatParam);
+    Page<MonthStatData> monthStatPreview(AttendanceMonthStatParam attendanceMonthStatParam);
+
+    void downloadMonthExcel(AttendanceMonthStatParam attendanceMonthStatParam, HttpServletResponse response) throws Exception;
 
     /** 判断当前的时间是否为节假日或者是加班日,type = 1 是否法定节假日，type = 2 是否法定加班日  */
     Boolean isFestival(String date,Integer type);

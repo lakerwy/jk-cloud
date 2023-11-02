@@ -1,10 +1,11 @@
-package vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo;
+package vip.xiaonuo.sys.modular.hr.userAttendanceStat.param;
 
 import com.baomidou.mybatisplus.annotation.FieldStrategy;
 import com.baomidou.mybatisplus.annotation.TableField;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.AttendanceMonthStatData;
 
 import javax.validation.constraints.NotNull;
 import java.util.List;
@@ -108,7 +109,7 @@ public class AttendanceMonthStatParam {
     private List<String> orgList;
 
     @ApiModelProperty(value = "考勤结果", position = 31)
-    private List<Map<Integer,AttendanceMonthStatData>> monthStatList;
+    private List<Map<Integer, AttendanceMonthStatData>> monthStatList;
 
     @ApiModelProperty(value = "是否为工作日", position = 32)
     private Boolean isWorkDay;

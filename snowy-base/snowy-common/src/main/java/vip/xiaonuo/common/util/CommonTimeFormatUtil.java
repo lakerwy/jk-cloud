@@ -365,6 +365,8 @@ public class CommonTimeFormatUtil {
          * @return
          */
         public static List<String> getPerStrDayList(Date startTime,Date endTime ){
+            startTime = setDate(startTime);
+            endTime = setDate(endTime);
             List<String> lDate = new ArrayList<String>(); //定义一个接受时间的集合
             lDate.add(dateToStr(startTime,DATE_FORMAT));
             Calendar calBegin = Calendar.getInstance();
@@ -377,6 +379,11 @@ public class CommonTimeFormatUtil {
                 lDate.add(dateToStr(calBegin.getTime(),DATE_FORMAT));
             }
             return  lDate;
+        }
+
+        private static Date setDate(Date time){
+            String date = dateToStr(time,DATE_FORMAT);
+            return strToDate(date+" 00:00:00",DATETIME_FORMAT);
         }
 
         /** 是否为周末*/

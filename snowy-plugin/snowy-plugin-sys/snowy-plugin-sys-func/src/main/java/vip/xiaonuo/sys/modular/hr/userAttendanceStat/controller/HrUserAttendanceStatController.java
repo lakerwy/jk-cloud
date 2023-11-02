@@ -17,7 +17,6 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import io.swagger.models.auth.In;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -39,11 +38,9 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 /**
  * 考勤统计表控制器
@@ -251,10 +248,22 @@ public class HrUserAttendanceStatController {
     @CommonLog("用户考勤概览-月统计接口")
     //@SaCheckPermission("/sys/userAttendance/monthStatPreview")
     @GetMapping("/sys/userAttendance/monthStatPreview")
-    public CommonResult<Page<AttendanceMonthStatParam>> monthStatPreview(@Valid AttendanceMonthStatParam attendanceMonthStatParam) {
+    public CommonResult<Page<MonthStatData>> monthStatPreview(@Valid AttendanceMonthStatParam attendanceMonthStatParam) {
         return CommonResult.data(hrUserAttendanceStatService.monthStatPreview(attendanceMonthStatParam));
     }
 
+    /**
+     * 下载文件
+     * @author xuyuxiang
+     * @date 2022/6/21 15:44
+     **/
+    @ApiOperationSupport(order = 16)
+    @ApiOperation("月度汇总-下载Excel文件")
+    @CommonLog("月度汇总-下载Excel文件")
+    @GetMapping(value = "/sys/userAttendance/monthexcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void monthDownloadExcel(@Valid AttendanceMonthStatParam attendanceMonthStatParam, HttpServletResponse response) throws Exception {
+        hrUserAttendanceStatService.downloadMonthExcel(attendanceMonthStatParam, response);
+    }
 
     /**
      * 用户考勤概览- 月统计接口
@@ -289,7 +298,6 @@ public class HrUserAttendanceStatController {
 
     /**
      * 下载文件
-     *
      * @author xuyuxiang
      * @date 2022/6/21 15:44
      **/

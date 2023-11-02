@@ -22,6 +22,6 @@ public class AttendanceAnalysisParam {
     @NotNull(message = "时间类别不能为空")
     private Integer timeType;
 
-    @ApiModelProperty(value = "数据类别[默认为1,2]：1 应到人数，2 打卡人数，3 出勤率，4 平均工时，5 请假人数，6 加班人数，7 迟到人数")
-    private List<String> type;
+    @ApiModelProperty(value = "数据类别[默认为1,2]：1 应到人数，2 打卡人数，3 出勤率，4 平均工时，5 请假人数，6 加班人数，7 迟到人数",required = true)
+    private List<Integer> type;
 }

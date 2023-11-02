@@ -26,7 +26,8 @@ public enum HrUserAttendanceStatEnum {
     BEGIN_TIMNE(" 00:00:00"),
     END_TIME(" 23:59:59"),
     FAIL("2"),
-    NOW_YEAR("2023-01-01 00:00:00");
+    NOW_YEAR("2023-01-01 00:00:00"),
+    PARENT_CODE("1543842934270394368");
 
     private final String value;
 
