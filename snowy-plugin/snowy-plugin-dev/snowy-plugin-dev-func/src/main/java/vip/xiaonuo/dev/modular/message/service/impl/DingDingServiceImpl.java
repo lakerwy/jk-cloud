@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 import vip.xiaonuo.sys.api.SysUserApi;
@@ -41,6 +42,9 @@ public class DingDingServiceImpl implements IDingDingService {
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private CommonProperties commonProperties;
 
     public static Executor sendExecs = Executors.newFixedThreadPool(20);
 
@@ -305,6 +309,8 @@ public class DingDingServiceImpl implements IDingDingService {
         String url = String.format("%s/h5/#/pages/home/index",dingTalkProperties.getH5webUrl());
 //        String url = String.format("%s/h5/#/pages/flw/task/todoTask/todo-process?id=%s&processInstanceId=%s&currentActivityId=%s",dingTalkProperties.getH5webUrl(),taskId,processInstanceId,currentActivityId);
         oa.setMessageUrl(url);
+//        String pcUrl = String.format("%s/flw/todoTask", commonProperties.getFrontUrl());
+//        oa.setPcMessageUrl(pcUrl);
         return oa;
     }
 
