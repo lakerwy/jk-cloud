@@ -82,7 +82,7 @@ public class UserFileController {
      * @date  2023/08/28 10:09
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("文件夹列表")
+    @ApiOperation("个人文件夹列表")
 //    @SaCheckPermission("/pan/fold/page")
     @GetMapping("/pan/fold/pageList")
     public CommonResult<Page<UserFile>> pageList(UserFilePageParam userFilePageParam) {

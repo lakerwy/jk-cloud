@@ -31,12 +31,11 @@ import com.baomidou.mybatisplus.core.config.GlobalConfig;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.github.wnameless.json.flattener.JsonFlattener;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.IdentityService;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.camunda.bpm.engine.history.HistoricVariableInstance;
+import org.camunda.bpm.engine.history.HistoricVariableInstanceQuery;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
@@ -898,20 +897,35 @@ public class NodeRuntimeUtil {
                             // TODO 执行发送消息
                             //delegateTask.getTaskDefinitionKey()
                             Map<String,String> taskMap = new HashMap<>();
-                            taskMap.put("processInstanceId",delegateTask.getProcessInstanceId());
-                            taskMap.put("taskId",delegateTask.getId());
-                            taskMap.put("taskDefKey",delegateTask.getTaskDefinitionKey());
-                            taskMap.put("initiatorProcessTitle",String.valueOf(delegateTask.getVariable("initiatorProcessTitle")));
-                            taskMap.put("initiatorProcessAbstract",String.valueOf(delegateTask.getVariable("initiatorProcessAbstract")));
-                            taskMap.put("initiatorProcessSn",String.valueOf(delegateTask.getVariable("initiatorProcessSn")));
-                            taskMap.put("initiatorTime",String.valueOf(delegateTask.getVariable("initiatorTime")));
-                            taskMap.put("initiatorName",String.valueOf(delegateTask.getVariable("initiatorName")));
-                            taskMap.put("processDefinitionId",delegateTask.getProcessDefinitionId());
-//                            TaskService taskService = SpringUtil.getBean(TaskService.class);
-//                            Task task = taskService.createTaskQuery().processInstanceId(delegateTask.getProcessInstanceId()).singleResult();
-//                            taskMap.put("nextTaskId",task.getId());
-                            taskMap.put("currentActivityId",delegateTask.getTaskDefinitionKey());
-                            devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,delegateTask.getProcessInstanceId(),taskMap);
+                            String processInstanceId = delegateExecution.getProcessInstanceId();
+                            //完成事件通知中无delegateTask
+                            if(ObjectUtil.isNull(delegateTask)){
+                                taskMap.put("processInstanceId",delegateExecution.getProcessInstanceId());
+//                                taskMap.put("taskId",delegateTask.getId());
+                                taskMap.put("taskDefKey",delegateExecution.getCurrentActivityId());
+                                taskMap.put("initiatorProcessTitle",String.valueOf(delegateExecution.getVariable("initiatorProcessTitle")));
+                                taskMap.put("initiatorProcessAbstract",String.valueOf(delegateExecution.getVariable("initiatorProcessAbstract")));
+                                taskMap.put("initiatorProcessSn",String.valueOf(delegateExecution.getVariable("initiatorProcessSn")));
+                                taskMap.put("initiatorTime",String.valueOf(delegateExecution.getVariable("initiatorTime")));
+                                taskMap.put("initiatorName",String.valueOf(delegateExecution.getVariable("initiatorName")));
+                                taskMap.put("processDefinitionId",delegateExecution.getProcessDefinitionId());
+                                taskMap.put("currentActivityId",delegateExecution.getCurrentActivityId());
+                                taskMap.put("noticeType",noticeType);
+                            }else {
+                                processInstanceId = delegateTask.getProcessInstanceId();
+                                taskMap.put("processInstanceId", delegateTask.getProcessInstanceId());
+                                taskMap.put("taskId", delegateTask.getId());
+                                taskMap.put("taskDefKey", delegateTask.getTaskDefinitionKey());
+                                taskMap.put("initiatorProcessTitle", String.valueOf(delegateTask.getVariable("initiatorProcessTitle")));
+                                taskMap.put("initiatorProcessAbstract", String.valueOf(delegateTask.getVariable("initiatorProcessAbstract")));
+                                taskMap.put("initiatorProcessSn", String.valueOf(delegateTask.getVariable("initiatorProcessSn")));
+                                taskMap.put("initiatorTime", String.valueOf(delegateTask.getVariable("initiatorTime")));
+                                taskMap.put("initiatorName", String.valueOf(delegateTask.getVariable("initiatorName")));
+                                taskMap.put("processDefinitionId", delegateTask.getProcessDefinitionId());
+                                taskMap.put("currentActivityId", delegateTask.getTaskDefinitionKey());
+                            }
+                            taskMap.put("noticeType", noticeType);
+                            devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,processInstanceId,taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                             break;
                         case "EMAIL":

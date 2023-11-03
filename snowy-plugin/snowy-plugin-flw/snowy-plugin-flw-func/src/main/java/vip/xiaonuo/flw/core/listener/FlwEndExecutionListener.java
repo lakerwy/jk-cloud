@@ -17,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.springframework.stereotype.Component;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
@@ -37,6 +39,9 @@ public class FlwEndExecutionListener implements ExecutionListener {
 
     @Resource
     FormRelationTableService formRelationTableService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
     @Override
     public void notify(DelegateExecution execution) {
         try {
@@ -54,6 +59,8 @@ public class FlwEndExecutionListener implements ExecutionListener {
                     log.info(sql);
                     NodeRuntimeUtil.handleSqlExecution(sql);
                 }
+                //完成事件后清空缓存
+                commonCacheOperator.remove(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId,FlwCacheConstant.CACHE_FLW_SN_KEY + processInstanceId,FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId);
             }
         } catch (Exception e) {
             throw new CommonException("执行监听器{}出现异常：{}", FlwEndExecutionListener.class.getName(), e.getMessage());

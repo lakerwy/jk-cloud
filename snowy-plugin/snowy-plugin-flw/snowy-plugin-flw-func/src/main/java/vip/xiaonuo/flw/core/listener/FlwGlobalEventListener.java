@@ -190,40 +190,23 @@ public class FlwGlobalEventListener implements JavaDelegate {
             try {
                 NodeRuntimeUtil.handleProcessCompleteNotice(delegateExecution);
                 //updateBizStatus(delegateExecution);
-                String processInstanceId = delegateExecution.getProcessInstanceId();
-                //获取流程实例关联的业务信息
-                FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
-                //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
-                if(ObjectUtil.isNotEmpty(info)){
-                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where ID = '" + info.getId() +"'";
-                    NodeRuntimeUtil.handleSqlExecution(sql);
-                    if(ObjectUtil.isNotEmpty(info.getBizTableName())){
-                        sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where FLW_ID = '" + info.getId() +"'";
-                        NodeRuntimeUtil.handleSqlExecution(sql);
-                    }
-                }
+//                String processInstanceId = delegateExecution.getProcessInstanceId();
+//                //todo  下面代码可能未用到，所有需要删除
+//                //获取流程实例关联的业务信息
+//                FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
+//                //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
+//                if(ObjectUtil.isNotEmpty(info)){
+//                    String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where ID = '" + info.getId() +"'";
+//                    NodeRuntimeUtil.handleSqlExecution(sql);
+//                    if(ObjectUtil.isNotEmpty(info.getBizTableName())){
+//                        sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.COMPLETED_STATUS.getValue() + " where FLW_ID = '" + info.getId() +"'";
+//                        NodeRuntimeUtil.handleSqlExecution(sql);
+//                    }
+//                }
             }catch (Exception e){
                 log.error(e.getMessage());
             }
-            //            System.out.println("----------------------121212------------------");
-            //log.debug("测试结束事件------------------------");
         }
-    }
-
-
-
-    //@EventListener
-    public void onUpdateBizStatusEvent(DelegateExecution delegateExecution) {
-        RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
-        ProcessInstance processInstance = runtimeService.createProcessInstanceQuery()
-                .processInstanceId(delegateExecution.getProcessInstanceId()).singleResult();
-
-        if(processInstance == null){
-//            System.out.println("----------------------121212------------------");
-            log.debug("测试结束事件------------------------");
-            updateBizStatus(delegateExecution);
-        }
-
     }
 
 }

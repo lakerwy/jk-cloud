@@ -219,29 +219,13 @@ public class DingDingServiceImpl implements IDingDingService {
         request.setUseridList(result.getUserid());
         request.setToAllUser(false);
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-//        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
-//        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
-//        head.setText("流程处理通知单");
-//        head.setBgcolor("FFBBBBBB");
-//        oa.setHead(head);
-////        oa.setPcMessageUrl("https://yun.jianke.co");
-//        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-//        //String sn = String.valueOf(jsonObject.get("sn"));
-////        body.setTitle("【流程处理通知单】");
-//        body.setTitle(title);
-//
-//        body.setForm(buildForms(jsonObject));
         String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
         body.setContent(mg);
-//        oa.setBody(body);
 
 
         OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
-//        msg.setOa(oa);
         msg.setMsgtype("oa");
         msg.setOa(buildOa(jsonObject,title));
-//        msg.setText(new OapiMessageCorpconversationAsyncsendV2Request.Text());
-//        msg.getText().setContent(message);
         request.setMsg(msg);
 
         OapiGettokenResponse oapiGettokenResponse = this.getToken();
@@ -261,10 +245,7 @@ public class DingDingServiceImpl implements IDingDingService {
         head.setBgcolor("FFBBBBBB");
         oa.setHead(head);
 
-//        oa.setPcMessageUrl("https://yun.jianke.co");
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-        //String sn = String.valueOf(jsonObject.get("sn"));
-//        body.setTitle("【流程处理通知单】");
         body.setTitle(title);
 
         Map taskMap = jsonObject.get("taskMap", Map.class);
@@ -297,6 +278,14 @@ public class DingDingServiceImpl implements IDingDingService {
         form.setValue(initiatorTime+" | "+ initiatorName);
         forms.add(form);
 
+        Object o1 = taskMap.get("noticeType");
+        if(o1.toString().equals("COMPLETE")){
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("流程完成情况：");
+            form.setValue("已完成");
+            forms.add(form);
+        }
+
         body.setForm(forms);
         String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
         body.setContent(mg);
@@ -311,6 +300,7 @@ public class DingDingServiceImpl implements IDingDingService {
         oa.setMessageUrl(url);
 //        String pcUrl = String.format("%s/flw/todoTask", commonProperties.getFrontUrl());
 //        oa.setPcMessageUrl(pcUrl);
+
         return oa;
     }
 

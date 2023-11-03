@@ -721,6 +721,11 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     }
 
+    /**
+     * 该方法只会获取个人文件的根目录  eg: /张三的个人文件夹
+     * @param panRootFoldParam
+     * @return
+     */
     @Override
     public List<UserFile> getRootFold(PanRootFoldParam panRootFoldParam) {
         if(ObjectUtil.isEmpty(panRootFoldParam.getType())){
