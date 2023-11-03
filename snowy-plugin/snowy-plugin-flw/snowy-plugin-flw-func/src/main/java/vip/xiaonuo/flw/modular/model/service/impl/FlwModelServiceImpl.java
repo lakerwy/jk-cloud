@@ -22,6 +22,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -57,7 +58,6 @@ import vip.xiaonuo.flw.modular.model.result.FlwModelPositionResult;
 import vip.xiaonuo.flw.modular.model.result.FlwModelRoleResult;
 import vip.xiaonuo.flw.modular.model.result.FlwModelUserResult;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
-import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysPositionApi;
@@ -406,4 +406,11 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
 //        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
 //                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.ENABLE.getValue()));
 //    }
+
+    @SuppressWarnings("ALL")
+    @Override
+    public Page<FlwModelOrgResult> newOrgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam) {
+        cn.hutool.json.JSONObject entries = JSONUtil.parseObj(flwModelSelectorOrgListParam);
+        return BeanUtil.toBean(sysOrgApi.newOrgListSelector(entries), Page.class);
+    }
 }

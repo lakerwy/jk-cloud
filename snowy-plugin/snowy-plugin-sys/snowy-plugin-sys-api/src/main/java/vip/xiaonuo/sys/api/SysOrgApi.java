@@ -73,4 +73,12 @@ public interface SysOrgApi {
      * @return
      */
     String getParentId(String orgId);
+
+    /**
+     * 获取组织列表选择器
+     *
+     * @author xuyuxiang
+     * @date 2022/7/22 14:45
+     **/
+    Page<JSONObject> newOrgListSelector(JSONObject jsonObject);
 }

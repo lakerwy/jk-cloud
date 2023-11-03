@@ -12,13 +12,11 @@
  */
 package vip.xiaonuo.web.core.provider.sys.org;
 
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.sys.feign.SysOrgFeign;
 import vip.xiaonuo.sys.modular.org.provider.SysOrgApiProvider;
 
@@ -104,5 +102,11 @@ public class SysOrgFeignProvider implements SysOrgFeign {
     @RequestMapping("/feign/sys/org/getParentId")
     public String getParentId(String orgId) {
         return sysOrgApiProvider.getParentId(orgId);
+    }
+
+    @Override
+    @RequestMapping("/feign/sys/org/newOrgListSelector")
+    public String newOrgListSelector(@RequestBody cn.hutool.json.JSONObject jsonObject) {
+        return JSONUtil.toJsonStr(sysOrgApiProvider.newOrgListSelector(jsonObject));
     }
 }

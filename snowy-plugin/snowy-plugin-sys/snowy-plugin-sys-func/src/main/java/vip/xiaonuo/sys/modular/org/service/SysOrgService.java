@@ -177,4 +177,6 @@ public interface SysOrgService extends IService<SysOrg> {
     List<Map<String,String>> getAllOrgs();
 
     List<SysOrg> getChildren(String orgId);
+
+    Page<SysOrg> newOrgListSelector(SysOrgSelectorOrgListParam sysOrgSelectorOrgListParam);
 }

@@ -340,4 +340,17 @@ public class FlwModeController {
 //        flwModelService.enableShowModel(flwModelIdParam);
 //        return CommonResult.ok();
 //    }
+
+    /**
+     * 获取组织列表选择器
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 18)
+    @ApiOperation("获取组织列表选择器(带有分页和查询功能的)")
+    @GetMapping("/flw/model/newOrgListSelector")
+    public CommonResult<Page<FlwModelOrgResult>> newOrgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam) {
+        return CommonResult.data(flwModelService.newOrgListSelector(flwModelSelectorOrgListParam));
+    }
 }

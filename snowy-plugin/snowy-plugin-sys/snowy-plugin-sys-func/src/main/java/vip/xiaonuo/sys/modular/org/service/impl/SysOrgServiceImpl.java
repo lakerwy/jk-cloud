@@ -447,4 +447,24 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     public List<SysOrg> getChildren(String orgId) {
         return sysOrgMapper.getChildren(orgId);
     }
+
+    @Override
+    public Page<SysOrg> newOrgListSelector(SysOrgSelectorOrgListParam sysOrgSelectorOrgListParam) {
+        LambdaQueryWrapper<SysOrg> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        // 查询部分字段
+        lambdaQueryWrapper.select(SysOrg::getId, SysOrg::getParentId, SysOrg::getName,
+                SysOrg::getCategory, SysOrg::getSortCode);
+        if(ObjectUtil.isNotEmpty(sysOrgSelectorOrgListParam.getParentId())) {
+            lambdaQueryWrapper.eq(SysOrg::getParentId, sysOrgSelectorOrgListParam.getParentId());
+        }
+        if(ObjectUtil.isNotEmpty(sysOrgSelectorOrgListParam.getSearchKey())) {
+            lambdaQueryWrapper.like(SysOrg::getName, sysOrgSelectorOrgListParam.getSearchKey());
+        }
+        lambdaQueryWrapper.orderByAsc(SysOrg::getSortCode);
+        Page<SysOrg> objectPage = CommonPageRequest.defaultPage();
+        objectPage.setCurrent(sysOrgSelectorOrgListParam.getCurrent());
+        objectPage.setSize(sysOrgSelectorOrgListParam.getSize());
+        return this.page(objectPage, lambdaQueryWrapper);
+    }
+
 }

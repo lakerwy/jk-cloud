@@ -122,4 +122,11 @@ public class SysOrgApiContextBean implements SysOrgApi {
         return sysOrgFeign.getParentId(orgId);
     }
 
+    @Override
+    public Page<JSONObject> newOrgListSelector(cn.hutool.json.JSONObject jsonObject) {
+        String feignResp = sysOrgFeign.newOrgListSelector(jsonObject);
+        Page<JSONObject> resp = (Page<JSONObject>) JSONUtil.toBean(feignResp,Page.class);
+        return resp;
+    }
+
 }

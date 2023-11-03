@@ -85,4 +85,18 @@ public class SysOrgApiProvider implements SysOrgApi {
         return ObjectUtil.isNotEmpty(org)? org.getParentId() : "";
     }
 
+    @Override
+    public Page<JSONObject> newOrgListSelector(cn.hutool.json.JSONObject jsonObject) {
+        String parentId = jsonObject.getStr("parentId");
+        Integer size = jsonObject.getInt("size");
+        Integer current = jsonObject.getInt("current");
+        String searchKey = jsonObject.getStr("searchKey");
+        SysOrgSelectorOrgListParam sysOrgSelectorOrgListParam = new SysOrgSelectorOrgListParam();
+        sysOrgSelectorOrgListParam.setParentId(parentId);
+        sysOrgSelectorOrgListParam.setSize(size);
+        sysOrgSelectorOrgListParam.setCurrent(current);
+        sysOrgSelectorOrgListParam.setSearchKey(searchKey);
+        return BeanUtil.toBean(sysOrgService.newOrgListSelector(sysOrgSelectorOrgListParam), Page.class);
+    }
+
 }

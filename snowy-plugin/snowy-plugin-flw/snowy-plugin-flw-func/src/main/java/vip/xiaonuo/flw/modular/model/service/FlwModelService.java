@@ -205,6 +205,9 @@ public interface FlwModelService extends IService<FlwModel> {
      */
     FlwModel validModel(String modelId);
 
+    @SuppressWarnings("ALL")
+    Page<FlwModelOrgResult> newOrgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam);
+
 //    void disableShowModel(FlwModelIdParam flwModelIdParam);
 //
 //    void enableShowModel(FlwModelIdParam flwModelIdParam);

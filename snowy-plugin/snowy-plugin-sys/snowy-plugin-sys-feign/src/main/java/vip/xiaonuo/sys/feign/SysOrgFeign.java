@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.feign;
 
+import cn.hutool.json.JSONObject;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -72,5 +73,14 @@ public interface SysOrgFeign {
 
     @RequestMapping("/feign/sys/org/getParentId")
     String getParentId(String orgId);
+
+    /**
+     * 获取组织列表选择器
+     *
+     * @author dongxiayu
+     * @date 2022/7/22 14:45
+     **/
+    @RequestMapping("/feign/sys/org/newOrgListSelector")
+    String newOrgListSelector(JSONObject jsonObject);
 
 }
