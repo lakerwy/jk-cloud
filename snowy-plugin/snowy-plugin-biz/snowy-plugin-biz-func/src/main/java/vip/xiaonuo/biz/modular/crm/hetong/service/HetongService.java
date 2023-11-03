@@ -13,16 +13,13 @@
 package vip.xiaonuo.biz.modular.crm.hetong.service;
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongIdParam;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
+import vip.xiaonuo.biz.modular.crm.hetong.param.*;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongAddParam;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongEditParam;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -88,4 +85,12 @@ public interface HetongService extends IService<Hetong> {
      * @date  2023/06/30 14:49
      **/
     List<HetongInfoVo> getListAll();
+
+    /**
+     * 判断合同名称是否重名 （审批中+审核通过状态下）
+     * @param checkNameParam
+     * @return
+     */
+    Boolean checkName(CheckNameParam checkNameParam);
+
 }

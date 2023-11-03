@@ -31,6 +31,7 @@ import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.SysBuildInEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.api.DevConfigApi;
@@ -899,17 +900,20 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
             queryWrapper.eq("a.FOLD_TYPE","1");
             queryWrapper.eq("a.FILE_PATH",userFilePageParam.getFilePath());
-            queryWrapper.and(q->q.eq("a.USER_ID",userId)
-                             .or(q1-> q1.apply(" (IF(b.RIGHT_VALUE is null,0,b.RIGHT_VALUE) & {0} > 0 ) ",FileRight.LIST)
-                                             .and(q2-> {
-                                             q2.eq("b.OBJECT_ID", userId);
-                                             if(CollUtil.isNotEmpty(orgIds)) q2.or().in("b.OBJECT_ID",orgIds);
-                                         })
-                                     )
-            );
-            List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
-            if(CollUtil.isNotEmpty(userFileIds))
-                queryWrapper.notIn("a.ID",userFileIds);
+            //超管看全部
+            if(!StpLoginUserUtil.getLoginUser().getRoleCodeList().contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue())) {
+                queryWrapper.and(q -> q.eq("a.USER_ID", userId)
+                        .or(q1 -> q1.apply(" (IF(b.RIGHT_VALUE is null,0,b.RIGHT_VALUE) & {0} > 0 ) ", FileRight.LIST)
+                                .and(q2 -> {
+                                     q2.eq("b.OBJECT_ID", userId);
+                                     if (CollUtil.isNotEmpty(orgIds)) q2.or().in("b.OBJECT_ID", orgIds);
+                                })
+                        )
+                );
+                List<String> userFileIds = panFileRightService.notInUserFileIds(userId, orgId, orgIds);
+                if (CollUtil.isNotEmpty(userFileIds))
+                    queryWrapper.notIn("a.ID", userFileIds);
+            }
 
             if(ObjectUtil.isNotEmpty(userFilePageParam.getFileName())) {
                 queryWrapper.like("a.FILE_NAME", userFilePageParam.getFileName());
@@ -923,13 +927,17 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             }
 
             return userFileMapper.getGroupPage(CommonPageRequest.defaultPage(),queryWrapper);
-        }else{
-            List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
+        }
+        else{
             queryWrapper.eq("DELETE_FLAG","NOT_DELETE");
             queryWrapper.eq("FOLD_TYPE","1");
             queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());
-            if(CollUtil.isNotEmpty(userFileIds))
-                queryWrapper.notIn("ID",userFileIds);
+            //超管看全部
+            if(!StpLoginUserUtil.getLoginUser().getRoleCodeList().contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue())) {
+                List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
+                if (CollUtil.isNotEmpty(userFileIds))
+                    queryWrapper.notIn("ID", userFileIds);
+            }
 
             if(ObjectUtil.isNotEmpty(userFilePageParam.getFileName())) {
                 queryWrapper.like("FILE_NAME", userFilePageParam.getFileName());

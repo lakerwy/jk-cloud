@@ -23,17 +23,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongAddParam;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongEditParam;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongIdParam;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
+import vip.xiaonuo.biz.modular.crm.hetong.param.*;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -145,4 +141,19 @@ public class HetongController {
     public CommonResult<List<HetongInfoVo>> listAll() {
         return CommonResult.data(hetongService.getListAll());
     }
+
+
+    /**
+     * 判断合同名称是否重名 （审批中+审核通过状态下）
+     *
+     * @author yong.ye
+     * @date  2023/06/30 14:49
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("判断合同名称是否重名 （审批中+审核通过状态下）")
+    @GetMapping("/biz/crm/hetong/checkName")
+    public CommonResult<Boolean> checkName(@Valid CheckNameParam checkNameParam) {
+        return CommonResult.data(hetongService.checkName(checkNameParam));
+    }
+
 }

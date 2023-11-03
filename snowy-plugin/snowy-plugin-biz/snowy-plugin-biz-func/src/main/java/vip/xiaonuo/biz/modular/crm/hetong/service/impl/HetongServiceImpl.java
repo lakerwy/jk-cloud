@@ -26,7 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.hetong.mapper.HetongMapper;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongIdParam;
+import vip.xiaonuo.biz.modular.crm.hetong.param.*;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -39,9 +39,6 @@ import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongAddParam;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongEditParam;
-import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.common.util.CommonSnUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
@@ -215,5 +212,16 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
     @Override
     public List<HetongInfoVo> getListAll() {
         return hetongMapper.getListAll();
+    }
+
+    @Override
+    public Boolean checkName(CheckNameParam checkNameParam) {
+        if(StrUtil.isNotEmpty(checkNameParam.getProjectName())) {
+            List<Hetong> list = this.list(new QueryWrapper<Hetong>().lambda()
+                    .eq(Hetong::getProjectName, checkNameParam.getProjectName())
+                    .in(Hetong::getStatus,"0","1"));
+            return list.size()>0;
+        }
+        return false;
     }
 }
