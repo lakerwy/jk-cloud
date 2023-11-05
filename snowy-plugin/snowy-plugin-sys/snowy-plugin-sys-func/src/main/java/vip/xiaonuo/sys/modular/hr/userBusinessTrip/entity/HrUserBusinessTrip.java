@@ -55,10 +55,6 @@ public class HrUserBusinessTrip {
     @ApiModelProperty(value = "申请出差结束时间", position = 6)
     private Date applyEndTime;
 
-    /** 申请理由 */
-//    @ApiModelProperty(value = "申请理由", position = 7)
-//    private String applyReason;
-
     /** 申请出差天数 */
     @ApiModelProperty(value = "申请出差天数", position = 8)
     private Double businessTripDays;

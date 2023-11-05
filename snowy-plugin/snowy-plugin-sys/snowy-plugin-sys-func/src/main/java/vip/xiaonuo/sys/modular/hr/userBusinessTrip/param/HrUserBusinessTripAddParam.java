@@ -41,11 +41,11 @@ public class HrUserBusinessTripAddParam {
 
     /** 申请出差开始时间 */
     @ApiModelProperty(value = "申请出差开始时间", position = 5)
-    private Date applyBeginTime;
+    private String applyBeginTime;
 
     /** 申请出差结束时间 */
     @ApiModelProperty(value = "申请出差结束时间", position = 6)
-    private Date applyEndTime;
+    private String applyEndTime;
 
     /** 申请理由 */
 //    @ApiModelProperty(value = "申请理由", position = 7)

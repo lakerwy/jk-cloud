@@ -1,10 +1,12 @@
 package vip.xiaonuo.sys.modular.hr.userAttendanceStat.param;
 
+import cn.hutool.core.collection.CollectionUtil;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 
 @Setter
@@ -18,10 +20,18 @@ public class AttendanceAnalysisParam {
     @NotNull(message = "时间不能为空")
     private String time;
 
-    @ApiModelProperty(value = "时间类别：1 日，2 周，3 月",required = true)
+    @ApiModelProperty(value = "时间类别：1 日，2 周，3 月，默认为1",required = true)
     @NotNull(message = "时间类别不能为空")
     private Integer timeType;
 
-    @ApiModelProperty(value = "数据类别[默认为1,2]：1 应到人数，2 打卡人数，3 出勤率，4 平均工时，5 请假人数，6 加班人数，7 迟到人数",required = true)
+    @ApiModelProperty(value = "数据类别[默认为1,2]：1 应到人数，2 打卡人数，3 出勤率，4 平均工时，5 请假人数，6 加班人数，7 迟到人数")
     private List<Integer> type;
+
+    public AttendanceAnalysisParam(){
+        type = new ArrayList<>();
+        if(CollectionUtil.isEmpty(type)){
+            type.add(1);
+            type.add(2);
+        }
+    }
 }

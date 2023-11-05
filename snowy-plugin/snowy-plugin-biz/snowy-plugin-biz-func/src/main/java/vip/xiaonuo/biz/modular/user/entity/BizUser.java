@@ -283,4 +283,8 @@ public class BizUser extends CommonEntity implements TransPojo {
     /**建科人脸识别图片ID，对应DEX_FILE表ID*/
     @ApiModelProperty(value = "建科人脸识别图片ID，对应DEV_FILE表ID", position = 52)
     private String devFileId;
+
+    /**考勤组ID，用户默认只存在一个考勤组ID*/
+    @ApiModelProperty(value = "考勤组ID", position = 63)
+    private String attendanceGroupId;
 }

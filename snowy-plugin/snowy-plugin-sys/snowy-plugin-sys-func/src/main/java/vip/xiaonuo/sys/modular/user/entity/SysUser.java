@@ -302,4 +302,8 @@ public class SysUser extends CommonEntity implements TransPojo {
     @ApiModelProperty(value = "建科人脸识别图片ID，对应DEV_FILE表ID", position = 62)
     private String devFileId;
 
+    /**考勤组ID，用户默认只存在一个考勤组ID*/
+    @ApiModelProperty(value = "考勤组ID", position = 63)
+    private String attendanceGroupId;
+
 }

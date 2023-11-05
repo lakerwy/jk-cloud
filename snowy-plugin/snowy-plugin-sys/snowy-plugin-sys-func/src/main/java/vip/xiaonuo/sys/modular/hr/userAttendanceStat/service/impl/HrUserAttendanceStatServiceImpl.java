@@ -28,8 +28,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.poi.ss.usermodel.*;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -40,10 +38,11 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.entity.HrApplyWorkOt;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.service.HrApplyWorkOtService;
+import vip.xiaonuo.sys.modular.hr.attendanceAnalStat.entity.HrAttendanceAnalStat;
+import vip.xiaonuo.sys.modular.hr.attendanceAnalStat.service.HrAttendanceAnalStatService;
 import vip.xiaonuo.sys.modular.hr.festivalData.entity.HrFestivalData;
 import vip.xiaonuo.sys.modular.hr.festivalData.service.HrFestivalDataService;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
@@ -74,12 +73,13 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
-import java.io.ByteArrayOutputStream;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
-import java.lang.reflect.Field;
-import java.text.ParseException;
+import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -118,6 +118,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     private HrApplyWorkOtService hrApplyWorkOtService;
     @Resource
     private SysOrgService sysOrgService;
+    @Resource
+    private HrAttendanceAnalStatService hrAttendanceAnalStatService;
 
     @Override
     public Page<HrUserAttendanceStat> page(HrUserAttendanceStatPageParam hrUserAttendanceStatPageParam) {
@@ -1030,31 +1032,324 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @Override
     public AttendanceAnalysisData attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam){
         List<String> orgList = new ArrayList<>();
+        List<String> userList = new ArrayList<>();
         if(StringUtils.isEmpty(attendanceAnalysisParam.getOrgId())){
             List<SysOrg> sysOrgList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getParentId,HrUserAttendanceStatEnum.PARENT_CODE.getValue()));
             sysOrgList.forEach(org -> orgList.add(org.getId()));
         }else{
             orgList.add(attendanceAnalysisParam.getOrgId());
+            String userStr = hrUserAttendanceService.getOrgAndUserId(attendanceAnalysisParam.getOrgId());
+            userList = Arrays.asList(userStr.split(","));
         }
         AttendanceAnalysisData attendanceAnalysisData = new AttendanceAnalysisData();
-
-        if(attendanceAnalysisParam.getTimeType() == 1){ //日
-            Date timeTemp = CommonTimeFormatUtil.strToDate(attendanceAnalysisParam.getTime()+HrUserAttendanceStatEnum.BEGIN_TIMNE,DatePattern.NORM_DATETIME_PATTERN);
-            Date beginTime = DateUtil.offsetDay(timeTemp,-7);
-            List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,timeTemp);
-            Date endTime = CommonTimeFormatUtil.strToDate(attendanceAnalysisParam.getTime()+HrUserAttendanceStatEnum.BEGIN_TIMNE,DatePattern.NORM_DATETIME_PATTERN);
-
-        }
-        if(attendanceAnalysisParam.getTimeType() == 2){ //周
-        }
-        if(attendanceAnalysisParam.getTimeType() == 3){ //月
-        }
+        VactionTimeAnalysis vactionTimeAnalysis = dateAnalysis(attendanceAnalysisParam);
+        Boolean isAllOrg = true;
+        attendanceBaseData(attendanceAnalysisData,vactionTimeAnalysis,isAllOrg,userList);
+        Map<Integer,Map<String, Object>> analStatMap = countLineAnalysis(attendanceAnalysisParam.getTimeType(),orgList,attendanceAnalysisData,vactionTimeAnalysis);
+        int size= analStatMap.entrySet().size();
+        attendanceAnalysisParam.getType().forEach(type -> {
+            String[] yAxis = new String[size];
+            switch(type){
+                case 1://应到人数  shouldAtNum
+                    for(int i=0;i<size;i++){
+                        yAxis[i] = "308";//暂时用固定值
+                    }
+                    break;
+                case 2: //打卡人数
+                    for(int i=0;i<size;i++){
+                        String attendanceNum = analStatMap.get("attendanceNum") == null ? "0" : analStatMap.get("attendanceNum").toString();
+                        yAxis[i] = attendanceNum;
+                    }
+                    break;
+                case 3: //出勤率
+                    for(int i=0;i<size;i++){
+                        Integer attendanceNum = analStatMap.get("attendanceNum") == null ? 0 : Integer.parseInt(analStatMap.get("attendanceNum").toString());
+                        Integer shouldAtNum = 308;
+                        Double attendanceRate = shouldAtNum != 0l ? attendanceNum/shouldAtNum : 0.0;
+                        yAxis[i] = attendanceRate.toString();//暂时用固定值
+                    }
+                    break;
+                case 4: //平均工时
+                    for(int i=0;i<size;i++){
+                        Integer attendanceNum = analStatMap.get("attendanceNum") == null ? 0 : Integer.parseInt(analStatMap.get("attendanceNum").toString());
+                        Double totalWorkHours = analStatMap.get("totalWorkHours") == null ? 0.0 : Double.parseDouble(analStatMap.get("totalWorkHours").toString());
+                        Double averageWkHour = attendanceNum == 0 ? 0.0 : totalWorkHours.doubleValue()/attendanceNum;
+                        yAxis[i] = averageWkHour.toString();
+                    }
+                    break;
+                case 5: //请假人数
+                    for(int i=0;i<size;i++){
+                        String leaveNum = analStatMap.get("leaveNum") == null ? "0" : analStatMap.get("leaveNum").toString();
+                        yAxis[i] = leaveNum;
+                    }
+                    break;
+                case 6: //加班人数
+                    for(int i=0;i<size;i++){
+                        String workOtNum = analStatMap.get("workOtNum") == null ? "0" : analStatMap.get("workOtNum").toString();
+                        yAxis[i] = workOtNum;
+                    }
+                    break;
+                case 7: //迟到人数
+                    for(int i=0;i<size;i++){
+                        String lateNum = analStatMap.get("lateNum") == null ? "0" : analStatMap.get("lateNum").toString();
+                        yAxis[i] = lateNum;
+                    }
+                    break;
+                default:
+                    break;
+            }
+            if(type == 1){
+                attendanceAnalysisData.setFirstData(yAxis);
+            }else{
+                attendanceAnalysisData.setSecondData(yAxis);
+            }
+        });
+        testData(attendanceAnalysisData,orgList);
         return attendanceAnalysisData;
     }
 
-    private AttendanceAnalysisData countAnalysisData(AttendanceAnalysisParam attendanceAnalysisParam,List<String> dayList){
+    private void attendanceBaseData(AttendanceAnalysisData attendanceAnalysisData, VactionTimeAnalysis vactionTimeAnalysis, Boolean isAllOrg, List<String> userList){
+
+        Long shouldAtNum = isAllOrg ? sysUserService.count(new LambdaQueryWrapper<SysUser>().isNotNull(SysUser::getAttendanceGroupId)) : userList.size();
+        attendanceAnalysisData.setShouldAtNum(shouldAtNum);
+        attendanceAnalysisData.setShouldAtCompare("0");
+
+        Long attendanceNum = isAllOrg ? hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>()
+                .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()))
+                : hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>()
+                        .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime())
+                        .in(HrAttendanceAnalStat::getUserId,userList));
+        attendanceAnalysisData.setAttendanceNum(attendanceNum);
+        Long oldAttendanceNum = isAllOrg ? hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>()
+                .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getSecondBeginTime(),vactionTimeAnalysis.getSecondEndTime()))
+                : hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>()
+                        .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getSecondBeginTime(),vactionTimeAnalysis.getSecondEndTime())
+                        .in(HrAttendanceAnalStat::getUserId,userList));
+        Long  attendanceCompare = attendanceNum-oldAttendanceNum;
+        attendanceAnalysisData.setAttendanceCompare(attendanceCompare.toString());
+
+        double attendanceRate = shouldAtNum != 0l ? attendanceNum/shouldAtNum : 0.0;
+        double oldDttendanceRate = shouldAtNum != 0l ? oldAttendanceNum/shouldAtNum : 0.0;
+        attendanceAnalysisData.setAttendanceRate(decimalFormat(attendanceRate));//出勤率
+        attendanceAnalysisData.setAttendanceRateCompare(decimalFormat(attendanceRate-oldDttendanceRate));
 
 
-        return new AttendanceAnalysisData();
+        /** 平均工时，请假人数 HOLIDAY_FLAG，加班人数 WORKOT_FLAG，迟到人数 LATE_FLAG*/
+        QueryWrapper<HrAttendanceAnalStat> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("IFNULL(sum(WORK_HOURS),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum,IFNULL(sum(WORKOT_FLAG),0) as workOtNum,IFNULL(sum(LATE_FLAG),0) as lateNum");
+        Map<String, Object> map = isAllOrg ? hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()))
+                : hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime())
+                .in(HrAttendanceAnalStat::getUserId,userList));
+        Map<String, Object> oldMap = isAllOrg ? hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getSecondBeginTime(),vactionTimeAnalysis.getSecondEndTime()))
+                : hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getSecondBeginTime(),vactionTimeAnalysis.getSecondEndTime())
+                .in(HrAttendanceAnalStat::getUserId,userList));
+
+        //平均工时
+        Double totalWorkHours = map.get("totalWorkHours") == null ? 0.0 : Double.parseDouble(map.get("totalWorkHours").toString());
+        double averageWkHour = attendanceNum == 0 ? 0.0 : totalWorkHours.doubleValue()/attendanceNum;
+        Double oldTotalWorkHours =  oldMap.get("totalWorkHours") == null ? 0.0 : Double.parseDouble(oldMap.get("totalWorkHours").toString());
+        double oldAverageWkHour = oldAttendanceNum == 0 ? 0.0 : oldTotalWorkHours.doubleValue()/oldAttendanceNum;
+        Double averageWkHourCompare = averageWkHour - oldAverageWkHour;
+        attendanceAnalysisData.setAverageWkHourCompare(averageWkHourCompare.toString());
+        //请假人数
+        Integer leaveNum =  map.get("leaveNum") == null ? 0 : Integer.parseInt(map.get("leaveNum").toString());
+        attendanceAnalysisData.setLeaveNum(leaveNum.intValue());
+        Integer oldLeaveNum =  oldMap.get("leaveNum") == null ? 0 : Integer.parseInt(oldMap.get("leaveNum").toString());
+        Integer leaveNumCompare = leaveNum.intValue() - oldLeaveNum.intValue();
+        attendanceAnalysisData.setLeaveNumCompare(leaveNumCompare.toString());
+        //加班人数
+        BigDecimal workOtNum = (BigDecimal) map.get("workOtNum") == null ? new BigDecimal(0) : (BigDecimal) map.get("workOtNum") ;
+        attendanceAnalysisData.setWorkOtNum(workOtNum.intValue());
+        BigDecimal oldWorkOtNum =  (BigDecimal) oldMap.get("workOtNum") == null ? new BigDecimal(0) : (BigDecimal) oldMap.get("workOtNum") ;
+        Integer workOtNumCompare = workOtNum.intValue() - oldWorkOtNum.intValue();
+        attendanceAnalysisData.setWorkOtNumCompare(workOtNumCompare.toString());
+        //迟到人数
+        BigDecimal lateNum = (BigDecimal) map.get("lateNum") == null ? new BigDecimal(0) : (BigDecimal) map.get("lateNum");
+        attendanceAnalysisData.setLeaveNum(lateNum.intValue());
+        BigDecimal oldLateNum = (BigDecimal) oldMap.get("lateNum") == null ? new BigDecimal(0) : (BigDecimal) oldMap.get("lateNum");
+        Integer lateNumCompare = lateNum.intValue() - oldLateNum.intValue();
+        attendanceAnalysisData.setLateNumCompare(workOtNumCompare.toString());
+        if(vactionTimeAnalysis.getTimeType() == null && vactionTimeAnalysis.getTimeType() != 1){
+            attendanceAnalysisData.setShouldAtNum(null);
+            attendanceAnalysisData.setShouldAtCompare("");
+            attendanceAnalysisData.setAttendanceNum(null);
+            attendanceAnalysisData.setAttendanceCompare("");
+        }
+
     }
+
+    /** 时间处理 */
+    private VactionTimeAnalysis dateAnalysis(AttendanceAnalysisParam attendanceAnalysisParam){
+        VactionTimeAnalysis vactionTimeAnalysis = new VactionTimeAnalysis();
+        vactionTimeAnalysis.setTimeType(attendanceAnalysisParam.getTimeType());
+        List<String> dayList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
+        if(attendanceAnalysisParam.getTimeType() == 1){ //日 - 获取前七天的数据
+            Date firstBeginTime = CommonTimeFormatUtil.strToDate(attendanceAnalysisParam.getTime()+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),DatePattern.NORM_DATETIME_PATTERN);
+            Date firstEndBeginTime = CommonTimeFormatUtil.strToDate(attendanceAnalysisParam.getTime()+HrUserAttendanceStatEnum.END_TIME.getValue(),DatePattern.NORM_DATETIME_PATTERN);
+            Date secondBeginTime = DateUtil.offsetDay(firstBeginTime,-1);
+            Date secondEndTime = DateUtil.offsetDay(firstEndBeginTime,-1);
+            vactionTimeAnalysis.setFirstBeginTime(firstBeginTime);
+            vactionTimeAnalysis.setFirstEndTime(firstEndBeginTime);
+            vactionTimeAnalysis.setSecondBeginTime(secondBeginTime);
+            vactionTimeAnalysis.setSecondEndTime(secondEndTime);
+            List<TimeDataVo> timeDataVoList = new ArrayList<>();
+            timeDataVoList.add(new TimeDataVo(firstBeginTime,firstEndBeginTime));
+            timeDataVoList.add(new TimeDataVo(secondBeginTime,secondEndTime));
+            for(int i=2;i<7;i++){
+                timeDataVoList.add(new TimeDataVo(DateUtil.offsetDay(firstBeginTime,-i),DateUtil.offsetDay(firstEndBeginTime,-i)));
+            }
+            vactionTimeAnalysis.setTimeDataVoList(timeDataVoList);
+
+        }
+        LocalDate localTime = LocalDate.parse(attendanceAnalysisParam.getTime(), formatter);
+        if(attendanceAnalysisParam.getTimeType() == 2){ //周 - 获取前七周数据
+            try{
+                LocalDate startOfWeek = localTime.with(DayOfWeek.MONDAY);
+                LocalDate endOfWeek = localTime.with(DayOfWeek.SUNDAY);
+                Date firstBeginTime =  DateUtils.parseDate(startOfWeek.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                Date firstEndBeginTime = DateUtils.parseDate(endOfWeek.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+
+                LocalDate startOfPreviousWeek = startOfWeek.minusWeeks(1);
+                LocalDate endOfPreviousWeek = endOfWeek.minusWeeks(1);
+                Date secondBeginTime = DateUtils.parseDate(startOfPreviousWeek.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                Date secondEndTime = DateUtils.parseDate(endOfPreviousWeek.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+
+                vactionTimeAnalysis.setFirstBeginTime(firstBeginTime);
+                vactionTimeAnalysis.setFirstEndTime(firstEndBeginTime);
+                vactionTimeAnalysis.setSecondBeginTime(secondBeginTime);
+                vactionTimeAnalysis.setSecondEndTime(secondEndTime);
+                List<TimeDataVo> timeDataVoList = new ArrayList<>();
+                timeDataVoList.add(new TimeDataVo(firstBeginTime,firstEndBeginTime));
+                timeDataVoList.add(new TimeDataVo(secondBeginTime,secondEndTime));
+                for(int i=2;i<6;i++){
+                    LocalDate localDate1 = startOfWeek.minusWeeks(i);
+                    LocalDate localDate2 = endOfWeek.minusWeeks(i);
+                    Date date1 = DateUtils.parseDate(localDate1.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                    Date date2 = DateUtils.parseDate(localDate2.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+                    timeDataVoList.add(new TimeDataVo(date1,date2));
+                }
+                vactionTimeAnalysis.setTimeDataVoList(timeDataVoList);
+            }catch (Exception e){
+                log.error("时间转换错误！e:"+e.toString());
+            }
+        }
+        if(attendanceAnalysisParam.getTimeType() == 3){ //月
+            try{
+                LocalDate startOfMonth = localTime.with(TemporalAdjusters.firstDayOfMonth());//月第一天
+                LocalDate endOfMonth = localTime.with(TemporalAdjusters.lastDayOfMonth());//月最后一天
+                Date firstBeginTime =  DateUtils.parseDate(startOfMonth.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                Date firstEndBeginTime = DateUtils.parseDate(endOfMonth.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+
+                LocalDate  startOfPreviousMonth = startOfMonth.minusMonths(1);
+                LocalDate  endOfPreviousMonth = startOfMonth.minusMonths(1);
+                Date secondBeginTime = DateUtils.parseDate(startOfPreviousMonth.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                Date secondEndTime = DateUtils.parseDate(endOfPreviousMonth.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+
+                vactionTimeAnalysis.setFirstBeginTime(firstBeginTime);
+                vactionTimeAnalysis.setFirstEndTime(firstEndBeginTime);
+                vactionTimeAnalysis.setSecondBeginTime(secondBeginTime);
+                vactionTimeAnalysis.setSecondEndTime(secondEndTime);
+
+                List<TimeDataVo> timeDataVoList = new ArrayList<>();
+                timeDataVoList.add(new TimeDataVo(firstBeginTime,firstEndBeginTime));
+                timeDataVoList.add(new TimeDataVo(secondBeginTime,secondEndTime));
+                for(int i=2;i<6;i++){
+                    LocalDate localDate1 = startOfMonth.minusMonths(i);
+                    LocalDate localDate2 = endOfMonth.minusMonths(i);
+                    Date date1 = DateUtils.parseDate(localDate1.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                    Date date2 = DateUtils.parseDate(localDate2.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+                    timeDataVoList.add(new TimeDataVo(date1,date2));
+                }
+            }catch (Exception e){
+                log.error("时间处理失败！e:"+e.toString());
+            }
+        }
+        return vactionTimeAnalysis;
+    }
+
+    private Map<Integer,Map<String, Object>> countLineAnalysis(Integer type,List<String> orgList,AttendanceAnalysisData attendanceAnalysisData,VactionTimeAnalysis timeAnalysis){
+        QueryWrapper<HrAttendanceAnalStat> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("IFNULL(sum(WORK_HOURS),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum," +
+                "IFNULL(sum(WORKOT_FLAG),0) as workOtNum,IFNULL(sum(LATE_FLAG),0) as lateNum,IFNULL(count(*),0) as attendanceNum");
+        List<TimeDataVo> timeDataVoList = timeAnalysis.getTimeDataVoList();
+        Map<Integer,Map<String, Object>> analStatMap = new HashMap<>();
+        Integer i = 0;
+        String[] xAxis = xAxis(timeDataVoList,timeAnalysis.getTimeType());
+        attendanceAnalysisData.setXAxis(xAxis);//横坐标
+        for(TimeDataVo timeDataVo : timeDataVoList){
+            Map<String, Object> map = hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                    .between(HrAttendanceAnalStat::getCheckTime,timeDataVo.getBeginTime(),timeDataVo.getEndTime()));
+            analStatMap.put(i,map);
+            i++;
+        }
+        return analStatMap;
+    }
+
+    private String[] xAxis(List<TimeDataVo> timeDataVoList,Integer timeType){
+        String[] xAxis = new String[timeDataVoList.size()];
+        switch(timeType){
+            case 1:
+                 for(int i =0;i<timeDataVoList.size();i++){
+                     String date = CommonTimeFormatUtil.dateToStr(timeDataVoList.get(i).getBeginTime(),"MM.dd");
+                     xAxis[i] = date;
+                 }
+                break;
+            default:
+                for(int i =0;i<timeDataVoList.size();i++){
+                    String date1 = CommonTimeFormatUtil.dateToStr(timeDataVoList.get(i).getBeginTime(),"MM.dd");
+                    String date2 = CommonTimeFormatUtil.dateToStr(timeDataVoList.get(i).getEndTime(),"MM.dd");
+                    xAxis[i] = date1+"-"+date2;
+                }
+                break;
+        }
+        return xAxis;
+    }
+
+    private void testData(AttendanceAnalysisData attendanceAnalysisData,List<String> sysOrgList){
+        List<Map<String,Object>> list = new ArrayList<>();
+        Map<String,Object> mapData1 = new HashMap<>();
+        mapData1.put("orgName","直属事业部");
+        mapData1.put("1","21");
+        mapData1.put("2","100.00");
+        list.add(mapData1);
+
+        Map<String,Object> mapData2 = new HashMap<>();
+        mapData2.put("orgName","研究院");
+        mapData2.put("1","28");
+        mapData2.put("2","96.43");
+        list.add(mapData2);
+
+        Map<String,Object> mapData3 = new HashMap<>();
+        mapData3.put("orgName","子公司");
+        mapData3.put("1","9");
+        mapData3.put("2","44.44");
+        list.add(mapData3);
+
+        Map<String,Object> mapData4 = new HashMap<>();
+        mapData4.put("orgName","职能中心");
+        mapData4.put("1","77");
+        mapData4.put("2","89.61");
+        list.add(mapData4);
+
+        Map<String,Object> mapData5 = new HashMap<>();
+        mapData5.put("orgName","直属设计院");
+        mapData5.put("1","173");
+        mapData5.put("2","86.13");
+        list.add(mapData5);
+        attendanceAnalysisData.setOrgDataMap(list);
+
+    }
+
+    private String decimalFormat(Double value){
+        DecimalFormat df = new DecimalFormat("#.####");
+        String result = df.format(value);
+        return result;
+    }
+
 }
