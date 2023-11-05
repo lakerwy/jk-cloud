@@ -1,0 +1,83 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.sys.modular.hr.conference.config.param;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.util.Date;
+
+/**
+ * 会议预约-会议室数据编辑参数
+ *
+ * @author ljy
+ * @date  2023/11/05 23:12
+ **/
+@Getter
+@Setter
+public class ConferenceConfigEditParam {
+
+    /** 主键 */
+    @ApiModelProperty(value = "主键", required = true, position = 1)
+    @NotBlank(message = "id不能为空")
+    private String id;
+
+    /** 会议室名称 */
+    @ApiModelProperty(value = "会议室名称", position = 2)
+    private String name;
+
+    /** 会议室位置 */
+    @ApiModelProperty(value = "会议室位置", position = 3)
+    private String location;
+
+    /** 会议室是否存在固定时间：0 或空为不存在，1 每周某个时间，2  每月的某个时间，3 每年的某个时间 */
+    @ApiModelProperty(value = "会议室是否存在固定时间：0 或空为不存在，1 每周某个时间，2  每月的某个时间，3 每年的某个时间", position = 4)
+    private Integer status;
+
+    /** 开始时间：单位-时分秒 */
+    @ApiModelProperty(value = "开始时间：单位-时分秒", position = 5)
+    private Date beginTime;
+
+    /** 结束时间：单位-时分秒 */
+    @ApiModelProperty(value = "结束时间：单位-时分秒", position = 6)
+    private Date endTime;
+
+    /** 对应周几：1 周一，2 周二，3 周三 ... */
+    @ApiModelProperty(value = "对应周几：1 周一，2 周二，3 周三 ...", position = 7)
+    private Integer weekTime;
+
+    /** 对应相应的天数 */
+    @ApiModelProperty(value = "对应相应的天数", position = 8)
+    private Integer dayTime;
+
+    /** 最多容纳多少人 */
+    @ApiModelProperty(value = "最多容纳多少人", position = 9)
+    private Integer containMax;
+
+    /** 负责人 */
+    @ApiModelProperty(value = "负责人", position = 10)
+    private String leader;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 11)
+    private String fileId;
+
+    /** 扩展信息 */
+    @ApiModelProperty(value = "扩展信息", position = 12)
+    private String extJson;
+
+}
