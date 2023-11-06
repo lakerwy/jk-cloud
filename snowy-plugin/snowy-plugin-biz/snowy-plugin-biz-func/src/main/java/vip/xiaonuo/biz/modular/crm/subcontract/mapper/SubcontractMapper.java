@@ -12,7 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.crm.subcontract.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 
@@ -29,4 +33,6 @@ public interface SubcontractMapper extends BaseMapper<Subcontract> {
     SubContractInfoVo getDetailById(String id);
 
     List<Subcontract> getSubContractListByHetongId(String hetongId);
+
+    Page<SubContractInfoVo> getPageList(Page<SubContractInfoVo> page, @Param(Constants.WRAPPER) Wrapper<Subcontract> queryWrapper);
 }

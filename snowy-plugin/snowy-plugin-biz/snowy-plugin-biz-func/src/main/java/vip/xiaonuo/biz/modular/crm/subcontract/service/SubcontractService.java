@@ -34,7 +34,7 @@ public interface SubcontractService extends IService<Subcontract> {
      * @author yong.ye
      * @date  2023/06/30 16:22
      */
-    Page<Subcontract> page(SubcontractPageParam subcontractPageParam);
+    Page<SubContractInfoVo> page(SubcontractPageParam subcontractPageParam);
 
     /**
      * 添加业务表-CRM-分包合同

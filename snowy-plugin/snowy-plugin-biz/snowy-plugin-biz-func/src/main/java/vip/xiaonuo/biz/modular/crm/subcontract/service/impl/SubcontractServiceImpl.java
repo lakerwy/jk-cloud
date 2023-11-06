@@ -52,66 +52,66 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
     @Resource
     private SubcontractMapper subcontractMapper;
     @Override
-    public Page<Subcontract> page(SubcontractPageParam subcontractPageParam) {
+    public Page<SubContractInfoVo> page(SubcontractPageParam subcontractPageParam) {
         QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
         if (ObjectUtil.isNotEmpty(subcontractPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Subcontract::getSecondLevel, subcontractPageParam.getSearchKey()).or()
-                    .like(Subcontract::getOpt, subcontractPageParam.getSearchKey()).or()
-                    .like(Subcontract::getContractNo, subcontractPageParam.getSearchKey()).or()
-                    .like(Subcontract::getCompanyOrDepartment, subcontractPageParam.getSearchKey()).or()
-                    .like(Subcontract::getProjectName, subcontractPageParam.getSearchKey()).or()
-                    .like(Subcontract::getCounterparty, subcontractPageParam.getSearchKey()).or()
-                    .like(Subcontract::getMainContractNo, subcontractPageParam.getSearchKey()).or()
-                    .like(Subcontract::getOwner, subcontractPageParam.getSearchKey()).or()
-                    .like(Subcontract::getFirstparty, subcontractPageParam.getSearchKey());
+            queryWrapper.like("a.SECOND_LEVEL", subcontractPageParam.getSearchKey()).or()
+                    .like("a.OPT", subcontractPageParam.getSearchKey()).or()
+                    .like("a.CONTRACT_NO", subcontractPageParam.getSearchKey()).or()
+                    .like("a.COMPANY_OR_DEPARTMENT", subcontractPageParam.getSearchKey()).or()
+                    .like("a.PROJECT_NAME", subcontractPageParam.getSearchKey()).or()
+                    .like("a.COUNTERPARTY", subcontractPageParam.getSearchKey()).or()
+                    .like("a.MAIN_CONTRACT_NO", subcontractPageParam.getSearchKey()).or()
+                    .like("a.OWNER", subcontractPageParam.getSearchKey()).or()
+                    .like("a.FIRSTPARTY", subcontractPageParam.getSearchKey());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getOpt())) {
-            queryWrapper.lambda().like(Subcontract::getOpt, subcontractPageParam.getOpt());
+            queryWrapper.like("a.OPT", subcontractPageParam.getOpt());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(subcontractPageParam.getEndRegisterDate())) {
-            queryWrapper.lambda().between(Subcontract::getRegisterDate, subcontractPageParam.getStartRegisterDate(), subcontractPageParam.getEndRegisterDate());
+            queryWrapper.between("a.REGISTER_DATE", subcontractPageParam.getStartRegisterDate(), subcontractPageParam.getEndRegisterDate());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getIsFiling())) {
-            queryWrapper.lambda().eq(Subcontract::getIsFiling, subcontractPageParam.getIsFiling());
+            queryWrapper.eq("a.IS_FILING", subcontractPageParam.getIsFiling());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getSecondLevel())) {
-            queryWrapper.lambda().eq(Subcontract::getSecondLevel, subcontractPageParam.getSecondLevel());
+            queryWrapper.eq("a.SECOND_LEVEL", subcontractPageParam.getSecondLevel());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getContractNo())) {
-            queryWrapper.lambda().like(Subcontract::getContractNo, subcontractPageParam.getContractNo());
+            queryWrapper.like("a.CONTRACT_NO", subcontractPageParam.getContractNo());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getProjectName())) {
-            queryWrapper.lambda().like(Subcontract::getProjectName, subcontractPageParam.getProjectName());
+            queryWrapper.like("a.PROJECT_NAME", subcontractPageParam.getProjectName());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getCounterparty())) {
-            queryWrapper.lambda().like(Subcontract::getCounterparty, subcontractPageParam.getCounterparty());
+            queryWrapper.like("a.COUNTERPARTY", subcontractPageParam.getCounterparty());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getFirstparty())) {
-            queryWrapper.lambda().like(Subcontract::getFirstparty, subcontractPageParam.getFirstparty());
+            queryWrapper.like("a.FIRSTPARTY", subcontractPageParam.getFirstparty());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getCompanyOrDepartment())) {
-            queryWrapper.lambda().like(Subcontract::getCompanyOrDepartment, subcontractPageParam.getCompanyOrDepartment());
+            queryWrapper.like("a.COMPANY_OR_DEPARTMENT", subcontractPageParam.getCompanyOrDepartment());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getOwner())) {
-            queryWrapper.lambda().like(Subcontract::getOwner, subcontractPageParam.getOwner());
+            queryWrapper.like("a.OWNER", subcontractPageParam.getOwner());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(subcontractPageParam.getEndSealDate())) {
-            queryWrapper.lambda().between(Subcontract::getSealDate, subcontractPageParam.getStartSealDate(), subcontractPageParam.getEndSealDate());
+            queryWrapper.between("a.SEAL_DATE", subcontractPageParam.getStartSealDate(), subcontractPageParam.getEndSealDate());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getHetongId())) {
-            queryWrapper.lambda().eq(Subcontract::getHetongId, subcontractPageParam.getHetongId());
+            queryWrapper.eq("a.HETONG_ID", subcontractPageParam.getHetongId());
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getMainContractNo())) {
-            queryWrapper.lambda().eq(Subcontract::getMainContractNo, subcontractPageParam.getMainContractNo());
+            queryWrapper.eq("a.MAIN_CONTRACT_NO", subcontractPageParam.getMainContractNo());
         }
         if(ObjectUtil.isAllNotEmpty(subcontractPageParam.getSortField(), subcontractPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subcontractPageParam.getSortOrder());
             queryWrapper.orderBy(true, subcontractPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(subcontractPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Subcontract::getRegisterDate).orderByDesc(Subcontract::getContractNo);
+            queryWrapper.orderByDesc("a.REGISTER_DATE").orderByDesc("a.CONTRACT_NO");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return subcontractMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

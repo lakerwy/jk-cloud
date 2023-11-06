@@ -62,7 +62,7 @@ public class SubcontractController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-CRM-分包合同分页  【api/crm/contract/GetSubContractPage】")
     @GetMapping("/biz/crm/subcontract/page")
-    public CommonResult<Page<Subcontract>> page(SubcontractPageParam subcontractPageParam) {
+    public CommonResult<Page<SubContractInfoVo>> page(SubcontractPageParam subcontractPageParam) {
         return CommonResult.data(subcontractService.page(subcontractPageParam));
     }
 
