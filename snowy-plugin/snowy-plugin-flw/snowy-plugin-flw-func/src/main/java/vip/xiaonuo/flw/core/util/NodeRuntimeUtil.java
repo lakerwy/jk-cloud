@@ -897,10 +897,11 @@ public class NodeRuntimeUtil {
                             // TODO 执行发送消息
                             //delegateTask.getTaskDefinitionKey()
                             Map<String,String> taskMap = new HashMap<>();
-                            String processInstanceId = delegateExecution.getProcessInstanceId();
+                            String processInstanceId = null;
                             //完成事件通知中无delegateTask
                             if(ObjectUtil.isNull(delegateTask)){
                                 taskMap.put("processInstanceId",delegateExecution.getProcessInstanceId());
+                                processInstanceId = delegateExecution.getProcessInstanceId();
 //                                taskMap.put("taskId",delegateTask.getId());
                                 taskMap.put("taskDefKey",delegateExecution.getCurrentActivityId());
                                 taskMap.put("initiatorProcessTitle",String.valueOf(delegateExecution.getVariable("initiatorProcessTitle")));
