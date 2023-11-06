@@ -20,8 +20,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.notes.entity.Notes;
 import vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo;
-import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
-import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
+
+import java.util.List;
 
 /**
  * 业务表-CRM-备忘录登记Mapper接口
@@ -33,5 +33,5 @@ public interface NotesMapper extends BaseMapper<Notes> {
 
     IPage<NotesInfoVo> getPageList(Page<NotesInfoVo> page, @Param(Constants.WRAPPER) Wrapper<Notes> queryWrapper);
 
-    NotesInfoVo getDetailById(String id);
+    List<NotesInfoVo> getDetailById(String id);
 }

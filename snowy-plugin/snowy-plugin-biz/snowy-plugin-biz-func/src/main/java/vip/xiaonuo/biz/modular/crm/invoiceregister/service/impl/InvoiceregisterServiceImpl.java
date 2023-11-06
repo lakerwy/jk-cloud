@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.crm.invoiceregister.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -104,8 +105,9 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
 
         //反更新 合同 已开票金额
         if(StrUtil.isNotEmpty(invoiceregister.getContractNo())) {
-            Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, invoiceregister.getContractNo()));
-            if(ObjectUtil.isNotEmpty(ht)){
+            List<Hetong> hetongs = hetongService.list(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, invoiceregister.getContractNo()));
+            if (CollUtil.isNotEmpty(hetongs) && hetongs.size() == 1) {
+                Hetong ht = hetongs.get(0);
                 BigDecimal invoiceAmount = ht.getInvoiceAmount() == null ? BigDecimal.ZERO : ht.getInvoiceAmount();
                 BigDecimal addInvoiceAmount = invoiceregister.getMakeAmount() == null ? BigDecimal.ZERO : invoiceregister.getMakeAmount();
                 ht.setInvoiceAmount(invoiceAmount.add(addInvoiceAmount));
@@ -125,8 +127,9 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
 
         //反更新 合同 已开票金额
         if(StrUtil.isNotEmpty(invoiceregister.getContractNo())) {
-            Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, invoiceregister.getContractNo()));
-            if(ObjectUtil.isNotEmpty(ht)){
+            List<Hetong> hetongs = hetongService.list(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, invoiceregister.getContractNo()));
+            if (CollUtil.isNotEmpty(hetongs) && hetongs.size() == 1) {
+                Hetong ht = hetongs.get(0);
                 BigDecimal invoiceAmount = ht.getInvoiceAmount() == null ? BigDecimal.ZERO : ht.getInvoiceAmount();
                 //新的开票金额
                 BigDecimal newInvoiceAmount = invoiceregister.getMakeAmount() == null ? BigDecimal.ZERO : invoiceregister.getMakeAmount();
@@ -202,8 +205,8 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
         InvoiceRegisterInfoVo result = new InvoiceRegisterInfoVo();
         Invoiceregister invoiceregister = this.queryEntity(invoiceregisterIdParam.getId());
         BeanUtil.copyProperties(invoiceregister, result);
-        Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo,invoiceregister.getContractNo()));
-        result.setHetongInfo(ht);
+        List<Hetong> hetongs = hetongService.list(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo,invoiceregister.getContractNo()));
+        result.setHetongInfo(hetongs.size()==1?hetongs.get(0):null);
         return result;
     }
 }

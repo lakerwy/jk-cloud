@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.crm.contractrr.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -24,7 +25,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.biz.modular.crm.calocks.entity.Calocks;
 import vip.xiaonuo.biz.modular.crm.contractrr.param.*;
 import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrInfoVo;
 import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrPageInfoVo;
@@ -104,8 +104,10 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
 
         //反更新 合同 已收款金额
         if(StrUtil.isNotEmpty(contractrr.getContractNo())) {
-            Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, contractrr.getContractNo()));
-            if(ObjectUtil.isNotEmpty(ht)){
+            List<Hetong> hetongs = hetongService.list(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, contractrr.getContractNo()));
+            //历史存在一个合同号，两条记录情况
+            if (CollUtil.isNotEmpty(hetongs) && hetongs.size() == 1) {
+                Hetong ht = hetongs.get(0);
                 BigDecimal htHaveAmount = ht.getHaveAmount() == null ? BigDecimal.ZERO : ht.getHaveAmount();
                 BigDecimal addhaveAmount = contractrr.getCollectAmount() == null ? BigDecimal.ZERO : contractrr.getCollectAmount();
                 ht.setHaveAmount(htHaveAmount.add(addhaveAmount));
@@ -125,8 +127,10 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
 
         //反更新 合同 已收款金额
         if(StrUtil.isNotEmpty(contractrr.getContractNo())) {
-            Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, contractrr.getContractNo()));
-            if(ObjectUtil.isNotEmpty(ht)){
+            List<Hetong> hetongs = hetongService.list(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo, contractrr.getContractNo()));
+            //历史存在一个合同号，两条记录情况
+            if (CollUtil.isNotEmpty(hetongs) && hetongs.size() == 1) {
+                Hetong ht = hetongs.get(0);
                 BigDecimal htHaveAmount = ht.getHaveAmount() == null ? BigDecimal.ZERO : ht.getHaveAmount();
                 //修改后 新的收款金额
                 BigDecimal newhaveAmount = contractrr.getCollectAmount() == null ? BigDecimal.ZERO : contractrr.getCollectAmount();
@@ -135,7 +139,6 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
                 hetongService.updateById(ht);
             }
         }
-
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -202,10 +205,8 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
         ContractrrInfoVo result = new ContractrrInfoVo();
         Contractrr contractrr = this.queryEntity(contractrrIdParam.getId());
         BeanUtil.copyProperties(contractrr, result);
-        Hetong ht = hetongService.getOne(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo,contractrr.getContractNo()));
-        result.setHetongInfo(ht);
+        List<Hetong> hetongs = hetongService.list(new QueryWrapper<Hetong>().lambda().eq(Hetong::getContractNo,contractrr.getContractNo()));
+        result.setHetongInfo(hetongs.size()==1?hetongs.get(0):null);
         return result;
     }
-
-
 }

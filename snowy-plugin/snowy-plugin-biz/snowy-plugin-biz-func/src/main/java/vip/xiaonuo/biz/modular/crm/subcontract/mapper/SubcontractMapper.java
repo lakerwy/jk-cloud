@@ -13,7 +13,6 @@
 package vip.xiaonuo.biz.modular.crm.subcontract.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 

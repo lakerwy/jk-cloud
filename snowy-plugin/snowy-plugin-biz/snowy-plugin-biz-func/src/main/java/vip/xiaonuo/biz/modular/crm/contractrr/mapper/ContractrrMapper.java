@@ -20,8 +20,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.contractrr.entity.Contractrr;
 import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrPageInfoVo;
-import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
-import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 
 /**
  * 业务表-CRM-合同收款登记Mapper接口

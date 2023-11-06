@@ -19,9 +19,6 @@ import vip.xiaonuo.biz.modular.crm.contractrr.entity.Contractrr;
 import vip.xiaonuo.biz.modular.crm.contractrr.param.*;
 import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrInfoVo;
 import vip.xiaonuo.biz.modular.crm.contractrr.vo.ContractrrPageInfoVo;
-import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersIdParam;
-import vip.xiaonuo.biz.modular.crm.parameters.param.ParametersInfoPageParam;
-import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 
 import java.util.List;
 

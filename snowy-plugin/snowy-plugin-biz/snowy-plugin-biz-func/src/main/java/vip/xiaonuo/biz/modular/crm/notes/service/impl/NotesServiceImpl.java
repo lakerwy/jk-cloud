@@ -24,7 +24,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.biz.modular.crm.major.entity.Major;
 import vip.xiaonuo.biz.modular.crm.notes.vo.NotesInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -202,6 +201,7 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
 
     @Override
     public NotesInfoVo detailById(NotesIdParam notesIdParam) {
-        return notesMapper.getDetailById(notesIdParam.getId());
+        List<NotesInfoVo> list = notesMapper.getDetailById(notesIdParam.getId());
+        return list.size() > 0 ? list.get(0) : null;
     }
 }
