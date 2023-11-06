@@ -42,6 +42,7 @@ import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
@@ -907,14 +908,23 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             queryWrapper.eq("a.FILE_PATH",userFilePageParam.getFilePath());
             //超管看全部
             if(!StpLoginUserUtil.getLoginUser().getRoleCodeList().contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue())) {
-                queryWrapper.and(q -> q.eq("a.USER_ID", userId)
-                        .or(q1 -> q1.apply(" (IF(b.RIGHT_VALUE is null,0,b.RIGHT_VALUE) & {0} > 0 ) ", FileRight.LIST)
-                                .and(q2 -> {
-                                     q2.eq("b.OBJECT_ID", userId);
-                                     if (CollUtil.isNotEmpty(orgIds)) q2.or().in("b.OBJECT_ID", orgIds);
-                                })
-                        )
-                );
+                //获取数据范围
+                QueryWrapper<PanFileRight> query1 = new QueryWrapper<>();
+                query1.apply(" (RIGHT_VALUE & {0} > 0 ) ", FileRight.LIST);
+                query1.lambda().and(q-> {
+                    q.eq(PanFileRight::getObjectId,userId);
+                    if(CollUtil.isNotEmpty(orgIds)) q.or().in(PanFileRight::getObjectId,orgIds);
+                });
+                List<PanFileRight> inPanFileRightList = panFileRightService.list(query1);
+                List<String> inUserFileId = inPanFileRightList.stream().map(PanFileRight::getUserFileId).distinct().collect(Collectors.toList());
+
+                //拼接语句
+                queryWrapper.and(q->{
+                    q.eq("a.USER_ID", userId);
+                    if(CollUtil.isNotEmpty(inUserFileId)) q.or().in("a.ID",inUserFileId);
+                });
+
+                //过滤一部分
                 List<String> userFileIds = panFileRightService.notInUserFileIds(userId, orgId, orgIds);
                 if (CollUtil.isNotEmpty(userFileIds))
                     queryWrapper.notIn("a.ID", userFileIds);

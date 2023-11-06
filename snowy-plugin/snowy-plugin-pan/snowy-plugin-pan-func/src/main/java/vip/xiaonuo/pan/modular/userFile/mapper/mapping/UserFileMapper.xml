@@ -121,7 +121,7 @@
     
     <select id="getGroupPage" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
         select a.*
-        from PAN_USER_FILE a left join PAN_FILE_RIGHT b on a.ID = b.USER_FILE_ID and b.DELETE_FLAG='NOT_DELETE'
+        from PAN_USER_FILE a
         ${ew.customSqlSegment}
     </select>
 
