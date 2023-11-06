@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
+import java.sql.Time;
 import java.util.Date;
 
 /**
@@ -49,18 +50,18 @@ public class ConferenceConfig {
 
     /** 开始时间：单位-时分秒 */
     @ApiModelProperty(value = "开始时间：单位-时分秒", position = 5)
-    private Date beginTime;
+    private Time beginTime;
 
     /** 结束时间：单位-时分秒 */
     @ApiModelProperty(value = "结束时间：单位-时分秒", position = 6)
-    private Date endTime;
+    private Time endTime;
 
     /** 对应周几：1 周一，2 周二，3 周三 ... */
     @ApiModelProperty(value = "对应周几：1 周一，2 周二，3 周三 ...", position = 7)
     private Integer weekTime;
 
-    /** 对应相应的天数 */
-    @ApiModelProperty(value = "对应相应的天数", position = 8)
+    /** 每月的哪一天 */
+    @ApiModelProperty(value = "每月的哪一天", position = 8)
     private Integer dayTime;
 
     /** 最多容纳多少人 */
