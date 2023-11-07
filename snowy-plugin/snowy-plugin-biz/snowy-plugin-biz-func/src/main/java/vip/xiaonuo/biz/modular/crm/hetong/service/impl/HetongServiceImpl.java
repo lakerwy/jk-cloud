@@ -130,13 +130,13 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());
         }
 
-        // 校验数据范围
-        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
-        } else {
-            queryWrapper.eq("a.DATA_SCOPE_ID", StpUtil.getLoginIdAsString());
-        }
+//        // 校验数据范围
+//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+//            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
+//        } else {
+//            queryWrapper.eq("a.DATA_SCOPE_ID", StpUtil.getLoginIdAsString());
+//        }
 
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hetongPageParam.getSortOrder());
