@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanInvoice;
 
+import java.math.BigDecimal;
+
 /**
  * @author yong.ye
  * @date 2023/10/19 14:02
@@ -24,7 +26,7 @@ public class PlanInvoiceVo extends BizPrjPlanInvoice {
 
     /** 计划表 - 合同金额 */
     @ApiModelProperty(value = " 计划表 -合同金额", position = 1)
-    private Double contractAmount;
+    private BigDecimal contractAmount;
 
     /** 计划表 - 合同名称 */
     @ApiModelProperty(value = " 计划表 -合同名称", position = 1)

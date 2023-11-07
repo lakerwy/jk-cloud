@@ -8,6 +8,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanCollection;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanInvoice;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -48,7 +49,7 @@ public class PrjPlanParam {
 
     /** 合同金额 */
     @ApiModelProperty(value = "合同金额", position = 7)
-    private Double contractAmount;
+    private BigDecimal contractAmount;
 
     /** 合同名称 */
     @ApiModelProperty(value = "合同名称", position = 8)
@@ -100,7 +101,7 @@ public class PrjPlanParam {
 
     /** 竣工结算金额 */
     @ApiModelProperty(value = "竣工结算金额", position = 18)
-    private Double completeAmount;
+    private BigDecimal completeAmount;
 
     /** 竣工结算资料说明 */
     @ApiModelProperty(value = "竣工结算资料说明", position = 19)
@@ -114,57 +115,13 @@ public class PrjPlanParam {
     @ApiModelProperty(value = "合同归档率", position = 21)
     private String filingRate;
 
-//    /** 分包合同编号 */
-//    @ApiModelProperty(value = "分包合同编号", position = 22)
-//    private String subContractNo;
-//
-//    /** 分包合同名称 */
-//    @ApiModelProperty(value = "分包合同名称", position = 23)
-//    private String subContractName;
-//
-//    /** 分包合同金额 */
-//    @ApiModelProperty(value = "分包合同金额", position = 24)
-//    private Double subContractAmount;
-//
-//    /** 收款单位 */
-//    @ApiModelProperty(value = "收款单位", position = 25)
-//    private String collectingUnit;
-
-
-
-//    /** 累计提供发票（含本次）- 开票金额(不含税)  -- 删除字段，暂不用 */
-//    @ApiModelProperty(value = "累计提供发票（含本次）- 开票金额(不含税) -- 删除字段，暂不用", position = 26)
-//    private Double fpKpAmount;
-//
-//    /** 累计提供发票（含本次）- 税额(专票) -- 删除字段，暂不用 */
-//    @ApiModelProperty(value = "累计提供发票（含本次）- 税额(专票) -- 删除字段，暂不用", position = 27)
-//    private Double fpSeAmount;
-//
-//    /** 累计提供发票（含本次）- 累计发票金额  -- 删除字段，暂不用*/
-//    @ApiModelProperty(value = "累计提供发票（含本次）- 累计发票金额 -- 删除字段，暂不用", position = 28)
-//    private Double fpLjAmount;
-//
-//    /** 累计提供发票（含本次）- 小计 */
-//    @ApiModelProperty(value = "累计提供发票（含本次）- 小计", position = 29)
-//    private Double fpTotalAmount;
-//
-//    /** 累计提供发票（含本次）- 累计支付金额 */
-//    @ApiModelProperty(value = "累计提供发票（含本次）- 累计支付金额", position = 29)
-//    private Double fpZfAmount;
-//
-//    /** 累计提供发票（含本次）- 开票未付金额 */
-//    @ApiModelProperty(value = "累计提供发票（含本次）- 开票未付金额", position = 30)
-//    private Double fpWfAmount;
-
-
-
     /** 工程总承包事业部意见 */
     @ApiModelProperty(value = "工程总承包事业部意见", position = 31)
     private String gczcIdea;
 
     /** 财务审定付款金额 */
     @ApiModelProperty(value = "财务审定付款金额", position = 32)
-    private Double cwFkAmount;
+    private BigDecimal cwFkAmount;
 
     /** 资产财务中心意见-审定意见 */
     @ApiModelProperty(value = "资产财务中心意见-审定意见", position = 33)

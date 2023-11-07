@@ -46,7 +46,7 @@ public class BizPrjPlanCollectionEditParam {
 
     /** 分包合同金额 */
     @ApiModelProperty(value = "分包合同金额", position = 24)
-    private Double subContractAmount;
+    private BigDecimal subContractAmount;
 
     /** 收款单位编码 */
     @ApiModelProperty(value = "收款单位编码", position = 2)
@@ -70,7 +70,7 @@ public class BizPrjPlanCollectionEditParam {
 
     /** 计划付款金额 */
     @ApiModelProperty(value = "计划付款金额", position = 7)
-    private Double jhfkAmount;
+    private BigDecimal jhfkAmount;
 
     /** 款项性质 */
     @ApiModelProperty(value = "款项性质", position = 8)

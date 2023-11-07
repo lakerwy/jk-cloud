@@ -62,11 +62,11 @@ public class BizPrjSettleInvoice {
 
     /** 税额 */
     @ApiModelProperty(value = "税额", position = 7)
-    private Double seAmount;
+    private BigDecimal seAmount;
 
     /** 开票金额（税额） */
     @ApiModelProperty(value = "开票金额（税额）", position = 8)
-    private Double kpAmount;
+    private BigDecimal kpAmount;
 
     /** 删除状态标记 */
     @ApiModelProperty(value = "删除状态标记", position = 9)

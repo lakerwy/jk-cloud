@@ -62,11 +62,11 @@ public class BizPrjPlanInvoiceEditParam {
 
     /** 税额 */
     @ApiModelProperty(value = "税额", position = 6)
-    private Double seAmount;
+    private BigDecimal seAmount;
 
     /** 发票金额 */
     @ApiModelProperty(value = "发票金额", position = 7)
-    private Double fpAmount;
+    private BigDecimal fpAmount;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 13)

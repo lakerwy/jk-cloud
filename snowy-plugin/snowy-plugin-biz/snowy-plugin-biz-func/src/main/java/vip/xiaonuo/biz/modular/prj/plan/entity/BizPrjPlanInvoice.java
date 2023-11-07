@@ -61,11 +61,11 @@ public class BizPrjPlanInvoice {
 
     /** 税额 */
     @ApiModelProperty(value = "税额", position = 6)
-    private Double seAmount;
+    private BigDecimal seAmount;
 
     /** 发票金额 */
     @ApiModelProperty(value = "发票金额", position = 7)
-    private Double fpAmount;
+    private BigDecimal fpAmount;
 
     /** 删除状态标记 */
     @ApiModelProperty(value = "删除状态标记", position = 8)

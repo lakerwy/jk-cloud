@@ -68,11 +68,11 @@ public class BizPrjSettle {
 
     /** 合作协议基本信息-当期约定的回款额 */
     @ApiModelProperty(value = "合作协议基本信息-当期约定的回款额", position = 9)
-    private Double xyCurrentAppointAmount;
+    private BigDecimal xyCurrentAppointAmount;
 
     /** 合作协议基本信息-当期约定的保底额 */
     @ApiModelProperty(value = "合作协议基本信息-当期约定的保底额", position = 10)
-    private Double xyCurrentAppointLowAmount;
+    private BigDecimal xyCurrentAppointLowAmount;
 
     /** 合作协议基本信息-管理费费率 */
     @ApiModelProperty(value = "合作协议基本信息-管理费费率", position = 11)
@@ -88,7 +88,7 @@ public class BizPrjSettle {
 
     /** 总包-合同金额 */
     @ApiModelProperty(value = "总包-合同金额", position = 14)
-    private Double zbContractAmount;
+    private BigDecimal zbContractAmount;
 
     /** 总包-合同签订日期 */
     @ApiModelProperty(value = "总包-合同签订日期", position = 15)
@@ -128,7 +128,7 @@ public class BizPrjSettle {
 
     /** 总包-竣工结算金额 */
     @ApiModelProperty(value = "总包-竣工结算金额", position = 22)
-    private Double zbCompleteAmount;
+    private BigDecimal zbCompleteAmount;
 
     /** 总包-竣工结算资料说明 */
     @ApiModelProperty(value = "总包-竣工结算资料说明", position = 23)
@@ -137,34 +137,6 @@ public class BizPrjSettle {
     /** 总包-竣工结算资料上传 */
     @ApiModelProperty(value = "总包-竣工结算资料上传", position = 24)
     private String zbCompleteAttach;
-
-
-
-//    /** 累计开票（含本次）- 累计税额  -- 删除字段，暂不用 */
-//    @ApiModelProperty(value = "累计开票（含本次）- 累计税额  -- 删除字段，暂不用", position = 25)
-//    private Double kpLjsAmount;
-//
-//    /** 累计开票（含本次）- 累计不含税金额  -- 删除字段，暂不用*/
-//    @ApiModelProperty(value = "累计开票（含本次）- 累计不含税金额  -- 删除字段，暂不用", position = 26)
-//    private Double kpLjnsAmount;
-//
-//    /** 累计开票（含本次）- 累计金额（含税） -- 删除字段，暂不用*/
-//    @ApiModelProperty(value = "累计开票（含本次）- 累计金额（含税） -- 删除字段，暂不用", position = 27)
-//    private Double kpLjAmount;
-//
-//    /** 累计开票（含本次）- 小计 */
-//    @ApiModelProperty(value = "累计开票（含本次）- 小计", position = 28)
-//    private Double kpTotalAmount;
-//
-//    /** 累计开票（含本次）- 累计回款金额 */
-//    @ApiModelProperty(value = "累计开票（含本次）- 累计回款金额", position = 28)
-//    private Double kpLjhkAmount;
-//
-//    /** 累计开票（含本次）- 本次申请内部结算金额 */
-//    @ApiModelProperty(value = "累计开票（含本次）- 本次申请内部结算金额", position = 29)
-//    private Double kpLjjsAmount;
-
-
 
     /** 行政部-意见 */
     @ApiModelProperty(value = "行政部-意见", position = 30)
@@ -184,7 +156,7 @@ public class BizPrjSettle {
 
     /** 总师办-签字费总金额 */
     @ApiModelProperty(value = "总师办-签字费总金额", position = 34)
-    private Double zsbSignAmount;
+    private BigDecimal zsbSignAmount;
 
     /** 总师办-附件上传（签字费盖章收款确认单） */
     @ApiModelProperty(value = "总师办-附件上传（签字费盖章收款确认单）", position = 35)
@@ -192,7 +164,7 @@ public class BizPrjSettle {
 
     /** 总师办-本次收取签字费金额 */
     @ApiModelProperty(value = "总师办-本次收取签字费金额", position = 36)
-    private Double zsbCurrentSignAmount;
+    private BigDecimal zsbCurrentSignAmount;
 
     /** 总师办-质量情况或签字费用说明 */
     @ApiModelProperty(value = "总师办-质量情况或签字费用说明", position = 37)
@@ -204,27 +176,27 @@ public class BizPrjSettle {
 
     /** 财务部-本次异地预缴税款 */
     @ApiModelProperty(value = "财务部-本次异地预缴税款", position = 39)
-    private Double cwbYdThisAmount;
+    private BigDecimal cwbYdThisAmount;
 
     /** 财务部-累计异地预缴税款 */
     @ApiModelProperty(value = "财务部-累计异地预缴税款", position = 40)
-    private Double cwbYdLjAmount;
+    private BigDecimal cwbYdLjAmount;
 
     /** 财务部-本次应收税差 */
     @ApiModelProperty(value = "财务部-本次应收税差", position = 41)
-    private Double cwbScThisAmount;
+    private BigDecimal cwbScThisAmount;
 
     /** 财务部-累计应收税差 */
     @ApiModelProperty(value = "财务部-累计应收税差", position = 42)
-    private Double cwbScLjAmount;
+    private BigDecimal cwbScLjAmount;
 
     /** 财务部-本次实际收取税差 */
     @ApiModelProperty(value = "财务部-本次实际收取税差", position = 41)
-    private Double cwbSsThisAmount;
+    private BigDecimal cwbSsThisAmount;
 
     /** 财务部-累计实际收取税差 */
     @ApiModelProperty(value = "财务部-累计实际收取税差", position = 42)
-    private Double cwbSsLjAmount;
+    private BigDecimal cwbSsLjAmount;
 
     /** 财务部-税差计算方式 */
     @ApiModelProperty(value = "财务部-税差计算方式", position = 43)

@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettleInvoice;
 
+import java.math.BigDecimal;
+
 /**
  * @author yong.ye
  * @date 2023/10/19 14:50
@@ -28,6 +30,6 @@ public class SettleInvoiceVo extends BizPrjSettleInvoice {
 
     /** 总包-合同金额 */
     @ApiModelProperty(value = "总包-合同金额", position = 14)
-    private Double contractAmount;
+    private BigDecimal contractAmount;
 
 }
