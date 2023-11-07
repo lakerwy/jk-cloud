@@ -12,9 +12,7 @@
  */
 package vip.xiaonuo.dev.modular.sms.controller;
 
-import cn.hutool.core.util.RandomUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.gexin.rp.sdk.base.IPushResult;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -36,8 +34,6 @@ import vip.xiaonuo.dev.modular.sms.service.UniPushService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 短信控制器
@@ -57,8 +53,6 @@ public class DevSmsController {
     @Resource
     UniPushService uniPushService;
 
-    @Resource
-    JPushService jPushService;
 
     /**
      * 发送短信——阿里云

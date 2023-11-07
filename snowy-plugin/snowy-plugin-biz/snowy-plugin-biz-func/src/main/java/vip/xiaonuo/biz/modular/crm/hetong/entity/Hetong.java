@@ -258,4 +258,8 @@ public class Hetong {
     /** 流程实例id */
     @ApiModelProperty(value = "流程实例id", position = 53)
     private String processInstanceId;
+
+    @ApiModelProperty(value = "数据权限字段",position = 62)
+    @TableField(fill = FieldFill.INSERT)
+    private String dataScopeId;
 }

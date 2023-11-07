@@ -50,6 +50,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -217,7 +218,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
                 StrUtil.DOT, true):null;
         devFile.setSuffix(suffix);
         devFile.setSizeKb(Convert.toStr(NumberUtil.div(new BigDecimal(file.getSize()), BigDecimal.valueOf(1024))
-                .setScale(0, BigDecimal.ROUND_HALF_UP)));
+                .setScale(0, RoundingMode.HALF_UP)));
         devFile.setSizeInfo(FileUtil.readableFileSize(file.getSize()));
         devFile.setObjName(ObjectUtil.isNotEmpty(devFile.getSuffix())?fullFileId + StrUtil.DOT + devFile.getSuffix():null);
         // 如果是图片，则压缩生成缩略图

@@ -12,8 +12,8 @@
  */
 package vip.xiaonuo.biz.modular.crm.hetong.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.core.metadata.IPage;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -59,7 +59,7 @@ public class HetongController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-CRM-合同分页  【api/crm/contract/GetHetongPage】")
-//    @SaCheckPermission("/biz/hetong/page")
+    @SaCheckPermission("/biz/hetong/page")
     @GetMapping("/biz/crm/hetong/page")
     public CommonResult<IPage<HetongDetailVo>> page(HetongPageParam hetongPageParam) {
         return CommonResult.data(hetongService.page(hetongPageParam));

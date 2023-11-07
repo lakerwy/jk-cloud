@@ -20,7 +20,6 @@ import com.gexin.rp.sdk.template.style.Style0;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.dev.modular.message.entity.DevMessage;
 import vip.xiaonuo.dev.modular.sms.service.UniPushService;
@@ -88,9 +87,8 @@ public class UniPushServiceImpl implements UniPushService {
     @Override
     public IAliasResult bindAlias(String alias, String clientId) {
         IGtPush push = new IGtPush(host, appKey, masterSecret);
-        IAliasResult iAliasResult = push.bindAlias(appId, alias, clientId);
-//        System.out.println("绑定结果：" + iAliasResult.getResponse());
-        return iAliasResult;
+        //        System.out.println("绑定结果：" + iAliasResult.getResponse());
+        return push.bindAlias(appId, alias, clientId);
     }
 
     //根据别名查询cid
