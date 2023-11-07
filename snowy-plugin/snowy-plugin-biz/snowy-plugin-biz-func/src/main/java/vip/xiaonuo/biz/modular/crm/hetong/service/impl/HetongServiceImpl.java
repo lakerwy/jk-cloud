@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.hetong.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -128,6 +129,15 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         if(ObjectUtil.isNotEmpty(hetongPageParam.getDescription())) {
             queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());
         }
+
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
+        } else {
+            queryWrapper.eq("a.DATA_SCOPE_ID", StpUtil.getLoginIdAsString());
+        }
+
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hetongPageParam.getSortOrder());
             queryWrapper.orderBy(true, hetongPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -220,7 +230,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             List<Hetong> list = this.list(new QueryWrapper<Hetong>().lambda()
                     .eq(Hetong::getProjectName, checkNameParam.getProjectName())
                     .in(Hetong::getStatus,"0","1"));
-            return list.size()>0;
+            return !list.isEmpty();
         }
         return false;
     }
