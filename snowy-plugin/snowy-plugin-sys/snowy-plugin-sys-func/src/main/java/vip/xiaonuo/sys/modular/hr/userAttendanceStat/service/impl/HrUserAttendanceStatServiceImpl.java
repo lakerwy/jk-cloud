@@ -519,7 +519,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
             /** 一次轮询结束，开始保存数据 */
             dayCheckTimeMapList.add(statMap);
-            List<AttendanceTimeSlot> attendanceTimeSlotList = hrUserAttendanceService.getAttendanceTimeSlotList(user.getId(),beginTime);
+            List<AttendanceTimeSlot> attendanceTimeSlotList = hrUserAttendanceService.getAttendanceTimeSlotList(user.getAttendanceGroupId(),beginTime);
             attendanceDayStat.setAttendanceTypeName(attendanceTimeSlotList.get(0).getAttendanceTypeName());
             attendanceDayStat.setAttendanceTypeId(attendanceTimeSlotList.get(0).getAttendanceTypeId());
             attendanceDayStat.setDayCheckTimeMapList(dayCheckTimeMapList);

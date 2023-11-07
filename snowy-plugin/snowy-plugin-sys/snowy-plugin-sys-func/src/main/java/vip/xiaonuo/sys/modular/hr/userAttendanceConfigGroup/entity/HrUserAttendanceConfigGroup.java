@@ -84,4 +84,12 @@ public class HrUserAttendanceConfigGroup {
     /** 是否默认考勤配置 */
     @ApiModelProperty(value = "是否默认考勤配置", position = 12)
     private String isDefaultConfig;//IS_DEFAULT_CONFIG
+
+    /** 有效开始时间 */
+    @ApiModelProperty(value = "有效开始时间", position = 13)
+    private String validBeginTime;
+
+    /** 有效结束时间 */
+    @ApiModelProperty(value = "有效结束时间", position = 14)
+    private String validEndTime;
 }
