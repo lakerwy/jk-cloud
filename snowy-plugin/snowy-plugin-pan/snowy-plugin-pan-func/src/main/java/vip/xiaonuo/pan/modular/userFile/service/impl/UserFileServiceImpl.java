@@ -152,6 +152,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             userFile.setParentId(parentUserFile.getId());
             userFile.setFoldType(parentUserFile.getFoldType());
         }
+        userFile.setFoldType(userFileAddParam.getFoldType());
         userFile.setFileSize(0L);
         this.save(userFile);
     }
@@ -946,7 +947,17 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         else{
             queryWrapper.eq("DELETE_FLAG","NOT_DELETE");
             queryWrapper.eq("FOLD_TYPE","1");
-            queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());
+            if(StrUtil.isNotEmpty(userFilePageParam.getFilePath())){
+                String filePath = userFilePageParam.getFilePath();
+                int index = filePath.lastIndexOf(ROOT_FOLD_PATH);
+                String fileName = filePath.substring(index+1);
+                String newFilePath = filePath.substring(0,index+1);
+                List<UserFile> list = this.list(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFileName, fileName).eq(UserFile::getFilePath, newFilePath));
+                if(CollUtil.isNotEmpty(list)){
+                    queryWrapper.eq("PARENT_ID",list.get(0).getId());
+                }
+            }
+//            queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());
             //超管看全部
             if(!StpLoginUserUtil.getLoginUser().getRoleCodeList().contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue())) {
                 List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
