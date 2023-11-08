@@ -18,6 +18,7 @@ import lombok.Setter;
 import vip.xiaonuo.pan.core.RegexConstant;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 
 /**
@@ -63,7 +64,7 @@ public class UserFileAddParam {
 
     /** 文件夹类型 */
     @ApiModelProperty(value = "文件夹类型(0 个人文件夹 1、群组文件夹)", required = true,position = 16)
-    @NotBlank(message = "文件夹类型不能为空")
+    @NotNull(message = "文件夹类型不能为空")
     private Integer foldType;
 
     /** 文件拓展名 */

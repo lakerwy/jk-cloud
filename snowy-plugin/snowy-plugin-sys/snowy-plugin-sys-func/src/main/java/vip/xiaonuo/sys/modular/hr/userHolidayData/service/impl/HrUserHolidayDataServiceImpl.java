@@ -14,6 +14,9 @@ package vip.xiaonuo.sys.modular.hr.userHolidayData.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -26,8 +29,13 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.sys.modular.hr.attendanceAnalStat.entity.HrAttendanceAnalStat;
+import vip.xiaonuo.sys.modular.hr.attendanceAnalStat.service.HrAttendanceAnalStatService;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.HrUserApplyHolidayService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.enums.HrUserHolidayDataEnum;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.mapper.HrUserHolidayDataMapper;
@@ -41,6 +49,7 @@ import vip.xiaonuo.sys.modular.hr.userHolidayDataRec.service.HrUserHolidayDataRe
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import javax.annotation.Resource;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -56,6 +65,10 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
     private HrUserHolidayDataRecService hrUserHolidayDataRecService;
     @Resource
     private HrUserApplyHolidayService hrUserApplyHolidayService;
+    @Resource
+    private HrUserAttendanceStatService hrUserAttendanceStatService;
+    @Resource
+    private HrAttendanceAnalStatService hrAttendanceAnalStatService;
 
     @Override
     public Page<HrUserHolidayData> page(HrUserHolidayDataPageParam hrUserHolidayDataPageParam) {
@@ -170,8 +183,8 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
         }
         this.updateById(hrUserHolidayData);
         saveHolidayRec(hrUserApplyHoliday);
+        holidayToStat(hrUserApplyHoliday);//请假数据到统计库
     }
-
     private void saveHolidayRec(HrUserApplyHoliday hrUserApplyHoliday){
         HrUserHolidayDataRec hrUserHolidayDataRec = new HrUserHolidayDataRec();
         hrUserHolidayDataRec.setUserId(hrUserApplyHoliday.getApplyUserId());
@@ -183,6 +196,34 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
             hrUserHolidayDataRec.setCompensatoryLeave("-"+hrUserApplyHoliday.getLeaveDays().toString());
         }
         hrUserHolidayDataRecService.save(hrUserHolidayDataRec);
+    }
+
+    //请假数据到统计表
+    private void holidayToStat( HrUserApplyHoliday hrUserApplyHoliday){
+        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(hrUserApplyHoliday.getApplyBeginTime(),hrUserApplyHoliday.getApplyEndTime());
+        dayList.forEach(day -> {
+            List<HrAttendanceAnalStat> analStatList =  hrAttendanceAnalStatService.list(new LambdaQueryWrapper<HrAttendanceAnalStat>()
+                    .eq(HrAttendanceAnalStat::getUserId,hrUserApplyHoliday.getApplyUserId())
+                    .between(HrAttendanceAnalStat::getCheckTime,day+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),day+HrUserAttendanceStatEnum.END_TIME.getValue()));
+
+            Boolean isWeek = DateUtil.isWeekend(CommonTimeFormatUtil.strToDate(day));
+            Boolean isFestival =  hrUserAttendanceStatService.isFestival(day,1);//type类别：1 判断是法定节假日，2 判断是法定加班日
+            Boolean isWork =  hrUserAttendanceStatService.isFestival(day,2);
+
+            HrAttendanceAnalStat hrAttendanceAnalStat = CollectionUtil.isNotEmpty(analStatList) ? analStatList.get(0) : new HrAttendanceAnalStat();
+            if(isWeek && isWork){   //周末+法定加班日
+                hrAttendanceAnalStat.setHolidayDays(1.0);
+                hrAttendanceAnalStat.setHolidayFlag(1);
+                hrAttendanceAnalStat.setHolidayType(hrUserApplyHoliday.getApplyType());
+            }
+            if(!isWeek && !isFestival){  //非周末+非法定休息日
+                hrAttendanceAnalStat.setHolidayDays(1.0);
+                hrAttendanceAnalStat.setHolidayFlag(1);
+                hrAttendanceAnalStat.setHolidayType(hrUserApplyHoliday.getApplyType());
+            }
+            hrAttendanceAnalStatService.saveOrUpdate(hrAttendanceAnalStat);
+        });
+
     }
 
 }
