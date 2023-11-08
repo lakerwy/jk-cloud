@@ -15,5 +15,8 @@ public class PreviewOfficeFileParam {
 
     @ApiModelProperty(value = "文件ID")
     private String userFileId;
-    
+
+    @ApiModelProperty(value = "下载地址URl")
+    private String previewUrl;
+
 }

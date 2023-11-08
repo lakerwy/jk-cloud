@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.file.controller;
 
+import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson2.JSON;
@@ -33,6 +34,8 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
+import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
@@ -45,7 +48,6 @@ import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Act
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.enums.Type;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.EditorConfig;
 import vip.xiaonuo.pan.modular.fileCenter.office.documentserver.models.filemodel.FileModel;
-import vip.xiaonuo.pan.modular.fileCenter.office.entities.Permission;
 import vip.xiaonuo.pan.modular.fileCenter.office.entities.User;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.FileConfigurer;
 import vip.xiaonuo.pan.modular.fileCenter.office.services.configurers.wrappers.DefaultFileWrapper;
@@ -69,6 +71,7 @@ import javax.validation.Valid;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -117,6 +120,9 @@ public class PanFileController {
 
     @Resource
     private PanFileRightService panFileRightService;
+
+    @Resource
+    private DevFileService devFileService;
 
     /**
      * 获取文件详情
@@ -334,8 +340,8 @@ public class PanFileController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("预览office文件)")
 //    @SaCheckPermission("/pan/commonFile/commonFileByUser")
-    @PostMapping("/pan/file/previewOfficeFile")
-    public CommonResult<Object> previewOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
+    @PostMapping("/pan/file/newPreviewOfficeFile")
+    public CommonResult<Object> newPreviewOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
         CommonResult<Object> result = new CommonResult<>();
         try {
 //            String token = request.getHeader("Token");
@@ -375,6 +381,65 @@ public class PanFileController {
         }
         return result;
     }
+
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("预览office文件)")
+//    @SaCheckPermission("/pan/commonFile/commonFileByUser")
+    @PostMapping("/pan/file/previewOfficeFile")
+    public CommonResult<Object> previewOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
+        CommonResult<Object> result = new CommonResult<>();
+        try {
+//            String token = request.getHeader("Token");
+            String previewUrl = commonProperties.getBackendUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
+            UserFile userFile = null;
+
+            if(StrUtil.isNotEmpty(previewOfficeFileParam.getPreviewUrl())){
+                String previewUrl1 = previewOfficeFileParam.getPreviewUrl();
+                UrlBuilder urlBuilder = UrlBuilder.ofHttp(previewUrl1, Charset.defaultCharset());
+                String id = (String) urlBuilder.getQuery().get("id");
+                DevFile devFile = devFileService.getById(id);
+                userFile = new UserFile();
+                userFile.setFileName(devFile.getName());
+                userFile.setCreateTime(devFile.getCreateTime());
+                userFile.setExtendName(devFile.getSuffix());
+                userFile.setId(devFile.getId());
+            }else {
+                userFile = userFileService.getById(previewOfficeFileParam.getUserFileId()) ;
+            }
+
+            SaBaseLoginUser userBean = StpLoginUserUtil.getLoginUser();
+
+            User user = new User();
+            user.setId(userBean.getId());
+            user.setName(userBean.getAccount());
+
+            Action action = Action.view;
+            Type type = Type.desktop;
+            Locale locale = new Locale("zh");
+            FileModel fileModel = fileConfigurer.getFileModel(
+                    DefaultFileWrapper
+                            .builder()
+                            .userFile(userFile)
+                            .type(type)
+                            .lang(locale.toLanguageTag())
+                            .action(action)
+                            .user(user)
+                            .actionData(previewUrl)
+                            .build()
+            );
+            JSONObject jsonObject = new JSONObject();
+            jsonObject.put("file",fileModel);
+//            jsonObject.put("fileHistory", historyManager.getHistory(fileModel.getDocument()));  // get file history and add it to the model
+            jsonObject.put("docServiceApiUrl", docServiceSite + docServiceApiUrl);
+            jsonObject.put("reportName",userFile.getFileName());
+            result = CommonResult.data(jsonObject);
+
+        } catch (Exception e) {
+            result = CommonResult.error(e.getMessage());
+        }
+        return result;
+    }
+
     @ApiOperationSupport(order = 2)
     @ApiOperation("编辑office文件")
     @PostMapping(value = "/pan/file/editOfficeFile")
