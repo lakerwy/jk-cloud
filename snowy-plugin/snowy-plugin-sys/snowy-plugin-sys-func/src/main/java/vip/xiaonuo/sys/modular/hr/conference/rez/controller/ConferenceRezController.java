@@ -26,16 +26,15 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezAddParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezEditParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezIdParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 会议预约-预约会议表数据控制器
@@ -60,7 +59,7 @@ public class ConferenceRezController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取会议预约-预约会议表数据分页")
-    @SaCheckPermission("/sys/rez/page")
+    //@SaCheckPermission("/sys/rez/page")
     @GetMapping("/sys/rez/page")
     public CommonResult<Page<ConferenceRez>> page(ConferenceRezPageParam conferenceRezPageParam) {
         return CommonResult.data(conferenceRezService.page(conferenceRezPageParam));
@@ -75,7 +74,7 @@ public class ConferenceRezController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加会议预约-预约会议表数据")
     @CommonLog("添加会议预约-预约会议表数据")
-    @SaCheckPermission("/sys/rez/add")
+    //@SaCheckPermission("/sys/rez/add")
     @PostMapping("/sys/rez/add")
     public CommonResult<String> add(@RequestBody @Valid ConferenceRezAddParam conferenceRezAddParam) {
         conferenceRezService.add(conferenceRezAddParam);
@@ -91,7 +90,7 @@ public class ConferenceRezController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑会议预约-预约会议表数据")
     @CommonLog("编辑会议预约-预约会议表数据")
-    @SaCheckPermission("/sys/rez/edit")
+    //@SaCheckPermission("/sys/rez/edit")
     @PostMapping("/sys/rez/edit")
     public CommonResult<String> edit(@RequestBody @Valid ConferenceRezEditParam conferenceRezEditParam) {
         conferenceRezService.edit(conferenceRezEditParam);
@@ -107,7 +106,7 @@ public class ConferenceRezController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除会议预约-预约会议表数据")
     @CommonLog("删除会议预约-预约会议表数据")
-    @SaCheckPermission("/sys/rez/delete")
+    //@SaCheckPermission("/sys/rez/delete")
     @PostMapping("/sys/rez/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<ConferenceRezIdParam> conferenceRezIdParamList) {
@@ -123,9 +122,24 @@ public class ConferenceRezController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取会议预约-预约会议表数据详情")
-    @SaCheckPermission("/sys/rez/detail")
+    //@SaCheckPermission("/sys/rez/detail")
     @GetMapping("/sys/rez/detail")
     public CommonResult<ConferenceRez> detail(@Valid ConferenceRezIdParam conferenceRezIdParam) {
         return CommonResult.data(conferenceRezService.detail(conferenceRezIdParam));
     }
+
+    /**
+     * 获取会议预约-预约会议表数据详情
+     *
+     * @author ljy
+     * @date  2023/11/05 23:13
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取会议预约-查看可预约会议数据")
+    //@SaCheckPermission("/sys/rez/conferenceRoom")
+    @GetMapping("/sys/rez/conferenceRoom")
+    public CommonResult<List<ConferenceConfig>> conferenceRoom(@Valid ConferenceRoomParam conferenceRoomParam) {
+        return CommonResult.data(conferenceRezService.conferenceRoom(conferenceRoomParam));
+    }
+
 }

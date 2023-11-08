@@ -14,11 +14,10 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezAddParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezEditParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezIdParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 
 
 import java.util.List;
@@ -78,4 +77,14 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
      * @date  2023/11/05 23:13
      **/
     ConferenceRez queryEntity(String id);
+
+    /**
+     * 异步发送消息
+     * */
+    void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent);
+
+    /**
+    * 查询可预约场景
+    * */
+    List<ConferenceConfig> conferenceRoom(ConferenceRoomParam conferenceRoomParam);
 }

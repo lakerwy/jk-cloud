@@ -14,13 +14,18 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -31,16 +36,18 @@ import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezMapper;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezAddParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezEditParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezIdParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 
 
 import javax.annotation.Resource;
 import java.sql.Time;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 会议预约-预约会议表数据Service接口实现类
@@ -51,6 +58,8 @@ import java.util.List;
 @Service
 public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, ConferenceRez> implements ConferenceRezService {
 
+    @Resource
+    private ApplicationEventPublisher eventPublisher;
     @Resource
     private ConferenceConfigService conferenceConfigService;
 
@@ -70,7 +79,24 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         } else {
             queryWrapper.lambda().orderByAsc(ConferenceRez::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<ConferenceRez> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<ConferenceRez> conferenceRezList = page.getRecords();
+        if(CollectionUtil.isNotEmpty(conferenceRezList)){
+            conferenceRezList.forEach(rez -> rez.setShowTime(caltTime(rez)));
+            page.setRecords(conferenceRezList);
+        }
+        return page;
+    }
+
+    private String caltTime(ConferenceRez rez){
+        String caltTime = "";
+        String day = DateUtil.format(rez.getBeginTime(),DatePattern.NORM_DATE_PATTERN);
+        if(day.equals(DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN))){
+            caltTime =  "今天 "+DateUtil.format(rez.getBeginTime(),"HH:mm")+"~"+DateUtil.format(rez.getEndTime(),"HH:mm");
+        }else{
+            caltTime =  DateUtil.format(rez.getBeginTime(),DatePattern.NORM_DATE_PATTERN)+" "+DateUtil.format(rez.getBeginTime(),"HH:mm")+"~"+DateUtil.format(rez.getEndTime(),"HH:mm");
+        }
+        return caltTime;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -83,6 +109,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
         this.save(conferenceRez);
+        //异步推送消息
+        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent("","");
+        eventPublisher.publishEvent(conferenceMsgEvent);
     }
     private void updateConferenceConfig(ConferenceRezAddParam conferenceRezAddParam){
         ConferenceConfig conferenceConfig = conferenceConfigService.queryEntity(conferenceRezAddParam.getConferenceConfigId());
@@ -125,4 +154,27 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         return conferenceRez;
     }
+
+    @EventListener
+    @Async
+    public void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent){
+        // TODO 发送消息业务逻辑
+        ConferenceMsgEvent event = conferenceMsgEvent;
+    }
+
+
+    @Override
+    public List<ConferenceConfig> conferenceRoom(ConferenceRoomParam conferenceRoomParam){
+        List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
+                .between(ConferenceRez::getBeginTime,conferenceRoomParam.getBeginTime(),conferenceRoomParam.getEndTime())
+                .between(ConferenceRez::getEndTime,conferenceRoomParam.getBeginTime(),conferenceRoomParam.getEndTime()));
+        Map<String,String> map = new HashMap<>();
+        conferenceRezList.forEach(rez -> map.put(rez.getConferenceConfigId(),rez.getConferenceConfigId()));
+
+        List<ConferenceConfig> conferenceConfigList = conferenceConfigService.list();
+        conferenceConfigList = conferenceConfigList.stream().filter(config -> map.get(config.getId()) == null).collect(Collectors.toList());
+
+        return conferenceConfigList;
+    }
+
 }

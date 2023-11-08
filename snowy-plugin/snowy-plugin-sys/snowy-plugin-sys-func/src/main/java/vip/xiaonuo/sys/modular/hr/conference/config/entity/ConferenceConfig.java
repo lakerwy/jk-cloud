@@ -105,4 +105,8 @@ public class ConferenceConfig {
     @ApiModelProperty(value = "修改用户", position = 17)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    @ApiModelProperty(value = "是否为会议室： 1 会议室，2 非会议室", position = 18)
+    private Integer conferenceFlag;
+
 }
