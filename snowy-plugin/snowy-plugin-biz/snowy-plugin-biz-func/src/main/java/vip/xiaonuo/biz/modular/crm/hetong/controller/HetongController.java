@@ -59,7 +59,7 @@ public class HetongController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-CRM-合同分页  【api/crm/contract/GetHetongPage】")
-    @SaCheckPermission("/biz/hetong/page")
+//    @SaCheckPermission("/biz/hetong/page")
     @GetMapping("/biz/crm/hetong/page")
     public CommonResult<IPage<HetongDetailVo>> page(HetongPageParam hetongPageParam) {
         return CommonResult.data(hetongService.page(hetongPageParam));
@@ -154,6 +154,22 @@ public class HetongController {
     @GetMapping("/biz/crm/hetong/checkName")
     public CommonResult<Boolean> checkName(@Valid CheckNameParam checkNameParam) {
         return CommonResult.data(hetongService.checkName(checkNameParam));
+    }
+
+
+
+    /**
+     * 获取业务表-CRM-合同分页【含权限设置 -- 由于之前列表接口有许多应用，比如：立项、产值填报等】
+     *
+     * @author yong.ye
+     * @date  2023/11/08 14:49
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取业务表-CRM-合同分页【含权限设置 -- 由于之前列表接口有许多应用，比如：立项、产值填报等】")
+    @SaCheckPermission("/biz/crm/hetong/limitPage")
+    @GetMapping("/biz/crm/hetong/limitPage")
+    public CommonResult<IPage<HetongDetailVo>> limitPage(HetongPageParam hetongPageParam) {
+        return CommonResult.data(hetongService.limitPage(hetongPageParam));
     }
 
 }

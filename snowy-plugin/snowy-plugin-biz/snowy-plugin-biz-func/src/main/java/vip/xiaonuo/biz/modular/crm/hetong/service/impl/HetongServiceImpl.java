@@ -30,6 +30,8 @@ import vip.xiaonuo.biz.modular.crm.hetong.mapper.HetongMapper;
 import vip.xiaonuo.biz.modular.crm.hetong.param.*;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
+import vip.xiaonuo.biz.modular.task.service.SysOrgService;
+import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -63,6 +65,9 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
     private HetongMapper hetongMapper;
     @Resource
     CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    SysOrgService sysOrgService;
 
     @Override
     public IPage<HetongDetailVo> page(HetongPageParam hetongPageParam) {
@@ -130,20 +135,12 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());
         }
 
-//        // 校验数据范围
-//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-//            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
-//        } else {
-//            queryWrapper.eq("a.DATA_SCOPE_ID", StpUtil.getLoginIdAsString());
-//        }
-
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hetongPageParam.getSortOrder());
             queryWrapper.orderBy(true, hetongPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(hetongPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Hetong::getContractNo);
+            queryWrapper.lambda().orderByDesc(Hetong::getCreateTime);
         }
         return hetongMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -171,10 +168,21 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             formRelationTableApi.save(modelId, BizCommonEnum.BIZ_CRM_HETONG.getBizTable(),id,processInstanceId,dbName);
         }
         else{//不走审批流程
-            Hetong tmpht = this.getOne(new QueryWrapper<Hetong>().lambda().orderByDesc(Hetong::getCreateTime).last("limit 1"));
+            Hetong tmpht = this.getOne(new QueryWrapper<Hetong>().lambda().isNull(Hetong::getProcessInstanceId).orderByDesc(Hetong::getCreateTime).last("limit 1"));
             String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
             hetong.setContractNo(newSn);
             hetong.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
+
+        //新增时处理权限字段
+        if(ObjectUtil.isNotEmpty(hetongAddParam.getCompanyOrDepartment())){
+            try {
+                BizSysOrgVo orgByName = sysOrgService.getOrgByName(hetongAddParam.getCompanyOrDepartment());
+                if (ObjectUtil.isNotEmpty(orgByName)) {
+                    hetong.setDataScopeId(orgByName.getOrgId());
+                }
+            }catch (Exception e){
+            }
         }
         this.save(hetong);
     }
@@ -233,5 +241,89 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             return !list.isEmpty();
         }
         return false;
+    }
+
+    @Override
+    public IPage<HetongDetailVo> limitPage(HetongPageParam hetongPageParam) {
+        QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
+        //审核通过的合同
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("a.STATUS","1","0");
+        if (ObjectUtil.isNotEmpty(hetongPageParam.getSearchKey())) {
+            List<String> keys = StrUtil.splitTrim(hetongPageParam.getSearchKey().replace(" ",",").replace("，",","),",");
+            if(keys.size() > 1){
+                for (String key:keys) {
+                    queryWrapper.and(q->q.like("a.PROJECT_NAME",key)
+                            .or().like("a.CONTRACT_NO",key));
+                }
+            }else {
+                queryWrapper.and(q->q.like("a.SECOND_LEVEL", hetongPageParam.getSearchKey()).or()
+                        .like("a.CONTRACT_NO", hetongPageParam.getSearchKey()).or()
+                        .like("a.PROJECT_NAME", hetongPageParam.getSearchKey()).or()
+                        .like("a.COUNTERPARTY", hetongPageParam.getSearchKey()).or()
+                        .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
+                        .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
+                        .like("a.PARTYC", hetongPageParam.getSearchKey()));
+            }
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
+            queryWrapper.between("a.REGISTER_DATE", hetongPageParam.getStartRegisterDate(), hetongPageParam.getEndRegisterDate());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getSecondLevel())) {
+            queryWrapper.eq("a.SECOND_LEVEL", hetongPageParam.getSecondLevel());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getContractNo())) {
+            queryWrapper.like("a.CONTRACT_NO", hetongPageParam.getContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getProjectName())) {
+            queryWrapper.like("a.PROJECT_NAME", hetongPageParam.getProjectName());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getCounterparty())) {
+            queryWrapper.like("a.COUNTERPARTY", hetongPageParam.getCounterparty());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getSecondparty())) {
+            queryWrapper.like("a.SECONDPARTY", hetongPageParam.getSecondparty());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getPartnerType())) {
+            queryWrapper.eq("a.PARTNER_TYPE", hetongPageParam.getPartnerType());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getCompanyOrDepartment())) {
+            queryWrapper.eq("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getCompanyOrDepartment());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndSealDate())) {
+            queryWrapper.between("a.SEAL_DATE", hetongPageParam.getStartSealDate(), hetongPageParam.getEndSealDate());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getPartyc())) {
+            queryWrapper.like("a.PARTYC", hetongPageParam.getPartyc());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getOwner())) {
+            queryWrapper.like("a.OWNER", hetongPageParam.getOwner());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getProjectLeader())) {
+            queryWrapper.like("a.PROJECT_LEADER", hetongPageParam.getProjectLeader());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getInvestScale())) {
+            queryWrapper.like("a.INVEST_SCALE", hetongPageParam.getInvestScale());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getDescription())) {
+            queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());
+        }
+
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
+        } else {
+            queryWrapper.eq("a.DATA_SCOPE_ID", StpUtil.getLoginIdAsString());
+        }
+
+        if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(hetongPageParam.getSortOrder());
+            queryWrapper.orderBy(true, hetongPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(hetongPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(Hetong::getCreateTime);
+        }
+        return hetongMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }

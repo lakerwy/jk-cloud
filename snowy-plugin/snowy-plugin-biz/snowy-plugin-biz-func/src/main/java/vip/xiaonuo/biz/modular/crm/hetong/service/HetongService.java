@@ -93,4 +93,12 @@ public interface HetongService extends IService<Hetong> {
      */
     Boolean checkName(CheckNameParam checkNameParam);
 
+    /**
+     * 获取业务表-CRM-合同分页【含权限设置 -- 由于之前列表接口有许多应用，比如：立项、产值填报等】
+     *
+     * @author yong.ye
+     * @date  2023/06/30 14:49
+     */
+    IPage<HetongDetailVo> limitPage(HetongPageParam hetongPageParam);
+
 }
