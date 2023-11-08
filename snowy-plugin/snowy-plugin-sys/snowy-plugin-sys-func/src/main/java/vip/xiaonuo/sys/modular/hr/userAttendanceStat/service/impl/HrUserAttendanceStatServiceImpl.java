@@ -203,6 +203,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
          * 若不存在，则直接存stat表
          * 若存在，判断是属于上班(取最早数据)，还是属于下班(取最晚数据)
          * */
+        hrUserAttendanceStatEvent.setAbnormalFlag(abnormalFlag);
+        countAnalStat(hrUserAttendanceStatEvent);
         if(ObjectUtil.isEmpty(hrUserAttendanceStat)){
             this.save(stat);
             return;
@@ -219,6 +221,47 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             this.save(stat);
             return;
         }
+    }
+    //数据统计
+    private void countAnalStat(HrUserAttendanceStatEvent hrUserAttendanceStatEvent){
+        if(hrUserAttendanceStatEvent.getCheckType().equals("REST")){
+            return;
+        }
+        SysUser sysUser = sysUserService.queryEntity(hrUserAttendanceStatEvent.getUserId());
+        List<AttendanceTimeSlot> slotList = hrUserAttendanceService.getAttendanceTimeSlotList(sysUser.getAttendanceGroupId(),hrUserAttendanceStatEvent.getCheckTime());
+        Map<String,Date> mapTime = new HashMap<>();
+        slotList.forEach(slot -> {
+            mapTime.put(slot.getDutyType(),slot.getCompareTime());
+        });
+
+        String day = DateUtil.format(hrUserAttendanceStatEvent.getCheckTime(),DatePattern.NORM_DATE_PATTERN);
+        List<HrAttendanceAnalStat> hrAttendanceAnalStatList = hrAttendanceAnalStatService.list(new LambdaQueryWrapper<HrAttendanceAnalStat>()
+                .eq(HrAttendanceAnalStat::getUserId,hrUserAttendanceStatEvent.getUserId())
+                .between(HrAttendanceAnalStat::getCheckTime,day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),day+HrUserAttendanceStatEnum.END_TIME.getValue()));
+        HrAttendanceAnalStat hrAttendanceAnalStat = new HrAttendanceAnalStat();
+        if(CollectionUtil.isNotEmpty(hrAttendanceAnalStatList)){
+            hrAttendanceAnalStat = hrAttendanceAnalStatList.get(0);
+        }
+        hrAttendanceAnalStat.setUserId(hrUserAttendanceStatEvent.getUserId());
+        hrAttendanceAnalStat.setUserName(hrUserAttendanceStatEvent.getUserName());
+        hrAttendanceAnalStat.setCheckTime(hrUserAttendanceStatEvent.getCheckTime());
+        hrAttendanceAnalStat.setResubmitFlag(StringUtils.isNotEmpty(hrUserAttendanceStatEvent.getIsResubmitAttendanceFlag()) ? 1 : 0);
+        hrAttendanceAnalStat.setAttendanceFlag(1);
+        hrAttendanceAnalStat.setLateFlag(hrUserAttendanceStatEvent.getAbnormalFlag() == 3 ? 1 : 0);
+        if(hrUserAttendanceStatEvent.getAbnormalFlag() == 3){
+            Long lateMinutes = DateUtil.between(hrUserAttendanceStatEvent.getCheckTime(),mapTime.get(hrUserAttendanceStatEvent.getCheckType()),DateUnit.MINUTE);
+            hrAttendanceAnalStat.setLateMinutes(Integer.parseInt(lateMinutes.toString()));
+        }
+        hrAttendanceAnalStat.setLeaveEarlyFlag(hrUserAttendanceStatEvent.getAbnormalFlag() == 4 ? 1 : 0);
+        if(hrUserAttendanceStatEvent.getAbnormalFlag() == 4){
+            Long lateMinutes = DateUtil.between(mapTime.get(hrUserAttendanceStatEvent.getCheckType()),hrUserAttendanceStatEvent.getCheckTime(),DateUnit.MINUTE);
+            hrAttendanceAnalStat.setLateMinutes(Integer.parseInt(lateMinutes.toString()));
+        }
+        if(hrUserAttendanceStatEvent.getCheckType().equals("OffDuty")){//工时
+            Long workHours = DateUtil.between(mapTime.get("OnDuty"),hrUserAttendanceStatEvent.getCheckTime(),DateUnit.MINUTE);
+            hrAttendanceAnalStat.setWorkotHours(Double.parseDouble(workHours.toString()));
+        }
+        hrAttendanceAnalStatService.saveOrUpdate(hrAttendanceAnalStat);
     }
 
     @Override

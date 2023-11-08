@@ -137,4 +137,12 @@ public class HrAttendanceAnalStat {
     @ApiModelProperty(value = "考勤时间", position = 25)
     private Date checkTime;
 
+    /** 是否补卡 */
+    @ApiModelProperty(value = "是否补卡:空或者0非补卡，1 为补卡", position = 26)
+    private Integer resubmitFlag;
+
+    /** 工时-单位：分钟 */
+    @ApiModelProperty(value = "工时-单位：分钟", position = 10)
+    private Double workHours;
+
 }
