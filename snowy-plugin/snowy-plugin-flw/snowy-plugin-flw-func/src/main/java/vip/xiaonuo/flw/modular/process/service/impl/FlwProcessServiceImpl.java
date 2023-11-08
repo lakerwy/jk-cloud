@@ -62,6 +62,7 @@ import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
@@ -141,6 +142,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private CommonProperties commonProperties;
 
     @Override
     public void saveDraft(FlwProcessSaveDraftParam flwProcessSaveDraftParam) {
@@ -874,6 +878,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                   FlwTaskAttachmentResult flwTaskAttachmentResult = new FlwTaskAttachmentResult();
                   flwTaskAttachmentResult.setAttachmentName(attachment.getName());
                   flwTaskAttachmentResult.setAttachmentUrl(attachment.getUrl());
+                  flwTaskAttachmentResult.setPreviewUrl(commonProperties.getBackendUrl()+attachment.getUrl());
                   return flwTaskAttachmentResult;
                 }).collect(Collectors.toList()));
                 commonList.add(flwProcessComment);
@@ -900,6 +905,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 FlwTaskAttachmentResult flwTaskAttachmentResult = new FlwTaskAttachmentResult();
                 flwTaskAttachmentResult.setAttachmentName(attachment.getName());
                 flwTaskAttachmentResult.setAttachmentUrl(attachment.getUrl());
+                flwTaskAttachmentResult.setPreviewUrl(commonProperties.getBackendUrl()+attachment.getUrl());
                 return flwTaskAttachmentResult;
             }).collect(Collectors.toList()));
             commonList.add(flwProcessComment);

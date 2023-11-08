@@ -33,4 +33,8 @@ public class FlwTaskAttachmentResult {
         /** 附件地址 */
         @ApiModelProperty(value = "附件地址", position = 2)
         private String attachmentUrl;
+
+        /** 附件预览地址 */
+        @ApiModelProperty(value = "预览地址", position = 3)
+        private String previewUrl;
 }

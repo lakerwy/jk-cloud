@@ -461,6 +461,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         map.put("url",downloadUrl);
         map.put("name",file.getOriginalFilename());
         map.put("fileId",fullFileId);
+        map.put("previewUrl",commonProperties.getBackendUrl()+downloadUrl);
         return map;
         // 如果是返回id则返回文件id
 //        if(returnFileId) {
