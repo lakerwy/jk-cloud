@@ -168,7 +168,12 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             formRelationTableApi.save(modelId, BizCommonEnum.BIZ_CRM_HETONG.getBizTable(),id,processInstanceId,dbName);
         }
         else{//不走审批流程
-            Hetong tmpht = this.getOne(new QueryWrapper<Hetong>().lambda().isNull(Hetong::getProcessInstanceId).orderByDesc(Hetong::getCreateTime).last("limit 1"));
+            QueryWrapper<Hetong> query1 = new QueryWrapper<>();
+            query1.lambda().and(q->q.isNull(Hetong::getProcessInstanceId).or().eq(Hetong::getProcessInstanceId,""));
+            query1.lambda().orderByDesc(Hetong::getCreateTime);
+            query1.lambda().last("limit 1");
+
+            Hetong tmpht = this.getOne(query1);
             String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
             hetong.setContractNo(newSn);
             hetong.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
