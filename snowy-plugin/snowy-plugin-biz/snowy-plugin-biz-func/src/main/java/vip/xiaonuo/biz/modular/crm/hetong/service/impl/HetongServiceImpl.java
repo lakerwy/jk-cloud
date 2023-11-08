@@ -145,7 +145,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         return hetongMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+//    @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(HetongAddParam hetongAddParam) {
         Hetong hetong = BeanUtil.toBean(hetongAddParam, Hetong.class);
