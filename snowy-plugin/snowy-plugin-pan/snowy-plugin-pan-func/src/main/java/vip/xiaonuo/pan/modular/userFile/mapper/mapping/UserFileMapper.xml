@@ -45,6 +45,12 @@
           and USER_ID = #{userId} and DELETE_FLAG = 'NOT_DELETE'
     </select>
 
+    <select id="selectGroupUserFileByLikeRightFilePath" resultType="vip.xiaonuo.pan.modular.userFile.entity.UserFile">
+        select * from PAN_USER_FILE
+        where (FILE_PATH = #{filePath} or FILE_PATH like concat(#{filePath},'/%'))
+           and DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
     <update id="updateDelete" >
         update  PAN_USER_FILE set DELETE_FLAG = "DELETED" ,DELETE_BATCH_NUM = #{deleteBatchNum},DELETE_TIME= CURRENT_TIME,
                                   UPDATE_USER = #{userId},UPDATE_TIME= CURRENT_TIME where ID in

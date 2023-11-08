@@ -161,6 +161,22 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     @Override
     public void edit(UserFileEditParam userFileEditParam) {
         UserFile userFile = this.queryEntity(userFileEditParam.getId());
+        if(userFile.isDirectory()){
+            String fileName = userFile.getFileName();
+            if(ROOT_FOLD_PATH.equals(userFile.getFilePath())){
+                fileName= userFile.getFilePath()+fileName;
+            }else {
+                fileName = userFile.getFilePath()+ROOT_FOLD_PATH+fileName;
+            }
+            List<UserFile> userFiles = userFileMapper.selectGroupUserFileByLikeRightFilePath(fileName);
+            if(CollUtil.isNotEmpty(userFiles)){
+                for (UserFile file : userFiles) {
+                    file.setFilePath(file.getFilePath().replaceFirst(new CommonFile(userFile.getFilePath(),userFile.getFileName(),userFile.getIsDir() == 1).getPath(),
+                            new CommonFile(userFile.getFilePath(),userFileEditParam.getFileName(),userFile.getIsDir()==1).getPath()));
+                    updateById(file);
+                }
+            }
+        }
         BeanUtil.copyProperties(userFileEditParam, userFile);
         this.updateById(userFile);
     }
@@ -951,10 +967,15 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 String filePath = userFilePageParam.getFilePath();
                 int index = filePath.lastIndexOf(ROOT_FOLD_PATH);
                 String fileName = filePath.substring(index+1);
-                String newFilePath = filePath.substring(0,index+1);
+                String newFilePath = ROOT_FOLD_PATH;
+                if(0!=index){
+                    newFilePath = filePath.substring(0,index);
+                }
                 List<UserFile> list = this.list(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFileName, fileName).eq(UserFile::getFilePath, newFilePath));
                 if(CollUtil.isNotEmpty(list)){
                     queryWrapper.eq("PARENT_ID",list.get(0).getId());
+                }else {
+                    queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());
                 }
             }
 //            queryWrapper.eq("FILE_PATH",userFilePageParam.getFilePath());
