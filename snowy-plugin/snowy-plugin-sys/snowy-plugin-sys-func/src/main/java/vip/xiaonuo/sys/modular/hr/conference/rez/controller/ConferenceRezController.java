@@ -88,8 +88,8 @@ public class ConferenceRezController {
      * @date  2023/11/05 23:13
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑会议预约-预约会议表数据")
-    @CommonLog("编辑会议预约-预约会议表数据")
+    @ApiOperation("会议审核-预约会议表数据")
+    @CommonLog("会议审核-预约会议表数据")
     //@SaCheckPermission("/sys/rez/edit")
     @PostMapping("/sys/rez/edit")
     public CommonResult<String> edit(@RequestBody @Valid ConferenceRezEditParam conferenceRezEditParam) {

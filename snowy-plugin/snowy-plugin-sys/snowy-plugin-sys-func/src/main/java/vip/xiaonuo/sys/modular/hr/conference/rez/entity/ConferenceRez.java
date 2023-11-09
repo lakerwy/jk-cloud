@@ -118,4 +118,9 @@ public class ConferenceRez {
     @ApiModelProperty(value = "审核状态：1 审核通过，2 审核未通过，3 会议取消", position = 20)
     private Integer verifyFlag;
 
+    /**展示时间*/
+    @ApiModelProperty(value = "会议类型：普通会议，周期会议", position = 21)
+    @TableField(exist = false)
+    private String ConferenceType;
+
 }
