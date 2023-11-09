@@ -66,7 +66,8 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
             //逻辑判断：若当前系统中不存在dingdinguserid的记录，则新增一条记录
             if(StringUtil.isEmpty(userId)){
                 OapiV2UserGetResponse.UserGetResponse dingUser = CommonDingDingUtil.getUserById(token, info.getUserid());
-                SysLoginUser tmpUser = sysUserService.getUserByPhone(dingUser.getMobile());
+//                SysLoginUser tmpUser = sysUserService.getUserByPhone(dingUser.getMobile());
+                SysLoginUser tmpUser = sysUserService.getUserByAccount(dingUser.getMobile());
                 log.info("钉钉用户详情：" + JsonUtils.object2json(dingUser));
                 if(ObjectUtil.isNotEmpty(tmpUser)) {
                     userId = tmpUser.getId();
