@@ -109,13 +109,13 @@ public class ConferenceRez {
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    /**一级部门id*/
-    @ApiModelProperty(value = "一级部门id", position = 19)
+    /**展示时间*/
+    @ApiModelProperty(value = "展示时间", position = 19)
     @TableField(exist = false)
     private String showTime;
 
     /** 审核状态：1 审核通过，2 审核未通过，3 会议取消 */
-    @ApiModelProperty(value = "审核状态：1 审核通过，2 审核未通过，3 会议取消", position = 12)
+    @ApiModelProperty(value = "审核状态：1 审核通过，2 审核未通过，3 会议取消", position = 20)
     private Integer verifyFlag;
 
 }
