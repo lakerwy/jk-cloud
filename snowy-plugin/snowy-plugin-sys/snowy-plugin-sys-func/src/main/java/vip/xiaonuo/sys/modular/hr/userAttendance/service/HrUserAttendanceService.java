@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import java.util.Date;
 import java.util.List;
@@ -108,6 +109,12 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * */
     String getOrgAndUserId(String orgId);
 
+    /**
+     * 递归该部门下面有多少人员
+     * author ljy
+     * @date  2023/10/09 16:24
+     * */
+    List<SysUser> getOrgAndUserList(String orgId);
     /**
      * 获取用户考勤配置-优先取缓存
      * author ljy
