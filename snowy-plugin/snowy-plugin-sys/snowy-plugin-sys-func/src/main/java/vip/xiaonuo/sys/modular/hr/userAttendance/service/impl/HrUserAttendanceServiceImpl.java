@@ -118,6 +118,14 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         } else {
             queryWrapper.lambda().orderByAsc(HrUserAttendance::getId);
         }
+        //去重：年月日-时分相同的数据只取一条
+        Map<String,HrUserAttendance> map = new HashMap<>();
+        Page<HrUserAttendance> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        page.getRecords().forEach(attendance -> {
+            String time = DateUtil.format(attendance.getCheckTime(),DatePattern.NORM_DATETIME_MINUTE_PATTERN);
+            map.put(time,attendance);
+        });
+        page.setRecords(map.entrySet().stream().map(attendance -> BeanUtil.toBean(attendance,HrUserAttendance.class)).collect(Collectors.toList()));
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 

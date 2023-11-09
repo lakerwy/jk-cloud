@@ -31,6 +31,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.modular.job.task.CommonHandleUtil;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
@@ -115,12 +116,13 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
     public void delete(List<HrUserAttendanceConfigGroupIdParam> hrUserAttendanceConfigGroupIdParamList) {
         // 执行考勤配置组删除，以及删除配置详情
         this.removeByIds(CollStreamUtil.toList(hrUserAttendanceConfigGroupIdParamList, HrUserAttendanceConfigGroupIdParam::getId));
-        List<HrUserAttendanceConfigIdParam> attendanceTypeIds = hrUserAttendanceConfigGroupIdParamList.stream().map(param -> {
-            HrUserAttendanceConfigIdParam hrUserAttendanceConfigIdParam = new HrUserAttendanceConfigIdParam();
-            hrUserAttendanceConfigIdParam.setAttendanceTypeId(param.getId());
-            return hrUserAttendanceConfigIdParam;
-        }).collect(Collectors.toList());
-        hrUserAttendanceConfigService.delete(attendanceTypeIds);
+
+        List<String> groupIdList = hrUserAttendanceConfigGroupIdParamList.stream().map(group -> group.getId()).collect(Collectors.toList());
+        List<String> configList = hrUserAttendanceConfigService.list(new LambdaQueryWrapper<HrUserAttendanceConfig>().in(HrUserAttendanceConfig::getAttendanceTypeId,groupIdList))
+                .stream().map(config -> config.getId()).collect(Collectors.toList());
+
+        hrUserAttendanceConfigService.removeBatchByIds(configList);
+        hrUserAttendanceService.attendanceConfigCache();
     }
 
     @Override

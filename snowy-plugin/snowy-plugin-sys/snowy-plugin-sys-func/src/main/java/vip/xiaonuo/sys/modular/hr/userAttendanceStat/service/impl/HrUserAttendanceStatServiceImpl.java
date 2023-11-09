@@ -367,6 +367,16 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
                 .orderByAsc(HrUserAttendance::getCheckTime));
 
+        //去重：年月日-时分相同的数据只取一条
+        if(CollectionUtil.isNotEmpty(hrUserAttendanceList)){
+            Map<String,HrUserAttendance> map = new HashMap<>();
+            hrUserAttendanceList.forEach(attendance -> {
+                String time = DateUtil.format(attendance.getCheckTime(),DatePattern.NORM_DATETIME_MINUTE_PATTERN);
+                map.put(time,attendance);
+            });
+            hrUserAttendanceList = map.entrySet().stream().map(at -> at.getValue()).collect(Collectors.toList());
+        }
+
         List<HrUserAttendanceStat> hrUserAttendanceStatList = hrUserAttendanceStatService.list(new LambdaQueryWrapper<HrUserAttendanceStat>()
                 .eq(HrUserAttendanceStat::getUserId,loginUser.getId())
                 .between(HrUserAttendanceStat::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())

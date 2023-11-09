@@ -193,6 +193,34 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
                     param.setAttendanceTypeId(id);
                    return BeanUtil.toBean(param, HrUserAttendanceConfig.class);
                 }).collect(Collectors.toList());
+        setAttendanceConfig(hrUserAttendanceConfigList);
         return this.saveBatch(hrUserAttendanceConfigList) ? HrUserAttendanceConfigEnum.SUCESS.getValue() : HrUserAttendanceConfigEnum.FAIL.getValue();
+    }
+
+    private void setAttendanceConfig(List<HrUserAttendanceConfig> hrUserAttendanceConfigList){
+
+        if(hrUserAttendanceConfigList.size()%2 == 1 && hrUserAttendanceConfigList.size() == 3){
+            //班次打卡类别 (上班OnDuty，下班 OffDuty，休息 REST)
+            hrUserAttendanceConfigList.get(0).setDutyType("OnDuty");
+            hrUserAttendanceConfigList.get(0).setOrderNumber(1);
+            hrUserAttendanceConfigList.get(1).setDutyType("REST");
+            hrUserAttendanceConfigList.get(1).setOrderNumber(2);
+            hrUserAttendanceConfigList.get(2).setDutyType("OffDuty");
+            hrUserAttendanceConfigList.get(2).setOrderNumber(3);
+        }
+
+        if(hrUserAttendanceConfigList.size()%2 == 0){
+            for(int i=0;i<hrUserAttendanceConfigList.size();i++){
+                if(i%2 == 0){
+                    hrUserAttendanceConfigList.get(i).setDutyType("OnDuty");
+                    hrUserAttendanceConfigList.get(i).setOrderNumber(i+1);
+                }
+                if(i%2 == 1){
+                    hrUserAttendanceConfigList.get(i).setDutyType("OffDuty");
+                    hrUserAttendanceConfigList.get(i).setOrderNumber(i+1);
+                }
+            }
+        }
+
     }
 }
