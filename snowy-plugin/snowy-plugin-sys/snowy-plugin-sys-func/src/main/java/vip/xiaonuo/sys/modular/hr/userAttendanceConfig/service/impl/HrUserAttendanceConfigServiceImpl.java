@@ -184,6 +184,8 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigEditParam.getLeadId());
         hrUserAttendanceConfigGroup.setLeadName(hrUserAttendanceConfigEditParam.getLeadName());
         hrUserAttendanceConfigGroup.setAttendanceUserNum(hrUserAttendanceConfigEditParam.getAttendanceUserNum());
+        hrUserAttendanceConfigGroup.setSeriousLateMinute(hrUserAttendanceConfigEditParam.getSeriousLateMinute());
+        hrUserAttendanceConfigGroup.setSeriousLeaveMinute(hrUserAttendanceConfigEditParam.getSeriousLeaveMinute());
         hrUserAttendanceConfigGroupService.save(hrUserAttendanceConfigGroup);
         String id = hrUserAttendanceConfigGroup.getId();
 
