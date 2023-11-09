@@ -22,6 +22,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -31,10 +32,10 @@ import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.annotation.CommonLog;
-import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
@@ -86,6 +87,7 @@ import java.util.stream.Collectors;
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
+@Slf4j
 public class PanFileController {
 
     @Resource
@@ -257,72 +259,79 @@ public class PanFileController {
             fileTransferService.previewPictureFile(httpServletResponse, previewParam);
             return ;
         }
-        //todo
-        // 暂时不判断是否有下载权限
+        if(StrUtil.isEmpty(previewParam.getType())){
+            //todo
+            // 暂时不判断是否有下载权限
+            //校验权限
+            log.info("doc文件预览进入下载------------------------------------------------------------------------");
+            panFileRightService.checkFileRight(Collections.singletonList(previewParam.getUserFileId()),FileRight.PREVIEW,previewParam.getRightType());
+            UserFile userFile = userFileService.getById(previewParam.getUserFileId());
 
-        //校验权限
-        panFileRightService.checkFileRight(Arrays.asList(previewParam.getUserFileId()),FileRight.PREVIEW,previewParam.getRightType());
+            String fileName = userFile.getFileName() + "." + userFile.getExtendName();
+            fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
 
-        UserFile userFile = userFileService.getById(previewParam.getUserFileId());
-
-        String fileName = userFile.getFileName() + "." + userFile.getExtendName();
-        fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-
-        httpServletResponse.addHeader("Content-Disposition", "fileName=" + fileName);// 设置文件名
-        String mime = MimeUtils.getMime(userFile.getExtendName());
-        httpServletResponse.setHeader("Content-Type", mime);
-        if (FileCenterUtil.isImageFile(userFile.getExtendName())) {
-            httpServletResponse.setHeader("cache-control", "public");
-        }
-
-        PanFile fileBean = panFileService.getById(userFile.getFileId());
-        if (FileCenterUtil.isVideoFile(userFile.getExtendName()) || "mp3".equalsIgnoreCase(userFile.getExtendName()) || "flac".equalsIgnoreCase(userFile.getExtendName())) {
-            //获取从那个字节开始读取文件
-            String rangeString = httpServletRequest.getHeader("Range");
-            int start = 0;
-            if (StringUtils.isNotBlank(rangeString)) {
-                start = Integer.parseInt(rangeString.substring(rangeString.indexOf("=") + 1, rangeString.indexOf("-")));
+            httpServletResponse.addHeader("Content-Disposition", "fileName=" + fileName);// 设置文件名
+            String mime = MimeUtils.getMime(userFile.getExtendName());
+            httpServletResponse.setHeader("Content-Type", mime);
+            if (FileCenterUtil.isImageFile(userFile.getExtendName())) {
+                httpServletResponse.setHeader("cache-control", "public");
             }
 
-            Downloader downloader = fileFactory.getDownloader(fileBean.getStorageType());
-            DownloadFile downloadFile = new DownloadFile();
-            downloadFile.setFileUrl(fileBean.getFileUrl());
-            Range range = new Range();
-            range.setStart(start);
-
-            if (start + 1024 * 1024 >= fileBean.getFileSize().intValue()) {
-                range.setLength(fileBean.getFileSize().intValue() - start);
-            } else {
-                range.setLength(1024 * 1024);
-            }
-            downloadFile.setRange(range);
-            InputStream inputStream = downloader.getInputStream(downloadFile);
-
-            OutputStream outputStream = httpServletResponse.getOutputStream();
-            try {
-
-                //返回码需要为206，代表只处理了部分请求，响应了部分数据
-
-                httpServletResponse.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
-                // 每次请求只返回1MB的视频流
-
-                httpServletResponse.setHeader("Accept-Ranges", "bytes");
-                //设置此次相应返回的数据范围
-                httpServletResponse.setHeader("Content-Range", "bytes " + start + "-" + (fileBean.getFileSize() - 1) + "/" + fileBean.getFileSize());
-                IOUtils.copy(inputStream, outputStream);
-
-
-            } finally {
-                IOUtils.closeQuietly(inputStream);
-                IOUtils.closeQuietly(outputStream);
-                if (downloadFile.getOssClient() != null) {
-                    downloadFile.getOssClient().shutdown();
+            PanFile fileBean = panFileService.getById(userFile.getFileId());
+            if (FileCenterUtil.isVideoFile(userFile.getExtendName()) || "mp3".equalsIgnoreCase(userFile.getExtendName()) || "flac".equalsIgnoreCase(userFile.getExtendName())) {
+                //获取从那个字节开始读取文件
+                String rangeString = httpServletRequest.getHeader("Range");
+                int start = 0;
+                if (StringUtils.isNotBlank(rangeString)) {
+                    start = Integer.parseInt(rangeString.substring(rangeString.indexOf("=") + 1, rangeString.indexOf("-")));
                 }
-            }
 
-        } else {
-            fileTransferService.previewFile(httpServletResponse, previewParam);
+                Downloader downloader = fileFactory.getDownloader(fileBean.getStorageType());
+                DownloadFile downloadFile = new DownloadFile();
+                downloadFile.setFileUrl(fileBean.getFileUrl());
+                Range range = new Range();
+                range.setStart(start);
+
+                if (start + 1024 * 1024 >= fileBean.getFileSize().intValue()) {
+                    range.setLength(fileBean.getFileSize().intValue() - start);
+                } else {
+                    range.setLength(1024 * 1024);
+                }
+                downloadFile.setRange(range);
+                InputStream inputStream = downloader.getInputStream(downloadFile);
+
+                OutputStream outputStream = httpServletResponse.getOutputStream();
+                try {
+
+                    //返回码需要为206，代表只处理了部分请求，响应了部分数据
+
+                    httpServletResponse.setStatus(HttpServletResponse.SC_PARTIAL_CONTENT);
+                    // 每次请求只返回1MB的视频流
+
+                    httpServletResponse.setHeader("Accept-Ranges", "bytes");
+                    //设置此次相应返回的数据范围
+                    httpServletResponse.setHeader("Content-Range", "bytes " + start + "-" + (fileBean.getFileSize() - 1) + "/" + fileBean.getFileSize());
+                    IOUtils.copy(inputStream, outputStream);
+
+
+                } finally {
+                    IOUtils.closeQuietly(inputStream);
+                    IOUtils.closeQuietly(outputStream);
+                    if (downloadFile.getOssClient() != null) {
+                        downloadFile.getOssClient().shutdown();
+                    }
+                }
+
+            } else {
+                fileTransferService.previewFile(httpServletResponse, previewParam);
+            }
+        }else {
+//            log.info("评论业务doc文件预览进入下载------------------------------------------------------------------------");
+            DevFileIdParam devFileIdParam = new DevFileIdParam();
+            devFileIdParam.setId(previewParam.getUserFileId());
+            devFileService.download(devFileIdParam, httpServletResponse);
         }
+
     }
 
     @ApiOperationSupport(order = 12)
@@ -340,58 +349,13 @@ public class PanFileController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("预览office文件)")
 //    @SaCheckPermission("/pan/commonFile/commonFileByUser")
-    @PostMapping("/pan/file/newPreviewOfficeFile")
-    public CommonResult<Object> newPreviewOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
-        CommonResult<Object> result = new CommonResult<>();
-        try {
-//            String token = request.getHeader("Token");
-            String previewUrl = commonProperties.getBackendUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
-            //String previewUrl = request.getScheme() + "://" + deploymentHost + ":" + port + "/filetransfer/preview?userFileId=" + previewOfficeFileDTO.getUserFileId() + "&isMin=false&shareBatchNum=undefined&extractionCode=undefined&token=" + token;
-            UserFile userFile = userFileService.getById(previewOfficeFileParam.getUserFileId());
-
-            SaBaseLoginUser userBean = StpLoginUserUtil.getLoginUser();
-
-            User user = new User();
-            user.setId(userBean.getId());
-            user.setName(userBean.getAccount());
-
-            Action action = Action.view;
-            Type type = Type.desktop;
-            Locale locale = new Locale("zh");
-            FileModel fileModel = fileConfigurer.getFileModel(
-                    DefaultFileWrapper
-                            .builder()
-                            .userFile(userFile)
-                            .type(type)
-                            .lang(locale.toLanguageTag())
-                            .action(action)
-                            .user(user)
-                            .actionData(previewUrl)
-                            .build()
-            );
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("file",fileModel);
-//            jsonObject.put("fileHistory", historyManager.getHistory(fileModel.getDocument()));  // get file history and add it to the model
-            jsonObject.put("docServiceApiUrl", docServiceSite + docServiceApiUrl);
-            jsonObject.put("reportName",userFile.getFileName());
-            result = CommonResult.data(jsonObject);
-
-        } catch (Exception e) {
-            result = CommonResult.error(e.getMessage());
-        }
-        return result;
-    }
-
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("预览office文件)")
-//    @SaCheckPermission("/pan/commonFile/commonFileByUser")
     @PostMapping("/pan/file/previewOfficeFile")
     public CommonResult<Object> previewOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
         CommonResult<Object> result = new CommonResult<>();
         try {
-//            String token = request.getHeader("Token");
-            String previewUrl = commonProperties.getBackendUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
-            UserFile userFile = null;
+            String backendUrl = commonProperties.getBackendUrl();
+            String previewUrl = backendUrl+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
+            UserFile userFile ;
 
             if(StrUtil.isNotEmpty(previewOfficeFileParam.getPreviewUrl())){
                 String previewUrl1 = previewOfficeFileParam.getPreviewUrl();
@@ -399,10 +363,12 @@ public class PanFileController {
                 String id = (String) urlBuilder.getQuery().get("id");
                 DevFile devFile = devFileService.getById(id);
                 userFile = new UserFile();
-                userFile.setFileName(devFile.getName());
+                String newFileName = devFile.getName().substring(0,devFile.getName().lastIndexOf(StrUtil.DOT));
+                userFile.setFileName(newFileName);
                 userFile.setCreateTime(devFile.getCreateTime());
                 userFile.setExtendName(devFile.getSuffix());
                 userFile.setId(devFile.getId());
+                previewUrl = backendUrl+"/api/webapp/pan/file/preview?userFileId="+userFile.getId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined&type=1";
             }else {
                 userFile = userFileService.getById(previewOfficeFileParam.getUserFileId()) ;
             }
