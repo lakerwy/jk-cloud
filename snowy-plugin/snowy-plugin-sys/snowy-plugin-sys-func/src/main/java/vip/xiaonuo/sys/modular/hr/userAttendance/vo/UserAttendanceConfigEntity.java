@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import java.io.Serializable;
-import java.sql.Time;
+import java.util.Date;
 
 @Getter
 @Setter
@@ -21,7 +21,7 @@ public class UserAttendanceConfigEntity implements Serializable {
     @ApiModelProperty(value = "开始时间", position = 4)
     private String BeginMinTime;
     @ApiModelProperty(value = "考勤打卡时间", position = 5)
-    private Time checkTime;
+    private Date checkTime;
     @ApiModelProperty(value = "结束时间", position = 6)
     private String endMinTime;
     @ApiModelProperty(value = "工时-工作时间", position = 7)

@@ -300,14 +300,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @Override
     public List<UserAttendanceConfigEntity> getUserConfigCachData(String userId,Date beginDate){ //获取打卡次数
         String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));
-        /*if(StringUtils.isNotEmpty(cache)){
-            List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
-            for(AttendanceConfigCacheEntity entity : configCacheEntityList){
-                if(entity.getUserIds().contains(userId)){
-                    return entity.getUserAttendanceConfigEntityList();
-                }
-            }
-        }*/
+        List<AttendanceTimeSlot> timeSlots = new ArrayList<>();
 
         SysUser sysUser = sysUserService.queryEntity(userId);
         List<AttendanceTimeSlot> slotList = new ArrayList<>();
@@ -317,17 +310,21 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         }
         if(StringUtils.isNotEmpty(sysUser.getAttendanceGroupId()) && ObjectUtil.isNotEmpty(configMap.get(sysUser.getAttendanceGroupId()))){
             slotList = JSONArray.parseArray(configMap.get(sysUser.getAttendanceGroupId()), AttendanceTimeSlot.class);
-            List<AttendanceTimeSlot> timeSlots = timeSlots(slotList,beginDate);
-
-            List<UserAttendanceConfigEntity> entityList = new ArrayList<>();
-            return timeSlots.stream().map(slot -> BeanUtil.toBean(slot,UserAttendanceConfigEntity.class)).collect(Collectors.toList());
+            timeSlots = timeSlots(slotList,beginDate);
         }
-
 
         //取默认配置
         String defaultConfig = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_DEFAULT_KEY));
-        List<HrUserAttendanceConfig> configList = JSONArray.parseArray(defaultConfig, HrUserAttendanceConfig.class);
-        return configList.stream().map(config -> BeanUtil.toBean(config, UserAttendanceConfigEntity.class)).collect(Collectors.toList());
+        List<AttendanceTimeSlot> defaSlots = JSONArray.parseArray(defaultConfig, AttendanceTimeSlot.class);
+        defaSlots = timeSlots(defaSlots,beginDate);
+        List<AttendanceTimeSlot> slots = CollectionUtil.isNotEmpty(timeSlots) ? timeSlots : defaSlots;
+        return slots.stream().map(slot -> {
+            UserAttendanceConfigEntity userAttendanceConfigEntity = BeanUtil.toBean(slot, UserAttendanceConfigEntity.class);
+            userAttendanceConfigEntity.setBeginMinTime(DateUtil.format(slot.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
+            userAttendanceConfigEntity.setCheckTime(slot.getCompareTime());
+            userAttendanceConfigEntity.setEndMinTime(DateUtil.format(slot.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
+            return userAttendanceConfigEntity;
+        }).collect(Collectors.toList());
     }
 
     private List<AttendanceTimeSlot> timeSlots(List<AttendanceTimeSlot> slotList,Date date){
@@ -354,7 +351,6 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 slot.setWorkEndTime(CommonTimeFormatUtil.strToDate(workEndTime,DatePattern.NORM_DATETIME_PATTERN));
             }
         });
-
         return slotList;
     }
 
@@ -404,7 +400,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         for(int i=0;i<userAttendanceConfigEntityList.size();i++){
             String dutyType = userAttendanceConfigEntityList.get(i).getDutyType();
             String dayTime = DateUtil.format(DateUtil.date(),DatePattern.NORM_DATE_PATTERN);
-            Date checkTime = CommonTimeFormatUtil.strToDate(dayTime+" "+userAttendanceConfigEntityList.get(i).getCheckTime(),DatePattern.NORM_DATETIME_PATTERN);
+            Date checkTime = userAttendanceConfigEntityList.get(i).getCheckTime();
             List<HrUserAttendance> list = hrUserAttendanceList.stream().filter(attendance -> attendance.getCheckType().equals(dutyType)).collect(Collectors.toList());
             if(CollectionUtil.isEmpty(list)){
                 HrUserAttendance hrUserAttendance = new HrUserAttendance();
