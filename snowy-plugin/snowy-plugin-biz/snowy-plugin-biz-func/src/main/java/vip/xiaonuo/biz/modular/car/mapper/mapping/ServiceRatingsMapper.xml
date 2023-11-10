@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.car.mapper.ServiceRatingsMapper">
+
+    <select id="getById" resultType="vip.xiaonuo.biz.modular.car.vo.ServiceRatingsViewModel">
+        select a.*,
+               b.SN as vehicleApplySn,b.USERS as vehicleApplyUsers,b.VEHICLE as vehicleApplyVehicle,b.DRIVER as vehicleApplyDriver
+        from BIZ_CAR_SERVICE_RATINGS a
+            left join BIZ_CAR_VEHICLE_APPLY b on a.VEHICLE_APPLY_ID = b.ID
+        where a.ID = #{id}
+    </select>
+
+    <select id="getByApplyId" resultType="vip.xiaonuo.biz.modular.car.vo.ServiceRatingsViewModel">
+        select b.*,
+               a.SN as vehicleApplySn,a.USERS as vehicleApplyUsers,a.VEHICLE as vehicleApplyVehicle,a.DRIVER as vehicleApplyDriver
+        from BIZ_CAR_VEHICLE_APPLY a
+                 left join BIZ_CAR_SERVICE_RATINGS b on a.ID = b.VEHICLE_APPLY_ID and b.DELETE_FLAG = 'NOT_DELETE'
+        where a.ID = #{applyId}
+    </select>
+
+    <select id="getByDriverId" resultType="vip.xiaonuo.biz.modular.car.vo.ServiceRatingsViewModel">
+        select b.*,
+               a.SN as vehicleApplySn,a.USERS as vehicleApplyUsers,a.VEHICLE as vehicleApplyVehicle,a.DRIVER as vehicleApplyDriver
+        from BIZ_CAR_VEHICLE_APPLY a
+                join BIZ_CAR_SERVICE_RATINGS b on a.ID = b.VEHICLE_APPLY_ID and b.DELETE_FLAG = 'NOT_DELETE'
+        where a.DRIVER_USER_ID = #{driverId} and a.DELETE_FLAG = 'NOT_DELETE'
+        order by b.CREATE_TIME desc
+    </select>
+</mapper>

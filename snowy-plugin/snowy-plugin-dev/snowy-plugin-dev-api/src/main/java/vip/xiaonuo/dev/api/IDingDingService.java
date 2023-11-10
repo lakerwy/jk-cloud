@@ -44,4 +44,25 @@ public interface IDingDingService {
     void baseBatchSend(JSONObject entries,List<String> receiverIdList);
 
     void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, String title);
+
+
+    /**
+     * 根据 钉钉应用 key 获取token 并缓存
+     * @param appKey
+     * @param appSecret
+     * @return
+     */
+    String getDingToken(String appKey,String appSecret);
+
+    /**
+     * 发送 科科用车 、 科科司机 钉钉OA通知
+     * @param agentId 钉钉应用的AgentId
+     * @param appKey 钉钉应用的唯一标识key
+     * @param appSecret 应用的密钥
+     * @param jsonObject 信息体参数对象
+     * @param title 消息主题
+     * @param linkUrl 跳转链接
+     * @param dingUserIds 钉钉用户id
+     */
+    void sendCarMsg(String agentId, String appKey, String appSecret,JSONObject jsonObject, String title, String linkUrl, String dingUserIds );
 }

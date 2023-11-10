@@ -3,6 +3,7 @@ package vip.xiaonuo.biz.modular.mapBiz.common;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
@@ -16,6 +17,7 @@ import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.common.config.DingTalkProperties;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -255,5 +257,76 @@ public class DingDingServiceImpl implements IDingDingService {
     @Override
     public void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, String title) {
 
+    }
+
+    @Override
+    public String getDingToken(String appKey, String appSecret) {
+        Object existDingDingToken = commonCacheOperator.get(appKey);
+        if(ObjectUtil.isNotEmpty(existDingDingToken)){
+            return existDingDingToken.toString();
+        }
+        String dingDingToken = CommonDingDingUtil.getToken(appKey,appSecret);
+        commonCacheOperator.put(appKey,dingDingToken,7200);
+        return dingDingToken;
+    }
+
+    @Override
+    public void sendCarMsg(String agentId, String appKey, String appSecret, JSONObject jsonObject, String title, String linkUrl, String dingUserIds) {
+
+        //消息体
+        OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
+        msg.setMsgtype("oa");
+
+        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
+        head.setText(title);
+        head.setBgcolor("FFFB9611");
+
+        //构建form
+        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
+        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("用车人： ");
+        form.setValue(String.valueOf(jsonObject.get("users")));
+        forms.add(form);
+        form.setKey("手机号： ");
+        form.setValue(String.valueOf(jsonObject.get("userMobile")));
+        forms.add(form);
+        form.setKey("目的地： ");
+        form.setValue(String.valueOf(jsonObject.get("destination")));
+        forms.add(form);
+        form.setKey("用车时间： ");
+        form.setValue(String.valueOf(jsonObject.get("predictTransportTime")));
+        forms.add(form);
+
+        //构建body
+        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+        body.setTitle(title);
+        body.setAuthor(String.valueOf(jsonObject.get("users")));
+        body.setContent(title);
+        body.setForm(forms);
+
+        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
+        oa.setHead(head);
+        oa.setBody(body);
+        oa.setMessageUrl(linkUrl);
+        msg.setOa(oa);
+
+        OapiMessageCorpconversationAsyncsendV2Request.Markdown markdown = new OapiMessageCorpconversationAsyncsendV2Request.Markdown();
+        markdown.setText(title);
+        msg.setMarkdown(markdown);
+
+        //发送钉钉通知
+        OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
+        request.setAgentId(Long.getLong(agentId));
+        request.setUseridList(dingUserIds);
+        request.setToAllUser(false);
+        request.setMsg(msg);
+
+        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
+        String accessToken = this.getDingToken(appKey,appSecret);
+        try {
+            client.execute(request, accessToken);
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
     }
 }
