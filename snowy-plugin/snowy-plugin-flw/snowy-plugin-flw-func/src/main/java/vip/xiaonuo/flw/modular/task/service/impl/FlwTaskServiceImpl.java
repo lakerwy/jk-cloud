@@ -762,6 +762,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if(CollUtil.isNotEmpty(comments)){
             Set<String> collect = comments.stream().map(Comment::getUserId).collect(Collectors.toSet());
             try {
+//                Map<String, Object> values = new HashMap<>();
+//                values.put("title","【评论知晓】");
+//                values.put("url",)
                 iDingDingService.customBatchSend(buildForms(processInstanceId,flwcommentParam.getComment()),collect,"【评论知晓】");
             }catch (Exception e){
                 log.error(e.getMessage());

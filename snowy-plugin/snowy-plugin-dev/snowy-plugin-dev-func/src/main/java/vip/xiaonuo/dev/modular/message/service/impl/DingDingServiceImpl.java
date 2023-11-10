@@ -368,9 +368,10 @@ public class DingDingServiceImpl implements IDingDingService {
         String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
         body.setContent(mg);
         oa.setBody(body);
+//        String url = String.format("%s/h5/#/pages/flw/task/myApply/detail-process?id=%s&stateCode=%s",dingTalkProperties.getH5webUrl());
 //        oa.setMessageUrl("https://webapp1.jianke.co/h5/#/pages/flw/task/todoTask/todo-process?id=e6b5287b-4246-11ee-865a-0242ac110009&processInstanceId=959a37ea-4246-11ee-865a-0242ac110009&currentActivityId=xn41ae86-a393-4fdc-8eea-68808a659fc7");
 
-
+//        oa.setMessageUrl(url);
         OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
         msg.setMsgtype("oa");
         msg.setOa(oa);

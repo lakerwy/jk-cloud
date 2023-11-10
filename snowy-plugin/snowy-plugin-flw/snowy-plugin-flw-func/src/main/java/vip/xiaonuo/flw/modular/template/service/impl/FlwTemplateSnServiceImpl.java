@@ -35,7 +35,11 @@ import vip.xiaonuo.flw.modular.template.mapper.FlwTemplateSnMapper;
 import vip.xiaonuo.flw.modular.template.param.*;
 import vip.xiaonuo.flw.modular.template.service.FlwTemplateSnService;
 
+import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import static cn.hutool.core.date.DatePattern.PURE_DATE_PATTERN;
+import static cn.hutool.core.date.DatePattern.SIMPLE_MONTH_PATTERN;
 
 /**
  * 流水号模板Service接口实现类
@@ -132,16 +136,32 @@ public class FlwTemplateSnServiceImpl extends ServiceImpl<FlwTemplateSnMapper, F
         if(ObjectUtil.isNotEmpty(latestValue)) {
             // 校验上个值
             String oldSnCodeRemovePrefix = StrUtil.removePrefix(latestValue, flwTemplateSn.getPrefix());
-            boolean sameDay = DateUtil.isSameDay(DateTime.now(), DateUtil.parse(StrUtil.sub(oldSnCodeRemovePrefix, 0,
-                    oldSnCodeRemovePrefix.length() - flwTemplateSn.getSuffixDigits())));
-            if(sameDay) {
-                // 如果上次日期与当前日期是同一天，则再生成个新的，保存
-                genAndSaveSnCodeByOldCode(latestValue, flwTemplateSn);
-                // 返回上一个的
-                return latestValue;
-            } else {
-                // 如果上次日期与当前日期不是同一天，则重新生成
-                return this.doGetNewSn(flwTemplateSn);
+            String dateFormat = flwTemplateSn.getDateFormat();
+            if(dateFormat.equals(SIMPLE_MONTH_PATTERN)){
+                //+01 是为了让202311 变为20231101 正常解析得到月份
+                boolean sameMonth = DateUtil.isSameMonth(DateTime.now(), DateUtil.parse(StrUtil.sub(oldSnCodeRemovePrefix, 0,
+                        oldSnCodeRemovePrefix.length() - flwTemplateSn.getSuffixDigits())+"01"));
+                if(sameMonth) {
+                    // 如果上次日期与当前日期是同一月，则再生成个新的，保存
+                    genAndSaveSnCodeByOldCode(latestValue, flwTemplateSn);
+                    // 返回上一个的
+                    return latestValue;
+                } else {
+                    // 如果上次日期与当前日期不是同一天，则重新生成
+                    return this.doGetNewSn(flwTemplateSn);
+                }
+            }else {
+                boolean sameDay = DateUtil.isSameDay(DateTime.now(), DateUtil.parse(StrUtil.sub(oldSnCodeRemovePrefix, 0,
+                        oldSnCodeRemovePrefix.length() - flwTemplateSn.getSuffixDigits())));
+                if(sameDay) {
+                    // 如果上次日期与当前日期是同一天，则再生成个新的，保存
+                    genAndSaveSnCodeByOldCode(latestValue, flwTemplateSn);
+                    // 返回上一个的
+                    return latestValue;
+                } else {
+                    // 如果上次日期与当前日期不是同一天，则重新生成
+                    return this.doGetNewSn(flwTemplateSn);
+                }
             }
         } else {
             // 最新值为空，则表示还没使用过，则生成一个并返回，再基于上一个生成一个新的存起来，方便下次使用
@@ -206,7 +226,7 @@ public class FlwTemplateSnServiceImpl extends ServiceImpl<FlwTemplateSnMapper, F
         Integer suffixIncrementalValue = flwTemplateSn.getSuffixIncrementalValue();
 
         // 对老的流水号进行拆解，截取后缀的位数
-        int oldSuffixInitialValue = Convert.toInt(StrUtil.subSufByLength(oldSnCode, 4));
+        int oldSuffixInitialValue = Convert.toInt(StrUtil.subSufByLength(oldSnCode, flwTemplateSn.getSuffixDigits()));
 
         // 定义流水号值
         int snCodeValue = oldSuffixInitialValue + suffixIncrementalValue;
