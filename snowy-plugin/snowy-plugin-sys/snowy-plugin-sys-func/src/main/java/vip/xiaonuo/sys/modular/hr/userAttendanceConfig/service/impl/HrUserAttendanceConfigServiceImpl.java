@@ -161,8 +161,8 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
     @Override
     public String editConfig(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam){
         /** 修改考勤配置组 */
-        if(StringUtils.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeName()) && ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeId())){
-            HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.getById(hrUserAttendanceConfigEditParam.getAttendanceTypeId());
+        if(StringUtils.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeName()) && ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getId())){
+            HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.getById(hrUserAttendanceConfigEditParam.getId());
             if(ObjectUtil.isNotEmpty(hrUserAttendanceConfigGroup)){
                 hrUserAttendanceConfigGroup.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName());
                 hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigEditParam.getLeadId());
