@@ -149,10 +149,10 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         map.put("seriousLeaveMinute",hrUserAttendanceConfigGroup.getSeriousLeaveMinute());
         Double workHours = 0.0;
         for(int i=0;i<configList.size();i++){
-            Double dou = Double.parseDouble(configList.get(i).getWorkHours());
+            Double dou = StringUtils.isNotEmpty(configList.get(i).getWorkHours()) ? Double.parseDouble(configList.get(i).getWorkHours()) : 0.0;
             workHours = workHours + dou;
         }
-        map.put("absenteeismLate",workHours.toString());
+        //map.put("absenteeismLate",workHours.toString());
         map.put("workHours",workHours.toString());
         return map;
     }
