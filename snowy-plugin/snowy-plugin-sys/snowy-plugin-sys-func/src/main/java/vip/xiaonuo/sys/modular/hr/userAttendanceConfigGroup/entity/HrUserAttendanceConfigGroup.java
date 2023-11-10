@@ -92,4 +92,12 @@ public class HrUserAttendanceConfigGroup {
     /** 有效结束时间 */
     @ApiModelProperty(value = "有效结束时间", position = 14)
     private String validEndTime;
+
+    /** 严重迟到分钟数 */
+    @ApiModelProperty(value = "严重迟到分钟数", position = 15)
+    private Integer seriousLateMinute;
+
+    /** 严重早退分钟数 */
+    @ApiModelProperty(value = "严重早退分钟数", position = 15)
+    private Integer seriousLeaveMinute;
 }

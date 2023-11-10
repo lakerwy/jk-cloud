@@ -25,4 +25,6 @@ import java.util.List;
  **/
 public interface SysOrgMapper extends BaseMapper<SysOrg> {
     List<SysOrg> getChildren(String orgId);
+
+    List<SysOrg> getNewAllOrgList();
 }

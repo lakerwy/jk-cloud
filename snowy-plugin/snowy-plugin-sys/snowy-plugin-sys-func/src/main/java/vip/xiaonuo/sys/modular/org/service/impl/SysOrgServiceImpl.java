@@ -467,4 +467,9 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
         return this.page(objectPage, lambdaQueryWrapper);
     }
 
+    @Override
+    public List<SysOrg> getNewAllOrgList() {
+        return sysOrgMapper.getNewAllOrgList();
+    }
+
 }

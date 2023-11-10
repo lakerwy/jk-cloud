@@ -203,7 +203,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         SysUser sysUser = this.getById(id);
         if (ObjectUtil.isNotEmpty(sysUser)) {
             transService.transOne(sysUser);
-            return BeanUtil.copyProperties(sysUser, SysLoginUser.class);
+            SysOrg sysOrg = sysOrgService.getById(sysUser.getOrgId());
+            SysLoginUser sysLoginUser = BeanUtil.copyProperties(sysUser, SysLoginUser.class);
+            sysLoginUser.setCategory(sysOrg.getCategory());
+            return sysLoginUser;
         }
         return null;
     }
@@ -1001,7 +1004,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     public List<JSONObject> getScopeListByMap(Map<String, List<SysRelation>> groupMap, String orgId) {
         List<JSONObject> resultList = CollectionUtil.newArrayList();
-        List<SysOrg> sysOrgList = sysOrgService.getAllOrgList();
+        List<SysOrg> sysOrgList = sysOrgService.getNewAllOrgList();
         List<String> scopeAllList = sysOrgList.stream().map(SysOrg::getId).collect(Collectors.toList());
         List<String> scopeOrgList = CollectionUtil.newArrayList(orgId);
         List<String> scopeOrgChildList = sysOrgService.getChildListById(sysOrgList, orgId, true)

@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
@@ -28,7 +29,9 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.job.task.CommonHandleUtil;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.HrUserAttendanceConfigIdParam;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
@@ -38,6 +41,8 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.entity.HrUserAttendanceRelation;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -62,6 +67,8 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
     HrUserAttendanceConfigService hrUserAttendanceConfigService;
     @Resource
     HrUserAttendanceRelationService hrUserAttendanceRelationService;
+    @Resource
+    private SysUserService sysUserService;
 
     @Override
     public Page<HrUserAttendanceConfigGroup> page(HrUserAttendanceConfigGroupPageParam hrUserAttendanceConfigGroupPageParam) {
@@ -109,12 +116,13 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
     public void delete(List<HrUserAttendanceConfigGroupIdParam> hrUserAttendanceConfigGroupIdParamList) {
         // 执行考勤配置组删除，以及删除配置详情
         this.removeByIds(CollStreamUtil.toList(hrUserAttendanceConfigGroupIdParamList, HrUserAttendanceConfigGroupIdParam::getId));
-        List<HrUserAttendanceConfigIdParam> attendanceTypeIds = hrUserAttendanceConfigGroupIdParamList.stream().map(param -> {
-            HrUserAttendanceConfigIdParam hrUserAttendanceConfigIdParam = new HrUserAttendanceConfigIdParam();
-            hrUserAttendanceConfigIdParam.setAttendanceTypeId(param.getId());
-            return hrUserAttendanceConfigIdParam;
-        }).collect(Collectors.toList());
-        hrUserAttendanceConfigService.delete(attendanceTypeIds);
+
+        List<String> groupIdList = hrUserAttendanceConfigGroupIdParamList.stream().map(group -> group.getId()).collect(Collectors.toList());
+        List<String> configList = hrUserAttendanceConfigService.list(new LambdaQueryWrapper<HrUserAttendanceConfig>().in(HrUserAttendanceConfig::getAttendanceTypeId,groupIdList))
+                .stream().map(config -> config.getId()).collect(Collectors.toList());
+
+        hrUserAttendanceConfigService.removeBatchByIds(configList);
+        hrUserAttendanceService.attendanceConfigCache();
     }
 
     @Override
@@ -134,8 +142,8 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
     @Override
     public Map<String,Object> attendanceConfigGroupMap(HrAttendanceConfigAndUserParam hrAttendanceConfigAndUserParam){
         Map<String,Object> map = new HashMap<>();
-        QueryWrapper<HrUserAttendanceRelation> queryWrapper = new QueryWrapper<>();
-        List<HrUserAttendanceRelation> userAttendanceRelationList = hrUserAttendanceRelationService.list(queryWrapper);
+        List<HrUserAttendanceRelation> userAttendanceRelationList = hrUserAttendanceRelationService.list(new LambdaQueryWrapper<HrUserAttendanceRelation>()
+                .eq(HrUserAttendanceRelation::getAttendanceTypeId,hrAttendanceConfigAndUserParam.getAttendanceTypeId()));
         Map<String,Object> relationMap = new HashMap<>();
         relationMap.put("invalid",userAttendanceRelationList.stream().filter(relation -> relation.getIsValid() == 1));/** 未生效考勤班次*/
         relationMap.put("valid",userAttendanceRelationList.stream().filter(relation -> relation.getIsValid() == 0));/** 生效考勤班次*/
@@ -174,9 +182,39 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         });
         hrUserAttendanceRelationService.saveOrUpdateBatch(hrUserAttendanceRelationList);
 
+        userAttendConfig(hrAttendanceConfigAndUserDataList,hrAttendanceConfigAndUserDataParam.getId());
         /** 重置缓存数据*/
         commonCacheOperator.remove(HR_ATTENDANCE_CONFIG_KEY);
         hrUserAttendanceService.attendanceConfigCache();
         return HrUserAttendanceConfigGroupEnum.SUCCESS.getValue();
+    }
+
+    private void userAttendConfig(List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList,String attendGroupId){
+
+        //先清理所有人的
+        String sql = "update HR_APPLY_WORK_OT set STATUS = null";
+        CommonHandleUtil.handleSqlExecution(sql);
+
+        List<SysUser> sysUserList = new ArrayList<>();
+        hrAttendanceConfigAndUserDataList.stream().forEach(config -> {
+            if(config.getEmployType().equals("2") && StringUtils.isNotEmpty(config.getEmployIds())){ //人员
+                List<SysUser> atUser = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,Arrays.asList(config.getEmployType().split(","))));
+                sysUserList.addAll(atUser.stream().map(user -> { user.setAttendanceGroupId(attendGroupId);
+                    return user;
+                }).collect(Collectors.toList()));
+            }
+            if(config.getEmployType().equals("1") && StringUtils.isNotEmpty(config.getEmployIds())){ //部门
+                List<String> orgIdList = Arrays.asList(config.getEmployIds().split(","));
+                orgIdList.forEach(orgId -> {
+                    List<SysUser> atUser = hrUserAttendanceService.getOrgAndUserList(orgId);
+                    if(CollectionUtil.isNotEmpty(atUser)){
+                        sysUserList.addAll(atUser.stream().map(user -> { user.setAttendanceGroupId(attendGroupId);
+                            return user;
+                        }).collect(Collectors.toList()));
+                    }
+                });
+            }
+        });
+        sysUserService.saveOrUpdateBatch(sysUserList);
     }
 }

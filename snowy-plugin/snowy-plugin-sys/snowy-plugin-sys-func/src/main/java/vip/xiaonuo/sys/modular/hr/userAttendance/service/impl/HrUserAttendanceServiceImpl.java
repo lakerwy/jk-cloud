@@ -118,6 +118,14 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         } else {
             queryWrapper.lambda().orderByAsc(HrUserAttendance::getId);
         }
+        //去重：年月日-时分相同的数据只取一条
+        Map<String,HrUserAttendance> map = new HashMap<>();
+        Page<HrUserAttendance> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        page.getRecords().forEach(attendance -> {
+            String time = DateUtil.format(attendance.getCheckTime(),DatePattern.NORM_DATETIME_MINUTE_PATTERN);
+            map.put(time,attendance);
+        });
+        page.setRecords(map.entrySet().stream().map(attendance -> BeanUtil.toBean(attendance,HrUserAttendance.class)).collect(Collectors.toList()));
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
@@ -311,11 +319,29 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         //System.out.println("接口调用成功！");
     }
 
+    @Override
+    public List<SysUser> getOrgAndUserList(String orgId){
+        List<SysUser> sysUsers = new ArrayList<>();
+        if(StringUtils.isEmpty(orgId)){
+            return sysUsers;
+        }
+        List<SysOrg> bizOrgList = sysOrgService.list();//全表查询
+        List<SysOrg> bizOrgListNew = recursionOrg(new ArrayList<>(),orgId,bizOrgList);
+        List<String> orgList = new ArrayList<>();
+        orgList.add(orgId);//包含本身
+        bizOrgListNew.forEach(org -> orgList.add(org.getId()));
+        if(ObjectUtil.isEmpty(orgList)){
+            return sysUsers;
+        }
+        sysUsers = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getOrgId,orgList));
+        return sysUsers;
+    }
     /**
      * 递归该部门下面有多少人员
      * author ljy
      * @date  2023/10/09 16:24
      * */
+    @Override
     public String getOrgAndUserId(String orgId){
         StringBuffer userIds = new StringBuffer();
         if(StringUtils.isEmpty(orgId)){

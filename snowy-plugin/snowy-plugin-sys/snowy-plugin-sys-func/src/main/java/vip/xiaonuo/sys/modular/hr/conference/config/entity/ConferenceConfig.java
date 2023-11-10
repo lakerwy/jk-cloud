@@ -44,69 +44,52 @@ public class ConferenceConfig {
     @ApiModelProperty(value = "会议室位置", position = 3)
     private String location;
 
-    /** 会议室是否存在固定时间：0 或空为不存在，1 每周某个时间，2  每月的某个时间，3 每年的某个时间 */
-    @ApiModelProperty(value = "会议室是否存在固定时间：0 或空为不存在，1 每周某个时间，2  每月的某个时间，3 每年的某个时间", position = 4)
-    private Integer status;
-
-    /** 开始时间：单位-时分秒 */
-    @ApiModelProperty(value = "开始时间：单位-时分秒", position = 5)
-    private Time beginTime;
-
-    /** 结束时间：单位-时分秒 */
-    @ApiModelProperty(value = "结束时间：单位-时分秒", position = 6)
-    private Time endTime;
-
-    /** 对应周几：1 周一，2 周二，3 周三 ... */
-    @ApiModelProperty(value = "对应周几：1 周一，2 周二，3 周三 ...", position = 7)
-    private Integer weekTime;
-
-    /** 每月的哪一天 */
-    @ApiModelProperty(value = "每月的哪一天", position = 8)
-    private Integer dayTime;
-
     /** 最多容纳多少人 */
-    @ApiModelProperty(value = "最多容纳多少人", position = 9)
+    @ApiModelProperty(value = "最多容纳多少人", position = 4)
     private Integer containMax;
 
     /** 负责人 */
-    @ApiModelProperty(value = "负责人", position = 10)
+    @ApiModelProperty(value = "负责人", position = 5)
     private String leader;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 11)
+    @ApiModelProperty(value = "附件", position = 6)
     private String fileId;
 
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 12)
+    @ApiModelProperty(value = "扩展信息", position = 7)
     private String extJson;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 13)
+    @ApiModelProperty(value = "删除标志", position = 8)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 14)
+    @ApiModelProperty(value = "创建时间", position = 9)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 15)
+    @ApiModelProperty(value = "创建用户", position = 10)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 16)
+    @ApiModelProperty(value = "修改时间", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 17)
+    @ApiModelProperty(value = "修改用户", position = 12)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    @ApiModelProperty(value = "是否为会议室： 1 会议室，2 非会议室", position = 18)
+    @ApiModelProperty(value = "是否为会议室： 1 会议室，2 非会议室", position = 13)
     private Integer conferenceFlag;
+
+    @ApiModelProperty(value = "是否为会议室： 1 会议室，2 非会议室", position = 13)
+    private Integer status;
 
 }

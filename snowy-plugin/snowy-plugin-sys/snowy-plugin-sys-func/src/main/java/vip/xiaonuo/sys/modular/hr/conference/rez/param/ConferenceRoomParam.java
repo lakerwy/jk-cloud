@@ -20,4 +20,8 @@ public class ConferenceRoomParam {
     @ApiModelProperty(value = "结束时间",required = true)
     @NotNull(message = "结束时间不能为空")
     private String endTime;
+
+    @ApiModelProperty(value = "是否空闲： 1 空闲，2 非空闲")
+    @NotNull(message = "结束时间不能为空，默认为1")
+    private Integer freeFlag;
 }

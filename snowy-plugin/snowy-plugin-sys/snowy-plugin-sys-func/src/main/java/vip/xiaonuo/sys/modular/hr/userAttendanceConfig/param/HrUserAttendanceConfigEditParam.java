@@ -96,4 +96,13 @@ public class HrUserAttendanceConfigEditParam {
     /** 班次应用人数 */
     @ApiModelProperty(value = "班次应用人数", position = 5)
     private Integer attendanceUserNum;
+
+
+    /** 严重迟到分钟数 */
+    @ApiModelProperty(value = "严重迟到分钟数", position = 15)
+    private Integer seriousLateMinute;
+
+    /** 严重早退分钟数 */
+    @ApiModelProperty(value = "严重早退分钟数", position = 15)
+    private Integer seriousLeaveMinute;
 }

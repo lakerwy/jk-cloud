@@ -62,7 +62,7 @@ public class ConferenceConfigController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取会议预约-会议室数据分页")
     //@SaCheckPermission("/sys/config/page")
-    @GetMapping("/sys/config/page")
+    @GetMapping("/sys/conferenceConfig/page")
     public CommonResult<Page<ConferenceConfig>> page(ConferenceConfigPageParam conferenceConfigPageParam) {
         return CommonResult.data(conferenceConfigService.page(conferenceConfigPageParam));
     }
@@ -77,7 +77,7 @@ public class ConferenceConfigController {
     @ApiOperation("添加会议预约-会议室数据")
     @CommonLog("添加会议预约-会议室数据")
     //@SaCheckPermission("/sys/config/add")
-    @PostMapping("/sys/config/add")
+    @PostMapping("/sys/conferenceConfig/add")
     public CommonResult<String> add(@RequestBody @Valid ConferenceConfigAddParam conferenceConfigAddParam) {
         conferenceConfigService.add(conferenceConfigAddParam);
         return CommonResult.ok();
@@ -93,7 +93,7 @@ public class ConferenceConfigController {
     @ApiOperation("编辑会议预约-会议室数据")
     @CommonLog("编辑会议预约-会议室数据")
     //@SaCheckPermission("/sys/config/edit")
-    @PostMapping("/sys/config/edit")
+    @PostMapping("/sys/conferenceConfig/edit")
     public CommonResult<String> edit(@RequestBody @Valid ConferenceConfigEditParam conferenceConfigEditParam) {
         conferenceConfigService.edit(conferenceConfigEditParam);
         return CommonResult.ok();
@@ -109,7 +109,7 @@ public class ConferenceConfigController {
     @ApiOperation("删除会议预约-会议室数据")
     @CommonLog("删除会议预约-会议室数据")
     //@SaCheckPermission("/sys/config/delete")
-    @PostMapping("/sys/config/delete")
+    @PostMapping("/sys/conferenceConfig/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<ConferenceConfigIdParam> conferenceConfigIdParamList) {
         conferenceConfigService.delete(conferenceConfigIdParamList);
@@ -125,7 +125,7 @@ public class ConferenceConfigController {
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取会议预约-会议室数据详情")
     //@SaCheckPermission("/sys/config/detail")
-    @GetMapping("/sys/config/detail")
+    @GetMapping("/sys/conferenceConfig/detail")
     public CommonResult<ConferenceConfig> detail(@Valid ConferenceConfigIdParam conferenceConfigIdParam) {
         return CommonResult.data(conferenceConfigService.detail(conferenceConfigIdParam));
     }

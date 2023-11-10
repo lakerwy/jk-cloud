@@ -22,6 +22,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.util.DateUtils;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -273,7 +274,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         List<HrUserAttendanceStat> hrUserAttendanceStatList = this.list(new QueryWrapper<HrUserAttendanceStat>().lambda()
                 .eq(HrUserAttendanceStat::getUserId,loginUser.getId())
                 .between(HrUserAttendanceStat::getCheckTime,beginDate,endDate));
-        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = getUserConfigCachData(loginUser.getId());
+        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = getUserConfigCachData(loginUser.getId(),beginDate);
         List<Map<String,Object>> mapList = new ArrayList<>();
         for(UserAttendanceConfigEntity entity : userAttendanceConfigEntityList){
             Map<String,Object> attendanceMap = new HashMap<>();
@@ -297,20 +298,60 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
-    public List<UserAttendanceConfigEntity> getUserConfigCachData(String userId){ //获取打卡次数
+    public List<UserAttendanceConfigEntity> getUserConfigCachData(String userId,Date beginDate){ //获取打卡次数
         String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));
+        List<AttendanceTimeSlot> timeSlots = new ArrayList<>();
+
+        SysUser sysUser = sysUserService.queryEntity(userId);
+        List<AttendanceTimeSlot> slotList = new ArrayList<>();
+        Map<String,String> configMap = new HashMap<>();
         if(StringUtils.isNotEmpty(cache)){
-            List<AttendanceConfigCacheEntity> configCacheEntityList = JSONArray.parseArray(cache, AttendanceConfigCacheEntity.class);
-            for(AttendanceConfigCacheEntity entity : configCacheEntityList){
-                if(entity.getUserIds().contains(userId)){
-                    return entity.getUserAttendanceConfigEntityList();
-                }
-            }
+            configMap = (Map) JSON.parse(cache);
         }
+        if(StringUtils.isNotEmpty(sysUser.getAttendanceGroupId()) && ObjectUtil.isNotEmpty(configMap.get(sysUser.getAttendanceGroupId()))){
+            slotList = JSONArray.parseArray(configMap.get(sysUser.getAttendanceGroupId()), AttendanceTimeSlot.class);
+            timeSlots = timeSlots(slotList,beginDate);
+        }
+
         //取默认配置
         String defaultConfig = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_DEFAULT_KEY));
-        List<HrUserAttendanceConfig> configList = JSONArray.parseArray(defaultConfig, HrUserAttendanceConfig.class);
-        return configList.stream().map(config -> BeanUtil.toBean(config, UserAttendanceConfigEntity.class)).collect(Collectors.toList());
+        List<AttendanceTimeSlot> defaSlots = JSONArray.parseArray(defaultConfig, AttendanceTimeSlot.class);
+        defaSlots = timeSlots(defaSlots,beginDate);
+        List<AttendanceTimeSlot> slots = CollectionUtil.isNotEmpty(timeSlots) ? timeSlots : defaSlots;
+        return slots.stream().map(slot -> {
+            UserAttendanceConfigEntity userAttendanceConfigEntity = BeanUtil.toBean(slot, UserAttendanceConfigEntity.class);
+            userAttendanceConfigEntity.setBeginMinTime(DateUtil.format(slot.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
+            userAttendanceConfigEntity.setCheckTime(slot.getCompareTime());
+            userAttendanceConfigEntity.setEndMinTime(DateUtil.format(slot.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
+            return userAttendanceConfigEntity;
+        }).collect(Collectors.toList());
+    }
+
+    private List<AttendanceTimeSlot> timeSlots(List<AttendanceTimeSlot> slotList,Date date){
+        slotList.forEach(slot -> {
+            String day = DateUtil.format(date,DatePattern.NORM_DATE_PATTERN);
+            String beginTime = day+" "+DateUtil.format(slot.getBeginTime(),DatePattern.NORM_TIME_PATTERN);
+            slot.setBeginTime(CommonTimeFormatUtil.strToDate(beginTime,DatePattern.NORM_DATETIME_PATTERN));
+
+            String endTime = day+" "+DateUtil.format(slot.getEndTime(),DatePattern.NORM_TIME_PATTERN);
+            slot.setEndTime(CommonTimeFormatUtil.strToDate(endTime,DatePattern.NORM_DATETIME_PATTERN));
+
+            if(ObjectUtil.isNotEmpty(slot.getCompareTime())){
+                String  compareTime= day+" "+DateUtil.format(slot.getCompareTime(),DatePattern.NORM_TIME_PATTERN);
+                slot.setCompareTime(CommonTimeFormatUtil.strToDate(compareTime,DatePattern.NORM_DATETIME_PATTERN));
+            }
+
+            if(ObjectUtil.isNotEmpty(slot.getWorkBeginTime())){
+                String  workBeginTime= day+" "+DateUtil.format(slot.getWorkBeginTime(),DatePattern.NORM_TIME_PATTERN);
+                slot.setWorkBeginTime(CommonTimeFormatUtil.strToDate(workBeginTime,DatePattern.NORM_DATETIME_PATTERN));
+            }
+
+            if(ObjectUtil.isNotEmpty(slot.getWorkEndTime())){
+                String  workEndTime= day+" "+DateUtil.format(slot.getWorkEndTime(),DatePattern.NORM_TIME_PATTERN);
+                slot.setWorkEndTime(CommonTimeFormatUtil.strToDate(workEndTime,DatePattern.NORM_DATETIME_PATTERN));
+            }
+        });
+        return slotList;
     }
 
     @Override
@@ -325,6 +366,16 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 .eq(HrUserAttendance::getUserId,loginUser.getId())
                 .between(HrUserAttendance::getCheckTime,hrUserAttendancePageParam.getStartTime(),hrUserAttendancePageParam.getEndTime())
                 .orderByAsc(HrUserAttendance::getCheckTime));
+
+        //去重：年月日-时分相同的数据只取一条
+        if(CollectionUtil.isNotEmpty(hrUserAttendanceList)){
+            Map<String,HrUserAttendance> map = new HashMap<>();
+            hrUserAttendanceList.forEach(attendance -> {
+                String time = DateUtil.format(attendance.getCheckTime(),DatePattern.NORM_DATETIME_MINUTE_PATTERN);
+                map.put(time,attendance);
+            });
+            hrUserAttendanceList = map.entrySet().stream().map(at -> at.getValue()).collect(Collectors.toList());
+        }
 
         List<HrUserAttendanceStat> hrUserAttendanceStatList = hrUserAttendanceStatService.list(new LambdaQueryWrapper<HrUserAttendanceStat>()
                 .eq(HrUserAttendanceStat::getUserId,loginUser.getId())
@@ -342,8 +393,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             mergeList.add(attendance);
         });
 
-        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = hrUserAttendanceStatService.getUserConfigCachData(loginUser.getId());/** 获取打卡配置*/
         Date startTime =  CommonTimeFormatUtil.strToDate(hrUserAttendancePageParam.getStartTime(),DatePattern.NORM_DATE_PATTERN);
+        List<UserAttendanceConfigEntity> userAttendanceConfigEntityList = hrUserAttendanceStatService.getUserConfigCachData(loginUser.getId(),startTime);/** 获取打卡配置*/
         Date nowDate = DateUtil.date();
         try{
             nowDate = DateUtils.parseDate(DateUtil.now(),DateUtils.DATE_FORMAT_10);
@@ -359,7 +410,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         for(int i=0;i<userAttendanceConfigEntityList.size();i++){
             String dutyType = userAttendanceConfigEntityList.get(i).getDutyType();
             String dayTime = DateUtil.format(DateUtil.date(),DatePattern.NORM_DATE_PATTERN);
-            Date checkTime = CommonTimeFormatUtil.strToDate(dayTime+" "+userAttendanceConfigEntityList.get(i).getCheckTime(),DatePattern.NORM_DATETIME_PATTERN);
+            Date checkTime = userAttendanceConfigEntityList.get(i).getCheckTime();
             List<HrUserAttendance> list = hrUserAttendanceList.stream().filter(attendance -> attendance.getCheckType().equals(dutyType)).collect(Collectors.toList());
             if(CollectionUtil.isEmpty(list)){
                 HrUserAttendance hrUserAttendance = new HrUserAttendance();

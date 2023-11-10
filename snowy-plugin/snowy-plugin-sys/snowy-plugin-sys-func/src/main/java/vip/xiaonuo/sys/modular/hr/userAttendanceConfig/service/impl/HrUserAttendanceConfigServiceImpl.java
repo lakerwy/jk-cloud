@@ -139,13 +139,21 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         if(StringUtils.isEmpty(hrUserAttendanceConfigPageParam.getAttendanceTypeId())){
             return new HashMap<>();
         }
+        HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.queryEntity(hrUserAttendanceConfigPageParam.getAttendanceTypeId());
         Map<String,Object> map = new HashMap<>();
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ATTENDANCE_TYPE_ID",hrUserAttendanceConfigPageParam.getAttendanceTypeId());
-        map.put("attendanceConfigList",hrUserAttendanceConfigMapper.selectList(queryWrapper));
-        map.put("elasticity","");
-        map.put("seriousLate","");
-        map.put("absenteeismLate","");
+        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigMapper.selectList(queryWrapper);
+        map.put("attendanceConfigList",configList);
+        map.put("seriousLateMinute",hrUserAttendanceConfigGroup.getSeriousLateMinute());
+        map.put("seriousLeaveMinute",hrUserAttendanceConfigGroup.getSeriousLeaveMinute());
+        Double workHours = 0.0;
+        for(int i=0;i<configList.size();i++){
+            Double dou = StringUtils.isNotEmpty(configList.get(i).getWorkHours()) ? Double.parseDouble(configList.get(i).getWorkHours()) : 0.0;
+            workHours = workHours + dou;
+        }
+        //map.put("absenteeismLate",workHours.toString());
+        map.put("workHours",workHours.toString());
         return map;
     }
 
@@ -153,12 +161,14 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
     @Override
     public String editConfig(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam){
         /** 修改考勤配置组 */
-        if(StringUtils.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeName()) && ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeId())){
-            HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.getById(hrUserAttendanceConfigEditParam.getAttendanceTypeId());
+        if(StringUtils.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeName()) && ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getId())){
+            HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.getById(hrUserAttendanceConfigEditParam.getId());
             if(ObjectUtil.isNotEmpty(hrUserAttendanceConfigGroup)){
                 hrUserAttendanceConfigGroup.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName());
                 hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigEditParam.getLeadId());
                 hrUserAttendanceConfigGroup.setLeadName(hrUserAttendanceConfigEditParam.getLeadName());
+                hrUserAttendanceConfigGroup.setSeriousLeaveMinute(hrUserAttendanceConfigEditParam.getSeriousLeaveMinute());
+                hrUserAttendanceConfigGroup.setSeriousLateMinute(hrUserAttendanceConfigEditParam.getSeriousLateMinute());
                 hrUserAttendanceConfigGroupService.updateById(hrUserAttendanceConfigGroup);
             }
         }
@@ -184,6 +194,8 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigEditParam.getLeadId());
         hrUserAttendanceConfigGroup.setLeadName(hrUserAttendanceConfigEditParam.getLeadName());
         hrUserAttendanceConfigGroup.setAttendanceUserNum(hrUserAttendanceConfigEditParam.getAttendanceUserNum());
+        hrUserAttendanceConfigGroup.setSeriousLateMinute(hrUserAttendanceConfigEditParam.getSeriousLateMinute());
+        hrUserAttendanceConfigGroup.setSeriousLeaveMinute(hrUserAttendanceConfigEditParam.getSeriousLeaveMinute());
         hrUserAttendanceConfigGroupService.save(hrUserAttendanceConfigGroup);
         String id = hrUserAttendanceConfigGroup.getId();
 
@@ -193,6 +205,34 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
                     param.setAttendanceTypeId(id);
                    return BeanUtil.toBean(param, HrUserAttendanceConfig.class);
                 }).collect(Collectors.toList());
+        setAttendanceConfig(hrUserAttendanceConfigList);
         return this.saveBatch(hrUserAttendanceConfigList) ? HrUserAttendanceConfigEnum.SUCESS.getValue() : HrUserAttendanceConfigEnum.FAIL.getValue();
+    }
+
+    private void setAttendanceConfig(List<HrUserAttendanceConfig> hrUserAttendanceConfigList){
+
+        if(hrUserAttendanceConfigList.size()%2 == 1 && hrUserAttendanceConfigList.size() == 3){
+            //班次打卡类别 (上班OnDuty，下班 OffDuty，休息 REST)
+            hrUserAttendanceConfigList.get(0).setDutyType("OnDuty");
+            hrUserAttendanceConfigList.get(0).setOrderNumber(1);
+            hrUserAttendanceConfigList.get(1).setDutyType("REST");
+            hrUserAttendanceConfigList.get(1).setOrderNumber(2);
+            hrUserAttendanceConfigList.get(2).setDutyType("OffDuty");
+            hrUserAttendanceConfigList.get(2).setOrderNumber(3);
+        }
+
+        if(hrUserAttendanceConfigList.size()%2 == 0){
+            for(int i=0;i<hrUserAttendanceConfigList.size();i++){
+                if(i%2 == 0){
+                    hrUserAttendanceConfigList.get(i).setDutyType("OnDuty");
+                    hrUserAttendanceConfigList.get(i).setOrderNumber(i+1);
+                }
+                if(i%2 == 1){
+                    hrUserAttendanceConfigList.get(i).setDutyType("OffDuty");
+                    hrUserAttendanceConfigList.get(i).setOrderNumber(i+1);
+                }
+            }
+        }
+
     }
 }

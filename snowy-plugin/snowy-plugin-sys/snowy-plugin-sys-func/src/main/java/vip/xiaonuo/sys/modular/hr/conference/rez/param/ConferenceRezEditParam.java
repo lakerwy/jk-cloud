@@ -84,4 +84,8 @@ public class ConferenceRezEditParam {
     @ApiModelProperty(value = "扩展信息", position = 13)
     private String extJson;
 
+    /** 审核状态：1 审核通过，2 审核未通过，3 会议取消 */
+    @ApiModelProperty(value = "审核状态：1 审核通过，2 审核未通过，3 会议取消", position = 20)
+    private Integer verifyFlag;
+
 }

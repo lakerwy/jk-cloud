@@ -23,6 +23,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 
 import javax.servlet.http.HttpServletResponse;
+import java.util.Date;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,7 +106,7 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @author ljy
      * @date  2023/10/11 22:28
      */
-    List<UserAttendanceConfigEntity> getUserConfigCachData(String userId);
+    List<UserAttendanceConfigEntity> getUserConfigCachData(String userId, Date date);
 
     /**
      * 用戶每天打卡详情
