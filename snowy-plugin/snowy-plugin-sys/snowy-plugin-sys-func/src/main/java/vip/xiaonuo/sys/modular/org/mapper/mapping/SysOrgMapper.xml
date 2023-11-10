@@ -24,4 +24,9 @@
             LEVEL,
             id
     </select>
+
+    <select id="getNewAllOrgList" resultType="vip.xiaonuo.sys.modular.org.entity.SysOrg">
+        SELECT * FROM SYS_ORG
+        ORDER BY SORT_CODE ASC
+    </select>
 </mapper>
