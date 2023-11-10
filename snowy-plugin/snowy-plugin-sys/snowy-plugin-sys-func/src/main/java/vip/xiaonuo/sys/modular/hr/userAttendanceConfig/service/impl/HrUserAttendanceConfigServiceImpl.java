@@ -139,13 +139,15 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         if(StringUtils.isEmpty(hrUserAttendanceConfigPageParam.getAttendanceTypeId())){
             return new HashMap<>();
         }
+        HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.queryEntity(hrUserAttendanceConfigPageParam.getAttendanceTypeId());
         Map<String,Object> map = new HashMap<>();
         QueryWrapper<HrUserAttendanceConfig> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("ATTENDANCE_TYPE_ID",hrUserAttendanceConfigPageParam.getAttendanceTypeId());
         map.put("attendanceConfigList",hrUserAttendanceConfigMapper.selectList(queryWrapper));
-        map.put("elasticity","");
-        map.put("seriousLate","");
-        map.put("absenteeismLate","");
+        map.put("seriousLateMinute",hrUserAttendanceConfigGroup.getSeriousLateMinute());
+        map.put("seriousLeaveMinute",hrUserAttendanceConfigGroup.getSeriousLeaveMinute());
+        map.put("absenteeismLate","7");
+        map.put("workHours","7");
         return map;
     }
 
