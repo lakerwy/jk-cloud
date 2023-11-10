@@ -760,12 +760,22 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 flwcommentParam.getComment(), flwcommentParam.getAttachmentList());
         List<Comment> comments = taskService.getProcessInstanceComments(processInstanceId);
         if(CollUtil.isNotEmpty(comments)){
-            Set<String> collect = comments.stream().map(Comment::getUserId).collect(Collectors.toSet());
+            Comment comment = comments.get(comments.size() - 1);
+            String taskId1 = comment.getTaskId();
+            HistoricTaskInstance historicTaskInstance = historyService.createHistoricTaskInstanceQuery().taskId(taskId1).singleResult();
+            Map<String,Object> values = new HashMap<>();
+            values.put("title","【评论知晓】");
+            values.put("taskId",historicTaskInstance.getId());
+//            values.put("stateCode",startTask.get)
+            Set<String> collect = new HashSet<>();
+            collect.add(comment.getUserId());
             try {
 //                Map<String, Object> values = new HashMap<>();
 //                values.put("title","【评论知晓】");
 //                values.put("url",)
-                iDingDingService.customBatchSend(buildForms(processInstanceId,flwcommentParam.getComment()),collect,"【评论知晓】");
+                HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(comment.getProcessInstanceId()).caseInstanceId(historicTaskInstance.getCaseInstanceId()).singleResult();
+                values.put("stateCode",historicProcessInstance.getState());
+                iDingDingService.customBatchSend(buildForms(processInstanceId,flwcommentParam.getComment()),collect,values);
             }catch (Exception e){
                 log.error(e.getMessage());
             }

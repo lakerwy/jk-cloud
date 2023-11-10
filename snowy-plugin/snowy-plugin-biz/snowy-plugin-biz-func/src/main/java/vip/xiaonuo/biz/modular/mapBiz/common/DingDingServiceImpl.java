@@ -255,7 +255,7 @@ public class DingDingServiceImpl implements IDingDingService {
     }
 
     @Override
-    public void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, String title) {
+    public void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, Map<String,Object> values) {
 
     }
 

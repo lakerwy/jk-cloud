@@ -7,6 +7,7 @@ import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 public interface IDingDingService {
@@ -43,7 +44,7 @@ public interface IDingDingService {
 
     void baseBatchSend(JSONObject entries,List<String> receiverIdList);
 
-    void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, String title);
+    void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, Map<String,Object> values);
 
 
     /**

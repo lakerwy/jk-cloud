@@ -341,7 +341,7 @@ public class DingDingServiceImpl implements IDingDingService {
         return forms;
     }
 
-    public void baseAsyncSendForm(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, String phone, String title) {
+    public void baseAsyncSendForm(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, String phone, Map<String,Object> values) {
         OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = getByMobile(phone);
         if (!oapiV2UserGetbymobileResponse.isSuccess()) {
             log.error(oapiV2UserGetbymobileResponse.getErrmsg());
@@ -358,20 +358,20 @@ public class DingDingServiceImpl implements IDingDingService {
 
         OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
         OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
-        head.setText(title);
+        head.setText((String) values.get("title"));
         head.setBgcolor("FFBBBBBB");
         oa.setHead(head);
 
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-        body.setTitle(title);
+        body.setTitle((String) values.get("title"));
         body.setForm(forms);
         String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
         body.setContent(mg);
         oa.setBody(body);
-//        String url = String.format("%s/h5/#/pages/flw/task/myApply/detail-process?id=%s&stateCode=%s",dingTalkProperties.getH5webUrl());
+        String url = String.format("%s/h5/#/pages/flw/task/myApply/detail-process?id=%s&stateCode=%s",dingTalkProperties.getH5webUrl(),values.get("taskId"),values.get("stateCode"));
 //        oa.setMessageUrl("https://webapp1.jianke.co/h5/#/pages/flw/task/todoTask/todo-process?id=e6b5287b-4246-11ee-865a-0242ac110009&processInstanceId=959a37ea-4246-11ee-865a-0242ac110009&currentActivityId=xn41ae86-a393-4fdc-8eea-68808a659fc7");
 
-//        oa.setMessageUrl(url);
+        oa.setMessageUrl(url);
         OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
         msg.setMsgtype("oa");
         msg.setOa(oa);
@@ -427,7 +427,7 @@ public class DingDingServiceImpl implements IDingDingService {
     }
 
     @Override
-    public void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, String title) {
+    public void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, Map<String,Object> values) {
         if(!dingTalkProperties.getIsSend()){
             return;
         }
@@ -438,7 +438,7 @@ public class DingDingServiceImpl implements IDingDingService {
             try {
 //                collect.forEach(cl-> baseAsyncSendForm(forms,cl,"【流程处理通知单】"));
                 for (String cl : collect) {
-                    sendExecs.execute(()->baseAsyncSendForm(forms,cl,title));
+                    sendExecs.execute(()->baseAsyncSendForm(forms,cl,values));
                 }
             }catch (Exception e){
                 log.info("> > > > >发送钉钉通知失败",e);
