@@ -64,8 +64,8 @@ public class ServiceRatingsController {
     @ApiOperation("获取CAR-用车服务评价分页")
 //    @SaCheckPermission("/biz/car/serviceRatings/getServiceRatingsPageList")
     @GetMapping("/biz/car/serviceRatings/getServiceRatingsPageList")
-    public CommonResult<Page<ServiceRatings>> page(ServiceRatingsPageParam serviceRatingsPageParam) {
-        return CommonResult.data(serviceRatingsService.page(serviceRatingsPageParam));
+    public CommonResult<Page<ServiceRatingsViewModel>> page(ServiceRatingsPageParam serviceRatingsPageParam) {
+        return CommonResult.data(serviceRatingsService.pageList(serviceRatingsPageParam));
     }
 
     /**

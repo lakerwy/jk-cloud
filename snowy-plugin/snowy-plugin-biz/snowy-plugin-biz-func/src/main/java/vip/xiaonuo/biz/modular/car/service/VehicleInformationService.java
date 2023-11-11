@@ -19,7 +19,9 @@ import vip.xiaonuo.biz.modular.car.param.VehicleInformationAddParam;
 import vip.xiaonuo.biz.modular.car.param.VehicleInformationEditParam;
 import vip.xiaonuo.biz.modular.car.param.VehicleInformationIdParam;
 import vip.xiaonuo.biz.modular.car.param.VehicleInformationPageParam;
+import vip.xiaonuo.biz.modular.car.vo.H5CarDto;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -77,4 +79,29 @@ public interface VehicleInformationService extends IService<VehicleInformation> 
      * @date  2023/11/08 17:17
      **/
     VehicleInformation queryEntity(String id);
+
+    /**
+     * H5端 - 首页 - 获取所有车辆信息列表
+     * @return
+     */
+    List<H5CarDto> getH5VehicleList();
+
+    /**
+     * 里程补登：新增里程补登（总里程数+本次补登里程）  编辑里程补登记录（总里程数-旧补登里程+新补登里程）
+     * @param vehicleId 车辆Id
+     * @param isEdit 是否为编辑操作
+     * @param mileages 补登里程：本次补登里程数
+     * @param oldMileages 旧补登里程：修改前的补登里程数
+     */
+    void updateVehicleTotalMileage(String vehicleId, Boolean isEdit, BigDecimal mileages, BigDecimal oldMileages);
+
+    /**
+     * 车辆加油：新增加油记录（总加油量+本次加油量）  编辑充值记录（总加油量-旧加油量+新加油量）
+     * @param vehicleId 车辆Id
+     * @param isEdit 是否为编辑操作
+     * @param fuelCharge 加油量：本次加油量
+     * @param oldFuelCharge 旧加油量：修改前的加油量
+     */
+    void updateVehicleTotalOilFuel(String vehicleId, Boolean isEdit, BigDecimal fuelCharge, BigDecimal oldFuelCharge);
+
 }

@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.car.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -45,6 +47,8 @@ public class VehicleFeesAddParam {
 
     /** 登记日期 */
     @ApiModelProperty(value = "登记日期", position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 车牌号码 */
@@ -61,6 +65,8 @@ public class VehicleFeesAddParam {
 
     /** 费用日期 */
     @ApiModelProperty(value = "费用日期", position = 10)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date chargeDate;
 
     /** 维修单位 */
@@ -105,6 +111,8 @@ public class VehicleFeesAddParam {
 
     /** 到期日期 */
     @ApiModelProperty(value = "到期日期", position = 21)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date dueTime;
 
     /** 备注 */

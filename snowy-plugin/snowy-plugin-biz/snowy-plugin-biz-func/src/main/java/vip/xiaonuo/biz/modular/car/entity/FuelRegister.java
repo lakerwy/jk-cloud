@@ -13,9 +13,12 @@
 package vip.xiaonuo.biz.modular.car.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -49,6 +52,8 @@ public class FuelRegister {
 
     /** 登记日期 */
     @ApiModelProperty(value = "登记日期", position = 5)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 车牌号码 */
@@ -57,6 +62,8 @@ public class FuelRegister {
 
     /** 加油时间 */
     @ApiModelProperty(value = "加油时间", position = 7)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date refuelDate;
 
     /** 经办人 */

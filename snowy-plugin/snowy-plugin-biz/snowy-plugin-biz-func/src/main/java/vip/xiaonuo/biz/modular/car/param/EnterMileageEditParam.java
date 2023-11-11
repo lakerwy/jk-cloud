@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.car.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -58,6 +60,8 @@ public class EnterMileageEditParam {
 
     /** 补登日期 */
     @ApiModelProperty(value = "补登日期", position = 8)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 补登里程 */

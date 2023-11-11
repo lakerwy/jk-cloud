@@ -132,5 +132,38 @@ public interface VehicleApplyService extends IService<VehicleApply> {
      */
     AvailableInfo getAvailableInfo(AvailableParam availableParam);
 
+    /**
+     * 首页 - 根据车辆Id，获取H5端车辆详情
+     * @param id
+     * @return
+     */
+    H5VehicleDto getH5VehicleDetail(String id);
+
+    /**
+     * 派车单 - 获取当前司机名下的所有派车单
+     * @param driverUserId
+     * @param IsShowAll
+     * @return
+     */
+    List<H5CarOrderDto> getH5CarOrderList(String driverUserId, Boolean IsShowAll);
+
+    /**
+     *  派车单 - 发车登记
+     * @param h5CarRegisterFromDto
+     */
+    void drivingRegistrationStart(H5CarRegisterFromDto h5CarRegisterFromDto);
+
+    /**
+     * 派车单 - 还车登记
+     * @param h5CarRegisterEndDto
+     */
+    void drivingRegistrationEnd(H5CarRegisterEndDto h5CarRegisterEndDto);
+
+    /**
+     * 个人设置 - 获取司机（用户Id）详情
+     * @param id
+     * @return
+     */
+    H5CarUserInfoDto getH5UserInfo(String id);
 
 }

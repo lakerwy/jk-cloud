@@ -13,9 +13,12 @@
 package vip.xiaonuo.biz.modular.car.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -49,6 +52,8 @@ public class VehicleApply {
 
     /** 申请日期 */
     @ApiModelProperty(value = "申请日期", position = 5)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 用车人 */
@@ -65,10 +70,14 @@ public class VehicleApply {
 
     /** 预计用车时间 */
     @ApiModelProperty(value = "预计用车时间", position = 9)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date predictTransportTime;
 
     /** 预计还车时间 */
     @ApiModelProperty(value = "预计还车时间", position = 10)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date predictCarTime;
 
     /** 用车事由 */
@@ -89,6 +98,8 @@ public class VehicleApply {
 
     /** 实际出发时间 */
     @ApiModelProperty(value = "实际出发时间", position = 15)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startTime;
 
     /** 出发里程 */
@@ -97,6 +108,8 @@ public class VehicleApply {
 
     /** 实际还车时间 */
     @ApiModelProperty(value = "实际还车时间", position = 17)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endTime;
 
     /** 还车里程 */

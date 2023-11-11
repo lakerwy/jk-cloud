@@ -12,10 +12,15 @@
  */
 package vip.xiaonuo.biz.modular.car.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.biz.modular.car.entity.ServiceRatings;
 import vip.xiaonuo.biz.modular.car.entity.VehicleApply;
 import vip.xiaonuo.biz.modular.car.param.VehicleApplyPageParam;
+import vip.xiaonuo.biz.modular.car.vo.ServiceRatingsViewModel;
 
 /**
  * CAR-用车申请单Mapper接口
@@ -27,9 +32,7 @@ public interface VehicleApplyMapper extends BaseMapper<VehicleApply> {
 
     /**
      * 根据用户UserId，获取派车单待评价列表【筛选+分页】
-     * @param userId
-     * @param status
      * @return
      */
-    Page<VehicleApply> getRatePageByUserId(String userId,String status);
+    Page<VehicleApply> getRatePageByUserId(Page<VehicleApply> page, @Param(Constants.WRAPPER) Wrapper<VehicleApply> queryWrapper);
 }

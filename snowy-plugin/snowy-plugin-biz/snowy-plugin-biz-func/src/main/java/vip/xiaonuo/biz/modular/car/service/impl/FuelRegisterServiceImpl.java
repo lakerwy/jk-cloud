@@ -22,6 +22,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.car.service.OilCardsService;
+import vip.xiaonuo.biz.modular.car.service.VehicleInformationService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +35,8 @@ import vip.xiaonuo.biz.modular.car.param.FuelRegisterIdParam;
 import vip.xiaonuo.biz.modular.car.param.FuelRegisterPageParam;
 import vip.xiaonuo.biz.modular.car.service.FuelRegisterService;
 
+import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -45,6 +49,11 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class FuelRegisterServiceImpl extends ServiceImpl<FuelRegisterMapper, FuelRegister> implements FuelRegisterService {
+
+    @Resource
+    OilCardsService oilCardsService;
+    @Resource
+    VehicleInformationService vehicleInformationService;
 
     @Override
     public Page<FuelRegister> page(FuelRegisterPageParam fuelRegisterPageParam) {
@@ -82,14 +91,27 @@ public class FuelRegisterServiceImpl extends ServiceImpl<FuelRegisterMapper, Fue
     public void add(FuelRegisterAddParam fuelRegisterAddParam) {
         FuelRegister fuelRegister = BeanUtil.toBean(fuelRegisterAddParam, FuelRegister.class);
         this.save(fuelRegister);
+        // 更新油卡余额
+        oilCardsService.updateOilCardBlance(fuelRegister.getOilCard(),2,false,fuelRegister.getAmount(), BigDecimal.ZERO);
+        //更新车辆总计加油量
+        vehicleInformationService.updateVehicleTotalOilFuel(fuelRegister.getVehicleId(),false,fuelRegister.getFuelCharge(),BigDecimal.ZERO);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(FuelRegisterEditParam fuelRegisterEditParam) {
         FuelRegister fuelRegister = this.queryEntity(fuelRegisterEditParam.getId());
+        //编辑前的加油金额
+        BigDecimal oldAmt = fuelRegister.getAmount();
+        //编辑前的加油量
+        BigDecimal oldFuelCharge = fuelRegister.getFuelCharge();
         BeanUtil.copyProperties(fuelRegisterEditParam, fuelRegister);
         this.updateById(fuelRegister);
+
+        // 更新油卡余额
+        oilCardsService.updateOilCardBlance(fuelRegister.getOilCard(),2,true,fuelRegister.getAmount(), oldAmt);
+        //更新车辆总计加油量
+        vehicleInformationService.updateVehicleTotalOilFuel(fuelRegister.getVehicleId(),true,fuelRegister.getFuelCharge(),oldFuelCharge);
     }
 
     @Transactional(rollbackFor = Exception.class)

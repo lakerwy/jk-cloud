@@ -1,13 +1,12 @@
 package vip.xiaonuo.biz.modular.car.vo;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.apache.poi.hpsf.Decimal;
 import vip.xiaonuo.biz.modular.car.entity.EnterFees;
 import vip.xiaonuo.biz.modular.car.entity.VehicleFees;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -21,21 +20,21 @@ public class FeeChartViewModel {
 
     /** 列表结果集【费用统计表】 */
     @ApiModelProperty(value = "列表结果集【费用统计表】", position = 1)
-    private Page<VehicleFees> feeResultDto ;
+    private List<VehicleFees> feeResultDto ;
 
     /** 列表结果集【补登统计表】 */
     @ApiModelProperty(value = "列表结果集【补登统计表】", position = 1)
-    private Page<EnterFees> enterResultDto ;
+    private List<EnterFees> enterResultDto ;
 
     /** 饼图数据集(按照车辆统计) */
     @ApiModelProperty(value = "饼图数据集(按照车辆统计)", position = 1)
-    private List<PieChartData<Decimal>> pieChartCarDatas ;
+    private List<PieChartData<BigDecimal>> pieChartCarDatas ;
 
     /** 饼图数据集（按照费用类别） */
     @ApiModelProperty(value = "饼图数据集（按照费用类别）", position = 1)
-    private List<PieChartData<Decimal>> pieChartFeeDatas ;
+    private List<PieChartData<BigDecimal>> pieChartFeeDatas ;
 
     /** 统计值合计结果集 */
     @ApiModelProperty(value = "统计值合计结果集", position = 1)
-    private TabTotalData<Decimal> tabTotalData ;
+    private TabTotalData<BigDecimal> tabTotalData ;
 }

@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.car.vo.H5CarDto;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +34,7 @@ import vip.xiaonuo.biz.modular.car.param.VehicleInformationIdParam;
 import vip.xiaonuo.biz.modular.car.param.VehicleInformationPageParam;
 import vip.xiaonuo.biz.modular.car.service.VehicleInformationService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -114,5 +116,45 @@ public class VehicleInformationServiceImpl extends ServiceImpl<VehicleInformatio
             throw new CommonException("BIZ_CAR_VEHICLE_INFORMATION不存在，id值为：{}", id);
         }
         return vehicleInformation;
+    }
+
+    @Override
+    public List<H5CarDto> getH5VehicleList() {
+        return BeanUtil.copyToList(this.list(), H5CarDto.class);
+    }
+
+    @Override
+    public void updateVehicleTotalMileage(String vehicleId, Boolean isEdit, BigDecimal mileages, BigDecimal oldMileages) {
+        VehicleInformation vehicleInformation = this.getById(vehicleId);
+        if(ObjectUtil.isEmpty(vehicleInformation)) return;
+        if(isEdit){
+            //编辑
+            vehicleInformation.setTotalMileage(toValue(vehicleInformation.getTotalMileage()).add(toValue(mileages)).subtract(toValue(oldMileages)));
+        }else{
+            vehicleInformation.setTotalMileage(toValue(vehicleInformation.getTotalMileage()).add(toValue(mileages)));
+        }
+        this.updateById(vehicleInformation);
+    }
+
+    @Override
+    public void updateVehicleTotalOilFuel(String vehicleId, Boolean isEdit, BigDecimal fuelCharge, BigDecimal oldFuelCharge) {
+        VehicleInformation vehicleInformation = this.getById(vehicleId);
+        if(ObjectUtil.isEmpty(vehicleInformation)) return;
+        if(isEdit){
+            //编辑
+            vehicleInformation.setTotalOilFuel(toValue(vehicleInformation.getTotalOilFuel()).add(toValue(fuelCharge)).subtract(toValue(oldFuelCharge)));
+        }else{
+            vehicleInformation.setTotalOilFuel(toValue(vehicleInformation.getTotalOilFuel()).add(toValue(fuelCharge)));
+        }
+        this.updateById(vehicleInformation);
+    }
+
+    /**
+     * 数值处理
+     * @param value 入参值
+     * @return
+     */
+    public BigDecimal toValue(BigDecimal value){
+        return value == null ? BigDecimal.ZERO : value;
     }
 }

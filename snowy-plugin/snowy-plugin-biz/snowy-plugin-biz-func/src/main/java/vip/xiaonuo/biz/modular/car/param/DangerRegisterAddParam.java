@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.car.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -45,6 +47,8 @@ public class DangerRegisterAddParam {
 
     /** 登记日期（出险登记时间） */
     @ApiModelProperty(value = "登记日期（出险登记时间）", position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 出险登记人（司机userid） */
@@ -65,6 +69,8 @@ public class DangerRegisterAddParam {
 
     /** 出险-结果处理登记时间 */
     @ApiModelProperty(value = "出险-结果处理登记时间", position = 11)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date resultRegisterDate;
 
     /** 出险-处理结果登记人 */

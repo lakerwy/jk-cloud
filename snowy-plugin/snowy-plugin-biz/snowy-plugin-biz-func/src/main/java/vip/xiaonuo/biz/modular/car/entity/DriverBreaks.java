@@ -13,9 +13,12 @@
 package vip.xiaonuo.biz.modular.car.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -53,6 +56,8 @@ public class DriverBreaks {
 
     /** 违章时间 */
     @ApiModelProperty(value = "违章时间", position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date breakTime;
 
     /** 罚款金额 */

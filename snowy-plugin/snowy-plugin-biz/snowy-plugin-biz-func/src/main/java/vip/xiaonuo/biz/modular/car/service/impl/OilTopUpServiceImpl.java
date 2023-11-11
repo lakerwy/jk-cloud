@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.car.service.OilCardsService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +34,8 @@ import vip.xiaonuo.biz.modular.car.param.OilTopUpIdParam;
 import vip.xiaonuo.biz.modular.car.param.OilTopUpPageParam;
 import vip.xiaonuo.biz.modular.car.service.OilTopUpService;
 
+import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -46,6 +49,8 @@ import java.util.List;
 @Service
 public class OilTopUpServiceImpl extends ServiceImpl<OilTopUpMapper, OilTopUp> implements OilTopUpService {
 
+    @Resource
+    OilCardsService oilCardsService;
     @Override
     public Page<OilTopUp> page(OilTopUpPageParam oilTopUpPageParam) {
         QueryWrapper<OilTopUp> queryWrapper = new QueryWrapper<>();
@@ -70,14 +75,20 @@ public class OilTopUpServiceImpl extends ServiceImpl<OilTopUpMapper, OilTopUp> i
     public void add(OilTopUpAddParam oilTopUpAddParam) {
         OilTopUp oilTopUp = BeanUtil.toBean(oilTopUpAddParam, OilTopUp.class);
         this.save(oilTopUp);
+        //更新油卡余额
+        oilCardsService.updateOilCardBlance(oilTopUp.getCardNumber(),1,false,oilTopUp.getAmount(), BigDecimal.ZERO);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(OilTopUpEditParam oilTopUpEditParam) {
         OilTopUp oilTopUp = this.queryEntity(oilTopUpEditParam.getId());
+        //编辑前的-充值金额
+        BigDecimal oldAmt = oilTopUp.getAmount();
         BeanUtil.copyProperties(oilTopUpEditParam, oilTopUp);
         this.updateById(oilTopUp);
+        //更新油卡余额
+        oilCardsService.updateOilCardBlance(oilTopUp.getCardNumber(),1,true,oilTopUp.getAmount(), oldAmt);
     }
 
     @Transactional(rollbackFor = Exception.class)

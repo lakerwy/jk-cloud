@@ -26,4 +26,12 @@
         where a.DRIVER_USER_ID = #{driverId} and a.DELETE_FLAG = 'NOT_DELETE'
         order by b.CREATE_TIME desc
     </select>
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.car.vo.ServiceRatingsViewModel">
+        select a.*,
+               b.SN as vehicleApplySn,b.USERS as vehicleApplyUsers,b.VEHICLE as vehicleApplyVehicle,b.DRIVER as vehicleApplyDriver
+        from BIZ_CAR_SERVICE_RATINGS a
+             join BIZ_CAR_VEHICLE_APPLY b on a.VEHICLE_APPLY_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
 </mapper>

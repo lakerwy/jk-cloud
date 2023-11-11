@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.car.entity.VehicleApply;
 import vip.xiaonuo.biz.modular.car.vo.ServiceRatingsViewModel;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -113,5 +114,32 @@ public class ServiceRatingsServiceImpl extends ServiceImpl<ServiceRatingsMapper,
     @Override
     public List<ServiceRatingsViewModel> detailByDriverId(String driverId) {
         return serviceRatingsMapper.getByDriverId(driverId);
+    }
+
+    @Override
+    public Page<ServiceRatingsViewModel> pageList(ServiceRatingsPageParam serviceRatingsPageParam) {
+        QueryWrapper<ServiceRatings> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        if(ObjectUtil.isNotEmpty(serviceRatingsPageParam.getVehicleApplySN())) {
+            queryWrapper.eq("b.SN", serviceRatingsPageParam.getVehicleApplySN());
+        }
+        if(ObjectUtil.isNotEmpty(serviceRatingsPageParam.getVehicleApplyUsers())) {
+            queryWrapper.eq("b.USERS", serviceRatingsPageParam.getVehicleApplyUsers());
+        }
+        if(ObjectUtil.isNotEmpty(serviceRatingsPageParam.getVehicleApplyVehicle())) {
+            queryWrapper.eq("b.VEHICLE", serviceRatingsPageParam.getVehicleApplyVehicle());
+        }
+        if(ObjectUtil.isNotEmpty(serviceRatingsPageParam.getVehicleApplyDriver())) {
+            queryWrapper.eq("b.DRIVER", serviceRatingsPageParam.getVehicleApplyDriver());
+        }
+        if(ObjectUtil.isAllNotEmpty(serviceRatingsPageParam.getSortField(), serviceRatingsPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(serviceRatingsPageParam.getSortOrder());
+            queryWrapper.orderBy(true, serviceRatingsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(serviceRatingsPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("a.UPDATE_TIME");
+        }
+        return serviceRatingsMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+
     }
 }

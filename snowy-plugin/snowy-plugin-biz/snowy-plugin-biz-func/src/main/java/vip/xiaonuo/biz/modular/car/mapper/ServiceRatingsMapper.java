@@ -12,7 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.car.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.car.entity.ServiceRatings;
 import vip.xiaonuo.biz.modular.car.vo.ServiceRatingsViewModel;
 
@@ -45,4 +49,12 @@ public interface ServiceRatingsMapper extends BaseMapper<ServiceRatings> {
      * @return
      */
     List<ServiceRatingsViewModel> getByDriverId(String driverId);
+
+    /**
+     * 分页查询
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<ServiceRatingsViewModel> getPageList(Page<ServiceRatingsViewModel> page, @Param(Constants.WRAPPER) Wrapper<ServiceRatings> queryWrapper);
 }

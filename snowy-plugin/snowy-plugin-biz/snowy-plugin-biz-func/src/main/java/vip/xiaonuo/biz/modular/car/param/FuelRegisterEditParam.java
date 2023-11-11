@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.car.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -46,6 +48,8 @@ public class FuelRegisterEditParam {
 
     /** 登记日期 */
     @ApiModelProperty(value = "登记日期", position = 5)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 车牌号码 */
@@ -54,6 +58,8 @@ public class FuelRegisterEditParam {
 
     /** 加油时间 */
     @ApiModelProperty(value = "加油时间", position = 7)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date refuelDate;
 
     /** 经办人 */

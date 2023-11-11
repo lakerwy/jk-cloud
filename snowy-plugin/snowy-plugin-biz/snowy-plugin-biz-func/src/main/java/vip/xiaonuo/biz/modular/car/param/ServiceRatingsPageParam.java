@@ -52,4 +52,19 @@ public class ServiceRatingsPageParam {
     @ApiModelProperty(value = "用车申请-主键Id ")
     private String vehicleApplyId;
 
+    /** 用车申请-流水号SN  */
+    @ApiModelProperty(value = "用车申请-流水号SN ")
+    private String vehicleApplySN ;
+
+    /** 用车申请-用车人  */
+    @ApiModelProperty(value = "用车申请-用车人 ")
+    private String vehicleApplyUsers ;
+
+    /** 用车申请-指派车辆牌照  */
+    @ApiModelProperty(value = "用车申请-指派车辆牌照 ")
+    private String vehicleApplyVehicle ;
+
+    /** 用车申请-指派驾驶员  */
+    @ApiModelProperty(value = "用车申请-指派驾驶员 ")
+    private String vehicleApplyDriver ;
 }

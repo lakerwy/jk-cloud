@@ -33,6 +33,7 @@ import vip.xiaonuo.biz.modular.car.param.OilCardsIdParam;
 import vip.xiaonuo.biz.modular.car.param.OilCardsPageParam;
 import vip.xiaonuo.biz.modular.car.service.OilCardsService;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -99,5 +100,38 @@ public class OilCardsServiceImpl extends ServiceImpl<OilCardsMapper, OilCards> i
             throw new CommonException("CAR-油卡信息不存在，id值为：{}", id);
         }
         return oilCards;
+    }
+
+    @Override
+    public void updateOilCardBlance(String cardNumber, int type, Boolean isEdit, BigDecimal amt, BigDecimal oldAmt) {
+        QueryWrapper<OilCards> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(OilCards::getCardNumber,cardNumber).last("limit 1");
+        OilCards oilCards = this.getOne(queryWrapper);
+        if(ObjectUtil.isEmpty(oilCards)) return;
+        //油卡充值
+        if(type == 1){
+            if(isEdit){
+                oilCards.setBalance(toValue(oilCards.getBalance()).add(toValue(amt)).subtract(toValue(oldAmt)));
+            }else {
+                oilCards.setBalance(toValue(oilCards.getBalance()).add(toValue(amt)));
+            }
+        }//车辆加油
+        else if(type == 2){
+            if(isEdit){
+                oilCards.setBalance(toValue(oilCards.getBalance()).add(toValue(oldAmt)).subtract(toValue(amt)));
+            }else {
+                oilCards.setBalance(toValue(oilCards.getBalance()).subtract(toValue(amt)));
+            }
+        }
+        this.updateById(oilCards);
+    }
+
+    /**
+     * 数值处理
+     * @param value 入参值
+     * @return
+     */
+    public BigDecimal toValue(BigDecimal value){
+        return value == null ? BigDecimal.ZERO : value;
     }
 }

@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.car.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -46,6 +48,8 @@ public class VehicleInformationEditParam {
 
     /** 登记日期 */
     @ApiModelProperty(value = "登记日期", position = 5)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date optDate;
 
     /** 车牌号码 */
@@ -74,6 +78,8 @@ public class VehicleInformationEditParam {
 
     /** 购置日期 */
     @ApiModelProperty(value = "购置日期", position = 12)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date purchaseTime;
 
     /** 购置价格 */
@@ -110,6 +116,8 @@ public class VehicleInformationEditParam {
 
     /** 上次保养日期 */
     @ApiModelProperty(value = "上次保养日期", position = 21)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date maintenanceDate;
 
     /** 照片 */
@@ -118,6 +126,8 @@ public class VehicleInformationEditParam {
 
     /** 行驶证有效期 */
     @ApiModelProperty(value = "行驶证有效期", position = 23)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date licenseValid;
 
     /** 扫描件 */
@@ -126,6 +136,8 @@ public class VehicleInformationEditParam {
 
     /** 交强险到期日（即 保险到期日） */
     @ApiModelProperty(value = "交强险到期日（即 保险到期日）", position = 25)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date expireDate1;
 
     /** 电子保单 */
@@ -134,6 +146,8 @@ public class VehicleInformationEditParam {
 
     /** 商业险到期日 */
     @ApiModelProperty(value = "商业险到期日", position = 27)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date expireDate2;
 
     /** 电子保单 */
@@ -142,6 +156,8 @@ public class VehicleInformationEditParam {
 
     /** 年审到期日 */
     @ApiModelProperty(value = "年审到期日", position = 29)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date yearAuditDate;
 
     /** 总计加油量 */

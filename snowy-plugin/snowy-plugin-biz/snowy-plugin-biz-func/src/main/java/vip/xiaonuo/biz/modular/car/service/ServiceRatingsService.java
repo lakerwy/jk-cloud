@@ -94,4 +94,12 @@ public interface ServiceRatingsService extends IService<ServiceRatings> {
      * @return
      */
     List<ServiceRatingsViewModel> detailByDriverId(String driverId);
+
+    /**
+     * 获取CAR-用车服务评价分页
+     *
+     * @author yong.ye
+     * @date  2023/11/08 16:03
+     */
+    Page<ServiceRatingsViewModel> pageList(ServiceRatingsPageParam serviceRatingsPageParam);
 }

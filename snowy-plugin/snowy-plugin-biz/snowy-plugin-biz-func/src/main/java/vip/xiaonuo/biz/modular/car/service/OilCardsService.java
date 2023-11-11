@@ -20,6 +20,7 @@ import vip.xiaonuo.biz.modular.car.param.OilCardsEditParam;
 import vip.xiaonuo.biz.modular.car.param.OilCardsIdParam;
 import vip.xiaonuo.biz.modular.car.param.OilCardsPageParam;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -77,4 +78,15 @@ public interface OilCardsService extends IService<OilCards> {
      * @date  2023/11/08 16:01
      **/
     OilCards queryEntity(String id);
+
+    /**
+     * type=1 油卡充值：新增充值记录（油卡余额+充值金额）  编辑充值记录（油卡金额-旧充值金额+新充值金额）
+     * type=2 车辆加油：新增加油记录（油卡余额-加油金额）  编辑加油记录（油卡金额+旧加油金额-新充值金额）
+     * @param cardNumber 油卡号
+     * @param type 操作类型：1 - 油卡充值  2 - 车辆加油
+     * @param isEdit 是否为编辑操作
+     * @param amt 操作金额：type=1，表示油卡充值金额；type=2，表示车辆加油金额
+     * @param oldAmt 旧操作金额：若编辑充值记录、加油记录时，需要传入，进行油卡余额计算
+     */
+    void updateOilCardBlance(String cardNumber, int type, Boolean isEdit, BigDecimal amt, BigDecimal oldAmt);
 }

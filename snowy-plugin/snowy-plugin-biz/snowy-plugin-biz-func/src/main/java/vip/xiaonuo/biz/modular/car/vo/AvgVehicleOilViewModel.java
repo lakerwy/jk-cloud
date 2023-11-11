@@ -5,6 +5,8 @@ import lombok.Getter;
 import lombok.Setter;
 import org.apache.poi.hpsf.Decimal;
 
+import java.math.BigDecimal;
+
 /**
  * @author yong.ye
  * @date 2023/11/10 9:33
@@ -34,21 +36,21 @@ public class AvgVehicleOilViewModel {
 
     /** 油卡充值合计金额 */
     @ApiModelProperty(value = "油卡充值合计金额", position = 1)
-    private Decimal subAmount ;
+    private BigDecimal subAmount ;
 
     /** 用车里程 */
     @ApiModelProperty(value = "用车里程", position = 1)
-    private Decimal subApplyMileages ;
+    private BigDecimal subApplyMileages ;
 
     /** 补登里程 */
     @ApiModelProperty(value = "补登里程", position = 1)
-    private Decimal subEnterMileages;
+    private BigDecimal subEnterMileages;
 
     /** 总里程 = 补登里程+用车里程 */
     @ApiModelProperty(value = "总里程 = 补登里程+用车里程", position = 1)
-    private Decimal totalMileages ;
+    private BigDecimal totalMileages ;
 
     /** 平均油耗 */
     @ApiModelProperty(value = "平均油耗", position = 1)
-    private Decimal avgOil ;
+    private BigDecimal avgOil ;
 }

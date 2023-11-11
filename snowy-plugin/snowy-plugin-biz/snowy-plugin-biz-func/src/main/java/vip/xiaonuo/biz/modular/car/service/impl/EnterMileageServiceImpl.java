@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.car.service.VehicleInformationService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +34,8 @@ import vip.xiaonuo.biz.modular.car.param.EnterMileageIdParam;
 import vip.xiaonuo.biz.modular.car.param.EnterMileagePageParam;
 import vip.xiaonuo.biz.modular.car.service.EnterMileageService;
 
+import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -45,6 +48,9 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class EnterMileageServiceImpl extends ServiceImpl<EnterMileageMapper, EnterMileage> implements EnterMileageService {
+
+    @Resource
+    private VehicleInformationService vehicleInformationService;
 
     @Override
     public Page<EnterMileage> page(EnterMileagePageParam enterMileagePageParam) {
@@ -76,14 +82,20 @@ public class EnterMileageServiceImpl extends ServiceImpl<EnterMileageMapper, Ent
     public void add(EnterMileageAddParam enterMileageAddParam) {
         EnterMileage enterMileage = BeanUtil.toBean(enterMileageAddParam, EnterMileage.class);
         this.save(enterMileage);
+        //更新车辆总行驶里程
+        vehicleInformationService.updateVehicleTotalMileage(enterMileage.getVehicleId(),false,enterMileage.getMileages(), BigDecimal.ZERO);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(EnterMileageEditParam enterMileageEditParam) {
         EnterMileage enterMileage = this.queryEntity(enterMileageEditParam.getId());
+        //旧的补登里程
+        BigDecimal oldMileages = enterMileage.getMileages();
         BeanUtil.copyProperties(enterMileageEditParam, enterMileage);
         this.updateById(enterMileage);
+        //更新车辆总行驶里程
+        vehicleInformationService.updateVehicleTotalMileage(enterMileage.getVehicleId(),true,enterMileage.getMileages(), oldMileages);
     }
 
     @Transactional(rollbackFor = Exception.class)
