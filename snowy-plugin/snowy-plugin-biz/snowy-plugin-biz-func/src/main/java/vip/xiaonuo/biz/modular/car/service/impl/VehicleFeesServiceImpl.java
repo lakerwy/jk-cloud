@@ -79,12 +79,18 @@ public class VehicleFeesServiceImpl extends ServiceImpl<VehicleFeesMapper, Vehic
         if(ObjectUtil.isNotEmpty(vehicleFeesPageParam.getType())) {
             queryWrapper.lambda().eq(VehicleFees::getType, vehicleFeesPageParam.getType());
         }
+        if(ObjectUtil.isNotEmpty(vehicleFeesPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(VehicleFees::getLicenseNo,vehicleFeesPageParam.getSearchKey())
+                    .or().like(VehicleFees::getSn,vehicleFeesPageParam.getSearchKey())
+                    .or().like(VehicleFees::getOpt,vehicleFeesPageParam.getSearchKey())
+                    .or().like(VehicleFees::getType,vehicleFeesPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(vehicleFeesPageParam.getSortField(), vehicleFeesPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(vehicleFeesPageParam.getSortOrder());
             queryWrapper.orderBy(true, vehicleFeesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(vehicleFeesPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(VehicleFees::getId);
+            queryWrapper.lambda().orderByDesc(VehicleFees::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

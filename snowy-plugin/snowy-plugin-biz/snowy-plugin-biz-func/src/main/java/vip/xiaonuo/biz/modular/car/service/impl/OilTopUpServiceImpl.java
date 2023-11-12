@@ -60,12 +60,15 @@ public class OilTopUpServiceImpl extends ServiceImpl<OilTopUpMapper, OilTopUp> i
         if(ObjectUtil.isNotEmpty(oilTopUpPageParam.getStartTopUpDate()) && ObjectUtil.isNotEmpty(oilTopUpPageParam.getEndTopUpDate())) {
             queryWrapper.lambda().between(OilTopUp::getTopUpDate, oilTopUpPageParam.getStartTopUpDate(), oilTopUpPageParam.getEndTopUpDate());
         }
+        if(ObjectUtil.isNotEmpty(oilTopUpPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(OilTopUp::getCardNumber,oilTopUpPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(oilTopUpPageParam.getSortField(), oilTopUpPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(oilTopUpPageParam.getSortOrder());
             queryWrapper.orderBy(true, oilTopUpPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(oilTopUpPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(OilTopUp::getId);
+            queryWrapper.lambda().orderByDesc(OilTopUp::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

@@ -56,12 +56,16 @@ public class OilCardsServiceImpl extends ServiceImpl<OilCardsMapper, OilCards> i
         if(ObjectUtil.isNotEmpty(oilCardsPageParam.getChannel())) {
             queryWrapper.lambda().eq(OilCards::getChannel, oilCardsPageParam.getChannel());
         }
+        if(ObjectUtil.isNotEmpty(oilCardsPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(OilCards::getCardNumber,oilCardsPageParam.getSearchKey())
+                    .or().like(OilCards::getChannel,oilCardsPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(oilCardsPageParam.getSortField(), oilCardsPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(oilCardsPageParam.getSortOrder());
             queryWrapper.orderBy(true, oilCardsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(oilCardsPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(OilCards::getId);
+            queryWrapper.lambda().orderByDesc(OilCards::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +34,7 @@ import vip.xiaonuo.biz.modular.car.param.DangerRegisterIdParam;
 import vip.xiaonuo.biz.modular.car.param.DangerRegisterPageParam;
 import vip.xiaonuo.biz.modular.car.service.DangerRegisterService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,12 +63,17 @@ public class DangerRegisterServiceImpl extends ServiceImpl<DangerRegisterMapper,
         if(ObjectUtil.isNotEmpty(dangerRegisterPageParam.getStartOptDate()) && ObjectUtil.isNotEmpty(dangerRegisterPageParam.getEndOptDate())) {
             queryWrapper.lambda().between(DangerRegister::getOptDate, dangerRegisterPageParam.getStartOptDate(), dangerRegisterPageParam.getEndOptDate());
         }
+        if(ObjectUtil.isNotEmpty(dangerRegisterPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(DangerRegister::getSn,dangerRegisterPageParam.getSearchKey())
+                    .or().like(DangerRegister::getOptName,dangerRegisterPageParam.getSearchKey())
+                    .or().like(DangerRegister::getLicenseNo,dangerRegisterPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(dangerRegisterPageParam.getSortField(), dangerRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(dangerRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, dangerRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(dangerRegisterPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(DangerRegister::getId);
+            queryWrapper.lambda().orderByDesc(DangerRegister::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

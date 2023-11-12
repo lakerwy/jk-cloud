@@ -61,12 +61,16 @@ public class EnterFeesServiceImpl extends ServiceImpl<EnterFeesMapper, EnterFees
         if(ObjectUtil.isNotEmpty(enterFeesPageParam.getFeeType())) {
             queryWrapper.lambda().eq(EnterFees::getFeeType, enterFeesPageParam.getFeeType());
         }
+        if(ObjectUtil.isNotEmpty(enterFeesPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(EnterFees::getVehicleBrand,enterFeesPageParam.getSearchKey())
+                    .or().like(EnterFees::getLicenseNo,enterFeesPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(enterFeesPageParam.getSortField(), enterFeesPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(enterFeesPageParam.getSortOrder());
             queryWrapper.orderBy(true, enterFeesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(enterFeesPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EnterFees::getId);
+            queryWrapper.lambda().orderByDesc(EnterFees::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

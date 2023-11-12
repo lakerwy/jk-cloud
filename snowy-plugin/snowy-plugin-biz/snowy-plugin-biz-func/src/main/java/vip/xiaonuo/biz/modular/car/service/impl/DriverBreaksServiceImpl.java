@@ -63,12 +63,18 @@ public class DriverBreaksServiceImpl extends ServiceImpl<DriverBreaksMapper, Dri
         if(ObjectUtil.isNotEmpty(driverBreaksPageParam.getStatus())) {
             queryWrapper.lambda().eq(DriverBreaks::getStatus, driverBreaksPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(driverBreaksPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(DriverBreaks::getName,driverBreaksPageParam.getSearchKey())
+                    .or().like(DriverBreaks::getSn,driverBreaksPageParam.getSearchKey())
+                    .or().like(DriverBreaks::getVehicle,driverBreaksPageParam.getSearchKey())
+                    .or().like(DriverBreaks::getDecisionNo,driverBreaksPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(driverBreaksPageParam.getSortField(), driverBreaksPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(driverBreaksPageParam.getSortOrder());
             queryWrapper.orderBy(true, driverBreaksPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(driverBreaksPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(DriverBreaks::getId);
+            queryWrapper.lambda().orderByDesc(DriverBreaks::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

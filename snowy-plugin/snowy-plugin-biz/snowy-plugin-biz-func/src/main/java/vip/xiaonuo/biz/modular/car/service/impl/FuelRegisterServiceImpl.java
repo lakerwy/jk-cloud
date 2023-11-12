@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.car.service.OilCardsService;
 import vip.xiaonuo.biz.modular.car.service.VehicleInformationService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -37,6 +38,7 @@ import vip.xiaonuo.biz.modular.car.service.FuelRegisterService;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -76,12 +78,18 @@ public class FuelRegisterServiceImpl extends ServiceImpl<FuelRegisterMapper, Fue
         if(ObjectUtil.isNotEmpty(fuelRegisterPageParam.getFuelLable())) {
             queryWrapper.lambda().eq(FuelRegister::getFuelLable, fuelRegisterPageParam.getFuelLable());
         }
+        if(ObjectUtil.isNotEmpty(fuelRegisterPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(FuelRegister::getLicenseNo,fuelRegisterPageParam.getSearchKey())
+                    .or().like(FuelRegister::getSn,fuelRegisterPageParam.getSearchKey())
+                    .or().like(FuelRegister::getOilCard,fuelRegisterPageParam.getSearchKey())
+                    .or().like(FuelRegister::getOpt,fuelRegisterPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(fuelRegisterPageParam.getSortField(), fuelRegisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(fuelRegisterPageParam.getSortOrder());
             queryWrapper.orderBy(true, fuelRegisterPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(fuelRegisterPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(FuelRegister::getId);
+            queryWrapper.lambda().orderByDesc(FuelRegister::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -90,6 +98,8 @@ public class FuelRegisterServiceImpl extends ServiceImpl<FuelRegisterMapper, Fue
     @Override
     public void add(FuelRegisterAddParam fuelRegisterAddParam) {
         FuelRegister fuelRegister = BeanUtil.toBean(fuelRegisterAddParam, FuelRegister.class);
+        fuelRegister.setOptDate(new Date());
+        fuelRegister.setOpt(StpLoginUserUtil.getLoginUser().getName());
         this.save(fuelRegister);
         // 更新油卡余额
         oilCardsService.updateOilCardBlance(fuelRegister.getOilCard(),2,false,fuelRegister.getAmount(), BigDecimal.ZERO);

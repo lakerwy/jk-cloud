@@ -72,12 +72,18 @@ public class VehicleInformationServiceImpl extends ServiceImpl<VehicleInformatio
         if(ObjectUtil.isNotEmpty(vehicleInformationPageParam.getStatus())) {
             queryWrapper.lambda().eq(VehicleInformation::getStatus, vehicleInformationPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(vehicleInformationPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(VehicleInformation::getLicenseNo,vehicleInformationPageParam.getSearchKey())
+                    .or().like(VehicleInformation::getSn,vehicleInformationPageParam.getSearchKey())
+                    .or().like(VehicleInformation::getVehicleBrand,vehicleInformationPageParam.getSearchKey())
+                    .or().like(VehicleInformation::getOilCardNumber,vehicleInformationPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(vehicleInformationPageParam.getSortField(), vehicleInformationPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(vehicleInformationPageParam.getSortOrder());
             queryWrapper.orderBy(true, vehicleInformationPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(vehicleInformationPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(VehicleInformation::getId);
+            queryWrapper.lambda().orderByDesc(VehicleInformation::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

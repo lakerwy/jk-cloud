@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.car.entity.VehicleApply;
 import vip.xiaonuo.biz.modular.car.vo.ServiceRatingsViewModel;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -64,7 +63,7 @@ public class ServiceRatingsServiceImpl extends ServiceImpl<ServiceRatingsMapper,
             queryWrapper.orderBy(true, serviceRatingsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(serviceRatingsPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(ServiceRatings::getId);
+            queryWrapper.lambda().orderByDesc(ServiceRatings::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -132,12 +131,18 @@ public class ServiceRatingsServiceImpl extends ServiceImpl<ServiceRatingsMapper,
         if(ObjectUtil.isNotEmpty(serviceRatingsPageParam.getVehicleApplyDriver())) {
             queryWrapper.eq("b.DRIVER", serviceRatingsPageParam.getVehicleApplyDriver());
         }
+        if(ObjectUtil.isNotEmpty(serviceRatingsPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.SN",serviceRatingsPageParam.getSearchKey())
+                    .or().like("b.USERS",serviceRatingsPageParam.getSearchKey())
+                    .or().like("b.VEHICLE",serviceRatingsPageParam.getSearchKey())
+                    .or().like("b.DRIVER",serviceRatingsPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(serviceRatingsPageParam.getSortField(), serviceRatingsPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(serviceRatingsPageParam.getSortOrder());
             queryWrapper.orderBy(true, serviceRatingsPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(serviceRatingsPageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("a.UPDATE_TIME");
+            queryWrapper.orderByDesc("a.CREATE_TIME");
         }
         return serviceRatingsMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
 

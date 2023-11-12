@@ -23,7 +23,6 @@ import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.poi.hpsf.Decimal;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.car.config.DriversProperties;
@@ -44,7 +43,6 @@ import vip.xiaonuo.dev.api.IDingDingService;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.sql.Driver;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -113,12 +111,20 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getDriver())) {
             queryWrapper.lambda().like(VehicleApply::getDriver, vehicleApplyPageParam.getDriver());
         }
+        if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(VehicleApply::getUsers,vehicleApplyPageParam.getSearchKey())
+                    .or().like(VehicleApply::getSn,vehicleApplyPageParam.getSearchKey())
+                    .or().like(VehicleApply::getVehicle,vehicleApplyPageParam.getSearchKey())
+                    .or().like(VehicleApply::getDriver,vehicleApplyPageParam.getSearchKey())
+                    .or().like(VehicleApply::getDept,vehicleApplyPageParam.getSearchKey())
+                    .or().like(VehicleApply::getUserMobile,vehicleApplyPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(vehicleApplyPageParam.getSortField(), vehicleApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(vehicleApplyPageParam.getSortOrder());
             queryWrapper.orderBy(true, vehicleApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(vehicleApplyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(VehicleApply::getId);
+            queryWrapper.lambda().orderByDesc(VehicleApply::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -258,12 +264,18 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getApplyUserId())){
             queryWrapper.lambda().eq(VehicleApply::getUserId,vehicleApplyPageParam.getApplyUserId());
         }
+        if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(VehicleApply::getVehicle,vehicleApplyPageParam.getSearchKey())
+                    .or().like(VehicleApply::getSn,vehicleApplyPageParam.getSearchKey())
+                    .or().like(VehicleApply::getDriver,vehicleApplyPageParam.getSearchKey())
+                    .or().like(VehicleApply::getUsers,vehicleApplyPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(vehicleApplyPageParam.getSortField(), vehicleApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(vehicleApplyPageParam.getSortOrder());
             queryWrapper.orderBy(true, vehicleApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(vehicleApplyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(VehicleApply::getCreateTime);
+            queryWrapper.lambda().orderByDesc(VehicleApply::getSn);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -277,6 +289,11 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             queryWrapper.eq("a.USER_ID",vehicleApplyPageParam.getUserId());
         }
         queryWrapper.apply(" b.ID is null ");
+        if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.SN",vehicleApplyPageParam.getSearchKey())
+                    .or().like("a.VEHICLE",vehicleApplyPageParam.getSearchKey())
+                    .or().like("a.DRIVER",vehicleApplyPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(vehicleApplyPageParam.getSortField(), vehicleApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(vehicleApplyPageParam.getSortOrder());
             queryWrapper.orderBy(true, vehicleApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -552,12 +569,12 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     }
 
     @Override
-    public List<H5CarOrderDto> getH5CarOrderList(String driverUserId, Boolean IsShowAll) {
+    public List<H5CarOrderDto> getH5CarOrderList(String driverUserId, Boolean isShowAll) {
         QueryWrapper<VehicleApply> queryWrapper = new QueryWrapper<>();
         if (ObjectUtil.isNotEmpty(driverUserId)){
             queryWrapper.lambda().eq(VehicleApply::getDriverUserId,driverUserId);
         }
-        if(ObjectUtil.isNotEmpty(IsShowAll) && !IsShowAll){
+        if(ObjectUtil.isNotEmpty(isShowAll) && !isShowAll){
             queryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Dispatched.getValue());
         }
         queryWrapper.lambda().orderByDesc(VehicleApply::getCreateTime);
@@ -679,7 +696,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
      * @return
      */
     public BigDecimal divideValue(BigDecimal value1,BigDecimal value2){
-        if(value2 == null || value2.compareTo(BigDecimal.ZERO) == 1){
+        if(value2 == null || value2.compareTo(BigDecimal.ZERO) == 0){
             return null;
         }
         return value1.divide(value2,2,BigDecimal.ROUND_HALF_UP);

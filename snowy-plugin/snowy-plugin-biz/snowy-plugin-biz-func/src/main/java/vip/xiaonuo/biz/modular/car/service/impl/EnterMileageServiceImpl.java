@@ -67,12 +67,16 @@ public class EnterMileageServiceImpl extends ServiceImpl<EnterMileageMapper, Ent
         if(ObjectUtil.isNotEmpty(enterMileagePageParam.getOpt())) {
             queryWrapper.lambda().like(EnterMileage::getOpt, enterMileagePageParam.getOpt());
         }
+        if(ObjectUtil.isNotEmpty(enterMileagePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(EnterMileage::getLicenseNo,enterMileagePageParam.getSearchKey())
+                    .or().like(EnterMileage::getVehicleBrand,enterMileagePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(enterMileagePageParam.getSortField(), enterMileagePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(enterMileagePageParam.getSortOrder());
             queryWrapper.orderBy(true, enterMileagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(enterMileagePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(EnterMileage::getId);
+            queryWrapper.lambda().orderByDesc(EnterMileage::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

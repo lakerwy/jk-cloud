@@ -61,12 +61,16 @@ public class DriversServiceImpl extends ServiceImpl<DriversMapper, Drivers> impl
         if(ObjectUtil.isNotEmpty(driversPageParam.getStatus())) {
             queryWrapper.lambda().eq(Drivers::getStatus, driversPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(driversPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(Drivers::getName,driversPageParam.getSearchKey())
+                    .or().like(Drivers::getSn,driversPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(driversPageParam.getSortField(), driversPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(driversPageParam.getSortOrder());
             queryWrapper.orderBy(true, driversPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(driversPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Drivers::getId);
+            queryWrapper.lambda().orderByDesc(Drivers::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

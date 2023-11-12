@@ -142,10 +142,10 @@ public interface VehicleApplyService extends IService<VehicleApply> {
     /**
      * 派车单 - 获取当前司机名下的所有派车单
      * @param driverUserId
-     * @param IsShowAll
+     * @param isShowAll
      * @return
      */
-    List<H5CarOrderDto> getH5CarOrderList(String driverUserId, Boolean IsShowAll);
+    List<H5CarOrderDto> getH5CarOrderList(String driverUserId, Boolean isShowAll);
 
     /**
      *  派车单 - 发车登记
