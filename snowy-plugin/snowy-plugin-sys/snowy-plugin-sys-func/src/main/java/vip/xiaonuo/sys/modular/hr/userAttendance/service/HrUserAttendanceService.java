@@ -17,6 +17,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.ErrorAttendanceData;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import java.util.Date;
@@ -133,4 +135,17 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
      * @date  2023/10/10 11:23
      **/
     void attendanceConfigCache();
+
+    /**
+     * 获取异常打卡记录表分页
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    Page<ErrorAttendanceData> errorPage(ErrorAttendancePageParam errorAttendancePageParam);
+
+
+    void errorEdit(EditErrorAtdParam editErrorAtdParam);
+
+    void revokeErrorEdit(EditErrorAtdParam editErrorAtdParam);
 }

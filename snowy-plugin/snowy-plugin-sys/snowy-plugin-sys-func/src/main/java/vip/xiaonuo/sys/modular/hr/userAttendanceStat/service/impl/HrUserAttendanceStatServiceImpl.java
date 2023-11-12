@@ -104,10 +104,6 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     @Resource
     private CommonCacheOperator commonCacheOperator;
     @Resource
-    private HrUserAttendanceConfigService hrUserAttendanceConfigService;
-    @Resource
-    private HrUserAttendanceConfigGroupService hrUserAttendanceConfigGroupService;
-    @Resource
     private HrUserAttendanceService hrUserAttendanceService;
     @Resource
     private SysUserService sysUserService;
@@ -481,7 +477,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 .groupBy(HrUserAttendanceStat::getUserId));
         attendanceStatNumData.setAttendanceNum(attendanceNum);//打卡人数
 
-        Long userNum = sysUserService.count();
+        Long userNum = sysUserService.count(new LambdaQueryWrapper<SysUser>().isNotNull(SysUser::getAttendanceGroupId));
         attendanceStatNumData.setUserNum(userNum); //应到人数
         attendanceStatNumData.setNoAttendanceNum(userNum-attendanceNum); //未打卡人数
 

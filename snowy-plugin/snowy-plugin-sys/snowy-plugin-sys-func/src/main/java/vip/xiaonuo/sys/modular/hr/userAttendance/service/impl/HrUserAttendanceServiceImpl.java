@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -45,11 +46,14 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.mapper.HrUserAttendanceMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.ErrorAttendanceData;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.service.HrUserAttendanceConfigGroupService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceRelation.service.HrUserAttendanceRelationService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.HrUserAttendanceStatEvent;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.TimeDataVo;
@@ -91,6 +95,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     private SysUserService sysUserService;
     @Resource
     private HrUserAttendanceConfigGroupService hrUserAttendanceConfigGroupService;
+    @Resource
+    private HrUserAttendanceStatService hrUserAttendanceStatService;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -432,5 +438,109 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             attendanceTimeSlotList.add(attendanceTimeSlot);
         }
         return attendanceTimeSlotList;
+    }
+
+
+    /*public Page<ErrorAttendanceData> errorPage(ErrorAttendancePageParam errorAttendancePageParam){
+        QueryWrapper<HrUserAttendanceStat> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(errorAttendancePageParam.getBeginTime()) && ObjectUtil.isNotEmpty(errorAttendancePageParam.getEndTime())) {
+            queryWrapper.lambda().between(HrUserAttendanceStat::getCheckTime, errorAttendancePageParam.getBeginTime(), errorAttendancePageParam.getEndTime());
+        }
+        //迟到，严重迟到，早退，严重早退，缺卡
+        if(ObjectUtil.isNotEmpty(errorAttendancePageParam.getAbnormalFlag())){
+
+        }
+        //Page<HrUserAttendanceStat> page = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<ErrorAttendanceData> page = new Page<>();
+        List<ErrorAttendanceData> errorAttendanceDataList = new ArrayList<>();
+        errorAttendanceDataList.add(setTest(new ErrorAttendanceData()));
+        page.setRecords(errorAttendanceDataList);
+        page.setTotal(1);
+        return page;
+    }
+    private ErrorAttendanceData setTest(ErrorAttendanceData errorAttendanceData){
+        errorAttendanceData.setAttendanceGroupName("建科标准考勤");
+        errorAttendanceData.setUserId("1712671668407353345");
+        errorAttendanceData.setUserName("刘见宇");
+        errorAttendanceData.setErrorStatus("迟到1分钟");
+        errorAttendanceData.setTime("上班 08:30");
+        errorAttendanceData.setCheckTime("08:31");
+        errorAttendanceData.setAttendanceId("1712477350581215233");
+        return errorAttendanceData;
+    }*/
+
+    private List<ErrorAttendanceData> setAtdErrorStat(List<HrUserAttendanceStat> statList){
+        List<ErrorAttendanceData> errorList = statList.stream().map(stat -> {
+            ErrorAttendanceData errorAttendanceData = new ErrorAttendanceData();
+            errorAttendanceData.setAttendanceGroupName("建科标准考勤");
+            errorAttendanceData.setUserId(stat.getUserId());
+            errorAttendanceData.setUserName(stat.getUserName());
+            Date ondutyTime = CommonTimeFormatUtil.strToDate(DateUtil.format(stat.getCheckTime(),DatePattern.NORM_DATE_PATTERN)+" 08:30:00",DatePattern.NORM_DATETIME_PATTERN);
+            Date offdutyTime = CommonTimeFormatUtil.strToDate(DateUtil.format(stat.getCheckTime(),DatePattern.NORM_DATE_PATTERN)+" 17:30:00",DatePattern.NORM_DATETIME_PATTERN);
+            String errorStatus = stat.getAbnormalFlag() == null ? "打卡异常" : stat.getAbnormalFlag() == -1 ? " 缺卡" :
+                    stat.getAbnormalFlag() == 3 ? "迟到"+DateUtil.between(stat.getCheckTime(),ondutyTime, DateUnit.MINUTE)+"分钟" :
+                    stat.getAbnormalFlag() == 4 ?  "早退"+DateUtil.between(stat.getCheckTime(),ondutyTime, DateUnit.MINUTE)+"分钟" : "";
+            errorAttendanceData.setErrorStatus(errorStatus);
+            //OnDuty：上班；OffDuty：下班；休息 REST
+            String timeStr = stat.getCheckType().equals("OnDuty") ? "上班 08:30" : stat.getCheckType().equals("OffDuty") ? "下班 17：30":"";
+            errorAttendanceData.setTime(timeStr);
+            errorAttendanceData.setCheckTime(DateUtil.format(stat.getCheckTime(),"HH:mm"));
+            errorAttendanceData.setAttendanceId(stat.getId());
+            errorAttendanceData.setUpdateTime(stat.getUpdateTime());
+            errorAttendanceData.setUpdateUser(stat.getUpdateUser());
+            return errorAttendanceData;
+        }).collect(Collectors.toList());
+
+        return errorList;
+    }
+    @Override
+    public Page<ErrorAttendanceData> errorPage(ErrorAttendancePageParam errorAttendancePageParam){
+        Page<ErrorAttendanceData> page = new Page<>();
+        if(StringUtils.isEmpty(errorAttendancePageParam.getBeginTime()) || StringUtils.isEmpty(errorAttendancePageParam.getEndTime())){
+            String day = DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN);
+            errorAttendancePageParam.setBeginTime(day+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+            errorAttendancePageParam.setEndTime(day+HrUserAttendanceStatEnum.END_TIME.getValue());
+        }
+        if(ObjectUtil.isEmpty(errorAttendancePageParam.getAbnormalFlag())){
+            Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
+                    new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCheckTime,errorAttendancePageParam.getBeginTime(),errorAttendancePageParam.getEndTime())
+                            .ne(HrUserAttendanceStat::getAbnormalFlag,1)
+                            .or().ne(HrUserAttendanceStat::getEditAbnormalFlag,1));
+            page.setTotal(statPage.getTotal());
+            page.setRecords(setAtdErrorStat(statPage.getRecords()));
+            return page;
+        }
+        Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
+                new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCheckTime,errorAttendancePageParam.getBeginTime(),errorAttendancePageParam.getEndTime())
+                        .eq(HrUserAttendanceStat::getAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
+                        .or().ne(HrUserAttendanceStat::getEditAbnormalFlag,errorAttendancePageParam.getAbnormalFlag()));
+        page.setTotal(statPage.getTotal());
+        page.setRecords(setAtdErrorStat(statPage.getRecords()));
+        return page;
+    }
+
+    @Override
+    public void errorEdit(EditErrorAtdParam editErrorAtdParam){
+        HrUserAttendanceStat hrUserAttendanceStat = hrUserAttendanceStatService.queryEntity(editErrorAtdParam.getAttendanceId());
+        if(ObjectUtil.isEmpty(hrUserAttendanceStat)){
+            throw new CommonException("该打卡记录不存在！");
+        }
+        hrUserAttendanceStat.setEditAbnormalFlag(hrUserAttendanceStat.getAbnormalFlag());
+        hrUserAttendanceStat.setEditCheckTime(DateUtil.format(hrUserAttendanceStat.getCheckTime(),DatePattern.NORM_DATETIME_PATTERN));
+        hrUserAttendanceStat.setAbnormalFlag(Integer.parseInt(editErrorAtdParam.getEditStatus()));
+        hrUserAttendanceStatService.updateById(hrUserAttendanceStat);
+    }
+
+    @Override
+    public void revokeErrorEdit(EditErrorAtdParam editErrorAtdParam){
+        HrUserAttendanceStat hrUserAttendanceStat = hrUserAttendanceStatService.queryEntity(editErrorAtdParam.getAttendanceId());
+        if(ObjectUtil.isEmpty(hrUserAttendanceStat)){
+            throw new CommonException("该打卡记录不存在");
+        }
+        hrUserAttendanceStat.setCheckTime(CommonTimeFormatUtil.strToDate(hrUserAttendanceStat.getEditCheckTime(),DatePattern.NORM_DATETIME_PATTERN));
+        hrUserAttendanceStat.setAbnormalFlag(hrUserAttendanceStat.getEditAbnormalFlag());
+        hrUserAttendanceStat.setEditAbnormalFlag(null);
+        hrUserAttendanceStat.setEditCheckTime(null);
+        hrUserAttendanceStatService.saveOrUpdate(hrUserAttendanceStat);
     }
 }
