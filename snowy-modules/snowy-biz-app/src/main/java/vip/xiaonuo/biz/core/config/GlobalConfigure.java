@@ -181,6 +181,10 @@ public class GlobalConfigure implements WebMvcConfigurer {
             /* 招聘计划 面试登记表 */
             "/biz/recruit/resume/registerSave",
             "/biz/recruit/resume/registerDetail",
+
+            /* 电子名片 */
+            "/biz/applet/eCard/getAppletCardOpenIdByCode",
+            "/biz/applet/eCard/getEcardByUserId",
     };
 
     /**
