@@ -38,19 +38,19 @@ public class VehicleInformationEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** SN */
-    @ApiModelProperty(value = "SN", position = 3)
-    private String sn;
-
-    /** 登记人 */
-    @ApiModelProperty(value = "登记人", position = 4)
-    private String opt;
-
-    /** 登记日期 */
-    @ApiModelProperty(value = "登记日期", position = 5)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date optDate;
+//    /** SN */
+//    @ApiModelProperty(value = "SN", position = 3)
+//    private String sn;
+//
+//    /** 登记人 */
+//    @ApiModelProperty(value = "登记人", position = 4)
+//    private String opt;
+//
+//    /** 登记日期 */
+//    @ApiModelProperty(value = "登记日期", position = 5)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+//    private Date optDate;
 
     /** 车牌号码 */
     @ApiModelProperty(value = "车牌号码", position = 6)
