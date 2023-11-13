@@ -153,8 +153,8 @@ public class HrUserAttendanceConfigController {
     @CommonLog("批量添加打卡班次配置表")
     //@SaCheckPermission("/sys/userAttendanceConfig/addlist")
     @PostMapping("/sys/userAttendanceConfig/addlist")
-    public CommonResult<String> addList(@RequestBody @Valid HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam) {
-        return CommonResult.data(hrUserAttendanceConfigService.addList(hrUserAttendanceConfigEditParam));
+    public CommonResult<String> addList(@RequestBody @Valid AtdConfigListEditParam atdConfigListEditParam) {
+        return CommonResult.data(hrUserAttendanceConfigService.addList(atdConfigListEditParam));
     }
 
     /**
@@ -168,7 +168,7 @@ public class HrUserAttendanceConfigController {
     @CommonLog("编辑打卡班次配置表")
     //@SaCheckPermission("/sys/userAttendanceConfig/edit")
     @PostMapping("/sys/userAttendanceConfig/editConfig")
-    public CommonResult<String> editConfig(@RequestBody @Valid HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam) {
-        return CommonResult.data(hrUserAttendanceConfigService.editConfig(hrUserAttendanceConfigEditParam));
+    public CommonResult<String> editConfig(@RequestBody @Valid AtdConfigListEditParam atdConfigListEditParam) {
+        return CommonResult.data(hrUserAttendanceConfigService.editConfig(atdConfigListEditParam));
     }
 }

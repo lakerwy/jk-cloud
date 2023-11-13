@@ -30,6 +30,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.param.*;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.vo.AtdConfigList;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.vo.HrUserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.enums.HrUserAttendanceConfigEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.mapper.HrUserAttendanceConfigMapper;
@@ -159,22 +160,22 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String editConfig(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam){
+    public String editConfig(AtdConfigListEditParam atdConfigListEditParam){
         /** 修改考勤配置组 */
-        if(StringUtils.isNotEmpty(hrUserAttendanceConfigEditParam.getAttendanceTypeName()) && ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getId())){
-            HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.getById(hrUserAttendanceConfigEditParam.getId());
+        if(StringUtils.isNotEmpty(atdConfigListEditParam.getAttendanceTypeName()) && ObjectUtil.isNotEmpty(atdConfigListEditParam.getId())){
+            HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = hrUserAttendanceConfigGroupService.getById(atdConfigListEditParam.getId());
             if(ObjectUtil.isNotEmpty(hrUserAttendanceConfigGroup)){
-                hrUserAttendanceConfigGroup.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName());
-                hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigEditParam.getLeadId());
-                hrUserAttendanceConfigGroup.setLeadName(hrUserAttendanceConfigEditParam.getLeadName());
-                hrUserAttendanceConfigGroup.setSeriousLeaveMinute(hrUserAttendanceConfigEditParam.getSeriousLeaveMinute());
-                hrUserAttendanceConfigGroup.setSeriousLateMinute(hrUserAttendanceConfigEditParam.getSeriousLateMinute());
+                hrUserAttendanceConfigGroup.setAttendanceTypeName(atdConfigListEditParam.getAttendanceTypeName());
+                hrUserAttendanceConfigGroup.setLeadId(atdConfigListEditParam.getLeadId());
+                hrUserAttendanceConfigGroup.setLeadName(atdConfigListEditParam.getLeadName());
+                hrUserAttendanceConfigGroup.setSeriousLeaveMinute(atdConfigListEditParam.getSeriousLeaveMinute());
+                hrUserAttendanceConfigGroup.setSeriousLateMinute(atdConfigListEditParam.getSeriousLateMinute());
                 hrUserAttendanceConfigGroupService.updateById(hrUserAttendanceConfigGroup);
             }
         }
-        List<HrUserAttendanceConfigEntity> attendanceConfigEntityList = ObjectUtil.isNotEmpty(hrUserAttendanceConfigEditParam.getUserAttendanceConfigEntityList()) ?
-                hrUserAttendanceConfigEditParam.getUserAttendanceConfigEntityList() : new ArrayList<>();
-        attendanceConfigEntityList.stream().forEach(entity -> entity.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName()));
+        List<AtdConfigList> attendanceConfigEntityList = ObjectUtil.isNotEmpty(atdConfigListEditParam.getUserAttendanceConfigEntityList()) ?
+                atdConfigListEditParam.getUserAttendanceConfigEntityList() : new ArrayList<>();
+        attendanceConfigEntityList.stream().forEach(entity -> entity.setAttendanceTypeName(atdConfigListEditParam.getAttendanceTypeName()));
         List<HrUserAttendanceConfig> attendanceConfigList = attendanceConfigEntityList.stream().map(entity -> BeanUtil.toBean(entity, HrUserAttendanceConfig.class)).collect(Collectors.toList());
         log.info("editConfig更新条数-----"+attendanceConfigList.size());
         if(attendanceConfigList.size() == 0){
@@ -185,23 +186,23 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public String addList(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam){
-        if(ObjectUtil.isEmpty(hrUserAttendanceConfigEditParam)){
+    public String addList(AtdConfigListEditParam atdConfigListEditParam){
+        if(ObjectUtil.isEmpty(atdConfigListEditParam)){
             return HrUserAttendanceConfigEnum.FAIL.getValue();
         }
         HrUserAttendanceConfigGroup hrUserAttendanceConfigGroup = new HrUserAttendanceConfigGroup();
-        hrUserAttendanceConfigGroup.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName());
-        hrUserAttendanceConfigGroup.setLeadId(hrUserAttendanceConfigEditParam.getLeadId());
-        hrUserAttendanceConfigGroup.setLeadName(hrUserAttendanceConfigEditParam.getLeadName());
-        hrUserAttendanceConfigGroup.setAttendanceUserNum(hrUserAttendanceConfigEditParam.getAttendanceUserNum());
-        hrUserAttendanceConfigGroup.setSeriousLateMinute(hrUserAttendanceConfigEditParam.getSeriousLateMinute());
-        hrUserAttendanceConfigGroup.setSeriousLeaveMinute(hrUserAttendanceConfigEditParam.getSeriousLeaveMinute());
+        hrUserAttendanceConfigGroup.setAttendanceTypeName(atdConfigListEditParam.getAttendanceTypeName());
+        hrUserAttendanceConfigGroup.setLeadId(atdConfigListEditParam.getLeadId());
+        hrUserAttendanceConfigGroup.setLeadName(atdConfigListEditParam.getLeadName());
+        hrUserAttendanceConfigGroup.setAttendanceUserNum(atdConfigListEditParam.getAttendanceUserNum());
+        hrUserAttendanceConfigGroup.setSeriousLateMinute(atdConfigListEditParam.getSeriousLateMinute());
+        hrUserAttendanceConfigGroup.setSeriousLeaveMinute(atdConfigListEditParam.getSeriousLeaveMinute());
         hrUserAttendanceConfigGroupService.save(hrUserAttendanceConfigGroup);
         String id = hrUserAttendanceConfigGroup.getId();
 
-        List<HrUserAttendanceConfig> hrUserAttendanceConfigList = hrUserAttendanceConfigEditParam.getUserAttendanceConfigEntityList().stream()
+        List<HrUserAttendanceConfig> hrUserAttendanceConfigList = atdConfigListEditParam.getUserAttendanceConfigEntityList().stream()
                 .map(param -> {
-                    param.setAttendanceTypeName(hrUserAttendanceConfigEditParam.getAttendanceTypeName());
+                    param.setAttendanceTypeName(atdConfigListEditParam.getAttendanceTypeName());
                     param.setAttendanceTypeId(id);
                    return BeanUtil.toBean(param, HrUserAttendanceConfig.class);
                 }).collect(Collectors.toList());

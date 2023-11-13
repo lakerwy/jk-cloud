@@ -416,7 +416,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
             attendanceTimeSlot.setAttendanceTypeId(attendanceConfig.getAttendanceTypeId());
             attendanceTimeSlot.setDutyType(attendanceConfig.getDutyType());
-            Date time = CommonTimeFormatUtil.yearAndHourConnect(DateUtil.format(dateNow,DATE_FORMAT),attendanceConfig.getCheckTime().toString());
+            Date time = CommonTimeFormatUtil.yearAndHourConnect(DateUtil.format(dateNow,DATE_FORMAT),ObjectUtil.isNotEmpty(attendanceConfig.getCheckTime()) ?attendanceConfig.getCheckTime().toString() : " 00:00:00");
 
             attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getBeginMinTime() == null ? "0" : attendanceConfig.getBeginMinTime()),2));
             attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getEndMinTime() == null ? "0" : attendanceConfig.getEndMinTime()),1));
