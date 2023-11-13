@@ -121,7 +121,7 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         List<String> configList = hrUserAttendanceConfigService.list(new LambdaQueryWrapper<HrUserAttendanceConfig>().in(HrUserAttendanceConfig::getAttendanceTypeId,groupIdList))
                 .stream().map(config -> config.getId()).collect(Collectors.toList());
 
-        hrUserAttendanceConfigService.removeBatchByIds(configList);
+        hrUserAttendanceConfigService.removeByIds(configList);
         hrUserAttendanceService.attendanceConfigCache();
     }
 
