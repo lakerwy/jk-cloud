@@ -211,6 +211,11 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
 
     private void setAttendanceConfig(List<HrUserAttendanceConfig> hrUserAttendanceConfigList){
 
+        if(hrUserAttendanceConfigList.size()%2 == 1){
+            hrUserAttendanceConfigList.get(0).setDutyType("OnDuty");
+            hrUserAttendanceConfigList.get(0).setOrderNumber(1);
+        }
+
         if(hrUserAttendanceConfigList.size()%2 == 1 && hrUserAttendanceConfigList.size() == 3){
             //班次打卡类别 (上班OnDuty，下班 OffDuty，休息 REST)
             hrUserAttendanceConfigList.get(0).setDutyType("OnDuty");
