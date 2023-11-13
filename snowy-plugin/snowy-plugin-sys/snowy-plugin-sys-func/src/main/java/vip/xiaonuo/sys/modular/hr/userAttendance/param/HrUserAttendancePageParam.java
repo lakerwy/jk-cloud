@@ -15,6 +15,8 @@ package vip.xiaonuo.sys.modular.hr.userAttendance.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 

@@ -75,4 +75,8 @@ public class HrUserAttendanceEditParam {
     /** 申请补卡ID */
     @ApiModelProperty(value = "申请补卡ID", position = 18)
     private String applyResubmitAttendanceId;
+
+    /** 修改类别 */
+    @ApiModelProperty(value = "修改类别：1 正常，3 缺卡, 4 早退", position = 19)
+    private String editType;
 }

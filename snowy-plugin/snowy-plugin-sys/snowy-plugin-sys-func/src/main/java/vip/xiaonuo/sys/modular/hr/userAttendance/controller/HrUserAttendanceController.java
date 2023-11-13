@@ -29,6 +29,8 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.ErrorAttendanceData;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -169,4 +171,38 @@ public class HrUserAttendanceController {
     public CommonResult<List<AttendanceTimeSlot>> userConfigCache(@Valid ConfigCacheListParam configCacheListParam) {
         return CommonResult.data(hrUserAttendanceService.userConfigCache(configCacheListParam));
     }
+
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取异常打卡记录表分页")
+    //@SaCheckPermission("/sys/userAttendance/errorAtdPage")
+    @GetMapping("/sys/userAttendance/errorAtdPage")
+    public CommonResult<Page<ErrorAttendanceData>> errorAtdPage(@Valid ErrorAttendancePageParam errorAttendancePageParam) {
+        return CommonResult.data(hrUserAttendanceService.errorPage(errorAttendancePageParam));
+    }
+
+    /**
+     * 编辑异常打卡记录
+     *
+     * @author ljy
+     * @date  2023/09/07 14:24
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("修改异常打卡记录")
+    @CommonLog("修改异常打卡记录")
+    //@SaCheckPermission("/sys/userAttendance/errorEdit")
+    @PostMapping("/sys/userAttendance/errorEdit")
+    public CommonResult<String> errorEdit(@RequestBody @Valid EditErrorAtdParam editErrorAtdParam) {
+        hrUserAttendanceService.errorEdit(editErrorAtdParam);
+        return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("撤销修改异常记录")
+    //@SaCheckPermission("/sys/userAttendance/revoke")
+    @GetMapping("/sys/userAttendance/revoke")
+    public CommonResult<String> revokeErrorEdit(@Valid EditErrorAtdParam editErrorAtdParam) {
+        hrUserAttendanceService.revokeErrorEdit(editErrorAtdParam);
+        return CommonResult.ok();
+    }
+
 }

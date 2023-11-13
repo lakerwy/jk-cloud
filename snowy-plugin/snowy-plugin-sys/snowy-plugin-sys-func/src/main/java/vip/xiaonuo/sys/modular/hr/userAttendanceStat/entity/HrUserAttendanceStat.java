@@ -104,4 +104,16 @@ public class HrUserAttendanceStat {
     @ApiModelProperty(value = "更新人", position = 17)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 18)
+    private String remark;
+
+    /** 管理员修改时间 */
+    @ApiModelProperty(value = "管理员修改时间", position = 19)
+    private String editCheckTime;
+
+    /** 修改之前的打卡状态：2 异常，1 正常 */
+    @ApiModelProperty(value = "修改之前的打卡状态：-1 缺卡，0 管理员修改,1 正常,3 迟到，4 早退，5 请假，6 外出，7 出差 ", position = 20)
+    private Integer editAbnormalFlag;
 }

@@ -1,0 +1,21 @@
+package vip.xiaonuo.sys.modular.hr.userAttendance.param;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+@Setter
+@Getter
+public class EditErrorAtdParam {
+    /** 打卡ID*/
+    @ApiModelProperty(value = "打卡ID", position = 1)
+    private String attendanceId;
+
+    /** 状态修改*/
+    @ApiModelProperty(value = "状态修改，-1 缺卡，1 正常，3 迟到,4 早退",required = true,position = 2)
+    private String editStatus;
+
+    /** 备注*/
+    @ApiModelProperty(value = "备注", position = 3)
+    private String remark;
+}
