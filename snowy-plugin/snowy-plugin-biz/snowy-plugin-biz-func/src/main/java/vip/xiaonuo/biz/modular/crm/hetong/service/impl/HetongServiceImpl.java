@@ -175,8 +175,12 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
 //            query1.lambda().and(q->q.isNull(Hetong::getProcessInstanceId).or().eq(Hetong::getProcessInstanceId,""));
 //            query1.lambda().orderByDesc(Hetong::getCreateTime);
 //            query1.lambda().last("limit 1");
-            //Hetong tmpht = this.getOne(query1);
-            String newSn = formRelationTableApi.getSnByModelId(hetongAddParam.getModelId());
+            //Hetong tmpht = this.getOne(query1);  1679010014274043906
+            String modelId = "1679010014274043906";
+            if(StrUtil.isNotEmpty(hetongAddParam.getModelId())){
+                modelId = hetongAddParam.getModelId();
+            }
+            String newSn = formRelationTableApi.getSnByModelId(modelId);
             //String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
             hetong.setContractNo(newSn);
             hetong.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
