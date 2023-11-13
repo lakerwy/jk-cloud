@@ -19,6 +19,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -50,6 +51,8 @@ import java.util.List;
  * @author yong.ye
  * @date  2023/11/13 11:22
  **/
+
+@DS("slave_1")
 @Service
 public class EcardsServiceImpl extends ServiceImpl<EcardsMapper, Ecards> implements EcardsService {
 
