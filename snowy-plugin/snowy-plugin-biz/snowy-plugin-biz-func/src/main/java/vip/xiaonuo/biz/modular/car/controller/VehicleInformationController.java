@@ -44,7 +44,7 @@ import java.util.List;
  * @author yong.ye
  * @date  2023/11/08 17:17
  */
-@Api(tags = "车辆管理-控制器")
+@Api(tags = "CAR-车辆管理-控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
