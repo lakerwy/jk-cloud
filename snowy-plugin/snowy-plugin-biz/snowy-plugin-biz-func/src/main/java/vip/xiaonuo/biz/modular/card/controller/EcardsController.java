@@ -61,7 +61,7 @@ public class EcardsController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取Ecard-电子名片分页")
-    @SaCheckPermission("/biz/applet/eCard/getEcardsPageList")
+//    @SaCheckPermission("/biz/applet/eCard/getEcardsPageList")
     @GetMapping("/biz/applet/eCard/getEcardsPageList")
     public CommonResult<Page<Ecards>> page(EcardsPageParam ecardsPageParam) {
         return CommonResult.data(ecardsService.page(ecardsPageParam));
@@ -76,7 +76,7 @@ public class EcardsController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加Ecard-电子名片")
     @CommonLog("添加Ecard-电子名片")
-    @SaCheckPermission("/biz/applet/eCard/addEcards")
+//    @SaCheckPermission("/biz/applet/eCard/addEcards")
     @PostMapping("/biz/applet/eCard/addEcards")
     public CommonResult<String> add(@RequestBody @Valid EcardsAddParam ecardsAddParam) {
         ecardsService.add(ecardsAddParam);
@@ -92,7 +92,7 @@ public class EcardsController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑Ecard-电子名片")
     @CommonLog("编辑Ecard-电子名片")
-    @SaCheckPermission("/biz/applet/eCard/updateEcards")
+//    @SaCheckPermission("/biz/applet/eCard/updateEcards")
     @PostMapping("/biz/applet/eCard/updateEcards")
     public CommonResult<String> edit(@RequestBody @Valid EcardsEditParam ecardsEditParam) {
         ecardsService.edit(ecardsEditParam);
@@ -108,7 +108,7 @@ public class EcardsController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除Ecard-电子名片")
     @CommonLog("删除Ecard-电子名片")
-    @SaCheckPermission("/biz/applet/eCard/deleteEcards")
+//    @SaCheckPermission("/biz/applet/eCard/deleteEcards")
     @PostMapping("/biz/applet/eCard/deleteEcards")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<EcardsIdParam> ecardsIdParamList) {
@@ -124,7 +124,7 @@ public class EcardsController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取Ecard-电子名片详情(通过cardId主键获取)")
-    @SaCheckPermission("/biz/applet/eCard/getEcardByCardId")
+//    @SaCheckPermission("/biz/applet/eCard/getEcardByCardId")
     @GetMapping("/biz/applet/eCard/getEcardByCardId")
     public CommonResult<Ecards> detailByCardId(String cardId) {
         return CommonResult.data(ecardsService.getById(cardId));
@@ -136,9 +136,9 @@ public class EcardsController {
      * @author yong.ye
      * @date  2023/11/13 11:22
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("获取Ecard-电子名片详情(通过userId获取)")
-    @SaCheckPermission("/biz/applet/eCard/getEcardByUserId")
+//    @SaCheckPermission("/biz/applet/eCard/getEcardByUserId")
     @GetMapping("/biz/applet/eCard/getEcardByUserId")
     public CommonResult<Ecards> detailByUserId(String userId) {
         return CommonResult.data(ecardsService.detailByUserId(userId));
@@ -150,9 +150,9 @@ public class EcardsController {
      * @author yong.ye
      * @date  2023/11/13 11:22
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("获取Ecard-电子名片详情(通过openId获取)")
-    @SaCheckPermission("/biz/applet/eCard/getEcardByOpenId")
+//    @SaCheckPermission("/biz/applet/eCard/getEcardByOpenId")
     @GetMapping("/biz/applet/eCard/getEcardByOpenId")
     public CommonResult<Ecards> detailByOpenId(String openId) {
         return CommonResult.data(ecardsService.detailByOpenId(openId));
@@ -164,9 +164,9 @@ public class EcardsController {
      * @author yong.ye
      * @date  2023/11/13 11:22
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("获取电子名片小程序OpenId")
-    @SaCheckPermission("/biz/applet/eCard/getAppletCardOpenIdByCode")
+//    @SaCheckPermission("/biz/applet/eCard/getAppletCardOpenIdByCode")
     @GetMapping("/biz/applet/eCard/getAppletCardOpenIdByCode")
     public CommonResult<JSONObject> openIdByCode(String code) {
         return CommonResult.data(ecardsService.openIdByCode(code));
