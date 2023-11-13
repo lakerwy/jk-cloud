@@ -37,13 +37,9 @@ public class ErrorAttendancePageParam {
     @ApiModelProperty(value = "部门信息ID")
     private List<String> orgIdList;
 
-    /** 开始时间 */
-    @ApiModelProperty(value = "开始时间")
-    private String beginTime;
-
-    /** 结束时间 */
-    @ApiModelProperty(value = "结束时间")
-    private String endTime;
+    /** 日期 */
+    @ApiModelProperty(value = "日期：年月日")
+    private String dayTime;
 
     @ApiModelProperty(value = "异常状态：-1 缺卡，3 迟到， 4 早退，5 严重迟到，6 严重早退，空值 返回所有数据")
     private Integer abnormalFlag;

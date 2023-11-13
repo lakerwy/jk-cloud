@@ -72,4 +72,12 @@ public class HrUserAttendanceStatEvent {
     /** 更新人 */
     @ApiModelProperty(value = "更新人", position = 17)
     private String updateUser;
+
+    /** 考勤班次类别组ID */
+    @ApiModelProperty(value = "考勤班次类别组ID", position = 18)
+    private String attendanceTypeId;
+
+    /** 考勤班次类别组名称 */
+    @ApiModelProperty(value = "考勤班次类别组名称", position = 19)
+    private String attendanceTypeName;
 }
