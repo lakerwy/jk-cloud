@@ -4,6 +4,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
 import javax.annotation.Resource;
@@ -19,6 +20,10 @@ import javax.annotation.Resource;
 public class FormRelationTableApiProvider implements FormRelationTableApi {
     @Resource
     FormRelationTableService formRelationTableService;
+
+    @Resource
+    FlwProcessService flwProcessService;
+
     @Override
     public void save(String modelId, String tableName, String businessKey, String processInstanceId, String dbName) {
         formRelationTableService.save(modelId,tableName,businessKey,processInstanceId,dbName);
@@ -32,5 +37,10 @@ public class FormRelationTableApiProvider implements FormRelationTableApi {
     @Override
     public void save2(String modelId, String tableName, String businessKey, String processInstanceId, String dbName, String bizTableName) {
         formRelationTableService.save2(modelId,tableName,businessKey,processInstanceId,dbName,bizTableName);
+    }
+
+    @Override
+    public String getSnByModelId(String modelId) {
+        return flwProcessService.getSn(modelId);
     }
 }

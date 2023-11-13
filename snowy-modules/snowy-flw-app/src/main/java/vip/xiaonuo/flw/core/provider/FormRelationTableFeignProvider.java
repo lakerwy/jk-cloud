@@ -36,4 +36,10 @@ public class FormRelationTableFeignProvider implements FormRelationTableFeign {
     public void save2(String modelId, String tableName, String businessKey, String processInstanceId, String dbName, String bizTableName) {
         formRelationTableApiProvider.save2(modelId,tableName,businessKey,processInstanceId,dbName,bizTableName);
     }
+
+    @Override
+    @RequestMapping("/feign/flw/formRelationTable/getSnByModelId")
+    public String getSnByModelId(String modelId) {
+        return formRelationTableApiProvider.getSnByModelId(modelId);
+    }
 }

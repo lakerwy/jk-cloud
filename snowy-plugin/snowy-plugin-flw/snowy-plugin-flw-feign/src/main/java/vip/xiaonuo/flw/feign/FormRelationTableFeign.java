@@ -23,4 +23,6 @@ public interface FormRelationTableFeign {
     @RequestMapping("/feign/flw/formRelationTable/save2")
     void save2(@RequestParam String modelId, @RequestParam String tableName, @RequestParam String businessKey, @RequestParam String processInstanceId, @RequestParam String dbName, @RequestParam String bizTableName);
 
+    @RequestMapping("/feign/flw/formRelationTable/getSnByModelId")
+    String getSnByModelId(@RequestParam String modelId);
 }

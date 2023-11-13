@@ -69,6 +69,9 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
     @Resource
     SysOrgService sysOrgService;
 
+    @Resource
+    FormRelationTableApi formRelationTableApi;
+
     @Override
     public IPage<HetongDetailVo> page(HetongPageParam hetongPageParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
@@ -168,13 +171,13 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             formRelationTableApi.save(modelId, BizCommonEnum.BIZ_CRM_HETONG.getBizTable(),id,processInstanceId,dbName);
         }
         else{//不走审批流程
-            QueryWrapper<Hetong> query1 = new QueryWrapper<>();
-            query1.lambda().and(q->q.isNull(Hetong::getProcessInstanceId).or().eq(Hetong::getProcessInstanceId,""));
-            query1.lambda().orderByDesc(Hetong::getCreateTime);
-            query1.lambda().last("limit 1");
-
-            Hetong tmpht = this.getOne(query1);
-            String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+//            QueryWrapper<Hetong> query1 = new QueryWrapper<>();
+//            query1.lambda().and(q->q.isNull(Hetong::getProcessInstanceId).or().eq(Hetong::getProcessInstanceId,""));
+//            query1.lambda().orderByDesc(Hetong::getCreateTime);
+//            query1.lambda().last("limit 1");
+            //Hetong tmpht = this.getOne(query1);
+            String newSn = formRelationTableApi.getSnByModelId(hetongAddParam.getModelId());
+            //String newSn = CommonSnUtil.GenerateSn(hetongAddParam.getContractNo(),tmpht==null?"":tmpht.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
             hetong.setContractNo(newSn);
             hetong.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }

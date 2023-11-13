@@ -36,4 +36,11 @@ public interface FormRelationTableApi {
      * @param bizTableName  业务数据表-实际业务数据
      */
     void save2(String modelId,String tableName,String businessKey,String processInstanceId,String dbName,String bizTableName);
+
+    /**
+     * 流程模型id
+     * @param modelId
+     * @return
+     */
+    String getSnByModelId(String modelId);
 }
