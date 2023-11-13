@@ -111,6 +111,9 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getDriver())) {
             queryWrapper.lambda().like(VehicleApply::getDriver, vehicleApplyPageParam.getDriver());
         }
+        if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getStatus())) {
+            queryWrapper.lambda().eq(VehicleApply::getStatus, vehicleApplyPageParam.getStatus());
+        }
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(VehicleApply::getUsers,vehicleApplyPageParam.getSearchKey())
                     .or().like(VehicleApply::getSn,vehicleApplyPageParam.getSearchKey())
