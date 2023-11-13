@@ -26,4 +26,9 @@ public class FlwFormRelationTableApiContextBean implements FormRelationTableApi 
     public void save2(String modelId, String tableName, String businessKey, String processInstanceId, String dbName, String bizTableName) {
         formRelationTableFeign.save2(modelId,tableName,businessKey,processInstanceId,dbName,bizTableName);
     }
+
+    @Override
+    public String getSnByModelId(String modelId) {
+        return formRelationTableFeign.getSnByModelId(modelId);
+    }
 }

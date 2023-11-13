@@ -301,7 +301,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         SysUser sysUser = sysUserService.queryEntity(userId);
         List<AttendanceTimeSlot> slotList = new ArrayList<>();
         Map<String,String> configMap = new HashMap<>();
-        if(StringUtils.isNotEmpty(cache)){
+        if(StringUtils.isNotEmpty(cache) && !cache.equals("null")){
             configMap = (Map) JSON.parse(cache);
         }
         if(StringUtils.isNotEmpty(sysUser.getAttendanceGroupId()) && ObjectUtil.isNotEmpty(configMap.get(sysUser.getAttendanceGroupId()))){

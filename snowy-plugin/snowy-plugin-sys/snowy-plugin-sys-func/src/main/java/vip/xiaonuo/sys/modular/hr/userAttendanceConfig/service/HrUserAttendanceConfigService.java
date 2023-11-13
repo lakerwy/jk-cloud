@@ -90,7 +90,7 @@ public interface HrUserAttendanceConfigService extends IService<HrUserAttendance
      * @author ljy
      * @date  2023/09/21 11:07
      */
-    String addList(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam);
+    String addList(AtdConfigListEditParam atdConfigListEditParam);
 
     /**
      * 编辑打卡班次配置表
@@ -98,5 +98,5 @@ public interface HrUserAttendanceConfigService extends IService<HrUserAttendance
      * @author ljy
      * @date  2023/09/07 13:07
      */
-    String editConfig(HrUserAttendanceConfigEditParam hrUserAttendanceConfigEditParam);
+    String editConfig(AtdConfigListEditParam atdConfigListEditParam);
 }

@@ -121,7 +121,7 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         List<String> configList = hrUserAttendanceConfigService.list(new LambdaQueryWrapper<HrUserAttendanceConfig>().in(HrUserAttendanceConfig::getAttendanceTypeId,groupIdList))
                 .stream().map(config -> config.getId()).collect(Collectors.toList());
 
-        hrUserAttendanceConfigService.removeBatchByIds(configList);
+        hrUserAttendanceConfigService.removeByIds(configList);
         hrUserAttendanceService.attendanceConfigCache();
     }
 
@@ -192,7 +192,7 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
     private void userAttendConfig(List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList,String attendGroupId){
 
         //先清理所有人的
-        String sql = "update HR_APPLY_WORK_OT set STATUS = null";
+        String sql = "update SYS_USER set ATTENDANCE_GROUP_ID = null WHERE ATTENDANCE_GROUP_ID = '"+attendGroupId+"'";
         CommonHandleUtil.handleSqlExecution(sql);
 
         List<SysUser> sysUserList = new ArrayList<>();

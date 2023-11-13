@@ -416,9 +416,10 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
             attendanceTimeSlot.setAttendanceTypeId(attendanceConfig.getAttendanceTypeId());
             attendanceTimeSlot.setDutyType(attendanceConfig.getDutyType());
-            Date time = CommonTimeFormatUtil.yearAndHourConnect(DateUtil.format(dateNow,DATE_FORMAT),attendanceConfig.getCheckTime().toString());
-            attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getBeginMinTime()),2));
-            attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getEndMinTime()),1));
+            Date time = CommonTimeFormatUtil.yearAndHourConnect(DateUtil.format(dateNow,DATE_FORMAT),ObjectUtil.isNotEmpty(attendanceConfig.getCheckTime()) ?attendanceConfig.getCheckTime().toString() : " 00:00:00");
+
+            attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getBeginMinTime() == null ? "0" : attendanceConfig.getBeginMinTime()),2));
+            attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getEndMinTime() == null ? "0" : attendanceConfig.getEndMinTime()),1));
             attendanceTimeSlot.setCompareTime(time);//存打卡点时间
             attendanceTimeSlot.setWorkHours(StringUtils.isEmpty(attendanceConfig.getWorkHours()) ? "0" : attendanceConfig.getWorkHours());
             attendanceTimeSlot.setOrderNumber(attendanceConfig.getOrderNumber());
@@ -426,7 +427,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             attendanceTimeSlot.setWorkBeginTime(time);//初始化默认值
             attendanceTimeSlot.setAttendanceTypeName(attendanceConfig.getAttendanceTypeName());
             //获取工作区间
-            double minute =  Double.parseDouble(attendanceConfig.getWorkHours())*60;
+            double minute =  attendanceConfig.getWorkHours() != null ? Double.parseDouble(attendanceConfig.getWorkHours())*60 : 0.0;
             if(attendanceConfig.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()) && minute > 0){
                 attendanceTimeSlot.setWorkBeginTime(time);
                 attendanceTimeSlot.setWorkEndTime(CommonTimeFormatUtil.addOrUpMinute(time, (int) minute,1));
@@ -526,6 +527,11 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             throw new CommonException("该打卡记录不存在！");
         }
         hrUserAttendanceStat.setEditAbnormalFlag(hrUserAttendanceStat.getAbnormalFlag());
+        String day = DateUtil.format(hrUserAttendanceStat.getCheckTime(),DatePattern.NORM_DATE_PATTERN);
+        //OnDuty-上班，REST-休息，OffDuty-下班
+        Date checkTime = hrUserAttendanceStat.getCheckType().equals("OnDuty")? CommonTimeFormatUtil.strToDate(day+" 08:30:00") :
+                hrUserAttendanceStat.getCheckType().equals("OffDuty")? CommonTimeFormatUtil.strToDate(day+" 17:30:00") : hrUserAttendanceStat.getCheckTime();
+        hrUserAttendanceStat.setCheckTime(checkTime);
         hrUserAttendanceStat.setEditCheckTime(DateUtil.format(hrUserAttendanceStat.getCheckTime(),DatePattern.NORM_DATETIME_PATTERN));
         hrUserAttendanceStat.setAbnormalFlag(Integer.parseInt(editErrorAtdParam.getEditStatus()));
         hrUserAttendanceStatService.updateById(hrUserAttendanceStat);
