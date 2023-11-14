@@ -16,6 +16,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
@@ -26,6 +27,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.camunda.bpm.engine.HistoryService;
 import org.camunda.bpm.engine.RepositoryService;
@@ -907,6 +909,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             commonList.add(flwProcessComment);
         });
         CollectionUtil.sort(commonList, Comparator.comparing(FlwTaskDetailResult.FlwProcessComment::getApproveTime));
+        countTime(commonList);
         flwProcessDetailResult.setCommentList(commonList);
 
         /** 补充流程状态 **/
@@ -954,6 +957,25 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         }
 
         return flwProcessDetailResult;
+    }
+
+    private void countTime(List<FlwTaskDetailResult.FlwProcessComment> commonList){
+        if(CollectionUtil.isEmpty(commonList)){
+            return;
+        }
+        for(int i=0;i<commonList.size();i++){
+            if(i==0){
+                continue;
+            }
+            Long minute = 0l;
+            if(StringUtils.isNotEmpty(commonList.get(i).getApproveTime())){
+                minute = DateUtil.between(CommonTimeFormatUtil.strToDate(commonList.get(i-1).getApproveTime()),CommonTimeFormatUtil.strToDate(commonList.get(i).getApproveTime()), DateUnit.MINUTE);
+                commonList.get(i).setApproveExpendHours(minute > 0 && minute/60 > 0 ? minute/60+"小时"+ minute%60+"分钟" : minute%60 > 0.0 ? minute%60+"分钟" :"");
+                continue;
+            }
+            minute = DateUtil.between(CommonTimeFormatUtil.strToDate(commonList.get(i-1).getApproveTime()),DateUtil.date(), DateUnit.MINUTE);
+            commonList.get(i).setApproveExpendHours(minute > 0 && minute/60 > 0 ? minute/60+"小时"+ minute%60+"分钟" : minute%60 > 0.0 ? minute%60+"分钟" :"");
+        }
     }
 
     @Override

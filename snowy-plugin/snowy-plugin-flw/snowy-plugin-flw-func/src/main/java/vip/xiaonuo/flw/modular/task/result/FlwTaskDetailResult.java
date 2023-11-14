@@ -109,5 +109,9 @@ public class FlwTaskDetailResult {
         /** 审批附件 */
         @ApiModelProperty(value = "审批附件", position = 10)
         private List<FlwTaskAttachmentResult> attachmentList;
+
+        /** 审批耗时，最小单位：分钟 */
+        @ApiModelProperty(value = "审批耗时，最小单位：分钟", position = 11)
+        private String approveExpendHours;
     }
 }
