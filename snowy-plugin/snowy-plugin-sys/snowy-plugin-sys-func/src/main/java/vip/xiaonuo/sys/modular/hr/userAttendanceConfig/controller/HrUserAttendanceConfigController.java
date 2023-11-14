@@ -166,7 +166,7 @@ public class HrUserAttendanceConfigController {
     @ApiOperationSupport(order = 8)
     @ApiOperation("编辑打卡班次配置表")
     @CommonLog("编辑打卡班次配置表")
-    //@SaCheckPermission("/sys/userAttendanceConfig/edit")
+    //@SaCheckPermission("/sys/userAttendanceConfig/editConfig")
     @PostMapping("/sys/userAttendanceConfig/editConfig")
     public CommonResult<String> editConfig(@RequestBody @Valid AtdConfigListEditParam atdConfigListEditParam) {
         return CommonResult.data(hrUserAttendanceConfigService.editConfig(atdConfigListEditParam));

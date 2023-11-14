@@ -181,6 +181,7 @@ public class HrUserAttendanceConfigServiceImpl extends ServiceImpl<HrUserAttenda
         if(attendanceConfigList.size() == 0){
             return "1";
         }
+        setAttendanceConfig(attendanceConfigList);
         return this.saveOrUpdateBatch(attendanceConfigList) ? "1" : "-1";
     }
 

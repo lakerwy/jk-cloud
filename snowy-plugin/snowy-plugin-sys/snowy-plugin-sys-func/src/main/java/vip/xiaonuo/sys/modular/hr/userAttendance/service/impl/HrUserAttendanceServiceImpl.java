@@ -417,7 +417,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     }
 
     private List<AttendanceTimeSlot> getAttendanceTimeSlotData(List<HrUserAttendanceConfig> configList,Date dateNow,List<AttendanceTimeSlot>  attendanceTimeSlotList){
-        configList = configList.stream().sorted(Comparator.comparing(HrUserAttendanceConfig::getOrderNumber)).collect(Collectors.toList());//按照num排序，防止顺序错乱
+        configList = configList.stream().sorted(Comparator.comparing(HrUserAttendanceConfig::getId)).collect(Collectors.toList());//按照ID排序，防止顺序错乱
         for(HrUserAttendanceConfig attendanceConfig : configList){
             AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
             attendanceTimeSlot.setAttendanceTypeId(attendanceConfig.getAttendanceTypeId());
@@ -484,7 +484,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     @Override
     public Page<ErrorAttendanceData> errorPage(ErrorAttendancePageParam errorAttendancePageParam){
         Page<ErrorAttendanceData> page = new Page<>();
-        String day = StringUtils.isEmpty(errorAttendancePageParam.getDayTime()) ? DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN) : errorAttendancePageParam.getDayTime();
+        String day = StringUtils.isEmpty(errorAttendancePageParam.getDay()) ? DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN) : errorAttendancePageParam.getDay();
         String beginTime  = day+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue();
         String endTime = day+HrUserAttendanceStatEnum.END_TIME.getValue();
         List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list();

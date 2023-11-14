@@ -39,7 +39,7 @@ public class ErrorAttendancePageParam {
 
     /** 日期 */
     @ApiModelProperty(value = "日期：年月日")
-    private String dayTime;
+    private String day;
 
     @ApiModelProperty(value = "异常状态：-1 缺卡，3 迟到， 4 早退，5 严重迟到，6 严重早退，空值 返回所有数据")
     private Integer abnormalFlag;

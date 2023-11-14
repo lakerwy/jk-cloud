@@ -150,7 +150,7 @@ public class HrUserAttendanceConfigGroupController {
     @ApiOperationSupport(order = 7)
     @ApiOperation("考勤组负责人及考勤人员信息设置")
     @CommonLog("考勤组负责人及考勤人员信息设置")
-    //@SaCheckPermission("/sys/userAttendanceConfigGroup/delete")
+    //@SaCheckPermission("/sys/userAttendanceConfigGroup/configAndUserDataEdit")
     @PostMapping("/sys/userAttendanceConfigGroup/configAndUserDataEdit")
     public CommonResult<String> configAndUserDataEdit(@RequestBody @Valid HrAttendanceConfigAndUserDataParam hrAttendanceConfigAndUserDataParam) {
         return CommonResult.data(hrUserAttendanceConfigGroupService.configAndUserDataEdit(hrAttendanceConfigAndUserDataParam));
