@@ -143,7 +143,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.orderBy(true, hetongPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(hetongPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Hetong::getCreateTime);
+            queryWrapper.lambda().orderByDesc(Hetong::getContractNo);
         }
         return hetongMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -334,7 +334,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.orderBy(true, hetongPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(hetongPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Hetong::getCreateTime);
+            queryWrapper.lambda().orderByDesc(Hetong::getContractNo);
         }
         return hetongMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

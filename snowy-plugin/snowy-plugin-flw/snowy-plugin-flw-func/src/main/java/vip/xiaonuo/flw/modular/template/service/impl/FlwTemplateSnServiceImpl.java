@@ -136,11 +136,14 @@ public class FlwTemplateSnServiceImpl extends ServiceImpl<FlwTemplateSnMapper, F
         if(ObjectUtil.isNotEmpty(latestValue)) {
             // 校验上个值
             String oldSnCodeRemovePrefix = StrUtil.removePrefix(latestValue, flwTemplateSn.getPrefix());
+            //HT2023110056  2023110056
             String dateFormat = flwTemplateSn.getDateFormat();
             if(dateFormat.equals(SIMPLE_MONTH_PATTERN)){
                 //+01 是为了让202311 变为20231101 正常解析得到月份
-                boolean sameMonth = DateUtil.isSameMonth(DateTime.now(), DateUtil.parse(StrUtil.sub(oldSnCodeRemovePrefix, 0,
-                        oldSnCodeRemovePrefix.length() - flwTemplateSn.getSuffixDigits())+"01"));
+                String sub = StrUtil.sub(oldSnCodeRemovePrefix, 0,
+                        oldSnCodeRemovePrefix.length() - flwTemplateSn.getSuffixDigits());
+                String pattern = "yyyyMM";
+                boolean sameMonth = DateUtil.isSameMonth(DateTime.now(), DateUtil.parse(sub,pattern));
                 if(sameMonth) {
                     // 如果上次日期与当前日期是同一月，则再生成个新的，保存
                     genAndSaveSnCodeByOldCode(latestValue, flwTemplateSn);
