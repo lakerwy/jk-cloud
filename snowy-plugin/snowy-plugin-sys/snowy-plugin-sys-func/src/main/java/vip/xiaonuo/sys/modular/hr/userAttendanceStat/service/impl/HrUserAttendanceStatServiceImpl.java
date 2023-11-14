@@ -472,24 +472,19 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         Date beginDate = DateUtil.beginOfDay(DateUtil.date());
         Date endDate = DateUtil.endOfDay(DateUtil.date());
         AttendanceStatNumData attendanceStatNumData = new AttendanceStatNumData();
-        Long attendanceNum = this.count(new LambdaQueryWrapper<HrUserAttendanceStat>()
-                .between(HrUserAttendanceStat::getCheckTime,beginDate,endDate)
-                .groupBy(HrUserAttendanceStat::getUserId));
+
+        Long attendanceNum = hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>()
+                .between(HrAttendanceAnalStat::getCheckTime,beginDate,endDate));
         attendanceStatNumData.setAttendanceNum(attendanceNum);//打卡人数
 
         Long userNum = sysUserService.count(new LambdaQueryWrapper<SysUser>().isNotNull(SysUser::getAttendanceGroupId));
         attendanceStatNumData.setUserNum(userNum); //应到人数
         attendanceStatNumData.setNoAttendanceNum(userNum-attendanceNum); //未打卡人数
 
-        List<HrUserAttendanceStat> hrUserAttendanceStats = this.list(new LambdaQueryWrapper<HrUserAttendanceStat>()
-                .between(HrUserAttendanceStat::getCheckTime,beginDate,endDate));
-        attendanceStatNumData.setLateUserNum(0l);
-        hrUserAttendanceStats.forEach(stat -> {
-            if(stat.getAbnormalFlag() == 3){
-                Long lateUserNum = attendanceStatNumData.getLateUserNum();
-                attendanceStatNumData.setLateUserNum(lateUserNum++);//迟到人数
-            }
-        });
+        //迟到人数
+        Map<String, Object> map = hrAttendanceAnalStatService.getMap(new QueryWrapper<HrAttendanceAnalStat>().select("IFNULL(sum(LATE_FLAG),0) as lateNum")
+                .lambda().between(HrAttendanceAnalStat::getCheckTime,beginDate,endDate));
+        attendanceStatNumData.setLateUserNum(map.get("lateNum") == null ? 0l : Long.parseLong(map.get("lateNum").toString()));
 
         //外勤人数  -- 暂时不确定外勤人数
         attendanceStatNumData.setEgressNum(0l);

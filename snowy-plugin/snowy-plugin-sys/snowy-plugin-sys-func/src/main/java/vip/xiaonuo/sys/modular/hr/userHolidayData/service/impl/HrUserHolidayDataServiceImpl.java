@@ -97,7 +97,6 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
     public void add(HrUserHolidayDataAddParam hrUserHolidayDataAddParam) {
         HrUserHolidayData hrUserHolidayData = BeanUtil.toBean(hrUserHolidayDataAddParam, HrUserHolidayData.class);
         this.save(hrUserHolidayData);
-        this.save(hrUserHolidayData);
     }
 
     @Transactional(rollbackFor = Exception.class)

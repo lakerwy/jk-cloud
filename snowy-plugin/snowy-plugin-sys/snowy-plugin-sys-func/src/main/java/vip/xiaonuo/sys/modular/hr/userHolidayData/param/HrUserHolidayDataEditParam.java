@@ -96,4 +96,8 @@ public class HrUserHolidayDataEditParam {
     @ApiModelProperty(value = "假期类别：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7，出差 8", required = true,position = 17)
     private Integer applyType;
 
+    /** 理由 */
+    @ApiModelProperty(value = "理由", position = 18)
+    private Integer reason;
+
 }
