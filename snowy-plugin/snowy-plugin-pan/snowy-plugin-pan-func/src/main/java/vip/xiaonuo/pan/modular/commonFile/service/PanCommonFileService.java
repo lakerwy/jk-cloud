@@ -12,13 +12,13 @@
  */
 package vip.xiaonuo.pan.modular.commonFile.service;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
 import vip.xiaonuo.pan.modular.commonFile.param.*;
-import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFilePermissionVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonToMeVo;
+import vip.xiaonuo.pan.modular.fileCenter.entity.PanFilePermission;
 
 import java.util.List;
 
@@ -28,85 +28,51 @@ import java.util.List;
  * @author mayike
  * @date  2023/09/06 21:07
  **/
-public interface PanCommonFileService extends IService<PanCommonFile> {
-
-    /**
-     * 获取共享文件分页
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    Page<PanCommonFile> page(PanCommonFilePageParam panCommonFilePageParam);
-
-    /**
-     * 添加共享文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    void add(PanCommonFileAddParam panCommonFileAddParam);
-
-    /**
-     * 编辑共享文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    void edit(PanCommonFileEditParam panCommonFileEditParam);
-
-    /**
-     * 删除共享文件
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    void delete(List<PanCommonFileIdParam> panCommonFileIdParamList);
-
-    /**
-     * 获取共享文件详情
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     */
-    PanCommonFile detail(PanCommonFileIdParam panCommonFileIdParam);
-
-    /**
-     * 获取共享文件详情
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     **/
-    PanCommonFile queryEntity(String id);
-
+public interface PanCommonFileService extends IService<PanFilePermission> {
     /**
      * 将文件共享给他人
      *
      * @author mayike
      * @date  2023/09/06 21:07
      */
-    void commonFile(CommonFileParam commonFileParam);
+    void saveCommon(CommonFileParam commonFileParam);
 
     /**
-     * 获取共享空间的全量用户列表
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     **/
-    List<CommonFileUserVo> commonFileUser();
-
-    /**
-     * 获取共享用户的文件列表
-     *
-     * @author mayike
-     * @date  2023/09/06 21:07
-     **/
-    List<CommonFileVo> commonFileByUser(String userId);
-
-    /**
-     * 获取共享空间中某个用户的文件列表
+     * 共享文件，取消某些人的共享权限(支持批量)
      *
      * @author mayike
      * @date  2023/09/06 21:07
      */
-    IPage<CommonFileVo> commonFileList(PanCommonFilePageParam panCommonFilePageParam);
+    void removeCommon(RemoveCommonParam removeCommonParam);
+
+    /**
+     * 获取某个文件，某个人的权限配置详情
+     * @param commonUserParam
+     * @return
+     */
+    CommonFilePermissionVo detailByObjId(CommonUserParam commonUserParam);
+
+    /**
+     * 获取某个共享文件的权限配置详情
+     * @param userFileId
+     * @return
+     */
+    List<CommonFilePermissionVo> detailByFileId(String userFileId);
+
+
+    /**
+     * 共享给我列表
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     **/
+    Page<CommonToMeVo> commonToMePage(PanCommonFilePageParam panCommonFilePageParam);
+
+    /**
+     * 我的共享列表
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     */
+    Page<CommonFileVo> myCommonPage(PanCommonFilePageParam panCommonFilePageParam);
 }

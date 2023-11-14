@@ -33,7 +33,10 @@ public enum DevLogCategoryEnum {
     LOGIN("LOGIN"),
 
     /** 登出日志 */
-    LOGOUT("LOGOUT");
+    LOGOUT("LOGOUT"),
+
+    /** 文件操作日志 */
+    FILE_ACTION("FILE_ACTION");
 
     private final String value;
 

@@ -1,63 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.pan.modular.commonFile.mapper.PanCommonFileMapper">
-    <select id="selectCommonFileUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo">
-        SELECT distinct c.USER_ID as objId , IF(d.ID is not null,d.NAME,e.NAME) as objName,
-        IF(d.ID is not null,'1','2') as objType
-        FROM PAN_COMMON_FILE a
-             LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
-             LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
-             LEFT JOIN SYS_USER d ON c.USER_ID = d.ID
-            left join SYS_ORG e on c.USER_ID = e.ID
-        WHERE a.DELETE_FLAG = 'NOT_DELETE' and (b.USER_ID = #{userId}
-        <if test="orgIds != null and orgIds.size() !=0  ">
-            or b.USER_ID in
-            <foreach collection="orgIds" item="item" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-        </if>
-        )
+
+    <select id="detailByObjId" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFilePermissionVo">
+        SELECT a.*, IF(b.ID is not null,b.NAME,c.NAME) as objName, d.NAME as objMemo
+        FROM PAN_FILE_PERMISSION a
+                 LEFT JOIN SYS_USER b ON a.USER_ID = b.ID
+                 left join SYS_ORG c on a.USER_ID = c.ID
+                 left join SYS_ORG d on b.ORG_ID = d.ID
+        WHERE a.DELETE_FLAG = 'NOT_DELETE' and a.USER_ID = #{objId} and a.COMMON_FILE_ID = #{userFileId}
     </select>
 
-    <select id="selectCommonFileByUser" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
-        SELECT a.ID as id,b.FILE_PERMISSION_CODE as filePermissionCode,c.USER_ID as userId ,c.FILE_NAME as fileName,
-               b.USER_ID as objId , IF(d.ID is not null,d.NAME,e.NAME) as objName,IF(d.ID is not null,'1','2') as objType,
-               a.USER_FILE_ID as userFileId,
-               c.PARENT_ID as parentId, c.FILE_PATH as filePath,c.IS_DIR as isDir, c.FILE_ID as fileId,
-               c.ROOT_DIR as rootDir, c.ORG_ID as orgId, c.`right` as `right`, c.DATA_SCOPE_ID as dataScopeId,
-               c.LOCK_FLAG as lockFlag, c.FOLD_TYPE as foldType, c.EXTEND_NAME as extendName,
-               c.FILE_SIZE as fileSize, c.DELETE_BATCH_NUM as deleteBatchNum, c.DELETE_TIME as deleteTime,
-               a.DELETE_FLAG as deleteFlag
-        FROM PAN_COMMON_FILE a
-                 LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
-                 LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
-                 LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
-                 left join SYS_ORG e on b.USER_ID = e.ID
-        WHERE c.USER_ID = #{userId}  and a.DELETE_FLAG = 'NOT_DELETE' and (b.USER_ID = #{sessionUserId}
-        <if test="orgIds != null and orgIds.size() !=0  ">
-            or b.USER_ID in
-            <foreach collection="orgIds" item="item" open="(" close=")" separator=",">
-                #{item}
-            </foreach>
-        </if>
-        )
+    <select id="detailById" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFilePermissionVo">
+        SELECT a.*, IF(b.ID is not null,b.NAME,c.NAME) as objName, d.NAME as objMemo
+        FROM PAN_FILE_PERMISSION a
+                 LEFT JOIN SYS_USER b ON a.USER_ID = b.ID
+                 left join SYS_ORG c on a.USER_ID = c.ID
+                 left join SYS_ORG d on b.ORG_ID = d.ID
+        WHERE a.DELETE_FLAG = 'NOT_DELETE' and a.COMMON_FILE_ID = #{userFileId}
     </select>
 
-    <select id="myCommonFile" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
-        SELECT a.ID as id,b.FILE_PERMISSION_CODE as filePermissionCode,
-               c.FILE_NAME as fileName, c.USER_ID as userId ,
-               b.USER_ID as objId , IF(d.ID is not null,d.NAME,e.NAME) as objName,IF(d.ID is not null,'1','2') as objType,
-               a.USER_FILE_ID as userFileId,
-               c.PARENT_ID as parentId, c.FILE_PATH as filePath,c.IS_DIR as isDir, c.FILE_ID as fileId,
-               c.ROOT_DIR as rootDir, c.ORG_ID as orgId, c.`right` as `right`, c.DATA_SCOPE_ID as dataScopeId,
-               c.LOCK_FLAG as lockFlag, c.FOLD_TYPE as foldType, c.EXTEND_NAME as extendName,
-               c.FILE_SIZE as fileSize, c.DELETE_BATCH_NUM as deleteBatchNum, c.DELETE_TIME as deleteTime,
-               a.DELETE_FLAG as deleteFlag
-        FROM PAN_COMMON_FILE a
-                 LEFT JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
-                 LEFT JOIN PAN_USER_FILE c ON c.ID = a.USER_FILE_ID
-                 LEFT JOIN SYS_USER d ON b.USER_ID = d.ID
-                 left join SYS_ORG e on b.USER_ID = e.ID
+    <select id="myCommonPage" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
+        SELECT a.*
+        FROM PAN_USER_FILE a
+                 JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="commonToMePage" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonToMeVo">
+        SELECT b.*,
+               a.ID as commonId,a.COMMON_FILE_ID as commonFileId,a.FILE_PERMISSION_CODE as filePermissionCode,
+               c.NAME as objName,d.NAME as objMemo
+        FROM PAN_FILE_PERMISSION a
+                 JOIN PAN_USER_FILE b ON a.COMMON_FILE_ID = b.ID and b.DELETE_FLAG = 'NOT_DELETE'
+                 LEFT JOIN SYS_USER c ON b.USER_ID = c.ID
+                 left join SYS_ORG d on c.ORG_ID = d.ID
             ${ew.customSqlSegment}
     </select>
 

@@ -436,7 +436,8 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             //按照车辆、加油登记统计加油金额 【总加油金额 = 加油登记的加油金额】
             avgVehicleOilViewModel.setSubAmount(sumValue(fuellistRes.stream().filter(x->ObjectUtil.isNotEmpty(x.getVehicleId()) && x.getVehicleId().equals(vehicle.getId())).map(x->x.getAmount()).collect(Collectors.toList())));
             //油卡
-            avgVehicleOilViewModel.setOilCardNumber(fuellistRes.stream().filter(x->ObjectUtil.isNotEmpty(x.getVehicleId()) && x.getVehicleId().equals(vehicle.getId())).findFirst().orElse(null).getOilCard());
+            FuelRegister tmp = fuellistRes.stream().filter(x->ObjectUtil.isNotEmpty(x.getVehicleId()) && x.getVehicleId().equals(vehicle.getId())).findFirst().orElse(null);
+            avgVehicleOilViewModel.setOilCardNumber(ObjectUtil.isNotEmpty(tmp)?tmp.getOilCard():vehicle.getOilCardNumber());
             avgVehicleOilViewModel.setQuJian(quJian);
             avgVehicleOilViewModel.setVehicleId(vehicle.getId());
             avgVehicleOilViewModel.setLicenseNo(vehicle.getLicenseNo());
@@ -457,7 +458,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
                 avgDeptOilViewModel.setVehicleId(vehicleId);
                 avgDeptOilViewModel.setSubApplyMileages(sumValue(applyList.stream().filter(x->ObjectUtil.isNotEmpty(x.getVehicleId()) && x.getVehicleId().equals(vehicleId)).map(x->x.getSubTotal()).collect(Collectors.toList())));
                 AvgVehicleOilViewModel tmp = avgVehicleOilViewModelList.stream().filter(x->x.getVehicleId().equals(vehicleId)).findFirst().orElse(null);
-                avgDeptOilViewModel.setOilCardNumber(tmp.getOilCardNumber());
+                avgDeptOilViewModel.setOilCardNumber(ObjectUtil.isNotEmpty(tmp)?tmp.getOilCardNumber():"");
                 avgDeptOilViewModel.setLicenseNo(tmp.getLicenseNo());
                 avgDeptOilViewModel.setAvgOil(tmp.getAvgOil());
                 avgDeptOilViewModel.setSubAmount(tmp.getAvgOil().multiply(avgDeptOilViewModel.getSubApplyMileages()).setScale(2,BigDecimal.ROUND_HALF_UP));

@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.dev.modular.log.util;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -25,6 +26,8 @@ import vip.xiaonuo.dev.modular.log.service.DevLogService;
 import vip.xiaonuo.ten.api.TenApi;
 
 import javax.servlet.http.HttpServletRequest;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 日志工具类
@@ -145,5 +148,30 @@ public class DevLogUtil {
     private static void creatLogSignValue (DevLog devLog) {
         String logStr = devLog.toString().replaceAll(" +","");
         devLog.setSignData(CommonCryptogramUtil.doSignature(logStr));
+    }
+
+    /**
+     * 网盘文件操作-日志
+     *
+     * @author xuyuxiang
+     * @date 2022/9/2 16:08
+     */
+    public static void executeFileActionLog(String userName, String actionType, List<String> userFileIds) {
+        List<DevLog> addList = new ArrayList<>();
+        for (String userFileId:userFileIds) {
+            DevLog devLog = genBasOpLog();
+            devLog.setTenantId(tenApi.getCurrentTenId());
+            devLog.setCategory(DevLogCategoryEnum.FILE_ACTION.getValue());
+            devLog.setName(actionType);
+            devLog.setExeStatus(DevLogExeStatusEnum.SUCCESS.getValue());
+            devLog.setOpTime(DateTime.now());
+            devLog.setOpUser(userName);
+            devLog.setParamJson(userFileId);
+            creatLogSignValue(devLog);
+            addList.add(devLog);
+        }
+        if(CollUtil.isNotEmpty(addList)){
+            devLogService.saveBatch(addList);
+        }
     }
 }

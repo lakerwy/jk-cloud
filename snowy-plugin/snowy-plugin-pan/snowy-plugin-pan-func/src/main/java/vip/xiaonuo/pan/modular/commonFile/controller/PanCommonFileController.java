@@ -12,7 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.commonFile.controller;
 
-import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -26,8 +26,9 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.service.PanCommonFileService;
-import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFilePermissionVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonToMeVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -56,46 +57,71 @@ public class PanCommonFileController {
      * @author mayike
      * @date  2023/09/06 21:07
      */
-    @ApiOperationSupport(order = 6)
+    @ApiOperationSupport(order = 1)
     @ApiOperation("将文件共享给他人(并设置权限)")
     @CommonLog("将文件共享给他人(并设置权限)")
-    @PostMapping("/pan/commonFile/commonFile")
-    public CommonResult<String> commonFile(@RequestBody @Valid CommonFileParam commonFileParam) {
-        panCommonFileService.commonFile(commonFileParam);
+    @PostMapping("/pan/commonFile/saveCommon")
+    public CommonResult<String> saveCommon(@RequestBody @Valid CommonFileParam commonFileParam) {
+        panCommonFileService.saveCommon(commonFileParam);
         return CommonResult.ok();
     }
 
     /**
-     * 获取共享空间的全量用户列表
+     * 共享文件，取消某些人的共享权限(支持批量)
      *
-     * 共享文件用户接口(共享给我文件的所有用户集合)
+     * 权限共享统一接口
      *
      * @author mayike
-     * @date  2023/09/06 21:07
+     * @date  2023/11/14 09:07
      */
-    @ApiOperationSupport(order = 7)
-    @ApiOperation("获取共享空间的全量用户列表(共享给我文件的所有用户集合)")
-//    @SaCheckPermission("/pan/commonFile/commonFileUser")
-    @GetMapping("/pan/commonFile/commonFileUser")
-    public CommonResult<List<CommonFileUserVo>> commonFileUser() {
-        return CommonResult.data(panCommonFileService.commonFileUser());
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("共享文件，取消某些人的共享权限")
+    @CommonLog("共享文件，取消某些人的共享权限")
+    @PostMapping("/pan/commonFile/removeCommon")
+    public CommonResult<String> removeCommon(@RequestBody @Valid RemoveCommonParam removeCommonParam) {
+        panCommonFileService.removeCommon(removeCommonParam);
+        return CommonResult.ok();
     }
 
 
     /**
-     * 获取共享用户文件列表
-     * 收到的共享(某人共享给我的文件列表)
-     * 用来做前台列表展示
+     * 获取某个文件，某个人的权限配置详情
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("获取某个文件，某个人的权限配置详情")
+    @GetMapping("/pan/commonFile/detailByObjId")
+    public CommonResult<CommonFilePermissionVo> detailByObjId(CommonUserParam commonUserParam) {
+        return CommonResult.data(panCommonFileService.detailByObjId(commonUserParam));
+    }
+
+    /**
+     * 获取某个共享文件的权限配置详情
+     *
+     * @author mayike
+     * @date  2023/09/06 21:07
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("获取某个共享文件的权限配置详情")
+    @GetMapping("/pan/commonFile/detailByFileId")
+    public CommonResult<List<CommonFilePermissionVo>> detailByFileId(String userFileId) {
+        return CommonResult.data(panCommonFileService.detailByFileId(userFileId));
+    }
+
+
+    /**
+     * 获取共享给我的文件列表(共享给我)
      *
      * @author mayike
      * @date  2023/09/06 21:07
      */
     @ApiOperationSupport(order = 8)
-    @ApiOperation("获取共享用户的文件列表，收到的共享(某人共享给我的文件列表)")
-//    @SaCheckPermission("/pan/commonFile/commonFileByUser")
-    @GetMapping("/pan/commonFile/commonFileByUser")
-    public CommonResult<List<CommonFileVo>> commonFileByUser(String userId) {
-        return CommonResult.data(panCommonFileService.commonFileByUser(userId));
+    @ApiOperation("获取共享给我的文件列表(共享给我)")
+    @GetMapping("/pan/commonFile/commonToMePage")
+    public CommonResult<Page<CommonToMeVo>> commonToMePage(PanCommonFilePageParam panCommonFilePageParam) {
+        return CommonResult.data(panCommonFileService.commonToMePage(panCommonFilePageParam));
     }
 
     /**
@@ -107,10 +133,9 @@ public class PanCommonFileController {
      */
     @ApiOperationSupport(order = 9)
     @ApiOperation("获取共享文件分页（我的共享）")
-//    @SaCheckPermission("/pan/commonFile/commonFileList")
-    @GetMapping("/pan/commonFile/commonFileList")
-    public CommonResult<IPage<CommonFileVo>> commonFileList(PanCommonFilePageParam panCommonFilePageParam) {
-        return CommonResult.data(panCommonFileService.commonFileList(panCommonFilePageParam));
+    @GetMapping("/pan/commonFile/myCommonPage")
+    public CommonResult<Page<CommonFileVo>> myCommonPage(PanCommonFilePageParam panCommonFilePageParam) {
+        return CommonResult.data(panCommonFileService.myCommonPage(panCommonFilePageParam));
     }
 
 }

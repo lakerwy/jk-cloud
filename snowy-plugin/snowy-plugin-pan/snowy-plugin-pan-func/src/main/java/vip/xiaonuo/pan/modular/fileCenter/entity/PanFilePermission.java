@@ -20,7 +20,11 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 文件权限实体
+ * 文件权限实体(共享文件设置)
+ *
+ * commonFileId：文件Id（被共享的文件）
+ * userId: 共享对象（共享给谁）
+ * filePermissionCode：所拥有的权限配置值（共享权限）
  *
  * @author mayike
  * @date  2023/09/06 21:15

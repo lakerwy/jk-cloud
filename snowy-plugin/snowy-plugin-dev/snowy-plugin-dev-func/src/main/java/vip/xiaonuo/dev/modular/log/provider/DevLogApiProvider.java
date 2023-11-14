@@ -67,4 +67,9 @@ public class DevLogApiProvider implements DevLogApi {
                 .orderByDesc(DevLog::getCreateTime))
                 .getRecords().stream().map(JSONUtil::parseObj).collect(Collectors.toList());
     }
+
+    @Override
+    public void executeFileActionLog(String userName, String actionType, List<String> userFileIds) {
+        DevLogUtil.executeFileActionLog(userName,actionType,userFileIds);
+    }
 }

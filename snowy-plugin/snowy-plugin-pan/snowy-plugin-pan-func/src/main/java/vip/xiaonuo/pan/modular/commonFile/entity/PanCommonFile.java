@@ -20,7 +20,9 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 共享文件实体
+ * 共享文件实体（新共享逻辑：本表舍弃不用）
+ *
+ * 现在逻辑：一个文件UserFile.Id 被共享出去，在PanFilePermission中记录共享给谁，每个人的权限是啥
  *
  * @author mayike
  * @date  2023/09/06 21:07

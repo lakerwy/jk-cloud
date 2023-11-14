@@ -55,4 +55,12 @@ public interface DevLogApi {
      * @date 2022/9/4 15:12
      */
     List<JSONObject> currentUserOpLogList();
+
+    /**
+     * 记录文件操作日志
+     *
+     * @author xuyuxiang
+     * @date 2022/9/2 16:03
+     */
+    void executeFileActionLog(String userName, String actionType, List<String> userFileIds);
 }

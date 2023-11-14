@@ -16,9 +16,9 @@ import java.util.List;
 @Setter
 public class CommonFileParam {
 
-    /** 用户文件id集合 */
-    @ApiModelProperty(value = "用户文件id集合", position = 1)
-    private List<String> userFileIdList;
+    /** 待共享的文件id */
+    @ApiModelProperty(value = "待共享的文件id", position = 1)
+    private String userFileId;
 
     /** 共享用户 权限分配 集合 */
     @ApiModelProperty(value = "共享用户 权限分配 集合", position = 2)

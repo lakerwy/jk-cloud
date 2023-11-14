@@ -14,13 +14,13 @@ package vip.xiaonuo.pan.modular.commonFile.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
-import vip.xiaonuo.pan.modular.commonFile.entity.PanCommonFile;
-import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileUserVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonFilePermissionVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
+import vip.xiaonuo.pan.modular.commonFile.vo.CommonToMeVo;
+import vip.xiaonuo.pan.modular.fileCenter.entity.PanFilePermission;
 
 import java.util.List;
 
@@ -30,14 +30,26 @@ import java.util.List;
  * @author mayike
  * @date  2023/09/06 21:07
  **/
-public interface PanCommonFileMapper extends BaseMapper<PanCommonFile> {
+public interface PanCommonFileMapper extends BaseMapper<PanFilePermission> {
 
-    /** 共享给我 - 共享用户列表 **/
-    List<CommonFileUserVo> selectCommonFileUser(@Param("userId") String userId,List<String> orgIds);
+    /** 共享给我 - 共享给我的文件列表 **/
+    Page<CommonToMeVo> commonToMePage(Page<CommonToMeVo> page, @Param(Constants.WRAPPER) Wrapper<PanFilePermission> queryWrapper);
 
-    /** 共享给我 - 某人共享的文件列表 **/
-    List<CommonFileVo> selectCommonFileByUser(@Param("userId") String userId, @Param("sessionUserId") String sessionUserId,List<String> orgIds);
+    /** 我的共享 - 我共享出去的文件列表 **/
+    Page<CommonFileVo> myCommonPage(Page<CommonFileVo> page, @Param(Constants.WRAPPER) Wrapper<PanFilePermission> queryWrapper);
 
-    /** 我的共享 - 所共享的文件列表 **/
-    IPage<CommonFileVo> myCommonFile(Page<CommonFileVo> page, @Param(Constants.WRAPPER) Wrapper<PanCommonFile> queryWrapper);
+    /**
+     * 根据文件Id，共享对象Id，获取文件共享者权限详情
+     * @param userFileId 共享的文件Id
+     * @param objId 文件共享对象Id
+     * @return
+     */
+    CommonFilePermissionVo detailByObjId(String userFileId,String objId);
+
+    /**
+     * 根据共享文件Id，获取文件共享权限详情
+     * @param userFileId 共享的文件Id
+     * @return
+     */
+    List<CommonFilePermissionVo> detailById(String userFileId);
 }

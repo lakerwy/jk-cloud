@@ -58,7 +58,7 @@ public class VehicleFeesController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取CAR-费用管理分页")
-    @SaCheckPermission("/biz/car/vehicleFees/getVehicleFeesPageList")
+//    @SaCheckPermission("/biz/car/vehicleFees/getVehicleFeesPageList")
     @GetMapping("/biz/car/vehicleFees/getVehicleFeesPageList")
     public CommonResult<Page<VehicleFees>> page(VehicleFeesPageParam vehicleFeesPageParam) {
         return CommonResult.data(vehicleFeesService.page(vehicleFeesPageParam));
@@ -73,7 +73,7 @@ public class VehicleFeesController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加CAR-费用管理")
     @CommonLog("添加CAR-费用管理")
-    @SaCheckPermission("/biz/car/vehicleFees/addVehicleFees")
+//    @SaCheckPermission("/biz/car/vehicleFees/addVehicleFees")
     @PostMapping("/biz/car/vehicleFees/addVehicleFees")
     public CommonResult<String> add(@RequestBody @Valid VehicleFeesAddParam vehicleFeesAddParam) {
         vehicleFeesService.add(vehicleFeesAddParam);
@@ -89,7 +89,7 @@ public class VehicleFeesController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑CAR-费用管理")
     @CommonLog("编辑CAR-费用管理")
-    @SaCheckPermission("/biz/car/vehicleFees/updateVehicleFees")
+//    @SaCheckPermission("/biz/car/vehicleFees/updateVehicleFees")
     @PostMapping("/biz/car/vehicleFees/updateVehicleFees")
     public CommonResult<String> edit(@RequestBody @Valid VehicleFeesEditParam vehicleFeesEditParam) {
         vehicleFeesService.edit(vehicleFeesEditParam);
@@ -105,7 +105,7 @@ public class VehicleFeesController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除CAR-费用管理")
     @CommonLog("删除CAR-费用管理")
-    @SaCheckPermission("/biz/car/vehicleFees/deleteVehicleFees")
+//    @SaCheckPermission("/biz/car/vehicleFees/deleteVehicleFees")
     @PostMapping("/biz/car/vehicleFees/deleteVehicleFees")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<VehicleFeesIdParam> vehicleFeesIdParamList) {
@@ -121,7 +121,7 @@ public class VehicleFeesController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取CAR-费用管理详情")
-    @SaCheckPermission("/biz/car/vehicleFees/getVehicleFeesDetail")
+//    @SaCheckPermission("/biz/car/vehicleFees/getVehicleFeesDetail")
     @GetMapping("/biz/car/vehicleFees/getVehicleFeesDetail")
     public CommonResult<VehicleFees> detail(@Valid VehicleFeesIdParam vehicleFeesIdParam) {
         return CommonResult.data(vehicleFeesService.detail(vehicleFeesIdParam));
@@ -135,7 +135,7 @@ public class VehicleFeesController {
      */
     @ApiOperationSupport(order = 6)
     @ApiOperation("费用统计表")
-    @SaCheckPermission("/biz/car/vehicleFees/getFeeChart")
+//    @SaCheckPermission("/biz/car/vehicleFees/getFeeChart")
     @GetMapping("/biz/car/vehicleFees/getFeeChart")
     public CommonResult<FeeChartViewModel> getFeeChart(@Valid FeeChartParam feeChartParam) {
         return CommonResult.data(vehicleFeesService.getFeeChart(feeChartParam));
