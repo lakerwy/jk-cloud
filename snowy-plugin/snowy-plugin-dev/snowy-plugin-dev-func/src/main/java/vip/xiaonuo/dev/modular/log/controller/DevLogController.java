@@ -137,9 +137,9 @@ public class DevLogController {
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("获取网盘文件操作日志分页")
-    @GetMapping("/dev/log/page")
+    @GetMapping("/dev/log/fileActionLogPage")
     public CommonResult<Page<DevLog>> fileActionLogPage(DevLogPageParam devLogPageParam) {
         return CommonResult.data(devLogService.fileActionLogPage(devLogPageParam));
     }
