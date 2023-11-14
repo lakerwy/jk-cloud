@@ -199,7 +199,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));//取考勤缓存数据
         List<AttendanceTimeSlot> slotList = new ArrayList<>();
         Map<String,String> configMap = new HashMap<>();
-        if(StringUtils.isNotEmpty(cache)){
+        if(StringUtils.isNotEmpty(cache) && !cache.equals("null")){
             configMap = (Map)JSON.parse(cache);
         }
         SysUser sysUser = sysUserService.queryEntity(configCacheListParam.getUserId());
@@ -220,10 +220,10 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         String cache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_KEY));//取考勤缓存数据
         List<AttendanceTimeSlot> slotList = new ArrayList<>();
         Map<String,String> configMap = new HashMap<>();
-        if(StringUtils.isNotEmpty(cache)){
+        if(StringUtils.isNotEmpty(cache) && !cache.equals("null")){
             configMap = (Map)JSON.parse(cache);
         }
-        if(StringUtils.isNotEmpty(attendanceGroupId) && ObjectUtil.isNotEmpty(configMap.get(attendanceGroupId))){
+        if(StringUtils.isNotEmpty(attendanceGroupId) && ObjectUtil.isNotEmpty(configMap) && ObjectUtil.isNotEmpty(configMap.get(attendanceGroupId))){
             slotList = JSONArray.parseArray(configMap.get(attendanceGroupId), AttendanceTimeSlot.class);
             return timeSlots(slotList,dateNow);
         }
@@ -447,35 +447,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         return attendanceTimeSlotList;
     }
 
-
-    /*public Page<ErrorAttendanceData> errorPage(ErrorAttendancePageParam errorAttendancePageParam){
-        QueryWrapper<HrUserAttendanceStat> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(errorAttendancePageParam.getBeginTime()) && ObjectUtil.isNotEmpty(errorAttendancePageParam.getEndTime())) {
-            queryWrapper.lambda().between(HrUserAttendanceStat::getCheckTime, errorAttendancePageParam.getBeginTime(), errorAttendancePageParam.getEndTime());
-        }
-        //迟到，严重迟到，早退，严重早退，缺卡
-        if(ObjectUtil.isNotEmpty(errorAttendancePageParam.getAbnormalFlag())){
-
-        }
-        //Page<HrUserAttendanceStat> page = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(), queryWrapper);
-        Page<ErrorAttendanceData> page = new Page<>();
-        List<ErrorAttendanceData> errorAttendanceDataList = new ArrayList<>();
-        errorAttendanceDataList.add(setTest(new ErrorAttendanceData()));
-        page.setRecords(errorAttendanceDataList);
-        page.setTotal(1);
-        return page;
-    }
-    private ErrorAttendanceData setTest(ErrorAttendanceData errorAttendanceData){
-        errorAttendanceData.setAttendanceGroupName("建科标准考勤");
-        errorAttendanceData.setUserId("1712671668407353345");
-        errorAttendanceData.setUserName("刘见宇");
-        errorAttendanceData.setErrorStatus("迟到1分钟");
-        errorAttendanceData.setTime("上班 08:30");
-        errorAttendanceData.setCheckTime("08:31");
-        errorAttendanceData.setAttendanceId("1712477350581215233");
-        return errorAttendanceData;
-    }*/
-
     private List<ErrorAttendanceData> setAtdErrorStat(List<HrUserAttendanceStat> statList,Map<String,Map<String,String>> map){
         List<ErrorAttendanceData> errorList = new ArrayList<>();
         for(HrUserAttendanceStat stat : statList){
@@ -508,35 +479,6 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             errorAttendanceData.setUpdateUser(stat.getUpdateUser());
             errorList.add(errorAttendanceData);
         }
-        /*List<ErrorAttendanceData> errorList = statList.stream().map(stat -> {
-            ErrorAttendanceData errorAttendanceData = new ErrorAttendanceData();
-            errorAttendanceData.setAttendanceGroupName(stat.getAttendanceTypeName());
-            errorAttendanceData.setUserId(stat.getUserId());
-            errorAttendanceData.setUserName(stat.getUserName());
-
-            Map<String,String> mapAtdConf = map.get(stat.getAttendanceTypeId()) != null ? map.get(stat.getAttendanceTypeId()) : new HashMap<>();
-            String checkTime = mapAtdConf.get(stat.getCheckType()) == null ? "" : mapAtdConf.get(stat.getCheckType());
-
-            Date ondutyTime = CommonTimeFormatUtil.strToDate(DateUtil.format(stat.getCheckTime(),DatePattern.NORM_DATE_PATTERN)+" 08:30:00",DatePattern.NORM_DATETIME_PATTERN);
-            //Date offdutyTime = CommonTimeFormatUtil.strToDate(DateUtil.format(stat.getCheckTime(),DatePattern.NORM_DATE_PATTERN)+" 17:30:00",DatePattern.NORM_DATETIME_PATTERN);
-
-            String ondutyMinute = stat.getAbnormalFlag() == 3  ? String.valueOf(DateUtil.between(stat.getCheckTime(),ondutyTime, DateUnit.MINUTE)) : "";
-            String offdutyMinute = stat.getAbnormalFlag() == 4 ? String.valueOf(DateUtil.between(stat.getCheckTime(),ondutyTime, DateUnit.MINUTE)) : "";
-            String errorStatus = stat.getAbnormalFlag() == null ? "打卡异常" : stat.getAbnormalFlag() == -1 ? " 缺卡" :
-                    stat.getAbnormalFlag() == 3 ? "迟到"+ondutyMinute+"分钟" :
-                    stat.getAbnormalFlag() == 4 ?  "早退"+offdutyMinute+"分钟" : "";
-            errorAttendanceData.setErrorStatus(errorStatus);
-            //OnDuty：上班；OffDuty：下班；休息 REST
-
-
-            String timeStr = stat.getCheckType().equals("OnDuty") ? "上班 "+checkTime : stat.getCheckType().equals("OffDuty") ? "下班 "+checkTime:"";
-            errorAttendanceData.setTime(timeStr);
-            errorAttendanceData.setCheckTime(DateUtil.format(stat.getCheckTime(),"HH:mm"));
-            errorAttendanceData.setAttendanceId(stat.getId());
-            errorAttendanceData.setUpdateTime(stat.getUpdateTime());
-            errorAttendanceData.setUpdateUser(stat.getUpdateUser());
-            return errorAttendanceData;
-        }).collect(Collectors.toList());*/
         return errorList;
     }
     @Override
