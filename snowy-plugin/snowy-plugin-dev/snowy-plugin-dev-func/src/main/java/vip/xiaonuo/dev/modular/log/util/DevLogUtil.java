@@ -156,22 +156,27 @@ public class DevLogUtil {
      * @author xuyuxiang
      * @date 2022/9/2 16:08
      */
-    public static void executeFileActionLog(String userName, String actionType, List<String> userFileIds) {
-        List<DevLog> addList = new ArrayList<>();
-        for (String userFileId:userFileIds) {
-            DevLog devLog = genBasOpLog();
-            devLog.setTenantId(tenApi.getCurrentTenId());
-            devLog.setCategory(DevLogCategoryEnum.FILE_ACTION.getValue());
-            devLog.setName(actionType);
-            devLog.setExeStatus(DevLogExeStatusEnum.SUCCESS.getValue());
-            devLog.setOpTime(DateTime.now());
-            devLog.setOpUser(userName);
-            devLog.setParamJson(userFileId);
-            creatLogSignValue(devLog);
-            addList.add(devLog);
-        }
-        if(CollUtil.isNotEmpty(addList)){
-            devLogService.saveBatch(addList);
+    public static void executeFileActionLog(String userName, String actionType,String message, List<String> userFileIds) {
+        try {
+            List<DevLog> addList = new ArrayList<>();
+            for (String userFileId : userFileIds) {
+                DevLog devLog = genBasOpLog();
+                devLog.setTenantId(tenApi.getCurrentTenId());
+                devLog.setCategory(DevLogCategoryEnum.FILE_ACTION.getValue()); //分类
+                devLog.setName(actionType);  //文件操作类型
+                devLog.setExeStatus(DevLogExeStatusEnum.SUCCESS.getValue());
+                devLog.setOpTime(DateTime.now());
+                devLog.setOpUser(userName);      //操作人
+                devLog.setParamJson(userFileId); //文件Id
+                devLog.setExeMessage(message);  //备注
+                creatLogSignValue(devLog);
+                addList.add(devLog);
+            }
+            if (CollUtil.isNotEmpty(addList)) {
+                devLogService.saveBatch(addList);
+            }
+        }catch (Exception e){
+            //记录日志异常不做处理
         }
     }
 }

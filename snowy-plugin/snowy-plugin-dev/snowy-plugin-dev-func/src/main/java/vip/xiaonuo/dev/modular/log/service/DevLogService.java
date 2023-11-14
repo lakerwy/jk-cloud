@@ -79,4 +79,11 @@ public interface DevLogService extends IService<DevLog> {
      * @date 2022/9/4 21:18
      */
     List<DevLogOpPieChartDataResult> opLogPieChartData();
+
+    /**
+     * 根据日志分类+文件Id，获取操作日志
+     * @param devLogPageParam
+     * @return
+     */
+    Page<DevLog> fileActionLogPage(DevLogPageParam devLogPageParam);
 }

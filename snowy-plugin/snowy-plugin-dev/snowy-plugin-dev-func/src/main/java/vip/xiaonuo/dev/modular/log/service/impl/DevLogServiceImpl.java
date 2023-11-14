@@ -174,4 +174,24 @@ public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> impleme
         resultList.add(devLogExceptionPieChartDataResult);
         return resultList;
     }
+
+    @Override
+    public Page<DevLog> fileActionLogPage(DevLogPageParam devLogPageParam) {
+        QueryWrapper<DevLog> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(DevLog::getCategory, DevLogCategoryEnum.FILE_ACTION.getValue());
+        if(ObjectUtil.isNotEmpty(devLogPageParam.getFileId())){
+            queryWrapper.lambda().eq(DevLog::getParamJson,devLogPageParam.getFileId());
+        }
+        if(ObjectUtil.isNotEmpty(devLogPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(DevLog::getName, devLogPageParam.getSearchKey());
+        }
+        if(ObjectUtil.isAllNotEmpty(devLogPageParam.getSortField(), devLogPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(devLogPageParam.getSortOrder());
+            queryWrapper.orderBy(true, devLogPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(devLogPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(DevLog::getCreateTime);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
 }

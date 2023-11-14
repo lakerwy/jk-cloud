@@ -49,4 +49,8 @@ public class DevLogPageParam {
     /** 日志名称关键词 */
     @ApiModelProperty(value = "日志名称关键词")
     private String searchKey;
+
+    /** 文件Id */
+    @ApiModelProperty(value = "文件Id")
+    private String fileId;
 }

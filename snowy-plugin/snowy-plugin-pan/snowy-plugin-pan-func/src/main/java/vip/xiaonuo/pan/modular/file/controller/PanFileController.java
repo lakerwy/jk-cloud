@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.file.controller;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -34,6 +35,7 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
+import vip.xiaonuo.dev.api.DevLogApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
@@ -61,6 +63,7 @@ import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.MimeUtils;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.enums.FileActionEnum;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
@@ -126,6 +129,9 @@ public class PanFileController {
     @Resource
     private DevFileService devFileService;
 
+    @Resource
+    private DevLogApi devLogApi;
+
     /**
      * 获取文件详情
      *
@@ -177,8 +183,11 @@ public class PanFileController {
             return CommonResult.error("存储空间不足");
         }
         UploadFileVo uploadFileVo = fileTransferService.uploadFileSpeed(uploadFileParam);
-        return CommonResult.data(uploadFileVo);
 
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(uploadFileParam.getParentId()));
+
+        return CommonResult.data(uploadFileVo);
     }
 
     @ApiOperationSupport(order = 8)
@@ -192,6 +201,10 @@ public class PanFileController {
         panFileRightService.checkFileRight(Arrays.asList(parentUserFile.getId()),FileRight.UPLOAD,uploadFileParam.getRightType());
 
         fileTransferService.uploadFile(request,uploadFileParam);
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(parentUserFile.getId()));
+
         return CommonResult.ok();
     }
 
@@ -247,6 +260,8 @@ public class PanFileController {
                 httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName + ".zip");// 设置文件名
                 fileTransferService.downloadUserFileList(httpServletResponse, userFile.getFilePath(), fileName, userFileIds,downloadParam.getRightType());
             }
+            //记录文件操作日志
+            devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.DOWNLOAD.getValue(),"", collect);
         }
     }
 
@@ -255,6 +270,10 @@ public class PanFileController {
 //    @SaCheckPermission("/pan/file/uploadFile")
     @GetMapping("/pan/file/preview")
     public void preview(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,  PreviewParam previewParam) throws IOException {
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.PREVIEW.getValue(),"", CollUtil.newArrayList(previewParam.getUserFileId()));
+
         if (previewParam.getPlatform() != null && previewParam.getPlatform() == 2) {
             fileTransferService.previewPictureFile(httpServletResponse, previewParam);
             return ;
@@ -410,6 +429,10 @@ public class PanFileController {
     @ApiOperation("编辑office文件")
     @PostMapping(value = "/pan/file/editOfficeFile")
     public CommonResult<JSONObject> editOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.EDIT.getValue(),"", CollUtil.newArrayList(previewOfficeFileParam.getUserFileId()));
+
         CommonResult<JSONObject> result;
         //String token = request.getHeader("Token");
         String previewUrl = commonProperties.getBackendUrl()+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";

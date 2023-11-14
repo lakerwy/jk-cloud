@@ -27,9 +27,11 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.api.DevLogApi;
 import vip.xiaonuo.pan.modular.fileCenter.component.AsyncTaskComp;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
+import vip.xiaonuo.pan.modular.fileRight.enums.FileActionEnum;
 import vip.xiaonuo.pan.modular.recoveryfile.entity.PanRecoveryFile;
 import vip.xiaonuo.pan.modular.recoveryfile.mapper.PanRecoveryFileMapper;
 import vip.xiaonuo.pan.modular.recoveryfile.param.PanRecoveryFileAddParam;
@@ -44,7 +46,9 @@ import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 网盘-回收站Service接口实现类
@@ -69,6 +73,9 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
 
     @Resource
     AsyncTaskComp asyncTaskComp;
+
+    @Resource
+    DevLogApi devLogApi;
 
 
     @Override
@@ -155,6 +162,8 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
 
     @Override
     public void batchDelete(List<PanRecoveryFileIdParam> recoveryFileIdParamList) {
+        //文件Id
+        List<String> userFileIds = new ArrayList<>();
         //主键
         List<String> Ids = CollStreamUtil.toList(recoveryFileIdParamList, PanRecoveryFileIdParam::getId);
         for (String id:Ids) {
@@ -162,8 +171,11 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
             if(ObjectUtil.isNotEmpty(panRecoveryFile)){
                 asyncTaskComp.deleteUserFile(panRecoveryFile.getUserFileId());
                 this.removeById(panRecoveryFile.getId());
+                userFileIds.add(panRecoveryFile.getUserFileId());
             }
         }
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.RECOVERY.getValue(),"", userFileIds);
     }
 
     @Override
@@ -196,6 +208,9 @@ public class PanRecoveryFileServiceImpl extends ServiceImpl<PanRecoveryFileMappe
         QueryWrapper<PanRecoveryFile> queryWrapper1 = new QueryWrapper<>();
         queryWrapper1.lambda().eq(PanRecoveryFile::getDeleteBatchNum,restoreFileDto.getDeleteBatchNum());
         this.remove(queryWrapper1);
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.RESTORE.getValue(),"", restoreUserFileList.stream().map(x->x.getId()).collect(Collectors.toList()));
     }
 
     @Override

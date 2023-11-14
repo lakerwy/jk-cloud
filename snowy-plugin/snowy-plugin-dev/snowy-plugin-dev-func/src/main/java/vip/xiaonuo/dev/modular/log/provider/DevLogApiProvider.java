@@ -69,7 +69,7 @@ public class DevLogApiProvider implements DevLogApi {
     }
 
     @Override
-    public void executeFileActionLog(String userName, String actionType, List<String> userFileIds) {
-        DevLogUtil.executeFileActionLog(userName,actionType,userFileIds);
+    public void executeFileActionLog(String userName, String actionType,String message, List<String> userFileIds) {
+        DevLogUtil.executeFileActionLog(userName,actionType,message,userFileIds);
     }
 }

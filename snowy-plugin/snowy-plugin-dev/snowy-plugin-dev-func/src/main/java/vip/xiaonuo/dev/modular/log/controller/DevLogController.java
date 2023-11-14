@@ -130,4 +130,17 @@ public class DevLogController {
     public CommonResult<List<DevLogOpPieChartDataResult>> opLogPieChartData() {
         return CommonResult.data(devLogService.opLogPieChartData());
     }
+
+    /**
+     * 获取网盘文件操作日志分页
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取网盘文件操作日志分页")
+    @GetMapping("/dev/log/page")
+    public CommonResult<Page<DevLog>> fileActionLogPage(DevLogPageParam devLogPageParam) {
+        return CommonResult.data(devLogService.fileActionLogPage(devLogPageParam));
+    }
 }

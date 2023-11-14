@@ -62,5 +62,5 @@ public interface DevLogApi {
      * @author xuyuxiang
      * @date 2022/9/2 16:03
      */
-    void executeFileActionLog(String userName, String actionType, List<String> userFileIds);
+    void executeFileActionLog(String userName, String actionType,String message, List<String> userFileIds);
 }

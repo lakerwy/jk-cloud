@@ -29,9 +29,11 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.api.DevLogApi;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.enums.FileActionEnum;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.share.entity.PanShare;
 import vip.xiaonuo.pan.modular.share.enums.PanShareStatusEnum;
@@ -74,6 +76,9 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
 
     @Resource
     PanFileRightService panFileRightService;
+
+    @Resource
+    DevLogApi devLogApi;
 
     @Override
     public Page<PanShare> page(PanSharePageParam panSharePageParam) {
@@ -148,7 +153,6 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
         //校验权限
         panFileRightService.checkFileRight(shareFileDto.getUserFileIds(), FileRight.SHARE_LINK,shareFileDto.getRightType());
 
-
         //返回结果
         ShareFileVo shareFileVo = new ShareFileVo();
         //用户Id
@@ -196,6 +200,10 @@ public class PanShareServiceImpl extends ServiceImpl<PanShareMapper, PanShare> i
         }
         panShareFileService.saveBatch(panShareFileList);
         shareFileVo.setShareBatchNum(batchId);
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.SHARE_LINK.getValue(),"",shareFileDto.getUserFileIds());
+
         return shareFileVo;
     }
 

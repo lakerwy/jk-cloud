@@ -23,11 +23,14 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.dev.api.DevLogApi;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
+import vip.xiaonuo.pan.modular.fileRight.enums.FileActionEnum;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
@@ -59,6 +62,9 @@ public class UserFileController {
 
     @Resource
     private PanFileRightService panFileRightService;
+
+    @Resource
+    DevLogApi devLogApi;
 
 
     /**
@@ -98,11 +104,9 @@ public class UserFileController {
     @CommonLog("本地文件创建文件夹")
     @PostMapping("/pan/fold/createFold")
     public CommonResult<String> createFold(@Valid @RequestBody UserFileAddParam userFileAddParam) {
-
         //校验权限
         UserFile parentUserFile = userFileService.getParentIdByPath(userFileAddParam.getFilePath());
         panFileRightService.checkFileRight(Collections.singletonList(parentUserFile.getId()), FileRight.CREATE,userFileAddParam.getRightType());
-
 
         //判断文件夹是否存在
         UserFile userFile = BeanUtil.copyProperties(userFileAddParam, UserFile.class);
@@ -111,6 +115,8 @@ public class UserFileController {
             return  CommonResult.error("同名文件夹已存在,请修改名称后在操作");
         }
         userFileService.add(userFileAddParam);
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.CREATE_FOLD.getValue(),userFile.getFileName(),Arrays.asList(parentUserFile.getId()));
         return CommonResult.ok();
     }
 
@@ -132,6 +138,10 @@ public class UserFileController {
         panFileRightService.checkFileRight(CollStreamUtil.toList(userFileIdParamList,UserFileIdParam::getId), FileRight.DELETE,rightType);
 
         userFileService.delete(userFileIdParamList);
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.DELETE.getValue(),"",CollStreamUtil.toList(userFileIdParamList,UserFileIdParam::getId));
+
         return CommonResult.ok();
     }
 
@@ -159,10 +169,8 @@ public class UserFileController {
     @CommonLog("文件夹重命名")
     @PostMapping("/pan/fold/reNameFold")
     public CommonResult<String> reNameFold(@Valid @RequestBody UserFileEditParam userFileEditParam) {
-
         //校验权限
         panFileRightService.checkFileRight(Arrays.asList(userFileEditParam.getId()), FileRight.RENAME,userFileEditParam.getRightType());
-
 
         //判断文件夹是否存在
         UserFile userFile = BeanUtil.copyProperties(userFileEditParam, UserFile.class);
@@ -175,6 +183,10 @@ public class UserFileController {
             return  CommonResult.error("同名文件夹已存在,请修改名称后在操作");
         }
         userFileService.edit(userFileEditParam);
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.RENAME.getValue(),userFile.getFileName(),Arrays.asList(userFile.getId()));
+
         return CommonResult.ok();
     }
 
@@ -198,6 +210,10 @@ public class UserFileController {
 
         userFileService.checkMove(userFileOperateParam);
         userFileService.moveFold(userFileOperateParam);
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.MOVE.getValue(),userFileOperateParam.getTargetFoldPath(),Arrays.asList(userFileOperateParam.getSourceFoldId()));
+
         return CommonResult.ok();
     }
 
@@ -219,8 +235,11 @@ public class UserFileController {
         //校验权限
         panFileRightService.checkFileRight(Arrays.asList(userFileOperateParam.getSourceFoldId()), FileRight.COPY,userFileOperateParam.getRightType());
 
-
         userFileService.userFileCopy(userFileOperateParam);
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.COPY.getValue(),userFileOperateParam.getTargetFoldPath(),Arrays.asList(userFileOperateParam.getSourceFoldId()));
+
         return CommonResult.ok();
     }
 
@@ -259,7 +278,6 @@ public class UserFileController {
         //校验权限
         panFileRightService.checkFileRight(Arrays.asList(userFileAddParam.getParentId()), FileRight.CREATE_FILE,userFileAddParam.getRightType());
 
-
         if(StrUtil.isEmpty(userFileAddParam.getExtendName())){
             return CommonResult.error("拓展名不能为空");
         }
@@ -270,6 +288,10 @@ public class UserFileController {
             return  CommonResult.error("同名文件已存在,请修改名称后在操作");
         }
         userFileService.createFile(userFileAddParam);
+
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.CREATE_FILE.getValue(),userFileAddParam.getFileName(),Arrays.asList(userFileAddParam.getParentId()));
+
         return CommonResult.ok();
     }
 

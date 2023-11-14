@@ -23,6 +23,7 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.api.DevLogApi;
 import vip.xiaonuo.pan.modular.commonFile.mapper.PanCommonFileMapper;
 import vip.xiaonuo.pan.modular.commonFile.param.*;
 import vip.xiaonuo.pan.modular.commonFile.service.PanCommonFileService;
@@ -30,6 +31,7 @@ import vip.xiaonuo.pan.modular.commonFile.vo.CommonFilePermissionVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo;
 import vip.xiaonuo.pan.modular.commonFile.vo.CommonToMeVo;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanFilePermission;
+import vip.xiaonuo.pan.modular.fileRight.enums.FileActionEnum;
 import vip.xiaonuo.pan.modular.fileRight.param.ObjectRight;
 import vip.xiaonuo.sys.api.SysOrgApi;
 
@@ -51,6 +53,9 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
 
     @Resource
     SysOrgApi sysOrgApi;
+
+    @Resource
+    DevLogApi devLogApi;
 
     @Override
     public void saveCommon(CommonFileParam commonFileParam) {
@@ -78,6 +83,8 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
         if(CollUtil.isNotEmpty(updateList)){
             this.updateBatchById(updateList);
         }
+        //记录文件操作日志
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.SHARE.getValue(),"", CollUtil.newArrayList(commonFileParam.getUserFileId()));
     }
 
     @Override
@@ -140,6 +147,5 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
             queryWrapper.orderByDesc("a.IS_DIR").orderByAsc("a.FILE_NAME");
         }
         return panCommonFileMapper.myCommonPage(CommonPageRequest.defaultPage(), queryWrapper);
-
     }
 }
