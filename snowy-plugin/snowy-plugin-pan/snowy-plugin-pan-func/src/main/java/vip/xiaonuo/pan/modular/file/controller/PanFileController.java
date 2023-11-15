@@ -185,7 +185,7 @@ public class PanFileController {
         UploadFileVo uploadFileVo = fileTransferService.uploadFileSpeed(uploadFileParam);
 
         //记录文件操作日志
-//        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(uploadFileParam.getParentId()));
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(uploadFileParam.getParentId()));
 
         return CommonResult.data(uploadFileVo);
     }
@@ -203,7 +203,7 @@ public class PanFileController {
         fileTransferService.uploadFile(request,uploadFileParam);
 
         //记录文件操作日志
-//        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(parentUserFile.getId()));
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(parentUserFile.getId()));
 
         return CommonResult.ok();
     }
@@ -431,7 +431,7 @@ public class PanFileController {
     public CommonResult<JSONObject> editOfficeFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
 
         //记录文件操作日志
-        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.EDIT.getValue(),"", CollUtil.newArrayList(previewOfficeFileParam.getUserFileId()));
+//        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.EDIT.getValue(),"", CollUtil.newArrayList(previewOfficeFileParam.getUserFileId()));
 
         CommonResult<JSONObject> result;
         //String token = request.getHeader("Token");
