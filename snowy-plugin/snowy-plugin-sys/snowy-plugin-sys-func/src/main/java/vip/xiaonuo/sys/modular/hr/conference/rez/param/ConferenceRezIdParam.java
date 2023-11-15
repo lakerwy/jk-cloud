@@ -32,4 +32,8 @@ public class ConferenceRezIdParam {
     @ApiModelProperty(value = "主键", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
+
+    /** 是否为周期预约 */
+    @ApiModelProperty(value = "是否为周期预约，1 为周期，空或者其他值为非周期")
+    private String status;
 }

@@ -88,4 +88,16 @@ public class ConferenceRezEditParam {
     @ApiModelProperty(value = "审核状态：1 审核通过，2 审核未通过，3 会议取消", position = 20)
     private Integer verifyFlag;
 
+    /** 是否为周期预约 */
+    @ApiModelProperty(value = "是否为周期预约，1 为周期，空或者其他值为非周期",position = 21)
+    private String status;
+
+    /** 对应周几：1 周一，2 周二，3 周三 ... */
+    @ApiModelProperty(value = "对应周几：1 周一，2 周二，3 周三 ...", position = 23)
+    private Integer weekTime;
+
+    /** 对应月的哪一天 */
+    @ApiModelProperty(value = "对应月的哪一天", position = 24)
+    private Integer dayTime;
+
 }
