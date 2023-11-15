@@ -116,7 +116,7 @@ public class PanCommonFileServiceImpl extends ServiceImpl<PanCommonFileMapper, P
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.and(q->{
             q.eq("a.USER_ID",StpLoginUserUtil.getLoginUser().getId());
-            if(CollUtil.isNotEmpty(orgIds)) q.in("a.USER_ID",orgIds);
+            if(CollUtil.isNotEmpty(orgIds)) q.or().in("a.USER_ID",orgIds);
         });
         if(ObjectUtil.isNotEmpty(panCommonFilePageParam.getSearchKey())){
             queryWrapper.and(q->q.like("b.FILE_NAME",panCommonFilePageParam.getSearchKey()));
