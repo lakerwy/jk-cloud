@@ -23,7 +23,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.school.entity.ResumeRecord;
 import vip.xiaonuo.biz.modular.school.enums.ResumeActionTypeEnum;
 import vip.xiaonuo.biz.modular.school.enums.ResumeOprResultEnum;
@@ -37,7 +36,6 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.school.entity.Resume;
 import vip.xiaonuo.biz.modular.school.mapper.ResumeMapper;
 import vip.xiaonuo.biz.modular.school.service.ResumeService;
-import vip.xiaonuo.sys.api.SysOrgApi;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
