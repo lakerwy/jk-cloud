@@ -204,4 +204,20 @@ public class ResumeController {
     public CommonResult<Page<Resume>> pageByUserId(ResumePageParam resumePageParam) {
         return CommonResult.data(resumeService.pageByUserId(resumePageParam));
     }
+
+    /**
+     * 简历-取消部门推荐  【批量操作取消部门推荐】
+     *
+     * @author yong.ye
+     * @date  2023/11/15 08:54
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("简历-取消部门推荐  【批量操作取消部门推荐】")
+    @CommonLog("简历-取消部门推荐  【批量操作取消部门推荐】")
+    @SaCheckPermission("/biz/sys/resume/cancelAssignDepts")
+    @PostMapping("/biz/sys/resume/cancelAssignDepts")
+    public CommonResult<String> cancelAssignDept(@RequestBody @Valid AssignDeptsDto assignDept) {
+        resumeService.assignDept(assignDept);
+        return CommonResult.ok();
+    }
 }
