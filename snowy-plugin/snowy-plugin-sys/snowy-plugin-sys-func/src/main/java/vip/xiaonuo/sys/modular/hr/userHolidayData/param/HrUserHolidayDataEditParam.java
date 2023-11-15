@@ -98,6 +98,13 @@ public class HrUserHolidayDataEditParam {
 
     /** 理由 */
     @ApiModelProperty(value = "理由", position = 18)
-    private Integer reason;
+    private String reason;
 
+    /** 开始时间 */
+    @ApiModelProperty(value = "有效开始时间", position = 19)
+    private String validBeginTime;
+
+    /** 开始时间 */
+    @ApiModelProperty(value = "有效结束时间", position = 20)
+    private String validEndTime;
 }

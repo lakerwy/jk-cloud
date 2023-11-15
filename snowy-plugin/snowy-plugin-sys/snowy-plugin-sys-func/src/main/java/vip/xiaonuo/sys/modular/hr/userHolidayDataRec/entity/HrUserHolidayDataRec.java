@@ -124,4 +124,25 @@ public class HrUserHolidayDataRec {
     @ApiModelProperty(value = "更新人", position = 22)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 理由 */
+    @ApiModelProperty(value = "理由", position = 23)
+    private String reason;
+
+    /** 开始时间 */
+    @ApiModelProperty(value = "开始时间", position = 24)
+    private String beginTime;
+
+    /** 开始时间 */
+    @ApiModelProperty(value = "结束时间", position = 25)
+    private String endTime;
+
+    /** 开始时间 */
+    @ApiModelProperty(value = "有效开始时间", position = 26)
+    private String validBeginTime;
+
+    /** 开始时间 */
+    @ApiModelProperty(value = "有效结束时间", position = 27)
+    private String validEndTime;
+
 }
