@@ -27,16 +27,15 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
-import vip.xiaonuo.sys.modular.hr.userHolidayData.param.HrUserHolidayDataAddParam;
-import vip.xiaonuo.sys.modular.hr.userHolidayData.param.HrUserHolidayDataEditParam;
-import vip.xiaonuo.sys.modular.hr.userHolidayData.param.HrUserHolidayDataIdParam;
-import vip.xiaonuo.sys.modular.hr.userHolidayData.param.HrUserHolidayDataPageParam;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.param.*;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.vo.HolidayDataRec;
 
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 公司员工假期数据表控制器
@@ -126,7 +125,7 @@ public class HrUserHolidayDataController {
     @ApiOperation("获取公司员工假期数据表详情")
     //@SaCheckPermission("/sys/userHolidayData/detail")
     @GetMapping("/sys/userHolidayData/detail")
-    public CommonResult<HrUserHolidayData> detail(@Valid HrUserHolidayDataIdParam hrUserHolidayDataIdParam) {
-        return CommonResult.data(hrUserHolidayDataService.detail(hrUserHolidayDataIdParam));
+    public CommonResult<List<HolidayDataRec>> detail(@Valid EditHolidayParam editHolidayParam) {
+        return CommonResult.data(hrUserHolidayDataService.detail(editHolidayParam));
     }
 }

@@ -39,18 +39,18 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceSta
 import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.enums.HrUserHolidayDataEnum;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.mapper.HrUserHolidayDataMapper;
-import vip.xiaonuo.sys.modular.hr.userHolidayData.param.HrUserHolidayDataAddParam;
-import vip.xiaonuo.sys.modular.hr.userHolidayData.param.HrUserHolidayDataEditParam;
-import vip.xiaonuo.sys.modular.hr.userHolidayData.param.HrUserHolidayDataIdParam;
-import vip.xiaonuo.sys.modular.hr.userHolidayData.param.HrUserHolidayDataPageParam;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.param.*;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.vo.HolidayDataRec;
 import vip.xiaonuo.sys.modular.hr.userHolidayDataRec.entity.HrUserHolidayDataRec;
 import vip.xiaonuo.sys.modular.hr.userHolidayDataRec.service.HrUserHolidayDataRecService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 公司员工假期数据表Service接口实现类
@@ -113,6 +113,9 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
         /** 同步增减假期记录*/
         HrUserHolidayDataRec hrUserHolidayDataRec = BeanUtil.copyProperties(hrUserHolidayDataEditParam,HrUserHolidayDataRec.class);
         hrUserHolidayDataRec.setUserId(hrUserHolidayData.getUserId());
+        hrUserHolidayDataRec.setUserName(hrUserHolidayData.getUserName());
+        hrUserHolidayDataRec.setDeparId(hrUserHolidayData.getDeparId());
+        hrUserHolidayData.setDeparName(hrUserHolidayData.getDeparName());
         hrUserHolidayDataRec.setId("");//去掉主键
         hrUserHolidayDataRecService.save(hrUserHolidayDataRec);
     }
@@ -148,8 +151,55 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
     }
 
     @Override
-    public HrUserHolidayData detail(HrUserHolidayDataIdParam hrUserHolidayDataIdParam) {
-        return this.queryEntity(hrUserHolidayDataIdParam.getId());
+    public List<HolidayDataRec> detail(EditHolidayParam editHolidayParam) {
+
+        List<HrUserHolidayDataRec> hrUserHolidayDataRecs = hrUserHolidayDataRecService.list(new LambdaQueryWrapper<HrUserHolidayDataRec>().eq(HrUserHolidayDataRec::getUserId,editHolidayParam.getUserId())
+                .eq(HrUserHolidayDataRec::getApplyType,editHolidayParam.getApplyType()));
+
+        return hrUserHolidayDataRecs.stream().map(rec -> {
+            HolidayDataRec holidayDataRec = new HolidayDataRec();
+            holidayDataRec.setUserId(rec.getUserId());
+            holidayDataRec.setUserName(rec.getUserName());
+            String detail = "";
+            //假期类别：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7，出差 8
+            switch (Integer.parseInt(editHolidayParam.getApplyType())){
+                case 1://+0.5天陈雨 为冷磊 增加了0.5天调休
+                    detail = StringUtils.isNotEmpty(rec.getPersonalLeave()) && Integer.parseInt(rec.getPersonalLeave()) > 0 ?   "增加"+rec.getPersonalLeave()+"天事假":
+                            "使用"+rec.getPersonalLeave()+"天事假";
+                    break;
+                case 2:
+                    detail = StringUtils.isNotEmpty(rec.getSickLeave()) && Integer.parseInt(rec.getSickLeave()) > 0 ?   "增加"+rec.getSickLeave()+"天病假":
+                            "使用"+rec.getSickLeave()+"天病假";
+                    break;
+                case 3:
+                    detail = StringUtils.isNotEmpty(rec.getMarriageLeave()) && Integer.parseInt(rec.getMarriageLeave()) > 0 ?   "增加"+rec.getMarriageLeave()+"天婚假":
+                            "使用"+rec.getMarriageLeave()+"天婚假";
+                    break;
+                case 4:
+                    detail = StringUtils.isNotEmpty(rec.getMaternityLeave()) && Integer.parseInt(rec.getMaternityLeave()) > 0 ?   "增加"+rec.getMaternityLeave()+"天产假":
+                            "使用"+rec.getMaternityLeave()+"天产假";
+                    break;
+                case 5:
+                    detail = StringUtils.isNotEmpty(rec.getBereavementLeave()) && Integer.parseInt(rec.getBereavementLeave()) > 0 ?   "增加"+rec.getBereavementLeave()+"天丧假":
+                            "使用"+rec.getBereavementLeave()+"天丧假";
+                    break;
+                case 6:
+                    detail = StringUtils.isNotEmpty(rec.getAnnualLeave()) && Integer.parseInt(rec.getAnnualLeave()) > 0 ?   "增加"+rec.getAnnualLeave()+"天年假":
+                            "使用"+rec.getAnnualLeave()+"天年假";
+                    break;
+                case 7:
+                    detail = StringUtils.isNotEmpty(rec.getCompensatoryLeave()) && Integer.parseInt(rec.getCompensatoryLeave()) > 0 ?   "增加"+rec.getCompensatoryLeave()+"天调休":
+                            "使用"+rec.getCompensatoryLeave()+"天调休";
+                    String validTime = StringUtils.isNotEmpty(rec.getCompensatoryLeave()) && Integer.parseInt(rec.getCompensatoryLeave()) > 0 ? rec.getValidBeginTime()+"到"+rec.getValidEndTime()+"有效" :"";
+                    holidayDataRec.setValidTime(validTime);
+                    break;
+                default:
+                    break;
+            }
+            holidayDataRec.setDetail(detail);
+            return holidayDataRec;
+        }).collect(Collectors.toList());
+
     }
 
     @Override
@@ -161,6 +211,7 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
         return hrUserHolidayData;
     }
 
+    /** 申请假期之后的统计操作*/
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void calculateHolidayJobHandle(String processInstanceId){
@@ -194,6 +245,8 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
         if(HrUserHolidayDataEnum.COMPENSATORY_LEAVE.getValue().equals(hrUserApplyHoliday.getApplyType().toString())){//调休
             hrUserHolidayDataRec.setCompensatoryLeave("-"+hrUserApplyHoliday.getLeaveDays().toString());
         }
+        hrUserHolidayDataRec.setBeginTime(DateUtil.format(hrUserApplyHoliday.getApplyBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
+        hrUserHolidayDataRec.setEndTime(DateUtil.format(hrUserApplyHoliday.getApplyEndTime(),DatePattern.NORM_DATETIME_PATTERN));
         hrUserHolidayDataRecService.save(hrUserHolidayDataRec);
     }
 
