@@ -451,7 +451,7 @@ public class FileTransferService implements IFileTransferService {
         BufferedOutputStream out = new BufferedOutputStream(zos);
 
         //下载的时候处理权限过滤（单个文件 权限校验通过后，不用过滤 ，文件夹需要处理）
-        userFileIds = panFileRightService.filterUserFileIds(userFileIds, FileRight.DOWNLOAD,rightType);
+//        userFileIds = panFileRightService.filterUserFileIds(userFileIds, FileRight.DOWNLOAD,rightType);
 
         try {
             for (String userFileId : userFileIds) {

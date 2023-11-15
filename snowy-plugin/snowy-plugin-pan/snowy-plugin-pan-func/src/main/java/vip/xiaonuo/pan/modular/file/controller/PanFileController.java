@@ -185,7 +185,7 @@ public class PanFileController {
         UploadFileVo uploadFileVo = fileTransferService.uploadFileSpeed(uploadFileParam);
 
         //记录文件操作日志
-        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(uploadFileParam.getParentId()));
+//        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(uploadFileParam.getParentId()));
 
         return CommonResult.data(uploadFileVo);
     }
@@ -203,7 +203,7 @@ public class PanFileController {
         fileTransferService.uploadFile(request,uploadFileParam);
 
         //记录文件操作日志
-        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(parentUserFile.getId()));
+//        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(parentUserFile.getId()));
 
         return CommonResult.ok();
     }
@@ -222,7 +222,7 @@ public class PanFileController {
             List<String> collect = Arrays.stream(downloadParam.getFileIds().split(", ")).collect(Collectors.toList());
 
             //校验权限
-            panFileRightService.checkFileRight(collect,FileRight.DOWNLOAD,downloadParam.getRightType());
+//            panFileRightService.checkFileRight(collect,FileRight.DOWNLOAD,downloadParam.getRightType());
 
             if(collect.size() == 1){
                 UserFile userFile = userFileService.getById(collect.get(0));
@@ -261,7 +261,7 @@ public class PanFileController {
                 fileTransferService.downloadUserFileList(httpServletResponse, userFile.getFilePath(), fileName, userFileIds,downloadParam.getRightType());
             }
             //记录文件操作日志
-            devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.DOWNLOAD.getValue(),"", collect);
+//            devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.DOWNLOAD.getValue(),"", collect);
         }
     }
 
@@ -272,7 +272,7 @@ public class PanFileController {
     public void preview(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,  PreviewParam previewParam) throws IOException {
 
         //记录文件操作日志
-        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.PREVIEW.getValue(),"", CollUtil.newArrayList(previewParam.getUserFileId()));
+//        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.PREVIEW.getValue(),"", CollUtil.newArrayList(previewParam.getUserFileId()));
 
         if (previewParam.getPlatform() != null && previewParam.getPlatform() == 2) {
             fileTransferService.previewPictureFile(httpServletResponse, previewParam);
@@ -283,7 +283,7 @@ public class PanFileController {
             // 暂时不判断是否有下载权限
             //校验权限
             log.info("doc文件预览进入下载------------------------------------------------------------------------");
-            panFileRightService.checkFileRight(Collections.singletonList(previewParam.getUserFileId()),FileRight.PREVIEW,previewParam.getRightType());
+//            panFileRightService.checkFileRight(Collections.singletonList(previewParam.getUserFileId()),FileRight.PREVIEW,previewParam.getRightType());
             UserFile userFile = userFileService.getById(previewParam.getUserFileId());
 
             String fileName = userFile.getFileName() + "." + userFile.getExtendName();
