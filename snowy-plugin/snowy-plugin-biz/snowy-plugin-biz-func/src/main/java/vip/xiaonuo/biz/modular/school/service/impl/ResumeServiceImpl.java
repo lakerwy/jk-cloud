@@ -58,8 +58,8 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
     @Resource
     private ResumeRecordService resumeRecordService;
 
-    @Resource
-    SysOrgApi sysOrgApi;
+//    @Resource
+//    SysOrgApi sysOrgApi;
 
     @Override
     public Page<Resume> page(ResumePageParam resumePageParam) {
@@ -300,10 +300,10 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
             queryWrapper.lambda().notIn(Resume::getStatus,resumePageParam.getFilterStatusNotIn());
         }
         //获取当前部门及其子部门
-        List<String> orgIds = sysOrgApi.getChildrenIds(StpLoginUserUtil.getLoginUser().getOrgId());
-        if(CollUtil.isNotEmpty(orgIds)){
-            queryWrapper.lambda().in(Resume::getBelongsDepts,orgIds);
-        }
+//        List<String> orgIds = sysOrgApi.getChildrenIds(StpLoginUserUtil.getLoginUser().getOrgId());
+//        if(CollUtil.isNotEmpty(orgIds)){
+//            queryWrapper.lambda().in(Resume::getBelongsDepts,orgIds);
+//        }
         if(ObjectUtil.isNotEmpty(resumePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(Resume::getName,resumePageParam.getSearchKey())
                     .or().like(Resume::getSex,resumePageParam.getSearchKey())
