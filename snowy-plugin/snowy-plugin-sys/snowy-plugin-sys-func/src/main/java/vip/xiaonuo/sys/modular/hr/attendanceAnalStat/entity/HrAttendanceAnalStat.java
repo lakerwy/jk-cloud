@@ -142,7 +142,10 @@ public class HrAttendanceAnalStat {
     private Integer resubmitFlag;
 
     /** 工时-单位：分钟 */
-    @ApiModelProperty(value = "工时-单位：分钟", position = 10)
+    @ApiModelProperty(value = "工时-单位：分钟", position = 27)
     private Double workHours;
 
+    /** 组织id */
+    @ApiModelProperty(value = "组织id", position = 28)
+    private String orgId;
 }

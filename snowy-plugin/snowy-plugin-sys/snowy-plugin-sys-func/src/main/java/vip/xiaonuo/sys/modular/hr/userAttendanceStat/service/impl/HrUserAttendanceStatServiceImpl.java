@@ -239,6 +239,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         if(CollectionUtil.isNotEmpty(hrAttendanceAnalStatList)){
             hrAttendanceAnalStat = hrAttendanceAnalStatList.get(0);
         }
+        hrAttendanceAnalStat.setOrgId(sysUser.getOrgId());
         hrAttendanceAnalStat.setUserId(hrUserAttendanceStatEvent.getUserId());
         hrAttendanceAnalStat.setUserName(hrUserAttendanceStatEvent.getUserName());
         hrAttendanceAnalStat.setCheckTime(hrUserAttendanceStatEvent.getCheckTime());
@@ -1256,7 +1257,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         attendanceAnalysisData.setWorkOtNumCompare(workOtNumCompare.toString());
         //迟到人数
         BigDecimal lateNum = (BigDecimal) map.get("lateNum") == null ? new BigDecimal(0) : (BigDecimal) map.get("lateNum");
-        attendanceAnalysisData.setLeaveNum(lateNum.intValue());
+        attendanceAnalysisData.setLateNum(lateNum.intValue());
         BigDecimal oldLateNum = (BigDecimal) oldMap.get("lateNum") == null ? new BigDecimal(0) : (BigDecimal) oldMap.get("lateNum");
         Integer lateNumCompare = lateNum.intValue() - oldLateNum.intValue();
         attendanceAnalysisData.setLateNumCompare(workOtNumCompare.toString());
