@@ -21,7 +21,7 @@
     </select>
 
     <select id="myCommonPage" resultType="vip.xiaonuo.pan.modular.commonFile.vo.CommonFileVo">
-        SELECT a.*
+        SELECT distinct a.*
         FROM PAN_USER_FILE a
                  JOIN PAN_FILE_PERMISSION b ON a.ID = b.COMMON_FILE_ID and b.DELETE_FLAG = 'NOT_DELETE'
             ${ew.customSqlSegment}

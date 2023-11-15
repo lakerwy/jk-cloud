@@ -186,8 +186,22 @@ public class ResumeController {
     @CommonLog("简历部门推荐 【批量操作部门推荐】")
     @SaCheckPermission("/biz/sys/resume/assignDepts")
     @PostMapping("/biz/sys/resume/assignDepts")
-    public CommonResult<String> assignDepts(@RequestBody @Valid ResumeAddParam resumeAddParam) {
-//        resumeService.assignDepts(resumeAddParam);
+    public CommonResult<String> assignDept(@RequestBody @Valid AssignDeptsDto assignDept) {
+        resumeService.assignDept(assignDept);
         return CommonResult.ok();
+    }
+
+    /**
+     * 根据员工信息，获取所属部门，再获取该员工可以查阅的部门推荐简历
+     *
+     * @author yong.ye
+     * @date  2023/11/15 08:54
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("根据员工信息，获取所属部门，再获取该员工可以查阅的部门推荐简历")
+    @SaCheckPermission("/biz/sys/resume/getResumesByUserId")
+    @GetMapping("/biz/sys/resume/getResumesByUserId")
+    public CommonResult<Page<Resume>> pageByUserId(ResumePageParam resumePageParam) {
+        return CommonResult.data(resumeService.pageByUserId(resumePageParam));
     }
 }

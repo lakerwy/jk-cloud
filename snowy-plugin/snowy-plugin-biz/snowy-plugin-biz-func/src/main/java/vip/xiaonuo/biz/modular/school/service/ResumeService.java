@@ -95,4 +95,17 @@ public interface ResumeService extends IService<Resume> {
      * @param resumeAddParam
      */
     void saveResume(ResumeAddParam resumeAddParam);
+
+    /**
+     * 简历部门推荐 【批量操作部门推荐】
+     * @param assignDept
+     */
+    void assignDept(@RequestBody @Valid AssignDeptsDto assignDept);
+
+    /**
+     * 根据当前用户信息，获取推荐至本部门的简历
+     * @param resumePageParam
+     * @return
+     */
+    Page<Resume> pageByUserId(ResumePageParam resumePageParam);
 }

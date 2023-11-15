@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.school.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -22,6 +23,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.school.entity.ResumeRecord;
 import vip.xiaonuo.biz.modular.school.enums.ResumeActionTypeEnum;
 import vip.xiaonuo.biz.modular.school.enums.ResumeOprResultEnum;
@@ -35,8 +37,11 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.school.entity.Resume;
 import vip.xiaonuo.biz.modular.school.mapper.ResumeMapper;
 import vip.xiaonuo.biz.modular.school.service.ResumeService;
+import vip.xiaonuo.sys.api.SysOrgApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -52,6 +57,9 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
 
     @Resource
     private ResumeRecordService resumeRecordService;
+
+    @Resource
+    SysOrgApi sysOrgApi;
 
     @Override
     public Page<Resume> page(ResumePageParam resumePageParam) {
@@ -221,5 +229,97 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
             resume.setIsOld(0);
             this.save(resume);
         }
+    }
+
+    @Override
+    public void assignDept(AssignDeptsDto assignDept) {
+        List<Resume> updateList = new ArrayList<>();
+        List<ResumeRecord> addList = new ArrayList<>();
+        for (String id :assignDept.getIds()) {
+            //获取简历
+            Resume oldResume = this.getById(id);
+            //增加记录
+            ResumeRecord resumeRecord = new ResumeRecord();
+            resumeRecord.setResumesId(id);
+            resumeRecord.setActionType(assignDept.getDeptRecord().getActionType());
+            resumeRecord.setOperation(assignDept.getDeptRecord().getOperation());
+            resumeRecord.setOprTime(new Date());
+            resumeRecord.setOprName(assignDept.getDeptRecord().getOprName());
+            resumeRecord.setMemo(assignDept.getDeptRecord().getMemo());
+            addList.add(resumeRecord);
+            //更新简历信息
+            oldResume.setStatus(ResumeStatusEnum.ReSend.getValue());
+            oldResume.setBelongsDepts(assignDept.getDeptRecord().getDeptId());
+            updateList.add(oldResume);
+        }
+        if(CollUtil.isNotEmpty(updateList)){
+            this.updateBatchById(updateList);
+        }
+        if(CollUtil.isNotEmpty(addList)){
+            resumeRecordService.saveBatch(addList);
+        }
+    }
+
+    @Override
+    public Page<Resume> pageByUserId(ResumePageParam resumePageParam) {
+        QueryWrapper<Resume> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(resumePageParam.getName())) {
+            queryWrapper.lambda().like(Resume::getName, resumePageParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getSex())) {
+            queryWrapper.lambda().eq(Resume::getSex, resumePageParam.getSex());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getMobile())) {
+            queryWrapper.lambda().like(Resume::getMobile, resumePageParam.getMobile());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getSchool())) {
+            queryWrapper.lambda().like(Resume::getSchool, resumePageParam.getSchool());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getSubject())) {
+            queryWrapper.lambda().like(Resume::getSubject, resumePageParam.getSubject());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getPositionType())) {
+            queryWrapper.lambda().eq(Resume::getPositionType, resumePageParam.getPositionType());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getInfoSource())) {
+            queryWrapper.lambda().eq(Resume::getInfoSource, resumePageParam.getInfoSource());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getStatus())) {
+            queryWrapper.lambda().eq(Resume::getStatus, resumePageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getAcademic())) {
+            queryWrapper.lambda().eq(Resume::getAcademic, resumePageParam.getAcademic());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getStartCreateTime()) && ObjectUtil.isNotEmpty(resumePageParam.getEndCreateTime())){
+            queryWrapper.lambda().between(Resume::getCreateTime,resumePageParam.getStartCreateTime(),resumePageParam.getEndCreateTime());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getFilterStatusIn())){
+            queryWrapper.lambda().in(Resume::getStatus,resumePageParam.getFilterStatusIn());
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getFilterStatusNotIn())){
+            queryWrapper.lambda().notIn(Resume::getStatus,resumePageParam.getFilterStatusNotIn());
+        }
+        //获取当前部门及其子部门
+        List<String> orgIds = sysOrgApi.getChildrenIds(StpLoginUserUtil.getLoginUser().getOrgId());
+        if(CollUtil.isNotEmpty(orgIds)){
+            queryWrapper.lambda().in(Resume::getBelongsDepts,orgIds);
+        }
+        if(ObjectUtil.isNotEmpty(resumePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(Resume::getName,resumePageParam.getSearchKey())
+                    .or().like(Resume::getSex,resumePageParam.getSearchKey())
+                    .or().like(Resume::getMobile,resumePageParam.getSearchKey())
+                    .or().like(Resume::getSchool,resumePageParam.getSearchKey())
+                    .or().like(Resume::getSubject,resumePageParam.getSearchKey())
+                    .or().like(Resume::getPositionType,resumePageParam.getSearchKey())
+                    .or().like(Resume::getInfoSource,resumePageParam.getSearchKey()));
+        }
+        if(ObjectUtil.isAllNotEmpty(resumePageParam.getSortField(), resumePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(resumePageParam.getSortOrder());
+            queryWrapper.orderBy(true, resumePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(resumePageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(Resume::getCreateTime);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }
