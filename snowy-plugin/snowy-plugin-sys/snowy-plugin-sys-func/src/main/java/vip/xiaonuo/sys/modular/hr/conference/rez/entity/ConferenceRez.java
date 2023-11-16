@@ -134,4 +134,12 @@ public class ConferenceRez {
     /** 会务人员：多个 */
     @ApiModelProperty(value = "会务人员：多个", position = 24)
     private String conAffUsers;
+
+    /** 在线会议号 */
+    @ApiModelProperty(value = "在线会议号", position = 21)
+    private String onLineCode;
+
+    /** 在线会议号平台名称 */
+    @ApiModelProperty(value = "在线会议号平台名称", position = 22)
+    private Integer onLineName;
 }

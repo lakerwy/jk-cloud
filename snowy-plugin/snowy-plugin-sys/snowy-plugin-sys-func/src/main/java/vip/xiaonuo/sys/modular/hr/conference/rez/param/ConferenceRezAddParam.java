@@ -105,4 +105,15 @@ public class ConferenceRezAddParam {
     @ApiModelProperty(value = "会务人员：多个", position = 19)
     private List<String> conAffUsers;
 
+    /** 是否在线会议 */
+    @ApiModelProperty(value = "是否在线会议：1 存在在线会议，空或者其他不存在", position = 20)
+    private Integer isOnLine;
+
+    /** 在线会议号 */
+    @ApiModelProperty(value = "在线会议号", position = 21)
+    private String onLineCode;
+
+    /** 在线会议号平台名称 */
+    @ApiModelProperty(value = "在线会议号平台名称", position = 22)
+    private Integer onLineName;
 }

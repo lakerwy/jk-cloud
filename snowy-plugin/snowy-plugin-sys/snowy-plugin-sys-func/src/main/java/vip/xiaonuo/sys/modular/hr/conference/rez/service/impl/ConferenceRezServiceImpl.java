@@ -118,6 +118,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
+        Boolean isTrue = ObjectUtil.isNotEmpty(conferenceRezAddParam.getIsOnLine()) &&
+                conferenceRezAddParam.getIsOnLine() == 1 && StringUtils.isNotEmpty(conferenceRezAddParam.getOnLineCode())? false : true;
+        if(isTrue){throw new CommonException("勾选在线会议后，会议号不能为空！");}
         StringBuffer conAffUsers = new StringBuffer();
         if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getConAffUsers())){
             conferenceRezAddParam.getConAffUsers().forEach(aff -> {
@@ -125,8 +128,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             });
         }
         if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getStatus())){
-            Boolean isTrue = ObjectUtil.isEmpty(conferenceRezAddParam.getWeekTime()) && ObjectUtil.isEmpty(conferenceRezAddParam.getDayTime());
-            if(isTrue){ throw new CommonException("周期预约时，时间类型不能都为空");}
+            if(ObjectUtil.isEmpty(conferenceRezAddParam.getWeekTime()) && ObjectUtil.isEmpty(conferenceRezAddParam.getDayTime())){
+                throw new CommonException("周期预约时，时间类型不能都为空");
+            }
             updateConferenceRezPeriod(conferenceRezAddParam,conAffUsers.toString());
         }else{
             ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
