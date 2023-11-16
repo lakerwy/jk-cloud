@@ -2,4 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.school.mapper.ResumeMapper">
 
+    <select id="getRecordRefuse" resultType="vip.xiaonuo.biz.modular.school.entity.ResumeRecord">
+        select b.*
+        from BIZ_SCHOOL_RESUME a
+            join BIZ_SCHOOL_RESUME_RECORD b on a.ID = b.RESUMES_ID
+        where b.ACTION_TYPE = #{actionType}
+          and b.RESULT = #{result}
+          and b.DELETE_FLAG='NOT_DELETE'
+          and a.DELETE_FLAG='NOT_DELETE'
+        <if test=" startTime != null ">
+            and a.CREATE_TIME &gt;= #{startTime}
+        </if>
+        <if test=" endTime != null ">
+            and a.CREATE_TIME &lt;= #{endTime}
+        </if>
+    </select>
 </mapper>

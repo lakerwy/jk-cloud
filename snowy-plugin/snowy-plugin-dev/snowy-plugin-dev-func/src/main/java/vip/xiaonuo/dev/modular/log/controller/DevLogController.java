@@ -139,7 +139,7 @@ public class DevLogController {
      */
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取网盘文件操作日志分页")
-    @GetMapping("/dev/pan/Log/fileActionLogPage")
+    @GetMapping("/dev/pan/log/fileActionLogPage")
     public CommonResult<Page<DevLog>> fileActionLogPage(DevLogPageParam devLogPageParam) {
         return CommonResult.data(devLogService.fileActionLogPage(devLogPageParam));
     }

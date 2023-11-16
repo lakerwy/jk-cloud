@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.bind.annotation.RequestBody;
 import vip.xiaonuo.biz.modular.school.entity.Resume;
 import vip.xiaonuo.biz.modular.school.param.*;
+import vip.xiaonuo.biz.modular.school.vo.ReportModel;
 import vip.xiaonuo.biz.modular.school.vo.ResumeVo;
 
 import javax.validation.Valid;
@@ -100,7 +101,7 @@ public interface ResumeService extends IService<Resume> {
      * 简历部门推荐 【批量操作部门推荐】
      * @param assignDept
      */
-    void assignDept(@RequestBody @Valid AssignDeptsDto assignDept);
+    void assignDept(AssignDeptsDto assignDept);
 
     /**
      * 根据当前用户信息，获取推荐至本部门的简历
@@ -108,4 +109,17 @@ public interface ResumeService extends IService<Resume> {
      * @return
      */
     Page<Resume> pageByUserId(ResumePageParam resumePageParam);
+
+    /**
+     * 简历，取消部门推荐
+     * @param assignDept
+     */
+    void cancelAssignDept(AssignDeptsDto assignDept);
+
+    /**
+     * 根据区间，获取报表数据
+     * @param reportParam
+     * @return
+     */
+    ReportModel getReportView(ReportParam reportParam);
 }

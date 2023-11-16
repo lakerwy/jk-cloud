@@ -23,13 +23,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.car.entity.VehicleApply;
 import vip.xiaonuo.biz.modular.school.entity.ResumeRecord;
 import vip.xiaonuo.biz.modular.school.enums.ResumeActionTypeEnum;
 import vip.xiaonuo.biz.modular.school.enums.ResumeOprResultEnum;
 import vip.xiaonuo.biz.modular.school.enums.ResumeStatusEnum;
 import vip.xiaonuo.biz.modular.school.param.*;
 import vip.xiaonuo.biz.modular.school.service.ResumeRecordService;
-import vip.xiaonuo.biz.modular.school.vo.ResumeVo;
+import vip.xiaonuo.biz.modular.school.vo.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -38,9 +39,9 @@ import vip.xiaonuo.biz.modular.school.mapper.ResumeMapper;
 import vip.xiaonuo.biz.modular.school.service.ResumeService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
+import java.security.Key;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 校招-简历Service接口实现类
@@ -55,6 +56,9 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
 
     @Resource
     private ResumeRecordService resumeRecordService;
+
+    @Resource
+    ResumeMapper resumeMapper;
 
 //    @Resource
 //    SysOrgApi sysOrgApi;
@@ -319,5 +323,201 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
             queryWrapper.lambda().orderByDesc(Resume::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public void cancelAssignDept(AssignDeptsDto assignDept) {
+        List<Resume> updateList = new ArrayList<>();
+        List<ResumeRecord> addList = new ArrayList<>();
+        for (String id :assignDept.getIds()) {
+            //获取简历
+            Resume oldResume = this.getById(id);
+            //增加记录
+            ResumeRecord resumeRecord = new ResumeRecord();
+            resumeRecord.setResumesId(id);
+            resumeRecord.setActionType(assignDept.getDeptRecord().getActionType());
+            resumeRecord.setOperation(assignDept.getDeptRecord().getOperation());
+            resumeRecord.setOprTime(new Date());
+            resumeRecord.setOprName(assignDept.getDeptRecord().getOprName());
+            resumeRecord.setMemo(assignDept.getDeptRecord().getMemo());
+            addList.add(resumeRecord);
+            //更新简历信息
+            oldResume.setStatus(ResumeStatusEnum.Send.getValue());
+            oldResume.setBelongsDepts("");
+            updateList.add(oldResume);
+        }
+        if(CollUtil.isNotEmpty(updateList)){
+            this.updateBatchById(updateList);
+        }
+        if(CollUtil.isNotEmpty(addList)){
+            resumeRecordService.saveBatch(addList);
+        }
+    }
+
+    @Override
+    public ReportModel getReportView(ReportParam reportParam) {
+        ReportModel reportModel = new ReportModel();
+        QueryWrapper<Resume> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(reportParam.getStartTime())){
+            queryWrapper.lambda().ge(Resume::getCreateTime,reportParam.getStartTime());
+        }
+        if(ObjectUtil.isNotEmpty(reportParam.getEndTime())){
+            queryWrapper.lambda().le(Resume::getCreateTime,reportParam.getEndTime());
+        }
+        //时间区间内的简历
+        List<Resume> dbResumes = this.list(queryWrapper);
+
+        //1. 简历收集-柱状图(根据简历来源统计)
+        Map<String,List<Resume>> infoSourceGroup = dbResumes.stream().collect(Collectors.groupingBy(x->x.getInfoSource()));
+        BarChart collect = new BarChart();
+        List<String> xAxis = new ArrayList<>();
+        List<Integer> firstData = new ArrayList<>();
+        for (Map.Entry<String,List<Resume>> entry:infoSourceGroup.entrySet()) {
+            xAxis.add(entry.getKey());
+            firstData.add(entry.getValue().size());
+        }
+        collect.setXAxis(xAxis);
+        collect.setFirstData(firstData);
+        reportModel.setCollect(collect);
+
+        //2. 专业类别分析-饼状图
+        List<Resume> positionTypeList = dbResumes.stream().filter(x->ObjectUtil.isNotEmpty(x.getPositionType())).collect(Collectors.toList());
+        List<KeyValueObj> keyValueObjList = new ArrayList<>();
+        for (Resume item:positionTypeList) {
+            List<String> positionTypes = Arrays.asList(item.getPositionType().split(","));
+            positionTypes.forEach(x->{
+                KeyValueObj obj = new KeyValueObj();
+                obj.setKey(x);
+                obj.setValue(item.getId());
+                keyValueObjList.add(obj);
+            });
+        }
+        Map<String,List<KeyValueObj>> positionTypeGroup = keyValueObjList.stream().collect(Collectors.groupingBy(x->x.getKey()));
+        PieChart classification = new PieChart();
+        List<Pie> pieList = new ArrayList<>();
+        for (Map.Entry<String,List<KeyValueObj>> entry:positionTypeGroup.entrySet()) {
+            Pie pie = new Pie();
+            pie.setName(entry.getKey());
+            pie.setValue(entry.getValue().size());
+            pieList.add(pie);
+        }
+        classification.setData(pieList);
+        reportModel.setClassification(classification);
+
+        //所有推荐给部门的简历
+        List<Resume> sendDeptList = dbResumes.stream().filter(x->ObjectUtil.isNotEmpty(x.getBelongsDepts())).collect(Collectors.toList());
+        //按照部门分组
+        Map<String,List<Resume>> deptGroup = sendDeptList.stream().collect(Collectors.groupingBy(x->x.getBelongsDepts()));
+
+        //3. 有效简历学历层次分析-柱状图
+        BarChart levels = new BarChart();
+        List<String> levels_xAxis = new ArrayList<>();
+        List<Integer> levels_firstData = new ArrayList<>();
+        List<Integer> levels_secondData = new ArrayList<>();
+        List<Integer> levels_thirdData = new ArrayList<>();
+        for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
+            List<Resume> tmpList = entry.getValue().stream().filter(x->ObjectUtil.isNotEmpty(x.getAcademic())).collect(Collectors.toList());
+            levels_xAxis.add(entry.getKey());
+            levels_firstData.add(tmpList.stream().filter(x->x.getAcademic() == 1).collect(Collectors.toList()).size());
+            levels_secondData.add(tmpList.stream().filter(x->x.getAcademic() == 2).collect(Collectors.toList()).size());
+            levels_thirdData.add(tmpList.stream().filter(x->x.getAcademic() == 3).collect(Collectors.toList()).size());
+        }
+        levels.setXAxis(levels_xAxis);
+        levels.setFirstData(levels_firstData);
+        levels.setSecondData(levels_secondData);
+        levels.setThirdData(levels_thirdData);
+        reportModel.setLevels(levels);
+
+        //4. 有效简历&初筛合格-柱状图
+        BarChart filter = new BarChart();
+        List<String> filter_xAxis = new ArrayList<>();
+        List<Integer> filter_firstData = new ArrayList<>();
+        List<Integer> filter_secondData = new ArrayList<>();
+        for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
+            List<Resume> tmpList = entry.getValue().stream().filter(x-> Integer.parseInt(x.getStatus()) > Integer.parseInt(ResumeStatusEnum.ReSend.getValue())).collect(Collectors.toList());
+            filter_xAxis.add(entry.getKey());
+            filter_firstData.add(entry.getValue().size());
+            filter_secondData.add(tmpList.size());
+        }
+        filter.setXAxis(filter_xAxis);
+        filter.setFirstData(filter_firstData);
+        filter.setSecondData(filter_secondData);
+        reportModel.setFilter(filter);
+
+        //5. 到面率&通过率-折线图
+        LineChart2 passing = new LineChart2();
+        List<String> passing_xAxis = new ArrayList<>();
+        List<Float> passing_firstData = new ArrayList<>();
+        List<Float> passing_secondData = new ArrayList<>();
+        for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
+            //通知面试
+            int preFace = entry.getValue().stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.Notified.getValue())).collect(Collectors.toList()).size();
+            //未到面
+            int noFace = entry.getValue().stream().filter(x->x.getStatus().equals(ResumeStatusEnum.NotFace.getValue())).collect(Collectors.toList()).size();
+            int addFace = preFace - noFace;    //参加面试数 ！！！
+            //面试通过
+            int passFace = entry.getValue().stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.PreOffer.getValue())).collect(Collectors.toList()).size();
+            float arriveRate = preFace == 0 ? 0 : (float)addFace / preFace;   //到面率   参加面试数/所有待参加面试数
+            float passRate = addFace == 0 ? 0 : (float)passFace / addFace;    //通过率   通过面试数/参加面试数
+            passing_xAxis.add(entry.getKey());
+            passing_firstData.add(arriveRate);
+            passing_secondData.add(passRate);
+        }
+        passing.setXAxis(passing_xAxis);
+        passing.setFirstData(passing_firstData);
+        passing.setSecondData(passing_secondData);
+        reportModel.setPassing(passing);
+
+        //6. offer拒绝率-折线图
+        LineChart<Float> refuse = new LineChart<Float>();
+        List<String> refuse_xAxis = new ArrayList<>();
+        List<Float> refuse_data = new ArrayList<>();
+        for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
+            //待发Offer数 ！！！
+            int preOffer = entry.getValue().stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.PreOffer.getValue())).collect(Collectors.toList()).size();
+            //拒绝Offer数 ！！！
+            int refuseOffer = entry.getValue().stream().filter(x->x.getStatus().equals(ResumeStatusEnum.Refuse.getValue())).collect(Collectors.toList()).size();
+            float refuseRate = preOffer == 0 ? 0 : (float)refuseOffer / preOffer;   //Offer拒绝率   Offer拒绝数/待发Offer数
+            refuse_xAxis.add(entry.getKey());
+            refuse_data.add(refuseRate);
+        }
+        refuse.setXAxis(refuse_xAxis);
+        refuse.setData(refuse_data);
+        reportModel.setRefuse(refuse);
+
+        //7. 面试通过人数及接受offer人数-柱状图
+        BarChart passPerson = new BarChart();
+        List<String> passPerson_xAxis = new ArrayList<>();
+        List<Integer> passPerson_firstData = new ArrayList<>();
+        List<Integer> passPerson_secondData = new ArrayList<>();
+        for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
+            //面试通过 ！！！
+            int passFace = entry.getValue().stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.PreOffer.getValue())).collect(Collectors.toList()).size();
+            //已接收Offer数 ！！！
+            int arrivedOffer = entry.getValue().stream().filter(x->x.getStatus().equals(ResumeStatusEnum.Arrived.getValue())).collect(Collectors.toList()).size();
+            passPerson_xAxis.add(entry.getKey());
+            passPerson_firstData.add(passFace);
+            passPerson_secondData.add(arrivedOffer);
+        }
+        passPerson.setXAxis(passPerson_xAxis);
+        passPerson.setFirstData(passPerson_firstData);
+        passPerson.setSecondData(passPerson_secondData);
+        reportModel.setPassPerson(passPerson);
+
+        //8. offer拒绝原因-饼状图
+        PieChart refuseReson = new PieChart();
+        List<ResumeRecord> refuseReasonList = resumeMapper.getRecordRefuse(reportParam.getStartTime(),reportParam.getEndTime(),ResumeActionTypeEnum.Offer.getValue(),ResumeOprResultEnum.Refuse.getValue());
+        //按照拒绝原因分组
+        Map<String,List<ResumeRecord>> reasonGroup = refuseReasonList.stream().collect(Collectors.groupingBy(x->x.getReason()));
+        List<Pie> pies = new ArrayList<>();
+        for (Map.Entry<String,List<ResumeRecord>> entry:reasonGroup.entrySet()) {
+            Pie tmp = new Pie();
+            tmp.setName(entry.getKey());
+            tmp.setValue(entry.getValue().size());
+            pies.add(tmp);
+        }
+        refuseReson.setData(pies);
+        reportModel.setRefuseReson(refuseReson);
+        return reportModel;
     }
 }

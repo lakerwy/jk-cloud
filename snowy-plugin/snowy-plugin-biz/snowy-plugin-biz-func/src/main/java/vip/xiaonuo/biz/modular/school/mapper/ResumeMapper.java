@@ -14,6 +14,10 @@ package vip.xiaonuo.biz.modular.school.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.school.entity.Resume;
+import vip.xiaonuo.biz.modular.school.entity.ResumeRecord;
+
+import java.util.Date;
+import java.util.List;
 
 /**
  * 校招-简历Mapper接口
@@ -22,4 +26,6 @@ import vip.xiaonuo.biz.modular.school.entity.Resume;
  * @date  2023/11/15 08:54
  **/
 public interface ResumeMapper extends BaseMapper<Resume> {
+
+    List<ResumeRecord> getRecordRefuse(Date startTime, Date endTime, String actionType, String result);
 }
