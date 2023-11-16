@@ -123,7 +123,7 @@ public class HrUserApplyHolidayServiceImpl extends ServiceImpl<HrUserApplyHolida
         FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
         //将流程实例和业务表关联起来
         String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));/**  数据库名一定得是小写*/
-        formRelationTableApi.save(modelId, BizCommonEnum.BIZ_AUDIT_LISTS.getBizTable(),id,processInstanceId,dbName);
+        formRelationTableApi.save(modelId, BizCommonEnum.HR_USER_APPLY_HOLIDAY.getBizTable(),id,processInstanceId,dbName);
         hrUserApplyHoliday.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
 
         this.save(hrUserApplyHoliday);

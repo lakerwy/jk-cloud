@@ -20,7 +20,10 @@ public enum BizCommonEnum {
     BIZ_PRJ_PLAN("BIZ_PRJ_PLAN","BIZ_PRJ_PLAN","BizPrjPlanServiceImpl"),  //项目计划付款单
     BIZ_PRJ_SETTLE("BIZ_PRJ_SETTLE","BIZ_PRJ_SETTLE","BizPrjSettleServiceImpl"),  //项目款结算单
     BIZ_PRJ_ALLOTMENT("BIZ_PRJ_ALLOTMENT","BIZ_PRJ_ALLOTMENT","BizPrjAllotmentServiceImpl"),  //项目拨付款申请单
-    HR_APPLY_ATTENDANCE("HR_USER_APPLY_ATTENDANCE","HR_USER_APPLY_ATTENDANCE","HrUserApplyAttendanceServiceImpl"),
+    HR_APPLY_ATTENDANCE("HR_USER_APPLY_ATTENDANCE","HR_USER_APPLY_ATTENDANCE","HrUserApplyAttendanceServiceImpl"),//申请补卡
+    HR_USER_APPLY_HOLIDAY("HR_USER_APPLY_HOLIDAY","HR_USER_APPLY_HOLIDAY","HrUserApplyHolidayServiceImpl"),//请假
+    HR_APPLY_WORK_OT("HR_APPLY_WORK_OT","HR_APPLY_WORK_OT","HrApplyWorkOtServiceImpl"),//申请加班
+    HR_USER_APPLY_GOOUT("HR_USER_APPLY_GOOUT","HR_USER_APPLY_GOOUT","HrUserApplyGooutServiceImpl"),//申请出差
 
     BIZ_VISIT("BIZ_VISIT","BIZ_VISIT","BizVisitServiceImpl"),  //董事办-外访记录
 
