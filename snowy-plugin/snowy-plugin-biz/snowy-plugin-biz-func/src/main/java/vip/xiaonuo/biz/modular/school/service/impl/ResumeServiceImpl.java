@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -39,6 +40,8 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.school.entity.Resume;
 import vip.xiaonuo.biz.modular.school.mapper.ResumeMapper;
 import vip.xiaonuo.biz.modular.school.service.ResumeService;
+import vip.xiaonuo.dbs.api.DbsApi;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 
 import javax.annotation.Resource;
 import java.text.DecimalFormat;
@@ -266,6 +269,13 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
 
     @Override
     public Page<Resume> pageByUserId(ResumePageParam resumePageParam) {
+        //获取当前部门及其子部门
+        DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+        dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase());
+        List<BizOrg> allOrgList = bizOrgService.getAllOrgList();
+        List<BizOrg> orgList = bizOrgService.getChildListById(allOrgList, StpLoginUserUtil.getLoginUser().getOrgId(),true);
+        dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
+        //查询
         QueryWrapper<Resume> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(resumePageParam.getName())) {
             queryWrapper.lambda().like(Resume::getName, resumePageParam.getName());
@@ -303,9 +313,6 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
         if(ObjectUtil.isNotEmpty(resumePageParam.getFilterStatusNotIn())){
             queryWrapper.lambda().notIn(Resume::getStatus,resumePageParam.getFilterStatusNotIn());
         }
-        //获取当前部门及其子部门
-        List<BizOrg> allOrgList = bizOrgService.getAllOrgList();
-        List<BizOrg> orgList = bizOrgService.getChildListById(allOrgList, StpLoginUserUtil.getLoginUser().getOrgId(),true);
         if(CollUtil.isNotEmpty(orgList)){
             queryWrapper.lambda().in(Resume::getBelongsDepts,orgList.stream().map(x->x.getId()).collect(Collectors.toList()));
         }
