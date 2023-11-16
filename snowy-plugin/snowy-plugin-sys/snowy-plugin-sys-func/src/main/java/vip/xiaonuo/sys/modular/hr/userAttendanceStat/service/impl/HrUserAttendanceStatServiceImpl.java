@@ -1186,13 +1186,13 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 default:
                     break;
             }
-            if(type == 1){
+            if(attendanceAnalysisData.getFirstData() == null){
                 attendanceAnalysisData.setFirstData(yAxis);
             }else{
                 attendanceAnalysisData.setSecondData(yAxis);
             }
         });
-        testData(attendanceAnalysisData,orgList);
+        orgDataStat( attendanceAnalysisData, attendanceAnalysisParam.getOrgId(), attendanceAnalysisParam, vactionTimeAnalysis);
         return attendanceAnalysisData;
     }
 
@@ -1400,45 +1400,92 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         return xAxis;
     }
 
-    private void testData(AttendanceAnalysisData attendanceAnalysisData,List<String> sysOrgList){
-        List<Map<String,Object>> list = new ArrayList<>();
-        Map<String,Object> mapData1 = new HashMap<>();
-        mapData1.put("orgName","直属事业部");
-        mapData1.put("1","21");
-        mapData1.put("2","100.00");
-        list.add(mapData1);
-
-        Map<String,Object> mapData2 = new HashMap<>();
-        mapData2.put("orgName","研究院");
-        mapData2.put("1","28");
-        mapData2.put("2","96.43");
-        list.add(mapData2);
-
-        Map<String,Object> mapData3 = new HashMap<>();
-        mapData3.put("orgName","子公司");
-        mapData3.put("1","9");
-        mapData3.put("2","44.44");
-        list.add(mapData3);
-
-        Map<String,Object> mapData4 = new HashMap<>();
-        mapData4.put("orgName","职能中心");
-        mapData4.put("1","77");
-        mapData4.put("2","89.61");
-        list.add(mapData4);
-
-        Map<String,Object> mapData5 = new HashMap<>();
-        mapData5.put("orgName","直属设计院");
-        mapData5.put("1","173");
-        mapData5.put("2","86.13");
-        list.add(mapData5);
-        attendanceAnalysisData.setOrgDataMap(list);
-
-    }
-
     private String decimalFormat(Double value){
         DecimalFormat df = new DecimalFormat("#.####");
         String result = df.format(value);
         return result;
+    }
+
+    private void orgDataStat(AttendanceAnalysisData attendanceAnalysisData,String orgId,AttendanceAnalysisParam attendanceAnalysisParam,VactionTimeAnalysis vactionTimeAnalysis){
+        List<Map<String,Object>> list = new ArrayList<>();
+        //当未传部门参数,传部门参数
+        if(StringUtils.isEmpty(orgId)){
+            List<SysOrg> orgList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getParentId,HrUserAttendanceStatEnum.PARENT_CODE.getValue()));
+            List<List<String>> userList = new ArrayList<>();
+            int  i = 1 ;
+            orgList.forEach(org -> {
+                List<String> userIds = hrUserAttendanceService.getOrgAndUserList(org.getId()).stream().map(user -> user.getId()).collect(Collectors.toList());
+                list.add(orgData(attendanceAnalysisParam,userIds,org.getName(),vactionTimeAnalysis));
+            });
+
+        }else{
+            List<String> userIds =  hrUserAttendanceService.getOrgAndUserList(orgId).stream().map(user -> user.getId()).collect(Collectors.toList());
+        }
+        attendanceAnalysisData.setOrgDataMap(list);
+    }
+
+    private Map<String,Object> orgData(AttendanceAnalysisParam attendanceAnalysisParam,List<String> userIds,String orgName,VactionTimeAnalysis vactionTimeAnalysis){
+        QueryWrapper<HrAttendanceAnalStat> queryWrapper = new QueryWrapper<>();
+        queryWrapper.select("IFNULL(sum(WORK_HOURS),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum,IFNULL(sum(WORKOT_FLAG),0) as workOtNum,IFNULL(sum(LATE_FLAG),0) as lateNum");
+
+        Map<String,Object> map = new HashMap<>();
+        attendanceAnalysisParam.getType().forEach(type -> {
+            switch(type){
+                case 1://应到人数  shouldAtNum
+                    Long shouldAtNum = sysUserService.count(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds).isNotNull(SysUser::getAttendanceGroupId).ne(SysUser::getAttendanceGroupId,""));
+                    map.put("orgName",orgName);
+                    map.put(type.toString(),shouldAtNum);
+                    break;
+                case 2: //打卡人数 attendanceNum
+                    Long attendanceNum = hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>().in(HrAttendanceAnalStat::getUserId,userIds)
+                            .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()));
+                    map.put("orgName",orgName);
+                    map.put(type.toString(),attendanceNum);
+                    break;
+                case 3: //出勤率
+                    attendanceNum = hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>().in(HrAttendanceAnalStat::getUserId,userIds)
+                            .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()));
+                    shouldAtNum = sysUserService.count(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds).isNotNull(SysUser::getAttendanceGroupId).ne(SysUser::getAttendanceGroupId,""));
+                    Double atdRate = shouldAtNum == 0 ? 0.0 : attendanceNum/shouldAtNum;
+                    map.put("orgName",orgName);
+                    map.put(type.toString(),decimalFormat(atdRate));
+                    break;
+                case 4: //平均工时
+                    Map<String, Object> workMap = hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                            .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()));
+                    attendanceNum = hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>().in(HrAttendanceAnalStat::getUserId,userIds)
+                            .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()));
+                    Double totalWorkHours = map.get("totalWorkHours") == null ? 0.0 : Double.parseDouble(map.get("totalWorkHours").toString());
+                    double averageWkHour = attendanceNum == 0 ? 0.0 : totalWorkHours.doubleValue()/attendanceNum;
+                    map.put("orgName",orgName);
+                    map.put(type.toString(),decimalFormat(averageWkHour));
+                    break;
+                case 5: //请假人数
+                    workMap = hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                            .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()));
+                    Integer leaveNum =  workMap.get("leaveNum") == null ? 0 : Integer.parseInt(workMap.get("leaveNum").toString());
+                    map.put("orgName",orgName);
+                    map.put(type.toString(),leaveNum.toString());
+                    break;
+                case 6: //加班人数
+                    workMap = hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                            .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()));
+                    BigDecimal workOtNum = (BigDecimal) map.get("workOtNum") == null ? new BigDecimal(0) : (BigDecimal) map.get("workOtNum") ;
+                    map.put("orgName",orgName);
+                    map.put(type.toString(),workOtNum.toString());
+                    break;
+                case 7: //迟到人数
+                    workMap = hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
+                            .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()));
+                    BigDecimal lateNum = (BigDecimal) map.get("lateNum") == null ? new BigDecimal(0) : (BigDecimal) map.get("lateNum");
+                    map.put("orgName",orgName);
+                    map.put(type.toString(),lateNum.toString());
+                    break;
+                default:
+                    break;
+            }
+        });
+        return map;
     }
 
 }
