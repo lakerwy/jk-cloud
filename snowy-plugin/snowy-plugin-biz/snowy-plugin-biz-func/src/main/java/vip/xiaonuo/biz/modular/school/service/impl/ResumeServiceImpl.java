@@ -44,7 +44,6 @@ import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 
 import javax.annotation.Resource;
-import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -378,9 +377,6 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
         //时间区间内的简历
         List<Resume> dbResumes = this.list(queryWrapper);
 
-        //小数位设置
-        DecimalFormat df = new DecimalFormat("#.00");
-
         //1. 简历收集-柱状图(根据简历来源统计)
         Map<String,List<Resume>> infoSourceGroup = dbResumes.stream().collect(Collectors.groupingBy(x->x.getInfoSource()));
         BarChart collect = new BarChart();
@@ -459,10 +455,10 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
         reportModel.setFilter(filter);
 
         //5. 到面率&通过率-折线图
-        LineChart2<String> passing = new LineChart2();
+        LineChart2<Float> passing = new LineChart2();
         List<String> passing_xAxis = new ArrayList<>();
-        List<String> passing_firstData = new ArrayList<>();
-        List<String> passing_secondData = new ArrayList<>();
+        List<Float> passing_firstData = new ArrayList<>();
+        List<Float> passing_secondData = new ArrayList<>();
         for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
             //通知面试
             int preFace = entry.getValue().stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.Notified.getValue())).collect(Collectors.toList()).size();
@@ -474,8 +470,8 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
             float arriveRate = preFace == 0 ? 0 : (float)addFace / preFace;   //到面率   参加面试数/所有待参加面试数
             float passRate = addFace == 0 ? 0 : (float)passFace / addFace;    //通过率   通过面试数/参加面试数
             passing_xAxis.add(entry.getKey());
-            passing_firstData.add(df.format(arriveRate));
-            passing_secondData.add(df.format(passRate));
+            passing_firstData.add(arriveRate);
+            passing_secondData.add(passRate);
         }
         passing.setXAxis(passing_xAxis);
         passing.setFirstData(passing_firstData);
@@ -483,9 +479,9 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
         reportModel.setPassing(passing);
 
         //6. offer拒绝率-折线图
-        LineChart<String> refuse = new LineChart<String>();
+        LineChart<Float> refuse = new LineChart<Float>();
         List<String> refuse_xAxis = new ArrayList<>();
-        List<String> refuse_data = new ArrayList<>();
+        List<Float> refuse_data = new ArrayList<>();
         for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
             //待发Offer数 ！！！
             int preOffer = entry.getValue().stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.PreOffer.getValue())).collect(Collectors.toList()).size();
@@ -493,7 +489,7 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
             int refuseOffer = entry.getValue().stream().filter(x->x.getStatus().equals(ResumeStatusEnum.Refuse.getValue())).collect(Collectors.toList()).size();
             float refuseRate = preOffer == 0 ? 0 : (float)(refuseOffer / preOffer);   //Offer拒绝率   Offer拒绝数/待发Offer数
             refuse_xAxis.add(entry.getKey());
-            refuse_data.add(df.format(refuseRate));
+            refuse_data.add(refuseRate);
         }
         refuse.setXAxis(refuse_xAxis);
         refuse.setData(refuse_data);

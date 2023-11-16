@@ -33,7 +33,7 @@ public class ReportModel {
 
     /** refuse：6  offer拒绝率-折线图 */
     @ApiModelProperty(value = "refuse：6  offer拒绝率-折线图")
-    private LineChart<String> refuse ;
+    private LineChart<Float> refuse ;
 
     /** passPerson：7  面试通过人数及接受offer人数-柱状图 */
     @ApiModelProperty(value = "passPerson：7  面试通过人数及接受offer人数-柱状图")
