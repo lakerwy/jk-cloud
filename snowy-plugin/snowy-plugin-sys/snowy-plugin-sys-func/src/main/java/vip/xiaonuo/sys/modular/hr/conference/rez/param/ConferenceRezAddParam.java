@@ -20,6 +20,7 @@ import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 会议预约-预约会议表数据添加参数
@@ -91,5 +92,17 @@ public class ConferenceRezAddParam {
     /** 每月的哪一天 */
     @ApiModelProperty(value = "周期预约参数：每月的哪一天", position = 16)
     private Integer dayTime;
+
+    /** 主持人 */
+    @ApiModelProperty(value = "主持人", position = 17)
+    private String presideUser;
+
+    /** 会议记录人 */
+    @ApiModelProperty(value = "会议记录人", position = 18)
+    private String recordUser;
+
+    /** 会务人员：多个 */
+    @ApiModelProperty(value = "会务人员：多个", position = 19)
+    private List<String> conAffUsers;
 
 }

@@ -239,6 +239,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         if(CollectionUtil.isNotEmpty(hrAttendanceAnalStatList)){
             hrAttendanceAnalStat = hrAttendanceAnalStatList.get(0);
         }
+        hrAttendanceAnalStat.setOrgId(sysUser.getOrgId());
         hrAttendanceAnalStat.setUserId(hrUserAttendanceStatEvent.getUserId());
         hrAttendanceAnalStat.setUserName(hrUserAttendanceStatEvent.getUserName());
         hrAttendanceAnalStat.setCheckTime(hrUserAttendanceStatEvent.getCheckTime());
@@ -1118,6 +1119,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     public AttendanceAnalysisData attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam){
         List<String> orgList = new ArrayList<>();
         List<String> userList = new ArrayList<>();
+        Long shouldAtNumL = sysUserService.count(new LambdaQueryWrapper<SysUser>().isNotNull(SysUser::getAttendanceGroupId).ne(SysUser::getAttendanceGroupId,""));
+        Integer shouldAtNum = Integer.parseInt(shouldAtNumL.toString());
         if(StringUtils.isEmpty(attendanceAnalysisParam.getOrgId())){
             List<SysOrg> sysOrgList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getParentId,HrUserAttendanceStatEnum.PARENT_CODE.getValue()));
             sysOrgList.forEach(org -> orgList.add(org.getId()));
@@ -1137,7 +1140,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             switch(type){
                 case 1://应到人数  shouldAtNum
                     for(int i=0;i<size;i++){
-                        yAxis[i] = "308";//暂时用固定值
+                        yAxis[i] = shouldAtNum.toString();//暂时用固定值
                     }
                     break;
                 case 2: //打卡人数
@@ -1149,7 +1152,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 case 3: //出勤率
                     for(int i=0;i<size;i++){
                         Integer attendanceNum = analStatMap.get("attendanceNum") == null ? 0 : Integer.parseInt(analStatMap.get("attendanceNum").toString());
-                        Integer shouldAtNum = 308;
+                        //Integer shouldAtNum = 308;
                         Double attendanceRate = shouldAtNum != 0l ? attendanceNum/shouldAtNum : 0.0;
                         yAxis[i] = attendanceRate.toString();//暂时用固定值
                     }
@@ -1254,7 +1257,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         attendanceAnalysisData.setWorkOtNumCompare(workOtNumCompare.toString());
         //迟到人数
         BigDecimal lateNum = (BigDecimal) map.get("lateNum") == null ? new BigDecimal(0) : (BigDecimal) map.get("lateNum");
-        attendanceAnalysisData.setLeaveNum(lateNum.intValue());
+        attendanceAnalysisData.setLateNum(lateNum.intValue());
         BigDecimal oldLateNum = (BigDecimal) oldMap.get("lateNum") == null ? new BigDecimal(0) : (BigDecimal) oldMap.get("lateNum");
         Integer lateNumCompare = lateNum.intValue() - oldLateNum.intValue();
         attendanceAnalysisData.setLateNumCompare(workOtNumCompare.toString());
@@ -1297,13 +1300,13 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             try{
                 LocalDate startOfWeek = localTime.with(DayOfWeek.MONDAY);
                 LocalDate endOfWeek = localTime.with(DayOfWeek.SUNDAY);
-                Date firstBeginTime =  DateUtils.parseDate(startOfWeek.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
-                Date firstEndBeginTime = DateUtils.parseDate(endOfWeek.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+                Date firstBeginTime =  DateUtils.parseDate(startOfWeek.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                Date firstEndBeginTime = DateUtils.parseDate(endOfWeek.format(formatter)+HrUserAttendanceStatEnum.END_TIME.getValue());
 
                 LocalDate startOfPreviousWeek = startOfWeek.minusWeeks(1);
                 LocalDate endOfPreviousWeek = endOfWeek.minusWeeks(1);
-                Date secondBeginTime = DateUtils.parseDate(startOfPreviousWeek.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
-                Date secondEndTime = DateUtils.parseDate(endOfPreviousWeek.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+                Date secondBeginTime = DateUtils.parseDate(startOfPreviousWeek.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                Date secondEndTime = DateUtils.parseDate(endOfPreviousWeek.format(formatter)+HrUserAttendanceStatEnum.END_TIME.getValue());
 
                 vactionTimeAnalysis.setFirstBeginTime(firstBeginTime);
                 vactionTimeAnalysis.setFirstEndTime(firstEndBeginTime);
@@ -1315,8 +1318,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 for(int i=2;i<6;i++){
                     LocalDate localDate1 = startOfWeek.minusWeeks(i);
                     LocalDate localDate2 = endOfWeek.minusWeeks(i);
-                    Date date1 = DateUtils.parseDate(localDate1.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
-                    Date date2 = DateUtils.parseDate(localDate2.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+                    Date date1 = DateUtils.parseDate(localDate1.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                    Date date2 = DateUtils.parseDate(localDate2.format(formatter)+HrUserAttendanceStatEnum.END_TIME.getValue());
                     timeDataVoList.add(new TimeDataVo(date1,date2));
                 }
                 vactionTimeAnalysis.setTimeDataVoList(timeDataVoList);
@@ -1328,13 +1331,13 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             try{
                 LocalDate startOfMonth = localTime.with(TemporalAdjusters.firstDayOfMonth());//月第一天
                 LocalDate endOfMonth = localTime.with(TemporalAdjusters.lastDayOfMonth());//月最后一天
-                Date firstBeginTime =  DateUtils.parseDate(startOfMonth.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
-                Date firstEndBeginTime = DateUtils.parseDate(endOfMonth.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+                Date firstBeginTime =  DateUtils.parseDate(startOfMonth.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                Date firstEndBeginTime = DateUtils.parseDate(endOfMonth.format(formatter)+HrUserAttendanceStatEnum.END_TIME.getValue());
 
                 LocalDate  startOfPreviousMonth = startOfMonth.minusMonths(1);
                 LocalDate  endOfPreviousMonth = startOfMonth.minusMonths(1);
-                Date secondBeginTime = DateUtils.parseDate(startOfPreviousMonth.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
-                Date secondEndTime = DateUtils.parseDate(endOfPreviousMonth.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+                Date secondBeginTime = DateUtils.parseDate(startOfPreviousMonth.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                Date secondEndTime = DateUtils.parseDate(endOfPreviousMonth.format(formatter)+HrUserAttendanceStatEnum.END_TIME.getValue());
 
                 vactionTimeAnalysis.setFirstBeginTime(firstBeginTime);
                 vactionTimeAnalysis.setFirstEndTime(firstEndBeginTime);
@@ -1347,10 +1350,11 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 for(int i=2;i<6;i++){
                     LocalDate localDate1 = startOfMonth.minusMonths(i);
                     LocalDate localDate2 = endOfMonth.minusMonths(i);
-                    Date date1 = DateUtils.parseDate(localDate1.format(formatter)+"",HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
-                    Date date2 = DateUtils.parseDate(localDate2.format(formatter)+"",HrUserAttendanceStatEnum.END_TIME.getValue());
+                    Date date1 = DateUtils.parseDate(localDate1.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                    Date date2 = DateUtils.parseDate(localDate2.format(formatter)+HrUserAttendanceStatEnum.END_TIME.getValue());
                     timeDataVoList.add(new TimeDataVo(date1,date2));
                 }
+                vactionTimeAnalysis.setTimeDataVoList(timeDataVoList);
             }catch (Exception e){
                 log.error("时间处理失败！e:"+e.toString());
             }

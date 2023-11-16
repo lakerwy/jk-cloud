@@ -119,8 +119,19 @@ public class ConferenceRez {
     private Integer verifyFlag;
 
     /**展示时间*/
-    @ApiModelProperty(value = "会议类型：普通会议，周期会议", position = 21)
+    @ApiModelProperty(value = "会议类型：普通会议为空，周期会议1", position = 21)
     @TableField(exist = false)
-    private String ConferenceType;
+    private String conferenceType;
 
+    /** 主持人 */
+    @ApiModelProperty(value = "主持人", position = 22)
+    private String presideUser;
+
+    /** 会议记录人 */
+    @ApiModelProperty(value = "会议记录人", position = 23)
+    private String recordUser;
+
+    /** 会务人员：多个 */
+    @ApiModelProperty(value = "会务人员：多个", position = 24)
+    private String conAffUsers;
 }

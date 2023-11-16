@@ -120,4 +120,16 @@ public class ConferenceRezPeriod {
     @ApiModelProperty(value = "修改用户", position = 21)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 主持人 */
+    @ApiModelProperty(value = "主持人", position = 22)
+    private String presideUser;
+
+    /** 会议记录人 */
+    @ApiModelProperty(value = "会议记录人", position = 23)
+    private String recordUser;
+
+    /** 会务人员：多个 */
+    @ApiModelProperty(value = "会务人员：多个", position = 24)
+    private String conAffUsers;
 }

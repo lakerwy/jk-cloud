@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -45,10 +46,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.service.ConferenceRezPeri
 
 import javax.annotation.Resource;
 import java.sql.Time;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -70,24 +68,38 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
         QueryWrapper<ConferenceRez> queryWrapper = new QueryWrapper<>();
+        QueryWrapper<ConferenceRezPeriod> queryPeriod = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getConferenceConfigId())) {
             queryWrapper.lambda().eq(ConferenceRez::getConferenceConfigId, conferenceRezPageParam.getConferenceConfigId());
+            queryPeriod.lambda().eq(ConferenceRezPeriod::getConferenceConfigId, conferenceRezPageParam.getConferenceConfigId());
         }
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getRezUser())) {
             queryWrapper.lambda().eq(ConferenceRez::getRezUser, conferenceRezPageParam.getRezUser());
+            queryPeriod.lambda().eq(ConferenceRezPeriod::getRezUser, conferenceRezPageParam.getRezUser());
         }
         if(ObjectUtil.isAllNotEmpty(conferenceRezPageParam.getSortField(), conferenceRezPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(conferenceRezPageParam.getSortOrder());
             queryWrapper.orderBy(true, conferenceRezPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(conferenceRezPageParam.getSortField()));
+            queryPeriod.orderBy(true, conferenceRezPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(conferenceRezPageParam.getSortField()));
         } else {
             queryWrapper.lambda().orderByAsc(ConferenceRez::getId);
+            queryPeriod.lambda().orderByAsc(ConferenceRezPeriod::getId);
         }
+        queryWrapper.lambda().ge(ConferenceRez::getBeginTime,conferenceRezPageParam.getBeginTime()).le(ConferenceRez::getEndTime,conferenceRezPageParam.getEndTime());//会议时间区间在开始时间和结束时间之间
+        queryPeriod.lambda().ge(ConferenceRezPeriod::getBeginTime,conferenceRezPageParam.getBeginTime()).le(ConferenceRezPeriod::getEndTime,conferenceRezPageParam.getEndTime());
         Page<ConferenceRez> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<ConferenceRez> conferenceRezList = page.getRecords();
+        conferenceRezPeriodService.list(queryPeriod).forEach(period -> {
+            ConferenceRez conferenceRez = BeanUtil.toBean(period,ConferenceRez.class);
+            conferenceRez.setConferenceType("1");
+            conferenceRezList.add(conferenceRez);
+        });
         if(CollectionUtil.isNotEmpty(conferenceRezList)){
             conferenceRezList.forEach(rez -> rez.setShowTime(caltTime(rez)));
             page.setRecords(conferenceRezList);
+            page.setTotal(conferenceRezList.size());
         }
         return page;
     }
@@ -106,18 +118,25 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
+        StringBuffer conAffUsers = new StringBuffer();
+        if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getConAffUsers())){
+            conferenceRezAddParam.getConAffUsers().forEach(aff -> {
+                conAffUsers.append(aff).append(",");
+            });
+        }
         if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getStatus())){
             Boolean isTrue = ObjectUtil.isEmpty(conferenceRezAddParam.getWeekTime()) && ObjectUtil.isEmpty(conferenceRezAddParam.getDayTime());
             if(isTrue){ throw new CommonException("周期预约时，时间类型不能都为空");}
-            updateConferenceRezPeriod(conferenceRezAddParam);
+            updateConferenceRezPeriod(conferenceRezAddParam,conAffUsers.toString());
+        }else{
+            ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
+            this.save(conferenceRez);
         }
-        ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
-        this.save(conferenceRez);
         //异步推送消息
         ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent("","");
         eventPublisher.publishEvent(conferenceMsgEvent);
     }
-    private void updateConferenceRezPeriod(ConferenceRezAddParam conferenceRezAddParam){
+    private void updateConferenceRezPeriod(ConferenceRezAddParam conferenceRezAddParam,String affUsers){
         ConferenceRezPeriod conferenceRezPeriod = BeanUtil.toBean(conferenceRezAddParam, ConferenceRezPeriod.class);
         conferenceRezPeriod.setConferenceConfigId(conferenceRezAddParam.getConferenceConfigId());
         //时间处理
@@ -127,26 +146,52 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceRezPeriod.setEndTime(endTime);
         conferenceRezPeriod.setWeekTime(conferenceRezAddParam.getWeekTime());
         conferenceRezPeriod.setDayTime(conferenceRezAddParam.getDayTime());
+        conferenceRezPeriod.setConAffUsers(StringUtils.isNotEmpty(affUsers) ? affUsers : "");
         conferenceRezPeriodService.save(conferenceRezPeriod);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ConferenceRezEditParam conferenceRezEditParam) {
+        if(StringUtils.isNotEmpty(conferenceRezEditParam.getStatus()) && conferenceRezEditParam.getStatus().equals("1")){
+            editPeriod(conferenceRezEditParam);
+            return;
+        }
         ConferenceRez conferenceRez = this.queryEntity(conferenceRezEditParam.getId());
         BeanUtil.copyProperties(conferenceRezEditParam, conferenceRez);
         this.updateById(conferenceRez);
+    }
+    private void editPeriod(ConferenceRezEditParam conferenceRezEditParam){
+        ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.queryEntity(conferenceRezEditParam.getId());
+        BeanUtil.copyProperties(conferenceRezEditParam, conferenceRezPeriod);
+        conferenceRezPeriodService.updateById(conferenceRezPeriod);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<ConferenceRezIdParam> conferenceRezIdParamList) {
+        List<ConferenceRezIdParam> rezList = new ArrayList<>();
+        List<ConferenceRezIdParam> periodList = new ArrayList<>();
+        conferenceRezIdParamList.forEach(param -> {
+            if(StringUtils.isNotEmpty(param.getStatus()) && param.getStatus().equals("1")){
+                periodList.add(param);
+            }else {
+             rezList.add(param);
+            }
+        });
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(conferenceRezIdParamList, ConferenceRezIdParam::getId));
+        conferenceRezPeriodService.removeByIds(CollStreamUtil.toList(periodList, ConferenceRezIdParam::getId));
+        this.removeByIds(CollStreamUtil.toList(rezList, ConferenceRezIdParam::getId));
     }
 
     @Override
     public ConferenceRez detail(ConferenceRezIdParam conferenceRezIdParam) {
+        if(StringUtils.isNotEmpty(conferenceRezIdParam.getStatus()) && conferenceRezIdParam.getStatus().equals("1")){
+            ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.queryEntity(conferenceRezIdParam.getId());
+            if(ObjectUtil.isNotEmpty(conferenceRezPeriod)){
+                return BeanUtil.toBean(conferenceRezPeriod,ConferenceRez.class);
+            }
+        }
         return this.queryEntity(conferenceRezIdParam.getId());
     }
 
