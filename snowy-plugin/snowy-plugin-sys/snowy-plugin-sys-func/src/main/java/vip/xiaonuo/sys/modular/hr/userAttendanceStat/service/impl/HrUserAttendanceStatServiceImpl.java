@@ -385,6 +385,11 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             hrUserAttendanceStatList.forEach(stat -> {
                 if(stat.getCheckTime().compareTo(attendance.getCheckTime()) == 0){
                     attendance.setAbnormalFlag(stat.getAbnormalFlag());
+                }else{
+                    HrUserAttendance hrUserAttendance = BeanUtil.toBean(stat,HrUserAttendance.class);
+                    if(ObjectUtil.isNotEmpty(hrUserAttendance)){
+                        mergeList.add(hrUserAttendance);
+                    }
                 }
             });
             mergeList.add(attendance);
