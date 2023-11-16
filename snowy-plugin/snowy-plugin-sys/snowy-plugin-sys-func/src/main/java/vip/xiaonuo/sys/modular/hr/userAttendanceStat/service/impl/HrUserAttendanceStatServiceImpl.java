@@ -426,9 +426,12 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                     continue;
                 }
                 /**  预留：后续要加请假，调休，年假的情况 */
+                //判断是否存在 请假，外出，出差
+                Long holidayNum = hrUserApplyHolidayService.count(new LambdaQueryWrapper<HrUserApplyHoliday>());
 
-                hrUserAttendance.setUserId(userId);
+
                 hrUserAttendance.setAbnormalFlag(-1);
+                hrUserAttendance.setUserId(userId);
                 hrUserAttendance.setCheckTime(userAttendanceConfigEntityList.get(i).getCheckTime());
                 hrUserAttendance.setCheckType(userAttendanceConfigEntityList.get(i).getDutyType());
                 hrUserAttendance.setConfigOrderNumber(userAttendanceConfigEntityList.get(i).getOrderNumber());

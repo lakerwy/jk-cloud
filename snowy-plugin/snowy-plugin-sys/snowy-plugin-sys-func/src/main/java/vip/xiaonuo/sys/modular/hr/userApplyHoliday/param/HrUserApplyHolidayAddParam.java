@@ -45,11 +45,11 @@ public class HrUserApplyHolidayAddParam {
 
     /** 申请开始时间 */
     @ApiModelProperty(value = "申请开始时间", position = 6)
-    private Date applyBeginTime;
+    private String applyBeginTime;
 
     /** 申请结束时间 */
     @ApiModelProperty(value = "申请结束时间", position = 7)
-    private Date applyEndTime;
+    private String applyEndTime;
 
     /** 申请理由 */
     @ApiModelProperty(value = "申请理由", position = 8)
