@@ -25,6 +25,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.school.param.*;
 import vip.xiaonuo.biz.modular.school.vo.ReportModel;
+import vip.xiaonuo.biz.modular.school.vo.ResumeReportViewModel;
+import vip.xiaonuo.biz.modular.school.vo.ResumeTotalModel;
 import vip.xiaonuo.biz.modular.school.vo.ResumeVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -59,43 +61,43 @@ public class ResumeController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取校招-简历分页")
-    @SaCheckPermission("/biz/sys/resume/getResumePageList")
+//    @SaCheckPermission("/biz/sys/resume/getResumePageList")
     @GetMapping("/biz/sys/resume/getResumePageList")
     public CommonResult<Page<Resume>> page(ResumePageParam resumePageParam) {
         return CommonResult.data(resumeService.page(resumePageParam));
     }
 
-    /**
-     * 添加校招-简历
-     *
-     * @author yong.ye
-     * @date  2023/11/15 08:54
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("添加校招-简历")
-    @CommonLog("添加校招-简历")
-    @SaCheckPermission("/biz/sys/resume/add")
-    @PostMapping("/biz/sys/resume/add")
-    public CommonResult<String> add(@RequestBody @Valid ResumeAddParam resumeAddParam) {
-        resumeService.add(resumeAddParam);
-        return CommonResult.ok();
-    }
-
-    /**
-     * 编辑校招-简历
-     *
-     * @author yong.ye
-     * @date  2023/11/15 08:54
-     */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑校招-简历")
-    @CommonLog("编辑校招-简历")
-    @SaCheckPermission("/biz/sys/resume/edit")
-    @PostMapping("/biz/sys/resume/edit")
-    public CommonResult<String> edit(@RequestBody @Valid ResumeEditParam resumeEditParam) {
-        resumeService.edit(resumeEditParam);
-        return CommonResult.ok();
-    }
+//    /**
+//     * 添加校招-简历
+//     *
+//     * @author yong.ye
+//     * @date  2023/11/15 08:54
+//     */
+//    @ApiOperationSupport(order = 2)
+//    @ApiOperation("添加校招-简历")
+//    @CommonLog("添加校招-简历")
+////    @SaCheckPermission("/biz/sys/resume/add")
+//    @PostMapping("/biz/sys/resume/add")
+//    public CommonResult<String> add(@RequestBody @Valid ResumeAddParam resumeAddParam) {
+//        resumeService.add(resumeAddParam);
+//        return CommonResult.ok();
+//    }
+//
+//    /**
+//     * 编辑校招-简历
+//     *
+//     * @author yong.ye
+//     * @date  2023/11/15 08:54
+//     */
+//    @ApiOperationSupport(order = 3)
+//    @ApiOperation("编辑校招-简历")
+//    @CommonLog("编辑校招-简历")
+////    @SaCheckPermission("/biz/sys/resume/edit")
+//    @PostMapping("/biz/sys/resume/edit")
+//    public CommonResult<String> edit(@RequestBody @Valid ResumeEditParam resumeEditParam) {
+//        resumeService.edit(resumeEditParam);
+//        return CommonResult.ok();
+//    }
 
     /**
      * 删除校招-简历
@@ -106,7 +108,7 @@ public class ResumeController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除校招-简历")
     @CommonLog("删除校招-简历")
-    @SaCheckPermission("/biz/sys/resume/delete")
+//    @SaCheckPermission("/biz/sys/resume/delete")
     @PostMapping("/biz/sys/resume/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<ResumeIdParam> resumeIdParamList) {
@@ -122,7 +124,7 @@ public class ResumeController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取校招-简历详情")
-    @SaCheckPermission("/biz/sys/resume/getResumeDetail")
+//    @SaCheckPermission("/biz/sys/resume/getResumeDetail")
     @GetMapping("/biz/sys/resume/getResumeDetail")
     public CommonResult<ResumeVo> detail(@Valid ResumeIdParam resumeIdParam) {
         return CommonResult.data(resumeService.detail(resumeIdParam));
@@ -134,10 +136,10 @@ public class ResumeController {
      * @author yong.ye
      * @date  2023/11/15 08:54
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("简历操作 - 针对 HR筛选|部门筛选|面试通知|面试登记|Offer登记")
     @CommonLog("简历操作 - 针对 HR筛选|部门筛选|面试通知|面试登记|Offer登记")
-    @SaCheckPermission("/biz/sys/resume/doResumeAction")
+//    @SaCheckPermission("/biz/sys/resume/doResumeAction")
     @PostMapping("/biz/sys/resume/doResumeAction")
     public CommonResult<String> doResumeAction(@RequestBody @Valid ResumeRecordAddParam resumeRecordAddParam) {
         resumeService.doResumeAction(resumeRecordAddParam);
@@ -150,10 +152,10 @@ public class ResumeController {
      * @author yong.ye
      * @date  2023/11/15 08:54
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("批量简历操作 - 针对 HR筛选|部门筛选|面试通知|面试登记|Offer登记")
     @CommonLog("批量简历操作 - 针对 HR筛选|部门筛选|面试通知|面试登记|Offer登记")
-    @SaCheckPermission("/biz/sys/resume/doResumeActionBatch")
+//    @SaCheckPermission("/biz/sys/resume/doResumeActionBatch")
     @PostMapping("/biz/sys/resume/doResumeActionBatch")
     public CommonResult<String> doResumeActionBatch(@RequestBody @Valid BatchResumeRecord batchResumeRecord) {
         resumeService.doResumeActionBatch(batchResumeRecord);
@@ -166,10 +168,10 @@ public class ResumeController {
      * @author yong.ye
      * @date  2023/11/15 08:54
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("投递简历 - 保存简历")
     @CommonLog("投递简历 - 保存简历")
-    @SaCheckPermission("/biz/sys/resume/saveResume")
+//    @SaCheckPermission("/biz/sys/resume/saveResume")
     @PostMapping("/biz/sys/resume/saveResume")
     public CommonResult<String> saveResume(@RequestBody @Valid ResumeAddParam resumeAddParam) {
         resumeService.saveResume(resumeAddParam);
@@ -182,10 +184,10 @@ public class ResumeController {
      * @author yong.ye
      * @date  2023/11/15 08:54
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 9)
     @ApiOperation("简历部门推荐 【批量操作部门推荐】")
     @CommonLog("简历部门推荐 【批量操作部门推荐】")
-    @SaCheckPermission("/biz/sys/resume/assignDepts")
+//    @SaCheckPermission("/biz/sys/resume/assignDepts")
     @PostMapping("/biz/sys/resume/assignDepts")
     public CommonResult<String> assignDept(@RequestBody @Valid AssignDeptsDto assignDept) {
         resumeService.assignDept(assignDept);
@@ -198,9 +200,9 @@ public class ResumeController {
      * @author yong.ye
      * @date  2023/11/15 08:54
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 10)
     @ApiOperation("根据员工信息，获取所属部门，再获取该员工可以查阅的部门推荐简历")
-    @SaCheckPermission("/biz/sys/resume/getResumesByUserId")
+//    @SaCheckPermission("/biz/sys/resume/getResumesByUserId")
     @GetMapping("/biz/sys/resume/getResumesByUserId")
     public CommonResult<Page<Resume>> pageByUserId(ResumePageParam resumePageParam) {
         return CommonResult.data(resumeService.pageByUserId(resumePageParam));
@@ -212,10 +214,10 @@ public class ResumeController {
      * @author yong.ye
      * @date  2023/11/15 08:54
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 11)
     @ApiOperation("简历-取消部门推荐  【批量操作取消部门推荐】")
     @CommonLog("简历-取消部门推荐  【批量操作取消部门推荐】")
-    @SaCheckPermission("/biz/sys/resume/cancelAssignDepts")
+//    @SaCheckPermission("/biz/sys/resume/cancelAssignDepts")
     @PostMapping("/biz/sys/resume/cancelAssignDepts")
     public CommonResult<String> cancelAssignDept(@RequestBody @Valid AssignDeptsDto assignDept) {
         resumeService.cancelAssignDept(assignDept);
@@ -228,13 +230,40 @@ public class ResumeController {
      * @author yong.ye
      * @date  2023/11/15 08:54
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 12)
     @ApiOperation("根据区间，获取报表数据")
-    @SaCheckPermission("/biz/sys/resume/getReportView")
+//    @SaCheckPermission("/biz/sys/resume/getReportView")
     @GetMapping("/biz/sys/resume/getReportView")
     public CommonResult<ReportModel> getReportView(ReportParam reportParam) {
         return CommonResult.data(resumeService.getReportView(reportParam));
     }
 
+    /**
+     * 根据区间，获取简历统计数据
+     *
+     * @author yong.ye
+     * @date  2023/11/15 08:54
+     */
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("根据区间，获取简历统计数据")
+//    @SaCheckPermission("/biz/sys/resume/getResumeTotalView")
+    @GetMapping("/biz/sys/resume/getResumeTotalView")
+    public CommonResult<ResumeTotalModel> getResumeTotalView(ReportParam reportParam) {
+        return CommonResult.data(resumeService.getResumeTotalView(reportParam));
+    }
+
+    /**
+     * 根据区间，分页信息，获取简历报表数据
+     *
+     * @author yong.ye
+     * @date  2023/11/15 08:54
+     */
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("根据区间，分页信息，获取简历报表数据")
+//    @SaCheckPermission("/biz/sys/resume/getResumeReportPage")
+    @GetMapping("/biz/sys/resume/getResumeReportPage")
+    public CommonResult<Page<ResumeReportViewModel>> getResumeReportPage(ReportPageParam reportPageParam) {
+        return CommonResult.data(resumeService.getResumeReportPage(reportPageParam));
+    }
 
 }

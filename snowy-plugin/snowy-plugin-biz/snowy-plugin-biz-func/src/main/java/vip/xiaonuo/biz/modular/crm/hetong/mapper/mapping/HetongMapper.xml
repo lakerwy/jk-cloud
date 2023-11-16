@@ -4,7 +4,7 @@
     <select id="getListAll" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo" >
         select ID,SECOND_LEVEL,CONTRACT_NO,PROJECT_NAME,
                COUNTERPARTY,SECONDPARTY,COMPANY_OR_DEPARTMENT,`OWNER`,
-               BID_DATE,SEAL_DATE,FILING_DATE,CONTRACT_AMOUNT,PARTYC
+               BID_DATE,SEAL_DATE,FILING_DATE,CONTRACT_AMOUNT,PARTYC,SUM_AMOUNT
         from BIZ_CRM_HETONG where DELETE_FLAG = 'NOT_DELETE' and STATUS = '1'
     </select>
 

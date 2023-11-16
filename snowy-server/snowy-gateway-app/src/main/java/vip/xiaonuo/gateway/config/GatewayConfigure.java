@@ -177,6 +177,9 @@ public class GatewayConfigure {
             "/api/bizapp/biz/applet/eCard/getAppletCardOpenIdByCode",
             "/api/bizapp/biz/applet/eCard/getEcardByUserId",
 
+            /* 校招 */
+            "/api/bizapp/biz/sys/resume/saveResume",
+
     };
 
     /**

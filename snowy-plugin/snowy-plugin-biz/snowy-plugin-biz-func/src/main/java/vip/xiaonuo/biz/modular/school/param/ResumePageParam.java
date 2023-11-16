@@ -12,9 +12,12 @@
  */
 package vip.xiaonuo.biz.modular.school.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -87,10 +90,14 @@ public class ResumePageParam {
 
     /** 创建时间 - 起 */
     @ApiModelProperty(value = "创建时间 - 起")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date startCreateTime ;
 
     /** 创建时间 - 止 */
     @ApiModelProperty(value = "创建时间 - 止")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date endCreateTime ;
 
     /** 针对不同列表，过滤简历状态筛选   简历公海：投递成功、初筛不合格 */

@@ -23,7 +23,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.car.entity.VehicleApply;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.org.entity.BizOrg;
+import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.school.entity.ResumeRecord;
 import vip.xiaonuo.biz.modular.school.enums.ResumeActionTypeEnum;
 import vip.xiaonuo.biz.modular.school.enums.ResumeOprResultEnum;
@@ -39,7 +41,7 @@ import vip.xiaonuo.biz.modular.school.mapper.ResumeMapper;
 import vip.xiaonuo.biz.modular.school.service.ResumeService;
 
 import javax.annotation.Resource;
-import java.security.Key;
+import java.text.DecimalFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,8 +62,8 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
     @Resource
     ResumeMapper resumeMapper;
 
-//    @Resource
-//    SysOrgApi sysOrgApi;
+    @Resource
+    BizOrgService bizOrgService;
 
     @Override
     public Page<Resume> page(ResumePageParam resumePageParam) {
@@ -302,10 +304,12 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
             queryWrapper.lambda().notIn(Resume::getStatus,resumePageParam.getFilterStatusNotIn());
         }
         //获取当前部门及其子部门
-//        List<String> orgIds = sysOrgApi.getChildrenIds(StpLoginUserUtil.getLoginUser().getOrgId());
-//        if(CollUtil.isNotEmpty(orgIds)){
-//            queryWrapper.lambda().in(Resume::getBelongsDepts,orgIds);
-//        }
+        List<BizOrg> allOrgList = bizOrgService.getAllOrgList();
+        List<BizOrg> orgList = bizOrgService.getChildListById(allOrgList, StpLoginUserUtil.getLoginUser().getOrgId(),true);
+        if(CollUtil.isNotEmpty(orgList)){
+            queryWrapper.lambda().in(Resume::getBelongsDepts,orgList.stream().map(x->x.getId()).collect(Collectors.toList()));
+        }
+        //关键字
         if(ObjectUtil.isNotEmpty(resumePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(Resume::getName,resumePageParam.getSearchKey())
                     .or().like(Resume::getSex,resumePageParam.getSearchKey())
@@ -366,6 +370,9 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
         }
         //时间区间内的简历
         List<Resume> dbResumes = this.list(queryWrapper);
+
+        //小数位设置
+        DecimalFormat df = new DecimalFormat("#.00");
 
         //1. 简历收集-柱状图(根据简历来源统计)
         Map<String,List<Resume>> infoSourceGroup = dbResumes.stream().collect(Collectors.groupingBy(x->x.getInfoSource()));
@@ -445,10 +452,10 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
         reportModel.setFilter(filter);
 
         //5. 到面率&通过率-折线图
-        LineChart2 passing = new LineChart2();
+        LineChart2<String> passing = new LineChart2();
         List<String> passing_xAxis = new ArrayList<>();
-        List<Float> passing_firstData = new ArrayList<>();
-        List<Float> passing_secondData = new ArrayList<>();
+        List<String> passing_firstData = new ArrayList<>();
+        List<String> passing_secondData = new ArrayList<>();
         for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
             //通知面试
             int preFace = entry.getValue().stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.Notified.getValue())).collect(Collectors.toList()).size();
@@ -460,8 +467,8 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
             float arriveRate = preFace == 0 ? 0 : (float)addFace / preFace;   //到面率   参加面试数/所有待参加面试数
             float passRate = addFace == 0 ? 0 : (float)passFace / addFace;    //通过率   通过面试数/参加面试数
             passing_xAxis.add(entry.getKey());
-            passing_firstData.add(arriveRate);
-            passing_secondData.add(passRate);
+            passing_firstData.add(df.format(arriveRate));
+            passing_secondData.add(df.format(passRate));
         }
         passing.setXAxis(passing_xAxis);
         passing.setFirstData(passing_firstData);
@@ -469,17 +476,17 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
         reportModel.setPassing(passing);
 
         //6. offer拒绝率-折线图
-        LineChart<Float> refuse = new LineChart<Float>();
+        LineChart<String> refuse = new LineChart<String>();
         List<String> refuse_xAxis = new ArrayList<>();
-        List<Float> refuse_data = new ArrayList<>();
+        List<String> refuse_data = new ArrayList<>();
         for (Map.Entry<String,List<Resume>> entry:deptGroup.entrySet()) {
             //待发Offer数 ！！！
             int preOffer = entry.getValue().stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.PreOffer.getValue())).collect(Collectors.toList()).size();
             //拒绝Offer数 ！！！
             int refuseOffer = entry.getValue().stream().filter(x->x.getStatus().equals(ResumeStatusEnum.Refuse.getValue())).collect(Collectors.toList()).size();
-            float refuseRate = preOffer == 0 ? 0 : (float)refuseOffer / preOffer;   //Offer拒绝率   Offer拒绝数/待发Offer数
+            float refuseRate = preOffer == 0 ? 0 : (float)(refuseOffer / preOffer);   //Offer拒绝率   Offer拒绝数/待发Offer数
             refuse_xAxis.add(entry.getKey());
-            refuse_data.add(refuseRate);
+            refuse_data.add(df.format(refuseRate));
         }
         refuse.setXAxis(refuse_xAxis);
         refuse.setData(refuse_data);
@@ -519,5 +526,113 @@ public class ResumeServiceImpl extends ServiceImpl<ResumeMapper, Resume> impleme
         refuseReson.setData(pies);
         reportModel.setRefuseReson(refuseReson);
         return reportModel;
+    }
+
+    @Override
+    public ResumeTotalModel getResumeTotalView(ReportParam reportParam) {
+        ResumeTotalModel resumeTotalModel = new ResumeTotalModel();
+        QueryWrapper<Resume> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(reportParam.getStartTime())){
+            queryWrapper.lambda().ge(Resume::getCreateTime,reportParam.getStartTime());
+        }
+        if(ObjectUtil.isNotEmpty(reportParam.getEndTime())){
+            queryWrapper.lambda().le(Resume::getCreateTime,reportParam.getEndTime());
+        }
+        //时间区间内的简历
+        List<Resume> dbResumes = this.list(queryWrapper);
+        resumeTotalModel.setCollectNum(dbResumes.size());
+        resumeTotalModel.setEffectiveNum(dbResumes.stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.ReSend.getValue())).collect(Collectors.toList()).size());
+        resumeTotalModel.setFilterNum(dbResumes.stream().filter(x->Integer.parseInt(x.getStatus()) > Integer.parseInt(ResumeStatusEnum.ReSend.getValue())).collect(Collectors.toList()).size());
+        resumeTotalModel.setNotifiedNum(dbResumes.stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.Notified.getValue())).collect(Collectors.toList()).size());
+        resumeTotalModel.setCheckNum(dbResumes.stream().filter(x->Integer.parseInt(x.getStatus()) > Integer.parseInt(ResumeStatusEnum.NotFace.getValue())).collect(Collectors.toList()).size());
+        resumeTotalModel.setPassNum(dbResumes.stream().filter(x->Integer.parseInt(x.getStatus()) >= Integer.parseInt(ResumeStatusEnum.PreOffer.getValue())).collect(Collectors.toList()).size());
+        resumeTotalModel.setOfferNum(dbResumes.stream().filter(x->x.getStatus().equals(ResumeStatusEnum.Arrived.getValue())).collect(Collectors.toList()).size());
+        return resumeTotalModel;
+    }
+
+    @Override
+    public Page<ResumeReportViewModel> getResumeReportPage(ReportPageParam reportPageParam) {
+        //根据页面搜索条件，获取简历信息
+        QueryWrapper<Resume> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(reportPageParam.getName())) {
+            queryWrapper.lambda().like(Resume::getName, reportPageParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getSex())) {
+            queryWrapper.lambda().eq(Resume::getSex, reportPageParam.getSex());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getMobile())) {
+            queryWrapper.lambda().like(Resume::getMobile, reportPageParam.getMobile());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getSchool())) {
+            queryWrapper.lambda().like(Resume::getSchool, reportPageParam.getSchool());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getSubject())) {
+            queryWrapper.lambda().like(Resume::getSubject, reportPageParam.getSubject());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getPositionType())) {
+            queryWrapper.lambda().eq(Resume::getPositionType, reportPageParam.getPositionType());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getInfoSource())) {
+            queryWrapper.lambda().eq(Resume::getInfoSource, reportPageParam.getInfoSource());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getStatus())) {
+            queryWrapper.lambda().eq(Resume::getStatus, reportPageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getAcademic())) {
+            queryWrapper.lambda().eq(Resume::getAcademic, reportPageParam.getAcademic());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getStartTime())){
+            queryWrapper.lambda().ge(Resume::getCreateTime,reportPageParam.getStartTime());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getEndTime())){
+            queryWrapper.lambda().le(Resume::getCreateTime,reportPageParam.getEndTime());
+        }
+        if(ObjectUtil.isNotEmpty(reportPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(Resume::getName,reportPageParam.getSearchKey())
+                    .or().like(Resume::getSex,reportPageParam.getSearchKey())
+                    .or().like(Resume::getMobile,reportPageParam.getSearchKey())
+                    .or().like(Resume::getSchool,reportPageParam.getSearchKey())
+                    .or().like(Resume::getSubject,reportPageParam.getSearchKey())
+                    .or().like(Resume::getPositionType,reportPageParam.getSearchKey())
+                    .or().like(Resume::getInfoSource,reportPageParam.getSearchKey()));
+        }
+        if(ObjectUtil.isAllNotEmpty(reportPageParam.getSortField(), reportPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(reportPageParam.getSortOrder());
+            queryWrapper.orderBy(true, reportPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(reportPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(Resume::getCreateTime);
+        }
+        Page<Resume> resumePage = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+
+        //2. 获取简历对应的（每类操作类型，最新的一条记录）
+        List<ResumeReportViewModel> resumeReportViewModelList = new ArrayList<>();
+        if(CollUtil.isNotEmpty(resumePage.getRecords())) {
+            List<String> resumeIds = resumePage.getRecords().stream().map(x->x.getId()).collect(Collectors.toList());
+            List<ResumeRecord> resumeRecords = resumeMapper.getRecordByAction(resumeIds,
+                    Arrays.asList(ResumeActionTypeEnum.InterviewNotice.getValue(),ResumeActionTypeEnum.InterviewRigster.getValue(),ResumeActionTypeEnum.Offer.getValue()));
+            for (Resume resume:resumePage.getRecords()) {
+                ResumeReportViewModel reportViewModel = BeanUtil.copyProperties(resume,ResumeReportViewModel.class);
+                reportViewModel.setResumesId(resume.getId());
+                reportViewModel.setIsPassFilter(Integer.parseInt(resume.getStatus()) > Integer.parseInt(ResumeStatusEnum.ReSend.getValue()) ? "是" : "否");
+                ResumeRecord tmp = resumeRecords.stream().filter(x->x.getResumesId().equals(resume.getId()) && x.getActionType().equals(ResumeActionTypeEnum.InterviewNotice.getValue())).findFirst().orElse(null);
+                reportViewModel.setActionTime(ObjectUtil.isNotEmpty(tmp) ? tmp.getActionTime() : null);
+                reportViewModel.setIsFace(Integer.parseInt(resume.getStatus()) > Integer.parseInt(ResumeStatusEnum.NotFace.getValue()) ? "是" : resume.getStatus().equals(ResumeStatusEnum.NotFace.getValue()) ? "否" : "");
+                tmp = resumeRecords.stream().filter(x->x.getResumesId().equals(resume.getId()) && x.getActionType().equals(ResumeActionTypeEnum.InterviewRigster.getValue())).findFirst().orElse(null);
+                reportViewModel.setFaceResult(ObjectUtil.isNotEmpty(tmp) ? tmp.getResult() : "");
+                reportViewModel.setIsOffer(resume.getStatus().equals(ResumeStatusEnum.Arrived.getValue()) ? "是" : resume.getStatus().equals(ResumeStatusEnum.Refuse.getValue()) ? "否" : "");
+                tmp = resumeRecords.stream().filter(x->x.getResumesId().equals(resume.getId()) && x.getActionType().equals(ResumeActionTypeEnum.Offer.getValue())).findFirst().orElse(null);
+                reportViewModel.setReason(ObjectUtil.isNotEmpty(tmp) ? tmp.getReason() : "");
+                reportViewModel.setCreateTime(resume.getCreateTime());
+                resumeReportViewModelList.add(reportViewModel);
+            }
+        }
+        Page<ResumeReportViewModel> result = new Page<>();
+        result.setCurrent(resumePage.getCurrent());
+        result.setPages(resumePage.getPages());
+        result.setSize(resumePage.getSize());
+        result.setTotal(resumePage.getTotal());
+        result.setRecords(resumeReportViewModelList);
+        return result;
     }
 }

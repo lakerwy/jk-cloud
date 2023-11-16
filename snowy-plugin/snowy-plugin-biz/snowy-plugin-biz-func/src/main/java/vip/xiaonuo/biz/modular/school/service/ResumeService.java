@@ -14,13 +14,13 @@ package vip.xiaonuo.biz.modular.school.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.web.bind.annotation.RequestBody;
 import vip.xiaonuo.biz.modular.school.entity.Resume;
 import vip.xiaonuo.biz.modular.school.param.*;
 import vip.xiaonuo.biz.modular.school.vo.ReportModel;
+import vip.xiaonuo.biz.modular.school.vo.ResumeReportViewModel;
+import vip.xiaonuo.biz.modular.school.vo.ResumeTotalModel;
 import vip.xiaonuo.biz.modular.school.vo.ResumeVo;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -122,4 +122,18 @@ public interface ResumeService extends IService<Resume> {
      * @return
      */
     ReportModel getReportView(ReportParam reportParam);
+
+    /**
+     * 根据区间，获取简历统计数据
+     * @param reportParam
+     * @return
+     */
+    ResumeTotalModel getResumeTotalView(ReportParam reportParam);
+
+    /**
+     * 根据区间，分页信息，获取简历报表数据
+     * @param reportPageParam
+     * @return
+     */
+    Page<ResumeReportViewModel> getResumeReportPage(ReportPageParam reportPageParam);
 }

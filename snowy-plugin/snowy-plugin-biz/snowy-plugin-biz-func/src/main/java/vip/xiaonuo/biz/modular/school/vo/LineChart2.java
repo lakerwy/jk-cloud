@@ -13,7 +13,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class LineChart2 {
+public class LineChart2<T> {
 
     /** X轴信息 */
     @ApiModelProperty(value = "X轴信息")
@@ -21,9 +21,9 @@ public class LineChart2 {
 
     /** 第一组数据（左柱） */
     @ApiModelProperty(value = "第一组数据（左柱）")
-    private List<Float> firstData ;
+    private List<T> firstData ;
 
     /** 第二组数据（左柱） */
     @ApiModelProperty(value = "第二组数据（左柱）")
-    private List<Float> secondData ;
+    private List<T> secondData ;
 }

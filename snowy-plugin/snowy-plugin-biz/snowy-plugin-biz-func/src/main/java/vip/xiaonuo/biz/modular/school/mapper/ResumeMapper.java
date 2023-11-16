@@ -27,5 +27,19 @@ import java.util.List;
  **/
 public interface ResumeMapper extends BaseMapper<Resume> {
 
+    /**
+     * 统计报表：根据日期区间，操作类型，操作结果，获取拒绝接受offer原因数据
+     * @param startTime
+     * @param endTime
+     * @param actionType
+     * @param result
+     * @return
+     */
     List<ResumeRecord> getRecordRefuse(Date startTime, Date endTime, String actionType, String result);
+
+    /**
+     * 获取简历对于的各种操作最新一条记录
+     * @return
+     */
+    List<ResumeRecord> getRecordByAction(List<String> resumeIds,List<String> actionTypes);
 }

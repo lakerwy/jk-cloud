@@ -109,8 +109,8 @@ public class Hetong {
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date filingDate;
 
-    /** 合同金额（历史表Hetong.ContractAmount） */
-    @ApiModelProperty(value = "合同金额（历史表Hetong.ContractAmount）", position = 19)
+    /** 合同金额 - 建科所占金额 */
+    @ApiModelProperty(value = "合同金额 - 建科所占金额 ", position = 19)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal contractAmount;
 
@@ -262,4 +262,9 @@ public class Hetong {
     @ApiModelProperty(value = "数据权限字段",position = 62)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 合同总金额 */
+    @ApiModelProperty(value = "合同总金额", position = 63)
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private BigDecimal sumAmount;
 }

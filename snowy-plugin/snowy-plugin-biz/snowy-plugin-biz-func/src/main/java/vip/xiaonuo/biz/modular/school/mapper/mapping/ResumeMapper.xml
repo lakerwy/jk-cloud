@@ -17,4 +17,27 @@
             and a.CREATE_TIME &lt;= #{endTime}
         </if>
     </select>
+
+    <select id="getRecordByAction" resultType="vip.xiaonuo.biz.modular.school.entity.ResumeRecord">
+        select a.*
+        from BIZ_SCHOOL_RESUME_RECORD a
+             join (select RESUMES_ID,ACTION_TYPE,MAX(OPR_TIME) as oprTime
+                    from BIZ_SCHOOL_RESUME_RECORD
+                    where DELETE_FLAG='NOT_DELETE'
+                    <if test="resumeIds != null and resumeIds.size() != 0 ">
+                        and RESUMES_ID in
+                        <foreach collection="resumeIds" item="item" open="(" close=")" separator=",">
+                            #{item}
+                        </foreach>
+                    </if>
+                    <if test="actionTypes != null and actionTypes.size() != 0 ">
+                        and ACTION_TYPE in
+                        <foreach collection="actionTypes" item="item" open="(" close=")" separator=",">
+                            #{item}
+                        </foreach>
+                    </if>
+                    GROUP BY RESUMES_ID,ACTION_TYPE) b
+        on a.RESUMES_ID = b.RESUMES_ID and a.ACTION_TYPE = b.ACTION_TYPE and a.OPR_TIME = b.oprTime
+    </select>
+
 </mapper>

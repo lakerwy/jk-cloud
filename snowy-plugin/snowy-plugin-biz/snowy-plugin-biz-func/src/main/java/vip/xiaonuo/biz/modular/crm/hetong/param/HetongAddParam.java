@@ -12,6 +12,8 @@
  */
 package vip.xiaonuo.biz.modular.crm.hetong.param;
 
+import com.baomidou.mybatisplus.annotation.FieldStrategy;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -102,8 +104,8 @@ public class HetongAddParam {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     private Date filingDate;
 
-    /** 合同金额（历史表Hetong.ContractAmount） */
-    @ApiModelProperty(value = "合同金额（历史表Hetong.ContractAmount）", position = 19)
+    /** 合同金额 - 建科所占金额 */
+    @ApiModelProperty(value = "合同金额 - 建科所占金额 ", position = 19)
     private BigDecimal contractAmount;
 
     /** 投资规模（历史表Hetong.InvestScale） */
@@ -223,4 +225,8 @@ public class HetongAddParam {
     /** 流程实例id */
     @ApiModelProperty(value = "流程实例id", position = 53)
     private String processInstanceId;
+
+    /** 合同总金额 */
+    @ApiModelProperty(value = "合同总金额", position = 63)
+    private BigDecimal sumAmount;
 }

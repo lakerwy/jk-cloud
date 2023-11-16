@@ -89,8 +89,8 @@ public class HetongDetailVo {
     @ApiModelProperty(value = "归档日期（历史表Hetong.FilingDate）", position = 18)
     private Date filingDate;
 
-    /** 合同金额（历史表Hetong.ContractAmount） */
-    @ApiModelProperty(value = "合同金额（历史表Hetong.ContractAmount）", position = 19)
+    /** 合同金额 - 建科所占金额 */
+    @ApiModelProperty(value = "合同金额 - 建科所占金额 ", position = 19)
     private BigDecimal contractAmount;
 
     /** 投资规模（历史表Hetong.InvestScale） */
@@ -242,4 +242,8 @@ public class HetongDetailVo {
     /** 流程实例id */
     @ApiModelProperty(value = "流程实例id", position = 53)
     private String processInstanceId;
+
+    /** 合同总金额 */
+    @ApiModelProperty(value = "合同总金额", position = 63)
+    private BigDecimal sumAmount;
 }
