@@ -16,7 +16,9 @@ import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.URLUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 
+import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -49,15 +51,28 @@ public class CommonDownloadUtil {
      * @date 2022/7/31 10:57
      */
     public static void download(String fileName, byte[] fileBytes, HttpServletResponse response) {
+        ServletOutputStream outputStream = null;
         try {
             response.setHeader("Content-Disposition", "attachment;filename=" + URLUtil.encode(fileName));
             response.addHeader("Content-Length", "" + fileBytes.length);
             response.setHeader("Access-Control-Allow-Origin", "*");
             response.setHeader("Access-Control-Expose-Headers", "Content-Disposition");
             response.setContentType("application/octet-stream;charset=UTF-8");
-            IoUtil.write(response.getOutputStream(), true, fileBytes);
+            outputStream = response.getOutputStream();
+            IoUtil.write(outputStream, true, fileBytes);
+        }catch (ClientAbortException e){
+            // 客户端已经关闭连接，这是一个正常的情况，无需记录错误信息
+            log.debug("客户端连接已关闭");
         } catch (IOException e) {
             log.error(">>> 文件下载异常：", e);
+        }finally {
+            if(null!=outputStream){
+                try {
+                    outputStream.close();
+                }catch (IOException e){
+                    log.error("关闭输出流异常",e);
+                }
+            }
         }
     }
 }

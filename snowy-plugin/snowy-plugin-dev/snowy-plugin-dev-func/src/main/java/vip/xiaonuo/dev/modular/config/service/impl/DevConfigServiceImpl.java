@@ -38,7 +38,9 @@ import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.ten.api.TenApi;
 
 import javax.annotation.Resource;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +55,13 @@ public class DevConfigServiceImpl extends ServiceImpl<DevConfigMapper, DevConfig
     private static final String CONFIG_CACHE_KEY = "dev-config:";
 
     private static final String SNOWY_SYS_DEFAULT_PASSWORD_KEY = "SNOWY_SYS_DEFAULT_PASSWORD";
+
+    private static final Set<String> filterKeys = new HashSet<>();
+
+    static {
+        filterKeys.add("SNOWY_SYS_DEFAULT_PASSWORD");
+        filterKeys.add("SNOWY_FILE_LOCAL_FOLDER_FOR_UNIX");
+    }
 
     @Resource
     private TenApi tenApi;
@@ -108,11 +117,13 @@ public class DevConfigServiceImpl extends ServiceImpl<DevConfigMapper, DevConfig
         if(ObjectUtil.isNotEmpty(devConfigListParam.getCategory())) {
             lambdaQueryWrapper.eq(DevConfig::getCategory, devConfigListParam.getCategory());
         }
-        return this.list(lambdaQueryWrapper).stream().peek(devConfig -> {
-            if(devConfig.getConfigKey().equals(SNOWY_SYS_DEFAULT_PASSWORD_KEY)) {
-                devConfig.setConfigValue(DesensitizedUtil.password(devConfig.getConfigValue()));
-            }
-        }).collect(Collectors.toList());
+        lambdaQueryWrapper.notIn(DevConfig::getConfigKey,filterKeys);
+//        return this.list(lambdaQueryWrapper).stream().peek(devConfig -> {
+//            if(devConfig.getConfigKey().equals(SNOWY_SYS_DEFAULT_PASSWORD_KEY)) {
+//                devConfig.setConfigValue(DesensitizedUtil.password(devConfig.getConfigValue()));
+//            }
+//        }).collect(Collectors.toList());
+        return this.list(lambdaQueryWrapper);
     }
 
     @Override
