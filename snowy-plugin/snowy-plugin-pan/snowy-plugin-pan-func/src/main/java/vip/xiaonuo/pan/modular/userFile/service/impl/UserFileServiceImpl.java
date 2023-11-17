@@ -993,7 +993,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 queryWrapper.like("FILE_NAME", userFilePageParam.getFileName());
             }
             if(ObjectUtil.isNotEmpty(userFilePageParam.getSearchKey())){
-                queryWrapper.like("a.FILE_NAME",userFilePageParam.getSearchKey());
+                queryWrapper.like("FILE_NAME",userFilePageParam.getSearchKey());
             }
             if(ObjectUtil.isAllNotEmpty(userFilePageParam.getSortField(), userFilePageParam.getSortOrder())) {
                 CommonSortOrderEnum.validate(userFilePageParam.getSortOrder());
