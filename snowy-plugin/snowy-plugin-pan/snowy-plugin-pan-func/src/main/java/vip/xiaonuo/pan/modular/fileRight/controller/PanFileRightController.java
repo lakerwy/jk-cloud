@@ -23,10 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.pan.modular.fileRight.param.FileRightParam;
-import vip.xiaonuo.pan.modular.fileRight.param.ManagerParam;
-import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
-import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
+import vip.xiaonuo.pan.modular.fileRight.param.*;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
 import vip.xiaonuo.pan.modular.fileRight.vo.UserRightVo;
@@ -68,6 +65,8 @@ public class PanFileRightController {
     /**
      * 保存网盘权限配置表 - 文件夹|文件设置配置权限
      *
+     * 保存网盘权限配置[处理当前记录，新增|更新]
+     *
      * @author yong.ye
      * @date  2023/10/25 14:32
      */
@@ -76,7 +75,37 @@ public class PanFileRightController {
     @CommonLog("保存网盘权限配置表 - 文件夹|文件设置配置权限")
     @PostMapping("/pan/fileRight/save")
     public CommonResult<String> save(@RequestBody @Valid PanFileRightAddParam panFileRightAddParam) {
-        panFileRightService.save(panFileRightAddParam);
+        panFileRightService.saveRight(panFileRightAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除某个文件，某个对象的权限配置
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("删除某个文件，某个对象的权限配置")
+    @CommonLog("删除某个文件，某个对象的权限配置")
+    @PostMapping("/pan/fileRight/removeRight")
+    public CommonResult<String> removeRight(@RequestBody @Valid RemoveRightParam removeRightParam) {
+        panFileRightService.removeRight(removeRightParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 清空某个文件及其子文件的权限配置（实现继承上级文件夹权限）
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("清空某个文件及其子文件的权限配置（实现继承上级文件夹权限）")
+    @CommonLog("清空某个文件及其子文件的权限配置（实现继承上级文件夹权限）")
+    @PostMapping("/pan/fileRight/clearRight")
+    public CommonResult<String> clearRight(@RequestBody @Valid ClearRightParam clearRightParam) {
+        panFileRightService.clearRight(clearRightParam);
         return CommonResult.ok();
     }
 

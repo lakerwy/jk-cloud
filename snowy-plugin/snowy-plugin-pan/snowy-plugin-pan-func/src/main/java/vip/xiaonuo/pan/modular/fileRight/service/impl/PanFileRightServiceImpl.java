@@ -108,6 +108,63 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
         if(CollUtil.isNotEmpty(oldFileRights)) this.removeByIds(oldFileRights);
     }
 
+    /***
+     * 权限配置保存（整合新增|修改）
+     * @param panFileRightAddParam
+     */
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void saveRight(PanFileRightAddParam panFileRightAddParam) {
+        //最新设置
+        List<PanFileRight> newFileRights = BeanUtil.copyToList(panFileRightAddParam.getObjectRightList(),PanFileRight.class);
+        newFileRights.forEach(x->x.setUserFileId(panFileRightAddParam.getUserFileId()));
+
+        //根据文件Id获取历史权限设置
+        QueryWrapper<PanFileRight> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(PanFileRight::getUserFileId,panFileRightAddParam.getUserFileId());
+        if(CollUtil.isNotEmpty(newFileRights)){
+            queryWrapper.lambda().in(PanFileRight::getObjectId,newFileRights.stream().map(x->x.getObjectId()).collect(Collectors.toList()));
+        }
+        List<PanFileRight> oldFileRights = this.list(queryWrapper);
+
+        //若用户历史有配置，则更新，否则新增
+        List<PanFileRight> addList = new ArrayList<>();
+        List<PanFileRight> updateList = new ArrayList<>();
+        for (PanFileRight item:newFileRights) {
+            PanFileRight oldFileRight = oldFileRights.stream().filter(x->x.getObjectId().equals(item.getObjectId())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(oldFileRight)){
+                oldFileRight.setRightValue(item.getRightValue());
+                updateList.add(oldFileRight);
+            }else{
+                addList.add(item);
+            }
+        }
+        //新增 | 更新 | 删除
+        if(CollUtil.isNotEmpty(addList)) this.saveBatch(addList);
+        if(CollUtil.isNotEmpty(updateList)) this.updateBatchById(updateList);
+    }
+
+    @Override
+    public void removeRight(RemoveRightParam removeRightParam) {
+        List<PanFileRight> panFileRights = this.list(new QueryWrapper<PanFileRight>().lambda()
+                .eq(PanFileRight::getUserFileId,removeRightParam.getUserFileId()).eq(PanFileRight::getObjectId,removeRightParam.getObjectId()));
+        this.removeBatchByIds(panFileRights);
+    }
+
+    @Override
+    public void clearRight(ClearRightParam clearRightParam) {
+        //找到当前文件及其子文件
+        List<UserFile> childrenList = userFileMapper.getChildren(clearRightParam.getUserFileId());
+        if(CollUtil.isNotEmpty(childrenList)){
+            QueryWrapper<PanFileRight> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().in(PanFileRight::getUserFileId,childrenList.stream().map(x->x.getId()).collect(Collectors.toList()));
+            if(CollUtil.isNotEmpty(clearRightParam.getObjectIds())){
+                queryWrapper.lambda().in(PanFileRight::getObjectId,clearRightParam.getObjectIds());
+            }
+            this.remove(queryWrapper);
+        }
+    }
+
     /**
      * 给文件设置管理者
      * @param managerParam
@@ -170,8 +227,8 @@ public class PanFileRightServiceImpl extends ServiceImpl<PanFileRightMapper, Pan
             UserInfoVo tmp = userInfoVoList.stream().filter(x->x.getUserId().equals(userId)).findFirst().orElse(null);
             UserRightVo userRightVo = new UserRightVo();
             userRightVo.setUserFileId(panFileRightIdParam.getUserFileId());
-            userRightVo.setUserId(userId);
-            userRightVo.setUserName(tmp.getUserName());
+            userRightVo.setObjectId(userId);
+            userRightVo.setObjName(tmp.getUserName());
             userRightVo.setOrgId(tmp.getOrgId());
             userRightVo.setOrgName(tmp.getOrgName());
             //获取当前用户的角色集合

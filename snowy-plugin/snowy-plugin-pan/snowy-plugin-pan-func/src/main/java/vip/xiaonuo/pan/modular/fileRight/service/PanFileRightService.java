@@ -14,14 +14,10 @@ package vip.xiaonuo.pan.modular.fileRight.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
-import vip.xiaonuo.pan.modular.fileRight.param.FileRightParam;
-import vip.xiaonuo.pan.modular.fileRight.param.ManagerParam;
-import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightAddParam;
-import vip.xiaonuo.pan.modular.fileRight.param.PanFileRightIdParam;
+import vip.xiaonuo.pan.modular.fileRight.param.*;
 import vip.xiaonuo.pan.modular.fileRight.vo.PanFileRightVo;
 import vip.xiaonuo.pan.modular.fileRight.vo.UserRightVo;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -48,12 +44,36 @@ public interface PanFileRightService extends IService<PanFileRight> {
     void checkFileRight(List<String> userFileIds,long checkRight,String type);
 
     /**
-     * 保存网盘权限配置
+     * 保存网盘权限配置（全量，新增|更新|删除）
      *
      * @author yong.ye
      * @date  2023/10/25 14:32
      */
     void save(PanFileRightAddParam panFileRightAddParam);
+
+    /**
+     * 保存网盘权限配置[处理当前记录，新增|更新]
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    void saveRight(PanFileRightAddParam panFileRightAddParam);
+
+    /**
+     * 删除某个文件，某个对象的权限配置
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    void removeRight(RemoveRightParam removeRightParam);
+
+    /**
+     * 清空某个文件及其子文件的权限配置（实现继承上级文件夹权限）
+     *
+     * @author yong.ye
+     * @date  2023/10/25 14:32
+     */
+    void clearRight(ClearRightParam clearRightParam);
 
     /**
      * 给文件夹|文件设置管理员

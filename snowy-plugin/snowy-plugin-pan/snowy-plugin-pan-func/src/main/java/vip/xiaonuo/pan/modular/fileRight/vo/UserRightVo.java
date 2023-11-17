@@ -19,11 +19,11 @@ public class UserRightVo {
 
     /** 用户Id */
     @ApiModelProperty(value = "用户Id", position = 1)
-    private String userId;
+    private String objectId;
 
     /** 姓名 */
     @ApiModelProperty(value = "姓名", position = 2)
-    private String userName;
+    private String objName;
 
     /** 组织id */
     @ApiModelProperty(value = "组织id", position = 3)
