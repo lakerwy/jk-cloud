@@ -1,6 +1,7 @@
 package vip.xiaonuo.dev.modular.message.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
@@ -481,19 +482,25 @@ public class DingDingServiceImpl implements IDingDingService {
         form.setKey("用车人： ");
         form.setValue(String.valueOf(jsonObject.get("users")));
         forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("手机号： ");
         form.setValue(String.valueOf(jsonObject.get("userMobile")));
         forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("目的地： ");
         form.setValue(String.valueOf(jsonObject.get("destination")));
         forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
         form.setKey("用车时间： ");
-        form.setValue(String.valueOf(jsonObject.get("predictTransportTime")));
+        form.setValue(DateUtil.format(jsonObject.getDate("predictTransportTime"), DatePattern.NORM_DATETIME_PATTERN));
         forms.add(form);
 
         //构建body
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-        body.setTitle(title);
+//        body.setTitle(title);
         body.setAuthor(String.valueOf(jsonObject.get("users")));
         body.setContent(title);
         body.setForm(forms);
@@ -504,13 +511,13 @@ public class DingDingServiceImpl implements IDingDingService {
         oa.setMessageUrl(linkUrl);
         msg.setOa(oa);
 
-        OapiMessageCorpconversationAsyncsendV2Request.Markdown markdown = new OapiMessageCorpconversationAsyncsendV2Request.Markdown();
-        markdown.setText(title);
-        msg.setMarkdown(markdown);
+//        OapiMessageCorpconversationAsyncsendV2Request.Markdown markdown = new OapiMessageCorpconversationAsyncsendV2Request.Markdown();
+//        markdown.setText(title);
+//        msg.setMarkdown(markdown);
 
         //发送钉钉通知
         OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
-        request.setAgentId(Long.getLong(agentId));
+        request.setAgentId(Long.parseLong(agentId));
         request.setUseridList(dingUserIds);
         request.setToAllUser(false);
         request.setMsg(msg);
