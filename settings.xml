@@ -46,7 +46,7 @@ under the License.
 <settings xmlns="http://maven.apache.org/SETTINGS/1.2.0"
           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:schemaLocation="http://maven.apache.org/SETTINGS/1.2.0 https://maven.apache.org/xsd/settings-1.2.0.xsd">
- <localRepository>/home/maven/rep</localRepository>
+ <localRepository>./env/rep</localRepository>
 
   <!-- interactiveMode
    | This will determine whether maven prompts you when it needs input. If set to false,
@@ -126,6 +126,24 @@ under the License.
       <passphrase>optional; leave empty if not used.</passphrase>
     </server>
     -->
+	<server>
+		<id>jiankeCloud</id>
+		<username>admin</username>
+		<password>admin123456</password>
+	</server>
+	
+	<server>
+		<id>maven-releases</id>
+		<username>admin</username>
+		<password>admin123456</password>
+	</server>
+	
+		<server>
+		<id>maven-snapshots</id>
+		<username>admin</username>
+		<password>admin123456</password>
+	</server>
+
   </servers>
 
   <!-- mirrors
@@ -161,12 +179,18 @@ under the License.
       <blocked>true</blocked>
     </mirror>
 		-->
+		
 	<mirror>
-			<id>alimaven</id>
-			<name>aliyun maven</name>
-			<url>http://maven.aliyun.com/nexus/content/groups/public/</url>
-			<mirrorOf>central</mirrorOf>
+		<id>alimaven</id>
+		<name>aliyun maven</name>
+		<url>http://maven.aliyun.com/nexus/content/groups/public/</url>
+		<mirrorOf>central</mirrorOf>
 	</mirror>
+    <mirror>
+      <id>jiankeCloud</id>
+      <url>http://10.0.33.81:18081/repository/maven-public/</url>
+      <mirrorOf>central</mirrorOf>
+    </mirror>
 
   </mirrors>
 
@@ -256,6 +280,16 @@ under the License.
       </properties>
     </profile>
     -->
+	 <profile>
+      <id>jiankeCloud</id>
+      <repositories>
+        <repository>
+          <id>jiankeCloud</id>
+          <url>http://10.0.33.81:18081/repository/maven-public/</url>
+        </repository>
+      </repositories>
+    </profile>
+	
   </profiles>
 
   <!-- activeProfiles
@@ -266,4 +300,7 @@ under the License.
     <activeProfile>anotherAlwaysActiveProfile</activeProfile>
   </activeProfiles>
   -->
+  <activeProfiles>
+    <activeProfile>jiankeCloud</activeProfile>
+  </activeProfiles>
 </settings>
