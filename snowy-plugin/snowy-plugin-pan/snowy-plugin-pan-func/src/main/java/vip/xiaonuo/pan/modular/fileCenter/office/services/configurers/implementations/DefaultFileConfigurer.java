@@ -134,6 +134,9 @@ public class DefaultFileConfigurer implements FileConfigurer<DefaultFileWrapper>
                 || action.equals(Action.filter)
                 || action.equals(Action.blockcontent)));
 
+        //关闭所有的office 的下载权限
+        userPermissions.setDownload(Boolean.FALSE);
+
         return userPermissions;
     }
 }

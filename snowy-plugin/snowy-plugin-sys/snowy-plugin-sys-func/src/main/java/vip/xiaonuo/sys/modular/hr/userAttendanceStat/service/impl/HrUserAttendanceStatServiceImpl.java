@@ -42,6 +42,9 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.entity.HrApplyWorkOt;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.service.HrApplyWorkOtService;
+import vip.xiaonuo.sys.modular.hr.atdData.entity.OriginalAtdData;
+import vip.xiaonuo.sys.modular.hr.atdData.param.OriginalAtdDataPageParam;
+import vip.xiaonuo.sys.modular.hr.atdData.service.OriginalAtdDataService;
 import vip.xiaonuo.sys.modular.hr.attendanceAnalStat.entity.HrAttendanceAnalStat;
 import vip.xiaonuo.sys.modular.hr.attendanceAnalStat.service.HrAttendanceAnalStatService;
 import vip.xiaonuo.sys.modular.hr.festivalData.entity.HrFestivalData;
@@ -49,6 +52,8 @@ import vip.xiaonuo.sys.modular.hr.festivalData.service.HrFestivalDataService;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.HrUserApplyHolidayService;
+import vip.xiaonuo.sys.modular.hr.userApplygoOut.entity.HrUserApplyGoout;
+import vip.xiaonuo.sys.modular.hr.userApplygoOut.service.HrUserApplyGooutService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
@@ -67,6 +72,8 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.util.ExcelUtil;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.mapper.HrUserAttendanceStatMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
+import vip.xiaonuo.sys.modular.hr.userBusinessTrip.entity.HrUserBusinessTrip;
+import vip.xiaonuo.sys.modular.hr.userBusinessTrip.service.HrUserBusinessTripService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
@@ -117,6 +124,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     private SysOrgService sysOrgService;
     @Resource
     private HrAttendanceAnalStatService hrAttendanceAnalStatService;
+    @Resource
+    OriginalAtdDataService originalAtdDataService;
 
     @Override
     public Page<HrUserAttendanceStat> page(HrUserAttendanceStatPageParam hrUserAttendanceStatPageParam) {
@@ -1496,4 +1505,18 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         return map;
     }
 
+    @Override
+    public Page<OriginalAtdData> originalAtdData(OriginalAtdParam originalAtdParam){
+        List<String> userIds = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(originalAtdParam.getUserIds())){
+            userIds.addAll(originalAtdParam.getUserIds());
+        }
+        if(CollectionUtil.isNotEmpty(originalAtdParam.getOrgIds())){
+            originalAtdParam.getOrgIds().forEach(orgId -> {
+                userIds.addAll(hrUserAttendanceService.getOrgAndUserList(orgId).stream().map(user -> user.getId()).collect(Collectors.toList()));
+            });
+        }
+        OriginalAtdDataPageParam originalAtdDataPageParam = BeanUtil.toBean(originalAtdParam,OriginalAtdDataPageParam.class);
+        return originalAtdDataService.page(originalAtdDataPageParam);
+    }
 }

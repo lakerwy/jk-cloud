@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceStat.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.sys.modular.hr.atdData.entity.OriginalAtdData;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
@@ -180,4 +181,6 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
 
     /** 月统计考勤概览-假勤分析*/
     AttendanceAnalysisData attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam);
+
+    Page<OriginalAtdData> originalAtdData(OriginalAtdParam originalAtdParam);
 }

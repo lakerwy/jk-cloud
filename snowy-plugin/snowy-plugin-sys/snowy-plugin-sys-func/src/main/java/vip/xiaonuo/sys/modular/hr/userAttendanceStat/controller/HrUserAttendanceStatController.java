@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.sys.modular.hr.atdData.entity.OriginalAtdData;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
@@ -322,4 +323,19 @@ public class HrUserAttendanceStatController {
     public  CommonResult<AttendanceAnalysisData> attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam){
         return CommonResult.data(hrUserAttendanceStatService.attendanceAnalysis(attendanceAnalysisParam));
     }
+
+    /**
+     * 下载文件
+     *
+     * @author xuyuxiang
+     * @date 2022/6/21 15:44
+     **/
+    @ApiOperationSupport(order = 19)
+    @ApiOperation("报表管理-原始记录")
+    @CommonLog("报表管理-原始记录")
+    @GetMapping(value = "/sys/userAttendance/original")
+    public  CommonResult<Page<OriginalAtdData>> originalAtdData(OriginalAtdParam originalAtdParam){
+        return CommonResult.data(hrUserAttendanceStatService.originalAtdData(originalAtdParam));
+    }
+
 }
