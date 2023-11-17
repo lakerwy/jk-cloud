@@ -5,9 +5,6 @@
         select a.* from BIZ_CAR_VEHICLE_APPLY a
             left join BIZ_CAR_SERVICE_RATINGS b on a.ID = b.VEHICLE_APPLY_ID
             ${ew.customSqlSegment}
---         where b.ID is null and a.USER_ID = #{userId}
---           and a.DELETE_FLAG = 'NOT_DELETE' and a.STATUS = #{status}
---         order by a.CREATE_TIME desc
     </select>
 
 </mapper>
