@@ -1018,6 +1018,17 @@
         </dependencies>
     </dependencyManagement>
 
+    <distributionManagement>
+        <repository>
+            <id>jiankeCloud</id>
+            <url>http://10.0.33.81:18081/repository/maven-releases/</url>
+        </repository>
+        <snapshotRepository>
+            <id>jiankeCloud-snapshots</id>
+            <url>http://10.0.33.81:18081/repository/maven-snapshots/</url>
+        </snapshotRepository>
+    </distributionManagement>
+
     <build>
         <plugins>
             <plugin>
