@@ -326,9 +326,9 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     }
 
     private boolean isOrigFestival(String day){
-        Boolean isFestival =  hrUserAttendanceStatService.isFestival(day,1);//type类别：1 判断是法定节假日，2 判断是法定加班日
-        Boolean isWork =  hrUserAttendanceStatService.isFestival(day,2);
-        Boolean isWeek = DateUtil.isWeekend(DateUtil.parseDate(day));
+        Boolean isFestival =  hrUserAttendanceStatService.isFestival(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),1);//type类别：1 判断是法定节假日，2 判断是法定加班日
+        Boolean isWork =  hrUserAttendanceStatService.isFestival(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),2);
+        Boolean isWeek = DateUtil.isWeekend(DateUtil.parseDate(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue()));
         if(!isWeek&&!isFestival){//非周末，且非法定节假日
             return false;
         }
