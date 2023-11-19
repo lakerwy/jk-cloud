@@ -61,8 +61,8 @@ public class OriginalAtdDataServiceImpl extends ServiceImpl<OriginalAtdDataMappe
         if(ObjectUtil.isNotEmpty(originalAtdDataPageParam.getOrgId())) {
             queryWrapper.lambda().eq(OriginalAtdData::getOrgId, originalAtdDataPageParam.getOrgId());
         }
-        if(ObjectUtil.isNotEmpty(originalAtdDataPageParam.getAttendanceFlag())) {
-            queryWrapper.lambda().eq(OriginalAtdData::getAttendanceFlag, originalAtdDataPageParam.getAttendanceFlag());
+        if(ObjectUtil.isNotEmpty(originalAtdDataPageParam.getAbnormalFlag())) {
+            queryWrapper.lambda().eq(OriginalAtdData::getAbnormalFlag, originalAtdDataPageParam.getAbnormalFlag());
         }
         if(StringUtils.isNotEmpty(originalAtdDataPageParam.getStartTime()) && StringUtils.isNotEmpty(originalAtdDataPageParam.getEndTime())){
             queryWrapper.lambda().between(OriginalAtdData::getCheckTime,originalAtdDataPageParam.getStartTime(),originalAtdDataPageParam.getEndTime());

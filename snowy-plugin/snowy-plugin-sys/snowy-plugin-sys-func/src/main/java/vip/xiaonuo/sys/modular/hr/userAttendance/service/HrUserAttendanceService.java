@@ -18,11 +18,13 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.ErrorAttendanceData;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 打卡记录表Service接口
@@ -148,4 +150,5 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
     void errorEdit(EditErrorAtdParam editErrorAtdParam);
 
     void revokeErrorEdit(EditErrorAtdParam editErrorAtdParam);
+    Map<String, Map<String, HrUserAttendanceConfig>> getAtdConfig();
 }

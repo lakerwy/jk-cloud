@@ -89,7 +89,7 @@ public class OriginalAtdData {
 
     /** 打卡是否异常：-1 缺卡，0 管理员修改,1 正常,3 迟到，4 早退，5 请假，6 外出，7 出差 */
     @ApiModelProperty(value = "打卡是否异常：-1 缺卡，0 管理员修改,1 正常,3 迟到，4 早退，5 请假，6 外出，7 出差", position = 15)
-    private Integer attendanceFlag;
+    private Integer abnormalFlag;
 
     /** 打卡位置 */
     @ApiModelProperty(value = "打卡位置", position = 16)
@@ -136,4 +136,7 @@ public class OriginalAtdData {
     @ApiModelProperty(value = "更新人", position = 25)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    @ApiModelProperty(value = "上下班标识；OnDuty：上班；OffDuty：下班", position = 26)
+    private String checkType;
 }

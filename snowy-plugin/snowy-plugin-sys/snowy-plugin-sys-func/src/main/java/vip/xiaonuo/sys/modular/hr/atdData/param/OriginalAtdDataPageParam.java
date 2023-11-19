@@ -73,7 +73,7 @@ public class OriginalAtdDataPageParam {
 
     /** 打卡是否异常：-1 缺卡，0 管理员修改,1 正常,3 迟到，4 早退，5 请假，6 外出，7 出差 */
     @ApiModelProperty(value = "打卡是否异常：-1 缺卡，0 管理员修改,1 正常,3 迟到，4 早退，5 请假，6 外出，7 出差")
-    private Integer attendanceFlag;
+    private Integer abnormalFlag;
 
     @ApiModelProperty(value = "开始时间-年月日-时分秒")
     private String startTime;

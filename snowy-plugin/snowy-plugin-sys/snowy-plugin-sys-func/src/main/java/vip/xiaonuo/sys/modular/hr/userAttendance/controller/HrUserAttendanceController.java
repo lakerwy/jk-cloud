@@ -30,12 +30,13 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.ErrorAttendanceData;
-import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
+import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 打卡记录表控制器
@@ -202,6 +203,23 @@ public class HrUserAttendanceController {
     @GetMapping("/sys/userAttendance/revoke")
     public CommonResult<String> revokeErrorEdit(@Valid EditErrorAtdParam editErrorAtdParam) {
         hrUserAttendanceService.revokeErrorEdit(editErrorAtdParam);
+        return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("获取现在所有的考勤配置")
+    //@SaCheckPermission("/sys/userAttendance/getAtdConfig")
+    @GetMapping("/sys/userAttendance/getAtdConfig")
+    public CommonResult<Map<String, Map<String, HrUserAttendanceConfig>>> getAtdConfig() {
+        return CommonResult.data(hrUserAttendanceService.getAtdConfig());
+    }
+
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("原始数据定时任务统计接口(方法用于定时任务)")
+    //@SaCheckPermission("/sys/userAttendance/attendanceStatJobHandle")
+    @GetMapping("/sys/userAttendance/attendanceStatJobHandle")
+    public CommonResult<String> attendanceStatJobHandle() {
+        hrUserAttendanceService.attendanceStatJobHandle();
         return CommonResult.ok();
     }
 
