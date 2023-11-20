@@ -230,7 +230,7 @@ public class HrUserAttendanceStatController {
      * @date  2023/10/16 16:24
      * */
     @ApiOperationSupport(order = 12)
-    @ApiOperation("报表管理-用户考勤概览-打卡时间接口")
+    @ApiOperation("报表管理-打卡时间接口")
     @CommonLog("报表管理-用户考勤概览-打卡时间接口")
     //@SaCheckPermission("/sys/userAttendance/dayStatPreview")
     @GetMapping("/sys/userAttendance/dayStatPreview")
@@ -245,8 +245,8 @@ public class HrUserAttendanceStatController {
      * @date  2023/10/16 16:24
      * */
     @ApiOperationSupport(order = 13)
-    @ApiOperation("报表管理-用户考勤概览-月统计接口")
-    @CommonLog("报表管理-用户考勤概览-月统计接口")
+    @ApiOperation("报表管理-月统计接口")
+    @CommonLog("报表管理-月统计接口")
     //@SaCheckPermission("/sys/userAttendance/monthStatPreview")
     @GetMapping("/sys/userAttendance/monthStatPreview")
     public CommonResult<Page<MonthStatData>> monthStatPreview(@Valid AttendanceMonthStatParam attendanceMonthStatParam) {
@@ -289,8 +289,8 @@ public class HrUserAttendanceStatController {
      * @date  2023/10/16 16:24
      * */
     @ApiOperationSupport(order = 16)
-    @ApiOperation("报表管理-月统计考勤概览-每日统计")
-    @CommonLog("报表管理-月统计考勤概览-每日统计")
+    @ApiOperation("报表管理-每日统计")
+    @CommonLog("报表管理-每日统计")
     //@SaCheckPermission("/sys/userAttendance/monthPreDayStat")
     @GetMapping("/sys/userAttendance/monthPreDayStat")
     public CommonResult<Page<DayStatExcel>> monthPreDayStat(@Valid DayStatExcelParam dayStatExcelParam) {
@@ -325,7 +325,7 @@ public class HrUserAttendanceStatController {
     }
 
     /**
-     * 下载文件
+     * 原始记录
      *
      * @author xuyuxiang
      * @date 2022/6/21 15:44
