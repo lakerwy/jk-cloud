@@ -69,7 +69,7 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
-    @Getter
+    @Resource
     private BizPrjAllotmentCnService bizPrjAllotmentCnService;
 
     @Override
