@@ -87,9 +87,11 @@ public class ConferenceConfig {
     private String updateUser;
 
     @ApiModelProperty(value = "是否为会议室： 1 会议室，2 非会议室", position = 13)
+    @TableField(exist = false)
     private Integer conferenceFlag;
 
     @ApiModelProperty(value = "是否为会议室： 1 会议室，2 非会议室", position = 13)
+    @TableField(exist = false)
     private Integer status;
 
 }
