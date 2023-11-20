@@ -38,6 +38,8 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.sys.modular.hr.atdData.entity.OriginalAtdData;
+import vip.xiaonuo.sys.modular.hr.atdData.service.OriginalAtdDataService;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.entity.HrUserApplyAttendance;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.service.HrUserApplyAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.*;
@@ -47,6 +49,7 @@ import vip.xiaonuo.sys.modular.hr.userAttendance.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.ErrorAttendanceData;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.OriginalAtdDataVo;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.entity.HrUserAttendanceConfig;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfig.service.HrUserAttendanceConfigService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceConfigGroup.entity.HrUserAttendanceConfigGroup;
@@ -97,6 +100,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     private HrUserAttendanceConfigGroupService hrUserAttendanceConfigGroupService;
     @Resource
     private HrUserAttendanceStatService hrUserAttendanceStatService;
+    @Resource
+    OriginalAtdDataService originalAtdDataService;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -320,6 +325,19 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         attendance(hrUserAttendanceAddParam);
     }
 
+    private boolean isOrigFestival(String day){
+        Boolean isFestival =  hrUserAttendanceStatService.isFestival(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),1);//type类别：1 判断是法定节假日，2 判断是法定加班日
+        Boolean isWork =  hrUserAttendanceStatService.isFestival(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),2);
+        Boolean isWeek = DateUtil.isWeekend(DateUtil.parseDate(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue()));
+        if(!isWeek&&!isFestival){//非周末，且非法定节假日
+            return false;
+        }
+        if(isWeek&&isWork){//周末，且未法定加班日
+            return false;
+        }
+        return true;
+    }
+
     /**
      * 打卡记录同步考勤统计表
      * @author ljy
@@ -328,7 +346,141 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void attendanceStatJobHandle(){
-        //System.out.println("接口调用成功！");
+        //休息日无需统计，若存在打卡数据，直接迁移打卡数据
+        String day = DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN);
+        if(isOrigFestival(day)){
+            return;
+        }
+        /**
+         * 1.打卡数据定时统计到原始数据表：ORIGINAL_ATD_DATA
+         * 2.统计缺卡数据到月统计表：HR_ATTENDANCE_ANAL_STAT
+         * */
+        String atdTime = CommonTimeFormatUtil.dayAndWeek(day);
+        Date beginDate = DateUtil.beginOfDay(DateUtil.date());
+        Date endDate = DateUtil.date();
+        List<SysUser> userList = sysUserService.list(new LambdaQueryWrapper<SysUser>().isNotNull(SysUser::getAttendanceGroupId).ne(SysUser::getAttendanceGroupId,""));
+        List<HrUserAttendance> hrUserAttendanceList = this.list(new LambdaQueryWrapper<HrUserAttendance>().between(HrUserAttendance::getCheckTime,beginDate,endDate));
+        Map<String, Map<String, HrUserAttendanceConfig>> map = this.getAtdConfig();//key - 考勤组ID，value - [key 考勤type，value  考勤配置]
+        //String day = DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN);
+        List<HrUserAttendanceConfig> defaultConfigList = defaultConfig();
+        /** 历史统计数据 */
+        List<OriginalAtdData> originalAtdDataList = originalAtdDataService.list(new LambdaQueryWrapper<OriginalAtdData>().between(OriginalAtdData::getCheckTime,beginDate,endDate));
+        Map<String,Map<String,OriginalAtdData>> originalMap = new HashMap<>();//key - userId (value [key - type,value - OriginalAtdData])
+        originalAtdDataList.forEach(original -> {
+            Map<String,OriginalAtdData> atdDataMap = originalMap.get(original.getUserId()) == null ? new HashMap<>() : originalMap.get(original.getUserId());
+            atdDataMap.put(original.getCheckType(),original);
+            originalMap.put(original.getUserId(),atdDataMap);
+        });
+
+        //每个人的打卡数据聚类处理
+        List<OriginalAtdDataVo> originalAtdDataVoList = new ArrayList<>();
+        /** 统计的数据*/
+        List<OriginalAtdData> originalList = new ArrayList<>();
+        userList.forEach(user -> {
+            List<HrUserAttendance> attendanceList = new ArrayList<>();
+            Map<String,List<HrUserAttendance>> attendanceMap = new HashMap<>();//key type value List<HrUserAttendance>
+            hrUserAttendanceList.forEach(attendance -> {
+                List<HrUserAttendance> attendances = attendanceMap.get(attendance.getCheckType()) == null ? new ArrayList<>() : attendanceMap.get(attendance.getCheckType());
+                attendances.add(attendance);
+                attendanceMap.put(attendance.getCheckType(),attendances);
+            });
+            //开始计算考勤有哪些类别，需要打几次卡，OnDuty，REST，OffDuty
+            HrUserAttendanceConfig configParam = new HrUserAttendanceConfig();//用来传递考勤组ID和名称
+            Map<String, HrUserAttendanceConfig> mapType = getMapType( map, user,defaultConfigList, day, beginDate, endDate,configParam);//new HashMap<>();
+
+            /**
+             * 开始统计数据
+             * 1.判断是否存在历史数据，若存在，则跳过，[包含之前请假，出差，外出，历史统计数据]
+             * 2.不存在，按照类别获取数据，若获取不到相应类别数据，则直接是缺卡；若获取了一次，后续同类型则未无效打卡数据
+             * */
+            mapType.entrySet().forEach(type ->{
+                HrUserAttendanceConfig config = type.getValue();
+                String dutyType = type.getKey();
+                Map<String,OriginalAtdData> atdOrigDataMap = originalMap.get(user.getId()) != null ? originalMap.get(user.getId()) : new HashMap<>();
+                if(atdOrigDataMap.get(dutyType) == null){//不存在历史数据,若存在直接跳过
+                    List<HrUserAttendance> attendances = attendanceMap.get(type) == null ? new ArrayList<>() : attendanceMap.get(type);
+                    if(attendances.size() == 0){//缺卡
+                        OriginalAtdData originalAtdData = new OriginalAtdData();
+                        originalAtdData.setAtdGroupId(config.getAttendanceTypeId());
+                        originalAtdData.setAtdGroupName(config.getAttendanceTypeName());
+                        originalAtdData.setAbnormalFlag(-1);
+                        originalAtdData.setUserId(user.getId());
+                        originalAtdData.setUserName(user.getName());
+                        originalAtdData.setOrgId(user.getOrgId());
+                        originalAtdData.setOrgName(user.getOrgName());
+                        originalAtdData.setPostion(user.getPositionName());
+                        originalAtdData.setEmpNo(user.getEmpNo());
+                        originalAtdData.setAtdResult("缺卡");
+                        originalAtdData.setAtdDate(atdTime);
+                        originalList.add(originalAtdData);
+                    }else{
+                        for(int i=0;i<attendances.size();i++){
+                            originalList.add(saveOriginalAtdData(attendances.get(i),i,configParam,user,atdTime));
+                        }
+                    }
+                }
+            });
+        });
+        if(CollectionUtil.isNotEmpty(originalList)){
+            originalAtdDataService.saveBatch(originalList);
+        }
+    }
+
+    private Map<String, HrUserAttendanceConfig> getMapType(Map<String, Map<String, HrUserAttendanceConfig>> map,SysUser user,List<HrUserAttendanceConfig> defaultConfigList,
+                                                           String day,Date beginDate,Date endDate,HrUserAttendanceConfig configParam){
+        Map<String, HrUserAttendanceConfig> mapType = new HashMap<>();
+        Map<String, HrUserAttendanceConfig> configMap = map.get(user.getId()) != null ? map.get(user.getId()) : new HashMap<>();
+        //HrUserAttendanceConfig configParam = new HrUserAttendanceConfig();//用来传递考勤组ID和名称
+        if(ObjectUtil.isEmpty(configMap)){
+            defaultConfigList.forEach(config -> {
+                configParam.setAttendanceTypeId(config.getAttendanceTypeId());
+                configParam.setAttendanceTypeName(config.getAttendanceTypeName());
+                Date date = CommonTimeFormatUtil.strToDate(day+" "+config.getCheckTime().toString(),DatePattern.NORM_DATETIME_PATTERN);
+                Boolean isTrue = date.compareTo(beginDate) > 0 && date.compareTo(endDate) < 0  ? true : false;
+                if(isTrue){ mapType.put(config.getDutyType(),config); }
+            });
+        }else{
+            configMap.entrySet().forEach(data -> {
+                configParam.setAttendanceTypeId(data.getValue().getAttendanceTypeId());
+                configParam.setAttendanceTypeName(data.getValue().getAttendanceTypeName());
+                Date date = CommonTimeFormatUtil.strToDate(day+" "+data.getValue().getCheckTime().toString(),DatePattern.NORM_DATETIME_PATTERN);
+                Boolean isTrue = date.compareTo(beginDate) > 0 && date.compareTo(endDate) < 0  ? true : false;
+                if(isTrue){ mapType.put(data.getValue().getDutyType(),data.getValue()); }
+            });
+        }
+        return mapType;
+    };
+
+    private OriginalAtdData saveOriginalAtdData(HrUserAttendance attendance,Integer i,HrUserAttendanceConfig configParam,SysUser user,String atdTime){
+        OriginalAtdData originalAtdData = BeanUtil.toBean(attendance,OriginalAtdData.class);
+        originalAtdData.setAtdLocation(attendance.getMachineCode());
+        originalAtdData.setAtdGroupId(configParam.getAttendanceTypeId());
+        originalAtdData.setAtdGroupName(configParam.getAttendanceTypeName());
+        Integer abnormalFlag = attendance.getAbnormalFlag() == 1 ?
+                1 : attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue())? 3 : 4;
+        originalAtdData.setAbnormalFlag(abnormalFlag);
+        originalAtdData.setOrgId(user.getOrgId());
+        originalAtdData.setOrgName(user.getOrgName());
+        originalAtdData.setUserId(user.getId());
+        originalAtdData.setUserName(user.getName());
+        originalAtdData.setEmpNo(user.getEmpNo());
+        originalAtdData.setPostion(user.getPositionName());
+        originalAtdData.setAtdDate(atdTime);
+        originalAtdData.setAtdResult("打卡无效:此记录已被更新");
+        if(i==0){
+            originalAtdData.setAtdResult(attendance.getAbnormalFlag() == 1 ?
+                    "正常" : attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue())? "迟到" : "早退");
+        }
+
+        return originalAtdData;
+    }
+
+    private List<HrUserAttendanceConfig> defaultConfig(){
+        List<HrUserAttendanceConfigGroup>  hrUserAttendanceConfigGroupList = hrUserAttendanceConfigGroupService.list(new QueryWrapper<HrUserAttendanceConfigGroup>()
+                .lambda().eq(HrUserAttendanceConfigGroup::getIsDefaultConfig,"0"));
+        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list(new QueryWrapper<HrUserAttendanceConfig>().lambda()
+                .eq(HrUserAttendanceConfig::getAttendanceTypeId,hrUserAttendanceConfigGroupList.get(0).getId()));
+        return configList;
     }
 
     @Override
@@ -541,5 +693,24 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         hrUserAttendanceStat.setEditAbnormalFlag(null);
         hrUserAttendanceStat.setEditCheckTime(null);
         hrUserAttendanceStatService.saveOrUpdate(hrUserAttendanceStat);
+    }
+
+    @Override
+    public Map<String, Map<String, HrUserAttendanceConfig>> getAtdConfig(){
+        Map<String, Map<String, HrUserAttendanceConfig>> map = new HashMap<>();
+        List<HrUserAttendanceConfigGroup> groupList = hrUserAttendanceConfigGroupService.list();
+        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list();
+
+        groupList.forEach(group -> {
+            String groupId = group.getId();
+            Map<String, HrUserAttendanceConfig> configMap = map.get(group.getId()) == null ? new HashMap<>() : map.get(group.getId());
+            configList.forEach(config -> {
+                if(config.getAttendanceTypeId().equals(group.getId())){
+                    configMap.put(config.getDutyType(),config);
+                }
+            });
+            map.put(group.getId(),configMap);
+        });
+        return map;
     }
 }
