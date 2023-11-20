@@ -16,6 +16,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -23,16 +25,22 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
-import vip.xiaonuo.common.enums.CommonSnFormatEnum;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.crm.subcontract.mapper.SubcontractMapper;
 import vip.xiaonuo.biz.modular.crm.subcontract.service.SubcontractService;
-import vip.xiaonuo.common.util.CommonSnUtil;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 
 import javax.annotation.Resource;
 import java.util.Date;
@@ -51,9 +59,16 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
 
     @Resource
     private SubcontractMapper subcontractMapper;
+
+    @Resource
+    CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    FormRelationTableApi formRelationTableApi;
     @Override
     public Page<SubContractInfoVo> page(SubcontractPageParam subcontractPageParam) {
         QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("a.STATUS",FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if (ObjectUtil.isNotEmpty(subcontractPageParam.getSearchKey())) {
             queryWrapper.like("a.SECOND_LEVEL", subcontractPageParam.getSearchKey()).or()
                     .like("a.OPT", subcontractPageParam.getSearchKey()).or()
@@ -118,18 +133,49 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
     @Override
     public void add(SubcontractAddParam subcontractAddParam) {
         Subcontract subcontract = BeanUtil.toBean(subcontractAddParam, Subcontract.class);
-        //处理Sn编号
-        Subcontract tmp = this.getOne(new QueryWrapper<Subcontract>().lambda().orderByDesc(Subcontract::getCreateTime).last("limit 1"));
-        String newSn = CommonSnUtil.GenerateSn(subcontractAddParam.getContractNo(), tmp == null ? "" : tmp.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
-        subcontract.setContractNo(newSn);
         subcontract.setOpt(StpLoginUserUtil.getLoginUser().getName());
         subcontract.setRegisterDate(new Date());
+        //走合同审批流程
+        String processInstanceId = subcontractAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            subcontract.setId(id);
+            subcontract.setContractNo(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            subcontract.setModelId(modelId);
+            subcontract.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            formRelationTableApi.save(modelId, BizCommonEnum.BIZ_CRM_SUBCONTRACT.getBizTable(),id,processInstanceId,dbName);
+        }
+        else{//不走审批流程
+            String modelId = "1720327698938114049";   //分包合同流程Id
+            if(StrUtil.isNotEmpty(subcontractAddParam.getModelId())){
+                modelId = subcontractAddParam.getModelId();
+            }
+            String newSn = formRelationTableApi.getSnByModelId(modelId);
+            subcontract.setContractNo(newSn);
+            subcontract.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
         this.save(subcontract);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(SubcontractEditParam subcontractEditParam) {
+        String id = subcontractEditParam.getId();
+        //判断是否走合同审批流程内的修改
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(subcontractEditParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(subcontractEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id = formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                subcontractEditParam.setId(id);
+            }
+        }
         Subcontract subcontract = this.queryEntity(subcontractEditParam.getId());
         BeanUtil.copyProperties(subcontractEditParam, subcontract);
         this.updateById(subcontract);
@@ -164,6 +210,17 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
     @Override
     public List<Subcontract> detailByHetongId(SubContractHetongIdParam subContractHetongIdParam) {
         return subcontractMapper.getSubContractListByHetongId(subContractHetongIdParam.getHetongId());
+    }
+
+    @Override
+    public Boolean checkName(CheckNameParam checkNameParam) {
+        if(StrUtil.isNotEmpty(checkNameParam.getProjectName())) {
+            List<Subcontract> list = this.list(new QueryWrapper<Subcontract>().lambda()
+                    .eq(Subcontract::getProjectName, checkNameParam.getProjectName())
+                    .in(Subcontract::getStatus,"0","1"));
+            return !list.isEmpty();
+        }
+        return false;
     }
 
 }

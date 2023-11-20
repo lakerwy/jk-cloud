@@ -6,12 +6,12 @@
         select a.*, b.SECOND_LEVEL as mainContractSecondLevel,b.PROJECT_NAME as mainContractName,b.CONTRACT_AMOUNT as mainContractAmount
         from BIZ_CRM_SUBCONTRACT a left join BIZ_CRM_HETONG b
             on a.HETONG_ID = b.ID
-        where a.ID = ${id}
+        where a.ID = ${id} and a.STATUS in ('0','1')
     </select>
 
     <select id="getSubContractListByHetongId" resultType="vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract" parameterType="String">
         select * from BIZ_CRM_SUBCONTRACT
-        where HETONG_ID = ${hetongId} and DELETE_FLAG = 'NOT_DELETE'
+        where HETONG_ID = ${hetongId} and DELETE_FLAG = 'NOT_DELETE' and STATUS in ('0','1')
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo">

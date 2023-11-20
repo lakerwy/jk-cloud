@@ -14,10 +14,12 @@ package vip.xiaonuo.biz.modular.crm.subcontract.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
 import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.biz.modular.crm.subcontract.param.*;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -89,4 +91,11 @@ public interface SubcontractService extends IService<Subcontract> {
      * @return
      */
     List<Subcontract> detailByHetongId(SubContractHetongIdParam subContractHetongIdParam);
+
+    /**
+     * 校验名称是否重复
+     * @param checkNameParam
+     * @return
+     */
+    Boolean checkName(CheckNameParam checkNameParam);
 }

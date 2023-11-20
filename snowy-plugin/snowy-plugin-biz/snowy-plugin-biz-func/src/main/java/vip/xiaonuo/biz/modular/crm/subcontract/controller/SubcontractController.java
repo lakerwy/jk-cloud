@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.crm.hetong.param.CheckNameParam;
 import vip.xiaonuo.biz.modular.crm.subcontract.vo.SubContractInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -136,5 +137,18 @@ public class SubcontractController {
     @GetMapping("/biz/crm/subcontract/detailById")
     public CommonResult<SubContractInfoVo> detailById(@Valid SubcontractIdParam subcontractIdParam) {
         return CommonResult.data(subcontractService.detailById(subcontractIdParam));
+    }
+
+    /**
+     * 判断合同名称是否重名 （审批中+审核通过状态下）
+     *
+     * @author yong.ye
+     * @date  2023/06/30 14:49
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("判断合同名称是否重名 （审批中+审核通过状态下）")
+    @GetMapping("/biz/crm/subcontract/checkName")
+    public CommonResult<Boolean> checkName(@Valid CheckNameParam checkNameParam) {
+        return CommonResult.data(subcontractService.checkName(checkNameParam));
     }
 }
