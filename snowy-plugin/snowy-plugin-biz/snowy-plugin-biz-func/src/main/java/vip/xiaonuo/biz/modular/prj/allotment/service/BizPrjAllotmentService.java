@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.prj.allotment.param.BizPrjAllotmentAddParam;
 import vip.xiaonuo.biz.modular.prj.allotment.param.BizPrjAllotmentEditParam;
 import vip.xiaonuo.biz.modular.prj.allotment.param.BizPrjAllotmentIdParam;
 import vip.xiaonuo.biz.modular.prj.allotment.param.BizPrjAllotmentPageParam;
+import vip.xiaonuo.biz.modular.prj.allotment.vo.BizPrjAllotmentVo;
 import vip.xiaonuo.biz.modular.prj.plan.param.InvoiceParam;
 
 import java.util.List;
@@ -37,7 +38,7 @@ public interface BizPrjAllotmentService extends IService<BizPrjAllotment> {
      * @author yong.ye
      * @date  2023/09/28 11:30
      */
-    Page<BizPrjAllotment> page(BizPrjAllotmentPageParam bizPrjAllotmentPageParam);
+    Page<BizPrjAllotmentVo> page(BizPrjAllotmentPageParam bizPrjAllotmentPageParam);
 
     /**
      * 添加业务表-项目计划付款单
@@ -69,7 +70,7 @@ public interface BizPrjAllotmentService extends IService<BizPrjAllotment> {
      * @author yong.ye
      * @date  2023/09/28 11:30
      */
-    BizPrjAllotment detail(BizPrjAllotmentIdParam bizPrjAllotmentIdParam);
+    BizPrjAllotmentVo detail(BizPrjAllotmentIdParam bizPrjAllotmentIdParam);
 
     /**
      * 获取业务表-项目计划付款单详情
@@ -84,5 +85,5 @@ public interface BizPrjAllotmentService extends IService<BizPrjAllotment> {
      * @param invoiceParam
      * @return
      */
-    List<BizPrjAllotment> allotmentList(InvoiceParam invoiceParam);
+    List<BizPrjAllotmentVo> allotmentList(InvoiceParam invoiceParam);
 }

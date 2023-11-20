@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.prj.allotment.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -24,10 +25,13 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
+import lombok.Getter;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.prj.allotment.entity.BizPrjAllotmentCn;
+import vip.xiaonuo.biz.modular.prj.allotment.service.BizPrjAllotmentCnService;
+import vip.xiaonuo.biz.modular.prj.allotment.vo.BizPrjAllotmentVo;
 import vip.xiaonuo.biz.modular.prj.plan.param.InvoiceParam;
-import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettle;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -47,7 +51,9 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 业务表-项目拨付款申请单Service接口实现类
@@ -63,8 +69,11 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
+    @Getter
+    private BizPrjAllotmentCnService bizPrjAllotmentCnService;
+
     @Override
-    public Page<BizPrjAllotment> page(BizPrjAllotmentPageParam bizPrjAllotmentPageParam) {
+    public Page<BizPrjAllotmentVo> page(BizPrjAllotmentPageParam bizPrjAllotmentPageParam) {
         QueryWrapper<BizPrjAllotment> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(bizPrjAllotmentPageParam.getHzfCode())) {
             queryWrapper.lambda().like(BizPrjAllotment::getHzfCode, bizPrjAllotmentPageParam.getHzfCode());
@@ -107,7 +116,20 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
         } else {
             queryWrapper.lambda().orderByAsc(BizPrjAllotment::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizPrjAllotment> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        //处理出纳
+        List<BizPrjAllotmentVo> voList = new ArrayList<>();
+        for (BizPrjAllotment item:result.getRecords()) {
+            BizPrjAllotmentVo vo = BeanUtil.copyProperties(item,BizPrjAllotmentVo.class);
+            vo.setAllotmentCnList(bizPrjAllotmentCnService.list(new QueryWrapper<BizPrjAllotmentCn>().lambda().eq(BizPrjAllotmentCn::getAllotmentId,item.getId())));
+        }
+        Page<BizPrjAllotmentVo> resultVo = new Page<>();
+        resultVo.setRecords(voList);
+        resultVo.setPages(result.getPages());
+        resultVo.setTotal(result.getTotal());
+        resultVo.setSize(result.getSize());
+        resultVo.setCurrent(result.getCurrent());
+        return resultVo;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -135,6 +157,14 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
         bizPrjAllotment.setApplyDate(DateTime.now());
         bizPrjAllotment.setExtJson(JsonUtils.object2json(bizPrjAllotmentAddParam));
         this.save(bizPrjAllotment);
+        //处理出纳
+        if(CollUtil.isNotEmpty(bizPrjAllotmentAddParam.getAllotmentCnList())){
+            List<BizPrjAllotmentCn> prjAllotmentCnList = bizPrjAllotmentAddParam.getAllotmentCnList();
+            prjAllotmentCnList.forEach(x->{
+                x.setAllotmentId(bizPrjAllotment.getId());
+            });
+            bizPrjAllotmentCnService.saveBatch(prjAllotmentCnList);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -155,18 +185,52 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
         BeanUtil.copyProperties(bizPrjAllotmentEditParam, bizPrjAllotment);
         bizPrjAllotment.setExtJson(JsonUtils.object2json(bizPrjAllotmentEditParam));
         this.updateById(bizPrjAllotment);
+        //处理出纳
+        if(CollUtil.isNotEmpty(bizPrjAllotmentEditParam.getAllotmentCnList())){
+            //本次传入的数据
+            List<BizPrjAllotmentCn> prjAllotmentCnList = bizPrjAllotmentEditParam.getAllotmentCnList();
+            prjAllotmentCnList.forEach(x->{
+                x.setAllotmentId(bizPrjAllotment.getId());
+            });
+            //获取历史数据
+            List<BizPrjAllotmentCn> oldList = bizPrjAllotmentCnService.list(
+                    new QueryWrapper<BizPrjAllotmentCn>().lambda().eq(BizPrjAllotmentCn::getAllotmentId,bizPrjAllotment.getId()));
+            List<String> oldIds = oldList.stream().map(x->x.getId()).collect(Collectors.toList());
+            //待新增的
+            List<BizPrjAllotmentCn> addList = prjAllotmentCnList.stream().filter(x->!oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待更新的
+            List<BizPrjAllotmentCn> updateList = prjAllotmentCnList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(x->x.getId()).collect(Collectors.toList());
+            List<BizPrjAllotmentCn> removeList = prjAllotmentCnList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(addList)){
+                bizPrjAllotmentCnService.saveBatch(addList);
+            }
+            if(CollUtil.isNotEmpty(updateList)){
+                bizPrjAllotmentCnService.updateBatchById(updateList);
+            }
+            if(CollUtil.isNotEmpty(removeList)){
+                bizPrjAllotmentCnService.removeByIds(removeList);
+            }
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<BizPrjAllotmentIdParam> bizPrjAllotmentIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(bizPrjAllotmentIdParamList, BizPrjAllotmentIdParam::getId));
+        List<String> ids = CollStreamUtil.toList(bizPrjAllotmentIdParamList, BizPrjAllotmentIdParam::getId);
+        this.removeByIds(ids);
+        //删除出纳
+        bizPrjAllotmentCnService.remove(new QueryWrapper<BizPrjAllotmentCn>().lambda().in(BizPrjAllotmentCn::getAllotmentId,ids));
     }
 
     @Override
-    public BizPrjAllotment detail(BizPrjAllotmentIdParam bizPrjAllotmentIdParam) {
-        return this.queryEntity(bizPrjAllotmentIdParam.getId());
+    public BizPrjAllotmentVo detail(BizPrjAllotmentIdParam bizPrjAllotmentIdParam) {
+        BizPrjAllotment bizPrjAllotment = this.queryEntity(bizPrjAllotmentIdParam.getId());
+        BizPrjAllotmentVo bizPrjAllotmentVo = BeanUtil.copyProperties(bizPrjAllotment,BizPrjAllotmentVo.class);
+        bizPrjAllotmentVo.setAllotmentCnList(bizPrjAllotmentCnService.list(new QueryWrapper<BizPrjAllotmentCn>().lambda().eq(BizPrjAllotmentCn::getAllotmentId,bizPrjAllotmentVo.getId())));
+        return bizPrjAllotmentVo;
     }
 
     @Override
@@ -179,7 +243,7 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
     }
 
     @Override
-    public List<BizPrjAllotment> allotmentList(InvoiceParam invoiceParam) {
+    public List<BizPrjAllotmentVo> allotmentList(InvoiceParam invoiceParam) {
         QueryWrapper<BizPrjAllotment> queryWrapper = new QueryWrapper<>();
         //审核通过
         queryWrapper.lambda().eq(BizPrjAllotment::getStatus,"1");
@@ -190,6 +254,9 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
             queryWrapper.lambda().eq(BizPrjAllotment::getXmContractNo,invoiceParam.getContractNo());
         }
         queryWrapper.lambda().orderByAsc(BizPrjAllotment::getAllotmentNo);
-        return this.list(queryWrapper);
+        List<BizPrjAllotment> result = this.list(queryWrapper);
+        List<BizPrjAllotmentVo> resultVo = BeanUtil.copyToList(result,BizPrjAllotmentVo.class);
+        resultVo.forEach(x->x.setAllotmentCnList(bizPrjAllotmentCnService.list(new QueryWrapper<BizPrjAllotmentCn>().lambda().eq(BizPrjAllotmentCn::getAllotmentId,x.getId()))));
+        return resultVo;
     }
 }

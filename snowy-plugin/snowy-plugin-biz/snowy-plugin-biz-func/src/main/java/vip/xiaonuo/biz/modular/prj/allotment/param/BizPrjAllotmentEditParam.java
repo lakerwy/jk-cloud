@@ -17,11 +17,13 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import vip.xiaonuo.biz.modular.prj.allotment.entity.BizPrjAllotmentCn;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 业务表-项目计划付款单编辑参数
@@ -45,12 +47,6 @@ public class BizPrjAllotmentEditParam {
     /** 合作方/分公司名称 */
     @ApiModelProperty(value = "合作方/分公司名称", position = 3)
     private String hzfName;
-
-    /** 申请日期 */
-//    @ApiModelProperty(value = "申请日期", position = 4)
-//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
-//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-//    private Date applyDate;
 
     /** 拨付款申请单编号 */
     @ApiModelProperty(value = "拨付款申请单编号", position = 5)
@@ -166,6 +162,10 @@ public class BizPrjAllotmentEditParam {
     @ApiModelProperty(value = "本次申请付款金额合计", position = 45)
     private BigDecimal thisApplyAmount;
 
+    /** 部门审批-行政部-意见 */
+    @ApiModelProperty(value = "部门审批-行政部-意见", position = 46)
+    private String xzIdea;
+
     /** 部门审批-工程总承包事业部-本次工程罚款金额 */
     @ApiModelProperty(value = "部门审批-工程总承包事业部-本次工程罚款金额", position = 46)
     private BigDecimal gczcFineAmount;
@@ -226,35 +226,9 @@ public class BizPrjAllotmentEditParam {
     @ApiModelProperty(value = "部门审批-资产财务中心-小计", position = 60)
     private BigDecimal cwTotalAmount;
 
-    /** 出纳支付信息-本次付款单位编号 */
-    @ApiModelProperty(value = "出纳支付信息-本次付款单位编号", position = 61)
-    private String cnUnitCode;
-
-    /** 出纳支付信息-付款单位名称 */
-    @ApiModelProperty(value = "出纳支付信息-付款单位名称", position = 62)
-    private String cnUnitName;
-
-    /** 出纳支付信息-本次付款合同编号 */
-    @ApiModelProperty(value = "出纳支付信息-本次付款合同编号", position = 61)
-    private String cnContractNo;
-
-    /** 出纳支付信息-合同名称 */
-    @ApiModelProperty(value = "出纳支付信息-合同名称", position = 62)
-    private String cnContractName;
-
-    /** 出纳支付信息-本次实际付款金额 */
-    @ApiModelProperty(value = "出纳支付信息-本次实际付款金额", position = 63)
-    private BigDecimal cnRealAmount;
-
     /** 出纳支付信息-本次实际付款金额合计 */
     @ApiModelProperty(value = "出纳支付信息-本次实际付款金额合计", position = 64)
     private BigDecimal cnRealTotalAmount;
-
-    /** 出纳支付信息-实际付款日期 */
-    @ApiModelProperty(value = "出纳支付信息-实际付款日期", position = 65)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date cnRealDate;
 
     /** 出纳支付信息-意见 */
     @ApiModelProperty(value = "出纳支付信息-意见", position = 66)
@@ -284,4 +258,7 @@ public class BizPrjAllotmentEditParam {
     @ApiModelProperty(value = "数据权限控制字段", position = 77)
     private String dataScopeId;
 
+    /** 业务表-项目款拨付申请单-出纳支付信息 */
+    @ApiModelProperty(value = "业务表-项目款拨付申请单-出纳支付信息列表", position = 50)
+    private List<BizPrjAllotmentCn> allotmentCnList;
 }

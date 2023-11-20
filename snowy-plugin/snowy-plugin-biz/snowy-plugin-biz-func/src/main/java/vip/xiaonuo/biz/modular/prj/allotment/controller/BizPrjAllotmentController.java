@@ -23,8 +23,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.prj.allotment.vo.BizPrjAllotmentVo;
 import vip.xiaonuo.biz.modular.prj.plan.param.InvoiceParam;
-import vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -65,7 +65,7 @@ public class BizPrjAllotmentController {
     @ApiOperation("获取业务表-项目拨付款申请单分页")
 //    @SaCheckPermission("/biz/prj/allotment/page")
     @GetMapping("/biz/prj/allotment/page")
-    public CommonResult<Page<BizPrjAllotment>> page(BizPrjAllotmentPageParam bizPrjAllotmentPageParam) {
+    public CommonResult<Page<BizPrjAllotmentVo>> page(BizPrjAllotmentPageParam bizPrjAllotmentPageParam) {
         return CommonResult.data(bizPrjAllotmentService.page(bizPrjAllotmentPageParam));
     }
 
@@ -141,7 +141,7 @@ public class BizPrjAllotmentController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("根据 【合同编号】 - 获取 审核通过 的历史【项目付款单申请】集合")
     @GetMapping("/biz/prj/allotment/allotmentList")
-    public CommonResult<List<BizPrjAllotment>> allotmentList(@Valid InvoiceParam invoiceParam) {
+    public CommonResult<List<BizPrjAllotmentVo>> allotmentList(@Valid InvoiceParam invoiceParam) {
         return CommonResult.data(bizPrjAllotmentService.allotmentList(invoiceParam));
     }
 }
