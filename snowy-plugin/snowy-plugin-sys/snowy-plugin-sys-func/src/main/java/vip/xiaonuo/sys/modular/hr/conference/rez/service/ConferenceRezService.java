@@ -15,12 +15,15 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
+import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
 
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 会议预约-预约会议表数据Service接口
@@ -87,4 +90,11 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
     * 查询可预约场景
     * */
     List<ConferenceConfig> conferenceRoom(ConferenceRoomParam conferenceRoomParam);
+
+    /**
+     * 查询可预约场景
+     * */
+    List<ConferenceTimeData> conferenceList(ConferenceTimeDataParam conferenceTimeDataParam);
+    /** 获取人员数据  key userID,value userName*/
+    Map<String,String> getUserData();
 }
