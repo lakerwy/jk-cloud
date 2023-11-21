@@ -25,6 +25,12 @@
                                             #{orgId}
                                         </foreach>
                                     </if>
+                                    <if test="userFileIds != null and userFileIds.size() > 0">
+                                        AND ID IN
+                                        <foreach item="id" collection="userFileIds" open="(" close=")" separator=",">
+                                            #{id}
+                                        </foreach>
+                                    </if>
                                 </where>
                             AND  FIND_IN_SET(PARENT_ID, @ids)) AS c_ids,
             @l := @l+1 AS LE

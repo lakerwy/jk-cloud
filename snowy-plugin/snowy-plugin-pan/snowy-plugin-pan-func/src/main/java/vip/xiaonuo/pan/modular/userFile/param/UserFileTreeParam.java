@@ -45,4 +45,6 @@ public class UserFileTreeParam {
     @ApiModelProperty(value = "组织id 前端不用传", position = 5)
     private List<String> orgIds;
 
+    @ApiModelProperty(value = "当前文件Id", position = 6)
+    private List<String> userFileIds;
 }

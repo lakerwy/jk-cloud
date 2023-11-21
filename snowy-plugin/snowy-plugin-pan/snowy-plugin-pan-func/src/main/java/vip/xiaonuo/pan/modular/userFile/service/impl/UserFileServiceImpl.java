@@ -550,11 +550,33 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             userFileTreeParam.setUserId(StpLoginUserUtil.getLoginUser().getId());
             userFileTreeParam.setFoldTypes(new ArrayList<>(Collections.singletonList(0)));
         } else if (1==foldType) {
-            String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
-//            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
-            //暂时只能看自己部门的
-            userFileTreeParam.setOrgIds(new ArrayList<>(Collections.singletonList(orgId)));
+//            String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+////            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
+//            //暂时只能看自己部门的
+//            userFileTreeParam.setOrgIds(new ArrayList<>(Collections.singletonList(orgId)));
+//            userFileTreeParam.setFoldTypes(new ArrayList<>(Collections.singletonList(1)));
+            //群组文件：只能看当前群组下的可见文件夹
+            if(CollUtil.isNotEmpty(userFileTreeParam.getUserFileIds())){
+                //基本信息
+                String userId = StpLoginUserUtil.getLoginUser().getId();
+                String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
+                List<String> orgIds = sysOrgApi.getParentIds(orgId,true);
+                //获取顶级目录
+                UserFile userFile = userFileMapper.getTopParent(userFileTreeParam.getUserFileIds().get(0));
+                //获取子目录
+                List<String> fileIds = userFileMapper.getChildren(userFile.getId()).stream().map(x->x.getId()).collect(Collectors.toList());
+                //超管看全部
+                if(CollUtil.isNotEmpty(fileIds) &&
+                        !StpLoginUserUtil.getLoginUser().getRoleCodeList().contains(SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue())) {
+                    List<String> userFileIds = panFileRightService.notInUserFileIds(userId,orgId,orgIds);
+                    if (CollUtil.isNotEmpty(userFileIds)){
+                        fileIds.removeAll(userFileIds);
+                    }
+                }
+               userFileTreeParam.setUserFileIds(fileIds);
+            }
             userFileTreeParam.setFoldTypes(new ArrayList<>(Collections.singletonList(1)));
+
         }else{
             userFileTreeParam.setFoldTypes(new ArrayList<>(Arrays.asList(1,2)));
         }
