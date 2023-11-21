@@ -41,7 +41,7 @@ import javax.validation.constraints.NotEmpty;
  * 考勤-员工考勤统计分析数据汇总表控制器
  *
  * @author ljy
- * @date  2023/11/04 08:35
+ * @date  2023/11/21 23:04
  */
 @Api(tags = "考勤-员工考勤统计分析数据汇总表控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
@@ -56,7 +56,7 @@ public class HrAttendanceAnalStatController {
      * 获取考勤-员工考勤统计分析数据汇总表分页
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取考勤-员工考勤统计分析数据汇总表分页")
@@ -70,7 +70,7 @@ public class HrAttendanceAnalStatController {
      * 添加考勤-员工考勤统计分析数据汇总表
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加考勤-员工考勤统计分析数据汇总表")
@@ -86,7 +86,7 @@ public class HrAttendanceAnalStatController {
      * 编辑考勤-员工考勤统计分析数据汇总表
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑考勤-员工考勤统计分析数据汇总表")
@@ -102,7 +102,7 @@ public class HrAttendanceAnalStatController {
      * 删除考勤-员工考勤统计分析数据汇总表
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除考勤-员工考勤统计分析数据汇总表")
@@ -119,7 +119,7 @@ public class HrAttendanceAnalStatController {
      * 获取考勤-员工考勤统计分析数据汇总表详情
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取考勤-员工考勤统计分析数据汇总表详情")
