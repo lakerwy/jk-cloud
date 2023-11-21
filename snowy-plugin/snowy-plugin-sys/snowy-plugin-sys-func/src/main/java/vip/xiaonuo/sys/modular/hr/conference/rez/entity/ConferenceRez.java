@@ -142,4 +142,8 @@ public class ConferenceRez {
     /** 在线会议号平台名称 */
     @ApiModelProperty(value = "在线会议号平台名称", position = 22)
     private Integer onLineName;
+
+    /** 会议链接 */
+    @ApiModelProperty(value = "会议链接", position = 23)
+    private Integer onLineUrl;
 }

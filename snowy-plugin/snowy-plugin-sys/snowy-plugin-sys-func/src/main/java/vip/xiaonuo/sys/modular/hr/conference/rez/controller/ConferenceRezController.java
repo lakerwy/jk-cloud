@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -27,9 +26,11 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
+import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -140,6 +141,20 @@ public class ConferenceRezController {
     @GetMapping("/sys/rez/conferenceRoom")
     public CommonResult<List<ConferenceConfig>> conferenceRoom(@Valid ConferenceRoomParam conferenceRoomParam) {
         return CommonResult.data(conferenceRezService.conferenceRoom(conferenceRoomParam));
+    }
+
+    /**
+     * 获取会议预约-时间列表-查看可预约会议数据
+     *
+     * @author ljy
+     * @date  2023/11/05 23:13
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取会议预约-时间列表-查看可预约会议数据")
+    //@SaCheckPermission("/sys/rez/conferenceTimeList")
+    @GetMapping("/sys/rez/conferenceTimeList")
+    public CommonResult<List<ConferenceTimeData>> conferenceList(@Valid ConferenceTimeDataParam conferenceTimeDataParam) {
+        return CommonResult.data(conferenceRezService.conferenceList(conferenceTimeDataParam));
     }
 
 }

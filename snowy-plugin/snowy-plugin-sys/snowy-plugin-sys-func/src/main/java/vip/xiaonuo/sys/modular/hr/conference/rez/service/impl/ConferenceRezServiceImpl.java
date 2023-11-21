@@ -34,14 +34,21 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
+import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTime;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
 import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.entity.ConferenceRezPeriod;
 import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.service.ConferenceRezPeriodService;
+import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 
 import javax.annotation.Resource;
@@ -64,6 +71,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     private ConferenceConfigService conferenceConfigService;
     @Resource
     private ConferenceRezPeriodService conferenceRezPeriodService;
+    @Resource
+    private SysUserService sysUserService;
 
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -239,4 +248,126 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 conferenceConfigList.stream().filter(config -> map.get(config.getId()) != null).collect(Collectors.toList());
     }
 
+    @Override
+    public List<ConferenceTimeData> conferenceList(ConferenceTimeDataParam conferenceTimeDataParam){
+        if(StringUtils.isEmpty(conferenceTimeDataParam.getDay())){
+            conferenceTimeDataParam.setDay(DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN));
+        }
+        Map<String,String> userMap = getUserData();//获取人员数据
+        List<ConferenceTimeData> conferenceTimeDataList = new ArrayList<>();
+        String beginTime = conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue();
+        //所有会议室数据
+        List<ConferenceConfig> conferenceConfigList = conferenceConfigService.list();
+        //非周期预约数据
+        List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
+                .ge(ConferenceRez::getBeginTime,conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue())
+                .le(ConferenceRez::getEndTime,conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.END_TIME.getValue()));
+        Map<String,List<ConferenceRez>> map = new HashMap<>();//key conferenceConfigId ,value ConferenceRez
+        conferenceRezList.forEach(rez -> {
+            List<ConferenceRez> conferenceRezs = map.get(rez.getConferenceConfigId()) != null ?  map.get(rez.getConferenceConfigId()) : new ArrayList<>();
+            conferenceRezs.add(rez);
+            map.put(rez.getConferenceConfigId(),conferenceRezs);
+        });
+
+        //周期预约数据
+        int week = DateUtil.dayOfWeek(CommonTimeFormatUtil.strToDate(conferenceTimeDataParam.getDay()+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),
+                DatePattern.NORM_DATETIME_PATTERN));
+        List<ConferenceRezPeriod> periodList = conferenceRezPeriodService.list(new LambdaQueryWrapper<ConferenceRezPeriod>()
+                .eq(ConferenceRezPeriod::getWeekTime,week-1 ==0 ? 7 : week-1)
+                .le(ConferenceRezPeriod::getBeginTime,conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue())
+                .ge(ConferenceRezPeriod::getEndTime,conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.END_TIME.getValue()));
+        Map<String,List<ConferenceRezPeriod>> periodMap = new HashMap<>();//key conferenceConfigId ,value ConferenceRez
+        periodList.forEach(periodRez -> {
+            List<ConferenceRezPeriod> periodRezList = periodMap.get(periodRez.getConferenceConfigId()) != null ?  periodMap.get(periodRez.getConferenceConfigId()) : new ArrayList<>();
+            periodRezList.add(periodRez);
+            periodMap.put(periodRez.getConferenceConfigId(),periodRezList);
+        });
+
+        conferenceConfigList.forEach(config -> {
+            List<ConferenceTime> conferenceTimes = conferenceTimes(conferenceTimeDataParam.getDay());
+            ConferenceTimeData conferenceTimeData = new ConferenceTimeData();
+            conferenceTimeData.setConferenceTimes(conferenceTimes);
+            conferenceTimeData.setConferencename(config.getName());
+            conferenceTimeData.setConferenceId(config.getId());
+            List<ConferenceRez> rezList = map.get(config.getId()) == null ? new ArrayList<>() :  map.get(config.getId());
+            List<ConferenceRezPeriod> periodRezList = periodMap.get(config.getId()) == null ? new ArrayList<>() :  periodMap.get(config.getId());
+            if(CollectionUtil.isEmpty(rezList) && CollectionUtil.isEmpty(periodRezList)){
+                conferenceTimeData.setConferenceTimes(conferenceTimes);
+            }else{
+                conferenceTimeData(rezList,periodRezList,conferenceTimeData,userMap);
+            }
+            conferenceTimeDataList.add(conferenceTimeData);
+        });
+        return conferenceTimeDataList;
+    }
+
+    private void conferenceTimeData(List<ConferenceRez> rezList,List<ConferenceRezPeriod> periodRezList,ConferenceTimeData conferenceTimeData,Map<String,String> userMap){
+        if(CollectionUtil.isNotEmpty(rezList)){
+            Map<String,ConferenceRez> map = new HashMap<>();//key time,value rez
+            rezList.forEach(rez -> {
+                while (rez.getBeginTime().compareTo(rez.getEndTime()) < 0){
+                    Date time1 = rez.getBeginTime();
+                    Date time2 = DateUtil.offsetMinute(rez.getBeginTime(),30);
+                    map.put(CommonTimeFormatUtil.dateToStr(time1,"HH:mm")+"-"+CommonTimeFormatUtil.dateToStr(time2,"HH:mm"),rez);
+                    rez.setBeginTime(time2);
+                }
+            });
+            conferenceTimeData.getConferenceTimes().forEach(conferenceTime -> {
+                if(map.get(conferenceTime.getTime()) != null){
+                    ConferenceRez rez = map.get(conferenceTime.getTime());
+                    conferenceTime.setStatus(2);
+                    conferenceTime.setRezUserID(rez.getRezUser());
+                    conferenceTime.setRezUserName(userMap.get(rez.getRezUser()));
+                }
+            });
+        }
+
+        if(CollectionUtil.isNotEmpty(periodRezList)){
+            Map<String,ConferenceRezPeriod> map = new HashMap<>();//key time,value rez
+            periodRezList.forEach(period -> {
+                while (period.getBeginTime().compareTo(period.getEndTime()) < 0){
+                    Date time1 = period.getBeginTime();
+                    Date time2 = DateUtil.offsetMinute(time1,30);
+                    map.put(CommonTimeFormatUtil.dateToStr(time1,"HH:mm")+"-"+CommonTimeFormatUtil.dateToStr(time2,"HH:mm"),period);
+                    period.setBeginTime(time2);
+                }
+            });
+            conferenceTimeData.getConferenceTimes().forEach(conferenceTime -> {
+                if(map.get(conferenceTime.getTime()) != null){
+                    ConferenceRezPeriod rez = map.get(conferenceTime.getTime());
+                    conferenceTime.setStatus(2);
+                    conferenceTime.setRezUserID(rez.getRezUser());
+                    conferenceTime.setRezUserName(userMap.get(rez.getRezUser()));
+                }
+            });
+        }
+    }
+
+    private List<ConferenceTime> conferenceTimes(String day){
+        /**7:30:00 - 23:00:00 */
+        Date beginTime = CommonTimeFormatUtil.strToDate(day+" 7:30:00",DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(day+" 23:00:00",DatePattern.NORM_DATETIME_PATTERN);
+        List<ConferenceTime> conferenceTimeList = new ArrayList<>();
+        while (beginTime.compareTo(endTime) < 0){
+            Date time1 = beginTime;
+            ConferenceTime conferenceTime = new ConferenceTime();
+            conferenceTime.setStatus(1);
+            conferenceTime.setBeginTime(beginTime);
+            Date time2 = DateUtil.offsetMinute(beginTime,30);
+            conferenceTime.setEndTime(time2);
+            beginTime = time2;
+            conferenceTime.setTime(CommonTimeFormatUtil.dateToStr(time1,"HH:mm")+"-"+CommonTimeFormatUtil.dateToStr(time2,"HH:mm"));
+            conferenceTimeList.add(conferenceTime);
+        }
+        return conferenceTimeList;
+    }
+
+
+    @Override
+    public  Map<String,String> getUserData(){
+        Map<String,String> map = new HashMap<>();
+        List<SysUser> sysUserList = sysUserService.list();
+        sysUserList.forEach(user -> map.put(user.getId(),user.getName()));
+        return map;
+    }
 }
