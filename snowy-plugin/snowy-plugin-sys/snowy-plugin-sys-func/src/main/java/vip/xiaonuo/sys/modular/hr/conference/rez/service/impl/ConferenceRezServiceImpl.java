@@ -289,6 +289,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             conferenceTimeData.setConferenceTimes(conferenceTimes);
             conferenceTimeData.setConferencename(config.getName());
             conferenceTimeData.setConferenceId(config.getId());
+            conferenceTimeData.setContainMax(config.getContainMax());
+            conferenceTimeData.setFileId(config.getFileId());
+            conferenceTimeData.setDevice(config.getDevice());
             List<ConferenceRez> rezList = map.get(config.getId()) == null ? new ArrayList<>() :  map.get(config.getId());
             List<ConferenceRezPeriod> periodRezList = periodMap.get(config.getId()) == null ? new ArrayList<>() :  periodMap.get(config.getId());
             if(CollectionUtil.isEmpty(rezList) && CollectionUtil.isEmpty(periodRezList)){

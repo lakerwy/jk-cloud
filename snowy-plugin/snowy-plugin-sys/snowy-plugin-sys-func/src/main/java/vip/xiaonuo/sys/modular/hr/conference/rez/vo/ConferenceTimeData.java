@@ -30,4 +30,10 @@ public class ConferenceTimeData {
     @ApiModelProperty(value = "会议室位置")
     private String location;
 
+    @ApiModelProperty(value = "设备列表")
+    private String device;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件")
+    private String fileId;
 }
