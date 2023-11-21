@@ -309,6 +309,7 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         List<BizPrjPlanVo> result = BeanUtil.copyToList(tmp,BizPrjPlanVo.class);
         result.forEach(x->{
             x.setPlanCollectionList(bizPrjPlanCollectionService.list(new QueryWrapper<BizPrjPlanCollection>().lambda().eq(BizPrjPlanCollection::getPlanId,x.getId())));
+            x.setPlanInvoiceList(bizPrjPlanInvoiceService.list(new QueryWrapper<BizPrjPlanInvoice>().lambda().eq(BizPrjPlanInvoice::getPlanId,x.getId())));
         });
         return result;
     }

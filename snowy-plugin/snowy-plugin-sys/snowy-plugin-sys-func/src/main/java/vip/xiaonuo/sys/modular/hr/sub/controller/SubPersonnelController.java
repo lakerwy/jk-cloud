@@ -58,7 +58,7 @@ public class SubPersonnelController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取HR-分公司-人事档案分页")
-    @SaCheckPermission("/sys/hr/sub/personnel/page")
+//    @SaCheckPermission("/sys/hr/sub/personnel/page")
     @GetMapping("/sys/hr/sub/personnel/page")
     public CommonResult<Page<SubPersonnel>> page(SubPersonnelPageParam subPersonnelPageParam) {
         return CommonResult.data(subPersonnelService.page(subPersonnelPageParam));
@@ -73,7 +73,7 @@ public class SubPersonnelController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加HR-分公司-人事档案")
     @CommonLog("添加HR-分公司-人事档案")
-    @SaCheckPermission("/sys/hr/sub/personnel/add")
+//    @SaCheckPermission("/sys/hr/sub/personnel/add")
     @PostMapping("/sys/hr/sub/personnel/add")
     public CommonResult<String> add(@RequestBody @Valid SubPersonnelParam subPersonnelParam) {
         subPersonnelService.add(subPersonnelParam);
@@ -89,7 +89,7 @@ public class SubPersonnelController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑HR-分公司-人事档案")
     @CommonLog("编辑HR-分公司-人事档案")
-    @SaCheckPermission("/sys/hr/sub/personnel/edit")
+//    @SaCheckPermission("/sys/hr/sub/personnel/edit")
     @PostMapping("/sys/hr/sub/personnel/edit")
     public CommonResult<String> edit(@RequestBody @Valid SubPersonnelParam subPersonnelParam) {
         subPersonnelService.edit(subPersonnelParam);
@@ -105,7 +105,7 @@ public class SubPersonnelController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除HR-分公司-人事档案")
     @CommonLog("删除HR-分公司-人事档案")
-    @SaCheckPermission("/sys/hr/sub/personnel/delete")
+//    @SaCheckPermission("/sys/hr/sub/personnel/delete")
     @PostMapping("/sys/hr/sub/personnel/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<SubPersonnelIdParam> subPersonnelIdParamList) {
@@ -121,7 +121,7 @@ public class SubPersonnelController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取HR-分公司-人事档案详情")
-    @SaCheckPermission("/sys/hr/sub/personnel/detail")
+//    @SaCheckPermission("/sys/hr/sub/personnel/detail")
     @GetMapping("/sys/hr/sub/personnel/detail")
     public CommonResult<SubPersonnelVo> detail(@Valid SubPersonnelIdParam subPersonnelIdParam) {
         return CommonResult.data(subPersonnelService.detail(subPersonnelIdParam));

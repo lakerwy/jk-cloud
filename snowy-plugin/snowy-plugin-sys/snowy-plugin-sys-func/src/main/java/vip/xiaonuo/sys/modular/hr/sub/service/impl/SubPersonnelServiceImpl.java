@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.sub.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -23,6 +24,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -114,12 +116,21 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
                     .or().like(SubPersonnel::getIdNumber,subPersonnelPageParam.getSearchKey())
                     .or().like(SubPersonnel::getFileNo,subPersonnelPageParam.getSearchKey()));
         }
+
+        // 校验数据范围
+//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+//            queryWrapper.lambda().in(SubPersonnel::getDataScopeId, loginUserDataScope);
+//        } else {
+//            queryWrapper.lambda().eq(SubPersonnel::getDataScopeId, StpUtil.getLoginIdAsString());
+//        }
+
         if(ObjectUtil.isAllNotEmpty(subPersonnelPageParam.getSortField(), subPersonnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subPersonnelPageParam.getSortOrder());
             queryWrapper.orderBy(true, subPersonnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(subPersonnelPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SubPersonnel::getId);
+            queryWrapper.lambda().orderByDesc(SubPersonnel::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
