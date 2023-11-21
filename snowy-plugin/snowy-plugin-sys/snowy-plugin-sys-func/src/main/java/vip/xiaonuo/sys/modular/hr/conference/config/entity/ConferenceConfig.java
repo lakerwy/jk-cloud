@@ -93,4 +93,6 @@ public class ConferenceConfig {
     @TableField(exist = false)
     private Integer status;
 
+    @ApiModelProperty(value = "设备列表", position = 15)
+    private String device;
 }
