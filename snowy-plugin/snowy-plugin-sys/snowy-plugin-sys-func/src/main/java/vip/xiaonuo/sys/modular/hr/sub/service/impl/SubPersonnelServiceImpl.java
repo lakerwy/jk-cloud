@@ -22,9 +22,9 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -148,6 +148,7 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
         //处理分公司人员档案
         SubPersonnel subPersonnel = BeanUtil.toBean(subPersonnelParam, SubPersonnel.class);
         subPersonnel.setDutyId(dutyId);
+        subPersonnel.setExtJson(JsonUtils.object2json(subPersonnelParam));
         this.save(subPersonnel);
         //学历
         if(CollUtil.isNotEmpty(subPersonnelParam.getSubDegrees())){
@@ -180,6 +181,7 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
     public void edit(SubPersonnelParam subPersonnelParam) {
         SubPersonnel subPersonnel = this.queryEntity(subPersonnelParam.getId());
         BeanUtil.copyProperties(subPersonnelParam, subPersonnel);
+        subPersonnel.setExtJson(JsonUtils.object2json(subPersonnelParam));
         this.updateById(subPersonnel);
         subPersonnelRegisterService.remove(new QueryWrapper<SubPersonnelRegister>().lambda().eq(SubPersonnelRegister::getFileId,subPersonnelParam.getId()));
         subPersonnelDegreeService.remove(new QueryWrapper<SubPersonnelDegree>().lambda().eq(SubPersonnelDegree::getFileId,subPersonnelParam.getId()));
@@ -188,25 +190,37 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
         //学历
         if(CollUtil.isNotEmpty(subPersonnelParam.getSubDegrees())){
             List<SubPersonnelDegree> subDegrees = subPersonnelParam.getSubDegrees();
-            subDegrees.forEach(x->x.setFileId(subPersonnel.getId()));
+            subDegrees.forEach(x->{
+                x.setFileId(subPersonnel.getId());
+                x.setId(null);
+            });
             subPersonnelDegreeService.saveBatch(subDegrees);
         }
         //签约
         if(CollUtil.isNotEmpty(subPersonnelParam.getSubRegisters())){
             List<SubPersonnelRegister> subRegisters = subPersonnelParam.getSubRegisters();
-            subRegisters.forEach(x->x.setFileId(subPersonnel.getId()));
+            subRegisters.forEach(x->{
+                x.setFileId(subPersonnel.getId());
+                x.setId(null);
+            });
             subPersonnelRegisterService.saveBatch(subRegisters);
         }
         //证书
         if(CollUtil.isNotEmpty(subPersonnelParam.getSubCerts())){
             List<SubPersonnelCert> subCerts = subPersonnelParam.getSubCerts();
-            subCerts.forEach(x->x.setFileId(subPersonnel.getId()));
+            subCerts.forEach(x-> {
+                x.setFileId(subPersonnel.getId());
+                x.setId(null);
+            });
             subPersonnelCertService.saveBatch(subCerts);
         }
         //职称
         if(CollUtil.isNotEmpty(subPersonnelParam.getSubTitles())){
             List<SubPersonnelTitle> subTitles = subPersonnelParam.getSubTitles();
-            subTitles.forEach(x->x.setFileId(subPersonnel.getId()));
+            subTitles.forEach(x->{
+                x.setFileId(subPersonnel.getId());
+                x.setId(null);
+            });
             subPersonnelTitleService.saveBatch(subTitles);
         }
     }

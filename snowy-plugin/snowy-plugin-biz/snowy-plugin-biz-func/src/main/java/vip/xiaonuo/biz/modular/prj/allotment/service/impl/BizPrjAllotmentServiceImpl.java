@@ -202,7 +202,7 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
             List<BizPrjAllotmentCn> updateList = prjAllotmentCnList.stream().filter(x->oldIds.contains(x.getId())).collect(Collectors.toList());
             //待删除的
             List<String> updateIds = updateList.stream().map(x->x.getId()).collect(Collectors.toList());
-            List<BizPrjAllotmentCn> removeList = prjAllotmentCnList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
+            List<BizPrjAllotmentCn> removeList = oldList.stream().filter(x->!updateIds.contains(x.getId())).collect(Collectors.toList());
             if(CollUtil.isNotEmpty(addList)){
                 bizPrjAllotmentCnService.saveBatch(addList);
             }
