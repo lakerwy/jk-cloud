@@ -32,7 +32,7 @@ import java.util.Date;
 public class SubSalaryEditParam {
 
     /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true, position = 1)
+    @ApiModelProperty(value = "主键ID",position = 1)
     @NotBlank(message = "id不能为空")
     private String id;
 

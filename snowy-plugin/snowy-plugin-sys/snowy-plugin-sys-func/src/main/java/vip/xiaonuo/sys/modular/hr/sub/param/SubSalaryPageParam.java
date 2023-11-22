@@ -48,6 +48,10 @@ public class SubSalaryPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 分公司-组织Id */
+    @ApiModelProperty(value = "分公司-组织Id")
+    private String orgId;
+
     /** 分公司名称 */
     @ApiModelProperty(value = "分公司名称")
     private String orgName;

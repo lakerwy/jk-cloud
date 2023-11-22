@@ -60,8 +60,8 @@ public class SubSalaryController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取HR-分公司-工资条分页")
-    @SaCheckPermission("/biz/hr/sub/salary/page")
-    @GetMapping("/biz/hr/sub/salary/page")
+    @SaCheckPermission("/sys/hr/sub/salary/page")
+    @GetMapping("/sys/hr/sub/salary/page")
     public CommonResult<Page<SubSalary>> page(SubSalaryPageParam subSalaryPageParam) {
         return CommonResult.data(subSalaryService.page(subSalaryPageParam));
     }
@@ -75,8 +75,8 @@ public class SubSalaryController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加HR-分公司-工资条")
     @CommonLog("添加HR-分公司-工资条")
-//    @SaCheckPermission("/biz/hr/sub/salary/add")
-    @PostMapping("/biz/hr/sub/salary/add")
+//    @SaCheckPermission("/sys/hr/sub/salary/add")
+    @PostMapping("/sys/hr/sub/salary/add")
     public CommonResult<String> add(@RequestBody @Valid SubSalaryAddParam subSalaryAddParam) {
         subSalaryService.add(subSalaryAddParam);
         return CommonResult.ok();
@@ -91,8 +91,8 @@ public class SubSalaryController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑HR-分公司-工资条")
     @CommonLog("编辑HR-分公司-工资条")
-//    @SaCheckPermission("/biz/hr/sub/salary/edit")
-    @PostMapping("/biz/hr/sub/salary/edit")
+//    @SaCheckPermission("/sys/hr/sub/salary/edit")
+    @PostMapping("/sys/hr/sub/salary/edit")
     public CommonResult<String> edit(@RequestBody @Valid SubSalaryEditParam subSalaryEditParam) {
         subSalaryService.edit(subSalaryEditParam);
         return CommonResult.ok();
@@ -107,8 +107,8 @@ public class SubSalaryController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除HR-分公司-工资条")
     @CommonLog("删除HR-分公司-工资条")
-//    @SaCheckPermission("/biz/hr/sub/salary/delete")
-    @PostMapping("/biz/hr/sub/salary/delete")
+//    @SaCheckPermission("/sys/hr/sub/salary/delete")
+    @PostMapping("/sys/hr/sub/salary/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<SubSalaryIdParam> subSalaryIdParamList) {
         subSalaryService.delete(subSalaryIdParamList);
@@ -123,8 +123,8 @@ public class SubSalaryController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取HR-分公司-工资条详情")
-//    @SaCheckPermission("/biz/hr/sub/salary/detail")
-    @GetMapping("/biz/hr/sub/salary/detail")
+//    @SaCheckPermission("/sys/hr/sub/salary/detail")
+    @GetMapping("/sys/hr/sub/salary/detail")
     public CommonResult<SubSalary> detail(@Valid SubSalaryIdParam subSalaryIdParam) {
         return CommonResult.data(subSalaryService.detail(subSalaryIdParam));
     }
