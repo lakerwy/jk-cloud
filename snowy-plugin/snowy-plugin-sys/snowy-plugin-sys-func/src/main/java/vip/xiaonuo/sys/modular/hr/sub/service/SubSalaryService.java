@@ -15,10 +15,7 @@ package vip.xiaonuo.sys.modular.hr.sub.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubSalary;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryAddParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryEditParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryIdParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryPageParam;
+import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
 
 import java.util.List;
@@ -85,4 +82,11 @@ public interface SubSalaryService extends IService<SubSalary> {
      * @return
      */
     Page<SubSalaryVo> pageList(SubSalaryPageParam subSalaryPageParam);
+
+    /**
+     * 判断当前分公司+当前年+当前月是否提交过工资单申请
+     * @param checkParam
+     * @return
+     */
+    Boolean check(CheckParam checkParam);
 }

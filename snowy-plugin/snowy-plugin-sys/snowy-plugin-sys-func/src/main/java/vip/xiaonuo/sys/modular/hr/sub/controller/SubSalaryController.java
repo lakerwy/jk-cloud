@@ -27,10 +27,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubSalary;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryAddParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryEditParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryIdParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryPageParam;
+import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubSalaryService;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
 
@@ -138,9 +135,23 @@ public class SubSalaryController {
      */
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取HR-分公司-工资条分页[所有分公司范围是否填报工资单]")
-    @SaCheckPermission("/sys/hr/sub/salary/pageList")
+//    @SaCheckPermission("/sys/hr/sub/salary/pageList")
     @GetMapping("/sys/hr/sub/salary/pageList")
     public CommonResult<Page<SubSalaryVo>> pageList(SubSalaryPageParam subSalaryPageParam) {
         return CommonResult.data(subSalaryService.pageList(subSalaryPageParam));
+    }
+
+    /**
+     * 判断当前分公司+当前年+当前月是否提交过工资单申请
+     *
+     * @author yong.ye
+     * @date  2023/11/22 11:20
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("判断当前分公司+当前年+当前月是否提交过工资单申请")
+//    @SaCheckPermission("/sys/hr/sub/salary/check")
+    @GetMapping("/sys/hr/sub/salary/check")
+    public CommonResult<Boolean> check(CheckParam checkParam) {
+        return CommonResult.data(subSalaryService.check(checkParam));
     }
 }

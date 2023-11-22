@@ -7,8 +7,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SubSalaryVo {
-
-    /** 主键ID */
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
@@ -35,10 +33,6 @@ public class SubSalaryVo {
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 7)
     private String attachments;
-
-    /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 8)
-    private String extJson;
 
     /** SN */
     @ApiModelProperty(value = "SN", position = 16)

@@ -3,9 +3,7 @@
 <mapper namespace="vip.xiaonuo.sys.modular.hr.sub.mapper.SubSalaryMapper">
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo">
-        SELECT a.ID as   b.*
-        FROM SYS_ORG a left join HR_SUB_SALARY b
-            ON a.ID = b.ORG_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.STATUS in ('0','1')
-            ${ew.customSqlSegment}
+        SELECT ID as orgId,NAME as orgName
+        FROM SYS_ORG  ${ew.customSqlSegment}
     </select>
 </mapper>

@@ -15,6 +15,9 @@ package vip.xiaonuo.sys.modular.hr.sub.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -38,16 +41,15 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubSalary;
 import vip.xiaonuo.sys.modular.hr.sub.mapper.SubSalaryMapper;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryAddParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryEditParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryIdParam;
-import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryPageParam;
+import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubSalaryService;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
-import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.mapper.SysOrgMapper;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * HR-分公司-工资条Service接口实现类
@@ -60,6 +62,9 @@ public class SubSalaryServiceImpl extends ServiceImpl<SubSalaryMapper, SubSalary
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+    @Resource
+    private SubSalaryMapper subSalaryMapper;
+
     @Override
     public Page<SubSalary> page(SubSalaryPageParam subSalaryPageParam) {
         QueryWrapper<SubSalary> queryWrapper = new QueryWrapper<>();
@@ -91,7 +96,7 @@ public class SubSalaryServiceImpl extends ServiceImpl<SubSalaryMapper, SubSalary
             queryWrapper.orderBy(true, subSalaryPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(subSalaryPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SubSalary::getId);
+            queryWrapper.lambda().orderByAsc(SubSalary::getOrgName).orderByDesc(SubSalary::getYear).orderByDesc(SubSalary::getMonth);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -163,8 +168,62 @@ public class SubSalaryServiceImpl extends ServiceImpl<SubSalaryMapper, SubSalary
 
     @Override
     public Page<SubSalaryVo> pageList(SubSalaryPageParam subSalaryPageParam) {
-        QueryWrapper<SysOrg> queryWrapper = new QueryWrapper<>();
-        return null;
+        //获取分公司范围
+        QueryWrapper<SubSalary> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("CATEGORY","PARTNER");
+        if(ObjectUtil.isAllNotEmpty(subSalaryPageParam.getSortField(), subSalaryPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(subSalaryPageParam.getSortOrder());
+            queryWrapper.orderBy(true, subSalaryPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(subSalaryPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("NAME");
+        }
+        Page<SubSalaryVo> result = subSalaryMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        //获取工资申报记录
+        if(ObjectUtil.isNotEmpty(result.getRecords())) {
+            List<String> orgIds = result.getRecords().stream().map(x -> x.getOrgId()).collect(Collectors.toList());
+            String year = ObjectUtil.isNotEmpty(subSalaryPageParam.getYear())?subSalaryPageParam.getYear(): String.valueOf(LocalDate.now().getYear());
+            String month = ObjectUtil.isNotEmpty(subSalaryPageParam.getMonth())?subSalaryPageParam.getMonth(): String.valueOf(LocalDate.now().getMonthValue());
+            //查询
+            QueryWrapper<SubSalary> query1 = new QueryWrapper<>();
+            query1.lambda().eq(SubSalary::getDeleteFlag, "NOT_DELETE");
+            query1.lambda().in(SubSalary::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(), FlwStatusEnum.ACTIVE_STATUS.getValue());
+            query1.lambda().eq(SubSalary::getYear, year);
+            query1.lambda().eq(SubSalary::getMonth, month);
+            query1.lambda().in(SubSalary::getOrgId, orgIds);
+            List<SubSalary> subSalaryList = this.list(query1);
+            //结果处理
+            result.getRecords().forEach(x->{
+                SubSalary tmp = subSalaryList.stream().filter(g -> g.getOrgId().equals(x.getOrgId())).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(tmp)){
+                    x.setYear(year);
+                    x.setMonth(month);
+                    x.setIsApply("是");
+                    x.setId(tmp.getId());
+                    x.setNote(tmp.getNote());
+                    x.setAttachments(tmp.getAttachments());
+                    x.setSn(tmp.getSn());
+                    x.setStatus(tmp.getStatus());
+                    x.setProcessInstanceId(tmp.getProcessInstanceId());
+                    x.setModelId(tmp.getModelId());
+                }else {
+                    x.setYear(year);
+                    x.setMonth(month);
+                    x.setIsApply("否");
+                }
+            });
+        }
+        return result;
+    }
 
+    @Override
+    public Boolean check(CheckParam checkParam) {
+        QueryWrapper<SubSalary> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(SubSalary::getOrgId,checkParam.getOrgId());
+        queryWrapper.lambda().in(SubSalary::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().eq(SubSalary::getYear,checkParam.getYear());
+        queryWrapper.lambda().eq(SubSalary::getMonth,checkParam.getMonth());
+        return  CollUtil.isNotEmpty(this.list(queryWrapper));
     }
 }
