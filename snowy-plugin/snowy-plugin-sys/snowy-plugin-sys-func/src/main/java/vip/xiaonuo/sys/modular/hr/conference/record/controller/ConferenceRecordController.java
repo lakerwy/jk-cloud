@@ -29,6 +29,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceRecord;
 import vip.xiaonuo.sys.modular.hr.conference.record.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceRecordService;
+import vip.xiaonuo.sys.modular.hr.conference.record.vo.RecordDetailVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -122,7 +123,7 @@ public class ConferenceRecordController {
     @ApiOperation("获取会议预约-会议记录详情")
     //@SaCheckPermission("/sys/conferenceRecord/detail")
     @GetMapping("/sys/conferenceRecord/detail")
-    public CommonResult<ConferenceRecord> detail(@Valid ConferenceRecordIdParam conferenceRecordIdParam) {
+    public CommonResult<RecordDetailVo> detail(@Valid ConferenceRecordIdParam conferenceRecordIdParam) {
         return CommonResult.data(conferenceRecordService.detail(conferenceRecordIdParam));
     }
 }

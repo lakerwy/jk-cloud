@@ -84,4 +84,12 @@ public class ConferenceRecord {
     @ApiModelProperty(value = "修改用户", position = 12)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 开始时间 */
+    @ApiModelProperty(value = "开始时间", position = 13)
+    private Date beginTime;
+
+    /** 结束时间 */
+    @ApiModelProperty(value = "结束时间", position = 14)
+    private Date endTime;
 }

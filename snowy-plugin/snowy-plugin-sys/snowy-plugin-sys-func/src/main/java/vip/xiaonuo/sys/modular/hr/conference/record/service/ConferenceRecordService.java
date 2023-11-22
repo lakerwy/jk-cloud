@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceRecord;
 import vip.xiaonuo.sys.modular.hr.conference.record.param.*;
+import vip.xiaonuo.sys.modular.hr.conference.record.vo.RecordDetailVo;
 
 import java.util.List;
 
@@ -65,7 +66,7 @@ public interface ConferenceRecordService extends IService<ConferenceRecord> {
      * @author ljy
      * @date  2023/11/20 08:39
      */
-    ConferenceRecord detail(ConferenceRecordIdParam conferenceRecordIdParam);
+    RecordDetailVo detail(ConferenceRecordIdParam conferenceRecordIdParam);
 
     /**
      * 获取会议预约-会议记录详情

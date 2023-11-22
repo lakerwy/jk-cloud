@@ -104,8 +104,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             queryWrapper.lambda().orderByAsc(ConferenceRez::getId);
             queryPeriod.lambda().orderByAsc(ConferenceRezPeriod::getId);
         }
-        queryWrapper.lambda().ge(ConferenceRez::getBeginTime,conferenceRezPageParam.getBeginTime()).le(ConferenceRez::getEndTime,conferenceRezPageParam.getEndTime());//会议时间区间在开始时间和结束时间之间
-        queryPeriod.lambda().ge(ConferenceRezPeriod::getBeginTime,conferenceRezPageParam.getBeginTime()).le(ConferenceRezPeriod::getEndTime,conferenceRezPageParam.getEndTime());
+        if(StringUtils.isNotEmpty(conferenceRezPageParam.getBeginTime()) && StringUtils.isNotEmpty(conferenceRezPageParam.getEndTime())){
+            queryWrapper.lambda().ge(ConferenceRez::getBeginTime,conferenceRezPageParam.getBeginTime()).le(ConferenceRez::getEndTime,conferenceRezPageParam.getEndTime());//会议时间区间在开始时间和结束时间之间
+            queryPeriod.lambda().ge(ConferenceRezPeriod::getBeginTime,conferenceRezPageParam.getBeginTime()).le(ConferenceRezPeriod::getEndTime,conferenceRezPageParam.getEndTime());
+        }
         Page<ConferenceRez> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<ConferenceRez> conferenceRezList = page.getRecords();
         conferenceRezPeriodService.list(queryPeriod).forEach(period -> {
@@ -139,9 +141,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
-        Boolean isTrue = ObjectUtil.isNotEmpty(conferenceRezAddParam.getIsOnLine()) &&
-                conferenceRezAddParam.getIsOnLine() == 1 && StringUtils.isNotEmpty(conferenceRezAddParam.getOnLineCode())? true : false;
-        if(isTrue){throw new CommonException("勾选在线会议后，会议号不能为空！");}
+        Boolean isTrue = ObjectUtil.isNotEmpty(conferenceRezAddParam.getIsOnLine()) && conferenceRezAddParam.getIsOnLine() == 1? true : false;
+        if(isTrue &&  StringUtils.isEmpty(conferenceRezAddParam.getOnLineCode())){
+            throw new CommonException("勾选在线会议后，会议号不能为空！");
+        }
         StringBuffer conAffUsers = new StringBuffer();
         if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getConAffUsers())){
             conferenceRezAddParam.getConAffUsers().forEach(aff -> {
@@ -157,7 +160,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
             StringBuffer  rezAgenda = new StringBuffer();
             if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getRezAgendas())){
-                conferenceRezAddParam.getRezAgendas().forEach(agenda -> rezAgenda.append(rezAgenda).append(","));
+                conferenceRezAddParam.getRezAgendas().forEach(agenda -> rezAgenda.append(agenda).append(","));
             }
             conferenceRez.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
             this.save(conferenceRez);
@@ -180,7 +183,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         //会议议程处理
         StringBuffer  rezAgenda = new StringBuffer();
         if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getRezAgendas())){
-            conferenceRezAddParam.getRezAgendas().forEach(agenda -> rezAgenda.append(rezAgenda).append(","));
+            conferenceRezAddParam.getRezAgendas().forEach(agenda -> rezAgenda.append(agenda).append(","));
         }
         conferenceRezPeriod.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
         conferenceRezPeriodService.save(conferenceRezPeriod);
@@ -212,7 +215,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             if(StringUtils.isNotEmpty(param.getStatus()) && param.getStatus().equals("1")){
                 periodList.add(param);
             }else {
-             rezList.add(param);
+                rezList.add(param);
             }
         });
         // 执行删除
@@ -235,8 +238,14 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     public ConferenceRez queryEntity(String id) {
         ConferenceRez conferenceRez = this.getById(id);
         if(ObjectUtil.isEmpty(conferenceRez)) {
-            throw new CommonException("会议预约-预约会议表数据不存在，id值为：{}", id);
+            ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(id);
+            if(ObjectUtil.isEmpty(conferenceRezPeriod)) {
+                throw new CommonException("会议预约-预约会议表数据不存在，id值为：{}", id);
+            }
+            conferenceRez = BeanUtil.toBean(conferenceRezPeriod,ConferenceRez.class);
         }
+        List<String> rezAgendas = StringUtils.isNotEmpty(conferenceRez.getRezAgenda()) ? Arrays.asList(conferenceRez.getRezAgenda().trim().split(",")) : new ArrayList<>();
+        conferenceRez.setRezAgendas(rezAgendas);
         return conferenceRez;
     }
 

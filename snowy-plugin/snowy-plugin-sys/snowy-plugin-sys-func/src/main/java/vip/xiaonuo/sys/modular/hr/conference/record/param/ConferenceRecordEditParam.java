@@ -15,11 +15,9 @@ package vip.xiaonuo.sys.modular.hr.conference.record.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.sys.modular.hr.conference.record.vo.RezRecordVo;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 会议预约-会议记录编辑参数
@@ -36,8 +34,8 @@ public class ConferenceRecordEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** CONFERENCE_REC_ID */
-    @ApiModelProperty(value = "CONFERENCE_REC_ID", position = 2)
+    /** 会议ID */
+    @ApiModelProperty(value = "会议ID", position = 2)
     private String conferenceRecId;
 
     /** 会议类型：1 非周期会议，2 周期会议 */
@@ -60,4 +58,7 @@ public class ConferenceRecordEditParam {
     @ApiModelProperty(value = "扩展信息", position = 7)
     private String extJson;
 
+    //会议信息
+    @ApiModelProperty(value = "会议信息", position = 8)
+    private RezRecordVo rezRecordVo;
 }
