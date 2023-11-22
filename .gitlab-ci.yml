@@ -1,0 +1,30 @@
+image: maven:3.6.3-jdk-11
+
+stages:
+  - build
+#  - deploy
+
+variables:
+  MAVEN_REPO_PATH: $MAVEN_REPO_PATH  #maven 仓库资源的配置
+  MAVEN_OPTS: "-Dmaven.repo.local=$MAVEN_REPO_PATH/repository"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+
+cache:
+  paths:
+    - $MAVEN_REPO_PATH/repository
+
+before_script:
+  - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
+  - mvn ${MAVEN_CLI_OPTS} clean
+
+build:
+  stage: build
+  script:
+    - mvn ${MAVEN_CLI_OPTS} install -DskipTests
+    - echo "Maven local repository path: $MAVEN_REPO_PATH"
+
+#test:
+#  stage: deploy
+#  script:
+#    - mvn ${MAVEN_CLI_OPTS} test
+#    - echo "Maven local repository path: $MAVEN_REPO_PATH"
