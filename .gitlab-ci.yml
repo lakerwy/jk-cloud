@@ -4,7 +4,7 @@ stages:
   - build
 
 variables:
-  MAVEN_REPO_PATH: $CI_PROJECT_DIR/.m2/repository  # 使用项目目录下的 .m2/repository
+  MAVEN_REPO_PATH: $MAVEN_REPO_PATH/.m2/repository  # 使用项目目录下的 .m2/repository
   MAVEN_OPTS: "-Dmaven.repo.local=$MAVEN_REPO_PATH"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
