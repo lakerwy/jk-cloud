@@ -58,7 +58,7 @@ public class SubPersonnelController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取HR-分公司-人事档案分页")
-//    @SaCheckPermission("/sys/hr/sub/personnel/page")
+    @SaCheckPermission("/sys/hr/sub/personnel/page")
     @GetMapping("/sys/hr/sub/personnel/page")
     public CommonResult<Page<SubPersonnel>> page(SubPersonnelPageParam subPersonnelPageParam) {
         return CommonResult.data(subPersonnelService.page(subPersonnelPageParam));
