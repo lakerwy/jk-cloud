@@ -803,7 +803,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             Double gooutHours = isStatFlag && hrAttendanceAnalStat.getGooutHours() != null ? hrAttendanceAnalStat.getGooutHours() : 0;
             monthStatData.setOutWorkHours(monthStatData.getOutWorkHours() != null ? monthStatData.getOutWorkHours()+gooutHours : gooutHours);
             //请假
-            if(hrAttendanceAnalStat.getHolidayType() != null){
+            if(isStatFlag && hrAttendanceAnalStat.getHolidayType() != null){
                 Double vacation = isStatFlag && hrAttendanceAnalStat.getHolidayDays() != null ? hrAttendanceAnalStat.getHolidayDays() : 0;
                 switch (hrAttendanceAnalStat.getHolidayType()){
                     case 1 :
