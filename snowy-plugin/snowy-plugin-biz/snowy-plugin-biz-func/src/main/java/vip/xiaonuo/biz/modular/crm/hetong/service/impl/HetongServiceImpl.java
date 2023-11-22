@@ -326,7 +326,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
         } else {
-            queryWrapper.eq("a.DATA_SCOPE_ID", StpUtil.getLoginIdAsString());
+            queryWrapper.eq("a.CREATE_USER", StpUtil.getLoginIdAsString());
         }
 
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
