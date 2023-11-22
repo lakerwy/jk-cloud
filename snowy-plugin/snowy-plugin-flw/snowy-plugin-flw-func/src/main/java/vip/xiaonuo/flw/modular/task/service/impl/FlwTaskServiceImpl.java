@@ -861,8 +861,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             if(ObjectUtil.isNotEmpty(processJson)){
                 FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
                 replaceParticipateInfoInNode(flwNode, flwTaskTransferParam);
-                // 使用 Jackson ObjectMapper 进行 JSON 处理
-                processJson = JSONUtil.toJsonStr(flwNode, JSONConfig.create());
+                processJson = JSONUtil.toJsonStr(flwNode);
                 flwModel.setProcessJson(processJson);
             }
             flwModelService.updateById(flwModel);

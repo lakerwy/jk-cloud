@@ -69,6 +69,8 @@ public class FlwNode {
         /** 字段信息 */
         private List<FlwNodeFieldProp> fieldInfo;
 
+        private List<String> commentList;
+
         /** 表单信息 */
         private List<FlwNodeFormProp> formInfo;
 
