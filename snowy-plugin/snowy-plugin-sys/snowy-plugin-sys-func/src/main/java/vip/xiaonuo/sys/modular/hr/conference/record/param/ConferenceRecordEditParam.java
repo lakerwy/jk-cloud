@@ -18,6 +18,7 @@ import lombok.Setter;
 import vip.xiaonuo.sys.modular.hr.conference.record.vo.RezRecordVo;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * 会议预约-会议记录编辑参数
@@ -42,9 +43,9 @@ public class ConferenceRecordEditParam {
     @ApiModelProperty(value = "会议类型：1 非周期会议，2 周期会议", position = 3)
     private Integer conferenceType;
 
-    /** 缺席人员 */
-    @ApiModelProperty(value = "缺席人员", position = 4)
-    private String absents;
+    /** 缺席人员列表 */
+    @ApiModelProperty(value = "缺席人员列表", position = 4)
+    private List<String> absentList;
 
     /** 缺席原因 */
     @ApiModelProperty(value = "缺席原因", position = 5)
@@ -61,4 +62,5 @@ public class ConferenceRecordEditParam {
     //会议信息
     @ApiModelProperty(value = "会议信息", position = 8)
     private RezRecordVo rezRecordVo;
+
 }

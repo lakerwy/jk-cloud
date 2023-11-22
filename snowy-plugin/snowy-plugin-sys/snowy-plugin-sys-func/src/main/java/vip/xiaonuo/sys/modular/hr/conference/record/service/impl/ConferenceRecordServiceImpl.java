@@ -14,11 +14,13 @@ package vip.xiaonuo.sys.modular.hr.conference.record.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -36,6 +38,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.entity.ConferenceRezPerio
 import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.service.ConferenceRezPeriodService;
 
 import javax.annotation.Resource;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -74,6 +77,10 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRecordAddParam conferenceRecordAddParam) {
+        StringBuffer absents = new StringBuffer();
+        if(CollectionUtil.isNotEmpty(conferenceRecordAddParam.getAbsentList())){
+            conferenceRecordAddParam.getAbsentList().forEach(absent -> absents.append(absent).append(","));
+        }
         ConferenceRez conferenceRez = conferenceRezService.getById(conferenceRecordAddParam.getRezRecordVo().getId());
         if(ObjectUtil.isEmpty(conferenceRez)){
             ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRecordAddParam.getRezRecordVo().getId());
@@ -89,6 +96,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         ConferenceRecord conferenceRecord = BeanUtil.toBean(conferenceRecordAddParam, ConferenceRecord.class);
         conferenceRecord.setBeginTime(conferenceRecordAddParam.getRezRecordVo().getBeginTime());
         conferenceRecord.setEndTime(conferenceRecordAddParam.getRezRecordVo().getEndTime());
+        conferenceRecord.setAbsents(absents != null ? absents.toString() : "");
         this.save(conferenceRecord);
     }
 
@@ -97,7 +105,10 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
     public void edit(ConferenceRecordEditParam conferenceRecordEditParam) {
         Date beginTime = conferenceRecordEditParam.getRezRecordVo().getBeginTime();
         Date endTime = conferenceRecordEditParam.getRezRecordVo().getBeginTime();
-
+        StringBuffer absents = new StringBuffer();
+        if(CollectionUtil.isNotEmpty(conferenceRecordEditParam.getAbsentList())){
+            conferenceRecordEditParam.getAbsentList().forEach(absent -> absents.append(absent).append(","));
+        }
         conferenceRecordEditParam.getRezRecordVo().setBeginTime(null);
         conferenceRecordEditParam.getRezRecordVo().setEndTime(null);
         ConferenceRez conferenceRez = conferenceRezService.getById(conferenceRecordEditParam.getRezRecordVo().getId());
@@ -116,6 +127,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         BeanUtil.copyProperties(conferenceRecordEditParam, conferenceRecord);
         conferenceRecord.setBeginTime(beginTime);
         conferenceRecord.setEndTime(endTime);
+        conferenceRecord.setAbsents(absents != null ? absents.toString() : "");
         this.updateById(conferenceRecord);
     }
 
@@ -130,6 +142,9 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
     public RecordDetailVo detail(ConferenceRecordIdParam conferenceRecordIdParam) {
         RecordDetailVo recordDetailVo = new RecordDetailVo();
         ConferenceRecord conferenceRecord = this.queryEntity(conferenceRecordIdParam.getId());
+        if(ObjectUtil.isNotEmpty(conferenceRecord) && StringUtils.isNotEmpty(conferenceRecord.getAbsents())){
+            conferenceRecord.setAbsentList(Arrays.asList(conferenceRecord.getAbsents().split(",")));
+        }
         recordDetailVo.setConferenceRecord(conferenceRecord);
 
         RezRecordVo rezRecordVo = new RezRecordVo();
