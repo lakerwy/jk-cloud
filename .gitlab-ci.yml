@@ -1,0 +1,23 @@
+image: maven:3.6.3-jdk-11
+
+stages:
+  - build
+
+variables:
+  MAVEN_REPO_PATH: $CI_PROJECT_DIR/.m2/repository  # 使用项目目录下的 .m2/repository
+  MAVEN_OPTS: "-Dmaven.repo.local=$MAVEN_REPO_PATH"
+  MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+
+cache:
+  paths:
+    - $MAVEN_REPO_PATH/repository
+
+before_script:
+  - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
+  - mvn ${MAVEN_CLI_OPTS} clean
+
+build:
+  stage: build
+  script:
+    - "mvn ${MAVEN_CLI_OPTS} install -DskipTests"
+    - "echo 'Maven local repository path: $MAVEN_REPO_PATH'"
