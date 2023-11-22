@@ -43,6 +43,8 @@ import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryEditParam;
 import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubSalaryService;
+import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -157,5 +159,12 @@ public class SubSalaryServiceImpl extends ServiceImpl<SubSalaryMapper, SubSalary
             throw new CommonException("HR-分公司-工资条不存在，id值为：{}", id);
         }
         return subSalary;
+    }
+
+    @Override
+    public Page<SubSalaryVo> pageList(SubSalaryPageParam subSalaryPageParam) {
+        QueryWrapper<SysOrg> queryWrapper = new QueryWrapper<>();
+        return null;
+
     }
 }

@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryAddParam;
 import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryEditParam;
 import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryPageParam;
+import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
 
 import java.util.List;
 
@@ -77,4 +78,11 @@ public interface SubSalaryService extends IService<SubSalary> {
      * @date  2023/11/22 11:20
      **/
     SubSalary queryEntity(String id);
+
+    /**
+     * 获取HR-分公司-工资条分页[所有分公司范围是否填报工资单]
+     * @param subSalaryPageParam
+     * @return
+     */
+    Page<SubSalaryVo> pageList(SubSalaryPageParam subSalaryPageParam);
 }

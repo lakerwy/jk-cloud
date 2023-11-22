@@ -32,6 +32,7 @@ import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryEditParam;
 import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.sub.param.SubSalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubSalaryService;
+import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -53,13 +54,13 @@ public class SubSalaryController {
     private SubSalaryService subSalaryService;
 
     /**
-     * 获取HR-分公司-工资条分页
+     * 获取HR-分公司-工资条分页[有权限控制]
      *
      * @author yong.ye
      * @date  2023/11/22 11:20
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取HR-分公司-工资条分页")
+    @ApiOperation("获取HR-分公司-工资条分页【有权限控制】")
     @SaCheckPermission("/sys/hr/sub/salary/page")
     @GetMapping("/sys/hr/sub/salary/page")
     public CommonResult<Page<SubSalary>> page(SubSalaryPageParam subSalaryPageParam) {
@@ -127,5 +128,19 @@ public class SubSalaryController {
     @GetMapping("/sys/hr/sub/salary/detail")
     public CommonResult<SubSalary> detail(@Valid SubSalaryIdParam subSalaryIdParam) {
         return CommonResult.data(subSalaryService.detail(subSalaryIdParam));
+    }
+
+    /**
+     * 获取HR-分公司-工资条分页[所有分公司范围是否填报工资单]
+     *
+     * @author yong.ye
+     * @date  2023/11/22 11:20
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取HR-分公司-工资条分页[所有分公司范围是否填报工资单]")
+    @SaCheckPermission("/sys/hr/sub/salary/pageList")
+    @GetMapping("/sys/hr/sub/salary/pageList")
+    public CommonResult<Page<SubSalaryVo>> pageList(SubSalaryPageParam subSalaryPageParam) {
+        return CommonResult.data(subSalaryService.pageList(subSalaryPageParam));
     }
 }

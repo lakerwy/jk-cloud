@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.sys.modular.hr.sub.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubSalary;
+import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
 
 /**
  * HR-分公司-工资条Mapper接口
@@ -22,4 +27,5 @@ import vip.xiaonuo.sys.modular.hr.sub.entity.SubSalary;
  * @date  2023/11/22 11:20
  **/
 public interface SubSalaryMapper extends BaseMapper<SubSalary> {
+    Page<SubSalaryVo> getPageList(Page<SubSalaryVo> page, @Param(Constants.WRAPPER) Wrapper<SubSalary> queryWrapper);
 }
