@@ -26,7 +26,7 @@ import java.util.List;
  * 考勤-员工考勤统计分析数据汇总表Service接口
  *
  * @author ljy
- * @date  2023/11/04 08:35
+ * @date  2023/11/21 23:04
  **/
 public interface HrAttendanceAnalStatService extends IService<HrAttendanceAnalStat> {
 
@@ -34,7 +34,7 @@ public interface HrAttendanceAnalStatService extends IService<HrAttendanceAnalSt
      * 获取考勤-员工考勤统计分析数据汇总表分页
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     Page<HrAttendanceAnalStat> page(HrAttendanceAnalStatPageParam hrAttendanceAnalStatPageParam);
 
@@ -42,7 +42,7 @@ public interface HrAttendanceAnalStatService extends IService<HrAttendanceAnalSt
      * 添加考勤-员工考勤统计分析数据汇总表
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     void add(HrAttendanceAnalStatAddParam hrAttendanceAnalStatAddParam);
 
@@ -50,7 +50,7 @@ public interface HrAttendanceAnalStatService extends IService<HrAttendanceAnalSt
      * 编辑考勤-员工考勤统计分析数据汇总表
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     void edit(HrAttendanceAnalStatEditParam hrAttendanceAnalStatEditParam);
 
@@ -58,7 +58,7 @@ public interface HrAttendanceAnalStatService extends IService<HrAttendanceAnalSt
      * 删除考勤-员工考勤统计分析数据汇总表
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     void delete(List<HrAttendanceAnalStatIdParam> hrAttendanceAnalStatIdParamList);
 
@@ -66,7 +66,7 @@ public interface HrAttendanceAnalStatService extends IService<HrAttendanceAnalSt
      * 获取考勤-员工考勤统计分析数据汇总表详情
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      */
     HrAttendanceAnalStat detail(HrAttendanceAnalStatIdParam hrAttendanceAnalStatIdParam);
 
@@ -74,7 +74,7 @@ public interface HrAttendanceAnalStatService extends IService<HrAttendanceAnalSt
      * 获取考勤-员工考勤统计分析数据汇总表详情
      *
      * @author ljy
-     * @date  2023/11/04 08:35
+     * @date  2023/11/21 23:04
      **/
     HrAttendanceAnalStat queryEntity(String id);
 }

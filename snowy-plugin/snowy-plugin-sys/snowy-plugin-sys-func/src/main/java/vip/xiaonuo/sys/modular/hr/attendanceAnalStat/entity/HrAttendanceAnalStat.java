@@ -23,7 +23,7 @@ import java.util.Date;
  * 考勤-员工考勤统计分析数据汇总表实体
  *
  * @author ljy
- * @date  2023/11/04 08:35
+ * @date  2023/11/21 23:04
  **/
 @Getter
 @Setter
@@ -47,105 +47,149 @@ public class HrAttendanceAnalStat {
     @ApiModelProperty(value = "职位", position = 4)
     private String postion;
 
-    /** 是否打卡 */
-    @ApiModelProperty(value = "是否打卡", position = 5)
+    /** 部门ID */
+    @ApiModelProperty(value = "部门ID", position = 5)
+    private String orgId;
+
+    /** 是否打卡,是否出勤 */
+    @ApiModelProperty(value = "是否打卡,是否出勤", position = 6)
     private Integer attendanceFlag;
 
     /** 是否请假 */
-    @ApiModelProperty(value = "是否请假", position = 6)
+    @ApiModelProperty(value = "是否请假", position = 7)
     private Integer holidayFlag;
 
+    /** 请假开始时间 */
+    @ApiModelProperty(value = "请假开始时间", position = 8)
+    private Date holidayBeginTime;
+
+    /** 请假结束时间 */
+    @ApiModelProperty(value = "请假结束时间", position = 9)
+    private Date holidayEndTime;
+
     /** 请假多久：最小单位-半天 */
-    @ApiModelProperty(value = "请假多久：最小单位-半天", position = 7)
+    @ApiModelProperty(value = "请假多久：最小单位-半天", position = 10)
     private Double holidayDays;
 
     /** 假期类型：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7 */
-    @ApiModelProperty(value = "假期类型：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7", position = 8)
+    @ApiModelProperty(value = "假期类型：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7", position = 11)
     private Integer holidayType;
 
     /** 是否加班 */
-    @ApiModelProperty(value = "是否加班", position = 9)
+    @ApiModelProperty(value = "是否加班", position = 12)
     private Integer workotFlag;
 
     /** 加班时长，最小单位：0.5小时 */
-    @ApiModelProperty(value = "加班时长，最小单位：0.5小时", position = 10)
+    @ApiModelProperty(value = "加班时长，最小单位：0.5小时", position = 13)
     private Double workotHours;
 
+    /** 迟到次数 */
+    @ApiModelProperty(value = "迟到次数", position = 14)
+    private Integer lateNumber;
+
     /** 是否迟到 */
-    @ApiModelProperty(value = "是否迟到", position = 11)
+    @ApiModelProperty(value = "是否迟到", position = 15)
     private Integer lateFlag;
 
     /** 迟到分钟数，最小单位：1分钟 */
-    @ApiModelProperty(value = "迟到分钟数，最小单位：1分钟", position = 12)
+    @ApiModelProperty(value = "迟到分钟数，最小单位：1分钟", position = 16)
     private Integer lateMinutes;
 
+    /** 严重迟到次数 */
+    @ApiModelProperty(value = "严重迟到次数", position = 17)
+    private Integer seriousLateNum;
+
+    /** 严重迟到分钟数 */
+    @ApiModelProperty(value = "严重迟到分钟数", position = 18)
+    private Integer seriousLateMinutes;
+
     /** 是否早退 */
-    @ApiModelProperty(value = "是否早退", position = 13)
+    @ApiModelProperty(value = "是否早退", position = 19)
     private Integer leaveEarlyFlag;
 
+    /** 早退次数 */
+    @ApiModelProperty(value = "早退次数", position = 20)
+    private Integer leaveEarlyNum;
+
     /** 早退时间：最小单位：1分钟 */
-    @ApiModelProperty(value = "早退时间：最小单位：1分钟", position = 14)
+    @ApiModelProperty(value = "早退时间：最小单位：1分钟", position = 21)
     private Integer leaveEarlyMinutes;
 
     /** 是否出差 */
-    @ApiModelProperty(value = "是否出差", position = 15)
+    @ApiModelProperty(value = "是否出差", position = 22)
     private Integer businessTripFlag;
 
+    /** 出差开始时间 */
+    @ApiModelProperty(value = "出差开始时间", position = 23)
+    private Date businessBeginTime;
+
+    /** 出差结束时间 */
+    @ApiModelProperty(value = "出差结束时间", position = 24)
+    private Date businessEndTime;
+
     /** 出差时间：最小单位：0.5天 */
-    @ApiModelProperty(value = "出差时间：最小单位：0.5天", position = 16)
+    @ApiModelProperty(value = "出差时间：最小单位：0.5天", position = 25)
     private Double businessTripDays;
 
     /** 是否外出 */
-    @ApiModelProperty(value = "是否外出", position = 17)
+    @ApiModelProperty(value = "是否外出", position = 26)
     private Integer gooutFlag;
 
+    /** 外出开始时间 */
+    @ApiModelProperty(value = "外出开始时间", position = 27)
+    private Date gooutBeginTime;
+
+    /** 外出结束时间 */
+    @ApiModelProperty(value = "外出结束时间", position = 28)
+    private Date gooutEndTime;
+
     /** 外出时长，最小单位：0.5小时 */
-    @ApiModelProperty(value = "外出时长，最小单位：0.5小时", position = 18)
+    @ApiModelProperty(value = "外出时长，最小单位：0.5小时", position = 29)
     private Double gooutHours;
 
-    /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 19)
+    /** 考勤时间 */
+    @ApiModelProperty(value = "考勤时间", position = 30)
+    private Date checkTime;
+
+    /** 工时-单位：分钟 */
+    @ApiModelProperty(value = "工时-单位：分钟", position = 31)
+    private Integer workMinute;
+
+    /** 是否补卡:空或者0非补卡，1 为补卡 */
+    @ApiModelProperty(value = "是否补卡:空或者0非补卡，1 为补卡", position = 32)
+    private Integer resubmitFlag;
+
+    /** 打卡时间列表 */
+    @ApiModelProperty(value = "打卡时间列表", position = 33)
+    private String atdTimes;
+
+    /** 扩展信息，存放考勤配置数据 */
+    @ApiModelProperty(value = "扩展信息，存放考勤配置数据", position = 34)
     private String extJson;
 
     /** 删除标识 */
-    @ApiModelProperty(value = "删除标识", position = 20)
+    @ApiModelProperty(value = "删除标识", position = 35)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 21)
+    @ApiModelProperty(value = "创建时间", position = 36)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建人 */
-    @ApiModelProperty(value = "创建人", position = 22)
+    @ApiModelProperty(value = "创建人", position = 37)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 更新时间 */
-    @ApiModelProperty(value = "更新时间", position = 23)
+    @ApiModelProperty(value = "更新时间", position = 38)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 更新人 */
-    @ApiModelProperty(value = "更新人", position = 24)
+    @ApiModelProperty(value = "更新人", position = 39)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
-
-    /** 考勤时间 */
-    @ApiModelProperty(value = "考勤时间", position = 25)
-    private Date checkTime;
-
-    /** 是否补卡 */
-    @ApiModelProperty(value = "是否补卡:空或者0非补卡，1 为补卡", position = 26)
-    private Integer resubmitFlag;
-
-    /** 工时-单位：分钟 */
-    @ApiModelProperty(value = "工时-单位：分钟", position = 27)
-    private Double workHours;
-
-    /** 组织id */
-    @ApiModelProperty(value = "组织id", position = 28)
-    private String orgId;
 }

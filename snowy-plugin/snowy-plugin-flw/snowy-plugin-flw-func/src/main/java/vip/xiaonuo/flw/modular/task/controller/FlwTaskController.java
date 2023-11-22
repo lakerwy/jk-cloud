@@ -13,6 +13,7 @@
 package vip.xiaonuo.flw.modular.task.controller;
 
 import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -24,7 +25,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.task.param.*;
 import vip.xiaonuo.flw.modular.task.result.*;
@@ -267,6 +270,33 @@ public class FlwTaskController {
     public CommonResult<String> addComment(@RequestBody @Valid FlwCommentParam flwCommentParam) {
         flwTaskService.addComment(flwCommentParam);
         return CommonResult.ok();
+    }
+
+    /**
+     * 移交任务
+     *
+     * @author mayike
+     * @date 2023/11/20 09:00
+     */
+    @ApiOperationSupport(order = 18)
+    @ApiOperation("移交任务")
+    @GetMapping("/flw/task/transferTasks")
+    public CommonResult<String> transferTasks(FlwTaskTransferParam flwTaskTransferParam) {
+        flwTaskService.transferTasks(flwTaskTransferParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取被移交人所有涉及到的流程
+     *
+     * @author mayike
+     * @date 2023/11/20 09:00
+     */
+    @ApiOperationSupport(order = 17)
+    @ApiOperation("获取被移交人所有涉及到的流程")
+    @GetMapping("/flw/task/getTransferTasks")
+    public CommonResult<List<FlwModel>> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam) {
+        return CommonResult.data(flwTaskService.getTransferTasks(flwTaskTransferPageParam));
     }
 
 }
