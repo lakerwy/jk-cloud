@@ -14,7 +14,9 @@ package vip.xiaonuo.flw.modular.task.service;
 
 import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.task.param.*;
 import vip.xiaonuo.flw.modular.task.result.*;
@@ -156,4 +158,17 @@ public interface FlwTaskService {
 
     @Transactional(rollbackFor = Exception.class)
     void addComment(FlwCommentParam flwCommentParam);
+
+    /**
+     *  流程转交
+     * @param flwTaskTransferParam
+     */
+    void transferTasks(FlwTaskTransferParam flwTaskTransferParam);
+
+    /**
+     * 涉及到当前人的所有流程
+     * @param flwTaskTransferPageParam
+     * @return
+     */
+    List<FlwModel> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam);
 }

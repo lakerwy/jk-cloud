@@ -12,6 +12,8 @@
  */
 package vip.xiaonuo.flw.core.node;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.Data;
 
 import java.util.List;
@@ -45,6 +47,8 @@ public class FlwNode {
 
     /** 节点属性 */
     private FlwNodeProperties properties;
+
+    private Boolean dataLegal;
 
     /** 属性 */
     @Data
@@ -95,7 +99,7 @@ public class FlwNode {
         private Boolean processEnableBackNotice;
 
         /** 退回通知渠道 */
-        private String processBackNoticeChannel;
+        private List<String> processBackNoticeChannel;
 
         /** 退回通知模板 */
         private String processBackNoticeTemplate;
@@ -104,7 +108,7 @@ public class FlwNode {
         private Boolean processEnableTodoNotice;
 
         /** 待办通知渠道 */
-        private String processTodoNoticeChannel;
+        private List<String>  processTodoNoticeChannel;
 
         /** 待办通知模板 */
         private String processTodoNoticeTemplate;
@@ -113,7 +117,7 @@ public class FlwNode {
         private Boolean processEnableCopyNotice;
 
         /** 抄送通知渠道 */
-        private String processCopyNoticeChannel;
+        private List<String>  processCopyNoticeChannel;
 
         /** 抄送通知模板 */
         private String processCopyNoticeTemplate;
@@ -122,7 +126,7 @@ public class FlwNode {
         private Boolean processEnableCompleteNotice;
 
         /** 完成通知渠道 */
-        private String processCompleteNoticeChannel;
+        private List<String>  processCompleteNoticeChannel;
 
         /** 完成通知模板 */
         private String processCompleteNoticeTemplate;
@@ -140,16 +144,16 @@ public class FlwNode {
         private Boolean processEnableCommentRequired;
 
         /** 全局发起节点PC端表单 */
-        private String processStartFormUrl;
+        private String processStartTaskFormUrl;
 
         /** 全局发起节点移动端表单 */
-        private String processStartMobileFormUrl;
+        private String processStartTaskMobileFormUrl;
 
         /** 全局审批节点PC端表单 */
-        private String processApprovalFormUrl;
+        private String processUserTaskFormUrl;
 
         /** 全局审批节点移动端表单 */
-        private String processApprovalMobileFormUrl;
+        private String processUserTaskMobileFormUrl;
 
         /** 任务节点类型 */
         private String userTaskType;
@@ -222,6 +226,12 @@ public class FlwNode {
 
         /** 按钮附加信息 */
         private String extJson;
+
+        /**按钮类型*/
+        private String type;
+
+        /**按钮图标*/
+        private String icon;
 
     }
 

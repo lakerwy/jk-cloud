@@ -21,6 +21,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -58,6 +59,9 @@ import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
+import vip.xiaonuo.flw.modular.model.entity.FlwModel;
+import vip.xiaonuo.flw.modular.model.enums.FlwModelStatusEnum;
+import vip.xiaonuo.flw.modular.model.param.FlwModelIdParam;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.process.param.FlwProcessIdParam;
@@ -82,6 +86,7 @@ import java.util.stream.Collectors;
 
 import static org.camunda.bpm.engine.task.IdentityLinkType.ASSIGNEE;
 import static org.camunda.bpm.engine.task.IdentityLinkType.CANDIDATE;
+import static vip.xiaonuo.flw.core.util.NodeRuntimeUtil.handleProcessParticipateInfo;
 
 /**
  * 任务Service接口实现类
@@ -123,6 +128,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Resource
     IDingDingService iDingDingService;
+
+    @Resource
+    FlwModelService flwModelService;
 
     /**
      * 异步任务线程池
@@ -835,6 +843,116 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             return forms;
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public void transferTasks(FlwTaskTransferParam flwTaskTransferParam){
+        //todo 1、将流程模板中所有涉及到是自己的节点全部修改 （只有指定了具体人是自己的修改， 指定了部门的或者角色的不用管，
+        // 用户删除以后，用户的状态会修改，根据部门或者角色查询的时候，该用户不会存在）
+        // 2、 将自己的所有待办转交给指定人
+        // 3、自己发起的不转交  （在流程监控中可以查询）
+        // 4、自己已办的不需要转交
+        //1 处理方式  修改act_ext_model 表  2 只需要重现发布已开启的。重新发布流程 调用deploy
+        List<String> models = Arrays.stream(flwTaskTransferParam.getActExtModelIds().split(","))
+                .collect(Collectors.toList());
+        List<FlwModel> flwModels = flwModelService.listByIds(models);
+        for (FlwModel flwModel : flwModels) {
+            String processJson = flwModel.getProcessJson();
+            if(ObjectUtil.isNotEmpty(processJson)){
+                FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
+                replaceParticipateInfoInNode(flwNode, flwTaskTransferParam);
+                // 使用 Jackson ObjectMapper 进行 JSON 处理
+                processJson = JSONUtil.toJsonStr(flwNode, JSONConfig.create());
+                flwModel.setProcessJson(processJson);
+            }
+            flwModelService.updateById(flwModel);
+            if(flwModel.getModelStatus().equals(FlwModelStatusEnum.ENABLE.getValue())){
+                FlwModelIdParam flwModelIdParam = new FlwModelIdParam();
+                flwModelIdParam.setId(flwModel.getId());
+                flwModelService.deploy(flwModelIdParam);
+            }
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().deploymentId(flwModel.getDeploymentId()).singleResult();
+            //Set<String> ids = repositoryService.createProcessDefinitionQuery().processDefinitionKey(processDefinition.getKey()).active().list().stream().map(ProcessDefinition::getId).collect(Collectors.toSet());
+
+            List<Task> list = taskService.createTaskQuery().active().taskAssignee(flwTaskTransferParam.getOldAssignee()).processDefinitionKey(processDefinition.getKey()).orderByTaskCreateTime().desc().list();
+//            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+            list.forEach(task ->  taskService.setAssignee(task.getId(), flwTaskTransferParam.getNewAssignee()));
+        }
+
+
+    }
+
+    private static void replaceParticipateInfoInNode(FlwNode flwNode, FlwTaskTransferParam flwTaskTransferParam) {
+        if (flwNode != null && flwNode.getProperties() != null && flwNode.getProperties().getParticipateInfo() != null) {
+            List<FlwNode.FlwNodeParticipateProp> participateInfoList = flwNode.getProperties().getParticipateInfo();
+            for (FlwNode.FlwNodeParticipateProp participateProp : participateInfoList) {
+                String values = participateProp.getValue();
+                Set<String> valueList = Arrays.stream(values.split(","))
+                        .collect(Collectors.toSet());
+                if (valueList.contains(flwTaskTransferParam.getOldAssignee())) {
+                    valueList.remove(flwTaskTransferParam.getOldAssignee());
+                    valueList.add(flwTaskTransferParam.getNewAssignee());
+                    participateProp.setValue(String.join(",", valueList));
+                    Set<String> labelSet = Arrays.stream(participateProp.getLabel().split(",")).collect(Collectors.toSet());
+                    labelSet.remove(flwTaskTransferParam.getOldAssigneeName());
+                    labelSet.add(flwTaskTransferParam.getNewAssigneeName());
+                    participateProp.setLabel(String.join(",",labelSet));
+                }
+            }
+            flwNode.getProperties().setParticipateInfo(participateInfoList);
+        }
+
+        // 递归处理子节点和条件节点
+        assert flwNode != null;
+        if (flwNode.getChildNode() != null) {
+            replaceParticipateInfoInNode(flwNode.getChildNode(), flwTaskTransferParam);
+        }
+
+        if (flwNode.getConditionNodeList() != null) {
+            for (FlwNode conditionNode : flwNode.getConditionNodeList()) {
+                replaceParticipateInfoInNode(conditionNode, flwTaskTransferParam);
+            }
+        }
+    }
+
+    @Override
+    public List<FlwModel> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam) {
+        List<FlwModel> allFlwModels = flwModelService.list();
+        List<FlwModel> transferTasks = new ArrayList<>();
+        for (FlwModel flwModel : allFlwModels) {
+            String processJson = flwModel.getProcessJson();
+            if (ObjectUtil.isNotEmpty(processJson)) {
+                FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
+                if (checkNodeParticipateInfo(flwNode, flwTaskTransferPageParam.getOldAssignee())) {
+                    transferTasks.add(flwModel);
+                }
+            }
+        }
+        return transferTasks;
+    }
+
+    private boolean checkNodeParticipateInfo(FlwNode flwNode, String oldAssignee) {
+        if (flwNode == null) {
+            return false;
+        }
+        if(ObjectUtil.isEmpty(flwNode.getProperties())){
+            return false;
+        }
+        List<FlwNode.FlwNodeParticipateProp> participateInfo = flwNode.getProperties().getParticipateInfo();
+        if (ObjectUtil.isNotEmpty(participateInfo)) {
+            String participateInfoJson = JSONUtil.toJsonStr(participateInfo);
+            List<String> processParticipateInfo = handleProcessParticipateInfo(participateInfoJson);
+            if (ObjectUtil.isNotEmpty(processParticipateInfo) && processParticipateInfo.contains(oldAssignee)) {
+                return true;
+            }
+        }
+
+        FlwNode childNode = flwNode.getChildNode();
+        if (childNode != null) {
+            return checkNodeParticipateInfo(childNode, oldAssignee);
+        }
+
+        return false;
     }
 
 }
