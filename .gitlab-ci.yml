@@ -18,6 +18,8 @@ before_script:
 
 build:
   stage: build
+  only:
+    - dev20230619
   script:
     - "mvn ${MAVEN_CLI_OPTS} install -DskipTests"
     - "echo 'Maven local repository path: $MAVEN_REPO_PATH'"
