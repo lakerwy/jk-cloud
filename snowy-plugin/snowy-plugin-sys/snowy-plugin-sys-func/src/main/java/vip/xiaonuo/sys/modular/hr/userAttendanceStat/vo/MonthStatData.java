@@ -50,34 +50,34 @@ public class MonthStatData {
 
     /** 事假 */
     @ApiModelProperty(value = "事假", position = 13)
-    private String personalLeave;
+    private Double personalLeave;
 
     /** 病假 */
     @ApiModelProperty(value = "病假", position = 14)
-    private String sickLeave;
+    private Double sickLeave;
 
     /** 婚假 */
     @ApiModelProperty(value = "婚假", position = 15)
-    private String marriageLeave;
+    private Double marriageLeave;
 
     /** 产假 */
     @ApiModelProperty(value = "产假", position = 16)
-    private String maternityLeave;
+    private Double maternityLeave;
 
     /** 丧假 */
     @ApiModelProperty(value = "丧假", position = 17)
-    private String bereavementLeave;
+    private Double bereavementLeave;
 
     /** 年假 */
     @ApiModelProperty(value = "年假", position = 18)
-    private String annualLeave;
+    private Double annualLeave;
 
     /** 调休 */
     @ApiModelProperty(value = "调休", position = 19)
-    private String compensatoryLeave;
+    private Double compensatoryLeave;
 
     @ApiModelProperty(value = "出差时长", position = 20)
-    private Double businessTripHours;
+    private Double businessTrip;
 
     @ApiModelProperty(value = "外出时长", position = 21)
     private Double outWorkHours;
@@ -90,4 +90,21 @@ public class MonthStatData {
 
     @ApiModelProperty(value = "考勤结果Map", position = 24)
     TreeMap<Integer,MonthStatDataStatus> treeMap;
+
+    @ApiModelProperty(value = "休息天数", position = 25)
+    private Double restDays;
+
+    @ApiModelProperty(value = "早退次数", position = 26)
+    private Integer leaveEarly;
+
+    @ApiModelProperty(value = "早退时长", position = 27)
+    private Integer leaveEarlyMinute;
+
+    /** 严重迟到次数 */
+    @ApiModelProperty(value = "严重迟到次数", position = 28)
+    private Integer seriousLateNum;
+
+    /** 严重迟到分钟数 */
+    @ApiModelProperty(value = "严重迟到分钟数", position = 29)
+    private Integer seriousLateMinutes;
 }

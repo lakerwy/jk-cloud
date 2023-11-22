@@ -47,6 +47,10 @@ import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.entity.ConferenceRezPerio
 import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.service.SysOrgService;
+import vip.xiaonuo.sys.modular.position.entity.SysPosition;
+import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
@@ -73,6 +77,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     private ConferenceRezPeriodService conferenceRezPeriodService;
     @Resource
     private SysUserService sysUserService;
+    @Resource
+    SysOrgService sysOrgService;
+    @Resource
+    SysPositionService sysPositionService;
 
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -110,6 +118,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             page.setRecords(conferenceRezList);
             page.setTotal(conferenceRezList.size());
         }
+        page.getRecords().forEach(rez ->{
+            List<String> rezAgendas = StringUtils.isNotEmpty(rez.getRezAgenda()) ? Arrays.asList(rez.getRezAgenda().trim().split(",")) : new ArrayList<>();
+            rez.setRezAgendas(rezAgendas);
+        });
         return page;
     }
 
@@ -128,7 +140,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
         Boolean isTrue = ObjectUtil.isNotEmpty(conferenceRezAddParam.getIsOnLine()) &&
-                conferenceRezAddParam.getIsOnLine() == 1 && StringUtils.isNotEmpty(conferenceRezAddParam.getOnLineCode())? false : true;
+                conferenceRezAddParam.getIsOnLine() == 1 && StringUtils.isNotEmpty(conferenceRezAddParam.getOnLineCode())? true : false;
         if(isTrue){throw new CommonException("勾选在线会议后，会议号不能为空！");}
         StringBuffer conAffUsers = new StringBuffer();
         if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getConAffUsers())){
@@ -143,6 +155,11 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             updateConferenceRezPeriod(conferenceRezAddParam,conAffUsers.toString());
         }else{
             ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
+            StringBuffer  rezAgenda = new StringBuffer();
+            if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getRezAgendas())){
+                conferenceRezAddParam.getRezAgendas().forEach(agenda -> rezAgenda.append(rezAgenda).append(","));
+            }
+            conferenceRez.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
             this.save(conferenceRez);
         }
         //异步推送消息
@@ -160,6 +177,12 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceRezPeriod.setWeekTime(conferenceRezAddParam.getWeekTime());
         conferenceRezPeriod.setDayTime(conferenceRezAddParam.getDayTime());
         conferenceRezPeriod.setConAffUsers(StringUtils.isNotEmpty(affUsers) ? affUsers : "");
+        //会议议程处理
+        StringBuffer  rezAgenda = new StringBuffer();
+        if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getRezAgendas())){
+            conferenceRezAddParam.getRezAgendas().forEach(agenda -> rezAgenda.append(rezAgenda).append(","));
+        }
+        conferenceRezPeriod.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
         conferenceRezPeriodService.save(conferenceRezPeriod);
     }
 
@@ -373,4 +396,20 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         sysUserList.forEach(user -> map.put(user.getId(),user.getName()));
         return map;
     }
+
+    @Override
+    public Map<String,String> getOrgData(){
+        Map<String,String> map = new HashMap<>();
+        List<SysOrg> orgList = sysOrgService.list();
+        orgList.forEach(org -> map.put(org.getId(),org.getName()));
+        return map;
+    }
+    @Override
+    public Map<String,String> getPostionData(){
+        Map<String,String> map = new HashMap<>();
+        List<SysPosition> positionList = sysPositionService.list();
+        positionList.forEach(position -> map.put(position.getId(),position.getName()));
+        return map;
+    }
+
 }

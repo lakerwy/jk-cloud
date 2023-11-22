@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 会议预约-预约会议表数据实体
@@ -146,4 +147,13 @@ public class ConferenceRez {
     /** 会议链接 */
     @ApiModelProperty(value = "会议链接", position = 23)
     private Integer onLineUrl;
+
+    /** 会议议程 */
+    @ApiModelProperty(value = "会议议程", position = 24)
+    private String rezAgenda;
+
+    /** 会议议程List */
+    @ApiModelProperty(value = "会议议程List", position = 25)
+    @TableField(exist = false)
+    private List<String> rezAgendas;
 }

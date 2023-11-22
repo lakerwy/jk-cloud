@@ -97,4 +97,10 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
     List<ConferenceTimeData> conferenceList(ConferenceTimeDataParam conferenceTimeDataParam);
     /** 获取人员数据  key userID,value userName*/
     Map<String,String> getUserData();
+
+    /** 获取部门数据  key orgId,value orgName*/
+    Map<String,String> getOrgData();
+
+    /** 获取职位数据  key postionId,value postionName*/
+    Map<String,String> getPostionData();
 }

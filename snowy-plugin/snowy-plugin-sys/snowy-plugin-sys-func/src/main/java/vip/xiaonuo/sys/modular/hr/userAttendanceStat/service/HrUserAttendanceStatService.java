@@ -183,4 +183,6 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
     AttendanceAnalysisData attendanceAnalysis(AttendanceAnalysisParam attendanceAnalysisParam);
 
     Page<OriginalAtdData> originalAtdData(OriginalAtdParam originalAtdParam);
+
+    Map<String,UserAtdConfigMap> getUserAtdConfigMap();
 }

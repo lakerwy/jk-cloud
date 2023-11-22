@@ -245,8 +245,8 @@ public class HrUserAttendanceStatController {
      * @date  2023/10/16 16:24
      * */
     @ApiOperationSupport(order = 13)
-    @ApiOperation("报表管理-月统计接口")
-    @CommonLog("报表管理-月统计接口")
+    @ApiOperation("报表管理-月度汇总")
+    @CommonLog("报表管理-月度汇总")
     //@SaCheckPermission("/sys/userAttendance/monthStatPreview")
     @GetMapping("/sys/userAttendance/monthStatPreview")
     public CommonResult<Page<MonthStatData>> monthStatPreview(@Valid AttendanceMonthStatParam attendanceMonthStatParam) {
@@ -259,8 +259,8 @@ public class HrUserAttendanceStatController {
      * @date 2022/6/21 15:44
      **/
     @ApiOperationSupport(order = 14)
-    @ApiOperation("月度汇总-下载Excel文件")
-    @CommonLog("月度汇总-下载Excel文件")
+    @ApiOperation("报表管理-月度汇总-下载Excel文件")
+    @CommonLog("报表管理-月度汇总-下载Excel文件")
     @GetMapping(value = "/sys/userAttendance/monthExcel", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public void monthDownloadExcel(@Valid AttendanceMonthStatParam attendanceMonthStatParam, HttpServletResponse response) throws Exception {
         hrUserAttendanceStatService.downloadMonthExcel(attendanceMonthStatParam, response);

@@ -144,4 +144,8 @@ public class ConferenceRezPeriod {
     /** 会议链接 */
     @ApiModelProperty(value = "会议链接", position = 23)
     private Integer onLineUrl;
+
+    /** 会议议程 */
+    @ApiModelProperty(value = "会议议程", position = 24)
+    private String rezAgenda;
 }
