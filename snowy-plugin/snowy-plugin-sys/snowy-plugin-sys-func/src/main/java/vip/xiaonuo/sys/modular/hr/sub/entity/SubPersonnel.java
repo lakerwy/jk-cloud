@@ -64,7 +64,7 @@ public class SubPersonnel {
 
     /** 就职状态 */
     @ApiModelProperty(value = "就职状态", position = 8)
-    private String status;
+    private String hrStatus;
 
     /** 性别 */
     @ApiModelProperty(value = "性别", position = 9)
@@ -251,4 +251,20 @@ public class SubPersonnel {
     /** 数据权限控制字段 */
     @ApiModelProperty(value = "数据权限控制字段", position = 51)
     private String dataScopeId;
+
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态", position = 52)
+    private String status;
+
+    /** SN */
+    @ApiModelProperty(value = "SN", position = 53)
+    private String sn;
+
+    /** 模型Id */
+    @ApiModelProperty(value = "模型Id", position = 54)
+    private String modelId;
+
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id", position = 55)
+    private String processInstanceId;
 }

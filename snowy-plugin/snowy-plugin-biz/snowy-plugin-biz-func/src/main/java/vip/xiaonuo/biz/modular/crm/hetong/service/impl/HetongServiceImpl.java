@@ -300,7 +300,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.eq("a.PARTNER_TYPE", hetongPageParam.getPartnerType());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getCompanyOrDepartment())) {
-            queryWrapper.eq("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getCompanyOrDepartment());
+            queryWrapper.like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getCompanyOrDepartment());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndSealDate())) {
             queryWrapper.between("a.SEAL_DATE", hetongPageParam.getStartSealDate(), hetongPageParam.getEndSealDate());

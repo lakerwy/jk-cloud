@@ -19,15 +19,25 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FormRelationTableApi;
 import vip.xiaonuo.sys.modular.hr.sub.entity.*;
 import vip.xiaonuo.sys.modular.hr.sub.mapper.SubPersonnelMapper;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
@@ -52,6 +62,8 @@ import java.util.List;
 public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, SubPersonnel> implements SubPersonnelService {
 
     @Resource
+    private CommonCacheOperator commonCacheOperator;
+    @Resource
     private SysPositionService sysPositionService;
     @Resource
     private SubPersonnelDegreeService subPersonnelDegreeService;
@@ -64,6 +76,7 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
     @Override
     public Page<SubPersonnel> page(SubPersonnelPageParam subPersonnelPageParam) {
         QueryWrapper<SubPersonnel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(SubPersonnel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getFileNo())) {
             queryWrapper.lambda().like(SubPersonnel::getFileNo, subPersonnelPageParam.getFileNo());
         }
@@ -84,6 +97,8 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
         }
         if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getStatus())) {
             queryWrapper.lambda().eq(SubPersonnel::getStatus, subPersonnelPageParam.getStatus());
+        }else{
+            queryWrapper.lambda().eq(SubPersonnel::getStatus,"0");
         }
         if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getSex())) {
             queryWrapper.lambda().eq(SubPersonnel::getSex, subPersonnelPageParam.getSex());
@@ -118,12 +133,12 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
         }
 
         // 校验数据范围
-//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-//            queryWrapper.lambda().in(SubPersonnel::getDataScopeId, loginUserDataScope);
-//        } else {
-//            queryWrapper.lambda().eq(SubPersonnel::getDataScopeId, StpUtil.getLoginIdAsString());
-//        }
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(SubPersonnel::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(SubPersonnel::getCreateUser, StpUtil.getLoginIdAsString());
+        }
 
         if(ObjectUtil.isAllNotEmpty(subPersonnelPageParam.getSortField(), subPersonnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subPersonnelPageParam.getSortOrder());
@@ -138,17 +153,37 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SubPersonnelParam subPersonnelParam) {
-        //新增岗位
-        SysPositionAddParam positionAddParam = new SysPositionAddParam();
-        positionAddParam.setName(subPersonnelParam.getDuty());
-        positionAddParam.setOrgId(subPersonnelParam.getDeptId());
-        positionAddParam.setCategory("LOW");
-        positionAddParam.setSortCode(99);
-        String dutyId = sysPositionService.newAdd(positionAddParam).getId();
-        //处理分公司人员档案
         SubPersonnel subPersonnel = BeanUtil.toBean(subPersonnelParam, SubPersonnel.class);
-        subPersonnel.setDutyId(dutyId);
         subPersonnel.setExtJson(JsonUtils.object2json(subPersonnelParam));
+        subPersonnel.setStatus("0"); //在职
+        //新增岗位
+        if(ObjectUtil.isNotEmpty(subPersonnelParam.getDuty())) {
+            SysPositionAddParam positionAddParam = new SysPositionAddParam();
+            positionAddParam.setName(subPersonnelParam.getDuty());
+            positionAddParam.setOrgId(subPersonnelParam.getDeptId());
+            positionAddParam.setCategory("LOW");
+            positionAddParam.setSortCode(99);
+            String dutyId = sysPositionService.newAdd(positionAddParam).getId();
+            //处理分公司人员档案
+            subPersonnel.setDutyId(dutyId);
+        }
+        //走审批流程
+        String processInstanceId = subPersonnelParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            subPersonnel.setId(id);
+            subPersonnel.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            subPersonnel.setModelId(modelId);
+            subPersonnel.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
+            formRelationTableApi.save(modelId, BizCommonEnum.HR_SUB_PERSONNEL.getBizTable(),id,processInstanceId,dbName);
+        }else{
+            subPersonnel.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
         this.save(subPersonnel);
         //学历
         if(CollUtil.isNotEmpty(subPersonnelParam.getSubDegrees())){
@@ -179,10 +214,22 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(SubPersonnelParam subPersonnelParam) {
+        String id = subPersonnelParam.getId();
+        //判断是否走审批流程内的修改
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(subPersonnelParam.getProcessInstanceId())){
+            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(subPersonnelParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id = formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                subPersonnelParam.setId(id);
+            }
+        }
         SubPersonnel subPersonnel = this.queryEntity(subPersonnelParam.getId());
         BeanUtil.copyProperties(subPersonnelParam, subPersonnel);
         subPersonnel.setExtJson(JsonUtils.object2json(subPersonnelParam));
         this.updateById(subPersonnel);
+        //移除历史数据
         subPersonnelRegisterService.remove(new QueryWrapper<SubPersonnelRegister>().lambda().eq(SubPersonnelRegister::getFileId,subPersonnelParam.getId()));
         subPersonnelDegreeService.remove(new QueryWrapper<SubPersonnelDegree>().lambda().eq(SubPersonnelDegree::getFileId,subPersonnelParam.getId()));
         subPersonnelCertService.remove(new QueryWrapper<SubPersonnelCert>().lambda().eq(SubPersonnelCert::getFileId,subPersonnelParam.getId()));
