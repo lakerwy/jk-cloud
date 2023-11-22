@@ -151,4 +151,18 @@ public class SubcontractController {
     public CommonResult<Boolean> checkName(@Valid CheckNameParam checkNameParam) {
         return CommonResult.data(subcontractService.checkName(checkNameParam));
     }
+
+    /**
+     * 获取业务表-CRM-分包合同分页【含权限设置-由于page接口有许多调用，故但起一个权限接口】
+     *
+     * @author yong.ye
+     * @date  2023/06/30 16:22
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取业务表-CRM-分包合同分页 【含权限设置-由于page接口有许多调用，故但起一个权限接口】")
+    @SaCheckPermission("/biz/crm/subcontract/limitPage")
+    @GetMapping("/biz/crm/subcontract/limitPage")
+    public CommonResult<Page<SubContractInfoVo>> limitPage(SubcontractPageParam subcontractPageParam) {
+        return CommonResult.data(subcontractService.limitPage(subcontractPageParam));
+    }
 }

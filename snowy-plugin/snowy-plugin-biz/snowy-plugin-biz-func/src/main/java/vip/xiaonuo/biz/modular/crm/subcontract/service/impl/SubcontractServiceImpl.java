@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.crm.subcontract.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -68,6 +69,7 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
     @Override
     public Page<SubContractInfoVo> page(SubcontractPageParam subcontractPageParam) {
         QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.in("a.STATUS",FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if (ObjectUtil.isNotEmpty(subcontractPageParam.getSearchKey())) {
             queryWrapper.like("a.SECOND_LEVEL", subcontractPageParam.getSearchKey()).or()
@@ -223,4 +225,77 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
         return false;
     }
 
+    @Override
+    public Page<SubContractInfoVo> limitPage(SubcontractPageParam subcontractPageParam) {
+        QueryWrapper<Subcontract> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("a.STATUS",FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        if (ObjectUtil.isNotEmpty(subcontractPageParam.getSearchKey())) {
+            queryWrapper.like("a.SECOND_LEVEL", subcontractPageParam.getSearchKey()).or()
+                    .like("a.OPT", subcontractPageParam.getSearchKey()).or()
+                    .like("a.CONTRACT_NO", subcontractPageParam.getSearchKey()).or()
+                    .like("a.COMPANY_OR_DEPARTMENT", subcontractPageParam.getSearchKey()).or()
+                    .like("a.PROJECT_NAME", subcontractPageParam.getSearchKey()).or()
+                    .like("a.COUNTERPARTY", subcontractPageParam.getSearchKey()).or()
+                    .like("a.MAIN_CONTRACT_NO", subcontractPageParam.getSearchKey()).or()
+                    .like("a.OWNER", subcontractPageParam.getSearchKey()).or()
+                    .like("a.FIRSTPARTY", subcontractPageParam.getSearchKey());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getOpt())) {
+            queryWrapper.like("a.OPT", subcontractPageParam.getOpt());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(subcontractPageParam.getEndRegisterDate())) {
+            queryWrapper.between("a.REGISTER_DATE", subcontractPageParam.getStartRegisterDate(), subcontractPageParam.getEndRegisterDate());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getIsFiling())) {
+            queryWrapper.eq("a.IS_FILING", subcontractPageParam.getIsFiling());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getSecondLevel())) {
+            queryWrapper.eq("a.SECOND_LEVEL", subcontractPageParam.getSecondLevel());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getContractNo())) {
+            queryWrapper.like("a.CONTRACT_NO", subcontractPageParam.getContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getProjectName())) {
+            queryWrapper.like("a.PROJECT_NAME", subcontractPageParam.getProjectName());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getCounterparty())) {
+            queryWrapper.like("a.COUNTERPARTY", subcontractPageParam.getCounterparty());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getFirstparty())) {
+            queryWrapper.like("a.FIRSTPARTY", subcontractPageParam.getFirstparty());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getCompanyOrDepartment())) {
+            queryWrapper.like("a.COMPANY_OR_DEPARTMENT", subcontractPageParam.getCompanyOrDepartment());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getOwner())) {
+            queryWrapper.like("a.OWNER", subcontractPageParam.getOwner());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(subcontractPageParam.getEndSealDate())) {
+            queryWrapper.between("a.SEAL_DATE", subcontractPageParam.getStartSealDate(), subcontractPageParam.getEndSealDate());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getHetongId())) {
+            queryWrapper.eq("a.HETONG_ID", subcontractPageParam.getHetongId());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getMainContractNo())) {
+            queryWrapper.eq("a.MAIN_CONTRACT_NO", subcontractPageParam.getMainContractNo());
+        }
+
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
+        } else {
+            queryWrapper.eq("a.CREATE_USER", StpUtil.getLoginIdAsString());
+        }
+
+        if(ObjectUtil.isAllNotEmpty(subcontractPageParam.getSortField(), subcontractPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(subcontractPageParam.getSortOrder());
+            queryWrapper.orderBy(true, subcontractPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(subcontractPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("a.REGISTER_DATE").orderByDesc("a.CONTRACT_NO");
+        }
+        return subcontractMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+    }
 }
