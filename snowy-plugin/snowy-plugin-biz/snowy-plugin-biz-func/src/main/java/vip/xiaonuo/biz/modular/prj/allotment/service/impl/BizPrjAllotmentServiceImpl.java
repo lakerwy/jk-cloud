@@ -122,6 +122,7 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
         for (BizPrjAllotment item:result.getRecords()) {
             BizPrjAllotmentVo vo = BeanUtil.copyProperties(item,BizPrjAllotmentVo.class);
             vo.setAllotmentCnList(bizPrjAllotmentCnService.list(new QueryWrapper<BizPrjAllotmentCn>().lambda().eq(BizPrjAllotmentCn::getAllotmentId,item.getId())));
+            voList.add(vo);
         }
         Page<BizPrjAllotmentVo> resultVo = new Page<>();
         resultVo.setRecords(voList);
