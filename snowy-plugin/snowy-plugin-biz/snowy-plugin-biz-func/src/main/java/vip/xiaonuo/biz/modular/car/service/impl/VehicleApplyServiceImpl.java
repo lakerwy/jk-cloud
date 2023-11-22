@@ -458,11 +458,13 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
                 avgDeptOilViewModel.setVehicleId(vehicleId);
                 avgDeptOilViewModel.setSubApplyMileages(sumValue(applyList.stream().filter(x->ObjectUtil.isNotEmpty(x.getVehicleId()) && x.getVehicleId().equals(vehicleId)).map(x->x.getSubTotal()).collect(Collectors.toList())));
                 AvgVehicleOilViewModel tmp = avgVehicleOilViewModelList.stream().filter(x->x.getVehicleId().equals(vehicleId)).findFirst().orElse(null);
-                avgDeptOilViewModel.setOilCardNumber(ObjectUtil.isNotEmpty(tmp)?tmp.getOilCardNumber():"");
-                avgDeptOilViewModel.setLicenseNo(tmp.getLicenseNo());
-                avgDeptOilViewModel.setAvgOil(tmp.getAvgOil());
-                avgDeptOilViewModel.setSubAmount(tmp.getAvgOil().multiply(avgDeptOilViewModel.getSubApplyMileages()).setScale(2,BigDecimal.ROUND_HALF_UP));
-                avgDeptOilViewModelList.add(avgDeptOilViewModel);
+                if(ObjectUtil.isNotEmpty(tmp)) {
+                    avgDeptOilViewModel.setOilCardNumber(ObjectUtil.isNotEmpty(tmp) ? tmp.getOilCardNumber() : "");
+                    avgDeptOilViewModel.setLicenseNo(tmp.getLicenseNo());
+                    avgDeptOilViewModel.setAvgOil(tmp.getAvgOil());
+                    avgDeptOilViewModel.setSubAmount(tmp.getAvgOil().multiply(avgDeptOilViewModel.getSubApplyMileages()).setScale(2, BigDecimal.ROUND_HALF_UP));
+                    avgDeptOilViewModelList.add(avgDeptOilViewModel);
+                }
             }
         }
         AvgOilChartViewModel avgOilChartViewModel = new AvgOilChartViewModel();
