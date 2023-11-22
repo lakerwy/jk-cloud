@@ -22,6 +22,6 @@ build:
     - dev20230619
   script:
     - "mvn ${MAVEN_CLI_OPTS} install -DskipTests"
-    - "echo 'Maven local repository path: $MAVEN_REPO_PATH'"
+    - echo $MAVEN_REPO_PATH
   tags:
     - jk
