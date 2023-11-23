@@ -20,7 +20,7 @@ cache:
 before_script:
   - eval $(ssh-agent -s)
   - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
-  - mvn ${MAVEN_CLI_OPTS} clean
+#  - mvn ${MAVEN_CLI_OPTS} clean
   - export SSH_PRIVATE_KEY_NO_CR=$(echo "$SSH_PRIVATE_KEY" | tr -d '\r')
   - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh-add -
 
@@ -44,6 +44,7 @@ deploy_biz:
   stage: deploy_biz
   script:
     - pwd
+    - cd snowy-modules
     - ls -la  # 列出当前目录结构，可以看到构建产物
     - echo "$SSH_PRIVATE_KEY_NO_CR" | scp -o StrictHostKeyChecking=no -i /dev/stdin $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
     - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
