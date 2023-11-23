@@ -15,6 +15,7 @@ cache:
 before_script:
   - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
   - mvn ${MAVEN_CLI_OPTS} clean
+  - echo "Maven local repository path (before script):" $MAVEN_REPO_PATH
 
 build:
   stage: build
