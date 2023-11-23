@@ -35,10 +35,6 @@ public class ConferenceRecordEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 会议ID */
-    @ApiModelProperty(value = "会议ID", position = 2)
-    private String conferenceRecId;
-
     /** 会议类型：1 非周期会议，2 周期会议 */
     @ApiModelProperty(value = "会议类型：1 非周期会议，2 周期会议", position = 3)
     private Integer conferenceType;
