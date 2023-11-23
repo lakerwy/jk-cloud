@@ -74,7 +74,7 @@ public class SubPersonnelPageParam {
 
     /** 就职状态 */
     @ApiModelProperty(value = "就职状态")
-    private String status;
+    private String hrStatus;
 
     /** 性别 */
     @ApiModelProperty(value = "性别")

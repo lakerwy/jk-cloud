@@ -95,10 +95,10 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
         if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getDuty())) {
             queryWrapper.lambda().like(SubPersonnel::getDuty, subPersonnelPageParam.getDuty());
         }
-        if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getStatus())) {
-            queryWrapper.lambda().eq(SubPersonnel::getStatus, subPersonnelPageParam.getStatus());
+        if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getHrStatus())) {
+            queryWrapper.lambda().eq(SubPersonnel::getHrStatus, subPersonnelPageParam.getHrStatus());
         }else{
-            queryWrapper.lambda().eq(SubPersonnel::getStatus,"0");
+            queryWrapper.lambda().eq(SubPersonnel::getHrStatus,"0");
         }
         if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getSex())) {
             queryWrapper.lambda().eq(SubPersonnel::getSex, subPersonnelPageParam.getSex());
