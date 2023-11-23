@@ -13,6 +13,7 @@ variables:
   REMOTE_SERVER: "10.0.33.82"
   REMOTE_USERNAME: "root"
   REMOTE_PATH: "/home/jkMicroService/jkCloud"
+  EXTERNAL_SETTINGS: "/usr/local/maven/settings.xml"  # Specify the path to your external settings.xml file
 
 cache:
   paths:
@@ -28,12 +29,10 @@ build:
   only:
     - dev20230619
   script:
-    - cp $CI_PROJECT_DIR/settings.xml .
-    - "mvn ${MAVEN_CLI_OPTS} clean package -DskipTests"
+    - "mvn ${MAVEN_CLI_OPTS} clean package -DskipTests --settings $EXTERNAL_SETTINGS"
   artifacts:
     paths:
       - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
-      - settings.xml
     expire_in: 1 week
   tags:
     - jkserver
