@@ -156,4 +156,9 @@ public class ConferenceRez {
     @ApiModelProperty(value = "会议议程List", position = 25)
     @TableField(exist = false)
     private List<String> rezAgendas;
+
+    /** 会议记录ID */
+    @ApiModelProperty(value = "会议记录ID", position = 26)
+    private String recordId;
+
 }

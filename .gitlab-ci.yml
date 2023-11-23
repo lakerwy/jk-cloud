@@ -2,27 +2,74 @@ image: maven:3.6.3-jdk-8
 
 stages:
   - build
+  - deploy_biz
+  - deploy_flw
+  - deploy_web
 
 variables:
-  MAVEN_REPO_PATH: $MAVEN_REPO_PATH  # 使用项目目录下的 .m2/repository
-  MAVEN_OPTS: "-Dmaven.repo.local=$MAVEN_REPO_PATH/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=/cache/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
+  REMOTE_SERVER: "10.0.33.82"
+  REMOTE_USERNAME: "root"
+  REMOTE_PATH: "/home/jkMicroService/jkCloud"
 
 cache:
   paths:
-    - $MAVEN_REPO_PATH/repository
+    - /cache/repository
 
 before_script:
+  - eval $(ssh-agent -s)
   - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
   - mvn ${MAVEN_CLI_OPTS} clean
-  - echo "Maven local repository path (before script):" $MAVEN_REPO_PATH
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
 
 build:
   stage: build
   only:
     - dev20230619
   script:
-    - "mvn ${MAVEN_CLI_OPTS} install -DskipTests"
-    - echo $MAVEN_REPO_PATH
+    - "mvn ${MAVEN_CLI_OPTS} clean package -DskipTests"
   tags:
     - jk
+
+deploy_biz:
+  stage: deploy_biz
+  script:
+    - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
+    - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
+  only:
+    - dev20230619
+  tags:
+    - jk
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
+    expire_in: 1 week
+
+deploy_flw:
+  stage: deploy_flw
+  script:
+    - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/flw/
+    - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/flw/ && ./restart.sh"
+  only:
+    - dev20230619
+  tags:
+    - jk
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar
+    expire_in: 1 week
+
+deploy_web:
+  stage: deploy_web
+  script:
+    - scp -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/web/
+    - ssh -o StrictHostKeyChecking=no -i /root/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./restart.sh"
+  only:
+    - dev20230619
+  tags:
+    - jk
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar
+    expire_in: 1 week

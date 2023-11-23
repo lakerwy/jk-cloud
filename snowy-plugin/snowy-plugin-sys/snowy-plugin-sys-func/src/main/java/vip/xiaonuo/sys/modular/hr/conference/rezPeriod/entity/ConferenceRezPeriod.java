@@ -148,4 +148,8 @@ public class ConferenceRezPeriod {
     /** 会议议程 */
     @ApiModelProperty(value = "会议议程", position = 24)
     private String rezAgenda;
+
+    /** 会议记录ID */
+    @ApiModelProperty(value = "会议记录ID", position = 25)
+    private String recordId;
 }
