@@ -5,12 +5,12 @@ stages:
 
 variables:
   MAVEN_REPO_PATH: /cache  # 使用项目目录下的 .m2/repository
-  MAVEN_OPTS: "-Dmaven.repo.local=$MAVEN_REPO_PATH/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=/cache/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
 
 cache:
   paths:
-    - $MAVEN_REPO_PATH/repository
+    - /cache/repository
 
 before_script:
   - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
