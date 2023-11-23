@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 会议预约-会议记录实体
@@ -92,4 +93,9 @@ public class ConferenceRecord {
     /** 结束时间 */
     @ApiModelProperty(value = "结束时间", position = 14)
     private Date endTime;
+
+    /** 缺席人员列表 */
+    @ApiModelProperty(value = "缺席人员列表", position = 15)
+    @TableField(exist = false)
+    private List<String> absentList;
 }
