@@ -29,12 +29,6 @@ build:
     - dev20230619
   script:
     - "mvn ${MAVEN_CLI_OPTS} clean package -DskipTests"
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
-      - $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar
-      - $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar
-    expire_in: 1 week
   tags:
     - jk
 
@@ -47,6 +41,10 @@ deploy_biz:
     - dev20230619
   tags:
     - jk
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
+    expire_in: 1 week
 
 deploy_flw:
   stage: deploy_flw
@@ -57,6 +55,10 @@ deploy_flw:
     - dev20230619
   tags:
     - jk
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar
+    expire_in: 1 week
 
 deploy_web:
   stage: deploy_web
@@ -67,3 +69,7 @@ deploy_web:
     - dev20230619
   tags:
     - jk
+  artifacts:
+    paths:
+      - $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar
+    expire_in: 1 week
