@@ -112,5 +112,6 @@ public class SubPersonnelTitle {
 
     /** 数据权限控制字段 */
     @ApiModelProperty(value = "数据权限控制字段", position = 18)
+    @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 }

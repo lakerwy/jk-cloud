@@ -155,7 +155,7 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
     public void add(SubPersonnelParam subPersonnelParam) {
         SubPersonnel subPersonnel = BeanUtil.toBean(subPersonnelParam, SubPersonnel.class);
         subPersonnel.setExtJson(JsonUtils.object2json(subPersonnelParam));
-        subPersonnel.setStatus("0"); //在职
+        subPersonnel.setHrStatus("0"); //在职
         //新增岗位
         if(ObjectUtil.isNotEmpty(subPersonnelParam.getDuty())) {
             SysPositionAddParam positionAddParam = new SysPositionAddParam();
