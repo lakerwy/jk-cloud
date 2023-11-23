@@ -29,7 +29,10 @@ build:
   only:
     - dev20230619
   script:
+    - pwd  # 输出当前工作目录的绝对路径
+    - ls -la  # 列出当前目录结构
     - "mvn ${MAVEN_CLI_OPTS} clean package -DskipTests"
+    - ls -la
   artifacts:
     paths:
       - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
