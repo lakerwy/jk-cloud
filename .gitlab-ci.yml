@@ -18,6 +18,7 @@ cache:
     - /cache/repository
 
 before_script:
+  - eval $(ssh-agent -s)
   - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
   - mvn ${MAVEN_CLI_OPTS} clean
   - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add -
