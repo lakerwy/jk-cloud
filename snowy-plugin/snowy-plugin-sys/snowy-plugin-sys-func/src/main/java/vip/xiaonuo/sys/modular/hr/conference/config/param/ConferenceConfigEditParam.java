@@ -80,4 +80,6 @@ public class ConferenceConfigEditParam {
     @ApiModelProperty(value = "扩展信息", position = 12)
     private String extJson;
 
+    @ApiModelProperty(value = "设备列表", position = 13)
+    private String device;
 }

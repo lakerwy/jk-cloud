@@ -86,4 +86,8 @@ public class RezRecordVo {
     @ApiModelProperty(value = "会议议程", position = 24)
     private String rezAgenda;
 
+    /** 组织部门 */
+    @ApiModelProperty(value = "组织部门",position = 25)
+    private String orgDept;
+
 }

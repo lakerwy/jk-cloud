@@ -161,4 +161,8 @@ public class ConferenceRez {
     @ApiModelProperty(value = "会议记录ID", position = 26)
     private String recordId;
 
+    /** 组织部门 */
+    @ApiModelProperty(value = "组织部门",position = 26)
+    private String orgDept;
+
 }

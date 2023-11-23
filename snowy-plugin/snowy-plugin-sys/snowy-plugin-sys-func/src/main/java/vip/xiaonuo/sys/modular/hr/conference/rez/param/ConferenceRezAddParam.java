@@ -120,4 +120,8 @@ public class ConferenceRezAddParam {
     /** 会议议程 */
     @ApiModelProperty(value = "会议议程")
     private List<String> rezAgendas;
+
+    /** 组织部门 */
+    @ApiModelProperty(value = "组织部门")
+    private String orgDept;
 }

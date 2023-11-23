@@ -100,4 +100,8 @@ public class ConferenceRezEditParam {
     @ApiModelProperty(value = "对应月的哪一天", position = 24)
     private Integer dayTime;
 
+    /** 组织部门 */
+    @ApiModelProperty(value = "组织部门",position = 26)
+    private String orgDept;
+
 }

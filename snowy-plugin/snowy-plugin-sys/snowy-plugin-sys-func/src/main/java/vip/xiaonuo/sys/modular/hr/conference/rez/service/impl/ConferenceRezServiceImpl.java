@@ -29,6 +29,8 @@ import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -141,6 +143,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        if(StringUtils.isEmpty(conferenceRezAddParam.getRezUser())){
+            conferenceRezAddParam.setRezUser(loginUser.getId());
+        }
         Boolean isTrue = ObjectUtil.isNotEmpty(conferenceRezAddParam.getIsOnLine()) && conferenceRezAddParam.getIsOnLine() == 1? true : false;
         if(isTrue &&  StringUtils.isEmpty(conferenceRezAddParam.getOnLineCode())){
             throw new CommonException("勾选在线会议后，会议号不能为空！");

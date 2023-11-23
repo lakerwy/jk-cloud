@@ -967,14 +967,13 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             if(i==0){
                 continue;
             }
-            Long minute = 0l;
+            Long minute = DateUtil.between(CommonTimeFormatUtil.strToDate(commonList.get(i-1).getApproveTime()),DateUtil.date(), DateUnit.MINUTE);
+            commonList.get(i).setApproveExpendHours(minute > 0 && minute/60 > 0 ? minute/60+"小时"+ minute%60+"分钟" : minute%60 > 0.0 ? minute%60+"分钟" :"秒批");
             if(StringUtils.isNotEmpty(commonList.get(i).getApproveTime())){
                 minute = DateUtil.between(CommonTimeFormatUtil.strToDate(commonList.get(i-1).getApproveTime()),CommonTimeFormatUtil.strToDate(commonList.get(i).getApproveTime()), DateUnit.MINUTE);
-                commonList.get(i).setApproveExpendHours(minute > 0 && minute/60 > 0 ? minute/60+"小时"+ minute%60+"分钟" : minute%60 > 0.0 ? minute%60+"分钟" :"");
+                commonList.get(i).setApproveExpendHours(minute > 0 && minute/60 > 0 ? minute/60+"小时"+ minute%60+"分钟" : minute%60 > 0.0 ? minute%60+"分钟" :"秒批");
                 continue;
             }
-            minute = DateUtil.between(CommonTimeFormatUtil.strToDate(commonList.get(i-1).getApproveTime()),DateUtil.date(), DateUnit.MINUTE);
-            commonList.get(i).setApproveExpendHours(minute > 0 && minute/60 > 0 ? minute/60+"小时"+ minute%60+"分钟" : minute%60 > 0.0 ? minute%60+"分钟" :"");
         }
     }
 
