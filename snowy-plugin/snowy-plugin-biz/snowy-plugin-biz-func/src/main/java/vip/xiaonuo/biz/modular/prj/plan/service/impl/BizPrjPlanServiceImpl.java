@@ -78,6 +78,7 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
     @Override
     public Page<BizPrjPlanVo> page(BizPrjPlanPageParam bizPrjPlanPageParam) {
         QueryWrapper<BizPrjPlan> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizPrjPlan::getDeleteFlag,"NOT_DELETE");
         if(ObjectUtil.isNotEmpty(bizPrjPlanPageParam.getHzfCode())) {
             queryWrapper.lambda().like(BizPrjPlan::getHzfCode, bizPrjPlanPageParam.getHzfCode());
         }

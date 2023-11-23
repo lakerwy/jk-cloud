@@ -72,6 +72,7 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
     @Override
     public Page<BizPrjSettleVo> page(BizPrjSettlePageParam bizPrjSettlePageParam) {
         QueryWrapper<BizPrjSettle> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizPrjSettle::getDeleteFlag,"NOT_DELETE");
         if(ObjectUtil.isNotEmpty(bizPrjSettlePageParam.getHzfCode())) {
             queryWrapper.lambda().like(BizPrjSettle::getHzfCode, bizPrjSettlePageParam.getHzfCode());
         }
