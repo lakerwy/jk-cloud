@@ -81,23 +81,28 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         if(CollectionUtil.isNotEmpty(conferenceRecordAddParam.getAbsentList())){
             conferenceRecordAddParam.getAbsentList().forEach(absent -> absents.append(absent).append(","));
         }
-        ConferenceRez conferenceRez = conferenceRezService.getById(conferenceRecordAddParam.getRezRecordVo().getId());
-        if(ObjectUtil.isEmpty(conferenceRez)){
-            ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRecordAddParam.getRezRecordVo().getId());
-            if(ObjectUtil.isEmpty(conferenceRezPeriod)){
-                throw new CommonException("查不到会议记录");
-            }
-            BeanUtil.copyProperties(conferenceRecordAddParam.getRezRecordVo(), conferenceRezPeriod);
-            conferenceRezPeriodService.updateById(conferenceRezPeriod);
-        }else{
-            BeanUtil.copyProperties(conferenceRecordAddParam.getRezRecordVo(), conferenceRez);
-            conferenceRezService.updateById(conferenceRez);
-        }
         ConferenceRecord conferenceRecord = BeanUtil.toBean(conferenceRecordAddParam, ConferenceRecord.class);
         conferenceRecord.setBeginTime(conferenceRecordAddParam.getRezRecordVo().getBeginTime());
         conferenceRecord.setEndTime(conferenceRecordAddParam.getRezRecordVo().getEndTime());
         conferenceRecord.setAbsents(absents != null ? absents.toString() : "");
         this.save(conferenceRecord);
+
+        //对会议预约信息修改
+        String recordId = conferenceRecord.getId();
+        ConferenceRez conferenceRez = conferenceRezService.getById(conferenceRecordAddParam.getRezRecordVo().getId());
+        if(ObjectUtil.isEmpty(conferenceRez)){
+            ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRecordAddParam.getRezRecordVo().getId());
+            if(ObjectUtil.isEmpty(conferenceRezPeriod)){
+                throw new CommonException("查不到会议预约记录");
+            }
+            BeanUtil.copyProperties(conferenceRecordAddParam.getRezRecordVo(), conferenceRezPeriod);
+            conferenceRezPeriod.setRecordId(recordId);
+            conferenceRezPeriodService.updateById(conferenceRezPeriod);
+        }else{
+            BeanUtil.copyProperties(conferenceRecordAddParam.getRezRecordVo(), conferenceRez);
+            conferenceRez.setRecordId(recordId);
+            conferenceRezService.updateById(conferenceRez);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -109,13 +114,20 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         if(CollectionUtil.isNotEmpty(conferenceRecordEditParam.getAbsentList())){
             conferenceRecordEditParam.getAbsentList().forEach(absent -> absents.append(absent).append(","));
         }
+        ConferenceRecord conferenceRecord = this.queryEntity(conferenceRecordEditParam.getId());
+        BeanUtil.copyProperties(conferenceRecordEditParam, conferenceRecord);
+        conferenceRecord.setBeginTime(beginTime);
+        conferenceRecord.setEndTime(endTime);
+        conferenceRecord.setAbsents(absents != null ? absents.toString() : "");
+        this.updateById(conferenceRecord);
+        //对会议预约信息修改
         conferenceRecordEditParam.getRezRecordVo().setBeginTime(null);
         conferenceRecordEditParam.getRezRecordVo().setEndTime(null);
         ConferenceRez conferenceRez = conferenceRezService.getById(conferenceRecordEditParam.getRezRecordVo().getId());
         if(ObjectUtil.isEmpty(conferenceRez)){
             ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRecordEditParam.getRezRecordVo().getId());
             if(ObjectUtil.isEmpty(conferenceRezPeriod)){
-                throw new CommonException("查不到会议记录");
+                throw new CommonException("查不到会议预约记录");
             }
             BeanUtil.copyProperties(conferenceRecordEditParam.getRezRecordVo(), conferenceRezPeriod);
             conferenceRezPeriodService.updateById(conferenceRezPeriod);
@@ -123,12 +135,6 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
             BeanUtil.copyProperties(conferenceRecordEditParam.getRezRecordVo(), conferenceRez);
             conferenceRezService.updateById(conferenceRez);
         }
-        ConferenceRecord conferenceRecord = this.queryEntity(conferenceRecordEditParam.getId());
-        BeanUtil.copyProperties(conferenceRecordEditParam, conferenceRecord);
-        conferenceRecord.setBeginTime(beginTime);
-        conferenceRecord.setEndTime(endTime);
-        conferenceRecord.setAbsents(absents != null ? absents.toString() : "");
-        this.updateById(conferenceRecord);
     }
 
     @Transactional(rollbackFor = Exception.class)
