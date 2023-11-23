@@ -28,11 +28,12 @@ build:
   only:
     - dev20230619
   script:
-    - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
+    - cp $CI_PROJECT_DIR/settings.xml .
     - "mvn ${MAVEN_CLI_OPTS} clean package -DskipTests"
   artifacts:
     paths:
       - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
+      - settings.xml
     expire_in: 1 week
   tags:
     - jkserver
