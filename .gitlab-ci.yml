@@ -8,16 +8,16 @@ stages:
   # - deploy_web
 
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=/cache/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=/home/runner/maven/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
   REMOTE_SERVER: "10.0.33.82"
   REMOTE_USERNAME: "root"
   REMOTE_PATH: "/home/jkMicroService/jkCloud"
-  EXTERNAL_SETTINGS: "/usr/local/maven/settings.xml"  # Specify the path to your external settings.xml file
+  EXTERNAL_SETTINGS: "/home/runner/maven/settings.xml"  # Specify the path to your external settings.xml file
 
 cache:
   paths:
-    - /cache/repository
+    - /home/runner/cache
 
 before_script:
   - eval $(ssh-agent -s)
@@ -35,7 +35,7 @@ build:
       - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
     expire_in: 1 week
   tags:
-    - jkserver
+    - server
 
 deploy_biz:
   stage: deploy_biz
@@ -47,4 +47,4 @@ deploy_biz:
   only:
     - dev20230619
   tags:
-    - jkserver
+    - server
