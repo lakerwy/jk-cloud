@@ -8,16 +8,15 @@ stages:
   # - deploy_web
 
 variables:
-  MAVEN_OPTS: "-Dmaven.repo.local=/home/runner/maven/repository"
+  MAVEN_OPTS: "-Dmaven.repo.local=/root/.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
   REMOTE_SERVER: "10.0.33.82"
   REMOTE_USERNAME: "root"
   REMOTE_PATH: "/home/jkMicroService/jkCloud"
-  EXTERNAL_SETTINGS: "/home/runner/maven/settings.xml"  # Specify the path to your external settings.xml file
 
 cache:
   paths:
-    - /home/runner/cache
+    - /root/.m2/repository
 
 before_script:
   - eval $(ssh-agent -s)
@@ -29,7 +28,8 @@ build:
   only:
     - dev20230619
   script:
-    - "mvn ${MAVEN_CLI_OPTS} clean package -DskipTests --settings $EXTERNAL_SETTINGS"
+    - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
+    - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests"
   artifacts:
     paths:
       - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
@@ -39,12 +39,12 @@ build:
 
 deploy_biz:
   stage: deploy_biz
+  only:
+    - dev20230619
   script:
     - cd snowy-modules
     - ls -la  # List the current directory structure to see the build artifacts
     - echo "$SSH_PRIVATE_KEY_NO_CR" | scp -o StrictHostKeyChecking=no -i /dev/stdin $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
     - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
-  only:
-    - dev20230619
   tags:
     - server
