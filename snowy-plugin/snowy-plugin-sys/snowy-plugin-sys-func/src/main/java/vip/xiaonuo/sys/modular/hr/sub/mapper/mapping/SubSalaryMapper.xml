@@ -3,7 +3,21 @@
 <mapper namespace="vip.xiaonuo.sys.modular.hr.sub.mapper.SubSalaryMapper">
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo">
-        SELECT ID as orgId,NAME as orgName
-        FROM SYS_ORG  ${ew.customSqlSegment}
+        SELECT a.ID as orgId,a.NAME as orgName,
+               #{year} as year,#{month} as month,
+               b.ID as id,b.NOTE as note,b.ATTACHMENTS as attachments,
+               b.SN as sn,b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,b.STATUS as status,
+               IF(b.ID is null,'否','是') as isApply
+        FROM SYS_ORG a
+        left join HR_SUB_SALARY b on a.ID = b.ORG_ID
+                                and b.DELETE_FLAG='NOT_DELETE'
+                                and b.STATUS in ('0','1')
+                                <if test="year != null and year != ''">
+                                    and b.YEAR=#{year}
+                                </if>
+                                <if test="month != null and month != ''">
+                                    and b.MONTH=#{month}
+                                </if>
+            ${ew.customSqlSegment}
     </select>
 </mapper>

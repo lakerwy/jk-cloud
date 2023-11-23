@@ -27,5 +27,5 @@ import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
  * @date  2023/11/22 11:20
  **/
 public interface SubSalaryMapper extends BaseMapper<SubSalary> {
-    Page<SubSalaryVo> getPageList(Page<SubSalaryVo> page, @Param(Constants.WRAPPER) Wrapper<SubSalary> queryWrapper);
+    Page<SubSalaryVo> getPageList(Page<SubSalaryVo> page,String year,String month, @Param(Constants.WRAPPER) Wrapper<SubSalary> queryWrapper);
 }

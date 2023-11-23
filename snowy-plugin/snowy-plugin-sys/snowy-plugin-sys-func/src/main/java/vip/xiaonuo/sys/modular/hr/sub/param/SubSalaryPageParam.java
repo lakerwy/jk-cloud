@@ -64,4 +64,8 @@ public class SubSalaryPageParam {
     @ApiModelProperty(value = "工资发放月")
     private String month;
 
+    /** 是否申报 */
+    @ApiModelProperty(value = "是否申报")
+    private String isApply;
+
 }
