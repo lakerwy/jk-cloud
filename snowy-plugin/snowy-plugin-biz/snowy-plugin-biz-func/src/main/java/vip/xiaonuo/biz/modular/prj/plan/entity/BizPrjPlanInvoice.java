@@ -43,6 +43,10 @@ public class BizPrjPlanInvoice {
     @ApiModelProperty(value = "收款单位名称", position = 3)
     private String unitName;
 
+    /** 发票号 */
+    @ApiModelProperty(value = "发票号", position = 3)
+    private String fpNo;
+
     /** 发票内容 */
     @ApiModelProperty(value = "发票内容", position = 2)
     private String content;

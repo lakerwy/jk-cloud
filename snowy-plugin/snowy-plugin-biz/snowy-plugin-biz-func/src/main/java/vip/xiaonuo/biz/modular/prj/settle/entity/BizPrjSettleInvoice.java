@@ -101,4 +101,16 @@ public class BizPrjSettleInvoice {
     /** 项目款结算单主表主键BIZ_PRJ_SETTLE.Id */
     @ApiModelProperty(value = "项目款结算单主表主键BIZ_PRJ_SETTLE.Id", position = 15)
     private String settleId;
+
+    /** 收款单位编码 */
+    @ApiModelProperty(value = "收款单位编码", position = 2)
+    private String unitCode;
+
+    /** 收款单位名称 */
+    @ApiModelProperty(value = "收款单位名称", position = 3)
+    private String unitName;
+
+    /** 发票号 */
+    @ApiModelProperty(value = "发票号", position = 3)
+    private String fpNo;
 }
