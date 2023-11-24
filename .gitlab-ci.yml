@@ -2,7 +2,7 @@ image: mykjack/jkmaven:latest
 
 stages:
   - build
-#  - deploy_biz
+#  - deploy
   # Uncomment the following lines if you have deploy stages for other modules
   # - deploy_flw
   # - deploy_web
@@ -36,28 +36,29 @@ build:
   script:
     - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
     - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests"
-  artifacts:
-    paths:
-      - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
-      - $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar
-      - $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar
-    expire_in: 1 day
+#  artifacts:                不上传产物到gitlab 服务器
+#    paths:
+#      - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
+#      - $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar
+#      - $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar
+#    expire_in: 1 day
+    # Instead of using artifacts, directly upload the JAR files to the remote server
+  after_script:
+    - echo "-------start bizApp--------"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
+    - ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
+    - echo "-------end bizApp--------"
+
+    - echo "-------start flwApp--------"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/flw/
+    - ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/flw/ && ./restart.sh"
+    - echo "-------end flwApp--------"
+
+    - echo "-------start webApp--------"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/web/
+    - ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./restart.sh"
+    - echo "-------end webApp--------"
   tags:
     - server
 
-#deploy_biz:
-#  stage: deploy_biz
-#  only:
-#    - dev20230619
-#  script:
-#    - cd snowy-modules/snowy-biz-app/target/
-#    - ls -la  # List the current directory structure to see the build artifacts
-#    - echo $SSH_PRIVATE_KEY_NO_CR
-##    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "touch /home/jkMicroService/jkCloud/test_file.txt"
-#    # - scp -o StrictHostKeyChecking=no -i /dev/stdin -v snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
-#    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
-#    - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
-#  dependencies:
-#    - build
-#  tags:
-#    - server
+
