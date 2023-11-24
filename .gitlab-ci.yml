@@ -52,7 +52,8 @@ deploy_biz:
     - ls -la  # List the current directory structure to see the build artifacts
     - echo $SSH_PRIVATE_KEY_NO_CR
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "touch /home/jkMicroService/jkCloud/test_file.txt"
-    - scp -o StrictHostKeyChecking=no -i /dev/stdin -v snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
+    # - scp -o StrictHostKeyChecking=no -i /dev/stdin -v snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
   #  - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
   dependencies:
     - build
