@@ -126,8 +126,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             List<String> rezAgendas = StringUtils.isNotEmpty(rez.getRezAgenda()) ? Arrays.asList(rez.getRezAgenda().trim().split(",")) : new ArrayList<>();
             rez.setRezAgendas(rezAgendas);
         });
-        if(StringUtils.isNotEmpty(conferenceRezPageParam.getJoinUser())){
-            filterJoinUser(page, conferenceRezPageParam.getJoinUser());
+        if(StringUtils.isNotEmpty(conferenceRezPageParam.getJoinUserId())){
+            filterJoinUser(page, conferenceRezPageParam.getJoinUserId());
         }
         return page;
     }

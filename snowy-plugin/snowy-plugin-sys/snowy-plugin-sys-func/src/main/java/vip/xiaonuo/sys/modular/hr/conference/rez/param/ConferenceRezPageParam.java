@@ -70,5 +70,5 @@ public class ConferenceRezPageParam {
 
     /** 参与者-只能传单个人员 */
     @ApiModelProperty(value = "参与者-只能传单个人员")
-    private String joinUser;
+    private String joinUserId;
 }
