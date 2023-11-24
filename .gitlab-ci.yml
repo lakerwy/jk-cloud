@@ -22,7 +22,9 @@ before_script:
   - eval $(ssh-agent -s)
   - export SSH_PRIVATE_KEY_NO_CR=$(echo "$SSH_PRIVATE_KEY" | tr -d '\r')
   - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh-add -
-  - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/ "touch test_file.txt"
+  - echo "$SSH_PRIVATE_KEY" > ~/.ssh/id_rsa
+  - chmod 600 ~/.ssh/id_rsa
+  - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "touch /home/jkMicroService/jkCloud/test_file.txt"
 
 build:
   stage: build
