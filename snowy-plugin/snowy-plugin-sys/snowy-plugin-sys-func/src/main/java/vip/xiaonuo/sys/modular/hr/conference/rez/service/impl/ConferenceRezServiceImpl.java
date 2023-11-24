@@ -126,7 +126,23 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             List<String> rezAgendas = StringUtils.isNotEmpty(rez.getRezAgenda()) ? Arrays.asList(rez.getRezAgenda().trim().split(",")) : new ArrayList<>();
             rez.setRezAgendas(rezAgendas);
         });
+        if(StringUtils.isNotEmpty(conferenceRezPageParam.getJoinUser())){
+            filterJoinUser(page, conferenceRezPageParam.getJoinUser());
+        }
         return page;
+    }
+
+    private void filterJoinUser(Page<ConferenceRez> page,String filterUserId){
+        if(page.getRecords().size() > 0){
+            List<ConferenceRez> rezList = new ArrayList<>();
+            for(ConferenceRez rez : page.getRecords()){
+                List<String> userIds = StringUtils.isNotEmpty(rez.getJoinUser()) ? Arrays.asList(rez.getJoinUser().trim().split(",")) : new ArrayList<>();
+                if(userIds.stream().filter(id -> id.equals(filterUserId)).collect(Collectors.toList()).size() > 0){
+                    rezList.add(rez);
+                }
+            }
+            page.setRecords(rezList);
+        }
     }
 
     private String caltTime(ConferenceRez rez){

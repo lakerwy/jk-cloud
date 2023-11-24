@@ -68,4 +68,7 @@ public class ConferenceRezPageParam {
     @NotNull(message = "结束时间不能为空")
     private String endTime;
 
+    /** 参与者-只能传单个人员 */
+    @ApiModelProperty(value = "参与者-只能传单个人员")
+    private String joinUser;
 }
