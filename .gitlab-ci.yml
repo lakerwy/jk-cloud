@@ -2,7 +2,7 @@ image: mykjack/jkmaven:latest
 
 stages:
   - build
-  - deploy_biz
+#  - deploy_biz
   # Uncomment the following lines if you have deploy stages for other modules
   # - deploy_flw
   # - deploy_web
@@ -39,23 +39,25 @@ build:
   artifacts:
     paths:
       - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
+      - $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar
+      - $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar
     expire_in: 1 day
   tags:
     - server
 
-deploy_biz:
-  stage: deploy_biz
-  only:
-    - dev20230619
-  script:
-    - cd snowy-modules/snowy-biz-app/target/
-    - ls -la  # List the current directory structure to see the build artifacts
-    - echo $SSH_PRIVATE_KEY_NO_CR
-#    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "touch /home/jkMicroService/jkCloud/test_file.txt"
-    # - scp -o StrictHostKeyChecking=no -i /dev/stdin -v snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
-    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
-    - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
-  dependencies:
-    - build
-  tags:
-    - server
+#deploy_biz:
+#  stage: deploy_biz
+#  only:
+#    - dev20230619
+#  script:
+#    - cd snowy-modules/snowy-biz-app/target/
+#    - ls -la  # List the current directory structure to see the build artifacts
+#    - echo $SSH_PRIVATE_KEY_NO_CR
+##    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "touch /home/jkMicroService/jkCloud/test_file.txt"
+#    # - scp -o StrictHostKeyChecking=no -i /dev/stdin -v snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
+#    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
+#    - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
+#  dependencies:
+#    - build
+#  tags:
+#    - server
