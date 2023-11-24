@@ -1,4 +1,4 @@
-image: mykjack/jkmaven:tagname
+image: mykjack/jkmaven:latest
 
 stages:
   - build
