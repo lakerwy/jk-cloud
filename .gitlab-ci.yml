@@ -33,7 +33,7 @@ build:
   artifacts:
     paths:
       - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
-    expire_in: 1 week
+    expire_in: 1 day
   tags:
     - server
 
@@ -42,10 +42,10 @@ deploy_biz:
   only:
     - dev20230619
   script:
-    - cd snowy-modules/snowy-biz-app
+    - cd snowy-modules/snowy-biz-app/target/
     - ls -la  # List the current directory structure to see the build artifacts
-    - echo "$SSH_PRIVATE_KEY_NO_CR" | scp -o StrictHostKeyChecking=no -i /dev/stdin $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
-    - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
+    - echo "$SSH_PRIVATE_KEY_NO_CR" | scp -o StrictHostKeyChecking=no -i /dev/stdin snowy-biz-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
+  #  - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
   dependencies:
     - build
   tags:
