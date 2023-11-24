@@ -46,17 +46,17 @@ build:
   after_script:
     - echo "-------start bizApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
-    - ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
     - echo "-------end bizApp--------"
 
     - echo "-------start flwApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/flw/
-    - ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/flw/ && ./restart.sh"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/flw/ && ./restart.sh"
     - echo "-------end flwApp--------"
 
     - echo "-------start webApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/web/
-    - ssh -o StrictHostKeyChecking=no -i /dev/stdin $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./restart.sh"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./restart.sh"
     - echo "-------end webApp--------"
   tags:
     - server
