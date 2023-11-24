@@ -60,4 +60,8 @@ public class ConferenceUserSignPageParam {
     @ApiModelProperty(value = "手机号")
     private String phone;
 
+    /** 预约主题 */
+    @ApiModelProperty(value = "预约主题")
+    private String theme;
+
 }

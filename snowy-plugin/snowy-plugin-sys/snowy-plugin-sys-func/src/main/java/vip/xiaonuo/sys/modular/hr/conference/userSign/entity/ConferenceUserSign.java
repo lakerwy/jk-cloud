@@ -88,4 +88,8 @@ public class ConferenceUserSign {
     @ApiModelProperty(value = "修改用户", position = 13)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 预约主题 */
+    @ApiModelProperty(value = "预约主题", position = 14)
+    private String theme;
 }
