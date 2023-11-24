@@ -269,4 +269,8 @@ public class BizProjectAddParam {
     @ApiModelProperty(value = "引进人所在院名称", position = 77)
     private String orgName;
 
+    /** 区域负责人 */
+    @ApiModelProperty(value = "区域负责人Id", position = 78)
+    private String areaLeaderId;
+
 }
