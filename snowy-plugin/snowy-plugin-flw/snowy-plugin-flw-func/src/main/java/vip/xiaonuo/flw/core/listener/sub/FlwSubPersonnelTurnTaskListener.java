@@ -28,7 +28,7 @@ public class FlwSubPersonnelTurnTaskListener implements TaskListener {
                     NodeRuntimeUtil.handleSqlExecution(sql);
                 }else if ("1".equals(moveType)){
                     //离职
-                    String sql = "UPDATE HR_SUB_PERSONNEL SET `HR_STATUS` = '1', `EMPLOY_NATURE` = '离职' where ID = " + fileId;;
+                    String sql = "UPDATE HR_SUB_PERSONNEL SET `HR_STATUS` = '1' where ID = " + fileId;;
                     NodeRuntimeUtil.handleSqlExecution(sql);
                 }else{
                 }
