@@ -28,7 +28,7 @@ build:
   only:
     - dev20230619
   script:
-    - cp $CI_PROJECT_DIR/settings.xml /usr/share/maven/conf/settings.xml
+    - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
     - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests"
   artifacts:
     paths:
