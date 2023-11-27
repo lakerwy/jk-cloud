@@ -172,7 +172,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
 //    @Transactional(rollbackFor = Exception.class)
     @Override
-    @DSTransactional
+//    @DSTransactional
     public String start(FlwProcessStartParam flwProcessStartParam) {
         NodeRuntimeUtil.handleTenAuth();
         String modelId = flwProcessStartParam.getModelId();
