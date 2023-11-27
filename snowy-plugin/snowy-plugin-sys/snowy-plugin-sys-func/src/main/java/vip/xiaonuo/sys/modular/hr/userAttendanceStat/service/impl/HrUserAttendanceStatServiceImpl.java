@@ -1790,7 +1790,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
         /** 平均工时，请假人数 HOLIDAY_FLAG，加班人数 WORKOT_FLAG，迟到人数 LATE_FLAG*/
         QueryWrapper<HrAttendanceAnalStat> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("IFNULL(sum(WORK_HOURS),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum,IFNULL(sum(WORKOT_FLAG),0) as workOtNum,IFNULL(sum(LATE_FLAG),0) as lateNum");
+        queryWrapper.select("IFNULL(sum(WORK_MINUTE),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum,IFNULL(sum(WORKOT_FLAG),0) as workOtNum,IFNULL(sum(LATE_FLAG),0) as lateNum");
         Map<String, Object> map = isAllOrg ? hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
                 .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()))
                 : hrAttendanceAnalStatService.getMap(queryWrapper.lambda()
@@ -1930,7 +1930,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
     private Map<Integer,Map<String, Object>> countLineAnalysis(Integer type,List<String> orgList,AttendanceAnalysisData attendanceAnalysisData,VactionTimeAnalysis timeAnalysis){
         QueryWrapper<HrAttendanceAnalStat> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("IFNULL(sum(WORK_HOURS),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum," +
+        queryWrapper.select("IFNULL(sum(WORK_MINUTE),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum," +
                 "IFNULL(sum(WORKOT_FLAG),0) as workOtNum,IFNULL(sum(LATE_FLAG),0) as lateNum,IFNULL(count(*),0) as attendanceNum");
         List<TimeDataVo> timeDataVoList = timeAnalysis.getTimeDataVoList();
         Map<Integer,Map<String, Object>> analStatMap = new HashMap<>();
@@ -1992,7 +1992,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
     private Map<String,Object> orgData(AttendanceAnalysisParam attendanceAnalysisParam,List<String> userIds,String orgName,VactionTimeAnalysis vactionTimeAnalysis){
         QueryWrapper<HrAttendanceAnalStat> queryWrapper = new QueryWrapper<>();
-        queryWrapper.select("IFNULL(sum(WORK_HOURS),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum,IFNULL(sum(WORKOT_FLAG),0) as workOtNum,IFNULL(sum(LATE_FLAG),0) as lateNum");
+        queryWrapper.select("IFNULL(sum(WORK_MINUTE),0) as totalWorkHours,IFNULL(sum(HOLIDAY_FLAG),0) as leaveNum,IFNULL(sum(WORKOT_FLAG),0) as workOtNum,IFNULL(sum(LATE_FLAG),0) as lateNum");
 
         Map<String,Object> map = new HashMap<>();
         attendanceAnalysisParam.getType().forEach(type -> {
