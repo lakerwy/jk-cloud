@@ -661,33 +661,35 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             mapAtdConf.put(config.getDutyType(),ObjectUtil.isEmpty(config.getCheckTime()) ? "" :config.getCheckTime().toString());
             map.put(config.getAttendanceTypeId(),mapAtdConf);
         });
+        LambdaQueryWrapper<HrUserAttendanceStat> lambdaQueryWrapper = new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCreateTime,beginTime,endTime);
 
         if(ObjectUtil.isEmpty(errorAttendancePageParam.getDealFlag())){  //返回全部
+            if(errorAttendancePageParam.getAbnormalFlag() != null){
+                lambdaQueryWrapper.eq(HrUserAttendanceStat::getAbnormalFlag,errorAttendancePageParam.getAbnormalFlag());
+            }
             Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
-                    new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCreateTime,beginTime,endTime)
-                            .ne(HrUserAttendanceStat::getAbnormalFlag,1)
-                            .or().ne(HrUserAttendanceStat::getEditAbnormalFlag,1));
+                    lambdaQueryWrapper.ne(HrUserAttendanceStat::getAbnormalFlag,1)
+                            .or()
+                            .ne(HrUserAttendanceStat::getEditAbnormalFlag,1));
             page.setTotal(statPage.getTotal());
             page.setRecords(setAtdErrorStat(statPage.getRecords(),map));
             return page;
         }
         if( errorAttendancePageParam.getDealFlag() == 1){ //已经处理
+            if(errorAttendancePageParam.getAbnormalFlag() != null){
+                lambdaQueryWrapper.eq(HrUserAttendanceStat::getEditAbnormalFlag,errorAttendancePageParam.getAbnormalFlag());
+            }
             Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
-                    new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCreateTime,beginTime,endTime)
-                            .eq(HrUserAttendanceStat::getAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
-                            .or()
-                            .ne(HrUserAttendanceStat::getEditAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
-                            .isNotNull(HrUserAttendanceStat::getEditAbnormalFlag).ne(HrUserAttendanceStat::getEditAbnormalFlag,""));
+                    lambdaQueryWrapper.isNotNull(HrUserAttendanceStat::getEditAbnormalFlag).ne(HrUserAttendanceStat::getEditAbnormalFlag,""));
             page.setTotal(statPage.getTotal());
             page.setRecords(setAtdErrorStat(statPage.getRecords(),map));
         }
         //未处理
+        if(errorAttendancePageParam.getAbnormalFlag() != null){
+            lambdaQueryWrapper.eq(HrUserAttendanceStat::getAbnormalFlag,errorAttendancePageParam.getAbnormalFlag());
+        }
         Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
-                new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCreateTime,beginTime,endTime)
-                        .eq(HrUserAttendanceStat::getAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
-                        .or()
-                        .ne(HrUserAttendanceStat::getEditAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
-                        .isNull(HrUserAttendanceStat::getEditAbnormalFlag)
+                lambdaQueryWrapper.isNull(HrUserAttendanceStat::getEditAbnormalFlag)
                         .or()
                         .eq(HrUserAttendanceStat::getEditAbnormalFlag,""));
         page.setTotal(statPage.getTotal());
