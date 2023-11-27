@@ -162,15 +162,20 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
 
         List<HrAttendanceConfigAndUserData> hrAttendanceConfigAndUserDataList = hrAttendanceConfigAndUserDataParam.getHrAttendanceConfigAndUserData();
 
+        //删除原有的
+        hrUserAttendanceRelationService.removeBatchByIds(hrUserAttendanceRelationService.list(new LambdaQueryWrapper<HrUserAttendanceRelation>()
+                .eq(HrUserAttendanceRelation::getAttendanceTypeId,hrAttendanceConfigAndUserDataParam.getId())).stream().map(relation -> relation.getId()).collect(Collectors.toList()));
+
+        List<String> employIds = new ArrayList<>();
         List<HrUserAttendanceRelation> hrUserAttendanceRelationList = new ArrayList<>();
         hrAttendanceConfigAndUserDataList.stream().forEach(config -> {
             List<String> employIdList = Arrays.asList(config.getEmployIds().split(","));
+            employIds.addAll(employIdList);
             Map<String,HrUserAttendanceRelation> relationMap = new HashMap<>();
             hrUserAttendanceRelationService.list(new LambdaQueryWrapper<HrUserAttendanceRelation>().in(HrUserAttendanceRelation::getEmployId,employIdList))
                     .forEach(relation -> relationMap.put(relation.getEmployId(),relation));/** 存在相同数据，更新 */
             for(String employId : employIdList){
-                HrUserAttendanceRelation hrUserAttendanceRelation = ObjectUtil.isEmpty(relationMap.get(employId)) ?
-                        new HrUserAttendanceRelation() : relationMap.get(employId);
+                HrUserAttendanceRelation hrUserAttendanceRelation = new HrUserAttendanceRelation();
                 hrUserAttendanceRelation.setAttendanceTypeId(hrAttendanceConfigAndUserDataParam.getId());
                 hrUserAttendanceRelation.setBeginTime(hrAttendanceConfigAndUserDataParam.getBeginTime());
                 hrUserAttendanceRelation.setEndTime(hrAttendanceConfigAndUserDataParam.getEndTime());
@@ -180,7 +185,13 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
                 hrUserAttendanceRelationList.add(hrUserAttendanceRelation);
             }
         });
-        hrUserAttendanceRelationService.saveOrUpdateBatch(hrUserAttendanceRelationList);
+        //删除存在其他考勤数据
+        if(CollectionUtil.isNotEmpty(employIds)){
+            List<String> ids = hrUserAttendanceRelationService.list(new LambdaQueryWrapper<HrUserAttendanceRelation>().in(HrUserAttendanceRelation::getEmployId,employIds))
+                    .stream().map(relation -> relation.getId()).collect(Collectors.toList());
+            hrUserAttendanceRelationService.removeBatchByIds(ids);
+        }
+        hrUserAttendanceRelationService.saveBatch(hrUserAttendanceRelationList);
 
         userAttendConfig(hrAttendanceConfigAndUserDataList,hrAttendanceConfigAndUserDataParam.getId());
         /** 重置缓存数据*/
@@ -198,7 +209,8 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         List<SysUser> sysUserList = new ArrayList<>();
         hrAttendanceConfigAndUserDataList.stream().forEach(config -> {
             if(config.getEmployType().equals("2") && StringUtils.isNotEmpty(config.getEmployIds())){ //人员
-                List<SysUser> atUser = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,Arrays.asList(config.getEmployType().split(","))));
+                List<String> userIds =  Arrays.asList(config.getEmployIds().split(","));
+                List<SysUser> atUser = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
                 sysUserList.addAll(atUser.stream().map(user -> { user.setAttendanceGroupId(attendGroupId);
                     return user;
                 }).collect(Collectors.toList()));

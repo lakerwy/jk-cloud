@@ -374,7 +374,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         });
 
         //每个人的打卡数据聚类处理
-        List<OriginalAtdDataVo> originalAtdDataVoList = new ArrayList<>();
+        //List<OriginalAtdDataVo> originalAtdDataVoList = new ArrayList<>();
+        List<HrUserAttendanceStat> hrUserAttendanceStatList = new ArrayList<>();
         /** 统计的数据*/
         List<OriginalAtdData> originalList = new ArrayList<>();
         userList.forEach(user -> {
@@ -382,9 +383,9 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             Map<String,List<HrUserAttendance>> attendanceMap = new HashMap<>();//key type value List<HrUserAttendance>
             hrUserAttendanceList.forEach(attendance -> {
                 List<HrUserAttendance> attendances = attendanceMap.get(attendance.getCheckType()) == null ? new ArrayList<>() : attendanceMap.get(attendance.getCheckType());
-                attendances.add(attendance);
-                attendanceMap.put(attendance.getCheckType(),attendances);
-            });
+            attendances.add(attendance);
+            attendanceMap.put(attendance.getCheckType(),attendances);
+        });
             //开始计算考勤有哪些类别，需要打几次卡，OnDuty，REST，OffDuty
             HrUserAttendanceConfig configParam = new HrUserAttendanceConfig();//用来传递考勤组ID和名称
             Map<String, HrUserAttendanceConfig> mapType = getMapType( map, user,defaultConfigList, day, beginDate, endDate,configParam);//new HashMap<>();
@@ -412,12 +413,12 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                         originalAtdData.setPostion(user.getPositionName());
                         originalAtdData.setEmpNo(user.getEmpNo());
                         originalAtdData.setAtdResult("缺卡");
+                        String checkTime = DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN)+ " "+config.getCheckTime();
+                        originalAtdData.setCheckTime(CommonTimeFormatUtil.strToDate(checkTime,DatePattern.NORM_DATETIME_PATTERN));
+                        originalAtdData.setCheckType(config.getDutyType());
                         originalAtdData.setAtdDate(atdTime);
                         originalList.add(originalAtdData);
-                    }else{
-                        for(int i=0;i<attendances.size();i++){
-                            originalList.add(saveOriginalAtdData(attendances.get(i),i,configParam,user,atdTime));
-                        }
+                        hrUserAttendanceStatList.add(saveOrUpdate(config,originalAtdData,CommonTimeFormatUtil.strToDate(checkTime,DatePattern.NORM_DATETIME_PATTERN)));
                     }
                 }
             });
@@ -425,6 +426,20 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         if(CollectionUtil.isNotEmpty(originalList)){
             originalAtdDataService.saveBatch(originalList);
         }
+        if(CollectionUtil.isNotEmpty(hrUserAttendanceStatList)){
+            hrUserAttendanceStatService.saveBatch(hrUserAttendanceStatList);
+        }
+    }
+
+    private HrUserAttendanceStat saveOrUpdate(HrUserAttendanceConfig config,OriginalAtdData originalAtdData,Date checkTime){
+        HrUserAttendanceStat hrUserAttendanceStat = new HrUserAttendanceStat();
+        hrUserAttendanceStat.setUserId(originalAtdData.getUserId());
+        hrUserAttendanceStat.setUserName(originalAtdData.getUserName());
+        hrUserAttendanceStat.setCheckType(originalAtdData.getCheckType());
+        hrUserAttendanceStat.setAbnormalFlag(-1);
+        hrUserAttendanceStat.setAttendanceTypeId(config.getAttendanceTypeId());
+        hrUserAttendanceStat.setAttendanceTypeName(config.getAttendanceTypeName());
+        return hrUserAttendanceStat;
     }
 
     private Map<String, HrUserAttendanceConfig> getMapType(Map<String, Map<String, HrUserAttendanceConfig>> map,SysUser user,List<HrUserAttendanceConfig> defaultConfigList,
@@ -467,12 +482,13 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         originalAtdData.setEmpNo(user.getEmpNo());
         originalAtdData.setPostion(user.getPositionName());
         originalAtdData.setAtdDate(atdTime);
+        originalAtdData.setCheckTime(attendance.getCheckTime());
+        originalAtdData.setCheckType(attendance.getCheckType());
         originalAtdData.setAtdResult("打卡无效:此记录已被更新");
         if(i==0){
             originalAtdData.setAtdResult(attendance.getAbnormalFlag() == 1 ?
                     "正常" : attendance.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue())? "迟到" : "早退");
         }
-
         return originalAtdData;
     }
 
@@ -610,12 +626,10 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
 
             Map<String,String> mapAtdConf = map.get(stat.getAttendanceTypeId()) != null ? map.get(stat.getAttendanceTypeId()) : new HashMap<>();
             String checkTime = mapAtdConf.get(stat.getCheckType()) == null ? "" : mapAtdConf.get(stat.getCheckType());
-            if(StringUtils.isEmpty(checkTime)){
+            /*if(StringUtils.isEmpty(checkTime)){
                 continue;
-            }
-
+            }*/
             Date ondutyTime = CommonTimeFormatUtil.strToDate(DateUtil.format(stat.getCheckTime(),DatePattern.NORM_DATE_PATTERN)+" "+checkTime,DatePattern.NORM_DATETIME_PATTERN);
-            //Date offdutyTime = CommonTimeFormatUtil.strToDate(DateUtil.format(stat.getCheckTime(),DatePattern.NORM_DATE_PATTERN)+" 17:30:00",DatePattern.NORM_DATETIME_PATTERN);
 
             String ondutyMinute = stat.getAbnormalFlag() == 3  ? String.valueOf(DateUtil.between(stat.getCheckTime(),ondutyTime, DateUnit.MINUTE)) : "";
             String offdutyMinute = stat.getAbnormalFlag() == 4 ? String.valueOf(DateUtil.between(stat.getCheckTime(),ondutyTime, DateUnit.MINUTE)) : "";
@@ -624,7 +638,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
                             stat.getAbnormalFlag() == 4 ?  "早退"+offdutyMinute+"分钟" : "";
             errorAttendanceData.setErrorStatus(errorStatus);
             //OnDuty：上班；OffDuty：下班；休息 REST
-            String timeStr = stat.getCheckType().equals("OnDuty") ? "上班 "+checkTime : stat.getCheckType().equals("OffDuty") ? "下班 "+checkTime:"";
+            String timeStr = stat.getCheckType().equals("OnDuty") ? "上班 "+checkTime : stat.getCheckType().equals("OffDuty") ? "下班 "+checkTime:"休息";
             errorAttendanceData.setTime(timeStr);
             errorAttendanceData.setCheckTime(DateUtil.format(stat.getCheckTime(),"HH:mm"));
             errorAttendanceData.setAttendanceId(stat.getId());
@@ -648,19 +662,34 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             map.put(config.getAttendanceTypeId(),mapAtdConf);
         });
 
-        if(ObjectUtil.isEmpty(errorAttendancePageParam.getAbnormalFlag())){
+        if(ObjectUtil.isEmpty(errorAttendancePageParam.getDealFlag())){  //返回全部
             Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
-                    new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCheckTime,beginTime,endTime)
+                    new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCreateTime,beginTime,endTime)
                             .ne(HrUserAttendanceStat::getAbnormalFlag,1)
                             .or().ne(HrUserAttendanceStat::getEditAbnormalFlag,1));
             page.setTotal(statPage.getTotal());
             page.setRecords(setAtdErrorStat(statPage.getRecords(),map));
             return page;
         }
+        if( errorAttendancePageParam.getDealFlag() == 1){ //已经处理
+            Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
+                    new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCreateTime,beginTime,endTime)
+                            .eq(HrUserAttendanceStat::getAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
+                            .or()
+                            .ne(HrUserAttendanceStat::getEditAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
+                            .isNotNull(HrUserAttendanceStat::getEditAbnormalFlag).ne(HrUserAttendanceStat::getEditAbnormalFlag,""));
+            page.setTotal(statPage.getTotal());
+            page.setRecords(setAtdErrorStat(statPage.getRecords(),map));
+        }
+        //未处理
         Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
-                new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCheckTime,beginTime,endTime)
+                new LambdaQueryWrapper<HrUserAttendanceStat>().between(HrUserAttendanceStat::getCreateTime,beginTime,endTime)
                         .eq(HrUserAttendanceStat::getAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
-                        .or().ne(HrUserAttendanceStat::getEditAbnormalFlag,errorAttendancePageParam.getAbnormalFlag()));
+                        .or()
+                        .ne(HrUserAttendanceStat::getEditAbnormalFlag,errorAttendancePageParam.getAbnormalFlag())
+                        .isNull(HrUserAttendanceStat::getEditAbnormalFlag)
+                        .or()
+                        .eq(HrUserAttendanceStat::getEditAbnormalFlag,""));
         page.setTotal(statPage.getTotal());
         page.setRecords(setAtdErrorStat(statPage.getRecords(),map));
         return page;
