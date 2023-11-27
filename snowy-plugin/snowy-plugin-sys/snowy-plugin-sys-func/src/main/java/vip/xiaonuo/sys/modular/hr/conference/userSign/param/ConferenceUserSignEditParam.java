@@ -64,4 +64,7 @@ public class ConferenceUserSignEditParam {
     @ApiModelProperty(value = "扩展信息", position = 8)
     private String extJson;
 
+    /** 预约主题 */
+    @ApiModelProperty(value = "预约主题", position = 9)
+    private String theme;
 }
