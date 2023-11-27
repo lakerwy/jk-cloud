@@ -234,10 +234,11 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         }
         //取默认配置
         String defaultConfigCache = String.valueOf(commonCacheOperator.get(HR_ATTENDANCE_CONFIG_DEFAULT_KEY));
-        if(StringUtils.isNotEmpty(defaultConfigCache)){
+        if(!defaultConfigCache.equals("null")){
             slotList = JSONArray.parseArray(defaultConfigCache, AttendanceTimeSlot.class);
+            return timeSlots(slotList,dateNow);
         }
-        return timeSlots(slotList,dateNow);
+        return new ArrayList<>();
     }
     private List<AttendanceTimeSlot> timeSlots(List<AttendanceTimeSlot> slotList,Date date){
         slotList.forEach(slot -> {

@@ -597,12 +597,13 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             sysUserLambdaQueryWrapper.notIn(SysUser::getOrgId,attendanceDayStatParam.getOrgList());
         }
         Page<SysUser> userList = sysUserService.page(CommonPageRequest.defaultPage(),sysUserLambdaQueryWrapper);// 查所有人，并去除不需要统计的人员或部门
+
+        Map<String,UserAtdConfigMap> UserAtdConfigMap = getUserAtdConfigMap();
         List<String> userIds = userList.getRecords().stream().map(user -> user.getId()).collect(Collectors.toList());
         /** 打卡记录只查询当前返回的人员*/
         List<HrUserAttendance> hrUserAttendanceList = hrUserAttendanceService.list(new LambdaQueryWrapper<HrUserAttendance>()
                 .between(HrUserAttendance::getCheckTime,beginTime,endTime)
                 .in(HrUserAttendance::getUserId,userIds)); // 查询该时间段内所有人打卡数据
-
 
         /**  开始统计 */
         userList.getRecords().forEach(user -> {
@@ -637,9 +638,13 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
             /** 一次轮询结束，开始保存数据 */
             dayCheckTimeMapList.add(statMap);
-            List<AttendanceTimeSlot> attendanceTimeSlotList = hrUserAttendanceService.getAttendanceTimeSlotList(user.getAttendanceGroupId(),beginTime);
-            attendanceDayStat.setAttendanceTypeName(attendanceTimeSlotList.get(0).getAttendanceTypeName());
-            attendanceDayStat.setAttendanceTypeId(attendanceTimeSlotList.get(0).getAttendanceTypeId());
+            UserAtdConfigMap userAtdConfigMap = UserAtdConfigMap.get(user.getId());
+            List<HrUserAttendanceConfig> configList = userAtdConfigMap != null ? userAtdConfigMap.getConfigList() : new ArrayList<>();
+            List<AttendanceTimeSlot> attendanceTimeSlotList = getAttendanceTimeSlotData(configList,new Date(),new ArrayList<>());
+            if(CollectionUtil.isNotEmpty(attendanceTimeSlotList)){
+                attendanceDayStat.setAttendanceTypeName(attendanceTimeSlotList.get(0).getAttendanceTypeName());
+                attendanceDayStat.setAttendanceTypeId(attendanceTimeSlotList.get(0).getAttendanceTypeId());
+            }
             attendanceDayStat.setDayCheckTimeMapList(dayCheckTimeMapList);
             attendanceDayStatList.add(attendanceDayStat);
         });
@@ -2063,4 +2068,35 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         OriginalAtdDataPageParam originalAtdDataPageParam = BeanUtil.toBean(originalAtdParam,OriginalAtdDataPageParam.class);
         return originalAtdDataService.page(originalAtdDataPageParam);
     }
+    private List<AttendanceTimeSlot> getAttendanceTimeSlotData(List<HrUserAttendanceConfig> configList,Date dateNow,List<AttendanceTimeSlot>  attendanceTimeSlotList){
+        configList = configList.stream().sorted(Comparator.comparing(HrUserAttendanceConfig::getId)).collect(Collectors.toList());//按照ID排序，防止顺序错乱
+        for(HrUserAttendanceConfig attendanceConfig : configList){
+            AttendanceTimeSlot attendanceTimeSlot = new AttendanceTimeSlot();
+            attendanceTimeSlot.setAttendanceTypeId(attendanceConfig.getAttendanceTypeId());
+            attendanceTimeSlot.setDutyType(attendanceConfig.getDutyType());
+            Date time = CommonTimeFormatUtil.yearAndHourConnect(DateUtil.format(dateNow,DatePattern.NORM_DATE_PATTERN),ObjectUtil.isNotEmpty(attendanceConfig.getCheckTime()) ?attendanceConfig.getCheckTime().toString() : " 00:00:00");
+
+            attendanceTimeSlot.setBeginTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getBeginMinTime() == null ? "0" : attendanceConfig.getBeginMinTime()),2));
+            attendanceTimeSlot.setEndTime(CommonTimeFormatUtil.addOrUpMinute(time,Integer.parseInt(attendanceConfig.getEndMinTime() == null ? "0" : attendanceConfig.getEndMinTime()),1));
+            attendanceTimeSlot.setCompareTime(time);//存打卡点时间
+            attendanceTimeSlot.setWorkHours(StringUtils.isEmpty(attendanceConfig.getWorkHours()) ? "0" : attendanceConfig.getWorkHours());
+            attendanceTimeSlot.setOrderNumber(attendanceConfig.getOrderNumber());
+            attendanceTimeSlot.setWorkEndTime(time);//初始化默认值
+            attendanceTimeSlot.setWorkBeginTime(time);//初始化默认值
+            attendanceTimeSlot.setAttendanceTypeName(attendanceConfig.getAttendanceTypeName());
+            //获取工作区间
+            double minute =  attendanceConfig.getWorkHours() != null ? Double.parseDouble(attendanceConfig.getWorkHours())*60 : 0.0;
+            if(attendanceConfig.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue()) && minute > 0){
+                attendanceTimeSlot.setWorkBeginTime(time);
+                attendanceTimeSlot.setWorkEndTime(CommonTimeFormatUtil.addOrUpMinute(time, (int) minute,1));
+            }
+            if(attendanceConfig.getDutyType().equals(HrUserAttendanceEnum.ATTENDANCE_OFF_DUTY.getValue()) && minute > 0){
+                attendanceTimeSlot.setWorkBeginTime(CommonTimeFormatUtil.addOrUpMinute(time, (int) minute,2));
+                attendanceTimeSlot.setWorkEndTime(time);
+            }
+            attendanceTimeSlotList.add(attendanceTimeSlot);
+        }
+        return attendanceTimeSlotList;
+    }
+
 }
