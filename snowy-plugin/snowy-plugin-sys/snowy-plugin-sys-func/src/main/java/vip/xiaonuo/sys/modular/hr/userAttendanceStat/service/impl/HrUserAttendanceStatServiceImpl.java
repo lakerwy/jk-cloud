@@ -596,7 +596,11 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         if(ObjectUtil.isNotEmpty(attendanceDayStatParam.getOrgList())){
             sysUserLambdaQueryWrapper.notIn(SysUser::getOrgId,attendanceDayStatParam.getOrgList());
         }
-        Page<SysUser> userList = sysUserService.page(CommonPageRequest.defaultPage(),sysUserLambdaQueryWrapper);// 查所有人，并去除不需要统计的人员或部门
+        Page<SysUser> userList = sysUserService.page(CommonPageRequest.defaultPage(),sysUserLambdaQueryWrapper
+                .isNotNull(SysUser::getAttendanceGroupId).ne(SysUser::getAttendanceGroupId,""));// 查所有人，并去除不需要统计的人员或部门
+
+        Map<String,String> orgMap = conferenceRezService.getOrgData();
+        Map<String,String> postionMap = conferenceRezService.getPostionData();
 
         Map<String,UserAtdConfigMap> UserAtdConfigMap = getUserAtdConfigMap();
         List<String> userIds = userList.getRecords().stream().map(user -> user.getId()).collect(Collectors.toList());
@@ -610,9 +614,10 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             AttendanceDayStatParam attendanceDayStat = new AttendanceDayStatParam();
             attendanceDayStat.setUserId(user.getId());
             attendanceDayStat.setUserName(user.getName());
-            attendanceDayStat.setPosition(user.getPositionName());
+            attendanceDayStat.setPosition(postionMap.get(user.getPositionId()));
             attendanceDayStat.setEmpNo(user.getEmpNo());
             attendanceDayStat.setOrgId(user.getOrgId());
+            attendanceDayStat.setOrgName(orgMap.get(user.getOrgId()));
             List<Map<Integer,List<AttendanceDayStatData>>> dayCheckTimeMapList = new ArrayList<>();
             Map<String,List<AttendanceDayStatData>> statTempMap = new HashMap<>();//key - day , value - List<AttendanceDayStatData>
             hrUserAttendanceList.forEach(attendance -> {
@@ -638,12 +643,12 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
             /** 一次轮询结束，开始保存数据 */
             dayCheckTimeMapList.add(statMap);
-            UserAtdConfigMap userAtdConfigMap = UserAtdConfigMap.get(user.getId());
+            UserAtdConfigMap userAtdConfigMap = UserAtdConfigMap.get(user.getAttendanceGroupId());
             List<HrUserAttendanceConfig> configList = userAtdConfigMap != null ? userAtdConfigMap.getConfigList() : new ArrayList<>();
             List<AttendanceTimeSlot> attendanceTimeSlotList = getAttendanceTimeSlotData(configList,new Date(),new ArrayList<>());
-            if(CollectionUtil.isNotEmpty(attendanceTimeSlotList)){
-                attendanceDayStat.setAttendanceTypeName(attendanceTimeSlotList.get(0).getAttendanceTypeName());
-                attendanceDayStat.setAttendanceTypeId(attendanceTimeSlotList.get(0).getAttendanceTypeId());
+            if(ObjectUtil.isNotEmpty(userAtdConfigMap)){
+                attendanceDayStat.setAttendanceTypeName(userAtdConfigMap.getAtdGroupName());
+                attendanceDayStat.setAttendanceTypeId(userAtdConfigMap.getAtdGroupID());
             }
             attendanceDayStat.setDayCheckTimeMapList(dayCheckTimeMapList);
             attendanceDayStatList.add(attendanceDayStat);

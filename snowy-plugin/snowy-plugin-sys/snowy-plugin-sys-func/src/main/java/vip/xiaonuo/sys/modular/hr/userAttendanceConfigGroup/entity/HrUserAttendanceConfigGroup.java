@@ -100,4 +100,9 @@ public class HrUserAttendanceConfigGroup {
     /** 严重早退分钟数 */
     @ApiModelProperty(value = "严重早退分钟数", position = 15)
     private Integer seriousLeaveMinute;
+
+    /**考勤时间*/
+    @ApiModelProperty(value = "考勤时间", position = 16)
+    @TableField(exist = false)
+    private String atdTime;
 }
