@@ -293,8 +293,8 @@ public class HrUserAttendanceStatController {
     @CommonLog("报表管理-每日统计")
     //@SaCheckPermission("/sys/userAttendance/monthPreDayStat")
     @GetMapping("/sys/userAttendance/monthPreDayStat")
-    public CommonResult<Page<DayStatExcel>> monthPreDayStat(@Valid DayStatExcelParam dayStatExcelParam) {
-        return CommonResult.data(hrUserAttendanceStatService.monthPreDayStat(dayStatExcelParam));
+    public CommonResult<Page<MonthPreDayStatData>> monthPreDayStat(@Valid MonthPreDayStatParam monthPreDayStatParam) {
+        return CommonResult.data(hrUserAttendanceStatService.monthPreDayStat(monthPreDayStatParam));
     }
 
     /**

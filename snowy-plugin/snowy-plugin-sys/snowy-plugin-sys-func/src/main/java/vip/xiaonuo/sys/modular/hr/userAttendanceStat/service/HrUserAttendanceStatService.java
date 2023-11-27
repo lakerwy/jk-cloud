@@ -170,7 +170,7 @@ public interface HrUserAttendanceStatService extends IService<HrUserAttendanceSt
      * @author ljy
      * @date  2023/10/16 16:24
      * */
-    Page<DayStatExcel> monthPreDayStat(DayStatExcelParam dayStatExcelParam);
+    Page<MonthPreDayStatData> monthPreDayStat(MonthPreDayStatParam monthPreDayStatParam);
 
     /**
     * 下载打卡时间excel数据

@@ -19,8 +19,12 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.extra.qrcode.QrConfig;
+import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.util.DateUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -102,6 +106,8 @@ import java.util.stream.Collectors;
  **/
 @Service
 public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanceStatMapper, HrUserAttendanceStat> implements HrUserAttendanceStatService {
+
+    private static final String WX_PAY_LOGO_BASE64 = "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";
 
     private final String ON_DUTY = "OnDuty";
     private final String OFF_DUTY = "OffDuty";
@@ -700,7 +706,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         /** 查询人员数据，并去掉不需要统计的人员*/
         Page<SysUser> userList = sysUserService.page(CommonPageRequest.defaultPage(),sysUserLambdaQueryWrapper
                 .isNotNull(SysUser::getAttendanceGroupId)
-                .ne(SysUser::getAttendanceGroupId,""));;
+                .ne(SysUser::getAttendanceGroupId,""));
         Map<String,Map<String,HrAttendanceAnalStat>> statNanalMap = statNanalMap(userList.getRecords().stream().map(user -> user.getId()).collect(Collectors.toList()),
                 attendanceMonthStatParam.getBeginTime(), attendanceMonthStatParam.getEndTime());
         List<MonthStatData> monthStatDataList = new ArrayList<>();
@@ -805,7 +811,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             //请假
             if(isStatFlag && hrAttendanceAnalStat.getHolidayType() != null){
                 Double vacation = isStatFlag && hrAttendanceAnalStat.getHolidayDays() != null ? hrAttendanceAnalStat.getHolidayDays() : 0;
-                switch (hrAttendanceAnalStat.getHolidayType()){
+                switch (hrAttendanceAnalStat.getHolidayType() != null ? hrAttendanceAnalStat.getHolidayType() : 0){
                     case 1 :
                         monthStatData.setPersonalLeave(monthStatData.getPersonalLeave() != null ? monthStatData.getPersonalLeave()+vacation : vacation);
                         break;
@@ -1175,6 +1181,213 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     @Override
+    public Page<MonthPreDayStatData> monthPreDayStat(MonthPreDayStatParam monthPreDayStatParam){
+        Date beginTime = CommonTimeFormatUtil.strToDate(monthPreDayStatParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(monthPreDayStatParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
+        List<String> dayList = CommonTimeFormatUtil.getPerStrDayList(beginTime,endTime);
+
+        LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper();
+        Map<String,UserAtdConfigMap> userAtdConfigMap = getUserAtdConfigMap();//考勤规则
+        Map<String,String> orgMap = conferenceRezService.getOrgData(); //部门
+        Map<String,String> postionMap = conferenceRezService.getPostionData(); //岗位
+        /** 查询人员数据*/
+        List<SysUser> userList = sysUserService.list(sysUserLambdaQueryWrapper
+                .isNotNull(SysUser::getAttendanceGroupId).ne(SysUser::getAttendanceGroupId,""));
+        Map<String,Map<String,HrAttendanceAnalStat>> statNanalMap = statNanalMap(userList.stream().map(user -> user.getId()).collect(Collectors.toList()),
+                monthPreDayStatParam.getBeginTime(), monthPreDayStatParam.getEndTime());
+
+        //key day,value [key userId,value List<HrUserAttendanceStat>]
+        Map<String,Map<String,List<HrUserAttendanceStat>>> monthPreStatMap = monthPreStatMap(userList, monthPreDayStatParam,dayList);
+        List<MonthPreDayStatData> monthPreDayStatDataList = new ArrayList<>();
+        userList.forEach(user -> {
+            Map<String,HrAttendanceAnalStat> analStatMap = statNanalMap.get(user.getId()) != null ? statNanalMap.get(user.getId()) : new HashMap<>();//key day,value HrAttendanceAnalStat
+            dayList.forEach(day -> {
+                Map<String,List<HrUserAttendanceStat>> monthPreStatDayMap = monthPreStatMap.get(day) != null ? monthPreStatMap.get(day) : new HashMap<>();
+                List<HrUserAttendanceStat> hrUserAttendanceStatList = monthPreStatDayMap.get(user.getId()) != null ? monthPreStatDayMap.get(user.getId()) : new ArrayList<>(); //获取员工打卡数据
+                Map<String,HrUserAttendanceStat> atdMap = new HashMap<>();
+                hrUserAttendanceStatList.forEach(stat -> {
+                    atdMap.put(stat.getCheckType(),stat);
+                });
+
+                HrAttendanceAnalStat hrAttendanceAnalStat = analStatMap.get(day) != null ? analStatMap.get(day) : new HrAttendanceAnalStat();
+                MonthPreDayStatData monthPreDayStatData = new MonthPreDayStatData();
+                monthPreDayStatData.setUserName(user.getName());
+                monthPreDayStatData.setOrgName(orgMap.get(user.getId()));
+                monthPreDayStatData.setPosition(postionMap.get(user.getPositionId()));
+                UserAtdConfigMap configMap = userAtdConfigMap.get(user.getAttendanceGroupId()) != null ? userAtdConfigMap.get(user.getAttendanceGroupId()) : new UserAtdConfigMap();
+                monthPreDayStatData.setAttendanceTypeName(configMap.getAtdGroupName());
+                monthPreDayStatData.setEmpNo(user.getEmpNo());
+                monthPreDayStatData.setDate(CommonTimeFormatUtil.dayAndWeek(day));
+                Boolean isFestival = isFestival(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),1);//1 判断是法定节假日，2 判断是法定加班日
+                Boolean isWork = isFestival(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),2);//1 判断是法定节假日，2 判断是法定加班日
+                Boolean isWeek = DateUtil.isWeekend(CommonTimeFormatUtil.strToDate(day+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),DatePattern.NORM_DATETIME_PATTERN));
+                Boolean isAttendance = (!isWeek && !isFestival) || (isWeek && isWork) ? true : false; //非周末+非节假日，周末+法定加班日都需要打卡
+                if(!isAttendance){
+                    monthPreDayStatData.setAttendanceTypeDetails("休息");
+                    monthPreDayStatData.setRestDays(1.0);
+                }else{
+                    List<HrUserAttendanceConfig> configList = configMap.getConfigList() != null ? configMap.getConfigList() : new ArrayList<>();
+
+                    monthPreDayStatData.setWorkMinute(hrAttendanceAnalStat.getWorkMinute());
+                    monthPreDayStatData.setLateNum(hrAttendanceAnalStat.getLateNumber());
+                    monthPreDayStatData.setLateMinute(hrAttendanceAnalStat.getLateMinutes());
+                    monthPreDayStatData.setLeaveEarlyNum(hrAttendanceAnalStat.getLeaveEarlyNum());
+                    monthPreDayStatData.setLeaveEarlyMinute(hrAttendanceAnalStat.getLeaveEarlyMinutes());
+                    String attendanceTypeDetails = "";
+                    //configMap.getAtdGroupName()+" "+configMap.getConfigList().stream().map(config -> config.getCheckTime()+" ");
+                    for(HrUserAttendanceConfig config : configList){ //OnDuty，下班 OffDuty，休息 REST
+                        if(config.getDutyType().equals("OnDuty")){
+                            attendanceTypeDetails = config.getCheckTime().toString()+"-"+attendanceTypeDetails;
+                        }
+                        if(config.getDutyType().equals("OffDuty")){
+                            attendanceTypeDetails =attendanceTypeDetails + config.getCheckTime().toString();
+                        }
+                    }
+                    monthPreDayStatData.setAttendanceTypeDetails(configMap.getAtdGroupName()+" "+attendanceTypeDetails);
+                    if(hrAttendanceAnalStat.getAttendanceFlag() != null){
+                        monthPreDayStatData.setAttendanceDays(1.0);//出勤天数
+                    }
+                    //缺卡，补卡，请假，外出，出差
+                    String processorIdentifier = "";
+                    if(hrAttendanceAnalStat.getHolidayFlag() != null){//请假
+                        processorIdentifier = "请假"+hrAttendanceAnalStat.getHolidayBeginTime()+"到"+hrAttendanceAnalStat.getHolidayEndTime();
+                        Double vacation = hrAttendanceAnalStat.getHolidayDays() != null ? hrAttendanceAnalStat.getHolidayDays() : 0;
+                        switch (hrAttendanceAnalStat.getHolidayType() != null ? hrAttendanceAnalStat.getHolidayType() : 0){
+                            case 1 :
+                                monthPreDayStatData.setPersonalLeave(vacation.toString());
+                                break;
+                            case 2:
+                                monthPreDayStatData.setSickLeave(vacation.toString());
+                                break;
+                            case 3:
+                                monthPreDayStatData.setMarriageLeave(vacation.toString());
+                                break;
+                            case 4 :
+                                monthPreDayStatData.setMaternityLeave(vacation.toString());
+                                break;
+                            case 5:
+                                monthPreDayStatData.setBereavementLeave(vacation.toString());
+                                break;
+                            case 6 :
+                                monthPreDayStatData.setAnnualLeave(vacation.toString());
+                                break;
+                            case 7 :
+                                monthPreDayStatData.setCompensatoryLeave(vacation.toString());
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    if(hrAttendanceAnalStat.getGooutFlag() != null){//外出
+                        monthPreDayStatData.setOutWorkHours(hrAttendanceAnalStat.getGooutHours());
+                        processorIdentifier = "外出"+hrAttendanceAnalStat.getHolidayBeginTime()+"到"+hrAttendanceAnalStat.getHolidayEndTime();
+                    }
+                    if(hrAttendanceAnalStat.getBusinessTripFlag() != null){//出差
+                        monthPreDayStatData.setBusinessTripDays(hrAttendanceAnalStat.getBusinessTripDays());
+                        processorIdentifier = "出差"+hrAttendanceAnalStat.getHolidayBeginTime()+"到"+hrAttendanceAnalStat.getHolidayEndTime();
+                    }
+                    monthPreDayStatData.setProcessorIdentifier(processorIdentifier);//关联审批单
+                    if(hrAttendanceAnalStat.getWorkotFlag() != null){
+                        monthPreDayStatData.setWorkOtHours(hrAttendanceAnalStat.getWorkotHours());
+                    }
+                    countAtdData(atdMap,configList,monthPreDayStatData,hrAttendanceAnalStat);
+                }
+                monthPreDayStatDataList.add(monthPreDayStatData);
+            });
+        });
+        Page<MonthPreDayStatData> page = new Page<>();
+        page.setTotal(monthPreDayStatDataList.size());
+        if(monthPreDayStatParam.getSize() == null || monthPreDayStatParam.getCurrent() == null || monthPreDayStatParam.getCurrent() == 0){
+            page.setRecords(monthPreDayStatDataList);
+            return page;
+        }
+        int  totalCurrent= monthPreDayStatDataList.size()/monthPreDayStatParam.getSize() + (monthPreDayStatDataList.size()%monthPreDayStatParam.getSize() > 1 ? 1 : 0);//总页数
+        int beginSize = (monthPreDayStatParam.getCurrent()-1)*monthPreDayStatParam.getSize();
+        int endSize = beginSize+monthPreDayStatParam.getSize();
+        //List<MonthPreDayStatData> monthPreDayList = monthPreDayStatDataList.subList(beginSize, endSize);
+        page.setRecords(monthPreDayStatDataList.subList(beginSize, endSize));
+        return page;
+    }
+
+    /** 班次遍历，数据Map
+     * map1:key-dutyName,value-打卡名称，map2:key-dutyAtdTime,value-打卡时间；map3:key-dutyAtdDate,value-打卡结果
+     * */
+    private void countAtdData(Map<String,HrUserAttendanceStat> atdMap,List<HrUserAttendanceConfig> configList,
+                      MonthPreDayStatData monthPreDayStatData,HrAttendanceAnalStat hrAttendanceAnalStat){
+        List<Map<String,String>> dutyMapList = new ArrayList<>();
+        //缺卡，补卡，请假，外出，出差
+       //请假情况  上班OnDuty，下班 OffDuty，休息 REST
+        Integer onDuty = 1;
+        Integer offDuty = 1;
+        Boolean isTrue = hrAttendanceAnalStat.getHolidayFlag() != null || hrAttendanceAnalStat.getGooutFlag()!= null || hrAttendanceAnalStat.getBusinessTripFlag()!=null ? true : false;
+        String utyAtdDate = hrAttendanceAnalStat.getHolidayFlag() != null ? "请假" : hrAttendanceAnalStat.getGooutFlag()!= null ? "外出" : "出差";
+        if(isTrue){
+            configList.forEach(config -> {
+                Map<String,String> dutyMap = new HashMap<>();
+                if(config.getDutyType().equals("OnDuty")){
+                    dutyMap.put("dutyName","第"+onDuty.toString()+"次上班打卡");
+                } else if(config.getDutyType().equals("OffDuty")){
+                    dutyMap.put("dutyName","第"+onDuty.toString()+"次下班打卡");
+                }else{
+                    dutyMap.put("dutyName","休息打卡");
+                }
+                dutyMap.put("utyAtdDate",utyAtdDate);
+                dutyMapList.add(dutyMap);
+            });
+        }
+        configList.forEach(config -> {
+            Map<String,String> dutyMap = new HashMap<>();
+           String dutyType = config.getDutyType();
+           if(atdMap.get(dutyType) == null){
+               if(config.getDutyType().equals("OnDuty")){
+                   dutyMap.put("dutyName","第"+onDuty.toString()+"次上班打卡");
+               } else if(config.getDutyType().equals("OffDuty")){
+                   dutyMap.put("dutyName","第"+onDuty.toString()+"次下班打卡");
+               }else{
+                   dutyMap.put("dutyName","休息打卡");
+               }
+               dutyMap.put("utyAtdDate","缺卡");
+           }else{
+               HrUserAttendanceStat stat = atdMap.get(dutyType);
+               String utyAtdDateStr = stat.getAbnormalFlag() == 3 ?"迟到" : stat.getAbnormalFlag() == 4 ? "早退":"正常";
+               if(config.getDutyType().equals("OnDuty")){
+                   dutyMap.put("dutyName","第"+onDuty.toString()+"次上班打卡");
+               } else if(config.getDutyType().equals("OffDuty")){
+                   dutyMap.put("dutyName","第"+onDuty.toString()+"次下班打卡");
+               }else{
+                   dutyMap.put("dutyName","休息打卡");
+               }
+               dutyMap.put("dutyAtdDate",stat.getCheckTime().toString());
+               dutyMap.put("utyAtdDate",utyAtdDateStr);
+           }
+            dutyMapList.add(dutyMap);
+        });
+        monthPreDayStatData.setDutyMapList(dutyMapList);
+    }
+
+    private Map<String,Map<String,List<HrUserAttendanceStat>>> monthPreStatMap(List<SysUser> userList,MonthPreDayStatParam monthPreDayStatParam,List<String> dayList){
+        Map<String,Map<String,List<HrUserAttendanceStat>>> statMap = new HashMap<>();//key day,value [key userId,value List<HrUserAttendanceStat>]
+        List<HrUserAttendanceStat> statList = hrUserAttendanceStatService.list(new LambdaQueryWrapper<HrUserAttendanceStat>()
+                .in(HrUserAttendanceStat::getUserId,userList.stream().map(user -> user.getId()).collect(Collectors.toList()))
+                .between(HrUserAttendanceStat::getCheckTime,monthPreDayStatParam.getBeginTime(),monthPreDayStatParam.getEndTime()));
+        dayList.forEach(day -> {
+            Map<String,List<HrUserAttendanceStat>> map = statMap.get(day) != null ? statMap.get(day) : new HashMap<>();
+            statList.forEach(stat -> {
+                String userId = stat.getUserId();
+                String statDay = DateUtil.format(stat.getCheckTime() != null?stat.getCheckTime() :new Date() ,DatePattern.NORM_DATE_PATTERN);
+                if(day.equals(statDay)){ //同一天数据，存放一个Map
+                    List<HrUserAttendanceStat> stats = map.get(userId) != null ? map.get(userId) : new ArrayList<>();
+                    stats.add(stat);
+                    map.put(userId,stats);
+                    statMap.put(day,map);
+                }
+            });
+        });
+        return statMap;
+    }
+
+
+    /*@Override
     public Page<DayStatExcel> monthPreDayStat(DayStatExcelParam dayStatExcelParam){
         Date beginTime = CommonTimeFormatUtil.strToDate(dayStatExcelParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN);
         Date endTime = CommonTimeFormatUtil.strToDate(dayStatExcelParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
@@ -1189,7 +1402,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             dayStatExcelList.add(dayStatExcel);
         });
 
-        /** 计算总数 total*/
+        *//** 计算总数 total*//*
         Long total = 0l;
         LambdaQueryWrapper<SysUser> userQuery = new LambdaQueryWrapper<>();
         if(CollectionUtil.isNotEmpty(dayStatExcelParam.getUserList())){ userQuery.in(SysUser::getOrgId,dayStatExcelParam.getOrgList());}
@@ -1206,12 +1419,12 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         }
 
 
-        /** 分页 */
+        *//** 分页 *//*
         Page<DayStatExcel> page = new Page<>();
         page.setRecords(dayStatExcelList);
         page.setTotal(total*dayList.size());
         return page;
-    }
+    }*/
 
     @Override
     public void downloadExcel(DayStatExcelParam dayStatExcelParam, HttpServletResponse response) throws Exception{
