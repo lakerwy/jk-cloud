@@ -190,4 +190,17 @@ public class SysOrgController {
     public CommonResult<SysOrg> OrgDetail(@Valid SysOrgIdParam sysOrgIdParam) {
         return CommonResult.data(sysOrgService.detail(sysOrgIdParam));
     }
+
+    /**
+     * 根据组织分类获取部门--外部使用
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("根据组织分类获取部门--外部使用")
+    @GetMapping("/sys/center/org/listByCategory")
+    public CommonResult<List<SysOrg>> listByCategory(String category) {
+        return CommonResult.data(sysOrgService.listByCategory(category));
+    }
 }

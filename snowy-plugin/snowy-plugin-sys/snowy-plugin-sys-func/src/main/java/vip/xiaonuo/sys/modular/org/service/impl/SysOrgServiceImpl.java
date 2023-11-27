@@ -472,4 +472,13 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
         return sysOrgMapper.getNewAllOrgList();
     }
 
+    @Override
+    public List<SysOrg> listByCategory(String category) {
+        QueryWrapper<SysOrg> queryWrapper=new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(category)){
+            queryWrapper.lambda().eq(SysOrg::getCategory,category);
+        }
+        queryWrapper.lambda().orderByAsc(SysOrg::getName);
+        return this.list(queryWrapper);
+    }
 }

@@ -181,4 +181,6 @@ public interface SysOrgService extends IService<SysOrg> {
     Page<SysOrg> newOrgListSelector(SysOrgSelectorOrgListParam sysOrgSelectorOrgListParam);
 
     List<SysOrg> getNewAllOrgList();
+
+    List<SysOrg> listByCategory(String category);
 }
