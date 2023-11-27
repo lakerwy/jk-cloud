@@ -8,7 +8,7 @@ import cn.hutool.json.JSONObject;
  * @author mayike
  * @date 2023/7/30 3:33
  **/
-public interface FormRelationTableApi {
+public interface FlwCommonApi {
     /**
      * 新增
      * @param modelId

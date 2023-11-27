@@ -48,7 +48,7 @@ import vip.xiaonuo.biz.modular.mapBiz.MapRegister.param.BizMapRegisterEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.MapRegister.param.BizMapRegisterIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.MapRegister.param.BizMapRegisterPageParam;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -111,10 +111,10 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
             bizMapRegister.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             bizMapRegister.setModelId(modelId);
 
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
             //将流程实例和业务表关联起来
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableApi.save(modelId, BizCommonEnum.BIZ_MAP_REGISTER.getBizTable(),id,processInstanceId,dbName);
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_MAP_REGISTER.getBizTable(),id,processInstanceId,dbName);
         }
         if(bizMapRegisterAddParam.getIsPost().equals("是")){
             bizMapRegister.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
@@ -138,8 +138,8 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
     public void edit(BizMapRegisterEditParam bizMapRegisterEditParam) {
         String id = bizMapRegisterEditParam.getId();
         if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(id)){
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
-            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(bizMapRegisterEditParam.getProcessInstanceId());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(bizMapRegisterEditParam.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 id=formRelationTable.getStr("id");
                 //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置

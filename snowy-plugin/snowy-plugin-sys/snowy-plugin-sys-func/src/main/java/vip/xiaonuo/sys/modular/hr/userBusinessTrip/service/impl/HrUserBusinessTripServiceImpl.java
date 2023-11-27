@@ -34,7 +34,7 @@ import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.userBusinessTrip.entity.HrUserBusinessTrip;
 import vip.xiaonuo.sys.modular.hr.userBusinessTrip.mapper.HrUserBusinessTripMapper;
 import vip.xiaonuo.sys.modular.hr.userBusinessTrip.param.*;
@@ -129,11 +129,11 @@ public class HrUserBusinessTripServiceImpl extends ServiceImpl<HrUserBusinessTri
             hrUserBusinessTripFlwService.save(businessTripFlw);
 
             //第二步： 存储流程表对应关系
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
             //将流程实例和业务表关联起来(任务流程单表)
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableApi.save2(modelId, BizCommonEnum.HR_USER_BUSINESS_TRIP_FLW.getBizTable(),id,processInstanceId,dbName,BizCommonEnum.HR_USER_BUSINESS_TRIP_FLW.getBizTable());
+            flwCommonApi.save2(modelId, BizCommonEnum.HR_USER_BUSINESS_TRIP_FLW.getBizTable(),id,processInstanceId,dbName,BizCommonEnum.HR_USER_BUSINESS_TRIP_FLW.getBizTable());
 
             //第三步： 处理员工申请出差记录表（审批流程中一次提交多申请出差）
             List<HrUserBusinessTrip> businessTripList = BeanUtil.copyToList(businessTripFlwAddParam.getBusinessTripAddParamList(),HrUserBusinessTrip.class);
@@ -154,8 +154,8 @@ public class HrUserBusinessTripServiceImpl extends ServiceImpl<HrUserBusinessTri
         String businessTripFlwId = "";
         //判断审批流程内的修改
         if(ObjectUtil.isNotEmpty(businessTripFlwAddParam.getProcessInstanceId())){
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
-            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(businessTripFlwAddParam.getProcessInstanceId());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(businessTripFlwAddParam.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 businessTripFlwId = formRelationTable.getStr("id");
             }

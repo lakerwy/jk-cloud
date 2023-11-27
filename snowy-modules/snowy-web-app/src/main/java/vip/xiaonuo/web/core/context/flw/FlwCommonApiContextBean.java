@@ -1,16 +1,16 @@
-package vip.xiaonuo.biz.core.context.flw;
+package vip.xiaonuo.web.core.context.flw;
 
 import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.flw.feign.FormRelationTableFeign;
 
 @Slf4j
 @RequiredArgsConstructor
 @Component
-public class FlwFormRelationTableApiContextBean implements FormRelationTableApi {
+public class FlwCommonApiContextBean implements FlwCommonApi {
     private final FormRelationTableFeign formRelationTableFeign;
     @Override
     public void save(String modelId, String tableName, String businessKey, String processInstanceId, String dbName) {

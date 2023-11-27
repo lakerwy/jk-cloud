@@ -44,7 +44,7 @@ import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettle;
 import vip.xiaonuo.biz.modular.prj.settle.mapper.BizPrjSettleMapper;
 import vip.xiaonuo.biz.modular.prj.settle.service.BizPrjSettleService;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -139,11 +139,11 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
             bizPrjSettle.setModelId(modelId);
             bizPrjSettle.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
             bizPrjSettle.setSettleNo(bizPrjSettle.getSn());
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableApi.save(modelId, BizCommonEnum.BIZ_PRJ_SETTLE.getBizTable(),id,processInstanceId,dbName);
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_PRJ_SETTLE.getBizTable(),id,processInstanceId,dbName);
         }else{
             bizPrjSettle.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
@@ -166,8 +166,8 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
         String id = prjSettleParam.getId();
         //判断是否走审批流程内的修改
         if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(prjSettleParam.getProcessInstanceId())){
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
-            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(prjSettleParam.getProcessInstanceId());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(prjSettleParam.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 id = formRelationTable.getStr("id");
                 //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置

@@ -37,7 +37,7 @@ import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.sub.entity.*;
 import vip.xiaonuo.sys.modular.hr.sub.mapper.SubPersonnelMapper;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
@@ -174,11 +174,11 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
             subPersonnel.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             subPersonnel.setModelId(modelId);
             subPersonnel.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
-            formRelationTableApi.save(modelId, BizCommonEnum.HR_SUB_PERSONNEL.getBizTable(),id,processInstanceId,dbName);
+            flwCommonApi.save(modelId, BizCommonEnum.HR_SUB_PERSONNEL.getBizTable(),id,processInstanceId,dbName);
         }else{
             subPersonnel.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
@@ -215,8 +215,8 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
         String id = subPersonnelParam.getId();
         //判断是否走审批流程内的修改
         if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(subPersonnelParam.getProcessInstanceId())){
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
-            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(subPersonnelParam.getProcessInstanceId());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(subPersonnelParam.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 id = formRelationTable.getStr("id");
                 //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置

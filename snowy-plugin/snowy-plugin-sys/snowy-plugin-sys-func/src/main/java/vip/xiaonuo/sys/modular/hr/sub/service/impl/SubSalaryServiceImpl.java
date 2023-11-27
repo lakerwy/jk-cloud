@@ -16,8 +16,6 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateTime;
-import cn.hutool.core.date.LocalDateTimeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -38,18 +36,16 @@ import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubSalary;
 import vip.xiaonuo.sys.modular.hr.sub.mapper.SubSalaryMapper;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubSalaryService;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubSalaryVo;
-import vip.xiaonuo.sys.modular.org.mapper.SysOrgMapper;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * HR-分公司-工资条Service接口实现类
@@ -114,11 +110,11 @@ public class SubSalaryServiceImpl extends ServiceImpl<SubSalaryMapper, SubSalary
             subSalary.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
             subSalary.setModelId(modelId);
             subSalary.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
-            formRelationTableApi.save(modelId, BizCommonEnum.HR_SUB_SALARY.getBizTable(),id,processInstanceId,dbName);
+            flwCommonApi.save(modelId, BizCommonEnum.HR_SUB_SALARY.getBizTable(),id,processInstanceId,dbName);
         }else{
             subSalary.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
@@ -132,8 +128,8 @@ public class SubSalaryServiceImpl extends ServiceImpl<SubSalaryMapper, SubSalary
         String id = subSalaryEditParam.getId();
         //判断是否走审批流程内的修改
         if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(subSalaryEditParam.getProcessInstanceId())){
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
-            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(subSalaryEditParam.getProcessInstanceId());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(subSalaryEditParam.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 id = formRelationTable.getStr("id");
                 //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置

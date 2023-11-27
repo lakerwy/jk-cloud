@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.flw.feign.FormRelationTableFeign;
-import vip.xiaonuo.flw.provider.FormRelationTableApiProvider;
+import vip.xiaonuo.flw.provider.FlwCommonApiProvider;
 
 /**
  * 业务和模型关系 提供者
@@ -17,7 +17,7 @@ import vip.xiaonuo.flw.provider.FormRelationTableApiProvider;
 @RestController
 public class FormRelationTableFeignProvider implements FormRelationTableFeign {
 
-    private final FormRelationTableApiProvider formRelationTableApiProvider;
+    private final FlwCommonApiProvider formRelationTableApiProvider;
     @Override
     @RequestMapping("/feign/flw/formRelationTable/save")
     public void save(@RequestParam String modelId, @RequestParam String tableName, @RequestParam String businessKey,

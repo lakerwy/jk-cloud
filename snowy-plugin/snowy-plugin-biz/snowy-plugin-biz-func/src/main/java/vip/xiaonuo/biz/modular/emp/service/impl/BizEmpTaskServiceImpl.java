@@ -44,7 +44,7 @@ import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
 import vip.xiaonuo.biz.modular.emp.mapper.BizEmpTaskMapper;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -167,11 +167,11 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
             bizEmpTaskFlwService.save(bizEmpTaskFlw);
 
             //第二步： 存储流程表对应关系
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
             //将流程实例和业务表关联起来(任务流程单表)
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableApi.save2(modelId, BizCommonEnum.BIZ_EMP_TASK_FLW.getBizTable(),id,processInstanceId,dbName,BizCommonEnum.BIZ_EMP_TASK.getBizTable());
+            flwCommonApi.save2(modelId, BizCommonEnum.BIZ_EMP_TASK_FLW.getBizTable(),id,processInstanceId,dbName,BizCommonEnum.BIZ_EMP_TASK.getBizTable());
 
             //第三步： 处理员工绩效考核季度重要任务记录表（审批流程中一次提交多条季度重要任务）
             List<BizEmpTask> bizEmpTaskList = BeanUtil.copyToList(empTaskFlwParam.getParamList(),BizEmpTask.class);
@@ -197,8 +197,8 @@ public class BizEmpTaskServiceImpl extends ServiceImpl<BizEmpTaskMapper, BizEmpT
         String taskFlwId = "";
         //判断审批流程内的修改
         if(ObjectUtil.isNotEmpty(empTaskFlwParam.getProcessInstanceId())){
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
-            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(empTaskFlwParam.getProcessInstanceId());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(empTaskFlwParam.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 taskFlwId = formRelationTable.getStr("id");
             }

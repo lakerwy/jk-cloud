@@ -27,9 +27,7 @@ import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.recruit.entity.BizRecruitFlw;
-import vip.xiaonuo.biz.modular.recruit.entity.BizRecruitResume;
 import vip.xiaonuo.biz.modular.recruit.param.dto.RecruitPlanFlwDto;
-import vip.xiaonuo.biz.modular.recruit.param.dto.RecruitPlanGroupDto;
 import vip.xiaonuo.biz.modular.recruit.param.dto.RecruitPlanPageDto;
 import vip.xiaonuo.biz.modular.recruit.service.BizRecruitFlwService;
 import vip.xiaonuo.biz.modular.recruit.service.BizRecruitResumeService;
@@ -52,14 +50,12 @@ import vip.xiaonuo.biz.modular.recruit.param.BizRecruitPlanIdParam;
 import vip.xiaonuo.biz.modular.recruit.param.BizRecruitPlanPageParam;
 import vip.xiaonuo.biz.modular.recruit.service.BizRecruitPlanService;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 /**
@@ -202,11 +198,11 @@ public class BizRecruitPlanServiceImpl extends ServiceImpl<BizRecruitPlanMapper,
             bizRecruitFlwService.save(bizRecruitFlw);
 
             //第二步： 存储流程表对应关系
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
             //将流程实例和业务表关联起来(任务流程单表)
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            formRelationTableApi.save2(modelId, BizCommonEnum.BIZ_RECRUIT_FLW.getBizTable(),id,processInstanceId,dbName,BizCommonEnum.BIZ_RECRUIT_PLAN.getBizTable());
+            flwCommonApi.save2(modelId, BizCommonEnum.BIZ_RECRUIT_FLW.getBizTable(),id,processInstanceId,dbName,BizCommonEnum.BIZ_RECRUIT_PLAN.getBizTable());
 
             //第三步： 处理招聘部门计划表（审批流程中一次提交多条计划）
             List<BizRecruitPlan> bizRecruitPlanList = BeanUtil.copyToList(recruitPlanFlwDto.getRecruitPlanList(), BizRecruitPlan.class);
@@ -227,8 +223,8 @@ public class BizRecruitPlanServiceImpl extends ServiceImpl<BizRecruitPlanMapper,
         String flwId = "";
         //判断审批流程内的修改
         if(ObjectUtil.isNotEmpty(recruitPlanFlwDto.getProcessInstanceId())){
-            FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
-            JSONObject formRelationTable = formRelationTableApi.getInfoByProcessInstanceId(recruitPlanFlwDto.getProcessInstanceId());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(recruitPlanFlwDto.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 flwId = formRelationTable.getStr("id");
             }

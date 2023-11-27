@@ -31,8 +31,7 @@ import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FormRelationTableApi;
-import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.userApplygoOut.entity.HrUserApplyGoout;
 import vip.xiaonuo.sys.modular.hr.userApplygoOut.mapper.HrUserApplyGooutMapper;
 import vip.xiaonuo.sys.modular.hr.userApplygoOut.param.HrUserApplyGooutAddParam;
@@ -86,10 +85,10 @@ public class HrUserApplyGooutServiceImpl extends ServiceImpl<HrUserApplyGooutMap
         hrUserApplyGoout.setId(id);
         hrUserApplyGoout.setModelId(modelId);
         hrUserApplyGoout.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
-        FormRelationTableApi formRelationTableApi = SpringUtil.getBean(FormRelationTableApi.class);
+        FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
         //将流程实例和业务表关联起来
         String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));/**  数据库名一定得是小写*/
-        formRelationTableApi.save(modelId, BizCommonEnum.HR_USER_APPLY_GOOUT.getBizTable(),id,processInstanceId,dbName);
+        flwCommonApi.save(modelId, BizCommonEnum.HR_USER_APPLY_GOOUT.getBizTable(),id,processInstanceId,dbName);
         hrUserApplyGoout.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
 
         this.save(hrUserApplyGoout);
