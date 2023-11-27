@@ -82,8 +82,8 @@ public class ConferenceRezAddParam {
 
     //周期预约参数
     /** 是否周期预约 */
-    @ApiModelProperty(value = "是否周期预约：1 每周某个时间，2  每月的某个时间，3 每年的某个时间", position = 14)
-    private Integer status;
+   /* @ApiModelProperty(value = "是否周期预约：1 每周某个时间，2  每月的某个时间，3 每年的某个时间", position = 14)
+    private Integer status;*/
 
     /** 对应周几：1 周一，2 周二，3 周三 ... */
     @ApiModelProperty(value = "周期预约参数：对应周几：1 周一，2 周二，3 周三 ...", position = 15)

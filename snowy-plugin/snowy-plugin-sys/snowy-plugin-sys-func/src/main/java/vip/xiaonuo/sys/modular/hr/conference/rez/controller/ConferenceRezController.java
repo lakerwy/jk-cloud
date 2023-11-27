@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.hr.conference.rez.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -155,6 +156,20 @@ public class ConferenceRezController {
     @GetMapping("/sys/rez/conferenceTimeList")
     public CommonResult<List<ConferenceTimeData>> conferenceList(@Valid ConferenceTimeDataParam conferenceTimeDataParam) {
         return CommonResult.data(conferenceRezService.conferenceList(conferenceTimeDataParam));
+    }
+
+    /**
+     * 获取会议预约-发送会议预约消息
+     *
+     * @author ljy
+     * @date  2023/11/05 23:13
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取会议预约-发送会议预约消息")
+    //@SaCheckPermission("/sys/rez/sendConfMsg")
+    @GetMapping("/sys/rez/sendConfMsg")
+    public CommonResult<OapiMessageCorpconversationAsyncsendV2Response> sendConfMsg(@Valid String message , String phone) {
+        return CommonResult.data(conferenceRezService.sendConfMsg(message ,phone));
     }
 
 }

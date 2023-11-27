@@ -12,8 +12,10 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
@@ -103,4 +105,7 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /** 获取职位数据  key postionId,value postionName*/
     Map<String,String> getPostionData();
+
+    /** 发送开会消息 */
+    OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(String message , String phone);
 }
