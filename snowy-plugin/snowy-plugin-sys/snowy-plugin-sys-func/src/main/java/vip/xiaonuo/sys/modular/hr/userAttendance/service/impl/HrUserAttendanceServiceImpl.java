@@ -682,7 +682,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             Page<HrUserAttendanceStat> statPage = hrUserAttendanceStatService.page(CommonPageRequest.defaultPage(),
                     lambdaQueryWrapper.isNotNull(HrUserAttendanceStat::getEditAbnormalFlag).ne(HrUserAttendanceStat::getEditAbnormalFlag,""));
             page.setTotal(statPage.getTotal());
-            page.setRecords(setAtdErrorStat(statPage.getRecords(),map));
+            return page.setRecords(setAtdErrorStat(statPage.getRecords(),map));
         }
         //未处理
         if(errorAttendancePageParam.getAbnormalFlag() != null){
