@@ -1,6 +1,7 @@
 package vip.xiaonuo.sys.modular.hr.userHolidayData.vo;
 
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -49,5 +50,10 @@ public class HolidayDataRec {
     /** 开始时间 */
     @ApiModelProperty(value = "结束时间", position = 10)
     private String endTime;
+
+    /**状态*/
+    @ApiModelProperty(value = "状态：1 正，2 负", position = 11)
+    @TableField(exist = false)
+    private Integer status;
 
 }
