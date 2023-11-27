@@ -59,6 +59,7 @@ import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
+import vip.xiaonuo.flw.modular.model.dto.FlwModelDTO;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelStatusEnum;
 import vip.xiaonuo.flw.modular.model.param.FlwModelIdParam;
@@ -81,12 +82,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import static org.camunda.bpm.engine.task.IdentityLinkType.ASSIGNEE;
 import static org.camunda.bpm.engine.task.IdentityLinkType.CANDIDATE;
-import static vip.xiaonuo.flw.core.util.NodeRuntimeUtil.handleProcessParticipateInfo;
 
 /**
  * 任务Service接口实现类
@@ -915,15 +914,15 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     }
 
     @Override
-    public List<FlwModel> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam) {
+    public List<FlwModelDTO> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam) {
         List<FlwModel> allFlwModels = flwModelService.list();
-        List<FlwModel> transferTasks = new ArrayList<>();
+        List<FlwModelDTO> transferTasks = new ArrayList<>();
         for (FlwModel flwModel : allFlwModels) {
             String processJson = flwModel.getProcessJson();
             if (ObjectUtil.isNotEmpty(processJson)) {
                 FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
                 if (checkNodeParticipateInfo(flwNode, flwTaskTransferPageParam.getOldAssignee())) {
-                    transferTasks.add(flwModel);
+                    transferTasks.add(BeanUtil.toBean(flwModel, FlwModelDTO.class));
                 }
             }
         }
@@ -940,7 +939,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         List<FlwNode.FlwNodeParticipateProp> participateInfo = flwNode.getProperties().getParticipateInfo();
         if (ObjectUtil.isNotEmpty(participateInfo)) {
             String participateInfoJson = JSONUtil.toJsonStr(participateInfo);
-            List<String> processParticipateInfo = handleProcessParticipateInfo(participateInfoJson);
+            List<String> processParticipateInfo = NodeRuntimeUtil.handleProcessParticipateInfoByType(participateInfoJson,"USER");
             if (ObjectUtil.isNotEmpty(processParticipateInfo) && processParticipateInfo.contains(oldAssignee)) {
                 return true;
             }

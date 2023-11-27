@@ -475,6 +475,32 @@ public class NodeRuntimeUtil {
     }
 
     /**
+     * 处理流程参与人信息  类型是 user的
+     *
+     * @date 2023/11/27 14:49
+     **/
+    public static List<String> handleProcessParticipateInfoByType(String participateInfo,String checkKey) {
+        JSONArray participateInfoArray = JSONUtil.parseArray(participateInfo);
+        Set<String> resultUserIdSet = CollectionUtil.newHashSet();
+        for (Object o : participateInfoArray) {
+            FlwNode.FlwNodeParticipateProp flwNodeParticipateProp = JSONUtil.toBean(JSONUtil.parseObj(o), FlwNode.FlwNodeParticipateProp.class);
+            String key = flwNodeParticipateProp.getKey();
+            if(checkKey.equals(key)){
+                resultUserIdSet.addAll(StrUtil.split(flwNodeParticipateProp.getValue(), StrUtil.COMMA));
+            }
+        }
+//
+//        participateInfoArray.forEach(obj -> {
+//            FlwNode.FlwNodeParticipateProp flwNodeParticipateProp = JSONUtil.toBean(JSONUtil.parseObj(obj), FlwNode.FlwNodeParticipateProp.class);
+//            String key = flwNodeParticipateProp.getKey();
+//            if(checkKey.equals(key)){
+//                resultUserIdSet.addAll(StrUtil.split(flwNodeParticipateProp.getValue(), StrUtil.COMMA));
+//            }
+//        });
+        return CollectionUtil.newArrayList(resultUserIdSet);
+    }
+
+    /**
      * 解析用户任务参与人
      *
      * @author xuyuxiang

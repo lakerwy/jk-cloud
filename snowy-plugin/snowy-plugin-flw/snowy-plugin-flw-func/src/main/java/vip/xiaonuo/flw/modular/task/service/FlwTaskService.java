@@ -16,6 +16,7 @@ import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.flw.modular.model.dto.FlwModelDTO;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.task.param.*;
@@ -170,5 +171,5 @@ public interface FlwTaskService {
      * @param flwTaskTransferPageParam
      * @return
      */
-    List<FlwModel> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam);
+    List<FlwModelDTO> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam);
 }

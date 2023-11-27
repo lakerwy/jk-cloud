@@ -27,6 +27,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.flw.modular.model.dto.FlwModelDTO;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.task.param.*;
@@ -280,8 +281,8 @@ public class FlwTaskController {
      */
     @ApiOperationSupport(order = 18)
     @ApiOperation("移交任务")
-    @GetMapping("/flw/task/transferTasks")
-    public CommonResult<String> transferTasks(FlwTaskTransferParam flwTaskTransferParam) {
+    @PostMapping("/flw/task/transferTasks")
+    public CommonResult<String> transferTasks(@RequestBody FlwTaskTransferParam flwTaskTransferParam) {
         flwTaskService.transferTasks(flwTaskTransferParam);
         return CommonResult.ok();
     }
@@ -295,7 +296,7 @@ public class FlwTaskController {
     @ApiOperationSupport(order = 17)
     @ApiOperation("获取被移交人所有涉及到的流程")
     @GetMapping("/flw/task/getTransferTasks")
-    public CommonResult<List<FlwModel>> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam) {
+    public CommonResult<List<FlwModelDTO>> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam) {
         return CommonResult.data(flwTaskService.getTransferTasks(flwTaskTransferPageParam));
     }
 

@@ -23,6 +23,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -171,6 +172,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
 //    @Transactional(rollbackFor = Exception.class)
     @Override
+    @DSTransactional
     public String start(FlwProcessStartParam flwProcessStartParam) {
         NodeRuntimeUtil.handleTenAuth();
         String modelId = flwProcessStartParam.getModelId();
