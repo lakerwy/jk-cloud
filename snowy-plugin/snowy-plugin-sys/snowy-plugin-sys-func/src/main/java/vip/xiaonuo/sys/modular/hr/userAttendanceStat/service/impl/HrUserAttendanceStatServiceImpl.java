@@ -1327,7 +1327,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
     }
 
     /** 班次遍历，数据Map
-     * map1:key-dutyName,value-打卡名称，map2:key-dutyAtdTime,value-打卡时间；map3:key-dutyAtdDate,value-打卡结果
+     * map1:key-dutyName,value-打卡名称，map2:key-dutyAtdTime,value-打卡时间；map3:key-dutyAtdData,value-打卡结果
      * */
     private void countAtdData(Map<String,HrUserAttendanceStat> atdMap,List<HrUserAttendanceConfig> configList,
                       MonthPreDayStatData monthPreDayStatData,HrAttendanceAnalStat hrAttendanceAnalStat){
@@ -1337,7 +1337,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         Integer onDuty = 1;
         Integer offDuty = 1;
         Boolean isTrue = hrAttendanceAnalStat.getHolidayFlag() != null || hrAttendanceAnalStat.getGooutFlag()!= null || hrAttendanceAnalStat.getBusinessTripFlag()!=null ? true : false;
-        String utyAtdDate = hrAttendanceAnalStat.getHolidayFlag() != null ? "请假" : hrAttendanceAnalStat.getGooutFlag()!= null ? "外出" : "出差";
+        String dutyAtdData = hrAttendanceAnalStat.getHolidayFlag() != null ? "请假" : hrAttendanceAnalStat.getGooutFlag()!= null ? "外出" : "出差";
         if(isTrue){
             configList.forEach(config -> {
                 Map<String,String> dutyMap = new HashMap<>();
@@ -1348,7 +1348,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 }else{
                     dutyMap.put("dutyName","休息打卡");
                 }
-                dutyMap.put("utyAtdDate",utyAtdDate);
+                dutyMap.put("dutyAtdData",dutyAtdData);
+                dutyMap.put("dutyAtdTime","");
                 dutyMapList.add(dutyMap);
             });
         }
@@ -1363,7 +1364,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                }else{
                    dutyMap.put("dutyName","休息打卡");
                }
-               dutyMap.put("utyAtdDate","缺卡");
+               dutyMap.put("dutyAtdData","缺卡");
+               dutyMap.put("dutyAtdTime","");
            }else{
                HrUserAttendanceStat stat = atdMap.get(dutyType);
                String utyAtdDateStr = stat.getAbnormalFlag() == 3 ?"迟到" : stat.getAbnormalFlag() == 4 ? "早退":"正常";
@@ -1374,7 +1376,7 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                }else{
                    dutyMap.put("dutyName","休息打卡");
                }
-               dutyMap.put("dutyAtdDate",stat.getCheckTime().toString());
+               dutyMap.put("dutyAtdTime",stat.getCheckTime().toString());
                dutyMap.put("utyAtdDate",utyAtdDateStr);
            }
             dutyMapList.add(dutyMap);
