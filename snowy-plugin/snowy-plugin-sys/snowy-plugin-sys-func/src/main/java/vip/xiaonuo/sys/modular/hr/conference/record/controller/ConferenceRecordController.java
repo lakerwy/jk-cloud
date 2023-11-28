@@ -12,13 +12,11 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.record.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import org.checkerframework.common.reflection.qual.GetClass;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,8 +25,10 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceConfirmUser;
 import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceRecord;
 import vip.xiaonuo.sys.modular.hr.conference.record.param.*;
+import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceConfirmUserService;
 import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceRecordService;
 import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceWorkArrangeService;
 import vip.xiaonuo.sys.modular.hr.conference.record.vo.RecordDetailVo;
@@ -58,6 +58,8 @@ public class ConferenceRecordController {
     private ConferenceRecordService conferenceRecordService;
     @Resource
     private ConferenceWorkArrangeService conferenceWorkArrangeService;
+    @Resource
+    private ConferenceConfirmUserService conferenceConfirmUserService;
 
     /**
      * 获取会议预约-会议记录分页
@@ -245,6 +247,85 @@ public class ConferenceRecordController {
     public CommonResult<String> recordNotice(@Valid String recordId) {
         conferenceRecordService.recordNotice(recordId);
         return CommonResult.ok();
+    }
+
+
+    /** 会议记录确认接口 */
+    /**
+     * 获取会议记录确认表分页
+     *
+     * @author ljy
+     * @date  2023/11/28 22:28
+     */
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("获取会议记录确认表分页")
+    //@SaCheckPermission("/sys/confirmUser/page")
+    @GetMapping("/sys/confirmUser/page")
+    public CommonResult<Page<ConferenceConfirmUser>> confirmPage(ConferenceConfirmPageParam conferenceConfirmUserPageParam) {
+        return CommonResult.data(conferenceConfirmUserService.page(conferenceConfirmUserPageParam));
+    }
+
+    /**
+     * 添加会议记录确认表
+     *
+     * @author ljy
+     * @date  2023/11/28 22:28
+     */
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("添加会议记录确认表")
+    @CommonLog("添加会议记录确认表")
+    //@SaCheckPermission("/sys/confirmUser/add")
+    @PostMapping("/sys/confirmUser/add")
+    public CommonResult<String> confirmAdd(@RequestBody @Valid ConferenceConfirmUserAddParam conferenceConfirmUserAddParam) {
+        conferenceConfirmUserService.add(conferenceConfirmUserAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑会议记录确认表
+     *
+     * @author ljy
+     * @date  2023/11/28 22:28
+     */
+    @ApiOperationSupport(order = 15)
+    @ApiOperation("编辑会议记录确认表")
+    @CommonLog("编辑会议记录确认表")
+    //@SaCheckPermission("/sys/confirmUser/edit")
+    @PostMapping("/sys/confirmUser/edit")
+    public CommonResult<String> confirmEdit(@RequestBody @Valid ConferenceConfirmUserEditParam conferenceConfirmUserEditParam) {
+        conferenceConfirmUserService.edit(conferenceConfirmUserEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除会议记录确认表
+     *
+     * @author ljy
+     * @date  2023/11/28 22:28
+     */
+    @ApiOperationSupport(order = 16)
+    @ApiOperation("删除会议记录确认表")
+    @CommonLog("删除会议记录确认表")
+    //@SaCheckPermission("/sys/confirmUser/delete")
+    @PostMapping("/sys/confirmUser/delete")
+    public CommonResult<String> confirmDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                                      CommonValidList<ConferenceConfirmUserIdParam> conferenceConfirmUserIdParamList) {
+        conferenceConfirmUserService.delete(conferenceConfirmUserIdParamList);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取会议记录确认表详情
+     *
+     * @author ljy
+     * @date  2023/11/28 22:28
+     */
+    @ApiOperationSupport(order = 17)
+    @ApiOperation("获取会议记录确认表详情")
+    //@SaCheckPermission("/sys/confirmUser/detail")
+    @GetMapping("/sys/confirmUser/detail")
+    public CommonResult<ConferenceConfirmUser> confirmDetail(@Valid ConferenceConfirmUserIdParam conferenceConfirmUserIdParam) {
+        return CommonResult.data(conferenceConfirmUserService.detail(conferenceConfirmUserIdParam));
     }
 
 }
