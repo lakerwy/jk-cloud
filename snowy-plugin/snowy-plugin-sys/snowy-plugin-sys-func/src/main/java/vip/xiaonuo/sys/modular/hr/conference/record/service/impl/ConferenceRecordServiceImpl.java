@@ -17,10 +17,12 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -28,16 +30,27 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceRecord;
 import vip.xiaonuo.sys.modular.hr.conference.record.mapper.ConferenceRecordMapper;
+import vip.xiaonuo.sys.modular.hr.conference.record.mapper.ConferenceWorkArrangeMapper;
 import vip.xiaonuo.sys.modular.hr.conference.record.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceRecordService;
+import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceWorkArrangeService;
 import vip.xiaonuo.sys.modular.hr.conference.record.vo.RecordDetailVo;
 import vip.xiaonuo.sys.modular.hr.conference.record.vo.RezRecordVo;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.entity.ConferenceRezPeriod;
 import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.service.ConferenceRezPeriodService;
+import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceWorkArrange;
+import vip.xiaonuo.sys.modular.hr.conference.record.param.ConferenceWorkArrangeAddParam;
+import vip.xiaonuo.sys.modular.hr.conference.record.param.ConferenceWorkArrangeEditParam;
+import vip.xiaonuo.sys.modular.hr.conference.record.param.ConferenceWorkArrangeIdParam;
+import vip.xiaonuo.sys.modular.hr.conference.record.param.ConferenceWorkArrangePageParam;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -55,6 +68,12 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
     ConferenceRezService conferenceRezService;
     @Resource
     ConferenceRezPeriodService conferenceRezPeriodService;
+    @Resource
+    private ConferenceWorkArrangeService conferenceWorkArrangeService;
+    @Resource
+    SysUserService sysUserService;
+    @Resource
+    ApplicationEventPublisher eventPublisher;
     @Override
     public Page<ConferenceRecord> page(ConferenceRecordPageParam conferenceRecordPageParam) {
         QueryWrapper<ConferenceRecord> queryWrapper = new QueryWrapper<>();
@@ -175,5 +194,50 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
             throw new CommonException("会议预约-会议记录不存在，id值为：{}", id);
         }
         return conferenceRecord;
+    }
+
+    @Override
+    public void addSummary(ConfSummaryAddParam confSummaryAddParam){
+
+        ConferenceRecord conferenceRecord = this.getById(confSummaryAddParam.getRecordId());
+        if(ObjectUtil.isEmpty(conferenceRecord)){
+            throw new CommonException("无会议记录！");
+        }
+        conferenceRecord.setConfSummary(confSummaryAddParam.getConfSummary());
+        saveConfSummary(confSummaryAddParam);//保存工作部署
+        saveConfirmUser(confSummaryAddParam);//保存会议记录确认人，并以此发送确认通知
+        this.saveOrUpdate(conferenceRecord);
+    }
+
+    /** 保存工作部署*/
+    private void saveConfSummary(ConfSummaryAddParam confSummaryAddParam){
+        if(CollectionUtil.isNotEmpty(confSummaryAddParam.getWorkArrangeVoList())){
+            List<ConferenceWorkArrange> conferenceWorkArrangeList = new ArrayList<>();
+            confSummaryAddParam.getWorkArrangeVoList().forEach(conf -> {
+                ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(conf,ConferenceWorkArrange.class);
+                conferenceWorkArrange.setRecordId(confSummaryAddParam.getRecordId());
+                conferenceWorkArrangeList.add(conferenceWorkArrange);
+            });
+            conferenceWorkArrangeService.saveBatch(conferenceWorkArrangeList);
+        }
+    }
+    /** 保存记录确认人*/
+    private void saveConfirmUser(ConfSummaryAddParam confSummaryAddParam){
+        if(CollectionUtil.isNotEmpty(confSummaryAddParam.getWorkArrangeVoList())){
+            List<String> userIds = Arrays.asList(confSummaryAddParam.getConfirmUserIds().split(","));
+
+        }
+    }
+
+    @Override
+    public void recordNotice(String recordId){
+        ConferenceRecord conferenceRecord = this.getById(recordId);
+        if(ObjectUtil.isEmpty(conferenceRecord)){
+            throw new CommonException("无会议记录！");
+        }
+        List<String> userIds = Arrays.asList(conferenceRecord.getConfirmUserIds().split(","));
+        List<SysUser> userList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(userList,"请确认会议记录！",null,null,2);
+        eventPublisher.publishEvent(conferenceMsgEvent);
     }
 }

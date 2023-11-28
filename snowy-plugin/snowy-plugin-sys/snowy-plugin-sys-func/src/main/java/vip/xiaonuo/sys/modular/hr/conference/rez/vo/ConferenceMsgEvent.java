@@ -29,12 +29,17 @@ public class ConferenceMsgEvent {
     @ApiModelProperty(value = "周期会议ID", position = 4)
     private ConferenceRezPeriod conferenceRezPeriod;
 
+    /** 不同的消息 */
+    @ApiModelProperty(value = "不同的消息", position = 5)
+    private Integer type;
+
     public ConferenceMsgEvent(){}
 
-    public ConferenceMsgEvent(List<SysUser> userList,String msg,ConferenceRez conferenceRez,ConferenceRezPeriod conferenceRezPeriod){
+    public ConferenceMsgEvent(List<SysUser> userList,String msg,ConferenceRez conferenceRez,ConferenceRezPeriod conferenceRezPeriod,Integer type){
         this.userList = userList;
         this.msg = msg;
         this.conferenceRez = conferenceRez;
         this.conferenceRezPeriod = conferenceRezPeriod;
+        this.type = type;
     }
 }

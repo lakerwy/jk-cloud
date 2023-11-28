@@ -58,4 +58,12 @@ public class ConferenceRecordAddParam {
     @ApiModelProperty(value = "会议信息", position = 8)
     private RezRecordVo rezRecordVo;
 
+    /** 会议纪要*/
+    @ApiModelProperty(value = "会议纪要", position = 9)
+    private String confSummary;
+
+    /** 会议记录确认人(逗号隔开) */
+    @ApiModelProperty(value = "会议记录确认人(逗号隔开)", position = 10)
+    private String confirmUserId;
+
 }

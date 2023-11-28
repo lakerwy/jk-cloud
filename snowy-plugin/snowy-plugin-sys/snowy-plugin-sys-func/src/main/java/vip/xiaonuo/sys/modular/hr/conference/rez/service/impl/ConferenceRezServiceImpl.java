@@ -202,7 +202,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             }
             conferenceRez.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
             this.save(conferenceRez);
-            ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"",conferenceRez,null);
+            ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"",conferenceRez,null,1);
             eventPublisher.publishEvent(conferenceMsgEvent);
         }
         //异步推送消息
@@ -225,7 +225,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         conferenceRezPeriod.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
         conferenceRezPeriodService.save(conferenceRezPeriod);
-        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"会议通知",null,conferenceRezPeriod);
+        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"会议通知",null,conferenceRezPeriod,1);
         eventPublisher.publishEvent(conferenceMsgEvent);
     }
 
