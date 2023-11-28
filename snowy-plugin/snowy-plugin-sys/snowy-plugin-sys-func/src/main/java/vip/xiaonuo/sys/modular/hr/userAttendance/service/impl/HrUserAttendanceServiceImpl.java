@@ -194,6 +194,7 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         HrUserAttendanceStatEvent attendanceStatEvent = BeanUtil.toBean(hrUserAttendance, HrUserAttendanceStatEvent.class);
         attendanceStatEvent.setAttendanceTypeId(attendanceTypeId);
         attendanceStatEvent.setAttendanceTypeName(attendanceTypeName);
+        attendanceStatEvent.setUserName(sysUser.getName());
         eventPublisher.publishEvent(attendanceStatEvent);
         return  HrUserAttendanceEnum.ATTENDANCE_NORMAL.getValue();
     }

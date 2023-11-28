@@ -99,8 +99,32 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(HrUserHolidayDataAddParam hrUserHolidayDataAddParam) {
-        HrUserHolidayData hrUserHolidayData = BeanUtil.toBean(hrUserHolidayDataAddParam, HrUserHolidayData.class);
-        this.save(hrUserHolidayData);
+        List<HrUserHolidayData> hrUserHolidayDataList = this.list(new LambdaQueryWrapper<HrUserHolidayData>().eq(HrUserHolidayData::getUserId,hrUserHolidayDataAddParam.getUserId()));
+        HrUserHolidayData hrUserHolidayData = new HrUserHolidayData();
+        HrUserHolidayDataEditParam hrUserHolidayDataEditParam = BeanUtil.toBean(hrUserHolidayDataAddParam,HrUserHolidayDataEditParam.class);
+        if(CollectionUtil.isNotEmpty(hrUserHolidayDataList)){
+            hrUserHolidayData = hrUserHolidayDataList.get(0);
+            if(StringUtils.isNotEmpty(hrUserHolidayDataAddParam.getAnnualLeave())){
+                Double annualLeave = Double.parseDouble(hrUserHolidayDataAddParam.getAnnualLeave()) + hrUserHolidayData.getAnnualLeave() != null ? Double.parseDouble(hrUserHolidayData.getAnnualLeave()) : 0.0;
+                hrUserHolidayData.setAnnualLeave(annualLeave.toString());
+                hrUserHolidayDataEditParam.setApplyType(7);
+            }
+            if(StringUtils.isNotEmpty(hrUserHolidayDataAddParam.getCompensatoryLeave())){
+                Double compensatoryLeave = Double.parseDouble(hrUserHolidayDataAddParam.getCompensatoryLeave()) + hrUserHolidayData.getCompensatoryLeave() != null ? Double.parseDouble(hrUserHolidayData.getCompensatoryLeave()) : 0.0;
+                hrUserHolidayData.setCompensatoryLeave(compensatoryLeave.toString());
+                hrUserHolidayDataEditParam.setApplyType(6);
+            }
+        }else{
+            hrUserHolidayData = BeanUtil.toBean(hrUserHolidayDataAddParam, HrUserHolidayData.class);
+            if(StringUtils.isNotEmpty(hrUserHolidayDataAddParam.getAnnualLeave())){
+                hrUserHolidayDataEditParam.setApplyType(7);
+            }
+            if(StringUtils.isNotEmpty(hrUserHolidayDataAddParam.getCompensatoryLeave())){
+                hrUserHolidayDataEditParam.setApplyType(6);
+            }
+        }
+        this.saveOrUpdate(hrUserHolidayData);
+        saveRec(hrUserHolidayDataEditParam,hrUserHolidayData);
     }
 
     @Transactional(rollbackFor = Exception.class)
