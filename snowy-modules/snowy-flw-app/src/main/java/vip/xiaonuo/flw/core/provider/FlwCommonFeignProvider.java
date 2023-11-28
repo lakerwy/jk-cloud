@@ -3,6 +3,7 @@ package vip.xiaonuo.flw.core.provider;
 import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,7 +46,7 @@ public class FlwCommonFeignProvider implements FlwCommonFeign {
 
     @Override
     @RequestMapping("/feign/flw/flwCommonFeign/flwStart")
-    public String flwStart(JSONObject jsonObject) {
+    public String flwStart(@RequestBody JSONObject jsonObject) {
         return flwCommonApiProvider.flwStart(jsonObject);
     }
 }
