@@ -7,6 +7,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.Date;
+
 @Getter
 @Setter
 public class HolidayDataRec {
@@ -35,9 +37,13 @@ public class HolidayDataRec {
     @ApiModelProperty(value = "理由", position = 6)
     private String reason;
 
-    /** 理由 */
+    /** 详细内容 */
     @ApiModelProperty(value = "详细内容", position = 7)
     private String detail;
+
+    /** 天数 */
+    @ApiModelProperty(value = "增减天数", position = 7)
+    private String detailDay;
 
     /** 有效时间 */
     @ApiModelProperty(value = "有效时间", position = 8)
@@ -56,4 +62,7 @@ public class HolidayDataRec {
     @TableField(exist = false)
     private Integer status;
 
+    /**状态*/
+    @ApiModelProperty(value = "创建时间", position = 12)
+    private Date createTime;
 }

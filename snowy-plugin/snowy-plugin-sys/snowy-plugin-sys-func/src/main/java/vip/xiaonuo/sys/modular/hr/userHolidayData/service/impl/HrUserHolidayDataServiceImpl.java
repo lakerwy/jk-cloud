@@ -43,6 +43,7 @@ import vip.xiaonuo.sys.modular.hr.userHolidayData.mapper.HrUserHolidayDataMapper
 import vip.xiaonuo.sys.modular.hr.userHolidayData.param.*;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.vo.HolidayDataRec;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.vo.HolidayDataRecVo;
 import vip.xiaonuo.sys.modular.hr.userHolidayDataRec.entity.HrUserHolidayDataRec;
 import vip.xiaonuo.sys.modular.hr.userHolidayDataRec.service.HrUserHolidayDataRecService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
@@ -183,61 +184,69 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
     }
 
     @Override
-    public List<HolidayDataRec> detail(EditHolidayParam editHolidayParam) {
-
+    public HolidayDataRecVo detail(EditHolidayParam editHolidayParam) {
+        List<HrUserHolidayData> hrUserHolidayDataList = this.list(new LambdaQueryWrapper<HrUserHolidayData>().eq(HrUserHolidayData::getUserId,editHolidayParam.getUserId()));
         List<HrUserHolidayDataRec> hrUserHolidayDataRecs = hrUserHolidayDataRecService.list(new LambdaQueryWrapper<HrUserHolidayDataRec>().eq(HrUserHolidayDataRec::getUserId,editHolidayParam.getUserId())
                 .eq(HrUserHolidayDataRec::getApplyType,editHolidayParam.getApplyType()));
         Map<String,String> userMap = conferenceRezService.getUserData();
 
-        return hrUserHolidayDataRecs.stream().map(rec -> {
+        List<HolidayDataRec> holidayDataRecList =  hrUserHolidayDataRecs.stream().map(rec -> {
             HolidayDataRec holidayDataRec = new HolidayDataRec();
             holidayDataRec.setUserId(rec.getUserId());
             holidayDataRec.setUserName(rec.getUserName());
             String detail = "";
+            String detailDay = "";
             String createUserName = userMap.get(rec.getCreateUser()) != null ? userMap.get(rec.getCreateUser()) : "";
             String userName = StringUtils.isNotEmpty(rec.getUserName()) ? rec.getUserName() : "";
             //假期类别：事假 1，病假 2，婚假 3，产假 4，丧假 5，年假 6，调休 7，出差 8
             switch (Integer.parseInt(editHolidayParam.getApplyType())){
                 case 1://+0.5天陈雨 为冷磊 增加了0.5天调休
+                    detailDay = StringUtils.isNotEmpty(rec.getPersonalLeave()) && Integer.parseInt(rec.getPersonalLeave()) > 0 ?
+                            "+"+rec.getPersonalLeave()+"天 ": rec.getPersonalLeave()+"天 ";
                     detail = StringUtils.isNotEmpty(rec.getPersonalLeave()) && Integer.parseInt(rec.getPersonalLeave()) > 0 ?
-                            "+"+rec.getPersonalLeave()+"天 "+createUserName+"为 "+userName+"增加 "+rec.getPersonalLeave()+"天事假":
-                            rec.getPersonalLeave()+"天 "+userName+"使用"+rec.getPersonalLeave()+"天事假";
+                            createUserName+"为 "+userName+"增加 "+rec.getPersonalLeave()+"天事假": userName+"使用"+rec.getPersonalLeave()+"天事假";
                     holidayDataRec.setStatus(StringUtils.isNotEmpty(rec.getPersonalLeave()) && Integer.parseInt(rec.getPersonalLeave()) > 0 ? 1 :2);
                     break;
                 case 2:
+                    detailDay = StringUtils.isNotEmpty(rec.getSickLeave()) && Integer.parseInt(rec.getSickLeave()) > 0 ?
+                            "+"+rec.getSickLeave()+"天 ": rec.getSickLeave()+"天 ";
                     detail = StringUtils.isNotEmpty(rec.getSickLeave()) && Integer.parseInt(rec.getSickLeave()) > 0 ?
-                            "+"+rec.getSickLeave()+"天 "+createUserName+"为 "+userName+"增加" +rec.getSickLeave()+"天病假":
-                            rec.getSickLeave()+"天 "+userName+"使用"+rec.getSickLeave()+"天病假";
+                            createUserName+"为 "+userName+"增加" +rec.getSickLeave()+"天病假": userName+"使用"+rec.getSickLeave()+"天病假";
                     holidayDataRec.setStatus(StringUtils.isNotEmpty(rec.getSickLeave()) && Integer.parseInt(rec.getSickLeave()) > 0? 1 :2);
                     break;
                 case 3:
+                    detailDay = StringUtils.isNotEmpty(rec.getMarriageLeave()) && Integer.parseInt(rec.getMarriageLeave()) > 0 ?
+                            "+"+rec.getMarriageLeave()+"天 ": rec.getMarriageLeave()+"天 ";
                     detail = StringUtils.isNotEmpty(rec.getMarriageLeave()) && Integer.parseInt(rec.getMarriageLeave()) > 0 ?
-                            "+"+rec.getMarriageLeave()+"天 "+createUserName+"为 "+userName+"增加 "+rec.getMarriageLeave()+"天婚假":
-                            rec.getMarriageLeave()+"天 "+userName+"使用"+rec.getMarriageLeave()+"天婚假";
+                            createUserName+"为 "+userName+"增加 "+rec.getMarriageLeave()+"天婚假": userName+"使用"+rec.getMarriageLeave()+"天婚假";
                     holidayDataRec.setStatus(StringUtils.isNotEmpty(rec.getMarriageLeave()) && Integer.parseInt(rec.getMarriageLeave()) > 0? 1 :2);
                     break;
                 case 4:
+                    detailDay = StringUtils.isNotEmpty(rec.getMaternityLeave()) && Integer.parseInt(rec.getMaternityLeave()) > 0 ?
+                            "+"+rec.getMaternityLeave()+"天 ": rec.getMaternityLeave()+"天 ";
                     detail = StringUtils.isNotEmpty(rec.getMaternityLeave()) && Integer.parseInt(rec.getMaternityLeave()) > 0 ?
-                            "+"+rec.getMaternityLeave()+"天 "+createUserName+"为 "+userName+"增加 "+rec.getMaternityLeave()+"天产假":
-                            rec.getMaternityLeave()+"天 "+rec.getUserName()+"使用"+rec.getMaternityLeave()+"天产假";
+                            createUserName+"为 "+userName+"增加 "+rec.getMaternityLeave()+"天产假": rec.getUserName()+"使用"+rec.getMaternityLeave()+"天产假";
                     holidayDataRec.setStatus(StringUtils.isNotEmpty(rec.getMaternityLeave()) && Integer.parseInt(rec.getMaternityLeave()) > 0 ? 1 :2);
                     break;
                 case 5:
+                    detailDay = StringUtils.isNotEmpty(rec.getBereavementLeave()) && Integer.parseInt(rec.getBereavementLeave()) > 0 ?
+                            "+"+rec.getBereavementLeave()+"天 ": rec.getBereavementLeave()+"天 ";
                     detail = StringUtils.isNotEmpty(rec.getBereavementLeave()) && Integer.parseInt(rec.getBereavementLeave()) > 0 ?
-                            "+"+rec.getBereavementLeave()+"天 "+createUserName+"为 "+userName+"增加 "+rec.getBereavementLeave()+"天丧假":
-                            rec.getBereavementLeave()+"天 "+userName+"使用"+rec.getBereavementLeave()+"天丧假";
+                            createUserName+"为 "+userName+"增加 "+rec.getBereavementLeave()+"天丧假": userName+"使用"+rec.getBereavementLeave()+"天丧假";
                     holidayDataRec.setStatus(StringUtils.isNotEmpty(rec.getBereavementLeave()) && Integer.parseInt(rec.getBereavementLeave()) > 0 ? 1 :2);
                     break;
                 case 6:
+                    detailDay = StringUtils.isNotEmpty(rec.getAnnualLeave()) && Integer.parseInt(rec.getAnnualLeave()) > 0 ?
+                            "+"+rec.getAnnualLeave()+"天 ": rec.getAnnualLeave()+"天 ";
                     detail = StringUtils.isNotEmpty(rec.getAnnualLeave()) && Integer.parseInt(rec.getAnnualLeave()) > 0 ?
-                            "+"+rec.getAnnualLeave()+"天 "+createUserName+"为 "+userName+"增加 "+rec.getAnnualLeave()+"天年假":
-                            rec.getAnnualLeave()+"天 "+userName+"使用"+rec.getAnnualLeave()+"天年假";
+                            createUserName+"为 "+userName+"增加 "+rec.getAnnualLeave()+"天年假": userName+"使用"+rec.getAnnualLeave()+"天年假";
                     holidayDataRec.setStatus(StringUtils.isNotEmpty(rec.getAnnualLeave()) && Integer.parseInt(rec.getAnnualLeave()) > 0? 1 :2);
                     break;
                 case 7:
+                    detailDay = StringUtils.isNotEmpty(rec.getCompensatoryLeave()) && Integer.parseInt(rec.getCompensatoryLeave()) > 0 ?
+                            "+"+rec.getCompensatoryLeave()+"天 ": rec.getCompensatoryLeave()+"天 ";
                     detail = StringUtils.isNotEmpty(rec.getCompensatoryLeave()) && Integer.parseInt(rec.getCompensatoryLeave()) > 0 ?
-                            "+"+rec.getCompensatoryLeave()+"天 "+createUserName+"为 "+userName+"增加 "+rec.getCompensatoryLeave()+"天调休":
-                            rec.getCompensatoryLeave()+"天 "+userName+"使用"+rec.getCompensatoryLeave()+"天调休";
+                            createUserName+"为 "+userName+"增加 "+rec.getCompensatoryLeave()+"天调休": userName+"使用"+rec.getCompensatoryLeave()+"天调休";
                     holidayDataRec.setStatus(StringUtils.isNotEmpty(rec.getCompensatoryLeave())  && Integer.parseInt(rec.getCompensatoryLeave()) > 0? 1 :2);
                     String validTime = StringUtils.isNotEmpty(rec.getCompensatoryLeave()) && Integer.parseInt(rec.getCompensatoryLeave()) > 0 ? rec.getValidBeginTime()+"到"+rec.getValidEndTime()+"有效" :"";
                     holidayDataRec.setValidTime(validTime);
@@ -245,10 +254,15 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
                 default:
                     break;
             }
+            holidayDataRec.setCreateTime(rec.getCreateTime());
+            holidayDataRec.setDetailDay(detailDay);
             holidayDataRec.setDetail(detail);
             return holidayDataRec;
         }).collect(Collectors.toList());
-
+        HolidayDataRecVo holidayDataRecVo = new HolidayDataRecVo();
+        holidayDataRecVo.setHolidayDataRecList(holidayDataRecList);
+        holidayDataRecVo.setHolidayData(CollectionUtil.isNotEmpty(hrUserHolidayDataList) ? hrUserHolidayDataList.get(0) : new HrUserHolidayData());
+        return holidayDataRecVo;
     }
 
     @Override
