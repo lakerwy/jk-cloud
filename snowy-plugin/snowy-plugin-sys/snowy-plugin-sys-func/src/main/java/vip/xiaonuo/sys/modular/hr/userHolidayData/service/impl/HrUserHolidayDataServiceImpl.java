@@ -105,22 +105,26 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
         if(CollectionUtil.isNotEmpty(hrUserHolidayDataList)){
             hrUserHolidayData = hrUserHolidayDataList.get(0);
             if(StringUtils.isNotEmpty(hrUserHolidayDataAddParam.getAnnualLeave())){
-                Double annualLeave = Double.parseDouble(hrUserHolidayDataAddParam.getAnnualLeave()) + hrUserHolidayData.getAnnualLeave() != null ? Double.parseDouble(hrUserHolidayData.getAnnualLeave()) : 0.0;
-                hrUserHolidayData.setAnnualLeave(annualLeave.toString());
-                hrUserHolidayDataEditParam.setApplyType(7);
+                Double annualLeave = Double.parseDouble(hrUserHolidayDataAddParam.getAnnualLeave());
+                Double addAnnualLeave =  hrUserHolidayData.getAnnualLeave() != null ? Double.parseDouble(hrUserHolidayData.getAnnualLeave()) : 0.0;
+                Double all = annualLeave + addAnnualLeave;
+                hrUserHolidayData.setAnnualLeave(all.toString());
+                hrUserHolidayDataEditParam.setApplyType(6);
             }
             if(StringUtils.isNotEmpty(hrUserHolidayDataAddParam.getCompensatoryLeave())){
-                Double compensatoryLeave = Double.parseDouble(hrUserHolidayDataAddParam.getCompensatoryLeave()) + hrUserHolidayData.getCompensatoryLeave() != null ? Double.parseDouble(hrUserHolidayData.getCompensatoryLeave()) : 0.0;
-                hrUserHolidayData.setCompensatoryLeave(compensatoryLeave.toString());
-                hrUserHolidayDataEditParam.setApplyType(6);
+                Double compensatoryLeave = Double.parseDouble(hrUserHolidayDataAddParam.getCompensatoryLeave());
+                Double addCompensatoryLeave = hrUserHolidayData.getCompensatoryLeave() != null ? Double.parseDouble(hrUserHolidayData.getCompensatoryLeave()) : 0.0;
+                Double all = compensatoryLeave + addCompensatoryLeave;
+                hrUserHolidayData.setCompensatoryLeave(all.toString());
+                hrUserHolidayDataEditParam.setApplyType(7);
             }
         }else{
             hrUserHolidayData = BeanUtil.toBean(hrUserHolidayDataAddParam, HrUserHolidayData.class);
             if(StringUtils.isNotEmpty(hrUserHolidayDataAddParam.getAnnualLeave())){
-                hrUserHolidayDataEditParam.setApplyType(7);
+                hrUserHolidayDataEditParam.setApplyType(6);
             }
             if(StringUtils.isNotEmpty(hrUserHolidayDataAddParam.getCompensatoryLeave())){
-                hrUserHolidayDataEditParam.setApplyType(6);
+                hrUserHolidayDataEditParam.setApplyType(7);
             }
         }
         this.saveOrUpdate(hrUserHolidayData);
