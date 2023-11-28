@@ -43,4 +43,11 @@ public interface FlwCommonApi {
      * @return
      */
     String getSnByModelId(String modelId);
+
+    /**
+     * 对外暴露流程的发起接口
+     * @param jsonObject
+     * @return
+     */
+    String flwStart(JSONObject jsonObject);
 }

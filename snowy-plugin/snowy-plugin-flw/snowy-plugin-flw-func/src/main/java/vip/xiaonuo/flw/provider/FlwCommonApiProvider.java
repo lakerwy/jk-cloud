@@ -1,9 +1,11 @@
 package vip.xiaonuo.flw.provider;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.flw.api.FlwCommonApi;
+import vip.xiaonuo.flw.modular.process.param.FlwProcessStartParam;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
 
@@ -42,5 +44,11 @@ public class FlwCommonApiProvider implements FlwCommonApi {
     @Override
     public String getSnByModelId(String modelId) {
         return flwProcessService.getSn(modelId);
+    }
+
+    @Override
+    public String flwStart(JSONObject jsonObject) {
+        FlwProcessStartParam flwProcessStartParam = BeanUtil.toBean(jsonObject, FlwProcessStartParam.class);
+        return flwProcessService.start(flwProcessStartParam);
     }
 }

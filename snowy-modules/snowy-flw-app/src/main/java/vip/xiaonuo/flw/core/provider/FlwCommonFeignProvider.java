@@ -6,7 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.flw.feign.FormRelationTableFeign;
+import vip.xiaonuo.flw.feign.FlwCommonFeign;
 import vip.xiaonuo.flw.provider.FlwCommonApiProvider;
 
 /**
@@ -15,31 +15,37 @@ import vip.xiaonuo.flw.provider.FlwCommonApiProvider;
 @Slf4j
 @RequiredArgsConstructor
 @RestController
-public class FormRelationTableFeignProvider implements FormRelationTableFeign {
+public class FlwCommonFeignProvider implements FlwCommonFeign {
 
-    private final FlwCommonApiProvider formRelationTableApiProvider;
+    private final FlwCommonApiProvider flwCommonApiProvider;
     @Override
-    @RequestMapping("/feign/flw/formRelationTable/save")
+    @RequestMapping("/feign/flw/flwCommonFeign/save")
     public void save(@RequestParam String modelId, @RequestParam String tableName, @RequestParam String businessKey,
                      @RequestParam String processInstanceId, @RequestParam String dbName) {
-        formRelationTableApiProvider.save(modelId,tableName,businessKey,processInstanceId,dbName);
+        flwCommonApiProvider.save(modelId,tableName,businessKey,processInstanceId,dbName);
     }
 
     @Override
-    @RequestMapping("/feign/flw/formRelationTable/getInfo")
+    @RequestMapping("/feign/flw/flwCommonFeign/getInfo")
     public JSONObject getInfoByProcessInstanceId(@RequestParam String processInstanceId) {
-        return formRelationTableApiProvider.getInfoByProcessInstanceId(processInstanceId);
+        return flwCommonApiProvider.getInfoByProcessInstanceId(processInstanceId);
     }
 
     @Override
-    @RequestMapping("/feign/flw/formRelationTable/save2")
+    @RequestMapping("/feign/flw/flwCommonFeign/save2")
     public void save2(String modelId, String tableName, String businessKey, String processInstanceId, String dbName, String bizTableName) {
-        formRelationTableApiProvider.save2(modelId,tableName,businessKey,processInstanceId,dbName,bizTableName);
+        flwCommonApiProvider.save2(modelId,tableName,businessKey,processInstanceId,dbName,bizTableName);
     }
 
     @Override
-    @RequestMapping("/feign/flw/formRelationTable/getSnByModelId")
+    @RequestMapping("/feign/flw/flwCommonFeign/getSnByModelId")
     public String getSnByModelId(String modelId) {
-        return formRelationTableApiProvider.getSnByModelId(modelId);
+        return flwCommonApiProvider.getSnByModelId(modelId);
+    }
+
+    @Override
+    @RequestMapping("/feign/flw/flwCommonFeign/flwStart")
+    public String flwStart(JSONObject jsonObject) {
+        return flwCommonApiProvider.flwStart(jsonObject);
     }
 }
