@@ -12,10 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.crm.pursalecontract.param;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.common.pojo.CommonFlwEntity;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -134,5 +137,21 @@ public class PursalecontractAddParam {
     /** 存档位置（历史表PurSaleContract.Location） */
     @ApiModelProperty(value = "存档位置（历史表PurSaleContract.Location）", position = 26)
     private String location;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 52)
+    private String modelId;
+
+//    /** 流程实例id */
+//    @ApiModelProperty(value = "流程实例id", position = 53)
+//    private String processInstanceId;
+
+    /** 流程状态（0 - 已提交  1- 已审批） */
+    @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 54)
+    private String status;
+
+    /** 流程发起接口参数 */
+    @ApiModelProperty(value = "流程发起接口参数", position = 54)
+    private CommonFlwEntity commonFlwEntity;
 
 }

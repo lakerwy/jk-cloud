@@ -12,20 +12,31 @@
  */
 package vip.xiaonuo.biz.modular.crm.pursalecontract.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
+import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.entity.Pursalecontract;
@@ -36,7 +47,10 @@ import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractIdParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractPageParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.service.PursalecontractService;
 import vip.xiaonuo.common.util.CommonSnUtil;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -51,6 +65,10 @@ import java.util.List;
 @Service
 public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMapper, Pursalecontract> implements PursalecontractService {
 
+    @Resource
+    private FlwCommonApi flwCommonApi;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
     @Override
     public Page<Pursalecontract> page(PursalecontractPageParam pursalecontractPageParam) {
         QueryWrapper<Pursalecontract> queryWrapper = new QueryWrapper<>();
@@ -111,19 +129,51 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(PursalecontractAddParam pursalecontractAddParam) {
+        //处理业务表
         Pursalecontract pursalecontract = BeanUtil.toBean(pursalecontractAddParam, Pursalecontract.class);
-        //处理Sn编号
-        Pursalecontract tmp = this.getOne(new QueryWrapper<Pursalecontract>().lambda().orderByDesc(Pursalecontract::getCreateTime).last("limit 1"));
-        String newSn = CommonSnUtil.GenerateSn(pursalecontractAddParam.getContractNo(), tmp == null ? "" : tmp.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
-        pursalecontract.setContractNo(newSn);
         pursalecontract.setOpt(StpLoginUserUtil.getLoginUser().getName());
         pursalecontract.setRegisterDate(new Date());
+
+        //若传入start流程发起接口参数，则代表走审批流程，先调用流程start接口,获取流程实例Id
+        if(ObjectUtil.isNotEmpty(pursalecontractAddParam.getCommonFlwEntity())){
+            String processInstanceId = flwCommonApi.flwStart(JSONUtil.parseObj(pursalecontractAddParam.getCommonFlwEntity()));
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            pursalecontract.setId(id);
+            pursalecontract.setContractNo(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            pursalecontract.setModelId(modelId);
+            pursalecontract.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            pursalecontract.setProcessInstanceId(processInstanceId);
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_CRM_PURSALECONTRACT.getBizTable(),id,processInstanceId,dbName);
+        }else{
+            //不走审批流程
+            String modelId = "1729307184302993410";   //购销合同流程Id
+            if(StrUtil.isNotEmpty(pursalecontractAddParam.getModelId())){
+                modelId = pursalecontractAddParam.getModelId();
+            }
+            String newSn = flwCommonApi.getSnByModelId(modelId);
+            pursalecontract.setContractNo(newSn);
+            pursalecontract.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
         this.save(pursalecontract);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(PursalecontractEditParam pursalecontractEditParam) {
+        String id = pursalecontractEditParam.getId();
+        //判断是否走合同审批流程内的修改
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(pursalecontractEditParam.getProcessInstanceId())){
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(pursalecontractEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id = formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                pursalecontractEditParam.setId(id);
+            }
+        }
         Pursalecontract pursalecontract = this.queryEntity(pursalecontractEditParam.getId());
         BeanUtil.copyProperties(pursalecontractEditParam, pursalecontract);
         this.updateById(pursalecontract);
@@ -148,5 +198,69 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
             throw new CommonException("业务表-CRM-购销合同不存在，id值为：{}", id);
         }
         return pursalecontract;
+    }
+
+    @Override
+    public Page<Pursalecontract> limitPage(PursalecontractPageParam pursalecontractPageParam) {
+        QueryWrapper<Pursalecontract> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(pursalecontractPageParam.getSearchKey())) {
+            queryWrapper.lambda().like(Pursalecontract::getContractNo, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getOpt, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getContractName, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getPartyA, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getOperator, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getDept, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getBehalfA, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getBehalfB, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getPartyB, pursalecontractPageParam.getSearchKey());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(pursalecontractPageParam.getEndRegisterDate())) {
+            queryWrapper.lambda().between(Pursalecontract::getRegisterDate, pursalecontractPageParam.getStartRegisterDate(), pursalecontractPageParam.getEndRegisterDate());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getContractNo())) {
+            queryWrapper.lambda().like(Pursalecontract::getContractNo, pursalecontractPageParam.getContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getContractName())) {
+            queryWrapper.lambda().like(Pursalecontract::getContractName, pursalecontractPageParam.getContractName());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getPartyA())) {
+            queryWrapper.lambda().like(Pursalecontract::getPartyA, pursalecontractPageParam.getPartyA());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getPartyB())) {
+            queryWrapper.lambda().like(Pursalecontract::getPartyB, pursalecontractPageParam.getPartyB());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getAddressA())) {
+            queryWrapper.lambda().like(Pursalecontract::getAddressA, pursalecontractPageParam.getAddressA());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getAddressB())) {
+            queryWrapper.lambda().like(Pursalecontract::getAddressB, pursalecontractPageParam.getAddressB());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getBrief())) {
+            queryWrapper.lambda().like(Pursalecontract::getBrief, pursalecontractPageParam.getBrief());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getDept())) {
+            queryWrapper.lambda().like(Pursalecontract::getDept, pursalecontractPageParam.getDept());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getOperator())) {
+            queryWrapper.lambda().like(Pursalecontract::getOperator, pursalecontractPageParam.getOperator());
+        }
+        if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(pursalecontractPageParam.getEndSealDate())) {
+            queryWrapper.lambda().between(Pursalecontract::getSealDate, pursalecontractPageParam.getStartSealDate(), pursalecontractPageParam.getEndSealDate());
+        }
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(Pursalecontract::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(Pursalecontract::getCreateUser, StpUtil.getLoginIdAsString());
+        }
+        if(ObjectUtil.isAllNotEmpty(pursalecontractPageParam.getSortField(), pursalecontractPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(pursalecontractPageParam.getSortOrder());
+            queryWrapper.orderBy(true, pursalecontractPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(pursalecontractPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(Pursalecontract::getContractNo);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }

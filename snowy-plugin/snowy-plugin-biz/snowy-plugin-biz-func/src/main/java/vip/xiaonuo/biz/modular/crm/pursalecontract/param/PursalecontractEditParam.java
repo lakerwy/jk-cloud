@@ -12,6 +12,8 @@
  */
 package vip.xiaonuo.biz.modular.crm.pursalecontract.param;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -33,8 +35,8 @@ import java.util.Date;
 public class PursalecontractEditParam {
 
     /** 主键ID（历史表PurSaleContract.Id） */
-    @ApiModelProperty(value = "主键ID（历史表PurSaleContract.Id）", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
+    @ApiModelProperty(value = "主键ID（历史表PurSaleContract.Id）", position = 1)
+//    @NotBlank(message = "id不能为空")
     private String id;
 
     /** 登记人（历史表PurSaleContract.Opt） */
@@ -138,5 +140,17 @@ public class PursalecontractEditParam {
     /** 存档位置（历史表PurSaleContract.Location） */
     @ApiModelProperty(value = "存档位置（历史表PurSaleContract.Location）", position = 26)
     private String location;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 52)
+    private String modelId;
+
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 53)
+    private String processInstanceId;
+
+    /** 流程状态（0 - 已提交  1- 已审批） */
+    @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 54)
+    private String status;
 
 }

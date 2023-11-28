@@ -33,8 +33,8 @@ import java.util.Date;
 public class SubcontractEditParam {
 
     /** 主键ID（历史表SubContract.Id） */
-    @ApiModelProperty(value = "主键ID（历史表SubContract.Id）", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
+    @ApiModelProperty(value = "主键ID（历史表SubContract.Id）", position = 1)
+//    @NotBlank(message = "id不能为空")
     private String id;
 
     /** 登记人（历史表SubContract.Opt） */

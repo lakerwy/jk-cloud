@@ -77,4 +77,11 @@ public interface PursalecontractService extends IService<Pursalecontract> {
      * @date  2023/06/30 16:03
      **/
     Pursalecontract queryEntity(String id);
+
+    /**
+     * 获取业务表-CRM-购销合同分页【含权限设置-由于page接口有许多调用，故但起一个权限接口】
+     * @param pursalecontractPageParam
+     * @return
+     */
+    Page<Pursalecontract> limitPage(PursalecontractPageParam pursalecontractPageParam);
 }

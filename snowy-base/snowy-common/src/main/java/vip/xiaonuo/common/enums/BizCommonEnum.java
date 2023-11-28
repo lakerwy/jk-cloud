@@ -11,6 +11,7 @@ public enum BizCommonEnum {
     BIZ_TASK("BIZ_TASK","BIZ_TASK","BizTaskServiceImpl"), //任务中心-部门绩效业务-实际业务表（1-n）
     BIZ_CRM_HETONG("BIZ_CRM_HETONG","BIZ_CRM_HETONG","HetongServiceImpl"), //CRM-收入合同业务
     BIZ_CRM_SUBCONTRACT("BIZ_CRM_SUBCONTRACT","BIZ_CRM_SUBCONTRACT","SubcontractServiceImpl"), //CRM-分包合同业务
+    BIZ_CRM_PURSALECONTRACT("BIZ_CRM_PURSALECONTRACT","BIZ_CRM_PURSALECONTRACT","PursalecontractServiceImpl"), //CRM-购销合同业务
     BIZ_RECRUIT_FLW("BIZ_RECRUIT_FLW","BIZ_RECRUIT_FLW","BizRecruitFlwServiceImpl"), //招聘-部门计划-流程单
     BIZ_RECRUIT_PLAN("BIZ_RECRUIT_PLAN","BIZ_RECRUIT_PLAN","BizRecruitPlanServiceImpl"), //招聘-部门计划-计划表（1-n）
 

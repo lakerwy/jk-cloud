@@ -123,4 +123,18 @@ public class PursalecontractController {
     public CommonResult<Pursalecontract> detail(@Valid PursalecontractIdParam pursalecontractIdParam) {
         return CommonResult.data(pursalecontractService.detail(pursalecontractIdParam));
     }
+
+    /**
+     * 获取业务表-CRM-购销合同分页【含权限设置-由于page接口有许多调用，故但起一个权限接口】
+     *
+     * @author yong.ye
+     * @date  2023/06/30 16:03
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取业务表-CRM-分包合同分页 【含权限设置-由于page接口有许多调用，故但起一个权限接口】")
+    @SaCheckPermission("/biz/crm/pursalecontract/limitPage")
+    @GetMapping("/biz/crm/pursalecontract/limitPage")
+    public CommonResult<Page<Pursalecontract>> limitPage(PursalecontractPageParam pursalecontractPageParam) {
+        return CommonResult.data(pursalecontractService.limitPage(pursalecontractPageParam));
+    }
 }
