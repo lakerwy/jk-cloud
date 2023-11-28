@@ -213,12 +213,19 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 .eq(HrUserAttendanceStat::getUserId, hrUserAttendanceStatEvent.getUserId()).
                 eq(HrUserAttendanceStat::getCheckType, hrUserAttendanceStatEvent.getCheckType())
                 .between(HrUserAttendanceStat::getCheckTime, DateUtil.beginOfDay(hrUserAttendanceStatEvent.getCheckTime()), DateUtil.endOfDay(hrUserAttendanceStatEvent.getCheckTime())));
+        if(ObjectUtil.isEmpty(hrUserAttendanceStat)){
+            hrUserAttendanceStat = hrUserAttendanceStatService.getOne(new LambdaQueryWrapper<HrUserAttendanceStat>()
+                    .eq(HrUserAttendanceStat::getUserId, hrUserAttendanceStatEvent.getUserId())
+                    .eq(HrUserAttendanceStat::getCheckType, hrUserAttendanceStatEvent.getCheckType())
+                    .eq(HrUserAttendanceStat::getAbnormalFlag,-1));
+        }
 
         /** 同步数据时，判断异常数据是否为迟到还是早退  3 迟到，4 早退 */
         HrUserAttendanceStat stat = BeanUtil.toBean(hrUserAttendanceStatEvent, HrUserAttendanceStat.class);
         Integer abnormalFlag = stat.getAbnormalFlag() == 1 ?
                 1 : stat.getCheckType().equals(HrUserAttendanceEnum.ATTENDANCE_ON_DUTY.getValue())? 3 : 4;
         stat.setAbnormalFlag(abnormalFlag);
+        stat.setUserName(hrUserAttendanceStatEvent.getUserName());
         /**
          * 查询stat统计表中是否存在当前时段的打卡记录，
          * 若不存在，则直接存stat表
@@ -231,13 +238,13 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
             return;
         }
         if(ON_DUTY.equals(hrUserAttendanceStatEvent.getCheckType())){
-            if(hrUserAttendanceStatEvent.getCheckTime().before(hrUserAttendanceStat.getCheckTime())){
+            if(hrUserAttendanceStat.getCheckTime() == null || hrUserAttendanceStatEvent.getCheckTime().before(hrUserAttendanceStat.getCheckTime())){
                 this.removeById(hrUserAttendanceStat.getId());
                 this.save(stat);
             }
             return;
         }
-        if(hrUserAttendanceStatEvent.getCheckTime().after(hrUserAttendanceStat.getCheckTime())){
+        if(hrUserAttendanceStat.getCheckTime() == null ||  hrUserAttendanceStatEvent.getCheckTime().after(hrUserAttendanceStat.getCheckTime())){
             this.removeById(hrUserAttendanceStat.getId());
             this.save(stat);
             return;

@@ -32,7 +32,8 @@ import java.util.Date;
 public class HrUserHolidayDataAddParam {
 
     /** 用户ID */
-    @ApiModelProperty(value = "用户ID", position = 3)
+    @ApiModelProperty(value = "用户ID", required = true,position = 3)
+    @NotNull(message = "用户ID不能为空")
     private String userId;
 
     /** 用户姓名 */
