@@ -73,11 +73,15 @@ public class ErrorAttendanceData {
     @ApiModelProperty(value = "打卡ID", position = 11)
     private String attendanceId;
 
-    /** 处理人*/
-    @ApiModelProperty(value = "处理人", position = 12)
+    /** 处理时间*/
+    @ApiModelProperty(value = "处理时间", position = 12)
     private Date updateTime;
 
-    /** 处理时间*/
-    @ApiModelProperty(value = "处理时间", position = 13)
+    /** 处理人ID*/
+    @ApiModelProperty(value = "处理人ID", position = 13)
     private String updateUser;
+
+    /** 处理时间*/
+    @ApiModelProperty(value = "处理人Name", position = 14)
+    private String updateUserName;
 }
