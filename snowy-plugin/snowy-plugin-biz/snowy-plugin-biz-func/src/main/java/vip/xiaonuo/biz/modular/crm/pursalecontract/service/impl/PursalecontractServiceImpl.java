@@ -17,24 +17,20 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
-import vip.xiaonuo.biz.modular.crm.subcontract.entity.Subcontract;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.BizCommonEnum;
-import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -46,7 +42,6 @@ import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractEditPara
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractIdParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractPageParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.service.PursalecontractService;
-import vip.xiaonuo.common.util.CommonSnUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
@@ -126,7 +121,7 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @DSTransactional
     @Override
     public void add(PursalecontractAddParam pursalecontractAddParam) {
         //处理业务表
