@@ -121,6 +121,7 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
+    @DS("slave_1")
     @DSTransactional
     @Override
     public void add(PursalecontractAddParam pursalecontractAddParam) {
