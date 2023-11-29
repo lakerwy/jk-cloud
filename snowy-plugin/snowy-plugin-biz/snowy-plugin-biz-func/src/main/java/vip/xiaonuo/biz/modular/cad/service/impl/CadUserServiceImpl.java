@@ -197,7 +197,6 @@ public class CadUserServiceImpl extends ServiceImpl<CadUserMapper, CadUser> impl
 
     @Override
     public List<CadUser> userByProfession(String professionId) {
-
-
+         return cadUserMapper.getUserByProfession(professionId);
     }
 }
