@@ -20,6 +20,7 @@ import cn.hutool.captcha.CaptchaUtil;
 import cn.hutool.captcha.CircleCaptcha;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DatePattern;
@@ -1102,6 +1103,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 String orgId = sysOrgService.getOrgIdByOrgFullNameWithCreate(orgFullName);
                 // 职位id
                 String positionId = sysPositionService.getPositionIdByPositionNameWithCreate(orgId, positionName);
+                String directorId = null;
+                if(StrUtil.isNotEmpty(sysUserImportParam.getDirectorName())){
+                    List<SysUser> users = this.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getName, sysUserImportParam.getDirectorName()));
+                    if(CollUtil.isNotEmpty(users)){
+                        directorId = users.get(0).getId();
+                    }
+
+                }
 
                 // 查找账号对应索引
                 int index = CollStreamUtil.toList(allUserList, SysUser::getAccount).indexOf(account);
@@ -1163,6 +1172,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                 // 设置机构id和职位id
                 sysUser.setOrgId(orgId);
                 sysUser.setPositionId(positionId);
+                sysUser.setDirectorId(directorId);
 
                 // 设置机构名称和职位名称（暂时无作用）
                 sysUser.setOrgName(orgName);

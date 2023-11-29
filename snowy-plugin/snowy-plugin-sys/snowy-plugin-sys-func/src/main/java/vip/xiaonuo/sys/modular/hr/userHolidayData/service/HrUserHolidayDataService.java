@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.param.*;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.vo.HolidayDataRec;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.vo.HolidayDataRecVo;
 import vip.xiaonuo.sys.modular.hr.userHolidayDataRec.entity.HrUserHolidayDataRec;
 
 import java.util.List;
@@ -67,7 +68,7 @@ public interface HrUserHolidayDataService extends IService<HrUserHolidayData> {
      * @author ljy
      * @date  2023/09/22 16:48
      */
-    List<HolidayDataRec> detail(EditHolidayParam editHolidayParam);
+    HolidayDataRecVo detail(EditHolidayParam editHolidayParam);
 
     /**
      * 获取公司员工假期数据表详情

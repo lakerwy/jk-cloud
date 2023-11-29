@@ -30,6 +30,7 @@ import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.param.*;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.vo.HolidayDataRec;
+import vip.xiaonuo.sys.modular.hr.userHolidayData.vo.HolidayDataRecVo;
 
 
 import javax.annotation.Resource;
@@ -125,7 +126,7 @@ public class HrUserHolidayDataController {
     @ApiOperation("获取公司员工假期数据表详情")
     //@SaCheckPermission("/sys/userHolidayData/detail")
     @GetMapping("/sys/userHolidayData/detail")
-    public CommonResult<List<HolidayDataRec>> detail(@Valid EditHolidayParam editHolidayParam) {
+    public CommonResult<HolidayDataRecVo> detail(@Valid EditHolidayParam editHolidayParam) {
         return CommonResult.data(hrUserHolidayDataService.detail(editHolidayParam));
     }
 }
