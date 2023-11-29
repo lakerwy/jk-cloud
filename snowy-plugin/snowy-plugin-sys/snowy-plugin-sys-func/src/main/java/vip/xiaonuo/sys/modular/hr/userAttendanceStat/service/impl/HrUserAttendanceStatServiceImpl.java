@@ -19,12 +19,8 @@ import cn.hutool.core.date.DateField;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.qrcode.QrCodeUtil;
-import cn.hutool.extra.qrcode.QrConfig;
-import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.util.DateUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
@@ -32,7 +28,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.sun.org.apache.xpath.internal.operations.Bool;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -58,13 +53,10 @@ import vip.xiaonuo.sys.modular.hr.festivalData.service.HrFestivalDataService;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.entity.HrUserApplyHoliday;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.enums.HrUserApplyHolidayEnum;
 import vip.xiaonuo.sys.modular.hr.userApplyHoliday.service.HrUserApplyHolidayService;
-import vip.xiaonuo.sys.modular.hr.userApplygoOut.entity.HrUserApplyGoout;
-import vip.xiaonuo.sys.modular.hr.userApplygoOut.service.HrUserApplyGooutService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
 import vip.xiaonuo.sys.modular.hr.userAttendance.enums.HrUserAttendanceEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
-import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceConfigCacheEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
@@ -76,11 +68,10 @@ import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.util.ExcelUtil;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.util.MonthPreviewExcelUtil;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.mapper.HrUserAttendanceStatMapper;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
-import vip.xiaonuo.sys.modular.hr.userBusinessTrip.entity.HrUserBusinessTrip;
-import vip.xiaonuo.sys.modular.hr.userBusinessTrip.service.HrUserBusinessTripService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
@@ -778,11 +769,20 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                                          MonthStatData monthStatData,Map<String,UserAtdConfigMap> userAtdConfigMap){
         UserAtdConfigMap configMap = userAtdConfigMap.get(sysUser.getId()) != null ? userAtdConfigMap.get(sysUser.getId()) : new UserAtdConfigMap();
         TreeMap<Integer,MonthStatDataStatus> treeMap = new TreeMap<>();
+        List<MonthStatData> monthStatDataList = new ArrayList<>();
+        List<MonthStatDataStatus> monthStatDataStatusList = new ArrayList<>();
         Map<String,HrAttendanceAnalStat> analMap = statNanalMap.get(sysUser.getId()) != null ? statNanalMap.get(sysUser.getId()) : new HashMap<>();
         dayList.forEach(day -> {
             SimpleDateFormat sdf = new SimpleDateFormat("dd");
             Integer key = Integer.parseInt(sdf.format(CommonTimeFormatUtil.strToDate(day,DatePattern.NORM_DATE_PATTERN)));
             MonthStatDataStatus monthStatDataStatus = new MonthStatDataStatus();
+            monthStatDataStatus.setTime(day);
+            monthStatDataStatus.setWeekTime(key.toString());
+            String dayAndSunday = CommonTimeFormatUtil.dayAndSunday(day);
+            if(dayAndSunday.equals("六") || dayAndSunday.equals("日")){
+                monthStatDataStatus.setWeekTime(dayAndSunday);
+                monthStatDataStatus.setWeekTime(dayAndSunday);
+            }
             HrAttendanceAnalStat hrAttendanceAnalStat = analMap.get(day) == null ? analMap.get(day) : new HrAttendanceAnalStat();
             String status = "";
             if(hrAttendanceAnalStat != null &&hrAttendanceAnalStat.getHolidayFlag() != null) {
@@ -878,8 +878,10 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
                 monthStatDataStatus.setStatus("休息");
             }
             treeMap.put(key,monthStatDataStatus);
+            monthStatDataStatusList.add(monthStatDataStatus);
         });
         monthStatData.setTreeMap(treeMap);
+        monthStatData.setMonthStatDataStatusList(monthStatDataStatusList);
         return monthStatData;
     }
     //计算是否存在缺卡的缺卡
@@ -1144,9 +1146,9 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
     @Override
     public void downloadMonthExcel(AttendanceMonthStatParam attendanceMonthStatParam, HttpServletResponse response) throws Exception{
-        Page<MonthStatData>  page = monthStatPreview(attendanceMonthStatParam);
-        List<MonthStatData> monthStatDataList = page.getRecords();
-        ExcelUtil.workbookExcelMonth(monthStatDataList,response);
+        Page<MonthStatData> monthStatDataPage = monthStatPreview(attendanceMonthStatParam);
+        List<MonthStatData> monthStatDataList = monthStatDataPage.getRecords();
+        MonthPreviewExcelUtil.workbookExcelMonth(monthStatDataList,response);
     }
 
 
@@ -1711,6 +1713,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         }
         AttendanceAnalysisData attendanceAnalysisData = new AttendanceAnalysisData();
         VactionTimeAnalysis vactionTimeAnalysis = dateAnalysis(attendanceAnalysisParam);
+        attendanceAnalysisData.setShouldAtNum(shouldAtNumL);
+        attendanceAnalysisData.setShouldAtCompare("0");
         Boolean isAllOrg = true;
         attendanceBaseData(attendanceAnalysisData,vactionTimeAnalysis,isAllOrg,userList);
         Map<Integer,Map<String, Object>> analStatMap = countLineAnalysis(attendanceAnalysisParam.getTimeType(),orgList,attendanceAnalysisData,vactionTimeAnalysis);
@@ -1778,9 +1782,9 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
 
     private void attendanceBaseData(AttendanceAnalysisData attendanceAnalysisData, VactionTimeAnalysis vactionTimeAnalysis, Boolean isAllOrg, List<String> userList){
 
-        Long shouldAtNum = isAllOrg ? sysUserService.count(new LambdaQueryWrapper<SysUser>().isNotNull(SysUser::getAttendanceGroupId)) : userList.size();
-        attendanceAnalysisData.setShouldAtNum(shouldAtNum);
-        attendanceAnalysisData.setShouldAtCompare("0");
+        //Long shouldAtNum = isAllOrg ? sysUserService.count(new LambdaQueryWrapper<SysUser>().isNotNull(SysUser::getAttendanceGroupId)) : userList.size();
+        //attendanceAnalysisData.setShouldAtNum(shouldAtNum);
+        //attendanceAnalysisData.setShouldAtCompare("0");
 
         Long attendanceNum = isAllOrg ? hrAttendanceAnalStatService.count(new LambdaQueryWrapper<HrAttendanceAnalStat>()
                 .between(HrAttendanceAnalStat::getCheckTime,vactionTimeAnalysis.getFirstBeginTime(),vactionTimeAnalysis.getFirstEndTime()))
@@ -1796,8 +1800,8 @@ public class HrUserAttendanceStatServiceImpl extends ServiceImpl<HrUserAttendanc
         Long  attendanceCompare = attendanceNum-oldAttendanceNum;
         attendanceAnalysisData.setAttendanceCompare(attendanceCompare.toString());
 
-        double attendanceRate = shouldAtNum != 0l ? attendanceNum/shouldAtNum : 0.0;
-        double oldDttendanceRate = shouldAtNum != 0l ? oldAttendanceNum/shouldAtNum : 0.0;
+        double attendanceRate = attendanceAnalysisData.getShouldAtNum() != 0l ? attendanceNum/attendanceAnalysisData.getShouldAtNum() : 0.0;
+        double oldDttendanceRate = attendanceAnalysisData.getShouldAtNum() != 0l ? oldAttendanceNum/attendanceAnalysisData.getShouldAtNum() : 0.0;
         attendanceAnalysisData.setAttendanceRate(decimalFormat(attendanceRate));//出勤率
         attendanceAnalysisData.setAttendanceRateCompare(decimalFormat(attendanceRate-oldDttendanceRate));
 
