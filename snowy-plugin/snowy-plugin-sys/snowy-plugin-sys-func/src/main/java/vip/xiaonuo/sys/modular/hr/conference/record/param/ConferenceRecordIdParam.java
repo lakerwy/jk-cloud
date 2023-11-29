@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 /**
  * 会议预约-会议记录Id参数
@@ -29,10 +30,12 @@ import javax.validation.constraints.NotBlank;
 public class ConferenceRecordIdParam {
 
     /** 会议记录ID */
-    @ApiModelProperty(value = "会议记录ID")
+    @ApiModelProperty(value = "会议记录ID",required = true)
+    @NotNull(message = "会议记录ID不能为空")
     private String id;
 
-    /** 会议ID */
-    @ApiModelProperty(value = "会议ID")
+    /** 预约会议ID */
+    @ApiModelProperty(value = "预约会议ID",required = true)
+    @NotNull(message = "预约会议ID不能为空")
     private String conferenceRecId;
 }

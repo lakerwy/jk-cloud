@@ -37,6 +37,7 @@ import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceRecordServ
 import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceWorkArrangeService;
 import vip.xiaonuo.sys.modular.hr.conference.record.vo.RecordDetailVo;
 import vip.xiaonuo.sys.modular.hr.conference.record.vo.RezRecordVo;
+import vip.xiaonuo.sys.modular.hr.conference.record.vo.WorkArrangeVo;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
@@ -48,6 +49,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 会议预约-会议记录Service接口实现类
@@ -181,7 +183,13 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
             rezRecordVo = BeanUtil.toBean(conferenceRez, RezRecordVo.class);
         }
         recordDetailVo.setRezRecordVo(rezRecordVo);
+        conferenceWorkArrangeData(conferenceRecordIdParam,recordDetailVo);
         return recordDetailVo;
+    }
+    private void conferenceWorkArrangeData(ConferenceRecordIdParam conferenceRecordIdParam,RecordDetailVo recordDetailVo){
+        List<ConferenceWorkArrange> conferenceWorkArrangeList = conferenceWorkArrangeService.list(new LambdaQueryWrapper<ConferenceWorkArrange>()
+                .eq(ConferenceWorkArrange::getRecordId,conferenceRecordIdParam.getId()));
+        recordDetailVo.setConferenceWorkArrangeList(conferenceWorkArrangeList);
     }
 
     @Override
@@ -209,13 +217,34 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
     /** 保存工作部署*/
     private void saveConfSummary(ConfSummaryAddParam confSummaryAddParam){
         if(CollectionUtil.isNotEmpty(confSummaryAddParam.getWorkArrangeVoList())){
+            Map<String,WorkArrangeVo> updateMap = new HashMap<>();
+            List<WorkArrangeVo> save = new ArrayList<>();
             List<ConferenceWorkArrange> conferenceWorkArrangeList = new ArrayList<>();
-            confSummaryAddParam.getWorkArrangeVoList().forEach(conf -> {
-                ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(conf,ConferenceWorkArrange.class);
-                conferenceWorkArrange.setRecordId(confSummaryAddParam.getRecordId());
-                conferenceWorkArrangeList.add(conferenceWorkArrange);
+            confSummaryAddParam.getWorkArrangeVoList().forEach(arrange -> {
+                if(StringUtils.isNotEmpty(arrange.getId())){
+                    updateMap.put(arrange.getId(),arrange);
+                }else{
+                    save.add(arrange);
+                }
             });
-            conferenceWorkArrangeService.saveBatch(conferenceWorkArrangeList);
+            if(CollectionUtil.isNotEmpty(save)){
+                confSummaryAddParam.getWorkArrangeVoList().forEach(conf -> {
+                    ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(conf,ConferenceWorkArrange.class);
+                    conferenceWorkArrange.setRecordId(confSummaryAddParam.getRecordId());
+                    conferenceWorkArrangeList.add(conferenceWorkArrange);
+                });
+            }
+            if(CollectionUtil.isNotEmpty(updateMap.entrySet())){
+                List<String> ids = updateMap.entrySet().stream().map(vo -> vo.getValue().getId()).collect(Collectors.toList());
+                List<ConferenceWorkArrange> list = conferenceWorkArrangeService.list(new LambdaQueryWrapper<ConferenceWorkArrange>()
+                        .in(ConferenceWorkArrange::getId,ids));
+                list.forEach(arrange -> {
+                    WorkArrangeVo workArrangeVo = updateMap.get(arrange.getId());
+                    BeanUtil.copyProperties(workArrangeVo,arrange);
+                    conferenceWorkArrangeList.add(arrange);
+                });
+            }
+            conferenceWorkArrangeService.saveOrUpdateBatch(conferenceWorkArrangeList);
         }
     }
     /** 保存记录确认人*/
