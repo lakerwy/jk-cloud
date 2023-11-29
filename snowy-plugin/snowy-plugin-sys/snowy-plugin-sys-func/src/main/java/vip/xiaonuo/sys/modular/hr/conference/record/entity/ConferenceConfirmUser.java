@@ -87,4 +87,8 @@ public class ConferenceConfirmUser {
     /** 会议主题 */
     @ApiModelProperty(value = "会议主题", position = 13)
     private String theme;
+
+    /** 会议主题 */
+    @ApiModelProperty(value = "通知类别：1 记录通知，2 纪要通知", position = 13)
+    private Integer noticeType;
 }
