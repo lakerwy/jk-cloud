@@ -37,6 +37,7 @@ import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceRecordServ
 import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceWorkArrangeService;
 import vip.xiaonuo.sys.modular.hr.conference.record.vo.RecordDetailVo;
 import vip.xiaonuo.sys.modular.hr.conference.record.vo.RezRecordVo;
+import vip.xiaonuo.sys.modular.hr.conference.record.vo.WorkArrangeVo;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
@@ -48,6 +49,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * 会议预约-会议记录Service接口实现类
@@ -101,6 +103,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         conferenceRecord.setBeginTime(conferenceRecordAddParam.getRezRecordVo().getBeginTime());
         conferenceRecord.setEndTime(conferenceRecordAddParam.getRezRecordVo().getEndTime());
         conferenceRecord.setAbsents(absents != null ? absents.toString() : "");
+        conferenceRecord.setConfirmUserIds(conferenceRecordAddParam.getConfirmUserId());
         this.save(conferenceRecord);
 
         //对会议预约信息修改
@@ -181,7 +184,13 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
             rezRecordVo = BeanUtil.toBean(conferenceRez, RezRecordVo.class);
         }
         recordDetailVo.setRezRecordVo(rezRecordVo);
+        conferenceWorkArrangeData(conferenceRecordIdParam,recordDetailVo);
         return recordDetailVo;
+    }
+    private void conferenceWorkArrangeData(ConferenceRecordIdParam conferenceRecordIdParam,RecordDetailVo recordDetailVo){
+        List<ConferenceWorkArrange> conferenceWorkArrangeList = conferenceWorkArrangeService.list(new LambdaQueryWrapper<ConferenceWorkArrange>()
+                .eq(ConferenceWorkArrange::getRecordId,conferenceRecordIdParam.getId()));
+        recordDetailVo.setConferenceWorkArrangeList(conferenceWorkArrangeList);
     }
 
     @Override
@@ -195,27 +204,61 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
 
     @Override
     public void addSummary(ConfSummaryAddParam confSummaryAddParam){
-
         ConferenceRecord conferenceRecord = this.getById(confSummaryAddParam.getRecordId());
         if(ObjectUtil.isEmpty(conferenceRecord)){
             throw new CommonException("无会议记录！");
         }
+        if(StringUtils.isNotEmpty(conferenceRecord.getConferenceRecId())){
+            ConferenceRez rec = conferenceRezService.getById(conferenceRecord.getConferenceRecId());
+            ConferenceRezPeriod recPeriod = conferenceRezPeriodService.getById(conferenceRecord.getConferenceRecId());
+            if(ObjectUtil.isNotEmpty(rec)){
+                rec.setTheme(confSummaryAddParam.getTheme());
+                conferenceRezService.updateById(rec);
+            }
+            if(ObjectUtil.isNotEmpty(recPeriod)){
+                recPeriod.setTheme(confSummaryAddParam.getTheme());
+                conferenceRezPeriodService.updateById(recPeriod);
+            }
+        }
         conferenceRecord.setConfSummary(confSummaryAddParam.getConfSummary());
+        conferenceRecord.setConfirmUserIds(confSummaryAddParam.getConfirmUserIds());
+        conferenceRecord.setRecordConfirmIds(confSummaryAddParam.getRecordConfirmIds());
         saveConfSummary(confSummaryAddParam);//保存工作部署
-        saveConfirmUser(confSummaryAddParam);//保存会议记录确认人，并以此发送确认通知
+        saveConfirmUser(confSummaryAddParam);//保存会议纪要确认人，并以此发送确认通知
         this.saveOrUpdate(conferenceRecord);
     }
 
     /** 保存工作部署*/
     private void saveConfSummary(ConfSummaryAddParam confSummaryAddParam){
         if(CollectionUtil.isNotEmpty(confSummaryAddParam.getWorkArrangeVoList())){
+            Map<String,WorkArrangeVo> updateMap = new HashMap<>();
+            List<WorkArrangeVo> save = new ArrayList<>();
             List<ConferenceWorkArrange> conferenceWorkArrangeList = new ArrayList<>();
-            confSummaryAddParam.getWorkArrangeVoList().forEach(conf -> {
-                ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(conf,ConferenceWorkArrange.class);
-                conferenceWorkArrange.setRecordId(confSummaryAddParam.getRecordId());
-                conferenceWorkArrangeList.add(conferenceWorkArrange);
+            confSummaryAddParam.getWorkArrangeVoList().forEach(arrange -> {
+                if(StringUtils.isNotEmpty(arrange.getId())){
+                    updateMap.put(arrange.getId(),arrange);
+                }else{
+                    save.add(arrange);
+                }
             });
-            conferenceWorkArrangeService.saveBatch(conferenceWorkArrangeList);
+            if(CollectionUtil.isNotEmpty(save)){
+                confSummaryAddParam.getWorkArrangeVoList().forEach(conf -> {
+                    ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(conf,ConferenceWorkArrange.class);
+                    conferenceWorkArrange.setRecordId(confSummaryAddParam.getRecordId());
+                    conferenceWorkArrangeList.add(conferenceWorkArrange);
+                });
+            }
+            if(CollectionUtil.isNotEmpty(updateMap.entrySet())){
+                List<String> ids = updateMap.entrySet().stream().map(vo -> vo.getValue().getId()).collect(Collectors.toList());
+                List<ConferenceWorkArrange> list = conferenceWorkArrangeService.list(new LambdaQueryWrapper<ConferenceWorkArrange>()
+                        .in(ConferenceWorkArrange::getId,ids));
+                list.forEach(arrange -> {
+                    WorkArrangeVo workArrangeVo = updateMap.get(arrange.getId());
+                    BeanUtil.copyProperties(workArrangeVo,arrange);
+                    conferenceWorkArrangeList.add(arrange);
+                });
+            }
+            conferenceWorkArrangeService.saveOrUpdateBatch(conferenceWorkArrangeList);
         }
     }
     /** 保存记录确认人*/
@@ -225,9 +268,9 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
             //获取会议预约信息
             ConferenceRecord conferenceRecord = this.queryEntity(confSummaryAddParam.getRecordId());
             if(ObjectUtil.isNotEmpty(conferenceRecord)){
-                ConferenceRez rec = conferenceRezService.queryEntity(conferenceRecord.getConferenceRecId());
-                ConferenceRezPeriod recPeriod = conferenceRezPeriodService.queryEntity(conferenceRecord.getConferenceRecId());
-                map.put("recId",ObjectUtil.isNotEmpty(rec)? rec.getId() : ObjectUtil.isNotEmpty(recPeriod) ?  recPeriod.getId() : "");
+                ConferenceRez rec = conferenceRezService.getById(conferenceRecord.getConferenceRecId());
+                ConferenceRezPeriod recPeriod = conferenceRezPeriodService.getById(conferenceRecord.getConferenceRecId());
+                map.put("rezId",ObjectUtil.isNotEmpty(rec)? rec.getId() : ObjectUtil.isNotEmpty(recPeriod) ?  recPeriod.getId() : "");
                 map.put("theme",ObjectUtil.isNotEmpty(rec)? rec.getTheme() : ObjectUtil.isNotEmpty(recPeriod) ?  recPeriod.getTheme() : "");
             }
             List<String> userIds = Arrays.asList(confSummaryAddParam.getConfirmUserIds().split(","));
@@ -240,7 +283,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
                     conferenceConfirmUser.setConfirmUserName(user.getName());
                     conferenceConfirmUser.setRecordId(confSummaryAddParam.getRecordId());
                     conferenceConfirmUser.setTheme(map.get("theme"));
-                    conferenceConfirmUser.setRezId(map.get("recId"));
+                    conferenceConfirmUser.setRezId(map.get("rezId"));
                     confirmUserList.add(conferenceConfirmUser);
                 });
             }

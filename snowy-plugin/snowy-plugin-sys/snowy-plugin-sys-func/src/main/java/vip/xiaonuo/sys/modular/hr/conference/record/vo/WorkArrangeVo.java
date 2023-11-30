@@ -1,5 +1,6 @@
 package vip.xiaonuo.sys.modular.hr.conference.record.vo;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -8,7 +9,11 @@ import lombok.Setter;
 @Setter
 public class WorkArrangeVo {
     /** 工作部署,部署事项，完成时间，责任部门，责任人，工作进展，是否完成*/
-    /** 部署事项 */
+    /** ID */
+    @TableId
+    @ApiModelProperty(value = "ID", position = 1)
+    private String id;
+
     @ApiModelProperty(value = "部署事项", position = 1)
     private String workArrange;
 

@@ -50,12 +50,12 @@ public class ConferenceConfirmPageParam {
     @ApiModelProperty(value = "会议记录ID")
     private String recordId;
 
-    /** 会议记录确认人ID */
-    @ApiModelProperty(value = "会议记录确认人ID")
+    /** 会议纪要确认人ID */
+    @ApiModelProperty(value = "会议纪要确认人ID")
     private String confirmUserId;
 
-    /** 会议记录确认人名称 */
-    @ApiModelProperty(value = "会议记录确认人名称")
+    /** 会议纪要确认人名称 */
+    @ApiModelProperty(value = "会议纪要确认人名称")
     private String confirmUserName;
 
     /** 是否对会议进行确认，1 已确认 */

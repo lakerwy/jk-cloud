@@ -59,4 +59,12 @@ public class ConferenceRecordEditParam {
     @ApiModelProperty(value = "会议信息", position = 8)
     private RezRecordVo rezRecordVo;
 
+    /** 会议纪要确认人(逗号隔开)  CONFIRM_USER_IDS*/
+    @ApiModelProperty(value = "会议纪要确认人(逗号隔开)", position = 17)
+    private String confirmUserIds;
+
+    /** 会议记录确认人(逗号隔开)  CONFIRM_USER_IDS*/
+    @ApiModelProperty(value = "会议记录确认人(逗号隔开)", position = 17)
+    private String recordConfirmIds;
+
 }

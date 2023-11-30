@@ -161,13 +161,13 @@ public class ConferenceRecordController {
      * @author ljy
      * @date  2023/11/28 16:31
      */
-    @ApiOperationSupport(order = 7)
+    /*@ApiOperationSupport(order = 7)
     @ApiOperation("获取工作部署分页")
     //@SaCheckPermission("/sys/workArrange/page")
     @GetMapping("/sys/workArrange/page")
     public CommonResult<Page<ConferenceWorkArrange>> workArrangepage(ConferenceWorkArrangePageParam conferenceWorkArrangePageParam) {
         return CommonResult.data(conferenceWorkArrangeService.page(conferenceWorkArrangePageParam));
-    }
+    }*/
 
     /**
      * 添加工作部署
@@ -175,7 +175,7 @@ public class ConferenceRecordController {
      * @author ljy
      * @date  2023/11/28 16:31
      */
-    @ApiOperationSupport(order = 8)
+    /*@ApiOperationSupport(order = 8)
     @ApiOperation("添加工作部署")
     @CommonLog("添加工作部署")
     //@SaCheckPermission("/sys/workArrange/add")
@@ -183,7 +183,7 @@ public class ConferenceRecordController {
     public CommonResult<String> workArrangeadd(@RequestBody @Valid ConferenceWorkArrangeAddParam conferenceWorkArrangeAddParam) {
         conferenceWorkArrangeService.add(conferenceWorkArrangeAddParam);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 编辑工作部署
@@ -191,7 +191,7 @@ public class ConferenceRecordController {
      * @author ljy
      * @date  2023/11/28 16:31
      */
-    @ApiOperationSupport(order = 9)
+    /*@ApiOperationSupport(order = 9)
     @ApiOperation("编辑工作部署")
     @CommonLog("编辑工作部署")
     //@SaCheckPermission("/sys/workArrange/edit")
@@ -199,7 +199,7 @@ public class ConferenceRecordController {
     public CommonResult<String> workArrangeedit(@RequestBody @Valid ConferenceWorkArrangeEditParam conferenceWorkArrangeEditParam) {
         conferenceWorkArrangeService.edit(conferenceWorkArrangeEditParam);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 删除工作部署
@@ -207,7 +207,7 @@ public class ConferenceRecordController {
      * @author ljy
      * @date  2023/11/28 16:31
      */
-    @ApiOperationSupport(order = 10)
+    /*@ApiOperationSupport(order = 10)
     @ApiOperation("删除工作部署")
     @CommonLog("删除工作部署")
     //@SaCheckPermission("/sys/workArrange/delete")
@@ -216,7 +216,7 @@ public class ConferenceRecordController {
                                                CommonValidList<ConferenceWorkArrangeIdParam> conferenceWorkArrangeIdParamList) {
         conferenceWorkArrangeService.delete(conferenceWorkArrangeIdParamList);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 获取工作部署详情
@@ -224,13 +224,13 @@ public class ConferenceRecordController {
      * @author ljy
      * @date  2023/11/28 16:31
      */
-    @ApiOperationSupport(order = 11)
+    /*@ApiOperationSupport(order = 11)
     @ApiOperation("获取工作部署详情")
     //@SaCheckPermission("/sys/workArrange/detail")
     @GetMapping("/sys/workArrange/detail")
     public CommonResult<ConferenceWorkArrange> workArrangedetail(@Valid ConferenceWorkArrangeIdParam conferenceWorkArrangeIdParam) {
         return CommonResult.data(conferenceWorkArrangeService.detail(conferenceWorkArrangeIdParam));
-    }
+    }*/
 
 
     /**

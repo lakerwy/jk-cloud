@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.cad.mapper.CadUserMapper">
+
+    <select id="getByUserId" resultType="vip.xiaonuo.biz.modular.cad.vo.CadProfessionVo">
+        select a.ID as professionId,a.NAME as professionName
+        from BIZ_CAD_PROFESSION a
+            join BIZ_CAD_USER_PROFESSION b on a.ID = b.CAD_PROFESSION_ID
+        where b.DELETE_FLAG = 'NOT_DELETE' and b.CAD_USER_ID = #{userId}
+    </select>
+
+    <select id="getUserByProfession" resultType="vip.xiaonuo.biz.modular.cad.entity.CadUser">
+        select a.*
+        from BIZ_CAD_USER a join BIZ_CAD_USER_PROFESSION b on a.ID = b.CAD_USER_ID
+        where b.DELETE_FLAG = 'NOT_DELETE' and b.CAD_PROFESSION_ID = #{professionId}
+    </select>
+
+</mapper>

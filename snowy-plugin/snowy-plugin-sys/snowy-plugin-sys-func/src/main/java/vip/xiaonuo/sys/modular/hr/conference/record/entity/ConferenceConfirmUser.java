@@ -38,12 +38,12 @@ public class ConferenceConfirmUser {
     @ApiModelProperty(value = "会议记录ID", position = 2)
     private String recordId;
 
-    /** 会议记录确认人ID */
-    @ApiModelProperty(value = "会议记录确认人ID", position = 3)
+    /** 会议纪要确认人ID */
+    @ApiModelProperty(value = "会议纪要确认人ID", position = 3)
     private String confirmUserId;
 
-    /** 会议记录确认人名称 */
-    @ApiModelProperty(value = "会议记录确认人名称", position = 4)
+    /** 会议纪要确认人名称 */
+    @ApiModelProperty(value = "会议纪要确认人名称", position = 4)
     private String confirmUserName;
 
     /** 是否对会议进行确认，1 已确认 */
@@ -87,4 +87,8 @@ public class ConferenceConfirmUser {
     /** 会议主题 */
     @ApiModelProperty(value = "会议主题", position = 13)
     private String theme;
+
+    /** 会议主题 */
+    @ApiModelProperty(value = "通知类别：1 记录通知，2 纪要通知", position = 13)
+    private Integer noticeType;
 }
