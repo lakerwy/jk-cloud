@@ -36,7 +36,6 @@ public class UserRezPageParam {
     private String rezUser;
 
     @ApiModelProperty(value = "状态：1 返回我预约的，2 返回我参与的 ", position = 2)
-    @NotNull(message = "状态不能为空")
     private Integer status;
 
     /** 开始时间 */
