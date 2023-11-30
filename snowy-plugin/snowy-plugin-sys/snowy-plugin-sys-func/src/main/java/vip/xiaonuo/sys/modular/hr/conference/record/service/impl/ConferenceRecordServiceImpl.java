@@ -261,9 +261,42 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         }
         saveConfSummary(confSummaryAddParam);//保存工作部署
         saveConfirmUser(confSummaryAddParam);//保存会议纪要确认人，并以此发送确认通知
+        //保存会签列表
         this.saveOrUpdate(conferenceRecord);
     }
 
+    /**  保存会签人员 */
+    public void saveconfSign(ConfSummaryAddParam confSummaryAddParam){
+        Map<String,String> map = new HashMap<>();
+        if(StringUtils.isNotEmpty(confSummaryAddParam.getConferenceSignIds())){
+            //获取会议预约信息
+            ConferenceRecord conferenceRecord = this.queryEntity(confSummaryAddParam.getRecordId());
+            if(ObjectUtil.isNotEmpty(conferenceRecord)){
+                ConferenceRez rec = conferenceRezService.getById(conferenceRecord.getConferenceRecId());
+                ConferenceRezPeriod recPeriod = conferenceRezPeriodService.getById(conferenceRecord.getConferenceRecId());
+                map.put("rezId",ObjectUtil.isNotEmpty(rec)? rec.getId() : ObjectUtil.isNotEmpty(recPeriod) ?  recPeriod.getId() : "");
+                map.put("theme",ObjectUtil.isNotEmpty(rec)? rec.getTheme() : ObjectUtil.isNotEmpty(recPeriod) ?  recPeriod.getTheme() : "");
+            }
+            List<String> userIds = Arrays.asList(confSummaryAddParam.getConferenceSignIds().split(","));
+            List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+            List<ConferenceConfirmUser> confirmUserList = new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(sysUserList)){
+                sysUserList.forEach(user -> {
+                    ConferenceConfirmUser conferenceConfirmUser = new ConferenceConfirmUser();
+                    conferenceConfirmUser.setConfirmUserId(user.getId());
+                    conferenceConfirmUser.setConfirmUserName(user.getName());
+                    conferenceConfirmUser.setRecordId(confSummaryAddParam.getRecordId());
+                    conferenceConfirmUser.setTheme(map.get("theme"));
+                    conferenceConfirmUser.setRezId(map.get("rezId"));
+                    conferenceConfirmUser.setNoticeType(3);
+                    confirmUserList.add(conferenceConfirmUser);
+                });
+            }
+            if(CollectionUtil.isNotEmpty(confirmUserList)){
+                conferenceConfirmUserService.saveBatch(confirmUserList);
+            }
+        }
+    }
     /** 保存工作部署*/
     private void saveConfSummary(ConfSummaryAddParam confSummaryAddParam){
         if(CollectionUtil.isNotEmpty(confSummaryAddParam.getWorkArrangeVoList())){

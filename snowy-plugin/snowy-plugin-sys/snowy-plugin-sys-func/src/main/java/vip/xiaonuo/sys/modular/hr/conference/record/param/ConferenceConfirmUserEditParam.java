@@ -41,11 +41,11 @@ public class ConferenceConfirmUserEditParam {
     private String recordId;
 
     /** 会议纪要确认人ID */
-    @ApiModelProperty(value = "会议纪要确认人ID", position = 3)
+    @ApiModelProperty(value = "会议纪要/记录 确认人ID", position = 3)
     private String confirmUserId;
 
     /** 会议纪要确认人名称 */
-    @ApiModelProperty(value = "会议纪要确认人名称", position = 4)
+    @ApiModelProperty(value = "会议纪要/记录 确认人名称", position = 4)
     private String confirmUserName;
 
     /** 是否对会议进行确认，1 已确认 */
@@ -55,5 +55,9 @@ public class ConferenceConfirmUserEditParam {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 6)
     private String extJson;
+
+    /** 会议主题 */
+    @ApiModelProperty(value = "通知类别：1 记录通知，2 纪要通知，3 会签通知", position = 7)
+    private Integer noticeType;
 
 }

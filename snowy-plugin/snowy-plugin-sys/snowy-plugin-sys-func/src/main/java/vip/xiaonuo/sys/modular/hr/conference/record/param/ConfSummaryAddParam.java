@@ -33,4 +33,8 @@ public class ConfSummaryAddParam {
     /** 会议记录确认人(逗号隔开) */
     @ApiModelProperty(value = "会议记录确认人(逗号隔开)", position = 6)
     private String recordConfirmIds;
+
+    /** 会签人员ID列表 CONFIRM_USER_IDS*/
+    @ApiModelProperty(value = "会签人员ID列表(逗号隔开)", position = 7)
+    private String conferenceSignIds;
 }
