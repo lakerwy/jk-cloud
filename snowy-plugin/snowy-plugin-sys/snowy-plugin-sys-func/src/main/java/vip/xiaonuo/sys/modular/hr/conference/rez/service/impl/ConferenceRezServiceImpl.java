@@ -205,9 +205,11 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 conAffUsers.append(aff).append(",");
             });
         }
-        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
+        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && conferenceRezAddParam.getWeekTime() > 0){
             updateConferenceRezPeriod(conferenceRezAddParam,conAffUsers.toString());
             //throw new CommonException("周期预约时，时间类型不能都为空");
+        }else if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime()) && conferenceRezAddParam.getDayTime() >0){
+            updateConferenceRezPeriod(conferenceRezAddParam,conAffUsers.toString());
         }else{
             ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
             StringBuffer  rezAgenda = new StringBuffer();
@@ -439,8 +441,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
 
     private List<ConferenceTime> conferenceTimes(String day){
         /**7:30:00 - 23:00:00 */
-        Date beginTime = CommonTimeFormatUtil.strToDate(day+" 7:30:00",DatePattern.NORM_DATETIME_PATTERN);
-        Date endTime = CommonTimeFormatUtil.strToDate(day+" 23:00:00",DatePattern.NORM_DATETIME_PATTERN);
+        Date beginTime = CommonTimeFormatUtil.strToDate(day+" 8:00:00",DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(day+" 22:00:00",DatePattern.NORM_DATETIME_PATTERN);
         List<ConferenceTime> conferenceTimeList = new ArrayList<>();
         while (beginTime.compareTo(endTime) < 0){
             Date time1 = beginTime;
@@ -554,13 +556,12 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(CollectionUtil.isEmpty(recordId)){
             return userRezPage;
         }
-        List<ConferenceConfirmUser> summaryList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
-                .eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
-                .eq(ConferenceConfirmUser::getNoticeType,1).in(ConferenceConfirmUser::getRecordId,recordId)); //会议记录
-        confirmRezUser(summaryList, userRezPage, page.getRecords(),1);
-
         List<ConferenceConfirmUser> recordList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
-                .eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
+                //.eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
+                .eq(ConferenceConfirmUser::getNoticeType,1).in(ConferenceConfirmUser::getRecordId,recordId)); //会议记录
+
+        List<ConferenceConfirmUser> summaryList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
+                //.eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
                 .eq(ConferenceConfirmUser::getNoticeType,2).in(ConferenceConfirmUser::getRecordId,recordId)); //会议纪要
 
         List<UserRezPageVo> userRezPageVoList = CollectionUtil.isNotEmpty(page.getRecords())?
@@ -571,6 +572,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 : new ArrayList<>();
         userRezPage.setTotal(userRezPageVoList.size());
         userRezPage.setRecords(userRezPageVoList);
+        confirmRezUser(recordList, userRezPage, page.getRecords(),1);
         confirmRezUser(summaryList,userRezPage, page.getRecords(),2);
         return userRezPage;
     }

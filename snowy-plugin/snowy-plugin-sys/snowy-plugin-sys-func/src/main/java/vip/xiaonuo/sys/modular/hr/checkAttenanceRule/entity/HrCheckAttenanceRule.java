@@ -72,4 +72,8 @@ public class HrCheckAttenanceRule {
     @ApiModelProperty(value = "更新人", position = 9)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 10)
+    private String remark;
 }
