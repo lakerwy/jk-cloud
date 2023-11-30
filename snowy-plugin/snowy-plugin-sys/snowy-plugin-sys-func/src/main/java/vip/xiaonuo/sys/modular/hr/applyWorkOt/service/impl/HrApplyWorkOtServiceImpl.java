@@ -28,6 +28,8 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -47,6 +49,10 @@ import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtIdParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.param.HrApplyWorkOtPageParam;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.service.HrApplyWorkOtService;
 import vip.xiaonuo.sys.modular.hr.applyWorkOt.vo.UserWorkOtVo;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.service.HrUserAttendanceStatService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.UserAtdConfigMap;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -63,6 +69,10 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+    @Resource
+    HrUserAttendanceStatService hrUserAttendanceStatService;
+    @Resource
+    SysUserService sysUserService;
 
     @Override
     public Page<HrApplyWorkOt> page(HrApplyWorkOtPageParam hrApplyWorkOtPageParam) {
@@ -190,6 +200,10 @@ public class HrApplyWorkOtServiceImpl extends ServiceImpl<HrApplyWorkOtMapper, H
 
     @Override
     public Double countWorkHours(String beginTime,String endTime){
+        SaBaseLoginUser saBaseLoginUser = StpLoginUserUtil.getLoginUser();
+        SysUser sysUser = sysUserService.queryEntity(saBaseLoginUser.getId());
+        Map<String, UserAtdConfigMap> userAtdConfigMap = hrUserAttendanceStatService.getUserAtdConfigMap();
+        UserAtdConfigMap configMap = userAtdConfigMap.get(sysUser.getAttendanceGroupId());
         Long hours = 0l;
         try{
             /**1.开始和结束时间，包含考勤区间

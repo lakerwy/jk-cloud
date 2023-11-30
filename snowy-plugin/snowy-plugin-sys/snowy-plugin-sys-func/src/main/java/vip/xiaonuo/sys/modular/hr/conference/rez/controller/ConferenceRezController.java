@@ -32,6 +32,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.UserRezPageVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -170,6 +171,20 @@ public class ConferenceRezController {
     @GetMapping("/sys/rez/sendConfMsg")
     public CommonResult<OapiMessageCorpconversationAsyncsendV2Response> sendConfMsg(@Valid String message , String phone) {
         return CommonResult.data(conferenceRezService.sendConfMsg(message ,phone));
+    }
+
+    /**
+     * 根据人员获取会议预约信息
+     *
+     * @author ljy
+     * @date  2023/11/05 23:13
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("根据人员获取会议预约信息")
+    //@SaCheckPermission("/sys/rez/page")
+    @GetMapping("/sys/rez/userRezPage")
+    public CommonResult<Page<UserRezPageVo>> userRezPage(UserRezPageParam userRezPageParam) {
+        return CommonResult.data(conferenceRezService.userRezPage(userRezPageParam));
     }
 
 }

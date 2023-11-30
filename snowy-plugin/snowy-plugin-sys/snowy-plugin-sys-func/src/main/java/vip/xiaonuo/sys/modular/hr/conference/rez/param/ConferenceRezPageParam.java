@@ -59,16 +59,14 @@ public class ConferenceRezPageParam {
     private String rezUser;
 
     /** 开始时间 */
-    @ApiModelProperty(value = "开始时间",required = true)
-    @NotNull(message = "开始时间不能为空")
+    @ApiModelProperty(value = "开始时间")
     private String beginTime;
 
     /** 结束时间 */
     @ApiModelProperty(value = "结束时间")
-    @NotNull(message = "结束时间不能为空")
     private String endTime;
 
-    /** 参与者-只能传单个人员 */
-    @ApiModelProperty(value = "参与者-只能传单个人员")
+    /** 参与者-查询只能传单个人员 */
+    @ApiModelProperty(value = "参与者-查询只能传单个人员")
     private String joinUserId;
 }

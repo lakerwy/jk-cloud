@@ -22,6 +22,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.UserRezPageVo;
 
 
 import java.util.List;
@@ -108,4 +109,7 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /** 发送开会消息 */
     OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(String message , String phone);
+
+    /** 根据人员获取会议预约信息 */
+    Page<UserRezPageVo> userRezPage(UserRezPageParam userRezPageParam);
 }

@@ -79,13 +79,13 @@ public class HrUserHolidayDataServiceImpl extends ServiceImpl<HrUserHolidayDataM
     public Page<HrUserHolidayData> page(HrUserHolidayDataPageParam hrUserHolidayDataPageParam) {
         QueryWrapper<HrUserHolidayData> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(hrUserHolidayDataPageParam.getUserName())) {
-            queryWrapper.lambda().eq(HrUserHolidayData::getUserName, hrUserHolidayDataPageParam.getUserName());
+            queryWrapper.lambda().like(HrUserHolidayData::getUserName, hrUserHolidayDataPageParam.getUserName());
         }
         if(ObjectUtil.isNotEmpty(hrUserHolidayDataPageParam.getDeparId())) {
             queryWrapper.lambda().eq(HrUserHolidayData::getDeparId, hrUserHolidayDataPageParam.getDeparId());
         }
         if(ObjectUtil.isNotEmpty(hrUserHolidayDataPageParam.getDeparName())) {
-            queryWrapper.lambda().eq(HrUserHolidayData::getDeparName, hrUserHolidayDataPageParam.getDeparName());
+            queryWrapper.lambda().like(HrUserHolidayData::getDeparName, hrUserHolidayDataPageParam.getDeparName());
         }
         if(ObjectUtil.isAllNotEmpty(hrUserHolidayDataPageParam.getSortField(), hrUserHolidayDataPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hrUserHolidayDataPageParam.getSortOrder());
