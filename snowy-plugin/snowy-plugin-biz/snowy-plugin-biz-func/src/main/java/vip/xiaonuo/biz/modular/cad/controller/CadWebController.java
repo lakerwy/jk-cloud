@@ -28,6 +28,8 @@ import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.service.*;
 import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
 import vip.xiaonuo.biz.modular.cad.vo.CadUserVo;
+import vip.xiaonuo.biz.modular.cad.vo.StageSubItemVo;
+import vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -64,14 +66,17 @@ public class CadWebController {
     @Resource
     private CadSubItemService cadSubItemService;
 
+    @Resource
+    private CadSubItemUserService cadSubItemUserService;
+
     /**
-     * 获取CAD-专业表分页
+     * 【专业】获取CAD-专业表分页
      *
      * @author yong.ye
      * @date  2023/11/29 10:35
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取CAD-专业表分页")
+    @ApiOperation("【专业】获取CAD-专业表分页")
 //    @SaCheckPermission("/biz/cad/web/profession/page")
     @GetMapping("/biz/cad/web/profession/page")
     public CommonResult<Page<CadProfession>> pageProfession(CadProfessionPageParam cadProfessionPageParam) {
@@ -79,13 +84,13 @@ public class CadWebController {
     }
 
     /**
-     * 添加CAD-专业表
+     * 【专业】添加CAD-专业表
      *
      * @author yong.ye
      * @date  2023/11/29 10:35
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加CAD-专业表")
+    @ApiOperation("【专业】添加CAD-专业表")
     @CommonLog("添加CAD-专业表")
 //    @SaCheckPermission("/biz/cad/web/profession/add")
     @PostMapping("/biz/cad/web/profession/add")
@@ -95,13 +100,13 @@ public class CadWebController {
     }
 
     /**
-     * 编辑CAD-专业表
+     * 【专业】编辑CAD-专业表
      *
      * @author yong.ye
      * @date  2023/11/29 10:35
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑CAD-专业表")
+    @ApiOperation("【专业】编辑CAD-专业表")
     @CommonLog("编辑CAD-专业表")
 //    @SaCheckPermission("/biz/cad/web/profession/edit")
     @PostMapping("/biz/cad/web/profession/edit")
@@ -111,13 +116,13 @@ public class CadWebController {
     }
 
     /**
-     * 删除CAD-专业表
+     * 【专业】删除CAD-专业表
      *
      * @author yong.ye
      * @date  2023/11/29 10:35
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除CAD-专业表")
+    @ApiOperation("【专业】删除CAD-专业表")
     @CommonLog("删除CAD-专业表")
 //    @SaCheckPermission("/biz/cad/web/profession/delete")
     @PostMapping("/biz/cad/web/profession/delete")
@@ -128,27 +133,13 @@ public class CadWebController {
     }
 
     /**
-     * 获取CAD-专业表详情
-     *
-     * @author yong.ye
-     * @date  2023/11/29 10:35
-     */
-    @ApiOperationSupport(order = 5)
-    @ApiOperation("获取CAD-专业表详情")
-//    @SaCheckPermission("/biz/cad/web/profession/detail")
-    @GetMapping("/biz/cad/web/profession/detail")
-    public CommonResult<CadProfession> detailProfession(@Valid CadProfessionIdParam cadProfessionIdParam) {
-        return CommonResult.data(cadProfessionService.detail(cadProfessionIdParam));
-    }
-
-    /**
-     * 获取全部cad专业集合
+     * 【专业】获取全部cad专业集合
      *
      * @author yong.ye
      * @date  2023/11/29 10:35
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("获取全部cad专业集合")
+    @ApiOperation("【专业】获取全部cad专业集合")
 //    @SaCheckPermission("/biz/cad/web/profession/all")
     @GetMapping("/biz/cad/web/profession/all")
     public CommonResult<List<CadProfession>> allProfession() {
@@ -157,13 +148,13 @@ public class CadWebController {
 
 
     /**
-     * 获取CAD-用户表分页
+     * 【用户】获取CAD-用户表分页
      *
      * @author yong.ye
      * @date  2023/11/29 10:40
      */
     @ApiOperationSupport(order = 10)
-    @ApiOperation("获取CAD-用户表分页")
+    @ApiOperation("【用户】获取CAD-用户表分页")
 //    @SaCheckPermission("/biz/cad/web/user/page")
     @GetMapping("/biz/cad/web/user/page")
     public CommonResult<Page<CadUserVo>> pageUser(CadUserPageParam cadUserPageParam) {
@@ -171,13 +162,13 @@ public class CadWebController {
     }
 
     /**
-     * 添加CAD-用户表
+     * 【用户】添加CAD-用户表
      *
      * @author yong.ye
      * @date  2023/11/29 10:40
      */
     @ApiOperationSupport(order = 11)
-    @ApiOperation("添加CAD-用户表")
+    @ApiOperation("【用户】添加CAD-用户表")
     @CommonLog("添加CAD-用户表")
 //    @SaCheckPermission("/biz/cad/web/user/add")
     @PostMapping("/biz/cad/web/user/add")
@@ -187,13 +178,13 @@ public class CadWebController {
     }
 
     /**
-     * 添加CAD-用户表【批量添加】
+     * 【用户】添加CAD-用户表【批量添加】
      *
      * @author yong.ye
      * @date  2023/11/29 10:40
      */
     @ApiOperationSupport(order = 12)
-    @ApiOperation("添加CAD-用户表【支持批量添加】")
+    @ApiOperation("【用户】添加CAD-用户表【支持批量添加】")
     @CommonLog("添加CAD-用户表【支持批量添加】")
 //    @SaCheckPermission("/biz/cad/web/user/addBatch")
     @PostMapping("/biz/cad/web/user/addBatch")
@@ -203,13 +194,13 @@ public class CadWebController {
     }
 
     /**
-     * 编辑CAD-用户表
+     * 【用户】编辑CAD-用户表
      *
      * @author yong.ye
      * @date  2023/11/29 10:40
      */
     @ApiOperationSupport(order = 13)
-    @ApiOperation("编辑CAD-用户表")
+    @ApiOperation("【用户】编辑CAD-用户表")
     @CommonLog("编辑CAD-用户表")
 //    @SaCheckPermission("/biz/cad/web/user/edit")
     @PostMapping("/biz/cad/web/user/edit")
@@ -219,13 +210,13 @@ public class CadWebController {
     }
 
     /**
-     * 删除CAD-用户表
+     * 【用户】删除CAD-用户表
      *
      * @author yong.ye
      * @date  2023/11/29 10:40
      */
     @ApiOperationSupport(order = 14)
-    @ApiOperation("删除CAD-用户表")
+    @ApiOperation("【用户】删除CAD-用户表")
     @CommonLog("删除CAD-用户表")
 //    @SaCheckPermission("/biz/cad/web/user/delete")
     @PostMapping("/biz/cad/web/user/delete")
@@ -236,13 +227,13 @@ public class CadWebController {
     }
 
     /**
-     * 获取CAD-用户表详情
+     * 【用户】获取CAD-用户表详情
      *
      * @author yong.ye
      * @date  2023/11/29 10:40
      */
     @ApiOperationSupport(order = 15)
-    @ApiOperation("获取CAD-用户表详情")
+    @ApiOperation("【用户】获取CAD-用户表详情")
 //    @SaCheckPermission("/biz/cad/web/user/detail")
     @GetMapping("/biz/cad/web/user/detail")
     public CommonResult<CadUserVo> detailUser(@Valid CadUserIdParam cadUserIdParam) {
@@ -250,13 +241,13 @@ public class CadWebController {
     }
 
     /**
-     * 设置 CAD-用户表 所属专业【支持批量处理】
+     * 【用户】设置 CAD-用户表 所属专业【支持批量处理】
      *
      * @author yong.ye
      * @date  2023/11/29 10:40
      */
     @ApiOperationSupport(order = 16)
-    @ApiOperation("设置 CAD-用户表 所属专业【支持批量处理】")
+    @ApiOperation("【用户】设置 CAD-用户表 所属专业【支持批量处理】")
     @CommonLog("设置 CAD-用户表 所属专业【支持批量处理】")
 //    @SaCheckPermission("/biz/cad/web/user/setProfession")
     @PostMapping("/biz/cad/web/user/setProfession")
@@ -266,28 +257,28 @@ public class CadWebController {
     }
 
     /**
-     * 根据专业获取该专业的用户集合
+     * 【用户】根据专业Id获取该专业的用户集合
      *
      * @author yong.ye
      * @date  2023/11/29 10:40
      */
     @ApiOperationSupport(order = 17)
-    @ApiOperation("根据专业获取该专业的用户集合")
-//    @SaCheckPermission("/biz/cad/web/user/userByProfession")
-    @GetMapping("/biz/cad/web/user/userByProfession")
+    @ApiOperation("【用户】根据专业Id获取该专业的用户集合")
+//    @SaCheckPermission("/biz/cad/web/user/userByProfessionId")
+    @GetMapping("/biz/cad/web/user/userByProfessionId")
     public CommonResult<List<CadUser>> userByProfession(String professionId) {
         return CommonResult.data(cadUserService.userByProfession(professionId));
     }
 
 
     /**
-     * 获取CAD项目阶段分页
+     * 【阶段】获取CAD项目阶段分页
      *
      * @author yong.ye
      * @date  2023/11/29 10:38
      */
     @ApiOperationSupport(order = 21)
-    @ApiOperation("获取CAD项目阶段分页")
+    @ApiOperation("【阶段】获取CAD项目阶段分页")
 //    @SaCheckPermission("/biz/cad/web/stage/page")
     @GetMapping("/biz/cad/web/stage/page")
     public CommonResult<Page<CadStage>> pageStage(CadStagePageParam cadStagePageParam) {
@@ -295,13 +286,13 @@ public class CadWebController {
     }
 
     /**
-     * 添加CAD项目阶段
+     * 【阶段】添加CAD项目阶段
      *
      * @author yong.ye
      * @date  2023/11/29 10:38
      */
     @ApiOperationSupport(order = 22)
-    @ApiOperation("添加CAD项目阶段")
+    @ApiOperation("【阶段】添加CAD项目阶段")
     @CommonLog("添加CAD项目阶段")
 //    @SaCheckPermission("/biz/cad/web/stage/add")
     @PostMapping("/biz/cad/web/stage/add")
@@ -311,13 +302,13 @@ public class CadWebController {
     }
 
     /**
-     * 编辑CAD项目阶段
+     * 【阶段】编辑CAD项目阶段
      *
      * @author yong.ye
      * @date  2023/11/29 10:38
      */
     @ApiOperationSupport(order = 23)
-    @ApiOperation("编辑CAD项目阶段")
+    @ApiOperation("【阶段】编辑CAD项目阶段")
     @CommonLog("编辑CAD项目阶段")
 //    @SaCheckPermission("/biz/cad/web/stage/edit")
     @PostMapping("/biz/cad/web/stage/edit")
@@ -327,13 +318,13 @@ public class CadWebController {
     }
 
     /**
-     * 删除CAD项目阶段
+     * 【阶段】删除CAD项目阶段
      *
      * @author yong.ye
      * @date  2023/11/29 10:38
      */
     @ApiOperationSupport(order = 24)
-    @ApiOperation("删除CAD项目阶段")
+    @ApiOperation("【阶段】删除CAD项目阶段")
     @CommonLog("删除CAD项目阶段")
 //    @SaCheckPermission("/biz/cad/web/stage/delete")
     @PostMapping("/biz/cad/web/stage/delete")
@@ -343,28 +334,15 @@ public class CadWebController {
         return CommonResult.ok();
     }
 
-    /**
-     * 获取CAD项目阶段详情
-     *
-     * @author yong.ye
-     * @date  2023/11/29 10:38
-     */
-    @ApiOperationSupport(order = 25)
-    @ApiOperation("获取CAD项目阶段详情")
-//    @SaCheckPermission("/biz/cad/web/stage/detail")
-    @GetMapping("/biz/cad/web/stage/detail")
-    public CommonResult<CadStage> detailStage(@Valid CadStageIdParam cadStageIdParam) {
-        return CommonResult.data(cadStageService.detail(cadStageIdParam));
-    }
 
     /**
-     * 获取CAD所有项目阶段集合
+     * 【阶段】获取CAD所有项目阶段集合
      *
      * @author yong.ye
      * @date  2023/11/29 10:38
      */
     @ApiOperationSupport(order = 26)
-    @ApiOperation("获取CAD所有项目阶段集合")
+    @ApiOperation("【阶段】获取CAD所有项目阶段集合")
 //    @SaCheckPermission("/biz/cad/web/stage/all")
     @GetMapping("/biz/cad/web/stage/all")
     public CommonResult<List<CadStage>> allStage() {
@@ -374,13 +352,13 @@ public class CadWebController {
 
 
     /**
-     * 获取CAD-项目表分页
+     * 【项目】获取CAD-项目表分页
      *
      * @author yong.ye
      * @date  2023/11/29 10:36
      */
     @ApiOperationSupport(order = 31)
-    @ApiOperation("获取CAD-项目表分页")
+    @ApiOperation("【项目】获取CAD-项目表分页")
 //    @SaCheckPermission("/biz/cad/web/project/page")
     @GetMapping("/biz/cad/web/project/page")
     public CommonResult<Page<CadProjectVo>> pageProject(CadProjectPageParam cadProjectPageParam) {
@@ -388,13 +366,13 @@ public class CadWebController {
     }
 
     /**
-     * 添加CAD-项目表
+     * 【项目】添加CAD-项目表
      *
      * @author yong.ye
      * @date  2023/11/29 10:36
      */
     @ApiOperationSupport(order = 32)
-    @ApiOperation("添加CAD-项目表")
+    @ApiOperation("【项目】添加CAD-项目表")
     @CommonLog("添加CAD-项目表")
 //    @SaCheckPermission("/biz/cad/web/project/add")
     @PostMapping("/biz/cad/web/project/add")
@@ -404,13 +382,13 @@ public class CadWebController {
     }
 
     /**
-     * 编辑CAD-项目表
+     * 【项目】编辑CAD-项目表
      *
      * @author yong.ye
      * @date  2023/11/29 10:36
      */
     @ApiOperationSupport(order = 33)
-    @ApiOperation("编辑CAD-项目表")
+    @ApiOperation("【项目】编辑CAD-项目表")
     @CommonLog("编辑CAD-项目表")
 //    @SaCheckPermission("/biz/cad/web/project/edit")
     @PostMapping("/biz/cad/web/project/edit")
@@ -420,13 +398,13 @@ public class CadWebController {
     }
 
     /**
-     * 删除CAD-项目表
+     * 【项目】删除CAD-项目表
      *
      * @author yong.ye
      * @date  2023/11/29 10:36
      */
     @ApiOperationSupport(order = 34)
-    @ApiOperation("删除CAD-项目表")
+    @ApiOperation("【项目】删除CAD-项目表")
     @CommonLog("删除CAD-项目表")
 //    @SaCheckPermission("/biz/cad/web/project/delete")
     @PostMapping("/biz/cad/web/project/delete")
@@ -437,42 +415,43 @@ public class CadWebController {
     }
 
     /**
-     * 获取CAD-项目表详情
+     * 【项目】获取CAD-项目表详情(根据项目Id，获取项目基本信息)
      *
      * @author yong.ye
      * @date  2023/11/29 10:36
      */
     @ApiOperationSupport(order = 35)
-    @ApiOperation("获取CAD-项目表详情")
+    @ApiOperation("【项目】获取CAD-项目表详情")
 //    @SaCheckPermission("/biz/cad/web/project/detail")
     @GetMapping("/biz/cad/web/project/detail")
-    public CommonResult<CadProject> detailProject(@Valid CadProjectIdParam cadProjectIdParam) {
+    public CommonResult<CadProjectVo> detailProject(@Valid CadProjectIdParam cadProjectIdParam) {
         return CommonResult.data(cadProjectService.detail(cadProjectIdParam));
     }
 
 
     /**
-     * 获取CAD-项目子项表分页
+     * 【项目】根据项目Id,获取当前项目的阶段-子项两级树状结构
      *
      * @author yong.ye
-     * @date  2023/11/29 10:39
+     * @date  2023/11/29 10:36
      */
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("获取CAD-项目子项表分页")
-//    @SaCheckPermission("/biz/cad/web/subItem/page")
-    @GetMapping("/biz/cad/web/subItem/page")
-    public CommonResult<Page<CadSubItem>> pageSubItem(CadSubItemPageParam cadSubItemPageParam) {
-        return CommonResult.data(cadSubItemService.page(cadSubItemPageParam));
+    @ApiOperationSupport(order = 35)
+    @ApiOperation("【项目】根据项目Id,获取当前项目的阶段-子项两级树状结构")
+//    @SaCheckPermission("/biz/cad/web/project/stageSubItem")
+    @GetMapping("/biz/cad/web/project/stageSubItem")
+    public CommonResult<List<StageSubItemVo>> stageSubItem(String prjId) {
+        return CommonResult.data(cadProjectService.stageSubItem(prjId));
     }
 
+
     /**
-     * 添加CAD-项目子项表
+     * 【子项】添加CAD-项目子项表
      *
      * @author yong.ye
      * @date  2023/11/29 10:39
      */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("添加CAD-项目子项表")
+    @ApiOperationSupport(order = 42)
+    @ApiOperation("【子项】添加CAD-项目子项表")
     @CommonLog("添加CAD-项目子项表")
 //    @SaCheckPermission("/biz/cad/web/subItem/add")
     @PostMapping("/biz/cad/web/subItem/add")
@@ -482,13 +461,13 @@ public class CadWebController {
     }
 
     /**
-     * 编辑CAD-项目子项表
+     * 【子项】编辑CAD-项目子项表
      *
      * @author yong.ye
      * @date  2023/11/29 10:39
      */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑CAD-项目子项表")
+    @ApiOperationSupport(order = 43)
+    @ApiOperation("【子项】编辑CAD-项目子项表")
     @CommonLog("编辑CAD-项目子项表")
 //    @SaCheckPermission("/biz/cad/web/subItem/edit")
     @PostMapping("/biz/cad/web/subItem/edit")
@@ -498,13 +477,13 @@ public class CadWebController {
     }
 
     /**
-     * 删除CAD-项目子项表
+     * 【子项】删除CAD-项目子项表
      *
      * @author yong.ye
      * @date  2023/11/29 10:39
      */
-    @ApiOperationSupport(order = 4)
-    @ApiOperation("删除CAD-项目子项表")
+    @ApiOperationSupport(order = 44)
+    @ApiOperation("【子项】删除CAD-项目子项表")
     @CommonLog("删除CAD-项目子项表")
 //    @SaCheckPermission("/biz/cad/web/subItem/delete")
     @PostMapping("/biz/cad/web/subItem/delete")
@@ -515,16 +494,47 @@ public class CadWebController {
     }
 
     /**
-     * 获取CAD-项目子项表详情
+     * 【子项】获取CAD-项目子项表详情
      *
      * @author yong.ye
      * @date  2023/11/29 10:39
      */
-    @ApiOperationSupport(order = 5)
-    @ApiOperation("获取CAD-项目子项表详情")
+    @ApiOperationSupport(order = 45)
+    @ApiOperation("【子项】获取CAD-项目子项表详情")
 //    @SaCheckPermission("/biz/cad/web/subItem/detail")
     @GetMapping("/biz/cad/web/subItem/detail")
     public CommonResult<CadSubItem> detailSubItem(@Valid CadSubItemIdParam cadSubItemIdParam) {
         return CommonResult.data(cadSubItemService.detail(cadSubItemIdParam));
     }
+
+    /**
+     * 【子项】根据子项Id,获取当前项目子项下的专业人员设置列表
+     *
+     * @author yong.ye
+     * @date  2023/11/29 10:36
+     */
+    @ApiOperationSupport(order = 46)
+    @ApiOperation("【子项】根据子项Id,获取当前项目子项下的专业人员设置列表")
+//    @SaCheckPermission("/biz/cad/web/subItem/subItemUser")
+    @GetMapping("/biz/cad/web/subItem/subItemUser")
+    public CommonResult<List<SubItemUserVo>> subItemUser(String subItemId) {
+        return CommonResult.data(cadSubItemService.subItemUser(subItemId));
+    }
+
+    /**
+     * 【子项】保存 CAD-项目子项 - 人员设置 信息
+     *
+     * @author yong.ye
+     * @date  2023/11/29 10:39
+     */
+    @ApiOperationSupport(order = 47)
+    @ApiOperation("【子项】保存 CAD-项目子项 - 人员设置 信息")
+    @CommonLog("保存 CAD-项目子项 - 人员设置 信息")
+//    @SaCheckPermission("/biz/cad/web/subItem/saveSubItemUser")
+    @PostMapping("/biz/cad/web/subItem/saveSubItemUser")
+    public CommonResult<String> saveSubItemUser(@RequestBody @Valid SaveSubItemUserParam saveSubItemUserParam) {
+        cadSubItemUserService.saveSubItemUser(saveSubItemUserParam);
+        return CommonResult.ok();
+    }
+
 }

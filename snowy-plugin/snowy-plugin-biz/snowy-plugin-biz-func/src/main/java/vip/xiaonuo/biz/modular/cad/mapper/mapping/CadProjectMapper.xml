@@ -8,4 +8,21 @@
             left join BIZ_CAD_USER b on a.MANAGER = b.ID
             ${ew.customSqlSegment}
     </select>
+
+    <select id="getById" resultType="vip.xiaonuo.biz.modular.cad.vo.CadProjectVo">
+        select a.*,b.NAME as managerName
+        from BIZ_CAD_PROJECT a
+                 left join BIZ_CAD_USER b on a.MANAGER = b.ID
+        where a.ID = #{prjId}
+    </select>
+
+    <select id="getStageSubItemByPrjId" resultType="vip.xiaonuo.biz.modular.cad.vo.CadSubItemVo">
+        select a.*,b.NAME as stageName,b.INDEX as stageIndex,c.NAME as prjName
+        from BIZ_CAD_SUB_ITEM a
+            left join BIZ_CAD_STAGE b on a.STAGE_ID = b.ID
+            left join BIZ_CAD_PROJECT c on a.PRJ_ID = c.ID
+        where a.PRJ_ID = #{prjId} and a.DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
+
 </mapper>

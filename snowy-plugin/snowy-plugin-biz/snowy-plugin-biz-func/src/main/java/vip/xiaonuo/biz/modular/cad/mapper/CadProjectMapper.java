@@ -19,6 +19,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.cad.entity.CadProject;
 import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
+import vip.xiaonuo.biz.modular.cad.vo.CadSubItemVo;
+
+import java.util.List;
 
 /**
  * CAD-专业表Mapper接口
@@ -35,5 +38,17 @@ public interface CadProjectMapper extends BaseMapper<CadProject> {
      * @return
      */
     Page<CadProjectVo> getPageList(Page<CadProjectVo> page, @Param(Constants.WRAPPER) Wrapper<CadProject> queryWrapper);
+
+    /**
+     * 根据项目Id,获取项目详情
+     */
+    CadProjectVo getById(String prjId);
+
+    /**
+     * 根据项目Id,获取当前项目的阶段-子项两级树状结构
+     * @param prjId
+     * @return
+     */
+    List<CadSubItemVo> getSubItemByPrjId(String prjId);
 
 }

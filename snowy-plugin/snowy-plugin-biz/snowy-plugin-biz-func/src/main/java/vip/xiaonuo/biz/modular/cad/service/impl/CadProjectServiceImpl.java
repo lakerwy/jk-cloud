@@ -23,6 +23,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
+import vip.xiaonuo.biz.modular.cad.vo.CadSubItemVo;
+import vip.xiaonuo.biz.modular.cad.vo.StageSubItemVo;
+import vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -35,7 +38,11 @@ import vip.xiaonuo.biz.modular.cad.param.CadProjectPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadProjectService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * CAD-专业表Service接口实现类
@@ -108,8 +115,8 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
     }
 
     @Override
-    public CadProject detail(CadProjectIdParam cadProjectIdParam) {
-        return this.queryEntity(cadProjectIdParam.getId());
+    public CadProjectVo detail(CadProjectIdParam cadProjectIdParam) {
+        return cadProjectMapper.getById(cadProjectIdParam.getId());
     }
 
     @Override
@@ -120,4 +127,20 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         }
         return cadProject;
     }
+
+    @Override
+    public List<StageSubItemVo> stageSubItem(String prjId) {
+        List<StageSubItemVo> result = new ArrayList<>();
+        List<CadSubItemVo> subItemVoList = cadProjectMapper.getSubItemByPrjId(prjId);
+        Map<String,List<CadSubItemVo>> groupByStage = subItemVoList.stream().sorted(Comparator.comparing(x->x.getStageIndex())).collect(Collectors.groupingBy(x->x.getStageId()));
+        for (Map.Entry<String,List<CadSubItemVo>> item:groupByStage.entrySet()) {
+            StageSubItemVo stageSubItemVo = new StageSubItemVo();
+            stageSubItemVo.setStageId(item.getKey());
+            stageSubItemVo.setStageName(item.getValue().get(0).getStageName());
+            stageSubItemVo.setSubItemList(item.getValue());
+            result.add(stageSubItemVo);
+        }
+        return result;
+    }
+
 }

@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.cad.param.CadSubItemAddParam;
 import vip.xiaonuo.biz.modular.cad.param.CadSubItemEditParam;
 import vip.xiaonuo.biz.modular.cad.param.CadSubItemIdParam;
 import vip.xiaonuo.biz.modular.cad.param.CadSubItemPageParam;
+import vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo;
 
 import java.util.List;
 
@@ -77,4 +78,11 @@ public interface CadSubItemService extends IService<CadSubItem> {
      * @date  2023/11/29 10:39
      **/
     CadSubItem queryEntity(String id);
+
+    /**
+     *  根据子项Id,获取当前项目子项下的专业人员设置列表
+     * @param subItemId
+     * @return
+     */
+    List<SubItemUserVo> subItemUser(String subItemId);
 }

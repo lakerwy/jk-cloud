@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.cad.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -22,18 +23,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.cad.entity.CadSubItemUser;
 import vip.xiaonuo.biz.modular.cad.mapper.CadSubItemUserMapper;
-import vip.xiaonuo.biz.modular.cad.param.CadSubItemUserAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadSubItemUserEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadSubItemUserIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadSubItemUserPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadSubItemUserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * CAD-子项-专业-人员关系表Service接口实现类
@@ -93,4 +92,29 @@ public class CadSubItemUserServiceImpl extends ServiceImpl<CadSubItemUserMapper,
         }
         return cadSubItemUser;
     }
+
+    @Override
+    public void saveSubItemUser(SaveSubItemUserParam saveSubItemUserParam) {
+        //获取历史数据
+        List<CadSubItemUser> oldSubItemUserList = this.list(new QueryWrapper<CadSubItemUser>().lambda().eq(CadSubItemUser::getSubItemId,saveSubItemUserParam.getSubItemId()));
+        //历史的主键Id集合
+        List<String> oldIds = oldSubItemUserList.stream().map(x->x.getId()).collect(Collectors.toList());
+        //新增的
+        List<CadSubItemUser> addList = saveSubItemUserParam.getSubItemUserList().stream().filter(x->ObjectUtil.isEmpty(x.getId())).collect(Collectors.toList());
+        //更新的
+        List<CadSubItemUser> updateList = saveSubItemUserParam.getSubItemUserList().stream().filter(x->ObjectUtil.isNotEmpty(x.getId())).collect(Collectors.toList());
+        //删除的
+        oldIds.removeAll(updateList.stream().map(x->x.getId()).collect(Collectors.toList()));
+        if(CollUtil.isNotEmpty(addList)){
+            this.saveBatch(addList);
+        }
+        if(CollUtil.isNotEmpty(updateList)){
+            this.updateBatchById(updateList);
+        }
+        if(CollUtil.isNotEmpty(oldIds)){
+            this.removeByIds(oldIds);
+        }
+    }
+
+
 }

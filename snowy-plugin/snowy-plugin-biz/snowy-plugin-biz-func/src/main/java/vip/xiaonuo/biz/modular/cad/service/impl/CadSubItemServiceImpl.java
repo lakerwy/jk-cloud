@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +34,7 @@ import vip.xiaonuo.biz.modular.cad.param.CadSubItemIdParam;
 import vip.xiaonuo.biz.modular.cad.param.CadSubItemPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadSubItemService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -44,6 +46,9 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class CadSubItemServiceImpl extends ServiceImpl<CadSubItemMapper, CadSubItem> implements CadSubItemService {
+
+    @Resource
+    private CadSubItemMapper cadSubItemMapper;
 
     @Override
     public Page<CadSubItem> page(CadSubItemPageParam cadSubItemPageParam) {
@@ -98,5 +103,10 @@ public class CadSubItemServiceImpl extends ServiceImpl<CadSubItemMapper, CadSubI
             throw new CommonException("CAD-项目子项表不存在，id值为：{}", id);
         }
         return cadSubItem;
+    }
+
+    @Override
+    public List<SubItemUserVo> subItemUser(String subItemId) {
+        return cadSubItemMapper.getSubItemUser(subItemId);
     }
 }

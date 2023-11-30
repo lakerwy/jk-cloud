@@ -44,9 +44,9 @@ public class CadSubItemEditParam {
     @ApiModelProperty(value = "状态", position = 4)
     private String status;
 
-    /** 外键：项目Id -> BIZ_CAD_PROJECT.ID */
-    @ApiModelProperty(value = "外键：项目Id -> BIZ_CAD_PROJECT.ID", position = 5)
-    private String prjId;
+//    /** 外键：项目Id -> BIZ_CAD_PROJECT.ID */
+//    @ApiModelProperty(value = "外键：项目Id -> BIZ_CAD_PROJECT.ID", position = 5)
+//    private String prjId;
 
     /** 外键：阶段Id -> BIZ_CAD_STAGE.ID */
     @ApiModelProperty(value = "外键：阶段Id -> BIZ_CAD_STAGE.ID", position = 6)

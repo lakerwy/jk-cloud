@@ -14,6 +14,9 @@ package vip.xiaonuo.biz.modular.cad.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.cad.entity.CadSubItem;
+import vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo;
+
+import java.util.List;
 
 /**
  * CAD-项目子项表Mapper接口
@@ -22,4 +25,9 @@ import vip.xiaonuo.biz.modular.cad.entity.CadSubItem;
  * @date  2023/11/29 10:39
  **/
 public interface CadSubItemMapper extends BaseMapper<CadSubItem> {
+
+    /**
+     *  根据子项Id,获取当前项目子项下的专业人员设置列表
+     */
+    List<SubItemUserVo> getSubItemUser(String subItemId);
 }

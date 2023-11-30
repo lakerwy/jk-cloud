@@ -20,6 +20,7 @@ import vip.xiaonuo.biz.modular.cad.param.CadProjectEditParam;
 import vip.xiaonuo.biz.modular.cad.param.CadProjectIdParam;
 import vip.xiaonuo.biz.modular.cad.param.CadProjectPageParam;
 import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
+import vip.xiaonuo.biz.modular.cad.vo.StageSubItemVo;
 
 import java.util.List;
 
@@ -69,7 +70,7 @@ public interface CadProjectService extends IService<CadProject> {
      * @author yong.ye
      * @date  2023/11/29 10:36
      */
-    CadProject detail(CadProjectIdParam cadProjectIdParam);
+    CadProjectVo detail(CadProjectIdParam cadProjectIdParam);
 
     /**
      * 获取CAD-专业表详情
@@ -78,4 +79,12 @@ public interface CadProjectService extends IService<CadProject> {
      * @date  2023/11/29 10:36
      **/
     CadProject queryEntity(String id);
+
+    /**
+     *  根据项目Id,获取当前项目的阶段-子项两级树状结构
+     * @param prjId
+     * @return
+     */
+    List<StageSubItemVo> stageSubItem(String prjId);
+
 }

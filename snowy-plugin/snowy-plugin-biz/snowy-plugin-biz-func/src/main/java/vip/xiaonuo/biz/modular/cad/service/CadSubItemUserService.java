@@ -14,12 +14,11 @@ package vip.xiaonuo.biz.modular.cad.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.bind.annotation.RequestBody;
 import vip.xiaonuo.biz.modular.cad.entity.CadSubItemUser;
-import vip.xiaonuo.biz.modular.cad.param.CadSubItemUserAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadSubItemUserEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadSubItemUserIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadSubItemUserPageParam;
+import vip.xiaonuo.biz.modular.cad.param.*;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -77,4 +76,10 @@ public interface CadSubItemUserService extends IService<CadSubItemUser> {
      * @date  2023/11/29 10:39
      **/
     CadSubItemUser queryEntity(String id);
+
+    /**
+     * 保存当前子项人员设置信息 【新增|修改|删除】
+     * @param saveSubItemUserParam
+     */
+    void saveSubItemUser(SaveSubItemUserParam saveSubItemUserParam);
 }
