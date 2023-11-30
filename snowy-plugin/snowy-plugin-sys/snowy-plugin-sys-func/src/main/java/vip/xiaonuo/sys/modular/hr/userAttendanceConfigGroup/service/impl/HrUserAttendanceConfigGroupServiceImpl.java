@@ -89,7 +89,29 @@ public class HrUserAttendanceConfigGroupServiceImpl extends ServiceImpl<HrUserAt
         } else {
             queryWrapper.lambda().orderByAsc(HrUserAttendanceConfigGroup::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<HrUserAttendanceConfigGroup> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        getAtdConfigMap(page.getRecords());
+        return page;
+    }
+    private void getAtdConfigMap(List<HrUserAttendanceConfigGroup> configGroupList){
+        if (CollectionUtil.isEmpty(configGroupList)){
+            return;
+        }
+        List<HrUserAttendanceConfig> configList = hrUserAttendanceConfigService.list();
+        Map<String,List<HrUserAttendanceConfig>> map = new HashMap<>();//key groupConfigId
+        configList.forEach(config -> {
+            List<HrUserAttendanceConfig> userConfigList = map.get(config.getAttendanceTypeId()) != null ? map.get(config.getAttendanceTypeId()) : new ArrayList<>();
+            userConfigList.add(config);
+            map.put(config.getAttendanceTypeId(),userConfigList);
+        });
+        configGroupList.forEach(group -> {
+            List<HrUserAttendanceConfig> userConfigList = map.get(group.getId()) != null ? map.get(group.getId()) : new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(userConfigList)){
+                String atdTime = userConfigList.get(0).getCheckTime() +"-"+userConfigList.get(userConfigList.size()-1).getCheckTime();
+                group.setAtdTime(atdTime);
+            }
+        });
+
     }
 
     @Transactional(rollbackFor = Exception.class)
