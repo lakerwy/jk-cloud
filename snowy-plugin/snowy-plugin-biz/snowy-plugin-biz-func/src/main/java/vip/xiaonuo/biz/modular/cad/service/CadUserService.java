@@ -14,12 +14,10 @@ package vip.xiaonuo.biz.modular.cad.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.web.bind.annotation.RequestBody;
 import vip.xiaonuo.biz.modular.cad.entity.CadUser;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.vo.CadUserVo;
 
-import javax.validation.Valid;
 import java.util.List;
 
 /**

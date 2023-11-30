@@ -1,6 +1,5 @@
 package vip.xiaonuo.biz.modular.cad.vo;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;

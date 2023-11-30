@@ -25,7 +25,6 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
 import vip.xiaonuo.biz.modular.cad.vo.CadSubItemVo;
 import vip.xiaonuo.biz.modular.cad.vo.StageSubItemVo;
-import vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
