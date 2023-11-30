@@ -41,7 +41,7 @@ public class ErrorAttendancePageParam {
     @ApiModelProperty(value = "日期：年月日")
     private String day;
 
-    @ApiModelProperty(value = "异常状态：-1 缺卡，3 迟到， 4 早退，5 严重迟到，6 严重早退，空值 返回所有数据")
+    @ApiModelProperty(value = "异常状态：-1 缺卡，1 正常，3 迟到， 4 早退，5 严重迟到，6 旷工迟到，空值 返回所有数据")
     private Integer abnormalFlag;
 
     @ApiModelProperty(value = "是否处理状态：1 已处理，2 未处理")

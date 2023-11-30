@@ -12,7 +12,7 @@ public class EditErrorAtdParam {
     private String attendanceId;
 
     /** 状态修改*/
-    @ApiModelProperty(value = "状态修改，-1 缺卡，1 正常，3 迟到,4 早退",required = true,position = 2)
+    @ApiModelProperty(value = "异常状态：-1 缺卡，1 正常，3 迟到， 4 早退，5 严重迟到，6 旷工迟到",required = true,position = 2)
     private String editStatus;
 
     /** 备注*/

@@ -640,8 +640,9 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             String offdutyMinute = stat.getAbnormalFlag() == 4 ? String.valueOf(DateUtil.between(stat.getCheckTime(),ondutyTime, DateUnit.MINUTE)) : "";
             String errorStatus = "";
             if(ObjectUtil.isNotEmpty(stat.getAbnormalFlag()) && stat.getAbnormalFlag() == 1){  //处理过的数据
-                errorStatus = stat.getEditAbnormalFlag() == null ? "打卡异常" : stat.getEditAbnormalFlag() == -1 ? " 缺卡" :
-                        stat.getEditAbnormalFlag() == 3 ? "迟到"+ondutyMinute+"分钟" : stat.getEditAbnormalFlag() == 4 ?  "早退"+offdutyMinute+"分钟" : "";
+                errorStatus = stat.getEditAbnormalFlag() == null ? "打卡异常" : stat.getEditAbnormalFlag() == -1 ? "缺卡" :
+                        stat.getEditAbnormalFlag() == 3 ? "迟到"+ondutyMinute+"分钟" : stat.getEditAbnormalFlag() == 4 ?  "早退"+offdutyMinute+"分钟" :
+                                stat.getEditAbnormalFlag() == 5 ? "严重迟到":stat.getEditAbnormalFlag() == 6 ? "旷工迟到":"";
             }else{
                 errorStatus = stat.getAbnormalFlag() == null ? "打卡异常" : stat.getAbnormalFlag() == -1 ? " 缺卡" :
                         stat.getAbnormalFlag() == 3 ? "迟到"+ondutyMinute+"分钟" : stat.getAbnormalFlag() == 4 ?  "早退"+offdutyMinute+"分钟" : "";
@@ -650,7 +651,9 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             if(StringUtils.isNotEmpty(stat.getUpdateUser())){
                 String dealResult = stat.getAbnormalFlag() == null ? "打卡异常" : stat.getAbnormalFlag() == -1 ? " 缺卡" :
                         stat.getEditAbnormalFlag() == 3 ? "迟到"+ondutyMinute+"分钟" :
-                                stat.getAbnormalFlag() == 4 ?  "早退"+offdutyMinute+"分钟" : "正常打卡";
+                                stat.getAbnormalFlag() == 4 ?  "早退"+offdutyMinute+"分钟" :
+                                        stat.getEditAbnormalFlag() == 5 ? "严重迟到":
+                                                stat.getEditAbnormalFlag() == 6 ? "旷工迟到":"正常打卡";
                 errorAttendanceData.setDealResult(dealResult);
             }
             //OnDuty：上班；OffDuty：下班；休息 REST
