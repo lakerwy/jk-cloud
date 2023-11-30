@@ -249,7 +249,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
             }
             if(ObjectUtil.isNotEmpty(recPeriod)){
                 recPeriod.setTheme(confSummaryAddParam.getTheme());
-                conferenceRecord.setConferenceRecId(rec.getId());
+                conferenceRecord.setConferenceRecId(recPeriod.getId());
                 conferenceRecord.setConferenceType(2);
                 conferenceRezPeriodService.updateById(recPeriod);
             }

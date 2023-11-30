@@ -227,10 +227,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         ConferenceRezPeriod conferenceRezPeriod = BeanUtil.toBean(conferenceRezAddParam, ConferenceRezPeriod.class);
         conferenceRezPeriod.setConferenceConfigId(conferenceRezAddParam.getConferenceConfigId());
         //时间处理
-        Time beginTime = Time.valueOf(CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(), DatePattern.NORM_TIME_PATTERN));
-        Time endTime = Time.valueOf(CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getEndTime(), DatePattern.NORM_TIME_PATTERN));
-        conferenceRezPeriod.setBeginTime(beginTime);
-        conferenceRezPeriod.setEndTime(endTime);
+        /*Date beginTime = conferenceRezAddParam.getBeginTime();
+        Date endTime = conferenceRezAddParam.getEndTime();*/
+        conferenceRezPeriod.setBeginTime(conferenceRezAddParam.getBeginTime());
+        conferenceRezPeriod.setEndTime(conferenceRezAddParam.getEndTime());
         conferenceRezPeriod.setWeekTime(conferenceRezAddParam.getWeekTime());
         conferenceRezPeriod.setDayTime(conferenceRezAddParam.getDayTime());
         conferenceRezPeriod.setConAffUsers(StringUtils.isNotEmpty(affUsers) ? affUsers : "");
