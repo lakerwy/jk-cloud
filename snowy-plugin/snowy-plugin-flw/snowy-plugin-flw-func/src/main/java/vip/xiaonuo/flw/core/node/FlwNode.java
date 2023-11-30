@@ -174,6 +174,8 @@ public class FlwNode {
 
         /** 条件优先级（数字越大优先级别越高） */
         private Integer priorityLevel;
+
+        private float limitHours;
     }
 
     /** 条件属性类 */

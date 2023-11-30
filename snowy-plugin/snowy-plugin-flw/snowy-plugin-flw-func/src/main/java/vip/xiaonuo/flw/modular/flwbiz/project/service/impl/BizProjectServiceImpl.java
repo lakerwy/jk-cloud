@@ -20,6 +20,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -138,7 +139,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         this.save(bizProject);
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    @DSTransactional
     @Override
     public void edit(BizProjectEditParam bizProjectEditParam) {
         String id = bizProjectEditParam.getId();
