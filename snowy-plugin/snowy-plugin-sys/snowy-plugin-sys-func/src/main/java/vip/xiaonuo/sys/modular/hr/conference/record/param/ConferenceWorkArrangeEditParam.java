@@ -65,7 +65,7 @@ public class ConferenceWorkArrangeEditParam {
     private String workEvolve;
 
     /** 是否完成,1 完成 */
-    @ApiModelProperty(value = "是否完成,1 完成", position = 9)
+    @ApiModelProperty(value = "是否完成,0 未完成，1 完成", position = 9)
     private Integer isWorkEnd;
 
     /** 扩展信息 */

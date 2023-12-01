@@ -15,6 +15,8 @@ package vip.xiaonuo.sys.modular.hr.conference.record.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -28,6 +30,9 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.job.task.CommonHandleUtil;
+import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
+import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
 import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceConfirmUser;
 import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceRecord;
 import vip.xiaonuo.sys.modular.hr.conference.record.mapper.ConferenceRecordMapper;
@@ -72,6 +77,8 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
     ApplicationEventPublisher eventPublisher;
     @Resource
     ConferenceConfirmUserService conferenceConfirmUserService;
+    @Resource
+    ConferenceConfigService conferenceConfigService;
 
     @Override
     public Page<ConferenceRecord> page(ConferenceRecordPageParam conferenceRecordPageParam) {
@@ -269,10 +276,13 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
 
     /**  保存会签人员 */
     public void saveconfSign(ConfSummaryAddParam confSummaryAddParam){
+        //先清空原有数据
+        ConferenceRecord conferenceRecord = this.queryEntity(confSummaryAddParam.getRecordId());
+        deleteOldData(conferenceRecord.getId(),3);
         Map<String,String> map = new HashMap<>();
         if(StringUtils.isNotEmpty(confSummaryAddParam.getConferenceSignIds())){
             //获取会议预约信息
-            ConferenceRecord conferenceRecord = this.queryEntity(confSummaryAddParam.getRecordId());
+            //ConferenceRecord conferenceRecord = this.queryEntity(confSummaryAddParam.getRecordId());
             if(ObjectUtil.isNotEmpty(conferenceRecord)){
                 ConferenceRez rec = conferenceRezService.getById(conferenceRecord.getConferenceRecId());
                 ConferenceRezPeriod recPeriod = conferenceRezPeriodService.getById(conferenceRecord.getConferenceRecId());
@@ -291,6 +301,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
                     conferenceConfirmUser.setTheme(map.get("theme"));
                     conferenceConfirmUser.setRezId(map.get("rezId"));
                     conferenceConfirmUser.setNoticeType(3);
+
                     confirmUserList.add(conferenceConfirmUser);
                 });
             }
@@ -334,10 +345,12 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
     }
     /** 保存记录确认人*/
     private void saveConfirmUser(ConfSummaryAddParam confSummaryAddParam){
+        //先清空原有数据
+        ConferenceRecord conferenceRecord = this.queryEntity(confSummaryAddParam.getRecordId());
+        deleteOldData(conferenceRecord.getId(),2);
         Map<String,String> map = new HashMap<>();
         if(StringUtils.isNotEmpty(confSummaryAddParam.getConfirmUserIds())){
             //获取会议预约信息
-            ConferenceRecord conferenceRecord = this.queryEntity(confSummaryAddParam.getRecordId());
             if(ObjectUtil.isNotEmpty(conferenceRecord)){
                 ConferenceRez rec = conferenceRezService.getById(conferenceRecord.getConferenceRecId());
                 ConferenceRezPeriod recPeriod = conferenceRezPeriodService.getById(conferenceRecord.getConferenceRecId());
@@ -364,16 +377,56 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
             }
         }
     }
-
+    private void deleteOldData(String recordId,Integer noticeType){
+        String sql = "DELETE FROM CONFERENCE_CONFIRM_USER WHERE  RECORD_ID = '"+recordId+"' and NOTICE_TYPE = "+noticeType;
+        CommonHandleUtil.handleSqlExecution(sql);
+    }
     @Override
-    public void recordNotice(String recordId){
+    public void recordNotice(String recordId,Integer noticeType){
         ConferenceRecord conferenceRecord = this.getById(recordId);
         if(ObjectUtil.isEmpty(conferenceRecord)){
             throw new CommonException("无会议记录！");
         }
-        List<String> userIds = Arrays.asList(conferenceRecord.getConfirmUserIds().split(","));
-        List<SysUser> userList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
-        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(userList,"请确认会议记录！",null,null,2);
-        eventPublisher.publishEvent(conferenceMsgEvent);
+        String userIds =  noticeType == 1? conferenceRecord.getRecordConfirmIds() : noticeType == 2 ? conferenceRecord.getConfirmUserIds() :
+                noticeType == 3 ? conferenceRecord.getConferenceSignIds() : "";
+
+        Map<String,ConferenceConfig> conferenceConfig = conferenceConfig();
+        String configName = "";
+        ConferenceRez conferenceRez = conferenceRezService.getById(conferenceRecord.getConferenceRecId());
+        ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRecord.getConferenceRecId());
+        String theme = ObjectUtil.isNotEmpty(conferenceRez) ? conferenceRez.getTheme() : ObjectUtil.isNotEmpty(conferenceRezPeriod) ? conferenceRezPeriod.getTheme() : "";
+        String confTime = ObjectUtil.isNotEmpty(conferenceRez) && ObjectUtil.isNotEmpty(conferenceRez.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRez.getEndTime())?
+                DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm") :
+                ObjectUtil.isNotEmpty(conferenceRezPeriod) && ObjectUtil.isNotEmpty(conferenceRezPeriod.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRezPeriod.getEndTime())?
+                DateUtil.format(conferenceRezPeriod.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRezPeriod.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRezPeriod.getBeginTime(),"HH:mm")
+                :"";
+        configName= ObjectUtil.isNotEmpty(conferenceRez) && conferenceConfig.get(conferenceRez.getConferenceConfigId()) != null?
+                conferenceConfig.get(conferenceRez.getConferenceConfigId()).getName() :
+                ObjectUtil.isNotEmpty(conferenceRezPeriod) && conferenceConfig.get(conferenceRezPeriod.getConferenceConfigId()) != null?
+                        conferenceConfig.get(conferenceRezPeriod.getConferenceConfigId()).getName() : "";
+        String title = noticeType == 1 ? "【会议记录审核】" : noticeType == 2 ? "【会议纪要审核】" : noticeType == 3 ? "【会签通知】" : "";
+        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(userIds);
+        conferenceMsgEvent.setTheme(theme);
+        conferenceMsgEvent.setConfTime(confTime);
+        conferenceMsgEvent.setLocation(configName);
+        handleConferenceMsgEvent(conferenceMsgEvent,title);
+    }
+
+    private Map<String,ConferenceConfig> conferenceConfig(){
+        Map<String,ConferenceConfig> configMap = new HashMap<>();
+        List<ConferenceConfig> configList = conferenceConfigService.list();
+        configList.forEach(config -> configMap.put(config.getId(),config));
+        return configMap;
+    }
+    private void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent,String title){
+        ConferenceMsgEvent event = conferenceMsgEvent;
+        if(StringUtils.isNotEmpty(conferenceMsgEvent.getUserIds())){
+            List<String> userIds = Arrays.asList(conferenceMsgEvent.getUserIds().split(","));
+            List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+            sysUserList.forEach(user -> {
+                conferenceMsgEvent.setPhone(user.getAccount());
+                conferenceRezService.sendConfMsg(conferenceMsgEvent, title,0);
+            });
+        }
     }
 }

@@ -19,10 +19,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -31,6 +28,7 @@ import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataPara
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.UserRezPageVo;
 
@@ -168,9 +166,9 @@ public class ConferenceRezController {
     @ApiOperationSupport(order = 8)
     @ApiOperation("获取会议预约-发送会议预约消息")
     //@SaCheckPermission("/sys/rez/sendConfMsg")
-    @GetMapping("/sys/rez/sendConfMsg")
-    public CommonResult<OapiMessageCorpconversationAsyncsendV2Response> sendConfMsg(@Valid String message , String phone) {
-        return CommonResult.data(conferenceRezService.sendConfMsg(message ,phone));
+    @PostMapping("/sys/rez/sendConfMsg")
+    public CommonResult<OapiMessageCorpconversationAsyncsendV2Response> sendConfMsg(@RequestBody @Valid ConferenceMsgEvent conferenceMsgEvent) {
+        return CommonResult.data(conferenceRezService.sendConfMsg(conferenceMsgEvent ,"【会议通知】",1));
     }
 
     /**

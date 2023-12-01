@@ -91,5 +91,5 @@ public interface ConferenceRecordService extends IService<ConferenceRecord> {
      * @author ljy
      * @date  2023/11/20 08:39
      */
-    void recordNotice(String recordId);
+    void recordNotice(String recordId,Integer noticeType);
 }

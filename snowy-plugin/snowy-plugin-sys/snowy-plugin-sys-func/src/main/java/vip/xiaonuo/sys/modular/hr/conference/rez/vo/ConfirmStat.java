@@ -7,6 +7,11 @@ import lombok.Setter;
 @Setter
 @Getter
 public class ConfirmStat {
+
+    /** 主键 */
+    @ApiModelProperty(value = "主键", position = 1)
+    private String id;
+
     /** 会议纪要确认人ID */
     @ApiModelProperty(value = "会议纪要确认人ID", position = 1)
     private String confirmUserId;

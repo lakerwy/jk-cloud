@@ -41,6 +41,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -103,6 +105,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     IDingDingService iDingDingService;
     @Resource
     ConferenceConfirmUserService conferenceConfirmUserService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -224,16 +228,28 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             conferenceRez.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
             this.save(conferenceRez);
             //异步推送消息
-            ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"",conferenceRez,null,1);
+            Map<String,ConferenceConfig> conferenceConfig = conferenceConfig();
+            String location = conferenceConfig.get(conferenceRez.getConferenceConfigId()) != null ? conferenceConfig.get(conferenceRez.getConferenceConfigId()).getName() : "";
+            ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(conferenceRezAddParam.getJoinUser());
+            conferenceMsgEvent.setTheme(conferenceRezAddParam.getTheme());
+            //String confTime = DateUtil.format(conferenceRezAddParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN)+"-"+DateUtil.format(conferenceRezAddParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
+            String theme = ObjectUtil.isNotEmpty(conferenceRez) ? conferenceRez.getTheme() :  "";
+            String confTime = ObjectUtil.isNotEmpty(conferenceRez) && ObjectUtil.isNotEmpty(conferenceRez.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRez.getEndTime())?
+                    DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm") : "";
+            conferenceMsgEvent.setConfTime(confTime);
+            conferenceMsgEvent.setLocation(location);
             eventPublisher.publishEvent(conferenceMsgEvent);
         }
+    }
+    private Map<String,ConferenceConfig> conferenceConfig(){
+        Map<String,ConferenceConfig> configMap = new HashMap<>();
+        List<ConferenceConfig> configList = conferenceConfigService.list();
+        configList.forEach(config -> configMap.put(config.getId(),config));
+        return configMap;
     }
     private void updateConferenceRezPeriod(ConferenceRezAddParam conferenceRezAddParam,String affUsers){
         ConferenceRezPeriod conferenceRezPeriod = BeanUtil.toBean(conferenceRezAddParam, ConferenceRezPeriod.class);
         conferenceRezPeriod.setConferenceConfigId(conferenceRezAddParam.getConferenceConfigId());
-        //时间处理
-        /*Date beginTime = conferenceRezAddParam.getBeginTime();
-        Date endTime = conferenceRezAddParam.getEndTime();*/
         conferenceRezPeriod.setBeginTime(conferenceRezAddParam.getBeginTime());
         conferenceRezPeriod.setEndTime(conferenceRezAddParam.getEndTime());
         conferenceRezPeriod.setWeekTime(conferenceRezAddParam.getWeekTime());
@@ -246,8 +262,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         conferenceRezPeriod.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
         conferenceRezPeriodService.save(conferenceRezPeriod);
-        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"会议通知",null,conferenceRezPeriod,1);
-        eventPublisher.publishEvent(conferenceMsgEvent);
+        /*ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"会议通知",null,conferenceRezPeriod,1);
+        eventPublisher.publishEvent(conferenceMsgEvent);*/
     }
 
     private Integer addTrue(ConferenceRezAddParam conferenceRezAddParam){
@@ -339,13 +355,22 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     public void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent){
         // TODO 发送消息业务逻辑
         ConferenceMsgEvent event = conferenceMsgEvent;
-        if(CollectionUtil.isNotEmpty(conferenceMsgEvent.getUserList())){
-            conferenceMsgEvent.getUserList().forEach(user -> {
-                String msg = "";
-                sendConfMsg(conferenceMsgEvent.getMsg(),user.getAccount());
+        if(StringUtils.isNotEmpty(conferenceMsgEvent.getUserIds())){
+            List<String> userIds = Arrays.asList(conferenceMsgEvent.getUserIds().split(","));
+            List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+            sysUserList.forEach(user -> {
+                conferenceMsgEvent.setPhone(user.getAccount());
+                sendConfMsg(conferenceMsgEvent, "【会议通知】",0);
             });
         }
     }
+
+    /*private Map<String,SysUser> userMap(){
+        Map<String,SysUser> map = new HashMap<>();
+        List<SysUser> sysUserList = sysUserService.list();
+        sysUserList.forEach(user -> map.put(user.getId(),user));
+        return map;
+    }*/
 
     @Override
     public List<ConferenceConfig> conferenceRoom(ConferenceRoomParam conferenceRoomParam){
@@ -511,15 +536,14 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         return map;
     }
 
-
     /**
      * 发送 会议通知
      * @param message 消息
      * @param phone 电话号码
      */
     @Override
-    public OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(String message , String phone) {
-        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = iDingDingService.getByMobile(phone);
+    public OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(ConferenceMsgEvent conferenceMsgEvent, String title,Integer type) {
+        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = iDingDingService.getByMobile(conferenceMsgEvent.getPhone());
         if (!oapiV2UserGetbymobileResponse.isSuccess()) {
             log.error(oapiV2UserGetbymobileResponse.getErrmsg());
             return null;
@@ -528,25 +552,15 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
 
         DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
         OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
+        // yourAgentId
         request.setAgentId(dingTalkProperties.getAgentId());
         request.setUseridList(result.getUserid());
         request.setToAllUser(false);
-
-        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
-        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
-        head.setText("会议消息");
-        head.setBgcolor("FFBBBBBB");
-        oa.setHead(head);
-        oa.setPcMessageUrl("https://yun.jianke.co");
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-        String mg = message;
-        mg += "\n处理时间："+ DateUtil.formatDateTime(new Date());
-        body.setContent(mg);
-        oa.setBody(body);
 
         OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
         msg.setMsgtype("oa");
-        msg.setOa(oa);
+        msg.setOa(buildOa(conferenceMsgEvent,title,type));
         request.setMsg(msg);
 
         OapiGettokenResponse oapiGettokenResponse = iDingDingService.getToken();
@@ -558,6 +572,52 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         return null;
     }
+
+    private OapiMessageCorpconversationAsyncsendV2Request.OA buildOa(ConferenceMsgEvent conferenceMsgEvent,String title,Integer type){
+        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
+        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
+        head.setText("会议通知");
+        head.setBgcolor("FFBBBBBB");
+        oa.setHead(head);
+
+        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+        body.setTitle(title);
+        String theme = conferenceMsgEvent.getTheme();
+        String confTime = conferenceMsgEvent.getConfTime();
+        String location = conferenceMsgEvent.getLocation();
+        String rezUser = conferenceMsgEvent.getRezUser();
+        String presideUser = conferenceMsgEvent.getPresideUser();
+
+        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("会议主题时间：");
+        form.setValue(theme);
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("会议时间：");
+        form.setValue(confTime);
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("会议地点：");
+        form.setValue(location);
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("预约人：");
+        form.setValue(rezUser);
+        forms.add(form);
+
+        body.setForm(forms);
+        oa.setBody(body);
+
+        return oa;
+    }
+
+
 
     @Override
     public Page<UserRezPageVo> userRezPage(UserRezPageParam userRezPageParam){
@@ -631,6 +691,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                     confirmStat.setConfirmUserId(summary.getConfirmUserId());
                     confirmStat.setStatus(summary.getStatus());
                     confirmStat.setRecordId(summary.getRecordId());
+                    confirmStat.setId(summary.getId());
                     confirmStats.add(confirmStat);
                 });
                 if(type == 1){

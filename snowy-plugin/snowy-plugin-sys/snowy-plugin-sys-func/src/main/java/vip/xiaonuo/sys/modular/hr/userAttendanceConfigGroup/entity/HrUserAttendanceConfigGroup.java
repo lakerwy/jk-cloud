@@ -105,4 +105,9 @@ public class HrUserAttendanceConfigGroup {
     @ApiModelProperty(value = "考勤时间", position = 16)
     @TableField(exist = false)
     private String atdTime;
+
+    /**考勤人数*/
+    @ApiModelProperty(value = "考勤人数", position = 17)
+    @TableField(exist = false)
+    private String number;
 }

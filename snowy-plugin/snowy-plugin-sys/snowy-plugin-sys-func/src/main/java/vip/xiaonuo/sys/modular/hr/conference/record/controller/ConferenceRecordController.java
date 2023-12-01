@@ -244,8 +244,8 @@ public class ConferenceRecordController {
     @CommonLog("会议记录确认通知")
     //@SaCheckPermission("/sys/conferenceRecord/recordNotice")
     @GetMapping("/sys/conferenceRecord/recordNotice")
-    public CommonResult<String> recordNotice(@Valid String recordId) {
-        conferenceRecordService.recordNotice(recordId);
+    public CommonResult<String> recordNotice(@Valid String recordId,Integer noticeType) {
+        conferenceRecordService.recordNotice(recordId,noticeType);
         return CommonResult.ok();
     }
 

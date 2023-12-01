@@ -35,7 +35,7 @@ public class WorkArrangeVo {
     @ApiModelProperty(value = "工作进展", position = 6)
     private String  workEvolve;
 
-    @ApiModelProperty(value = "是否完成,1 完成", position = 6)
+    @ApiModelProperty(value = "是否完成,0 未完成，1 完成", position = 6)
     private Integer  isWorkEnd;
 
 }

@@ -108,7 +108,7 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
     Map<String,String> getPostionData();
 
     /** 发送开会消息 */
-    OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(String message , String phone);
+    OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(ConferenceMsgEvent conferenceMsgEvent, String title,Integer type);
 
     /** 根据人员获取会议预约信息 */
     Page<UserRezPageVo> userRezPage(UserRezPageParam userRezPageParam);

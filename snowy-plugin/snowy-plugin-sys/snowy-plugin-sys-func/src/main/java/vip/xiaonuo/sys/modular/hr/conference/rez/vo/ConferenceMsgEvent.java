@@ -13,33 +13,39 @@ import java.util.List;
 @Setter
 public class ConferenceMsgEvent {
 
-    /** 人员List */
-    @ApiModelProperty(value = "人员List", position = 1)
-    private List<SysUser> userList;
-
-    /** 推送的消息 */
-    @ApiModelProperty(value = "推送的消息", position = 2)
-    private String msg;
-
-    /** 标准会议ID */
-    @ApiModelProperty(value = "会议ID", position = 3)
-    private ConferenceRez conferenceRez;
+    /** 通知人员List */
+    @ApiModelProperty(value = "通知人员List", position = 1)
+    private String userIds;
 
     /** 周期会议ID */
-    @ApiModelProperty(value = "周期会议ID", position = 4)
+    @ApiModelProperty(value = "周期会议ID", position = 3)
     private ConferenceRezPeriod conferenceRezPeriod;
 
+    @ApiModelProperty(value = "会议主题", position = 4)
+    private String theme ;
+
+    @ApiModelProperty(value = "开会时间", position = 5)
+    private String confTime;
+
+    @ApiModelProperty(value = "开会地点", position = 6)
+    private String location;
+
+    @ApiModelProperty(value = "预约人", position = 7)
+    private String rezUser;
+
+    @ApiModelProperty(value = "主持人", position = 8)
+    private String presideUser;
+
+    @ApiModelProperty(value = "联系电话", position = 9)
+    private String phone;
+
     /** 不同的消息 */
-    @ApiModelProperty(value = "不同的消息", position = 5)
+    @ApiModelProperty(value = "不同的消息", position = 10)
     private Integer type;
 
     public ConferenceMsgEvent(){}
 
-    public ConferenceMsgEvent(List<SysUser> userList,String msg,ConferenceRez conferenceRez,ConferenceRezPeriod conferenceRezPeriod,Integer type){
-        this.userList = userList;
-        this.msg = msg;
-        this.conferenceRez = conferenceRez;
-        this.conferenceRezPeriod = conferenceRezPeriod;
-        this.type = type;
+    public ConferenceMsgEvent(String userIds){
+        this.userIds = userIds;
     }
 }
