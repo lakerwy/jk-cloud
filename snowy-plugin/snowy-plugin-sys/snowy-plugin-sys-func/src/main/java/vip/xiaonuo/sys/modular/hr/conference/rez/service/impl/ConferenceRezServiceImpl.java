@@ -264,8 +264,20 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         conferenceRezPeriod.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
         conferenceRezPeriodService.save(conferenceRezPeriod);
-        /*ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"会议通知",null,conferenceRezPeriod,1);
-        eventPublisher.publishEvent(conferenceMsgEvent);*/
+        //异步推送消息
+        Map<String,ConferenceConfig> conferenceConfig = conferenceConfig();
+        String location = conferenceConfig.get(conferenceRezPeriod.getConferenceConfigId()) != null ? conferenceConfig.get(conferenceRezPeriod.getConferenceConfigId()).getName() : "";
+        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(conferenceRezAddParam.getJoinUser());
+        conferenceMsgEvent.setTheme(conferenceRezAddParam.getTheme());
+        //String confTime = DateUtil.format(conferenceRezAddParam.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN)+"-"+DateUtil.format(conferenceRezAddParam.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
+        String theme = ObjectUtil.isNotEmpty(conferenceRezPeriod) ? conferenceRezPeriod.getTheme() :  "";
+        String confTime = ObjectUtil.isNotEmpty(conferenceRezPeriod) && ObjectUtil.isNotEmpty(conferenceRezPeriod.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRezPeriod.getEndTime())?
+                DateUtil.format(conferenceRezPeriod.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRezPeriod.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRezPeriod.getBeginTime(),"HH:mm") : "";
+        conferenceMsgEvent.setConfTime(confTime);
+        conferenceMsgEvent.setLocation(location);
+        SysUser sysUser = sysUserService.getById(conferenceRezPeriod.getRezUser());
+        conferenceMsgEvent.setRezUser(sysUser.getName());
+        eventPublisher.publishEvent(conferenceMsgEvent);
     }
 
     private Integer addTrue(ConferenceRezAddParam conferenceRezAddParam){
