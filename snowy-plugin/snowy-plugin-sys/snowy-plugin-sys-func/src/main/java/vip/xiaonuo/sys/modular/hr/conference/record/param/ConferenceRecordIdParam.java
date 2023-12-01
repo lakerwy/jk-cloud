@@ -30,8 +30,8 @@ import javax.validation.constraints.NotNull;
 public class ConferenceRecordIdParam {
 
     /** 会议记录ID */
-    @ApiModelProperty(value = "会议记录ID",required = true)
-    @NotNull(message = "会议记录ID不能为空")
+    @ApiModelProperty(value = "会议记录ID")
+    //@NotNull(message = "会议记录ID不能为空")
     private String id;
 
     /** 预约会议ID */

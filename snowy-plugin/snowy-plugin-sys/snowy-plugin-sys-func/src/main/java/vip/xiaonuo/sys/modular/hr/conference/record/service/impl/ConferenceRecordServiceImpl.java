@@ -203,7 +203,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
     @Override
     public RecordDetailVo detail(ConferenceRecordIdParam conferenceRecordIdParam) {
         RecordDetailVo recordDetailVo = new RecordDetailVo();
-        ConferenceRecord conferenceRecord = this.queryEntity(conferenceRecordIdParam.getId());
+        ConferenceRecord conferenceRecord = this.getById(conferenceRecordIdParam.getId());
         if(ObjectUtil.isNotEmpty(conferenceRecord) && StringUtils.isNotEmpty(conferenceRecord.getAbsents())){
             conferenceRecord.setAbsentList(Arrays.asList(conferenceRecord.getAbsents().split(",")));
         }
@@ -214,7 +214,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         if(ObjectUtil.isEmpty(conferenceRez)){
             ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRecordIdParam.getConferenceRecId());
             if(ObjectUtil.isEmpty(conferenceRezPeriod)){
-                throw new CommonException("查不到会议记录");
+                throw new CommonException("查不到会议信息");
             }
             rezRecordVo = BeanUtil.toBean(conferenceRezPeriod, RezRecordVo.class);
         }else{

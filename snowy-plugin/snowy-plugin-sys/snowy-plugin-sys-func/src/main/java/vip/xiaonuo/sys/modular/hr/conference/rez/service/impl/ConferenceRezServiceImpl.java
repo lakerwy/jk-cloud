@@ -290,17 +290,31 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         /** 已有开始时间和结束时间*/
         Long perNum = this.count(new LambdaQueryWrapper<ConferenceRez>()
-                .ge(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
-                .le(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
+                .gt(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .lt(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
         Long beginNum = this.count(new LambdaQueryWrapper<ConferenceRez>()
-                .le(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
-                .ge(ConferenceRez::getEndTime,conferenceRezAddParam.getBeginTime()));
+                .lt(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .gt(ConferenceRez::getEndTime,conferenceRezAddParam.getBeginTime()));
         Long endNum = this.count(new LambdaQueryWrapper<ConferenceRez>()
-                .le(ConferenceRez::getBeginTime,conferenceRezAddParam.getEndTime())
-                .ge(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
+                .lt(ConferenceRez::getBeginTime,conferenceRezAddParam.getEndTime())
+                .gt(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
+
+       /* Long perPeriodNum = conferenceRezPeriodService.count(new LambdaQueryWrapper<ConferenceRezPeriod>()
+                .gt(ConferenceRezPeriod::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .lt(ConferenceRezPeriod::getEndTime,conferenceRezAddParam.getEndTime()));
+        Long beginPeriodNum = conferenceRezPeriodService.count(new LambdaQueryWrapper<ConferenceRezPeriod>()
+                .lt(ConferenceRezPeriod::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .gt(ConferenceRezPeriod::getEndTime,conferenceRezAddParam.getBeginTime()));
+        Long endPeriodNum = conferenceRezPeriodService.count(new LambdaQueryWrapper<ConferenceRezPeriod>()
+                .lt(ConferenceRezPeriod::getBeginTime,conferenceRezAddParam.getEndTime())
+                .gt(ConferenceRezPeriod::getEndTime,conferenceRezAddParam.getEndTime()));*/
+
         if(beginNum > 0 || endNum > 0 || perNum > 0){
             return 3;
         }
+       /* if(perPeriodNum > 0 || beginPeriodNum > 0 || endPeriodNum > 0){
+            return 3;
+        }*/
         return 0;
     }
 
