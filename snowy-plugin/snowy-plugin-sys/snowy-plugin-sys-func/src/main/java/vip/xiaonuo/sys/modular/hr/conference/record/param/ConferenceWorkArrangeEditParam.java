@@ -72,4 +72,7 @@ public class ConferenceWorkArrangeEditParam {
     @ApiModelProperty(value = "扩展信息", position = 10)
     private String extJson;
 
+    @ApiModelProperty(value = "反馈方式", position = 11)
+    String feedbackType;
+
 }

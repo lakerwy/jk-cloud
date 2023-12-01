@@ -147,7 +147,7 @@ public class ConferenceRecordController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("添加会议纪要")
     @CommonLog("添加会议纪要")
-    //@SaCheckPermission("/sys/conferenceRecord/add")
+    //@SaCheckPermission("/sys/conferenceRecord/addSummary")
     @PostMapping("/sys/conferenceRecord/addSummary")
     public CommonResult<String> addSummary(@RequestBody @Valid ConfSummaryAddParam confSummaryAddParam) {
         conferenceRecordService.addSummary(confSummaryAddParam);
@@ -161,13 +161,13 @@ public class ConferenceRecordController {
      * @author ljy
      * @date  2023/11/28 16:31
      */
-    /*@ApiOperationSupport(order = 7)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("获取工作部署分页")
     //@SaCheckPermission("/sys/workArrange/page")
     @GetMapping("/sys/workArrange/page")
     public CommonResult<Page<ConferenceWorkArrange>> workArrangepage(ConferenceWorkArrangePageParam conferenceWorkArrangePageParam) {
         return CommonResult.data(conferenceWorkArrangeService.page(conferenceWorkArrangePageParam));
-    }*/
+    }
 
     /**
      * 添加工作部署
@@ -191,7 +191,7 @@ public class ConferenceRecordController {
      * @author ljy
      * @date  2023/11/28 16:31
      */
-    /*@ApiOperationSupport(order = 9)
+    @ApiOperationSupport(order = 9)
     @ApiOperation("编辑工作部署")
     @CommonLog("编辑工作部署")
     //@SaCheckPermission("/sys/workArrange/edit")
@@ -199,7 +199,7 @@ public class ConferenceRecordController {
     public CommonResult<String> workArrangeedit(@RequestBody @Valid ConferenceWorkArrangeEditParam conferenceWorkArrangeEditParam) {
         conferenceWorkArrangeService.edit(conferenceWorkArrangeEditParam);
         return CommonResult.ok();
-    }*/
+    }
 
     /**
      * 删除工作部署
@@ -271,7 +271,7 @@ public class ConferenceRecordController {
      * @author ljy
      * @date  2023/11/28 22:28
      */
-    @ApiOperationSupport(order = 14)
+    /*@ApiOperationSupport(order = 14)
     @ApiOperation("添加会议记录确认表")
     @CommonLog("添加会议记录确认表")
     //@SaCheckPermission("/sys/confirmUser/add")
@@ -279,7 +279,7 @@ public class ConferenceRecordController {
     public CommonResult<String> confirmAdd(@RequestBody @Valid ConferenceConfirmUserAddParam conferenceConfirmUserAddParam) {
         conferenceConfirmUserService.add(conferenceConfirmUserAddParam);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 编辑会议记录确认表

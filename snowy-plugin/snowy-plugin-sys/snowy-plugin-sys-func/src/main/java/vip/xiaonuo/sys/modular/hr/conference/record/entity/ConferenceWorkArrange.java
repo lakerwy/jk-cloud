@@ -100,4 +100,8 @@ public class ConferenceWorkArrange {
     @ApiModelProperty(value = "会议记录ID", position = 16)
     String recordId;
 
+    //FEEDBACK_TYPE
+    @ApiModelProperty(value = "反馈方式", position = 17)
+    String feedbackType;
+
 }

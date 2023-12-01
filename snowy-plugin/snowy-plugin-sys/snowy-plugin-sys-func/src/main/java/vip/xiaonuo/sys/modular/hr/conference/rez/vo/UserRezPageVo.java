@@ -3,8 +3,6 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceConfirmUser;
-import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceRecord;
 import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceWorkArrange;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 
@@ -25,4 +23,7 @@ public class UserRezPageVo {
 
     @ApiModelProperty(value = "工作部署",position = 4)
     private List<ConferenceWorkArrange> conferenceWorkArrangeList;
+
+    @ApiModelProperty(value = "会签确认", position = 5)
+    private List<ConfirmStat> signList;
 }

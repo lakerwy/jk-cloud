@@ -103,24 +103,54 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         conferenceRecord.setBeginTime(conferenceRecordAddParam.getRezRecordVo().getBeginTime());
         conferenceRecord.setEndTime(conferenceRecordAddParam.getRezRecordVo().getEndTime());
         conferenceRecord.setAbsents(absents != null ? absents.toString() : "");
-        conferenceRecord.setConfirmUserIds(conferenceRecordAddParam.getConfirmUserId());
+        conferenceRecord.setRecordConfirmIds(conferenceRecordAddParam.getRecordConfirmIds());
         this.save(conferenceRecord);
 
         //对会议预约信息修改
         String recordId = conferenceRecord.getId();
+        Map<String,String> map = new HashMap<>();
         ConferenceRez conferenceRez = conferenceRezService.getById(conferenceRecordAddParam.getRezRecordVo().getId());
+        map.put("rezId",ObjectUtil.isNotEmpty(conferenceRez)? conferenceRez.getId() : ObjectUtil.isNotEmpty(conferenceRez) ?  conferenceRez.getId() : "");
+        map.put("theme",ObjectUtil.isNotEmpty(conferenceRez)? conferenceRez.getTheme() : ObjectUtil.isNotEmpty(conferenceRez) ?  conferenceRez.getTheme() : "");
         if(ObjectUtil.isEmpty(conferenceRez)){
             ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRecordAddParam.getRezRecordVo().getId());
             if(ObjectUtil.isEmpty(conferenceRezPeriod)){
                 throw new CommonException("查不到会议预约记录");
             }
+            map.put("rezId",ObjectUtil.isNotEmpty(conferenceRezPeriod)? conferenceRezPeriod.getId() : ObjectUtil.isNotEmpty(conferenceRezPeriod) ?  conferenceRezPeriod.getId() : "");
+            map.put("theme",ObjectUtil.isNotEmpty(conferenceRezPeriod)? conferenceRezPeriod.getTheme() : ObjectUtil.isNotEmpty(conferenceRezPeriod) ?  conferenceRezPeriod.getTheme() : "");
             BeanUtil.copyProperties(conferenceRecordAddParam.getRezRecordVo(), conferenceRezPeriod);
             conferenceRezPeriod.setRecordId(recordId);
             conferenceRezPeriodService.updateById(conferenceRezPeriod);
+            conferenceRecord.setConferenceRecId(conferenceRezPeriod.getId());
         }else{
             BeanUtil.copyProperties(conferenceRecordAddParam.getRezRecordVo(), conferenceRez);
             conferenceRez.setRecordId(recordId);
             conferenceRezService.updateById(conferenceRez);
+            conferenceRecord.setConferenceRecId(conferenceRez.getId());
+        }
+        this.updateById(conferenceRecord);
+        //保存会议记录确认人数据
+        List<String> userIds = StringUtils.isNotEmpty(conferenceRecordAddParam.getRecordConfirmIds()) ?
+                Arrays.asList(conferenceRecordAddParam.getRecordConfirmIds().split(",")) : new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(userIds)){
+            List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+            List<ConferenceConfirmUser> confirmUserList = new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(sysUserList)){
+                sysUserList.forEach(user -> {
+                    ConferenceConfirmUser conferenceConfirmUser = new ConferenceConfirmUser();
+                    conferenceConfirmUser.setConfirmUserId(user.getId());
+                    conferenceConfirmUser.setConfirmUserName(user.getName());
+                    conferenceConfirmUser.setRecordId(conferenceRecord.getId());
+                    conferenceConfirmUser.setTheme(map.get("theme"));
+                    conferenceConfirmUser.setRezId(map.get("rezId"));
+                    conferenceConfirmUser.setNoticeType(1);
+                    confirmUserList.add(conferenceConfirmUser);
+                });
+            }
+            if(CollectionUtil.isNotEmpty(confirmUserList)){
+                conferenceConfirmUserService.saveBatch(confirmUserList);
+            }
         }
     }
 
@@ -213,21 +243,61 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
             ConferenceRezPeriod recPeriod = conferenceRezPeriodService.getById(conferenceRecord.getConferenceRecId());
             if(ObjectUtil.isNotEmpty(rec)){
                 rec.setTheme(confSummaryAddParam.getTheme());
+                conferenceRecord.setConferenceRecId(rec.getId());
+                conferenceRecord.setConferenceType(1);
                 conferenceRezService.updateById(rec);
             }
             if(ObjectUtil.isNotEmpty(recPeriod)){
                 recPeriod.setTheme(confSummaryAddParam.getTheme());
+                conferenceRecord.setConferenceRecId(recPeriod.getId());
+                conferenceRecord.setConferenceType(2);
                 conferenceRezPeriodService.updateById(recPeriod);
             }
         }
         conferenceRecord.setConfSummary(confSummaryAddParam.getConfSummary());
         conferenceRecord.setConfirmUserIds(confSummaryAddParam.getConfirmUserIds());
-        conferenceRecord.setRecordConfirmIds(confSummaryAddParam.getRecordConfirmIds());
+        if(StringUtils.isNotEmpty(confSummaryAddParam.getRecordConfirmIds())){
+            conferenceRecord.setRecordConfirmIds(confSummaryAddParam.getRecordConfirmIds());
+        }
         saveConfSummary(confSummaryAddParam);//保存工作部署
         saveConfirmUser(confSummaryAddParam);//保存会议纪要确认人，并以此发送确认通知
+        saveconfSign(confSummaryAddParam);/**  保存会签人员 */
+        //保存会签列表
         this.saveOrUpdate(conferenceRecord);
     }
 
+    /**  保存会签人员 */
+    public void saveconfSign(ConfSummaryAddParam confSummaryAddParam){
+        Map<String,String> map = new HashMap<>();
+        if(StringUtils.isNotEmpty(confSummaryAddParam.getConferenceSignIds())){
+            //获取会议预约信息
+            ConferenceRecord conferenceRecord = this.queryEntity(confSummaryAddParam.getRecordId());
+            if(ObjectUtil.isNotEmpty(conferenceRecord)){
+                ConferenceRez rec = conferenceRezService.getById(conferenceRecord.getConferenceRecId());
+                ConferenceRezPeriod recPeriod = conferenceRezPeriodService.getById(conferenceRecord.getConferenceRecId());
+                map.put("rezId",ObjectUtil.isNotEmpty(rec)? rec.getId() : ObjectUtil.isNotEmpty(recPeriod) ?  recPeriod.getId() : "");
+                map.put("theme",ObjectUtil.isNotEmpty(rec)? rec.getTheme() : ObjectUtil.isNotEmpty(recPeriod) ?  recPeriod.getTheme() : "");
+            }
+            List<String> userIds = Arrays.asList(confSummaryAddParam.getConferenceSignIds().split(","));
+            List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+            List<ConferenceConfirmUser> confirmUserList = new ArrayList<>();
+            if(CollectionUtil.isNotEmpty(sysUserList)){
+                sysUserList.forEach(user -> {
+                    ConferenceConfirmUser conferenceConfirmUser = new ConferenceConfirmUser();
+                    conferenceConfirmUser.setConfirmUserId(user.getId());
+                    conferenceConfirmUser.setConfirmUserName(user.getName());
+                    conferenceConfirmUser.setRecordId(confSummaryAddParam.getRecordId());
+                    conferenceConfirmUser.setTheme(map.get("theme"));
+                    conferenceConfirmUser.setRezId(map.get("rezId"));
+                    conferenceConfirmUser.setNoticeType(3);
+                    confirmUserList.add(conferenceConfirmUser);
+                });
+            }
+            if(CollectionUtil.isNotEmpty(confirmUserList)){
+                conferenceConfirmUserService.saveBatch(confirmUserList);
+            }
+        }
+    }
     /** 保存工作部署*/
     private void saveConfSummary(ConfSummaryAddParam confSummaryAddParam){
         if(CollectionUtil.isNotEmpty(confSummaryAddParam.getWorkArrangeVoList())){
@@ -284,6 +354,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
                     conferenceConfirmUser.setRecordId(confSummaryAddParam.getRecordId());
                     conferenceConfirmUser.setTheme(map.get("theme"));
                     conferenceConfirmUser.setRezId(map.get("rezId"));
+                    conferenceConfirmUser.setNoticeType(2);
                     confirmUserList.add(conferenceConfirmUser);
                 });
             }

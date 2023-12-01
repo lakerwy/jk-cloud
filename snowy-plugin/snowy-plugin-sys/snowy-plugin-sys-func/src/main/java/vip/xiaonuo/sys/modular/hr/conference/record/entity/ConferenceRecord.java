@@ -110,4 +110,8 @@ public class ConferenceRecord {
     /** 会议记录确认人(逗号隔开)  CONFIRM_USER_IDS*/
     @ApiModelProperty(value = "会议记录确认人(逗号隔开)", position = 17)
     private String recordConfirmIds;
+
+    /** 会签人员ID列表 CONFIRM_USER_IDS*/
+    @ApiModelProperty(value = "会签人员ID列表(逗号隔开)", position = 17)
+    private String conferenceSignIds;
 }

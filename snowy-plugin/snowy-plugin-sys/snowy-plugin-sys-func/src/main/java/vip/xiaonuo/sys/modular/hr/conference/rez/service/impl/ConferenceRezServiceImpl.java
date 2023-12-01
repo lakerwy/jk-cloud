@@ -191,6 +191,11 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
+        Integer trueNum = addTrue((conferenceRezAddParam));
+        if(trueNum > 0){
+            String msg = trueNum == 3 ? "当前的时间已有预约" : "传入时间有误！";
+            throw new CommonException(msg);
+        }
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         if(StringUtils.isEmpty(conferenceRezAddParam.getRezUser())){
             conferenceRezAddParam.setRezUser(loginUser.getId());
@@ -205,9 +210,11 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 conAffUsers.append(aff).append(",");
             });
         }
-        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
+        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && conferenceRezAddParam.getWeekTime() > 0){
             updateConferenceRezPeriod(conferenceRezAddParam,conAffUsers.toString());
             //throw new CommonException("周期预约时，时间类型不能都为空");
+        }else if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime()) && conferenceRezAddParam.getDayTime() >0){
+            updateConferenceRezPeriod(conferenceRezAddParam,conAffUsers.toString());
         }else{
             ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
             StringBuffer  rezAgenda = new StringBuffer();
@@ -216,19 +223,19 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             }
             conferenceRez.setRezAgenda(ObjectUtil.isNotEmpty(rezAgenda) ? rezAgenda.toString() : "");
             this.save(conferenceRez);
+            //异步推送消息
             ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"",conferenceRez,null,1);
             eventPublisher.publishEvent(conferenceMsgEvent);
         }
-        //异步推送消息
     }
     private void updateConferenceRezPeriod(ConferenceRezAddParam conferenceRezAddParam,String affUsers){
         ConferenceRezPeriod conferenceRezPeriod = BeanUtil.toBean(conferenceRezAddParam, ConferenceRezPeriod.class);
         conferenceRezPeriod.setConferenceConfigId(conferenceRezAddParam.getConferenceConfigId());
         //时间处理
-        Time beginTime = Time.valueOf(CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(), DatePattern.NORM_TIME_PATTERN));
-        Time endTime = Time.valueOf(CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getEndTime(), DatePattern.NORM_TIME_PATTERN));
-        conferenceRezPeriod.setBeginTime(beginTime);
-        conferenceRezPeriod.setEndTime(endTime);
+        /*Date beginTime = conferenceRezAddParam.getBeginTime();
+        Date endTime = conferenceRezAddParam.getEndTime();*/
+        conferenceRezPeriod.setBeginTime(conferenceRezAddParam.getBeginTime());
+        conferenceRezPeriod.setEndTime(conferenceRezAddParam.getEndTime());
         conferenceRezPeriod.setWeekTime(conferenceRezAddParam.getWeekTime());
         conferenceRezPeriod.setDayTime(conferenceRezAddParam.getDayTime());
         conferenceRezPeriod.setConAffUsers(StringUtils.isNotEmpty(affUsers) ? affUsers : "");
@@ -241,6 +248,30 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceRezPeriodService.save(conferenceRezPeriod);
         ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(new ArrayList<>(),"会议通知",null,conferenceRezPeriod,1);
         eventPublisher.publishEvent(conferenceMsgEvent);
+    }
+
+    private Integer addTrue(ConferenceRezAddParam conferenceRezAddParam){
+        if(conferenceRezAddParam.getBeginTime().compareTo(conferenceRezAddParam.getEndTime()) > 0){//开始时间>结束时间
+            return 1;
+        }
+        Date date = DateUtil.date();
+        if(conferenceRezAddParam.getBeginTime().compareTo(date) < 0 || conferenceRezAddParam.getEndTime().compareTo(date) < 0 ){ //开始时间或者结束时间 < 当前时间
+            return 2;
+        }
+        /** 已有开始时间和结束时间*/
+        Long perNum = this.count(new LambdaQueryWrapper<ConferenceRez>()
+                .ge(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .le(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
+        Long beginNum = this.count(new LambdaQueryWrapper<ConferenceRez>()
+                .le(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .ge(ConferenceRez::getEndTime,conferenceRezAddParam.getBeginTime()));
+        Long endNum = this.count(new LambdaQueryWrapper<ConferenceRez>()
+                .le(ConferenceRez::getBeginTime,conferenceRezAddParam.getEndTime())
+                .ge(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
+        if(beginNum > 0 || endNum > 0 || perNum > 0){
+            return 3;
+        }
+        return 0;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -439,8 +470,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
 
     private List<ConferenceTime> conferenceTimes(String day){
         /**7:30:00 - 23:00:00 */
-        Date beginTime = CommonTimeFormatUtil.strToDate(day+" 7:30:00",DatePattern.NORM_DATETIME_PATTERN);
-        Date endTime = CommonTimeFormatUtil.strToDate(day+" 23:00:00",DatePattern.NORM_DATETIME_PATTERN);
+        Date beginTime = CommonTimeFormatUtil.strToDate(day+" 8:00:00",DatePattern.NORM_DATETIME_PATTERN);
+        Date endTime = CommonTimeFormatUtil.strToDate(day+" 22:00:00",DatePattern.NORM_DATETIME_PATTERN);
         List<ConferenceTime> conferenceTimeList = new ArrayList<>();
         while (beginTime.compareTo(endTime) < 0){
             Date time1 = beginTime;
@@ -554,14 +585,17 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(CollectionUtil.isEmpty(recordId)){
             return userRezPage;
         }
-        List<ConferenceConfirmUser> summaryList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
-                .eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
-                .eq(ConferenceConfirmUser::getNoticeType,1).in(ConferenceConfirmUser::getRecordId,recordId)); //会议记录
-        confirmRezUser(summaryList, userRezPage, page.getRecords(),1);
-
         List<ConferenceConfirmUser> recordList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
-                .eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
+                //.eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
+                .eq(ConferenceConfirmUser::getNoticeType,1).in(ConferenceConfirmUser::getRecordId,recordId)); //会议记录
+
+        List<ConferenceConfirmUser> summaryList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
+                //.eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
                 .eq(ConferenceConfirmUser::getNoticeType,2).in(ConferenceConfirmUser::getRecordId,recordId)); //会议纪要
+
+        List<ConferenceConfirmUser> signList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
+                //.eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
+                .eq(ConferenceConfirmUser::getNoticeType,3).in(ConferenceConfirmUser::getRecordId,recordId)); //会签
 
         List<UserRezPageVo> userRezPageVoList = CollectionUtil.isNotEmpty(page.getRecords())?
                 userRezPageVoList = page.getRecords().stream().map(data -> {
@@ -571,7 +605,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 : new ArrayList<>();
         userRezPage.setTotal(userRezPageVoList.size());
         userRezPage.setRecords(userRezPageVoList);
+        confirmRezUser(recordList, userRezPage, page.getRecords(),1);
         confirmRezUser(summaryList,userRezPage, page.getRecords(),2);
+        confirmRezUser(signList,userRezPage, page.getRecords(),3);
         return userRezPage;
     }
 
@@ -599,8 +635,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 });
                 if(type == 1){
                     rez.setRecordList(confirmStats);
-                }else{
+                }else if(type == 2){
                     rez.setSummaryList(confirmStats);
+                }else if(type == 3){
+                    rez.setSignList(confirmStats);
                 }
             }
         });
