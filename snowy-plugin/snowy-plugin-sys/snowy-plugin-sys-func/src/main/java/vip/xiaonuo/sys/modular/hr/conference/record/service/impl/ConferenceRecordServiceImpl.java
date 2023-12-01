@@ -256,6 +256,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         }
         conferenceRecord.setConfSummary(confSummaryAddParam.getConfSummary());
         conferenceRecord.setConfirmUserIds(confSummaryAddParam.getConfirmUserIds());
+        conferenceRecord.setConferenceSignIds(confSummaryAddParam.getConferenceSignIds());
         if(StringUtils.isNotEmpty(confSummaryAddParam.getRecordConfirmIds())){
             conferenceRecord.setRecordConfirmIds(confSummaryAddParam.getRecordConfirmIds());
         }
