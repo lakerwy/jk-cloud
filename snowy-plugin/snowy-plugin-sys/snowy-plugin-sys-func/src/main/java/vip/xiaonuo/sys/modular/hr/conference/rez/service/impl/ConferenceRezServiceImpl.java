@@ -238,6 +238,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                     DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm") : "";
             conferenceMsgEvent.setConfTime(confTime);
             conferenceMsgEvent.setLocation(location);
+            SysUser sysUser = sysUserService.getById(conferenceRez.getRezUser());
+            conferenceMsgEvent.setRezUser(sysUser.getName());
             eventPublisher.publishEvent(conferenceMsgEvent);
         }
     }
@@ -592,7 +594,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
 
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("会议主题时间：");
+        form.setKey("会议主题：");
         form.setValue(theme);
         forms.add(form);
 
