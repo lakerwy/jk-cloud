@@ -174,13 +174,13 @@ public class ConferenceRezController {
     }
 
     /**
-     * 根据人员获取会议预约信息
+     * 我的会议-根据人员获取会议预约信息
      *
      * @author ljy
      * @date  2023/11/05 23:13
      */
     @ApiOperationSupport(order = 9)
-    @ApiOperation("根据人员获取会议预约信息")
+    @ApiOperation("我的会议-根据人员获取会议预约信息")
     //@SaCheckPermission("/sys/rez/page")
     @GetMapping("/sys/rez/userRezPage")
     public CommonResult<Page<UserRezPageVo>> userRezPage(UserRezPageParam userRezPageParam) {

@@ -261,6 +261,7 @@ public class ConferenceRecordServiceImpl extends ServiceImpl<ConferenceRecordMap
         }
         saveConfSummary(confSummaryAddParam);//保存工作部署
         saveConfirmUser(confSummaryAddParam);//保存会议纪要确认人，并以此发送确认通知
+        saveconfSign(confSummaryAddParam);/**  保存会签人员 */
         //保存会签列表
         this.saveOrUpdate(conferenceRecord);
     }
