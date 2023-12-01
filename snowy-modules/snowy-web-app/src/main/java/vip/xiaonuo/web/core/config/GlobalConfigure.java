@@ -188,7 +188,9 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/pan/file/previewOfficeFile",
             "/pan/file/downloadFile",
             "/pan/file/IndexServlet",
-            "/sys/userAttendance/monthExcel"
+            "/sys/userAttendance/monthExcel",
+            "/sys/rez/detail",
+            "/sys/userSign/add"
     };
 
     /**

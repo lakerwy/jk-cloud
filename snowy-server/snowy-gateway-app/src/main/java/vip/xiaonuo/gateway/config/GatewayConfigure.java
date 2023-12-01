@@ -140,6 +140,8 @@ public class GatewayConfigure {
             "/api/webapp/dev/attachment/onlinePreview",
             /* 魔点打卡回调免登录接口*/
             "/api/webapp/sys/magic/third/callback",
+            "/api/webapp/sys/rez/detail",
+            "/api/webapp/sys/userSign/add",
 
             /*第三方钉钉免登*/
             "/api/webapp/sys/third/toDoDingDingApplication",
