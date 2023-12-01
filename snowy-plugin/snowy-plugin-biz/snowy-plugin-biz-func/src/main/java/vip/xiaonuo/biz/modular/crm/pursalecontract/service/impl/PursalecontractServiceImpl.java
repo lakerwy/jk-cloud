@@ -31,6 +31,7 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.BizCommonEnum;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -42,6 +43,7 @@ import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractEditPara
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractIdParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractPageParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.service.PursalecontractService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
@@ -121,10 +123,32 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void add(PursalecontractAddParam pursalecontractAddParam) {
+        Pursalecontract pursalecontract = BeanUtil.toBean(pursalecontractAddParam, Pursalecontract.class);
+        //处理Sn编号
+        Pursalecontract tmp = this.getOne(new QueryWrapper<Pursalecontract>().lambda().orderByDesc(Pursalecontract::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(pursalecontractAddParam.getContractNo(), tmp == null ? "" : tmp.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        pursalecontract.setContractNo(newSn);
+        pursalecontract.setOpt(StpLoginUserUtil.getLoginUser().getName());
+        pursalecontract.setRegisterDate(new Date());
+        this.save(pursalecontract);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void edit(PursalecontractEditParam pursalecontractEditParam) {
+        Pursalecontract pursalecontract = this.queryEntity(pursalecontractEditParam.getId());
+        BeanUtil.copyProperties(pursalecontractEditParam, pursalecontract);
+        this.updateById(pursalecontract);
+    }
+
+
     @DS("slave_1")
     @DSTransactional
     @Override
-    public void add(PursalecontractAddParam pursalecontractAddParam) {
+    public void addStart(PursalecontractAddParam pursalecontractAddParam) {
         //处理业务表
         Pursalecontract pursalecontract = BeanUtil.toBean(pursalecontractAddParam, Pursalecontract.class);
         pursalecontract.setOpt(StpLoginUserUtil.getLoginUser().getName());
@@ -159,7 +183,7 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(PursalecontractEditParam pursalecontractEditParam) {
+    public void editStart(PursalecontractEditParam pursalecontractEditParam) {
         String id = pursalecontractEditParam.getId();
         //判断是否走合同审批流程内的修改
         if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(pursalecontractEditParam.getProcessInstanceId())){

@@ -84,4 +84,16 @@ public interface PursalecontractService extends IService<Pursalecontract> {
      * @return
      */
     Page<Pursalecontract> limitPage(PursalecontractPageParam pursalecontractPageParam);
+
+    /**
+     * 购销合同（流程发起+新增业务数据）
+     * @param pursalecontractAddParam
+     */
+    void addStart(PursalecontractAddParam pursalecontractAddParam);
+
+    /**
+     * 购销合同（流程发起+编辑业务数据）
+     * @param pursalecontractEditParam
+     */
+    void editStart(PursalecontractEditParam pursalecontractEditParam);
 }

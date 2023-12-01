@@ -137,4 +137,34 @@ public class PursalecontractController {
     public CommonResult<Page<Pursalecontract>> limitPage(PursalecontractPageParam pursalecontractPageParam) {
         return CommonResult.data(pursalecontractService.limitPage(pursalecontractPageParam));
     }
+
+    /**
+     * 购销合同（流程发起+新增业务数据）
+     *
+     * @author yong.ye
+     * @date  2023/06/30 16:03
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("购销合同（流程发起+新增业务数据） ")
+    @CommonLog("购销合同（流程发起+新增业务数据）")
+    @PostMapping("/biz/crm/pursalecontract/addStart")
+    public CommonResult<String> addStart(@RequestBody @Valid PursalecontractAddParam pursalecontractAddParam) {
+        pursalecontractService.addStart(pursalecontractAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 购销合同（流程发起+编辑业务数据）
+     *
+     * @author yong.ye
+     * @date  2023/06/30 16:03
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("购销合同（流程发起+编辑业务数据）")
+    @CommonLog("购销合同（流程发起+编辑业务数据）")
+    @PostMapping("/biz/crm/pursalecontract/editStart")
+    public CommonResult<String> editStart(@RequestBody @Valid PursalecontractEditParam pursalecontractEditParam) {
+        pursalecontractService.editStart(pursalecontractEditParam);
+        return CommonResult.ok();
+    }
 }
