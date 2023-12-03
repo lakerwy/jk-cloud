@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param;
+package vip.xiaonuo.sys.modular.hr.conference.rez.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -22,10 +22,10 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 会议预约-周期预约编辑参数
+ * 会议模块-周期预约会议编辑参数
  *
  * @author ljy
- * @date  2023/11/09 22:47
+ * @date  2023/12/02 10:18
  **/
 @Getter
 @Setter
@@ -64,36 +64,64 @@ public class ConferenceRezPeriodEditParam {
     @ApiModelProperty(value = "预约人", position = 8)
     private String rezUser;
 
+    /** 会议记录人 */
+    @ApiModelProperty(value = "会议记录人", position = 9)
+    private String recordUser;
+
+    /** 主持人 */
+    @ApiModelProperty(value = "主持人", position = 10)
+    private String presideUser;
+
+    /** 会务人员：多个 */
+    @ApiModelProperty(value = "会务人员：多个", position = 11)
+    private String conAffUsers;
+
     /** 会议室位置 */
-    @ApiModelProperty(value = "会议室位置", position = 9)
+    @ApiModelProperty(value = "会议室位置", position = 12)
     private String location;
 
     /** 外部人员 */
-    @ApiModelProperty(value = "外部人员", position = 10)
+    @ApiModelProperty(value = "外部人员", position = 13)
     private String outsideUser;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 11)
+    @ApiModelProperty(value = "备注", position = 14)
     private String remark;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 12)
+    @ApiModelProperty(value = "附件", position = 15)
     private String fileId;
 
-    /** 审核状态：1 审核通过，2 审核未通过，3 会议取消 */
-    @ApiModelProperty(value = "审核状态：1 审核通过，2 审核未通过，3 会议取消", position = 13)
-    private Integer verifyFlag;
-
     /** 对应周几：1 周一，2 周二，3 周三 ... */
-    @ApiModelProperty(value = "对应周几：1 周一，2 周二，3 周三 ...", position = 14)
+    @ApiModelProperty(value = "对应周几：1 周一，2 周二，3 周三 ...", position = 16)
     private Integer weekTime;
 
     /** 对应月的哪一天 */
-    @ApiModelProperty(value = "对应月的哪一天", position = 15)
+    @ApiModelProperty(value = "对应月的哪一天", position = 17)
     private Integer dayTime;
 
+    /** 会议号 */
+    @ApiModelProperty(value = "会议号", position = 18)
+    private String onLineCode;
+
+    /** 会议平台名称 */
+    @ApiModelProperty(value = "会议平台名称", position = 19)
+    private String onLineName;
+
+    /** 会议URL */
+    @ApiModelProperty(value = "会议URL", position = 20)
+    private String onLineUrl;
+
+    /** 会议议程 */
+    @ApiModelProperty(value = "会议议程", position = 21)
+    private String rezAgenda;
+
+    /** 组织部门 */
+    @ApiModelProperty(value = "组织部门", position = 22)
+    private String orgDept;
+
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 16)
+    @ApiModelProperty(value = "扩展信息", position = 23)
     private String extJson;
 
 }

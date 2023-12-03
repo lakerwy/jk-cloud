@@ -10,16 +10,26 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.conference.record.mapper;
+package vip.xiaonuo.sys.modular.hr.conference.rez.param;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceRecord;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
 
 /**
- * 会议预约-会议记录Mapper接口
+ * 会议模块-周期预约会议Id参数
  *
  * @author ljy
- * @date  2023/11/20 08:39
+ * @date  2023/12/02 10:18
  **/
-public interface ConferenceRecordMapper extends BaseMapper<ConferenceRecord> {
+@Getter
+@Setter
+public class ConferenceRezPeriodIdParam {
+
+    /** 主键 */
+    @ApiModelProperty(value = "主键", required = true)
+    @NotBlank(message = "id不能为空")
+    private String id;
 }

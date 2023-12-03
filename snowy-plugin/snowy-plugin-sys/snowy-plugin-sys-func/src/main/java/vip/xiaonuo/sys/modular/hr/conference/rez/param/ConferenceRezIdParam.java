@@ -19,10 +19,10 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 会议预约-预约会议表数据Id参数
+ * 会议模块-预约会议Id参数
  *
  * @author ljy
- * @date  2023/11/05 23:13
+ * @date  2023/12/01 23:35
  **/
 @Getter
 @Setter
@@ -32,8 +32,4 @@ public class ConferenceRezIdParam {
     @ApiModelProperty(value = "主键", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
-
-    /** 是否为周期预约 */
-    @ApiModelProperty(value = "是否为周期预约，1 为周期，空或者其他值为非周期")
-    private String status;
 }

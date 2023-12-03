@@ -10,16 +10,16 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.conference.rezPeriod.mapper;
+package vip.xiaonuo.sys.modular.hr.conference.rez.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.entity.ConferenceRezPeriod;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
 
 /**
- * 会议预约-周期预约Mapper接口
+ * 会议模块-周期预约会议Mapper接口
  *
  * @author ljy
- * @date  2023/11/09 22:47
+ * @date  2023/12/02 10:18
  **/
 public interface ConferenceRezPeriodMapper extends BaseMapper<ConferenceRezPeriod> {
 }

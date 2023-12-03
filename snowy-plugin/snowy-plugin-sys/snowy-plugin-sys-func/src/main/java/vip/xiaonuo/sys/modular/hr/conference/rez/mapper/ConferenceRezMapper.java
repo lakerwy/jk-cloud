@@ -16,10 +16,10 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 
 /**
- * 会议预约-预约会议表数据Mapper接口
+ * 会议模块-预约会议Mapper接口
  *
  * @author ljy
- * @date  2023/11/05 23:13
+ * @date  2023/12/01 23:35
  **/
 public interface ConferenceRezMapper extends BaseMapper<ConferenceRez> {
 }

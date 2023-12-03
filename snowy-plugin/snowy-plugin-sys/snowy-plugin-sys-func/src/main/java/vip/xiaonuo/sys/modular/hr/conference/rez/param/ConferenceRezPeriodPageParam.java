@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.conference.record.param;
+package vip.xiaonuo.sys.modular.hr.conference.rez.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -19,14 +19,14 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 会议预约-会议记录查询参数
+ * 会议模块-周期预约会议查询参数
  *
  * @author ljy
- * @date  2023/11/20 08:39
+ * @date  2023/12/02 10:18
  **/
 @Getter
 @Setter
-public class ConferenceRecordPageParam {
+public class ConferenceRezPeriodPageParam {
 
     /** 当前页 */
     @ApiModelProperty(value = "当前页码")
@@ -48,12 +48,24 @@ public class ConferenceRecordPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** CONFERENCE_REC_ID */
-    @ApiModelProperty(value = "CONFERENCE_REC_ID")
-    private String conferenceRecId;
+    /** 会议室ID */
+    @ApiModelProperty(value = "会议室ID")
+    private String conferenceConfigId;
 
-    /** 会议类型：1 非周期会议，2 周期会议 */
-    @ApiModelProperty(value = "会议类型：1 非周期会议，2 周期会议")
-    private Integer conferenceType;
+    /** 预约人 */
+    @ApiModelProperty(value = "预约人")
+    private String rezUser;
+
+    /** 会议记录人 */
+    @ApiModelProperty(value = "会议记录人")
+    private String recordUser;
+
+    /** 对应周几：1 周一，2 周二，3 周三 ... */
+    @ApiModelProperty(value = "对应周几：1 周一，2 周二，3 周三 ...")
+    private Integer weekTime;
+
+    /** 对应月的哪一天 */
+    @ApiModelProperty(value = "对应月的哪一天")
+    private Integer dayTime;
 
 }

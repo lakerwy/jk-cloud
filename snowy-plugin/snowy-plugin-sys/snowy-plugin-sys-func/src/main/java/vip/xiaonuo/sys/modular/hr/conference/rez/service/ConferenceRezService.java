@@ -12,93 +12,83 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.service;
 
-import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
-import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezAddParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezEditParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezIdParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPageParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.UserRezPageVo;
-
 
 import java.util.List;
 import java.util.Map;
 
 /**
- * 会议预约-预约会议表数据Service接口
+ * 会议模块-预约会议Service接口
  *
  * @author ljy
- * @date  2023/11/05 23:13
+ * @date  2023/12/01 23:35
  **/
 public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /**
-     * 获取会议预约-预约会议表数据分页
+     * 获取会议模块-预约会议分页
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam);
 
     /**
-     * 添加会议预约-预约会议表数据
+     * 添加会议模块-预约会议
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     void add(ConferenceRezAddParam conferenceRezAddParam);
 
     /**
-     * 编辑会议预约-预约会议表数据
+     * 编辑会议模块-预约会议
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     void edit(ConferenceRezEditParam conferenceRezEditParam);
 
     /**
-     * 删除会议预约-预约会议表数据
+     * 删除会议模块-预约会议
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     void delete(List<ConferenceRezIdParam> conferenceRezIdParamList);
 
     /**
-     * 获取会议预约-预约会议表数据详情
+     * 获取会议模块-预约会议详情
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     ConferenceRez detail(ConferenceRezIdParam conferenceRezIdParam);
 
     /**
-     * 获取会议预约-预约会议表数据详情
+     * 获取会议模块-预约会议详情
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      **/
     ConferenceRez queryEntity(String id);
-
-    /**
-     * 异步发送消息
-     * */
-    void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent);
-
-    /**
-    * 查询可预约场景
-    * */
-    List<ConferenceConfig> conferenceRoom(ConferenceRoomParam conferenceRoomParam);
 
     /**
      * 查询可预约场景
      * */
     List<ConferenceTimeData> conferenceList(ConferenceTimeDataParam conferenceTimeDataParam);
-    /** 获取人员数据  key userID,value userName*/
+
+    /**
+     * 获取人员数据
+     * */
     Map<String,String> getUserData();
 
     /** 获取部门数据  key orgId,value orgName*/
@@ -106,10 +96,4 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /** 获取职位数据  key postionId,value postionName*/
     Map<String,String> getPostionData();
-
-    /** 发送开会消息 */
-    OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(ConferenceMsgEvent conferenceMsgEvent, String title,Integer type);
-
-    /** 根据人员获取会议预约信息 */
-    Page<UserRezPageVo> userRezPage(UserRezPageParam userRezPageParam);
 }

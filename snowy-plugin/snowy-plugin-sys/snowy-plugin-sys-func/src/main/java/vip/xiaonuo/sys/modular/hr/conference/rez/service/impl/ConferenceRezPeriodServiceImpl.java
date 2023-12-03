@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.conference.rezPeriod.service.impl;
+package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
@@ -24,21 +24,21 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.entity.ConferenceRezPeriod;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.mapper.ConferenceRezPeriodMapper;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param.ConferenceRezPeriodAddParam;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param.ConferenceRezPeriodEditParam;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param.ConferenceRezPeriodIdParam;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param.ConferenceRezPeriodPageParam;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.service.ConferenceRezPeriodService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
+import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezPeriodMapper;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodAddParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodEditParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodIdParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 
 import java.util.List;
 
 /**
- * 会议预约-周期预约Service接口实现类
+ * 会议模块-周期预约会议Service接口实现类
  *
  * @author ljy
- * @date  2023/11/09 22:47
+ * @date  2023/12/02 10:18
  **/
 @Service
 public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPeriodMapper, ConferenceRezPeriod> implements ConferenceRezPeriodService {
@@ -48,6 +48,18 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
         QueryWrapper<ConferenceRezPeriod> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(conferenceRezPeriodPageParam.getConferenceConfigId())) {
             queryWrapper.lambda().eq(ConferenceRezPeriod::getConferenceConfigId, conferenceRezPeriodPageParam.getConferenceConfigId());
+        }
+        if(ObjectUtil.isNotEmpty(conferenceRezPeriodPageParam.getRezUser())) {
+            queryWrapper.lambda().eq(ConferenceRezPeriod::getRezUser, conferenceRezPeriodPageParam.getRezUser());
+        }
+        if(ObjectUtil.isNotEmpty(conferenceRezPeriodPageParam.getRecordUser())) {
+            queryWrapper.lambda().eq(ConferenceRezPeriod::getRecordUser, conferenceRezPeriodPageParam.getRecordUser());
+        }
+        if(ObjectUtil.isNotEmpty(conferenceRezPeriodPageParam.getWeekTime())) {
+            queryWrapper.lambda().eq(ConferenceRezPeriod::getWeekTime, conferenceRezPeriodPageParam.getWeekTime());
+        }
+        if(ObjectUtil.isNotEmpty(conferenceRezPeriodPageParam.getDayTime())) {
+            queryWrapper.lambda().eq(ConferenceRezPeriod::getDayTime, conferenceRezPeriodPageParam.getDayTime());
         }
         if(ObjectUtil.isAllNotEmpty(conferenceRezPeriodPageParam.getSortField(), conferenceRezPeriodPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(conferenceRezPeriodPageParam.getSortOrder());
@@ -90,7 +102,7 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
     public ConferenceRezPeriod queryEntity(String id) {
         ConferenceRezPeriod conferenceRezPeriod = this.getById(id);
         if(ObjectUtil.isEmpty(conferenceRezPeriod)) {
-            throw new CommonException("会议预约-周期预约不存在，id值为：{}", id);
+            throw new CommonException("会议模块-周期预约会议不存在，id值为：{}", id);
         }
         return conferenceRezPeriod;
     }

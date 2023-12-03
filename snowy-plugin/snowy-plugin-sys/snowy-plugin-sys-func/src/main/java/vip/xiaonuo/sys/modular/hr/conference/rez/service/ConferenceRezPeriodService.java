@@ -10,71 +10,71 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.sys.modular.hr.conference.rezPeriod.service;
+package vip.xiaonuo.sys.modular.hr.conference.rez.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.entity.ConferenceRezPeriod;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param.ConferenceRezPeriodAddParam;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param.ConferenceRezPeriodEditParam;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param.ConferenceRezPeriodIdParam;
-import vip.xiaonuo.sys.modular.hr.conference.rezPeriod.param.ConferenceRezPeriodPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodAddParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodEditParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodIdParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodPageParam;
 
 import java.util.List;
 
 /**
- * 会议预约-周期预约Service接口
+ * 会议模块-周期预约会议Service接口
  *
  * @author ljy
- * @date  2023/11/09 22:47
+ * @date  2023/12/02 10:18
  **/
 public interface ConferenceRezPeriodService extends IService<ConferenceRezPeriod> {
 
     /**
-     * 获取会议预约-周期预约分页
+     * 获取会议模块-周期预约会议分页
      *
      * @author ljy
-     * @date  2023/11/09 22:47
+     * @date  2023/12/02 10:18
      */
     Page<ConferenceRezPeriod> page(ConferenceRezPeriodPageParam conferenceRezPeriodPageParam);
 
     /**
-     * 添加会议预约-周期预约
+     * 添加会议模块-周期预约会议
      *
      * @author ljy
-     * @date  2023/11/09 22:47
+     * @date  2023/12/02 10:18
      */
     void add(ConferenceRezPeriodAddParam conferenceRezPeriodAddParam);
 
     /**
-     * 编辑会议预约-周期预约
+     * 编辑会议模块-周期预约会议
      *
      * @author ljy
-     * @date  2023/11/09 22:47
+     * @date  2023/12/02 10:18
      */
     void edit(ConferenceRezPeriodEditParam conferenceRezPeriodEditParam);
 
     /**
-     * 删除会议预约-周期预约
+     * 删除会议模块-周期预约会议
      *
      * @author ljy
-     * @date  2023/11/09 22:47
+     * @date  2023/12/02 10:18
      */
     void delete(List<ConferenceRezPeriodIdParam> conferenceRezPeriodIdParamList);
 
     /**
-     * 获取会议预约-周期预约详情
+     * 获取会议模块-周期预约会议详情
      *
      * @author ljy
-     * @date  2023/11/09 22:47
+     * @date  2023/12/02 10:18
      */
     ConferenceRezPeriod detail(ConferenceRezPeriodIdParam conferenceRezPeriodIdParam);
 
     /**
-     * 获取会议预约-周期预约详情
+     * 获取会议模块-周期预约会议详情
      *
      * @author ljy
-     * @date  2023/11/09 22:47
+     * @date  2023/12/02 10:18
      **/
     ConferenceRezPeriod queryEntity(String id);
 }

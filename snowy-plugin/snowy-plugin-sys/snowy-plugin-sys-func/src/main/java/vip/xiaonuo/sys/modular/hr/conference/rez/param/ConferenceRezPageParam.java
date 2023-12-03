@@ -15,16 +15,14 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 会议预约-预约会议表数据查询参数
+ * 会议模块-预约会议查询参数
  *
  * @author ljy
- * @date  2023/11/05 23:13
+ * @date  2023/12/01 23:35
  **/
 @Getter
 @Setter
@@ -50,6 +48,10 @@ public class ConferenceRezPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 是否为周期预约会议 */
+    @ApiModelProperty(value = "是否为周期预约会议")
+    private String rezPeriodId;
+
     /** 会议室ID */
     @ApiModelProperty(value = "会议室ID")
     private String conferenceConfigId;
@@ -58,15 +60,23 @@ public class ConferenceRezPageParam {
     @ApiModelProperty(value = "预约人")
     private String rezUser;
 
-    /** 开始时间 */
-    @ApiModelProperty(value = "开始时间")
-    private String beginTime;
+    /** 主持人 */
+    @ApiModelProperty(value = "主持人")
+    private String presideUser;
 
-    /** 结束时间 */
-    @ApiModelProperty(value = "结束时间")
-    private String endTime;
+    /** 会议记录人 */
+    @ApiModelProperty(value = "会议记录人")
+    private String recordUser;
 
-    /** 参与者-查询只能传单个人员 */
-    @ApiModelProperty(value = "参与者-查询只能传单个人员")
-    private String joinUserId;
+    /** 审核人 */
+    @ApiModelProperty(value = "审核人")
+    private String verifyUserId;
+
+    /** 审核状态：0 审核中，1 审核通过，2 审核未通过 */
+    @ApiModelProperty(value = "审核状态：0 审核中，1 审核通过，2 审核未通过")
+    private Integer verifyStatus;
+
+    /** 流水号 */
+    @ApiModelProperty(value = "流水号")
+    private String sn;
 }

@@ -23,10 +23,10 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 会议预约-预约会议表数据实体
+ * 会议模块-预约会议实体
  *
  * @author ljy
- * @date  2023/11/05 23:13
+ * @date  2023/12/01 23:35
  **/
 @Getter
 @Setter
@@ -38,133 +38,150 @@ public class ConferenceRez {
     @ApiModelProperty(value = "主键", position = 1)
     private String id;
 
+    /** 是否为周期预约会议 */
+    @ApiModelProperty(value = "是否为周期预约会议", position = 2)
+    private String rezPeriodId;
+
     /** 会议室ID */
-    @ApiModelProperty(value = "会议室ID", position = 2)
+    @ApiModelProperty(value = "会议室ID", position = 3)
     private String conferenceConfigId;
 
     /** 预约主题 */
-    @ApiModelProperty(value = "预约主题", position = 3)
+    @ApiModelProperty(value = "预约主题", position = 4)
     private String theme;
 
     /** 开始时间 */
-    @ApiModelProperty(value = "开始时间", position = 4)
+    @ApiModelProperty(value = "开始时间", position = 5)
     private Date beginTime;
 
     /** 结束时间 */
-    @ApiModelProperty(value = "结束时间", position = 5)
+    @ApiModelProperty(value = "结束时间", position = 6)
     private Date endTime;
 
     /** 参与者 */
-    @ApiModelProperty(value = "参与者", position = 6)
+    @ApiModelProperty(value = "参与者", position = 7)
     private String joinUser;
 
+    /** 组织部门 */
+    @ApiModelProperty(value = "组织部门", position = 8)
+    private String joinOrg;
+
     /** 参与人数 */
-    @ApiModelProperty(value = "参与人数", position = 7)
+    @ApiModelProperty(value = "参与人数", position = 9)
     private Integer joinSize;
 
     /** 预约人 */
-    @ApiModelProperty(value = "预约人", position = 8)
+    @ApiModelProperty(value = "预约人", position = 10)
     private String rezUser;
 
+    /** 主持人 */
+    @ApiModelProperty(value = "主持人", position = 11)
+    private String presideUser;
+
+    /** 会议记录人 */
+    @ApiModelProperty(value = "会议记录人", position = 12)
+    private String recordUser;
+
+    /** 会务人员：多个 */
+    @ApiModelProperty(value = "会务人员：多个", position = 13)
+    private String conAffUsers;
+
     /** 会议室位置 */
-    @ApiModelProperty(value = "会议室位置", position = 9)
+    @ApiModelProperty(value = "会议室位置", position = 14)
     private String location;
 
     /** 外部人员 */
-    @ApiModelProperty(value = "外部人员", position = 10)
+    @ApiModelProperty(value = "外部人员", position = 15)
     private String outsideUser;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 11)
+    @ApiModelProperty(value = "备注", position = 16)
     private String remark;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 12)
+    @ApiModelProperty(value = "附件", position = 17)
     private String fileId;
 
+    /** 会议号 */
+    @ApiModelProperty(value = "会议号", position = 18)
+    private String onLineCode;
+
+    /** 会议平台名称 */
+    @ApiModelProperty(value = "会议平台名称", position = 19)
+    private String onLineName;
+
+    /** 会议URL */
+    @ApiModelProperty(value = "会议URL", position = 20)
+    private String onLineUrl;
+
+    /** 会议议程 */
+    @ApiModelProperty(value = "会议议程", position = 21)
+    private String rezAgenda;
+
+    /** 会议记录+纪要 */
+    @ApiModelProperty(value = "会议记录+纪要", position = 22)
+    private String record;
+
+    /** 审核人 */
+    @ApiModelProperty(value = "审核人", position = 23)
+    private String verifyUserId;
+
+    /** 审核人名称 */
+    @ApiModelProperty(value = "审核人名称", position = 24)
+    private String verifyUserName;
+
+    /** 审核状态：0 审核中，1 审核通过，2 审核未通过 */
+    @ApiModelProperty(value = "审核状态：0 审核中，1 审核通过，2 审核未通过", position = 25)
+    private Integer verifyStatus;
+
+    /** 组织部门 */
+    @ApiModelProperty(value = "组织部门", position = 26)
+    private String orgDept;
+
+    /** 缺席人员 */
+    @ApiModelProperty(value = "缺席人员", position = 27)
+    private String absents;
+
+    /** 缺席原因 */
+    @ApiModelProperty(value = "缺席原因", position = 28)
+    private String absentReason;
+
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 13)
+    @ApiModelProperty(value = "扩展信息", position = 29)
     private String extJson;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 14)
+    @ApiModelProperty(value = "删除标志", position = 30)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 15)
+    @ApiModelProperty(value = "创建时间", position = 31)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 16)
+    @ApiModelProperty(value = "创建用户", position = 32)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 17)
+    @ApiModelProperty(value = "修改时间", position = 33)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 18)
+    @ApiModelProperty(value = "修改用户", position = 34)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    /**展示时间*/
-    @ApiModelProperty(value = "展示时间", position = 19)
+    /** 流水号 */
+    @ApiModelProperty(value = "流水号", position = 35)
+    private String sn;
+
+    /** 签到人列表 */
+    @ApiModelProperty(value = "签到人列表", position = 36)
     @TableField(exist = false)
-    private String showTime;
-
-    /** 审核状态：1 审核通过，2 审核未通过，3 会议取消 */
-    @ApiModelProperty(value = "审核状态：1 审核通过，2 审核未通过，3 会议取消", position = 20)
-    private Integer verifyFlag;
-
-    /**展示时间*/
-    @ApiModelProperty(value = "会议类型：普通会议为空，周期会议1", position = 21)
-    @TableField(exist = false)
-    private String conferenceType;
-
-    /** 主持人 */
-    @ApiModelProperty(value = "主持人", position = 22)
-    private String presideUser;
-
-    /** 会议记录人 */
-    @ApiModelProperty(value = "会议记录人", position = 23)
-    private String recordUser;
-
-    /** 会务人员：多个 */
-    @ApiModelProperty(value = "会务人员：多个", position = 24)
-    private String conAffUsers;
-
-    /** 在线会议号 */
-    @ApiModelProperty(value = "在线会议号", position = 21)
-    private String onLineCode;
-
-    /** 在线会议号平台名称 */
-    @ApiModelProperty(value = "在线会议号平台名称", position = 22)
-    private String onLineName;
-
-    /** 会议链接 */
-    @ApiModelProperty(value = "会议链接", position = 23)
-    private String onLineUrl;
-
-    /** 会议议程 */
-    @ApiModelProperty(value = "会议议程", position = 24)
-    private String rezAgenda;
-
-    /** 会议议程List */
-    @ApiModelProperty(value = "会议议程List", position = 25)
-    @TableField(exist = false)
-    private List<String> rezAgendas;
-
-    /** 会议记录ID */
-    @ApiModelProperty(value = "会议记录ID", position = 26)
-    private String recordId;
-
-    /** 组织部门 */
-    @ApiModelProperty(value = "组织部门",position = 26)
-    private String orgDept;
-
+    private List<ConferenceUserSign> conferenceUserSignList;
 }

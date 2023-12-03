@@ -12,25 +12,27 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
+import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.UserRezPageVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -38,12 +40,12 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
- * 会议预约-预约会议表数据控制器
+ * 会议模块-预约会议控制器
  *
  * @author ljy
- * @date  2023/11/05 23:13
+ * @date  2023/12/01 23:35
  */
-@Api(tags = "会议预约-预约会议表数据控制器")
+@Api(tags = "会议模块-预约会议控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
@@ -55,13 +57,13 @@ public class ConferenceRezController {
     private ConferenceRezPeriodService conferenceRezPeriodService;
 
     /**
-     * 获取会议预约-预约会议表数据分页
+     * 获取会议模块-预约会议分页
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取会议预约-预约会议表数据分页")
+    @ApiOperation("获取会议模块-预约会议分页")
     //@SaCheckPermission("/sys/rez/page")
     @GetMapping("/sys/rez/page")
     public CommonResult<Page<ConferenceRez>> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -69,14 +71,14 @@ public class ConferenceRezController {
     }
 
     /**
-     * 添加会议预约-预约会议表数据
+     * 添加会议模块-预约会议
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加会议预约-预约会议表数据")
-    @CommonLog("添加会议预约-预约会议表数据")
+    @ApiOperation("添加会议模块-预约会议")
+    @CommonLog("添加会议模块-预约会议")
     //@SaCheckPermission("/sys/rez/add")
     @PostMapping("/sys/rez/add")
     public CommonResult<String> add(@RequestBody @Valid ConferenceRezAddParam conferenceRezAddParam) {
@@ -85,14 +87,14 @@ public class ConferenceRezController {
     }
 
     /**
-     * 编辑会议预约-预约会议表数据
+     * 编辑会议模块-预约会议
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("会议审核-预约会议表数据")
-    @CommonLog("会议审核-预约会议表数据")
+    @ApiOperation("编辑会议模块-预约会议")
+    @CommonLog("编辑会议模块-预约会议")
     //@SaCheckPermission("/sys/rez/edit")
     @PostMapping("/sys/rez/edit")
     public CommonResult<String> edit(@RequestBody @Valid ConferenceRezEditParam conferenceRezEditParam) {
@@ -101,14 +103,14 @@ public class ConferenceRezController {
     }
 
     /**
-     * 删除会议预约-预约会议表数据
+     * 删除会议模块-预约会议
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除会议预约-预约会议表数据")
-    @CommonLog("删除会议预约-预约会议表数据")
+    @ApiOperation("删除会议模块-预约会议")
+    @CommonLog("删除会议模块-预约会议")
     //@SaCheckPermission("/sys/rez/delete")
     @PostMapping("/sys/rez/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
@@ -118,31 +120,17 @@ public class ConferenceRezController {
     }
 
     /**
-     * 获取会议预约-预约会议表数据详情
+     * 获取会议模块-预约会议详情
      *
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/12/01 23:35
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取会议预约-预约会议表数据详情")
+    @ApiOperation("获取会议模块-预约会议详情")
     //@SaCheckPermission("/sys/rez/detail")
     @GetMapping("/sys/rez/detail")
     public CommonResult<ConferenceRez> detail(@Valid ConferenceRezIdParam conferenceRezIdParam) {
         return CommonResult.data(conferenceRezService.detail(conferenceRezIdParam));
-    }
-
-    /**
-     * 获取会议预约-预约会议表数据详情
-     *
-     * @author ljy
-     * @date  2023/11/05 23:13
-     */
-    @ApiOperationSupport(order = 6)
-    @ApiOperation("获取会议预约-查看可预约会议数据")
-    //@SaCheckPermission("/sys/rez/conferenceRoom")
-    @GetMapping("/sys/rez/conferenceRoom")
-    public CommonResult<List<ConferenceConfig>> conferenceRoom(@Valid ConferenceRoomParam conferenceRoomParam) {
-        return CommonResult.data(conferenceRezService.conferenceRoom(conferenceRoomParam));
     }
 
     /**
@@ -158,32 +146,49 @@ public class ConferenceRezController {
         return CommonResult.data(conferenceRezService.conferenceList(conferenceTimeDataParam));
     }
 
+
+    /** 周期预约*/
     /**
-     * 获取会议预约-发送会议预约消息
-     *
+     * 获取会议预约-周期预约分页
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/11/09 22:47
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取会议预约-周期预约分页")
+    //@SaCheckPermission("/sys/rezPeriod/page")
+    @GetMapping("/sys/rezPeriod/page")
+    public CommonResult<Page<ConferenceRezPeriod>> periodPage(ConferenceRezPeriodPageParam conferenceRezPeriodPageParam) {
+        return CommonResult.data(conferenceRezPeriodService.page(conferenceRezPeriodPageParam));
+    }
+
+    /**
+     * 编辑会议预约-周期预约
+     * @author ljy
+     * @date  2023/11/09 22:47
      */
     @ApiOperationSupport(order = 8)
-    @ApiOperation("获取会议预约-发送会议预约消息")
-    //@SaCheckPermission("/sys/rez/sendConfMsg")
-    @PostMapping("/sys/rez/sendConfMsg")
-    public CommonResult<OapiMessageCorpconversationAsyncsendV2Response> sendConfMsg(@RequestBody @Valid ConferenceMsgEvent conferenceMsgEvent) {
-        return CommonResult.data(conferenceRezService.sendConfMsg(conferenceMsgEvent ,"【会议通知】",1));
+    @ApiOperation("编辑会议预约-周期预约")
+    @CommonLog("编辑会议预约-周期预约")
+    //@SaCheckPermission("/sys/rezPeriod/edit")
+    @PostMapping("/sys/rezPeriod/edit")
+    public CommonResult<String> periodEdit(@RequestBody @Valid ConferenceRezPeriodEditParam conferenceRezPeriodEditParam) {
+        conferenceRezPeriodService.edit(conferenceRezPeriodEditParam);
+        return CommonResult.ok();
     }
 
     /**
-     * 我的会议-根据人员获取会议预约信息
-     *
+     * 删除会议预约-周期预约
      * @author ljy
-     * @date  2023/11/05 23:13
+     * @date  2023/11/09 22:47
      */
     @ApiOperationSupport(order = 9)
-    @ApiOperation("我的会议-根据人员获取会议预约信息")
-    //@SaCheckPermission("/sys/rez/page")
-    @GetMapping("/sys/rez/userRezPage")
-    public CommonResult<Page<UserRezPageVo>> userRezPage(UserRezPageParam userRezPageParam) {
-        return CommonResult.data(conferenceRezService.userRezPage(userRezPageParam));
+    @ApiOperation("删除会议预约-周期预约")
+    @CommonLog("删除会议预约-周期预约")
+    //@SaCheckPermission("/sys/rezPeriod/delete")
+    @PostMapping("/sys/rezPeriod/delete")
+    public CommonResult<String> periodDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                               CommonValidList<ConferenceRezPeriodIdParam> conferenceRezPeriodIdParamList) {
+        conferenceRezPeriodService.delete(conferenceRezPeriodIdParamList);
+        return CommonResult.ok();
     }
-
 }

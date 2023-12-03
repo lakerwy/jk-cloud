@@ -15,10 +15,10 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.enums;
 import lombok.Getter;
 
 /**
- * 会议预约-预约会议表数据枚举
+ * 会议模块-预约会议枚举
  *
  * @author ljy
- * @date  2023/11/05 23:13
+ * @date  2023/12/01 23:35
  **/
 @Getter
 public enum ConferenceRezEnum {
