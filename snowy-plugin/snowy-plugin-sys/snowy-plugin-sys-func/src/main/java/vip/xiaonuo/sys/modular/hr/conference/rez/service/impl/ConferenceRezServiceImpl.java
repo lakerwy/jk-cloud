@@ -23,7 +23,17 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.dingtalk.api.DefaultDingTalkClient;
+import com.dingtalk.api.DingTalkClient;
+import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
+import com.dingtalk.api.response.OapiGettokenResponse;
+import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
+import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
+import com.taobao.api.ApiException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
@@ -32,6 +42,11 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.dbs.core.util.BizTableCommon;
+import vip.xiaonuo.dbs.core.util.CommonUtils;
+import vip.xiaonuo.dev.api.IDingDingService;
+import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
@@ -41,6 +56,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTime;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
 import vip.xiaonuo.sys.modular.hr.conference.userSign.entity.ConferenceUserSign;
@@ -82,6 +98,12 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     ConferenceRezPeriodService conferenceRezPeriodService;
     @Resource
     ConferenceUserSignService conferenceUserSignService;
+    @Resource
+    IDingDingService iDingDingService;
+    @Resource
+    DingTalkProperties dingTalkProperties;
+    @Resource
+    private ApplicationEventPublisher eventPublisher;
 
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -144,10 +166,12 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
-        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
+        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())  && conferenceRezAddParam.getWeekTime() != 0
+                && ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime()) && conferenceRezAddParam.getDayTime() != 0){
             log.error("周期预约错误，参数错误：WeekTime："+conferenceRezAddParam.getWeekTime()+",dayTime:"+conferenceRezAddParam.getDayTime());
             throw new CommonException("周期预约错误，请联系管理员");
-        }else if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
+        }else if((ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && conferenceRezAddParam.getWeekTime() != 0)
+                || (ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())  && conferenceRezAddParam.getDayTime() != 0)){
             periodAddRez(conferenceRezAddParam);
         }
         Integer trueNum = addTrue(conferenceRezAddParam);
@@ -160,24 +184,45 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             conferenceRezAddParam.setRezUser(loginUser.getId());
         }
         ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
+        String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
+        conferenceRez.setSn(sn);
         this.save(conferenceRez);
+        //异步推送消息
+        Map<String,ConferenceConfig> conferenceConfig = conferenceConfig();
+        String location = conferenceConfig.get(conferenceRez.getConferenceConfigId()) != null ? conferenceConfig.get(conferenceRez.getConferenceConfigId()).getName() : "";
+        ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(conferenceRezAddParam.getJoinUser());
+        conferenceMsgEvent.setTheme(conferenceRezAddParam.getTheme());
+        String theme = ObjectUtil.isNotEmpty(conferenceRez) ? conferenceRez.getTheme() :  "";
+        String confTime = ObjectUtil.isNotEmpty(conferenceRez) && ObjectUtil.isNotEmpty(conferenceRez.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRez.getEndTime())?
+                DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm") : "";
+        conferenceMsgEvent.setConfTime(confTime);
+        conferenceMsgEvent.setLocation(location);
+        SysUser sysUser = sysUserService.getById(conferenceRez.getRezUser());
+        conferenceMsgEvent.setRezUser(sysUser.getName());
+        eventPublisher.publishEvent(conferenceMsgEvent);
+    }
+    private Map<String,ConferenceConfig> conferenceConfig(){
+        Map<String,ConferenceConfig> configMap = new HashMap<>();
+        List<ConferenceConfig> configList = conferenceConfigService.list();
+        configList.forEach(config -> configMap.put(config.getId(),config));
+        return configMap;
     }
     private Integer addTrue(ConferenceRezAddParam conferenceRezAddParam){
         //开始时间>=结束时间
         if(conferenceRezAddParam.getBeginTime().compareTo(conferenceRezAddParam.getEndTime()) >= 0){ return 1; }
         Date date = DateUtil.date();
-        //开始时间或者结束时间 < 当前时间
-        if(conferenceRezAddParam.getBeginTime().compareTo(date) < 0 || conferenceRezAddParam.getEndTime().compareTo(date) < 0 ){
-            return 2;
-        }
-        /** 已有开始时间和结束时间*/
-        Long perNum = this.count(new LambdaQueryWrapper<ConferenceRez>().gt(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
-                .lt(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
-        Long beginNum = this.count(new LambdaQueryWrapper<ConferenceRez>().lt(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
-                .gt(ConferenceRez::getEndTime,conferenceRezAddParam.getBeginTime()));
-        Long endNum = this.count(new LambdaQueryWrapper<ConferenceRez>().lt(ConferenceRez::getBeginTime,conferenceRezAddParam.getEndTime())
-                .gt(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
-        if(beginNum > 0 || endNum > 0 || perNum > 0){ return 3; }
+        //结束时间 < 当前时间
+        if(conferenceRezAddParam.getEndTime().compareTo(date) < 0 ){ return 2; }
+        // 已有会议开始时间 <= 预约开始时间  && 已有会议结束时间  >= 预约结束时间  包含
+        Long beginNum = this.count(new LambdaQueryWrapper<ConferenceRez>().le(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .ge(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()).eq(ConferenceRez::getConferenceConfigId,conferenceRezAddParam.getConferenceConfigId()));
+
+        // 预约开始时间 <= 已有会议开始时间  && 预约结束时间 >= 已有会议结束时间  包含
+        Long endNum = this.count(new LambdaQueryWrapper<ConferenceRez>().ge(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .le(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()).eq(ConferenceRez::getConferenceConfigId,conferenceRezAddParam.getConferenceConfigId()));
+
+        /** 已有预约 */
+        if(beginNum > 0 || endNum > 0){ return 3; }
         return 0;
     }
 
@@ -343,5 +388,103 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         List<SysPosition> positionList = sysPositionService.list();
         positionList.forEach(position -> map.put(position.getId(),position.getName()));
         return map;
+    }
+
+    @EventListener
+    @Async
+    public void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent){
+        // TODO 发送消息业务逻辑
+        //ConferenceMsgEvent event = conferenceMsgEvent;
+        if(StringUtils.isNotEmpty(conferenceMsgEvent.getUserIds())){
+            List<String> userIds = Arrays.asList(conferenceMsgEvent.getUserIds().split(","));
+            List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+            sysUserList.forEach(user -> {
+                conferenceMsgEvent.setPhone(user.getAccount());
+                sendConfMsg(conferenceMsgEvent, "【会议通知】",0);
+            });
+        }
+    }
+    /**
+     * 发送 会议通知
+     */
+    @Override
+    public OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(ConferenceMsgEvent conferenceMsgEvent, String title, Integer type) {
+        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = iDingDingService.getByMobile(conferenceMsgEvent.getPhone());
+        if (!oapiV2UserGetbymobileResponse.isSuccess()) {
+            log.error(oapiV2UserGetbymobileResponse.getErrmsg());
+            return null;
+        }
+        OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
+
+        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
+        OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
+        // yourAgentId
+        request.setAgentId(dingTalkProperties.getAgentId());
+        request.setUseridList(result.getUserid());
+        request.setToAllUser(false);
+        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+
+        OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
+        msg.setMsgtype("oa");
+        msg.setOa(buildOa(conferenceMsgEvent,title,type));
+        request.setMsg(msg);
+
+        OapiGettokenResponse oapiGettokenResponse = iDingDingService.getToken();
+        String accessToken = oapiGettokenResponse.getAccessToken();
+        try {
+            return client.execute(request, accessToken);
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    private OapiMessageCorpconversationAsyncsendV2Request.OA buildOa(ConferenceMsgEvent conferenceMsgEvent,String title,Integer type){
+        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
+        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
+        head.setText("会议通知");
+        head.setBgcolor("FFBBBBBB");
+        oa.setHead(head);
+
+        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+        body.setTitle(title);
+        String theme = conferenceMsgEvent.getTheme();
+        String confTime = conferenceMsgEvent.getConfTime();
+        String location = conferenceMsgEvent.getLocation();
+        String rezUser = conferenceMsgEvent.getRezUser();
+        String presideUser = conferenceMsgEvent.getPresideUser();
+
+        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("会议主题：");
+        form.setValue(theme);
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("会议时间：");
+        form.setValue(confTime);
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("会议地点：");
+        form.setValue(location);
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("预约人：");
+        form.setValue(rezUser);
+        forms.add(form);
+
+        body.setForm(forms);
+        oa.setBody(body);
+
+        return oa;
+    }
+
+    @Override
+    public void recordNotice(String rezId){
+
     }
 }

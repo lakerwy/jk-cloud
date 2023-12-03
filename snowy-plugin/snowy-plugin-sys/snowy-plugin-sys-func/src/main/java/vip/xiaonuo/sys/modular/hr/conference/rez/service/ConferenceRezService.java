@@ -14,12 +14,14 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezAddParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezEditParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezIdParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
 
 import java.util.List;
@@ -96,4 +98,10 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /** 获取职位数据  key postionId,value postionName*/
     Map<String,String> getPostionData();
+
+
+    /** 发送开会消息 */
+    OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(ConferenceMsgEvent conferenceMsgEvent, String title, Integer type);
+
+    void recordNotice(String rezId);
 }

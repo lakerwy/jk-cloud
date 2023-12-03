@@ -191,4 +191,20 @@ public class ConferenceRezController {
         conferenceRezPeriodService.delete(conferenceRezPeriodIdParamList);
         return CommonResult.ok();
     }
+
+    /**
+     * 会议记录确认通知
+     *
+     * @author ljy
+     * @date  2023/11/20 08:39
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("会议审核确认")
+    @CommonLog("会议审核确认")
+    //@SaCheckPermission("/sys/conferenceRecord/recordNotice")
+    @GetMapping("/sys/rez/recordNotice")
+    public CommonResult<String> recordNotice(@Valid String rezId) {
+        conferenceRezService.recordNotice(rezId);
+        return CommonResult.ok();
+    }
 }
