@@ -16,6 +16,8 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.sys.modular.hr.conference.userSign.entity.ConferenceUserSign;
+
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;

@@ -55,6 +55,7 @@ import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigServ
 import vip.xiaonuo.sys.modular.hr.conference.record.entity.ConferenceConfirmUser;
 import vip.xiaonuo.sys.modular.hr.conference.record.service.ConferenceConfirmUserService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
 import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
@@ -86,6 +87,19 @@ import java.util.stream.Collectors;
 @Service
 @AllArgsConstructor
 public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, ConferenceRez> implements ConferenceRezService {
+
+    @Resource
+    SysUserService sysUserService;
+    @Resource
+    ConferenceConfigService conferenceConfigService;
+    @Resource
+    SysOrgService sysOrgService;
+    @Resource
+    SysPositionService sysPositionService;
+    @Resource
+    ConferenceRezPeriodService conferenceRezPeriodService;
+    @Resource
+    ConferenceUserSignService conferenceUserSignService;
 
     private final DingTalkProperties dingTalkProperties;
 
@@ -130,6 +144,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 queryPeriod.lambda().like(ConferenceRezPeriod::getJoinUser, conferenceRezPageParam.getJoinUserId());
             }
         }
+        if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getSn())) {
+            queryWrapper.lambda().eq(ConferenceRez::getSn, conferenceRezPageParam.getSn());
+        }
         if(ObjectUtil.isAllNotEmpty(conferenceRezPageParam.getSortField(), conferenceRezPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(conferenceRezPageParam.getSortOrder());
             queryWrapper.orderBy(true, conferenceRezPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -165,31 +182,24 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         return page;
     }
-
-    private void filterJoinUser(Page<ConferenceRez> page,String filterUserId){
-        if(page.getRecords().size() > 0){
-            List<ConferenceRez> rezList = new ArrayList<>();
-            for(ConferenceRez rez : page.getRecords()){
-                List<String> userIds = StringUtils.isNotEmpty(rez.getJoinUser()) ? Arrays.asList(rez.getJoinUser().trim().split(",")) : new ArrayList<>();
-                if(userIds.stream().filter(id -> id.equals(filterUserId)).collect(Collectors.toList()).size() > 0){
-                    rezList.add(rez);
-                }else{
-                    rezList.add(rez);
-                }
+    //返回签到列表
+    private void userSign(Page<ConferenceRez> page){
+        if (CollectionUtil.isEmpty(page.getRecords())){
+            return;
+        }
+        List<String> rezIds = page.getRecords().stream().map(rez -> rez.getId()).collect(Collectors.toList());
+        List<ConferenceUserSign> signList  = conferenceUserSignService.list(new LambdaQueryWrapper<ConferenceUserSign>().in(ConferenceUserSign::getRezId,rezIds));
+        Map<String,List<ConferenceUserSign>> map = new HashMap<>();
+        signList.forEach(sign -> {
+            List<ConferenceUserSign> signs = map.get(sign.getRezId()) != null ? map.get(sign.getRezId()) : new ArrayList<>();
+            signs.add(sign);
+            map.put(sign.getRezId(),signs);
+        });
+        page.getRecords().forEach(rez -> {
+            if(map.get(rez.getId()) != null){
+                rez.setConferenceUserSignList(map.get(rez.getId()));
             }
-            page.setRecords(rezList);
-        }
-    }
-
-    private String caltTime(ConferenceRez rez){
-        String caltTime = "";
-        String day = DateUtil.format(rez.getBeginTime(),DatePattern.NORM_DATE_PATTERN);
-        if(day.equals(DateUtil.format(new Date(),DatePattern.NORM_DATE_PATTERN))){
-            caltTime =  "今天 "+DateUtil.format(rez.getBeginTime(),"HH:mm")+"~"+DateUtil.format(rez.getEndTime(),"HH:mm");
-        }else{
-            caltTime =  DateUtil.format(rez.getBeginTime(),DatePattern.NORM_DATE_PATTERN)+" "+DateUtil.format(rez.getBeginTime(),"HH:mm")+"~"+DateUtil.format(rez.getEndTime(),"HH:mm");
-        }
-        return caltTime;
+        });
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -317,6 +327,54 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }*/
         return 0;
     }
+    private Integer addTrue(ConferenceRezAddParam conferenceRezAddParam){
+        //开始时间>=结束时间
+        if(conferenceRezAddParam.getBeginTime().compareTo(conferenceRezAddParam.getEndTime()) >= 0){ return 1; }
+        Date date = DateUtil.date();
+        //开始时间或者结束时间 < 当前时间
+        if(conferenceRezAddParam.getBeginTime().compareTo(date) < 0 || conferenceRezAddParam.getEndTime().compareTo(date) < 0 ){
+            return 2;
+        }
+        /** 已有开始时间和结束时间*/
+        Long perNum = this.count(new LambdaQueryWrapper<ConferenceRez>().gt(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .lt(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
+        Long beginNum = this.count(new LambdaQueryWrapper<ConferenceRez>().lt(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
+                .gt(ConferenceRez::getEndTime,conferenceRezAddParam.getBeginTime()));
+        Long endNum = this.count(new LambdaQueryWrapper<ConferenceRez>().lt(ConferenceRez::getBeginTime,conferenceRezAddParam.getEndTime())
+                .gt(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()));
+        if(beginNum > 0 || endNum > 0 || perNum > 0){ return 3; }
+        return 0;
+    }
+
+    /** 周期预约，当前只生成当前周或者下周一次标准会议，开一次生成一次，避免数据冗余*/
+    private void periodAddRez(ConferenceRezAddParam conferenceRezAddParam){
+        ConferenceRezPeriod conferenceRezPeriod = BeanUtil.toBean(conferenceRezAddParam, ConferenceRezPeriod.class);
+        conferenceRezPeriodService.save(conferenceRezPeriod);
+        List<ConferenceRez>  conferenceRezList = new ArrayList<>();
+        /** 周期生成标准会议：周 有效期三个月，月 有效期一年*/
+        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())){
+            Calendar instance = Calendar.getInstance();
+            instance.setTime(new Date());// 根据指定日期获取周几
+            int nowWeek = instance.get(Calendar.DAY_OF_WEEK);
+            instance.setTime(conferenceRezAddParam.getBeginTime());
+            int periodWeek = instance.get(Calendar.DAY_OF_WEEK);
+            if(nowWeek < periodWeek){  // 预约时间 > 当前时间
+                ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
+                conferenceRez.setRezPeriodId(conferenceRezPeriod.getId());
+                this.save(conferenceRez);
+                return;
+            }
+            LocalDate today = LocalDate.now();
+            LocalDate nextMonday = today.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        }
+
+        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())){
+
+        }
+    }
+    //获取三月内每一周的某一天时间
+
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -444,20 +502,6 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             map.put(rez.getConferenceConfigId(),conferenceRezs);
         });
 
-        //周期预约数据
-        int week = DateUtil.dayOfWeek(CommonTimeFormatUtil.strToDate(conferenceTimeDataParam.getDay()+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue(),
-                DatePattern.NORM_DATETIME_PATTERN));
-        List<ConferenceRezPeriod> periodList = conferenceRezPeriodService.list(new LambdaQueryWrapper<ConferenceRezPeriod>()
-                .eq(ConferenceRezPeriod::getWeekTime,week-1 ==0 ? 7 : week-1)
-                .le(ConferenceRezPeriod::getBeginTime,conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue())
-                .ge(ConferenceRezPeriod::getEndTime,conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.END_TIME.getValue()));
-        Map<String,List<ConferenceRezPeriod>> periodMap = new HashMap<>();//key conferenceConfigId ,value ConferenceRez
-        periodList.forEach(periodRez -> {
-            List<ConferenceRezPeriod> periodRezList = periodMap.get(periodRez.getConferenceConfigId()) != null ?  periodMap.get(periodRez.getConferenceConfigId()) : new ArrayList<>();
-            periodRezList.add(periodRez);
-            periodMap.put(periodRez.getConferenceConfigId(),periodRezList);
-        });
-
         conferenceConfigList.forEach(config -> {
             List<ConferenceTime> conferenceTimes = conferenceTimes(conferenceTimeDataParam.getDay());
             ConferenceTimeData conferenceTimeData = new ConferenceTimeData();
@@ -468,18 +512,17 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             conferenceTimeData.setFileId(config.getFileId());
             conferenceTimeData.setDevice(config.getDevice());
             List<ConferenceRez> rezList = map.get(config.getId()) == null ? new ArrayList<>() :  map.get(config.getId());
-            List<ConferenceRezPeriod> periodRezList = periodMap.get(config.getId()) == null ? new ArrayList<>() :  periodMap.get(config.getId());
-            if(CollectionUtil.isEmpty(rezList) && CollectionUtil.isEmpty(periodRezList)){
+            if(CollectionUtil.isEmpty(rezList)){
                 conferenceTimeData.setConferenceTimes(conferenceTimes);
             }else{
-                conferenceTimeData(rezList,periodRezList,conferenceTimeData,userMap);
+                conferenceRezTime(rezList,conferenceTimeData,userMap);
             }
             conferenceTimeDataList.add(conferenceTimeData);
         });
         return conferenceTimeDataList;
     }
 
-    private void conferenceTimeData(List<ConferenceRez> rezList,List<ConferenceRezPeriod> periodRezList,ConferenceTimeData conferenceTimeData,Map<String,String> userMap){
+    private void conferenceRezTime(List<ConferenceRez> rezList,ConferenceTimeData conferenceTimeData,Map<String,String> userMap){
         if(CollectionUtil.isNotEmpty(rezList)){
             Map<String,ConferenceRez> map = new HashMap<>();//key time,value rez
             rezList.forEach(rez -> {
@@ -493,26 +536,6 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             conferenceTimeData.getConferenceTimes().forEach(conferenceTime -> {
                 if(map.get(conferenceTime.getTime()) != null){
                     ConferenceRez rez = map.get(conferenceTime.getTime());
-                    conferenceTime.setStatus(2);
-                    conferenceTime.setRezUserID(rez.getRezUser());
-                    conferenceTime.setRezUserName(userMap.get(rez.getRezUser()));
-                }
-            });
-        }
-
-        if(CollectionUtil.isNotEmpty(periodRezList)){
-            Map<String,ConferenceRezPeriod> map = new HashMap<>();//key time,value rez
-            periodRezList.forEach(period -> {
-                while (period.getBeginTime().compareTo(period.getEndTime()) < 0){
-                    Date time1 = period.getBeginTime();
-                    Date time2 = DateUtil.offsetMinute(time1,30);
-                    map.put(CommonTimeFormatUtil.dateToStr(time1,"HH:mm")+"-"+CommonTimeFormatUtil.dateToStr(time2,"HH:mm"),period);
-                    period.setBeginTime(time2);
-                }
-            });
-            conferenceTimeData.getConferenceTimes().forEach(conferenceTime -> {
-                if(map.get(conferenceTime.getTime()) != null){
-                    ConferenceRezPeriod rez = map.get(conferenceTime.getTime());
                     conferenceTime.setStatus(2);
                     conferenceTime.setRezUserID(rez.getRezUser());
                     conferenceTime.setRezUserName(userMap.get(rez.getRezUser()));
@@ -540,7 +563,6 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         return conferenceTimeList;
     }
 
-
     @Override
     public  Map<String,String> getUserData(){
         Map<String,String> map = new HashMap<>();
@@ -562,174 +584,5 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         List<SysPosition> positionList = sysPositionService.list();
         positionList.forEach(position -> map.put(position.getId(),position.getName()));
         return map;
-    }
-
-    /**
-     * 发送 会议通知
-     * @param message 消息
-     * @param phone 电话号码
-     */
-    @Override
-    public OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(ConferenceMsgEvent conferenceMsgEvent, String title,Integer type) {
-        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = iDingDingService.getByMobile(conferenceMsgEvent.getPhone());
-        if (!oapiV2UserGetbymobileResponse.isSuccess()) {
-            log.error(oapiV2UserGetbymobileResponse.getErrmsg());
-            return null;
-        }
-        OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
-
-        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
-        OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
-        // yourAgentId
-        request.setAgentId(dingTalkProperties.getAgentId());
-        request.setUseridList(result.getUserid());
-        request.setToAllUser(false);
-        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-
-        OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
-        msg.setMsgtype("oa");
-        msg.setOa(buildOa(conferenceMsgEvent,title,type));
-        request.setMsg(msg);
-
-        OapiGettokenResponse oapiGettokenResponse = iDingDingService.getToken();
-        String accessToken = oapiGettokenResponse.getAccessToken();
-        try {
-            return client.execute(request, accessToken);
-        } catch (ApiException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    private OapiMessageCorpconversationAsyncsendV2Request.OA buildOa(ConferenceMsgEvent conferenceMsgEvent,String title,Integer type){
-        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
-        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
-        head.setText("会议通知");
-        head.setBgcolor("FFBBBBBB");
-        oa.setHead(head);
-
-        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
-        body.setTitle(title);
-        String theme = conferenceMsgEvent.getTheme();
-        String confTime = conferenceMsgEvent.getConfTime();
-        String location = conferenceMsgEvent.getLocation();
-        String rezUser = conferenceMsgEvent.getRezUser();
-        String presideUser = conferenceMsgEvent.getPresideUser();
-
-        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("会议主题：");
-        form.setValue(theme);
-        forms.add(form);
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("会议时间：");
-        form.setValue(confTime);
-        forms.add(form);
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("会议地点：");
-        form.setValue(location);
-        forms.add(form);
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("预约人：");
-        form.setValue(rezUser);
-        forms.add(form);
-
-        body.setForm(forms);
-        oa.setBody(body);
-
-        return oa;
-    }
-
-
-
-    @Override
-    public Page<UserRezPageVo> userRezPage(UserRezPageParam userRezPageParam){
-        Page<UserRezPageVo> userRezPage = new Page<>();
-        Boolean isTrue = ObjectUtil.isNotEmpty(userRezPageParam.getStatus()) ? true : false;
-        if(isTrue && userRezPageParam.getStatus() == 1){//我预约的会议
-            ConferenceRezPageParam conferenceRezPageParam = BeanUtil.toBean(userRezPageParam,ConferenceRezPageParam.class);
-            Page<ConferenceRez> page = page(conferenceRezPageParam);
-            return userRezPageVo(userRezPageParam,userRezPage,page);
-        }else if(isTrue && userRezPageParam.getStatus() == 2){//我参加的会议
-            ConferenceRezPageParam conferenceRezPageParam = BeanUtil.toBean(userRezPageParam,ConferenceRezPageParam.class);
-            conferenceRezPageParam.setJoinUserId(userRezPageParam.getRezUser());
-            conferenceRezPageParam.setRezUser("");
-            Page<ConferenceRez> page = page(conferenceRezPageParam);
-            return userRezPageVo(userRezPageParam,userRezPage,page);
-        }
-        ConferenceRezPageParam conferenceRezPageParam = BeanUtil.toBean(userRezPageParam,ConferenceRezPageParam.class);
-        conferenceRezPageParam.setJoinUserId(userRezPageParam.getRezUser());
-        Page<ConferenceRez> page = page(conferenceRezPageParam);
-        return userRezPageVo(userRezPageParam,userRezPage,page);
-    }
-
-    private Page<UserRezPageVo> userRezPageVo(UserRezPageParam userRezPageParam,Page<UserRezPageVo> userRezPage,Page<ConferenceRez> page){
-        List<String>  recordId = page.getRecords().stream().map(rez -> rez.getRecordId()).collect(Collectors.toList());
-        if(CollectionUtil.isEmpty(recordId)){
-            return userRezPage;
-        }
-        List<ConferenceConfirmUser> recordList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
-                //.eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
-                .eq(ConferenceConfirmUser::getNoticeType,1).in(ConferenceConfirmUser::getRecordId,recordId)); //会议记录
-
-        List<ConferenceConfirmUser> summaryList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
-                //.eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
-                .eq(ConferenceConfirmUser::getNoticeType,2).in(ConferenceConfirmUser::getRecordId,recordId)); //会议纪要
-
-        List<ConferenceConfirmUser> signList = conferenceConfirmUserService.list(new LambdaQueryWrapper<ConferenceConfirmUser>()
-                //.eq(ConferenceConfirmUser::getConfirmUserId,userRezPageParam.getRezUser())
-                .eq(ConferenceConfirmUser::getNoticeType,3).in(ConferenceConfirmUser::getRecordId,recordId)); //会签
-
-        List<UserRezPageVo> userRezPageVoList = CollectionUtil.isNotEmpty(page.getRecords())?
-                userRezPageVoList = page.getRecords().stream().map(data -> {
-                    UserRezPageVo userRezPageVo = new UserRezPageVo();
-                    userRezPageVo.setConferenceRez(data);
-                    return userRezPageVo; }).collect(Collectors.toList())
-                : new ArrayList<>();
-        userRezPage.setTotal(userRezPageVoList.size());
-        userRezPage.setRecords(userRezPageVoList);
-        confirmRezUser(recordList, userRezPage, page.getRecords(),1);
-        confirmRezUser(summaryList,userRezPage, page.getRecords(),2);
-        confirmRezUser(signList,userRezPage, page.getRecords(),3);
-        return userRezPage;
-    }
-
-    private void confirmRezUser(List<ConferenceConfirmUser> summaryList,Page<UserRezPageVo> userRezPage,
-                                List<ConferenceRez> conferenceRezList,Integer type){
-        List<UserRezPageVo> userRezPageVoList = new ArrayList<>();
-        Map<String,List<ConferenceConfirmUser>> summaryMap = new HashMap<>();
-        summaryList.forEach(summary -> {
-            if(StringUtils.isNotEmpty(summary.getRecordId())){
-                List<ConferenceConfirmUser> summaryListTemp = summaryMap.get(summary.getRecordId()) != null ? summaryMap.get(summary.getRecordId()) : new ArrayList<>();
-                summaryListTemp.add(summary);
-                summaryMap.put(summary.getRecordId(),summaryListTemp);
-            }
-        });
-        userRezPage.getRecords().forEach(rez -> {
-            if(StringUtils.isNotEmpty(rez.getConferenceRez().getRecordId())){
-                List<ConferenceConfirmUser> summaryListTemp = summaryMap.get(rez.getConferenceRez().getRecordId()) != null ? summaryMap.get(rez.getConferenceRez().getRecordId()) : new ArrayList<>();
-                List<ConfirmStat> confirmStats = new ArrayList<>();
-                summaryListTemp.forEach(summary -> {
-                    ConfirmStat confirmStat = new ConfirmStat();
-                    confirmStat.setConfirmUserId(summary.getConfirmUserId());
-                    confirmStat.setStatus(summary.getStatus());
-                    confirmStat.setRecordId(summary.getRecordId());
-                    confirmStat.setId(summary.getId());
-                    confirmStats.add(confirmStat);
-                });
-                if(type == 1){
-                    rez.setRecordList(confirmStats);
-                }else if(type == 2){
-                    rez.setSummaryList(confirmStats);
-                }else if(type == 3){
-                    rez.setSignList(confirmStats);
-                }
-            }
-        });
     }
 }

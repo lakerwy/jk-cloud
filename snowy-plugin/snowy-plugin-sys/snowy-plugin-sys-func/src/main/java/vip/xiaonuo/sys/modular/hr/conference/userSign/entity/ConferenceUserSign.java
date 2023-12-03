@@ -92,4 +92,8 @@ public class ConferenceUserSign {
     /** 预约主题 */
     @ApiModelProperty(value = "预约主题", position = 14)
     private String theme;
+
+    /** 用户ID */
+    @ApiModelProperty(value = "用户ID", position = 15)
+    private String userId;
 }

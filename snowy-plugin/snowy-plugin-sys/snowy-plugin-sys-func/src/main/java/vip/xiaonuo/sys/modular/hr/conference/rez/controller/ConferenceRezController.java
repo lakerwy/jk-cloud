@@ -51,6 +51,8 @@ public class ConferenceRezController {
 
     @Resource
     private ConferenceRezService conferenceRezService;
+    @Resource
+    private ConferenceRezPeriodService conferenceRezPeriodService;
 
     /**
      * 获取会议预约-预约会议表数据分页
@@ -145,11 +147,10 @@ public class ConferenceRezController {
 
     /**
      * 获取会议预约-时间列表-查看可预约会议数据
-     *
      * @author ljy
      * @date  2023/11/05 23:13
      */
-    @ApiOperationSupport(order = 7)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("获取会议预约-时间列表-查看可预约会议数据")
     //@SaCheckPermission("/sys/rez/conferenceTimeList")
     @GetMapping("/sys/rez/conferenceTimeList")

@@ -14,8 +14,10 @@ package vip.xiaonuo.sys.modular.hr.conference.userSign.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -31,7 +33,10 @@ import vip.xiaonuo.sys.modular.hr.conference.userSign.param.ConferenceUserSignEd
 import vip.xiaonuo.sys.modular.hr.conference.userSign.param.ConferenceUserSignIdParam;
 import vip.xiaonuo.sys.modular.hr.conference.userSign.param.ConferenceUserSignPageParam;
 import vip.xiaonuo.sys.modular.hr.conference.userSign.service.ConferenceUserSignService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -43,6 +48,8 @@ import java.util.List;
 @Service
 public class ConferenceUserSignServiceImpl extends ServiceImpl<ConferenceUserSignMapper, ConferenceUserSign> implements ConferenceUserSignService {
 
+    @Resource
+    SysUserService sysUserService;
     @Override
     public Page<ConferenceUserSign> page(ConferenceUserSignPageParam conferenceUserSignPageParam) {
         QueryWrapper<ConferenceUserSign> queryWrapper = new QueryWrapper<>();
@@ -69,6 +76,9 @@ public class ConferenceUserSignServiceImpl extends ServiceImpl<ConferenceUserSig
     @Override
     public void add(ConferenceUserSignAddParam conferenceUserSignAddParam) {
         ConferenceUserSign conferenceUserSign = BeanUtil.toBean(conferenceUserSignAddParam, ConferenceUserSign.class);
+        List<SysUser>  userList = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount,conferenceUserSignAddParam.getPhone()));
+        SysUser user = CollectionUtil.isNotEmpty(userList) ? userList.get(0) : new SysUser();
+        conferenceUserSign.setUserId(user.getId());
         this.save(conferenceUserSign);
     }
 
