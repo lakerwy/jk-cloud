@@ -17,10 +17,14 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 
 import java.text.ParsePosition;
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -463,11 +467,53 @@ public class CommonTimeFormatUtil {
         return time;
     }
 
-        public static void main(String[] args) {
-            Date beginTime = strToDate("2023-10-01",DATE_FORMAT);
-            Date endTime = strToDate("2023-10-30",DATE_FORMAT);
-            String string= dayAndWeek("2023-10-01");
-            System.out.println("");
+    public static void main(String[] args) {
+
+        System.out.println("");
+    }
+
+    /** 获取当前时间段内，每周某一个时间段*/
+
+    public static List<Date> periodWeekTime(Date startTime,Date endTime,Integer weekTime){
+        List<Date> dates = new ArrayList<>();
+        List<String> dateList = getPerStrDayList(startTime,endTime);
+        dateList.forEach(date -> {
+            if(weekTime(date) == weekTime){
+                dates.add(strToDate(date+" 00:00:00",DatePattern.NORM_DATETIME_PATTERN));
+            }
+        });
+        return dates;
+    }
+    public static Integer weekTime(String time) {
+        Date date = strToDate(time,DatePattern.NORM_DATE_PATTERN);
+        // 创建Calendar类实例
+        Calendar instance = Calendar.getInstance();
+        // 根据指定日期获取周几
+        instance.setTime(date);
+        int week = instance.get(Calendar.DAY_OF_WEEK);
+        // 周日的编号是1，周六的编号是7
+        if (week == Calendar.SUNDAY ) {
+            return 7;
         }
+        if(week == Calendar.SATURDAY){
+            return 6;
+        }
+        if(week == Calendar.MONDAY){
+            return 1;
+        }
+        if(week == Calendar.TUESDAY){
+            return 2;
+        }
+        if(week == Calendar.WEDNESDAY){
+            return 3;
+        }
+        if(week == Calendar.THURSDAY){
+            return 4;
+        }
+        if(week == Calendar.FRIDAY){
+            return 5;
+        }
+        return 0;
+    }
 
 }

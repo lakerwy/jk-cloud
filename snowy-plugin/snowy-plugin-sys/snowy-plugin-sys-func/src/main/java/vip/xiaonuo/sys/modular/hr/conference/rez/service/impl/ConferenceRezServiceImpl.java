@@ -19,6 +19,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -73,6 +74,7 @@ import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -166,6 +168,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        if(StringUtils.isEmpty(conferenceRezAddParam.getRezUser())){
+            conferenceRezAddParam.setRezUser(loginUser.getId());
+        }
         if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())  && conferenceRezAddParam.getWeekTime() != 0
                 && ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime()) && conferenceRezAddParam.getDayTime() != 0){
             log.error("周期预约错误，参数错误：WeekTime："+conferenceRezAddParam.getWeekTime()+",dayTime:"+conferenceRezAddParam.getDayTime());
@@ -173,15 +179,12 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }else if((ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && conferenceRezAddParam.getWeekTime() != 0)
                 || (ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())  && conferenceRezAddParam.getDayTime() != 0)){
             periodAddRez(conferenceRezAddParam);
+            return;
         }
         Integer trueNum = addTrue(conferenceRezAddParam);
         if(trueNum > 0){
             String msg = trueNum == 3 ? "当前的时间已有预约" : "传入时间有误！";
             throw new CommonException(msg);
-        }
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        if(StringUtils.isEmpty(conferenceRezAddParam.getRezUser())){
-            conferenceRezAddParam.setRezUser(loginUser.getId());
         }
         ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
         String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
@@ -230,22 +233,38 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     private void periodAddRez(ConferenceRezAddParam conferenceRezAddParam){
         ConferenceRezPeriod conferenceRezPeriod = BeanUtil.toBean(conferenceRezAddParam, ConferenceRezPeriod.class);
         conferenceRezPeriodService.save(conferenceRezPeriod);
+        String beginTimeParam = CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(),DatePattern.NORM_TIME_PATTERN);
+        String endTimeParam = CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getEndTime(),DatePattern.NORM_TIME_PATTERN);
+
         List<ConferenceRez>  conferenceRezList = new ArrayList<>();
         /** 周期生成标准会议：周 有效期三个月，月 有效期一年*/
         if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())){
-            Calendar instance = Calendar.getInstance();
-            instance.setTime(new Date());// 根据指定日期获取周几
-            int nowWeek = instance.get(Calendar.DAY_OF_WEEK);
-            instance.setTime(conferenceRezAddParam.getBeginTime());
-            int periodWeek = instance.get(Calendar.DAY_OF_WEEK);
-            if(nowWeek < periodWeek){  // 预约时间 > 当前时间
-                ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
-                conferenceRez.setRezPeriodId(conferenceRezPeriod.getId());
-                this.save(conferenceRez);
-                return;
+
+            Date endTime = conferenceRezAddParam.getBeginTime();
+            /** 获取下月和下下月的时间*/
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate localTime = LocalDate.parse(CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(),DatePattern.NORM_DATE_PATTERN), formatter);
+            LocalDate endOfMonth = localTime.with(TemporalAdjusters.lastDayOfMonth());//月最后一天
+            LocalDate  endLocalDate = endOfMonth.minusMonths(-2);
+            try{
+                endTime = DateUtils.parseDate(endLocalDate.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                List<Date> periodWeekTime = CommonTimeFormatUtil.periodWeekTime(conferenceRezAddParam.getBeginTime(),endTime,conferenceRezAddParam.getWeekTime());
+                periodWeekTime.forEach(time ->{
+                    String strTime = CommonTimeFormatUtil.dateToStr(time,DatePattern.NORM_DATE_PATTERN);
+                    ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
+                    conferenceRez.setRezPeriodId(conferenceRezPeriod.getId());
+                    Date begin = CommonTimeFormatUtil.strToDate(strTime+" "+beginTimeParam,DatePattern.NORM_DATETIME_PATTERN);
+                    Date end = CommonTimeFormatUtil.strToDate(strTime+" "+endTimeParam,DatePattern.NORM_DATETIME_PATTERN);
+                    conferenceRez.setBeginTime(begin);
+                    conferenceRez.setEndTime(end);
+                    String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
+                    conferenceRez.setSn(sn);
+                    this.save(conferenceRez);
+                });
+            }catch (Exception e){
+                log.error("时间生成错误！");
             }
-            LocalDate today = LocalDate.now();
-            LocalDate nextMonday = today.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+           return;
         }
 
         if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())){
@@ -253,8 +272,6 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
     }
     //获取三月内每一周的某一天时间
-
-
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -267,6 +284,14 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<ConferenceRezIdParam> conferenceRezIdParamList) {
+        if(CollectionUtil.isNotEmpty(conferenceRezIdParamList) && StringUtils.isNotEmpty(conferenceRezIdParamList.get(0).getRezPeriodId())){
+            List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
+                    .eq(ConferenceRez::getRezPeriodId,conferenceRezIdParamList.get(0).getRezPeriodId())
+                    .lt(ConferenceRez::getEndTime,DateUtil.date()));
+            List<String> rezIds = conferenceRezList.stream().map(rez -> rez.getId()).collect(Collectors.toList());
+            this.removeBatchByIds(rezIds);
+            return;
+        }
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(conferenceRezIdParamList, ConferenceRezIdParam::getId));
     }

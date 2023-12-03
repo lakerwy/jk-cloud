@@ -36,8 +36,8 @@ public class ConferenceRezEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 是否为周期预约会议 */
-    @ApiModelProperty(value = "是否为周期预约会议", position = 2)
+    /** 周期会议ID */
+    @ApiModelProperty(value = "周期会议ID", position = 2)
     private String rezPeriodId;
 
     /** 会议室ID */

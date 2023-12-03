@@ -48,8 +48,8 @@ public class ConferenceRezPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 是否为周期预约会议 */
-    @ApiModelProperty(value = "是否为周期预约会议")
+    /** 周期会议ID */
+    @ApiModelProperty(value = "周期会议ID")
     private String rezPeriodId;
 
     /** 会议室ID */
