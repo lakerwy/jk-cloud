@@ -33,4 +33,8 @@ public class ConferenceTime {
     /** 预约人 */
     @ApiModelProperty(value = "预约人")
     private String rezUserName;
+
+    /** 会议ID */
+    @ApiModelProperty(value = "会议ID")
+    private String rezId;
 }

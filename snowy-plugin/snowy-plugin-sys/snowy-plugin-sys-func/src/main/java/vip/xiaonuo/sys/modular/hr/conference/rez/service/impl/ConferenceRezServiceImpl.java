@@ -197,7 +197,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceMsgEvent.setTheme(conferenceRezAddParam.getTheme());
         String theme = ObjectUtil.isNotEmpty(conferenceRez) ? conferenceRez.getTheme() :  "";
         String confTime = ObjectUtil.isNotEmpty(conferenceRez) && ObjectUtil.isNotEmpty(conferenceRez.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRez.getEndTime())?
-                DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm") : "";
+                DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getEndTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm") : "";
         conferenceMsgEvent.setConfTime(confTime);
         conferenceMsgEvent.setLocation(location);
         SysUser sysUser = sysUserService.getById(conferenceRez.getRezUser());
@@ -216,6 +216,11 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         Date date = DateUtil.date();
         //结束时间 < 当前时间
         if(conferenceRezAddParam.getEndTime().compareTo(date) < 0 ){ return 2; }
+        Integer integer = conferenceRezAddParam.getBeginTime().getHours()-conferenceRezAddParam.getEndTime().getHours();
+        if(integer > 12){
+            return 2;
+        }
+
         // 已有会议开始时间 <= 预约开始时间  && 已有会议结束时间  >= 预约结束时间  包含
         Long beginNum = this.count(new LambdaQueryWrapper<ConferenceRez>().le(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
                 .ge(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()).eq(ConferenceRez::getConferenceConfigId,conferenceRezAddParam.getConferenceConfigId()));
@@ -255,6 +260,14 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                     conferenceRez.setRezPeriodId(conferenceRezPeriod.getId());
                     Date begin = CommonTimeFormatUtil.strToDate(strTime+" "+beginTimeParam,DatePattern.NORM_DATETIME_PATTERN);
                     Date end = CommonTimeFormatUtil.strToDate(strTime+" "+endTimeParam,DatePattern.NORM_DATETIME_PATTERN);
+                    ConferenceRezAddParam param = new ConferenceRezAddParam();
+                    param.setBeginTime(begin);
+                    param.setEndTime(end);
+                    Integer trueNum = addTrue(param);
+                    if(trueNum > 0){
+                        String msg = trueNum == 3 ? "当前的时间已有预约" : "传入时间有误！";
+                        throw new CommonException(msg);
+                    }
                     conferenceRez.setBeginTime(begin);
                     conferenceRez.setEndTime(end);
                     String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
@@ -266,12 +279,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             }
            return;
         }
-
-        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())){
+        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
 
         }
     }
-    //获取三月内每一周的某一天时间
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -324,6 +335,15 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
                 .ge(ConferenceRez::getBeginTime,conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue())
                 .le(ConferenceRez::getEndTime,conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.END_TIME.getValue()));
+
+        conferenceRezList.forEach(rez -> {
+            if(ObjectUtil.isNotEmpty(rez.getBeginTime())){
+                rez.setBeginTime(countMinute(rez.getBeginTime()));
+            }
+            if(ObjectUtil.isNotEmpty(rez.getEndTime())){
+                rez.setEndTime(countMinute(rez.getEndTime()));
+            }
+        });
         Map<String,List<ConferenceRez>> map = new HashMap<>();//key conferenceConfigId ,value ConferenceRez
         conferenceRezList.forEach(rez -> {
             List<ConferenceRez> conferenceRezs = map.get(rez.getConferenceConfigId()) != null ?  map.get(rez.getConferenceConfigId()) : new ArrayList<>();
@@ -368,6 +388,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                     conferenceTime.setStatus(2);
                     conferenceTime.setRezUserID(rez.getRezUser());
                     conferenceTime.setRezUserName(userMap.get(rez.getRezUser()));
+                    conferenceTime.setRezId(rez.getId());
                 }
             });
         }
@@ -390,6 +411,21 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             conferenceTimeList.add(conferenceTime);
         }
         return conferenceTimeList;
+    }
+
+    private Date countMinute(Date time){
+        Integer  minute = Integer.parseInt(DateUtil.format(time,"mm"));
+        if(minute == 0 || minute == 30){
+            return time;
+        }
+        String timeStr = DateUtil.format(time,"yyyy-MM-dd HH");
+        String minuteStr = "";
+        if(minute < 30){
+            minuteStr = ":00:00";
+        }else{
+            minuteStr = ":30:00";
+        }
+        return CommonTimeFormatUtil.strToDate(timeStr+minuteStr,DatePattern.NORM_DATETIME_PATTERN);
     }
 
     @Override
