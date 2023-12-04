@@ -197,7 +197,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceMsgEvent.setTheme(conferenceRezAddParam.getTheme());
         String theme = ObjectUtil.isNotEmpty(conferenceRez) ? conferenceRez.getTheme() :  "";
         String confTime = ObjectUtil.isNotEmpty(conferenceRez) && ObjectUtil.isNotEmpty(conferenceRez.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRez.getEndTime())?
-                DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getEndTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm") : "";
+                DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getEndTime(),"HH:mm") : "";
         conferenceMsgEvent.setConfTime(confTime);
         conferenceMsgEvent.setLocation(location);
         SysUser sysUser = sysUserService.getById(conferenceRez.getRezUser());
