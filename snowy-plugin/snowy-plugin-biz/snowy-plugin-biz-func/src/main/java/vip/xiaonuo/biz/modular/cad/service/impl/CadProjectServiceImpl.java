@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.cad.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -151,6 +152,9 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         }
         queryWrapper.eq("a.ID",myFileTreeParam.getPrjId());
         List<CadFileVo> fileVoList = cadProjectMapper.getMyFileTree(queryWrapper);
+        if(CollUtil.isNotEmpty(fileVoList)){
+
+        }
         return null;
     }
 
