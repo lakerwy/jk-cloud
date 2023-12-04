@@ -287,9 +287,24 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ConferenceRezEditParam conferenceRezEditParam) {
+        if(StringUtils.isNotEmpty(conferenceRezEditParam.getRezPeriodId())){
+            editPeriod(conferenceRezEditParam);
+            return;
+        }
         ConferenceRez conferenceRez = this.queryEntity(conferenceRezEditParam.getId());
         BeanUtil.copyProperties(conferenceRezEditParam, conferenceRez);
         this.updateById(conferenceRez);
+    }
+    private void editPeriod(ConferenceRezEditParam conferenceRezEditParam){
+        ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRezEditParam.getRezPeriodId());
+        BeanUtil.copyProperties(conferenceRezEditParam, conferenceRezPeriod);
+        List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
+                .eq(ConferenceRez::getRezPeriodId,conferenceRezEditParam.getRezPeriodId())
+                .lt(ConferenceRez::getEndTime,DateUtil.date()));
+        List<String> rezIds = conferenceRezList.stream().map(rez -> rez.getId()).collect(Collectors.toList());
+        this.removeBatchByIds(rezIds);
+        ConferenceRezAddParam conferenceRezAddParam = BeanUtil.toBean(conferenceRezEditParam,ConferenceRezAddParam.class);
+        periodAddRez(conferenceRezAddParam);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -298,9 +313,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(CollectionUtil.isNotEmpty(conferenceRezIdParamList) && StringUtils.isNotEmpty(conferenceRezIdParamList.get(0).getRezPeriodId())){
             List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
                     .eq(ConferenceRez::getRezPeriodId,conferenceRezIdParamList.get(0).getRezPeriodId())
-                    .lt(ConferenceRez::getEndTime,DateUtil.date()));
+                    .ge(ConferenceRez::getEndTime,DateUtil.date()));
             List<String> rezIds = conferenceRezList.stream().map(rez -> rez.getId()).collect(Collectors.toList());
             this.removeBatchByIds(rezIds);
+            conferenceRezPeriodService.removeById(conferenceRezIdParamList.get(0).getRezPeriodId());
             return;
         }
         // 执行删除

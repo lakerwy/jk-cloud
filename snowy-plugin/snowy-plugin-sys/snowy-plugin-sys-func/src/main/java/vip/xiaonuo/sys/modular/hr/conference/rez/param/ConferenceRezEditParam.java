@@ -37,7 +37,7 @@ public class ConferenceRezEditParam {
     private String id;
 
     /** 周期会议ID */
-    @ApiModelProperty(value = "周期会议ID", position = 2)
+    @ApiModelProperty(value = "周期会议ID,修改周期预约需传ID和周,月时间", position = 2)
     private String rezPeriodId;
 
     /** 会议室ID */
@@ -148,4 +148,12 @@ public class ConferenceRezEditParam {
     @ApiModelProperty(value = "扩展信息", position = 29)
     private String extJson;
 
+    /** 周期预约参数 */
+    /** 对应周几：1 周一，2 周二，3 周三 ... */
+    @ApiModelProperty(value = "周期预约参数：对应周几：1 周一，2 周二，3 周三 ...", position = 30)
+    private Integer weekTime;
+
+    /** 每月的哪一天 */
+    @ApiModelProperty(value = "周期预约参数：每月的哪一天", position = 31)
+    private Integer dayTime;
 }

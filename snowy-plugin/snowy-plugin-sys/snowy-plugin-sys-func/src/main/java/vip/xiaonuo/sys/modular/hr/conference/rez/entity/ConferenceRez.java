@@ -184,4 +184,13 @@ public class ConferenceRez {
     @ApiModelProperty(value = "签到人列表", position = 36)
     @TableField(exist = false)
     private List<ConferenceUserSign> conferenceUserSignList;
+
+    /** 周期预约参数 */
+    /** 对应周几：1 周一，2 周二，3 周三 ... */
+    @ApiModelProperty(value = "周期预约参数：对应周几：1 周一，2 周二，3 周三 ...", position = 37)
+    private Integer weekTime;
+
+    /** 每月的哪一天 */
+    @ApiModelProperty(value = "周期预约参数：每月的哪一天", position = 38)
+    private Integer dayTime;
 }
