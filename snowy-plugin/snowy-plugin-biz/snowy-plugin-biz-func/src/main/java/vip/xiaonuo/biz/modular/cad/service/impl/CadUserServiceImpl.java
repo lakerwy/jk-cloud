@@ -199,4 +199,21 @@ public class CadUserServiceImpl extends ServiceImpl<CadUserMapper, CadUser> impl
     public List<CadUser> userByProfession(String professionId) {
          return cadUserMapper.getUserByProfession(professionId);
     }
+
+    @Override
+    public void changePassword(CadChangePasswordParam cadChangePasswordParam) {
+        //插件端校验密码，并修改
+        CadUser cadUser = this.queryEntity(cadChangePasswordParam.getId());
+        if(!cadUser.getPassword().equals(cadChangePasswordParam.getOldPassword())){
+            throw new CommonException("原密码错误");
+        }
+        cadUser.setPassword(cadChangePasswordParam.getNewPassword());
+        this.updateById(cadUser);
+    }
+
+    @Override
+    public CadUser login(CadLoginParam cadLoginParam) {
+        return this.getOne(new QueryWrapper<CadUser>().lambda()
+                .eq(CadUser::getAccount,cadLoginParam.getAccount()).eq(CadUser::getPassword,cadLoginParam.getPassword()));
+    }
 }

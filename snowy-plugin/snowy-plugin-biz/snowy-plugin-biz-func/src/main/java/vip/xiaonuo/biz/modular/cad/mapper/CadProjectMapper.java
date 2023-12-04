@@ -18,6 +18,8 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.cad.entity.CadProject;
+import vip.xiaonuo.biz.modular.cad.param.MyFileTreeParam;
+import vip.xiaonuo.biz.modular.cad.vo.CadFileVo;
 import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
 import vip.xiaonuo.biz.modular.cad.vo.CadSubItemVo;
 
@@ -50,5 +52,18 @@ public interface CadProjectMapper extends BaseMapper<CadProject> {
      * @return
      */
     List<CadSubItemVo> getSubItemByPrjId(String prjId);
+
+    /**
+     * 根据CAD用户Id,获取当前用户所参与的所有项目列表（包括项目管理者）
+     * @param cadUserId
+     * @return
+     */
+    List<CadProjectVo> getProjectByUserId(String cadUserId);
+
+    /**
+     * 获取我的【设计区】文件目录
+     * @return
+     */
+    List<CadFileVo> getMyFileTree(@Param(Constants.WRAPPER) Wrapper<CadProject> queryWrapper);
 
 }

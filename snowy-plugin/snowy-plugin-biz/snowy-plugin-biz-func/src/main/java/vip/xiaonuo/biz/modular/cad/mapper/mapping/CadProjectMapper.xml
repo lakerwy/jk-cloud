@@ -24,5 +24,27 @@
         where a.PRJ_ID = #{prjId} and a.DELETE_FLAG = 'NOT_DELETE'
     </select>
 
+    <select id="getProjectByUserId" resultType="vip.xiaonuo.biz.modular.cad.vo.CadProjectVo">
+        select a.*
+        from BIZ_CAD_PROJECT a
+        where a.DELETE_FLAG = 'NOT_DELETE' and (
+                    a.MANAGER = #{cadUserId}
+                    or
+                    a.ID in ( select sub.PRJ_ID from BIZ_CAD_SUB_ITEM sub
+                                       join BIZ_CAD_SUB_ITEM_USER subUser on sub.ID = subUser.SUB_ITEM_ID
+                              where sub.DELETE_FLAG = 'NOT_DELETE' and subUser.DELETE_FLAG = 'NOT_DELETE' and subUser.CAD_USER_ID = #{cadUserId} )
+                                               )
+    </select>
+
+    <select id="getMyFileTree" resultType="vip.xiaonuo.biz.modular.cad.vo.CadFileVo">
+        select a.NAME as prjNAME,e.NAME as stageName,b.NAME as subItemName,f.NAME as professionName,d.*
+               from BIZ_CAD_PROJECT a
+          LEFT JOIN BIZ_CAD_SUB_ITEM b on b.PRJ_ID = a.ID and b.DELETE_FLAG = 'NOT_DELETE'
+          LEFT JOIN BIZ_CAD_SUB_ITEM_USER c on c.SUB_ITEM_ID = b.ID and c.DELETE_FLAG='NOT_DELETE'
+          LEFT JOIN BIZ_CAD_FILE d on d.PROFESSION_ID = c.CAD_PROFESSION_ID and d.SUB_ITEM_ID = c.SUB_ITEM_ID and d.DELETE_FLAG='NOT_DELETE'
+          LEFT JOIN BIZ_CAD_STAGE e on e.ID = b.STAGE_ID
+          LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = c.CAD_PROFESSION_ID
+            ${ew.customSqlSegment}
+    </select>
 
 </mapper>

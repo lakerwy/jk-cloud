@@ -66,13 +66,13 @@ public class PursalecontractController {
     }
 
     /**
-     * 添加业务表-CRM-购销合同
+     * 添加业务表-CRM-购销合同 【审批流】
      *
      * @author yong.ye
      * @date  2023/06/30 16:03
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("添加业务表-CRM-购销合同  【api/crm/contract/AddPurSaleContract】")
+    @ApiOperation("添加业务表-CRM-购销合同  【审批流】")
     @CommonLog("添加业务表-CRM-购销合同")
     @PostMapping("/biz/crm/pursalecontract/add")
     public CommonResult<String> add(@RequestBody @Valid PursalecontractAddParam pursalecontractAddParam) {
@@ -81,13 +81,13 @@ public class PursalecontractController {
     }
 
     /**
-     * 编辑业务表-CRM-购销合同
+     * 编辑业务表-CRM-购销合同 【审批流】
      *
      * @author yong.ye
      * @date  2023/06/30 16:03
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑业务表-CRM-购销合同  【api/crm/contract/UpdatePurSaleContract】")
+    @ApiOperation("编辑业务表-CRM-购销合同 【审批流】")
     @CommonLog("编辑业务表-CRM-购销合同")
     @PostMapping("/biz/crm/pursalecontract/edit")
     public CommonResult<String> edit(@RequestBody @Valid PursalecontractEditParam pursalecontractEditParam) {

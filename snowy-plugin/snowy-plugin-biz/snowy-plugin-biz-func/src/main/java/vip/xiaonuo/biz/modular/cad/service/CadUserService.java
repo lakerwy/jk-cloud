@@ -14,10 +14,12 @@ package vip.xiaonuo.biz.modular.cad.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.bind.annotation.RequestBody;
 import vip.xiaonuo.biz.modular.cad.entity.CadUser;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.vo.CadUserVo;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -95,4 +97,17 @@ public interface CadUserService extends IService<CadUser> {
      * @return
      */
     List<CadUser> userByProfession(String professionId);
+
+    /**
+     * 插件端 - 修改CAD用户密码
+     * @param cadChangePasswordParam
+     */
+    void changePassword(CadChangePasswordParam cadChangePasswordParam);
+
+    /**
+     * 插件端 - 登录CAD
+     * @param cadLoginParam
+     * @return
+     */
+    CadUser login(CadLoginParam cadLoginParam);
 }

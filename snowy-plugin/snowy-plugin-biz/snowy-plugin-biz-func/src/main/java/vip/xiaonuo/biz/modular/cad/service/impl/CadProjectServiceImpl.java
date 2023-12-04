@@ -22,18 +22,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
-import vip.xiaonuo.biz.modular.cad.vo.CadSubItemVo;
-import vip.xiaonuo.biz.modular.cad.vo.StageSubItemVo;
+import vip.xiaonuo.biz.modular.cad.param.*;
+import vip.xiaonuo.biz.modular.cad.vo.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.cad.entity.CadProject;
 import vip.xiaonuo.biz.modular.cad.mapper.CadProjectMapper;
-import vip.xiaonuo.biz.modular.cad.param.CadProjectAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProjectEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProjectIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProjectPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadProjectService;
 
 import javax.annotation.Resource;
@@ -140,6 +135,23 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
             result.add(stageSubItemVo);
         }
         return result;
+    }
+
+    @Override
+    public List<CadProjectVo> projectsByUserId(String cadUserId) {
+        return cadProjectMapper.getProjectByUserId(cadUserId);
+    }
+
+    @Override
+    public CadFileTreeVo myFileTree(MyFileTreeParam myFileTreeParam) {
+        CadProject cadProject = this.queryEntity(myFileTreeParam.getPrjId());
+        QueryWrapper<CadProject> queryWrapper = new QueryWrapper<>();
+        if(!cadProject.getManager().equals(myFileTreeParam.getUserId())){
+            queryWrapper.eq("c.CAD_USER_ID",myFileTreeParam.getUserId());
+        }
+        queryWrapper.eq("a.ID",myFileTreeParam.getPrjId());
+        List<CadFileVo> fileVoList = cadProjectMapper.getMyFileTree(queryWrapper);
+        return null;
     }
 
 }

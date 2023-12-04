@@ -23,6 +23,6 @@ public class CadChangePasswordParam {
     private String oldPassword;
 
     /** 新密码 */
-    @ApiModelProperty(value = "薪密码", position = 3)
+    @ApiModelProperty(value = "新密码", position = 3)
     private String newPassword;
 }

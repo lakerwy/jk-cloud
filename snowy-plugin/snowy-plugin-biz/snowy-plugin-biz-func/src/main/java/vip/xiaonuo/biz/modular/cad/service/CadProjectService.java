@@ -15,10 +15,8 @@ package vip.xiaonuo.biz.modular.cad.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.cad.entity.CadProject;
-import vip.xiaonuo.biz.modular.cad.param.CadProjectAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProjectEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProjectIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProjectPageParam;
+import vip.xiaonuo.biz.modular.cad.param.*;
+import vip.xiaonuo.biz.modular.cad.vo.CadFileTreeVo;
 import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
 import vip.xiaonuo.biz.modular.cad.vo.StageSubItemVo;
 
@@ -86,5 +84,19 @@ public interface CadProjectService extends IService<CadProject> {
      * @return
      */
     List<StageSubItemVo> stageSubItem(String prjId);
+
+    /**
+     * 根据CAD用户Id,获取当前用户所参与的所有项目列表（包括项目管理者）
+     * @param cadUserId
+     * @return
+     */
+    List<CadProjectVo> projectsByUserId(String cadUserId);
+
+    /**
+     * 根据项目Id,当前用户Id,获取当前项目当前人树状结构
+     * @param myFileTreeParam
+     * @return
+     */
+    CadFileTreeVo myFileTree(MyFileTreeParam myFileTreeParam);
 
 }

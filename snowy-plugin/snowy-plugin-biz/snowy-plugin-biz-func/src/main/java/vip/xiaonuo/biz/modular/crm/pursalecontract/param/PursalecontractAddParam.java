@@ -142,9 +142,9 @@ public class PursalecontractAddParam {
     @ApiModelProperty(value = "模型id", position = 52)
     private String modelId;
 
-//    /** 流程实例id */
-//    @ApiModelProperty(value = "流程实例id", position = 53)
-//    private String processInstanceId;
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 53)
+    private String processInstanceId;
 
     /** 流程状态（0 - 已提交  1- 已审批） */
     @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 54)
