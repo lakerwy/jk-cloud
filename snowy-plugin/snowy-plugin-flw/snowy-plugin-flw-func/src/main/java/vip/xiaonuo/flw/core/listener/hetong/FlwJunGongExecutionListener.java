@@ -20,8 +20,8 @@ public class FlwJunGongExecutionListener implements ExecutionListener {
             String heTongId = String.valueOf(execution.getVariable("heTongId"));
             //竣工材料附件
             String compleData = String.valueOf(execution.getVariable("compleData"));
-            if(ObjectUtil.isNotEmpty(heTongId)){
-                String sql = "UPDATE BIZ_CRM_HETONG SET `COMPLE_DATA` = '" + compleData +"' where ID = '"+ heTongId +"'";
+            if(ObjectUtil.isNotEmpty(heTongId) && ObjectUtil.isNotEmpty(compleData)){
+                String sql = "UPDATE BIZ_CRM_HETONG SET `COMPLE_DATA` = CONCAT(COMPLE_DATA,';','" + compleData +"') where ID = '"+ heTongId +"'";
                 CommonHandleUtil.handleSqlExecution(sql);
             }
         }catch (Exception e){
