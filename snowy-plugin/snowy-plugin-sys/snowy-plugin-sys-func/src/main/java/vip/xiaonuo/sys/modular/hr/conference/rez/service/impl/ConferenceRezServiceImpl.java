@@ -287,10 +287,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ConferenceRezEditParam conferenceRezEditParam) {
-        if(StringUtils.isNotEmpty(conferenceRezEditParam.getRezPeriodId())){
+       /* if(StringUtils.isNotEmpty(conferenceRezEditParam.getRezPeriodId())){
             editPeriod(conferenceRezEditParam);
             return;
-        }
+        }*/
         ConferenceRez conferenceRez = this.queryEntity(conferenceRezEditParam.getId());
         BeanUtil.copyProperties(conferenceRezEditParam, conferenceRez);
         this.updateById(conferenceRez);
