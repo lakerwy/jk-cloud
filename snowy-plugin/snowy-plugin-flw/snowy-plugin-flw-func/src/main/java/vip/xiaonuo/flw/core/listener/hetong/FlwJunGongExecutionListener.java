@@ -22,6 +22,7 @@ public class FlwJunGongExecutionListener implements ExecutionListener {
             String compleData = String.valueOf(execution.getVariable("compleData"));
             if(ObjectUtil.isNotEmpty(heTongId) && ObjectUtil.isNotEmpty(compleData)){
                 String sql = "UPDATE BIZ_CRM_HETONG SET `COMPLE_DATA` = CONCAT(IF(COMPLE_DATA is null,'',COMPLE_DATA),';','" + compleData +"') where ID = '"+ heTongId +"'";
+                log.info("竣工："+sql);
                 CommonHandleUtil.handleSqlExecution(sql);
             }
             log.info("竣工流程" + heTongId + " 材料 "+compleData );
