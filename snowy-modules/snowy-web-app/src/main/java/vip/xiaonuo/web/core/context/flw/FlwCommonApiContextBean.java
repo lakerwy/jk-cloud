@@ -4,6 +4,7 @@ import cn.hutool.json.JSONObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.flw.feign.FlwCommonFeign;
 
@@ -33,7 +34,7 @@ public class FlwCommonApiContextBean implements FlwCommonApi {
     }
 
     @Override
-    public String flwStart(JSONObject jsonObject) {
+    public CommonResult<String> flwStart(JSONObject jsonObject) {
         return flwCommonFeign.flwStart(jsonObject);
     }
 

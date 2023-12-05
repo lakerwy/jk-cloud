@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.flw.feign.FlwCommonFeign;
 import vip.xiaonuo.flw.provider.FlwCommonApiProvider;
 
@@ -46,7 +47,7 @@ public class FlwCommonFeignProvider implements FlwCommonFeign {
 
     @Override
     @RequestMapping("/feign/flw/flwCommonFeign/flwStart")
-    public String flwStart(@RequestBody JSONObject jsonObject) {
+    public CommonResult<String> flwStart(@RequestBody JSONObject jsonObject) {
         return flwCommonApiProvider.flwStart(jsonObject);
     }
 

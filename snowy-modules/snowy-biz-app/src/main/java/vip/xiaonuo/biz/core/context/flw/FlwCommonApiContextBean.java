@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.flw.feign.FlwCommonFeign;
 
@@ -36,7 +37,7 @@ public class FlwCommonApiContextBean implements FlwCommonApi {
     }
 
     @Override
-    public String flwStart(JSONObject jsonObject) throws CommonException {
+    public CommonResult<String> flwStart(JSONObject jsonObject) throws CommonException {
         return flwCommonFeign.flwStart(jsonObject);
     }
 

@@ -2,6 +2,7 @@ package vip.xiaonuo.flw.api;
 
 import cn.hutool.json.JSONObject;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.pojo.CommonResult;
 
 /**
  * 业务表和流程模型关系Api
@@ -50,7 +51,7 @@ public interface FlwCommonApi {
      * @param jsonObject
      * @return
      */
-    String flwStart(JSONObject jsonObject) throws CommonException;
+    CommonResult<String> flwStart(JSONObject jsonObject) throws CommonException;
 
     void rollback(String processInstanceId);
 }
