@@ -31,6 +31,7 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.BizCommonEnum;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -42,6 +43,7 @@ import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractEditPara
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractIdParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractPageParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.service.PursalecontractService;
+import vip.xiaonuo.common.util.CommonSnUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
@@ -67,8 +69,8 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
     @Override
     public Page<Pursalecontract> page(PursalecontractPageParam pursalecontractPageParam) {
         QueryWrapper<Pursalecontract> queryWrapper = new QueryWrapper<>();
-        //审批通过|审批中
-        queryWrapper.lambda().in(Pursalecontract::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+//        //审批通过|审批中
+//        queryWrapper.lambda().in(Pursalecontract::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if (ObjectUtil.isNotEmpty(pursalecontractPageParam.getSearchKey())) {
             queryWrapper.lambda().like(Pursalecontract::getContractNo, pursalecontractPageParam.getSearchKey()).or()
                     .like(Pursalecontract::getOpt, pursalecontractPageParam.getSearchKey()).or()
@@ -126,53 +128,66 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(PursalecontractAddParam pursalecontractAddParam) {
-        //处理业务表
         Pursalecontract pursalecontract = BeanUtil.toBean(pursalecontractAddParam, Pursalecontract.class);
+        //处理Sn编号
+        Pursalecontract tmp = this.getOne(new QueryWrapper<Pursalecontract>().lambda().orderByDesc(Pursalecontract::getCreateTime).last("limit 1"));
+        String newSn = CommonSnUtil.GenerateSn(pursalecontractAddParam.getContractNo(), tmp == null ? "" : tmp.getContractNo(), CommonSnFormatEnum.SNYYYYMM0001.getValue());
+        pursalecontract.setContractNo(newSn);
         pursalecontract.setOpt(StpLoginUserUtil.getLoginUser().getName());
         pursalecontract.setRegisterDate(new Date());
-        //走合同审批流程
-        String processInstanceId = pursalecontractAddParam.getProcessInstanceId();
-        if(ObjectUtil.isNotEmpty(processInstanceId)){
-            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
-            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
-            pursalecontract.setId(id);
-            pursalecontract.setContractNo(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
-            pursalecontract.setModelId(modelId);
-            pursalecontract.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
-            pursalecontract.setProcessInstanceId(processInstanceId);
-            //将流程实例和业务表关联起来
-            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
-            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            flwCommonApi.save(modelId, BizCommonEnum.BIZ_CRM_PURSALECONTRACT.getBizTable(),id,processInstanceId,dbName);
-        }else{
-            //不走审批流程
-            String modelId = "1729307184302993410";   //购销合同流程Id
-            if(StrUtil.isNotEmpty(pursalecontractAddParam.getModelId())){
-                modelId = pursalecontractAddParam.getModelId();
-            }
-            String newSn = flwCommonApi.getSnByModelId(modelId);
-            pursalecontract.setContractNo(newSn);
-            pursalecontract.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
-        }
         this.save(pursalecontract);
+
+//        //处理业务表
+//        Pursalecontract pursalecontract = BeanUtil.toBean(pursalecontractAddParam, Pursalecontract.class);
+//        pursalecontract.setOpt(StpLoginUserUtil.getLoginUser().getName());
+//        pursalecontract.setRegisterDate(new Date());
+//        //走合同审批流程
+//        String processInstanceId = pursalecontractAddParam.getProcessInstanceId();
+//        if(ObjectUtil.isNotEmpty(processInstanceId)){
+//            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+//            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+//            pursalecontract.setId(id);
+//            pursalecontract.setContractNo(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+//            pursalecontract.setModelId(modelId);
+//            pursalecontract.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+//            pursalecontract.setProcessInstanceId(processInstanceId);
+//            //将流程实例和业务表关联起来
+//            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+//            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+//            flwCommonApi.save(modelId, BizCommonEnum.BIZ_CRM_PURSALECONTRACT.getBizTable(),id,processInstanceId,dbName);
+//        }else{
+//            //不走审批流程
+//            String modelId = "1729307184302993410";   //购销合同流程Id
+//            if(StrUtil.isNotEmpty(pursalecontractAddParam.getModelId())){
+//                modelId = pursalecontractAddParam.getModelId();
+//            }
+//            String newSn = flwCommonApi.getSnByModelId(modelId);
+//            pursalecontract.setContractNo(newSn);
+//            pursalecontract.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+//        }
+//        this.save(pursalecontract);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(PursalecontractEditParam pursalecontractEditParam) {
-        String id = pursalecontractEditParam.getId();
-        //判断是否走合同审批流程内的修改
-        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(pursalecontractEditParam.getProcessInstanceId())){
-            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(pursalecontractEditParam.getProcessInstanceId());
-            if(ObjectUtil.isNotEmpty(formRelationTable)){
-                id = formRelationTable.getStr("id");
-                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
-                pursalecontractEditParam.setId(id);
-            }
-        }
         Pursalecontract pursalecontract = this.queryEntity(pursalecontractEditParam.getId());
         BeanUtil.copyProperties(pursalecontractEditParam, pursalecontract);
         this.updateById(pursalecontract);
+
+//        String id = pursalecontractEditParam.getId();
+//        //判断是否走合同审批流程内的修改
+//        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(pursalecontractEditParam.getProcessInstanceId())){
+//            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(pursalecontractEditParam.getProcessInstanceId());
+//            if(ObjectUtil.isNotEmpty(formRelationTable)){
+//                id = formRelationTable.getStr("id");
+//                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+//                pursalecontractEditParam.setId(id);
+//            }
+//        }
+//        Pursalecontract pursalecontract = this.queryEntity(pursalecontractEditParam.getId());
+//        BeanUtil.copyProperties(pursalecontractEditParam, pursalecontract);
+//        this.updateById(pursalecontract);
     }
 
 
@@ -271,7 +286,7 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
     @Override
     public Page<Pursalecontract> limitPage(PursalecontractPageParam pursalecontractPageParam) {
         QueryWrapper<Pursalecontract> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().in(Pursalecontract::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+//        queryWrapper.lambda().in(Pursalecontract::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if (ObjectUtil.isNotEmpty(pursalecontractPageParam.getSearchKey())) {
             queryWrapper.lambda().like(Pursalecontract::getContractNo, pursalecontractPageParam.getSearchKey()).or()
                     .like(Pursalecontract::getOpt, pursalecontractPageParam.getSearchKey()).or()
