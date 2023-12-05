@@ -75,6 +75,11 @@ public class ConferenceUserSignServiceImpl extends ServiceImpl<ConferenceUserSig
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceUserSignAddParam conferenceUserSignAddParam) {
+        Long number = this.count(new LambdaQueryWrapper<ConferenceUserSign>().eq(ConferenceUserSign::getRezId,conferenceUserSignAddParam.getRezId())
+                .eq(ConferenceUserSign::getPhone,conferenceUserSignAddParam.getPhone()));
+        if(number > 0){
+            return;
+        }
         ConferenceUserSign conferenceUserSign = BeanUtil.toBean(conferenceUserSignAddParam, ConferenceUserSign.class);
         List<SysUser>  userList = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount,conferenceUserSignAddParam.getPhone()));
         SysUser user = CollectionUtil.isNotEmpty(userList) ? userList.get(0) : new SysUser();

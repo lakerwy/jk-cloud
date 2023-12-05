@@ -104,4 +104,8 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
     OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(ConferenceMsgEvent conferenceMsgEvent, String title, Integer type);
 
     void recordNotice(String rezId);
+
+    Integer addTrue(ConferenceRezAddParam conferenceRezAddParam);
+
+    void putRuanLian(ConferenceMsgEvent conferenceMsgEvent)throws Exception;
 }

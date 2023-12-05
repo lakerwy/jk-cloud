@@ -96,4 +96,12 @@ public class ConferenceUserSign {
     /** 用户ID */
     @ApiModelProperty(value = "用户ID", position = 15)
     private String userId;
+
+    /** 是否外部人员 ,1 为外部人员签到 */
+    @ApiModelProperty(value = "是否外部人员，1 为外部人员签到", position = 16)
+    private Integer isOutside;
+
+    /** 是否同意参加会议，1 参加，2 不同意 */
+    @ApiModelProperty(value = "是否同意参加会议，1 参加，2 不同意", position = 17)
+    private Integer isAgree;
 }

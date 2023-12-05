@@ -19,6 +19,7 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.alibaba.excel.util.DateUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -57,6 +58,8 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.service.RuanLianApiService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.AddConfPeriodEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTime;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
@@ -106,6 +109,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     DingTalkProperties dingTalkProperties;
     @Resource
     private ApplicationEventPublisher eventPublisher;
+    @Resource
+    RuanLianApiService ruanLianApiService;
 
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -143,9 +148,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         Page<ConferenceRez> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         userSign(page);
+        outSideUserSign(page);
         return page;
     }
-    //返回签到列表
+    //返回公司人员签到列表
     private void userSign(Page<ConferenceRez> page){
         if (CollectionUtil.isEmpty(page.getRecords())){
             return;
@@ -165,6 +171,27 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         });
     }
 
+    //返回外部人员签到列表
+    private void outSideUserSign(Page<ConferenceRez> page){
+        if (CollectionUtil.isEmpty(page.getRecords())){
+            return;
+        }
+        List<String> rezIds = page.getRecords().stream().map(rez -> rez.getId()).collect(Collectors.toList());
+        List<ConferenceUserSign> outsideSignList  = conferenceUserSignService.list(new LambdaQueryWrapper<ConferenceUserSign>().isNotNull(ConferenceUserSign::getIsOutside)
+                .eq(ConferenceUserSign::getIsOutside,1).in(ConferenceUserSign::getRezId,rezIds));
+        Map<String,List<ConferenceUserSign>> map = new HashMap<>();
+        outsideSignList.forEach(sign -> {
+            List<ConferenceUserSign> signs = map.get(sign.getRezId()) != null ? map.get(sign.getRezId()) : new ArrayList<>();
+            signs.add(sign);
+            map.put(sign.getRezId(),signs);
+        });
+        page.getRecords().forEach(rez -> {
+            if(map.get(rez.getId()) != null){
+                rez.setOutsideSignList(map.get(rez.getId()));
+            }
+        });
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceRezAddParam conferenceRezAddParam) {
@@ -178,7 +205,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             throw new CommonException("周期预约错误，请联系管理员");
         }else if((ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime()) && conferenceRezAddParam.getWeekTime() != 0)
                 || (ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())  && conferenceRezAddParam.getDayTime() != 0)){
-            periodAddRez(conferenceRezAddParam);
+            AddConfPeriodEvent addConfPeriodEvent = new AddConfPeriodEvent(conferenceRezAddParam);
+            eventPublisher.publishEvent(addConfPeriodEvent);
+            //periodAddRez(conferenceRezAddParam);
             return;
         }
         Integer trueNum = addTrue(conferenceRezAddParam);
@@ -202,7 +231,20 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceMsgEvent.setLocation(location);
         SysUser sysUser = sysUserService.getById(conferenceRez.getRezUser());
         conferenceMsgEvent.setRezUser(sysUser.getName());
+        ruanLianParam(conferenceRez,conferenceMsgEvent);
         eventPublisher.publishEvent(conferenceMsgEvent);
+    }
+    private void ruanLianParam(ConferenceRez conferenceRez,ConferenceMsgEvent conferenceMsgEvent){
+        RuanLianParam ruanLianParam = new RuanLianParam();
+        ruanLianParam.setRezId(conferenceRez.getId());
+        ruanLianParam.setZtname(conferenceRez.getTheme());
+        ruanLianParam.setYytimes(DateUtil.format(conferenceRez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
+        ruanLianParam.setYytimee(DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
+        SysUser sysUser = sysUserService.getById(conferenceRez.getRezUser());
+        ruanLianParam.setCjname(sysUser.getName());
+        ConferenceConfig conferenceConfig = conferenceConfigService.getById(conferenceRez.getConferenceConfigId());
+        ruanLianParam.setMianbanName(conferenceConfig.getName());
+        conferenceMsgEvent.setRuanLianParam(ruanLianParam);
     }
     private Map<String,ConferenceConfig> conferenceConfig(){
         Map<String,ConferenceConfig> configMap = new HashMap<>();
@@ -210,7 +252,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         configList.forEach(config -> configMap.put(config.getId(),config));
         return configMap;
     }
-    private Integer addTrue(ConferenceRezAddParam conferenceRezAddParam){
+
+    @Override
+    public Integer addTrue(ConferenceRezAddParam conferenceRezAddParam){
         //开始时间>=结束时间
         if(conferenceRezAddParam.getBeginTime().compareTo(conferenceRezAddParam.getEndTime()) >= 0){ return 1; }
         Date date = DateUtil.date();
@@ -220,7 +264,6 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(integer > 12){
             return 2;
         }
-
         // 已有会议开始时间 <= 预约开始时间  && 已有会议结束时间  >= 预约结束时间  包含
         Long beginNum = this.count(new LambdaQueryWrapper<ConferenceRez>().le(ConferenceRez::getBeginTime,conferenceRezAddParam.getBeginTime())
                 .ge(ConferenceRez::getEndTime,conferenceRezAddParam.getEndTime()).eq(ConferenceRez::getConferenceConfigId,conferenceRezAddParam.getConferenceConfigId()));
@@ -232,56 +275,6 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         /** 已有预约 */
         if(beginNum > 0 || endNum > 0){ return 3; }
         return 0;
-    }
-
-    /** 周期预约，当前只生成当前周或者下周一次标准会议，开一次生成一次，避免数据冗余*/
-    private void periodAddRez(ConferenceRezAddParam conferenceRezAddParam){
-        ConferenceRezPeriod conferenceRezPeriod = BeanUtil.toBean(conferenceRezAddParam, ConferenceRezPeriod.class);
-        conferenceRezPeriodService.save(conferenceRezPeriod);
-        String beginTimeParam = CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(),DatePattern.NORM_TIME_PATTERN);
-        String endTimeParam = CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getEndTime(),DatePattern.NORM_TIME_PATTERN);
-
-        List<ConferenceRez>  conferenceRezList = new ArrayList<>();
-        /** 周期生成标准会议：周 有效期三个月，月 有效期一年*/
-        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())){
-
-            Date endTime = conferenceRezAddParam.getBeginTime();
-            /** 获取下月和下下月的时间*/
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-            LocalDate localTime = LocalDate.parse(CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(),DatePattern.NORM_DATE_PATTERN), formatter);
-            LocalDate endOfMonth = localTime.with(TemporalAdjusters.lastDayOfMonth());//月最后一天
-            LocalDate  endLocalDate = endOfMonth.minusMonths(-2);
-            try{
-                endTime = DateUtils.parseDate(endLocalDate.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
-                List<Date> periodWeekTime = CommonTimeFormatUtil.periodWeekTime(conferenceRezAddParam.getBeginTime(),endTime,conferenceRezAddParam.getWeekTime());
-                periodWeekTime.forEach(time ->{
-                    String strTime = CommonTimeFormatUtil.dateToStr(time,DatePattern.NORM_DATE_PATTERN);
-                    ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
-                    conferenceRez.setRezPeriodId(conferenceRezPeriod.getId());
-                    Date begin = CommonTimeFormatUtil.strToDate(strTime+" "+beginTimeParam,DatePattern.NORM_DATETIME_PATTERN);
-                    Date end = CommonTimeFormatUtil.strToDate(strTime+" "+endTimeParam,DatePattern.NORM_DATETIME_PATTERN);
-                    ConferenceRezAddParam param = new ConferenceRezAddParam();
-                    param.setBeginTime(begin);
-                    param.setEndTime(end);
-                    Integer trueNum = addTrue(param);
-                    if(trueNum > 0){
-                        String msg = trueNum == 3 ? "当前的时间已有预约" : "传入时间有误！";
-                        throw new CommonException(msg);
-                    }
-                    conferenceRez.setBeginTime(begin);
-                    conferenceRez.setEndTime(end);
-                    String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
-                    conferenceRez.setSn(sn);
-                    this.save(conferenceRez);
-                });
-            }catch (Exception e){
-                log.error("时间生成错误！");
-            }
-           return;
-        }
-        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
-
-        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -304,23 +297,41 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         List<String> rezIds = conferenceRezList.stream().map(rez -> rez.getId()).collect(Collectors.toList());
         this.removeBatchByIds(rezIds);
         ConferenceRezAddParam conferenceRezAddParam = BeanUtil.toBean(conferenceRezEditParam,ConferenceRezAddParam.class);
-        periodAddRez(conferenceRezAddParam);
+        //periodAddRez(conferenceRezAddParam);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<ConferenceRezIdParam> conferenceRezIdParamList) {
+        List<ConferenceRez> conferenceRezList = new ArrayList<>();
         if(CollectionUtil.isNotEmpty(conferenceRezIdParamList) && StringUtils.isNotEmpty(conferenceRezIdParamList.get(0).getRezPeriodId())){
-            List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
+            conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
                     .eq(ConferenceRez::getRezPeriodId,conferenceRezIdParamList.get(0).getRezPeriodId())
                     .ge(ConferenceRez::getEndTime,DateUtil.date()));
             List<String> rezIds = conferenceRezList.stream().map(rez -> rez.getId()).collect(Collectors.toList());
-            this.removeBatchByIds(rezIds);
+            conferenceRezList.forEach(rez -> rez.setConferenceStatus(1));
+            this.saveOrUpdateBatch(conferenceRezList);
+            conferenceRezList.forEach(rez -> {
+                JSONObject jsonObject = ruanLianApiService.delmeeting(rez.getYyid());
+                if(jsonObject == null || !jsonObject.get("code").equals("1")){
+                    log.error("取消会议失败！rezId："+rez.getId());
+                }
+            });//this.removeBatchByIds(rezIds);
             conferenceRezPeriodService.removeById(conferenceRezIdParamList.get(0).getRezPeriodId());
             return;
         }
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(conferenceRezIdParamList, ConferenceRezIdParam::getId));
+        //this.removeByIds(CollStreamUtil.toList(conferenceRezIdParamList, ConferenceRezIdParam::getId));
+        List<String> ids = conferenceRezIdParamList.stream().map(param -> param.getId()).collect(Collectors.toList());
+        conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>().in(ConferenceRez::getId,ids));
+        conferenceRezList.forEach(rez -> rez.setConferenceStatus(1));
+        this.saveOrUpdateBatch(conferenceRezList);
+        conferenceRezList.forEach(rez -> {
+            JSONObject jsonObject =ruanLianApiService.delmeeting(rez.getYyid());
+            if(jsonObject == null || !jsonObject.get("code").equals(1)){
+                log.error("取消会议失败！rezId："+rez.getId());
+            }
+        });
     }
 
     @Override
@@ -469,9 +480,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
 
     @EventListener
     @Async
-    public void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent){
+    public void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent) throws Exception{
         // TODO 发送消息业务逻辑
-        //ConferenceMsgEvent event = conferenceMsgEvent;
+        putRuanLian(conferenceMsgEvent);
         if(StringUtils.isNotEmpty(conferenceMsgEvent.getUserIds())){
             List<String> userIds = Arrays.asList(conferenceMsgEvent.getUserIds().split(","));
             List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
@@ -479,6 +490,16 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 conferenceMsgEvent.setPhone(user.getAccount());
                 sendConfMsg(conferenceMsgEvent, "【会议通知】",0);
             });
+        }
+    }
+
+    @Override
+    public void putRuanLian(ConferenceMsgEvent conferenceMsgEvent)throws Exception{
+        RuanLianParam ruanLianParam = conferenceMsgEvent.getRuanLianParam();
+        JSONObject jsonObject = ruanLianApiService.setmeeting(ruanLianParam);
+        String code = jsonObject != null ? jsonObject.getStr("code") : "";
+        if(!code.equals("1") ){
+            log.error("软联会议预约失败！rezID:"+conferenceMsgEvent.getRuanLianParam().getRezId());
         }
     }
     /**

@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodAddPar
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodEditParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodIdParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.AddConfPeriodEvent;
 
 import java.util.List;
 
@@ -77,4 +78,6 @@ public interface ConferenceRezPeriodService extends IService<ConferenceRezPeriod
      * @date  2023/12/02 10:18
      **/
     ConferenceRezPeriod queryEntity(String id);
+
+    void periodAddRez(AddConfPeriodEvent addConfPeriodEvent);
 }
