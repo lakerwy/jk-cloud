@@ -37,7 +37,7 @@ public class FlwJunGongExecutionListener implements ExecutionListener {
                     CommonHandleUtil.handleSqlExecution(sql,params);
                 }
             }
-            log.info("竣工流程" + heTongId + " 材料 "+compleData );
+            log.info("竣工流程-----反更新成功");
         }catch (Exception e){
             log.info("竣工流程-----" + e.getMessage());
         }
