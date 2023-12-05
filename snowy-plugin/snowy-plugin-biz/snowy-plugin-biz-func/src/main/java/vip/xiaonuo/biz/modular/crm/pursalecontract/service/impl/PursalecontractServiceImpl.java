@@ -44,6 +44,7 @@ import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractIdParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.param.PursalecontractPageParam;
 import vip.xiaonuo.biz.modular.crm.pursalecontract.service.PursalecontractService;
 import vip.xiaonuo.common.util.CommonSnUtil;
+import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
@@ -203,15 +204,11 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
         //若传入start流程发起接口参数，则代表走审批流程，先调用流程start接口,获取流程实例Id
         String processInstanceId = null;
         if(ObjectUtil.isNotEmpty(pursalecontractAddParam.getCommonFlwEntity())){
-            try {
-                 processInstanceId = flwCommonApi.flwStart(JSONUtil.parseObj(pursalecontractAddParam.getCommonFlwEntity()));
-            }catch (CommonException e){
-                if(StrUtil.isNotEmpty(processInstanceId)){
-                    flwCommonApi.rollback(processInstanceId);
-                }
-                throw  new CommonException("流程发起失败，请检查后再发起");
+            CommonResult<String> result = flwCommonApi.flwStart(JSONUtil.parseObj(pursalecontractAddParam.getCommonFlwEntity()));
+            if(result.getCode() != 200){
+                throw  new CommonException("流程启动失败，请检查后再发起");
             }
-
+            processInstanceId = result.getData();
             String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
             String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
             pursalecontract.setId(id);

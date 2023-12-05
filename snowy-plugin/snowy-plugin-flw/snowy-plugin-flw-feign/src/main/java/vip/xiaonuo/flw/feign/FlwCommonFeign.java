@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import vip.xiaonuo.common.consts.FeignConstant;
+import vip.xiaonuo.common.pojo.CommonResult;
 
 /**
  * @author mayike
@@ -28,7 +29,7 @@ public interface FlwCommonFeign {
     String getSnByModelId(@RequestParam String modelId);
 
     @RequestMapping("/feign/flw/flwCommonFeign/flwStart")
-    String flwStart(@RequestBody JSONObject jsonObject);
+    CommonResult<String> flwStart(@RequestBody JSONObject jsonObject);
 
     @RequestMapping("/feign/flw/flwCommonFeign/rollback")
     void rollback(@RequestParam String processInstanceId);

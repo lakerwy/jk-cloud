@@ -5,6 +5,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.process.param.FlwProcessStartParam;
@@ -52,9 +53,9 @@ public class FlwCommonApiProvider implements FlwCommonApi {
     }
 
     @Override
-    public String flwStart(JSONObject jsonObject) throws CommonException {
+    public CommonResult<String> flwStart(JSONObject jsonObject) throws CommonException {
         FlwProcessStartParam flwProcessStartParam = BeanUtil.toBean(jsonObject, FlwProcessStartParam.class);
-        return flwProcessService.start(flwProcessStartParam);
+        return CommonResult.data(flwProcessService.start(flwProcessStartParam));
     }
 
     @Override
