@@ -36,4 +36,9 @@ public class FlwCommonApiContextBean implements FlwCommonApi {
     public String flwStart(JSONObject jsonObject) {
         return flwCommonFeign.flwStart(jsonObject);
     }
+
+    @Override
+    public void rollback(String processInstanceId) {
+        flwCommonFeign.rollback(processInstanceId);
+    }
 }

@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.flw.feign.FlwCommonFeign;
 
@@ -35,8 +36,12 @@ public class FlwCommonApiContextBean implements FlwCommonApi {
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class,propagation = Propagation.REQUIRES_NEW)
-    public String flwStart(JSONObject jsonObject) {
+    public String flwStart(JSONObject jsonObject) throws CommonException {
         return flwCommonFeign.flwStart(jsonObject);
+    }
+
+    @Override
+    public void rollback(String processInstanceId) {
+        flwCommonFeign.rollback(processInstanceId);
     }
 }

@@ -4,7 +4,9 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.api.FlwCommonApi;
+import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.process.param.FlwProcessStartParam;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
@@ -25,6 +27,9 @@ public class FlwCommonApiProvider implements FlwCommonApi {
 
     @Resource
     FlwProcessService flwProcessService;
+
+    @Resource
+    FlwModelService flwModelService;
 
     @Override
     public void save(String modelId, String tableName, String businessKey, String processInstanceId, String dbName) {
@@ -47,8 +52,13 @@ public class FlwCommonApiProvider implements FlwCommonApi {
     }
 
     @Override
-    public String flwStart(JSONObject jsonObject) {
+    public String flwStart(JSONObject jsonObject) throws CommonException {
         FlwProcessStartParam flwProcessStartParam = BeanUtil.toBean(jsonObject, FlwProcessStartParam.class);
         return flwProcessService.start(flwProcessStartParam);
+    }
+
+    @Override
+    public void rollback(String processInstanceId) {
+        flwModelService.rollback(processInstanceId);
     }
 }

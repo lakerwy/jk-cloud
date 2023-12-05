@@ -186,8 +186,17 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
         pursalecontract.setRegisterDate(new Date());
 
         //若传入start流程发起接口参数，则代表走审批流程，先调用流程start接口,获取流程实例Id
+        String processInstanceId = null;
         if(ObjectUtil.isNotEmpty(pursalecontractAddParam.getCommonFlwEntity())){
-            String processInstanceId = flwCommonApi.flwStart(JSONUtil.parseObj(pursalecontractAddParam.getCommonFlwEntity()));
+            try {
+                 processInstanceId = flwCommonApi.flwStart(JSONUtil.parseObj(pursalecontractAddParam.getCommonFlwEntity()));
+            }catch (CommonException e){
+                if(StrUtil.isNotEmpty(processInstanceId)){
+                    flwCommonApi.rollback(processInstanceId);
+                }
+                throw  new CommonException("流程发起失败，请检查后再发起");
+            }
+
             String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
             String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
             pursalecontract.setId(id);
@@ -209,7 +218,15 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
             pursalecontract.setContractNo(newSn);
             pursalecontract.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
-        this.save(pursalecontract);
+        try {
+            this.save(pursalecontract);
+        }catch (Exception e){
+            if(ObjectUtil.isNotEmpty(pursalecontractAddParam.getCommonFlwEntity()) && StrUtil.isNotEmpty(processInstanceId)){
+                flwCommonApi.rollback(processInstanceId);
+            }
+            throw  new CommonException("新增保存失败");
+        }
+
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -22,4 +22,5 @@ import vip.xiaonuo.flw.modular.model.entity.FlwModel;
  * @date 2022/5/11 15:32
  **/
 public interface FlwModelMapper extends BaseMapper<FlwModel> {
+    void rollback(String processInstanceId);
 }

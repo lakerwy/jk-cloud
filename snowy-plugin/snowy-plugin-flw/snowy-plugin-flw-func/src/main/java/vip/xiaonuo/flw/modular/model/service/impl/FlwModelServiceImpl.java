@@ -104,6 +104,8 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
+    private FlwModelMapper flwModelMapper;
+
     @Override
     public Page<FlwModel> page(FlwModelPageParam flwModelPageParam) {
         QueryWrapper<FlwModel> queryWrapper = new QueryWrapper<>();
@@ -412,5 +414,10 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     public Page<FlwModelOrgResult> newOrgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam) {
         cn.hutool.json.JSONObject entries = JSONUtil.parseObj(flwModelSelectorOrgListParam);
         return BeanUtil.toBean(sysOrgApi.newOrgListSelector(entries), Page.class);
+    }
+
+    @Override
+    public void rollback(String processInstanceId) {
+        flwModelMapper.rollback(processInstanceId);
     }
 }

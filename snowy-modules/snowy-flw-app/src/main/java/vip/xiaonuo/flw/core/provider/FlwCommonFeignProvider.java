@@ -49,4 +49,10 @@ public class FlwCommonFeignProvider implements FlwCommonFeign {
     public String flwStart(@RequestBody JSONObject jsonObject) {
         return flwCommonApiProvider.flwStart(jsonObject);
     }
+
+    @Override
+    @RequestMapping("/feign/flw/flwCommonFeign/rollback")
+    public void rollback(String processInstanceId) {
+        flwCommonApiProvider.rollback(processInstanceId);
+    }
 }

@@ -170,6 +170,40 @@ public class CommonHandleUtil {
         }
     }
 
+
+    public static void handleSqlExecution(String sql,Map<String,Object> params) {
+        if(ObjectUtil.isNotEmpty(sql)) {
+            Connection conn;
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            try {
+                dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
+                conn = dbsApi.getCurrentDataSource().getConnection();
+            } catch (SQLException e) {
+                throw new CommonException(e.getMessage());
+            }
+            try {
+                conn.setAutoCommit(false);
+                StrUtil.split(sql.trim(), ";").forEach(sqlItem -> {
+                    if(ObjectUtil.isNotEmpty(sqlItem)) {
+                        try {
+                            SqlExecutor.execute(conn, sqlItem,params);
+                        } catch (SQLException e) {
+                            dbsApi.changeDataSource("master");
+                            throw new CommonException(e.getMessage());
+                        }
+                    }
+                });
+                conn.commit();
+            } catch (SQLException sqlException) {
+                dbsApi.changeDataSource("master");
+                sqlException.printStackTrace();
+            } finally {
+                DbUtil.close(conn);
+                dbsApi.changeDataSource("master");
+            }
+        }
+    }
+
     /**
      * 执行查询sql
      *

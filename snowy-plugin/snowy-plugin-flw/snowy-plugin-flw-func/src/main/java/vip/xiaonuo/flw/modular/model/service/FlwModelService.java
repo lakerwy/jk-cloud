@@ -211,4 +211,10 @@ public interface FlwModelService extends IService<FlwModel> {
 //    void disableShowModel(FlwModelIdParam flwModelIdParam);
 //
 //    void enableShowModel(FlwModelIdParam flwModelIdParam);
+
+    /**
+     * 流程回滚
+     * @param processInstanceId 实例id
+     */
+    void rollback(String processInstanceId);
 }

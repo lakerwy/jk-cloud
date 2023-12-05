@@ -3,4 +3,27 @@
 <mapper namespace="vip.xiaonuo.flw.modular.model.mapper.FlwModelMapper">
 
 
+    <delete id="rollback" parameterType="string">
+        delete  FROM ACT_HI_VARINST WHERE PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_HI_COMMENT WHERE PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_HI_DETAIL WHERE PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_HI_TASKINST WHERE PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_HI_PROCINST WHERE PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_HI_IDENTITYLINK WHERE ID_ = #{processInstanceId};
+
+        delete FROM ACT_HI_ACTINST WHERE PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_RU_EXECUTION WHERE PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_RU_TASK WHERE PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_GE_BYTEARRAY WHERE ROOT_PROC_INST_ID_ = #{processInstanceId};
+
+        delete  FROM ACT_RU_VARIABLE WHERE PROC_INST_ID_ = #{processInstanceId};
+    </delete>
 </mapper>

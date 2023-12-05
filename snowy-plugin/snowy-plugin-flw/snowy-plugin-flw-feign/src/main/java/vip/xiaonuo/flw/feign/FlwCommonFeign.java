@@ -29,4 +29,7 @@ public interface FlwCommonFeign {
 
     @RequestMapping("/feign/flw/flwCommonFeign/flwStart")
     String flwStart(@RequestBody JSONObject jsonObject);
+
+    @RequestMapping("/feign/flw/flwCommonFeign/rollback")
+    void rollback(@RequestParam String processInstanceId);
 }
