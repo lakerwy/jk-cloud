@@ -285,24 +285,40 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ConferenceRezEditParam conferenceRezEditParam) {
-       /* if(StringUtils.isNotEmpty(conferenceRezEditParam.getRezPeriodId())){
+        if(StringUtils.isNotEmpty(conferenceRezEditParam.getRezPeriodId())){
             editPeriod(conferenceRezEditParam);
             return;
-        }*/
+        }
         ConferenceRez conferenceRez = this.queryEntity(conferenceRezEditParam.getId());
         BeanUtil.copyProperties(conferenceRezEditParam, conferenceRez);
         this.updateById(conferenceRez);
+        editJoinUser(conferenceRezEditParam);
     }
+
+    private void editJoinUser(ConferenceRezEditParam conferenceRezEditParam){
+        List<ConferenceUserSign> signList = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(conferenceRezEditParam.getConferenceUserSignList())){
+            signList.addAll(conferenceRezEditParam.getConferenceUserSignList());
+        }
+        if(CollectionUtil.isNotEmpty(conferenceRezEditParam.getOutsideSignList())){
+            signList.addAll(conferenceRezEditParam.getOutsideSignList());
+        }
+        conferenceUserSignService.saveOrUpdateBatch(signList);
+    }
+
     private void editPeriod(ConferenceRezEditParam conferenceRezEditParam){
         ConferenceRezPeriod conferenceRezPeriod = conferenceRezPeriodService.getById(conferenceRezEditParam.getRezPeriodId());
-        BeanUtil.copyProperties(conferenceRezEditParam, conferenceRezPeriod);
         List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>()
                 .eq(ConferenceRez::getRezPeriodId,conferenceRezEditParam.getRezPeriodId())
                 .lt(ConferenceRez::getEndTime,DateUtil.date()));
-        List<String> rezIds = conferenceRezList.stream().map(rez -> rez.getId()).collect(Collectors.toList());
-        this.removeBatchByIds(rezIds);
-        ConferenceRezAddParam conferenceRezAddParam = BeanUtil.toBean(conferenceRezEditParam,ConferenceRezAddParam.class);
-        //periodAddRez(conferenceRezAddParam);
+        conferenceRezList.forEach(rez -> {
+            BeanUtil.copyProperties(conferenceRezEditParam, rez);
+            conferenceRezEditParam.setId(rez.getId());
+            editJoinUser(conferenceRezEditParam);
+        });
+        if(CollectionUtil.isNotEmpty(conferenceRezList)){
+            this.saveOrUpdateBatch(conferenceRezList);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -604,9 +620,20 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             conferenceUserSign.setConferenceConfigName(conferenceMsgEvent.getTheme());
             conferenceUserSign.setRezId(conferenceMsgEvent.getRezId());
             conferenceUserSign.setIsOutside(0);
+            conferenceUserSignList.add(conferenceUserSign);
         });
         if(CollectionUtil.isNotEmpty(conferenceMsgEvent.getOutsideUsers())){
-
+            conferenceMsgEvent.getOutsideUsers().forEach(outsideUser ->{
+                ConferenceUserSign conferenceUserSign = new ConferenceUserSign();
+                conferenceUserSign.setUserSignName(outsideUser.getOutsideUser());
+                conferenceUserSign.setPhone(outsideUser.getPhone());
+                conferenceUserSign.setIsOutside(1);
+                conferenceUserSign.setConferenceConfigId(conferenceMsgEvent.getConferenceConfigId());
+                conferenceUserSign.setConferenceConfigName(conferenceMsgEvent.getTheme());
+                conferenceUserSign.setRezId(conferenceMsgEvent.getRezId());
+                conferenceUserSignList.add(conferenceUserSign);
+            });
         }
+        conferenceUserSignService.saveBatch(conferenceUserSignList);
     }
 }

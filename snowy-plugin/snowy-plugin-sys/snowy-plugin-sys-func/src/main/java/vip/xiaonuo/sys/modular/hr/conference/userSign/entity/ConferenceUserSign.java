@@ -104,4 +104,8 @@ public class ConferenceUserSign {
     /** 是否同意参加会议，1 参加，2 不同意 */
     @ApiModelProperty(value = "是否同意参加会议，1 参加，2 不同意", position = 17)
     private Integer isAgree;
+
+    /** 是否已签到, 1 已签到，其他数据 未签到 */
+    @ApiModelProperty(value = "是否已签到, 1 已签到，其他数据 未签到", position = 18)
+    private Integer isSign;
 }

@@ -67,4 +67,20 @@ public class ConferenceUserSignEditParam {
     /** 预约主题 */
     @ApiModelProperty(value = "预约主题", position = 9)
     private String theme;
+
+    /** 是否外部人员 ,1 为外部人员签到 */
+    @ApiModelProperty(value = "是否外部人员，1 为外部人员签到", position = 10)
+    private Integer isOutside;
+
+    /** 是否同意参加会议，1 参加，2 不同意 */
+    @ApiModelProperty(value = "是否同意参加会议，1 参加，2 不同意", position = 11)
+    private Integer isAgree;
+
+    /** 用户ID */
+    @ApiModelProperty(value = "用户ID", position = 12)
+    private String userId;
+
+    /** 是否已签到, 1 已签到，其他数据 未签到 */
+    @ApiModelProperty(value = "是否已签到, 1 已签到，其他数据 未签到", position = 13)
+    private Integer isSign;
 }

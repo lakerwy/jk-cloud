@@ -190,8 +190,49 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
             return;
         }
         if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
-
+            List<String> monthList = monthList(conferenceRezAddParam);
+            String begin = DateUtil.format(conferenceRezAddParam.getBeginTime(),"HH:mm:ss");
+            String end = DateUtil.format(conferenceRezAddParam.getEndTime(),"HH:mm:ss");
+            monthList.forEach(month -> {
+                ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
+                conferenceRez.setRezPeriodId(conferenceRezPeriod.getId());
+                Date beginTime = CommonTimeFormatUtil.strToDate(month+" "+begin);
+                Date endTime =CommonTimeFormatUtil.strToDate(month+" "+end);
+                ConferenceRezAddParam param = new ConferenceRezAddParam();
+                param.setBeginTime(beginTime);
+                param.setEndTime(endTime);
+                Integer trueNum = conferenceRezService.addTrue(param);
+                if(trueNum > 0){
+                    String msg = trueNum == 3 ? "当前的时间已有预约" : "传入时间有误！";
+                    throw new CommonException(msg);
+                }
+                conferenceRez.setBeginTime(beginTime);
+                conferenceRez.setEndTime(endTime);
+                String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
+                conferenceRez.setSn(sn);
+                conferenceRezService.save(conferenceRez);
+                ruanLianParam(conferenceRez,conferenceConfig.getName(),sysUser.getName());
+            });
         }
+    }
+
+    private List<String> monthList(ConferenceRezAddParam conferenceRezAddParam){
+        String day = conferenceRezAddParam.getDayTime() < 10 ? "0"+conferenceRezAddParam.getDayTime().toString() : conferenceRezAddParam.getDayTime().toString();
+        String time = DateUtil.format(conferenceRezAddParam.getBeginTime(),"yyyy-MM")+"-"+ day;
+        String month  = DateUtil.format(DateUtil.date(),"MM");
+        List<String> monthList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localTime = LocalDate.parse(time, formatter);
+        for(int i=Integer.parseInt(month);i<=12;i++){
+            try{
+                Date date = DateUtils.parseDate(localTime.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                monthList.add(DateUtil.format(date,DatePattern.NORM_DATE_PATTERN));
+                localTime = localTime.minusMonths(-1);
+            }catch (Exception e){
+                log.error("LocalDate:e-"+e.toString());
+            }
+        }
+        return monthList;
     }
 
     private void ruanLianParam(ConferenceRez conferenceRez,String conferenceConfigName,String userName){

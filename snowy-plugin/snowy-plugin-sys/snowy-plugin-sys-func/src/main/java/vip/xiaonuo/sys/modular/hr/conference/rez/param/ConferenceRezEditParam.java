@@ -15,11 +15,11 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.sys.modular.hr.conference.userSign.entity.ConferenceUserSign;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 会议模块-预约会议编辑参数
@@ -116,7 +116,7 @@ public class ConferenceRezEditParam {
     @ApiModelProperty(value = "会议议程", position = 21)
     private String rezAgenda;
 
-    /** 会议记录+纪要 */
+    /** 会议记录 */
     @ApiModelProperty(value = "会议记录", position = 22)
     private String record;
 
@@ -160,4 +160,12 @@ public class ConferenceRezEditParam {
     /** 会议纪要*/
     @ApiModelProperty(value = "会议纪要", position = 32)
     private String confSummary;
+
+    /** 外部签到人列表 */
+    @ApiModelProperty(value = "外部签到人列表", position = 33)
+    private List<ConferenceUserSign> outsideSignList;
+
+    /** 签到人列表 */
+    @ApiModelProperty(value = "签到人列表", position = 34)
+    private List<ConferenceUserSign> conferenceUserSignList;
 }
