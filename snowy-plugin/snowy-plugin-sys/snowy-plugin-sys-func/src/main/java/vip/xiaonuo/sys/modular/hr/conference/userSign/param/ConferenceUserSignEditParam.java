@@ -32,8 +32,7 @@ import java.util.Date;
 public class ConferenceUserSignEditParam {
 
     /** ID */
-    @ApiModelProperty(value = "ID", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
+    @ApiModelProperty(value = "ID", position = 1)
     private String id;
 
     /** 会议室ID */
@@ -53,7 +52,8 @@ public class ConferenceUserSignEditParam {
     private String userSignName;
 
     /** 手机号 */
-    @ApiModelProperty(value = "手机号", position = 6)
+    @ApiModelProperty(value = "手机号",required = true,position = 6)
+    @NotBlank(message = "手机号不能为空")
     private String phone;
 
     /** 签到部门名称 */
