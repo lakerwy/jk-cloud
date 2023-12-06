@@ -218,4 +218,8 @@ public class ConferenceRez {
     /** 会议纪要*/
     @ApiModelProperty(value = "会议纪要", position = 44)
     private String confSummary;
+
+    /** 会议纪要附件ID*/
+    @ApiModelProperty(value = "会议纪要附件ID", position = 45)
+    private String summaryFileId;
 }

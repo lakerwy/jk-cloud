@@ -168,4 +168,8 @@ public class ConferenceRezEditParam {
     /** 签到人列表 */
     @ApiModelProperty(value = "签到人列表", position = 34)
     private List<ConferenceUserSign> conferenceUserSignList;
+
+    /** 会议纪要附件ID*/
+    @ApiModelProperty(value = "会议纪要附件ID", position = 35)
+    private String summaryFileId;
 }
