@@ -89,8 +89,8 @@ public class ConferenceRezEditParam {
     private String location;
 
     /** 外部人员 */
-    @ApiModelProperty(value = "外部人员", position = 15)
-    private String outsideUser;
+    /*@ApiModelProperty(value = "外部人员", position = 15)
+    private String outsideUser;*/
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 16)
