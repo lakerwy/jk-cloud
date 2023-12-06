@@ -117,7 +117,7 @@ public class ConferenceRezEditParam {
     private String rezAgenda;
 
     /** 会议记录+纪要 */
-    @ApiModelProperty(value = "会议记录+纪要", position = 22)
+    @ApiModelProperty(value = "会议记录", position = 22)
     private String record;
 
     /** 审核人 */
@@ -156,4 +156,8 @@ public class ConferenceRezEditParam {
     /** 每月的哪一天 */
     @ApiModelProperty(value = "周期预约参数：每月的哪一天", position = 31)
     private Integer dayTime;
+
+    /** 会议纪要*/
+    @ApiModelProperty(value = "会议纪要", position = 32)
+    private String confSummary;
 }

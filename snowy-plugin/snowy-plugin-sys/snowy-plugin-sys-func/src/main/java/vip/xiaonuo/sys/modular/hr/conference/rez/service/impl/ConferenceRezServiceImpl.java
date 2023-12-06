@@ -59,10 +59,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.RuanLianApiService;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.AddConfPeriodEvent;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTime;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.*;
 import vip.xiaonuo.sys.modular.hr.conference.userSign.entity.ConferenceUserSign;
 import vip.xiaonuo.sys.modular.hr.conference.userSign.service.ConferenceUserSignService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
@@ -220,17 +217,25 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceRez.setSn(sn);
         this.save(conferenceRez);
         //异步推送消息
+        pushMsgEvent(conferenceRez,conferenceRezAddParam);
+    }
+    private void pushMsgEvent(ConferenceRez conferenceRez,ConferenceRezAddParam conferenceRezAddParam){
+        //异步推送消息
         Map<String,ConferenceConfig> conferenceConfig = conferenceConfig();
         String location = conferenceConfig.get(conferenceRez.getConferenceConfigId()) != null ? conferenceConfig.get(conferenceRez.getConferenceConfigId()).getName() : "";
+        String conferenceConfigId = conferenceConfig.get(conferenceRez.getConferenceConfigId()) != null ? conferenceConfig.get(conferenceRez.getConferenceConfigId()).getId() : "";
         ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(conferenceRezAddParam.getJoinUser());
         conferenceMsgEvent.setTheme(conferenceRezAddParam.getTheme());
         String theme = ObjectUtil.isNotEmpty(conferenceRez) ? conferenceRez.getTheme() :  "";
         String confTime = ObjectUtil.isNotEmpty(conferenceRez) && ObjectUtil.isNotEmpty(conferenceRez.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRez.getEndTime())?
                 DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getEndTime(),"HH:mm") : "";
         conferenceMsgEvent.setConfTime(confTime);
+        conferenceMsgEvent.setConferenceConfigId(conferenceConfigId);
         conferenceMsgEvent.setLocation(location);
         SysUser sysUser = sysUserService.getById(conferenceRez.getRezUser());
         conferenceMsgEvent.setRezUser(sysUser.getName());
+        conferenceMsgEvent.setRezId(conferenceRez.getId());
+        conferenceMsgEvent.setOutsideUsers(conferenceRezAddParam.getOutsideUsers());
         ruanLianParam(conferenceRez,conferenceMsgEvent);
         eventPublisher.publishEvent(conferenceMsgEvent);
     }
@@ -486,6 +491,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(StringUtils.isNotEmpty(conferenceMsgEvent.getUserIds())){
             List<String> userIds = Arrays.asList(conferenceMsgEvent.getUserIds().split(","));
             List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+            joinUser(sysUserList,conferenceMsgEvent);
             sysUserList.forEach(user -> {
                 conferenceMsgEvent.setPhone(user.getAccount());
                 sendConfMsg(conferenceMsgEvent, "【会议通知】",0);
@@ -584,5 +590,23 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Override
     public void recordNotice(String rezId){
 
+    }
+
+    @Override
+    public void joinUser(List<SysUser> sysUserList,ConferenceMsgEvent conferenceMsgEvent){
+        List<ConferenceUserSign> conferenceUserSignList = new ArrayList<>();
+        sysUserList.forEach(user -> {
+            ConferenceUserSign conferenceUserSign = new ConferenceUserSign();
+            conferenceUserSign.setUserId(user.getId());
+            conferenceUserSign.setUserSignName(user.getName());
+            conferenceUserSign.setPhone(user.getAccount());
+            conferenceUserSign.setConferenceConfigId(conferenceMsgEvent.getConferenceConfigId());
+            conferenceUserSign.setConferenceConfigName(conferenceMsgEvent.getTheme());
+            conferenceUserSign.setRezId(conferenceMsgEvent.getRezId());
+            conferenceUserSign.setIsOutside(0);
+        });
+        if(CollectionUtil.isNotEmpty(conferenceMsgEvent.getOutsideUsers())){
+
+        }
     }
 }

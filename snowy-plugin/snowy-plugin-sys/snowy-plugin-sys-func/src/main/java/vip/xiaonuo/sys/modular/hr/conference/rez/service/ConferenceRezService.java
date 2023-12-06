@@ -23,6 +23,8 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezIdParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPageParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.OutsideUser;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import java.util.List;
 import java.util.Map;
@@ -108,4 +110,7 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
     Integer addTrue(ConferenceRezAddParam conferenceRezAddParam);
 
     void putRuanLian(ConferenceMsgEvent conferenceMsgEvent)throws Exception;
+
+    /** 参会人员*/
+    void joinUser(List<SysUser> sysUserList,ConferenceMsgEvent conferenceMsgEvent);
 }

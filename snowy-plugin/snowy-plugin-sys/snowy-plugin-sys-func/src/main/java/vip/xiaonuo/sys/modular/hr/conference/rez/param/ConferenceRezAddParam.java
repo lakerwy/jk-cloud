@@ -15,11 +15,13 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.OutsideUser;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 会议模块-预约会议添加参数
@@ -85,7 +87,7 @@ public class ConferenceRezAddParam {
 
     /** 外部人员 */
     @ApiModelProperty(value = "外部人员", position = 15)
-    private String outsideUser;
+    private List<OutsideUser> outsideUsers;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 16)
@@ -152,5 +154,9 @@ public class ConferenceRezAddParam {
     /** 每月的哪一天 */
     @ApiModelProperty(value = "周期预约参数：每月的哪一天", position = 31)
     private Integer dayTime;
+
+    /** 会议纪要*/
+    @ApiModelProperty(value = "会议纪要", position = 32)
+    private String confSummary;
 
 }

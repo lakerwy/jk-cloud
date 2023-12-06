@@ -6,6 +6,8 @@ import lombok.Setter;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.RuanLianParam;
 
+import java.util.List;
+
 
 @Getter
 @Setter
@@ -43,6 +45,17 @@ public class ConferenceMsgEvent {
     /** 不同的消息 */
     @ApiModelProperty(value = "不同的消息", position = 10)
     private Integer type;
+
+    @ApiModelProperty(value = "会议ID", position = 11)
+    private String rezId;
+
+    @ApiModelProperty(value = "会议室ID", position = 12)
+    private String conferenceConfigId;
+
+    /** 外部人员 */
+    @ApiModelProperty(value = "外部人员", position = 13)
+    private List<OutsideUser> outsideUsers;
+
 
     public ConferenceMsgEvent(){}
 

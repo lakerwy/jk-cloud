@@ -118,8 +118,8 @@ public class ConferenceRez {
     @ApiModelProperty(value = "会议议程", position = 21)
     private String rezAgenda;
 
-    /** 会议记录+纪要 */
-    @ApiModelProperty(value = "会议记录+纪要", position = 22)
+    /** 会议记录 */
+    @ApiModelProperty(value = "会议记录", position = 22)
     private String record;
 
     /** 审核人 */
@@ -214,4 +214,8 @@ public class ConferenceRez {
     /** 会议是否取消：1 会议取消*/
     @ApiModelProperty(value = "会议是否取消：1 会议取消", position = 43)
     private Integer conferenceStatus;
+
+    /** 会议纪要*/
+    @ApiModelProperty(value = "会议纪要", position = 44)
+    private String confSummary;
 }
