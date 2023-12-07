@@ -30,9 +30,11 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceWorkArrange;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceWorkArrangeService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.RuanLianApiService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
 import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
@@ -63,6 +65,8 @@ public class ConferenceRezController {
     private RuanLianApiService ruanLianApiService;
     @Resource
     private HrUserAttendanceService hrUserAttendanceService;
+    @Resource
+    ConferenceWorkArrangeService conferenceWorkArrangeService;
 
     /**
      * 获取会议模块-预约会议分页
@@ -260,5 +264,79 @@ public class ConferenceRezController {
     public CommonResult<String> freeRez(String rezId){
         conferenceRezService.freeRez(rezId);
         return CommonResult.ok();
+    }
+
+
+    /** 工作部署模块接口 */
+    /**
+     * 获取会议模块-工作部署分页
+     *
+     * @author ljy
+     * @date  2023/12/07 17:43
+     */
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("获取会议模块-工作部署分页")
+    @GetMapping("/sys/workArrange/page")
+    public CommonResult<Page<ConferenceWorkArrange>> workArrangePage(ConferenceWorkArrangePageParam conferenceWorkArrangePageParam) {
+        return CommonResult.data(conferenceWorkArrangeService.page(conferenceWorkArrangePageParam));
+    }
+
+    /**
+     * 添加会议模块-工作部署
+     *
+     * @author ljy
+     * @date  2023/12/07 17:43
+     */
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("添加会议模块-工作部署")
+    @CommonLog("添加会议模块-工作部署")
+    @PostMapping("/sys/workArrange/add")
+    public CommonResult<String> workArrangeAdd(@RequestBody @Valid ConferenceWorkArrangeAddParam conferenceWorkArrangeAddParam) {
+        conferenceWorkArrangeService.add(conferenceWorkArrangeAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑会议模块-工作部署
+     *
+     * @author ljy
+     * @date  2023/12/07 17:43
+     */
+    @ApiOperationSupport(order = 15)
+    @ApiOperation("编辑会议模块-工作部署")
+    @CommonLog("编辑会议模块-工作部署")
+    @PostMapping("/sys/workArrange/edit")
+    public CommonResult<String> workArrangeEdit(@RequestBody @Valid ConferenceWorkArrangeEditParam conferenceWorkArrangeEditParam) {
+        conferenceWorkArrangeService.edit(conferenceWorkArrangeEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除会议模块-工作部署
+     *
+     * @author ljy
+     * @date  2023/12/07 17:43
+     */
+    @ApiOperationSupport(order = 16)
+    @ApiOperation("删除会议模块-工作部署")
+    @CommonLog("删除会议模块-工作部署")
+    @PostMapping("/sys/workArrange/delete")
+    public CommonResult<String> workArrangeDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                               CommonValidList<ConferenceWorkArrangeIdParam> conferenceWorkArrangeIdParamList) {
+        conferenceWorkArrangeService.delete(conferenceWorkArrangeIdParamList);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取会议模块-工作部署详情
+     *
+     * @author ljy
+     * @date  2023/12/07 17:43
+     */
+    @ApiOperationSupport(order = 17)
+    @ApiOperation("获取会议模块-工作部署详情")
+    @GetMapping("/sys/workArrange/detail")
+    public CommonResult<ConferenceWorkArrange> workArrangeDetail(@Valid ConferenceWorkArrangeIdParam conferenceWorkArrangeIdParam) {
+        return CommonResult.data(conferenceWorkArrangeService.detail(conferenceWorkArrangeIdParam));
     }
 }
