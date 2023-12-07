@@ -17,6 +17,7 @@ import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.biz.modular.mapBiz.common.config.DingTalkProperties;
@@ -26,7 +27,6 @@ import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -256,6 +256,11 @@ public class DingDingServiceImpl implements IDingDingService {
 
     @Override
     public void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, Map<String,Object> values) {
+
+    }
+
+    @Override
+    public void commonSend(RabbitMsg rabbitMsg) {
 
     }
 

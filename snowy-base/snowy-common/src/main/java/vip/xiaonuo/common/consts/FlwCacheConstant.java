@@ -15,4 +15,42 @@ public class FlwCacheConstant {
     public static final String CACHE_FLW_SN_KEY = CACHE_FLW_KEY_PREFIX+"SN_";
 
     public static final String CACHE_FLW_MODEL_ID_KEY = CACHE_FLW_KEY_PREFIX+"MODEL_ID_";
+
+    /**
+     * 流程名称
+     */
+    public static final String FLW_NAME = "flw_name";
+
+    /**
+     * 流程基本信息
+     */
+    public static final String FLW_BASE_INFO = "flw_base_info";
+
+    /**
+     * 流程sn
+     */
+    public static final String FLW_SN= "flw_sn";
+
+    /**
+     * 流程发起人
+     */
+    public static final String FLW_STARTER= "flw_starter";
+
+    /**
+     * 流程开始时间
+     */
+    public static final String FLW_START_TIME= "flw_start_time";
+
+    /**
+     * 发送人集合
+     */
+    public static final String SENDERS = "senders";
+
+    /**
+     * 流程的标题
+     */
+    public static final String TITLE = "title";
+
+
+    public static final String FLW_STATUS= "flw_status";
 }

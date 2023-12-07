@@ -5,6 +5,7 @@ import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
+import vip.xiaonuo.common.pojo.RabbitMsg;
 
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ public interface IDingDingService {
 
     void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, Map<String,Object> values);
 
+    void commonSend(RabbitMsg rabbitMsg);
 
     /**
      * 根据 钉钉应用 key 获取token 并缓存

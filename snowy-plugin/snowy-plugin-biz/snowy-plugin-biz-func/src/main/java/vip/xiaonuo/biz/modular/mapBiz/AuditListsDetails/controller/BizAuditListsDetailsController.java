@@ -12,15 +12,19 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.controller;
 
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -28,18 +32,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
-import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.impl.BizAuditListsServiceImpl;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsPageParam;
 import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDetails;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsAddParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service.BizAuditListsDetailsService;
+import vip.xiaonuo.common.pojo.RabbitMsg;
+import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.dev.api.IDingDingService;
-import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -67,6 +74,13 @@ public class BizAuditListsDetailsController {
 
     @Resource
     BizAuditListsService bizAuditListsService;
+
+    @Resource
+    StreamBridge streamBridge;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
 
     /**
      * 获取业务表-设计校审记录表分页
@@ -169,12 +183,23 @@ public class BizAuditListsDetailsController {
         bizAuditListsDetailsService.edit(bizAuditListsDetailsEditParam);
         try {
             BizAuditLists auditLists = bizAuditListsService.getById(bizAuditListsDetailsEditParam.getAuditId());
-            JSONObject entries = JSONUtil.parseObj(auditLists);
-            List<String> ids = new ArrayList<>();
-            ids.add(auditLists.getCreateUser());
+//            JSONObject entries = JSONUtil.parseObj(auditLists);
+//            List<String> ids = new ArrayList<>();
+//            ids.add(auditLists.getCreateUser());
             //ids.add(auditLists.getReader());
             if(ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getCondition()) || ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getReviseAttachments())) {
-                iDingDingService.batchSend(entries, ids);
+//                iDingDingService.batchSend(entries, ids);
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.set(FlwCacheConstant.FLW_BASE_INFO,auditLists.getProjectName()+"|"+auditLists.getDesignStage() + "|"
+                        +auditLists.getCompanyOrDepartment() + "|" + commonCacheOperator.get(CommonUtils.MAJOR_TYPE + auditLists.getProfession()) + " | "
+                        +commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+auditLists.getReader()));
+                jsonObject.set(FlwCacheConstant.FLW_SN,auditLists.getSn());
+                jsonObject.set(FlwCacheConstant.FLW_STARTER,auditLists.getApplyUser());
+                jsonObject.set(FlwCacheConstant.FLW_START_TIME,auditLists.getApplyTime());
+                jsonObject.set(FlwCacheConstant.SENDERS,auditLists.getCreateUser());
+                jsonObject.set(FlwCacheConstant.TITLE,"【工程校审处理单】");
+                RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
+                streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,rabbitMsg);
             }
         }catch (Exception e){
             //消息发送失败
