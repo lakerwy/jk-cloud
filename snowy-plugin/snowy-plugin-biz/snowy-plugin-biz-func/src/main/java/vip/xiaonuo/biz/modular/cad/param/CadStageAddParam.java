@@ -37,7 +37,7 @@ public class CadStageAddParam {
 
     /** 排序 */
     @ApiModelProperty(value = "排序", position = 4)
-    private Integer index;
+    private Integer sortIndex;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 5)

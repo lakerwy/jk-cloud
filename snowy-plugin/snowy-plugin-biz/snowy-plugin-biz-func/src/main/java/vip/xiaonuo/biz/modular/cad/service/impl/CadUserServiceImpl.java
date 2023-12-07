@@ -85,7 +85,7 @@ public class CadUserServiceImpl extends ServiceImpl<CadUserMapper, CadUser> impl
         result.setCurrent(cadUserPage.getCurrent());
         result.setPages(cadUserPage.getPages());
         result.setTotal(cadUserPage.getTotal());
-        result.setSize(cadUserPageParam.getSize());
+        result.setSize(cadUserPage.getSize());
         result.setRecords(cadUserVos);
         return result;
     }

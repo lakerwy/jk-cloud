@@ -66,7 +66,7 @@ public class CadProfessionServiceImpl extends ServiceImpl<CadProfessionMapper, C
             queryWrapper.orderBy(true, cadProfessionPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(cadProfessionPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(CadProfession::getIndex).orderByAsc(CadProfession::getName);
+            queryWrapper.lambda().orderByAsc(CadProfession::getSortIndex).orderByAsc(CadProfession::getName);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

@@ -3,11 +3,11 @@
 <mapper namespace="vip.xiaonuo.biz.modular.cad.mapper.CadSubItemMapper">
 
     <select id="getSubItemUser" resultType="vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo">
-        select a.*,b.NAME as userName,c.INDEX as professionIndex,c.NAME as professionName
+        select a.*,b.NAME as userName,c.SORT_INDEX as professionIndex,c.NAME as professionName
         from BIZ_CAD_SUB_ITEM_USER a
                  left join BIZ_CAD_USER b on a.CAD_USER_ID = b.ID
                  left join BIZ_CAD_PROFESSION c on a.CAD_PROFESSION_ID = c.ID
         where a.SUB_ITEM_ID = #{subItemId} and a.DELETE_FLAG = 'NOT_DELETE'
-        order by c.INDEX
+        order by c.SORT_INDEX
     </select>
 </mapper>

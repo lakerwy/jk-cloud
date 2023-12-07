@@ -95,14 +95,15 @@ public class CadSubItemUserServiceImpl extends ServiceImpl<CadSubItemUserMapper,
 
     @Override
     public void saveSubItemUser(SaveSubItemUserParam saveSubItemUserParam) {
+        List<CadSubItemUser> newCadSubItemUserList = BeanUtil.copyToList(saveSubItemUserParam.getSubItemUserList(),CadSubItemUser.class);
         //获取历史数据
         List<CadSubItemUser> oldSubItemUserList = this.list(new QueryWrapper<CadSubItemUser>().lambda().eq(CadSubItemUser::getSubItemId,saveSubItemUserParam.getSubItemId()));
         //历史的主键Id集合
         List<String> oldIds = oldSubItemUserList.stream().map(x->x.getId()).collect(Collectors.toList());
         //新增的
-        List<CadSubItemUser> addList = saveSubItemUserParam.getSubItemUserList().stream().filter(x->ObjectUtil.isEmpty(x.getId())).collect(Collectors.toList());
+        List<CadSubItemUser> addList = newCadSubItemUserList.stream().filter(x->ObjectUtil.isEmpty(x.getId())).collect(Collectors.toList());
         //更新的
-        List<CadSubItemUser> updateList = saveSubItemUserParam.getSubItemUserList().stream().filter(x->ObjectUtil.isNotEmpty(x.getId())).collect(Collectors.toList());
+        List<CadSubItemUser> updateList = newCadSubItemUserList.stream().filter(x->ObjectUtil.isNotEmpty(x.getId())).collect(Collectors.toList());
         //删除的
         oldIds.removeAll(updateList.stream().map(x->x.getId()).collect(Collectors.toList()));
         if(CollUtil.isNotEmpty(addList)){
