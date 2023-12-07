@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -31,7 +32,9 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeEdit
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeIdParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangePageParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceWorkArrangeService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceWorkArrangeAdd;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -74,8 +77,15 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceWorkArrangeAddParam conferenceWorkArrangeAddParam) {
-        ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(conferenceWorkArrangeAddParam, ConferenceWorkArrange.class);
-        this.save(conferenceWorkArrange);
+        List<ConferenceWorkArrange> conferenceWorkArrangeList = new ArrayList<>();
+        conferenceWorkArrangeAddParam.getWorkArrangeAddList().forEach(workArrange -> {
+            ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(workArrange, ConferenceWorkArrange.class);
+            conferenceWorkArrange.setRezId(conferenceWorkArrangeAddParam.getRezId());
+            conferenceWorkArrangeList.add(conferenceWorkArrange);
+        });
+        if(CollectionUtil.isNotEmpty(conferenceWorkArrangeList)){
+            this.saveBatch(conferenceWorkArrangeList);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
