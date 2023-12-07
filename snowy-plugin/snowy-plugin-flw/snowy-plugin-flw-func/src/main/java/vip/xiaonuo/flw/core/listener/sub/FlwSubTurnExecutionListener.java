@@ -17,14 +17,17 @@ public class FlwSubTurnExecutionListener implements ExecutionListener {
             String moveType = String.valueOf(execution.getVariable("moveType"));
             //转正|离职 员工档案表主键Id
             String fileId = String.valueOf(execution.getVariable("subPersonnelId"));
+            //离职日期
+            String resignationTime = String.valueOf(execution.getVariable("resignationTime"));
+
             if(ObjectUtil.isNotEmpty(moveType) && ObjectUtil.isNotEmpty(fileId)){
                 if("0".equals(moveType)){
                     //转正
-                    String sql = "UPDATE HR_SUB_PERSONNEL SET `EMPLOY_NATURE` = '正式' where ID = "+ fileId;
+                    String sql = "UPDATE HR_SUB_PERSONNEL SET `EMPLOY_NATURE` = '正式' where ID = '"+ fileId +"'";
                     NodeRuntimeUtil.handleSqlExecution(sql);
                 }else if ("1".equals(moveType)){
                     //离职
-                    String sql = "UPDATE HR_SUB_PERSONNEL SET `HR_STATUS` = '1' where ID = " + fileId;;
+                    String sql = "UPDATE HR_SUB_PERSONNEL SET `HR_STATUS` = '1',`RESIGNATION_TIME` = '"+ resignationTime +"' where ID = '"+ fileId +"'";
                     NodeRuntimeUtil.handleSqlExecution(sql);
                 }else{
                 }

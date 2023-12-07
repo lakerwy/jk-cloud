@@ -37,8 +37,13 @@
     </select>
 
     <select id="getMyFileTree" resultType="vip.xiaonuo.biz.modular.cad.vo.CadFileVo">
-        select a.NAME as prjNAME,e.NAME as stageName,b.NAME as subItemName,f.NAME as professionName,d.*
-               from BIZ_CAD_PROJECT a
+        select a.ID as prjId,a.NAME as prjNAME,
+               e.ID as stageId,e.NAME as stageName,
+               b.ID as subItemId,b.NAME as subItemName,
+               f.ID as professionId,f.NAME as professionName,
+               d.ID as fId,d.PARENT_ID as fParentId,d.NAME as fName,d.TYPE as fType,
+               d.CLOUD_POINTS as fCloudPoints,d.NOTE_POINTS as fNotePoints
+        from BIZ_CAD_PROJECT a
           LEFT JOIN BIZ_CAD_SUB_ITEM b on b.PRJ_ID = a.ID and b.DELETE_FLAG = 'NOT_DELETE'
           LEFT JOIN BIZ_CAD_SUB_ITEM_USER c on c.SUB_ITEM_ID = b.ID and c.DELETE_FLAG='NOT_DELETE'
           LEFT JOIN BIZ_CAD_FILE d on d.PROFESSION_ID = c.CAD_PROFESSION_ID and d.SUB_ITEM_ID = c.SUB_ITEM_ID and d.DELETE_FLAG='NOT_DELETE'

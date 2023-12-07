@@ -242,4 +242,8 @@ public class SubPersonnelAddParam {
     /** 最高职称资格证 */
     @ApiModelProperty(value = "最高职称资格证", position = 55)
     private String highTitleNo;
+
+    /** 离职日期 */
+    @ApiModelProperty(value = "离职日期", position = 56)
+    private String resignationTime;
 }
