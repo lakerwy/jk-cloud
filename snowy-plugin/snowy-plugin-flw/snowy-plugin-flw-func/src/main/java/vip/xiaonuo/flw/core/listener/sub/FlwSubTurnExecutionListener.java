@@ -27,7 +27,7 @@ public class FlwSubTurnExecutionListener implements ExecutionListener {
                     NodeRuntimeUtil.handleSqlExecution(sql);
                 }else if ("1".equals(moveType)){
                     //离职
-                    String sql = "UPDATE HR_SUB_PERSONNEL SET `HR_STATUS` = '1',`RESIGNATION_TIME` = '"+ resignationTime +"' where ID = '"+ fileId +"'";
+                    String sql = "UPDATE HR_SUB_PERSONNEL SET `HR_STATUS` = '1',`RESIGNATION_TIME` = '"+ resignationTime +"', `WATCH_INSTANCE_ID` = '"+execution.getProcessInstanceId()+"' where ID = '"+ fileId +"'";
                     NodeRuntimeUtil.handleSqlExecution(sql);
                 }else{
                 }

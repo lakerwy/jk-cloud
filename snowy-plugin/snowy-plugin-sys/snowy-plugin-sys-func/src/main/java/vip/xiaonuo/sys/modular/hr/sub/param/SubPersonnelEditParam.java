@@ -251,4 +251,8 @@ public class SubPersonnelEditParam {
     /** 离职日期 */
     @ApiModelProperty(value = "离职日期", position = 56)
     private String resignationTime;
+
+    /** 离职-流程实例Id */
+    @ApiModelProperty(value = "离职-流程实例Id", position = 57)
+    private String watchInstanceId;
 }
