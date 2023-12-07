@@ -145,6 +145,8 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
 
     @Override
     public CadFileTreeVo myFileTree(MyFileTreeParam myFileTreeParam) {
+        //构建后的结果集
+        List<CadFileVo> fileTreeList = new ArrayList<>();
         CadProject cadProject = this.queryEntity(myFileTreeParam.getPrjId());
         QueryWrapper<CadProject> queryWrapper = new QueryWrapper<>();
         if(!cadProject.getManager().equals(myFileTreeParam.getUserId())){
@@ -153,9 +155,20 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         queryWrapper.eq("a.ID",myFileTreeParam.getPrjId());
         List<CadFileVo> fileVoList = cadProjectMapper.getMyFileTree(queryWrapper);
         if(CollUtil.isNotEmpty(fileVoList)){
+            //处理阶段
 
         }
         return null;
     }
+
+    public List<CadFileVo> getFileTree(List<CadFileVo> fileList){
+        List<CadFileVo> result = new ArrayList<>();
+        if (CollUtil.isNotEmpty(fileList)){
+            //1. 处理项目阶段 - 【fId = 项目阶段id  fParentId = 项目id】
+        }
+
+        return result;
+    }
+
 
 }
