@@ -247,10 +247,18 @@ public class ConferenceRezController {
         return CommonResult.ok();
     }
 
-
-    @GetMapping("/sys/rez/pureztest")
-    public CommonResult<String> pureztest(){
-        hrUserAttendanceService.rezToRuanLianJobHandle();
+    /**
+     * 释放会议
+     *
+     * @author ljy
+     * @date  2023/11/20 08:39
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("释放会议")
+    @CommonLog("释放会议")
+    @GetMapping("/sys/rez/freeRez")
+    public CommonResult<String> freeRez(String rezId){
+        conferenceRezService.freeRez(rezId);
         return CommonResult.ok();
     }
 }

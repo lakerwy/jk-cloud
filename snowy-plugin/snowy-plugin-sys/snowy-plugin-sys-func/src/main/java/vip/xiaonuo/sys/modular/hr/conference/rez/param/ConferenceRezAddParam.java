@@ -163,4 +163,7 @@ public class ConferenceRezAddParam {
     @ApiModelProperty(value = "会议纪要附件ID", position = 33)
     private String summaryFileId;
 
+    /** 会议议程附件ID*/
+    @ApiModelProperty(value = "会议议程附件ID", position = 34)
+    private String agendaFileId;
 }

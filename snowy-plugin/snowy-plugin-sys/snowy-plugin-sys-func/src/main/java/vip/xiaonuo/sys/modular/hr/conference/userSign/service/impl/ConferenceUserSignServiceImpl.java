@@ -93,7 +93,7 @@ public class ConferenceUserSignServiceImpl extends ServiceImpl<ConferenceUserSig
     public void edit(ConferenceUserSignEditParam conferenceUserSignEditParam) {
         if(StringUtils.isNotEmpty(conferenceUserSignEditParam.getPhone())){
             List<ConferenceUserSign> signList = this.list(new LambdaQueryWrapper<ConferenceUserSign>()
-                    .eq(ConferenceUserSign::getRezId,conferenceUserSignEditParam.getRezId())
+                    .eq(ConferenceUserSign::getId,conferenceUserSignEditParam.getId())
                     .eq(ConferenceUserSign::getPhone,conferenceUserSignEditParam.getPhone()));
             if(CollectionUtil.isNotEmpty(signList)){
                 ConferenceUserSign conferenceUserSign = signList.get(0);

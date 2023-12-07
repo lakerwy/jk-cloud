@@ -157,9 +157,11 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         List<ConferenceUserSign> signList  = conferenceUserSignService.list(new LambdaQueryWrapper<ConferenceUserSign>().in(ConferenceUserSign::getRezId,rezIds));
         Map<String,List<ConferenceUserSign>> map = new HashMap<>();
         signList.forEach(sign -> {
-            List<ConferenceUserSign> signs = map.get(sign.getRezId()) != null ? map.get(sign.getRezId()) : new ArrayList<>();
-            signs.add(sign);
-            map.put(sign.getRezId(),signs);
+            if(ObjectUtil.isEmpty(sign.getIsOutside()) || sign.getIsOutside() != 1){
+                List<ConferenceUserSign> signs = map.get(sign.getRezId()) != null ? map.get(sign.getRezId()) : new ArrayList<>();
+                signs.add(sign);
+                map.put(sign.getRezId(),signs);
+            }
         });
         page.getRecords().forEach(rez -> {
             if(map.get(rez.getId()) != null){
@@ -278,18 +280,44 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         ConferenceRez conferenceRez = this.queryEntity(conferenceRezEditParam.getId());
         BeanUtil.copyProperties(conferenceRezEditParam, conferenceRez);
         this.updateById(conferenceRez);
-        editJoinUser(conferenceRezEditParam);
+        editJoinUser(conferenceRezEditParam,conferenceRez);
     }
 
-    private void editJoinUser(ConferenceRezEditParam conferenceRezEditParam){
-        List<ConferenceUserSign> signList = new ArrayList<>();
-        if(CollectionUtil.isNotEmpty(conferenceRezEditParam.getConferenceUserSignList())){
-            signList.addAll(conferenceRezEditParam.getConferenceUserSignList());
-        }
+    private void editJoinUser(ConferenceRezEditParam conferenceRezEditParam,ConferenceRez conferenceRez){
+        List<ConferenceUserSign> signList = conferenceUserSignService.list(new LambdaQueryWrapper<ConferenceUserSign>()
+                .eq(ConferenceUserSign::getRezId,conferenceRez.getId()));
+        List<String> signIds = signList.stream().map(sign -> sign.getId()).collect(Collectors.toList());
+        conferenceUserSignService.removeBatchByIds(signIds);
+        Map<String,ConferenceUserSign> signMap = new HashMap<>();
+        signList.forEach(sign -> signMap.put(sign.getUserId(),sign));
+        List<ConferenceUserSign> conferenceUserSignList = new ArrayList();
+        List<String> userIds = Arrays.asList(conferenceRezEditParam.getJoinUser().split(","));
+        List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+        sysUserList.forEach(user -> {
+            ConferenceUserSign conferenceUserSign = signMap.get(user.getId()) !=null?signMap.get(user.getId()) : new ConferenceUserSign();
+            conferenceUserSign.setId(null);
+            conferenceUserSign.setUserId(user.getId());
+            conferenceUserSign.setUserSignName(user.getName());
+            conferenceUserSign.setPhone(user.getAccount());
+            conferenceUserSign.setConferenceConfigId(conferenceRez.getConferenceConfigId());
+            conferenceUserSign.setConferenceConfigName(conferenceRez.getTheme());
+            conferenceUserSign.setRezId(conferenceRez.getId());
+            conferenceUserSign.setIsOutside(0);
+            conferenceUserSignList.add(conferenceUserSign);
+        });
         if(CollectionUtil.isNotEmpty(conferenceRezEditParam.getOutsideSignList())){
-            signList.addAll(conferenceRezEditParam.getOutsideSignList());
+            conferenceRezEditParam.getOutsideSignList().forEach(outSideSign -> {
+                if(StringUtils.isNotEmpty(outSideSign.getPhone())){
+                    outSideSign.setId(null);
+                    outSideSign.setRezId(conferenceRez.getId());
+                    outSideSign.setConferenceConfigId(conferenceRez.getConferenceConfigId());
+                    outSideSign.setConferenceConfigName(conferenceRez.getTheme());
+                    outSideSign.setRezId(conferenceRez.getId());
+                    conferenceUserSignList.add(outSideSign);
+                }
+            });
         }
-        conferenceUserSignService.saveOrUpdateBatch(signList);
+        conferenceUserSignService.saveBatch(conferenceUserSignList);
     }
 
     private void editPeriod(ConferenceRezEditParam conferenceRezEditParam){
@@ -300,7 +328,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceRezList.forEach(rez -> {
             BeanUtil.copyProperties(conferenceRezEditParam, rez);
             conferenceRezEditParam.setId(rez.getId());
-            editJoinUser(conferenceRezEditParam);
+            //editJoinUser(conferenceRezEditParam,rez);
         });
         if(CollectionUtil.isNotEmpty(conferenceRezList)){
             this.saveOrUpdateBatch(conferenceRezList);
@@ -352,7 +380,26 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(ObjectUtil.isEmpty(conferenceRez)) {
             throw new CommonException("会议模块-预约会议不存在，id值为：{}", id);
         }
+        userDetailSign(conferenceRez);
         return conferenceRez;
+    }
+    /** 签到列表 */
+    private void userDetailSign(ConferenceRez conferenceRez){
+        if (ObjectUtil.isEmpty(conferenceRez)){
+            return;
+        }
+        List<ConferenceUserSign> signList  = conferenceUserSignService.list(new LambdaQueryWrapper<ConferenceUserSign>().eq(ConferenceUserSign::getRezId,conferenceRez.getId()));
+        List<ConferenceUserSign> conferenceUserSignList = new ArrayList<>();
+        List<ConferenceUserSign> outsideSignList = new ArrayList<>();
+        signList.forEach(sign -> {
+            if(ObjectUtil.isEmpty(sign.getIsOutside()) || sign.getIsOutside() != 1){
+                conferenceUserSignList.add(sign);
+            }else{
+                outsideSignList.add(sign);
+            }
+        });
+        conferenceRez.setConferenceUserSignList(conferenceUserSignList);
+        conferenceRez.setOutsideSignList(outsideSignList);
     }
 
     @Override
@@ -621,5 +668,16 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             });
         }
         conferenceUserSignService.saveBatch(conferenceUserSignList);
+    }
+
+    /** 释放会议*/
+    @Override
+    public void freeRez(String rezId){
+        if(StringUtils.isEmpty(rezId)){
+            throw new CommonException("找不到该会议");
+        }
+        ConferenceRez rez = this.queryEntity(rezId);
+        rez.setEndTime(DateUtil.date());
+        this.saveOrUpdate(rez);
     }
 }

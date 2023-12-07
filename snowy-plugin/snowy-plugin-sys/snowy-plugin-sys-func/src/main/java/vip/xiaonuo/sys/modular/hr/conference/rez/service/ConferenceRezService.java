@@ -110,4 +110,7 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /** 参会人员*/
     void joinUser(List<SysUser> sysUserList,ConferenceMsgEvent conferenceMsgEvent);
+
+    /** 释放会议*/
+    void freeRez(String rezId);
 }

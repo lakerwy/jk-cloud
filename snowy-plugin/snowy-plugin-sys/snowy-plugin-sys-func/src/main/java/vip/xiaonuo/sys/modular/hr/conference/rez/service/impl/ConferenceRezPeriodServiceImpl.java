@@ -14,11 +14,13 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.excel.util.DateUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -33,7 +35,6 @@ import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dbs.core.util.BizTableCommon;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
-import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
@@ -43,6 +44,8 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodServ
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.AddConfPeriodEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
+import vip.xiaonuo.sys.modular.hr.conference.userSign.entity.ConferenceUserSign;
+import vip.xiaonuo.sys.modular.hr.conference.userSign.service.ConferenceUserSignService;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
@@ -52,6 +55,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
@@ -68,6 +72,8 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
     ConferenceRezService conferenceRezService;
     @Resource
     ConferenceConfigService conferenceConfigService;
+    @Resource
+    ConferenceUserSignService conferenceUserSignService;
 
     @Resource
     SysUserService sysUserService;
@@ -146,8 +152,8 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
         this.save(conferenceRezPeriod);
         String beginTimeParam = CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(), DatePattern.NORM_TIME_PATTERN);
         String endTimeParam = CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getEndTime(),DatePattern.NORM_TIME_PATTERN);
-        ConferenceConfig conferenceConfig = conferenceConfigService.getById(addConfPeriodEvent.getConferenceRezAddParam().getConferenceConfigId());
-        SysUser sysUser = sysUserService.getById(addConfPeriodEvent.getConferenceRezAddParam().getRezUser());
+        //ConferenceConfig conferenceConfig = conferenceConfigService.getById(addConfPeriodEvent.getConferenceRezAddParam().getConferenceConfigId());
+        //SysUser sysUser = sysUserService.getById(addConfPeriodEvent.getConferenceRezAddParam().getRezUser());
 
         List<ConferenceRez>  conferenceRezList = new ArrayList<>();
         /** 周期生成标准会议：周 有效期三个月，月 有效期一年*/
@@ -212,6 +218,7 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
             });
         }
         conferenceRezService.saveBatch(conferenceRezList);
+        joinUser(conferenceRezAddParam,conferenceRezList);
     }
 
     private List<String> monthList(ConferenceRezAddParam conferenceRezAddParam){
@@ -233,18 +240,38 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
         return monthList;
     }
 
-    /*private void ruanLianParam(ConferenceRez conferenceRez,String conferenceConfigName,String userName){
-        try{
-            RuanLianParam ruanLianParam = new RuanLianParam();
-            ruanLianParam.setRezId(conferenceRez.getId());
-            ruanLianParam.setZtname(conferenceRez.getTheme());
-            ruanLianParam.setYytimes(DateUtil.format(conferenceRez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
-            ruanLianParam.setYytimee(DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
-            ruanLianParam.setCjname(userName);
-            ruanLianParam.setMianbanName(conferenceConfigName);
-            conferenceRezService.putRuanLian(ruanLianParam);
-        }catch (Exception e){
-            log.error("批量预约软联会议失败！e:"+e.toString()+",periodId:"+conferenceRez.getRezPeriodId());
-        }
-    }*/
+    private void joinUser(ConferenceRezAddParam conferenceRezAddParam,List<ConferenceRez> conferenceRezList){
+        List<String> userIds = Arrays.asList(conferenceRezAddParam.getJoinUser().split(","));
+        List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+
+        List<ConferenceUserSign> conferenceUserSignList = new ArrayList<>();
+        conferenceRezList.forEach(rez -> {
+            List<ConferenceUserSign> signList = new ArrayList<>();
+            sysUserList.forEach(user -> {
+                ConferenceUserSign conferenceUserSign = new ConferenceUserSign();
+                conferenceUserSign.setUserId(user.getId());
+                conferenceUserSign.setUserSignName(user.getName());
+                conferenceUserSign.setPhone(user.getAccount());
+                conferenceUserSign.setConferenceConfigId(rez.getConferenceConfigId());
+                conferenceUserSign.setConferenceConfigName(rez.getTheme());
+                conferenceUserSign.setRezId(rez.getId());
+                conferenceUserSign.setIsOutside(0);
+                signList.add(conferenceUserSign);
+            });
+            if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getOutsideUsers())){
+                conferenceRezAddParam.getOutsideUsers().forEach(outsideUser ->{
+                    ConferenceUserSign conferenceUserSign = new ConferenceUserSign();
+                    conferenceUserSign.setUserSignName(outsideUser.getOutsideUser());
+                    conferenceUserSign.setPhone(outsideUser.getPhone());
+                    conferenceUserSign.setIsOutside(1);
+                    conferenceUserSign.setConferenceConfigId(rez.getConferenceConfigId());
+                    conferenceUserSign.setConferenceConfigName(rez.getTheme());
+                    conferenceUserSign.setRezId(rez.getId());
+                    signList.add(conferenceUserSign);
+                });
+            }
+            conferenceUserSignList.addAll(signList);
+        });
+        conferenceUserSignService.saveBatch(conferenceUserSignList);
+    }
 }

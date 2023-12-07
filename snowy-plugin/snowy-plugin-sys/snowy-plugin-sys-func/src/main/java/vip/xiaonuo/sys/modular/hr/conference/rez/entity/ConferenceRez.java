@@ -99,7 +99,7 @@ public class ConferenceRez {
     private String remark;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 17)
+    @ApiModelProperty(value = "会议记录附件ID", position = 17)
     private String fileId;
 
     /** 会议号 */
@@ -230,4 +230,8 @@ public class ConferenceRez {
     /** 推送删除不成功最大次数*/
     @ApiModelProperty(value = "推送删除不成功最大次数", position = 47)
     private Integer delSize;
+
+    /** 会议议程附件ID*/
+    @ApiModelProperty(value = "会议议程附件ID", position = 48)
+    private String agendaFileId;
 }
