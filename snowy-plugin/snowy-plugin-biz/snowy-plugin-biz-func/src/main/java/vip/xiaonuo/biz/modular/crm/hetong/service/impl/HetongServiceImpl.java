@@ -135,6 +135,9 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         if(ObjectUtil.isNotEmpty(hetongPageParam.getDescription())) {
             queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());
         }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getStatus())){
+            queryWrapper.eq("a.STATUS",hetongPageParam.getStatus());
+        }
 
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hetongPageParam.getSortOrder());
@@ -317,6 +320,9 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getDescription())) {
             queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getStatus())){
+            queryWrapper.eq("a.STATUS",hetongPageParam.getStatus());
         }
 
         // 校验数据范围
