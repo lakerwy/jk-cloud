@@ -151,4 +151,6 @@ public interface HrUserAttendanceService extends IService<HrUserAttendance> {
 
     void revokeErrorEdit(EditErrorAtdParam editErrorAtdParam);
     Map<String, Map<String, HrUserAttendanceConfig>> getAtdConfig();
+
+    void rezToRuanLianJobHandle();
 }

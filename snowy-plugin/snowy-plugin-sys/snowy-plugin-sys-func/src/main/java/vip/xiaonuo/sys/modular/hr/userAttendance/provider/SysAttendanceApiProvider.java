@@ -32,4 +32,9 @@ public class SysAttendanceApiProvider implements SysAttendanceApi {
     public void calculateHolidayJobHandle(String processInstanceId){
         hrUserHolidayDataService.calculateHolidayJobHandle(processInstanceId);
     }
+
+    @Override
+    public void rezToRuanLianJobHandle(){
+        hrUserAttendanceService.rezToRuanLianJobHandle();
+    }
 }

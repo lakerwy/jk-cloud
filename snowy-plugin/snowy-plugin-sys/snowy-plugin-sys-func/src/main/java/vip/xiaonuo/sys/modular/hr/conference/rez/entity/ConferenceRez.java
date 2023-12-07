@@ -222,4 +222,12 @@ public class ConferenceRez {
     /** 会议纪要附件ID*/
     @ApiModelProperty(value = "会议纪要附件ID", position = 45)
     private String summaryFileId;
+
+    /** 软联是否删除成功*/
+    @ApiModelProperty(value = "软联是否删除成功", position = 46)
+    private Integer isDel;
+
+    /** 推送删除不成功最大次数*/
+    @ApiModelProperty(value = "推送删除不成功最大次数", position = 47)
+    private Integer delSize;
 }

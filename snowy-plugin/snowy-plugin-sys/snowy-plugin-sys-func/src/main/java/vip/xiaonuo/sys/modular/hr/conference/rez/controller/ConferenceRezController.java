@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodServ
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.RuanLianApiService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
+import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -60,6 +61,8 @@ public class ConferenceRezController {
     private ConferenceRezPeriodService conferenceRezPeriodService;
     @Resource
     private RuanLianApiService ruanLianApiService;
+    @Resource
+    private HrUserAttendanceService hrUserAttendanceService;
 
     /**
      * 获取会议模块-预约会议分页
@@ -241,6 +244,13 @@ public class ConferenceRezController {
     @GetMapping("/sys/rez/delmeeting")
     public CommonResult<String> delmeeting(@Valid String yyid){
         ruanLianApiService.delmeeting(yyid);
+        return CommonResult.ok();
+    }
+
+
+    @GetMapping("/sys/rez/pureztest")
+    public CommonResult<String> pureztest(){
+        hrUserAttendanceService.rezToRuanLianJobHandle();
         return CommonResult.ok();
     }
 }

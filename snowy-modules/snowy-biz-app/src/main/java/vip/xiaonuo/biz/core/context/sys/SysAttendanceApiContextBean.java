@@ -33,4 +33,9 @@ public class SysAttendanceApiContextBean implements SysAttendanceApi {
     public void calculateHolidayJobHandle(String processInstanceId){
         sysHrAttendanceFeign.calculateHolidayJobHandle(processInstanceId);
     }
+
+    @Override
+    public void rezToRuanLianJobHandle( ){
+        sysHrAttendanceFeign.rezToRuanLianJobHandle();
+    }
 }
