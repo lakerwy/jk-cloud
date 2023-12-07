@@ -21,6 +21,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -75,6 +76,11 @@ public class ConferenceUserSignServiceImpl extends ServiceImpl<ConferenceUserSig
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceUserSignAddParam conferenceUserSignAddParam) {
+        Long number = this.count(new LambdaQueryWrapper<ConferenceUserSign>().eq(ConferenceUserSign::getRezId,conferenceUserSignAddParam.getRezId())
+                .eq(ConferenceUserSign::getPhone,conferenceUserSignAddParam.getPhone()));
+        if(number > 0){
+            return;
+        }
         ConferenceUserSign conferenceUserSign = BeanUtil.toBean(conferenceUserSignAddParam, ConferenceUserSign.class);
         List<SysUser>  userList = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount,conferenceUserSignAddParam.getPhone()));
         SysUser user = CollectionUtil.isNotEmpty(userList) ? userList.get(0) : new SysUser();
@@ -85,6 +91,17 @@ public class ConferenceUserSignServiceImpl extends ServiceImpl<ConferenceUserSig
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ConferenceUserSignEditParam conferenceUserSignEditParam) {
+        if(StringUtils.isNotEmpty(conferenceUserSignEditParam.getPhone())){
+            List<ConferenceUserSign> signList = this.list(new LambdaQueryWrapper<ConferenceUserSign>()
+                    .eq(ConferenceUserSign::getId,conferenceUserSignEditParam.getId())
+                    .eq(ConferenceUserSign::getPhone,conferenceUserSignEditParam.getPhone()));
+            if(CollectionUtil.isNotEmpty(signList)){
+                ConferenceUserSign conferenceUserSign = signList.get(0);
+                BeanUtil.copyProperties(conferenceUserSignEditParam, conferenceUserSign);
+                this.updateById(conferenceUserSign);
+            }
+            return;
+        }
         ConferenceUserSign conferenceUserSign = this.queryEntity(conferenceUserSignEditParam.getId());
         BeanUtil.copyProperties(conferenceUserSignEditParam, conferenceUserSign);
         this.updateById(conferenceUserSign);

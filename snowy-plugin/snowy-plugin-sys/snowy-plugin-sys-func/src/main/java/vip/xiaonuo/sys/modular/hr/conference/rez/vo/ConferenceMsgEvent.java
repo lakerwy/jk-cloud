@@ -4,6 +4,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.RuanLianParam;
+
+import java.util.List;
 
 
 @Getter
@@ -36,9 +39,23 @@ public class ConferenceMsgEvent {
     @ApiModelProperty(value = "联系电话", position = 9)
     private String phone;
 
+    @ApiModelProperty(value = "预约软联会议参数", position = 11)
+    private RuanLianParam ruanLianParam;
+
     /** 不同的消息 */
     @ApiModelProperty(value = "不同的消息", position = 10)
     private Integer type;
+
+    @ApiModelProperty(value = "会议ID", position = 11)
+    private String rezId;
+
+    @ApiModelProperty(value = "会议室ID", position = 12)
+    private String conferenceConfigId;
+
+    /** 外部人员 */
+    @ApiModelProperty(value = "外部人员", position = 13)
+    private List<OutsideUser> outsideUsers;
+
 
     public ConferenceMsgEvent(){}
 

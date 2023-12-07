@@ -91,7 +91,7 @@ public class ConferenceRez {
     private String location;
 
     /** 外部人员 */
-    @ApiModelProperty(value = "外部人员", position = 15)
+    @ApiModelProperty(value = "外部人员：多个逗号隔开", position = 15)
     private String outsideUser;
 
     /** 备注 */
@@ -99,7 +99,7 @@ public class ConferenceRez {
     private String remark;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 17)
+    @ApiModelProperty(value = "会议记录附件ID", position = 17)
     private String fileId;
 
     /** 会议号 */
@@ -118,8 +118,8 @@ public class ConferenceRez {
     @ApiModelProperty(value = "会议议程", position = 21)
     private String rezAgenda;
 
-    /** 会议记录+纪要 */
-    @ApiModelProperty(value = "会议记录+纪要", position = 22)
+    /** 会议记录 */
+    @ApiModelProperty(value = "会议记录", position = 22)
     private String record;
 
     /** 审核人 */
@@ -193,4 +193,45 @@ public class ConferenceRez {
     /** 每月的哪一天 */
     @ApiModelProperty(value = "周期预约参数：每月的哪一天", position = 38)
     private Integer dayTime;
+
+    /** 外部签到人列表 */
+    @ApiModelProperty(value = "外部签到人列表", position = 39)
+    @TableField(exist = false)
+    private List<ConferenceUserSign> outsideSignList;
+
+    /** 是否推送信息到软联成功，1 成功 */
+    @ApiModelProperty(value = "是否推送信息到软联成功，1 成功", position = 40)
+    private Integer isPush;
+
+    /** 失败推送次数：最大失败次数不超过5次 */
+    @ApiModelProperty(value = "失败推送次数：最大失败次数不超过5次", position = 41)
+    private Integer pushSize;
+
+    /** 软联预约ID */
+    @ApiModelProperty(value = "软联预约ID", position = 42)
+    private String yyid;
+
+    /** 会议是否取消：1 会议取消*/
+    @ApiModelProperty(value = "会议是否取消：1 会议取消", position = 43)
+    private Integer conferenceStatus;
+
+    /** 会议纪要*/
+    @ApiModelProperty(value = "会议纪要", position = 44)
+    private String confSummary;
+
+    /** 会议纪要附件ID*/
+    @ApiModelProperty(value = "会议纪要附件ID", position = 45)
+    private String summaryFileId;
+
+    /** 软联是否删除成功*/
+    @ApiModelProperty(value = "软联是否删除成功", position = 46)
+    private Integer isDel;
+
+    /** 推送删除不成功最大次数*/
+    @ApiModelProperty(value = "推送删除不成功最大次数", position = 47)
+    private Integer delSize;
+
+    /** 会议议程附件ID*/
+    @ApiModelProperty(value = "会议议程附件ID", position = 48)
+    private String agendaFileId;
 }

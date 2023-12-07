@@ -12,6 +12,9 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.userSign.param;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -60,6 +63,22 @@ public class ConferenceUserSignAddParam {
     private String extJson;
 
     /** 预约主题 */
-    @ApiModelProperty(value = "预约主题", position = 9)
+    @ApiModelProperty(value = "预约主题", position = 14)
     private String theme;
+
+    /** 用户ID */
+    @ApiModelProperty(value = "用户ID", position = 15)
+    private String userId;
+
+    /** 是否外部人员 ,1 为外部人员签到 */
+    @ApiModelProperty(value = "是否外部人员，1 为外部人员签到", position = 16)
+    private Integer isOutside;
+
+    /** 是否同意参加会议，1 参加，2 不同意 */
+    @ApiModelProperty(value = "是否同意参加会议，1 参加，2 不同意", position = 17)
+    private Integer isAgree;
+
+    /** 是否已签到, 1 已签到，其他数据 未签到 */
+    @ApiModelProperty(value = "是否已签到, 1 已签到，其他数据 未签到", position = 18)
+    private Integer isSign;
 }

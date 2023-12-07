@@ -14,24 +14,49 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.util.DateUtils;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.dbs.core.util.BizTableCommon;
+import vip.xiaonuo.dbs.core.util.CommonUtils;
+import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
 import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezPeriodMapper;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodAddParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodEditParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodIdParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPeriodPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.AddConfPeriodEvent;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
+import vip.xiaonuo.sys.modular.hr.conference.userSign.entity.ConferenceUserSign;
+import vip.xiaonuo.sys.modular.hr.conference.userSign.service.ConferenceUserSignService;
+import vip.xiaonuo.sys.modular.hr.userAttendanceStat.enums.HrUserAttendanceStatEnum;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
+import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -43,6 +68,15 @@ import java.util.List;
 @Service
 public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPeriodMapper, ConferenceRezPeriod> implements ConferenceRezPeriodService {
 
+    @Resource
+    ConferenceRezService conferenceRezService;
+    @Resource
+    ConferenceConfigService conferenceConfigService;
+    @Resource
+    ConferenceUserSignService conferenceUserSignService;
+
+    @Resource
+    SysUserService sysUserService;
     @Override
     public Page<ConferenceRezPeriod> page(ConferenceRezPeriodPageParam conferenceRezPeriodPageParam) {
         QueryWrapper<ConferenceRezPeriod> queryWrapper = new QueryWrapper<>();
@@ -105,5 +139,139 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
             throw new CommonException("会议模块-周期预约会议不存在，id值为：{}", id);
         }
         return conferenceRezPeriod;
+    }
+
+    /** 周期预约，当前只生成当前周或者下周一次标准会议，开一次生成一次，避免数据冗余*/
+    /** 修改为异步 */
+    @Override
+    @EventListener
+    @Async
+    public void periodAddRez(AddConfPeriodEvent addConfPeriodEvent){
+        ConferenceRezAddParam conferenceRezAddParam = addConfPeriodEvent.getConferenceRezAddParam();
+        ConferenceRezPeriod conferenceRezPeriod = BeanUtil.toBean(conferenceRezAddParam, ConferenceRezPeriod.class);
+        this.save(conferenceRezPeriod);
+        String beginTimeParam = CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(), DatePattern.NORM_TIME_PATTERN);
+        String endTimeParam = CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getEndTime(),DatePattern.NORM_TIME_PATTERN);
+        //ConferenceConfig conferenceConfig = conferenceConfigService.getById(addConfPeriodEvent.getConferenceRezAddParam().getConferenceConfigId());
+        //SysUser sysUser = sysUserService.getById(addConfPeriodEvent.getConferenceRezAddParam().getRezUser());
+
+        List<ConferenceRez>  conferenceRezList = new ArrayList<>();
+        /** 周期生成标准会议：周 有效期三个月，月 有效期一年*/
+        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())){
+            Date endTime = conferenceRezAddParam.getBeginTime();
+            /** 获取下月和下下月的时间*/
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+            LocalDate localTime = LocalDate.parse(CommonTimeFormatUtil.dateToStr(conferenceRezAddParam.getBeginTime(),DatePattern.NORM_DATE_PATTERN), formatter);
+            LocalDate endOfMonth = localTime.with(TemporalAdjusters.lastDayOfMonth());//月最后一天
+            LocalDate  endLocalDate = endOfMonth.minusMonths(-2);
+            try{
+                endTime = DateUtils.parseDate(endLocalDate.format(formatter)+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                List<Date> periodWeekTime = CommonTimeFormatUtil.periodWeekTime(conferenceRezAddParam.getBeginTime(),endTime,conferenceRezAddParam.getWeekTime());
+                periodWeekTime.forEach(time ->{
+                    String strTime = CommonTimeFormatUtil.dateToStr(time,DatePattern.NORM_DATE_PATTERN);
+                    ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
+                    conferenceRez.setRezPeriodId(conferenceRezPeriod.getId());
+                    Date begin = CommonTimeFormatUtil.strToDate(strTime+" "+beginTimeParam,DatePattern.NORM_DATETIME_PATTERN);
+                    Date end = CommonTimeFormatUtil.strToDate(strTime+" "+endTimeParam,DatePattern.NORM_DATETIME_PATTERN);
+                    ConferenceRezAddParam param = new ConferenceRezAddParam();
+                    param.setBeginTime(begin);
+                    param.setEndTime(end);
+                    Integer trueNum = conferenceRezService.addTrue(param);
+                    if(trueNum > 0){
+                        String msg = trueNum == 3 ? "当前的时间已有预约" : "传入时间有误！";
+                        throw new CommonException(msg);
+                    }
+                    conferenceRez.setBeginTime(begin);
+                    conferenceRez.setEndTime(end);
+                    String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
+                    conferenceRez.setSn(sn);
+                    conferenceRezList.add(conferenceRez);
+                    //ruanLianParam(conferenceRez,conferenceConfig.getName(),sysUser.getName()); 修改为定时任务
+                });
+            }catch (Exception e){
+                log.error("时间生成错误！");
+            }
+        }
+        if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
+            List<String> monthList = monthList(conferenceRezAddParam);
+            String begin = DateUtil.format(conferenceRezAddParam.getBeginTime(),"HH:mm:ss");
+            String end = DateUtil.format(conferenceRezAddParam.getEndTime(),"HH:mm:ss");
+            monthList.forEach(month -> {
+                ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
+                conferenceRez.setRezPeriodId(conferenceRezPeriod.getId());
+                Date beginTime = CommonTimeFormatUtil.strToDate(month+" "+begin);
+                Date endTime =CommonTimeFormatUtil.strToDate(month+" "+end);
+                ConferenceRezAddParam param = new ConferenceRezAddParam();
+                param.setBeginTime(beginTime);
+                param.setEndTime(endTime);
+                Integer trueNum = conferenceRezService.addTrue(param);
+                if(trueNum > 0){
+                    String msg = trueNum == 3 ? "当前的时间已有预约" : "传入时间有误！";
+                    throw new CommonException(msg);
+                }
+                conferenceRez.setBeginTime(beginTime);
+                conferenceRez.setEndTime(endTime);
+                String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
+                conferenceRez.setSn(sn);
+                conferenceRezList.add(conferenceRez);
+                //ruanLianParam(conferenceRez,conferenceConfig.getName(),sysUser.getName());修改为定时任务
+            });
+        }
+        conferenceRezService.saveBatch(conferenceRezList);
+        joinUser(conferenceRezAddParam,conferenceRezList);
+    }
+
+    private List<String> monthList(ConferenceRezAddParam conferenceRezAddParam){
+        String day = conferenceRezAddParam.getDayTime() < 10 ? "0"+conferenceRezAddParam.getDayTime().toString() : conferenceRezAddParam.getDayTime().toString();
+        String time = DateUtil.format(conferenceRezAddParam.getBeginTime(),"yyyy-MM")+"-"+ day;
+        String month  = DateUtil.format(DateUtil.date(),"MM");
+        List<String> monthList = new ArrayList<>();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        LocalDate localTime = LocalDate.parse(time, formatter);
+        for(int i=Integer.parseInt(month);i<=12;i++){
+            try{
+                Date date = DateUtils.parseDate(localTime.format(formatter)+HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue());
+                monthList.add(DateUtil.format(date,DatePattern.NORM_DATE_PATTERN));
+                localTime = localTime.minusMonths(-1);
+            }catch (Exception e){
+                log.error("LocalDate:e-"+e.toString());
+            }
+        }
+        return monthList;
+    }
+
+    private void joinUser(ConferenceRezAddParam conferenceRezAddParam,List<ConferenceRez> conferenceRezList){
+        List<String> userIds = Arrays.asList(conferenceRezAddParam.getJoinUser().split(","));
+        List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+
+        List<ConferenceUserSign> conferenceUserSignList = new ArrayList<>();
+        conferenceRezList.forEach(rez -> {
+            List<ConferenceUserSign> signList = new ArrayList<>();
+            sysUserList.forEach(user -> {
+                ConferenceUserSign conferenceUserSign = new ConferenceUserSign();
+                conferenceUserSign.setUserId(user.getId());
+                conferenceUserSign.setUserSignName(user.getName());
+                conferenceUserSign.setPhone(user.getAccount());
+                conferenceUserSign.setConferenceConfigId(rez.getConferenceConfigId());
+                conferenceUserSign.setConferenceConfigName(rez.getTheme());
+                conferenceUserSign.setRezId(rez.getId());
+                conferenceUserSign.setIsOutside(0);
+                signList.add(conferenceUserSign);
+            });
+            if(CollectionUtil.isNotEmpty(conferenceRezAddParam.getOutsideUsers())){
+                conferenceRezAddParam.getOutsideUsers().forEach(outsideUser ->{
+                    ConferenceUserSign conferenceUserSign = new ConferenceUserSign();
+                    conferenceUserSign.setUserSignName(outsideUser.getOutsideUser());
+                    conferenceUserSign.setPhone(outsideUser.getPhone());
+                    conferenceUserSign.setIsOutside(1);
+                    conferenceUserSign.setConferenceConfigId(rez.getConferenceConfigId());
+                    conferenceUserSign.setConferenceConfigName(rez.getTheme());
+                    conferenceUserSign.setRezId(rez.getId());
+                    signList.add(conferenceUserSign);
+                });
+            }
+            conferenceUserSignList.addAll(signList);
+        });
+        conferenceUserSignService.saveBatch(conferenceUserSignList);
     }
 }

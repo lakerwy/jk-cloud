@@ -20,6 +20,7 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -40,7 +41,12 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.sys.modular.hr.atdData.entity.OriginalAtdData;
 import vip.xiaonuo.sys.modular.hr.atdData.service.OriginalAtdDataService;
+import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
+import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.RuanLianParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.service.RuanLianApiService;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.entity.HrUserApplyAttendance;
 import vip.xiaonuo.sys.modular.hr.userApplyAttendance.service.HrUserApplyAttendanceService;
 import vip.xiaonuo.sys.modular.hr.userAttendance.entity.*;
@@ -106,6 +112,10 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     OriginalAtdDataService originalAtdDataService;
     @Resource
     ConferenceRezService conferenceRezService;
+    @Resource
+    ConferenceConfigService conferenceConfigService;
+    @Resource
+    RuanLianApiService ruanLianApiService;
 
     @Override
     public Page<HrUserAttendance> page(HrUserAttendancePageParam hrUserAttendancePageParam) {
@@ -772,5 +782,77 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
             map.put(group.getId(),configMap);
         });
         return map;
+    }
+
+
+    @Override
+    public void rezToRuanLianJobHandle(){
+        List<ConferenceRez> pushRezList = conferenceRezService.list(new LambdaQueryWrapper<ConferenceRez>()
+                .isNull(ConferenceRez::getIsPush).or().ne(ConferenceRez::getIsPush,1)
+                .isNull(ConferenceRez::getPushSize).or().lt(ConferenceRez::getPushSize,5));
+        pushRezList.forEach(rez ->{
+            ConferenceConfig conferenceConfig = conferenceConfigService.getById(rez.getConferenceConfigId());
+            SysUser sysUser = sysUserService.getById(rez.getRezUser());
+            try{
+                RuanLianParam ruanLianParam = new RuanLianParam();
+                ruanLianParam.setRezId(rez.getId());
+                ruanLianParam.setZtname(rez.getTheme());
+                ruanLianParam.setYytimes(DateUtil.format(rez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
+                ruanLianParam.setYytimee(DateUtil.format(rez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
+                ruanLianParam.setCjname(sysUser.getName());
+                ruanLianParam.setMianbanName(conferenceConfig.getName());
+                conferenceRezService.putRuanLian(ruanLianParam);
+                JSONObject jsonObject = ruanLianApiService.setmeeting(ruanLianParam);
+                String code = jsonObject != null ? jsonObject.getStr("code") : "";
+                if(!code.equals("1") ){
+                    log.error("软联会议预约失败！rezID:"+rez.getId());
+                    rez.setExtJson(jsonObject.toString());
+                }else{
+                    rez.setIsPush(1);
+                    rez.setExtJson(jsonObject.toString());
+                }
+            }catch (Exception e){
+                log.error("预约软联会议失败！e:"+e.toString()+",periodId:"+rez.getId());
+            }finally {
+                rez.setPushSize(rez.getPushSize() == null ? 1 : rez.getPushSize()+1);
+            }
+        });
+        conferenceRezService.saveOrUpdateBatch(pushRezList);
+
+        List<ConferenceRez> delRezList = conferenceRezService.list(new LambdaQueryWrapper<ConferenceRez>().eq(ConferenceRez::getConferenceStatus,1)
+                .isNull(ConferenceRez::getIsDel).or().ne(ConferenceRez::getIsDel,1)
+                .isNull(ConferenceRez::getDelSize).or().lt(ConferenceRez::getDelSize,5));//取消会议
+        delRezList.forEach(rez ->{
+            if(StringUtils.isEmpty(rez.getYyid())){
+                rez.setDelSize(rez.getDelSize() == null ? 1 : rez.getDelSize()+1);
+                rez.setExtJson("yyid为空");
+            }else{
+                JSONObject jsonObject = ruanLianApiService.delmeeting(rez.getYyid());
+                if(jsonObject == null || !jsonObject.get("code").equals("1")){
+                    log.error("取消会议失败！rezId："+rez.getId());
+                    rez.setDelSize(rez.getDelSize() == null ? 1 : rez.getDelSize()+1);
+                    rez.setExtJson(jsonObject.toString());
+                }else{
+                    rez.setDelSize(rez.getDelSize() == null ? 1 : rez.getDelSize()+1);
+                    rez.setIsDel(1);
+                    rez.setExtJson(jsonObject.toString());
+                }
+            }
+        });
+        conferenceRezService.saveOrUpdateBatch(delRezList);
+    }
+    private void ruanLianParam(ConferenceRez conferenceRez,String conferenceConfigName,String userName){
+        try{
+            RuanLianParam ruanLianParam = new RuanLianParam();
+            ruanLianParam.setRezId(conferenceRez.getId());
+            ruanLianParam.setZtname(conferenceRez.getTheme());
+            ruanLianParam.setYytimes(DateUtil.format(conferenceRez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
+            ruanLianParam.setYytimee(DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
+            ruanLianParam.setCjname(userName);
+            ruanLianParam.setMianbanName(conferenceConfigName);
+            conferenceRezService.putRuanLian(ruanLianParam);
+        }catch (Exception e){
+            log.error("批量预约软联会议失败！e:"+e.toString()+",periodId:"+conferenceRez.getRezPeriodId());
+        }
     }
 }

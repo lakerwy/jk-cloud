@@ -45,4 +45,10 @@ public class SysHrAttendanceFeignProvider implements SysHrAttendanceFeign {
         attendanceApi.calculateHolidayJobHandle(processInstanceId);
     }
 
+    @Override
+    @RequestMapping("/feign/sys/applyattendance/rezToRuanLianJobHandle")
+    public void rezToRuanLianJobHandle(){
+        attendanceApi.rezToRuanLianJobHandle();
+    }
+
 }

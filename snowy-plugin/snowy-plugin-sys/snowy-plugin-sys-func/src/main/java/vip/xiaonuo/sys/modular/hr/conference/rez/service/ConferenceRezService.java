@@ -17,12 +17,11 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezAddParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezEditParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezIdParam;
-import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceRezPageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.OutsideUser;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import java.util.List;
 import java.util.Map;
@@ -104,4 +103,14 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
     OapiMessageCorpconversationAsyncsendV2Response sendConfMsg(ConferenceMsgEvent conferenceMsgEvent, String title, Integer type);
 
     void recordNotice(String rezId);
+
+    Integer addTrue(ConferenceRezAddParam conferenceRezAddParam);
+
+    void putRuanLian(RuanLianParam ruanLianParam)throws Exception;
+
+    /** 参会人员*/
+    void joinUser(List<SysUser> sysUserList,ConferenceMsgEvent conferenceMsgEvent);
+
+    /** 释放会议*/
+    void freeRez(String rezId);
 }

@@ -60,7 +60,7 @@ public class CadStageServiceImpl extends ServiceImpl<CadStageMapper, CadStage> i
             queryWrapper.orderBy(true, cadStagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(cadStagePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(CadStage::getIndex).orderByAsc(CadStage::getName);
+            queryWrapper.lambda().orderByAsc(CadStage::getSortIndex).orderByAsc(CadStage::getName);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

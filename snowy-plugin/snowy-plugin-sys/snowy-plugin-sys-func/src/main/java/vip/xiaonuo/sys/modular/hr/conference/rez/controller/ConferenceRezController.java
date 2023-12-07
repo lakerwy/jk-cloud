@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.hr.conference.rez.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -32,11 +33,14 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.service.RuanLianApiService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
+import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -55,6 +59,10 @@ public class ConferenceRezController {
     private ConferenceRezService conferenceRezService;
     @Resource
     private ConferenceRezPeriodService conferenceRezPeriodService;
+    @Resource
+    private RuanLianApiService ruanLianApiService;
+    @Resource
+    private HrUserAttendanceService hrUserAttendanceService;
 
     /**
      * 获取会议模块-预约会议分页
@@ -181,16 +189,16 @@ public class ConferenceRezController {
      * @author ljy
      * @date  2023/11/09 22:47
      */
-    @ApiOperationSupport(order = 9)
-    @ApiOperation("删除会议预约-周期预约")
-    @CommonLog("删除会议预约-周期预约")
+    /*@ApiOperationSupport(order = 9)
+    @ApiOperation("取消会议预约-周期预约")
+    @CommonLog("取消会议预约-周期预约")
     //@SaCheckPermission("/sys/rezPeriod/delete")
     @PostMapping("/sys/rezPeriod/delete")
     public CommonResult<String> periodDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                CommonValidList<ConferenceRezPeriodIdParam> conferenceRezPeriodIdParamList) {
         conferenceRezPeriodService.delete(conferenceRezPeriodIdParamList);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 会议记录确认通知
@@ -205,6 +213,52 @@ public class ConferenceRezController {
     @GetMapping("/sys/rez/recordNotice")
     public CommonResult<String> recordNotice(@Valid String rezId) {
         conferenceRezService.recordNotice(rezId);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 软联预约会议
+     *
+     * @author ljy
+     * @date  2023/11/20 08:39
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("软联预约会议")
+    @CommonLog("软联预约会议")
+    //@SaCheckPermission("/sys/conferenceRecord/setmeeting")
+    @GetMapping("/sys/rez/setmeeting")
+    public CommonResult<JSONObject> setmeeting(@Valid RuanLianParam ruanLianParam) throws IOException {
+        return CommonResult.data(ruanLianApiService.setmeeting(ruanLianParam));
+    }
+
+    /**
+     * 软联预约会议
+     *
+     * @author ljy
+     * @date  2023/11/20 08:39
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("取消软联预约会议")
+    @CommonLog("取消软联预约会议")
+    //@SaCheckPermission("/sys/conferenceRecord/delmeeting")
+    @GetMapping("/sys/rez/delmeeting")
+    public CommonResult<String> delmeeting(@Valid String yyid){
+        ruanLianApiService.delmeeting(yyid);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 释放会议
+     *
+     * @author ljy
+     * @date  2023/11/20 08:39
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("释放会议")
+    @CommonLog("释放会议")
+    @GetMapping("/sys/rez/freeRez")
+    public CommonResult<String> freeRez(String rezId){
+        conferenceRezService.freeRez(rezId);
         return CommonResult.ok();
     }
 }
