@@ -226,7 +226,6 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         String conferenceConfigId = conferenceConfig.get(conferenceRez.getConferenceConfigId()) != null ? conferenceConfig.get(conferenceRez.getConferenceConfigId()).getId() : "";
         ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent(conferenceRezAddParam.getJoinUser());
         conferenceMsgEvent.setTheme(conferenceRezAddParam.getTheme());
-        String theme = ObjectUtil.isNotEmpty(conferenceRez) ? conferenceRez.getTheme() :  "";
         String confTime = ObjectUtil.isNotEmpty(conferenceRez) && ObjectUtil.isNotEmpty(conferenceRez.getBeginTime()) && ObjectUtil.isNotEmpty(conferenceRez.getEndTime())?
                 DateUtil.format(conferenceRez.getBeginTime(), "MM-dd")+" "+DateUtil.format(conferenceRez.getBeginTime(),"HH:mm")+"-"+DateUtil.format(conferenceRez.getEndTime(),"HH:mm") : "";
         conferenceMsgEvent.setConfTime(confTime);
@@ -236,20 +235,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         conferenceMsgEvent.setRezUser(sysUser.getName());
         conferenceMsgEvent.setRezId(conferenceRez.getId());
         conferenceMsgEvent.setOutsideUsers(conferenceRezAddParam.getOutsideUsers());
-        ruanLianParam(conferenceRez,conferenceMsgEvent);
         eventPublisher.publishEvent(conferenceMsgEvent);
-    }
-    private void ruanLianParam(ConferenceRez conferenceRez,ConferenceMsgEvent conferenceMsgEvent){
-        RuanLianParam ruanLianParam = new RuanLianParam();
-        ruanLianParam.setRezId(conferenceRez.getId());
-        ruanLianParam.setZtname(conferenceRez.getTheme());
-        ruanLianParam.setYytimes(DateUtil.format(conferenceRez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
-        ruanLianParam.setYytimee(DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
-        SysUser sysUser = sysUserService.getById(conferenceRez.getRezUser());
-        ruanLianParam.setCjname(sysUser.getName());
-        ConferenceConfig conferenceConfig = conferenceConfigService.getById(conferenceRez.getConferenceConfigId());
-        ruanLianParam.setMianbanName(conferenceConfig.getName());
-        conferenceMsgEvent.setRuanLianParam(ruanLianParam);
     }
     private Map<String,ConferenceConfig> conferenceConfig(){
         Map<String,ConferenceConfig> configMap = new HashMap<>();
@@ -503,7 +489,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Async
     public void handleConferenceMsgEvent(ConferenceMsgEvent conferenceMsgEvent) throws Exception{
         // TODO 发送消息业务逻辑
-        putRuanLian(conferenceMsgEvent);
+        //putRuanLian(conferenceMsgEvent); 修改为定时任务
         if(StringUtils.isNotEmpty(conferenceMsgEvent.getUserIds())){
             List<String> userIds = Arrays.asList(conferenceMsgEvent.getUserIds().split(","));
             List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
@@ -516,12 +502,12 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     }
 
     @Override
-    public void putRuanLian(ConferenceMsgEvent conferenceMsgEvent)throws Exception{
-        RuanLianParam ruanLianParam = conferenceMsgEvent.getRuanLianParam();
+    public void putRuanLian(RuanLianParam ruanLianParam)throws Exception{
+        //RuanLianParam ruanLianParam = conferenceMsgEvent.getRuanLianParam();
         JSONObject jsonObject = ruanLianApiService.setmeeting(ruanLianParam);
         String code = jsonObject != null ? jsonObject.getStr("code") : "";
         if(!code.equals("1") ){
-            log.error("软联会议预约失败！rezID:"+conferenceMsgEvent.getRuanLianParam().getRezId());
+            log.error("软联会议预约失败！rezID:"+ruanLianParam.getRezId());
         }
     }
     /**

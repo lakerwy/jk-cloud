@@ -9,4 +9,5 @@ public interface SysAttendanceApi {
     void  resubmitAttendance(String processInstanceId, String applyType);
     void  attendanceStatJobHandle();
     void  calculateHolidayJobHandle(String processInstanceId);
+    void rezToRuanLianJobHandle();
 }

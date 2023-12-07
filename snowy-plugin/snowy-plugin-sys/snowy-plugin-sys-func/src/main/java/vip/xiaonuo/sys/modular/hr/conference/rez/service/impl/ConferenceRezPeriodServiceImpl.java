@@ -179,15 +179,12 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
                     conferenceRez.setEndTime(end);
                     String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
                     conferenceRez.setSn(sn);
-                    //conferenceRezList.add(conferenceRez);
-                    conferenceRezService.save(conferenceRez);
-                    ruanLianParam(conferenceRez,conferenceConfig.getName(),sysUser.getName());
+                    conferenceRezList.add(conferenceRez);
+                    //ruanLianParam(conferenceRez,conferenceConfig.getName(),sysUser.getName()); 修改为定时任务
                 });
             }catch (Exception e){
                 log.error("时间生成错误！");
             }
-            conferenceRezService.saveBatch(conferenceRezList);
-            return;
         }
         if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime())){
             List<String> monthList = monthList(conferenceRezAddParam);
@@ -210,10 +207,11 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
                 conferenceRez.setEndTime(endTime);
                 String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
                 conferenceRez.setSn(sn);
-                conferenceRezService.save(conferenceRez);
-                ruanLianParam(conferenceRez,conferenceConfig.getName(),sysUser.getName());
+                conferenceRezList.add(conferenceRez);
+                //ruanLianParam(conferenceRez,conferenceConfig.getName(),sysUser.getName());修改为定时任务
             });
         }
+        conferenceRezService.saveBatch(conferenceRezList);
     }
 
     private List<String> monthList(ConferenceRezAddParam conferenceRezAddParam){
@@ -235,7 +233,7 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
         return monthList;
     }
 
-    private void ruanLianParam(ConferenceRez conferenceRez,String conferenceConfigName,String userName){
+    /*private void ruanLianParam(ConferenceRez conferenceRez,String conferenceConfigName,String userName){
         try{
             RuanLianParam ruanLianParam = new RuanLianParam();
             ruanLianParam.setRezId(conferenceRez.getId());
@@ -244,11 +242,9 @@ public class ConferenceRezPeriodServiceImpl extends ServiceImpl<ConferenceRezPer
             ruanLianParam.setYytimee(DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
             ruanLianParam.setCjname(userName);
             ruanLianParam.setMianbanName(conferenceConfigName);
-            ConferenceMsgEvent conferenceMsgEvent = new ConferenceMsgEvent();
-            conferenceMsgEvent.setRuanLianParam(ruanLianParam);
-            conferenceRezService.putRuanLian(conferenceMsgEvent);
+            conferenceRezService.putRuanLian(ruanLianParam);
         }catch (Exception e){
             log.error("批量预约软联会议失败！e:"+e.toString()+",periodId:"+conferenceRez.getRezPeriodId());
         }
-    }
+    }*/
 }

@@ -40,4 +40,7 @@ public interface SysHrAttendanceFeign {
      **/
     @RequestMapping("/feign/sys/applyattendance/calculateHolidayJobHandle")
     void calculateHolidayJobHandle(String processInstanceId);
+
+    @RequestMapping("/feign/sys/applyattendance/rezToRuanLianJobHandle")
+    void rezToRuanLianJobHandle();
 }
