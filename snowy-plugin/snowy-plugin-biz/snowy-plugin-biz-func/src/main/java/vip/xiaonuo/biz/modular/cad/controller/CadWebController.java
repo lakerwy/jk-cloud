@@ -40,12 +40,12 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
- * CAD-Web端控制器-web端接口集合
+ * 【CAD网页端】控制器-web端接口集合
  *
  * @author yong.ye
  * @date  2023/11/29 10:35
  */
-@Api(tags = "CAD-Web端控制器-web端接口集合")
+@Api(tags = "【CAD网页端】控制器-web端接口集合")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
