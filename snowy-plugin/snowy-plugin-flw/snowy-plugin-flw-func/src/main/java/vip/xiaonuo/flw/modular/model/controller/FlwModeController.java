@@ -27,12 +27,14 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.flw.modular.model.entity.FlwListener;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.model.param.*;
 import vip.xiaonuo.flw.modular.model.result.FlwModelOrgResult;
 import vip.xiaonuo.flw.modular.model.result.FlwModelPositionResult;
 import vip.xiaonuo.flw.modular.model.result.FlwModelRoleResult;
 import vip.xiaonuo.flw.modular.model.result.FlwModelUserResult;
+import vip.xiaonuo.flw.modular.model.service.FlwListenerService;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 
 import javax.annotation.Resource;
@@ -54,6 +56,9 @@ public class FlwModeController {
 
     @Resource
     private FlwModelService flwModelService;
+
+    @Resource
+    private FlwListenerService flwListenerService;
 
     /**
      * 获取模型分页
@@ -352,5 +357,27 @@ public class FlwModeController {
     @GetMapping("/flw/model/newOrgListSelector")
     public CommonResult<Page<FlwModelOrgResult>> newOrgListSelector(FlwModelSelectorOrgListParam flwModelSelectorOrgListParam) {
         return CommonResult.data(flwModelService.newOrgListSelector(flwModelSelectorOrgListParam));
+    }
+
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("获取监听器类分页")
+    @GetMapping("/flw/listener/page")
+    public CommonResult<Page<FlwListener>> page(FlwListenerPageParam flwListenerPageParam) {
+        return CommonResult.data(flwListenerService.page(flwListenerPageParam));
+    }
+
+    /**
+     * 编辑监听器类
+     *
+     * @author mayike
+     * @date  2023/12/08 10:24
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("编辑监听器类")
+    @CommonLog("编辑监听器类")
+    @PostMapping("/flw/listener/edit")
+    public CommonResult<String> edit(@RequestBody @Valid FlwListenerEditParam flwListenerEditParam) {
+        flwListenerService.edit(flwListenerEditParam);
+        return CommonResult.ok();
     }
 }
