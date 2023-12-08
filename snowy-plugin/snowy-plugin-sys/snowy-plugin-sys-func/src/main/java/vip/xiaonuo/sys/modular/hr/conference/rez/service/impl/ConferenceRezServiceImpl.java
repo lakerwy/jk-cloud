@@ -198,6 +198,13 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(StringUtils.isEmpty(conferenceRezAddParam.getRezUser())){
             conferenceRezAddParam.setRezUser(loginUser.getId());
         }
+        Long configSize = conferenceConfigService.count(new LambdaQueryWrapper<ConferenceConfig>()
+                .eq(ConferenceConfig::getId,conferenceRezAddParam.getConferenceConfigId())
+                .eq(ConferenceConfig::getStatus,2)
+                .gt(ConferenceConfig::getEndTime,conferenceRezAddParam.getBeginTime()));
+        if(configSize > 0){
+            throw new CommonException("会议室已经停用，无法被预约！");
+        }
         if(ObjectUtil.isNotEmpty(conferenceRezAddParam.getWeekTime())  && conferenceRezAddParam.getWeekTime() != 0
                 && ObjectUtil.isNotEmpty(conferenceRezAddParam.getDayTime()) && conferenceRezAddParam.getDayTime() != 0){
             log.error("周期预约错误，参数错误：WeekTime："+conferenceRezAddParam.getWeekTime()+",dayTime:"+conferenceRezAddParam.getDayTime());
@@ -409,7 +416,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }
         Map<String,String> userMap = getUserData();//获取人员数据
         List<ConferenceTimeData> conferenceTimeDataList = new ArrayList<>();
-        String beginTime = conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue();
+        //String beginTime = conferenceTimeDataParam.getDay()+ HrUserAttendanceStatEnum.BEGIN_TIMNE.getValue();
         //所有会议室数据
         List<ConferenceConfig> conferenceConfigList = conferenceConfigService.list();
         //非周期预约数据

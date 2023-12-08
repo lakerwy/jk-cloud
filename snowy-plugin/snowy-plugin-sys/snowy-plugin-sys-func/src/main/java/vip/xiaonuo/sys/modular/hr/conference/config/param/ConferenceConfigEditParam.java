@@ -44,8 +44,7 @@ public class ConferenceConfigEditParam {
     @ApiModelProperty(value = "会议室位置", position = 3)
     private String location;
 
-    /** 会议室是否存在固定时间：0 或空为不存在，1 每周某个时间，2  每月的某个时间，3 每年的某个时间 */
-    @ApiModelProperty(value = "会议室是否存在固定时间：0 或空为不存在，1 每周某个时间，2  每月的某个时间，3 每年的某个时间", position = 4)
+    @ApiModelProperty(value = "会议室状态：2: 停用，1 或则空:正常", position = 4)
     private Integer status;
 
     /** 开始时间：单位-时分秒 */
@@ -56,30 +55,22 @@ public class ConferenceConfigEditParam {
     @ApiModelProperty(value = "结束时间：单位-时分秒", position = 6)
     private Date endTime;
 
-    /** 对应周几：1 周一，2 周二，3 周三 ... */
-    @ApiModelProperty(value = "对应周几：1 周一，2 周二，3 周三 ...", position = 7)
-    private Integer weekTime;
-
-    /** 对应相应的天数 */
-    @ApiModelProperty(value = "对应相应的天数", position = 8)
-    private Integer dayTime;
-
     /** 最多容纳多少人 */
-    @ApiModelProperty(value = "最多容纳多少人", position = 9)
+    @ApiModelProperty(value = "最多容纳多少人", position = 6)
     private Integer containMax;
 
     /** 负责人 */
-    @ApiModelProperty(value = "负责人", position = 10)
+    @ApiModelProperty(value = "负责人", position = 7)
     private String leader;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 11)
+    @ApiModelProperty(value = "附件", position = 8)
     private String fileId;
 
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 12)
+    @ApiModelProperty(value = "扩展信息", position = 9)
     private String extJson;
 
-    @ApiModelProperty(value = "设备列表", position = 13)
+    @ApiModelProperty(value = "设备列表", position = 10)
     private String device;
 }
