@@ -20,6 +20,11 @@ import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.JSONObject;
+import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -159,8 +164,12 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         List<CadFileVo> tmpList =  cadProjectMapper.getMyFileTree(queryWrapper);
         List<CadFileVo> fileList = this.getFileTree(tmpList);
         List<TreeNode<String>> treeNodeList = fileList.stream().map(fileTree ->
-                        new TreeNode<>(fileTree.getFId(), fileTree.getFParentId(), fileTree.getFName(), fileTree.getFName()))
+                        new TreeNode<>(fileTree.getFId(), fileTree.getFParentId(), fileTree.getFName(), fileTree.getFName())
+                                .setExtra(JSONUtil.parseObj(fileTree)))
+//                                .setExtra(JSONObject.toJSONString(fileTree,SerializerFeature.WRITE_MAP_NULL_FEATURES, SerializerFeature.QuoteFieldNames)))
+//                .setExtra(JSON.parseObject(JSON.toJSONString(fileTree),new TypeReference<Map<String,Object>>(){})))
                 .collect(Collectors.toList());
+
         return TreeUtil.build(treeNodeList, myFileTreeParam.getPrjId());
     }
 
