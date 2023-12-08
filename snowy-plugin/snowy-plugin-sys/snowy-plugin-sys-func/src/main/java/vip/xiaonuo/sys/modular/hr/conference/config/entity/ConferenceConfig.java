@@ -89,10 +89,17 @@ public class ConferenceConfig {
     @ApiModelProperty(value = "是否为会议室： 1 会议室，2 非会议室", position = 13)
     private Integer conferenceFlag;
 
-    @ApiModelProperty(value = "会议室状态", position = 14)
-    @TableField(exist = false)
+    @ApiModelProperty(value = "会议室状态：2: 停用，1 或则空:正常", position = 14)
     private Integer status;
 
     @ApiModelProperty(value = "设备列表", position = 15)
     private String device;
+
+    /** 停用开始时间 */
+    @ApiModelProperty(value = "停用开始时间：停用是默认三天", position = 16)
+    private Date beginTime;
+
+    /** 停用结束时间 */
+    @ApiModelProperty(value = "结束时间", position = 17)
+    private Date endTime;
 }

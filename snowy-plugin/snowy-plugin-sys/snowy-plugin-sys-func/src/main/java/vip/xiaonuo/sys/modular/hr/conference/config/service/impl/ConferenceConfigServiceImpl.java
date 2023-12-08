@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.conference.config.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -32,6 +33,7 @@ import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceConfigIdPara
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceConfigPageParam;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
 
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -71,6 +73,14 @@ public class ConferenceConfigServiceImpl extends ServiceImpl<ConferenceConfigMap
     public void edit(ConferenceConfigEditParam conferenceConfigEditParam) {
         ConferenceConfig conferenceConfig = this.queryEntity(conferenceConfigEditParam.getId());
         BeanUtil.copyProperties(conferenceConfigEditParam, conferenceConfig);
+        if(ObjectUtil.isNotEmpty(conferenceConfigEditParam.getStatus()) && conferenceConfigEditParam.getStatus() == 1){
+            if(ObjectUtil.isEmpty(conferenceConfigEditParam.getBeginTime()) || ObjectUtil.isEmpty(conferenceConfigEditParam.getEndTime())){
+                Date beginTime = DateUtil.date();
+                Date endTime = DateUtil.offsetDay(beginTime,2);
+                conferenceConfig.setBeginTime(beginTime);
+                conferenceConfig.setEndTime(endTime);
+            }
+        }
         this.updateById(conferenceConfig);
     }
 

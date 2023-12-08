@@ -58,4 +58,7 @@ public class ConferenceConfigAddParam {
     @ApiModelProperty(value = "设备列表", position = 13)
     private String device;
 
+    @ApiModelProperty(value = "会议室状态：2: 停用，1 或则空:正常", position = 14)
+    private Integer status;
+
 }
