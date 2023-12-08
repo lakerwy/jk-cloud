@@ -12,7 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.cad.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import cn.hutool.core.lang.tree.Tree;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -22,20 +22,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.cad.entity.CadProfession;
-import vip.xiaonuo.biz.modular.cad.entity.CadStage;
-import vip.xiaonuo.biz.modular.cad.entity.CadSubItem;
 import vip.xiaonuo.biz.modular.cad.entity.CadUser;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.service.*;
 import vip.xiaonuo.biz.modular.cad.vo.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.common.pojo.CommonValidList;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -49,10 +44,6 @@ import java.util.List;
 @RestController
 @Validated
 public class CadPluginController {
-
-    @Resource
-    private CadProfessionService cadProfessionService;
-
     @Resource
     private CadUserService cadUserService;
 
@@ -119,7 +110,7 @@ public class CadPluginController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("【CAD-插件端】根据项目Id,当前用户Id,获取当前项目当前人树状结构")
     @GetMapping("/biz/cad/plugin/myFileTree")
-    public CommonResult<CadFileTreeVo> myFileTree(MyFileTreeParam myFileTreeParam) {
+    public CommonResult<List<Tree<String>>> myFileTree(MyFileTreeParam myFileTreeParam) {
         return CommonResult.data(cadProjectService.myFileTree(myFileTreeParam));
     }
 

@@ -188,6 +188,9 @@ public class GlobalConfigure implements WebMvcConfigurer {
 
             /* 校招 */
             "/biz/sys/resume/saveResume",
+
+            /* cad - 插件端 */
+            "/biz/cad/plugin/**",
     };
 
     /**

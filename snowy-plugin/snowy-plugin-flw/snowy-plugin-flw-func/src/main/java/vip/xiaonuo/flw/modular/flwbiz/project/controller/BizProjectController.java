@@ -107,7 +107,7 @@ public class BizProjectController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除业务表-立项申请")
     @CommonLog("删除业务表-立项申请")
-//    @SaCheckPermission("/flw/project/delete")
+    @SaCheckPermission("/flw/project/delete")
     @PostMapping("/flw/project/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<BizProjectIdParam> bizProjectIdParamList) {

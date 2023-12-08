@@ -57,13 +57,6 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
     @Override
     public Page<Bidopen> page(BidopenPageParam bidopenPageParam) {
         QueryWrapper<Bidopen> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(bidopenPageParam.getSearchKey())) {
-            queryWrapper.like("a.SN",bidopenPageParam.getSearchKey()).or()
-                    .like("a.OPT", bidopenPageParam.getSearchKey()).or()
-                    .like("a.PROJECT_NAME", bidopenPageParam.getSearchKey()).or()
-                    .like("a.BID_NO", bidopenPageParam.getSearchKey()).or()
-                    .like("a.TYPE", bidopenPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getOpt())) {
             queryWrapper.like("a.OPT",bidopenPageParam.getOpt());
         }
@@ -90,6 +83,13 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
         }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getDept())) {
             queryWrapper.like("a.DEPT", bidopenPageParam.getDept());
+        }
+        if (ObjectUtil.isNotEmpty(bidopenPageParam.getSearchKey())) {
+            queryWrapper.and(q->q.like("a.SN",bidopenPageParam.getSearchKey()).or()
+                    .like("a.OPT", bidopenPageParam.getSearchKey()).or()
+                    .like("a.PROJECT_NAME", bidopenPageParam.getSearchKey()).or()
+                    .like("a.BID_NO", bidopenPageParam.getSearchKey()).or()
+                    .like("a.TYPE", bidopenPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(bidopenPageParam.getSortField(), bidopenPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bidopenPageParam.getSortOrder());

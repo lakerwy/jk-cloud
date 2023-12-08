@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.cad.service;
 
+import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.cad.entity.CadProject;
@@ -97,6 +98,6 @@ public interface CadProjectService extends IService<CadProject> {
      * @param myFileTreeParam
      * @return
      */
-    CadFileTreeVo myFileTree(MyFileTreeParam myFileTreeParam);
+    List<Tree<String>> myFileTree(MyFileTreeParam myFileTreeParam);
 
 }

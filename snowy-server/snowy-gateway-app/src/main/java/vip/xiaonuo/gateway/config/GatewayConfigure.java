@@ -182,6 +182,9 @@ public class GatewayConfigure {
             /* 校招 */
             "/api/bizapp/biz/sys/resume/saveResume",
 
+            /* cad - 插件端 */
+            "/api/bizapp/biz/cad/plugin/**",
+
     };
 
     /**
