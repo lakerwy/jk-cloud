@@ -1027,4 +1027,11 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
             return userFileMapper.getGroupPage2(CommonPageRequest.defaultPage(),queryWrapper);
         }
     }
+
+    @Override
+    public void saveMemo(UserFileMemoParam userFileMemoParam) {
+        UserFile userFile = this.getById(userFileMemoParam.getFileId());
+        userFile.setMemo(userFile.getMemo());
+        this.updateById(userFile);
+    }
 }

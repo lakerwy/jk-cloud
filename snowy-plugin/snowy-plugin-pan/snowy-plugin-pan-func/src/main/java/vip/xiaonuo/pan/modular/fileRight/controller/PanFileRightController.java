@@ -132,7 +132,7 @@ public class PanFileRightController {
      * @date  2023/10/25 14:32
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("根据当前用户+所选择的文件，获取拥有的权限")
+    @ApiOperation("根据当前用户+所选择的文件，获取拥有的权限(若选中多个文件，则取交集)")
     @GetMapping("/pan/fileRight/getRightById")
     public CommonResult<Long> getRightById(@Valid FileRightParam fileRightParam) {
         return CommonResult.data(panFileRightService.getRightById(fileRightParam));

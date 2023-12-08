@@ -141,6 +141,10 @@ public class UserFile {
     @ApiModelProperty(value = "文件负者人（管理者）多个用英文逗号分割", position = 20)
     private String fileManager;
 
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 21)
+    private String memo;
+
     public boolean isFile() {
         return this.isDir == 0;
     }

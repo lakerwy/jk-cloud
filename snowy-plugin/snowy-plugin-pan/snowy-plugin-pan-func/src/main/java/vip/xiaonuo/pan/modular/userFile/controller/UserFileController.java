@@ -330,4 +330,18 @@ public class UserFileController {
     public CommonResult<Page<UserFile>> groupPage(UserFilePageParam userFilePageParam) {
         return CommonResult.data(userFileService.groupPage(userFilePageParam));
     }
+
+
+    /**
+     * 添加备注
+     *
+     **/
+    @ApiOperationSupport(order = 30)
+    @ApiOperation("备注")
+    @CommonLog("备注")
+    @PostMapping("/pan/fold/saveMemo")
+    public CommonResult<String> saveMemo(@Valid @RequestBody UserFileMemoParam userFileMemoParam) {
+        userFileService.saveMemo(userFileMemoParam);
+        return CommonResult.ok();
+    }
 }

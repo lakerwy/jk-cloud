@@ -165,4 +165,10 @@ public interface UserFileService extends IService<UserFile> {
      */
     Page<UserFile> groupPage(UserFilePageParam userFilePageParam);
 
+    /**
+     * 保存备注
+     * @param userFileMemoParam
+     */
+    void saveMemo(UserFileMemoParam userFileMemoParam);
+
 }

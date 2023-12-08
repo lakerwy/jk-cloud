@@ -161,10 +161,57 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         return null;
     }
 
+    /**
+     * 树状结构数据格式
+     *
+     * 项目
+     *   -- 阶段
+     *        -- 子项
+     *             -- 专业
+     *                  -- 自定义目录 【构建父级Id】
+     *
+     * @param fileList
+     * @return
+     */
     public List<CadFileVo> getFileTree(List<CadFileVo> fileList){
         List<CadFileVo> result = new ArrayList<>();
         if (CollUtil.isNotEmpty(fileList)){
-            //1. 处理项目阶段 - 【fId = 项目阶段id  fParentId = 项目id】
+            //1. 处理项目阶段 - 【fId = 项目阶段id  fParentId = 项目id fName = 阶段名称】
+            List<NewObjectVo> stageList = fileList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getStageId()))
+                    .map(x -> new NewObjectVo(x.getPrjId(), x.getStageId(), x.getPrjName(), x.getStageName()))
+                    .distinct().collect(Collectors.toList());
+            stageList.forEach(x->{
+                CadFileVo tmp = BeanUtil.copyProperties(x,CadFileVo.class);
+                tmp.setFId(x.getStageId());
+                tmp.setFParentId(x.getPrjId());
+                tmp.setFName(x.getStageName());
+                result.add(tmp);
+            });
+            //2. 处理项目子项 - 【fId = 子项id  fParentId = 阶段id fName = 子项名称】
+            List<NewObjectVo> subItemList = fileList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getSubItemId()))
+                    .map(x -> new NewObjectVo(x.getPrjId(), x.getStageId(), x.getSubItemId(), x.getPrjName(), x.getStageName(), x.getSubItemName()))
+                    .distinct().collect(Collectors.toList());
+            subItemList.forEach(x->{
+                CadFileVo tmp = BeanUtil.copyProperties(x,CadFileVo.class);
+                tmp.setFId(x.getSubItemId());
+                tmp.setFParentId(x.getStageId());
+                tmp.setFName(x.getSubItemName());
+                result.add(tmp);
+            });
+            //3. 处理项目子项 - 【fId = 子项id  fParentId = 阶段id fName = 子项名称】
+            List<NewObjectVo> professionList = fileList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getProfessionId()))
+                    .map(x -> new NewObjectVo(x.getPrjId(), x.getStageId(), x.getSubItemId(),x.getProfessionId(), x.getPrjName(), x.getStageName(), x.getSubItemName(),x.getProfessionName()))
+                    .distinct().collect(Collectors.toList());
+            professionList.forEach(x->{
+                CadFileVo tmp = BeanUtil.copyProperties(x,CadFileVo.class);
+                tmp.setFId(x.getSubItemId()+x.getProfessionId());
+                tmp.setFParentId(x.getSubItemId());
+                tmp.setFName(x.getProfessionName());
+                result.add(tmp);
+            });
+
+
+
         }
 
         return result;
