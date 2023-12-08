@@ -24,6 +24,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -80,6 +81,10 @@ public class BizAuditListsDetailsController {
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Value("${spring.profiles.active}")
+    private String active ;
+
 
 
     /**
@@ -199,7 +204,7 @@ public class BizAuditListsDetailsController {
                 jsonObject.set(FlwCacheConstant.SENDERS,auditLists.getCreateUser());
                 jsonObject.set(FlwCacheConstant.TITLE,"【工程校审处理单】");
                 RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
-                streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,rabbitMsg);
+                streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,rabbitMsg);
             }
         }catch (Exception e){
             //消息发送失败
