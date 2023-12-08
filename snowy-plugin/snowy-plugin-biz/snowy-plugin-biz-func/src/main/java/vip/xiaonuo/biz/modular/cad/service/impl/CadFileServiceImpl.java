@@ -22,15 +22,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.cad.entity.CadFile;
 import vip.xiaonuo.biz.modular.cad.mapper.CadFileMapper;
-import vip.xiaonuo.biz.modular.cad.param.CadFileAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadFileEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadFileIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadFilePageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadFileService;
 
 import java.util.List;
@@ -93,5 +90,12 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
             throw new CommonException("CAD-自定义文件目录表不存在，id值为：{}", id);
         }
         return cadFile;
+    }
+
+    @Override
+    public void reName(CadFileReName cadFileReName) {
+        CadFile cadFile = this.queryEntity(cadFileReName.getFId());
+        cadFile.setName(cadFileReName.getNewName());
+        this.updateById(cadFile);
     }
 }

@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.cad.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.cad.entity.CadFile;
-import vip.xiaonuo.biz.modular.cad.param.CadFileAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadFileEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadFileIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadFilePageParam;
+import vip.xiaonuo.biz.modular.cad.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,12 @@ public interface CadFileService extends IService<CadFile> {
      * @date  2023/12/01 15:34
      **/
     CadFile queryEntity(String id);
+
+    /**
+     * CAD-重命名
+     *
+     * @author yong.ye
+     * @date  2023/12/01 15:34
+     **/
+    void reName(CadFileReName cadFileReName);
 }

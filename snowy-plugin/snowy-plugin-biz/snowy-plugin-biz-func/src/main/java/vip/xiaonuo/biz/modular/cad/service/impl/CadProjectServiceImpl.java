@@ -20,15 +20,14 @@ import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONUtil;
-import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson2.JSON;
-import com.alibaba.fastjson2.JSONObject;
-import com.alibaba.fastjson2.TypeReference;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
+import com.rabbitmq.tools.json.JSONUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.cad.param.*;
@@ -161,15 +160,16 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
             queryWrapper.eq("c.CAD_USER_ID",myFileTreeParam.getUserId());
         }
         queryWrapper.eq("a.ID",myFileTreeParam.getPrjId());
+        queryWrapper.orderByAsc("e.SORT_INDEX").orderByAsc("f.SORT_INDEX");
         List<CadFileVo> tmpList =  cadProjectMapper.getMyFileTree(queryWrapper);
         List<CadFileVo> fileList = this.getFileTree(tmpList);
-        List<TreeNode<String>> treeNodeList = fileList.stream().map(fileTree ->
-                        new TreeNode<>(fileTree.getFId(), fileTree.getFParentId(), fileTree.getFName(), fileTree.getFName())
-                                .setExtra(JSONUtil.parseObj(fileTree)))
-//                                .setExtra(JSONObject.toJSONString(fileTree,SerializerFeature.WRITE_MAP_NULL_FEATURES, SerializerFeature.QuoteFieldNames)))
-//                .setExtra(JSON.parseObject(JSON.toJSONString(fileTree),new TypeReference<Map<String,Object>>(){})))
-                .collect(Collectors.toList());
-
+        List<TreeNode<String>> treeNodeList = fileList.stream().map(fileTree -> {
+            // 将对象转为 JSONObject
+            JSONObject jsonObject = new JSONObject(BeanUtil.beanToMap(fileTree, false, false));
+            // 使用 JSONObject 生成 Map，保留属性为 null 的值
+            return new TreeNode<>(fileTree.getFId(), fileTree.getFParentId(), fileTree.getFName(), null)
+                    .setExtra(jsonObject);
+        }).collect(Collectors.toList());
         return TreeUtil.build(treeNodeList, myFileTreeParam.getPrjId());
     }
 

@@ -59,6 +59,9 @@ public class CadPluginController {
     @Resource
     private CadSubItemUserService cadSubItemUserService;
 
+    @Resource
+    private CadFileService cadFileService;
+
     /**
      * 【CAD-插件端】登录
      *
@@ -112,6 +115,36 @@ public class CadPluginController {
     @GetMapping("/biz/cad/plugin/myFileTree")
     public CommonResult<List<Tree<String>>> myFileTree(MyFileTreeParam myFileTreeParam) {
         return CommonResult.data(cadProjectService.myFileTree(myFileTreeParam));
+    }
+
+    /**
+     * 【CAD-插件端】CAD-文件|文件夹|批注 重命名
+     *
+     * @author yong.ye
+     * @date  2023/12/08 17:40
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("【CAD-插件端】CAD-文件|文件夹|批注 重命名")
+    @CommonLog("【CAD-插件端】CAD-文件|文件夹|批注 重命名")
+    @PostMapping("/biz/cad/plugin/reName")
+    public CommonResult<String> reName(@RequestBody @Valid CadFileReName cadFileReName) {
+        cadFileService.reName(cadFileReName);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 【CAD-插件端】CAD- 新建文件|新建文件夹|新建批注
+     *
+     * @author yong.ye
+     * @date  2023/12/08 17:40
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("【CAD-插件端】CAD- 新建文件|新建文件夹|新建批注 ")
+    @CommonLog("【CAD-插件端】CAD- 新建文件|新建文件夹|新建批注 ")
+    @PostMapping("/biz/cad/plugin/createFile")
+    public CommonResult<String> createFile(@RequestBody @Valid CadFileAddParam cadFileAddParam) {
+        cadFileService.add(cadFileAddParam);
+        return CommonResult.ok();
     }
 
 }
