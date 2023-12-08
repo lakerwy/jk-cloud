@@ -27,6 +27,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -74,8 +75,6 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
     @Resource
     private DevRelationService devRelationService;
 
-    @Resource
-    private IDingDingService dingDingService;
 
     @Resource
     private UniPushService uniPushService;
@@ -85,6 +84,9 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+
+    @Value("${spring.profiles.active}")
+    private String active ;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -129,7 +131,7 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
         }
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
-        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,rabbitMsg);
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,rabbitMsg);
     }
 
     @Override
