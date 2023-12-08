@@ -159,7 +159,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         List<CadFileVo> tmpList =  cadProjectMapper.getMyFileTree(queryWrapper);
         List<CadFileVo> fileList = this.getFileTree(tmpList);
         List<TreeNode<String>> treeNodeList = fileList.stream().map(fileTree ->
-                        new TreeNode<>(fileTree.getId(), fileTree.getParentId(), fileTree.getName(), fileTree.getName()))
+                        new TreeNode<>(fileTree.getFId(), fileTree.getFParentId(), fileTree.getFName(), fileTree.getFName()))
                 .collect(Collectors.toList());
         return TreeUtil.build(treeNodeList, myFileTreeParam.getPrjId());
     }

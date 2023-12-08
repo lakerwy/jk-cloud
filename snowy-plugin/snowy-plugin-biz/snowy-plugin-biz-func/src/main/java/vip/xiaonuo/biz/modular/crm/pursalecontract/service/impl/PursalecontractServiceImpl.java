@@ -72,17 +72,6 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
         QueryWrapper<Pursalecontract> queryWrapper = new QueryWrapper<>();
 //        //审批通过|审批中
 //        queryWrapper.lambda().in(Pursalecontract::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
-        if (ObjectUtil.isNotEmpty(pursalecontractPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Pursalecontract::getContractNo, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getOpt, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getContractName, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getPartyA, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getOperator, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getDept, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getBehalfA, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getBehalfB, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getPartyB, pursalecontractPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(pursalecontractPageParam.getEndRegisterDate())) {
             queryWrapper.lambda().between(Pursalecontract::getRegisterDate, pursalecontractPageParam.getStartRegisterDate(), pursalecontractPageParam.getEndRegisterDate());
         }
@@ -115,6 +104,17 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
         }
         if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(pursalecontractPageParam.getEndSealDate())) {
             queryWrapper.lambda().between(Pursalecontract::getSealDate, pursalecontractPageParam.getStartSealDate(), pursalecontractPageParam.getEndSealDate());
+        }
+        if (ObjectUtil.isNotEmpty(pursalecontractPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(Pursalecontract::getContractNo, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getOpt, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getContractName, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getPartyA, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getOperator, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getDept, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getBehalfA, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getBehalfB, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getPartyB, pursalecontractPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(pursalecontractPageParam.getSortField(), pursalecontractPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(pursalecontractPageParam.getSortOrder());
@@ -284,17 +284,6 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
     public Page<Pursalecontract> limitPage(PursalecontractPageParam pursalecontractPageParam) {
         QueryWrapper<Pursalecontract> queryWrapper = new QueryWrapper<>();
 //        queryWrapper.lambda().in(Pursalecontract::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
-        if (ObjectUtil.isNotEmpty(pursalecontractPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Pursalecontract::getContractNo, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getOpt, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getContractName, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getPartyA, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getOperator, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getDept, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getBehalfA, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getBehalfB, pursalecontractPageParam.getSearchKey()).or()
-                    .like(Pursalecontract::getPartyB, pursalecontractPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(pursalecontractPageParam.getEndRegisterDate())) {
             queryWrapper.lambda().between(Pursalecontract::getRegisterDate, pursalecontractPageParam.getStartRegisterDate(), pursalecontractPageParam.getEndRegisterDate());
         }
@@ -327,6 +316,17 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
         }
         if(ObjectUtil.isNotEmpty(pursalecontractPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(pursalecontractPageParam.getEndSealDate())) {
             queryWrapper.lambda().between(Pursalecontract::getSealDate, pursalecontractPageParam.getStartSealDate(), pursalecontractPageParam.getEndSealDate());
+        }
+        if (ObjectUtil.isNotEmpty(pursalecontractPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(Pursalecontract::getContractNo, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getOpt, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getContractName, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getPartyA, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getOperator, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getDept, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getBehalfA, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getBehalfB, pursalecontractPageParam.getSearchKey()).or()
+                    .like(Pursalecontract::getPartyB, pursalecontractPageParam.getSearchKey()));
         }
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();

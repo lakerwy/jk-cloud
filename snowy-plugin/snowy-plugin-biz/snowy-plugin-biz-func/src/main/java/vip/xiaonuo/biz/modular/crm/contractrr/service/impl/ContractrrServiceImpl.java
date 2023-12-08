@@ -63,11 +63,6 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
     @Override
     public Page<Contractrr> page(ContractrrPageParam contractrrPageParam) {
         QueryWrapper<Contractrr> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(contractrrPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Contractrr::getSn, contractrrPageParam.getSearchKey()).or()
-                    .like(Contractrr::getContractNo, contractrrPageParam.getSearchKey()).or()
-                    .like(Contractrr::getOpt, contractrrPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(contractrrPageParam.getSn())) {
             queryWrapper.lambda().like(Contractrr::getSn, contractrrPageParam.getSn());
         }
@@ -79,6 +74,11 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
         }
         if(ObjectUtil.isNotEmpty(contractrrPageParam.getContractNo())) {
             queryWrapper.lambda().eq(Contractrr::getContractNo, contractrrPageParam.getContractNo());
+        }
+        if (ObjectUtil.isNotEmpty(contractrrPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(Contractrr::getSn, contractrrPageParam.getSearchKey()).or()
+                    .like(Contractrr::getContractNo, contractrrPageParam.getSearchKey()).or()
+                    .like(Contractrr::getOpt, contractrrPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(contractrrPageParam.getSortField(), contractrrPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(contractrrPageParam.getSortOrder());
@@ -165,12 +165,6 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
     @Override
     public IPage<ContractrrPageInfoVo> pageList(ContractrrPageInfoParam contractrrPageInfoParam) {
         QueryWrapper<Contractrr> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(contractrrPageInfoParam.getSearchKey())) {
-            queryWrapper.like("a.SN", contractrrPageInfoParam.getSearchKey()).or()
-                    .like("a.CONTRACT_NO", contractrrPageInfoParam.getSearchKey()).or()
-                    .like("b.PROJECT_NAME", contractrrPageInfoParam.getSearchKey()).or()
-                    .like("b.COMPANY_OR_DEPARTMENT", contractrrPageInfoParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(contractrrPageInfoParam.getSn())) {
             queryWrapper.like("a.SN", contractrrPageInfoParam.getSn());
         }
@@ -190,6 +184,12 @@ public class ContractrrServiceImpl extends ServiceImpl<ContractrrMapper, Contrac
             queryWrapper.like("b.COMPANY_OR_DEPARTMENT", contractrrPageInfoParam.getCompanyOrDepartment());
         }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
+        if (ObjectUtil.isNotEmpty(contractrrPageInfoParam.getSearchKey())) {
+            queryWrapper.and(q->q.like("a.SN", contractrrPageInfoParam.getSearchKey()).or()
+                    .like("a.CONTRACT_NO", contractrrPageInfoParam.getSearchKey()).or()
+                    .like("b.PROJECT_NAME", contractrrPageInfoParam.getSearchKey()).or()
+                    .like("b.COMPANY_OR_DEPARTMENT", contractrrPageInfoParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(contractrrPageInfoParam.getSortField(), contractrrPageInfoParam.getSortOrder())) {
             CommonSortOrderEnum.validate(contractrrPageInfoParam.getSortOrder());
             queryWrapper.orderBy(true, contractrrPageInfoParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

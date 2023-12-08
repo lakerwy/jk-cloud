@@ -11,7 +11,7 @@ import vip.xiaonuo.biz.modular.cad.entity.CadFile;
  */
 @Getter
 @Setter
-public class CadFileVo extends CadFile {
+public class CadFileVo{
 
     /** 文件Id - 主键ID */
     @ApiModelProperty(value = "文件Id - 主键ID", position = 1)

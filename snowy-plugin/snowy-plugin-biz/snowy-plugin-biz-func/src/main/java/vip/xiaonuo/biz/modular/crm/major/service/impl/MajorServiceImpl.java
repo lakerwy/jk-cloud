@@ -70,15 +70,15 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
     @Override
     public Page<Major> page(MajorPageParam majorPageParam) {
         QueryWrapper<Major> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(majorPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Major::getMajorNo, majorPageParam.getSearchKey()).or()
-                    .like(Major::getMajorName, majorPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(majorPageParam.getMajorName())) {
             queryWrapper.lambda().like(Major::getMajorName, majorPageParam.getMajorName());
         }
         if(ObjectUtil.isNotEmpty(majorPageParam.getMajorNo())) {
             queryWrapper.lambda().like(Major::getMajorNo, majorPageParam.getMajorNo());
+        }
+        if (ObjectUtil.isNotEmpty(majorPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(Major::getMajorNo, majorPageParam.getSearchKey()).or()
+                    .like(Major::getMajorName, majorPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(majorPageParam.getSortField(), majorPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(majorPageParam.getSortOrder());
@@ -200,8 +200,8 @@ public class MajorServiceImpl extends ServiceImpl<MajorMapper, Major> implements
         QueryWrapper<Major> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(Major::getDeleteFlag,"NOT_DELETE");
         if (ObjectUtil.isNotEmpty(majorPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Major::getMajorNo, majorPageParam.getSearchKey()).or()
-                    .like(Major::getMajorName, majorPageParam.getSearchKey());
+            queryWrapper.lambda().and(q->q.like(Major::getMajorNo, majorPageParam.getSearchKey()).or()
+                    .like(Major::getMajorName, majorPageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(majorPageParam.getMajorName())) {
             queryWrapper.lambda().like(Major::getMajorName, majorPageParam.getMajorName());

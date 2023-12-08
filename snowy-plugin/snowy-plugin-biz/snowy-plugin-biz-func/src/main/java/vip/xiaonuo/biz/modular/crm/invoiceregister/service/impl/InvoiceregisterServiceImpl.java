@@ -64,11 +64,6 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
     @Override
     public Page<Invoiceregister> page(InvoiceregisterPageParam invoiceregisterPageParam) {
         QueryWrapper<Invoiceregister> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(invoiceregisterPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Invoiceregister::getSn, invoiceregisterPageParam.getSearchKey()).or()
-                    .like(Invoiceregister::getContractNo, invoiceregisterPageParam.getSearchKey()).or()
-                    .like(Invoiceregister::getNote, invoiceregisterPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(invoiceregisterPageParam.getSn())) {
             queryWrapper.lambda().like(Invoiceregister::getSn, invoiceregisterPageParam.getSn());
         }
@@ -80,6 +75,11 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
         }
         if(ObjectUtil.isNotEmpty(invoiceregisterPageParam.getContractNo())) {
             queryWrapper.lambda().eq(Invoiceregister::getContractNo, invoiceregisterPageParam.getContractNo());
+        }
+        if (ObjectUtil.isNotEmpty(invoiceregisterPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(Invoiceregister::getSn, invoiceregisterPageParam.getSearchKey()).or()
+                    .like(Invoiceregister::getContractNo, invoiceregisterPageParam.getSearchKey()).or()
+                    .like(Invoiceregister::getNote, invoiceregisterPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(invoiceregisterPageParam.getSortField(), invoiceregisterPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceregisterPageParam.getSortOrder());
@@ -164,12 +164,6 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
     @Override
     public IPage<InvoiceRegisterPageInfoVo> pageList(InvoiceregisterInfoPageParam invoiceregisterInfoPageParam) {
         QueryWrapper<Invoiceregister> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getSearchKey())) {
-            queryWrapper.like("a.SN", invoiceregisterInfoPageParam.getSearchKey()).or()
-                    .like("a.CONTRACT_NO", invoiceregisterInfoPageParam.getSearchKey()).or()
-                    .like("b.PROJECT_NAME", invoiceregisterInfoPageParam.getSearchKey()).or()
-                    .like("b.COMPANY_OR_DEPARTMENT", invoiceregisterInfoPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getSn())) {
             queryWrapper.like("a.SN", invoiceregisterInfoPageParam.getSn());
         }
@@ -189,7 +183,12 @@ public class InvoiceregisterServiceImpl extends ServiceImpl<InvoiceregisterMappe
             queryWrapper.like("b.COMPANY_OR_DEPARTMENT", invoiceregisterInfoPageParam.getCompanyOrDepartment());
         }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
-
+        if (ObjectUtil.isNotEmpty(invoiceregisterInfoPageParam.getSearchKey())) {
+            queryWrapper.and(q->q.like("a.SN", invoiceregisterInfoPageParam.getSearchKey()).or()
+                    .like("a.CONTRACT_NO", invoiceregisterInfoPageParam.getSearchKey()).or()
+                    .like("b.PROJECT_NAME", invoiceregisterInfoPageParam.getSearchKey()).or()
+                    .like("b.COMPANY_OR_DEPARTMENT", invoiceregisterInfoPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(invoiceregisterInfoPageParam.getSortField(), invoiceregisterInfoPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceregisterInfoPageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceregisterInfoPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

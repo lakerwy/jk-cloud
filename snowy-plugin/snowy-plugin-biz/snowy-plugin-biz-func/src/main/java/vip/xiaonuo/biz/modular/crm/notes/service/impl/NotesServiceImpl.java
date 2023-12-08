@@ -59,13 +59,6 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
     @Override
     public Page<Notes> page(NotesPageParam notesPageParam) {
         QueryWrapper<Notes> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(notesPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Notes::getSn, notesPageParam.getSearchKey()).or()
-                    .like(Notes::getOpt, notesPageParam.getSearchKey()).or()
-                    .like(Notes::getPartnerNo, notesPageParam.getSearchKey()).or()
-                    .like(Notes::getContractNo, notesPageParam.getSearchKey()).or()
-                    .like(Notes::getNote, notesPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(notesPageParam.getSn())) {
             queryWrapper.lambda().like(Notes::getSn, notesPageParam.getSn());
         }
@@ -95,6 +88,13 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
         }
         if(ObjectUtil.isNotEmpty(notesPageParam.getCancelMark())) {
             queryWrapper.lambda().eq(Notes::getCancelMark, notesPageParam.getCancelMark());
+        }
+        if (ObjectUtil.isNotEmpty(notesPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(Notes::getSn, notesPageParam.getSearchKey()).or()
+                    .like(Notes::getOpt, notesPageParam.getSearchKey()).or()
+                    .like(Notes::getPartnerNo, notesPageParam.getSearchKey()).or()
+                    .like(Notes::getContractNo, notesPageParam.getSearchKey()).or()
+                    .like(Notes::getNote, notesPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(notesPageParam.getSortField(), notesPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(notesPageParam.getSortOrder());
@@ -153,11 +153,11 @@ public class NotesServiceImpl extends ServiceImpl<NotesMapper, Notes> implements
         QueryWrapper<Notes> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
         if (ObjectUtil.isNotEmpty(notesPageParam.getSearchKey())) {
-            queryWrapper.like("a.SN", notesPageParam.getSearchKey()).or()
+            queryWrapper.and(q->q.like("a.SN", notesPageParam.getSearchKey()).or()
                     .like("a.CONTRACT_NO", notesPageParam.getSearchKey()).or()
                     .like("a.PARTNER_NO", notesPageParam.getSearchKey()).or()
                     .like("a.NOTE", notesPageParam.getSearchKey()).or()
-                    .like("b.PROJECT_NAME", notesPageParam.getSearchKey());
+                    .like("b.PROJECT_NAME", notesPageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(notesPageParam.getSn())) {
             queryWrapper.like("a.SN", notesPageParam.getSn());

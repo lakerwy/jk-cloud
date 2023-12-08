@@ -24,7 +24,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.biz.modular.crm.notes.entity.Notes;
 import vip.xiaonuo.biz.modular.crm.parameters.param.*;
 import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
@@ -55,10 +54,6 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
     @Override
     public Page<Parameters> page(ParametersPageParam parametersPageParam) {
         QueryWrapper<Parameters> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(parametersPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Parameters::getSn, parametersPageParam.getSearchKey()).or()
-                    .like(Parameters::getOpt, parametersPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(parametersPageParam.getCoveredArea())) {
             queryWrapper.ge(" CAST(COVERED_AREA AS SIGNED) ", parametersPageParam.getCoveredArea());
         }
@@ -125,6 +120,10 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         if(ObjectUtil.isNotEmpty(parametersPageParam.getPressurRate())) {
             queryWrapper.lambda().eq(Parameters::getPressurRate, parametersPageParam.getPressurRate());
         }
+        if (ObjectUtil.isNotEmpty(parametersPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(Parameters::getSn, parametersPageParam.getSearchKey()).or()
+                    .like(Parameters::getOpt, parametersPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(parametersPageParam.getSortField(), parametersPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(parametersPageParam.getSortOrder());
             queryWrapper.orderBy(true, parametersPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -180,17 +179,6 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
     @Override
     public IPage<ParametersInfoVo> pageList(ParametersInfoPageParam parametersInfoPageParam) {
         QueryWrapper<Parameters> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(parametersInfoPageParam.getSearchKey())) {
-            queryWrapper.like("a.SN", parametersInfoPageParam.getSearchKey()).or()
-                    .like("a.OPT", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.SECOND_LEVEL", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.CONTRACT_NO", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.PROJECT_NAME", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.COUNTERPARTY", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.SECONDPARTY", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.COMPANY_OR_DEPARTMENT", parametersInfoPageParam.getSearchKey()).or()
-                    .like("b.DESCRIPTION", parametersInfoPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getCoveredArea())) {
             queryWrapper.ge(" CAST(a.COVERED_AREA AS SIGNED) ", parametersInfoPageParam.getCoveredArea());
         }
@@ -292,6 +280,18 @@ public class ParametersServiceImpl extends ServiceImpl<ParametersMapper, Paramet
         }
         if(ObjectUtil.isNotEmpty(parametersInfoPageParam.getMainProjectLeader())) {
             queryWrapper.like("b.PROJECT_LEADER", parametersInfoPageParam.getMainProjectLeader());
+        }
+
+        if (ObjectUtil.isNotEmpty(parametersInfoPageParam.getSearchKey())) {
+            queryWrapper.and(q->q.like("a.SN", parametersInfoPageParam.getSearchKey()).or()
+                    .like("a.OPT", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.SECOND_LEVEL", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.CONTRACT_NO", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.PROJECT_NAME", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.COUNTERPARTY", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.SECONDPARTY", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.COMPANY_OR_DEPARTMENT", parametersInfoPageParam.getSearchKey()).or()
+                    .like("b.DESCRIPTION", parametersInfoPageParam.getSearchKey()));
         }
 
         /* 排序 */

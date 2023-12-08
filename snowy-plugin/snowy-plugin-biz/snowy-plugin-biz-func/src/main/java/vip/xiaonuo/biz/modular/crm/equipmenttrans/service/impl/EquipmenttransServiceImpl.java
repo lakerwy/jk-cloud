@@ -58,12 +58,6 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
     @Override
     public Page<Equipmenttrans> page(EquipmenttransPageParam equipmenttransPageParam) {
         QueryWrapper<Equipmenttrans> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(equipmenttransPageParam.getSearchKey())) {
-            queryWrapper.lambda().like(Equipmenttrans::getEDept, equipmenttransPageParam.getSearchKey()).or()
-                    .like(Equipmenttrans::getDept, equipmenttransPageParam.getSearchKey()).or()
-                    .like(Equipmenttrans::getUsers, equipmenttransPageParam.getSearchKey()).or()
-                    .like(Equipmenttrans::getEUsers, equipmenttransPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(equipmenttransPageParam.getEqId())) {
             queryWrapper.lambda().eq(Equipmenttrans::getEqId, equipmenttransPageParam.getEqId());
         }
@@ -81,6 +75,12 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
         }
         if(ObjectUtil.isNotEmpty(equipmenttransPageParam.getEUsers())) {
             queryWrapper.lambda().like(Equipmenttrans::getEUsers, equipmenttransPageParam.getEUsers());
+        }
+        if (ObjectUtil.isNotEmpty(equipmenttransPageParam.getSearchKey())) {
+            queryWrapper.lambda().and(q->q.like(Equipmenttrans::getEDept, equipmenttransPageParam.getSearchKey()).or()
+                    .like(Equipmenttrans::getDept, equipmenttransPageParam.getSearchKey()).or()
+                    .like(Equipmenttrans::getUsers, equipmenttransPageParam.getSearchKey()).or()
+                    .like(Equipmenttrans::getEUsers, equipmenttransPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(equipmenttransPageParam.getSortField(), equipmenttransPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(equipmenttransPageParam.getSortOrder());
@@ -143,12 +143,6 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
     @Override
     public IPage<EquipmenttransInfoVo> pageList(EquipmenttransInfoPageParam equipmenttransInfoPageParam) {
         QueryWrapper<Equipmenttrans> queryWrapper = new QueryWrapper<>();
-        if (ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSearchKey())) {
-            queryWrapper.like("a.DEPT", equipmenttransInfoPageParam.getSearchKey()).or()
-                    .like("a.USERS", equipmenttransInfoPageParam.getSearchKey()).or()
-                    .like("b.SN", equipmenttransInfoPageParam.getSearchKey()).or()
-                    .like("b.EQ_NUM", equipmenttransInfoPageParam.getSearchKey());
-        }
         if(ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSn())) {
             queryWrapper.like("b.SN", equipmenttransInfoPageParam.getSn());
         }
@@ -162,6 +156,12 @@ public class EquipmenttransServiceImpl extends ServiceImpl<EquipmenttransMapper,
             queryWrapper.eq("b.STATUS", equipmenttransInfoPageParam.getStatus());
         }
         queryWrapper.eq("a.DELETE_FLAG", "NOT_DELETE");
+        if (ObjectUtil.isNotEmpty(equipmenttransInfoPageParam.getSearchKey())) {
+            queryWrapper.and(q->q.like("a.DEPT", equipmenttransInfoPageParam.getSearchKey()).or()
+                    .like("a.USERS", equipmenttransInfoPageParam.getSearchKey()).or()
+                    .like("b.SN", equipmenttransInfoPageParam.getSearchKey()).or()
+                    .like("b.EQ_NUM", equipmenttransInfoPageParam.getSearchKey()));
+        }
 
         /* 排序 */
         if(ObjectUtil.isAllNotEmpty(equipmenttransInfoPageParam.getSortField(), equipmenttransInfoPageParam.getSortOrder())) {
