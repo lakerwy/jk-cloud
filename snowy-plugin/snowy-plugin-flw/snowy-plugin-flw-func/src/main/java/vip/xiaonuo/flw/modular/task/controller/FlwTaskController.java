@@ -20,11 +20,9 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.flw.modular.model.dto.FlwModelDTO;
@@ -53,7 +51,6 @@ public class FlwTaskController {
 
     @Resource
     private FlwTaskService flwTaskService;
-
     /**
      * 获取待办任务分页
      *
@@ -300,4 +297,20 @@ public class FlwTaskController {
         return CommonResult.data(flwTaskService.getTransferTasks(flwTaskTransferPageParam));
     }
 
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("获取快捷评论输入列表")
+    @CommonLog("获取快捷评论输入列表")
+    @GetMapping("/flw/task/getCommentInput")
+    public CommonResult<List<Object>> getCommentInput() {
+        return CommonResult.data(flwTaskService.getListComments());
+    }
+
+    @ApiOperationSupport(order = 19)
+    @ApiOperation("新增快捷评论输入")
+    @CommonLog("新增快捷评论输入")
+    @PostMapping ("/flw/task/addCommentInput")
+    public CommonResult<List<Object>> addCommentInput(@RequestBody FlwTaskCommentParam flwTaskCommentParam) {
+        flwTaskService.putComments(flwTaskCommentParam.getInputValue());
+        return CommonResult.ok();
+    }
 }
