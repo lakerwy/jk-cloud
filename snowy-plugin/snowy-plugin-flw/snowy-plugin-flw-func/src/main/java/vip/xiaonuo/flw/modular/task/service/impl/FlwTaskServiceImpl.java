@@ -968,7 +968,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if(list.size()>=5){
             commonCacheOperator.removeListValue(key);
         }
-        commonCacheOperator.putListExpire(key,inputValue,7*24*60*60);
+        commonCacheOperator.putListExpire(key,inputValue,7*24*60*60L);
     }
 
 }
