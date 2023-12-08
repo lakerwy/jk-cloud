@@ -1031,7 +1031,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     @Override
     public void saveMemo(UserFileMemoParam userFileMemoParam) {
         UserFile userFile = this.getById(userFileMemoParam.getFileId());
-        userFile.setMemo(userFile.getMemo());
+        userFile.setMemo(userFileMemoParam.getMemo());
         this.updateById(userFile);
     }
 }
