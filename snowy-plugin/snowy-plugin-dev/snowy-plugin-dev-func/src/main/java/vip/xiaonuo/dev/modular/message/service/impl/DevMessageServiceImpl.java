@@ -27,11 +27,16 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.message.entity.DevMessage;
 import vip.xiaonuo.dev.modular.message.enums.DevMessageCategoryEnum;
@@ -49,9 +54,9 @@ import vip.xiaonuo.dev.modular.sms.service.UniPushService;
 import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -74,6 +79,13 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
 
     @Resource
     private UniPushService uniPushService;
+
+    @Resource
+    StreamBridge streamBridge;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -98,7 +110,26 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
             }
         }
         //发送钉钉通知
-        dingDingService.baseBatchSend(JSONUtil.parseObj(devMessage),receiverIdList);
+//        dingDingService.baseBatchSend(JSONUtil.parseObj(devMessage),receiverIdList);
+        Map<String, String> taskMap = devMessage.getTaskMap();
+        JSONObject jsonObject = new JSONObject();
+        Object processDefinitionId = taskMap.get("processDefinitionId");
+        Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+        jsonObject.set(FlwCacheConstant.FLW_NAME,String.valueOf(o));
+        jsonObject.set(FlwCacheConstant.FLW_SN,taskMap.get("initiatorProcessSn"));
+        jsonObject.set(FlwCacheConstant.FLW_BASE_INFO,taskMap.get("initiatorProcessAbstract"));
+        jsonObject.set(FlwCacheConstant.TITLE,"【流程处理通知单】");
+        Object initiatorTime = taskMap.get("initiatorTime");
+        Object initiatorName = taskMap.get("initiatorName");
+        jsonObject.set(FlwCacheConstant.FLW_STARTER,initiatorName);
+        jsonObject.set(FlwCacheConstant.FLW_START_TIME,initiatorTime);
+        Object o1 = taskMap.get("noticeType");
+        if(o1.toString().equals("COMPLETE")){
+            jsonObject.set(FlwCacheConstant.FLW_STATUS,"已完成");
+        }
+        jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
+        RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,rabbitMsg);
     }
 
     @Override

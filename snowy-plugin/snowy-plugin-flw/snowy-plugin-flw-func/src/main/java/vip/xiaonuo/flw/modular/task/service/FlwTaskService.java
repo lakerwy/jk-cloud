@@ -14,10 +14,8 @@ package vip.xiaonuo.flw.modular.task.service;
 
 import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.flw.modular.model.dto.FlwModelDTO;
-import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.task.param.*;
 import vip.xiaonuo.flw.modular.task.result.*;
@@ -172,4 +170,17 @@ public interface FlwTaskService {
      * @return
      */
     List<FlwModelDTO> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam);
+
+    /***
+     * 获取所有的快捷输入值
+     * @return
+     */
+    List<Object> getListComments();
+
+    /**
+     * 新增快捷输入值
+     * @param inputValue
+     * @return
+     */
+    void putComments(String inputValue);
 }

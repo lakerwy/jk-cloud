@@ -16,6 +16,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import org.springframework.dao.DataAccessException;
+import org.springframework.data.redis.core.BoundListOperations;
 import org.springframework.data.redis.core.RedisOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.SessionCallback;
@@ -149,5 +150,55 @@ public class CommonCacheOperator {
 
     public Boolean hasKey(String key){
         return  redisTemplate.hasKey(key);
+    }
+
+
+    /**
+     * 缓存list
+     * @param key
+     * @param value
+     */
+    public void putList(String key, Object value) {
+        BoundListOperations<String, Object> boundListOps = redisTemplate.boundListOps(key);
+        if(boundListOps.size() ==0){
+            boundListOps.leftPush(value);
+        }else {
+            boundListOps.leftPushIfPresent(value);
+        }
+    }
+
+    /**
+     * 获取key 的list缓存值
+     * @param key
+     * @return
+     */
+    public List<Object> getList(String key) {
+        BoundListOperations<String, Object> boundListOps = redisTemplate.boundListOps(key);
+        return boundListOps.range(0, -1);
+    }
+
+    /**
+     * 带有过期时间
+     * @param key
+     * @param value
+     * @param expire
+     */
+    public void putListExpire(String key, Object value, long expire) {
+        BoundListOperations<String, Object> boundListOps = redisTemplate.boundListOps(key);
+        boundListOps.expire(expire,TimeUnit.SECONDS);
+        if(boundListOps.size() ==0){
+            boundListOps.leftPush(value);
+        }else {
+            boundListOps.leftPushIfPresent(value);
+        }
+    }
+
+    /**
+     * 带有过期时间
+     * @param key
+     */
+    public void removeListValue(String key) {
+        BoundListOperations<String, Object> boundListOps = redisTemplate.boundListOps(key);
+        boundListOps.rightPop();
     }
 }

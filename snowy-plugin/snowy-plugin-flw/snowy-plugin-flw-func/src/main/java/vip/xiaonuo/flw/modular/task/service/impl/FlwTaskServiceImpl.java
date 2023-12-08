@@ -21,7 +21,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONConfig;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -44,7 +43,6 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -130,6 +128,11 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Resource
     FlwModelService flwModelService;
+
+    /**
+     * 快捷输入的保存key
+     */
+    private final static String INPUT_KEY_PRE = "INPUT_";
 
     /**
      * 异步任务线程池
@@ -951,6 +954,21 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         }
 
         return false;
+    }
+
+    @Override
+    public List<Object> getListComments() {
+        return commonCacheOperator.getList(INPUT_KEY_PRE + StpLoginUserUtil.getLoginUser().getId());
+    }
+
+    @Override
+    public void putComments(String inputValue) {
+        String key = INPUT_KEY_PRE + StpLoginUserUtil.getLoginUser().getId();
+        List<Object> list = commonCacheOperator.getList(key);
+        if(list.size()>=5){
+            commonCacheOperator.removeListValue(key);
+        }
+        commonCacheOperator.putListExpire(key,inputValue,7*24*60*60L);
     }
 
 }

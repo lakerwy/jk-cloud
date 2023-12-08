@@ -16,11 +16,10 @@ import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
 import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.api.IDingDingService;
@@ -307,41 +306,6 @@ public class DingDingServiceImpl implements IDingDingService {
         return oa;
     }
 
-
-    @NotNull
-    private List<OapiMessageCorpconversationAsyncsendV2Request.Form> buildForms(JSONObject jsonObject) {
-        Map taskMap = jsonObject.get("taskMap", Map.class);
-        Object processDefinitionId = taskMap.get("processDefinitionId");
-        //摘要
-        Object initiatorProcessAbstract = taskMap.get("initiatorProcessAbstract");
-        Object initiatorProcessSn = taskMap.get("initiatorProcessSn");
-        Object initiatorTime = taskMap.get("initiatorTime");
-        Object initiatorName = taskMap.get("initiatorName");
-        OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("流程名称： ");
-
-        Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-        form.setValue(String.valueOf(o));
-        List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
-        forms.add(form);
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("基本信息： ");
-        form.setValue(String.valueOf(initiatorProcessAbstract));
-        forms.add(form);
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("流水号：");
-        form.setValue(String.valueOf(initiatorProcessSn));
-        forms.add(form);
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("发起于：");
-        form.setValue(initiatorTime+" | "+ initiatorName);
-        forms.add(form);
-        return forms;
-    }
-
     public void baseAsyncSendForm(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, String phone, Map<String,Object> values) {
         OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = getByMobile(phone);
         if (!oapiV2UserGetbymobileResponse.isSuccess()) {
@@ -427,6 +391,12 @@ public class DingDingServiceImpl implements IDingDingService {
         }
     }
 
+    /**
+     *
+     * @param forms
+     * @param userIds  用户集合
+     * @param values  拓展字段
+     */
     @Override
     public void customBatchSend(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms, Set<String> userIds, Map<String,Object> values) {
         if(!dingTalkProperties.getIsSend()){
@@ -448,6 +418,69 @@ public class DingDingServiceImpl implements IDingDingService {
 
     }
 
+    @Override
+    public void commonSend(RabbitMsg rabbitMsg) {
+        if(!dingTalkProperties.getIsSend()){
+            return;
+        }
+        List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(new ArrayList<>(rabbitMsg.getUserSets()));
+        //手机号集合
+        List<String> collect = users.stream().map(u -> u.getStr("account")).collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(collect)){
+            try {
+                for (String cl : collect) {
+                    sendExecs.execute(()->commonAsyncSendForm(rabbitMsg,cl));
+                }
+            }catch (Exception e){
+                log.info("> > > > >发送钉钉通知失败",e);
+            }
+        }
+    }
+
+
+    public void commonAsyncSendForm(RabbitMsg rabbitMsg,String phone) {
+        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = getByMobile(phone);
+        if (!oapiV2UserGetbymobileResponse.isSuccess()) {
+            log.error(oapiV2UserGetbymobileResponse.getErrmsg());
+            return;
+        }
+        OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
+
+        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
+        OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
+        // yourAgentId
+        request.setAgentId(dingTalkProperties.getAgentId());
+        request.setUseridList(result.getUserid());
+        request.setToAllUser(false);
+
+        OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
+        OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
+        head.setText(rabbitMsg.getTitle());
+        head.setBgcolor("FFBBBBBB");
+        oa.setHead(head);
+
+        OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
+        body.setTitle(rabbitMsg.getTitle());
+        body.setForm(rabbitMsg.getForms());
+        String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
+        body.setContent(mg);
+        oa.setBody(body);
+        if(ObjectUtil.isNotEmpty(rabbitMsg.getUrl())){
+            oa.setMessageUrl(rabbitMsg.getUrl());
+        }
+        OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
+        msg.setMsgtype("oa");
+        msg.setOa(oa);
+        request.setMsg(msg);
+
+        OapiGettokenResponse oapiGettokenResponse = this.getToken();
+        String accessToken = oapiGettokenResponse.getAccessToken();
+        try {
+            client.execute(request, accessToken);
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+    }
 
     /**
      * 根据 钉钉应用 key 获取token 并缓存
