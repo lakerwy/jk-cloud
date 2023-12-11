@@ -77,4 +77,18 @@ public interface CadFileHistoryService extends IService<CadFileHistory> {
      * @date  2023/12/01 15:34
      **/
     CadFileHistory queryEntity(String id);
+
+    /**
+     * 根据FileId，获取最新的文件历史记录
+     * @param fileId
+     * @return
+     */
+    CadFileHistory lastHisByFileId(String fileId);
+
+    /**
+     * 根据FileId，获取文件历史记录列表
+     * @param fileId
+     * @return
+     */
+    List<CadFileHistory> listHisByFileId(String fileId);
 }

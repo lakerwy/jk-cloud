@@ -76,7 +76,7 @@ public class PursalecontractController {
     @CommonLog("添加业务表-CRM-购销合同")
     @PostMapping("/biz/crm/pursalecontract/add")
     public CommonResult<String> add(@RequestBody @Valid PursalecontractAddParam pursalecontractAddParam) {
-        pursalecontractService.add(pursalecontractAddParam);
+        pursalecontractService.addStart(pursalecontractAddParam);
         return CommonResult.ok();
     }
 
@@ -91,7 +91,7 @@ public class PursalecontractController {
     @CommonLog("编辑业务表-CRM-购销合同")
     @PostMapping("/biz/crm/pursalecontract/edit")
     public CommonResult<String> edit(@RequestBody @Valid PursalecontractEditParam pursalecontractEditParam) {
-        pursalecontractService.edit(pursalecontractEditParam);
+        pursalecontractService.editStart(pursalecontractEditParam);
         return CommonResult.ok();
     }
 

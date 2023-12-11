@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.cad.entity.CadFileHistory;
 import vip.xiaonuo.biz.modular.cad.entity.CadUser;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.service.*;
@@ -46,21 +47,12 @@ import java.util.List;
 public class CadPluginController {
     @Resource
     private CadUserService cadUserService;
-
-    @Resource
-    private CadStageService cadStageService;
-
     @Resource
     private CadProjectService cadProjectService;
-
-    @Resource
-    private CadSubItemService cadSubItemService;
-
-    @Resource
-    private CadSubItemUserService cadSubItemUserService;
-
     @Resource
     private CadFileService cadFileService;
+    @Resource
+    private CadFileHistoryService cadFileHistoryService;
 
     /**
      * 【CAD-插件端】登录
@@ -144,6 +136,62 @@ public class CadPluginController {
     @PostMapping("/biz/cad/plugin/createFile")
     public CommonResult<String> createFile(@RequestBody @Valid CadFileAddParam cadFileAddParam) {
         cadFileService.add(cadFileAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 【CAD-插件端】CAD- 提交（新增文件历史记录）
+     *
+     * @author yong.ye
+     * @date  2023/12/11 17:40
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("【CAD-插件端】CAD- 提交 ")
+    @CommonLog("【CAD-插件端】CAD- 提交 ")
+    @PostMapping("/biz/cad/plugin/addFileHis")
+    public CommonResult<String> addFileHis(@RequestBody @Valid CadFileHistoryAddParam cadFileHistoryAddParam) {
+        cadFileHistoryService.add(cadFileHistoryAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 【CAD-插件端】根据文件树FileId,获取当前文件的最新版本
+     *
+     * @author yong.ye
+     * @date  2023/12/11 10:40
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("【CAD-插件端】根据文件树FileId,获取当前文件的最新版本")
+    @GetMapping("/biz/cad/plugin/lastHisByFileId")
+    public CommonResult<CadFileHistory> lastHisByFileId(String fileId) {
+        return CommonResult.data(cadFileHistoryService.lastHisByFileId(fileId));
+    }
+
+    /**
+     * 【CAD-插件端】根据文件树FileId,获取文件历史版本列表
+     *
+     * @author yong.ye
+     * @date  2023/12/11 10:40
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("【CAD-插件端】根据文件树FileId,获取文件历史版本列表")
+    @GetMapping("/biz/cad/plugin/listHisByFileId")
+    public CommonResult<List<CadFileHistory>> listHisByFileId(String fileId) {
+        return CommonResult.data(cadFileHistoryService.listHisByFileId(fileId));
+    }
+
+    /**
+     * 【CAD-插件端】CAD- 新增成品记录
+     *
+     * @author yong.ye
+     * @date  2023/12/11 17:40
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("【CAD-插件端】CAD- 新增成品记录 ")
+    @CommonLog("【CAD-插件端】CAD- 新增成品记录 ")
+    @PostMapping("/biz/cad/plugin/addProduct")
+    public CommonResult<String> addProduct(@RequestBody @Valid CadProductAddParam cadProductAddParam) {
+//        cadFileHistoryService.add(cadFileHistoryAddParam);
         return CommonResult.ok();
     }
 

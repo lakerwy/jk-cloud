@@ -94,4 +94,19 @@ public class CadFileHistoryServiceImpl extends ServiceImpl<CadFileHistoryMapper,
         }
         return cadFileHistory;
     }
+
+    @Override
+    public List<CadFileHistory> listHisByFileId(String fileId) {
+        return this.list(new QueryWrapper<CadFileHistory>().lambda()
+                .eq(CadFileHistory::getFileId,fileId)
+                .orderByAsc(CadFileHistory::getVersion));
+    }
+
+    @Override
+    public CadFileHistory lastHisByFileId(String fileId) {
+        return this.getOne(new QueryWrapper<CadFileHistory>().lambda()
+                .eq(CadFileHistory::getFileId,fileId)
+                .orderByDesc(CadFileHistory::getVersion)
+                .last(" limit 1 "));
+    }
 }

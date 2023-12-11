@@ -82,4 +82,5 @@ public interface CadFileService extends IService<CadFile> {
      * @date  2023/12/01 15:34
      **/
     void reName(CadFileReName cadFileReName);
+
 }
