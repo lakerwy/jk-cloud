@@ -145,6 +145,9 @@ public class FlwNode {
         /** 开启意见必填 */
         private Boolean processEnableCommentRequired;
 
+        /**开启限时审批*/
+        private Boolean processEnableOverLimit;
+
         /** 全局发起节点PC端表单 */
         private String processStartTaskFormUrl;
 
@@ -175,7 +178,7 @@ public class FlwNode {
         /** 条件优先级（数字越大优先级别越高） */
         private Integer priorityLevel;
 
-        private float limitHours;
+        private String processOverLimitTime;
     }
 
     /** 条件属性类 */

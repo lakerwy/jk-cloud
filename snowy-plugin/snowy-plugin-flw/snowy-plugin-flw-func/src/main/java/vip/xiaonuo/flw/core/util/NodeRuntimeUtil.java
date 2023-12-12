@@ -13,7 +13,6 @@
 package vip.xiaonuo.flw.core.util;
 
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -34,8 +33,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.history.HistoricVariableInstance;
-import org.camunda.bpm.engine.history.HistoricVariableInstanceQuery;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
@@ -43,11 +40,17 @@ import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.messaging.Message;
+import org.springframework.messaging.support.MessageBuilder;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.pojo.RabbitDelayedMessage;
+import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dev.api.DevEmailApi;
 import vip.xiaonuo.dev.api.DevMessageApi;
@@ -63,6 +66,7 @@ import vip.xiaonuo.ten.api.TenApi;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -1395,5 +1399,76 @@ public class NodeRuntimeUtil {
                     }));
         }
         return participateInfo.get();
+    }
+
+    /**
+     * 处理任务超时后发送通知消息
+     * @param delegateTask
+     */
+    public static void handleUserTaskOverLimit(DelegateTask delegateTask) {
+        try {
+            CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+            AtomicBoolean processEnableOverLimit = new AtomicBoolean(false);
+            AtomicReference<Double> processOverLimitTime = new AtomicReference<>();
+            Collection<ExtensionElements> processExtensionElementsCollection;
+
+            processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance()
+                    .getParentElement().getChildElementsByType(ExtensionElements.class);
+            List<String> participateUserIdList = CollectionUtil.newArrayList();
+            participateUserIdList = Convert.toList(String.class, delegateTask
+                    .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
+            if(CollUtil.isNotEmpty(participateUserIdList)){
+                if(participateUserIdList.size() == 1 && participateUserIdList.get(0).equals("AUTO_COMPLETE") ){
+                    return;
+                }
+            }
+            if(ObjectUtil.isNotEmpty(processExtensionElementsCollection)) {
+                processExtensionElementsCollection.forEach(processExtensionElements ->
+                        processExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(processCamundaProperties ->
+                                processCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(processCamundaProperty -> {
+                                    if (processCamundaProperty.getCamundaName().equals("configInfo")) {
+                                        JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
+                                        processEnableOverLimit.set(processConfigInfo.getBool("processEnableOverLimit"));
+                                        if(processEnableOverLimit.get()) {
+                                            processOverLimitTime.set(processConfigInfo.getDouble("processOverLimitTime"));
+                                        }
+                                    }
+                                })));
+            }
+
+
+            if(processEnableOverLimit.get()) {
+                Double v = processOverLimitTime.get();
+                if(null!=v && v>0){
+                    StreamBridge streamBridge = SpringUtil.getBean(StreamBridge.class);
+                    RabbitDelayedMessage rabbitDelayedMessage = new RabbitDelayedMessage();
+
+                    JSONObject jsonObject = new JSONObject();
+                    StringBuffer baseInfo = new StringBuffer();
+                    Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + delegateTask.getProcessDefinitionId());
+                    baseInfo.append(delegateTask.getVariable("initiatorName")).append("发起的").append(o).append("审批流程在您的审批节点已超时，请及时处理");
+                    jsonObject.set(FlwCacheConstant.FLW_BASE_INFO,baseInfo);
+                    jsonObject.set(FlwCacheConstant.FLW_SN,delegateTask.getVariable("initiatorProcessSn"));
+                    RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
+                    rabbitMsg.setTitle("【审批超时通知】");
+                    rabbitMsg.setUserSets(new HashSet<>(participateUserIdList));
+                    String key = RabbitConstant.RABBIT_KEY+ delegateTask.getId();
+                    rabbitDelayedMessage.setTaskKey(key);
+                    rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
+                    rabbitDelayedMessage.setLimit(v);
+                    Message<RabbitDelayedMessage> message = MessageBuilder
+                            .withPayload(rabbitDelayedMessage)
+                            .setHeader("x-delay", v*60*60*1000)
+//                .copyHeaders(customHeaders)
+                            .build();
+
+                    streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL,message);
+                    commonCacheOperator.put(key,Boolean.FALSE);
+                }
+
+            }
+        }catch (Exception e){
+            log.error(e.getMessage());
+        }
     }
 }

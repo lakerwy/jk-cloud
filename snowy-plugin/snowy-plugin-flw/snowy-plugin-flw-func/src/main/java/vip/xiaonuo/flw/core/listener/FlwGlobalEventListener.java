@@ -110,6 +110,7 @@ public class FlwGlobalEventListener implements JavaDelegate {
                     delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
                 }
             } else {
+                System.out.println(delegateTask.getEventName()+delegateTask.getId());
                 NodeRuntimeUtil.handleUserTaskTypeAndDistinctType(delegateTask);
             }
         }
@@ -118,6 +119,8 @@ public class FlwGlobalEventListener implements JavaDelegate {
                 // 非申请节点则发送待办通知
                 try {
                     NodeRuntimeUtil.handleUserTaskTodoNotice(delegateTask);
+                    //处理任务超时后发送通知消息
+                    NodeRuntimeUtil.handleUserTaskOverLimit(delegateTask);
                 }catch (Exception e){
                     log.error(e.getMessage());
                 }
