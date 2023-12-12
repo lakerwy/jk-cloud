@@ -12,23 +12,18 @@
  */
 package vip.xiaonuo.biz.modular.ezviz.controller;
 
-import cn.hutool.json.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import vip.xiaonuo.biz.modular.ezviz.service.EzvizService;
-import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 
 /**
  * 【EZVIZ】控制器-监控
