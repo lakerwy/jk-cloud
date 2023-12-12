@@ -99,7 +99,7 @@ public class CadFileHistoryServiceImpl extends ServiceImpl<CadFileHistoryMapper,
     public List<CadFileHistory> listHisByFileId(String fileId) {
         return this.list(new QueryWrapper<CadFileHistory>().lambda()
                 .eq(CadFileHistory::getFileId,fileId)
-                .orderByAsc(CadFileHistory::getVersion));
+                .orderByDesc(CadFileHistory::getVersion));
     }
 
     @Override

@@ -13,9 +13,12 @@
 package vip.xiaonuo.biz.modular.cad.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -92,4 +95,14 @@ public class CadFileHistory {
     @ApiModelProperty(value = "更新人", position = 14)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 操作人 */
+    @ApiModelProperty(value = "操作人", position = 7)
+    private String oprUser;
+
+    /** 操作时间 */
+    @ApiModelProperty(value = "操作时间", position = 8)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date oprTime;
 }
