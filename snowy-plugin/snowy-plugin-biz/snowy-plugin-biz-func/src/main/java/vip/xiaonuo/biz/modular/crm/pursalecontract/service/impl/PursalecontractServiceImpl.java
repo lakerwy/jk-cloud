@@ -177,7 +177,7 @@ public class PursalecontractServiceImpl extends ServiceImpl<PursalecontractMappe
             flwCommonApi.save(modelId, BizCommonEnum.BIZ_CRM_PURSALECONTRACT.getBizTable(),id,processInstanceId,dbName);
         }else{
             //不走审批流程
-            String modelId = "1729307184302993410";   //购销合同流程Id
+            String modelId = "1734114037886619649";   //购销合同流程Id
             if(StrUtil.isNotEmpty(pursalecontractAddParam.getModelId())){
                 modelId = pursalecontractAddParam.getModelId();
             }
