@@ -32,8 +32,26 @@ public class EzvizServiceImpl implements EzvizService {
     }
 
     @Override
-    public JSONObject deviceList(Integer pageStart, Integer pageSize) {
+    public Object deviceList(Integer pageStart, Integer pageSize) {
         String token = this.getToken();
         return CommonEzvizUtil.getDeviceList(token,pageStart,pageSize);
+    }
+
+    @Override
+    public Object deviceInfo(String deviceSerial) {
+        String token = this.getToken();
+        return CommonEzvizUtil.getDeviceInfo(token,deviceSerial);
+    }
+
+    @Override
+    public Object cameraList(Integer pageStart, Integer pageSize) {
+        String token = this.getToken();
+        return CommonEzvizUtil.getCameraList(token,pageStart,pageSize);
+    }
+
+    @Override
+    public Object deviceCameraList(String deviceSerial) {
+        String token = this.getToken();
+        return CommonEzvizUtil.getDeviceCameraList(token,deviceSerial);
     }
 }

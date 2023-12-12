@@ -67,9 +67,50 @@ public class EzvizController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("【EZVIZ】控制器-监控 获取设备列表")
     @GetMapping("/biz/ezviz/device/list")
-    public CommonResult<JSONObject> list(Integer pageStart, Integer pageSize) {
+    public CommonResult<Object> deviceList(Integer pageStart, Integer pageSize) {
         return CommonResult.data(ezvizService.deviceList(pageStart,pageSize));
     }
 
+
+    /**
+     * 【EZVIZ】控制器-监控 获取单个设备信息
+     *
+     * @author yong.ye
+     * @date  2023/12/01 10:35
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("【EZVIZ】控制器-监控 获取单个设备信息")
+    @GetMapping("/biz/ezviz/device/info")
+    public CommonResult<Object> deviceInfo(String deviceSerial) {
+        return CommonResult.data(ezvizService.deviceInfo(deviceSerial));
+    }
+
+
+    /**
+     * 【EZVIZ】控制器-监控 获取视频通道列表
+     *
+     * @author yong.ye
+     * @date  2023/12/01 10:35
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("【EZVIZ】控制器-监控 获取视频通道列表")
+    @GetMapping("/biz/ezviz/camera/list")
+    public CommonResult<Object> cameraList(Integer pageStart, Integer pageSize) {
+        return CommonResult.data(ezvizService.cameraList(pageStart,pageSize));
+    }
+
+
+    /**
+     * 【EZVIZ】控制器-监控 获取单个设备信息
+     *
+     * @author yong.ye
+     * @date  2023/12/01 10:35
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("【EZVIZ】控制器-监控 获取单个设备信息")
+    @GetMapping("/biz/ezviz/device/camera/list")
+    public CommonResult<Object> deviceCameraList(String deviceSerial) {
+        return CommonResult.data(ezvizService.deviceCameraList(deviceSerial));
+    }
 
 }
