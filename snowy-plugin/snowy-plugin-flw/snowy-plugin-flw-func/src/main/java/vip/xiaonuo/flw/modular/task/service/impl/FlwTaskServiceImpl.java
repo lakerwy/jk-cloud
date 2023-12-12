@@ -48,6 +48,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -362,6 +363,8 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
         // 执行通过
         taskService.complete(task.getId());
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+
     }
 
     @Override
@@ -405,6 +408,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 NodeRuntimeUtil.handleSqlExecution(sql);
             }
         }
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -495,6 +499,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 processInstanceModificationBuilder.startTransition(incoming.iterator().next().getId()).execute();
             }
         }
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -545,6 +550,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
         // 执行转办
         taskService.setAssignee(taskId, flwTaskTurnParam.getUserId());
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
