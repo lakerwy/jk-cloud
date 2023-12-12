@@ -30,6 +30,7 @@ import com.fhs.common.utils.JsonUtils;
 import com.rabbitmq.tools.json.JSONUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.entity.CadFile;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.vo.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -151,19 +152,23 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
     }
 
     @Override
-    public List<Tree<String>> myFileTree(MyFileTreeParam myFileTreeParam) {
-        //构建后的结果集
+    public List<Tree<String>> prjFileTree(MyFileTreeParam myFileTreeParam) {
+        //获取项目目录结构
         List<CadFileVo> fileTreeList = new ArrayList<>();
-        CadProject cadProject = this.queryEntity(myFileTreeParam.getPrjId());
         QueryWrapper<CadProject> queryWrapper = new QueryWrapper<>();
-        if(!cadProject.getManager().equals(myFileTreeParam.getUserId())){
-            queryWrapper.eq("c.CAD_USER_ID",myFileTreeParam.getUserId());
-        }
         queryWrapper.eq("a.ID",myFileTreeParam.getPrjId());
         queryWrapper.orderByAsc("e.SORT_INDEX").orderByAsc("f.SORT_INDEX");
-        List<CadFileVo> tmpList =  cadProjectMapper.getMyFileTree(queryWrapper);
-        List<CadFileVo> fileList = this.getFileTree(tmpList);
-        List<TreeNode<String>> treeNodeList = fileList.stream().map(fileTree -> {
+        List<PrjStageSubProfVo> prjInfoList =  cadProjectMapper.getPrjStageSubProf(queryWrapper);
+
+        //获取该项目下自定义文件目录结构
+        QueryWrapper<CadFile> fileQueryWrapper = new QueryWrapper<>();
+        fileQueryWrapper.eq("file.PRJ_ID",myFileTreeParam.getPrjId());
+        fileQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        List<CadFileVo> prjFileList = cadProjectMapper.getPrjFileTree(fileQueryWrapper);
+
+        //构建项目+自定义文件目录树状结构
+        List<CadFileVo> treeFileList = this.getFileTree(prjInfoList,prjFileList);
+        List<TreeNode<String>> treeNodeList = treeFileList.stream().map(fileTree -> {
             // 将对象转为 JSONObject
             JSONObject jsonObject = new JSONObject(BeanUtil.beanToMap(fileTree, false, false));
             // 使用 JSONObject 生成 Map，保留属性为 null 的值
@@ -182,14 +187,16 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
      *             -- 专业
      *                  -- 自定义目录 【构建父级Id】
      *
-     * @param fileList
+     * @param fileList -- 自定义目录数据源
+     * @param prjInfoList -- 项目信息数据源
      * @return
      */
-    public List<CadFileVo> getFileTree(List<CadFileVo> fileList){
+    public List<CadFileVo> getFileTree(List<PrjStageSubProfVo> prjInfoList,List<CadFileVo> fileList){
         List<CadFileVo> result = new ArrayList<>();
-        if (CollUtil.isNotEmpty(fileList)){
+        //处理当前项目的阶段|子项|专业目录
+        if (CollUtil.isNotEmpty(prjInfoList)){
             //1. 处理项目阶段 - 【fId = 项目阶段id  fParentId = 项目id fName = 阶段名称】
-            List<NewObjectVo> stageList = fileList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getStageId()))
+            List<NewObjectVo> stageList = prjInfoList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getStageId()))
                     .map(x -> new NewObjectVo(x.getPrjId(), x.getStageId(), x.getPrjName(), x.getStageName()))
                     .distinct().collect(Collectors.toList());
             stageList.forEach(x->{
@@ -200,7 +207,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
                 result.add(tmp);
             });
             //2. 处理项目子项 - 【fId = 子项id  fParentId = 阶段id fName = 子项名称】
-            List<NewObjectVo> subItemList = fileList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getSubItemId()))
+            List<NewObjectVo> subItemList = prjInfoList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getSubItemId()))
                     .map(x -> new NewObjectVo(x.getPrjId(), x.getStageId(), x.getSubItemId(), x.getPrjName(), x.getStageName(), x.getSubItemName()))
                     .distinct().collect(Collectors.toList());
             subItemList.forEach(x->{
@@ -211,7 +218,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
                 result.add(tmp);
             });
             //3. 处理项目子项下专业 - 【fId = 子项id+专业id  fParentId = 子项id fName = 专业名称】
-            List<NewObjectVo> professionList = fileList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getProfessionId()))
+            List<NewObjectVo> professionList = prjInfoList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getProfessionId()))
                     .map(x -> new NewObjectVo(x.getPrjId(), x.getStageId(), x.getSubItemId(),x.getProfessionId(), x.getPrjName(), x.getStageName(), x.getSubItemName(),x.getProfessionName()))
                     .distinct().collect(Collectors.toList());
             professionList.forEach(x->{
@@ -221,6 +228,9 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
                 tmp.setFName(x.getProfessionName());
                 result.add(tmp);
             });
+        }
+        //处理自定义目录 --
+        if(CollUtil.isNotEmpty(fileList)){
             //4. 处理子项专业下的自定义文件 - 【fId = 文件Id  fParentId = 文件父Id fName = 文件名】
             List<CadFileVo> myFileList = fileList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getFId()))
                     .distinct().collect(Collectors.toList());

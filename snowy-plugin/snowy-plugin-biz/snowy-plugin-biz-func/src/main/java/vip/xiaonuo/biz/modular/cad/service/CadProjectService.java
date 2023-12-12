@@ -98,6 +98,6 @@ public interface CadProjectService extends IService<CadProject> {
      * @param myFileTreeParam
      * @return
      */
-    List<Tree<String>> myFileTree(MyFileTreeParam myFileTreeParam);
+    List<Tree<String>> prjFileTree(MyFileTreeParam myFileTreeParam);
 
 }

@@ -104,9 +104,9 @@ public class CadPluginController {
      */
     @ApiOperationSupport(order = 4)
     @ApiOperation("【CAD-插件端】根据项目Id,当前用户Id,获取当前项目当前人树状结构")
-    @GetMapping("/biz/cad/plugin/myFileTree")
-    public CommonResult<List<Tree<String>>> myFileTree(MyFileTreeParam myFileTreeParam) {
-        return CommonResult.data(cadProjectService.myFileTree(myFileTreeParam));
+    @GetMapping("/biz/cad/plugin/prjFileTree")
+    public CommonResult<List<Tree<String>>> prjFileTree(MyFileTreeParam myFileTreeParam) {
+        return CommonResult.data(cadProjectService.prjFileTree(myFileTreeParam));
     }
 
     /**

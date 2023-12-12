@@ -17,11 +17,13 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.biz.modular.cad.entity.CadFile;
 import vip.xiaonuo.biz.modular.cad.entity.CadProject;
 import vip.xiaonuo.biz.modular.cad.param.MyFileTreeParam;
 import vip.xiaonuo.biz.modular.cad.vo.CadFileVo;
 import vip.xiaonuo.biz.modular.cad.vo.CadProjectVo;
 import vip.xiaonuo.biz.modular.cad.vo.CadSubItemVo;
+import vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo;
 
 import java.util.List;
 
@@ -61,9 +63,15 @@ public interface CadProjectMapper extends BaseMapper<CadProject> {
     List<CadProjectVo> getProjectByUserId(String cadUserId);
 
     /**
-     * 获取我的【设计区】文件目录
+     * 根据项目Id等参数，获取自定义文件目录
      * @return
      */
-    List<CadFileVo> getMyFileTree(@Param(Constants.WRAPPER) Wrapper<CadProject> queryWrapper);
+    List<CadFileVo> getPrjFileTree(@Param(Constants.WRAPPER) Wrapper<CadFile> queryWrapper);
+
+    /**
+     * 根据项目Id等参数，获取项目目录结构
+     * @return
+     */
+    List<PrjStageSubProfVo> getPrjStageSubProf(@Param(Constants.WRAPPER) Wrapper<CadProject> queryWrapper);
 
 }

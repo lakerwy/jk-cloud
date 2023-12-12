@@ -36,19 +36,32 @@
                                                )
     </select>
 
-    <select id="getMyFileTree" resultType="vip.xiaonuo.biz.modular.cad.vo.CadFileVo">
-        select a.ID as prjId,a.NAME as prjNAME,
+    <select id="getPrjStageSubProf" resultType="vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo">
+        select distinct a.ID as prjId,a.NAME as prjName,
                e.ID as stageId,e.NAME as stageName,
                b.ID as subItemId,b.NAME as subItemName,
                f.ID as professionId,f.NAME as professionName,
-               d.ID as fId,d.PARENT_ID as fParentId,d.NAME as fName,d.TYPE as fType,
-               d.CLOUD_POINTS as fCloudPoints,d.NOTE_POINTS as fNotePoints
+               e.SORT_INDEX as stageIndex,f.SORT_INDEX as professionIndex
         from BIZ_CAD_PROJECT a
           LEFT JOIN BIZ_CAD_SUB_ITEM b on b.PRJ_ID = a.ID and b.DELETE_FLAG = 'NOT_DELETE'
           LEFT JOIN BIZ_CAD_SUB_ITEM_USER c on c.SUB_ITEM_ID = b.ID and c.DELETE_FLAG='NOT_DELETE'
-          LEFT JOIN BIZ_CAD_FILE d on d.PROFESSION_ID = c.CAD_PROFESSION_ID and d.SUB_ITEM_ID = c.SUB_ITEM_ID and d.DELETE_FLAG='NOT_DELETE'
           LEFT JOIN BIZ_CAD_STAGE e on e.ID = b.STAGE_ID
           LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = c.CAD_PROFESSION_ID
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getPrjFileTree" resultType="vip.xiaonuo.biz.modular.cad.vo.CadFileVo">
+        select a.ID as prjId,a.NAME as prjName,
+               e.ID as stageId,e.NAME as stageName,
+               b.ID as subItemId,b.NAME as subItemName,
+               f.ID as professionId,f.NAME as professionName,
+               file.ID as fId,file.PARENT_ID as fParentId,file.NAME as fName,file.TYPE as fType,
+               file.CLOUD_POINTS as fCloudPoints,file.NOTE_POINTS as fNotePoints
+        from BIZ_CAD_FILE file
+             left join BIZ_CAD_PROJECT a on a.ID = file.PRJ_ID
+             LEFT JOIN BIZ_CAD_SUB_ITEM b on b.ID = file.SUB_ITEM_ID
+             LEFT JOIN BIZ_CAD_STAGE e on e.ID = file.STAGE_ID
+             LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = file.PROFESSION_ID
             ${ew.customSqlSegment}
     </select>
 
