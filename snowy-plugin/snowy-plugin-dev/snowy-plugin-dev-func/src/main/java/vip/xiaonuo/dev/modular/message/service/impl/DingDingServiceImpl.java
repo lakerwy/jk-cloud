@@ -4,6 +4,8 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
@@ -17,6 +19,7 @@ import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.auth.api.AuthThirdApi;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.pojo.RabbitMsg;
@@ -423,34 +426,47 @@ public class DingDingServiceImpl implements IDingDingService {
         if(!dingTalkProperties.getIsSend()){
             return;
         }
-        List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(new ArrayList<>(rabbitMsg.getUserSets()));
-        //手机号集合
-        List<String> collect = users.stream().map(u -> u.getStr("account")).collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(collect)){
-            try {
-                for (String cl : collect) {
-                    sendExecs.execute(()->commonAsyncSendForm(rabbitMsg,cl));
-                }
-            }catch (Exception e){
-                log.info("> > > > >发送钉钉通知失败",e);
+        AuthThirdApi authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
+        Set<String> userSets = rabbitMsg.getUserSets();
+        userSets.forEach(userId->{
+            String thirdId = authThirdApi.getThirdIdByUserId(userId,"DingDing");
+            if(StrUtil.isEmpty(thirdId)){
+                thirdId = getUserId(userId);
             }
-        }
+            if(StrUtil.isNotEmpty(thirdId)){
+                String finalThirdId = thirdId;
+                sendExecs.execute(()->commonAsyncSendForm(rabbitMsg, finalThirdId));
+            }
+        });
+
+//        //手机号集合
+//        List<String> collect = users.stream().map(u -> u.getStr("account")).collect(Collectors.toList());
+//        if(CollUtil.isNotEmpty(collect)){
+//            try {
+//                for (String cl : collect) {
+//                    sendExecs.execute(()->commonAsyncSendForm(rabbitMsg,cl));
+//                }
+//            }catch (Exception e){
+//                log.info("> > > > >发送钉钉通知失败",e);
+//            }
+//        }
     }
 
 
-    public void commonAsyncSendForm(RabbitMsg rabbitMsg,String phone) {
-        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = getByMobile(phone);
-        if (!oapiV2UserGetbymobileResponse.isSuccess()) {
-            log.error(oapiV2UserGetbymobileResponse.getErrmsg());
-            return;
-        }
-        OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
+    public void commonAsyncSendForm(RabbitMsg rabbitMsg,String userid) {
+//        OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = getByMobile(phone);
+//        if (!oapiV2UserGetbymobileResponse.isSuccess()) {
+//            log.error(oapiV2UserGetbymobileResponse.getErrmsg());
+//            return;
+//        }
+//        OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
+//        String userid = result.getUserid();
 
         DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/message/corpconversation/asyncsend_v2");
         OapiMessageCorpconversationAsyncsendV2Request request = new OapiMessageCorpconversationAsyncsendV2Request();
         // yourAgentId
         request.setAgentId(dingTalkProperties.getAgentId());
-        request.setUseridList(result.getUserid());
+        request.setUseridList(userid);
         request.setToAllUser(false);
 
         OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
@@ -480,6 +496,22 @@ public class DingDingServiceImpl implements IDingDingService {
         } catch (ApiException e) {
             e.printStackTrace();
         }
+    }
+
+    public String getUserId(String userId){
+        List<JSONObject> users = sysUserApi.getUserListByIdListWithoutException(CollUtil.newArrayList(userId));
+        List<String> collect = users.stream().map(u -> u.getStr("account")).collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(collect)){
+            String account = collect.get(0);
+            OapiV2UserGetbymobileResponse oapiV2UserGetbymobileResponse = getByMobile(account);
+            if (!oapiV2UserGetbymobileResponse.isSuccess()) {
+                log.error(oapiV2UserGetbymobileResponse.getErrmsg());
+                return null;
+            }
+            OapiV2UserGetbymobileResponse.UserGetByMobileResponse result = oapiV2UserGetbymobileResponse.getResult();
+            return result.getUserid();
+        }
+        return null;
     }
 
     /**

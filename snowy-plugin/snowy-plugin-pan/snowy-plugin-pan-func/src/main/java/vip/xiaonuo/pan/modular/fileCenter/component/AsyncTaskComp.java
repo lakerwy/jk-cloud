@@ -1,5 +1,6 @@
 package vip.xiaonuo.pan.modular.fileCenter.component;
 
+import cn.hutool.core.io.FileUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -112,12 +113,13 @@ public class AsyncTaskComp {
 //    }
 
 
-    public Future<String> saveUnzipFile(UserFile userFile, PanFile panFile, int unzipMode, String entryName, String filePath) {
+    public Future<String> saveUnzipFile(UserFile userFile, PanFile panFile, int unzipMode, String entryName, String filePath,String parentId) {
         String unzipUrl = FileCenterUtil.getTempFile(panFile.getFileUrl()).getAbsolutePath().replace("." + userFile.getExtendName(), "");
-        String totalFileUrl = unzipUrl + entryName;
+        String totalFileUrl = unzipUrl + FileUtil.FILE_SEPARATOR +entryName;
         File currentFile = new File(totalFileUrl);
 
         String fileId = null;
+        Long fileSize = 0L;
         if (!currentFile.isDirectory()) {
 
             FileInputStream fis = null;
@@ -126,7 +128,7 @@ public class AsyncTaskComp {
                 fis = new FileInputStream(currentFile);
                 md5Str = DigestUtils.md5Hex(fis);
             } catch (IOException e) {
-                e.printStackTrace();
+                log.error(e+"");
             } finally {
                 IOUtils.closeQuietly(fis);
             }
@@ -140,6 +142,7 @@ public class AsyncTaskComp {
 
                 if (list != null && !list.isEmpty()) { //文件已存在
                     fileId = list.get(0).getId();
+                    fileSize = list.get(0).getFileSize();
                 } else { //文件不存在
                     fileInputStream = new FileInputStream(currentFile);
                     CopyFile createFile = new CopyFile();
@@ -149,18 +152,20 @@ public class AsyncTaskComp {
                     PanFile tempFileBean = new PanFile(saveFileUrl, currentFile.length(), FileFactory.storageType, md5Str, userFile.getUserId());
 ;                   fileService.save(tempFileBean);
                     fileId = tempFileBean.getId();
+                    fileSize = tempFileBean.getFileSize();
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+//                e.printStackTrace();
+                log.error(e+"");
             } finally {
                 IOUtils.closeQuietly(fileInputStream);
                 System.gc();
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
-                    e.printStackTrace();
+                    log.error(e+"");
                 }
-                currentFile.delete();
+                boolean delete = currentFile.delete();
             }
 
 
@@ -171,12 +176,12 @@ public class AsyncTaskComp {
         if (unzipMode == 0) {
             commonFile = new CommonFile(userFile.getFilePath(), entryName, currentFile.isDirectory());
         } else if (unzipMode == 1) {
-            commonFile = new CommonFile(userFile.getFilePath() + "/" + userFile.getFileName(), entryName, currentFile.isDirectory());
+            commonFile = new CommonFile(userFile.getFilePath() + FileUtil.FILE_SEPARATOR + userFile.getFileName(), entryName, currentFile.isDirectory());
         } else if (unzipMode == 2) {
             commonFile = new CommonFile(filePath, entryName, currentFile.isDirectory());
         }
-
         assert commonFile != null;
+        commonFile.setParentId(parentId);
         UserFile saveUserFile = new UserFile(commonFile, userFile.getUserId(), fileId);
         String fileName = fileDealComp.getRepeatFileName(saveUserFile, saveUserFile.getFilePath());
 
@@ -184,11 +189,13 @@ public class AsyncTaskComp {
             //如果是目录，而且重复，什么也不做
         } else {
             saveUserFile.setFileName(fileName);
-            userFile.setParentId(userFile.getParentId());
+            saveUserFile.setParentId(commonFile.getParentId());
+            //解压后的foldType 和原压缩文件一致
+            saveUserFile.setFoldType(userFile.getFoldType());
+            saveUserFile.setFileSize(fileSize);
             userFileService.save(saveUserFile);
         }
-        commonFile.setParentId(userFile.getParentId());
-        fileDealComp.restoreParentFilePath(commonFile, userFile.getUserId());
+       // fileDealComp.restoreParentFilePath(commonFile, userFile.getUserId());
 
         return new AsyncResult<>("saveUnzipFile");
     }

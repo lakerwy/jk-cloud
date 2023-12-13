@@ -14,8 +14,11 @@ package vip.xiaonuo.pan.modular.file.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.ZipUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -48,9 +51,11 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
 /**
  * 文件Service接口实现类
@@ -124,12 +129,27 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
     @Override
     public void unzipFile(UnzipFileParam unzipFileParam) {
+        String parentId = null;
+        if(unzipFileParam.getUnzipMode() == 2){
+            if(StrUtil.isEmpty(unzipFileParam.getFilePath())){
+                throw new CommonException("解压目标目录不能为空");
+            }
+            String filePath = unzipFileParam.getFilePath();
+            UserFile parentIdByPath = userFileService.getParentIdByPath(filePath);
+            if(ObjectUtil.isNull(parentIdByPath)){
+                throw new CommonException("目标目录不存在");
+            }
+            parentId = parentIdByPath.getId();
+        }
         UserFile userFile = userFileService.getById(unzipFileParam.getUserFileId());
         if(ObjectUtil.isEmpty(userFile)){
             throw new CommonException("文件不存在，id值为：{}", unzipFileParam.getUserFileId());
         }
+        if(unzipFileParam.getUnzipMode() == 0){
+            parentId = userFile.getParentId();
+        }
         PanFile panFile = getById(userFile.getFileId());
-        File destFile = new File(FileCenterUtil.getStaticPath() + "temp" + File.separator + panFile.getFileUrl());
+        File destFile = new File(FileCenterUtil.getStaticPath() + "temp" + File.separator + panFile.getFileUrl().replace(FileCenterUtil.getStaticPath(),""));
 
 
         Downloader downloader = fileFactory.getDownloader(panFile.getStorageType());
@@ -151,8 +171,13 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
         List<String> fileEntryNameList = new ArrayList<>();
 
         try {
-            fileEntryNameList = FileOperation.unzip(destFile, unzipUrl);
+//            fileEntryNameList = FileOperation.unzip(destFile, unzipUrl);
+            ZipUtil.unzip(destFile, new File(unzipUrl));
+            fileEntryNameList =  Arrays.stream(FileUtil.ls(unzipUrl))
+                    .map(File::getName)
+                    .collect(Collectors.toList());
         } catch (Exception e) {
+            log.error(e+"");
             throw new CommonException("解压失败--",e);
         }
 
@@ -160,18 +185,21 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             boolean delete = destFile.delete();
         }
 
-        if (!fileEntryNameList.isEmpty() && unzipFileParam.getUnzipMode() == 1) {
+        if (CollUtil.isNotEmpty(fileEntryNameList) && unzipFileParam.getUnzipMode() == 1) {
+            //新建文件夹
             UserFile userFile1 = new UserFile();
-            userFile1.setFileId(userFile.getUserId());
+//            userFile1.setFileId(userFile.getUserId());
             userFile1.setFileName(userFile.getFileName());
             userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()));
+            userFile1.setParentId(userFile.getParentId());
             userFile1.setIsDir(1);
             userFile1.setFoldType(userFile.getFoldType());
             userFile1.setOrgId(userFile1.getOrgId());
             userFileService.save(userFile1);
+            parentId = userFile1.getId();
         }
         for (String entryName : fileEntryNameList) {
-            asyncTaskComp.saveUnzipFile(userFile, panFile, unzipFileParam.getUnzipMode(), entryName, unzipFileParam.getFilePath());
+            asyncTaskComp.saveUnzipFile(userFile, panFile, unzipFileParam.getUnzipMode(), entryName, unzipFileParam.getFilePath(),parentId);
         }
     }
 

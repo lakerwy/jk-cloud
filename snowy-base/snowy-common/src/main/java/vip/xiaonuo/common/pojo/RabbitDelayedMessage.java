@@ -12,6 +12,6 @@ import lombok.Setter;
 @Getter
 public class RabbitDelayedMessage {
     private RabbitMsg rabbitMsg;
-    private Double limit;
+    private int limit;
     private String taskKey;
 }

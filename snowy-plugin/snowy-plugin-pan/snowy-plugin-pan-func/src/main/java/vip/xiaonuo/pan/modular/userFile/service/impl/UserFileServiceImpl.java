@@ -996,7 +996,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 if(0!=index){
                     newFilePath = filePath.substring(0,index);
                 }
-                List<UserFile> list = this.list(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFileName, fileName).eq(UserFile::getFilePath, newFilePath));
+                List<UserFile> list = this.list(new LambdaQueryWrapper<UserFile>().eq(UserFile::getFileName, fileName).eq(UserFile::getFilePath, newFilePath).eq(UserFile::getIsDir,IS_DIR));
                 if(CollUtil.isNotEmpty(list)){
                     queryWrapper.eq("PARENT_ID",list.get(0).getId());
                 }else {

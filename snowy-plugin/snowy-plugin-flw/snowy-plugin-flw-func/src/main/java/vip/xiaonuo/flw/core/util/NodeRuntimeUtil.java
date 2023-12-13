@@ -1409,7 +1409,7 @@ public class NodeRuntimeUtil {
         try {
             CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
             AtomicBoolean processEnableOverLimit = new AtomicBoolean(false);
-            AtomicReference<Double> processOverLimitTime = new AtomicReference<>();
+            AtomicReference<Integer> processOverLimitTime = new AtomicReference<>();
             Collection<ExtensionElements> processExtensionElementsCollection;
 
             processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance()
@@ -1430,7 +1430,7 @@ public class NodeRuntimeUtil {
                                         JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
                                         processEnableOverLimit.set(processConfigInfo.getBool("processEnableOverLimit"));
                                         if(processEnableOverLimit.get()) {
-                                            processOverLimitTime.set(processConfigInfo.getDouble("processOverLimitTime"));
+                                            processOverLimitTime.set(processConfigInfo.getInt("processOverLimitTime"));
                                         }
                                     }
                                 })));
@@ -1438,7 +1438,7 @@ public class NodeRuntimeUtil {
 
 
             if(processEnableOverLimit.get()) {
-                Double v = processOverLimitTime.get();
+                Integer v = processOverLimitTime.get();
                 if(null!=v && v>0){
                     StreamBridge streamBridge = SpringUtil.getBean(StreamBridge.class);
                     RabbitDelayedMessage rabbitDelayedMessage = new RabbitDelayedMessage();
@@ -1456,9 +1456,11 @@ public class NodeRuntimeUtil {
                     rabbitDelayedMessage.setTaskKey(key);
                     rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
                     rabbitDelayedMessage.setLimit(v);
+                    String messageId = String.valueOf(UUID.randomUUID());
                     Message<RabbitDelayedMessage> message = MessageBuilder
                             .withPayload(rabbitDelayedMessage)
                             .setHeader("x-delay", v*60*60*1000)
+//                            .setHeader(RabbitConstant.RABBIT_MESSAGE_ID, messageId)
 //                .copyHeaders(customHeaders)
                             .build();
 

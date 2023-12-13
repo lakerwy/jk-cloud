@@ -147,8 +147,8 @@ public class FileDealComp {
             lambdaQueryWrapper.eq(UserFile::getFilePath, parentFilePath)
                     .eq(UserFile::getFileName, fileName)
                     .eq(UserFile::getDeleteFlag, "NOT_DELETE")
-                    .eq(UserFile::getIsDir, 1)
-                    .eq(UserFile::getUserId, sessionUserId);
+                    .eq(UserFile::getIsDir, 1);
+//                    .eq(UserFile::getUserId, sessionUserId);
             List<UserFile> userFileList = userFileMapper.mySelectList(lambdaQueryWrapper);
             if (userFileList.isEmpty()) {
                 UserFile userFile = FileCommonUtil.getFileDir(sessionUserId, parentFilePath, fileName);

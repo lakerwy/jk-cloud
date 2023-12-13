@@ -198,12 +198,12 @@ public class PanFileController {
 
         UserFile parentUserFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
         //校验权限
-        panFileRightService.checkFileRight(Arrays.asList(parentUserFile.getId()),FileRight.UPLOAD,uploadFileParam.getRightType());
+        panFileRightService.checkFileRight(Collections.singletonList(parentUserFile.getId()),FileRight.UPLOAD,uploadFileParam.getRightType());
 
         fileTransferService.uploadFile(request,uploadFileParam);
 
         //记录文件操作日志
-        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(parentUserFile.getId()));
+        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Collections.singletonList(parentUserFile.getId()));
 
         return CommonResult.ok();
     }
