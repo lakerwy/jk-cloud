@@ -38,6 +38,7 @@ import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoIdParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoPageParam;
 import vip.xiaonuo.biz.modular.teambition.service.BizTaskInfoService;
 import vip.xiaonuo.biz.modular.teambition.service.BizTaskProjectService;
+import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -87,17 +88,27 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
          * 5.所属同一部门的其他人的任务(任务状态为非私有才可看)
          * 6.若为部门领导，可以看所有部门子任务(任何状态)
          * */
-        queryWrapper.lambda().eq(BizTaskInfo::getLeadId, saBaseLoginUser.getId())  //自己负责的任务
-                .or().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId())   //自己执行的任务
-                .or().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId())//自己参与的任务
-                .or().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId())//自己创建的的任务
-                .or().eq(BizTaskInfo::getLeadOrg,saBaseLoginUser.getOrgId());//同一部门的非私有任务
-        if(bizOrgService.count(new LambdaQueryWrapper<BizOrg>().eq(BizOrg::getDirectorId,saBaseLoginUser.getId())) > 0){
-            //创建人部门，执行人部门
-            List<String> childrenOrgIds = bizOrgService.getChildren(saBaseLoginUser.getOrgId()).stream().map(org -> org.getId()).collect(Collectors.toList());
-            //queryWrapper.lambda().or().in()
+        if(bizTaskInfoPageParam.getInfoType() == 0){
+            queryWrapper.lambda().eq(BizTaskInfo::getLeadId, saBaseLoginUser.getId())  //自己负责的任务
+                    .or().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId())   //自己执行的任务
+                    .or().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId())//自己参与的任务
+                    .or().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId())//自己创建的的任务
+                    .or().eq(BizTaskInfo::getLeadOrg,saBaseLoginUser.getOrgId());//同一部门的非私有任务
+            if(bizOrgService.count(new LambdaQueryWrapper<BizOrg>().eq(BizOrg::getDirectorId,saBaseLoginUser.getId())) > 0){
+                //创建人部门，执行人部门
+                List<String> childrenOrgIds = bizOrgService.getChildren(saBaseLoginUser.getOrgId()).stream().map(org -> org.getId()).collect(Collectors.toList());
+                queryWrapper.lambda().or().in(BizTaskInfo::getLeadOrg,childrenOrgIds);
+            }
+        }else if(bizTaskInfoPageParam.getInfoType() == 1){
+            queryWrapper.lambda().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId());  //自己负责的任务
+        }else if(bizTaskInfoPageParam.getInfoType() == 2){
+            queryWrapper.lambda().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId());  //自己执行的任务
+        }else if(bizTaskInfoPageParam.getInfoType() == 3){
+            queryWrapper.lambda().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId());//自己参与的任务
         }
-
+        if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskStatus())){ //任务状态
+            queryWrapper.lambda().eq(BizTaskInfo::getTaskStatus, bizTaskInfoPageParam.getTaskStatus());
+        }
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
@@ -132,10 +143,25 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         }
     }
 
+    /** 新增任务
+     *  1.任务数据
+     *  2.任务来源数据，比如会议A 的详情数据
+     * */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizTaskInfoAddParam bizTaskInfoAddParam) {
+        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && ObjectUtil.isEmpty(bizTaskInfoAddParam.getBizTaskProjectVo())){
+            throw new CommonException("新建任务没有任务来源信息！");
+        }
+        BizTaskProject bizTaskProject = new BizTaskProject();
+        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId())){
+            BizTaskProjectVo  bizTaskProjectVo = bizTaskInfoAddParam.getBizTaskProjectVo();
+            bizTaskProject = BeanUtil.toBean(bizTaskProjectVo, BizTaskProject.class);
+        }else{
+            bizTaskProject = bizTaskProjectService.getById(bizTaskInfoAddParam.getParentId());
+        }
         BizTaskInfo bizTaskInfo = BeanUtil.toBean(bizTaskInfoAddParam, BizTaskInfo.class);
+        bizTaskInfo.setProId(bizTaskProject.getId());
         this.save(bizTaskInfo);
     }
 
@@ -145,6 +171,14 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoEditParam.getId());
         BeanUtil.copyProperties(bizTaskInfoEditParam, bizTaskInfo);
         this.updateById(bizTaskInfo);
+        editBizTaskProject(bizTaskInfoEditParam);
+    }
+    private void editBizTaskProject(BizTaskInfoEditParam bizTaskInfoEditParam){
+        BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfoEditParam.getProId());
+        BizTaskProjectVo bizTaskProjectVo = bizTaskInfoEditParam.getBizTaskProjectVo();
+        bizTaskProject.setProName(bizTaskProjectVo.getProName());
+        bizTaskProject.setProDesc(bizTaskProjectVo.getProDesc());
+        bizTaskProjectService.updateById(bizTaskProject);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -156,7 +190,10 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
 
     @Override
     public BizTaskInfo detail(BizTaskInfoIdParam bizTaskInfoIdParam) {
-        return this.queryEntity(bizTaskInfoIdParam.getId());
+        BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoIdParam.getId());
+        BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfo.getProId());
+        bizTaskInfo.setBizTaskProject(bizTaskProject);
+        return bizTaskInfo;
     }
 
     @Override

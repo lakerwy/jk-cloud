@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.teambition.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -88,4 +89,7 @@ public class BizTaskInfoEditParam {
     @ApiModelProperty(value = "扩展信息", position = 15)
     private String extJson;
 
+    /** 任务来源信息详情 */
+    @ApiModelProperty(value = "任务来源信息详情", position = 16)
+    private BizTaskProjectVo bizTaskProjectVo;
 }

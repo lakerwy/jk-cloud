@@ -183,4 +183,6 @@ public interface SysOrgService extends IService<SysOrg> {
     List<SysOrg> getNewAllOrgList();
 
     List<SysOrg> listByCategory(String category);
+
+    List<SysUser> getChildrenUser(SysOrgIdParam sysOrgIdParam);
 }
