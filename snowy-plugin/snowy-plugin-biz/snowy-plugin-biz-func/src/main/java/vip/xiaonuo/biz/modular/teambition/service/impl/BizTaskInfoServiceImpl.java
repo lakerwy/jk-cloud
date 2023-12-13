@@ -31,6 +31,7 @@ import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskInfo;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskProject;
+import vip.xiaonuo.biz.modular.teambition.enums.BizTaskGroupEnum;
 import vip.xiaonuo.biz.modular.teambition.mapper.BizTaskInfoMapper;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoAddParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoEditParam;
@@ -39,6 +40,8 @@ import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoPageParam;
 import vip.xiaonuo.biz.modular.teambition.service.BizTaskInfoService;
 import vip.xiaonuo.biz.modular.teambition.service.BizTaskProjectService;
 import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
+import vip.xiaonuo.biz.modular.user.entity.BizUser;
+import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -63,6 +66,8 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     BizTaskProjectService bizTaskProjectService;
     @Resource
     BizOrgService bizOrgService;
+    @Resource
+    BizUserService bizUserService;
 
 
     @Override
@@ -95,9 +100,9 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                     .or().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId())//自己创建的的任务
                     .or().eq(BizTaskInfo::getLeadOrg,saBaseLoginUser.getOrgId());//同一部门的非私有任务
             if(bizOrgService.count(new LambdaQueryWrapper<BizOrg>().eq(BizOrg::getDirectorId,saBaseLoginUser.getId())) > 0){
-                //创建人部门，执行人部门
                 List<String> childrenOrgIds = bizOrgService.getChildren(saBaseLoginUser.getOrgId()).stream().map(org -> org.getId()).collect(Collectors.toList());
-                queryWrapper.lambda().or().in(BizTaskInfo::getLeadOrg,childrenOrgIds);
+                queryWrapper.lambda().or().in(BizTaskInfo::getLeadOrg,childrenOrgIds);//责任部门
+                queryWrapper.lambda().or().in(BizTaskInfo::getBelongerOrg,childrenOrgIds);//执行部门
             }
         }else if(bizTaskInfoPageParam.getInfoType() == 1){
             queryWrapper.lambda().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId());  //自己负责的任务
@@ -150,19 +155,42 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizTaskInfoAddParam bizTaskInfoAddParam) {
-        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && ObjectUtil.isEmpty(bizTaskInfoAddParam.getBizTaskProjectVo())){
-            throw new CommonException("新建任务没有任务来源信息！");
-        }
-        BizTaskProject bizTaskProject = new BizTaskProject();
-        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId())){
+        String proId = null;
+        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo()) && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo().getProName())){
             BizTaskProjectVo  bizTaskProjectVo = bizTaskInfoAddParam.getBizTaskProjectVo();
-            bizTaskProject = BeanUtil.toBean(bizTaskProjectVo, BizTaskProject.class);
+            BizTaskProject bizTaskProject = BeanUtil.toBean(bizTaskProjectVo, BizTaskProject.class);
+            bizTaskProjectService.save(bizTaskProject);
+            proId = bizTaskProject.getId();
         }else{
-            bizTaskProject = bizTaskProjectService.getById(bizTaskInfoAddParam.getParentId());
+            BizTaskInfo parentTaskInfo = this.getById(bizTaskInfoAddParam.getParentId());
+            if(ObjectUtil.isEmpty(parentTaskInfo)){
+                log.error("无父类任务！id:"+bizTaskInfoAddParam.getParentId());
+            }else{
+                proId = parentTaskInfo.getProId();
+            }
         }
         BizTaskInfo bizTaskInfo = BeanUtil.toBean(bizTaskInfoAddParam, BizTaskInfo.class);
-        bizTaskInfo.setProId(bizTaskProject.getId());
+        bizTaskInfo.setProId(proId);
+        initBizTaskInfo(bizTaskInfo);
         this.save(bizTaskInfo);
+    }
+    //数据初始化
+    private void initBizTaskInfo(BizTaskInfo bizTaskInfo){
+        bizTaskInfo.setTaskStatus(BizTaskGroupEnum.ZRROR.getValue());//任务状态初始化：未完成
+        if(ObjectUtil.isEmpty(bizTaskInfo.getTaskPriority())){
+            bizTaskInfo.setTaskPriority(BizTaskGroupEnum.ZRROR.getValue());//任务优先级初始化：最低
+        }
+        if(ObjectUtil.isNotEmpty(bizTaskInfo.getLeadId())){ //反查任务负责人的部门
+            BizUser bizUser = bizUserService.getById(bizTaskInfo.getLeadId());
+            bizTaskInfo.setLeadOrg(bizUser.getOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(bizTaskInfo.getBelonger())){ //反查任务执行者的部门
+            BizUser bizUser = bizUserService.getById(bizTaskInfo.getBelonger());
+            bizTaskInfo.setBelongerOrg(bizUser.getOrgId());
+        }
+        if(ObjectUtil.isEmpty(bizTaskInfo.getTaskModel())){//任务是否公开，默认公开
+            bizTaskInfo.setTaskModel(BizTaskGroupEnum.ZRROR.getValue());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -171,14 +199,20 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoEditParam.getId());
         BeanUtil.copyProperties(bizTaskInfoEditParam, bizTaskInfo);
         this.updateById(bizTaskInfo);
-        editBizTaskProject(bizTaskInfoEditParam);
+        if(ObjectUtil.isNotEmpty(bizTaskInfoEditParam.getProId())){
+            editBizTaskProject(bizTaskInfoEditParam);
+        }
     }
     private void editBizTaskProject(BizTaskInfoEditParam bizTaskInfoEditParam){
         BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfoEditParam.getProId());
-        BizTaskProjectVo bizTaskProjectVo = bizTaskInfoEditParam.getBizTaskProjectVo();
-        bizTaskProject.setProName(bizTaskProjectVo.getProName());
-        bizTaskProject.setProDesc(bizTaskProjectVo.getProDesc());
-        bizTaskProjectService.updateById(bizTaskProject);
+        if(ObjectUtil.isNotEmpty(bizTaskProject)){
+            BizTaskProjectVo bizTaskProjectVo = bizTaskInfoEditParam.getBizTaskProjectVo();
+            bizTaskProject.setProName(bizTaskProjectVo.getProName());
+            bizTaskProject.setProDesc(bizTaskProjectVo.getProDesc());
+            bizTaskProjectService.saveOrUpdate(bizTaskProject);
+            return;
+        }
+        log.error("未找到任务来源详情学习！proId:"+bizTaskInfoEditParam.getProId());
     }
 
     @Transactional(rollbackFor = Exception.class)

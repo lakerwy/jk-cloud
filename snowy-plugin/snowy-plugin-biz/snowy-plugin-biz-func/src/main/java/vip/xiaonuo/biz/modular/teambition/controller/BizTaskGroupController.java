@@ -329,7 +329,6 @@ public class BizTaskGroupController {
     @ApiOperationSupport(order = 19)
     @ApiOperation("删除任务主表")
     @CommonLog("删除任务主表")
-    //@SaCheckPermission("/biz/taskInfo/delete")
     @PostMapping("/biz/taskInfo/delete")
     public CommonResult<String> taskInfoEelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                CommonValidList<BizTaskInfoIdParam> bizTaskInfoIdParamList) {
@@ -345,7 +344,6 @@ public class BizTaskGroupController {
      */
     @ApiOperationSupport(order = 20)
     @ApiOperation("获取任务主表详情")
-    //@SaCheckPermission("/biz/taskInfo/detail")
     @GetMapping("/biz/taskInfo/detail")
     public CommonResult<BizTaskInfo> taskInfoDetail(@Valid BizTaskInfoIdParam bizTaskInfoIdParam) {
         return CommonResult.data(bizTaskInfoService.detail(bizTaskInfoIdParam));
@@ -362,7 +360,6 @@ public class BizTaskGroupController {
      */
     @ApiOperationSupport(order = 21)
     @ApiOperation("获取任务分组关联表（人或部门）分页")
-    //@SaCheckPermission("/biz/taskGroupRes/page")
     @GetMapping("/biz/taskGroupRes/page")
     public CommonResult<Page<BizTaskGroupRes>> groupResPage(BizTaskGroupResPageParam bizTaskGroupResPageParam) {
         return CommonResult.data(bizTaskGroupResService.page(bizTaskGroupResPageParam));
@@ -377,7 +374,6 @@ public class BizTaskGroupController {
     @ApiOperationSupport(order = 22)
     @ApiOperation("添加任务分组关联表（人或部门）")
     @CommonLog("添加任务分组关联表（人或部门）")
-    //@SaCheckPermission("/biz/taskGroupRes/add")
     @PostMapping("/biz/taskGroupRes/add")
     public CommonResult<String> groupResAdd(@RequestBody @Valid BizTaskGroupResAddParam bizTaskGroupResAddParam) {
         bizTaskGroupResService.add(bizTaskGroupResAddParam);
@@ -393,7 +389,6 @@ public class BizTaskGroupController {
     @ApiOperationSupport(order = 23)
     @ApiOperation("编辑任务分组关联表（人或部门）")
     @CommonLog("编辑任务分组关联表（人或部门）")
-    //@SaCheckPermission("/biz/taskGroupRes/edit")
     @PostMapping("/biz/taskGroupRes/edit")
     public CommonResult<String> groupResEdit(@RequestBody @Valid BizTaskGroupResEditParam bizTaskGroupResEditParam) {
         bizTaskGroupResService.edit(bizTaskGroupResEditParam);
@@ -409,7 +404,6 @@ public class BizTaskGroupController {
     @ApiOperationSupport(order = 24)
     @ApiOperation("删除任务分组关联表（人或部门）")
     @CommonLog("删除任务分组关联表（人或部门）")
-    //@SaCheckPermission("/biz/taskGroupRes/delete")
     @PostMapping("/biz/taskGroupRes/delete")
     public CommonResult<String> groupResDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                CommonValidList<BizTaskGroupResIdParam> bizTaskGroupResIdParamList) {
@@ -425,7 +419,6 @@ public class BizTaskGroupController {
      */
     @ApiOperationSupport(order = 25)
     @ApiOperation("获取任务分组关联表（人或部门）详情")
-    //@SaCheckPermission("/biz/taskGroupRes/detail")
     @GetMapping("/biz/taskGroupRes/detail")
     public CommonResult<BizTaskGroupRes> groupResDetail(@Valid BizTaskGroupResIdParam bizTaskGroupResIdParam) {
         return CommonResult.data(bizTaskGroupResService.detail(bizTaskGroupResIdParam));
