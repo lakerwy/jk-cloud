@@ -60,4 +60,7 @@ public class BizTaskProjectPageParam {
     @ApiModelProperty(value = "项目分组ID")
     private String groupId;
 
+    /** 创建人 */
+    @ApiModelProperty(value = "创建人")
+    private String createUser;
 }

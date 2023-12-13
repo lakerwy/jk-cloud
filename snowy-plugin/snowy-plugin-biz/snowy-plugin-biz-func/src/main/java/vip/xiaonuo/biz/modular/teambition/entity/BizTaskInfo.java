@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -51,8 +52,8 @@ public class BizTaskInfo {
     @ApiModelProperty(value = "任务备注", position = 5)
     private String taskRemark;
 
-    /** 项目ID */
-    @ApiModelProperty(value = "项目ID", position = 6)
+    /** 任务来源详情ID */
+    @ApiModelProperty(value = "任务来源详情ID", position = 6)
     private String proId;
 
     /** 任务开始时间 */
@@ -116,4 +117,17 @@ public class BizTaskInfo {
     @ApiModelProperty(value = "更新人", position = 20)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 负责人ID */
+    @ApiModelProperty(value = "负责人ID", position = 21)
+    private String leadId;
+
+    /** 负责人ID */
+    @ApiModelProperty(value = "负责人ID", position = 22)
+    private String leadOrg;
+
+    /** 任务来源详情表 */
+    @ApiModelProperty(value = "任务来源详情表", position = 23)
+    @TableField(exist = false)
+    private BizTaskProject bizTaskProject;
 }

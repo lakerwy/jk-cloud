@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 任务项目表实体
+ * 任务管理平台-任务来源详情表
  *
  * @author ljy
  * @date  2023/12/08 09:06
@@ -96,4 +96,8 @@ public class BizTaskProject {
     @ApiModelProperty(value = "更新人", position = 15)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 第三方任务来源流水号 */
+    @ApiModelProperty(value = "第三方任务来源流水号", position = 16)
+    private String sn;
 }

@@ -182,4 +182,5 @@ public interface BizOrgService extends IService<BizOrg> {
      */
     List<JSONObject> dynamicFieldConfigList();
 
+    List<BizOrg> getChildren(String orgId);
 }

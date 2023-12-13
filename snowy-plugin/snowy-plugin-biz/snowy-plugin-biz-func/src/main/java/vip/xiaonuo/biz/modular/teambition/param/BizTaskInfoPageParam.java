@@ -15,6 +15,8 @@ package vip.xiaonuo.biz.modular.teambition.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -56,28 +58,12 @@ public class BizTaskInfoPageParam {
     @ApiModelProperty(value = "任务名称")
     private String taskName;
 
-    /** 项目ID */
-    @ApiModelProperty(value = "项目ID")
-    private String proId;
+    @ApiModelProperty(value = "开始时间", required = true,position = 9)
+    @NotNull(message = "开始时间不能为空")
+    private String taskStartTime;
 
-    /** 任务开始时间开始 */
-    @ApiModelProperty(value = "任务开始时间开始")
-    private String startTaskStartTime;
-
-    /** 任务开始时间结束 */
-    @ApiModelProperty(value = "任务开始时间结束")
-    private String endTaskStartTime;
-
-    /** 任务结束时间开始 */
-    @ApiModelProperty(value = "任务结束时间开始")
-    private String startTaskEndTime;
-
-    /** 任务结束时间结束 */
-    @ApiModelProperty(value = "任务结束时间结束")
-    private String endTaskEndTime;
-
-    /** 任务执行者 */
-    @ApiModelProperty(value = "任务执行者")
-    private String belonger;
+    @ApiModelProperty(value = "结束时间", required = true,position = 10)
+    @NotNull(message = "结束时间不能为空")
+    private String taskEndTime;
 
 }

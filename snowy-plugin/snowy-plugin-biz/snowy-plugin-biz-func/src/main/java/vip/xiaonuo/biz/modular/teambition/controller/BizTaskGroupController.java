@@ -211,8 +211,7 @@ public class BizTaskGroupController {
     }
 
 
-
-    /** 获取任务项目数据接口*/
+    /** 任务管理平台-任务来源详情表*/
     /**
      * 获取任务项目表分页
      *
