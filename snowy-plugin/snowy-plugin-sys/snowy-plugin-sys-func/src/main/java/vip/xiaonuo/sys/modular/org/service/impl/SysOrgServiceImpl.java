@@ -481,4 +481,10 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
         queryWrapper.lambda().orderByAsc(SysOrg::getName);
         return this.list(queryWrapper);
     }
+
+    @Override
+    public List<SysUser> getChildrenUser(SysOrgIdParam sysOrgIdParam){
+        List<String> orgIds = sysOrgMapper.getChildren(sysOrgIdParam.getId()).stream().map(org -> org.getId()).collect(Collectors.toList());
+        return sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getOrgId,orgIds));
+    }
 }

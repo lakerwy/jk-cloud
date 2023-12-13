@@ -24,7 +24,9 @@ import lombok.Getter;
 public enum BizTaskGroupEnum {
 
     /** 测试 */
-    TEST("TEST");
+    TEST("TEST"),
+    ZRROR("0"),
+    ONE("1");
 
     private final String value;
 

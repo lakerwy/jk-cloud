@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -40,6 +41,7 @@ import java.util.List;
  * @author ljy
  * @date  2023/12/08 08:58
  **/
+@DS("slave_1")
 @Service
 public class BizTaskGroupServiceImpl extends ServiceImpl<BizTaskGroupMapper, BizTaskGroup> implements BizTaskGroupService {
 

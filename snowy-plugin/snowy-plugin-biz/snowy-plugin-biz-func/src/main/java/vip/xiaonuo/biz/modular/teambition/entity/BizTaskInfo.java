@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -51,8 +52,8 @@ public class BizTaskInfo {
     @ApiModelProperty(value = "任务备注", position = 5)
     private String taskRemark;
 
-    /** 项目ID */
-    @ApiModelProperty(value = "项目ID", position = 6)
+    /** 任务来源详情ID */
+    @ApiModelProperty(value = "任务来源详情ID", position = 6)
     private String proId;
 
     /** 任务开始时间 */
@@ -71,16 +72,16 @@ public class BizTaskInfo {
     @ApiModelProperty(value = "任务状态", position = 10)
     private String taskStatus;
 
-    /** 任务优先级 */
-    @ApiModelProperty(value = "任务优先级", position = 11)
+    /** 任务优先级：0 最低，1较低，2普通，3较高，4 最高*/
+    @ApiModelProperty(value = "任务优先级(默认为最低 0)：0 最低，1 较低，2 普通，3 较高，4 最高", position = 11)
     private String taskPriority;
 
-    /** 参与人集合 */
-    @ApiModelProperty(value = "参与人集合", position = 12)
+    /** 参与人集合，参与人ID，逗号隔开 */
+    @ApiModelProperty(value = "参与人集合，参与人ID，逗号隔开", position = 12)
     private String taskParticipants;
 
-    /** 任务模式（公开或私密） */
-    @ApiModelProperty(value = "任务模式（公开或私密）", position = 13)
+    /** 任务模式(公开或私密,默认为公开 0)：0 公开，1 私密 */
+    @ApiModelProperty(value = "任务模式(公开或私密,默认为公开 0)：0 公开，1 私密", position = 13)
     private String taskModel;
 
     /** 数据权限控制字段 */
@@ -116,4 +117,21 @@ public class BizTaskInfo {
     @ApiModelProperty(value = "更新人", position = 20)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 负责人ID */
+    @ApiModelProperty(value = "负责人ID", position = 21)
+    private String leadId;
+
+    /** 负责人ID */
+    @ApiModelProperty(value = "负责人ID", position = 22)
+    private String leadOrg;
+
+    /** 任务来源详情表 */
+    @ApiModelProperty(value = "任务来源详情表", position = 23)
+    @TableField(exist = false)
+    private BizTaskProject bizTaskProject;
+
+    /** 任务执行者部门 */
+    @ApiModelProperty(value = "任务执行者部门", position = 24)
+    private String belongerOrg;
 }

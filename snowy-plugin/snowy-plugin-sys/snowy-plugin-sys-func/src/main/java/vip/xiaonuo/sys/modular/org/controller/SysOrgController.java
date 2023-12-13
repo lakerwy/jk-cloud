@@ -203,4 +203,17 @@ public class SysOrgController {
     public CommonResult<List<SysOrg>> listByCategory(String category) {
         return CommonResult.data(sysOrgService.listByCategory(category));
     }
+
+    /**
+     * 获取部门的子部门人员信息
+     *
+     * @author ljy
+     * @date 2022/12/13 10:00
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("获取部门的子部门人员信息")
+    @GetMapping("/sys/org/getChildrenUser")
+    public CommonResult<List<SysUser>> getChildrenUser(@Valid SysOrgIdParam sysOrgIdParam) {
+        return CommonResult.data(sysOrgService.getChildrenUser(sysOrgIdParam));
+    }
 }

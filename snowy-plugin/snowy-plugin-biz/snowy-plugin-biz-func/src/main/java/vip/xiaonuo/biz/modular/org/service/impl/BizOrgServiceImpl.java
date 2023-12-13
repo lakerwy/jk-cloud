@@ -24,6 +24,7 @@ import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -79,6 +80,8 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
 
     @Resource
     private DevDfcApi devDfcApi;
+    @Resource
+    BizOrgMapper bizOrgMapper;
 
 
     @Override
@@ -464,5 +467,10 @@ public class BizOrgServiceImpl extends ServiceImpl<BizOrgMapper, BizOrg> impleme
     public BizOrg getChildById(List<BizOrg> originDataList, String id) {
         int index = CollStreamUtil.toList(originDataList, BizOrg::getParentId).indexOf(id);
         return index == -1?null:originDataList.get(index);
+    }
+    @DS("master")
+    @Override
+    public List<BizOrg> getChildren(String orgId) {
+        return bizOrgMapper.getChildren(orgId);
     }
 }
