@@ -42,17 +42,29 @@ public class CadProofread {
     @ApiModelProperty(value = "租户Id", position = 2)
     private String tenantId;
 
+    /** 外键：项目Id -> BIZ_CAD_PROJECT.ID */
+    @ApiModelProperty(value = "外键：项目Id -> BIZ_CAD_PROJECT.ID", position = 6)
+    private String prjId;
+
+    /** 外键：阶段Id -> BIZ_CAD_STAGE.ID */
+    @ApiModelProperty(value = "外键：阶段Id -> BIZ_CAD_STAGE.ID", position = 7)
+    private String stageId;
+
     /** 外键：子项Id -> BIZ_CAD_SUB_ITEM.ID */
     @ApiModelProperty(value = "外键：子项Id -> BIZ_CAD_SUB_ITEM.ID", position = 3)
     private String subItemId;
 
     /** 外键：cad专业Id -> BIZ_CAD_PROFESSION.ID */
     @ApiModelProperty(value = "外键：cad专业Id -> BIZ_CAD_PROFESSION.ID", position = 4)
-    private String cadProfessionId;
+    private String professionId;
 
-    /** 外键：文件版本Id -> BIZ_CAD_FILE_HISTORY.ID */
-    @ApiModelProperty(value = "外键：文件版本Id -> BIZ_CAD_FILE_HISTORY.ID", position = 5)
-    private String hisId;
+//    /** 外键：文件版本Id -> BIZ_CAD_FILE_HISTORY.ID */
+//    @ApiModelProperty(value = "外键：文件版本Id -> BIZ_CAD_FILE_HISTORY.ID", position = 5)
+//    private String hisId;
+
+    /** 外键：提资|成品成果文件Id -> BIZ_CAD_STORAGE.ID */
+    @ApiModelProperty(value = "外键：文件版本Id -> BIZ_CAD_STORAGE.ID", position = 5)
+    private String storageId;
 
     /** 审批类型：提资|校审 */
     @ApiModelProperty(value = "审批类型：提资|校审", position = 6)

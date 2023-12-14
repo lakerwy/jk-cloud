@@ -92,7 +92,7 @@ public class CadStorage {
 
     /** 创建人 */
     @ApiModelProperty(value = "创建人", position = 15)
-    @TableField(fill = FieldFill.INSERT)
+//    @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 更新时间 */
@@ -102,6 +102,14 @@ public class CadStorage {
 
     /** 更新人 */
     @ApiModelProperty(value = "更新人", position = 17)
-    @TableField(fill = FieldFill.UPDATE)
+//    @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** [提资|成品成果文件] 复制文件的附件Id：BIZ_CAD_FILE_HISTORY.Id */
+    @ApiModelProperty(value = "[提资|成品成果文件] 复制文件的附件Id：BIZ_CAD_FILE_HISTORY.Id", position = 20)
+    private String hisId;
+
+    /** [提资|成品成果文件] 复制文件的附件Id：BIZ_CAD_FILE_HISTORY.DownLoadURL */
+    @ApiModelProperty(value = "[提资|成品成果文件] 复制文件的附件Id：BIZ_CAD_FILE_HISTORY.DownLoadUrl", position = 20)
+    private String hisDownLoadUrl;
 }

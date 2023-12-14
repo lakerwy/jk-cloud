@@ -70,6 +70,10 @@ public class CadFileHistory {
     @ApiModelProperty(value = "备注", position = 9)
     private String memo;
 
+    /** 文件名称 */
+    @ApiModelProperty(value = "文件名称", position = 9)
+    private String fileName;
+
     /** 删除状态标记 */
     @ApiModelProperty(value = "删除状态标记", position = 10)
     @TableLogic

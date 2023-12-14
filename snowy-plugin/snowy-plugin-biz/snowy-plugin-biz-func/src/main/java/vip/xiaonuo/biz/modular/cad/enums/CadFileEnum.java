@@ -23,8 +23,14 @@ import lombok.Getter;
 @Getter
 public enum CadFileEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 文件 */
+    FILE("FILE"),
+
+    /** 文件夹 */
+    FOLD("FOLD"),
+
+    /** 批注 */
+    TAG("TAG");
 
     private final String value;
 

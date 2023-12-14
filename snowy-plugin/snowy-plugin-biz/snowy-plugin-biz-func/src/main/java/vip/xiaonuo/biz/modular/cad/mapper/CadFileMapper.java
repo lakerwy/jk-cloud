@@ -15,6 +15,8 @@ package vip.xiaonuo.biz.modular.cad.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.cad.entity.CadFile;
 
+import java.util.List;
+
 /**
  * CAD-自定义文件目录表Mapper接口
  *
@@ -22,4 +24,19 @@ import vip.xiaonuo.biz.modular.cad.entity.CadFile;
  * @date  2023/12/01 15:34
  **/
 public interface CadFileMapper extends BaseMapper<CadFile> {
+
+    /**
+     * 递归获取当前文件及其父级
+     * @param fileId 文件目录Id
+     * @return
+     */
+    List<CadFile> getParent(String fileId);
+
+    /**
+     * 递归获取当前文件及其子集【可筛选类别】
+     * @param fileId 文件目录Id
+     * @param type 目录类别
+     * @return
+     */
+    List<CadFile> getChildren(String fileId,String type);
 }

@@ -83,4 +83,19 @@ public interface CadFileService extends IService<CadFile> {
      **/
     void reName(CadFileReName cadFileReName);
 
+    /**
+     * 根据文件目录Id，获取其父级
+     * @param fileId 目录Id
+     * @return
+     */
+    List<CadFile> getParent(String fileId);
+
+    /**
+     * 根据文件目录Id，获取其父级
+     * @param fileId 目录Id
+     * @param type 目录类别
+     * @return
+     */
+    List<CadFile> getChildren(String fileId,String type);
+
 }

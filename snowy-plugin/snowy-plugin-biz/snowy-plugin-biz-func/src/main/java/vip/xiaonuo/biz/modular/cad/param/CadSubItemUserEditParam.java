@@ -46,7 +46,7 @@ public class CadSubItemUserEditParam {
 
     /** 外键：cad专业Id -> BIZ_CAD_PROFESSION.ID */
     @ApiModelProperty(value = "外键：cad专业Id -> BIZ_CAD_PROFESSION.ID", position = 5)
-    private String cadProfessionId;
+    private String professionId;
 
     /** 是否专业负责人 */
     @ApiModelProperty(value = "是否专业负责人", position = 6)

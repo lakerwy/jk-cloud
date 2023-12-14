@@ -71,4 +71,12 @@ public class CadStorageAddParam {
     @ApiModelProperty(value = "备注", position = 12)
     private String memo;
 
+    /** [提资|成品成果文件] 复制文件的附件Id：BIZ_CAD_FILE_HISTORY.Id */
+    @ApiModelProperty(value = "[提资|成品成果文件] 复制文件的附件Id：BIZ_CAD_FILE_HISTORY.Id", position = 20)
+    private String hisId;
+
+    /** [提资|成品成果文件] 复制文件的附件Id：BIZ_CAD_FILE_HISTORY.DownLoadURL */
+    @ApiModelProperty(value = "[提资|成品成果文件] 复制文件的附件Id：BIZ_CAD_FILE_HISTORY.DownLoadUrl", position = 20)
+    private String hisDownLoadUrl;
+
 }

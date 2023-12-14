@@ -42,7 +42,7 @@ public class CadUserProfessionEditParam {
 
     /** 外键：cad专业Id -> BIZ_CAD_PROFESSION.ID */
     @ApiModelProperty(value = "外键：cad专业Id -> BIZ_CAD_PROFESSION.ID", position = 4)
-    private String cadProfessionId;
+    private String professionId;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 5)

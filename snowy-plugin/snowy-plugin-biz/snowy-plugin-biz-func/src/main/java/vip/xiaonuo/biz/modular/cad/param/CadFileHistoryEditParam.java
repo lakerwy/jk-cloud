@@ -75,4 +75,8 @@ public class CadFileHistoryEditParam {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date oprTime;
+
+    /** 文件名称 */
+    @ApiModelProperty(value = "文件名称", position = 8)
+    private String fileName;
 }

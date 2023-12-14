@@ -163,13 +163,13 @@ public class CadUserServiceImpl extends ServiceImpl<CadUserMapper, CadUser> impl
                 //历史有设置记录，需处理(新增|删除)
                 if(ObjectUtil.isNotEmpty(tmps)){
                     //历史设置的专业Ids
-                    List<String> tmpProfessionIds = tmps.stream().map(x->x.getCadProfessionId()).collect(Collectors.toList());
+                    List<String> tmpProfessionIds = tmps.stream().map(x->x.getProfessionId()).collect(Collectors.toList());
                     List<String> tmpAddProfessionIds = cadUserProfessionParam.getProfessionList().stream().filter(x->!tmpProfessionIds.contains(x)).collect(Collectors.toList());
-                    List<CadUserProfession> tmpRemoves = tmps.stream().filter(x->!cadUserProfessionParam.getProfessionList().contains(x.getCadProfessionId())).collect(Collectors.toList());
+                    List<CadUserProfession> tmpRemoves = tmps.stream().filter(x->!cadUserProfessionParam.getProfessionList().contains(x.getProfessionId())).collect(Collectors.toList());
                     if(CollUtil.isNotEmpty(tmpAddProfessionIds)){
                         tmpAddProfessionIds.forEach(x->{
                             CadUserProfession cadUserProfession = new CadUserProfession();
-                            cadUserProfession.setCadProfessionId(x);
+                            cadUserProfession.setProfessionId(x);
                             cadUserProfession.setCadUserId(userId);
                             addList.add(cadUserProfession);
                         });
@@ -180,7 +180,7 @@ public class CadUserServiceImpl extends ServiceImpl<CadUserMapper, CadUser> impl
                 }else{
                     cadUserProfessionParam.getProfessionList().forEach(x->{
                         CadUserProfession cadUserProfession = new CadUserProfession();
-                        cadUserProfession.setCadProfessionId(x);
+                        cadUserProfession.setProfessionId(x);
                         cadUserProfession.setCadUserId(userId);
                         addList.add(cadUserProfession);
                     });

@@ -30,6 +30,13 @@ import java.util.Date;
 @Getter
 @Setter
 public class CadProductAddParam {
+    /** 外键：项目Id -> BIZ_CAD_PROJECT.ID */
+    @ApiModelProperty(value = "外键：项目Id -> BIZ_CAD_PROJECT.ID", position = 6)
+    private String prjId;
+
+    /** 外键：阶段Id -> BIZ_CAD_STAGE.ID */
+    @ApiModelProperty(value = "外键：阶段Id -> BIZ_CAD_STAGE.ID", position = 7)
+    private String stageId;
 
     /** 外键：子项Id -> BIZ_CAD_SUB_ITEM.ID */
     @ApiModelProperty(value = "外键：子项Id -> BIZ_CAD_SUB_ITEM.ID", position = 3)
@@ -37,14 +44,18 @@ public class CadProductAddParam {
 
     /** 外键：cad专业Id -> BIZ_CAD_PROFESSION.ID */
     @ApiModelProperty(value = "外键：cad专业Id -> BIZ_CAD_PROFESSION.ID", position = 4)
-    private String cadProfessionId;
+    private String professionId;
 
-    /** 外键：文件版本Id -> BIZ_CAD_FILE_HISTORY.ID */
-    @ApiModelProperty(value = "外键：文件版本Id -> BIZ_CAD_FILE_HISTORY.ID", position = 5)
-    private String hisId;
+    /** 外键：提资|成品成果文件Id -> BIZ_CAD_STORAGE.ID */
+    @ApiModelProperty(value = "外键：文件版本Id -> BIZ_CAD_STORAGE.ID", position = 5)
+    private String storageId;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 6)
     private String memo;
+
+    /** 成果类型：提资|成品 */
+    @ApiModelProperty(value = "成果类型：提资|成品", position = 6)
+    private String type;
 
 }

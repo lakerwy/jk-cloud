@@ -46,7 +46,7 @@
           LEFT JOIN BIZ_CAD_SUB_ITEM b on b.PRJ_ID = a.ID and b.DELETE_FLAG = 'NOT_DELETE'
           LEFT JOIN BIZ_CAD_SUB_ITEM_USER c on c.SUB_ITEM_ID = b.ID and c.DELETE_FLAG='NOT_DELETE'
           LEFT JOIN BIZ_CAD_STAGE e on e.ID = b.STAGE_ID
-          LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = c.CAD_PROFESSION_ID
+          LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = c.PROFESSION_ID
             ${ew.customSqlSegment}
     </select>
 

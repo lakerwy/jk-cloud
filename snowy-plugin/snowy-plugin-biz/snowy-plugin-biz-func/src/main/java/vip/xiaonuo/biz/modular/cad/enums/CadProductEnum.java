@@ -23,8 +23,11 @@ import lombok.Getter;
 @Getter
 public enum CadProductEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 成品 */
+    PRODUCT("PRODUCT"),
+
+    /** 提资 */
+    SUPPLY("SUPPLY");
 
     private final String value;
 

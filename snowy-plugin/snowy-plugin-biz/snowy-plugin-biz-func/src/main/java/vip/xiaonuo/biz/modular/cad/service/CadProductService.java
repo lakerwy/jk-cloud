@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.cad.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.cad.entity.CadProduct;
-import vip.xiaonuo.biz.modular.cad.param.CadProductAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProductEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProductIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProductPageParam;
+import vip.xiaonuo.biz.modular.cad.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,10 @@ public interface CadProductService extends IService<CadProduct> {
      * @date  2023/12/01 15:35
      **/
     CadProduct queryEntity(String id);
+
+    /**
+     * 文件归档
+     * @param filingParam
+     */
+    void filing(FilingParam filingParam);
 }

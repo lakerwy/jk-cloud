@@ -2,4 +2,49 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.cad.mapper.CadFileMapper">
 
+    <select id="getChildren" resultType="vip.xiaonuo.biz.modular.cad.entity.CadFile">
+        SELECT
+            a.*
+        FROM
+            (
+                SELECT
+                    @ids AS _ids,
+                    ( SELECT @ids := GROUP_CONCAT( id ) FROM BIZ_CAD_FILE
+                                                        WHERE DELETE_FLAG = 'NOT_DELETE'
+                                                              and FIND_IN_SET( PARENT_ID, @ids ) ) AS cids,
+            @l := @l + 1 AS LEVEL
+        FROM
+            BIZ_CAD_FILE,
+            ( SELECT @ids := ${fileId}, @l := 0 ) b
+        WHERE
+            @ids IS NOT NULL
+            ) b,
+            BIZ_CAD_FILE a
+        WHERE
+            FIND_IN_SET( a.id, b._ids )
+            <if test=" type != null and type != '' ">
+                and a.`TYPE` = ${type}
+            </if>
+        ORDER BY
+            LEVEL,
+            id
+    </select>
+
+
+    <select id="getParent" resultType="vip.xiaonuo.biz.modular.cad.entity.CadFile">
+        SELECT t2.*
+        FROM
+            (
+                SELECT
+                    @r AS _id,
+                    (SELECT @r := PARENT_ID FROM BIZ_CAD_FILE WHERE ID = _id) AS parent_id,
+            @l := @l + 1 AS lvl
+        FROM
+            (SELECT @r := ${fileId}, @l := 0) vars, BIZ_CAD_FILE AS h
+        WHERE @r != '' and @r is not null
+            ) t1
+            JOIN BIZ_CAD_FILE t2
+        ON t1._id = t2.ID  ORDER BY  t1.lvl DESC
+    </select>
+
 </mapper>

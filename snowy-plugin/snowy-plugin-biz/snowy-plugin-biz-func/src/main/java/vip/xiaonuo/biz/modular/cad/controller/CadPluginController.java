@@ -53,6 +53,9 @@ public class CadPluginController {
     private CadFileService cadFileService;
     @Resource
     private CadFileHistoryService cadFileHistoryService;
+    @Resource
+    private CadProductService cadProductService;
+
 
     /**
      * 【CAD-插件端】登录
@@ -146,8 +149,8 @@ public class CadPluginController {
      * @date  2023/12/11 17:40
      */
     @ApiOperationSupport(order = 7)
-    @ApiOperation("【CAD-插件端】CAD- 提交 ")
-    @CommonLog("【CAD-插件端】CAD- 提交 ")
+    @ApiOperation("【CAD-插件端】CAD- 添加文件历史记录 ")
+    @CommonLog("【CAD-插件端】CAD- 添加文件历史记录 ")
     @PostMapping("/biz/cad/plugin/addFileHis")
     public CommonResult<String> addFileHis(@RequestBody @Valid CadFileHistoryAddParam cadFileHistoryAddParam) {
         cadFileHistoryService.add(cadFileHistoryAddParam);
@@ -181,17 +184,22 @@ public class CadPluginController {
     }
 
     /**
-     * 【CAD-插件端】CAD- 新增成品记录
+     * 【CAD-插件端】CAD- 归档
+     *
+     * 1. 上传文件 （插件端处理）
+     * 1.1 并新增一条文件历史记录              -- 接口 处理
+     * 2. 创建存放路径（根据设计区文件路径生成）  -- 接口 处理
+     * 3. 添加产品成果记录                    -- 接口 处理
      *
      * @author yong.ye
      * @date  2023/12/11 17:40
      */
     @ApiOperationSupport(order = 10)
-    @ApiOperation("【CAD-插件端】CAD- 新增成品记录 ")
-    @CommonLog("【CAD-插件端】CAD- 新增成品记录 ")
-    @PostMapping("/biz/cad/plugin/addProduct")
-    public CommonResult<String> addProduct(@RequestBody @Valid CadProductAddParam cadProductAddParam) {
-//        cadFileHistoryService.add(cadFileHistoryAddParam);
+    @ApiOperation("【CAD-插件端】CAD- 归档 ")
+    @CommonLog("【CAD-插件端】CAD- 归档 ")
+    @PostMapping("/biz/cad/plugin/filing")
+    public CommonResult<String> filing(@RequestBody @Valid FilingParam filingParam) {
+        cadProductService.filing(filingParam);
         return CommonResult.ok();
     }
 

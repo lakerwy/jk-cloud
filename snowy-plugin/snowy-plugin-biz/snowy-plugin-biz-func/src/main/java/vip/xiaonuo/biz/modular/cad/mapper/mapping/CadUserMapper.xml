@@ -5,14 +5,14 @@
     <select id="getByUserId" resultType="vip.xiaonuo.biz.modular.cad.vo.CadProfessionVo">
         select a.ID as professionId,a.NAME as professionName
         from BIZ_CAD_PROFESSION a
-            join BIZ_CAD_USER_PROFESSION b on a.ID = b.CAD_PROFESSION_ID
+            join BIZ_CAD_USER_PROFESSION b on a.ID = b.PROFESSION_ID
         where b.DELETE_FLAG = 'NOT_DELETE' and b.CAD_USER_ID = #{userId}
     </select>
 
     <select id="getUserByProfession" resultType="vip.xiaonuo.biz.modular.cad.entity.CadUser">
         select a.*
         from BIZ_CAD_USER a join BIZ_CAD_USER_PROFESSION b on a.ID = b.CAD_USER_ID
-        where b.DELETE_FLAG = 'NOT_DELETE' and b.CAD_PROFESSION_ID = #{professionId}
+        where b.DELETE_FLAG = 'NOT_DELETE' and b.PROFESSION_ID = #{professionId}
     </select>
 
 </mapper>

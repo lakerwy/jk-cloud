@@ -93,7 +93,7 @@ public class CadProfessionServiceImpl extends ServiceImpl<CadProfessionMapper, C
         List<String> ids = CollStreamUtil.toList(cadProfessionIdParamList, CadProfessionIdParam::getId);
         this.removeByIds(ids);
         //删除专业时，同时删除 用户专业关系
-        cadUserProfessionService.remove(new QueryWrapper<CadUserProfession>().lambda().in(CadUserProfession::getCadProfessionId,ids));
+        cadUserProfessionService.remove(new QueryWrapper<CadUserProfession>().lambda().in(CadUserProfession::getProfessionId,ids));
     }
 
     @Override

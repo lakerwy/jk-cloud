@@ -30,6 +30,7 @@ import vip.xiaonuo.biz.modular.cad.entity.CadFile;
 import vip.xiaonuo.biz.modular.cad.mapper.CadFileMapper;
 import vip.xiaonuo.biz.modular.cad.service.CadFileService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -42,6 +43,9 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> implements CadFileService {
+
+    @Resource
+    private CadFileMapper cadFileMapper;
 
     @Override
     public Page<CadFile> page(CadFilePageParam cadFilePageParam) {
@@ -97,5 +101,15 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
         CadFile cadFile = this.queryEntity(cadFileReName.getFId());
         cadFile.setName(cadFileReName.getNewName());
         this.updateById(cadFile);
+    }
+
+    @Override
+    public List<CadFile> getParent(String fileId) {
+        return cadFileMapper.getParent(fileId);
+    }
+
+    @Override
+    public List<CadFile> getChildren(String fileId, String type) {
+        return cadFileMapper.getChildren(fileId,type);
     }
 }

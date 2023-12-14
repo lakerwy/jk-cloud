@@ -48,4 +48,8 @@ public class CadProductPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 成果类型：提资|成品 */
+    @ApiModelProperty(value = "成果类型：提资|成品", position = 6)
+    private String type;
+
 }

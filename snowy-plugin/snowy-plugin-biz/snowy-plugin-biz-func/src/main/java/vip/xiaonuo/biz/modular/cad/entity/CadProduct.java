@@ -39,21 +39,33 @@ public class CadProduct {
     @ApiModelProperty(value = "租户Id", position = 2)
     private String tenantId;
 
+    /** 外键：项目Id -> BIZ_CAD_PROJECT.ID */
+    @ApiModelProperty(value = "外键：项目Id -> BIZ_CAD_PROJECT.ID", position = 6)
+    private String prjId;
+
+    /** 外键：阶段Id -> BIZ_CAD_STAGE.ID */
+    @ApiModelProperty(value = "外键：阶段Id -> BIZ_CAD_STAGE.ID", position = 7)
+    private String stageId;
+
     /** 外键：子项Id -> BIZ_CAD_SUB_ITEM.ID */
     @ApiModelProperty(value = "外键：子项Id -> BIZ_CAD_SUB_ITEM.ID", position = 3)
     private String subItemId;
 
     /** 外键：cad专业Id -> BIZ_CAD_PROFESSION.ID */
     @ApiModelProperty(value = "外键：cad专业Id -> BIZ_CAD_PROFESSION.ID", position = 4)
-    private String cadProfessionId;
+    private String professionId;
 
-    /** 外键：文件版本Id -> BIZ_CAD_FILE_HISTORY.ID */
-    @ApiModelProperty(value = "外键：文件版本Id -> BIZ_CAD_FILE_HISTORY.ID", position = 5)
-    private String hisId;
+    /** 外键：提资|成品成果文件Id -> BIZ_CAD_STORAGE.ID */
+    @ApiModelProperty(value = "外键：文件版本Id -> BIZ_CAD_STORAGE.ID", position = 5)
+    private String storageId;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 6)
     private String memo;
+
+    /** 成果类型：提资|成品 */
+    @ApiModelProperty(value = "成果类型：提资|成品", position = 6)
+    private String type;
 
     /** 删除状态标记 */
     @ApiModelProperty(value = "删除状态标记", position = 7)
@@ -68,7 +80,7 @@ public class CadProduct {
 
     /** 创建人 */
     @ApiModelProperty(value = "创建人", position = 9)
-    @TableField(fill = FieldFill.INSERT)
+//    @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 更新时间 */
@@ -78,6 +90,6 @@ public class CadProduct {
 
     /** 更新人 */
     @ApiModelProperty(value = "更新人", position = 11)
-    @TableField(fill = FieldFill.UPDATE)
+//    @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 }
