@@ -39,6 +39,8 @@ import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoIdParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoPageParam;
 import vip.xiaonuo.biz.modular.teambition.service.BizTaskInfoService;
 import vip.xiaonuo.biz.modular.teambition.service.BizTaskProjectService;
+import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
+import vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.BizTaskCommentService;
 import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
@@ -68,6 +70,8 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     BizOrgService bizOrgService;
     @Resource
     BizUserService bizUserService;
+    @Resource
+    BizTaskCommentService bizTaskCommentService;
 
 
     @Override
@@ -133,6 +137,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         }
         Page<BizTaskInfo> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         getTaskProject(page);
+        getTaskComment(page);
         return page;
     }
     /** 获取任务的来源详情*/
@@ -144,6 +149,18 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             if(CollectionUtil.isNotEmpty(taskProjectList)){
                 taskProjectList.forEach(task -> map.put(task.getId(),task));
                 page.getRecords().forEach(info ->info.setBizTaskProject(map.get(info.getId())));
+            }
+        }
+    }
+    /**  获取任务评论数据 */
+    private void getTaskComment(Page<BizTaskInfo> page){
+        if(CollectionUtil.isNotEmpty(page.getRecords())){
+            List<String> taskInfoIds = page.getRecords().stream().map(info ->info.getId()).collect(Collectors.toList());
+            List<BizTaskComment> bizTaskCommentList = bizTaskCommentService.list(new LambdaQueryWrapper<BizTaskComment>().in(BizTaskComment::getTaskInfoId,taskInfoIds));
+            Map<String,BizTaskComment> map = new HashMap<>();
+            if(CollectionUtil.isNotEmpty(bizTaskCommentList)){
+                bizTaskCommentList.forEach(comment -> map.put(comment.getTaskInfoId(),comment));
+                page.getRecords().forEach(info ->info.setBizTaskComment(map.get(info.getId())));
             }
         }
     }

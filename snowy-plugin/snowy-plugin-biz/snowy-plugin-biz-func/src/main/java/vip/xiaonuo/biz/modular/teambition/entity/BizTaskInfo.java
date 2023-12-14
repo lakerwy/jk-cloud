@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -134,4 +135,9 @@ public class BizTaskInfo {
     /** 任务执行者部门 */
     @ApiModelProperty(value = "任务执行者部门", position = 24)
     private String belongerOrg;
+
+    /** 任务评论 */
+    @ApiModelProperty(value = "任务评论", position = 25)
+    @TableField(exist = false)
+    private BizTaskComment bizTaskComment;
 }
