@@ -269,6 +269,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         lambdaQueryWrapper.eq(FlwRelation::getCategory, FlwRelationCategoryEnum.FLW_USER_TO_DRAFT.getValue())
                 .eq(FlwRelation::getObjectId,StpLoginUserUtil.getLoginUser().getId());
 //        lambdaQueryWrapper.orderByDesc(FlwRelation::getExtJson, entity -> JSONUtil.parseObj(entity.getExtJson()).get("createTime"));
+        lambdaQueryWrapper.eq(FlwRelation::getTargetId,flwProcessMyDraftPageParam.getModelId());
         Page<FlwRelation> page = flwRelationService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
         //page.setTotal(page.getTotal());
         return new Page<FlwProcessMyDraftResult>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(page.getRecords().stream().map(flwRelation -> {

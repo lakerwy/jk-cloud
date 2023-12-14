@@ -48,8 +48,6 @@ public class DingDingServiceImpl implements IDingDingService {
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
-    @Resource
-    private CommonProperties commonProperties;
 
     public static Executor sendExecs = Executors.newFixedThreadPool(20);
 
