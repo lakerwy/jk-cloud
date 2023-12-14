@@ -37,4 +37,7 @@ public class FlwProcessMyDraftPageParam {
     /** 流程名称 */
     @ApiModelProperty(value = "流程名称")
     private String name;
+
+    @ApiModelProperty(value = "模型ID")
+    private String modelId;
 }

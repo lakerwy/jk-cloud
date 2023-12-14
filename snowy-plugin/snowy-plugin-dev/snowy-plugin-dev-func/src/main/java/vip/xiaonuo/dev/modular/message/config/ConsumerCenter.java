@@ -13,6 +13,7 @@ import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
+import org.springframework.messaging.MessageHeaders;
 import org.springframework.messaging.SubscribableChannel;
 import org.springframework.messaging.support.MessageBuilder;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -58,6 +59,7 @@ public class ConsumerCenter {
     @Bean
     public Consumer<Message<RabbitDelayedMessage>> delayedMessage() {
         return message -> {
+            log.info("接受到延迟队列的消息: " + message.getPayload().getTaskKey());
             RabbitDelayedMessage rabbitDelayedMessage = message.getPayload();
             String taskKey = rabbitDelayedMessage.getTaskKey();
             Object o = commonCacheOperator.get(taskKey);
@@ -65,7 +67,7 @@ public class ConsumerCenter {
                 //未办理，发送消息，继续放入缓存中
                 Message<RabbitDelayedMessage> newMessage = MessageBuilder
                         .withPayload(rabbitDelayedMessage)
-                        .setHeader("x-delay", rabbitDelayedMessage.getLimit()*60*60*1000)
+                        .setHeader("x-delay", rabbitDelayedMessage.getLimit()*60*601000)
 //                .copyHeaders(customHeaders)
 //                        .setHeader("x-delay", 60000)
                         .build();

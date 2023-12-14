@@ -12,8 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.org.mapper;
 
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.org.entity.BizOrg;
+
+import java.util.List;
 
 /**
  * 机构Mapper接口
@@ -21,5 +24,7 @@ import vip.xiaonuo.biz.modular.org.entity.BizOrg;
  * @author xuyuxiang
  * @date 2022/4/21 18:37
  **/
+@DS("master")
 public interface BizOrgMapper extends BaseMapper<BizOrg> {
+    List<BizOrg> getChildren(String orgId);
 }

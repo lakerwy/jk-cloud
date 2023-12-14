@@ -11,4 +11,8 @@ public class RabbitConstant {
     public final static String DEFAULT_DELAYED_CHANNEL = "delayedMessage-out-0"; //和 application.yml 中的     stream:bindings:jkYunOutPut 一致
 
     public final static String RABBIT_KEY = "task_key_";
+
+    public final static String RABBIT_MESSAGE_ID = "message_id";
+
+    public final static String RABBIT_MESSAGE_ID_key = "message_id_key_";
 }

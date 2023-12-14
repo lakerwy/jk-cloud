@@ -12,15 +12,18 @@
  */
 package vip.xiaonuo.biz.modular.teambition.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskProject;
 import vip.xiaonuo.biz.modular.teambition.mapper.BizTaskProjectMapper;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskProjectAddParam;
@@ -40,6 +43,7 @@ import java.util.List;
  * @author ljy
  * @date  2023/12/08 09:06
  **/
+@DS("slave_1")
 @Service
 public class BizTaskProjectServiceImpl extends ServiceImpl<BizTaskProjectMapper, BizTaskProject> implements BizTaskProjectService {
 
@@ -54,6 +58,19 @@ public class BizTaskProjectServiceImpl extends ServiceImpl<BizTaskProjectMapper,
         }
         if(ObjectUtil.isNotEmpty(bizTaskProjectPageParam.getGroupId())) {
             queryWrapper.lambda().eq(BizTaskProject::getGroupId, bizTaskProjectPageParam.getGroupId());
+        }
+        if(ObjectUtil.isNotEmpty(bizTaskProjectPageParam.getCreateUser())){
+            queryWrapper.lambda().eq(BizTaskProject::getCreateTime, bizTaskProjectPageParam.getCreateUser());
+        }
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BizTaskProject::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BizTaskProject::getCreateUser, StpUtil.getLoginIdAsString());
+        }
+        if(ObjectUtil.isNotEmpty(bizTaskProjectPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BizTaskProject::getProName,bizTaskProjectPageParam.getSearchKey())
+                    .or().like(BizTaskProject::getProDesc,bizTaskProjectPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(bizTaskProjectPageParam.getSortField(), bizTaskProjectPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizTaskProjectPageParam.getSortOrder());

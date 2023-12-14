@@ -15,6 +15,7 @@ package vip.xiaonuo.biz.modular.teambition.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -64,15 +65,15 @@ public class BizTaskInfoAddParam {
     private String taskStatus;
 
     /** 任务优先级 */
-    @ApiModelProperty(value = "任务优先级", position = 11)
+    @ApiModelProperty(value = "任务优先级(默认为最低 0)：0 最低，1 较低，2 普通，3 较高，4 最高", position = 11)
     private String taskPriority;
 
-    /** 参与人集合 */
-    @ApiModelProperty(value = "参与人集合", position = 12)
+    /** 参与人集合，参与人ID，逗号隔开 */
+    @ApiModelProperty(value = "参与人集合，参与人ID，逗号隔开", position = 12)
     private String taskParticipants;
 
-    /** 任务模式（公开或私密） */
-    @ApiModelProperty(value = "任务模式（公开或私密）", position = 13)
+    /** 任务模式(公开或私密,默认为公开 0)：0 公开，1 私密 */
+    @ApiModelProperty(value = "任务模式(公开或私密,默认为公开 0)：0 公开，1 私密", position = 13)
     private String taskModel;
 
     /** 数据权限控制字段 */
@@ -83,4 +84,11 @@ public class BizTaskInfoAddParam {
     @ApiModelProperty(value = "扩展信息", position = 15)
     private String extJson;
 
+    /** 任务来源信息详情 */
+    @ApiModelProperty(value = "任务来源信息详情：非子任务，需要有任务来源", position = 16)
+    private BizTaskProjectVo bizTaskProjectVo;
+
+    /** 任务执行者部门 */
+    @ApiModelProperty(value = "任务执行者部门", position = 17)
+    private String belongerOrg;
 }
