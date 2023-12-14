@@ -44,9 +44,6 @@ public class DingDingServiceImpl implements IDingDingService {
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
-    @Resource
-    private AuthThirdApi authThirdApi;
-
 
     @Override
     public OapiGettokenResponse getToken() {
