@@ -1683,6 +1683,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             map.put("firstOrgName",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgName" + user.getOrgId())));
             map.put("firstOrgLeaderId",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + user.getOrgId())));
             map.put("firstOrgLeaderName",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + user.getOrgId())));
+            map.put("avatar",user.getAvatar());
             return map;
         }).collect(Collectors.toList());
     }
