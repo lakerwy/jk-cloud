@@ -2,4 +2,20 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.cad.mapper.CadTagMapper">
 
+    <select id="getPrjStorage" resultType="vip.xiaonuo.biz.modular.cad.vo.CadTagVo">
+        select file.PRJ_ID as prjId,a.NAME as prjName,
+               file.STAGE_ID as stageId,e.NAME as stageName,
+               file.SUB_ITEM_ID as subItemId,b.NAME as subItemName,
+               file.PROFESSION_ID as professionId,f.NAME as professionName,
+               u.NAME as userName
+        from BIZ_CAD_TAG tag
+                 left join BIZ_CAD_FILE file on file.ID = tag.FILE_ID
+                 left join BIZ_CAD_PROJECT a on a.ID = file.PRJ_ID
+                 LEFT JOIN BIZ_CAD_SUB_ITEM b on b.ID = file.SUB_ITEM_ID
+                 LEFT JOIN BIZ_CAD_STAGE e on e.ID = file.STAGE_ID
+                 LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = file.PROFESSION_ID
+                 left join BIZ_CAD_USER u on u.ID = tag.OPR_USER
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

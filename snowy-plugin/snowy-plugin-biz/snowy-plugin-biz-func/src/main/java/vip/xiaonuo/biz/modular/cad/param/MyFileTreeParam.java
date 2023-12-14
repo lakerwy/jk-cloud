@@ -6,7 +6,7 @@ import lombok.Setter;
 
 
 /**
- * 根据项目Id,当前用户Id，获取【设计区】树状目录
+ * 根据项目Id,当前用户Id，获取【设计区】【提资区】【成品区】树状目录
  */
 @Getter
 @Setter

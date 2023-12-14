@@ -2,4 +2,18 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.cad.mapper.CadProductMapper">
 
+    <select id="getPrjStageSubProf2" resultType="vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo">
+        select distinct a.PRJ_ID as prjId,b.NAME as prjName,
+                        a.STAGE_ID as stageId,c.NAME as stageName,
+                        a.SUB_ITEM_ID as subItemId,d.NAME as subItemName,
+                        a.PROFESSION_ID as professionId,e.NAME as professionName,
+                        c.SORT_INDEX as stageIndex,e.SORT_INDEX as professionIndex
+        from BIZ_CAD_PRODUCT a
+                 LEFT JOIN BIZ_CAD_PROJECT b on b.ID = a.PRJ_ID
+                 LEFT JOIN BIZ_CAD_STAGE c on c.ID = a.STAGE_ID
+                 LEFT JOIN BIZ_CAD_SUB_ITEM d on d.ID = a.SUB_ITEM_ID
+                 LEFT JOIN BIZ_CAD_PROFESSION e on e.ID = a.PROFESSION_ID
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

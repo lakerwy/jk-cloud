@@ -15,28 +15,33 @@ package vip.xiaonuo.biz.modular.cad.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.lang.tree.TreeUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson2.JSON;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fhs.common.utils.JsonUtils;
-import com.rabbitmq.tools.json.JSONUtil;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.cad.entity.CadFile;
+import vip.xiaonuo.biz.modular.cad.entity.*;
+import vip.xiaonuo.biz.modular.cad.enums.CadProductEnum;
+import vip.xiaonuo.biz.modular.cad.enums.ProofreadAuditStatusEnum;
+import vip.xiaonuo.biz.modular.cad.mapper.CadProductMapper;
+import vip.xiaonuo.biz.modular.cad.mapper.CadProofreadMapper;
+import vip.xiaonuo.biz.modular.cad.mapper.CadStorageMapper;
 import vip.xiaonuo.biz.modular.cad.param.*;
+import vip.xiaonuo.biz.modular.cad.service.CadProductService;
+import vip.xiaonuo.biz.modular.cad.service.CadProofreadService;
+import vip.xiaonuo.biz.modular.cad.service.CadStorageService;
 import vip.xiaonuo.biz.modular.cad.vo.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.biz.modular.cad.entity.CadProject;
 import vip.xiaonuo.biz.modular.cad.mapper.CadProjectMapper;
 import vip.xiaonuo.biz.modular.cad.service.CadProjectService;
 
@@ -59,6 +64,15 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
 
     @Resource
     private CadProjectMapper cadProjectMapper;
+    @Resource
+    private CadProductMapper cadProductMapper;
+    @Resource
+    private CadProductService cadProductService;
+    @Resource
+    private CadStorageMapper cadStorageMapper;
+    @Resource
+    private CadProofreadMapper cadProofreadMapper;
+
     @Override
     public Page<CadProjectVo> page(CadProjectPageParam cadProjectPageParam) {
         QueryWrapper<CadProject> queryWrapper = new QueryWrapper<>();
@@ -152,9 +166,8 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
     }
 
     @Override
-    public List<Tree<String>> prjFileTree(MyFileTreeParam myFileTreeParam) {
+    public List<Tree<String>> prjDesignTree(MyFileTreeParam myFileTreeParam) {
         //获取项目目录结构
-        List<CadFileVo> fileTreeList = new ArrayList<>();
         QueryWrapper<CadProject> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.ID",myFileTreeParam.getPrjId());
         queryWrapper.orderByAsc("e.SORT_INDEX").orderByAsc("f.SORT_INDEX");
@@ -164,7 +177,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         QueryWrapper<CadFile> fileQueryWrapper = new QueryWrapper<>();
         fileQueryWrapper.eq("file.PRJ_ID",myFileTreeParam.getPrjId());
         fileQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-        List<CadFileVo> prjFileList = cadProjectMapper.getPrjFileTree(fileQueryWrapper);
+        List<CadFileVo> prjFileList = cadProjectMapper.getPrjFile(fileQueryWrapper);
 
         //构建项目+自定义文件目录树状结构
         List<CadFileVo> treeFileList = this.getFileTree(prjInfoList,prjFileList);
@@ -177,6 +190,89 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         }).collect(Collectors.toList());
         return TreeUtil.build(treeNodeList, myFileTreeParam.getPrjId());
     }
+
+    @Override
+    public List<Tree<String>> prjSupplyTree(MyFileTreeParam myFileTreeParam) {
+        //1. 获取项目目录结构
+        QueryWrapper<CadProduct> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.PRJ_ID",myFileTreeParam.getPrjId());
+        queryWrapper.eq("a.TYPE", CadProductEnum.SUPPLY.getValue());
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.orderByAsc("c.SORT_INDEX").orderByAsc("e.SORT_INDEX");
+        List<PrjStageSubProfVo> prjInfoList =  cadProductMapper.getPrjStageSubProf2(queryWrapper);
+        //2. 获取提资文件
+        QueryWrapper<CadProduct> query = new QueryWrapper<>();
+        query.lambda().eq(CadProduct::getPrjId,myFileTreeParam.getPrjId());
+        query.lambda().eq(CadProduct::getType,CadProductEnum.SUPPLY.getValue());
+        List<CadProduct> productList = cadProductService.list(query);
+        //3. 获取本项目的存储目录集合
+        QueryWrapper<CadStorage> storageQuery = new QueryWrapper<>();
+        storageQuery.eq("storage.PRJ_ID",myFileTreeParam.getPrjId());
+        storageQuery.eq("storage.DELETE_FLAG","NOT_DELETE");
+        List<CadFileVo> storageList = cadStorageMapper.getPrjStorage(storageQuery);
+        //4. 进一步筛选，获取指定文件的存储目录结构
+        List<String> ids = productList.stream().filter(x->ObjectUtil.isNotEmpty(x.getStorageId())).map(x->x.getStorageId()).distinct().collect(Collectors.toList());
+        List<CadFileVo> prjFileList = getParentList(storageList,ids,true);
+        //5. 构建项目+自定义文件目录树状结构
+        List<CadFileVo> treeFileList = this.getFileTree(prjInfoList,prjFileList);
+        List<TreeNode<String>> treeNodeList = treeFileList.stream().map(fileTree -> {
+            // 将对象转为 JSONObject
+            JSONObject jsonObject = new JSONObject(BeanUtil.beanToMap(fileTree, false, false));
+            // 使用 JSONObject 生成 Map，保留属性为 null 的值
+            return new TreeNode<>(fileTree.getFId(), fileTree.getFParentId(), fileTree.getFName(), null)
+                    .setExtra(jsonObject);
+        }).collect(Collectors.toList());
+        return TreeUtil.build(treeNodeList, myFileTreeParam.getPrjId());
+    }
+
+    @Override
+    public List<Tree<String>> prjProductTree(MyFileTreeParam myFileTreeParam) {
+        //1. 获取项目目录结构
+        QueryWrapper<CadProduct> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.PRJ_ID",myFileTreeParam.getPrjId());
+        queryWrapper.eq("a.TYPE", CadProductEnum.PRODUCT.getValue());
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.orderByAsc("c.SORT_INDEX").orderByAsc("e.SORT_INDEX");
+        List<PrjStageSubProfVo> prjInfoList =  cadProductMapper.getPrjStageSubProf2(queryWrapper);
+        //2. 获取成品文件
+        QueryWrapper<CadProduct> query = new QueryWrapper<>();
+        query.lambda().eq(CadProduct::getPrjId,myFileTreeParam.getPrjId());
+        query.lambda().eq(CadProduct::getType,CadProductEnum.PRODUCT.getValue());
+        List<CadProduct> productList = cadProductService.list(query);
+        //3. 获取本项目的存储目录集合
+        QueryWrapper<CadStorage> storageQuery = new QueryWrapper<>();
+        storageQuery.eq("storage.PRJ_ID",myFileTreeParam.getPrjId());
+        storageQuery.eq("storage.DELETE_FLAG","NOT_DELETE");
+        List<CadFileVo> storageList = cadStorageMapper.getPrjStorage(storageQuery);
+        //4. 进一步筛选，获取指定文件的存储目录结构
+        List<String> ids = productList.stream().filter(x->ObjectUtil.isNotEmpty(x.getStorageId())).map(x->x.getStorageId()).distinct().collect(Collectors.toList());
+        List<CadFileVo> prjFileList = getParentList(storageList,ids,true);
+        //5. 构建项目+自定义文件目录树状结构
+        List<CadFileVo> treeFileList = this.getFileTree(prjInfoList,prjFileList);
+        List<TreeNode<String>> treeNodeList = treeFileList.stream().map(fileTree -> {
+            // 将对象转为 JSONObject
+            JSONObject jsonObject = new JSONObject(BeanUtil.beanToMap(fileTree, false, false));
+            // 使用 JSONObject 生成 Map，保留属性为 null 的值
+            return new TreeNode<>(fileTree.getFId(), fileTree.getFParentId(), fileTree.getFName(), null)
+                    .setExtra(jsonObject);
+        }).collect(Collectors.toList());
+        return TreeUtil.build(treeNodeList, myFileTreeParam.getPrjId());
+    }
+
+    @Override
+    public CadAuditInfo prjAuditInfo(MyFileTreeParam myFileTreeParam) {
+        CadAuditInfo result = new CadAuditInfo();
+        QueryWrapper<CadProofread> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("proofread.PRJ_ID",myFileTreeParam.getPrjId());
+        queryWrapper.eq("proofread.AUDITOR",myFileTreeParam.getUserId());
+        queryWrapper.eq("proofread.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.orderByDesc("proofread.CREATE_TIME");
+        List<CadProofreadVo> myProofreadList = cadProofreadMapper.getPrjProofread(queryWrapper);
+        result.setReceiveList(myProofreadList.stream().filter(x->x.getStatus().equals(ProofreadAuditStatusEnum.PRE_AUDIT.getValue())).collect(Collectors.toList()));
+        result.setDealList(myProofreadList.stream().filter(x->x.getStatus() != ProofreadAuditStatusEnum.PRE_AUDIT.getValue()).collect(Collectors.toList()));
+        return result;
+    }
+
 
     /**
      * 树状结构数据格式
@@ -240,4 +336,42 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
     }
 
 
+    /**
+     * 根据原始数据集，获取指定id的父级信息
+     * @param originDataList 原始数据集
+     * @param ids 指定id
+     * @param includeSelf 是否包含自身
+     * @return
+     */
+    public List<CadFileVo> getParentList(List<CadFileVo> originDataList, List<String> ids, boolean includeSelf) {
+        List<CadFileVo> resultList = CollectionUtil.newArrayList();
+        for (String id:ids) {
+            execRecursionFindParent(originDataList, id, resultList);
+            if(includeSelf){
+                CadFileVo self = originDataList.stream().filter(x->x.getFId().equals(id)).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(self) && !resultList.contains(self)) {
+                    resultList.add(self);
+                }
+            }
+        }
+        return resultList;
+    }
+
+    /**
+     * 递归获取父级
+     * @param originDataList 数据源
+     * @param id 指定id
+     * @param resultList 结果集
+     */
+    public void execRecursionFindParent(List<CadFileVo> originDataList, String id, List<CadFileVo> resultList) {
+        originDataList.forEach(item -> {
+            if(item.getFId().equals(id)) {
+                CadFileVo parent = originDataList.stream().filter(x->x.getFId().equals(item.getFParentId())).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(parent) && !resultList.contains(parent)) {
+                    resultList.add(parent);
+                }
+                execRecursionFindParent(originDataList, item.getFParentId(), resultList);
+            }
+        });
+    }
 }

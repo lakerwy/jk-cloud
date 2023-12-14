@@ -14,6 +14,9 @@ package vip.xiaonuo.biz.modular.cad.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.cad.entity.CadTag;
+import vip.xiaonuo.biz.modular.cad.vo.CadTagVo;
+
+import java.util.List;
 
 /**
  * CAD-批注会话聊天室表Mapper接口
@@ -22,4 +25,11 @@ import vip.xiaonuo.biz.modular.cad.entity.CadTag;
  * @date  2023/12/01 15:37
  **/
 public interface CadTagMapper extends BaseMapper<CadTag> {
+
+    /**
+     * 根据批注Id，获取批注聊天记录
+     * @param fileId
+     * @return
+     */
+    List<CadTagVo> tagListByFileId(String fileId);
 }

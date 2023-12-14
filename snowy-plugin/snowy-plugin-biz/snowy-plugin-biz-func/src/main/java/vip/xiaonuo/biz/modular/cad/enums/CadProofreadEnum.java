@@ -23,8 +23,11 @@ import lombok.Getter;
 @Getter
 public enum CadProofreadEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 校审 -- 通过进成品区 */
+    PRODUCT("PRODUCT"),
+
+    /** 提资 -- 通过进提资区 */
+    SUPPLY("SUPPLY");
 
     private final String value;
 

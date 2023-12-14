@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.vo.CadTagVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +34,7 @@ import vip.xiaonuo.biz.modular.cad.param.CadTagIdParam;
 import vip.xiaonuo.biz.modular.cad.param.CadTagPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadTagService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -45,6 +47,9 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class CadTagServiceImpl extends ServiceImpl<CadTagMapper, CadTag> implements CadTagService {
+
+    @Resource
+    private CadTagMapper cadTagMapper;
 
     @Override
     public Page<CadTag> page(CadTagPageParam cadTagPageParam) {
@@ -93,5 +98,10 @@ public class CadTagServiceImpl extends ServiceImpl<CadTagMapper, CadTag> impleme
             throw new CommonException("CAD-批注会话聊天室表不存在，id值为：{}", id);
         }
         return cadTag;
+    }
+
+    @Override
+    public List<CadTagVo> tagListByFileId(String fileId) {
+        return cadTagMapper.tagListByFileId(fileId);
     }
 }

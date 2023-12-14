@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.cad.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.cad.entity.CadProofread;
-import vip.xiaonuo.biz.modular.cad.param.CadProofreadAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProofreadEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProofreadIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProofreadPageParam;
+import vip.xiaonuo.biz.modular.cad.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,22 @@ public interface CadProofreadService extends IService<CadProofread> {
      * @date  2023/12/01 15:36
      **/
     CadProofread queryEntity(String id);
+
+    /**
+     * 发起提资
+     * @param startFlwParam
+     */
+    void supply(StartFlwParam startFlwParam);
+
+    /**
+     * 发起校审
+     * @param startFlwParam
+     */
+    void proofread(StartFlwParam startFlwParam);
+
+    /**
+     * 审批【通过|退回】
+     * @param auditParam
+     */
+    void audit(AuditParam auditParam);
 }

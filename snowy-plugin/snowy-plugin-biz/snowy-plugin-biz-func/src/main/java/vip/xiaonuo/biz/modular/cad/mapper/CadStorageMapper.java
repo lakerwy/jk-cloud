@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.cad.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
+import vip.xiaonuo.biz.modular.cad.vo.CadFileVo;
+
+import java.util.List;
 
 /**
  * CAD-提资|校审|成品文件存储目录结构Mapper接口
@@ -22,4 +28,11 @@ import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
  * @date  2023/12/12 15:14
  **/
 public interface CadStorageMapper extends BaseMapper<CadStorage> {
+
+    /**
+     * 根据项目Id等参数，获取自定义存储目录
+     * @return
+     */
+    List<CadFileVo> getPrjStorage(@Param(Constants.WRAPPER) Wrapper<CadStorage> queryWrapper);
+
 }

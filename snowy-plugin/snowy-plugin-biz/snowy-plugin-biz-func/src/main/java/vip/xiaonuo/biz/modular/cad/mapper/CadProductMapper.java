@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.cad.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.cad.entity.CadProduct;
+import vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo;
+
+import java.util.List;
 
 /**
  * CAD-成品表Mapper接口
@@ -22,4 +28,11 @@ import vip.xiaonuo.biz.modular.cad.entity.CadProduct;
  * @date  2023/12/01 15:35
  **/
 public interface CadProductMapper extends BaseMapper<CadProduct> {
+
+    /**
+     * 根据项目Id等参数，获取项目目录结构【提资区|成品区】
+     * @return
+     */
+    List<PrjStageSubProfVo> getPrjStageSubProf2(@Param(Constants.WRAPPER) Wrapper<CadProduct> queryWrapper);
+
 }

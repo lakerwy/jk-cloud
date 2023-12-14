@@ -77,4 +77,12 @@ public interface CadStorageService extends IService<CadStorage> {
      * @date  2023/12/12 15:14
      **/
     CadStorage queryEntity(String id);
+
+    /**
+     * 创建存储目录：
+     * 根据选择存储的文件夹Id，构建存储路径 文件夹
+     * @param storageId 选择存储的文件夹Id - [CadFile.Id]
+     * @return 返回存储路径的最下层文件夹id
+     */
+     String createStorageFold(String storageId,String oprId);
 }

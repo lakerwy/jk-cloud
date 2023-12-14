@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.cad.param.CadTagAddParam;
 import vip.xiaonuo.biz.modular.cad.param.CadTagEditParam;
 import vip.xiaonuo.biz.modular.cad.param.CadTagIdParam;
 import vip.xiaonuo.biz.modular.cad.param.CadTagPageParam;
+import vip.xiaonuo.biz.modular.cad.vo.CadTagVo;
 
 import java.util.List;
 
@@ -77,4 +78,6 @@ public interface CadTagService extends IService<CadTag> {
      * @date  2023/12/01 15:37
      **/
     CadTag queryEntity(String id);
+
+    List<CadTagVo> tagListByFileId(String fileId);
 }

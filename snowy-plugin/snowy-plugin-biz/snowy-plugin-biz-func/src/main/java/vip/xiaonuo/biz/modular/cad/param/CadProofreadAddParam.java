@@ -74,4 +74,8 @@ public class CadProofreadAddParam {
     @ApiModelProperty(value = "备注", position = 10)
     private String memo;
 
+    /** 审批类别：校审|校对|审批  */
+    @ApiModelProperty(value = "审批类别：校审|校对|审批 ", position = 7)
+    private String auditType;
+
 }

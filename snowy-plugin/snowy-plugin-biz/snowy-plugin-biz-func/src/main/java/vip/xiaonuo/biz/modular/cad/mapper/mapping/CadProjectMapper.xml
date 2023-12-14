@@ -50,11 +50,11 @@
             ${ew.customSqlSegment}
     </select>
 
-    <select id="getPrjFileTree" resultType="vip.xiaonuo.biz.modular.cad.vo.CadFileVo">
-        select a.ID as prjId,a.NAME as prjName,
-               e.ID as stageId,e.NAME as stageName,
-               b.ID as subItemId,b.NAME as subItemName,
-               f.ID as professionId,f.NAME as professionName,
+    <select id="getPrjFile" resultType="vip.xiaonuo.biz.modular.cad.vo.CadFileVo">
+        select file.PRJ_ID as prjId,a.NAME as prjName,
+               file.STAGE_ID as stageId,e.NAME as stageName,
+               file.SUB_ITEM_ID as subItemId,b.NAME as subItemName,
+               file.PROFESSION_ID as professionId,f.NAME as professionName,
                file.ID as fId,file.PARENT_ID as fParentId,file.NAME as fName,file.TYPE as fType,
                file.CLOUD_POINTS as fCloudPoints,file.NOTE_POINTS as fNotePoints
         from BIZ_CAD_FILE file

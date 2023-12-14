@@ -112,4 +112,11 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
     public List<CadFile> getChildren(String fileId, String type) {
         return cadFileMapper.getChildren(fileId,type);
     }
+
+    @Override
+    public void updateTagStatus(UpdateTagStatusParam updateTagStatusParam) {
+        CadFile cadFile = this.queryEntity(updateTagStatusParam.getFileId());
+        cadFile.setStatus(updateTagStatusParam.getStatus());
+        this.updateById(cadFile);
+    }
 }

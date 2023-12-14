@@ -2,4 +2,19 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.cad.mapper.CadProofreadMapper">
 
+    <select id="getPrjProofread" resultType="vip.xiaonuo.biz.modular.cad.vo.CadProofreadVo">
+        select proofread.*,
+               a.NAME as prjName,
+               e.NAME as stageName,
+               b.NAME as subItemName,
+               f.NAME as professionName
+        from BIZ_CAD_PROOFREAD proofread
+                 left join BIZ_CAD_PROJECT a on a.ID = proofread.PRJ_ID
+                 LEFT JOIN BIZ_CAD_SUB_ITEM b on b.ID = proofread.SUB_ITEM_ID
+                 LEFT JOIN BIZ_CAD_STAGE e on e.ID = proofread.STAGE_ID
+                 LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = proofread.PROFESSION_ID
+                 left join BIZ_CAD_USER u on u.ID = proofread.CREATE_USER
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

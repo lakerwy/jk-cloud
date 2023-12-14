@@ -22,7 +22,7 @@ public class FilingParam {
     private List<CadFileHistoryAddParam> fileHisList;
 
     /** 选择的存放目录的目录Id -- 备注：目录来源于设计区当前文件目录,文件树CadFile.Id */
-    @ApiModelProperty(value = "需要归档的文件Id集合【支持多个】 -- 备注：目录来源于设计区当前文件目录,文件树CadFile.Id", position = 2)
+    @ApiModelProperty(value = "选择的存放目录的目录Id -- 备注：目录来源于设计区当前文件目录,文件树CadFile.Id", position = 2)
     private String storageId;
 
     /** 当前操作人 */
@@ -30,19 +30,19 @@ public class FilingParam {
     private String oprId;
 
     /** 外键：项目Id -> BIZ_CAD_PROJECT.ID */
-    @ApiModelProperty(value = "外键：项目Id -> BIZ_CAD_PROJECT.ID", position = 6)
+    @ApiModelProperty(value = "外键：项目Id -> BIZ_CAD_PROJECT.ID", position = 4)
     private String prjId;
 
     /** 外键：阶段Id -> BIZ_CAD_STAGE.ID */
-    @ApiModelProperty(value = "外键：阶段Id -> BIZ_CAD_STAGE.ID", position = 7)
+    @ApiModelProperty(value = "外键：阶段Id -> BIZ_CAD_STAGE.ID", position = 5)
     private String stageId;
 
     /** 外键：子项Id -> BIZ_CAD_SUB_ITEM.ID */
-    @ApiModelProperty(value = "外键：子项Id -> BIZ_CAD_SUB_ITEM.ID", position = 3)
+    @ApiModelProperty(value = "外键：子项Id -> BIZ_CAD_SUB_ITEM.ID", position = 6)
     private String subItemId;
 
     /** 外键：cad专业Id -> BIZ_CAD_PROFESSION.ID */
-    @ApiModelProperty(value = "外键：cad专业Id -> BIZ_CAD_PROFESSION.ID", position = 4)
+    @ApiModelProperty(value = "外键：cad专业Id -> BIZ_CAD_PROFESSION.ID", position = 7)
     private String professionId;
 
 

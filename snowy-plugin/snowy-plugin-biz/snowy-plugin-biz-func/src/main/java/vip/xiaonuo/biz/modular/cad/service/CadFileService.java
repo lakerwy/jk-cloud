@@ -98,4 +98,9 @@ public interface CadFileService extends IService<CadFile> {
      */
     List<CadFile> getChildren(String fileId,String type);
 
+    /**
+     * 更新批注状态
+     * @param updateTagStatusParam
+     */
+    void updateTagStatus(UpdateTagStatusParam updateTagStatusParam);
 }

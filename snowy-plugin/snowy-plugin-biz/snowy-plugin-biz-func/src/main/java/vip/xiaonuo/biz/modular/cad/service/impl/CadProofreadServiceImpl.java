@@ -14,25 +14,37 @@ package vip.xiaonuo.biz.modular.cad.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.entity.CadFileHistory;
+import vip.xiaonuo.biz.modular.cad.entity.CadProduct;
+import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
+import vip.xiaonuo.biz.modular.cad.enums.CadFileEnum;
+import vip.xiaonuo.biz.modular.cad.enums.CadProductEnum;
+import vip.xiaonuo.biz.modular.cad.enums.CadProofreadEnum;
+import vip.xiaonuo.biz.modular.cad.enums.ProofreadAuditStatusEnum;
+import vip.xiaonuo.biz.modular.cad.param.*;
+import vip.xiaonuo.biz.modular.cad.service.CadFileHistoryService;
+import vip.xiaonuo.biz.modular.cad.service.CadProductService;
+import vip.xiaonuo.biz.modular.cad.service.CadStorageService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.cad.entity.CadProofread;
 import vip.xiaonuo.biz.modular.cad.mapper.CadProofreadMapper;
-import vip.xiaonuo.biz.modular.cad.param.CadProofreadAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProofreadEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProofreadIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadProofreadPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadProofreadService;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -45,6 +57,15 @@ import java.util.List;
 @DS("slave_1")
 @Service
 public class CadProofreadServiceImpl extends ServiceImpl<CadProofreadMapper, CadProofread> implements CadProofreadService {
+
+    @Resource
+    private CadFileHistoryService cadFileHistoryService;
+
+    @Resource
+    private CadStorageService cadStorageService;
+
+    @Resource
+    private CadProductService cadProductService;
 
     @Override
     public Page<CadProofread> page(CadProofreadPageParam cadProofreadPageParam) {
@@ -93,5 +114,135 @@ public class CadProofreadServiceImpl extends ServiceImpl<CadProofreadMapper, Cad
             throw new CommonException("CAD-提资|校审记录表不存在，id值为：{}", id);
         }
         return cadProofread;
+    }
+
+    @Override
+    public void supply(StartFlwParam startFlwParam) {
+        if(CollUtil.isNotEmpty(startFlwParam.getFileHisList())){
+            //1. 新增文件历史记录
+            List<CadFileHistory> addHisList = BeanUtil.copyToList(startFlwParam.getFileHisList(),CadFileHistory.class);
+            cadFileHistoryService.saveBatch(addHisList);
+            //2. 构建成品区存储目录
+            String newStorageId = cadStorageService.createStorageFold(startFlwParam.getStorageId(), startFlwParam.getOprId());
+            //3. 根据存储目录，存放文件
+            List<CadStorage> addStorageFileList = new ArrayList<>();
+            addHisList.forEach(x->{
+                CadStorage cadStorage = new CadStorage();
+                cadStorage.setId(IdWorker.getIdStr());   //手动生成新的主键Id
+                cadStorage.setParentId(newStorageId);
+                cadStorage.setName(x.getFileName());
+                cadStorage.setType(CadFileEnum.FILE.getValue());
+                cadStorage.setPrjId(startFlwParam.getPrjId());
+                cadStorage.setStageId(startFlwParam.getStageId());
+                cadStorage.setSubItemId(startFlwParam.getSubItemId());
+                cadStorage.setProfessionId(startFlwParam.getProfessionId());
+                cadStorage.setHisId(x.getId());
+                cadStorage.setHisDownLoadUrl(x.getDownLoadUrl());
+                cadStorage.setCreateUser(startFlwParam.getOprId());
+                addStorageFileList.add(cadStorage);
+            });
+            if(CollUtil.isNotEmpty(addStorageFileList)){
+                cadStorageService.saveBatch(addStorageFileList);
+            }
+            //4. 审批记录
+            List<CadProofread> addProofreadList = new ArrayList<>();
+            addStorageFileList.forEach(x->{
+                startFlwParam.getProofreadList().forEach(y->{
+                    CadProofread proofread = new CadProofread();
+                    proofread.setPrjId(x.getPrjId());
+                    proofread.setStageId(x.getStageId());
+                    proofread.setSubItemId(x.getSubItemId());
+                    proofread.setProfessionId(x.getProfessionId());
+                    proofread.setStorageId(x.getId());
+                    proofread.setType(CadProofreadEnum.SUPPLY.getValue());
+                    proofread.setCreateUser(startFlwParam.getOprId());
+                    proofread.setAuditor(y.getAuditor());
+                    proofread.setMemo(y.getMemo());
+                    proofread.setStatus(ProofreadAuditStatusEnum.PRE_AUDIT.getValue());
+                    proofread.setAuditType(y.getAuditType());
+                    addProofreadList.add(proofread);
+                });
+            });
+            if(CollUtil.isNotEmpty(addProofreadList)){
+                this.saveBatch(addProofreadList);
+            }
+        }
+    }
+
+    @Override
+    public void proofread(StartFlwParam startFlwParam) {
+        if(CollUtil.isNotEmpty(startFlwParam.getFileHisList())){
+            //1. 新增文件历史记录
+            List<CadFileHistory> addHisList = BeanUtil.copyToList(startFlwParam.getFileHisList(),CadFileHistory.class);
+            cadFileHistoryService.saveBatch(addHisList);
+            //2. 构建成品区存储目录
+            String newStorageId = cadStorageService.createStorageFold(startFlwParam.getStorageId(), startFlwParam.getOprId());
+            //3. 根据存储目录，存放文件
+            List<CadStorage> addStorageFileList = new ArrayList<>();
+            addHisList.forEach(x->{
+                CadStorage cadStorage = new CadStorage();
+                cadStorage.setId(IdWorker.getIdStr());   //手动生成新的主键Id
+                cadStorage.setParentId(newStorageId);
+                cadStorage.setName(x.getFileName());
+                cadStorage.setType(CadFileEnum.FILE.getValue());
+                cadStorage.setPrjId(startFlwParam.getPrjId());
+                cadStorage.setStageId(startFlwParam.getStageId());
+                cadStorage.setSubItemId(startFlwParam.getSubItemId());
+                cadStorage.setProfessionId(startFlwParam.getProfessionId());
+                cadStorage.setHisId(x.getId());
+                cadStorage.setHisDownLoadUrl(x.getDownLoadUrl());
+                cadStorage.setCreateUser(startFlwParam.getOprId());
+                addStorageFileList.add(cadStorage);
+            });
+            if(CollUtil.isNotEmpty(addStorageFileList)){
+                cadStorageService.saveBatch(addStorageFileList);
+            }
+            //4. 审批记录
+            List<CadProofread> addProofreadList = new ArrayList<>();
+            addStorageFileList.forEach(x->{
+                startFlwParam.getProofreadList().forEach(y->{
+                    CadProofread proofread = new CadProofread();
+                    proofread.setPrjId(x.getPrjId());
+                    proofread.setStageId(x.getStageId());
+                    proofread.setSubItemId(x.getSubItemId());
+                    proofread.setProfessionId(x.getProfessionId());
+                    proofread.setStorageId(x.getId());
+                    proofread.setType(CadProofreadEnum.PRODUCT.getValue());
+                    proofread.setCreateUser(startFlwParam.getOprId());
+                    proofread.setAuditor(y.getAuditor());
+                    proofread.setMemo(y.getMemo());
+                    proofread.setStatus(ProofreadAuditStatusEnum.PRE_AUDIT.getValue());
+                    proofread.setAuditType(y.getAuditType());
+                    addProofreadList.add(proofread);
+                });
+            });
+            if(CollUtil.isNotEmpty(addProofreadList)){
+                this.saveBatch(addProofreadList);
+            }
+        }
+    }
+
+    @Override
+    public void audit(AuditParam auditParam) {
+        CadProofread proofread = this.queryEntity(auditParam.getProofreadId());
+        proofread.setStatus(auditParam.getStatus());  //0:待审核 1:通过  2：退回
+        proofread.setAuditTime(new Date());
+        this.updateById(proofread);
+        //判断该文件所有审批阶段，是否均通过
+        List<CadProofread> exists = this.list(new QueryWrapper<CadProofread>().lambda()
+                .eq(CadProofread::getStorageId,proofread.getStorageId())
+                .ne(CadProofread::getStatus,1));
+        //自动判断，是否归档到成品区|提资区
+        if(CollUtil.isEmpty(exists)){
+            CadProduct product = new CadProduct();
+            product.setPrjId(proofread.getPrjId());
+            product.setStageId(proofread.getStageId());
+            product.setSubItemId(proofread.getSubItemId());
+            product.setProfessionId(proofread.getProfessionId());
+            product.setStorageId(proofread.getStorageId());
+            product.setType(proofread.getType());
+            product.setCreateUser(proofread.getCreateUser());
+            cadProductService.save(product);
+        }
     }
 }

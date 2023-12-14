@@ -66,13 +66,17 @@ public class CadProofread {
     @ApiModelProperty(value = "外键：文件版本Id -> BIZ_CAD_STORAGE.ID", position = 5)
     private String storageId;
 
-    /** 审批类型：提资|校审 */
+    /** 审批类型：提资(提资区)|校审(成品区) */
     @ApiModelProperty(value = "审批类型：提资|校审", position = 6)
     private String type;
 
     /** 状态：校审|校对|审批 - 通过|退回 */
     @ApiModelProperty(value = "状态：校审|校对|审批 - 通过|退回", position = 7)
     private String status;
+
+    /** 审批类别：校审|校对|审批  */
+    @ApiModelProperty(value = "审批类别：校审|校对|审批 ", position = 7)
+    private String auditType;
 
     /** 校审人 */
     @ApiModelProperty(value = "校审人", position = 8)

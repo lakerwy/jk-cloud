@@ -66,7 +66,7 @@ public interface CadProjectMapper extends BaseMapper<CadProject> {
      * 根据项目Id等参数，获取自定义文件目录
      * @return
      */
-    List<CadFileVo> getPrjFileTree(@Param(Constants.WRAPPER) Wrapper<CadFile> queryWrapper);
+    List<CadFileVo> getPrjFile(@Param(Constants.WRAPPER) Wrapper<CadFile> queryWrapper);
 
     /**
      * 根据项目Id等参数，获取项目目录结构

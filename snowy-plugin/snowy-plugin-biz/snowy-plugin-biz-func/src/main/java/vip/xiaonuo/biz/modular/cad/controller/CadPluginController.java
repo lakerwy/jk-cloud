@@ -55,6 +55,11 @@ public class CadPluginController {
     private CadFileHistoryService cadFileHistoryService;
     @Resource
     private CadProductService cadProductService;
+    @Resource
+    private CadProofreadService cadProofreadService;
+    @Resource
+    private CadTagService cadTagService;
+
 
 
     /**
@@ -100,16 +105,16 @@ public class CadPluginController {
     }
 
     /**
-     * 【CAD-插件端】根据项目Id,当前用户Id,获取当前项目当前人树状结构
+     * 【CAD-插件端】【设计区】根据项目Id,当前用户Id,获取当前项目设计区树状结构
      *
      * @author yong.ye
      * @date  2023/12/01 10:40
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("【CAD-插件端】根据项目Id,当前用户Id,获取当前项目当前人树状结构")
-    @GetMapping("/biz/cad/plugin/prjFileTree")
-    public CommonResult<List<Tree<String>>> prjFileTree(MyFileTreeParam myFileTreeParam) {
-        return CommonResult.data(cadProjectService.prjFileTree(myFileTreeParam));
+    @ApiOperation("【CAD-插件端】【设计区】根据项目Id,当前用户Id,获取当前项目设计区树状结构")
+    @GetMapping("/biz/cad/plugin/prjDesignTree")
+    public CommonResult<List<Tree<String>>> prjDesignTree(MyFileTreeParam myFileTreeParam) {
+        return CommonResult.data(cadProjectService.prjDesignTree(myFileTreeParam));
     }
 
     /**
@@ -202,5 +207,150 @@ public class CadPluginController {
         cadProductService.filing(filingParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 【CAD-插件端】CAD- 发起提资
+     *
+     * 1. 上传文件 （插件端处理）
+     * 1.1 并新增一条文件历史记录              -- 接口 处理
+     * 2. 创建存放路径（根据设计区文件路径生成）  -- 接口 处理
+     * 3. 添加审批记录（提资给本专业负责人）     -- 接口 处理
+     *
+     * @author yong.ye
+     * @date  2023/12/11 17:40
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("【CAD-插件端】CAD- 发起提资 ")
+    @CommonLog("【CAD-插件端】CAD- 发起提资 ")
+    @PostMapping("/biz/cad/plugin/supply")
+    public CommonResult<String> supply(@RequestBody @Valid StartFlwParam startFlwParam) {
+        cadProofreadService.supply(startFlwParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 【CAD-插件端】CAD- 发起校审
+     *
+     * 1. 上传文件 （插件端处理）
+     * 1.1 并新增一条文件历史记录              -- 接口 处理
+     * 2. 创建存放路径（根据设计区文件路径生成）  -- 接口 处理
+     * 3. 添加审批记录（提资给本专业负责人）     -- 接口 处理
+     *
+     * @author yong.ye
+     * @date  2023/12/11 17:40
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("【CAD-插件端】CAD- 发起校审 ")
+    @CommonLog("【CAD-插件端】CAD- 发起校审 ")
+    @PostMapping("/biz/cad/plugin/proofread")
+    public CommonResult<String> proofread(@RequestBody @Valid StartFlwParam startFlwParam) {
+        cadProofreadService.proofread(startFlwParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 【CAD-插件端】CAD- 审批【通过|退回】
+     *
+     * 1. 更改审批记录
+     * 2. 若审核均通过，自动移动到提资区|成品区
+     *
+     * @author yong.ye
+     * @date  2023/12/11 17:40
+     */
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("【CAD-插件端】CAD- 审批【通过|退回】 ")
+    @CommonLog("【CAD-插件端】CAD- 审批【通过|退回】 ")
+    @PostMapping("/biz/cad/plugin/audit")
+    public CommonResult<String> audit(@RequestBody @Valid AuditParam auditParam) {
+        cadProofreadService.audit(auditParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 【CAD-插件端】【提资区】根据项目Id,当前用户Id,获取当前项目提资文件树状结构
+     *
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("【CAD-插件端】【提资区】根据项目Id,当前用户Id,获取当前项目提资文件树状结构")
+    @GetMapping("/biz/cad/plugin/prjSupplyTree")
+    public CommonResult<List<Tree<String>>> prjSupplyTree(MyFileTreeParam myFileTreeParam) {
+        return CommonResult.data(cadProjectService.prjSupplyTree(myFileTreeParam));
+    }
+
+    /**
+     * 【CAD-插件端】【成品区】根据项目Id,当前用户Id,获取当前项目成品文件树状结构
+     *
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 15)
+    @ApiOperation("【CAD-插件端】【成品区】根据项目Id,当前用户Id,获取当前项目成品文件树状结构")
+    @GetMapping("/biz/cad/plugin/prjProductTree")
+    public CommonResult<List<Tree<String>>> prjProductTree(MyFileTreeParam myFileTreeParam) {
+        return CommonResult.data(cadProjectService.prjProductTree(myFileTreeParam));
+    }
+
+
+    /**
+     * 【CAD-插件端】【校审区】根据项目Id,当前用户Id,获取当前项目当前用户校审区数据
+     *
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 16)
+    @ApiOperation("【CAD-插件端】【校审区】根据项目Id,当前用户Id,获取当前项目当前用户校审区数据")
+    @GetMapping("/biz/cad/plugin/prjAuditInfo")
+    public CommonResult<CadAuditInfo> prjAuditInfo(MyFileTreeParam myFileTreeParam) {
+        return CommonResult.data(cadProjectService.prjAuditInfo(myFileTreeParam));
+    }
+
+    /**
+     * 【CAD-插件端】CAD- 更新批注状态
+     *
+     * @author yong.ye
+     * @date  2023/12/11 17:40
+     */
+    @ApiOperationSupport(order = 17)
+    @ApiOperation("【CAD-插件端】CAD- 更新批注状态 ")
+    @CommonLog("【CAD-插件端】CAD- 更新批注状态 ")
+    @PostMapping("/biz/cad/plugin/updateTagStatus")
+    public CommonResult<String> updateTagStatus(@RequestBody @Valid UpdateTagStatusParam updateTagStatusParam) {
+        cadFileService.updateTagStatus(updateTagStatusParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 【CAD-插件端】CAD- 增加批注沟通记录
+     *
+     * @author yong.ye
+     * @date  2023/12/11 17:40
+     */
+    @ApiOperationSupport(order = 18)
+    @ApiOperation("【CAD-插件端】CAD- 增加批注沟通记录 ")
+    @CommonLog("【CAD-插件端】CAD- 增加批注沟通记录 ")
+    @PostMapping("/biz/cad/plugin/addTag")
+    public CommonResult<String> addTag(@RequestBody @Valid CadTagAddParam cadTagAddParam) {
+        cadTagService.add(cadTagAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 【CAD-插件端】根据批注Id,获取聊天记录列表
+     *
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 19)
+    @ApiOperation("【CAD-插件端】根据批注Id,获取聊天记录列表")
+    @GetMapping("/biz/cad/plugin/tagListByFileId")
+    public CommonResult<List<CadTagVo>> tagListByFileId(String fileId) {
+        return CommonResult.data(cadTagService.tagListByFileId(fileId));
+    }
+
 
 }

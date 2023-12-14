@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.biz.modular.cad.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.cad.entity.CadProofread;
+import vip.xiaonuo.biz.modular.cad.vo.CadProofreadVo;
+
+import java.util.List;
 
 /**
  * CAD-提资|校审记录表Mapper接口
@@ -22,4 +28,12 @@ import vip.xiaonuo.biz.modular.cad.entity.CadProofread;
  * @date  2023/12/01 15:36
  **/
 public interface CadProofreadMapper extends BaseMapper<CadProofread> {
+
+    /**
+     * 根据项目Id，用户Id，获取其审批记录
+     * @param queryWrapper
+     * @return
+     */
+    List<CadProofreadVo> getPrjProofread(@Param(Constants.WRAPPER) Wrapper<CadProofread> queryWrapper);
+
 }
