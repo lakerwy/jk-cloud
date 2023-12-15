@@ -58,6 +58,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.trans.service.impl.TransService;
@@ -1648,23 +1649,28 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             String firstOrgId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgId" + orgId);
             String firstOrgLeaderId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + orgId);
             String firstOrgLeaderName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + orgId);
+            Map<String,String> map = new HashMap<>();
+            if(StrUtil.isBlank(orgName) || StrUtil.isBlank(firstOrgId) || StrUtil.isBlank(firstOrgLeaderId) || StrUtil.isBlank(firstOrgLeaderName)){
+                SysOrg sysOrg = sysOrgService.getById(orgId);
+                map = newHandleSqlIdExecution(orgId,sysOrg);
+            }
             if(StrUtil.isBlank(orgName)){
-                Map<String,String> map = newHandleSqlIdExecution(orgId);
+                //Map<String,String> map = newHandleSqlIdExecution(orgId);
                 orgName = map.get("orgName");
                 commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgName" + orgId, orgName,7*24*60*60);
             }
             if(StrUtil.isBlank(firstOrgId)){
-                Map<String,String> map = newHandleSqlIdExecution(orgId);
+                //Map<String,String> map = newHandleSqlIdExecution(orgId);
                 firstOrgId = map.get("orgId");
                 commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgId" + orgId, firstOrgId,7*24*60*60);
             }
             if(StrUtil.isBlank(firstOrgLeaderId)){
-                Map<String,String> map = newHandleSqlIdExecution(orgId);
+                //Map<String,String> map = newHandleSqlIdExecution(orgId);
                 firstOrgLeaderId = map.get("leaderId");
                 commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + orgId, firstOrgLeaderId,7*24*60*60);
             }
             if(StrUtil.isBlank(firstOrgLeaderName)){
-                Map<String,String> map = newHandleSqlIdExecution(orgId);
+                //Map<String,String> map = newHandleSqlIdExecution(orgId);
                 firstOrgLeaderId = map.get("leaderId");
                 if(StrUtil.isNotBlank(firstOrgLeaderId)){
                     SysLoginUser user= getUserById(firstOrgLeaderId);
@@ -1755,7 +1761,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
      * @author xuyuxiang
      * @date 2022/6/16 10:24
      **/
-    public static Map<String,String> newHandleSqlIdExecution(String orgId) {
+    public static Map<String,String> newHandleSqlIdExecution(String orgId,SysOrg sysOrg) {
         if(ObjectUtil.isNotEmpty(orgId)) {
             Connection conn;
             try {
@@ -1779,7 +1785,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                         "        WHERE @r != 0\n" +
                         "            ) t1\n" +
                         "            JOIN SYS_ORG t2\n" +
-                        "        ON t1._id = t2.ID  ORDER BY  t1.lvl DESC LIMIT 2,1";
+                        "        ON t1._id = t2.ID  ORDER BY  t1.lvl DESC ";
+                if(ObjectUtil.isNotEmpty(sysOrg) && StringUtils.isNotEmpty(sysOrg.getCategory()) && sysOrg.getCategory().equals("PARTNER")){
+                    finalSql = finalSql+" LIMIT 1,1";
+                }else {
+                    finalSql = finalSql+" LIMIT 2,1";
+                }
                 //String finalSql = sql;
                 if(ObjectUtil.isNotEmpty(finalSql)) {
                     try {

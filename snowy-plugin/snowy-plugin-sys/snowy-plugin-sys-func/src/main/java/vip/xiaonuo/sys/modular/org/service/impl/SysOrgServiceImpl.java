@@ -407,24 +407,28 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             String firstOrgId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgId" + org.getId());
             String firstOrgLeaderId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + org.getId());
             String firstOrgLeaderName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + org.getId());
+            Map<String,String> orgMap = new HashMap<>();
+            if(StrUtil.isBlank(orgName) || StrUtil.isBlank(firstOrgId) || StrUtil.isBlank(firstOrgLeaderId) || StrUtil.isBlank(firstOrgLeaderName)){
+                orgMap = newHandleSqlIdExecution(org.getId(),org);
+            }
             if(StrUtil.isBlank(orgName)){
-                Map<String,String> map = newHandleSqlIdExecution(org.getId());
-                orgName = map.get("orgName");
+                //Map<String,String> map = newHandleSqlIdExecution(org.getId(),null);
+                orgName = orgMap.get("orgName");
                 commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgName" + org.getId(), orgName,7*24*60*60);
             }
             if(StrUtil.isBlank(firstOrgId)){
-                Map<String,String> map = newHandleSqlIdExecution(org.getId());
-                firstOrgId = map.get("orgId");
+                //Map<String,String> map = newHandleSqlIdExecution(org.getId(),null);
+                firstOrgId = orgMap.get("orgId");
                 commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgId" + org.getId(), firstOrgId,7*24*60*60);
             }
             if(StrUtil.isBlank(firstOrgLeaderId)){
-                Map<String,String> map = newHandleSqlIdExecution(org.getId());
-                firstOrgLeaderId = map.get("leaderId");
+                //Map<String,String> map = newHandleSqlIdExecution(org.getId(),null);
+                firstOrgLeaderId = orgMap.get("leaderId");
                 commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + org.getId(), firstOrgLeaderId,7*24*60*60);
             }
             if(StrUtil.isBlank(firstOrgLeaderName)){
-                Map<String,String> map = newHandleSqlIdExecution(org.getId());
-                firstOrgLeaderId = map.get("leaderId");
+                //Map<String,String> map = newHandleSqlIdExecution(org.getId(),null);
+                firstOrgLeaderId = orgMap.get("leaderId");
                 if(StrUtil.isNotBlank(firstOrgLeaderId)){
                     SysLoginUser user= sysUserService.getUserById(firstOrgLeaderId);
                     if(ObjectUtil.isNotEmpty(user)){
