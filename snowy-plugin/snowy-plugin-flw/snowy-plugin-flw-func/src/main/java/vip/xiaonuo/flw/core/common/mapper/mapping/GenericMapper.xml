@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.flw.core.common.mapper.GenericMapper">
+
+        <!-- 插入通用记录 -->
+        <insert id="insertGenericEntity" parameterType="vip.xiaonuo.flw.core.common.entity.GenericEntity">
+            <selectKey keyProperty="result" resultType="boolean" order="AFTER">
+                SELECT 1
+            </selectKey>
+            INSERT INTO
+            ${tableName}
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <foreach collection="fieldMap" item="value" index="key">
+                    ${key},
+                </foreach>
+            </trim>
+            VALUES
+            <trim prefix="(" suffix=")" suffixOverrides=",">
+                <foreach collection="fieldMap" item="value" index="key">
+                    #{value},
+                </foreach>
+            </trim>
+        </insert>
+
+
+</mapper>

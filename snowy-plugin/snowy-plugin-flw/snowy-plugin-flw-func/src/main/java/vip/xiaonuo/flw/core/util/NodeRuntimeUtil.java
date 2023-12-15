@@ -13,6 +13,7 @@
 package vip.xiaonuo.flw.core.util;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -33,7 +34,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.camunda.bpm.engine.impl.persistence.entity.CommentEntity;
+import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.task.Comment;
+import org.camunda.bpm.engine.task.Event;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.Process;
@@ -46,14 +50,18 @@ import org.springframework.messaging.support.MessageBuilder;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.RabbitDelayedMessage;
 import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.dbs.api.DbsApi;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.api.DevEmailApi;
 import vip.xiaonuo.dev.api.DevMessageApi;
+import vip.xiaonuo.flw.core.common.entity.GenericEntity;
+import vip.xiaonuo.flw.core.common.service.GenericService;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
@@ -1471,6 +1479,56 @@ public class NodeRuntimeUtil {
             }
         }catch (Exception e){
             log.error(e.getMessage());
+        }
+    }
+
+    /**
+     * 手动添加评论意见
+     *
+     * @author myk
+     * @date 2023/12/15 10:06
+     **/
+    public static void handleUserTaskCommentAndAttachment2(String taskId, String processInstanceId, String operateType, String operateText,
+                                                          String comment, List<FlwTaskAttachmentParam> attachmentList,Boolean flag,String userId) {
+        NodeRuntimeUtil.handleTenAuth();
+        TaskService taskService = SpringUtil.getBean(TaskService.class);
+        JSONObject jsonObject = JSONUtil.createObj();
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        jsonObject.set("USER_ID", loginUser.getId());
+        jsonObject.set("USER_NAME", loginUser.getName());
+        jsonObject.set("OPERATE_TYPE", operateType);
+        jsonObject.set("OPERATE_TEXT", operateText);
+        jsonObject.set("COMMENT", comment);
+        Comment taskComment = taskService.createComment(taskId, processInstanceId, JSONUtil.toJsonStr(jsonObject));
+        if(ObjectUtil.isNotEmpty(attachmentList)) {
+            attachmentList.forEach(flwTaskCommentParam -> {
+                if(ObjectUtil.isAllNotEmpty(flwTaskCommentParam.getAttachmentName(), flwTaskCommentParam.getAttachmentUrl())) {
+                    if(!flag){
+                        taskService.createAttachment(null, taskId, processInstanceId,
+                                flwTaskCommentParam.getAttachmentName(), taskComment.getId(), flwTaskCommentParam.getAttachmentUrl());
+                    }else {
+                        GenericService bean = SpringUtil.getBean(GenericService.class);
+                        GenericEntity genericEntity = new GenericEntity();
+                        CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+                        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+                        //genericEntity.setDbName(String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME)));
+//                        String flName = "`"+dbName+"`.`ACT_HI_ATTACHMENT`";
+                        genericEntity.setTableName("ACT_HI_ATTACHMENT");
+                        Map<String,Object> fielpMap = new HashMap<>();
+                        fielpMap.put("ID_",String.valueOf(UUID.randomUUID()));
+                        fielpMap.put("USER_ID_",userId);
+                        fielpMap.put("REV_",1);
+                        fielpMap.put("CREATE_TIME_",ClockUtil.getCurrentTime());
+                        fielpMap.put("PROC_INST_ID_",processInstanceId);
+                        fielpMap.put("ROOT_PROC_INST_ID_",processInstanceId);
+                        fielpMap.put("NAME_",flwTaskCommentParam.getAttachmentName());
+                        fielpMap.put("URL_",flwTaskCommentParam.getAttachmentUrl());
+                        fielpMap.put("DESCRIPTION_",taskComment.getId());
+                        genericEntity.setFieldMap(fielpMap);
+                        bean.insertGenericEntity(genericEntity);
+                    }
+                }
+            });
         }
     }
 }

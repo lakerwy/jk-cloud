@@ -33,4 +33,7 @@ public class FlwCommentParam {
     /** 附件信息 */
     @ApiModelProperty(value = "附件信息", position = 5)
     private List<FlwTaskAttachmentParam> attachmentList;
+
+    @ApiModelProperty(value = "特殊表示（流程完成后评论添加附件）",position = 6)
+    private Boolean flag = true;
 }
