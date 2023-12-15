@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
@@ -58,6 +59,9 @@ public class RabbitMsg {
 
     String userId;
 
+    @ApiModelProperty(value = "消息的唯一表示",position = 6)
+    String uuid;
+
     public RabbitMsg() {
     }
 
@@ -67,6 +71,7 @@ public class RabbitMsg {
         this.title = builder.title;
         this.url = builder.url;
         this.pcUrl = builder.pcUrl;
+        this.uuid = UUID.randomUUID(Boolean.FALSE).toString();
     }
 
     public static  class Builder{

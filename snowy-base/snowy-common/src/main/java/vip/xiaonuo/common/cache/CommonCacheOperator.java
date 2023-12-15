@@ -201,4 +201,42 @@ public class CommonCacheOperator {
         BoundListOperations<String, Object> boundListOps = redisTemplate.boundListOps(key);
         boundListOps.rightPop();
     }
+
+    /**
+     *  set类型添加
+     * @param key
+     * @param value
+     */
+    public void addToSet(String key, String value) {
+        redisTemplate.opsForSet().add(CACHE_KEY_PREFIX+key, value);
+    }
+
+    /**
+     * 获取所有value
+     * @param
+     * @return
+     */
+    public Set<Object> getSetMembers(String key) {
+        return redisTemplate.opsForSet().members(CACHE_KEY_PREFIX+key);
+    }
+
+    /**
+     * 移除value
+     * @param key
+     * @param value
+     */
+    public void removeFromSet(String key, String value) {
+        redisTemplate.opsForSet().remove(CACHE_KEY_PREFIX+key, value);
+    }
+
+    /**
+     * 判断某个value是否存在
+     * @param key
+     * @param value
+     * @return
+     */
+    public boolean isValueInSet(String key, String value) {
+        Set<Object> setMembers = getSetMembers(key);
+        return setMembers != null && setMembers.contains(value);
+    }
 }

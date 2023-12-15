@@ -1,6 +1,7 @@
 package vip.xiaonuo.dev.modular.message.config;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
@@ -51,32 +52,45 @@ public class ConsumerCenter {
     @Bean
     public Consumer<RabbitMsg> sink(){
         return rabbitMsg -> {
-            log.info("------接受到消息----- 开始发送-----------"+rabbitMsg.getTitle());
-            iDingDingService.commonSend(rabbitMsg);
+            boolean flag = commonCacheOperator.isValueInSet(RabbitConstant.RABBIT_MESSAGE_ID, rabbitMsg.getUuid());
+            if(!flag){
+                log.info("------消息已被消费-----------"+rabbitMsg.getUuid()+rabbitMsg.getTitle());
+            }else {
+                log.info("------接受到消息----- 开始发送-----------" + rabbitMsg.getTitle());
+                iDingDingService.commonSend(rabbitMsg);
+            }
         };
     }
 
     @Bean
     public Consumer<Message<RabbitDelayedMessage>> delayedMessage() {
         return message -> {
-            log.info("接受到延迟队列的消息: " + message.getPayload().getTaskKey());
             RabbitDelayedMessage rabbitDelayedMessage = message.getPayload();
-            String taskKey = rabbitDelayedMessage.getTaskKey();
-            Object o = commonCacheOperator.get(taskKey);
-            if(ObjectUtil.isNotEmpty(o) && !Boolean.parseBoolean(String.valueOf(o))){
-                //未办理，发送消息，继续放入缓存中
-                Message<RabbitDelayedMessage> newMessage = MessageBuilder
-                        .withPayload(rabbitDelayedMessage)
-                        .setHeader("x-delay", rabbitDelayedMessage.getLimit()*60*601000)
-//                .copyHeaders(customHeaders)
-//                        .setHeader("x-delay", 60000)
-                        .build();
-
-                streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL,newMessage);
-                iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());
+            boolean flag = commonCacheOperator.isValueInSet(RabbitConstant.RABBIT_MESSAGE_ID, rabbitDelayedMessage.getRabbitMsg().getUuid());
+            if(!flag){
+                log.info("------消息已被消费-----------"+rabbitDelayedMessage.getRabbitMsg()+rabbitDelayedMessage.getRabbitMsg().getTitle());
             }else {
-                // 处理接收到的延迟消息
-                log.info("Received delayed message: " + rabbitDelayedMessage.getTaskKey());
+                log.info("接受到延迟队列的消息: " + message.getPayload().getTaskKey());
+
+                String taskKey = rabbitDelayedMessage.getTaskKey();
+                Object o = commonCacheOperator.get(taskKey);
+                if (ObjectUtil.isNotEmpty(o) && !Boolean.parseBoolean(String.valueOf(o))) {
+                    //未办理，发送消息，继续放入缓存中
+                    Message<RabbitDelayedMessage> newMessage = MessageBuilder
+                            .withPayload(rabbitDelayedMessage)
+                            .setHeader("x-delay", rabbitDelayedMessage.getLimit() *60*60*1000)
+//                .copyHeaders(customHeaders)
+//                        .setHeader("x-delay", 2*60*1000)
+                            .build();
+
+                    streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL, newMessage);
+                    rabbitDelayedMessage.getRabbitMsg().setUuid(UUID.randomUUID(Boolean.FALSE).toString());
+                    commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitDelayedMessage.getRabbitMsg().getUuid());
+                    iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());
+                } else {
+                    // 处理接收到的延迟消息
+                    log.info("Received delayed message: " + rabbitDelayedMessage.getTaskKey());
+                }
             }
 
         };

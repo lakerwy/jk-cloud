@@ -1464,14 +1464,14 @@ public class NodeRuntimeUtil {
                     rabbitDelayedMessage.setTaskKey(key);
                     rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
                     rabbitDelayedMessage.setLimit(v);
-                    String messageId = String.valueOf(UUID.randomUUID());
                     Message<RabbitDelayedMessage> message = MessageBuilder
                             .withPayload(rabbitDelayedMessage)
                             .setHeader("x-delay", v*60*60*1000)
 //                            .setHeader(RabbitConstant.RABBIT_MESSAGE_ID, messageId)
 //                .copyHeaders(customHeaders)
+//                            .setHeader("x-delay", 2*60*1000)
                             .build();
-
+                    commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
                     streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL,message);
                     commonCacheOperator.put(key,Boolean.FALSE);
                 }

@@ -204,6 +204,7 @@ public class BizAuditListsDetailsController {
                 jsonObject.set(FlwCacheConstant.SENDERS,auditLists.getCreateUser());
                 jsonObject.set(FlwCacheConstant.TITLE,"【工程校审处理单】");
                 RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
+                commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
                 streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,rabbitMsg);
             }
         }catch (Exception e){
