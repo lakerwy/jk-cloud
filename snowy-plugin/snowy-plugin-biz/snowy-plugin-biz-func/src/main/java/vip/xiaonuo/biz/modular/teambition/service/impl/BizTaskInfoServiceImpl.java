@@ -212,7 +212,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
      *  1.任务数据
      *  2.任务来源数据，比如会议A 的详情数据
      * */
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizTaskInfoAddParam bizTaskInfoAddParam) {
         String proId = null;
@@ -263,7 +263,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         }
         if(ObjectUtil.isNotEmpty(bizTaskInfo.getBelonger())){ //反查任务执行者的部门
             DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
-            dbsApi.changeDataSource("master");
+            dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase());
             BizUser bizUser = bizUserService.getById(bizTaskInfo.getBelonger());
             dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
             bizTaskInfo.setBelongerOrg(bizUser.getOrgId());
@@ -285,7 +285,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         userIds.addAll(taskParticipants);
 
         DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
-        dbsApi.changeDataSource("master");
+        dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase());
         List<BizUser> bizUserList = bizUserService.list(new LambdaQueryWrapper<BizUser>().in(BizUser::getId,userIds));
         dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
 
