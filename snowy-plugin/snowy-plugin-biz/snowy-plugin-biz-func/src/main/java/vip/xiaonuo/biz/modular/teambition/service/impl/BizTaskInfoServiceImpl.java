@@ -16,19 +16,27 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
+import vip.xiaonuo.biz.modular.teambition.entity.BizTaskFile;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskInfo;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskProject;
 import vip.xiaonuo.biz.modular.teambition.enums.BizTaskGroupEnum;
@@ -37,21 +45,26 @@ import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoAddParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoEditParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoIdParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoPageParam;
+import vip.xiaonuo.biz.modular.teambition.service.BizTaskFileService;
 import vip.xiaonuo.biz.modular.teambition.service.BizTaskInfoService;
 import vip.xiaonuo.biz.modular.teambition.service.BizTaskProjectService;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.BizTaskCommentService;
 import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
+import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.api.DbsApi;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -72,7 +85,15 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     BizUserService bizUserService;
     @Resource
     BizTaskCommentService bizTaskCommentService;
+    @Resource
+    StreamBridge streamBridge;
+    @Resource
+    BizTaskFileService bizTaskFileService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
+    @Value("${spring.profiles.active}")
+    private String active ;
 
     @Override
     public Page<BizTaskInfo> page(BizTaskInfoPageParam bizTaskInfoPageParam) {
@@ -138,6 +159,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         Page<BizTaskInfo> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         getTaskProject(page);
         getTaskComment(page);
+        getTaskFile(page);
         return page;
     }
     /** 获取任务的来源详情*/
@@ -157,13 +179,34 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(CollectionUtil.isNotEmpty(page.getRecords())){
             List<String> taskInfoIds = page.getRecords().stream().map(info ->info.getId()).collect(Collectors.toList());
             List<BizTaskComment> bizTaskCommentList = bizTaskCommentService.list(new LambdaQueryWrapper<BizTaskComment>().in(BizTaskComment::getTaskInfoId,taskInfoIds));
-            Map<String,BizTaskComment> map = new HashMap<>();
+            Map<String,List<BizTaskComment>> commentMap = new HashMap<>();
             if(CollectionUtil.isNotEmpty(bizTaskCommentList)){
-                bizTaskCommentList.forEach(comment -> map.put(comment.getTaskInfoId(),comment));
-                page.getRecords().forEach(info ->info.setBizTaskComment(map.get(info.getId())));
+                bizTaskCommentList.forEach(comment -> {
+                    List<BizTaskComment> commentList = commentMap.get(comment.getTaskInfoId()) != null ?commentMap.get(comment.getTaskInfoId()) : new ArrayList<>();
+                    commentList.add(comment);
+                    commentMap.put(comment.getTaskInfoId(),commentList);
+                });
             }
+            page.getRecords().forEach(info ->info.setBizTaskCommentList(commentMap.get(info.getId())));
         }
     }
+    /** 任务附件 */
+    private void getTaskFile(Page<BizTaskInfo> page){
+        if(CollectionUtil.isNotEmpty(page.getRecords())){
+            List<String> taskInfoIds = page.getRecords().stream().map(info ->info.getId()).collect(Collectors.toList());
+            List<BizTaskFile> bizTaskFileList = bizTaskFileService.list(new LambdaQueryWrapper<BizTaskFile>().in(BizTaskFile::getTaskInfoId,taskInfoIds));
+            Map<String,List<BizTaskFile>> fileMap = new HashMap<>();
+            if(CollectionUtil.isNotEmpty(bizTaskFileList)){
+                bizTaskFileList.forEach(file -> {
+                    List<BizTaskFile> fileList = fileMap.get(file.getTaskInfoId()) != null ?fileMap.get(file.getTaskInfoId()) : new ArrayList<>();
+                    fileList.add(file);
+                    fileMap.put(file.getTaskInfoId(),fileList);
+                });
+            }
+            page.getRecords().forEach(info ->info.setBizTaskFileList(fileMap.get(info.getId())));
+        }
+    }
+
 
     /** 新增任务
      *  1.任务数据
@@ -173,11 +216,13 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     @Override
     public void add(BizTaskInfoAddParam bizTaskInfoAddParam) {
         String proId = null;
+        String infoStatus = null;
         if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo()) && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo().getProName())){
             BizTaskProjectVo  bizTaskProjectVo = bizTaskInfoAddParam.getBizTaskProjectVo();
             BizTaskProject bizTaskProject = BeanUtil.toBean(bizTaskProjectVo, BizTaskProject.class);
             bizTaskProjectService.save(bizTaskProject);
             proId = bizTaskProject.getId();
+            infoStatus = "创建了任务";
         }else{
             BizTaskInfo parentTaskInfo = this.getById(bizTaskInfoAddParam.getParentId());
             if(ObjectUtil.isEmpty(parentTaskInfo)){
@@ -185,11 +230,23 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             }else{
                 proId = parentTaskInfo.getProId();
             }
+            infoStatus = "创建了子任务";
         }
         BizTaskInfo bizTaskInfo = BeanUtil.toBean(bizTaskInfoAddParam, BizTaskInfo.class);
         bizTaskInfo.setProId(proId);
         initBizTaskInfo(bizTaskInfo);
         this.save(bizTaskInfo);
+        sendAddMsg(bizTaskInfo);
+        putTaskComment(bizTaskInfo,infoStatus);
+    }
+    private void putTaskComment(BizTaskInfo bizTaskInfo,String infoStatus){
+        BizTaskComment bizTaskComment = new BizTaskComment();
+        DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+        dbsApi.changeDataSource("master");
+        BizUser bizUser = bizUserService.getById(bizTaskInfo.getCreateUser());
+        dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
+        bizTaskComment.setInfoStatus(bizUser.getName()+" "+infoStatus);
+        bizTaskCommentService.save(bizTaskComment);
     }
     //数据初始化
     private void initBizTaskInfo(BizTaskInfo bizTaskInfo){
@@ -198,27 +255,79 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             bizTaskInfo.setTaskPriority(BizTaskGroupEnum.ZRROR.getValue());//任务优先级初始化：最低
         }
         if(ObjectUtil.isNotEmpty(bizTaskInfo.getLeadId())){ //反查任务负责人的部门
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase());
             BizUser bizUser = bizUserService.getById(bizTaskInfo.getLeadId());
+            dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
             bizTaskInfo.setLeadOrg(bizUser.getOrgId());
         }
         if(ObjectUtil.isNotEmpty(bizTaskInfo.getBelonger())){ //反查任务执行者的部门
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            dbsApi.changeDataSource("master");
             BizUser bizUser = bizUserService.getById(bizTaskInfo.getBelonger());
+            dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
             bizTaskInfo.setBelongerOrg(bizUser.getOrgId());
         }
         if(ObjectUtil.isEmpty(bizTaskInfo.getTaskModel())){//任务是否公开，默认公开
             bizTaskInfo.setTaskModel(BizTaskGroupEnum.ZRROR.getValue());
         }
     }
+    /** 任务名称：taskName
+     * 任务创建人：createUser
+     * 任务执行人：belongerUser
+     * 任务执行时间：taskTime
+     * 任务参与人：taskParticipants*/
+    private void sendAddMsg(BizTaskInfo bizTaskInfo){
+        List<String> userIds = new ArrayList<>();//执行人，创建人，参与人
+        userIds.add(bizTaskInfo.getCreateUser());
+        userIds.add(bizTaskInfo.getBelonger());
+        List<String> taskParticipants = Arrays.asList(bizTaskInfo.getTaskParticipants().split(","));
+        userIds.addAll(taskParticipants);
+
+        DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+        dbsApi.changeDataSource("master");
+        List<BizUser> bizUserList = bizUserService.list(new LambdaQueryWrapper<BizUser>().in(BizUser::getId,userIds));
+        dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
+
+        Map<String,BizUser> userMap = new HashMap<>();
+        bizUserList.forEach(user -> userMap.put(user.getId(),user));
+
+        StringBuffer taskPartNames = new StringBuffer();
+        taskParticipants.forEach(part -> {
+            if(userMap.get(part) != null){ taskPartNames.append(userMap.get(part).getName()).append(",");}
+        });
+        Map<String,String> map = new HashMap<>();
+        map.put("taskName",bizTaskInfo.getTaskName());
+        map.put("createUser",userMap.get(bizTaskInfo.getCreateUser()) != null ? userMap.get(bizTaskInfo.getCreateUser()).getName() : "");
+        map.put("belongerUser", StringUtils.isNotEmpty(bizTaskInfo.getBelonger()) ? userMap.get(bizTaskInfo.getBelonger()) != null ?
+                userMap.get(bizTaskInfo.getBelonger()).getName() : "":"");
+        map.put("taskTime", "");
+        if(ObjectUtil.isNotEmpty(bizTaskInfo.getTaskStartTime()) && ObjectUtil.isNotEmpty(bizTaskInfo.getTaskEndTime())){
+            map.put("taskTime",DateUtil.format(bizTaskInfo.getTaskStartTime(), DatePattern.NORM_DATETIME_MINUTE_PATTERN) +"-"
+                    +DateUtil.format(bizTaskInfo.getTaskEndTime(), DatePattern.NORM_DATETIME_MINUTE_PATTERN));
+        }
+        map.put("taskParticipants",taskPartNames.toString());
+        sendMsg(map,bizUserList.stream().map(user -> user.getId()).collect(Collectors.toList()));
+    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizTaskInfoEditParam bizTaskInfoEditParam) {
+        String infoStatus = "";
         BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoEditParam.getId());
+        if(bizTaskInfoEditParam.getTaskStatus().equals(bizTaskInfo.getTaskStatus())){
+            String startStatus = bizTaskInfo.getTaskStatus().equals("0") ? BizTaskGroupEnum.NOT_START.getValue() :bizTaskInfo.getTaskStatus().equals("1") ?
+                    BizTaskGroupEnum.END.getValue() : BizTaskGroupEnum.NOT_END.getValue();
+            String changeStatus = bizTaskInfo.getTaskStatus().equals("0") ? BizTaskGroupEnum.NOT_START.getValue() :bizTaskInfo.getTaskStatus().equals("1") ?
+                    BizTaskGroupEnum.END.getValue() : BizTaskGroupEnum.NOT_END.getValue();
+            infoStatus = "将任务状态从"+startStatus+"改为"+changeStatus;
+        }
         BeanUtil.copyProperties(bizTaskInfoEditParam, bizTaskInfo);
         this.updateById(bizTaskInfo);
         if(ObjectUtil.isNotEmpty(bizTaskInfoEditParam.getProId())){
             editBizTaskProject(bizTaskInfoEditParam);
         }
+        putTaskComment(bizTaskInfo,infoStatus);
     }
     private void editBizTaskProject(BizTaskInfoEditParam bizTaskInfoEditParam){
         BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfoEditParam.getProId());
@@ -254,5 +363,35 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             throw new CommonException("任务主表不存在，id值为：{}", id);
         }
         return bizTaskInfo;
+    }
+
+    @Override
+    public void sendMsg(Map<String,String> map,List<String> receiverIdList){
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.set(FlwCacheConstant.TITLE,"【任务平台通知】");
+        jsonObject.set("taskName",map.get("taskName"));
+        jsonObject.set("createUser",map.get("createUser"));
+        jsonObject.set("belongerUser",map.get("belongerUser"));
+        jsonObject.set("taskTime",map.get("taskTime"));
+        jsonObject.set("taskParticipants",map.get("taskParticipants"));
+        jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
+        TaskInfoMsg taskInfoMsg = TaskInfoMsg.buildRabbitMsg(jsonObject);
+        commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,taskInfoMsg);
+    }
+
+    private void sendChangeMsg(Map<String,String> map,List<String> receiverIdList){
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.set(FlwCacheConstant.TITLE,"【任务变更通知】");
+        jsonObject.set("taskName",map.get("taskName"));
+        jsonObject.set("createUser",map.get("createUser"));
+        jsonObject.set("belongerUser",map.get("belongerUser"));
+        jsonObject.set("taskTime",map.get("taskTime"));
+        jsonObject.set("taskParticipants",map.get("taskParticipants"));
+        jsonObject.set("taskChange",map.get("taskChange"));
+        jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
+        TaskInfoMsg taskInfoMsg = TaskInfoMsg.changeRabbitMsg(jsonObject);
+        commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,taskInfoMsg);
     }
 }

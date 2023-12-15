@@ -66,7 +66,7 @@ public class BizTaskInfoEditParam {
     private String belonger;
 
     /** 任务状态 */
-    @ApiModelProperty(value = "任务状态，0 未完成，1 完成中，3 已完成：", position = 10)
+    @ApiModelProperty(value = "任务状态，0 未完成，1 完成中，2 已完成", position = 10)
     private String taskStatus;
 
     /** 任务优先级 */

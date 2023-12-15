@@ -26,7 +26,10 @@ public enum BizTaskGroupEnum {
     /** 测试 */
     TEST("TEST"),
     ZRROR("0"),
-    ONE("1");
+    ONE("1"),
+    NOT_START("未开始"),
+    END("完成"),
+    NOT_END("未完成");
 
     private final String value;
 

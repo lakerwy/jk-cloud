@@ -31,6 +31,8 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 任务管理平台接口
@@ -422,5 +424,13 @@ public class BizTaskGroupController {
     @GetMapping("/biz/taskGroupRes/detail")
     public CommonResult<BizTaskGroupRes> groupResDetail(@Valid BizTaskGroupResIdParam bizTaskGroupResIdParam) {
         return CommonResult.data(bizTaskGroupResService.detail(bizTaskGroupResIdParam));
+    }
+
+    @ApiOperationSupport(order = 26)
+    @ApiOperation("任务平台-发送消息")
+    @GetMapping("/biz/taskGroupRes/sendMsg")
+    public CommonResult<BizTaskGroupRes> sendMsg(Map<String,String> map, List<String> receiverIdList) {
+        bizTaskInfoService.sendMsg(map,receiverIdList);
+        return CommonResult.ok();
     }
 }
