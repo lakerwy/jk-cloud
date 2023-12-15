@@ -13,3 +13,11 @@ spring:
         file-extension: yaml
         username: nacos
         password: nacos
+tencent:
+  cloud:
+    im:
+      sdkAppId: 1600008720
+      secretKey: 8123b9c649e172ce6ed2422256c5b3dd9f3e0211a7f0ac14d1b7241578634a9c
+      expireTime: 604800
+      appManager: administrator
+      prefixUrl: https://console.tim.qq.com/
