@@ -151,4 +151,7 @@ public class BizChartReviewsDetailsVo  implements Serializable {
     /** 基本信息备注 */
     @ApiModelProperty(value = "基本信息备注", position = 53)
     private String remark;
+
+    @ApiModelProperty(value = "合作伙伴类型",position = 54)
+    private String partnerType;
 }

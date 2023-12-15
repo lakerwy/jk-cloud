@@ -34,6 +34,7 @@
         <result column="SECOND_LEVEL" jdbcType="VARCHAR" property="secondLevel" />
         <result column="CONTRACT_NO" jdbcType="VARCHAR" property="contractNo" />
         <result column="PROJECT_NAME" jdbcType="VARCHAR" property="projectName" />
+        <result column="PARTNER_TYPE" jdbcType="VARCHAR" property="partnerType" />
         <collection property="bizMapRegisterList" column="ID" select="getMapList"/>
         <collection property="bizAuditListsList" column="ID" select="getAuditList"/>
     </resultMap>
@@ -67,7 +68,8 @@
             c.MAP_COPIES,
             c.NOTE,
             c.IS_FILE,
-            c.IS_LOGISTICS
+            c.IS_LOGISTICS,
+            b.PARTNER_TYPE
         FROM
             BIZ_CHART_REVIEWS a
                 LEFT JOIN BIZ_CRM_HETONG b ON a.PROJECT_NO = b.CONTRACT_NO
