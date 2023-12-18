@@ -20,6 +20,7 @@ import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 任务主表实体
@@ -70,7 +71,7 @@ public class BizTaskInfo {
     private String belonger;
 
     /** 任务状态 */
-    @ApiModelProperty(value = "任务状态", position = 10)
+    @ApiModelProperty(value = "任务状态，0 未完成，1 完成中，2 已完成", position = 10)
     private String taskStatus;
 
     /** 任务优先级：0 最低，1较低，2普通，3较高，4 最高*/
@@ -123,8 +124,8 @@ public class BizTaskInfo {
     @ApiModelProperty(value = "负责人ID", position = 21)
     private String leadId;
 
-    /** 负责人ID */
-    @ApiModelProperty(value = "负责人ID", position = 22)
+    /** 负责人部门 */
+    @ApiModelProperty(value = "负责人部门", position = 22)
     private String leadOrg;
 
     /** 任务来源详情表 */
@@ -139,5 +140,10 @@ public class BizTaskInfo {
     /** 任务评论 */
     @ApiModelProperty(value = "任务评论", position = 25)
     @TableField(exist = false)
-    private BizTaskComment bizTaskComment;
+    private List<BizTaskComment> bizTaskCommentList;
+
+    /** 任务附件 */
+    @ApiModelProperty(value = "任务附件", position = 25)
+    @TableField(exist = false)
+    private List<BizTaskFile> bizTaskFileList;
 }

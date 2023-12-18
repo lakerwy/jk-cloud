@@ -19,8 +19,10 @@ import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoAddParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoEditParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoIdParam;
 import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoPageParam;
+import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 任务主表Service接口
@@ -77,4 +79,7 @@ public interface BizTaskInfoService extends IService<BizTaskInfo> {
      * @date  2023/12/08 09:03
      **/
     BizTaskInfo queryEntity(String id);
+
+    /** 项目管理通知*/
+    void sendMsg(Map<String,String> map,List<String> receiverIdList);
 }

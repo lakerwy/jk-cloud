@@ -36,6 +36,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 个人流程控制器
@@ -279,7 +280,7 @@ public class FlwProcessMyController {
     @ApiOperationSupport(order = 14)
     @ApiOperation("根据流程实例ID 判断当前节点处理时是否是发起人")
     @GetMapping("/flw/process/getInstance")
-    public CommonResult<Boolean> getInstance(@RequestParam(value = "processInstanceId") String processInstanceId) {
+    public CommonResult<Map<String,String>> getInstance(@RequestParam(value = "processInstanceId") String processInstanceId) {
         return CommonResult.data(flwProcessService.getInstance(processInstanceId));
     }
 

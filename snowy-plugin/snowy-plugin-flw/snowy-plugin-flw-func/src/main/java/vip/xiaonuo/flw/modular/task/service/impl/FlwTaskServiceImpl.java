@@ -772,8 +772,8 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 processInstanceId = task.getProcessInstanceId();
             }
         }
-        NodeRuntimeUtil.handleUserTaskCommentAndAttachment(null, processInstanceId, NodeApproveOperateTypeEnum.COMMENT.getValue(), "追加评论",
-                flwcommentParam.getComment(), flwcommentParam.getAttachmentList());
+        NodeRuntimeUtil.handleUserTaskCommentAndAttachment2(null, processInstanceId, NodeApproveOperateTypeEnum.COMMENT.getValue(), "追加评论",
+                flwcommentParam.getComment(), flwcommentParam.getAttachmentList(),flwcommentParam.getFlag(),StpLoginUserUtil.getLoginUser().getId());
         List<Comment> comments = taskService.getProcessInstanceComments(processInstanceId);
         if(CollUtil.isNotEmpty(comments)){
             Comment comment = comments.get(comments.size() - 1);

@@ -311,8 +311,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             String directorId = sysOrg.getDirectorId();
             if(ObjectUtil.isNotEmpty(directorId)){
                 SysLoginUser user = sysUserService.getUserById(directorId);
-                personnelVo.setLeader(user.getName());
-                personnelVo.setDirector(user.getName());
+                if(ObjectUtil.isNotEmpty(user)){
+                    personnelVo.setLeader(user.getName());
+                    personnelVo.setDirector(user.getName());
+                }
                 SysUser one = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()).eq(SysUser::getDeleteFlag,"NOT_DELETE"));
                 if(ObjectUtil.isNotEmpty(one)){
                     personnelVo.setSysUserId(one.getId());

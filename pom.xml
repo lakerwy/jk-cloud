@@ -131,6 +131,10 @@
 
         <docx4j.version>6.1.2</docx4j.version>
 
+        <!--腾讯IM-->
+        <im-server.version>0.3.48</im-server.version>
+        <tls-sig-api.version>2.0</tls-sig-api.version>
+
     </properties>
 
     <modules>
@@ -1031,6 +1035,19 @@
                 <artifactId>spring-cloud-stream-binder-rabbit</artifactId>
                 <version>${spring.cloud-rabbit-version}</version>
 <!--                <version>3.1.6</version>-->
+            </dependency>
+
+            <dependency>
+                <groupId>com.github.tencentyun</groupId>
+                <artifactId>tls-sig-api-v2</artifactId>
+                <version>${tls-sig-api.version}</version>
+            </dependency>
+
+            <!-- https://mvnrepository.com/artifact/io.github.doocs/im-server-sdk-java -->
+            <dependency>
+                <groupId>io.github.doocs</groupId>
+                <artifactId>im-server-sdk-java</artifactId>
+                <version>${im-server.version}</version>
             </dependency>
 
         </dependencies>

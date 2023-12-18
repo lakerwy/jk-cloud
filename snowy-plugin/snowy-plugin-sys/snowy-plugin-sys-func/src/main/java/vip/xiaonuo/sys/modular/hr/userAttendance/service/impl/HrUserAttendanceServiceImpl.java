@@ -788,8 +788,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
     @Override
     public void rezToRuanLianJobHandle(){
         List<ConferenceRez> pushRezList = conferenceRezService.list(new LambdaQueryWrapper<ConferenceRez>()
-                .isNull(ConferenceRez::getIsPush).or().ne(ConferenceRez::getIsPush,1)
-                .isNull(ConferenceRez::getPushSize).or().lt(ConferenceRez::getPushSize,5));
+                .isNull(ConferenceRez::getIsPush).ne(ConferenceRez::getIsPush,1)
+                .isNull(ConferenceRez::getPushSize).lt(ConferenceRez::getPushSize,5));
         pushRezList.forEach(rez ->{
             ConferenceConfig conferenceConfig = conferenceConfigService.getById(rez.getConferenceConfigId());
             SysUser sysUser = sysUserService.getById(rez.getRezUser());
@@ -820,8 +820,8 @@ public class HrUserAttendanceServiceImpl extends ServiceImpl<HrUserAttendanceMap
         conferenceRezService.saveOrUpdateBatch(pushRezList);
 
         List<ConferenceRez> delRezList = conferenceRezService.list(new LambdaQueryWrapper<ConferenceRez>().eq(ConferenceRez::getConferenceStatus,1)
-                .isNull(ConferenceRez::getIsDel).or().ne(ConferenceRez::getIsDel,1)
-                .isNull(ConferenceRez::getDelSize).or().lt(ConferenceRez::getDelSize,5));//取消会议
+                .isNull(ConferenceRez::getIsDel).ne(ConferenceRez::getIsDel,1)
+                .isNull(ConferenceRez::getDelSize).lt(ConferenceRez::getDelSize,5));//取消会议
         delRezList.forEach(rez ->{
             if(StringUtils.isEmpty(rez.getYyid())){
                 rez.setDelSize(rez.getDelSize() == null ? 1 : rez.getDelSize()+1);

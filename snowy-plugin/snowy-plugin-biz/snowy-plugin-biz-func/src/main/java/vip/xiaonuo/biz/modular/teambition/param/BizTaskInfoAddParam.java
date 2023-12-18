@@ -61,7 +61,7 @@ public class BizTaskInfoAddParam {
     private String belonger;
 
     /** 任务状态 */
-    @ApiModelProperty(value = "任务状态", position = 10)
+    @ApiModelProperty(value = "任务状态，0 未完成，1 完成中，2 已完成", position = 10)
     private String taskStatus;
 
     /** 任务优先级 */
@@ -91,4 +91,8 @@ public class BizTaskInfoAddParam {
     /** 任务执行者部门 */
     @ApiModelProperty(value = "任务执行者部门", position = 17)
     private String belongerOrg;
+
+    /** 负责人ID */
+    @ApiModelProperty(value = "负责人ID", position = 18)
+    private String leadId;
 }

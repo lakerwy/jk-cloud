@@ -13,6 +13,7 @@
 package vip.xiaonuo.flw.core.util;
 
 import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -33,6 +34,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
+import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.camunda.bpm.engine.impl.pvm.PvmActivity;
+import org.camunda.bpm.engine.impl.pvm.PvmTransition;
+import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
+import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
@@ -46,14 +54,18 @@ import org.springframework.messaging.support.MessageBuilder;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.RabbitDelayedMessage;
 import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.dbs.api.DbsApi;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.api.DevEmailApi;
 import vip.xiaonuo.dev.api.DevMessageApi;
+import vip.xiaonuo.flw.core.common.entity.GenericEntity;
+import vip.xiaonuo.flw.core.common.service.GenericService;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
@@ -929,6 +941,7 @@ public class NodeRuntimeUtil {
                             Map<String,String> taskMap = new HashMap<>();
                             String processInstanceId = null;
                             //完成事件通知中无delegateTask
+                            String taskId = null;
                             if(ObjectUtil.isNull(delegateTask)){
                                 taskMap.put("processInstanceId",delegateExecution.getProcessInstanceId());
                                 processInstanceId = delegateExecution.getProcessInstanceId();
@@ -954,8 +967,10 @@ public class NodeRuntimeUtil {
                                 taskMap.put("initiatorName", String.valueOf(delegateTask.getVariable("initiatorName")));
                                 taskMap.put("processDefinitionId", delegateTask.getProcessDefinitionId());
                                 taskMap.put("currentActivityId", delegateTask.getTaskDefinitionKey());
+                                taskId = delegateTask.getId();
                             }
-                            taskMap.put("noticeType", noticeType);
+//                            taskMap.put("noticeType", transfer(processInstanceId,noticeType,taskId));
+                            taskMap.put("noticeType",noticeType);
                             devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,processInstanceId,taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                             break;
@@ -1456,14 +1471,14 @@ public class NodeRuntimeUtil {
                     rabbitDelayedMessage.setTaskKey(key);
                     rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
                     rabbitDelayedMessage.setLimit(v);
-                    String messageId = String.valueOf(UUID.randomUUID());
                     Message<RabbitDelayedMessage> message = MessageBuilder
                             .withPayload(rabbitDelayedMessage)
                             .setHeader("x-delay", v*60*60*1000)
 //                            .setHeader(RabbitConstant.RABBIT_MESSAGE_ID, messageId)
 //                .copyHeaders(customHeaders)
+//                            .setHeader("x-delay", 2*60*1000)
                             .build();
-
+                    commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
                     streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL,message);
                     commonCacheOperator.put(key,Boolean.FALSE);
                 }
@@ -1472,5 +1487,130 @@ public class NodeRuntimeUtil {
         }catch (Exception e){
             log.error(e.getMessage());
         }
+    }
+
+    /**
+     * 手动添加评论意见
+     *
+     * @author myk
+     * @date 2023/12/15 10:06
+     **/
+    public static void handleUserTaskCommentAndAttachment2(String taskId, String processInstanceId, String operateType, String operateText,
+                                                          String comment, List<FlwTaskAttachmentParam> attachmentList,Boolean flag,String userId) {
+        NodeRuntimeUtil.handleTenAuth();
+        TaskService taskService = SpringUtil.getBean(TaskService.class);
+        JSONObject jsonObject = JSONUtil.createObj();
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        jsonObject.set("USER_ID", loginUser.getId());
+        jsonObject.set("USER_NAME", loginUser.getName());
+        jsonObject.set("OPERATE_TYPE", operateType);
+        jsonObject.set("OPERATE_TEXT", operateText);
+        jsonObject.set("COMMENT", comment);
+        Comment taskComment = taskService.createComment(taskId, processInstanceId, JSONUtil.toJsonStr(jsonObject));
+        if(ObjectUtil.isNotEmpty(attachmentList)) {
+            attachmentList.forEach(flwTaskCommentParam -> {
+                if(ObjectUtil.isAllNotEmpty(flwTaskCommentParam.getAttachmentName(), flwTaskCommentParam.getAttachmentUrl())) {
+                    if(!flag){
+                        taskService.createAttachment(null, taskId, processInstanceId,
+                                flwTaskCommentParam.getAttachmentName(), taskComment.getId(), flwTaskCommentParam.getAttachmentUrl());
+                    }else {
+                        GenericService bean = SpringUtil.getBean(GenericService.class);
+                        GenericEntity genericEntity = new GenericEntity();
+                        CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+                        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+                        //genericEntity.setDbName(String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME)));
+//                        String flName = "`"+dbName+"`.`ACT_HI_ATTACHMENT`";
+                        genericEntity.setTableName("ACT_HI_ATTACHMENT");
+                        Map<String,Object> fielpMap = new HashMap<>();
+                        fielpMap.put("ID_",String.valueOf(UUID.randomUUID()));
+                        fielpMap.put("USER_ID_",userId);
+                        fielpMap.put("REV_",1);
+                        fielpMap.put("CREATE_TIME_",ClockUtil.getCurrentTime());
+                        fielpMap.put("PROC_INST_ID_",processInstanceId);
+                        fielpMap.put("ROOT_PROC_INST_ID_",processInstanceId);
+                        fielpMap.put("NAME_",flwTaskCommentParam.getAttachmentName());
+                        fielpMap.put("URL_",flwTaskCommentParam.getAttachmentUrl());
+                        fielpMap.put("DESCRIPTION_",taskComment.getId());
+                        genericEntity.setFieldMap(fielpMap);
+                        bean.insertGenericEntity(genericEntity);
+                    }
+                }
+            });
+        }
+    }
+
+
+    public static  String transfer(String processInstanceId,String noticeType,String taskId) {
+        HistoryService historyService = SpringUtil.getBean(HistoryService.class);
+        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId)
+                .orderByProcessInstanceStartTime().desc().singleResult();
+        String state = historicProcessInstance.getState();
+        String deleteReason = historicProcessInstance.getDeleteReason();
+        String result = null;
+        switch (state) {
+            case "ACTIVE":
+                result = "审批中";
+                break;
+            case "SUSPENDED":
+                result = "已挂起";
+                break;
+            case "COMPLETED":
+                result = "已完成";
+                break;
+            case "EXTERNALLY_TERMINATED":
+                switch (deleteReason) {
+                    case "END":
+                        result = "已终止";
+                        break;
+                    case "REVOKE":
+                        result = "已撤回";
+                        break;
+                    case "REJECT":
+                        result = "已拒绝";
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "INTERNALLY_TERMINATED":
+                result = "内部终止";
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
+    public static Boolean nextTaskIsEnd(String taskId) {
+        if(null == taskId){
+            return Boolean.TRUE;
+        }
+        //参数校验
+        // 查询当前任务对象
+        Task task = ProcessEngines.getDefaultProcessEngine().getTaskService()
+                .createTaskQuery().taskId(taskId).singleResult();
+        //根据taskId获取流程实例Id
+        String processInstanceId = task.getProcessInstanceId();
+        String definitionId = ProcessEngines.getDefaultProcessEngine()
+                .getRuntimeService().createProcessInstanceQuery()
+                .processInstanceId(processInstanceId).singleResult()
+                .getProcessDefinitionId();
+        ProcessDefinitionEntity processDefinitionEntity =
+                (ProcessDefinitionEntity) ((RepositoryServiceImpl)
+                        ProcessEngines.getDefaultProcessEngine().getRepositoryService())
+                        .getDeployedProcessDefinition(definitionId);
+        ActivityImpl activityImpl = processDefinitionEntity.
+                findActivity(task.getTaskDefinitionKey());
+        // 获取节点所有流向线路信息
+        List<PvmTransition> outTransitions = activityImpl.getOutgoingTransitions();
+        for (PvmTransition tr : outTransitions) {
+            // 获取线路的终点节点
+            PvmActivity ac = tr.getDestination();
+            //当其中一条流线的中点不是结束节点时，直接返回 false（不是结束节点）
+            if (!BpmnModelConstants.BPMN_ELEMENT_END_EVENT.equals(ac.getProperty("type"))) {
+                return false;
+            }
+        }
+        return true;
     }
 }

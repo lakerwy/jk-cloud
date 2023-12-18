@@ -348,5 +348,5 @@ public interface FlwProcessService {
 
     Map<String,Long> count(Boolean flag);
 
-    Boolean getInstance(String processInstanceId);
+    Map<String,String> getInstance(String processInstanceId);
 }
