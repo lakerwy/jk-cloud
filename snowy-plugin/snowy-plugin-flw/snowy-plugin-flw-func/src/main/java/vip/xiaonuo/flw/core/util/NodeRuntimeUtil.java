@@ -34,10 +34,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
-import org.camunda.bpm.engine.impl.persistence.entity.CommentEntity;
+import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
+import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
+import org.camunda.bpm.engine.impl.pvm.PvmActivity;
+import org.camunda.bpm.engine.impl.pvm.PvmTransition;
+import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
 import org.camunda.bpm.engine.task.Comment;
-import org.camunda.bpm.engine.task.Event;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.Process;
@@ -937,6 +941,7 @@ public class NodeRuntimeUtil {
                             Map<String,String> taskMap = new HashMap<>();
                             String processInstanceId = null;
                             //完成事件通知中无delegateTask
+                            String taskId = null;
                             if(ObjectUtil.isNull(delegateTask)){
                                 taskMap.put("processInstanceId",delegateExecution.getProcessInstanceId());
                                 processInstanceId = delegateExecution.getProcessInstanceId();
@@ -962,8 +967,10 @@ public class NodeRuntimeUtil {
                                 taskMap.put("initiatorName", String.valueOf(delegateTask.getVariable("initiatorName")));
                                 taskMap.put("processDefinitionId", delegateTask.getProcessDefinitionId());
                                 taskMap.put("currentActivityId", delegateTask.getTaskDefinitionKey());
+                                taskId = delegateTask.getId();
                             }
-                            taskMap.put("noticeType", noticeType);
+//                            taskMap.put("noticeType", transfer(processInstanceId,noticeType,taskId));
+                            taskMap.put("noticeType",noticeType);
                             devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,processInstanceId,taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                             break;
@@ -1530,5 +1537,80 @@ public class NodeRuntimeUtil {
                 }
             });
         }
+    }
+
+
+    public static  String transfer(String processInstanceId,String noticeType,String taskId) {
+        HistoryService historyService = SpringUtil.getBean(HistoryService.class);
+        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId)
+                .orderByProcessInstanceStartTime().desc().singleResult();
+        String state = historicProcessInstance.getState();
+        String deleteReason = historicProcessInstance.getDeleteReason();
+        String result = null;
+        switch (state) {
+            case "ACTIVE":
+                result = "审批中";
+                break;
+            case "SUSPENDED":
+                result = "已挂起";
+                break;
+            case "COMPLETED":
+                result = "已完成";
+                break;
+            case "EXTERNALLY_TERMINATED":
+                switch (deleteReason) {
+                    case "END":
+                        result = "已终止";
+                        break;
+                    case "REVOKE":
+                        result = "已撤回";
+                        break;
+                    case "REJECT":
+                        result = "已拒绝";
+                        break;
+                    default:
+                        break;
+                }
+                break;
+            case "INTERNALLY_TERMINATED":
+                result = "内部终止";
+                break;
+            default:
+                break;
+        }
+        return result;
+    }
+
+    public static Boolean nextTaskIsEnd(String taskId) {
+        if(null == taskId){
+            return Boolean.TRUE;
+        }
+        //参数校验
+        // 查询当前任务对象
+        Task task = ProcessEngines.getDefaultProcessEngine().getTaskService()
+                .createTaskQuery().taskId(taskId).singleResult();
+        //根据taskId获取流程实例Id
+        String processInstanceId = task.getProcessInstanceId();
+        String definitionId = ProcessEngines.getDefaultProcessEngine()
+                .getRuntimeService().createProcessInstanceQuery()
+                .processInstanceId(processInstanceId).singleResult()
+                .getProcessDefinitionId();
+        ProcessDefinitionEntity processDefinitionEntity =
+                (ProcessDefinitionEntity) ((RepositoryServiceImpl)
+                        ProcessEngines.getDefaultProcessEngine().getRepositoryService())
+                        .getDeployedProcessDefinition(definitionId);
+        ActivityImpl activityImpl = processDefinitionEntity.
+                findActivity(task.getTaskDefinitionKey());
+        // 获取节点所有流向线路信息
+        List<PvmTransition> outTransitions = activityImpl.getOutgoingTransitions();
+        for (PvmTransition tr : outTransitions) {
+            // 获取线路的终点节点
+            PvmActivity ac = tr.getDestination();
+            //当其中一条流线的中点不是结束节点时，直接返回 false（不是结束节点）
+            if (!BpmnModelConstants.BPMN_ELEMENT_END_EVENT.equals(ac.getProperty("type"))) {
+                return false;
+            }
+        }
+        return true;
     }
 }
