@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.teambition.ThirdParam.ThirdTaskPageParam;
 import vip.xiaonuo.biz.modular.teambition.entity.*;
 import vip.xiaonuo.biz.modular.teambition.param.*;
 import vip.xiaonuo.biz.modular.teambition.service.*;
@@ -314,7 +315,6 @@ public class BizTaskGroupController {
     @ApiOperationSupport(order = 18)
     @ApiOperation("编辑任务主表")
     @CommonLog("编辑任务主表")
-    //@SaCheckPermission("/biz/taskInfo/edit")
     @PostMapping("/biz/taskInfo/edit")
     public CommonResult<String> taskInfoEdit(@RequestBody @Valid BizTaskInfoEditParam bizTaskInfoEditParam) {
         bizTaskInfoService.edit(bizTaskInfoEditParam);
@@ -430,6 +430,36 @@ public class BizTaskGroupController {
     @GetMapping("/biz/taskGroupRes/sendMsg")
     public CommonResult<BizTaskGroupRes> sendMsg(Map<String,String> map, List<String> receiverIdList) {
         bizTaskInfoService.sendMsg(map,receiverIdList);
+        return CommonResult.ok();
+    }
+
+
+    /** 第三方源任务分页*/
+    /**
+     * 第三方源任务详情分页
+     * @author ljy
+     * @date  2023/12/18 11:40
+     */
+    @ApiOperationSupport(order = 27)
+    @ApiOperation("第三方源任务详情分页")
+    @CommonLog("第三方源任务详情分页")
+    @GetMapping("/biz/taskInfo/thirdPage")
+    public CommonResult<Page<BizTaskInfo>> thirdPage(ThirdTaskPageParam thirdTaskPageParam) {
+        return CommonResult.data(bizTaskInfoService.thirdPage(thirdTaskPageParam));
+    }
+
+    /**
+     * 第三方来源添加任务
+     * 1.会议 REZ_ID  =  BIZ_TASK_PROJECT 任务来源详情 PRO_SOURCE_ID
+     * @author ljy
+     * @date  2023/12/18 11:40
+     */
+    @ApiOperationSupport(order = 28)
+    @ApiOperation("第三方来源添加任务-前端勿调")
+    @CommonLog("第三方来源添加任务-前端勿调")
+    @PostMapping("/biz/taskInfo/thirdAdd")
+    public CommonResult<String> thirdAdd(@RequestBody @Valid BizTaskInfoAddParam bizTaskInfoAddParam) {
+        bizTaskInfoService.thirdAdd(bizTaskInfoAddParam);
         return CommonResult.ok();
     }
 }

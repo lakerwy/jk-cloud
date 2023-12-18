@@ -100,4 +100,8 @@ public class BizTaskProject {
     /** 第三方任务来源流水号 */
     @ApiModelProperty(value = "第三方任务来源流水号", position = 16)
     private String sn;
+
+    /** 第三方来源code：1 会议，2 审批流程，3  */
+    @ApiModelProperty(value = "第三方来源code：1 会议，2 审批流程，3 ", position = 17)
+    private Integer thirdCode;
 }

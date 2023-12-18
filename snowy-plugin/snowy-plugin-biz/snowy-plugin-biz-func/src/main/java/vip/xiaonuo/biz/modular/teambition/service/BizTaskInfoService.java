@@ -14,12 +14,9 @@ package vip.xiaonuo.biz.modular.teambition.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.teambition.ThirdParam.ThirdTaskPageParam;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskInfo;
-import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoAddParam;
-import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoEditParam;
-import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoIdParam;
-import vip.xiaonuo.biz.modular.teambition.param.BizTaskInfoPageParam;
-import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
+import vip.xiaonuo.biz.modular.teambition.param.*;
 
 import java.util.List;
 import java.util.Map;
@@ -82,4 +79,14 @@ public interface BizTaskInfoService extends IService<BizTaskInfo> {
 
     /** 项目管理通知*/
     void sendMsg(Map<String,String> map,List<String> receiverIdList);
+
+    Page<BizTaskInfo> thirdPage(ThirdTaskPageParam thirdTaskPageParam);
+    /**
+     * 第三方来源添加任务
+     *
+     * @author ljy
+     * @date  2023/12/18 11:40
+     */
+    void thirdAdd(BizTaskInfoAddParam bizTaskInfoAddParam);
+
 }
