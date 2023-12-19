@@ -16,4 +16,20 @@
             ${ew.customSqlSegment}
     </select>
 
+    <select id="getParent" resultType="vip.xiaonuo.biz.modular.cad.entity.CadStorage">
+        SELECT t2.*
+        FROM
+            (
+                SELECT
+                    @r AS _id,
+                    (SELECT @r := PARENT_ID FROM BIZ_CAD_STORAGE WHERE ID = _id) AS parent_id,
+            @l := @l + 1 AS lvl
+        FROM
+            (SELECT @r := ${fileId}, @l := 0) vars, BIZ_CAD_STORAGE AS h
+        WHERE @r != '' and @r is not null
+            ) t1
+            JOIN BIZ_CAD_STORAGE t2
+        ON t1._id = t2.ID  ORDER BY  t1.lvl DESC
+    </select>
+
 </mapper>

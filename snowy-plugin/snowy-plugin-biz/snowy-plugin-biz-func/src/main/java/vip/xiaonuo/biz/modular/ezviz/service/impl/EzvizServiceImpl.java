@@ -26,7 +26,7 @@ public class EzvizServiceImpl implements EzvizService {
         }
         String accessToken = CommonEzvizUtil.getToken(ezvizProperties.getAppKey(),ezvizProperties.getAppSecret());
         if(ObjectUtil.isNotEmpty(accessToken)){
-            commonCacheOperator.put(ezvizProperties.getAppKey(),accessToken,7*24*60*60L);
+            commonCacheOperator.put(ezvizProperties.getAppKey(),accessToken,6*24*60*60L);
         }
         return accessToken;
     }

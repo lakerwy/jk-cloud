@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.cad.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -22,6 +23,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
+import vip.xiaonuo.biz.modular.cad.mapper.CadStorageMapper;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -31,6 +34,7 @@ import vip.xiaonuo.biz.modular.cad.mapper.CadFileMapper;
 import vip.xiaonuo.biz.modular.cad.service.CadFileService;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.util.List;
 
 /**
@@ -46,6 +50,9 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
 
     @Resource
     private CadFileMapper cadFileMapper;
+
+    @Resource
+    private CadStorageMapper cadStorageMapper;
 
     @Override
     public Page<CadFile> page(CadFilePageParam cadFilePageParam) {
@@ -118,5 +125,44 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
         CadFile cadFile = this.queryEntity(updateTagStatusParam.getFileId());
         cadFile.setStatus(updateTagStatusParam.getStatus());
         this.updateById(cadFile);
+    }
+
+    @Override
+    public String getFilePathById(String part, String fileId) {
+        String filePath = "";
+        //设计区
+        if(part.equals("DESIGN")){
+            //获取某个目录的父级
+            List<CadFile> cadFileList = cadFileMapper.getParent(fileId);
+            //拼接自定目录
+            if(CollUtil.isNotEmpty(cadFileList)) {
+                while (ObjectUtil.isNotEmpty(fileId)) {
+                    String finalFileId = fileId;
+                    CadFile cadFile = cadFileList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
+                    if(ObjectUtil.isNotEmpty(cadFile)){
+                        filePath = cadFile.getName()+ (ObjectUtil.isNotEmpty(filePath)? File.separator + filePath : filePath);
+                        fileId = cadFile.getParentId();
+                    }else{
+                        fileId = "";
+                    }
+                }
+            }
+        }else{ //校审区|提资区|成品区
+            List<CadStorage> cadStorageList = cadStorageMapper.getParent(fileId);
+            //拼接自定目录
+            if(CollUtil.isNotEmpty(cadStorageList)) {
+                while (ObjectUtil.isNotEmpty(fileId)) {
+                    String finalFileId = fileId;
+                    CadStorage cadStorage = cadStorageList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
+                    if(ObjectUtil.isNotEmpty(cadStorage)){
+                        filePath = cadStorage.getName()+  (ObjectUtil.isNotEmpty(filePath)? File.separator + filePath : filePath);
+                        fileId = cadStorage.getParentId();
+                    }else{
+                        fileId = "";
+                    }
+                }
+            }
+        }
+        return filePath;
     }
 }

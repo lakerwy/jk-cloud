@@ -103,4 +103,12 @@ public interface CadFileService extends IService<CadFile> {
      * @param updateTagStatusParam
      */
     void updateTagStatus(UpdateTagStatusParam updateTagStatusParam);
+
+    /**
+     * 【CAD-插件端】根据fileId和区域,获取目录文件夹路径
+     * @param part 功能区
+     * @param fileId 目录Id：CadFile.Id | CadStorage.Id
+     * @return
+     */
+    String getFilePathById(String part, String fileId);
 }
