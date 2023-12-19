@@ -104,8 +104,10 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             queryWrapper.lambda().like(BizTaskInfo::getTaskName, bizTaskInfoPageParam.getTaskName());
         }
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskStartTime()) && ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskEndTime())) {
-            queryWrapper.lambda().between(BizTaskInfo::getTaskStartTime, bizTaskInfoPageParam.getTaskStartTime(), bizTaskInfoPageParam.getTaskEndTime());
-            queryWrapper.lambda().between(BizTaskInfo::getTaskEndTime, bizTaskInfoPageParam.getTaskStartTime(), bizTaskInfoPageParam.getTaskEndTime());
+            queryWrapper.lambda().gt(BizTaskInfo::getCreateTime, bizTaskInfoPageParam.getTaskStartTime());
+            queryWrapper.lambda().lt(BizTaskInfo::getCreateTime, bizTaskInfoPageParam.getTaskEndTime());
+            /*queryWrapper.lambda().between(BizTaskInfo::getTaskStartTime, bizTaskInfoPageParam.getTaskStartTime(), bizTaskInfoPageParam.getTaskEndTime());
+            queryWrapper.lambda().between(BizTaskInfo::getTaskEndTime, bizTaskInfoPageParam.getTaskStartTime(), bizTaskInfoPageParam.getTaskEndTime());*/
         }
         /**
          * 任务权限
@@ -168,8 +170,8 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             Map<String,BizTaskProject> map = new HashMap<>();
             if(CollectionUtil.isNotEmpty(taskProjectList)){
                 taskProjectList.forEach(task -> map.put(task.getId(),task));
-                page.getRecords().forEach(info ->info.setBizTaskProject(map.get(info.getId())));
             }
+            page.getRecords().forEach(info ->info.setBizTaskProject(map.get(info.getProId())));
         }
     }
     /**  获取任务评论数据 */
@@ -405,8 +407,10 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             queryWrapper.lambda().like(BizTaskInfo::getTaskName, thirdTaskPageParam.getTaskName());
         }
         if(ObjectUtil.isNotEmpty(thirdTaskPageParam.getTaskStartTime()) && ObjectUtil.isNotEmpty(thirdTaskPageParam.getTaskEndTime())) {
-            queryWrapper.lambda().between(BizTaskInfo::getTaskStartTime, thirdTaskPageParam.getTaskStartTime(), thirdTaskPageParam.getTaskEndTime());
-            queryWrapper.lambda().between(BizTaskInfo::getTaskEndTime, thirdTaskPageParam.getTaskStartTime(), thirdTaskPageParam.getTaskEndTime());
+            queryWrapper.lambda().gt(BizTaskInfo::getCreateTime, thirdTaskPageParam.getTaskStartTime());
+            queryWrapper.lambda().lt(BizTaskInfo::getCreateTime, thirdTaskPageParam.getTaskEndTime());
+            /*queryWrapper.lambda().between(BizTaskInfo::getTaskStartTime, thirdTaskPageParam.getTaskStartTime(), thirdTaskPageParam.getTaskEndTime());
+            queryWrapper.lambda().between(BizTaskInfo::getTaskEndTime, thirdTaskPageParam.getTaskStartTime(), thirdTaskPageParam.getTaskEndTime());*/
         }
         /**
          * 任务权限
