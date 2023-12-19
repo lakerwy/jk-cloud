@@ -35,4 +35,12 @@ public interface CadStorageMapper extends BaseMapper<CadStorage> {
      */
     List<CadFileVo> getPrjStorage(@Param(Constants.WRAPPER) Wrapper<CadStorage> queryWrapper);
 
+
+    /**
+     * 递归获取当前文件及其父级
+     * @param fileId 文件目录Id
+     * @return
+     */
+    List<CadStorage> getParent(String fileId);
+
 }

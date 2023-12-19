@@ -352,5 +352,20 @@ public class CadPluginController {
         return CommonResult.data(cadTagService.tagListByFileId(fileId));
     }
 
+    /**
+     * 【CAD-插件端】根据fileId和区域,获取目录文件夹路径
+     *  设计区：看CadFile
+     *  提资|校审|成品区：看CadStorage
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("【CAD-插件端】根据fileId和区域,获取目录文件夹路径")
+    @GetMapping("/biz/cad/plugin/getFilePathById")
+    public CommonResult<String> getFilePathById(String part,String fileId) {
+        return CommonResult.data(cadFileService.getFilePathById(part,fileId));
+    }
+
+
 
 }

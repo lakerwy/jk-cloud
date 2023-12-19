@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.cad.mapper.CadTagMapper">
 
-    <select id="getPrjStorage" resultType="vip.xiaonuo.biz.modular.cad.vo.CadTagVo">
+    <select id="tagListByFileId" resultType="vip.xiaonuo.biz.modular.cad.vo.CadTagVo">
         select file.PRJ_ID as prjId,a.NAME as prjName,
                file.STAGE_ID as stageId,e.NAME as stageName,
                file.SUB_ITEM_ID as subItemId,b.NAME as subItemName,
