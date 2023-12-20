@@ -79,7 +79,7 @@ public class BizKeyProjectServiceImpl extends ServiceImpl<BizKeyProjectMapper, B
             queryWrapper.orderBy(true, bizKeyProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizKeyProjectPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizKeyProject::getId);
+            queryWrapper.lambda().orderByDesc(BizKeyProject::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
