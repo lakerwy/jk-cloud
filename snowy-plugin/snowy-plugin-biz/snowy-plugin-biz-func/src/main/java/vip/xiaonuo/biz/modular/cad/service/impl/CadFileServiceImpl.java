@@ -26,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
 import vip.xiaonuo.biz.modular.cad.mapper.CadStorageMapper;
 import vip.xiaonuo.biz.modular.cad.param.*;
+import vip.xiaonuo.biz.modular.cad.vo.FilePathVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -128,8 +129,9 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
     }
 
     @Override
-    public String getFilePathById(String part, String fileId) {
-        String filePath = "";
+    public FilePathVo getFilePathById(String part, String fileId) {
+        FilePathVo filePathVo = new FilePathVo();
+        String filePathDir = "";
         //设计区
         if(part.equals("DESIGN")){
             //获取某个目录的父级
@@ -140,12 +142,17 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                     String finalFileId = fileId;
                     CadFile cadFile = cadFileList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
                     if(ObjectUtil.isNotEmpty(cadFile)){
-                        filePath = cadFile.getName()+ (ObjectUtil.isNotEmpty(filePath)? File.separator + filePath : filePath);
+                        if(cadFile.getId().equals(fileId)){
+                            filePathVo.setFileName(cadFile.getName());
+                        }else {
+                            filePathDir = cadFile.getName() + (ObjectUtil.isNotEmpty(filePathDir) ? File.separator + filePathDir : filePathDir);
+                        }
                         fileId = cadFile.getParentId();
                     }else{
                         fileId = "";
                     }
                 }
+                filePathVo.setFilePathDir(filePathDir);
             }
         }else{ //校审区|提资区|成品区
             List<CadStorage> cadStorageList = cadStorageMapper.getParent(fileId);
@@ -155,14 +162,19 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                     String finalFileId = fileId;
                     CadStorage cadStorage = cadStorageList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
                     if(ObjectUtil.isNotEmpty(cadStorage)){
-                        filePath = cadStorage.getName()+  (ObjectUtil.isNotEmpty(filePath)? File.separator + filePath : filePath);
+                        if(cadStorage.getId().equals(fileId)){
+                            filePathVo.setFileName(cadStorage.getName());
+                        }else {
+                            filePathDir = cadStorage.getName() + (ObjectUtil.isNotEmpty(filePathDir) ? File.separator + filePathDir : filePathDir);
+                        }
                         fileId = cadStorage.getParentId();
                     }else{
                         fileId = "";
                     }
                 }
+                filePathVo.setFilePathDir(filePathDir);
             }
         }
-        return filePath;
+        return filePathVo;
     }
 }

@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.cad.entity.CadFile;
 import vip.xiaonuo.biz.modular.cad.param.*;
+import vip.xiaonuo.biz.modular.cad.vo.FilePathVo;
 
 import java.util.List;
 
@@ -110,5 +111,5 @@ public interface CadFileService extends IService<CadFile> {
      * @param fileId 目录Id：CadFile.Id | CadStorage.Id
      * @return
      */
-    String getFilePathById(String part, String fileId);
+    FilePathVo getFilePathById(String part, String fileId);
 }
