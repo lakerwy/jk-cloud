@@ -86,6 +86,7 @@ import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.api.DevEmailApi;
 import vip.xiaonuo.dev.api.DevMessageApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
+import vip.xiaonuo.dev.modular.job.task.CommonHandleUtil;
 import vip.xiaonuo.mobile.vip.MobileButtonApi;
 import vip.xiaonuo.mobile.vip.MobileMenuApi;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
@@ -1643,6 +1644,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public List<Map<String,String>> getAllUsers() {
         List<SysUser> userList = this.list();
         Set<String> orgIds = userList.stream().map(SysUser::getOrgId).collect(Collectors.toSet());
+        Map<String, Object>  postionMap = getPostionData();
         for (String orgId : orgIds) {
             // commonCacheOperator.remove(ORG_FIRST_CODE_CACHE_KEY+orgId);
             String orgName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgName" + orgId);
@@ -1689,10 +1691,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             map.put("firstOrgName",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgName" + user.getOrgId())));
             map.put("firstOrgLeaderId",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + user.getOrgId())));
             map.put("firstOrgLeaderName",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + user.getOrgId())));
+            map.put("positionName",postionMap.get(user.getPositionId()) != null ? postionMap.get(user.getPositionId()).toString() : "");
             map.put("avatar",user.getAvatar());
             return map;
         }).collect(Collectors.toList());
     }
+
+    public Map<String, Object>  getPostionData(){
+        String sql = "SELECT ID AS postionId,NAME AS  postionName FROM SYS_POSITION  WHERE  delete_flag='NOT_DELETE'";
+        List<Map<String, Object>> mapList = CommonHandleUtil.handleSqlQuery2(sql, Boolean.TRUE);
+        Map<String,Object> map = new HashMap<>();
+        mapList.forEach(data -> {
+            if(ObjectUtil.isNotEmpty(data.get("postionId")) && ObjectUtil.isNotEmpty(data.get("postionName"))){}
+            map.put(data.get("postionId").toString(),data.get("postionName"));
+        });
+        return map;
+    }
+
 
     @Override
     public void syncToUserAdd(SyncToUserAddParam syncToUserAddParam) {
