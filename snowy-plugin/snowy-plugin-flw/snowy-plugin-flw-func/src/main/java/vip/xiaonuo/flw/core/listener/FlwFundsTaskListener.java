@@ -6,7 +6,9 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
+import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
+import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Component;
@@ -19,11 +21,11 @@ import java.util.Date;
  */
 @Slf4j
 @Component
-public class FlwFundsTaskListener implements TaskListener {
+public class FlwFundsTaskListener implements ExecutionListener {
     @Override
-    public void notify(DelegateTask delegateTask) {
+    public void notify(DelegateExecution execution){
         try {
-            String processInstanceId = delegateTask.getProcessInstanceId();
+            String processInstanceId = execution.getProcessInstanceId();
             RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
             ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
             String businessKey = processInstance.getBusinessKey();
