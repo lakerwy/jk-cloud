@@ -481,6 +481,10 @@ public class DingDingServiceImpl implements IDingDingService {
         oa.setBody(body);
         if(ObjectUtil.isNotEmpty(rabbitMsg.getUrl())){
             oa.setMessageUrl(rabbitMsg.getUrl());
+        }else {
+            String url = String.format("%s/h5/#/pages/home/index",dingTalkProperties.getH5webUrl());
+//        String url = String.format("%s/h5/#/pages/flw/task/todoTask/todo-process?id=%s&processInstanceId=%s&currentActivityId=%s",dingTalkProperties.getH5webUrl(),taskId,processInstanceId,currentActivityId);
+            oa.setMessageUrl(url);
         }
         OapiMessageCorpconversationAsyncsendV2Request.Msg msg = new OapiMessageCorpconversationAsyncsendV2Request.Msg();
         msg.setMsgtype("oa");
