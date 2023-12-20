@@ -28,6 +28,10 @@ import java.util.Date;
 @Setter
 public class BizTaskCommentPageParam {
 
+    /** 评论ID */
+    @ApiModelProperty(value = "评论主键ID")
+    private String id;
+
     /** 当前页 */
     @ApiModelProperty(value = "当前页码")
     private Integer current;

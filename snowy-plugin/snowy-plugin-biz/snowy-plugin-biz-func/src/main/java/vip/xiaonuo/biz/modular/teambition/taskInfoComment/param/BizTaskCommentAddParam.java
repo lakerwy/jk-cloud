@@ -55,4 +55,7 @@ public class BizTaskCommentAddParam {
     @ApiModelProperty(value = "附件ID", position = 7)
     private String fileId;
 
+    /** 父id */
+    @ApiModelProperty(value = "父id")
+    private String parentId;
 }

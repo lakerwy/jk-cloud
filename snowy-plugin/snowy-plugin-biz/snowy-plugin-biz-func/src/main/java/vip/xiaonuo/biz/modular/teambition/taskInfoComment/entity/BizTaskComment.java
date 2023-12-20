@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 任务管理平台-任务评论实体
@@ -84,4 +85,12 @@ public class BizTaskComment {
     @ApiModelProperty(value = "更新人", position = 12)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 父id */
+    @ApiModelProperty(value = "父id", position = 13)
+    private String parentId;
+
+    @ApiModelProperty(value = "子类评论", position = 14)
+    @TableField(exist = false)
+    private List<BizTaskComment>  bizTaskCommentList;
 }
