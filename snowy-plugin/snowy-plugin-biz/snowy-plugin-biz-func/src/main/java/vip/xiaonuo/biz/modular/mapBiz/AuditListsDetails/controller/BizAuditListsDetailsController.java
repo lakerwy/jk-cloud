@@ -186,30 +186,30 @@ public class BizAuditListsDetailsController {
     @PostMapping("/biz/AuditListsDetails/editNoToken")
     public CommonResult<String> editNoToken(@RequestBody @Valid BizAuditListsDetailsEditParam bizAuditListsDetailsEditParam) {
         bizAuditListsDetailsService.edit(bizAuditListsDetailsEditParam);
-        try {
-            BizAuditLists auditLists = bizAuditListsService.getById(bizAuditListsDetailsEditParam.getAuditId());
-//            JSONObject entries = JSONUtil.parseObj(auditLists);
-//            List<String> ids = new ArrayList<>();
-//            ids.add(auditLists.getCreateUser());
-            //ids.add(auditLists.getReader());
-            if(ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getCondition()) || ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getReviseAttachments())) {
-//                iDingDingService.batchSend(entries, ids);
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.set(FlwCacheConstant.FLW_BASE_INFO,auditLists.getProjectName()+"|"+auditLists.getDesignStage() + "|"
-                        +auditLists.getCompanyOrDepartment() + "|" + commonCacheOperator.get(CommonUtils.MAJOR_TYPE + auditLists.getProfession()) + " | "
-                        +commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+auditLists.getReader()));
-                jsonObject.set(FlwCacheConstant.FLW_SN,auditLists.getSn());
-                jsonObject.set(FlwCacheConstant.FLW_STARTER,auditLists.getApplyUser());
-                jsonObject.set(FlwCacheConstant.FLW_START_TIME,auditLists.getApplyTime());
-                jsonObject.set(FlwCacheConstant.SENDERS,auditLists.getCreateUser());
-                jsonObject.set(FlwCacheConstant.TITLE,"【工程校审处理单】");
-                RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
-                commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
-                streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,rabbitMsg);
-            }
-        }catch (Exception e){
-            //消息发送失败
-        }
+//        try {
+//            BizAuditLists auditLists = bizAuditListsService.getById(bizAuditListsDetailsEditParam.getAuditId());
+////            JSONObject entries = JSONUtil.parseObj(auditLists);
+////            List<String> ids = new ArrayList<>();
+////            ids.add(auditLists.getCreateUser());
+//            //ids.add(auditLists.getReader());
+//            if(ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getCondition()) || ObjectUtil.isNotEmpty(bizAuditListsDetailsEditParam.getReviseAttachments())) {
+////                iDingDingService.batchSend(entries, ids);
+//                JSONObject jsonObject = new JSONObject();
+//                jsonObject.set(FlwCacheConstant.FLW_BASE_INFO,auditLists.getProjectName()+"|"+auditLists.getDesignStage() + "|"
+//                        +auditLists.getCompanyOrDepartment() + "|" + commonCacheOperator.get(CommonUtils.MAJOR_TYPE + auditLists.getProfession()) + " | "
+//                        +commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+auditLists.getReader()));
+//                jsonObject.set(FlwCacheConstant.FLW_SN,auditLists.getSn());
+//                jsonObject.set(FlwCacheConstant.FLW_STARTER,auditLists.getApplyUser());
+//                jsonObject.set(FlwCacheConstant.FLW_START_TIME,auditLists.getApplyTime());
+//                jsonObject.set(FlwCacheConstant.SENDERS,auditLists.getCreateUser());
+//                jsonObject.set(FlwCacheConstant.TITLE,"【工程校审处理单】");
+//                RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
+//                commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
+//                streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,rabbitMsg);
+//            }
+//        }catch (Exception e){
+//            //消息发送失败
+//        }
         return CommonResult.ok();
     }
 }
