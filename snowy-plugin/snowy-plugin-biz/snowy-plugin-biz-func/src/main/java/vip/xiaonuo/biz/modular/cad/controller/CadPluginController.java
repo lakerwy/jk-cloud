@@ -362,10 +362,8 @@ public class CadPluginController {
     @ApiOperationSupport(order = 20)
     @ApiOperation("【CAD-插件端】根据fileId和区域,获取目录文件夹路径")
     @GetMapping("/biz/cad/plugin/getFilePathById")
-    public CommonResult<String> getFilePathById(String part,String fileId) {
+    public CommonResult<FilePathVo> getFilePathById(String part,String fileId) {
         return CommonResult.data(cadFileService.getFilePathById(part,fileId));
     }
-
-
 
 }
