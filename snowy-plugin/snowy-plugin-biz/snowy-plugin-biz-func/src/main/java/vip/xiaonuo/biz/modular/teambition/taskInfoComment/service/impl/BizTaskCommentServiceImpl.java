@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.db.DbUtil;
@@ -43,6 +44,7 @@ import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -71,9 +73,31 @@ public class BizTaskCommentServiceImpl extends ServiceImpl<BizTaskCommentMapper,
         } else {
             queryWrapper.lambda().orderByAsc(BizTaskComment::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizTaskComment> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<BizTaskComment> commentList = setBizTaskCommentList(page.getRecords());
+        page.setRecords(commentList);
+        return page;
     }
 
+    private List<BizTaskComment> setBizTaskCommentList(List<BizTaskComment> commentList){
+        if(CollectionUtil.isEmpty(commentList)){
+            return commentList;
+        }
+        List<BizTaskComment> list = new ArrayList<>();
+        commentList.forEach(comment -> {
+            if(comment.getParentId().equals("0")){
+                for(BizTaskComment bizTaskComment : commentList){
+                    if(comment.getId().equals(bizTaskComment.getParentId())){
+                        List<BizTaskComment> comments = CollectionUtil.isNotEmpty(comment.getBizTaskCommentList())? comment.getBizTaskCommentList() : new ArrayList<>();
+                        comments.add(bizTaskComment);
+                        comment.setBizTaskCommentList(comments);
+                    }
+                }
+                list.add(comment);
+            }
+        });
+        return list;
+    }
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizTaskCommentAddParam bizTaskCommentAddParam) {
