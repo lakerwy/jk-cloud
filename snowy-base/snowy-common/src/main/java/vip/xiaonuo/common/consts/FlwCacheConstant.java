@@ -53,4 +53,6 @@ public class FlwCacheConstant {
 
 
     public static final String FLW_STATUS= "flw_status";
+
+    public static final String FLW_TASK_USER = "flw_task_user_";
 }

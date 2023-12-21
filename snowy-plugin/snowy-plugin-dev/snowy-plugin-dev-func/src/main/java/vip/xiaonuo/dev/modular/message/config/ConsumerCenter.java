@@ -8,6 +8,7 @@ import cn.hutool.json.JSONObject;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.annotation.EnableBinding;
 import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.function.StreamBridge;
@@ -49,6 +50,9 @@ public class ConsumerCenter {
     @Resource
     StreamBridge streamBridge;
 
+    @Value("${spring.profiles.active}")
+    private String active ;
+
     @Bean
     public Consumer<RabbitMsg> sink(){
         return rabbitMsg -> {
@@ -83,7 +87,7 @@ public class ConsumerCenter {
 //                        .setHeader("x-delay", 2*60*1000)
                             .build();
 
-                    streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL, newMessage);
+                    streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL+active, newMessage);
                     rabbitDelayedMessage.getRabbitMsg().setUuid(UUID.randomUUID(Boolean.FALSE).toString());
                     commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitDelayedMessage.getRabbitMsg().getUuid());
                     iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());
