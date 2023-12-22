@@ -378,7 +378,7 @@ public class DevFileController {
     @ApiOperation("解压文件")
     @CommonLog("解压文件")
     @GetMapping("/dev/file/unZip")
-    public CommonResult<List<String>> unZip(DevFileIdParam devFileIdParam) {
+    public CommonResult<List<DevFile>> unZip(DevFileIdParam devFileIdParam) {
         return CommonResult.data(devFileService.unZip(devFileIdParam));
     }
 

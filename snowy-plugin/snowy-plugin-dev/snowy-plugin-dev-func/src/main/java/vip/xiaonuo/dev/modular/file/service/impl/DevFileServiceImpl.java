@@ -631,8 +631,8 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
     /** 解压文件 */
     @Override
-    public List<String> unZip(DevFileIdParam devFileIdParam){
-        List<String> devFileIds = new ArrayList<>();
+    public List<DevFile> unZip(DevFileIdParam devFileIdParam){
+        List<DevFile> devFileIds = new ArrayList<>();
         DevFile devFile = this.getById(devFileIdParam.getId());
         if(!devFile.getSuffix().equals("zip") && devFile.getSuffix().equals("rar")){
             throw new CommonException("暂时只支持zip和rar的格式，id值为："+devFileIdParam.getId());
@@ -662,7 +662,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
                 dev.setStoragePath(data.get("absolutePath"));
                 dev.setDownloadPath("/api/webapp/dev/file/download?id=");
                 this.save(dev);
-                devFileIds.add(dev.getId());
+                devFileIds.add(dev);
             });
             List<DevFile> devFileList = this.list(new LambdaQueryWrapper<DevFile>().in(DevFile::getId,devFileIds));
             devFileList.forEach(dev -> dev.setDownloadPath(dev.getDownloadPath()+dev.getId()));
