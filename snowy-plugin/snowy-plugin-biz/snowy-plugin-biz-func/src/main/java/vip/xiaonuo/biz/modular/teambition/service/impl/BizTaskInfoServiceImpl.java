@@ -185,7 +185,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             }
             page.getRecords().forEach(info -> {
                 List<BizTaskComment> commentList = commentMap.get(info.getId()) != null ? commentMap.get(info.getId()) : new ArrayList<>();
-                info.setBizTaskCommentList(setBizTaskCommentList(commentList));
+                info.setBizTaskCommentList(CollectionUtil.isNotEmpty(setBizTaskCommentList(commentList)) ? setBizTaskCommentList(commentList) : new ArrayList<>());
                 //info.setBizTaskCommentList(commentMap.get(info.getId()));
             }
             );
@@ -204,7 +204,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                     fileMap.put(file.getTaskInfoId(),fileList);
                 });
             }
-            page.getRecords().forEach(info ->info.setBizTaskFileList(fileMap.get(info.getId())));
+            page.getRecords().forEach(info ->info.setBizTaskFileList(CollectionUtil.isNotEmpty(fileMap.get(info.getId())) ? fileMap.get(info.getId()) : new ArrayList<>()));
         }
     }
 
@@ -355,7 +355,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfo.getProId());
         bizTaskInfo.setBizTaskProject(bizTaskProject);
         List<BizTaskComment> commentList = setBizTaskCommentList(bizTaskCommentService.list(new LambdaQueryWrapper<BizTaskComment>().eq(BizTaskComment::getTaskInfoId,bizTaskInfo.getId())));
-        bizTaskInfo.setBizTaskCommentList(commentList);
+        bizTaskInfo.setBizTaskCommentList(CollectionUtil.isNotEmpty(commentList) ? commentList : new ArrayList<>());
         return bizTaskInfo;
     }
 
