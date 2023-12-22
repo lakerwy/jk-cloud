@@ -50,8 +50,6 @@ public class ConsumerCenter {
     @Resource
     StreamBridge streamBridge;
 
-    @Value("${spring.profiles.active}")
-    private String active ;
 
     @Bean
     public Consumer<RabbitMsg> sink(){
@@ -87,7 +85,7 @@ public class ConsumerCenter {
 //                        .setHeader("x-delay", 2*60*1000)
                             .build();
 
-                    streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL+active, newMessage);
+                    streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL, newMessage);
                     rabbitDelayedMessage.getRabbitMsg().setUuid(UUID.randomUUID(Boolean.FALSE).toString());
                     commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitDelayedMessage.getRabbitMsg().getUuid());
                     iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());

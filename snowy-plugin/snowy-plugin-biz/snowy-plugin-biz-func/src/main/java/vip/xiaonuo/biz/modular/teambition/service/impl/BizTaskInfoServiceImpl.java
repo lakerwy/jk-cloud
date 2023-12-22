@@ -90,8 +90,6 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
-    @Value("${spring.profiles.active}")
-    private String active ;
 
     @Override
     public Page<BizTaskInfo> page(BizTaskInfoPageParam bizTaskInfoPageParam) {
@@ -402,7 +400,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         TaskInfoMsg taskInfoMsg = TaskInfoMsg.buildRabbitMsg(jsonObject);
         commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
-        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,taskInfoMsg);
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
     }
 
     private void sendChangeMsg(Map<String,String> map,List<String> receiverIdList){
@@ -417,7 +415,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         TaskInfoMsg taskInfoMsg = TaskInfoMsg.changeRabbitMsg(jsonObject);
         commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
-        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,taskInfoMsg);
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
     }
 
 

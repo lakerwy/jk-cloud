@@ -108,9 +108,6 @@ public class NodeRuntimeUtil {
     /** 更新时间 */
     private static final String UPDATE_TIME = "UPDATE_TIME";
 
-    @Value("${spring.profiles.active}")
-    private static String active ;
-
     /**
      * 流程主表字段设置为参数
      *
@@ -1542,7 +1539,7 @@ public class NodeRuntimeUtil {
 //                            .setHeader("x-delay", 2*60*1000)
                             .build();
                     commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
-                    streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL+active,message);
+                    streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL,message);
                     commonCacheOperator.put(key,Boolean.FALSE);
                 }
 

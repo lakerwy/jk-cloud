@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
@@ -172,7 +173,7 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
         try {
 //            fileEntryNameList = FileOperation.unzip(destFile, unzipUrl);
-            ZipUtil.unzip(destFile, new File(unzipUrl));
+            ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
             fileEntryNameList =  Arrays.stream(FileUtil.ls(unzipUrl))
                     .map(File::getName)
                     .collect(Collectors.toList());
