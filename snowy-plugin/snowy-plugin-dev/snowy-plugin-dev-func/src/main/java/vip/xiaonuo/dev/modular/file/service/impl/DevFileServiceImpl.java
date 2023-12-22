@@ -137,17 +137,14 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             CommonResponseUtil.renderError(response, "非本地文件不支持此方式下载，id值为：" + devFile.getId());
             return;
         }
-        File file = FileUtil.file(devFile.getStoragePath());
-        if(!FileUtil.exist((FileUtil.file(devFile.getStoragePath()+"."+devFile.getSuffix())))){
+        File file1 = FileUtil.file(devFile.getStoragePath());
+
+        File file2 = FileUtil.file(devFile.getStoragePath()+"."+devFile.getSuffix());
+        if(!FileUtil.exist(file1) && !FileUtil.exist(file2)) {
             CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
             return;
         }
-        file = FileUtil.file(devFile.getStoragePath()+"."+devFile.getSuffix());
-        if(!FileUtil.exist(file)) {
-            CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
-            return;
-        }
-        CommonDownloadUtil.download(devFile.getName(), IoUtil.readBytes(FileUtil.getInputStream(file)), response);
+        CommonDownloadUtil.download(devFile.getName(), IoUtil.readBytes(FileUtil.getInputStream(FileUtil.exist(file1)? file1 : file2)), response);
     }
 
     @Override
