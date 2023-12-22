@@ -62,7 +62,7 @@ public class CommonCacheOperator {
     }
 
     public void removeKeys(String prefix) {
-        Set<String> keys = redisTemplate.keys(prefix + "*");
+        Set<String> keys = redisTemplate.keys(CACHE_KEY_PREFIX+prefix + "*");
         if(CollUtil.isNotEmpty(keys)){
             redisTemplate.delete(keys);
         }
