@@ -1527,7 +1527,7 @@ public class NodeRuntimeUtil {
                     RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
                     rabbitMsg.setTitle("【审批超时通知】");
                     rabbitMsg.setUserSets(new HashSet<>(participateUserIdList));
-                    String key = RabbitConstant.RABBIT_KEY+ delegateTask.getId();
+                    String key = RabbitConstant.RABBIT_KEY+ delegateTask.getProcessInstanceId()+delegateTask.getId();
                     rabbitDelayedMessage.setTaskKey(key);
                     rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
                     rabbitDelayedMessage.setLimit(v);

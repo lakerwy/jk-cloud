@@ -360,7 +360,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
         // 执行通过
         taskService.complete(task.getId());
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY +processInstanceId+ taskId);
 
     }
 
@@ -405,7 +405,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 NodeRuntimeUtil.handleSqlExecution(sql);
             }
         }
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + processInstanceId+taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -496,7 +496,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 processInstanceModificationBuilder.startTransition(incoming.iterator().next().getId()).execute();
             }
         }
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY +processInstanceId+ taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -547,7 +547,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
         // 执行转办
         taskService.setAssignee(taskId, flwTaskTurnParam.getUserId());
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + processInstanceId + taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -565,6 +565,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         handleDataJson(task.getProcessInstanceId(), flwTaskJumpParam.getDataJson());
         // 执行跳转
         flwProcessService.doProcessInstanceModify(processInstanceId, jumpUserTask);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + processInstanceId + taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)

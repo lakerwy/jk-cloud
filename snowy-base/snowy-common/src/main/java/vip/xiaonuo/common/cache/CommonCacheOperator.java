@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.common.cache;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
@@ -58,6 +59,13 @@ public class CommonCacheOperator {
         ArrayList<String> keys = CollectionUtil.toList(key);
         List<String> withPrefixKeys = keys.stream().map(i -> CACHE_KEY_PREFIX + i).collect(Collectors.toList());
         redisTemplate.delete(withPrefixKeys);
+    }
+
+    public void removeKeys(String prefix) {
+        Set<String> keys = redisTemplate.keys(prefix + "*");
+        if(CollUtil.isNotEmpty(keys)){
+            redisTemplate.delete(keys);
+        }
     }
 
     public Collection<String> getAllKeys() {
