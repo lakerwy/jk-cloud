@@ -19,10 +19,10 @@ import java.util.Date;
  */
 @Slf4j
 @Component
-public class FlwAuditTaskListener implements ExecutionListener {
+public class FlwAuditTaskListener implements TaskListener {
     @Override
-    public void notify(DelegateExecution execution) {
-        String processInstanceId = execution.getProcessInstanceId();
+    public void notify(DelegateTask delegateTask) {
+        String processInstanceId = delegateTask.getProcessInstanceId();
         RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         String businessKey = processInstance.getBusinessKey();
