@@ -634,7 +634,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     public List<DevFile> unZip(DevFileIdParam devFileIdParam){
         List<DevFile> devFileIds = new ArrayList<>();
         DevFile devFile = this.getById(devFileIdParam.getId());
-        if(!devFile.getSuffix().equals("zip") && devFile.getSuffix().equals("rar")){
+        if(!devFile.getSuffix().equals("zip") && !devFile.getSuffix().equals("rar")){
             throw new CommonException("暂时只支持zip和rar的格式，id值为："+devFileIdParam.getId());
         }
         if(ObjectUtil.isEmpty(devFile)){
