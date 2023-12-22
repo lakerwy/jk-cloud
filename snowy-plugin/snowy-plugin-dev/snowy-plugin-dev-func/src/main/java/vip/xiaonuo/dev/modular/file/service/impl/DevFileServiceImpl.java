@@ -661,14 +661,12 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
                 this.save(dev);
                 devFileIds.add(dev);
             });
-            List<DevFile> devFileList = this.list(new LambdaQueryWrapper<DevFile>().in(DevFile::getId,devFileIds));
-            devFileList.forEach(dev -> dev.setDownloadPath(dev.getDownloadPath()+dev.getId()));
-            this.saveOrUpdateBatch(devFileList);
+            devFileIds.forEach(dev -> dev.setDownloadPath(dev.getDownloadPath()+dev.getId()));
+            return devFileIds;
         } catch (Exception e) {
             log.error(e+"");
             throw new CommonException("解压失败--",e);
         }
-        return devFileIds;
     }
 
     private void getFileList(File file, List<Map<String,String>> fileList,String oldFileName){
