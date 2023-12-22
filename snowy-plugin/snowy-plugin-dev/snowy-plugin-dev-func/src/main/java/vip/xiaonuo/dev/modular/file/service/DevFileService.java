@@ -119,4 +119,5 @@ public interface DevFileService extends IService<DevFile> {
 
 //    void pageList(String engine, String dirPath);
 
+    List<String> unZip(DevFileIdParam devFileIdParam);
 }

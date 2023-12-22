@@ -18,10 +18,8 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
-import cn.hutool.core.util.NumberUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.*;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -40,14 +38,13 @@ import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.param.DevFileListParam;
 import vip.xiaonuo.dev.modular.file.param.DevFilePageParam;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
-import vip.xiaonuo.dev.modular.file.util.DevFileAliyunUtil;
-import vip.xiaonuo.dev.modular.file.util.DevFileLocalUtil;
-import vip.xiaonuo.dev.modular.file.util.DevFileMinIoUtil;
-import vip.xiaonuo.dev.modular.file.util.DevFileTencentUtil;
+import vip.xiaonuo.dev.modular.file.util.*;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -55,6 +52,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 /**
  * 文件Service接口实现类
@@ -140,6 +138,11 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             return;
         }
         File file = FileUtil.file(devFile.getStoragePath());
+        if(!FileUtil.exist((FileUtil.file(devFile.getStoragePath()+"."+devFile.getSuffix())))){
+            CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
+            return;
+        }
+        file = FileUtil.file(devFile.getStoragePath()+"."+devFile.getSuffix());
         if(!FileUtil.exist(file)) {
             CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
             return;
@@ -625,4 +628,81 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 ////            throw new CommonException("不支持的文件引擎：{}", engine);
 ////        }
 //    }
+
+    /** 解压文件 */
+    @Override
+    public List<String> unZip(DevFileIdParam devFileIdParam){
+        List<String> devFileIds = new ArrayList<>();
+        DevFile devFile = this.getById(devFileIdParam.getId());
+        if(!devFile.getSuffix().equals("zip") && devFile.getSuffix().equals("rar")){
+            throw new CommonException("暂时只支持zip和rar的格式，id值为："+devFileIdParam.getId());
+        }
+        if(ObjectUtil.isEmpty(devFile)){
+            throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
+        }
+        File file = FileUtil.file(devFile.getStoragePath());
+        String oldFileName = file.getName();
+        if(!FileUtil.exist(file)) {
+            throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
+        }
+        File fileTemp = convertBytesToFile(IoUtil.readBytes(FileUtil.getInputStream(file)),devFile.getStoragePath() + "." + devFile.getSuffix());
+        String outFile = fileTemp.getParent();
+        try {
+            File unzipFile = ZipUtil.unzip(fileTemp, new File(outFile), CharsetUtil.CHARSET_GBK);
+            List<Map<String,String>> filePaths = new ArrayList<>();
+            getFileList(unzipFile,filePaths,oldFileName);
+            filePaths.forEach(data -> {
+                DevFile dev = new DevFile();
+                dev.setEngine(devFile.getEngine());
+                dev.setBucket(devFile.getBucket());
+                dev.setName(data.get("fileName"));
+                dev.setSuffix(data.get("suffix"));
+                dev.setSizeKb(devFile.getSizeKb());
+                dev.setSizeInfo(devFile.getSizeInfo());
+                dev.setStoragePath(data.get("absolutePath"));
+                dev.setDownloadPath("/api/webapp/dev/file/download?id=");
+                this.save(dev);
+                devFileIds.add(dev.getId());
+            });
+            List<DevFile> devFileList = this.list(new LambdaQueryWrapper<DevFile>().in(DevFile::getId,devFileIds));
+            devFileList.forEach(dev -> dev.setDownloadPath(dev.getDownloadPath()+dev.getId()));
+            this.saveOrUpdateBatch(devFileList);
+        } catch (Exception e) {
+            log.error(e+"");
+            throw new CommonException("解压失败--",e);
+        }
+        return devFileIds;
+    }
+
+    private void getFileList(File file, List<Map<String,String>> fileList,String oldFileName){
+        if (file == null) { return; }
+        if (file.isDirectory()) {//如果是文件夹，就继续递归
+            for (File tempFile : Objects.requireNonNull(file.listFiles())){getFileList(tempFile,fileList,oldFileName);}
+        }
+        //如果是文件，就解析一下，放到文件集合中
+        if (file.isFile()){
+            Map<String,String> map = new HashMap<>();
+            int dotIndex = file.getAbsolutePath().lastIndexOf(".");
+            if((dotIndex > 0 && dotIndex < file.getAbsolutePath().length() - 1) && !file.getAbsolutePath().contains(oldFileName)){
+                map.put("absolutePath",file.getAbsolutePath().substring(0,dotIndex));
+                map.put("fileName",file.getName());
+                map.put("suffix",file.getAbsolutePath().substring(dotIndex+1,file.getAbsolutePath().length()));
+                fileList.add(map);
+            }
+        }
+    }
+
+    public static File convertBytesToFile(byte[] bytes, String outputPath) {
+        File outputFile = new File(outputPath);
+        try (FileOutputStream outputStream = new FileOutputStream(outputFile)) {
+            outputStream.write(bytes);
+            return outputFile;
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            return null;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
 }

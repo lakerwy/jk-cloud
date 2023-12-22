@@ -58,6 +58,7 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.Range;
 import vip.xiaonuo.pan.modular.fileCenter.param.UnzipFileParam;
+import vip.xiaonuo.pan.modular.fileCenter.param.ZipFileParam;
 import vip.xiaonuo.pan.modular.fileCenter.service.PanFileStorageService;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
@@ -540,5 +541,14 @@ public class PanFileController {
             writer.write("{\"error\":" + "0" + "}");
 
         }
+    }
+
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("在线压缩文件")
+    @CommonLog("在线压缩文件")
+    @GetMapping("/pan/file/zipFile")
+    public CommonResult<String> zipFile(@Valid ZipFileParam zipFileParam) throws IOException, InterruptedException{
+        panFileService.zipFile(zipFileParam);
+        return CommonResult.ok();
     }
 }

@@ -370,4 +370,16 @@ public class DevFileController {
 //        devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
 //        return CommonResult.ok();
 //    }
+    /**
+     * 本地文件创建文件夹
+     *
+     **/
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("解压文件")
+    @CommonLog("解压文件")
+    @GetMapping("/dev/file/unZip")
+    public CommonResult<List<String>> unZip(DevFileIdParam devFileIdParam) {
+        return CommonResult.data(devFileService.unZip(devFileIdParam));
+    }
+
 }
