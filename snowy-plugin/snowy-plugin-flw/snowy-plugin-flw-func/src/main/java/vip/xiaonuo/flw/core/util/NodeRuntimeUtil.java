@@ -240,6 +240,25 @@ public class NodeRuntimeUtil {
     }
 
     /**
+     * 判断执行是否为发起申请
+     *
+     * @author xuyuxiang
+     * @date 2022/6/9 19:52
+     */
+    public static boolean isStartUserTask(DelegateExecution delegateExecution) {
+        FlowElement bpmnModelElementInstance = delegateExecution.getBpmnModelElementInstance();
+        if(bpmnModelElementInstance instanceof StartEvent) {
+            return true;
+        }
+        if(bpmnModelElementInstance instanceof UserTask) {
+            UserTask userTask = (UserTask) bpmnModelElementInstance;
+            return isStartUserTask(userTask);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 给所有的用户任务节点设置办理人信息
      *
      * @author xuyuxiang
@@ -263,25 +282,6 @@ public class NodeRuntimeUtil {
                 handlerAssigner(userTask,delegateExecution.getProcessInstanceId(),participateUserIdList);
             }
         });
-    }
-
-    /**
-     * 判断执行是否为发起申请
-     *
-     * @author xuyuxiang
-     * @date 2022/6/9 19:52
-     */
-    public static boolean isStartUserTask(DelegateExecution delegateExecution) {
-        FlowElement bpmnModelElementInstance = delegateExecution.getBpmnModelElementInstance();
-        if(bpmnModelElementInstance instanceof StartEvent) {
-            return true;
-        }
-        if(bpmnModelElementInstance instanceof UserTask) {
-            UserTask userTask = (UserTask) bpmnModelElementInstance;
-            return isStartUserTask(userTask);
-        } else {
-            return false;
-        }
     }
 
     /**
@@ -915,6 +915,8 @@ public class NodeRuntimeUtil {
                                     }
                                     participateUserIdList.set(Collections.singletonList(s));
                                 }
+                            }else if (userTaskMulApproveType.equals("COUNTERSIGN")){
+                                participateUserIdList.set(Collections.singletonList(delegateTask.getAssignee()));
                             }else {
                                 participateUserIdList.set(Convert.toList(String.class, delegateTask
                                         .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey())));
