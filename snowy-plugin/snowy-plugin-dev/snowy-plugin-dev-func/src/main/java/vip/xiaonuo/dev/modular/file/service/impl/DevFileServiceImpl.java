@@ -32,12 +32,14 @@ import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.common.util.CommonResponseUtil;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.enums.DevFileEngineTypeEnum;
 import vip.xiaonuo.dev.modular.file.mapper.DevFileMapper;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.param.DevFileListParam;
 import vip.xiaonuo.dev.modular.file.param.DevFilePageParam;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
+import vip.xiaonuo.dev.modular.file.service.DevFileUnzipService;
 import vip.xiaonuo.dev.modular.file.util.*;
 
 import javax.annotation.Resource;
@@ -68,6 +70,8 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
     @Resource
     private DevFileMapper devFileMapper;
+    @Resource
+    private DevFileUnzipService devFileUnzipService;
 
     private final static String DOWNLOADURL = "/dev/file/download?id=";
     private final static String GATEWAYDOWNLOADURL = "/api/webapp/dev/file/download?id=";
@@ -137,14 +141,34 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             CommonResponseUtil.renderError(response, "非本地文件不支持此方式下载，id值为：" + devFile.getId());
             return;
         }
-        File file1 = FileUtil.file(devFile.getStoragePath());
-
-        File file2 = FileUtil.file(devFile.getStoragePath()+"."+devFile.getSuffix());
-        if(!FileUtil.exist(file1) && !FileUtil.exist(file2)) {
+        File file = FileUtil.file(devFile.getStoragePath());
+        if(!FileUtil.exist(file)) {
             CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
             return;
         }
-        CommonDownloadUtil.download(devFile.getName(), IoUtil.readBytes(FileUtil.getInputStream(FileUtil.exist(file1)? file1 : file2)), response);
+        CommonDownloadUtil.download(devFile.getName(), IoUtil.readBytes(FileUtil.getInputStream(file)), response);
+
+    }
+
+    @Override
+    public void unzipDownload(DevFileIdParam devFileIdParam, HttpServletResponse response) throws IOException {
+        DevFileUnzip devFile;
+        try {
+            devFile = devFileUnzipService.queryEntity(devFileIdParam.getId());
+        } catch (Exception e) {
+            CommonResponseUtil.renderError(response, e.getMessage());
+            return;
+        }
+        if(!devFile.getEngine().equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+            CommonResponseUtil.renderError(response, "非本地文件不支持此方式下载，id值为：" + devFile.getId());
+            return;
+        }
+        File file = FileUtil.file(devFile.getStoragePath()+"."+devFile.getSuffix());
+        if(!FileUtil.exist(file)) {
+            CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
+            return;
+        }
+        CommonDownloadUtil.download(devFile.getName(), IoUtil.readBytes(FileUtil.getInputStream(file)), response);
     }
 
     @Override
@@ -628,14 +652,16 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 
     /** 解压文件 */
     @Override
-    public List<DevFile> unZip(DevFileIdParam devFileIdParam){
-        List<DevFile> devFileIds = new ArrayList<>();
+    public List<DevFileUnzip> unZip(DevFileIdParam devFileIdParam){
         DevFile devFile = this.getById(devFileIdParam.getId());
+        if(ObjectUtil.isEmpty(devFile)){
+            throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
+        }
         if(!devFile.getSuffix().equals("zip") && !devFile.getSuffix().equals("rar")){
             throw new CommonException("暂时只支持zip和rar的格式，id值为："+devFileIdParam.getId());
         }
-        if(ObjectUtil.isEmpty(devFile)){
-            throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
+        if(ObjectUtil.isNotEmpty(devFile.getIsUnzip()) && devFile.getIsUnzip() == 1){
+            return devFileUnzipService.list(new LambdaQueryWrapper<DevFileUnzip>().eq(DevFileUnzip::getParentId,devFile.getId()));
         }
         File file = FileUtil.file(devFile.getStoragePath());
         String oldFileName = file.getName();
@@ -644,24 +670,42 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
         File fileTemp = convertBytesToFile(IoUtil.readBytes(FileUtil.getInputStream(file)),devFile.getStoragePath() + "." + devFile.getSuffix());
         String outFile = fileTemp.getParent();
+        if(outFile.contains("\\")){
+            outFile = outFile+"\\"+UUID.randomUUID().toString();
+        }else{
+            outFile = outFile+"/"+UUID.randomUUID().toString();
+        }
+        File destFile = new File(outFile);
+        try {
+            boolean newFile = destFile.mkdir();
+        }catch (Exception e){
+            throw new CommonException("创建文件夹失败！");
+        }
+        String fileIdPre = DateUtil.date().toString("yyyyMMdd");
         try {
             File unzipFile = ZipUtil.unzip(fileTemp, new File(outFile), CharsetUtil.CHARSET_GBK);
             List<Map<String,String>> filePaths = new ArrayList<>();
             getFileList(unzipFile,filePaths,oldFileName);
+            List<DevFileUnzip> devFileIds = new ArrayList<>();
             filePaths.forEach(data -> {
-                DevFile dev = new DevFile();
-                dev.setEngine(devFile.getEngine());
-                dev.setBucket(devFile.getBucket());
-                dev.setName(data.get("fileName"));
-                dev.setSuffix(data.get("suffix"));
-                dev.setSizeKb(devFile.getSizeKb());
-                dev.setSizeInfo(devFile.getSizeInfo());
-                dev.setStoragePath(data.get("absolutePath"));
-                dev.setDownloadPath("/api/webapp/dev/file/download?id=");
-                this.save(dev);
-                devFileIds.add(dev);
+                DevFileUnzip devFileUnzip = new DevFileUnzip();
+                String fileName = RandomUtil.randomNumbers(10);
+                String fullFileId = fileIdPre+fileName;
+                devFileUnzip.setId(fullFileId);
+                devFileUnzip.setEngine(devFile.getEngine());
+                devFileUnzip.setBucket(devFile.getBucket());
+                devFileUnzip.setName(data.get("fileName"));
+                devFileUnzip.setParentId(devFile.getId());
+                devFileUnzip.setSuffix(data.get("suffix"));
+                //devFileUnzip.setSizeKb(devFile.getSizeKb().toString());
+                devFileUnzip.setSizeInfo(devFile.getSizeInfo());
+                devFileUnzip.setStoragePath(data.get("absolutePath"));
+                devFileUnzip.setDownloadPath(GATEWAYDOWNLOADURL+fullFileId);
+                devFileIds.add(devFileUnzip);
             });
-            devFileIds.forEach(dev -> dev.setDownloadPath(dev.getDownloadPath()+dev.getId()));
+            devFileUnzipService.saveBatch(devFileIds);
+            devFile.setIsUnzip(1);
+            this.saveOrUpdate(devFile);
             return devFileIds;
         } catch (Exception e) {
             log.error(e+"");

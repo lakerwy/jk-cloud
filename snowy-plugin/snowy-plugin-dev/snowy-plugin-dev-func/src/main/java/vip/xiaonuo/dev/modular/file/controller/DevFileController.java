@@ -28,6 +28,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.entity.DevFileVo;
 import vip.xiaonuo.dev.modular.file.enums.DevFileEngineTypeEnum;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
@@ -378,8 +379,21 @@ public class DevFileController {
     @ApiOperation("解压文件")
     @CommonLog("解压文件")
     @GetMapping("/dev/file/unZip")
-    public CommonResult<List<DevFile>> unZip(DevFileIdParam devFileIdParam) {
+    public CommonResult<List<DevFileUnzip>> unZip(DevFileIdParam devFileIdParam) {
         return CommonResult.data(devFileService.unZip(devFileIdParam));
     }
 
+    /**
+     * 解压文件下载
+     *
+     * @author xuyuxiang
+     * @date 2023/12/24 15:44
+     **/
+    @ApiOperationSupport(order = 22)
+    @ApiOperation("解压文件下载")
+    @CommonLog("解压文件下载")
+    @GetMapping(value = "/dev/file/unzipDownload", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void unzipDownload(@Valid DevFileIdParam devFileIdParam, HttpServletResponse response) throws IOException {
+        devFileService.unzipDownload(devFileIdParam, response);
+    }
 }
