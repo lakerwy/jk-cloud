@@ -520,7 +520,7 @@ public interface SysUserService extends IService<SysUser> {
 
     /**
      * 设置用户二级密码
-     * @param secondPassword
+     * @param setSecondPwd
      */
-    Boolean setSecondPwd(SysUserSecondPassword secondPassword);
+    Boolean setSecondPwd(SysUserSetSecondPwd setSecondPwd);
 }

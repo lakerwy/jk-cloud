@@ -388,8 +388,8 @@ public class SysUserCenterController {
     @ApiOperationSupport(order = 24)
     @ApiOperation("设置用户二级密码")
     @PostMapping("/sys/userCenter/setSecondPwd")
-    public CommonResult<Boolean> setSecondPwd(@RequestBody @Valid SysUserSecondPassword secondPassword) {
-        return CommonResult.data(sysUserService.setSecondPwd(secondPassword));
+    public CommonResult<Boolean> setSecondPwd(@RequestBody @Valid SysUserSetSecondPwd setSecondPwd) {
+        return CommonResult.data(sysUserService.setSecondPwd(setSecondPwd));
     }
 
     /**
