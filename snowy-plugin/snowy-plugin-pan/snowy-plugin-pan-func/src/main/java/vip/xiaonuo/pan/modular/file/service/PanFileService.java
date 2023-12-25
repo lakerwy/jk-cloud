@@ -20,7 +20,9 @@ import vip.xiaonuo.pan.modular.file.param.PanFileEditParam;
 import vip.xiaonuo.pan.modular.file.param.PanFileIdParam;
 import vip.xiaonuo.pan.modular.file.param.PanFilePageParam;
 import vip.xiaonuo.pan.modular.fileCenter.param.UnzipFileParam;
+import vip.xiaonuo.pan.modular.fileCenter.param.ZipFileParam;
 
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -82,4 +84,7 @@ public interface PanFileService extends IService<PanFile> {
     void unzipFile(UnzipFileParam userFileAddParam);
 
     void updateFileDetail(String userFileId, String identifier, long fileSize);
+
+    /** 在线压缩文件 */
+    void zipFile(ZipFileParam zipFileParam) throws IOException, InterruptedException;
 }

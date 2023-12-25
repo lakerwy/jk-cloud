@@ -14,12 +14,18 @@ package vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.db.DbUtil;
+import cn.hutool.db.handler.RsHandler;
+import cn.hutool.db.sql.SqlExecutor;
+import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
@@ -32,7 +38,17 @@ import vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.BizTaskComment
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.api.DbsApi;
+
+import java.sql.Connection;
+import java.sql.ResultSet;
+import java.sql.ResultSetMetaData;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * 任务管理平台-任务评论Service接口实现类
@@ -57,14 +73,91 @@ public class BizTaskCommentServiceImpl extends ServiceImpl<BizTaskCommentMapper,
         } else {
             queryWrapper.lambda().orderByAsc(BizTaskComment::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizTaskComment> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<BizTaskComment> commentList = setBizTaskCommentList(page.getRecords());
+        page.setRecords(commentList);
+        return page;
     }
 
+    private List<BizTaskComment> setBizTaskCommentList(List<BizTaskComment> commentList){
+        if(CollectionUtil.isEmpty(commentList)){
+            return commentList;
+        }
+        List<BizTaskComment> list = new ArrayList<>();
+        commentList.forEach(comment -> {
+            if(comment.getParentId().equals("0")){
+                for(BizTaskComment bizTaskComment : commentList){
+                    if(comment.getId().equals(bizTaskComment.getParentId())){
+                        List<BizTaskComment> comments = CollectionUtil.isNotEmpty(comment.getBizTaskCommentList())? comment.getBizTaskCommentList() : new ArrayList<>();
+                        comments.add(bizTaskComment);
+                        comment.setBizTaskCommentList(comments);
+                    }
+                }
+                list.add(comment);
+            }
+        });
+        return list;
+    }
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizTaskCommentAddParam bizTaskCommentAddParam) {
         BizTaskComment bizTaskComment = BeanUtil.toBean(bizTaskCommentAddParam, BizTaskComment.class);
+        bizTaskComment.setParentId("0");
+        if(StringUtils.isNotEmpty(bizTaskCommentAddParam.getParentId())){
+            Map<String,String> map = newHandleSqlIdExecution(bizTaskCommentAddParam.getParentId());
+            if(map.get("commentId") != null){
+                bizTaskComment.setParentId(map.get("commentId"));
+            }
+        }
         this.save(bizTaskComment);
+    }
+
+    private Map<String,String> newHandleSqlIdExecution(String commentId){
+        if(ObjectUtil.isNotEmpty(commentId)) {
+            Connection conn;
+            try {
+                DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+                conn = dbsApi.getCurrentDataSource().getConnection();
+            } catch (SQLException e) {
+                throw new CommonException(e.getMessage());
+            }
+            try {
+                AtomicReference<Map<String,String>> result = new AtomicReference<>();
+                conn.setAutoCommit(false);
+                String finalSql = "SELECT t2.ID AS commentId FROM " +
+                        "(SELECT @r AS _id,( SELECT @r := PARENT_ID FROM BIZ_TASK_COMMENT WHERE ID = _id ) AS parent_id, @l := @l + 1 AS lvl " +
+                        "FROM ( SELECT @r := ?, @l := 0 ) vars, BIZ_TASK_COMMENT AS h " +
+                        "WHERE  @r != '0' and @r is not null) t1 JOIN BIZ_TASK_COMMENT t2 ON t1._id = t2.ID " +
+                        "ORDER BY t1.lvl DESC  LIMIT 1;";
+                if(ObjectUtil.isNotEmpty(finalSql)) {
+                    try {
+                        result.set(SqlExecutor.query(conn, finalSql, new RsHandler<Map<String,String>>() {
+                            @Override
+                            public Map<String,String> handle(ResultSet resultSet) throws SQLException {
+                                //获取
+                                Map<String, String> result = new HashMap<>();
+                                ResultSetMetaData metaData = resultSet.getMetaData();
+                                int columnCount = metaData.getColumnCount();
+                                if (resultSet.next()) {
+                                    for (int i = 1; i <= columnCount; i++) {
+                                        String columnName = metaData.getColumnLabel(i);
+                                        String value = resultSet.getString(i);
+                                        result.put(columnName, value);
+                                    }
+                                }
+                                return result;
+                            }},commentId));
+                    } catch (SQLException e) { throw new CommonException(e.getMessage()); }
+                }
+                conn.commit();
+                return result.get();
+            } catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            } finally {
+                DbUtil.close(conn);
+            }
+        }
+        return new HashMap<>();
     }
 
     @Transactional(rollbackFor = Exception.class)

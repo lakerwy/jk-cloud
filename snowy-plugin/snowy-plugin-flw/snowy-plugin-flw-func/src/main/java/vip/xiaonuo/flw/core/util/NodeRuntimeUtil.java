@@ -13,7 +13,6 @@
 package vip.xiaonuo.flw.core.util;
 
 import cn.dev33.satoken.stp.StpUtil;
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -48,9 +47,11 @@ import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -89,6 +90,7 @@ import java.util.stream.Collectors;
  * @date 2022/6/2 16:21
  **/
 @Slf4j
+@Component
 public class NodeRuntimeUtil {
 
     /** 删除标志 */
@@ -238,6 +240,25 @@ public class NodeRuntimeUtil {
     }
 
     /**
+     * 判断执行是否为发起申请
+     *
+     * @author xuyuxiang
+     * @date 2022/6/9 19:52
+     */
+    public static boolean isStartUserTask(DelegateExecution delegateExecution) {
+        FlowElement bpmnModelElementInstance = delegateExecution.getBpmnModelElementInstance();
+        if(bpmnModelElementInstance instanceof StartEvent) {
+            return true;
+        }
+        if(bpmnModelElementInstance instanceof UserTask) {
+            UserTask userTask = (UserTask) bpmnModelElementInstance;
+            return isStartUserTask(userTask);
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * 给所有的用户任务节点设置办理人信息
      *
      * @author xuyuxiang
@@ -258,27 +279,9 @@ public class NodeRuntimeUtil {
                 } else {
                     delegateExecution.setVariable("assignee" + StrUtil.UNDERLINE + userTask.getId(), participateUserIdList);
                 }
+                handlerAssigner(userTask,delegateExecution.getProcessInstanceId(),participateUserIdList);
             }
         });
-    }
-
-    /**
-     * 判断执行是否为发起申请
-     *
-     * @author xuyuxiang
-     * @date 2022/6/9 19:52
-     */
-    public static boolean isStartUserTask(DelegateExecution delegateExecution) {
-        FlowElement bpmnModelElementInstance = delegateExecution.getBpmnModelElementInstance();
-        if(bpmnModelElementInstance instanceof StartEvent) {
-            return true;
-        }
-        if(bpmnModelElementInstance instanceof UserTask) {
-            UserTask userTask = (UserTask) bpmnModelElementInstance;
-            return isStartUserTask(userTask);
-        } else {
-            return false;
-        }
     }
 
     /**
@@ -873,6 +876,59 @@ public class NodeRuntimeUtil {
 
     }
 
+    private static void handlerAssigner(UserTask userTask,String processInstanceId,List<String> users){
+            ExtensionElements extensionElements = userTask.getExtensionElements();
+            if(ObjectUtil.isNotEmpty(extensionElements)) {
+                extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
+                        camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
+                            if (camundaProperty.getCamundaName().equals("configInfo")) {
+                                JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
+                                String userTaskMulApproveType = configInfo.getStr("userTaskMulApproveType");
+                                if(userTaskMulApproveType.equals("SEQUENTIAL")){
+                                    CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+                                    commonCacheOperator.put(FlwCacheConstant.FLW_TASK_USER+userTask.getId()+processInstanceId, String.join(",", users));
+                                }
+                            }
+                        }));
+            }
+
+    }
+
+    public static List<String> handleUserTaskMulApproveType(DelegateTask delegateTask) {
+        ExtensionElements extensionElements = delegateTask.getBpmnModelElementInstance().getExtensionElements();
+        AtomicReference<List<String>> participateUserIdList = new AtomicReference<>(CollectionUtil.newArrayList());
+        if (ObjectUtil.isNotEmpty(extensionElements)) {
+            extensionElements.getChildElementsByType(CamundaProperties.class).forEach(camundaProperties ->
+                    camundaProperties.getChildElementsByType(CamundaProperty.class).forEach(camundaProperty -> {
+                        if (camundaProperty.getCamundaName().equals("configInfo")) {
+                            JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
+                            String userTaskMulApproveType = configInfo.getStr("userTaskMulApproveType");
+                            if(userTaskMulApproveType.equals("SEQUENTIAL")){
+                                CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+                                String value = (String) commonCacheOperator.get(FlwCacheConstant.FLW_TASK_USER + delegateTask.getTaskDefinitionKey() + delegateTask.getProcessInstanceId());
+                                if(StrUtil.isNotEmpty(value)){
+                                    List<String> collect = Arrays.stream(value.split(",")).collect(Collectors.toList());
+                                    String s = collect.get(0);
+                                    collect.remove(s);
+                                    if(CollUtil.isNotEmpty(collect)){
+                                        commonCacheOperator.put(FlwCacheConstant.FLW_TASK_USER + delegateTask.getTaskDefinitionKey() + delegateTask.getProcessInstanceId(),String.join(",",collect));
+                                    }
+                                    participateUserIdList.set(Collections.singletonList(s));
+                                }
+                            }else if (userTaskMulApproveType.equals("COUNTERSIGN")){
+                                participateUserIdList.set(Collections.singletonList(delegateTask.getAssignee()));
+                            }else {
+                                participateUserIdList.set(Convert.toList(String.class, delegateTask
+                                        .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey())));
+                            }
+                        }
+                    })
+            );
+        }
+
+        return participateUserIdList.get();
+    }
+
     private static void handleProcessNoticeExecute(DelegateTask delegateTask, DelegateExecution delegateExecution, String noticeType, String processNoticeTemplate,
                                                    List<String> processNoticeChannelList){
         try {
@@ -885,8 +941,9 @@ public class NodeRuntimeUtil {
             String processNoticeTemplateFormat;
             switch (noticeType) {
                 case "TODO":
-                    participateUserIdList = Convert.toList(String.class, delegateTask
-                            .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
+                    participateUserIdList = handleUserTaskMulApproveType(delegateTask);
+//                    participateUserIdList = Convert.toList(String.class, delegateTask
+//                            .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
                     if(CollUtil.isNotEmpty(participateUserIdList)){
                         if(participateUserIdList.size() == 1 && participateUserIdList.get(0).equals("AUTO_COMPLETE") ){
                             return;
@@ -973,6 +1030,10 @@ public class NodeRuntimeUtil {
                             taskMap.put("noticeType",noticeType);
                             devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,processInstanceId,taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
+                            if(noticeType.equals("TODO")){
+                                //处理任务超时后发送通知消息
+                                NodeRuntimeUtil.handleUserTaskOverLimit(delegateTask,finalParticipateUserIdList);
+                            }
                             break;
                         case "EMAIL":
                             // TODO 执行发送邮件，使用本地邮件，可改为其他邮件引擎
@@ -1420,7 +1481,7 @@ public class NodeRuntimeUtil {
      * 处理任务超时后发送通知消息
      * @param delegateTask
      */
-    public static void handleUserTaskOverLimit(DelegateTask delegateTask) {
+    public static void handleUserTaskOverLimit(DelegateTask delegateTask,List<String> participateUserIdList) {
         try {
             CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
             AtomicBoolean processEnableOverLimit = new AtomicBoolean(false);
@@ -1429,9 +1490,10 @@ public class NodeRuntimeUtil {
 
             processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance()
                     .getParentElement().getChildElementsByType(ExtensionElements.class);
-            List<String> participateUserIdList = CollectionUtil.newArrayList();
-            participateUserIdList = Convert.toList(String.class, delegateTask
-                    .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
+//            List<String> participateUserIdList = handleUserTaskMulApproveType(delegateTask);
+//            participateUserIdList = Convert.toList(String.class, delegateTask
+//                    .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
+            //participateUserIdList = handleUserTaskMulApproveType(delegateTask);
             if(CollUtil.isNotEmpty(participateUserIdList)){
                 if(participateUserIdList.size() == 1 && participateUserIdList.get(0).equals("AUTO_COMPLETE") ){
                     return;
@@ -1467,7 +1529,7 @@ public class NodeRuntimeUtil {
                     RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
                     rabbitMsg.setTitle("【审批超时通知】");
                     rabbitMsg.setUserSets(new HashSet<>(participateUserIdList));
-                    String key = RabbitConstant.RABBIT_KEY+ delegateTask.getId();
+                    String key = RabbitConstant.RABBIT_KEY+ delegateTask.getProcessInstanceId()+delegateTask.getId();
                     rabbitDelayedMessage.setTaskKey(key);
                     rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
                     rabbitDelayedMessage.setLimit(v);

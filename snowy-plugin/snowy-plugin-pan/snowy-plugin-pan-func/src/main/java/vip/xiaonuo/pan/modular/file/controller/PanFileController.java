@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.file.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.ObjectUtil;
@@ -37,8 +38,10 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.api.DevLogApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
+import vip.xiaonuo.dev.modular.file.service.DevFileUnzipService;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
@@ -58,6 +61,7 @@ import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.Range;
 import vip.xiaonuo.pan.modular.fileCenter.param.UnzipFileParam;
+import vip.xiaonuo.pan.modular.fileCenter.param.ZipFileParam;
 import vip.xiaonuo.pan.modular.fileCenter.service.PanFileStorageService;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
@@ -113,6 +117,8 @@ public class PanFileController {
 
     @Resource
     private FileConfigurer<DefaultFileWrapper> fileConfigurer;
+    @Resource
+    private DevFileUnzipService devFileUnzipService;
 
     @Resource
     FileDealComp fileDealComp;
@@ -348,7 +354,11 @@ public class PanFileController {
 //            log.info("评论业务doc文件预览进入下载------------------------------------------------------------------------");
             DevFileIdParam devFileIdParam = new DevFileIdParam();
             devFileIdParam.setId(previewParam.getUserFileId());
-            devFileService.download(devFileIdParam, httpServletResponse);
+            if(ObjectUtil.isNotEmpty(previewParam.getIsUnzip()) && previewParam.getIsUnzip() == 1){
+                devFileService.unzipDownload(devFileIdParam, httpServletResponse);
+            }else {
+                devFileService.download(devFileIdParam, httpServletResponse);
+            }
         }
 
     }
@@ -381,13 +391,19 @@ public class PanFileController {
                 UrlBuilder urlBuilder = UrlBuilder.ofHttp(previewUrl1, Charset.defaultCharset());
                 String id = (String) urlBuilder.getQuery().get("id");
                 DevFile devFile = devFileService.getById(id);
+                String isUnzip = "";
+                if(ObjectUtil.isEmpty(devFile)){
+                    DevFileUnzip devFileUnzip = devFileUnzipService.getById(id);
+                    devFile = BeanUtil.toBean(devFileUnzip,DevFile.class);
+                    isUnzip = "&isUnzip=1";
+                }
                 userFile = new UserFile();
                 String newFileName = devFile.getName().substring(0,devFile.getName().lastIndexOf(StrUtil.DOT));
                 userFile.setFileName(newFileName);
                 userFile.setCreateTime(devFile.getCreateTime());
                 userFile.setExtendName(devFile.getSuffix());
                 userFile.setId(devFile.getId());
-                previewUrl = backendUrl+"/api/webapp/pan/file/preview?userFileId="+userFile.getId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined&type=1";
+                previewUrl = backendUrl+"/api/webapp/pan/file/preview?userFileId="+userFile.getId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined&type=1"+isUnzip;
             }else {
                 userFile = userFileService.getById(previewOfficeFileParam.getUserFileId()) ;
             }
@@ -540,5 +556,14 @@ public class PanFileController {
             writer.write("{\"error\":" + "0" + "}");
 
         }
+    }
+
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("在线压缩文件")
+    @CommonLog("在线压缩文件")
+    @GetMapping("/pan/file/zipFile")
+    public CommonResult<String> zipFile(@Valid ZipFileParam zipFileParam) throws IOException, InterruptedException{
+        panFileService.zipFile(zipFileParam);
+        return CommonResult.ok();
     }
 }

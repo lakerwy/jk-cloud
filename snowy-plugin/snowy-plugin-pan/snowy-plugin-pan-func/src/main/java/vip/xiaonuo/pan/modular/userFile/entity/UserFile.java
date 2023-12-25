@@ -59,7 +59,7 @@ public class UserFile {
     private Integer isDir;
 
     /** 文件的ID（对应DEV_FILE表的主键ID） */
-    @ApiModelProperty(value = "文件的ID（对应DEV_FILE表的主键ID）", position = 6)
+    @ApiModelProperty(value = "文件的ID（对应PAN_FILE表的主键ID）", position = 6)
     private String fileId;
 
     /** 是否是目录(0-否,1-是) */

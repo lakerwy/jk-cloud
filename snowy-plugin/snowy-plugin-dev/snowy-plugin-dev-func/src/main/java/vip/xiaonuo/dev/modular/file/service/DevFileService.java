@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.param.DevFileListParam;
 import vip.xiaonuo.dev.modular.file.param.DevFilePageParam;
@@ -74,6 +75,13 @@ public interface DevFileService extends IService<DevFile> {
     void download(DevFileIdParam devFileIdParam, HttpServletResponse response) throws IOException;
 
     /**
+     * 下载文件
+     *
+     * @author ljy
+     * @date 2023/12/24 15:44
+     **/
+    void unzipDownload(DevFileIdParam devFileIdParam, HttpServletResponse response) throws IOException;
+    /**
      * 删除文件
      *
      * @author xuyuxiang
@@ -119,4 +127,5 @@ public interface DevFileService extends IService<DevFile> {
 
 //    void pageList(String engine, String dirPath);
 
+    List<DevFileUnzip> unZip(DevFileIdParam devFileIdParam);
 }

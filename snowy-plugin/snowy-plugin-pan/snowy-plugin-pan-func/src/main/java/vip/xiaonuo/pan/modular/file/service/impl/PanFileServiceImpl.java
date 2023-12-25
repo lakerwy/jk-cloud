@@ -15,16 +15,20 @@ package vip.xiaonuo.pan.modular.file.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.CharsetUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.core.util.ZipUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.io.FileUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -35,12 +39,14 @@ import vip.xiaonuo.pan.modular.file.param.PanFileEditParam;
 import vip.xiaonuo.pan.modular.file.param.PanFileIdParam;
 import vip.xiaonuo.pan.modular.file.param.PanFilePageParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
+import vip.xiaonuo.pan.modular.file.util.CommonZipUtil;
 import vip.xiaonuo.pan.modular.fileCenter.component.AsyncTaskComp;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
 import vip.xiaonuo.pan.modular.fileCenter.operation.FileOperation;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
 import vip.xiaonuo.pan.modular.fileCenter.param.UnzipFileParam;
+import vip.xiaonuo.pan.modular.fileCenter.param.ZipFileParam;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
@@ -53,6 +59,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -71,7 +78,8 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
     @Resource
     private FileFactory fileFactory;
-
+    @Resource
+    private PanFileService panFileService;
 
     @Resource
     AsyncTaskComp asyncTaskComp;
@@ -172,7 +180,7 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
         try {
 //            fileEntryNameList = FileOperation.unzip(destFile, unzipUrl);
-            ZipUtil.unzip(destFile, new File(unzipUrl));
+            ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
             fileEntryNameList =  Arrays.stream(FileUtil.ls(unzipUrl))
                     .map(File::getName)
                     .collect(Collectors.toList());
@@ -212,5 +220,68 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
         fileBean.setId(userFile.getFileId());
         updateById(fileBean);
         userFileService.updateById(userFile);
+    }
+
+    @Override
+    public void zipFile(ZipFileParam zipFileParam) throws IOException, InterruptedException{
+        if(CollectionUtil.isEmpty(zipFileParam.getUserFileId())){
+            throw new CommonException("需要压缩的文件夹ID不能为空！");
+        }
+        List<String> sourceFileList = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(zipFileParam.getUserFileId())){
+            List<UserFile> userFiles = userFileService.list(new LambdaQueryWrapper<UserFile>().in(UserFile::getId,zipFileParam.getUserFileId()));
+            List<String> filePaths = new ArrayList<>();
+            List<String> panFileIds = new ArrayList<>();
+            userFiles.forEach(file -> {
+                if(file.isDirectory()){
+                    filePaths.add(file.getFilePath());//文件夹
+                }else{
+                    panFileIds.add(file.getFileId());
+                }
+            });
+            if(CollectionUtil.isNotEmpty(filePaths)){
+                filePaths.forEach(path -> {
+                    List<UserFile>  list = userFileService.selectUserFileByLikeRightFilePath(path,StpLoginUserUtil.getLoginUser().getId());
+                    if(CollectionUtil.isNotEmpty(list)){
+                        list.forEach(file -> { if(!file.isDirectory()){ panFileIds.add(file.getFileId());}});
+                    }
+                });
+            }
+            if(CollectionUtil.isEmpty(panFileIds)){ throw new CommonException("需要压缩的文件为空！");}
+            List<PanFile> panFileList = panFileService.list(new LambdaQueryWrapper<PanFile>().in(PanFile::getId,panFileIds));
+            panFileList.forEach(pan -> sourceFileList.add(pan.getFileUrl()));
+        }
+        if(CollectionUtil.isNotEmpty(sourceFileList)){
+            UserFile userFile = userFileService.getById(zipFileParam.getSaveFileId());
+            if(ObjectUtil.isEmpty(userFile)){ throw new CommonException("未找到该文件夹！");}
+            String inputFile = "";
+            if (zipFileParam.getZipName().contains("/")) {
+                inputFile = userFile.getFilePath()+"/"+UUID.randomUUID().toString()+".zip";
+            }else{
+                inputFile = userFile.getFilePath()+"\\"+UUID.randomUUID().toString()+".zip";
+            }
+            Long fileSize = CommonZipUtil.unzip(sourceFileList,inputFile);
+            //插入PAN_FILE表数据
+            PanFile panFile = new PanFile();
+            panFile.setFileSize(fileSize);
+            panFile.setFileUrl(inputFile);
+            panFile.setFileStatus(1);
+            panFile.setIdentifier(UUID.randomUUID().toString());
+            panFileService.save(panFile);
+
+            //插入PAN_USER_FILE表数据
+            UserFile userFile1 = new UserFile();
+            userFile1.setFileName(zipFileParam.getZipName());
+            userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()));
+            userFile1.setParentId(userFile.getParentId());
+            userFile1.setIsDir(0);
+            userFile1.setFileSize(fileSize);
+            userFile1.setFoldType(userFile.getFoldType());
+            userFile1.setOrgId(userFile.getOrgId());
+            userFile1.setExtendName("zip");
+            userFile1.setUserId(StpLoginUserUtil.getLoginUser().getId());
+            userFile1.setFileId(panFile.getId());
+            userFileService.save(userFile1);
+        }
     }
 }

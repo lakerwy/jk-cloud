@@ -57,6 +57,7 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -485,6 +486,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (ObjectUtil.isNotEmpty(processInstanceIdList)) {
             // 发布删除事件
             processInstanceIdList.forEach(FlwGlobalCustomEventCenter::publishDeleteEvent);
+            processInstanceIdList.forEach(id->{
+                FlwGlobalCustomEventCenter.publishDeleteEvent(id);
+                commonCacheOperator.removeKeys(RabbitConstant.RABBIT_KEY+id);
+            });
             runtimeService.deleteProcessInstancesIfExists(processInstanceIdList, "DELETE",
                     true, true, true);
             historyService.deleteHistoricProcessInstancesIfExists(processInstanceIdList);
@@ -510,6 +515,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 }
                 // 发布终止事件
                 FlwGlobalCustomEventCenter.publishCloseEvent(processInstanceId);
+                commonCacheOperator.removeKeys(RabbitConstant.RABBIT_KEY+processInstanceId);
             });
             runtimeService.deleteProcessInstancesIfExists(processInstanceIdList, "END",
                     true, true, true);
@@ -564,6 +570,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                         NodeRuntimeUtil.handleSqlExecution(sql);
                     }
                 }
+                commonCacheOperator.removeKeys(RabbitConstant.RABBIT_KEY+processInstanceId);
             });
         }
     }
@@ -585,6 +592,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     throw new CommonException("该流程实例不在运行中无法挂起，id值为：{}", processInstanceId);
                 }
                 runtimeService.suspendProcessInstanceById(processInstanceId);
+                commonCacheOperator.removeKeys(RabbitConstant.RABBIT_KEY+processInstanceId);
             });
         }
     }

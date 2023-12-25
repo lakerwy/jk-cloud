@@ -12,7 +12,9 @@
  */
 package vip.xiaonuo.dev.modular.file.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.http.HttpUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -28,12 +30,14 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.entity.DevFileVo;
 import vip.xiaonuo.dev.modular.file.enums.DevFileEngineTypeEnum;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.param.DevFileListParam;
 import vip.xiaonuo.dev.modular.file.param.DevFilePageParam;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
+import vip.xiaonuo.dev.modular.file.service.DevFileUnzipService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -69,6 +73,8 @@ public class DevFileController {
 
     @Resource
     private CommonProperties commonProperties;
+    @Resource
+    private DevFileUnzipService devFileUnzipService;
 
     /**
      * 动态上传文件返回id
@@ -301,6 +307,10 @@ public class DevFileController {
         String[] split = ids.split(";");
         List<String> list = Arrays.asList(split);
         List<DevFile> infos = devFileService.getInfosByIds(list);
+        List<DevFileUnzip> devFileUnzipList = devFileUnzipService.list(new LambdaQueryWrapper<DevFileUnzip>().in(DevFileUnzip::getId,list));
+        devFileUnzipList.forEach(unzip -> {
+            infos.add(BeanUtil.toBean(unzip,DevFile.class));
+        });
         String apiUrl = commonProperties.getBackendUrl();
         List<DevFileVo> vos = infos.stream().map(v-> new DevFileVo(v.getName(),apiUrl+v.getDownloadPath(), v.getId(), v.getSizeKb(),v.getSizeInfo())).collect(Collectors.toList());
         return CommonResult.data(vos);
@@ -370,4 +380,15 @@ public class DevFileController {
 //        devFileService.pageList(DevFileEngineTypeEnum.LOCAL.getValue(),dirPath);
 //        return CommonResult.ok();
 //    }
+    /**
+     * 本地文件创建文件夹
+     *
+     **/
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("解压文件")
+    @CommonLog("解压文件")
+    @GetMapping("/dev/file/unZip")
+    public CommonResult<List<DevFileUnzip>> unZip(DevFileIdParam devFileIdParam) {
+        return CommonResult.data(devFileService.unZip(devFileIdParam));
+    }
 }

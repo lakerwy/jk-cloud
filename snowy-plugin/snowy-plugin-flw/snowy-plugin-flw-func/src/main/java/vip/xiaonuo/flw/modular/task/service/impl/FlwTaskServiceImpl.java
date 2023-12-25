@@ -26,10 +26,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
-import org.camunda.bpm.engine.HistoryService;
-import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
-import org.camunda.bpm.engine.TaskService;
+import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -144,11 +141,11 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     public Page<FlwTodoTaskResult> todoPage(FlwTaskPageTodoParam flwTaskPageTodoParam) {
         NodeRuntimeUtil.handleTenAuth();
         TaskQuery taskQuery = taskService.createTaskQuery().active().taskAssignee(StpUtil.getLoginIdAsString()).orderByTaskCreateTime().desc();
-        if(ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getName())) {
+        if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getName())) {
             taskQuery.processDefinitionName(flwTaskPageTodoParam.getName()).or()
                     .processVariableValueLike("initiatorProcessAbstract", "%" + flwTaskPageTodoParam.getName() + "%");
         }
-        if(ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getInitiator())) {
+        if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getInitiator())) {
             taskQuery.processVariableValueEquals("initiator", flwTaskPageTodoParam.getInitiator());
         }
         if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getSearchKey())) {
@@ -181,9 +178,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
                     String processDefinitionId = task.getProcessDefinitionId();
                     Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-                    if(ObjectUtil.isNotEmpty(o)){
+                    if (ObjectUtil.isNotEmpty(o)) {
                         flwTodoTaskResult.setProcessDefinitionName(String.valueOf(o));
-                    }else {
+                    } else {
                         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
                         if (ObjectUtil.isNotEmpty(processDefinition)) {
                             commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
@@ -194,14 +191,14 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setCurrentActivityId(task.getTaskDefinitionKey());
                     flwTodoTaskResult.setCurrentActivityName(task.getName());
                     String taskAssignee = task.getAssignee();
-                    if(ObjectUtil.isNotEmpty(taskAssignee)) {
+                    if (ObjectUtil.isNotEmpty(taskAssignee)) {
                         JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
-                        if(ObjectUtil.isNotEmpty(taskAssigneeUser)) {
+                        if (ObjectUtil.isNotEmpty(taskAssigneeUser)) {
                             flwTodoTaskResult.setAssignees(taskAssigneeUser.getStr("name"));
                         }
                     } else {
                         String assignee = variableJsonObject.getStr("assignee" + StrUtil.UNDERLINE + task.getTaskDefinitionKey());
-                        if(ObjectUtil.isNotEmpty(assignee)) {
+                        if (ObjectUtil.isNotEmpty(assignee)) {
                             List<String> userIdList = JSONUtil.toList(assignee, String.class);
                             flwTodoTaskResult.setAssignees(StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(userIdList).stream()
                                     .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList())));
@@ -227,10 +224,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         NodeRuntimeUtil.handleTenAuth();
         HistoricTaskInstanceQuery historicTaskInstanceQuery = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString())
                 .orderByHistoricTaskInstanceEndTime().desc();
-        if(ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getName())) {
+        if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getName())) {
             historicTaskInstanceQuery.processDefinitionName(flwTaskPageDoneParam.getName());
         }
-        if(ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiator())) {
+        if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiator())) {
             historicTaskInstanceQuery.processVariableValueEquals("initiator", flwTaskPageDoneParam.getInitiator());
         }
         if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getSn())) {
@@ -261,9 +258,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     String processDefinitionId = historicTaskInstance.getProcessDefinitionId();
                     flwDoneTaskResult.setProcessDefinitionId(processDefinitionId);
                     Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-                    if(ObjectUtil.isNotEmpty(o)){
+                    if (ObjectUtil.isNotEmpty(o)) {
                         flwDoneTaskResult.setProcessDefinitionName(String.valueOf(o));
-                    }else {
+                    } else {
                         ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
                         if (ObjectUtil.isNotEmpty(processDefinition)) {
                             commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
@@ -338,7 +335,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         NodeRuntimeUtil.handleTenAuth();
         String taskId = flwTaskAdjustParam.getId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
-        if(ObjectUtil.isEmpty(task)) {
+        if (ObjectUtil.isEmpty(task)) {
             throw new CommonException("任务不存在，id值为：{}", taskId);
         }
         NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, task.getProcessInstanceId(), NodeApproveOperateTypeEnum.RESTART.getValue(),
@@ -363,7 +360,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
         // 执行通过
         taskService.complete(task.getId());
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY +processInstanceId+ taskId);
 
     }
 
@@ -372,7 +369,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         NodeRuntimeUtil.handleTenAuth();
         String taskId = flwTaskSaveParam.getId();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
-        if(ObjectUtil.isEmpty(task)) {
+        if (ObjectUtil.isEmpty(task)) {
             throw new CommonException("任务不存在，id值为：{}", taskId);
         }
         String processInstanceId = task.getProcessInstanceId();
@@ -386,7 +383,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         Task task = validTask(flwTaskRejectParam.getId(), flwTaskRejectParam.getComment());
         String taskId = task.getId();
         String processInstanceId = task.getProcessInstanceId();
-        NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.REJECT.getValue(), "拒绝申请" ,
+        NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.REJECT.getValue(), "拒绝申请",
                 flwTaskRejectParam.getComment(), flwTaskRejectParam.getAttachmentList());
         // 更新sql
         handleDataJson(task.getProcessInstanceId(), flwTaskRejectParam.getDataJson());
@@ -400,15 +397,15 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
         FormRelationTable info = formRelationTableService.getInfoByProcessInstanceId(processInstanceId);
         //更新对应表的流程状态  update table_name set status = 2   ,主要要区分主表还是业务表
-        if(ObjectUtil.isNotEmpty(info)){
-            String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where ID = '" + info.getId() +"'";
+        if (ObjectUtil.isNotEmpty(info)) {
+            String sql = "update " + info.getTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where ID = '" + info.getId() + "'";
             NodeRuntimeUtil.handleSqlExecution(sql);
-            if(ObjectUtil.isNotEmpty(info.getBizTableName())){
-                sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where FLW_ID = '" + info.getId() +"'";
+            if (ObjectUtil.isNotEmpty(info.getBizTableName())) {
+                sql = "update " + info.getBizTableName() + " set `status` = " + FlwStatusEnum.REJECT_STATUS.getValue() + " where FLW_ID = '" + info.getId() + "'";
                 NodeRuntimeUtil.handleSqlExecution(sql);
             }
         }
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + processInstanceId+taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -430,7 +427,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                         if (camundaProperty.getCamundaName().equals("configInfo")) {
                             JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
                             String userTaskRejectType = configInfo.getStr("userTaskRejectType");
-                            if(ObjectUtil.isNotEmpty(userTaskRejectType)) {
+                            if (ObjectUtil.isNotEmpty(userTaskRejectType)) {
                                 switch (userTaskRejectType) {
                                     case "AUTO_END":
                                         targetActivityId.set("-1");
@@ -438,7 +435,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                                     case "TO_START":
                                         try {
                                             NodeRuntimeUtil.handleUserTaskBackNotice((DelegateTask) task);
-                                        }catch (Exception e){
+                                        } catch (Exception e) {
                                             log.error(e.getMessage());
                                         }
                                         break;
@@ -462,9 +459,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         // 更新sql
         handleDataJson(processInstanceId, flwTaskBackParam.getDataJson());
         // 直接结束
-        if(targetActivityId.get().equals("-1")) {
+        if (targetActivityId.get().equals("-1")) {
             // 添加审批记录
-            NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.BACK.getValue(), "退回结束" ,
+            NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.BACK.getValue(), "退回结束",
                     flwTaskBackParam.getComment(), flwTaskBackParam.getAttachmentList());
             // 发布拒绝事件
             FlwGlobalCustomEventCenter.publishRejectEvent(processInstanceId);
@@ -479,7 +476,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             taskService.createTaskQuery().processInstanceId(processInstanceId).list().stream().map(Task::getTaskDefinitionKey)
                     .collect(Collectors.toSet()).forEach(processInstanceModificationBuilder::cancelAllForActivity);
             // 是否跳转到发起节点
-            if(backToStart.get()) {
+            if (backToStart.get()) {
                 // 添加审批记录
                 NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.BACK.getValue(),
                         "退回节点", "退回到发起节点：" + flwTaskBackParam.getComment(), flwTaskBackParam.getAttachmentList());
@@ -493,31 +490,31 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                         flwTaskBackParam.getAttachmentList());
                 // 执行跳转
                 Collection<SequenceFlow> incoming = backUserTask.getIncoming();
-                if(incoming.size() != 1) {
+                if (incoming.size() != 1) {
                     throw new CommonException("流程模型数据错误，节点{}入口存在多个", userTask.getName());
                 }
                 processInstanceModificationBuilder.startTransition(incoming.iterator().next().getId()).execute();
             }
         }
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY +processInstanceId+ taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void turn(FlwTaskTurnParam flwTaskTurnParam, boolean validComment) {
         Task task;
-        if(validComment) {
+        if (validComment) {
             task = validTask(flwTaskTurnParam.getId(), flwTaskTurnParam.getComment());
         } else {
             NodeRuntimeUtil.handleTenAuth();
             task = taskService.createTaskQuery().taskId(flwTaskTurnParam.getId()).singleResult();
-            if(ObjectUtil.isEmpty(task)) {
+            if (ObjectUtil.isEmpty(task)) {
                 throw new CommonException("任务不存在，id值为：{}", flwTaskTurnParam.getId());
             }
         }
         String taskId = task.getId();
         String processInstanceId = task.getProcessInstanceId();
-        if(flwTaskTurnParam.isRecordComment()) {
+        if (flwTaskTurnParam.isRecordComment()) {
             NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.TURN.getValue(),
                     "转办任务", "转办该任务给【" + sysUserApi.getUserByIdWithException(flwTaskTurnParam.getUserId()).getStr("name") + "】："
                             + flwTaskTurnParam.getComment(), flwTaskTurnParam.getAttachmentList());
@@ -550,7 +547,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
         // 执行转办
         taskService.setAssignee(taskId, flwTaskTurnParam.getUserId());
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + processInstanceId + taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -568,6 +565,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         handleDataJson(task.getProcessInstanceId(), flwTaskJumpParam.getDataJson());
         // 执行跳转
         flwProcessService.doProcessInstanceModify(processInstanceId, jumpUserTask);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + processInstanceId + taskId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -577,22 +575,22 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         String currentActivityId = flwTaskAddSignParam.getCurrentActivityId();
         UserTask currentUserTask = repositoryService.getBpmnModelInstance(task.getProcessDefinitionId()).getModelElementById(currentActivityId);
         ModelElementInstance currentMultiInstanceLoopCharacteristics = currentUserTask.getUniqueChildElementByType(MultiInstanceLoopCharacteristics.class);
-        if(ObjectUtil.isEmpty(currentMultiInstanceLoopCharacteristics)) {
+        if (ObjectUtil.isEmpty(currentMultiInstanceLoopCharacteristics)) {
             throw new CommonException("模型数据错误，当前节点：{}多实例属性为空", currentUserTask.getName());
         }
         String currentIsSequential = currentMultiInstanceLoopCharacteristics.getAttributeValue("isSequential");
-        if(ObjectUtil.isEmpty(currentIsSequential)) {
+        if (ObjectUtil.isEmpty(currentIsSequential)) {
             throw new CommonException("模型数据错误，当前节点：{}多实例属性为空", currentUserTask.getName());
         }
         Boolean sequential = Convert.toBool(currentIsSequential);
-        if(sequential) {
+        if (sequential) {
             throw new CommonException("当前节点：{}的节点类型不支持加签", currentUserTask.getName());
         }
         List<String> assigneeList = flwTaskAddSignParam.getAssigneeList();
         List<String> existAssigneeList = historyService.createHistoricTaskInstanceQuery().processInstanceId(task.getProcessInstanceId()).taskDefinitionKey(flwTaskAddSignParam
                 .getCurrentActivityId()).list().stream().map(HistoricTaskInstance::getAssignee).collect(Collectors.toList());
         Collection<String> intersection = CollectionUtil.intersection(assigneeList, existAssigneeList);
-        if(ObjectUtil.isNotEmpty(intersection)) {
+        if (ObjectUtil.isNotEmpty(intersection)) {
             String existAssigneeNames = StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(CollectionUtil
                     .newArrayList(intersection)).stream().map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList()));
             throw new CommonException("被加签人员：{}已存在该任务中", existAssigneeNames);
@@ -605,7 +603,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 "人员加签", "加签人员：【" + assigneeNames + "】:" + flwTaskAddSignParam.getComment(), flwTaskAddSignParam.getAttachmentList());
         assigneeList.forEach(assignee -> runtimeService.createProcessInstanceModification(task.getProcessInstanceId())
                 .startBeforeActivity(currentActivityId)
-                .setVariable("assignee",assignee)
+                .setVariable("assignee", assignee)
                 .execute());
     }
 
@@ -634,7 +632,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwBackNodeResult.setName(historicActivityInstance.getActivityName());
                     return flwBackNodeResult;
                 }).collect(Collectors.collectingAndThen(Collectors.toCollection(() -> new TreeSet<>(Comparator
-                                .comparing(FlwBackNodeResult::getId))), ArrayList::new));
+                        .comparing(FlwBackNodeResult::getId))), ArrayList::new));
     }
 
     @Override
@@ -642,11 +640,11 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         FlwNode flwNode = flwProcessService.getProcessModelJsonNodeVariable(flwTaskGetJumpNodeInfoParam.getProcessInstanceId());
         return NodeInfoUtil.getUserTaskFlwNodeList(flwNode).stream().filter(tempFlwNode -> !tempFlwNode.getId()
                 .equals(flwTaskGetJumpNodeInfoParam.getCurrentActivityId())).map(tempFlwNode -> {
-                    FlwJumpNodeResult flwJumpNodeResult = new FlwJumpNodeResult();
-                    flwJumpNodeResult.setId(tempFlwNode.getId());
-                    flwJumpNodeResult.setName(tempFlwNode.getTitle());
-                    return flwJumpNodeResult;
-                }).collect(Collectors.toList());
+            FlwJumpNodeResult flwJumpNodeResult = new FlwJumpNodeResult();
+            flwJumpNodeResult.setId(tempFlwNode.getId());
+            flwJumpNodeResult.setName(tempFlwNode.getTitle());
+            return flwJumpNodeResult;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -669,14 +667,14 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     public Task validTask(String taskId, String comment) {
         NodeRuntimeUtil.handleTenAuth();
         Task task = taskService.createTaskQuery().taskId(taskId).singleResult();
-        if(ObjectUtil.isEmpty(task)) {
+        if (ObjectUtil.isEmpty(task)) {
             throw new CommonException("任务不存在，id值为：{}", taskId);
         }
         String processInstanceId = task.getProcessInstanceId();
         FlwNode.FlwNodeConfigProp flwNodeConfigProp = flwProcessService.getProcessNodeConfigProp(processInstanceId);
-        if(ObjectUtil.isEmpty(comment)) {
+        if (ObjectUtil.isEmpty(comment)) {
             Boolean enableCommentRequired = flwNodeConfigProp.getProcessEnableCommentRequired();
-            if(enableCommentRequired) {
+            if (enableCommentRequired) {
                 throw new CommonException("该流程已配置意见必填，id值为：{}，请填写意见", processInstanceId);
             }
         }
@@ -690,9 +688,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
      * @date 2023/5/22 22:26
      */
     public void handleDataJson(String processInstanceId, String dataJson) {
-        if(ObjectUtil.isNotEmpty(dataJson) && !JSONUtil.parseObj(dataJson).isEmpty()) {
+        if (ObjectUtil.isNotEmpty(dataJson) && !JSONUtil.parseObj(dataJson).isEmpty()) {
             Object initiatorTableJson = runtimeService.getVariables(processInstanceId).get("initiatorTableJson");
-            if(ObjectUtil.isNotEmpty(initiatorTableJson)) {
+            if (ObjectUtil.isNotEmpty(initiatorTableJson)) {
                 JSONObject resultDataObj = NodeRuntimeUtil.handleDataJson(Convert.toStr(initiatorTableJson), dataJson,
                         historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId)
                                 .singleResult().getBusinessKey());
@@ -706,6 +704,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     /**
      * 获取某种类型的所有待办
+     *
      * @param processDefinitionId
      * @param activityInstanceId
      * @return
@@ -735,7 +734,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setCurrentActivityId(task.getTaskDefinitionKey());
                     flwTodoTaskResult.setCurrentActivityName(task.getName());
                     String taskAssignee = task.getAssignee();
-                    if(ObjectUtil.isNotEmpty(taskAssignee)) {
+                    if (ObjectUtil.isNotEmpty(taskAssignee)) {
                         flwTodoTaskResult.setAssignees(taskAssignee);
 //                        JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
 //                        if(ObjectUtil.isNotEmpty(taskAssigneeUser)) {
@@ -743,7 +742,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 //                        }
                     } else {
                         String assignee = variableJsonObject.getStr("assignee" + StrUtil.UNDERLINE + task.getTaskDefinitionKey());
-                        if(ObjectUtil.isNotEmpty(assignee)) {
+                        if (ObjectUtil.isNotEmpty(assignee)) {
                             List<String> userIdList = JSONUtil.toList(assignee, String.class);
                             flwTodoTaskResult.setAssignees(StrUtil.join("、", userIdList));
                         }
@@ -765,23 +764,23 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         //Task task = validTask(flwTaskPassParam.getId(), flwTaskPassParam.getComment());
         String taskId = flwcommentParam.getId();
         String processInstanceId = flwcommentParam.getProcessInstanceId();
-        if(StrUtil.isNotEmpty(flwcommentParam.getId())){
+        if (StrUtil.isNotEmpty(flwcommentParam.getId())) {
             Task task = taskService.createTaskQuery().taskId(flwcommentParam.getId()).singleResult();
-            if(ObjectUtil.isNotEmpty(task)){
+            if (ObjectUtil.isNotEmpty(task)) {
                 taskId = task.getId();
                 processInstanceId = task.getProcessInstanceId();
             }
         }
         NodeRuntimeUtil.handleUserTaskCommentAndAttachment2(null, processInstanceId, NodeApproveOperateTypeEnum.COMMENT.getValue(), "追加评论",
-                flwcommentParam.getComment(), flwcommentParam.getAttachmentList(),flwcommentParam.getFlag(),StpLoginUserUtil.getLoginUser().getId());
+                flwcommentParam.getComment(), flwcommentParam.getAttachmentList(), flwcommentParam.getFlag(), StpLoginUserUtil.getLoginUser().getId());
         List<Comment> comments = taskService.getProcessInstanceComments(processInstanceId);
-        if(CollUtil.isNotEmpty(comments)){
+        if (CollUtil.isNotEmpty(comments)) {
             Comment comment = comments.get(comments.size() - 1);
             String taskId1 = comment.getTaskId();
             HistoricTaskInstance historicTaskInstance = historyService.createHistoricTaskInstanceQuery().taskId(taskId1).singleResult();
-            Map<String,Object> values = new HashMap<>();
-            values.put("title","【评论知晓】");
-            values.put("taskId",historicTaskInstance.getId());
+            Map<String, Object> values = new HashMap<>();
+            values.put("title", "【评论知晓】");
+            values.put("taskId", historicTaskInstance.getId());
 //            values.put("stateCode",startTask.get)
             Set<String> collect = new HashSet<>();
             collect.add(comment.getUserId());
@@ -790,23 +789,23 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 //                values.put("title","【评论知晓】");
 //                values.put("url",)
                 HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(comment.getProcessInstanceId()).caseInstanceId(historicTaskInstance.getCaseInstanceId()).singleResult();
-                values.put("stateCode",historicProcessInstance.getState());
-                iDingDingService.customBatchSend(buildForms(processInstanceId,flwcommentParam.getComment()),collect,values);
-            }catch (Exception e){
+                values.put("stateCode", historicProcessInstance.getState());
+                iDingDingService.customBatchSend(buildForms(processInstanceId, flwcommentParam.getComment()), collect, values);
+            } catch (Exception e) {
                 log.error(e.getMessage());
             }
         }
     }
 
     @NotNull
-    private List<OapiMessageCorpconversationAsyncsendV2Request.Form> buildForms(String processInstanceId,String comment) {
+    private List<OapiMessageCorpconversationAsyncsendV2Request.Form> buildForms(String processInstanceId, String comment) {
         HistoricVariableInstanceQuery historicVariableInstanceQuery = historyService
                 .createHistoricVariableInstanceQuery().processInstanceId(processInstanceId)
                 .orderByVariableName().desc();
         List<HistoricVariableInstance> list = historicVariableInstanceQuery.list();
-        if(CollUtil.isNotEmpty(list)){
+        if (CollUtil.isNotEmpty(list)) {
             String processDefinitionId = list.get(0).getProcessDefinitionId();
-            Map<String, Object> taskMap = list.stream().filter(f->ObjectUtil.isNotEmpty(f.getName()) && ObjectUtil.isNotEmpty(f.getValue())).collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue,(v1,v2)->v2));
+            Map<String, Object> taskMap = list.stream().filter(f -> ObjectUtil.isNotEmpty(f.getName()) && ObjectUtil.isNotEmpty(f.getValue())).collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue, (v1, v2) -> v2));
 //        String processDefinitionName = historicProcessInstance.getProcessDefinitionName();
 //        Map taskMap = jsonObject.get("taskMap", Map.class);
 //        Object processDefinitionId = taskMap.get("processDefinitionId");
@@ -835,7 +834,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
             form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
             form.setKey("发起于：");
-            form.setValue(initiatorTime+" | "+ initiatorName);
+            form.setValue(initiatorTime + " | " + initiatorName);
             forms.add(form);
 
             form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
@@ -854,7 +853,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     }
 
     @Override
-    public void transferTasks(FlwTaskTransferParam flwTaskTransferParam){
+    public void transferTasks(FlwTaskTransferParam flwTaskTransferParam) {
         //todo 1、将流程模板中所有涉及到是自己的节点全部修改 （只有指定了具体人是自己的修改， 指定了部门的或者角色的不用管，
         // 用户删除以后，用户的状态会修改，根据部门或者角色查询的时候，该用户不会存在）
         // 2、 将自己的所有待办转交给指定人
@@ -866,14 +865,14 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         List<FlwModel> flwModels = flwModelService.listByIds(models);
         for (FlwModel flwModel : flwModels) {
             String processJson = flwModel.getProcessJson();
-            if(ObjectUtil.isNotEmpty(processJson)){
+            if (ObjectUtil.isNotEmpty(processJson)) {
                 FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
                 replaceParticipateInfoInNode(flwNode, flwTaskTransferParam);
                 processJson = JSONUtil.toJsonStr(flwNode);
                 flwModel.setProcessJson(processJson);
             }
             flwModelService.updateById(flwModel);
-            if(flwModel.getModelStatus().equals(FlwModelStatusEnum.ENABLE.getValue())){
+            if (flwModel.getModelStatus().equals(FlwModelStatusEnum.ENABLE.getValue())) {
                 FlwModelIdParam flwModelIdParam = new FlwModelIdParam();
                 flwModelIdParam.setId(flwModel.getId());
                 flwModelService.deploy(flwModelIdParam);
@@ -883,7 +882,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
             List<Task> list = taskService.createTaskQuery().active().taskAssignee(flwTaskTransferParam.getOldAssignee()).processDefinitionKey(processDefinition.getKey()).orderByTaskCreateTime().desc().list();
 //            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-            list.forEach(task ->  taskService.setAssignee(task.getId(), flwTaskTransferParam.getNewAssignee()));
+            list.forEach(task -> taskService.setAssignee(task.getId(), flwTaskTransferParam.getNewAssignee()));
         }
 
 
@@ -903,7 +902,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     Set<String> labelSet = Arrays.stream(participateProp.getLabel().split(",")).collect(Collectors.toSet());
                     labelSet.remove(flwTaskTransferParam.getOldAssigneeName());
                     labelSet.add(flwTaskTransferParam.getNewAssigneeName());
-                    participateProp.setLabel(String.join(",",labelSet));
+                    participateProp.setLabel(String.join(",", labelSet));
                 }
             }
             flwNode.getProperties().setParticipateInfo(participateInfoList);
@@ -942,13 +941,13 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if (flwNode == null) {
             return false;
         }
-        if(ObjectUtil.isEmpty(flwNode.getProperties())){
+        if (ObjectUtil.isEmpty(flwNode.getProperties())) {
             return false;
         }
         List<FlwNode.FlwNodeParticipateProp> participateInfo = flwNode.getProperties().getParticipateInfo();
         if (ObjectUtil.isNotEmpty(participateInfo)) {
             String participateInfoJson = JSONUtil.toJsonStr(participateInfo);
-            List<String> processParticipateInfo = NodeRuntimeUtil.handleProcessParticipateInfoByType(participateInfoJson,"USER");
+            List<String> processParticipateInfo = NodeRuntimeUtil.handleProcessParticipateInfoByType(participateInfoJson, "USER");
             if (ObjectUtil.isNotEmpty(processParticipateInfo) && processParticipateInfo.contains(oldAssignee)) {
                 return true;
             }
@@ -971,10 +970,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     public void putComments(String inputValue) {
         String key = INPUT_KEY_PRE + StpLoginUserUtil.getLoginUser().getId();
         List<Object> list = commonCacheOperator.getList(key);
-        if(list.size()>=5){
+        if (list.size() >= 5) {
             commonCacheOperator.removeListValue(key);
         }
-        commonCacheOperator.putListExpire(key,inputValue,7*24*60*60L);
+        commonCacheOperator.putListExpire(key, inputValue, 7 * 24 * 60 * 60L);
     }
 
 }

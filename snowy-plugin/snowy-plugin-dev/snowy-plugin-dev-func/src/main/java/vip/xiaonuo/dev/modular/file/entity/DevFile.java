@@ -80,4 +80,8 @@ public class DevFile extends CommonEntity {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 13)
     private String extJson;
+
+    /** 是否解压到服务器 */
+    @ApiModelProperty(value = "是否解压到服务器", position = 14)
+    private Integer isUnzip;
 }

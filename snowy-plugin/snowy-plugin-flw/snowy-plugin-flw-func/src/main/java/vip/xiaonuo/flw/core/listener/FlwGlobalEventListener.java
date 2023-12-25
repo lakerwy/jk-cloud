@@ -19,17 +19,14 @@ import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RepositoryService;
-import org.camunda.bpm.engine.RuntimeService;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.delegate.JavaDelegate;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.FlowNode;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.event.EventListener;
-import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.flw.core.enums.NodeExecutionListenerKeyEnum;
 import vip.xiaonuo.flw.core.enums.NodeTaskListenerKeyEnum;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;
@@ -120,7 +117,7 @@ public class FlwGlobalEventListener implements JavaDelegate {
                 try {
                     NodeRuntimeUtil.handleUserTaskTodoNotice(delegateTask);
                     //处理任务超时后发送通知消息
-                    NodeRuntimeUtil.handleUserTaskOverLimit(delegateTask);
+//                    NodeRuntimeUtil.handleUserTaskOverLimit(delegateTask);
                 }catch (Exception e){
                     log.error(e.getMessage());
                 }

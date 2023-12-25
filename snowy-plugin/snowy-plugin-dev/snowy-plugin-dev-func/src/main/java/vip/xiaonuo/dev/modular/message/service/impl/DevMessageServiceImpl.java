@@ -85,8 +85,6 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
-    @Value("${spring.profiles.active}")
-    private String active ;
 
 
     @Transactional(rollbackFor = Exception.class)
@@ -133,7 +131,7 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
         RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
         //消息ID 存入到redis 中，消费后直接删除，保证消息不会被重复消费
         commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
-        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,rabbitMsg);
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,rabbitMsg);
     }
 
     @Override

@@ -90,8 +90,6 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
-    @Value("${spring.profiles.active}")
-    private String active ;
 
     @Override
     public Page<BizTaskInfo> page(BizTaskInfoPageParam bizTaskInfoPageParam) {
@@ -106,8 +104,6 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskStartTime()) && ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskEndTime())) {
             queryWrapper.lambda().gt(BizTaskInfo::getCreateTime, bizTaskInfoPageParam.getTaskStartTime());
             queryWrapper.lambda().lt(BizTaskInfo::getCreateTime, bizTaskInfoPageParam.getTaskEndTime());
-            /*queryWrapper.lambda().between(BizTaskInfo::getTaskStartTime, bizTaskInfoPageParam.getTaskStartTime(), bizTaskInfoPageParam.getTaskEndTime());
-            queryWrapper.lambda().between(BizTaskInfo::getTaskEndTime, bizTaskInfoPageParam.getTaskStartTime(), bizTaskInfoPageParam.getTaskEndTime());*/
         }
         /**
          * 任务权限
@@ -187,7 +183,12 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                     commentMap.put(comment.getTaskInfoId(),commentList);
                 });
             }
-            page.getRecords().forEach(info ->info.setBizTaskCommentList(commentMap.get(info.getId())));
+            page.getRecords().forEach(info -> {
+                List<BizTaskComment> commentList = commentMap.get(info.getId()) != null ? commentMap.get(info.getId()) : new ArrayList<>();
+                info.setBizTaskCommentList(CollectionUtil.isNotEmpty(setBizTaskCommentList(commentList)) ? setBizTaskCommentList(commentList) : new ArrayList<>());
+                //info.setBizTaskCommentList(commentMap.get(info.getId()));
+            }
+            );
         }
     }
     /** 任务附件 */
@@ -203,7 +204,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                     fileMap.put(file.getTaskInfoId(),fileList);
                 });
             }
-            page.getRecords().forEach(info ->info.setBizTaskFileList(fileMap.get(info.getId())));
+            page.getRecords().forEach(info ->info.setBizTaskFileList(CollectionUtil.isNotEmpty(fileMap.get(info.getId())) ? fileMap.get(info.getId()) : new ArrayList<>()));
         }
     }
 
@@ -353,7 +354,29 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoIdParam.getId());
         BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfo.getProId());
         bizTaskInfo.setBizTaskProject(bizTaskProject);
+        List<BizTaskComment> commentList = setBizTaskCommentList(bizTaskCommentService.list(new LambdaQueryWrapper<BizTaskComment>().eq(BizTaskComment::getTaskInfoId,bizTaskInfo.getId())));
+        bizTaskInfo.setBizTaskCommentList(CollectionUtil.isNotEmpty(commentList) ? commentList : new ArrayList<>());
         return bizTaskInfo;
+    }
+
+    private List<BizTaskComment> setBizTaskCommentList(List<BizTaskComment> commentList){
+        if(CollectionUtil.isEmpty(commentList)){
+            return commentList;
+        }
+        List<BizTaskComment> list = new ArrayList<>();
+        commentList.forEach(comment -> {
+            if(comment.getParentId().equals("0")){
+                for(BizTaskComment bizTaskComment : commentList){
+                    if(comment.getId().equals(bizTaskComment.getParentId())){
+                        List<BizTaskComment> comments = CollectionUtil.isNotEmpty(comment.getBizTaskCommentList())? comment.getBizTaskCommentList() : new ArrayList<>();
+                        comments.add(bizTaskComment);
+                        comment.setBizTaskCommentList(comments);
+                    }
+                }
+                list.add(comment);
+            }
+        });
+        return list;
     }
 
     @Override
@@ -377,7 +400,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         TaskInfoMsg taskInfoMsg = TaskInfoMsg.buildRabbitMsg(jsonObject);
         commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
-        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,taskInfoMsg);
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
     }
 
     private void sendChangeMsg(Map<String,String> map,List<String> receiverIdList){
@@ -392,7 +415,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         TaskInfoMsg taskInfoMsg = TaskInfoMsg.changeRabbitMsg(jsonObject);
         commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
-        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL+active,taskInfoMsg);
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
     }
 
 

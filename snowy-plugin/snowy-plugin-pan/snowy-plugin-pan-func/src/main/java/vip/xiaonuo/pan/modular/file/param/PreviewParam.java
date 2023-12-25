@@ -27,4 +27,5 @@ public class PreviewParam {
     private String rightType;
 
     private String type;
+    private Integer isUnzip;
 }
