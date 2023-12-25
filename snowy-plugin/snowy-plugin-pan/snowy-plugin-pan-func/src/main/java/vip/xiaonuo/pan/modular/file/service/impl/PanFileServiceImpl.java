@@ -26,6 +26,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -56,10 +57,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -227,6 +225,8 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
         if(CollectionUtil.isEmpty(zipFileParam.getUserFileId())){
             throw new CommonException("需要压缩的文件夹ID不能为空！");
         }
+        Map<String,String> inputMap = new HashMap<>();
+        inputMap.put("inputFile","");//压缩文件输出路径
         List<String> sourceFileList = new ArrayList<>();
         if(CollectionUtil.isNotEmpty(zipFileParam.getUserFileId())){
             List<UserFile> userFiles = userFileService.list(new LambdaQueryWrapper<UserFile>().in(UserFile::getId,zipFileParam.getUserFileId()));
@@ -249,16 +249,22 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             }
             if(CollectionUtil.isEmpty(panFileIds)){ throw new CommonException("需要压缩的文件为空！");}
             List<PanFile> panFileList = panFileService.list(new LambdaQueryWrapper<PanFile>().in(PanFile::getId,panFileIds));
-            panFileList.forEach(pan -> sourceFileList.add(pan.getFileUrl()));
+            panFileList.forEach(pan -> {
+                sourceFileList.add(pan.getFileUrl());
+                if(StringUtils.isEmpty(inputMap.get("inputFile"))){
+                    File file = new File(pan.getFileUrl());
+                    inputMap.put("inputFile",file.getParent());
+                }
+            });
         }
+        String inputFile = StringUtils.isNotEmpty(inputMap.get("inputFile")) ? inputMap.get("inputFile") : "";
         if(CollectionUtil.isNotEmpty(sourceFileList)){
             UserFile userFile = userFileService.getById(zipFileParam.getSaveFileId());
-            if(ObjectUtil.isEmpty(userFile)){ throw new CommonException("未找到该文件夹！");}
-            String inputFile = "";
+            if(ObjectUtil.isEmpty(inputFile)){ throw new CommonException("未找到该文件夹！");}
             if (zipFileParam.getZipName().contains("/")) {
-                inputFile = userFile.getFilePath()+"/"+UUID.randomUUID().toString()+".zip";
+                inputFile = inputFile+"/"+UUID.randomUUID().toString()+".zip";
             }else{
-                inputFile = userFile.getFilePath()+"\\"+UUID.randomUUID().toString()+".zip";
+                inputFile = inputFile+"\\"+UUID.randomUUID().toString()+".zip";
             }
             Long fileSize = CommonZipUtil.unzip(sourceFileList,inputFile);
             //插入PAN_FILE表数据
@@ -266,13 +272,13 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             panFile.setFileSize(fileSize);
             panFile.setFileUrl(inputFile);
             panFile.setFileStatus(1);
-            panFile.setIdentifier(UUID.randomUUID().toString());
+            panFile.setIdentifier(zipFileParam.getIdentifier());
             panFileService.save(panFile);
 
             //插入PAN_USER_FILE表数据
             UserFile userFile1 = new UserFile();
             userFile1.setFileName(zipFileParam.getZipName());
-            userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()));
+            userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()+"/"+userFile.getFileName()));
             userFile1.setParentId(userFile.getParentId());
             userFile1.setIsDir(0);
             userFile1.setFileSize(fileSize);

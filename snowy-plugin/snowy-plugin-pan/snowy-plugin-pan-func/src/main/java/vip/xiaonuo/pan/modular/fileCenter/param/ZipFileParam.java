@@ -18,4 +18,8 @@ public class ZipFileParam {
 
     @ApiModelProperty(value = "压缩包名称", required = true)
     private String zipName;
+
+    /** md5唯一标识 */
+    @ApiModelProperty(value = "md5唯一标识", required = true)
+    private String identifier;
 }
