@@ -27,6 +27,7 @@ import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
 import vip.xiaonuo.biz.modular.cad.mapper.CadStorageMapper;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.vo.FilePathVo;
+import vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -131,11 +132,14 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
     @Override
     public FilePathVo getFilePathById(String part, String fileId) {
         FilePathVo filePathVo = new FilePathVo();
+        String fileName = "";
         String filePathDir = "";
         //设计区
         if(part.equals("DESIGN")){
             //获取某个目录的父级
             List<CadFile> cadFileList = cadFileMapper.getParent(fileId);
+            //获取项目信息
+            filePathVo = BeanUtil.copyProperties(cadFileMapper.getPrjInfoByFileId(fileId),FilePathVo.class);
             //拼接自定目录
             if(CollUtil.isNotEmpty(cadFileList)) {
                 while (ObjectUtil.isNotEmpty(fileId)) {
@@ -143,7 +147,7 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                     CadFile cadFile = cadFileList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
                     if(ObjectUtil.isNotEmpty(cadFile)){
                         if(cadFile.getId().equals(fileId)){
-                            filePathVo.setFileName(cadFile.getName());
+                            fileName = cadFile.getName();
                         }else {
                             filePathDir = cadFile.getName() + (ObjectUtil.isNotEmpty(filePathDir) ? File.separator + filePathDir : filePathDir);
                         }
@@ -152,10 +156,11 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                         fileId = "";
                     }
                 }
-                filePathVo.setFilePathDir(filePathDir);
             }
-        }else{ //校审区|提资区|成品区
+        }else{
+            //校审区|提资区|成品区
             List<CadStorage> cadStorageList = cadStorageMapper.getParent(fileId);
+            filePathVo = BeanUtil.copyProperties(cadStorageMapper.getPrjInfoByStorageId(fileId),FilePathVo.class);
             //拼接自定目录
             if(CollUtil.isNotEmpty(cadStorageList)) {
                 while (ObjectUtil.isNotEmpty(fileId)) {
@@ -163,7 +168,7 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                     CadStorage cadStorage = cadStorageList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
                     if(ObjectUtil.isNotEmpty(cadStorage)){
                         if(cadStorage.getId().equals(fileId)){
-                            filePathVo.setFileName(cadStorage.getName());
+                            fileName = cadStorage.getName();
                         }else {
                             filePathDir = cadStorage.getName() + (ObjectUtil.isNotEmpty(filePathDir) ? File.separator + filePathDir : filePathDir);
                         }
@@ -172,9 +177,11 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                         fileId = "";
                     }
                 }
-                filePathVo.setFilePathDir(filePathDir);
             }
         }
+        filePathVo.setFileName(fileName);
+        filePathVo.setFilePathDir(filePathDir);
+
         return filePathVo;
     }
 }

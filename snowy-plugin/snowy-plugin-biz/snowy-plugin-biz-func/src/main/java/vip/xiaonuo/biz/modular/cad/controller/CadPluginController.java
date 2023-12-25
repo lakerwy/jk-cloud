@@ -22,6 +22,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.cad.entity.CadFile;
 import vip.xiaonuo.biz.modular.cad.entity.CadFileHistory;
 import vip.xiaonuo.biz.modular.cad.entity.CadUser;
 import vip.xiaonuo.biz.modular.cad.param.*;
@@ -365,5 +366,33 @@ public class CadPluginController {
     public CommonResult<FilePathVo> getFilePathById(String part,String fileId) {
         return CommonResult.data(cadFileService.getFilePathById(part,fileId));
     }
+
+
+    /**
+     * 【CAD-插件端】根据fileId和目录类型，获取子目录，含自身
+     *  设计区：看CadFile
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("【CAD-插件端】根据fileId和目录类型，获取子目录，含自身")
+    @GetMapping("/biz/cad/plugin/getFileChildren")
+    public CommonResult<List<CadFile>> getFileChildren(String fileId,String fileType) {
+        return CommonResult.data(cadFileService.getChildren(fileId,fileType));
+    }
+
+    /**
+     * 【CAD-插件端】根据fileId，获取父级目录，含自身
+     *  设计区：看CadFile
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("【CAD-插件端】根据fileId，获取父级目录，含自身")
+    @GetMapping("/biz/cad/plugin/getFileParentTree")
+    public CommonResult<List<Tree<String>>> getFileParentTree(String fileId,String includeSelf) {
+        return CommonResult.data(cadProjectService.getFileParentTree(fileId,includeSelf));
+    }
+
 
 }

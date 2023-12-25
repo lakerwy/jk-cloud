@@ -135,7 +135,7 @@ public class HetongController {
      * @date  2023/06/30 14:49
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("获取业务表-CRM-合同列表  【api/crm/contract/GetHetongList】")
+    @ApiOperation("获取业务表-CRM-合同列表  【注意：不建议使用，数据量过大】")
 //    @SaCheckPermission("/biz/hetong/detail")
     @GetMapping("/biz/crm/hetong/listAll")
     public CommonResult<List<HetongInfoVo>> listAll() {

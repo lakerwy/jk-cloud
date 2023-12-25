@@ -47,4 +47,32 @@
         ON t1._id = t2.ID  ORDER BY  t1.lvl DESC
     </select>
 
+    <select id="getPrjStageSubProf3" resultType="vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo">
+        select distinct a.PRJ_ID as prjId,b.NAME as prjName,
+                        a.STAGE_ID as stageId,c.NAME as stageName,
+                        a.SUB_ITEM_ID as subItemId,d.NAME as subItemName,
+                        a.PROFESSION_ID as professionId,e.NAME as professionName,
+                        c.SORT_INDEX as stageIndex,e.SORT_INDEX as professionIndex
+        from BIZ_CAD_FILE a
+                 LEFT JOIN BIZ_CAD_PROJECT b on b.ID = a.PRJ_ID
+                 LEFT JOIN BIZ_CAD_STAGE c on c.ID = a.STAGE_ID
+                 LEFT JOIN BIZ_CAD_SUB_ITEM d on d.ID = a.SUB_ITEM_ID
+                 LEFT JOIN BIZ_CAD_PROFESSION e on e.ID = a.PROFESSION_ID
+        where a.ID = #{fileId}
+    </select>
+
+    <select id="getPrjInfoByFileId" resultType="vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo">
+        select a.PRJ_ID as prjId,b.NAME as prjName,
+                        a.STAGE_ID as stageId,c.NAME as stageName,
+                        a.SUB_ITEM_ID as subItemId,d.NAME as subItemName,
+                        a.PROFESSION_ID as professionId,e.NAME as professionName,
+                        c.SORT_INDEX as stageIndex,e.SORT_INDEX as professionIndex
+        from BIZ_CAD_FILE a
+                 LEFT JOIN BIZ_CAD_PROJECT b on b.ID = a.PRJ_ID
+                 LEFT JOIN BIZ_CAD_STAGE c on c.ID = a.STAGE_ID
+                 LEFT JOIN BIZ_CAD_SUB_ITEM d on d.ID = a.SUB_ITEM_ID
+                 LEFT JOIN BIZ_CAD_PROFESSION e on e.ID = a.PROFESSION_ID
+        where a.ID = #{fileId}
+    </select>
+
 </mapper>

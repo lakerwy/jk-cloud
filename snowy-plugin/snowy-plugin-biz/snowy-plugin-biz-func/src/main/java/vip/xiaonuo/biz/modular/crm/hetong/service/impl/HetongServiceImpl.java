@@ -90,7 +90,12 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
                         .like("a.COUNTERPARTY", hetongPageParam.getSearchKey()).or()
                         .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
                         .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
-                        .like("a.PARTYC", hetongPageParam.getSearchKey()));
+                        .like("a.PARTYC", hetongPageParam.getSearchKey()).or()
+                        .like("b.SN",hetongPageParam.getBizProjectSn()).or()
+                        .like("b.NAME",hetongPageParam.getProjectName()).or()
+                        .like("b.TYPE",hetongPageParam.getBizProjectType()).or()
+                        .like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getIndustryClassification()).or()
+                        .like("b.REGION",hetongPageParam.getRegion()));
             }
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
@@ -137,6 +142,33 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStatus())){
             queryWrapper.eq("a.STATUS",hetongPageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getBizProjectName())){
+            queryWrapper.like("b.NAME",hetongPageParam.getBizProjectName());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getBizProjectSn())){
+            queryWrapper.like("b.SN",hetongPageParam.getBizProjectSn());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsEpc())){
+            queryWrapper.eq("b.IS_EPC",hetongPageParam.getIsEpc());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsEpcf())){
+            queryWrapper.eq("b.IS_EPCF",hetongPageParam.getIsEpcf());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsLead())){
+            queryWrapper.eq("b.IS_LEAD",hetongPageParam.getIsLead());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsConsortium())){
+            queryWrapper.eq("b.IS_CONSORTIUM",hetongPageParam.getIsConsortium());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getRegion())){
+            queryWrapper.eq("b.REGION",hetongPageParam.getRegion());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getBizProjectType())){
+            queryWrapper.like("b.TYPE",hetongPageParam.getBizProjectType());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIndustryClassification())){
+            queryWrapper.like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getIndustryClassification());
         }
 
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
@@ -276,7 +308,12 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
                         .like("a.COUNTERPARTY", hetongPageParam.getSearchKey()).or()
                         .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
                         .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
-                        .like("a.PARTYC", hetongPageParam.getSearchKey()));
+                        .like("a.PARTYC", hetongPageParam.getSearchKey()).or()
+                        .like("b.SN",hetongPageParam.getBizProjectSn()).or()
+                        .like("b.NAME",hetongPageParam.getProjectName()).or()
+                        .like("b.TYPE",hetongPageParam.getBizProjectType()).or()
+                        .like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getIndustryClassification()).or()
+                        .like("b.REGION",hetongPageParam.getRegion()));
             }
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
@@ -323,6 +360,33 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStatus())){
             queryWrapper.eq("a.STATUS",hetongPageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getBizProjectName())){
+            queryWrapper.like("b.NAME",hetongPageParam.getBizProjectName());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getBizProjectSn())){
+            queryWrapper.like("b.SN",hetongPageParam.getBizProjectSn());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsEpc())){
+            queryWrapper.eq("b.IS_EPC",hetongPageParam.getIsEpc());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsEpcf())){
+            queryWrapper.eq("b.IS_EPCF",hetongPageParam.getIsEpcf());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsLead())){
+            queryWrapper.eq("b.IS_LEAD",hetongPageParam.getIsLead());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIsConsortium())){
+            queryWrapper.eq("b.IS_CONSORTIUM",hetongPageParam.getIsConsortium());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getRegion())){
+            queryWrapper.eq("b.REGION",hetongPageParam.getRegion());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getBizProjectType())){
+            queryWrapper.like("b.TYPE",hetongPageParam.getBizProjectType());
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getIndustryClassification())){
+            queryWrapper.like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getIndustryClassification());
         }
 
         // 校验数据范围

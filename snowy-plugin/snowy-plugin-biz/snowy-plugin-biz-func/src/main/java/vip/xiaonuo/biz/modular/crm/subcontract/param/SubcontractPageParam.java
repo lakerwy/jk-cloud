@@ -108,4 +108,8 @@ public class SubcontractPageParam {
     @ApiModelProperty(value = "源合同信息-合同编号（历史表SubContract.MainContractNo）")
     private String mainContractNo;
 
+    /** 分包类型（新的） */
+    @ApiModelProperty(value = "分包类型（新的）")
+    private String subType;
+
 }

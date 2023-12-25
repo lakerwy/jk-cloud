@@ -121,4 +121,11 @@ public interface CadProjectService extends IService<CadProject> {
      * @return
      */
     CadAuditInfo prjAuditInfo(MyFileTreeParam myFileTreeParam);
+
+    /**
+     * 根据fileId,获取当前文件的父级目录树
+     * @param fileId
+     * @return
+     */
+    List<Tree<String>> getFileParentTree(String fileId,String includeSelf);
 }

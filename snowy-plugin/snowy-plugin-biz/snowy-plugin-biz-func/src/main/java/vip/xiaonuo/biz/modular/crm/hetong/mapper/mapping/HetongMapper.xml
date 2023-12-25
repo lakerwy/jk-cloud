@@ -2,19 +2,28 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.crm.hetong.mapper.HetongMapper">
     <select id="getListAll" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo" >
-        select ID,SECOND_LEVEL,CONTRACT_NO,PROJECT_NAME,
-               COUNTERPARTY,SECONDPARTY,COMPANY_OR_DEPARTMENT,`OWNER`,
-               BID_DATE,SEAL_DATE,FILING_DATE,CONTRACT_AMOUNT,PARTYC,SUM_AMOUNT
-        from BIZ_CRM_HETONG where DELETE_FLAG = 'NOT_DELETE' and STATUS = '1'
+        select a.ID,a.SECOND_LEVEL,a.CONTRACT_NO,a.PROJECT_NAME,
+               a.COUNTERPARTY,a.SECONDPARTY,a.COMPANY_OR_DEPARTMENT,a.`OWNER`,
+               a.BID_DATE,a.SEAL_DATE,a.FILING_DATE,a.CONTRACT_AMOUNT,a.PARTYC,a.SUM_AMOUNT,
+               a.BIZ_PROJECT_ID,b.SN as bizProjectSn,b.NAME as bizProjectName,
+               b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification
+        from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.STATUS = '1'
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo" >
-        select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName
+        select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName,
+               b.IS_EPC as isEpc,b.IS_EPCF as isEpcf,b.IS_LEAD as isLead,
+               b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,
+               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation
         from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID  ${ew.customSqlSegment}
     </select>
 
     <select id="getDetailById" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo" parameterType="String">
-        select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName
+        select a.*, b.SN as bizProjectSn,b.NAME as bizProjectName,
+               b.IS_EPC as isEpc,b.IS_EPCF as isEpcf,b.IS_LEAD as isLead,
+               b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,
+               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation
         from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID
         where a.ID = ${id}
     </select>

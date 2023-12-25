@@ -155,4 +155,8 @@ public class Subcontract {
     @ApiModelProperty(value = "数据权限字段",position = 55)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 分包类型（新的） */
+    @ApiModelProperty(value = "分包类型（新的）", position = 66)
+    private String subType;
 }

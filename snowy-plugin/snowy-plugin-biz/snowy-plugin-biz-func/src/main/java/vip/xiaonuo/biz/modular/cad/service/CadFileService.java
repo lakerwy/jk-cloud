@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.cad.service;
 
+import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.cad.entity.CadFile;
@@ -112,4 +113,5 @@ public interface CadFileService extends IService<CadFile> {
      * @return
      */
     FilePathVo getFilePathById(String part, String fileId);
+
 }

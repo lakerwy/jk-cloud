@@ -121,6 +121,9 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getMainContractNo())) {
             queryWrapper.eq("a.MAIN_CONTRACT_NO", subcontractPageParam.getMainContractNo());
         }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getSubType())) {
+            queryWrapper.eq("a.SUB_TYPE", subcontractPageParam.getSubType());
+        }
         if(ObjectUtil.isAllNotEmpty(subcontractPageParam.getSortField(), subcontractPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subcontractPageParam.getSortOrder());
             queryWrapper.orderBy(true, subcontractPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -279,6 +282,9 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getMainContractNo())) {
             queryWrapper.eq("a.MAIN_CONTRACT_NO", subcontractPageParam.getMainContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getSubType())) {
+            queryWrapper.eq("a.SUB_TYPE", subcontractPageParam.getSubType());
         }
 
         // 校验数据范围

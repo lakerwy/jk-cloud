@@ -35,8 +35,8 @@ public class SubContractInfoVo {
     @ApiModelProperty(value = "是否归档（历史表SubContract.IsFiling）", position = 4)
     private String isFiling;
 
-    /** 分包类型（历史表SubContract.SecondLevel） */
-    @ApiModelProperty(value = "分包类型（历史表SubContract.SecondLevel）", position = 5)
+    /** 分包类型（旧的） */
+    @ApiModelProperty(value = "分包类型（旧的）", position = 5)
     private String secondLevel;
 
     /** 合同编号（历史表SubContract.ContractNo） */
@@ -125,18 +125,6 @@ public class SubContractInfoVo {
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    /** 源合同信息-合同名称（历史表SubContract.MainContractName） */
-    @ApiModelProperty(value = "备注（历史表SubContract.MainContractName）", position = 18)
-    private String mainContractName;
-
-    /** 源合同信息-合同金额（历史表SubContract.MainContractAmount） */
-    @ApiModelProperty(value = "备注（历史表SubContract.MainContractAmount）", position = 18)
-    private BigDecimal mainContractAmount;
-
-    /** 源合同信息-工程类别（历史表SubContract.MainContractSecondLevel） */
-    @ApiModelProperty(value = "备注（历史表SubContract.MainContractSecondLevel）", position = 18)
-    private String mainContractSecondLevel;
-
     /** 模型id */
     @ApiModelProperty(value = "模型id", position = 52)
     private String modelId;
@@ -148,4 +136,30 @@ public class SubContractInfoVo {
     /** 流程状态（0 - 已提交  1- 已审批） */
     @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 54)
     private String status;
+
+
+
+    /** 分包类型（新的） */
+    @ApiModelProperty(value = "分包类型（新的）", position = 66)
+    private String subType;
+
+    /** 源合同信息-合同名称 */
+    @ApiModelProperty(value = "源合同信息-合同名称", position = 66)
+    private String mainContractName;
+
+    /** 源合同信息-合同金额 */
+    @ApiModelProperty(value = "源合同信息-合同金额", position = 66)
+    private BigDecimal mainContractAmount;
+
+    /** 源合同信息-工程类别（旧的） */
+    @ApiModelProperty(value = "源合同信息-工程类别（旧的）", position = 66)
+    private String mainContractSecondLevel;
+
+    /** 源合同信息-行业分类 */
+    @ApiModelProperty(value = "源合同信息-行业分类", position = 66)
+    private String mainIndustryClassification;
+
+    /** 源合同信息-项目类型 */
+    @ApiModelProperty(value = "源合同信息-项目类型", position = 66)
+    private String mainBizProjectType;
 }

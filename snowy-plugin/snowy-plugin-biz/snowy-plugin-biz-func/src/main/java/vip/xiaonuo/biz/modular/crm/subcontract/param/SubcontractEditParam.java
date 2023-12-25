@@ -126,4 +126,8 @@ public class SubcontractEditParam {
     /** 流程状态（0 - 已提交  1- 已审批） */
     @ApiModelProperty(value = "流程状态（0 - 已提交  1- 已审批）", position = 54)
     private String status;
+
+    /** 分包类型（新的） */
+    @ApiModelProperty(value = "分包类型（新的）", position = 66)
+    private String subType;
 }

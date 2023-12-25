@@ -31,25 +31,17 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.cad.entity.*;
 import vip.xiaonuo.biz.modular.cad.enums.CadProductEnum;
 import vip.xiaonuo.biz.modular.cad.enums.ProofreadAuditStatusEnum;
-import vip.xiaonuo.biz.modular.cad.mapper.CadProductMapper;
-import vip.xiaonuo.biz.modular.cad.mapper.CadProofreadMapper;
-import vip.xiaonuo.biz.modular.cad.mapper.CadStorageMapper;
+import vip.xiaonuo.biz.modular.cad.mapper.*;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.service.CadProductService;
-import vip.xiaonuo.biz.modular.cad.service.CadProofreadService;
-import vip.xiaonuo.biz.modular.cad.service.CadStorageService;
 import vip.xiaonuo.biz.modular.cad.vo.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.biz.modular.cad.mapper.CadProjectMapper;
 import vip.xiaonuo.biz.modular.cad.service.CadProjectService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -72,6 +64,8 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
     private CadStorageMapper cadStorageMapper;
     @Resource
     private CadProofreadMapper cadProofreadMapper;
+    @Resource
+    private CadFileMapper cadFileMapper;
 
     @Override
     public Page<CadProjectVo> page(CadProjectPageParam cadProjectPageParam) {
@@ -271,6 +265,32 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         result.setReceiveList(myProofreadList.stream().filter(x->x.getStatus().equals(ProofreadAuditStatusEnum.PRE_AUDIT.getValue())).collect(Collectors.toList()));
         result.setDealList(myProofreadList.stream().filter(x->x.getStatus() != ProofreadAuditStatusEnum.PRE_AUDIT.getValue()).collect(Collectors.toList()));
         return result;
+    }
+
+    @Override
+    public List<Tree<String>> getFileParentTree(String fileId,String includeSelf) {
+        //根据文件Id，获取项目目录信息
+        List<PrjStageSubProfVo> prjInfoList =  cadFileMapper.getPrjStageSubProf3(fileId);
+        if(CollUtil.isEmpty(prjInfoList)) return null;
+        //项目Id
+        String prjId = prjInfoList.get(0).getPrjId();
+        //1 获取该项目下自定义文件目录结构【本项目全体】
+        QueryWrapper<CadFile> fileQueryWrapper = new QueryWrapper<>();
+        fileQueryWrapper.eq("file.PRJ_ID",prjId);
+        fileQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        List<CadFileVo> prjAllFileList = cadProjectMapper.getPrjFile(fileQueryWrapper);
+        //2 获取指定文件的父级
+        List<CadFileVo> prjFileList = getParentList(prjAllFileList, Arrays.asList(fileId),StrUtil.isNotEmpty(includeSelf));
+        //构建项目+自定义文件目录树状结构
+        List<CadFileVo> treeFileList = this.getFileTree(prjInfoList,prjFileList);
+        List<TreeNode<String>> treeNodeList = treeFileList.stream().map(fileTree -> {
+            // 将对象转为 JSONObject
+            JSONObject jsonObject = new JSONObject(BeanUtil.beanToMap(fileTree, false, false));
+            // 使用 JSONObject 生成 Map，保留属性为 null 的值
+            return new TreeNode<>(fileTree.getFId(), fileTree.getFParentId(), fileTree.getFName(), null)
+                    .setExtra(jsonObject);
+        }).collect(Collectors.toList());
+        return TreeUtil.build(treeNodeList, prjId);
     }
 
 

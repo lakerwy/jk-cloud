@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.cad.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.cad.entity.CadFile;
+import vip.xiaonuo.biz.modular.cad.entity.CadProject;
+import vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo;
 
 import java.util.List;
 
@@ -39,4 +44,19 @@ public interface CadFileMapper extends BaseMapper<CadFile> {
      * @return
      */
     List<CadFile> getChildren(String fileId,String type);
+
+    /**
+     * 根据fileId，获取项目目录结构
+     * @param fileId
+     * @return
+     */
+    List<PrjStageSubProfVo> getPrjStageSubProf3(String fileId);
+
+    /**
+     * 根据fileId，获取项目目录结构
+     * @param fileId
+     * @return
+     */
+    PrjStageSubProfVo getPrjInfoByFileId(String fileId);
+
 }

@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
 import vip.xiaonuo.biz.modular.cad.vo.CadFileVo;
+import vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo;
 
 import java.util.List;
 
@@ -42,5 +43,12 @@ public interface CadStorageMapper extends BaseMapper<CadStorage> {
      * @return
      */
     List<CadStorage> getParent(String fileId);
+
+    /**
+     * 根据storageId，获取项目目录结构
+     * @param storageId
+     * @return
+     */
+    PrjStageSubProfVo getPrjInfoByStorageId(String storageId);
 
 }

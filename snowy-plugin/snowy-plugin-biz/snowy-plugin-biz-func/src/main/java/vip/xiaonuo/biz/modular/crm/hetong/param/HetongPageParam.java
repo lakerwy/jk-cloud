@@ -120,4 +120,43 @@ public class HetongPageParam {
     @ApiModelProperty(value = "丙方")
     private String partyc;
 
+
+
+
+    /** 立项-名称 */
+    @ApiModelProperty(value = "立项-名称", position = 66)
+    private String bizProjectName;
+
+    /** 立项-编号 */
+    @ApiModelProperty(value = "立项-编号", position = 66)
+    private String bizProjectSn;
+
+    /** 立项-是否EPC */
+    @ApiModelProperty(value = "立项-是否EPC", position = 66)
+    private String isEpc;
+
+    /** 立项-是否EPC+F */
+    @ApiModelProperty(value = "立项-是否EPC+F", position = 66)
+    private String isEpcf;
+
+    /** 立项-是否牵头 */
+    @ApiModelProperty(value = "立项-是否牵头", position = 66)
+    private String isLead;
+
+    /** 立项-项目类型 */
+    @ApiModelProperty(value = "立项-项目类型", position = 66)
+    private String bizProjectType;
+
+    /** 立项-行业分类 */
+    @ApiModelProperty(value = "立项-行业分类", position = 66)
+    private String industryClassification;
+
+    /** 立项-是否联合体 */
+    @ApiModelProperty(value = "立项-是否联合体", position = 66)
+    private String isConsortium;
+
+    /** 立项-所属大区 */
+    @ApiModelProperty(value = "立项-所属大区", position = 66)
+    private String region;
+
 }
