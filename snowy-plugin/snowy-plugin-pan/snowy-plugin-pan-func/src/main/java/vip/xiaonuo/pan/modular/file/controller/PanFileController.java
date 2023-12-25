@@ -434,9 +434,9 @@ public class PanFileController {
         return result;
     }
 
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("预览解压文件)")
-//    @SaCheckPermission("/pan/commonFile/commonFileByUser")
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("预览解压之后的Office文件)")
+//    @SaCheckPermission("/pan/commonFile/previewUnzipFile")
     @PostMapping("/pan/file/previewUnzipFile")
     public CommonResult<Object> previewUnzipFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
         CommonResult<Object> result = new CommonResult<>();
