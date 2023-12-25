@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.pan.modular.file.controller;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.ObjectUtil;
@@ -390,73 +391,19 @@ public class PanFileController {
                 UrlBuilder urlBuilder = UrlBuilder.ofHttp(previewUrl1, Charset.defaultCharset());
                 String id = (String) urlBuilder.getQuery().get("id");
                 DevFile devFile = devFileService.getById(id);
+                String isUnzip = "";
+                if(ObjectUtil.isEmpty(devFile)){
+                    DevFileUnzip devFileUnzip = devFileUnzipService.getById(id);
+                    devFile = BeanUtil.toBean(devFileUnzip,DevFile.class);
+                    isUnzip = "&isUnzip=1";
+                }
                 userFile = new UserFile();
                 String newFileName = devFile.getName().substring(0,devFile.getName().lastIndexOf(StrUtil.DOT));
                 userFile.setFileName(newFileName);
                 userFile.setCreateTime(devFile.getCreateTime());
                 userFile.setExtendName(devFile.getSuffix());
                 userFile.setId(devFile.getId());
-                previewUrl = backendUrl+"/api/webapp/pan/file/preview?userFileId="+userFile.getId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined&type=1";
-            }else {
-                userFile = userFileService.getById(previewOfficeFileParam.getUserFileId()) ;
-            }
-
-            SaBaseLoginUser userBean = StpLoginUserUtil.getLoginUser();
-
-            User user = new User();
-            user.setId(userBean.getId());
-            user.setName(userBean.getAccount());
-
-            Action action = Action.view;
-            Type type = Type.desktop;
-            Locale locale = new Locale("zh");
-            FileModel fileModel = fileConfigurer.getFileModel(
-                    DefaultFileWrapper
-                            .builder()
-                            .userFile(userFile)
-                            .type(type)
-                            .lang(locale.toLanguageTag())
-                            .action(action)
-                            .user(user)
-                            .actionData(previewUrl)
-                            .build()
-            );
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("file",fileModel);
-//            jsonObject.put("fileHistory", historyManager.getHistory(fileModel.getDocument()));  // get file history and add it to the model
-            jsonObject.put("docServiceApiUrl", docServiceSite + docServiceApiUrl);
-            jsonObject.put("reportName",userFile.getFileName());
-            result = CommonResult.data(jsonObject);
-
-        } catch (Exception e) {
-            result = CommonResult.error(e.getMessage());
-        }
-        return result;
-    }
-
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("预览解压之后的Office文件)")
-//    @SaCheckPermission("/pan/commonFile/previewUnzipFile")
-    @PostMapping("/pan/file/previewUnzipFile")
-    public CommonResult<Object> previewUnzipFile(HttpServletRequest request, @RequestBody PreviewOfficeFileParam previewOfficeFileParam) {
-        CommonResult<Object> result = new CommonResult<>();
-        try {
-            String backendUrl = commonProperties.getBackendUrl();
-            String previewUrl = backendUrl+"/api/webapp/pan/file/preview?userFileId="+previewOfficeFileParam.getUserFileId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined";
-            UserFile userFile ;
-
-            if(StrUtil.isNotEmpty(previewOfficeFileParam.getPreviewUrl())){
-                String previewUrl1 = previewOfficeFileParam.getPreviewUrl();
-                UrlBuilder urlBuilder = UrlBuilder.ofHttp(previewUrl1, Charset.defaultCharset());
-                String id = (String) urlBuilder.getQuery().get("id");
-                DevFileUnzip devFile = devFileUnzipService.getById(id);
-                userFile = new UserFile();
-                String newFileName = devFile.getName().substring(0,devFile.getName().lastIndexOf(StrUtil.DOT));
-                userFile.setFileName(newFileName);
-                userFile.setCreateTime(devFile.getCreateTime());
-                userFile.setExtendName(devFile.getSuffix());
-                userFile.setId(devFile.getId());
-                previewUrl = backendUrl+"/api/webapp/pan/file/preview?userFileId="+userFile.getId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined&type=1&isUnzip=1";
+                previewUrl = backendUrl+"/api/webapp/pan/file/preview?userFileId="+userFile.getId()+"&isMin=false&shareBatchNum=undefined&extractionCode=undefined&type=1"+isUnzip;
             }else {
                 userFile = userFileService.getById(previewOfficeFileParam.getUserFileId()) ;
             }

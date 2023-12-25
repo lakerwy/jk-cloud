@@ -382,18 +382,4 @@ public class DevFileController {
     public CommonResult<List<DevFileUnzip>> unZip(DevFileIdParam devFileIdParam) {
         return CommonResult.data(devFileService.unZip(devFileIdParam));
     }
-
-    /**
-     * 解压文件下载
-     *
-     * @author xuyuxiang
-     * @date 2023/12/24 15:44
-     **/
-    @ApiOperationSupport(order = 22)
-    @ApiOperation("解压文件下载")
-    @CommonLog("解压文件下载")
-    @GetMapping(value = "/dev/file/unzipDownload", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public void unzipDownload(@Valid DevFileIdParam devFileIdParam, HttpServletResponse response) throws IOException {
-        devFileService.unzipDownload(devFileIdParam, response);
-    }
 }

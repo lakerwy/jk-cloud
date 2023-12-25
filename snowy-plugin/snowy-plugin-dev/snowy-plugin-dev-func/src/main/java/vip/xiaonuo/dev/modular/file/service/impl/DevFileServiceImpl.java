@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.dev.modular.file.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUtil;
@@ -132,7 +133,12 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     public void download(DevFileIdParam devFileIdParam, HttpServletResponse response) throws IOException {
         DevFile devFile;
         try {
-            devFile = this.queryEntity(devFileIdParam.getId());
+            devFile = this.getById(devFileIdParam.getId());
+            if(ObjectUtil.isEmpty(devFile)) {
+                DevFileUnzip devFileUnzip = devFileUnzipService.queryEntity(devFileIdParam.getId());
+                devFile = BeanUtil.toBean(devFileUnzip,DevFile.class);
+                devFile.setStoragePath(devFile.getStoragePath()+"."+devFile.getSuffix());
+            }
         } catch (Exception e) {
             CommonResponseUtil.renderError(response, e.getMessage());
             return;
