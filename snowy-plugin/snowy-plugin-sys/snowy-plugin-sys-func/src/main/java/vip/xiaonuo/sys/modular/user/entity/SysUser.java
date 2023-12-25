@@ -306,4 +306,7 @@ public class SysUser extends CommonEntity implements TransPojo {
     @ApiModelProperty(value = "考勤组ID", position = 63)
     private String attendanceGroupId;
 
+    /** 用户二级密码（应用于特定页面控制，如工资） */
+    @ApiModelProperty(value = "用户二级密码（应用于特定页面控制，如工资）", position = 64)
+    private String secondPassword;
 }

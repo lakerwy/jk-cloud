@@ -511,4 +511,16 @@ public interface SysUserService extends IService<SysUser> {
     List<String> getChildOrgId(String orgId);
 
     String getAvatarById(SysUserIdParam sysUserIdParam);
+
+    /**
+     * 校验用户二级密码
+     * @param secondPassword
+     */
+    Boolean checkSecondPwd(SysUserSecondPassword secondPassword);
+
+    /**
+     * 设置用户二级密码
+     * @param secondPassword
+     */
+    Boolean setSecondPwd(SysUserSecondPassword secondPassword);
 }

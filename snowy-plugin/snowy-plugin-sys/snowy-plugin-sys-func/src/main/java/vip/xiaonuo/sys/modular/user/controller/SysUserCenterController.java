@@ -379,4 +379,29 @@ public class SysUserCenterController {
         return CommonResult.data(sysUserService.getAvatarById(sysUserIdParam));
     }
 
+    /**
+     * 设置用户二级密码
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 24)
+    @ApiOperation("设置用户二级密码")
+    @PostMapping("/sys/userCenter/setSecondPwd")
+    public CommonResult<Boolean> setSecondPwd(@RequestBody @Valid SysUserSecondPassword secondPassword) {
+        return CommonResult.data(sysUserService.setSecondPwd(secondPassword));
+    }
+
+    /**
+     * check用户二级密码
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 25)
+    @ApiOperation("check用户二级密码")
+    @PostMapping("/sys/userCenter/checkSecondPwd")
+    public CommonResult<Boolean> checkSecondPwd(@RequestBody @Valid SysUserSecondPassword secondPassword) {
+        return CommonResult.data(sysUserService.checkSecondPwd(secondPassword));
+    }
 }

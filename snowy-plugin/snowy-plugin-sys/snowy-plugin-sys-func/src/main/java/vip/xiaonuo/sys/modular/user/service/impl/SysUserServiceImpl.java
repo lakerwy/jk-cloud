@@ -62,6 +62,7 @@ import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.trans.service.impl.TransService;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.springframework.stereotype.Service;
@@ -122,10 +123,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URLEncoder;
-import java.sql.Connection;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -1860,6 +1858,25 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Override
     public String getAvatarById(SysUserIdParam sysUserIdParam) {
         return this.detail(sysUserIdParam).getAvatar();
+    }
+
+    @Override
+    public Boolean checkSecondPwd(SysUserSecondPassword secondPassword) {
+        SysUser sysUser = this.queryEntity(secondPassword.getUserId());
+        //待校验的输入密码
+        String checkSecondPwd = DigestUtils.md5Hex(secondPassword.getSecondPassword());
+        if(StrUtil.isNotEmpty(sysUser.getSecondPassword())){
+            return sysUser.getSecondPassword().equals(checkSecondPwd);
+        }else {
+            return StrUtil.isEmpty(secondPassword.getSecondPassword());
+        }
+    }
+
+    @Override
+    public Boolean setSecondPwd(SysUserSecondPassword secondPassword) {
+        SysUser sysUser = this.queryEntity(secondPassword.getUserId());
+        sysUser.setSecondPassword(DigestUtils.md5Hex(secondPassword.getSecondPassword()));
+        return this.updateById(sysUser);
     }
 
 }
