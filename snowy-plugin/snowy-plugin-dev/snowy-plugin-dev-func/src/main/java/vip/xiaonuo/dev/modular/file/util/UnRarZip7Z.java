@@ -1,35 +1,36 @@
 package vip.xiaonuo.dev.modular.file.util;
 
-        import net.sf.sevenzipjbinding.*;
-        import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
-        import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
-        import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
-        import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
-        import org.apache.commons.compress.archivers.sevenz.SevenZFile;
-        import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
-        import org.apache.commons.io.IOUtils;
-        import org.apache.commons.lang3.StringUtils;
-        import org.slf4j.Logger;
-        import org.slf4j.LoggerFactory;
-        import vip.xiaonuo.common.exception.CommonException;
+import lombok.extern.slf4j.Slf4j;
+import net.sf.sevenzipjbinding.*;
+import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
+import net.sf.sevenzipjbinding.simple.ISimpleInArchive;
+import net.sf.sevenzipjbinding.simple.ISimpleInArchiveItem;
+import org.apache.commons.compress.archivers.sevenz.SevenZArchiveEntry;
+import org.apache.commons.compress.archivers.sevenz.SevenZFile;
+import org.apache.commons.compress.archivers.sevenz.SevenZOutputFile;
+import org.apache.commons.io.IOUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Component;
+import vip.xiaonuo.common.exception.CommonException;
 
-        import java.io.*;
-        import java.nio.charset.Charset;
-        import java.util.*;
-        import java.util.zip.ZipEntry;
-        import java.util.zip.ZipFile;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.util.*;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipFile;
 
-
+@Component
+@Slf4j
 public class UnRarZip7Z {
-    private static final Logger log = LoggerFactory.getLogger(UnRarZip7Z.class);
-
     /**
      * rar解压缩
      * @param rarFile    rar文件的全路径
      * @param outPath  解压路径
      * @return  压缩包中所有的文件
      */
-    public static void unRarZip7Z(String rarFile, String outPath) throws Exception {
+    public void unRarZip7Z(String rarFile, String outPath) throws Exception {
         if (rarFile.toLowerCase().endsWith(".zip")) {
             unZip(rarFile, outPath, false);
         } else if (rarFile.toLowerCase().endsWith(".rar")) {
@@ -46,7 +47,7 @@ public class UnRarZip7Z {
      * @param outPath  解压路径
      * @return  压缩包中所有的文件
      */
-    private static void unRar(String rarFile, String outPath, String passWord) {
+    private void unRar(String rarFile, String outPath, String passWord) {
         Map<String,String> map = new HashMap<>();
         RandomAccessFile randomAccessFile = null;
         IInArchive inArchive = null;
@@ -119,7 +120,7 @@ public class UnRarZip7Z {
      * @childName   每一个文件的每一层的路径==D==区分层数
      * @return  压缩包中所有的文件
      */
-    private static Map<String, String> getFileNameList(String path, String childName) {
+    private Map<String, String> getFileNameList(String path, String childName) {
         log.info("解压文件路径:" + path + "---childName:"+childName);
         Map<String, String> files = new HashMap<>();
         File file = new File(path); // 需要获取的文件的路径
@@ -142,7 +143,7 @@ public class UnRarZip7Z {
      * @param includeZipFileName    解压后文件是否包含压缩包文件名，true包含，false不包含
      * @return 压缩包中所有的文件
      */
-    public static void unZip(String zipFilePath, String unzipFilePath, boolean includeZipFileName) throws Exception{
+    public void unZip(String zipFilePath, String unzipFilePath, boolean includeZipFileName) throws Exception{
         File zipFile = new File(zipFilePath);
 
         //如果包含压缩包文件名，则处理保存路径
@@ -215,7 +216,7 @@ public class UnRarZip7Z {
      * @param includeZipFileName    解压后文件是否包含压缩包文件名，true包含，false不包含
      * @return 压缩包中所有的文件
      */
-    public static void unZip(String zipFilePath, boolean includeZipFileName) throws Exception{
+    public void unZip(String zipFilePath, boolean includeZipFileName) throws Exception{
         File zipFile = new File(zipFilePath);
         String unzipFilePath = zipFilePath.substring(0, zipFilePath.lastIndexOf(File.separator));
 
@@ -290,7 +291,7 @@ public class UnRarZip7Z {
      * @param outPath  解压路径
      * @return  压缩包中所有的文件
      */
-    public static  void un7z(String z7zFilePath, String outPath){
+    public  void un7z(String z7zFilePath, String outPath){
         SevenZFile zIn = null;
         try {
             File file = new File(z7zFilePath);
@@ -332,14 +333,10 @@ public class UnRarZip7Z {
 
     public static void main(String[] args) {
         try {
-            //String inputFile = "C:\\Users\\Administrator\\Desktop\\压缩测试\\rar.rar";
             String inputFile = "C:\\Users\\Administrator\\Desktop\\压缩测试\\Desktop.7z";
             String destDirPath = "C:\\Users\\Administrator\\Desktop\\压缩测试\\"+UUID.randomUUID().toString();
             String suffix = inputFile.substring(inputFile.lastIndexOf("."));
-            unRarZip7Z(inputFile, destDirPath);
-            log.info("");
-            //unZip(inputFile, destDirPath, false);
-            //unRar(inputFile, destDirPath, "");
+            //unRarZip7Z(inputFile, destDirPath);
         } catch (Exception e) {
             e.printStackTrace();
         }

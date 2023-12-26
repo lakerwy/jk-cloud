@@ -135,6 +135,7 @@
         <im-server.version>0.3.48</im-server.version>
         <tls-sig-api.version>2.0</tls-sig-api.version>
 
+        <xz.tukaani.version>1.9</xz.tukaani.version>
     </properties>
 
     <modules>
