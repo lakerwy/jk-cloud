@@ -660,16 +660,22 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     @Override
     public List<DevFileUnzip> unZip(DevFileIdParam devFileIdParam){
         DevFile devFile = this.getById(devFileIdParam.getId());
+        Boolean isParentFile = true;
         if(ObjectUtil.isEmpty(devFile)){
-            throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
+            DevFileUnzip devFileUnzip = devFileUnzipService.getById(devFileIdParam.getId());
+            if(ObjectUtil.isEmpty(devFileUnzip)){
+                throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
+            }
+            isParentFile = false;
+            devFile = BeanUtil.toBean(devFileUnzip,DevFile.class);
         }
-        if(!devFile.getSuffix().equals("zip") && !devFile.getSuffix().equals("rar")){
+        if(!devFile.getSuffix().equals("zip") && !devFile.getSuffix().equals("rar") && !devFile.getSuffix().equals("7z")){
             throw new CommonException("暂时只支持zip和rar的格式，id值为："+devFileIdParam.getId());
         }
         if(ObjectUtil.isNotEmpty(devFile.getIsUnzip()) && devFile.getIsUnzip() == 1){
             return devFileUnzipService.list(new LambdaQueryWrapper<DevFileUnzip>().eq(DevFileUnzip::getParentId,devFile.getId()));
         }
-        File file = FileUtil.file(devFile.getStoragePath());
+        File file = isParentFile ? FileUtil.file(devFile.getStoragePath()): FileUtil.file(devFile.getStoragePath()+ "." + devFile.getSuffix());
         String oldFileName = file.getName();
         if(!FileUtil.exist(file)) {
             throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
@@ -689,11 +695,13 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
         String fileIdPre = DateUtil.date().toString("yyyyMMdd");
         try {
-            File unzipFile = ZipUtil.unzip(fileTemp, new File(outFile), CharsetUtil.CHARSET_GBK);
+            //File unzipFile = ZipUtil.unzip(fileTemp, new File(outFile), CharsetUtil.CHARSET_GBK);
+            UnRarZip7Z.unRarZip7Z(fileTemp.getAbsolutePath(),outFile);
             List<Map<String,String>> filePaths = new ArrayList<>();
-            getFileList(unzipFile,filePaths,oldFileName);
+            getFileList(new File(outFile),filePaths,oldFileName);
+            //getFileList(unzipFile,filePaths,oldFileName);
             List<DevFileUnzip> devFileIds = new ArrayList<>();
-            filePaths.forEach(data -> {
+            for(Map<String,String> data : filePaths){
                 DevFileUnzip devFileUnzip = new DevFileUnzip();
                 String fileName = RandomUtil.randomNumbers(10);
                 String fullFileId = fileIdPre+fileName;
@@ -708,10 +716,10 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
                 devFileUnzip.setStoragePath(data.get("absolutePath"));
                 devFileUnzip.setDownloadPath(GATEWAYDOWNLOADURL+fullFileId);
                 devFileIds.add(devFileUnzip);
-            });
+            }
             devFileUnzipService.saveBatch(devFileIds);
             devFile.setIsUnzip(1);
-            this.saveOrUpdate(devFile);
+            if(isParentFile){ this.saveOrUpdate(devFile);}
             return devFileIds;
         } catch (Exception e) {
             log.error(e+"");
