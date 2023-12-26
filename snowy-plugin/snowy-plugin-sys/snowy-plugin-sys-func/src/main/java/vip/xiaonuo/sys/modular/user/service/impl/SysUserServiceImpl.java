@@ -1866,7 +1866,11 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         //待校验的输入密码
         String checkSecondPwd = DigestUtils.md5Hex(secondPassword.getSecondPassword());
         if(StrUtil.isNotEmpty(sysUser.getSecondPassword())){
-            return sysUser.getSecondPassword().equals(checkSecondPwd);
+            Boolean isOk = sysUser.getSecondPassword().equals(checkSecondPwd);
+            if(!isOk){
+                throw new CommonException("密码错误");
+            }
+            return isOk;
         }else {
             throw new CommonException("未设置二级密码");
         }
