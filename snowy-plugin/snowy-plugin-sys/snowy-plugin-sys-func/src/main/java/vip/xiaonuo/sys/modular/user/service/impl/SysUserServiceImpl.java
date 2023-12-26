@@ -1868,7 +1868,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if(StrUtil.isNotEmpty(sysUser.getSecondPassword())){
             return sysUser.getSecondPassword().equals(checkSecondPwd);
         }else {
-            return StrUtil.isEmpty(secondPassword.getSecondPassword());
+            throw new CommonException("未设置二级密码");
         }
     }
 
