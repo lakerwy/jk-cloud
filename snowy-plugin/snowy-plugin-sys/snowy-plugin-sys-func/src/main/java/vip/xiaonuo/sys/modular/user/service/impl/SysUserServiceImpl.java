@@ -1874,18 +1874,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public Boolean setSecondPwd(SysUserSetSecondPwd setSecondPwd) {
+        // 执行校验验证码
+        validValidCode(setSecondPwd.getPhone(), setSecondPwd.getValidCode(), setSecondPwd.getValidCodeReqNo());
         SysUser sysUser = this.queryEntity(setSecondPwd.getUserId());
-        //校验旧密码
-        String checkSecondPwd = DigestUtils.md5Hex(setSecondPwd.getOldSecondPassword());
-        Boolean isOk = false;
-        if(StrUtil.isNotEmpty(sysUser.getSecondPassword())){
-            isOk = sysUser.getSecondPassword().equals(checkSecondPwd);
-        }else {
-            isOk = StrUtil.isEmpty(setSecondPwd.getOldSecondPassword());
-        }
-        if(!isOk){
-            throw new CommonException("旧密码错误");
-        }
         //校验通过，更新
         sysUser.setSecondPassword(DigestUtils.md5Hex(setSecondPwd.getSecondPassword()));
         return this.updateById(sysUser);
