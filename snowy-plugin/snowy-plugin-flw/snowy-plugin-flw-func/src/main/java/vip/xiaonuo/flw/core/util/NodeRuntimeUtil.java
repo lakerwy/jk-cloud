@@ -1523,11 +1523,11 @@ public class NodeRuntimeUtil {
                     JSONObject jsonObject = new JSONObject();
                     StringBuffer baseInfo = new StringBuffer();
                     Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + delegateTask.getProcessDefinitionId());
-                    baseInfo.append(delegateTask.getVariable("initiatorName")).append("发起的").append(o).append("审批流程在您的审批节点已超时，请及时处理");
+                    baseInfo.append(delegateTask.getVariable("initiatorName")).append("发起的").append(o).append("审批流程在您的审批节点还未处理，请及时处理");
                     jsonObject.set(FlwCacheConstant.FLW_BASE_INFO,baseInfo);
                     jsonObject.set(FlwCacheConstant.FLW_SN,delegateTask.getVariable("initiatorProcessSn"));
                     RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
-                    rabbitMsg.setTitle("【审批超时通知】");
+                    rabbitMsg.setTitle("【审批通知】");
                     rabbitMsg.setUserSets(new HashSet<>(participateUserIdList));
                     String key = RabbitConstant.RABBIT_KEY+ delegateTask.getProcessInstanceId()+delegateTask.getId();
                     rabbitDelayedMessage.setTaskKey(key);
