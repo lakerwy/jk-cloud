@@ -74,6 +74,9 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     @Resource
     private DevFileUnzipService devFileUnzipService;
 
+    @Resource
+    private UnRarZip7Z unRarZip7Z;
+
     private final static String DOWNLOADURL = "/dev/file/download?id=";
     private final static String GATEWAYDOWNLOADURL = "/api/webapp/dev/file/download?id=";
 
@@ -696,7 +699,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         String fileIdPre = DateUtil.date().toString("yyyyMMdd");
         try {
             //File unzipFile = ZipUtil.unzip(fileTemp, new File(outFile), CharsetUtil.CHARSET_GBK);
-            UnRarZip7Z.unRarZip7Z(fileTemp.getAbsolutePath(),outFile);
+            unRarZip7Z.unRarZip7Z(fileTemp.getAbsolutePath(),outFile);
             List<Map<String,String>> filePaths = new ArrayList<>();
             getFileList(new File(outFile),filePaths,oldFileName);
             //getFileList(unzipFile,filePaths,oldFileName);
