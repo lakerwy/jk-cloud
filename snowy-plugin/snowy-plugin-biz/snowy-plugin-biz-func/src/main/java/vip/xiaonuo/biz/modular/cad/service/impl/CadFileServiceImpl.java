@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
+import vip.xiaonuo.biz.modular.cad.enums.CadFileEnum;
 import vip.xiaonuo.biz.modular.cad.mapper.CadStorageMapper;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.vo.FilePathVo;
@@ -146,7 +147,7 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                     String finalFileId = fileId;
                     CadFile cadFile = cadFileList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
                     if(ObjectUtil.isNotEmpty(cadFile)){
-                        if(cadFile.getId().equals(fileId)){
+                        if(cadFile.getId().equals(fileId) && cadFile.getType().equals(CadFileEnum.FILE.getValue())){
                             fileName = cadFile.getName();
                         }else {
                             filePathDir = cadFile.getName() + (ObjectUtil.isNotEmpty(filePathDir) ? File.separator + filePathDir : filePathDir);

@@ -27,6 +27,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.param.*;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -168,7 +169,7 @@ public class HetongController {
     @ApiOperation("获取业务表-CRM-合同分页【含权限设置 -- 由于之前列表接口有许多应用，比如：立项、产值填报等】")
     @SaCheckPermission("/biz/crm/hetong/limitPage")
     @GetMapping("/biz/crm/hetong/limitPage")
-    public CommonResult<IPage<HetongDetailVo>> limitPage(HetongPageParam hetongPageParam) {
+    public CommonResult<IPage<HetongVo>> limitPage(HetongPageParam hetongPageParam) {
         return CommonResult.data(hetongService.limitPage(hetongPageParam));
     }
 

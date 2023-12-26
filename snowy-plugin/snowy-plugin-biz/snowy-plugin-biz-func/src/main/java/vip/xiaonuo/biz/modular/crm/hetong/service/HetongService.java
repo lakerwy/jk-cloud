@@ -18,6 +18,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.param.*;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongVo;
 
 import javax.validation.Valid;
 import java.util.List;
@@ -99,6 +100,6 @@ public interface HetongService extends IService<Hetong> {
      * @author yong.ye
      * @date  2023/06/30 14:49
      */
-    IPage<HetongDetailVo> limitPage(HetongPageParam hetongPageParam);
+    IPage<HetongVo> limitPage(HetongPageParam hetongPageParam);
 
 }

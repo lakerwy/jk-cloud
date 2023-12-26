@@ -21,8 +21,7 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
-import vip.xiaonuo.biz.modular.crm.parameters.entity.Parameters;
-import vip.xiaonuo.biz.modular.crm.parameters.vo.ParametersInfoVo;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongVo;
 
 import java.util.List;
 
@@ -38,4 +37,12 @@ public interface HetongMapper extends BaseMapper<Hetong> {
     IPage<HetongDetailVo> getPageList(Page<HetongDetailVo> page, @Param(Constants.WRAPPER) Wrapper<Hetong> queryWrapper);
 
     HetongDetailVo getDetailById(String id);
+
+    /**
+     * 指定字段列表
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    IPage<HetongVo> getPageList2(Page<HetongVo> page, @Param(Constants.WRAPPER) Wrapper<Hetong> queryWrapper);
 }

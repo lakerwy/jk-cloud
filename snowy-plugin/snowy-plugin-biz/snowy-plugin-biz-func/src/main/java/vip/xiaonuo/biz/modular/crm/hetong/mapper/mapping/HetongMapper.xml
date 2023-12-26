@@ -27,4 +27,14 @@
         from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID
         where a.ID = ${id}
     </select>
+
+    <select id="getPageList2" resultType="vip.xiaonuo.biz.modular.crm.hetong.vo.HetongVo" >
+        select a.CONTRACT_NO as contractNo, a.PROJECT_NAME as projectName,a.SECOND_LEVEL as secondLevel,
+               a.CONTRACT_AMOUNT as contractAmount,a.COUNTERPARTY as counterparty,a.INVEST_SCALE as investScale,
+               a.COMPANY_OR_DEPARTMENT as companyOrDepartment,a.`OWNER` as owner,a.REGISTER as register,
+               a.SEAL_DATE as sealDate,a.FILING_DATE as filingDate,a.IS_FILING as isFiling,a.HTSTATUS as htstatus,
+               b.IS_EPC as isEpc,b.TYPE as bizProjectType,b.INDUSTRY_CLASSIFICATION as industryClassification,
+               b.IS_CONSORTIUM as isConsortium,b.REGION as region,b.LOCATION as bizProjectLocation
+        from BIZ_CRM_HETONG a left join BIZ_PROJECT b on a.BIZ_PROJECT_ID = b.ID  ${ew.customSqlSegment}
+    </select>
 </mapper>

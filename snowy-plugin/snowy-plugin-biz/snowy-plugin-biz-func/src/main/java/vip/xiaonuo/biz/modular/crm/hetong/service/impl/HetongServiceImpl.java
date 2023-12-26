@@ -30,6 +30,7 @@ import vip.xiaonuo.biz.modular.crm.hetong.mapper.HetongMapper;
 import vip.xiaonuo.biz.modular.crm.hetong.param.*;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongInfoVo;
+import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongVo;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -289,7 +290,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
     }
 
     @Override
-    public IPage<HetongDetailVo> limitPage(HetongPageParam hetongPageParam) {
+    public IPage<HetongVo> limitPage(HetongPageParam hetongPageParam) {
         QueryWrapper<Hetong> queryWrapper = new QueryWrapper<>();
         //审核通过的合同
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
@@ -404,6 +405,6 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         } else {
             queryWrapper.lambda().orderByDesc(Hetong::getContractNo);
         }
-        return hetongMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        return hetongMapper.getPageList2(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }
