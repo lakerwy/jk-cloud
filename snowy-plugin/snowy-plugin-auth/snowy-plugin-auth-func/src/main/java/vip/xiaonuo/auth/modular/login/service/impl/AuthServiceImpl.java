@@ -139,8 +139,8 @@ public class AuthServiceImpl implements AuthService {
         String tpl_Value = URLEncoder.encode("#code#") + "="  + URLEncoder.encode(phoneValidCode);
         devSmsApi.sendSmsYunPian("", phone, tpl_Id, tpl_Value);
 
-        // 将请求号作为key，验证码的值作为value放到redis，用于校验，5分钟有效
-        commonCacheOperator.put(AUTH_VALID_CODE_CACHE_KEY + phone + StrUtil.UNDERLINE + phoneValidCodeReqNo, phoneValidCode, 5 * 60);
+        // 将请求号作为key，验证码的值作为value放到redis，用于校验，10分钟有效
+        commonCacheOperator.put(AUTH_VALID_CODE_CACHE_KEY + phone + StrUtil.UNDERLINE + phoneValidCodeReqNo, phoneValidCode, 10 * 60);
         // 返回请求号
         return phoneValidCodeReqNo;
     }
