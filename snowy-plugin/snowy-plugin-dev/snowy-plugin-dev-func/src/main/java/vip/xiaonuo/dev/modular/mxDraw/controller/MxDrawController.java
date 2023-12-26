@@ -78,7 +78,7 @@ public class MxDrawController {
      * @author xuyuxiang
      * @date 2021/10/13 14:01
      **/
-    @ApiOperationSupport(order = 3)
+    @ApiOperationSupport(order = 4)
     @ApiOperation("DWG文件转换浏览格式wgh")
     @CommonLog("DWG文件转换浏览格式wgh")
     @PostMapping("/dev/mxDraw/convertWgh")
