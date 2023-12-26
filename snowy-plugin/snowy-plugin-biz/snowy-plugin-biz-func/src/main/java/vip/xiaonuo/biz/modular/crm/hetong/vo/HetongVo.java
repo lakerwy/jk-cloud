@@ -14,6 +14,11 @@ import java.util.Date;
 @Getter
 @Setter
 public class HetongVo {
+
+    /** 主键ID（历史表Hetong.Id） */
+    @ApiModelProperty(value = "主键ID（历史表Hetong.Id）", position = 1)
+    private String id;
+
     /** 合同编号 */
     @ApiModelProperty(value = "合同编号", position = 1)
     private String contractNo;
@@ -89,5 +94,21 @@ public class HetongVo {
     /** 立项-所属大区 */
     @ApiModelProperty(value = "立项-所属大区", position = 19)
     private String region;
+
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态", position = 21)
+    private String status;
+
+    /** 模型id */
+    @ApiModelProperty(value = "模型id", position = 22)
+    private String modelId;
+
+    /** 流程实例id */
+    @ApiModelProperty(value = "流程实例id", position = 23)
+    private String processInstanceId;
+
+    /** 合同总金额 */
+    @ApiModelProperty(value = "合同总金额", position = 24)
+    private BigDecimal sumAmount;
 
 }
