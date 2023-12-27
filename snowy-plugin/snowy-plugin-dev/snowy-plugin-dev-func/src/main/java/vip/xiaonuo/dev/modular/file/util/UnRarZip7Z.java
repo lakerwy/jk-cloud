@@ -169,7 +169,7 @@ public class UnRarZip7Z {
         byte[] buffer = new byte[bufferSize];
         BufferedInputStream bis = null;
         BufferedOutputStream bos = null;
-        Charset gbk = Charset.forName("UTF-8");
+        Charset gbk = Charset.forName("GBK");
         ZipFile zip = new ZipFile(zipFile, gbk);
         try {
             Enumeration<ZipEntry> entries = (Enumeration<ZipEntry>) zip.entries();
