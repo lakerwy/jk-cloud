@@ -23,7 +23,7 @@
         WHERE
             FIND_IN_SET( a.id, b._ids )
             <if test=" type != null and type != '' ">
-                and a.`TYPE` = ${type}
+                and a.`TYPE` = #{type}
             </if>
         ORDER BY
             LEVEL,
