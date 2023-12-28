@@ -111,17 +111,36 @@ public class DatabaseCreator {
                 //3. 生成批量处理sql,并执行
                 try(Connection conn = DriverManager.getConnection(url, initUserParam.getUsername(), initUserParam.getPassword())){
                     conn.setAutoCommit(false);
-                    try(Statement stmt = conn.createStatement()) {
+                    //新增用户
+                    String userSql = " INSERT INTO SYS_USER(ID,`NAME`,ACCOUNT,`PASSWORD`,GENDER,PHONE,ORG_ID,POSITION_ID,SORT_CODE,USER_STATUS,DELETE_FLAG,CREATE_TIME,CREATE_USER) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?) ";
+                    //新增用户角色对应
+                    String relationSql = " INSERT INTO SYS_RELATION(ID,OBJECT_ID,TARGET_ID,CATEGORY) VALUES(?,?,?,?)  ";
+                    try(PreparedStatement userStmt = conn.prepareStatement(userSql);
+                        PreparedStatement relationStmt = conn.prepareStatement(relationSql)) {
                         for (UserParam item:newUserParam) {
-                            //新增用户
-                            String userSql = String.format(" INSERT INTO SYS_USER(ID,`NAME`,ACCOUNT,`PASSWORD`,GENDER,PHONE,ORG_ID,POSITION_ID,SORT_CODE,`STATUS`,DELETE_FLAG,CREATE_TIME,CREATE_USER) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s); "
-                                    ,item.getId(),item.getName(),item.getPhone(), CommonCryptogramUtil.doHashValue(item.getPassword()),item.getGender(),CommonCryptogramUtil.doSm4CbcEncrypt(item.getPhone()),item.getOrgId(),item.getPositionId(),1, SysUserStatusEnum.ENABLE.getValue(),"NOT_DELETE", DateTime.now(), StpLoginUserUtil.getLoginUser().getId());
-                            //新增用户角色对应
-                            String relationSql = String.format(" INSERT INTO SYS_RELATION(ID,OBJECT_ID,TARGET_ID,CATEGORY) VALUES(%s,%s,%s,%s) ; ",IdWorker.getIdStr(),item.getId(),item.getRoleId(), SysRelationCategoryEnum.SYS_USER_HAS_ROLE.getValue().toString());
-                            stmt.addBatch(userSql);
-                            stmt.addBatch(relationSql);
+                            userStmt.setString(1,item.getId());
+                            userStmt.setString(2,item.getName());
+                            userStmt.setString(3,item.getPhone());
+                            userStmt.setString(4,CommonCryptogramUtil.doHashValue(item.getPassword()));
+                            userStmt.setString(5,item.getGender());
+                            userStmt.setString(6,CommonCryptogramUtil.doSm4CbcEncrypt(item.getPhone()));
+                            userStmt.setString(7,item.getOrgId());
+                            userStmt.setString(8,item.getPositionId());
+                            userStmt.setString(9,"1");
+                            userStmt.setString(10,SysUserStatusEnum.ENABLE.getValue());
+                            userStmt.setString(11,"NOT_DELETE");
+                            userStmt.setString(12,DateTime.now().toString());
+                            userStmt.setString(13,StpLoginUserUtil.getLoginUser().getId());
+                            userStmt.addBatch();
+
+                            relationStmt.setString(1,IdWorker.getIdStr());
+                            relationStmt.setString(2,item.getId());
+                            relationStmt.setString(3,item.getRoleId());
+                            relationStmt.setString(4,SysRelationCategoryEnum.SYS_USER_HAS_ROLE.getValue());
+                            relationStmt.addBatch();
                         }
-                        stmt.executeBatch();
+                        int[] userCount = userStmt.executeBatch();
+                        int[] relationCount = relationStmt.executeBatch();
                         conn.commit();
                     }catch (SQLException e){
                         conn.rollback();
@@ -156,6 +175,9 @@ public class DatabaseCreator {
                         ObjInfo objInfo = new ObjInfo();
                         objInfo.setId(rs.getString("id"));
                         objInfo.setName(rs.getString("name"));
+                        if(sql.contains("SYS_POSITION")){
+                            objInfo.setOrgId(rs.getString("orgId"));
+                        }
                         infoList.add(objInfo);
                     }
                 }
@@ -178,20 +200,20 @@ public class DatabaseCreator {
             //处理组织|角色|职位
             String orgSql = " SELECT ID,`NAME` FROM `SYS_ORG` where DELETE_FLAG='NOT_DELETE' ";
             String roleSql = " SELECT ID,`NAME` FROM `SYS_ROLE` where DELETE_FLAG='NOT_DELETE' ";
-            String positionSql = " SELECT ID,`NAME` FROM `SYS_POSITION` where DELETE_FLAG='NOT_DELETE' ";
+            String positionSql = " SELECT ID,`NAME`,ORG_ID FROM `SYS_POSITION` where DELETE_FLAG='NOT_DELETE' ";
             List<ObjInfo> orgList = selectData(url,user,password,orgSql);
             List<ObjInfo> roleList = selectData(url,user,password,roleSql);
             List<ObjInfo> positionList = selectData(url,user,password,positionSql);
             userParamList.forEach(x->{
                 ObjInfo orgInfo = orgList.stream().filter(o -> x.getOrgName().equals(o.getName())).findFirst().orElse(null);
-                ObjInfo roleInfo = roleList.stream().filter(o -> x.getRoleName().equals(o.getName())).findFirst().orElse(null);
-                ObjInfo positionInfo = positionList.stream().filter(o -> x.getRoleName().equals(o.getName())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(orgInfo)){
                     x.setOrgId(orgInfo.getId());
                 }
+                ObjInfo roleInfo = roleList.stream().filter(o -> x.getRoleName().equals(o.getName())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(roleInfo)){
                     x.setRoleId(roleInfo.getId());
                 }
+                ObjInfo positionInfo = positionList.stream().filter(o -> x.getRoleName().equals(o.getName()) && x.getOrgId().equals(o.getOrgId())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(positionInfo)){
                     x.setPositionId(positionInfo.getId());
                 }

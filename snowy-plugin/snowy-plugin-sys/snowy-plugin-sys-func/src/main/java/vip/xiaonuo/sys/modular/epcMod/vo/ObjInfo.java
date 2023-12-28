@@ -19,4 +19,8 @@ public class ObjInfo {
     /** 名称 */
     @ApiModelProperty(value = "名称", position = 2)
     private String name;
+
+    /** 组织Id */
+    @ApiModelProperty(value = "组织Id", position = 2)
+    private String orgId;
 }

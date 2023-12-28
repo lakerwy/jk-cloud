@@ -82,7 +82,7 @@ public class EpcController {
      * @author yong.ye
      * @date  2023/11/21 11:14
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 4)
     @ApiOperation("epc-根据导入的用户表，初始化 部门、角色、用户")
     @CommonLog("epc-根据导入的用户表，初始化 部门、角色、用户")
     @PostMapping("/epc/create/initData")
