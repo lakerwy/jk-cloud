@@ -33,4 +33,7 @@ public class TableParam {
 
     @ApiModelProperty(value = "docker容器mysql名称", required = true,position = 9)
     private String dockerMyName;
+
+    @ApiModelProperty(value = "执行命令", position = 10)
+    private String command;
 }

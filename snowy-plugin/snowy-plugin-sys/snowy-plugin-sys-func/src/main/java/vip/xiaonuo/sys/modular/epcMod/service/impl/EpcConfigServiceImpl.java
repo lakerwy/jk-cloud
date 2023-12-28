@@ -1,5 +1,6 @@
 package vip.xiaonuo.sys.modular.epcMod.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -9,6 +10,7 @@ import vip.xiaonuo.sys.modular.epcMod.param.DataBaseParam;
 import vip.xiaonuo.sys.modular.epcMod.param.InitUserParam;
 import vip.xiaonuo.sys.modular.epcMod.param.TableParam;
 import vip.xiaonuo.sys.modular.epcMod.param.UserParam;
+import vip.xiaonuo.sys.modular.epcMod.param.UnixCommandParam;
 import vip.xiaonuo.sys.modular.epcMod.param.YamlParam;
 import vip.xiaonuo.sys.modular.epcMod.service.EpcConfigService;
 import vip.xiaonuo.sys.modular.epcMod.util.DatabaseCreator;
@@ -34,7 +36,11 @@ public class EpcConfigServiceImpl implements EpcConfigService {
 
     @Override
     public void createTable(TableParam tableParam){
-        databaseCreator.importDatabase(tableParam);
+        String command = String.format(" docker exec -i %s mysql -u%s -p%s  %s < %s ",tableParam.getDockerMyName(),tableParam.getDatabaseUsername(),
+                tableParam.getDatabasePassword(),tableParam.getDatabaseName(),tableParam.getDumpFilePath());
+        tableParam.setCommand(command);
+        UnixCommandParam unixCommandParam = BeanUtil.toBean(tableParam,UnixCommandParam.class);
+        databaseCreator.importDatabase(unixCommandParam);
     }
 
     @Override

@@ -17,9 +17,7 @@ import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.sys.modular.epcMod.param.DataBaseParam;
 import vip.xiaonuo.sys.modular.epcMod.param.InitUserParam;
 import vip.xiaonuo.sys.modular.epcMod.param.TableParam;
-import vip.xiaonuo.sys.modular.epcMod.param.UserParam;
-import vip.xiaonuo.sys.modular.epcMod.vo.ObjInfo;
-import vip.xiaonuo.sys.modular.relation.enums.SysRelationCategoryEnum;
+import vip.xiaonuo.sys.modular.epcMod.param.UnixCommandParam;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,8 +33,9 @@ public class DatabaseCreator {
     public void createDatabase(DataBaseParam dataBaseParam) throws Exception{
         try {
             //jdbc:mysql://10.0.33.81:3306?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true
-            String unicode = ":3306?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true";
-            String url =String.format("jdbc:mysql://%s%s",dataBaseParam.getDbIp(),unicode);
+            String unicode = "?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true";
+            String url =String.format("jdbc:mysql://%s%s%s%s",dataBaseParam.getDbIp(),":",dataBaseParam.getPort(),unicode);
+            log.info("url-connectSql:"+url);
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection(url, dataBaseParam.getUsername(), dataBaseParam.getPassword());//建立连接
             Statement stmt = connection.createStatement();//创建Statement对象
@@ -52,18 +51,16 @@ public class DatabaseCreator {
         }
     }
 
-    public void importDatabase(TableParam tableParam) {
+    public void importDatabase(UnixCommandParam unixCommandParam) {
         try {
             JSch jsch = new JSch();
-            Session session = jsch.getSession(tableParam.getSshUsername(), tableParam.getSshHost(), tableParam.getSshPort());
-            session.setPassword(tableParam.getSshPassword());
+            Session session = jsch.getSession(unixCommandParam.getSshUsername(), unixCommandParam.getSshHost(), unixCommandParam.getSshPort());
+            session.setPassword(unixCommandParam.getSshPassword());
 
             session.setConfig("StrictHostKeyChecking", "no"); //允许连接不信任的主机
             session.connect();
             Channel channel = session.openChannel("exec");
-            String command = String.format(" docker exec -i %s mysql -u%s -p%s  %s < %s ",tableParam.getDockerMyName(),tableParam.getDatabaseUsername(),
-                    tableParam.getDatabasePassword(),tableParam.getDatabaseName(),tableParam.getDumpFilePath());
-            ((ChannelExec) channel).setCommand(command);
+            ((ChannelExec) channel).setCommand(unixCommandParam.getCommand());
             OutputStream out = channel.getOutputStream();
             InputStream in = channel.getInputStream();
             channel.connect();

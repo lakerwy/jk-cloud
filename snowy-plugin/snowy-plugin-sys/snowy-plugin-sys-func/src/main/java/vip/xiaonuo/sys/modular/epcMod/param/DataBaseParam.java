@@ -19,6 +19,10 @@ public class DataBaseParam {
     @ApiModelProperty(value = "数据库名称", required = true,position = 3)
     private String dbName;
 
+
     @ApiModelProperty(value = "数据库ip", required = true,position = 4)
     private String dbIp;
+
+    @ApiModelProperty(value = "mysql数据库端口", required = true,position = 5)
+    private String port;
 }

@@ -1300,6 +1300,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 hashMap.put("readCount", 0L);
             }
         }
+        //readCount 抄送事宜
         return hashMap;
     }
 
