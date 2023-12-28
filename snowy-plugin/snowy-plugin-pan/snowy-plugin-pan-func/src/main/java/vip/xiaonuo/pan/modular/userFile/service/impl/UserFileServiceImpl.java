@@ -268,7 +268,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
     }
 
     @Override
-    public String createSelfFold(){
+    public synchronized String createSelfFold(){
         panFileStorageService.checkStorage(0L,0);
         LambdaQueryWrapper<UserFile> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(UserFile::getParentId,ROOT_FOLD_ID).eq(UserFile::getIsDir,IS_DIR).eq(UserFile::getRootDir, UserFileEnum.SELF_ROOT.getLevel())

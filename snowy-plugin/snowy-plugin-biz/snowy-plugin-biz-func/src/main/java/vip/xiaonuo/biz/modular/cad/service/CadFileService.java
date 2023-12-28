@@ -114,4 +114,9 @@ public interface CadFileService extends IService<CadFile> {
      */
     FilePathVo getFilePathById(String part, String fileId);
 
+    /**
+     * 根据目录Id，删除子文件或文件夹
+     * @param cadFileIdParam
+     */
+    void delFile(CadFileIdParam cadFileIdParam);
 }

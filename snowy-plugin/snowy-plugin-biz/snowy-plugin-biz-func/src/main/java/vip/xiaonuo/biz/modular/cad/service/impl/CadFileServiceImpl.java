@@ -185,4 +185,10 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
 
         return filePathVo;
     }
+
+    @Override
+    public void delFile(CadFileIdParam cadFileIdParam) {
+        List<CadFile> childrenList = cadFileMapper.getChildren(cadFileIdParam.getId(),null);
+        this.removeByIds(childrenList);
+    }
 }

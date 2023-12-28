@@ -22,16 +22,14 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.entity.CadFile;
+import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.vo.CadTagVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.cad.entity.CadTag;
 import vip.xiaonuo.biz.modular.cad.mapper.CadTagMapper;
-import vip.xiaonuo.biz.modular.cad.param.CadTagAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadTagEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadTagIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadTagPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadTagService;
 
 import javax.annotation.Resource;
@@ -104,4 +102,5 @@ public class CadTagServiceImpl extends ServiceImpl<CadTagMapper, CadTag> impleme
     public List<CadTagVo> tagListByFileId(String fileId) {
         return cadTagMapper.tagListByFileId(fileId);
     }
+
 }

@@ -394,5 +394,19 @@ public class CadPluginController {
         return CommonResult.data(cadProjectService.getFileParentTree(fileId,includeSelf));
     }
 
+    /**
+     * 【CAD-插件端】CAD- 删除文件目录
+     *
+     * @author yong.ye
+     * @date  2023/12/11 17:40
+     */
+    @ApiOperationSupport(order = 22)
+    @ApiOperation("【CAD-插件端】CAD- 删除文件目录(文件|文件夹) ")
+    @CommonLog("【CAD-插件端】CAD- 删除文件目录 ")
+    @PostMapping("/biz/cad/plugin/delFile")
+    public CommonResult<String> delFile(@RequestBody @Valid CadFileIdParam cadFileIdParam) {
+        cadFileService.delFile(cadFileIdParam);
+        return CommonResult.ok();
+    }
 
 }

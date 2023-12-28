@@ -16,7 +16,7 @@ public class UpdateTagStatusParam {
     @ApiModelProperty(value = "CadFile.Id 设计区文件目录Id主键", position = 1)
     private String fileId;
 
-    /** 批注状态 */
+    /** 批注状态 -1 : 删除 0 :未修改  1：已修改 */
     @ApiModelProperty(value = "批注状态", position = 2)
     private String status;
 }

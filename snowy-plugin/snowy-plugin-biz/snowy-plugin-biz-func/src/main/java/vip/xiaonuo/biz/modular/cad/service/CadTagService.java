@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.cad.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.cad.entity.CadTag;
-import vip.xiaonuo.biz.modular.cad.param.CadTagAddParam;
-import vip.xiaonuo.biz.modular.cad.param.CadTagEditParam;
-import vip.xiaonuo.biz.modular.cad.param.CadTagIdParam;
-import vip.xiaonuo.biz.modular.cad.param.CadTagPageParam;
+import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.vo.CadTagVo;
 
 import java.util.List;
@@ -80,4 +77,5 @@ public interface CadTagService extends IService<CadTag> {
     CadTag queryEntity(String id);
 
     List<CadTagVo> tagListByFileId(String fileId);
+
 }
