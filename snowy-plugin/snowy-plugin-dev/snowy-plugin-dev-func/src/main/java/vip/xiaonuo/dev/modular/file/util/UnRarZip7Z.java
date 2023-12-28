@@ -14,8 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.zip.ZipEntry;
@@ -32,7 +37,10 @@ public class UnRarZip7Z {
      */
     public void unRarZip7Z(String rarFile, String outPath) throws Exception {
         if (rarFile.toLowerCase().endsWith(".zip")) {
-            unZip(rarFile, outPath, false);
+            //unZip(rarFile, outPath, false);
+            String command = "unzip "+rarFile+" -d  "+outPath+"/";
+            String host = InetAddress.getLocalHost().getHostAddress();
+            unzip(host,"root","Jianke66",command);
         } else if (rarFile.toLowerCase().endsWith(".rar")) {
             unRar(rarFile, outPath, "");
         } else if (rarFile.toLowerCase().endsWith(".7z")) {
@@ -143,6 +151,44 @@ public class UnRarZip7Z {
      * @param includeZipFileName    解压后文件是否包含压缩包文件名，true包含，false不包含
      * @return 压缩包中所有的文件
      */
+    public void unzip(String host,String name,String password,String command){
+        try {
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(name, host, 22);
+            session.setPassword(password);
+            // Optional, but recommended
+            java.util.Properties config = new java.util.Properties();
+            config.put("StrictHostKeyChecking", "no");
+            session.setConfig(config);
+            session.connect();
+            Channel channel = session.openChannel("exec");
+            ((ChannelExec) channel).setCommand(command);
+            channel.setInputStream(null);
+            ((ChannelExec) channel).setErrStream(System.err);
+            InputStream in = channel.getInputStream();
+            channel.connect();
+            byte[] tmp = new byte[1024];
+            while (true) {
+                while (in.available() > 0) {
+                    int i = in.read(tmp, 0, 1024);
+                    if (i < 0) break;
+                    System.out.print(new String(tmp, 0, i));
+                }
+                if (channel.isClosed()) {
+                    if (in.available() > 0) continue;
+                    log.info("zip解压："+command+",exit-status: " + channel.getExitStatus());
+                    break;
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception ee) {}
+            }
+            channel.disconnect();
+            session.disconnect();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
     public void unZip(String zipFilePath, String unzipFilePath, boolean includeZipFileName) throws Exception{
         File zipFile = new File(zipFilePath);
 
