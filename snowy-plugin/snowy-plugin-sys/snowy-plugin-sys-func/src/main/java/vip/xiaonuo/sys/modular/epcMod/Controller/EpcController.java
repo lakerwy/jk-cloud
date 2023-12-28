@@ -7,10 +7,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.sys.modular.epcMod.param.DataBaseParam;
+import vip.xiaonuo.sys.modular.epcMod.param.InitUserParam;
 import vip.xiaonuo.sys.modular.epcMod.param.TableParam;
 import vip.xiaonuo.sys.modular.epcMod.service.EpcConfigService;
 
@@ -53,6 +56,22 @@ public class EpcController {
     @GetMapping("/epc/create/table")
     public CommonResult<String> createTable(@Valid TableParam tableParam){
         epcConfigService.createTable(tableParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * epc-根据导入的用户表，初始化 部门、角色、用户
+     *
+     * @author yong.ye
+     * @date  2023/11/21 11:14
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("epc-根据导入的用户表，初始化 部门、角色、用户")
+    @CommonLog("epc-根据导入的用户表，初始化 部门、角色、用户")
+    @PostMapping("/epc/create/initData")
+    public CommonResult<String> initData(@RequestBody @Valid InitUserParam initUserParam) {
+        epcConfigService.initData(initUserParam);
         return CommonResult.ok();
     }
 }

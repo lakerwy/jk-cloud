@@ -180,9 +180,10 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                 }
             }
         }
-        filePathVo.setFileName(fileName);
-        filePathVo.setFilePathDir(filePathDir);
-
+        if(ObjectUtil.isNotEmpty(filePathVo)) {
+            filePathVo.setFileName(fileName);
+            filePathVo.setFilePathDir(filePathDir);
+        }
         return filePathVo;
     }
 

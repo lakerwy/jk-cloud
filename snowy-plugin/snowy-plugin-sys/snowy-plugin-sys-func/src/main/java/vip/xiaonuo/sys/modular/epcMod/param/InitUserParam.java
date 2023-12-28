@@ -1,0 +1,36 @@
+package vip.xiaonuo.sys.modular.epcMod.param;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+import java.util.List;
+
+/**
+ * 初始化用户数据
+ */
+
+@Getter
+@Setter
+public class InitUserParam {
+
+    @ApiModelProperty(value = "服务器连接地址，IP： 10.0.33.81，例如：jdbc:mysql://10.0.33.81:3306?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true", required = true,position = 1)
+    private String ip;
+
+    @ApiModelProperty(value = "服务器连接地址，端口Port：3306，例如：jdbc:mysql://10.0.33.81:3306?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true", required = true,position = 2)
+    private String port;
+
+    @ApiModelProperty(value = "mysql用户名", required = true,position = 3)
+    private String username;
+
+    @ApiModelProperty(value = "密码", required = true,position = 4)
+    private String password;
+
+    @ApiModelProperty(value = "数据库名称", required = true,position = 5)
+    private String dbName;
+
+    /** 初始化人员信息 */
+    @ApiModelProperty(value = "初始化人员信息", position = 10)
+    private List<UserParam> userParamList;
+
+}

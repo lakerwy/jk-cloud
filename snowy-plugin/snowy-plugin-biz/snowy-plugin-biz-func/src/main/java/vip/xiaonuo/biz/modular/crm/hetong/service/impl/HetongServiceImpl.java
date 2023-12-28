@@ -92,11 +92,11 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
                         .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
                         .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
                         .like("a.PARTYC", hetongPageParam.getSearchKey()).or()
-                        .like("b.SN",hetongPageParam.getBizProjectSn()).or()
-                        .like("b.NAME",hetongPageParam.getProjectName()).or()
-                        .like("b.TYPE",hetongPageParam.getBizProjectType()).or()
-                        .like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getIndustryClassification()).or()
-                        .like("b.REGION",hetongPageParam.getRegion()));
+                        .like("b.SN",hetongPageParam.getSearchKey()).or()
+                        .like("b.NAME",hetongPageParam.getSearchKey()).or()
+                        .like("b.TYPE",hetongPageParam.getSearchKey()).or()
+                        .like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getSearchKey()).or()
+                        .like("b.REGION",hetongPageParam.getSearchKey()));
             }
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
@@ -310,11 +310,11 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
                         .like("a.SECONDPARTY", hetongPageParam.getSearchKey()).or()
                         .like("a.COMPANY_OR_DEPARTMENT", hetongPageParam.getSearchKey()).or()
                         .like("a.PARTYC", hetongPageParam.getSearchKey()).or()
-                        .like("b.SN",hetongPageParam.getBizProjectSn()).or()
-                        .like("b.NAME",hetongPageParam.getProjectName()).or()
-                        .like("b.TYPE",hetongPageParam.getBizProjectType()).or()
-                        .like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getIndustryClassification()).or()
-                        .like("b.REGION",hetongPageParam.getRegion()));
+                        .like("b.SN",hetongPageParam.getSearchKey()).or()
+                        .like("b.NAME",hetongPageParam.getSearchKey()).or()
+                        .like("b.TYPE",hetongPageParam.getSearchKey()).or()
+                        .like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getSearchKey()).or()
+                        .like("b.REGION",hetongPageParam.getSearchKey()));
             }
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getStartRegisterDate()) && ObjectUtil.isNotEmpty(hetongPageParam.getEndRegisterDate())) {
