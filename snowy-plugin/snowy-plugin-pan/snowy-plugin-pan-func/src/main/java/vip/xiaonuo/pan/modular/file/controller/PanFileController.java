@@ -561,8 +561,8 @@ public class PanFileController {
     @ApiOperationSupport(order = 20)
     @ApiOperation("在线压缩文件")
     @CommonLog("在线压缩文件")
-    @GetMapping("/pan/file/zipFile")
-    public CommonResult<String> zipFile(@Valid ZipFileParam zipFileParam) throws IOException, InterruptedException{
+    @PostMapping("/pan/file/zipFile")
+    public CommonResult<String> zipFile(@Valid @RequestBody ZipFileParam zipFileParam) throws IOException, InterruptedException{
         panFileService.zipFile(zipFileParam);
         return CommonResult.ok();
     }

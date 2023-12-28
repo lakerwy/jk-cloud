@@ -173,6 +173,7 @@ public class GatewayConfigure {
             "/api/net/api/AutocadService/**",
             "/api/webapp/pan/file/downloadFile",
             "/api/webapp/pan/file/IndexServlet",
+            "/api/webapp/pan/file/zipFile",
             "/api/webapp/sys/userAttendance/monthExcel",
 
             /* 电子名片 */

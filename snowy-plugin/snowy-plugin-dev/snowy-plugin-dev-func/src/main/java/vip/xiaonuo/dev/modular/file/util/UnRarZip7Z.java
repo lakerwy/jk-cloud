@@ -14,8 +14,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.nio.charset.Charset;
 import java.util.*;
 import java.util.zip.ZipEntry;
