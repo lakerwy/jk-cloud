@@ -1,10 +1,15 @@
 package vip.xiaonuo.sys.modular.epcMod.util;
 
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
+import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.sys.modular.epcMod.param.TransferFileParam;
 import vip.xiaonuo.sys.modular.epcMod.param.YamlParam;
 
 import java.io.BufferedWriter;
@@ -96,4 +101,40 @@ public class YamlUtil {
         }
         return false;//未找到第二个key，返回false
     }
+
+    public static void transferFile(TransferFileParam transferFileParam) {
+        try {
+            JSch jsch = new JSch();
+            Session sourceSession = jsch.getSession(transferFileParam.getSourceUsername(), transferFileParam.getSourceHost(), 22);//连接到源服务器
+            sourceSession.setPassword(transferFileParam.getSourcePassword());
+            sourceSession.setConfig("StrictHostKeyChecking", "no");//不信任的服务器也连接
+            sourceSession.connect();
+
+            ChannelSftp sourceSftpChannel = (ChannelSftp) sourceSession.openChannel("sftp");
+            sourceSftpChannel.connect();
+            sourceSftpChannel.get(transferFileParam.getSourceFilePath(), transferFileParam.getFileName());//从源服务器下载文件到本地临时文件存储，并命名为getFileName
+            sourceSftpChannel.disconnect();
+            sourceSession.disconnect();
+
+            // 连接到目标服务器
+            Session targetSession = jsch.getSession(transferFileParam.getTargetUsername(), transferFileParam.getTargetHost(), 22);
+            targetSession.setPassword(transferFileParam.getTargetPassword());
+            targetSession.setConfig("StrictHostKeyChecking", "no");
+            targetSession.connect();
+
+            ChannelSftp targetSftpChannel = (ChannelSftp) targetSession.openChannel("sftp");
+            targetSftpChannel.connect();
+
+            targetSftpChannel.put(transferFileParam.getFileName(), transferFileParam.getTargetFilePath());//上传本地临时文件到目标服务器，文件命名：getFileName
+            targetSftpChannel.disconnect();
+            targetSession.disconnect();
+
+            log.info("文件传输完成。");
+        } catch (Exception e) {
+            log.info("文件传输过程中发生错误: " + e.getMessage());
+            e.printStackTrace();
+            throw new CommonException("文件传输过程中发生错误");
+        }
+    }
+
 }
