@@ -15,6 +15,7 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.sys.modular.epcMod.param.DataBaseParam;
 import vip.xiaonuo.sys.modular.epcMod.param.InitUserParam;
 import vip.xiaonuo.sys.modular.epcMod.param.TableParam;
+import vip.xiaonuo.sys.modular.epcMod.param.YamlParam;
 import vip.xiaonuo.sys.modular.epcMod.service.EpcConfigService;
 
 import javax.annotation.Resource;
@@ -38,8 +39,8 @@ public class EpcController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("epc建库")
     @CommonLog("epc建库")
-    @GetMapping("/epc/create/dataBase")
-    public CommonResult<String> createDataBase(@Valid DataBaseParam dataBaseParam) throws Exception{
+    @PostMapping("/epc/create/dataBase")
+    public CommonResult<String> createDataBase(@RequestBody @Valid DataBaseParam dataBaseParam) throws Exception{
         epcConfigService.createDataBase(dataBaseParam);
         return CommonResult.ok();
     }
@@ -53,9 +54,24 @@ public class EpcController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("epc建表")
     @CommonLog("epc建表")
-    @GetMapping("/epc/create/table")
-    public CommonResult<String> createTable(@Valid TableParam tableParam){
+    @PostMapping("/epc/create/table")
+    public CommonResult<String> createTable(@RequestBody @Valid TableParam tableParam){
         epcConfigService.createTable(tableParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * epc建表
+     *
+     * @author xuyuxiang
+     * @date 2023/12/28 11:01
+     **/
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("yaml配置文件")
+    @CommonLog("yaml配置文件")
+    @PostMapping("/epc/create/yaml")
+    public CommonResult<String> createYaml(@RequestBody @Valid YamlParam yamlParam){
+        epcConfigService.createYaml(yamlParam);
         return CommonResult.ok();
     }
 

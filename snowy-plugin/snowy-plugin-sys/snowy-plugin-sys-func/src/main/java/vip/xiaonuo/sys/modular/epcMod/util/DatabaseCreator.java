@@ -34,8 +34,11 @@ public class DatabaseCreator {
 
     public void createDatabase(DataBaseParam dataBaseParam) throws Exception{
         try {
+            //jdbc:mysql://10.0.33.81:3306?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true
+            String unicode = ":3306?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true";
+            String url =String.format("jdbc:mysql://%s%s",dataBaseParam.getDbIp(),unicode);
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection(dataBaseParam.getUrl(), dataBaseParam.getUsername(), dataBaseParam.getPassword());//建立连接
+            Connection connection = DriverManager.getConnection(url, dataBaseParam.getUsername(), dataBaseParam.getPassword());//建立连接
             Statement stmt = connection.createStatement();//创建Statement对象
 
             String sql = "CREATE DATABASE IF NOT EXISTS " + dataBaseParam.getDbName();//执行创建数据库的SQL命令
@@ -45,7 +48,7 @@ public class DatabaseCreator {
             log.info("远程创建数据库成功，数据库名称："+dataBaseParam.getDbName());
         } catch (SQLException e) {
             log.error("远程创建数据库失败，数据库名称："+dataBaseParam.getDbName()+",e:"+e.toString());
-            throw new CommonException("数据库创建失败！e:"+e.toString());
+            throw new CommonException("数据库创建失败！e:"+e.getMessage());
         }
     }
 
@@ -89,6 +92,7 @@ public class DatabaseCreator {
         } catch (Exception e) {
             log.error("执行远程mysql建表命令时发生错误：" + e.getMessage());
             e.printStackTrace();
+            throw new CommonException("执行远程mysql建表命令时发生错误：" + e.getMessage());
         }
     }
 
