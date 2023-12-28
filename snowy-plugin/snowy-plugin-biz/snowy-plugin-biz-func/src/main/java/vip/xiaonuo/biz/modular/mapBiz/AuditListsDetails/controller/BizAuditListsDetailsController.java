@@ -114,14 +114,14 @@ public class BizAuditListsDetailsController {
     @PostMapping("/biz/AuditListsDetails/add")
     public CommonResult<String> add(@RequestBody @Valid BizAuditListsDetailsAddParam bizAuditListsDetailsAddParam) {
         bizAuditListsDetailsService.add(bizAuditListsDetailsAddParam);
-        try {
-            BizAuditLists auditLists = bizAuditListsService.getById(bizAuditListsDetailsAddParam.getAuditId());
-            JSONObject entries = JSONUtil.parseObj(auditLists);
-            List<String> ids = new ArrayList<>();
-            ids.add(auditLists.getCreateUser());
-            iDingDingService.batchSend(entries,ids);
-        }catch (Exception e){
-        }
+//        try {
+//            BizAuditLists auditLists = bizAuditListsService.getById(bizAuditListsDetailsAddParam.getAuditId());
+//            JSONObject entries = JSONUtil.parseObj(auditLists);
+//            List<String> ids = new ArrayList<>();
+//            ids.add(auditLists.getCreateUser());
+//            iDingDingService.batchSend(entries,ids);
+//        }catch (Exception e){
+//        }
         return CommonResult.ok();
     }
 
