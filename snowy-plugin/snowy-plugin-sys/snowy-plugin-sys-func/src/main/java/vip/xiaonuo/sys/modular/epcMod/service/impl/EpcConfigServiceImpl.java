@@ -6,12 +6,7 @@ import cn.hutool.core.util.ObjectUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.sys.modular.epcMod.param.DataBaseParam;
-import vip.xiaonuo.sys.modular.epcMod.param.InitUserParam;
-import vip.xiaonuo.sys.modular.epcMod.param.TableParam;
-import vip.xiaonuo.sys.modular.epcMod.param.UserParam;
-import vip.xiaonuo.sys.modular.epcMod.param.UnixCommandParam;
-import vip.xiaonuo.sys.modular.epcMod.param.YamlParam;
+import vip.xiaonuo.sys.modular.epcMod.param.*;
 import vip.xiaonuo.sys.modular.epcMod.service.EpcConfigService;
 import vip.xiaonuo.sys.modular.epcMod.util.DatabaseCreator;
 import vip.xiaonuo.sys.modular.epcMod.util.YamlUtil;
@@ -71,6 +66,11 @@ public class EpcConfigServiceImpl implements EpcConfigService {
             log.error("创建yaml文件失败，e:"+e.getMessage());
             throw new CommonException("创建yaml文件失败,e:"+e.getMessage());
         }
+    }
+
+    @Override
+    public void transferFile(TransferFileParam transferFileParam){
+        yamlUtil.transferFile(transferFileParam);
     }
 
 }

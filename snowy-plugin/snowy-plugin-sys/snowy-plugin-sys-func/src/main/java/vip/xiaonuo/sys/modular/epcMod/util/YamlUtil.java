@@ -102,7 +102,7 @@ public class YamlUtil {
         return false;//未找到第二个key，返回false
     }
 
-    public static void transferFile(TransferFileParam transferFileParam) {
+    public void transferFile(TransferFileParam transferFileParam) {
         try {
             JSch jsch = new JSch();
             Session sourceSession = jsch.getSession(transferFileParam.getSourceUsername(), transferFileParam.getSourceHost(), 22);//连接到源服务器
@@ -131,7 +131,7 @@ public class YamlUtil {
 
             log.info("文件传输完成。");
         } catch (Exception e) {
-            log.info("文件传输过程中发生错误: " + e.getMessage());
+            log.error("文件传输过程中发生错误: " + e.getMessage());
             e.printStackTrace();
             throw new CommonException("文件传输过程中发生错误");
         }
