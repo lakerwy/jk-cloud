@@ -1,5 +1,6 @@
 package vip.xiaonuo.dev.modular.server.service;
 
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -8,6 +9,7 @@ import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
 import vip.xiaonuo.dev.modular.server.param.YamlProperties;
 
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -19,22 +21,23 @@ import java.nio.charset.StandardCharsets;
 @Service
 @Slf4j
 public class YamlService {
-    private final TemplateEngine templateEngine;
+    @Resource
+    TemplateEngine templateEngine;
 
     private final String YML_TEMPLATE = "application";
 
     @Value("${output.file.path}")
     private String outputFilePath;
 
-    public YamlService(TemplateEngine templateEngine) {
-        this.templateEngine = templateEngine;
-    }
+//    public YamlService(TemplateEngine templateEngine) {
+//        this.templateEngine = templateEngine;
+//    }
 
     public void generateYamlFile(YamlProperties yamlProperties) {
         // 创建 Thymeleaf 上下文
         Context context = new Context();
         context.setVariable("rabbit.topic.exchange",yamlProperties.getRabbitTopicExchange());
-
+//        TemplateEngine templateEngine = SpringUtil.getBean("templateEngine");
         // 渲染模板
         String renderedYaml = templateEngine.process("YML_TEMPLATE", context);
 

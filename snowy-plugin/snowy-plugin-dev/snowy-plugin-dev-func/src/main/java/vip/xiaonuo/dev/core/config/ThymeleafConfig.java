@@ -23,10 +23,10 @@ public class ThymeleafConfig {
         return templateResolver;
     }
 
-    @Bean
-    public TemplateEngine templateEngine() {
-        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
-        templateEngine.setTemplateResolver(templateResolver());
-        return templateEngine;
-    }
+//    @Bean
+//    public TemplateEngine templateEngine() {
+//        SpringTemplateEngine templateEngine = new SpringTemplateEngine();
+//        templateEngine.setTemplateResolver(templateResolver());
+//        return templateEngine;
+//    }
 }
