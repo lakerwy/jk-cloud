@@ -1,13 +1,8 @@
-package vip.xiaonuo.sys.modular.epcMod.param;
+package vip.xiaonuo.dev.modular.epcMod.param;
 
-import com.baomidou.mybatisplus.annotation.FieldStrategy;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.fhs.core.trans.anno.Trans;
-import com.fhs.core.trans.constant.TransType;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.sys.modular.position.entity.SysPosition;
 
 import javax.validation.constraints.NotBlank;
 

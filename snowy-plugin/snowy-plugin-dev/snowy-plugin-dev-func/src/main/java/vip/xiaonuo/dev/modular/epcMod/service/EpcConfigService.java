@@ -1,6 +1,6 @@
-package vip.xiaonuo.sys.modular.epcMod.service;
+package vip.xiaonuo.dev.modular.epcMod.service;
 
-import vip.xiaonuo.sys.modular.epcMod.param.*;
+import vip.xiaonuo.dev.modular.epcMod.param.*;
 
 public interface EpcConfigService {
 
