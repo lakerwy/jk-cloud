@@ -26,8 +26,8 @@ public class YamlService {
 
     private final String YML_TEMPLATE = "application";
 
-    @Value("${output.file.path}")
-    private String outputFilePath;
+//    @Value("${output.file.path}")
+//    private String outputFilePath;
 
 //    public YamlService(TemplateEngine templateEngine) {
 //        this.templateEngine = templateEngine;
@@ -43,7 +43,7 @@ public class YamlService {
 
         // 写入文件
         try {
-            File outputFile = new File(outputFilePath);
+            File outputFile = new File("AA");
             FileCopyUtils.copy(renderedYaml.getBytes(StandardCharsets.UTF_8), outputFile);
         } catch (IOException e) {
             // 处理异常...
