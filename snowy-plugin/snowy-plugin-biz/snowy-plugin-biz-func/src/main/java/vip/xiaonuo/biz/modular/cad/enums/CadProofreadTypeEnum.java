@@ -15,20 +15,23 @@ package vip.xiaonuo.biz.modular.cad.enums;
 import lombok.Getter;
 
 /**
- * CAD-用户表枚举
+ * CAD-提资|校审记录表枚举  --- Type
  *
  * @author yong.ye
- * @date  2023/11/29 10:40
+ * @date  2023/12/01 15:36
  **/
 @Getter
-public enum CadUserEnum {
+public enum CadProofreadTypeEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 校审 -- 通过进成品区 */
+    PRODUCT("PRODUCT"),
+
+    /** 提资 -- 通过进提资区 */
+    SUPPLY("SUPPLY");
 
     private final String value;
 
-    CadUserEnum(String value) {
+    CadProofreadTypeEnum(String value) {
         this.value = value;
     }
 }

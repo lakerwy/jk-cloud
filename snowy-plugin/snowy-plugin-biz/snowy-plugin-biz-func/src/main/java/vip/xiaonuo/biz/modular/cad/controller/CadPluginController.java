@@ -60,6 +60,8 @@ public class CadPluginController {
     private CadProofreadService cadProofreadService;
     @Resource
     private CadTagService cadTagService;
+    @Resource
+    private CadSubItemService cadSubItemService;
 
 
 
@@ -363,8 +365,8 @@ public class CadPluginController {
     @ApiOperationSupport(order = 20)
     @ApiOperation("【CAD-插件端】根据fileId和区域,获取目录文件夹路径")
     @GetMapping("/biz/cad/plugin/getFilePathById")
-    public CommonResult<FilePathVo> getFilePathById(String part,String fileId) {
-        return CommonResult.data(cadFileService.getFilePathById(part,fileId));
+    public CommonResult<FilePathVo> getFilePathById(String part,String prjId,String stageId,String subItemId,String professionId,String fileId) {
+        return CommonResult.data(cadFileService.getFilePathById(part,prjId,stageId,subItemId,professionId,fileId));
     }
 
 
@@ -377,8 +379,8 @@ public class CadPluginController {
     @ApiOperationSupport(order = 21)
     @ApiOperation("【CAD-插件端】根据fileId和目录类型，获取子目录，含自身")
     @GetMapping("/biz/cad/plugin/getFileChildren")
-    public CommonResult<List<CadFile>> getFileChildren(String fileId,String fileType) {
-        return CommonResult.data(cadFileService.getChildren(fileId,fileType));
+    public CommonResult<List<CadFile>> getFileChildren(String prjId,String stageId,String subItemId,String professionId,String fileId,String fileType) {
+        return CommonResult.data(cadFileService.getChildren(prjId,stageId,subItemId,professionId,fileId,fileType));
     }
 
     /**
@@ -387,11 +389,11 @@ public class CadPluginController {
      * @author yong.ye
      * @date  2023/12/01 10:40
      */
-    @ApiOperationSupport(order = 21)
+    @ApiOperationSupport(order = 22)
     @ApiOperation("【CAD-插件端】根据fileId，获取父级目录，含自身")
     @GetMapping("/biz/cad/plugin/getFileParentTree")
-    public CommonResult<List<Tree<String>>> getFileParentTree(String fileId,String includeSelf) {
-        return CommonResult.data(cadProjectService.getFileParentTree(fileId,includeSelf));
+    public CommonResult<List<Tree<String>>> getFileParentTree(String prjId,String stageId,String subItemId,String professionId,String fileId,String includeSelf) {
+        return CommonResult.data(cadProjectService.getFileParentTree(prjId,stageId,subItemId,professionId,fileId,includeSelf));
     }
 
     /**
@@ -400,13 +402,37 @@ public class CadPluginController {
      * @author yong.ye
      * @date  2023/12/11 17:40
      */
-    @ApiOperationSupport(order = 22)
+    @ApiOperationSupport(order = 23)
     @ApiOperation("【CAD-插件端】CAD- 删除文件目录(文件|文件夹) ")
     @CommonLog("【CAD-插件端】CAD- 删除文件目录 ")
     @PostMapping("/biz/cad/plugin/delFile")
     public CommonResult<String> delFile(@RequestBody @Valid CadFileIdParam cadFileIdParam) {
         cadFileService.delFile(cadFileIdParam);
         return CommonResult.ok();
+    }
+
+    /**
+     * 【CAD-插件端】根据子项Id+专业Id，获取专业负责人
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 24)
+    @ApiOperation("【CAD-插件端】根据子项Id+专业Id，获取专业负责人")
+    @GetMapping("/biz/cad/plugin/getProfessionManager")
+    public CommonResult<SubItemUserVo> getProfessionManager(String subItemId,String professionId) {
+        return CommonResult.data(cadSubItemService.getProfessionManager(subItemId,professionId));
+    }
+
+    /**
+     * 【CAD-插件端】根据子项Id+专业Id，获取本专业人员设置
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 25)
+    @ApiOperation("【CAD-插件端】根据子项Id+专业Id，获取本子项，获取本专业人员设置")
+    @GetMapping("/biz/cad/plugin/getProfessionUser")
+    public CommonResult<List<SubItemUserVo>> getProfessionUser(String subItemId,String professionId,String isSplitRole) {
+        return CommonResult.data(cadSubItemService.getProfessionUser(subItemId,professionId,isSplitRole));
     }
 
 }

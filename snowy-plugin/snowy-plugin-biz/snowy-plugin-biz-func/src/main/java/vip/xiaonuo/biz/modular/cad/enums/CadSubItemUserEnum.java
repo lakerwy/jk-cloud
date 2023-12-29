@@ -23,8 +23,14 @@ import lombok.Getter;
 @Getter
 public enum CadSubItemUserEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 专业负责人 */
+    MAJOR("专业负责人"),
+    /** 审核 */
+    AUDIT("审核"),
+    /** 审定 */
+    EXAMINE("审定"),
+    /** 校对 */
+    PROOFREAD("校对");
 
     private final String value;
 

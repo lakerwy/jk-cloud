@@ -10,4 +10,24 @@
         where a.SUB_ITEM_ID = #{subItemId} and a.DELETE_FLAG = 'NOT_DELETE'
         order by c.SORT_INDEX
     </select>
+
+    <select id="getProfessionManager" resultType="vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo">
+        select a.*,b.NAME as userName
+        from BIZ_CAD_SUB_ITEM_USER a
+                 left join BIZ_CAD_USER b on a.CAD_USER_ID = b.ID
+        where a.SUB_ITEM_ID = #{subItemId}
+          and a.PROFESSION_ID = #{professionId}
+          and a.IS_MAJOR = '1'
+          and a.DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
+    <select id="getProfessionUser" resultType="vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo">
+        select a.*,b.NAME as userName,c.NAME as professionName
+        from BIZ_CAD_SUB_ITEM_USER a
+                 left join BIZ_CAD_USER b on a.CAD_USER_ID = b.ID
+                 left join BIZ_CAD_PROFESSION c on a.PROFESSION_ID = c.ID
+        where a.SUB_ITEM_ID = #{subItemId}
+          and a.PROFESSION_ID = #{professionId}
+          and a.DELETE_FLAG = 'NOT_DELETE'
+    </select>
 </mapper>

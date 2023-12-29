@@ -15,7 +15,7 @@
             @l := @l + 1 AS LEVEL
         FROM
             BIZ_CAD_FILE,
-            ( SELECT @ids := ${fileId}, @l := 0 ) b
+            ( SELECT @ids := '${fileId}', @l := 0 ) b
         WHERE
             @ids IS NOT NULL
             ) b,
@@ -23,7 +23,7 @@
         WHERE
             FIND_IN_SET( a.id, b._ids )
             <if test=" type != null and type != '' ">
-                and a.`TYPE` = #{type}
+                and a.`TYPE` = '${type}'
             </if>
         ORDER BY
             LEVEL,
@@ -40,7 +40,7 @@
                     (SELECT @r := PARENT_ID FROM BIZ_CAD_FILE WHERE ID = _id) AS parent_id,
             @l := @l + 1 AS lvl
         FROM
-            (SELECT @r := ${fileId}, @l := 0) vars, BIZ_CAD_FILE AS h
+            (SELECT @r := '${fileId}', @l := 0) vars, BIZ_CAD_FILE AS h
         WHERE @r != '' and @r is not null
             ) t1
             JOIN BIZ_CAD_FILE t2

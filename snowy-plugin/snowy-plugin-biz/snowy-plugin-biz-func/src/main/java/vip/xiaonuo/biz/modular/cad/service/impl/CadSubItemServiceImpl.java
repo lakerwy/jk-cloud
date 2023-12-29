@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.cad.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -22,6 +23,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.cad.enums.CadSubItemUserEnum;
 import vip.xiaonuo.biz.modular.cad.vo.SubItemUserVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -35,7 +37,9 @@ import vip.xiaonuo.biz.modular.cad.param.CadSubItemPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadSubItemService;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * CAD-项目子项表Service接口实现类
@@ -108,5 +112,32 @@ public class CadSubItemServiceImpl extends ServiceImpl<CadSubItemMapper, CadSubI
     @Override
     public List<SubItemUserVo> subItemUser(String subItemId) {
         return cadSubItemMapper.getSubItemUser(subItemId);
+    }
+
+    @Override
+    public SubItemUserVo getProfessionManager(String subItemId, String professionId) {
+        List<SubItemUserVo> subItemUserVoList = cadSubItemMapper.getProfessionManager(subItemId,professionId);
+        if(CollUtil.isNotEmpty(subItemUserVoList)){
+            return subItemUserVoList.get(0);
+        }
+        return null;
+    }
+
+    @Override
+    public List<SubItemUserVo> getProfessionUser(String subItemId, String professionId,String isSplitRole) {
+        List<SubItemUserVo> subItemUserVoList = cadSubItemMapper.getProfessionUser(subItemId,professionId);
+        if(ObjectUtil.isEmpty(isSplitRole)) return subItemUserVoList;
+        List<SubItemUserVo> result = new ArrayList<>();
+        //按照充当的角色拆分
+        List<SubItemUserVo> auditList = subItemUserVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getIsAudit()) && "1".equals(x.getIsAudit())).collect(Collectors.toList());
+        List<SubItemUserVo> examineList = subItemUserVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getIsExamine()) && "1".equals(x.getIsExamine())).collect(Collectors.toList());
+        List<SubItemUserVo> proofList = subItemUserVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getIsProofread()) && "1".equals(x.getIsProofread())).collect(Collectors.toList());
+        auditList.forEach(x->x.setRoleName(CadSubItemUserEnum.AUDIT.getValue()));
+        examineList.forEach(x->x.setRoleName(CadSubItemUserEnum.EXAMINE.getValue()));
+        proofList.forEach(x->x.setRoleName(CadSubItemUserEnum.PROOFREAD.getValue()));
+        result.addAll(auditList);
+        result.addAll(examineList);
+        result.addAll(proofList);
+        return result;
     }
 }

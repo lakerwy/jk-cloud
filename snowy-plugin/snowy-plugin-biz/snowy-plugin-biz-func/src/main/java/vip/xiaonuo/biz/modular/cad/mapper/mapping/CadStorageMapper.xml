@@ -25,7 +25,7 @@
                     (SELECT @r := PARENT_ID FROM BIZ_CAD_STORAGE WHERE ID = _id) AS parent_id,
             @l := @l + 1 AS lvl
         FROM
-            (SELECT @r := ${fileId}, @l := 0) vars, BIZ_CAD_STORAGE AS h
+            (SELECT @r := '${fileId}', @l := 0) vars, BIZ_CAD_STORAGE AS h
         WHERE @r != '' and @r is not null
             ) t1
             JOIN BIZ_CAD_STORAGE t2

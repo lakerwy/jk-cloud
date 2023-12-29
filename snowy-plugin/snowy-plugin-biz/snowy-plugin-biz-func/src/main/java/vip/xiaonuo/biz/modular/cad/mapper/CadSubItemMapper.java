@@ -30,4 +30,15 @@ public interface CadSubItemMapper extends BaseMapper<CadSubItem> {
      *  根据子项Id,获取当前项目子项下的专业人员设置列表
      */
     List<SubItemUserVo> getSubItemUser(String subItemId);
+
+    /**
+     *  根据子项Id,专业Id,获取专业负责人
+     */
+    List<SubItemUserVo> getProfessionManager(String subItemId,String professionId);
+
+    /**
+     *  根据子项Id,专业Id,获取专业人员设置
+     */
+    List<SubItemUserVo> getProfessionUser(String subItemId,String professionId);
+
 }

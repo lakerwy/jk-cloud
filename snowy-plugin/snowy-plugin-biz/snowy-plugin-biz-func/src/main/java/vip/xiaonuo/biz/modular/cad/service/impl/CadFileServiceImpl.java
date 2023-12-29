@@ -23,18 +23,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
+import vip.xiaonuo.biz.modular.cad.entity.*;
 import vip.xiaonuo.biz.modular.cad.enums.CadFileEnum;
 import vip.xiaonuo.biz.modular.cad.mapper.CadStorageMapper;
 import vip.xiaonuo.biz.modular.cad.param.*;
+import vip.xiaonuo.biz.modular.cad.service.*;
 import vip.xiaonuo.biz.modular.cad.vo.FilePathVo;
-import vip.xiaonuo.biz.modular.cad.vo.PrjStageSubProfVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.biz.modular.cad.entity.CadFile;
 import vip.xiaonuo.biz.modular.cad.mapper.CadFileMapper;
-import vip.xiaonuo.biz.modular.cad.service.CadFileService;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -56,6 +54,18 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
 
     @Resource
     private CadStorageMapper cadStorageMapper;
+
+    @Resource
+    private CadProjectService cadProjectService;
+
+    @Resource
+    private CadStageService cadStageService;
+
+    @Resource
+    private CadSubItemService cadSubItemService;
+
+    @Resource
+    private CadProfessionService cadProfessionService;
 
     @Override
     public Page<CadFile> page(CadFilePageParam cadFilePageParam) {
@@ -119,8 +129,18 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
     }
 
     @Override
-    public List<CadFile> getChildren(String fileId, String type) {
-        return cadFileMapper.getChildren(fileId,type);
+    public List<CadFile> getChildren(String prjId,String stageId,String subItemId,String professionId,String fileId, String type) {
+        if(fileId.equals(prjId) || fileId.equals(stageId) || fileId.equals(subItemId) || (fileId.contains(subItemId) && fileId.contains(professionId))){
+             QueryWrapper<CadFile> queryWrapper = new QueryWrapper<>();
+             if(ObjectUtil.isNotEmpty(prjId)) queryWrapper.lambda().eq(CadFile::getPrjId,prjId);
+             if(ObjectUtil.isNotEmpty(stageId)) queryWrapper.lambda().eq(CadFile::getStageId,stageId);
+             if(ObjectUtil.isNotEmpty(subItemId)) queryWrapper.lambda().eq(CadFile::getSubItemId,subItemId);
+             if(ObjectUtil.isNotEmpty(professionId)) queryWrapper.lambda().eq(CadFile::getProfessionId,professionId);
+             queryWrapper.lambda().eq(CadFile::getType,type);
+             return this.list(queryWrapper);
+        }else{
+            return cadFileMapper.getChildren(fileId,type);
+        }
     }
 
     @Override
@@ -131,16 +151,40 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
     }
 
     @Override
-    public FilePathVo getFilePathById(String part, String fileId) {
+    public FilePathVo getFilePathById(String part,String prjId,String stageId,String subItemId,String professionId, String fileId) {
         FilePathVo filePathVo = new FilePathVo();
         String fileName = "";
         String filePathDir = "";
+
+        //存在传入的fileId，不在自定义目录下，属于 项目|阶段|子项|专业(子项Id+专业Id) 层次
+        if(ObjectUtil.isNotEmpty(prjId))
+        {
+            CadProject cadProject = cadProjectService.getById(prjId);
+            filePathVo.setPrjId(prjId);
+            filePathVo.setPrjName(cadProject.getName());
+        }
+        if(ObjectUtil.isNotEmpty(stageId))
+        {
+            CadStage cadStage = cadStageService.getById(stageId);
+            filePathVo.setStageId(stageId);
+            filePathVo.setStageName(cadStage.getName());
+        }
+        if(ObjectUtil.isNotEmpty(subItemId))
+        {
+            CadSubItem cadSubItem = cadSubItemService.getById(subItemId);
+            filePathVo.setSubItemId(subItemId);
+            filePathVo.setSubItemName(cadSubItem.getName());
+        }
+        if(ObjectUtil.isNotEmpty(professionId))
+        {
+            CadProfession cadProfession = cadProfessionService.getById(professionId);
+            filePathVo.setProfessionId(professionId);
+            filePathVo.setProfessionName(cadProfession.getName());
+        }
         //设计区
         if(part.equals("DESIGN")){
             //获取某个目录的父级
             List<CadFile> cadFileList = cadFileMapper.getParent(fileId);
-            //获取项目信息
-            filePathVo = BeanUtil.copyProperties(cadFileMapper.getPrjInfoByFileId(fileId),FilePathVo.class);
             //拼接自定目录
             if(CollUtil.isNotEmpty(cadFileList)) {
                 while (ObjectUtil.isNotEmpty(fileId)) {
@@ -161,7 +205,6 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
         }else{
             //校审区|提资区|成品区
             List<CadStorage> cadStorageList = cadStorageMapper.getParent(fileId);
-            filePathVo = BeanUtil.copyProperties(cadStorageMapper.getPrjInfoByStorageId(fileId),FilePathVo.class);
             //拼接自定目录
             if(CollUtil.isNotEmpty(cadStorageList)) {
                 while (ObjectUtil.isNotEmpty(fileId)) {
@@ -180,10 +223,8 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
                 }
             }
         }
-        if(ObjectUtil.isNotEmpty(filePathVo)) {
-            filePathVo.setFileName(fileName);
-            filePathVo.setFilePathDir(filePathDir);
-        }
+        filePathVo.setFileName(fileName);
+        filePathVo.setFilePathDir(filePathDir);
         return filePathVo;
     }
 

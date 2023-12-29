@@ -95,10 +95,9 @@ public interface CadFileService extends IService<CadFile> {
     /**
      * 根据文件目录Id，获取其父级
      * @param fileId 目录Id
-     * @param type 目录类别
      * @return
      */
-    List<CadFile> getChildren(String fileId,String type);
+    List<CadFile> getChildren(String prjId,String stageId,String subItemId,String professionId,String fileId,String fileType);
 
     /**
      * 更新批注状态
@@ -112,7 +111,7 @@ public interface CadFileService extends IService<CadFile> {
      * @param fileId 目录Id：CadFile.Id | CadStorage.Id
      * @return
      */
-    FilePathVo getFilePathById(String part, String fileId);
+    FilePathVo getFilePathById(String part,String prjId,String stageId,String subItemId,String professionId,String fileId);
 
     /**
      * 根据目录Id，删除子文件或文件夹

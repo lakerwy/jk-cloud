@@ -33,12 +33,11 @@ import vip.xiaonuo.biz.modular.cad.enums.CadProductEnum;
 import vip.xiaonuo.biz.modular.cad.enums.ProofreadAuditStatusEnum;
 import vip.xiaonuo.biz.modular.cad.mapper.*;
 import vip.xiaonuo.biz.modular.cad.param.*;
-import vip.xiaonuo.biz.modular.cad.service.CadProductService;
+import vip.xiaonuo.biz.modular.cad.service.*;
 import vip.xiaonuo.biz.modular.cad.vo.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.biz.modular.cad.service.CadProjectService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -66,6 +65,15 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
     private CadProofreadMapper cadProofreadMapper;
     @Resource
     private CadFileMapper cadFileMapper;
+
+    @Resource
+    private CadStageService cadStageService;
+
+    @Resource
+    private CadSubItemService cadSubItemService;
+
+    @Resource
+    private CadProfessionService cadProfessionService;
 
     @Override
     public Page<CadProjectVo> page(CadProjectPageParam cadProjectPageParam) {
@@ -268,12 +276,37 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
     }
 
     @Override
-    public List<Tree<String>> getFileParentTree(String fileId,String includeSelf) {
-        //根据文件Id，获取项目目录信息
-        List<PrjStageSubProfVo> prjInfoList =  cadFileMapper.getPrjStageSubProf3(fileId);
-        if(CollUtil.isEmpty(prjInfoList)) return null;
-        //项目Id
-        String prjId = prjInfoList.get(0).getPrjId();
+    public List<Tree<String>> getFileParentTree(String prjId,String stageId,String subItemId,String professionId,String fileId,String includeSelf) {
+        //获取项目目录信息
+        List<PrjStageSubProfVo> prjInfoList = new ArrayList<>();
+        PrjStageSubProfVo prjStageSubProfVo = new PrjStageSubProfVo();
+        //存在传入的fileId，不在自定义目录下，属于 项目|阶段|子项|专业(子项Id+专业Id) 层次
+        if(ObjectUtil.isNotEmpty(prjId))
+        {
+            CadProject cadProject = this.getById(prjId);
+            prjStageSubProfVo.setPrjId(prjId);
+            prjStageSubProfVo.setPrjName(cadProject.getName());
+        }
+        if(ObjectUtil.isNotEmpty(stageId))
+        {
+            CadStage cadStage = cadStageService.getById(stageId);
+            prjStageSubProfVo.setStageId(stageId);
+            prjStageSubProfVo.setStageName(cadStage.getName());
+        }
+        if(ObjectUtil.isNotEmpty(subItemId))
+        {
+            CadSubItem cadSubItem = cadSubItemService.getById(subItemId);
+            prjStageSubProfVo.setSubItemId(subItemId);
+            prjStageSubProfVo.setSubItemName(cadSubItem.getName());
+        }
+        if(ObjectUtil.isNotEmpty(professionId))
+        {
+            CadProfession cadProfession = cadProfessionService.getById(professionId);
+            prjStageSubProfVo.setProfessionId(professionId);
+            prjStageSubProfVo.setProfessionName(cadProfession.getName());
+        }
+        prjInfoList.add(prjStageSubProfVo);
+
         //1 获取该项目下自定义文件目录结构【本项目全体】
         QueryWrapper<CadFile> fileQueryWrapper = new QueryWrapper<>();
         fileQueryWrapper.eq("file.PRJ_ID",prjId);
@@ -281,6 +314,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         List<CadFileVo> prjAllFileList = cadProjectMapper.getPrjFile(fileQueryWrapper);
         //2 获取指定文件的父级
         List<CadFileVo> prjFileList = getParentList(prjAllFileList, Arrays.asList(fileId),StrUtil.isNotEmpty(includeSelf));
+
         //构建项目+自定义文件目录树状结构
         List<CadFileVo> treeFileList = this.getFileTree(prjInfoList,prjFileList);
         List<TreeNode<String>> treeNodeList = treeFileList.stream().map(fileTree -> {
@@ -339,7 +373,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
                     .distinct().collect(Collectors.toList());
             professionList.forEach(x->{
                 CadFileVo tmp = BeanUtil.copyProperties(x,CadFileVo.class);
-                tmp.setFId(StrUtil.join(",", x.getSubItemId(),x.getProfessionId()));
+                tmp.setFId(StrUtil.join("", x.getSubItemId(),x.getProfessionId()));
                 tmp.setFParentId(x.getSubItemId());
                 tmp.setFName(x.getProfessionName());
                 result.add(tmp);

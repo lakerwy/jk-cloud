@@ -85,4 +85,20 @@ public interface CadSubItemService extends IService<CadSubItem> {
      * @return
      */
     List<SubItemUserVo> subItemUser(String subItemId);
+
+    /**
+     * 根据子项+专业，获取专业负责人
+     * @param subItemId
+     * @param professionId
+     * @return
+     */
+    SubItemUserVo getProfessionManager(String subItemId, String professionId);
+
+    /**
+     * 根据子项+专业，获取子项专业人员设置
+     * @param subItemId
+     * @param professionId
+     * @return
+     */
+    List<SubItemUserVo> getProfessionUser(String subItemId, String professionId,String isSplitRole);
 }

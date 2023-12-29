@@ -127,5 +127,5 @@ public interface CadProjectService extends IService<CadProject> {
      * @param fileId
      * @return
      */
-    List<Tree<String>> getFileParentTree(String fileId,String includeSelf);
+    List<Tree<String>> getFileParentTree(String prjId,String stageId,String subItemId,String professionId,String fileId,String includeSelf);
 }

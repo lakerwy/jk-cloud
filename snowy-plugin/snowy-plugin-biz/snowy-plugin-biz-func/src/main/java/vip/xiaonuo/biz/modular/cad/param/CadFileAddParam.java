@@ -33,6 +33,10 @@ import java.util.Date;
 @Setter
 public class CadFileAddParam {
 
+    /** Id */
+    @ApiModelProperty(value = "Id", position = 3)
+    private String id;
+
     /** 父文件Id */
     @ApiModelProperty(value = "父文件Id", position = 3)
     private String parentId;

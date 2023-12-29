@@ -25,4 +25,8 @@ public class SubItemUserVo extends CadSubItemUser {
     @ApiModelProperty(value = "专业名称", position = 20)
     private String professionName;
 
+    /** 所承担的角色 */
+    @ApiModelProperty(value = "所承担的角色", position = 20)
+    private String roleName;
+
 }
