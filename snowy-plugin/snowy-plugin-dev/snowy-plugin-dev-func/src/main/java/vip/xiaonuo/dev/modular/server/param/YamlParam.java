@@ -1,4 +1,4 @@
-package vip.xiaonuo.sys.modular.epcMod.param;
+package vip.xiaonuo.dev.modular.server.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

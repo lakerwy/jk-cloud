@@ -685,7 +685,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
         File fileTemp = convertBytesToFile(IoUtil.readBytes(FileUtil.getInputStream(file)),devFile.getStoragePath() + "." + devFile.getSuffix());
         String outFile = fileTemp.getParent();
-        if(outFile.contains("\\")){
+        if(outFile.contains(FileUtil.FILE_SEPARATOR)){
             outFile = outFile+"\\"+UUID.randomUUID().toString();
         }else{
             outFile = outFile+"/"+UUID.randomUUID().toString();

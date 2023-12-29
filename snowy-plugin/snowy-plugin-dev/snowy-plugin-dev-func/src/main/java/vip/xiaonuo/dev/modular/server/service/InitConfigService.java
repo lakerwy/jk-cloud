@@ -1,11 +1,8 @@
-package vip.xiaonuo.sys.modular.epcMod.service;
+package vip.xiaonuo.dev.modular.server.service;
 
-import vip.xiaonuo.sys.modular.epcMod.param.DataBaseParam;
-import vip.xiaonuo.sys.modular.epcMod.param.InitUserParam;
-import vip.xiaonuo.sys.modular.epcMod.param.TableParam;
-import vip.xiaonuo.sys.modular.epcMod.param.YamlParam;
+import vip.xiaonuo.dev.modular.server.param.*;
 
-public interface EpcConfigService {
+public interface InitConfigService {
 
     /**
      * 建库
@@ -27,4 +24,9 @@ public interface EpcConfigService {
      * @param initUserParam
      */
     void initData(InitUserParam initUserParam);
+
+    /**
+     * 服务器之间传文件
+     * */
+    void transferFile(TransferFileParam transferFileParam);
 }

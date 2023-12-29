@@ -1,4 +1,4 @@
-package vip.xiaonuo.sys.modular.epcMod.util;
+package vip.xiaonuo.dev.modular.server.util;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -9,8 +9,8 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.sys.modular.epcMod.param.TransferFileParam;
-import vip.xiaonuo.sys.modular.epcMod.param.YamlParam;
+import vip.xiaonuo.dev.modular.server.param.TransferFileParam;
+import vip.xiaonuo.dev.modular.server.param.YamlParam;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -102,7 +102,7 @@ public class YamlUtil {
         return false;//未找到第二个key，返回false
     }
 
-    public static void transferFile(TransferFileParam transferFileParam) {
+    public void transferFile(TransferFileParam transferFileParam) {
         try {
             JSch jsch = new JSch();
             Session sourceSession = jsch.getSession(transferFileParam.getSourceUsername(), transferFileParam.getSourceHost(), 22);//连接到源服务器
@@ -131,7 +131,7 @@ public class YamlUtil {
 
             log.info("文件传输完成。");
         } catch (Exception e) {
-            log.info("文件传输过程中发生错误: " + e.getMessage());
+            log.error("文件传输过程中发生错误: " + e.getMessage());
             e.printStackTrace();
             throw new CommonException("文件传输过程中发生错误");
         }
