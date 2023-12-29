@@ -1,14 +1,14 @@
-package vip.xiaonuo.dev.modular.epcMod.service.impl;
+package vip.xiaonuo.dev.modular.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.dev.modular.epcMod.param.*;
-import vip.xiaonuo.dev.modular.epcMod.service.EpcConfigService;
-import vip.xiaonuo.dev.modular.epcMod.util.DatabaseCreator;
-import vip.xiaonuo.dev.modular.epcMod.util.YamlUtil;
+import vip.xiaonuo.dev.modular.server.service.InitConfigService;
+import vip.xiaonuo.dev.modular.server.util.DatabaseCreator;
+import vip.xiaonuo.dev.modular.server.util.YamlUtil;
+import vip.xiaonuo.dev.modular.server.param.*;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class EpcConfigServiceImpl implements EpcConfigService {
+public class InitConfigServiceImpl implements InitConfigService {
 
     @Resource
     private DatabaseCreator databaseCreator;

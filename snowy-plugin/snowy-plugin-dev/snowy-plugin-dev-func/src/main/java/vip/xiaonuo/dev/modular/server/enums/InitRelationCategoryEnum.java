@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.epcMod.enums;
+package vip.xiaonuo.dev.modular.server.enums;
 
 import lombok.Getter;
 
@@ -21,7 +21,7 @@ import lombok.Getter;
  * @date 2022/4/21 19:56
  **/
 @Getter
-public enum EpcRelationCategoryEnum {
+public enum InitRelationCategoryEnum {
 
     /** 用户工作台数据 */
     SYS_USER_WORKBENCH_DATA("SYS_USER_WORKBENCH_DATA"),
@@ -49,7 +49,7 @@ public enum EpcRelationCategoryEnum {
 
     private final String value;
 
-    EpcRelationCategoryEnum(String value) {
+    InitRelationCategoryEnum(String value) {
         this.value = value;
     }
 }

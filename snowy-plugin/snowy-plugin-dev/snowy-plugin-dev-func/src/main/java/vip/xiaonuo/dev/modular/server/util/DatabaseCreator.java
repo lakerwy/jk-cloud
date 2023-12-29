@@ -1,4 +1,4 @@
-package vip.xiaonuo.dev.modular.epcMod.util;
+package vip.xiaonuo.dev.modular.server.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
@@ -14,9 +14,12 @@ import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
-import vip.xiaonuo.dev.modular.epcMod.enums.EpcRelationCategoryEnum;
-import vip.xiaonuo.dev.modular.epcMod.param.*;
-import vip.xiaonuo.dev.modular.epcMod.vo.ObjInfo;
+import vip.xiaonuo.dev.modular.server.enums.InitRelationCategoryEnum;
+import vip.xiaonuo.dev.modular.server.vo.ObjInfo;
+import vip.xiaonuo.dev.modular.server.param.DataBaseParam;
+import vip.xiaonuo.dev.modular.server.param.InitUserParam;
+import vip.xiaonuo.dev.modular.server.param.UnixCommandParam;
+import vip.xiaonuo.dev.modular.server.param.UserParam;
 
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -131,7 +134,7 @@ public class DatabaseCreator {
                             relationStmt.setString(1,IdWorker.getIdStr());
                             relationStmt.setString(2,item.getId());
                             relationStmt.setString(3,item.getRoleId());
-                            relationStmt.setString(4, EpcRelationCategoryEnum.SYS_USER_HAS_ROLE.getValue());
+                            relationStmt.setString(4, InitRelationCategoryEnum.SYS_USER_HAS_ROLE.getValue());
                             relationStmt.addBatch();
                         }
                         int[] userCount = userStmt.executeBatch();

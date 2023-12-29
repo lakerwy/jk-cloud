@@ -1,4 +1,4 @@
-package vip.xiaonuo.dev.modular.epcMod.util;
+package vip.xiaonuo.dev.modular.server.util;
 
 import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSch;
@@ -9,8 +9,8 @@ import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.dev.modular.epcMod.param.TransferFileParam;
-import vip.xiaonuo.dev.modular.epcMod.param.YamlParam;
+import vip.xiaonuo.dev.modular.server.param.TransferFileParam;
+import vip.xiaonuo.dev.modular.server.param.YamlParam;
 
 import java.io.BufferedWriter;
 import java.io.File;
