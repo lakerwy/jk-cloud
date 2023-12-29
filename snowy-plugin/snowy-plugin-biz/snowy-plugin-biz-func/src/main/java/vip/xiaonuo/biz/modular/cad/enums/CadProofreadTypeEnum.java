@@ -23,11 +23,11 @@ import lombok.Getter;
 @Getter
 public enum CadProofreadTypeEnum {
 
-    /** 校审 -- 通过进成品区 */
-    PRODUCT("PRODUCT"),
+    /** 发起校审 -- 通过进成品区 */
+    AUDIT_FLW("发起校审"),
 
-    /** 提资 -- 通过进提资区 */
-    SUPPLY("SUPPLY");
+    /** 发起提资 -- 通过进提资区 */
+    SUPPLY_FLW("发起提资");
 
     private final String value;
 

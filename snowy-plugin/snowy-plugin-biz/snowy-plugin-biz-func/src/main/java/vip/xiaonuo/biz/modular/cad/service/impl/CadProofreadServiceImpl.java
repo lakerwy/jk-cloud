@@ -28,6 +28,7 @@ import vip.xiaonuo.biz.modular.cad.entity.CadFileHistory;
 import vip.xiaonuo.biz.modular.cad.entity.CadProduct;
 import vip.xiaonuo.biz.modular.cad.entity.CadStorage;
 import vip.xiaonuo.biz.modular.cad.enums.CadFileEnum;
+import vip.xiaonuo.biz.modular.cad.enums.CadProductEnum;
 import vip.xiaonuo.biz.modular.cad.enums.CadProofreadTypeEnum;
 import vip.xiaonuo.biz.modular.cad.enums.ProofreadAuditStatusEnum;
 import vip.xiaonuo.biz.modular.cad.param.*;
@@ -153,7 +154,7 @@ public class CadProofreadServiceImpl extends ServiceImpl<CadProofreadMapper, Cad
                     proofread.setSubItemId(x.getSubItemId());
                     proofread.setProfessionId(x.getProfessionId());
                     proofread.setStorageId(x.getId());
-                    proofread.setType(CadProofreadTypeEnum.SUPPLY.getValue());
+                    proofread.setType(CadProofreadTypeEnum.SUPPLY_FLW.getValue());
                     proofread.setCreateUser(startFlwParam.getOprId());
                     proofread.setAuditor(y.getAuditor());
                     proofread.setMemo(y.getMemo());
@@ -206,7 +207,7 @@ public class CadProofreadServiceImpl extends ServiceImpl<CadProofreadMapper, Cad
                     proofread.setSubItemId(x.getSubItemId());
                     proofread.setProfessionId(x.getProfessionId());
                     proofread.setStorageId(x.getId());
-                    proofread.setType(CadProofreadTypeEnum.PRODUCT.getValue());
+                    proofread.setType(CadProofreadTypeEnum.AUDIT_FLW.getValue());
                     proofread.setCreateUser(startFlwParam.getOprId());
                     proofread.setAuditor(y.getAuditor());
                     proofread.setMemo(y.getMemo());
@@ -239,7 +240,7 @@ public class CadProofreadServiceImpl extends ServiceImpl<CadProofreadMapper, Cad
             product.setSubItemId(proofread.getSubItemId());
             product.setProfessionId(proofread.getProfessionId());
             product.setStorageId(proofread.getStorageId());
-            product.setType(proofread.getType());
+            product.setType(CadProofreadTypeEnum.SUPPLY_FLW.getValue().equals(proofread.getType())? CadProductEnum.SUPPLY.getValue():CadProductEnum.PRODUCT.getValue());
             product.setCreateUser(proofread.getCreateUser());
             cadProductService.save(product);
         }

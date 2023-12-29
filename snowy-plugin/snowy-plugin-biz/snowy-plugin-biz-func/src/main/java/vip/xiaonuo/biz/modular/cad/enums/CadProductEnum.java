@@ -24,10 +24,10 @@ import lombok.Getter;
 public enum CadProductEnum {
 
     /** 成品 */
-    PRODUCT("PRODUCT"),
+    PRODUCT("成品"),
 
     /** 提资 */
-    SUPPLY("SUPPLY");
+    SUPPLY("提资");
 
     private final String value;
 
