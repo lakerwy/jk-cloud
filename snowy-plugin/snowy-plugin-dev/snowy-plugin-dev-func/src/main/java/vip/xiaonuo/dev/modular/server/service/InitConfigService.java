@@ -26,6 +26,11 @@ public interface InitConfigService {
     void initData(InitUserParam initUserParam);
 
     /**
+     * 配置文件迁移前置工作：文件传递
+     * */
+    void singleConf(SingleConfParam singleConfParam) ;
+
+    /**
      * 服务器之间传文件
      * */
     void transferFile(TransferFileParam transferFileParam);

@@ -11,7 +11,8 @@ import vip.xiaonuo.dev.modular.server.util.YamlUtil;
 import vip.xiaonuo.dev.modular.server.param.*;
 
 import javax.annotation.Resource;
-import java.util.List;
+import java.io.File;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -67,9 +68,47 @@ public class InitConfigServiceImpl implements InitConfigService {
         }
     }
 
+    /**
+     * 配置文件迁移前置工作：传送到
+     * */
+    @Override
+    public void singleConf(SingleConfParam singleConfParam){
+        File file = new File(singleConfParam.getConfigPath());
+        List<Map<String,String>> fileList = new ArrayList<>();
+        getFileDataList(file,fileList);//获取全部文件
+        fileList.forEach(map -> {
+            TransferFileParam transferFileParam = BeanUtil.toBean(singleConfParam,TransferFileParam.class);//singleConfParam.getTransferLocalFileParam();
+
+            transferFileParam.setSourceFilePath(map.get("path"));
+            transferFileParam.setFileName(map.get("name"));
+            transferFileParam.setTargetFilePath(map.get("path"));
+            try{
+                yamlUtil.transferFile(transferFileParam);
+            }catch (Exception e){
+                log.error("上传文件失败！e:"+e.getMessage());
+                throw new CommonException("上传文件失败！");
+            }
+        });
+    }
+
     @Override
     public void transferFile(TransferFileParam transferFileParam){
         yamlUtil.transferFile(transferFileParam);
     }
 
+    private void getFileDataList(File file, List<Map<String,String>> fileList){
+        if (file == null) { return; }
+        if (file.isDirectory()) {//如果是文件夹，就继续递归
+            for (File tempFile : Objects.requireNonNull(file.listFiles())){getFileDataList(tempFile,fileList);}
+        }
+        //如果是文件，就解析一下，放到文件集合中
+        if (file.isFile()){
+            String absolutePath = file.getAbsolutePath();
+            String fileName = file.getName();
+            Map<String,String> map = new HashMap<>();
+            map.put("name",fileName);
+            map.put("path",absolutePath);
+            fileList.add(map);
+        }
+    }
 }

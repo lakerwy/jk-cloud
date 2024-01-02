@@ -60,7 +60,7 @@ public class SystemServerController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取系统服务表分页")
-    @SaCheckPermission("/sys/server/page")
+    //@SaCheckPermission("/sys/server/page")
     @GetMapping("/sys/server/page")
     public CommonResult<Page<SystemServer>> page(SystemServerPageParam systemServerPageParam) {
         return CommonResult.data(systemServerService.page(systemServerPageParam));
@@ -75,7 +75,7 @@ public class SystemServerController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加系统服务表")
     @CommonLog("添加系统服务表")
-    @SaCheckPermission("/sys/server/add")
+    //@SaCheckPermission("/sys/server/add")
     @PostMapping("/sys/server/add")
     public CommonResult<String> add(@RequestBody @Valid SystemServerAddParam systemServerAddParam) {
         systemServerService.add(systemServerAddParam);
@@ -91,7 +91,7 @@ public class SystemServerController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑系统服务表")
     @CommonLog("编辑系统服务表")
-    @SaCheckPermission("/sys/server/edit")
+    //@SaCheckPermission("/sys/server/edit")
     @PostMapping("/sys/server/edit")
     public CommonResult<String> edit(@RequestBody @Valid SystemServerEditParam systemServerEditParam) {
         systemServerService.edit(systemServerEditParam);
@@ -107,7 +107,7 @@ public class SystemServerController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除系统服务表")
     @CommonLog("删除系统服务表")
-    @SaCheckPermission("/sys/server/delete")
+    //@SaCheckPermission("/sys/server/delete")
     @PostMapping("/sys/server/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<SystemServerIdParam> systemServerIdParamList) {
@@ -123,7 +123,7 @@ public class SystemServerController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取系统服务表详情")
-    @SaCheckPermission("/sys/server/detail")
+    //@SaCheckPermission("/sys/server/detail")
     @GetMapping("/sys/server/detail")
     public CommonResult<SystemServer> detail(@Valid SystemServerIdParam systemServerIdParam) {
         return CommonResult.data(systemServerService.detail(systemServerIdParam));

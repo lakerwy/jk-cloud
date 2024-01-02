@@ -1,8 +1,6 @@
 package vip.xiaonuo.dev.modular.server.util;
 
-import com.jcraft.jsch.ChannelSftp;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
+import com.jcraft.jsch.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.yaml.snakeyaml.DumperOptions;
@@ -10,12 +8,11 @@ import org.yaml.snakeyaml.Yaml;
 import org.yaml.snakeyaml.representer.Representer;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.modular.server.param.TransferFileParam;
+import vip.xiaonuo.dev.modular.server.param.TransferLocalFileParam;
 import vip.xiaonuo.dev.modular.server.param.YamlParam;
 
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -29,7 +26,9 @@ public class YamlUtil {
     public void yamlData(YamlParam yamlParam){
         try {
             //读取文本文件的内容
-            byte[] bytes = Files.readAllBytes(Paths.get(yamlParam.getConfigPath()));
+            Path pathUsingToPath = getResourceFile(yamlParam.getConfigPath()).toPath();
+            byte[] bytes = Files.readAllBytes(pathUsingToPath);
+            //byte[] bytes = Files.readAllBytes(Paths.get(yamlParam.getConfigPath()));
             String externalConfig = new String(bytes, StandardCharsets.UTF_8);
 
             Yaml yaml = new Yaml();//格式转换
@@ -62,6 +61,18 @@ public class YamlUtil {
         BufferedWriter writer = new BufferedWriter(new FileWriter(file));
         writer.write(content);
         writer.close();
+    }
+
+    //读取resources目录下面的资源文件
+    private static File getResourceFile(String filePath) {
+        ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
+        URL resource = classLoader.getResource(filePath);
+
+        if (resource != null) {
+            return new File(resource.getFile());
+        } else {
+            throw new CommonException("未找到该文件！" + filePath);
+        }
     }
 
     /**
@@ -102,39 +113,93 @@ public class YamlUtil {
         return false;//未找到第二个key，返回false
     }
 
+    /** A服务器传输文件到服务器B */
     public void transferFile(TransferFileParam transferFileParam) {
+        JSch jsch = new JSch();
+        Session sourceSession = null;
+        ChannelSftp sourceSftpChannel = null;
+        Session targetSession = null;
+        ChannelSftp targetSftpChannel = null;
+
         try {
-            JSch jsch = new JSch();
-            Session sourceSession = jsch.getSession(transferFileParam.getSourceUsername(), transferFileParam.getSourceHost(), 22);//连接到源服务器
+            // 连接到源服务器
+            sourceSession = jsch.getSession(transferFileParam.getSourceUsername(), transferFileParam.getSourceHost(), 22);
             sourceSession.setPassword(transferFileParam.getSourcePassword());
-            sourceSession.setConfig("StrictHostKeyChecking", "no");//不信任的服务器也连接
+            sourceSession.setConfig("StrictHostKeyChecking", "no");
             sourceSession.connect();
 
-            ChannelSftp sourceSftpChannel = (ChannelSftp) sourceSession.openChannel("sftp");
+            sourceSftpChannel = (ChannelSftp) sourceSession.openChannel("sftp");
             sourceSftpChannel.connect();
-            sourceSftpChannel.get(transferFileParam.getSourceFilePath(), transferFileParam.getFileName());//从源服务器下载文件到本地临时文件存储，并命名为getFileName
-            sourceSftpChannel.disconnect();
-            sourceSession.disconnect();
+            sourceSftpChannel.get(transferFileParam.getSourceFilePath(), transferFileParam.getFileName());
+
+            // 创建目标服务器路径（如果不存在）
+            createDirectoryIfNotExists(targetSession, targetSftpChannel, transferFileParam.getTargetFilePath(),transferFileParam);
 
             // 连接到目标服务器
-            Session targetSession = jsch.getSession(transferFileParam.getTargetUsername(), transferFileParam.getTargetHost(), 22);
+            targetSession = jsch.getSession(transferFileParam.getTargetUsername(), transferFileParam.getTargetHost(), 22);
             targetSession.setPassword(transferFileParam.getTargetPassword());
             targetSession.setConfig("StrictHostKeyChecking", "no");
             targetSession.connect();
 
-            ChannelSftp targetSftpChannel = (ChannelSftp) targetSession.openChannel("sftp");
+            targetSftpChannel = (ChannelSftp) targetSession.openChannel("sftp");
             targetSftpChannel.connect();
 
-            targetSftpChannel.put(transferFileParam.getFileName(), transferFileParam.getTargetFilePath());//上传本地临时文件到目标服务器，文件命名：getFileName
-            targetSftpChannel.disconnect();
-            targetSession.disconnect();
+            targetSftpChannel.put(transferFileParam.getFileName(), transferFileParam.getTargetFilePath());
 
-            log.info("文件传输完成。");
         } catch (Exception e) {
-            log.error("文件传输过程中发生错误: " + e.getMessage());
+            log.error("文件传输过程中发生错误: {}", e.getMessage());
             e.printStackTrace();
             throw new CommonException("文件传输过程中发生错误");
+        } finally {
+            if (sourceSftpChannel != null && sourceSftpChannel.isConnected()) {
+                sourceSftpChannel.disconnect();
+            }
+            if (sourceSession != null && sourceSession.isConnected()) {
+                sourceSession.disconnect();
+            }
+            if (targetSftpChannel != null && targetSftpChannel.isConnected()) {
+                targetSftpChannel.disconnect();
+            }
+            if (targetSession != null && targetSession.isConnected()) {
+                targetSession.disconnect();
+            }
         }
+        log.info("文件传输完成。");
     }
 
+    private void createDirectoryIfNotExists(Session session, ChannelSftp sftpChannel, String dirPath,TransferFileParam transferFileParam) throws Exception {
+        if (session == null || sftpChannel == null) {
+            // 如果session或sftpChannel未初始化，则先连接和打开通道
+            session = initSession(transferFileParam.getTargetUsername(), transferFileParam.getTargetHost(), transferFileParam.getTargetPassword());
+            sftpChannel = (ChannelSftp) session.openChannel("sftp");
+            sftpChannel.connect();
+        }
+
+        // 路径拆分并递归创建目录
+        String[] dirs = dirPath.split("/");
+        StringBuilder currentDir = new StringBuilder();
+        for (String dir : dirs) {
+            if (!dir.isEmpty()) {
+                currentDir.append("/").append(dir);
+                try {
+                    sftpChannel.stat(currentDir.toString()); // 检查目录是否存在
+                } catch (SftpException e) {
+                    if (e.id == ChannelSftp.SSH_FX_NO_SUCH_FILE) { // 如果目录不存在
+                        sftpChannel.mkdir(currentDir.toString()); // 创建目录
+                    } else {
+                        log.error("创建目录失败！");
+                        throw e; // 其他异常抛出
+                    }
+                }
+            }
+        }
+    }
+    private Session initSession(String username, String host, String password) throws JSchException {
+        JSch jsch = new JSch();
+        Session session = jsch.getSession(username, host, 22);
+        session.setPassword(password);
+        session.setConfig("StrictHostKeyChecking", "no");
+        session.connect();
+        return session;
+    }
 }

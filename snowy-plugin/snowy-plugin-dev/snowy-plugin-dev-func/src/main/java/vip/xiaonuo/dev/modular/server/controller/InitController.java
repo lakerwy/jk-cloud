@@ -6,11 +6,13 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.service.InitConfigService;
 import vip.xiaonuo.dev.modular.server.param.*;
 
@@ -99,6 +101,20 @@ public class InitController {
     @PostMapping("/epc/create/transferFile")
     public CommonResult<String> transferFile(@RequestBody @Valid TransferFileParam transferFileParam){
         initConfigService.transferFile(transferFileParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 单体服务配置文件
+     *
+     * @author ljy
+     * @date  2024/01/02 11:31
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("单体服务配置文件")
+    @PostMapping("/sys/server/singleConf")
+    public CommonResult<String> singleConf(@RequestBody @Valid SingleConfParam singleConfParam){
+        initConfigService.singleConf(singleConfParam);
         return CommonResult.ok();
     }
 }
