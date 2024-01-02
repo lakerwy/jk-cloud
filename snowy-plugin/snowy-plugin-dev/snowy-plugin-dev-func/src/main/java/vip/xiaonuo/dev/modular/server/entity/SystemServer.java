@@ -45,7 +45,7 @@ public class SystemServer {
 
     /** 系统类别 */
     @ApiModelProperty(value = "系统类别", position = 4)
-    private Integer systemType;
+    private String systemType;
 
     /** 系统来源 */
     @ApiModelProperty(value = "系统来源", position = 5)
@@ -53,7 +53,7 @@ public class SystemServer {
 
     /** 系统来源类别：合同等 */
     @ApiModelProperty(value = "系统来源类别：合同等", position = 6)
-    private Integer systemSourceTable;
+    private String systemSourceTable;
 
     /** 系统来源ID */
     @ApiModelProperty(value = "系统来源ID", position = 7)
