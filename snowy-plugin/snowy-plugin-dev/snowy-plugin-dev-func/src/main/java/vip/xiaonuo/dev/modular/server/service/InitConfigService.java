@@ -34,4 +34,9 @@ public interface InitConfigService {
      * 服务器之间传文件
      * */
     void transferFile(TransferFileParam transferFileParam);
+
+    /**
+     * 执行服务器命令
+     * */
+    void commandSh(UnixCommandParam unixCommandParam);
 }

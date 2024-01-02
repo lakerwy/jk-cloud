@@ -117,4 +117,18 @@ public class InitController {
         initConfigService.singleConf(singleConfParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 执行command命令
+     *
+     * @author ljy
+     * @date  2024/01/02 22:31
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("执行command命令")
+    @PostMapping("/sys/server/commandSh")
+    public CommonResult<String> commandSh(@RequestBody @Valid UnixCommandParam unixCommandParam){
+        initConfigService.commandSh(unixCommandParam);
+        return CommonResult.ok();
+    }
 }

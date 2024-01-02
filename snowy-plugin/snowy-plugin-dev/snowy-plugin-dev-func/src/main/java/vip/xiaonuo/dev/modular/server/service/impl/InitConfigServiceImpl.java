@@ -111,4 +111,14 @@ public class InitConfigServiceImpl implements InitConfigService {
             fileList.add(map);
         }
     }
+
+    @Override
+    public void commandSh(UnixCommandParam unixCommandParam){
+        try{
+            databaseCreator.importDatabase(unixCommandParam);
+        }catch (Exception e){
+            log.error("执行脚本失败！command:"+unixCommandParam.getCommand()+",host:"+unixCommandParam.getSshHost());
+            throw new CommonException("执行command失败！e:"+e.getMessage());
+        }
+    }
 }
