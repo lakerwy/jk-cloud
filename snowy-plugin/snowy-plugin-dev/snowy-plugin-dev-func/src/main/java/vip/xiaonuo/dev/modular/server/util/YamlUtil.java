@@ -1,5 +1,6 @@
 package vip.xiaonuo.dev.modular.server.util;
 
+import cn.hutool.core.util.ObjectUtil;
 import com.jcraft.jsch.*;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -26,8 +27,6 @@ public class YamlUtil {
     public void yamlData(YamlParam yamlParam){
         try {
             //读取文本文件的内容
-            /*Path pathUsingToPath = getResourceFile(yamlParam.getConfigPath()).toPath();
-            byte[] bytes = Files.readAllBytes(pathUsingToPath);*/
             byte[] bytes = Files.readAllBytes(Paths.get(yamlParam.getConfigPath()));
             String externalConfig = new String(bytes, StandardCharsets.UTF_8);
 
@@ -35,8 +34,13 @@ public class YamlUtil {
             Map<String, Object> data = yaml.load(externalConfig);
             yamlParam.getParamMap().entrySet().forEach(param -> {
                 //updateValueMap(data,param.getKey(),param.getValue());
-                List<String> keys = Arrays.asList(param.getKey().split(":"));
-                updateValueMap(data, keys.get(0), keys.get(1), param.getValue());
+                //List<String> keys = Arrays.asList(param.getKey().split(":"));
+                //updateValueMap(data, keys.get(0), keys.get(1), param.getValue());
+                Object newValue = param.getValue();
+                if (param.getValue().getClass() == String.class) {
+                    newValue =param.getValue().toString().trim();
+                }
+                findMapValue(data,param.getKey().trim(),newValue);
             });
             DumperOptions options = new DumperOptions();
             options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
@@ -202,4 +206,21 @@ public class YamlUtil {
         session.connect();
         return session;
     }
+
+    public static void findMapValue(Map<String, Object> map, Object oldValue, Object newValue) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey();
+            Object value = entry.getValue();
+            if(ObjectUtil.isEmpty(value)){
+                continue;
+            }
+            if (value.equals(oldValue)) {
+                map.put(key, newValue);// 如果找到目标值，则直接替换
+            } else if (value instanceof Map) {
+                // 如果value是另一个Map，递归调用以处理嵌套Map
+                findMapValue((Map<String, Object>) value, oldValue, newValue);
+            }
+        }
+    }
+
 }

@@ -96,8 +96,8 @@ public class InitController {
      * @date 2023/12/28 08:35
      **/
     @ApiOperationSupport(order = 5)
-    @ApiOperation("服务器之间传文件")
-    @CommonLog("服务器之间传文件")
+    @ApiOperation("服务器之间传文件-非EPC接口")
+    @CommonLog("服务器之间传文件-非EPC接口")
     @PostMapping("/epc/create/transferFile")
     public CommonResult<String> transferFile(@RequestBody @Valid TransferFileParam transferFileParam){
         initConfigService.transferFile(transferFileParam);
