@@ -26,9 +26,9 @@ public class YamlUtil {
     public void yamlData(YamlParam yamlParam){
         try {
             //读取文本文件的内容
-            Path pathUsingToPath = getResourceFile(yamlParam.getConfigPath()).toPath();
-            byte[] bytes = Files.readAllBytes(pathUsingToPath);
-            //byte[] bytes = Files.readAllBytes(Paths.get(yamlParam.getConfigPath()));
+            /*Path pathUsingToPath = getResourceFile(yamlParam.getConfigPath()).toPath();
+            byte[] bytes = Files.readAllBytes(pathUsingToPath);*/
+            byte[] bytes = Files.readAllBytes(Paths.get(yamlParam.getConfigPath()));
             String externalConfig = new String(bytes, StandardCharsets.UTF_8);
 
             Yaml yaml = new Yaml();//格式转换

@@ -15,11 +15,6 @@ public class YamlParam {
     @ApiModelProperty(value = "配置文件输出路径", required = true,position = 2)
     private String outYamlPath;
 
-
-    /**
-     * mysql
-     *
-     * */
     @ApiModelProperty(value = "需要修改的参数，例：双key server:port， value 82", required = true,position = 3)
     private Map<String,Object> paramMap;
 }
