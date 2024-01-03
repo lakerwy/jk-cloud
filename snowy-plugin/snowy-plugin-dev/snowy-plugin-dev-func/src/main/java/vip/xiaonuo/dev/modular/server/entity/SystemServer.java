@@ -103,6 +103,7 @@ public class SystemServer {
 
     /** 操作记录 */
     @ApiModelProperty(value = "操作记录", position = 17)
+    @TableField(exist = false)
     private SystemConfExec systemConfExec;
 
 }
