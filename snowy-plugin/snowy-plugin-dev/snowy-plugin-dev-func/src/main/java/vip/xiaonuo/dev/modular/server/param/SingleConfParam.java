@@ -28,4 +28,7 @@ public class SingleConfParam {
     @ApiModelProperty(value = "目标服务器IP地址", required = true,position = 7)
     private String targetHost;
 
+    @ApiModelProperty(value = "系统服务ID",position = 8)
+    private String systemId;
+
 }

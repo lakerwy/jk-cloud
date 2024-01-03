@@ -1,5 +1,7 @@
 package vip.xiaonuo.dev.modular.server.service;
 
+import cn.hutool.json.JSONObject;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.server.param.*;
 
 public interface InitConfigService {
@@ -39,4 +41,9 @@ public interface InitConfigService {
      * 执行服务器命令
      * */
     void commandSh(UnixCommandParam unixCommandParam);
+
+    /**
+     * 初始化EPC用户信息
+     * */
+    JSONObject importUser(MultipartFile file,String systemId/*UserParam userParam*/);
 }

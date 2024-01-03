@@ -36,4 +36,7 @@ public class TableParam {
 
     @ApiModelProperty(value = "执行命令", position = 10)
     private String command;
+
+    @ApiModelProperty(value = "系统服务ID",position = 11)
+    private String systemId;
 }

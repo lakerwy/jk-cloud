@@ -100,4 +100,9 @@ public class SystemServer {
     @ApiModelProperty(value = "修改用户", position = 16)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 操作记录 */
+    @ApiModelProperty(value = "操作记录", position = 17)
+    private SystemConfExec systemConfExec;
+
 }

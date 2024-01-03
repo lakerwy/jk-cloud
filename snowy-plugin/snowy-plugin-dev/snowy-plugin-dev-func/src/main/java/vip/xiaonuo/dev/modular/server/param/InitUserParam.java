@@ -33,4 +33,6 @@ public class InitUserParam {
     @ApiModelProperty(value = "初始化人员信息", position = 10)
     private List<UserParam> userParamList;
 
+    @ApiModelProperty(value = "系统服务ID",position = 11)
+    private String systemId;
 }

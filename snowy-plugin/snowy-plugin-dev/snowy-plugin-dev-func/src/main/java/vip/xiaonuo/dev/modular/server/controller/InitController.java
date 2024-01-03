@@ -1,15 +1,15 @@
 package vip.xiaonuo.dev.modular.server.controller;
 
 
+import cn.hutool.json.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
@@ -81,8 +81,8 @@ public class InitController {
      * @date  2023/11/21 11:14
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("epc-根据导入的用户表，初始化 部门、角色、用户")
-    @CommonLog("epc-根据导入的用户表，初始化 部门、角色、用户")
+    @ApiOperation("epc-根据导入的用户表，初始化 部门、角色、用户--前端勿单独调用")
+    @CommonLog("epc-根据导入的用户表，初始化 部门、角色、用户--前端勿单独调用")
     @PostMapping("/epc/create/initData")
     public CommonResult<String> initData(@RequestBody @Valid InitUserParam initUserParam) {
         initConfigService.initData(initUserParam);
@@ -130,5 +130,19 @@ public class InitController {
     public CommonResult<String> commandSh(@RequestBody @Valid UnixCommandParam unixCommandParam){
         initConfigService.commandSh(unixCommandParam);
         return CommonResult.ok();
+    }
+
+    /**
+     * 用户导入
+     *
+     * @author xuyuxiang
+     * @date 2024/01/03 16:50
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("用户导入")
+    @CommonLog("用户导入")
+    @PostMapping("//sys/server/importUser")
+    public CommonResult<JSONObject> importUser(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file,String systemId) {
+        return CommonResult.data(initConfigService.importUser(file,systemId));
     }
 }

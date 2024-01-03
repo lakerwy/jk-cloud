@@ -14,8 +14,10 @@ package vip.xiaonuo.dev.modular.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -24,15 +26,21 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.mapper.SystemServerMapper;
 import vip.xiaonuo.dev.modular.server.param.SystemServerAddParam;
 import vip.xiaonuo.dev.modular.server.param.SystemServerEditParam;
 import vip.xiaonuo.dev.modular.server.param.SystemServerIdParam;
 import vip.xiaonuo.dev.modular.server.param.SystemServerPageParam;
+import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 
+import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * 系统服务表Service接口实现类
@@ -43,6 +51,8 @@ import java.util.List;
 @Service
 public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, SystemServer> implements SystemServerService {
 
+    @Resource
+    SystemConfExecService systemConfExecService;
     @Override
     public Page<SystemServer> page(SystemServerPageParam systemServerPageParam) {
         QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
@@ -62,8 +72,25 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         } else {
             queryWrapper.lambda().orderByAsc(SystemServer::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<SystemServer> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        getSystemExec(page);
+        return page;
+        //return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
+    private void getSystemExec(Page<SystemServer> page){
+        if(CollectionUtil.isNotEmpty(page.getRecords())){
+            List<String> systemIds = page.getRecords().stream().map((record -> record.getId())).collect(Collectors.toList());
+            List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().in(SystemConfExec::getSystemId,systemIds));
+            Map<String,SystemConfExec> map = new HashMap<>();
+            systemConfExecs.forEach(exec -> map.put(exec.getSystemId(),exec));
+            page.getRecords().forEach(record -> {
+                if(map.get(record.getId()) != null){
+                    record.setSystemConfExec(map.get(record.getId()));
+                }
+            });
+        }
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -89,7 +116,10 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
 
     @Override
     public SystemServer detail(SystemServerIdParam systemServerIdParam) {
-        return this.queryEntity(systemServerIdParam.getId());
+        SystemServer systemServer = this.queryEntity(systemServerIdParam.getId());
+        List<SystemConfExec> systemConfExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,systemServerIdParam.getId()));
+        systemServer.setSystemConfExec(CollectionUtil.isNotEmpty(systemConfExecList) ? systemConfExecList.get(0) : new SystemConfExec());
+        return systemServer;
     }
 
     @Override

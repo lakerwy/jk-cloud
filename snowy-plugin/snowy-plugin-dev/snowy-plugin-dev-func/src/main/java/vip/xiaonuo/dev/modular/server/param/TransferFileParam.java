@@ -33,4 +33,7 @@ public class TransferFileParam {
 
     @ApiModelProperty(value = "文件名称，需要带后缀名", required = true,position = 9)
     private String fileName;
+
+    @ApiModelProperty(value = "系统服务ID",position = 10)
+    private String systemId;
 }

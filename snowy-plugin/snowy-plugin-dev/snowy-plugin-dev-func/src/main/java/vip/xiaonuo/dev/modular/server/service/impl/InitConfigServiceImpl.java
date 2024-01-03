@@ -2,10 +2,22 @@ package vip.xiaonuo.dev.modular.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.service.InitConfigService;
+import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.util.DatabaseCreator;
 import vip.xiaonuo.dev.modular.server.util.YamlUtil;
 import vip.xiaonuo.dev.modular.server.param.*;
@@ -23,10 +35,21 @@ public class InitConfigServiceImpl implements InitConfigService {
     private DatabaseCreator databaseCreator;
     @Resource
     private YamlUtil yamlUtil;
-
+    @Resource
+    SystemConfExecService systemConfExecService;
     @Override
     public void createDataBase(DataBaseParam dataBaseParam) throws Exception{
         databaseCreator.createDatabase(dataBaseParam);
+        dataBaseParam.setPassword("");//密码不保存
+        String datebaseJson = JSONUtil.toJsonStr(dataBaseParam);
+        if(ObjectUtil.isEmpty(dataBaseParam.getSystemId())){
+            log.error("系统服务ID不能为空");
+            return;
+        }
+        List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,dataBaseParam.getSystemId()));
+        SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+        systemConfExec.setDataBaseJson(datebaseJson);
+        systemConfExecService.saveOrUpdate(systemConfExec);
     }
 
     @Override
@@ -36,6 +59,17 @@ public class InitConfigServiceImpl implements InitConfigService {
         tableParam.setCommand(command);
         UnixCommandParam unixCommandParam = BeanUtil.toBean(tableParam,UnixCommandParam.class);
         databaseCreator.importDatabase(unixCommandParam);
+        tableParam.setSshPassword("");
+        tableParam.setDatabasePassword("");
+        String tableJson = JSONUtil.toJsonStr(tableParam);
+        if(ObjectUtil.isEmpty(tableParam.getSystemId())){
+            log.error("系统服务ID不能为空");
+            return;
+        }
+        List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
+        SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+        systemConfExec.setTableJson(tableJson);
+        systemConfExecService.saveOrUpdate(systemConfExec);
     }
 
     @Override
@@ -62,6 +96,19 @@ public class InitConfigServiceImpl implements InitConfigService {
     public void createYaml(YamlParam yamlParam){
         try{
             yamlUtil.yamlData(yamlParam);
+            String yamlJson = JSONUtil.toJsonStr(yamlParam);
+            if(ObjectUtil.isEmpty(yamlParam.getSystemId())){
+                log.error("系统服务ID不能为空");
+                return;
+            }
+            List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,yamlParam.getSystemId()));
+            SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+            if(yamlParam.getConfigPath().contains("yaml")){
+                systemConfExec.setApplYamlJson(yamlJson);
+            }else if(yamlParam.getConfigPath().contains("yml")){
+                systemConfExec.setDockYamlJson(yamlJson);
+            }
+            systemConfExecService.saveOrUpdate(systemConfExec);
         }catch (Exception e){
             log.error("创建yaml文件失败，e:"+e.getMessage());
             throw new CommonException("创建yaml文件失败,e:"+e.getMessage());
@@ -69,7 +116,7 @@ public class InitConfigServiceImpl implements InitConfigService {
     }
 
     /**
-     * 配置文件迁移前置工作：传送到
+     * 配置文件迁移前置工作：传送到目标服务器
      * */
     @Override
     public void singleConf(SingleConfParam singleConfParam){
@@ -89,6 +136,17 @@ public class InitConfigServiceImpl implements InitConfigService {
                 throw new CommonException("上传文件失败！");
             }
         });
+        String remoteYamlJson = JSONUtil.toJsonStr(singleConfParam);
+        singleConfParam.setSourcePassword("");
+        singleConfParam.setTargetPassword("");
+        if(ObjectUtil.isEmpty(singleConfParam.getSystemId())){
+            log.error("系统服务ID不能为空");
+            return;
+        }
+        List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,singleConfParam.getSystemId()));
+        SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+        systemConfExec.setRemoteYamlJson(remoteYamlJson);
+        systemConfExecService.saveOrUpdate(systemConfExec);
     }
 
     @Override
@@ -116,9 +174,52 @@ public class InitConfigServiceImpl implements InitConfigService {
     public void commandSh(UnixCommandParam unixCommandParam){
         try{
             databaseCreator.importDatabase(unixCommandParam);
+            String remoteExecJson = JSONUtil.toJsonStr(unixCommandParam);
+            unixCommandParam.setSshPassword("");
+            if(ObjectUtil.isEmpty(unixCommandParam.getSystemId())){
+                log.error("系统服务ID不能为空");
+                return;
+            }
+            List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,unixCommandParam.getSystemId()));
+            SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+            systemConfExec.setRemoteExecJson(remoteExecJson);
+            systemConfExecService.saveOrUpdate(systemConfExec);
         }catch (Exception e){
             log.error("执行脚本失败！command:"+unixCommandParam.getCommand()+",host:"+unixCommandParam.getSshHost());
             throw new CommonException("执行command失败！e:"+e.getMessage());
+        }
+    }
+
+    @Override
+    public JSONObject importUser(MultipartFile file,String systemId) {
+        try {
+            int successCount = 0;
+            int errorCount = 0;
+            JSONArray errorDetail = JSONUtil.createArray();
+            // 创建临时文件
+            File tempFile = FileUtil.writeBytes(file.getBytes(), FileUtil.file(FileUtil.getTmpDir() +
+                    FileUtil.FILE_SEPARATOR + "userImportTemplate.xlsx"));
+            // 读取excel
+            List<UserParam> sysUserImportParamList =  EasyExcel.read(tempFile).head(UserParam.class).sheet()
+                    .headRowNumber(2).doReadSync();
+            /*List<SysUser> allUserList = this.list();
+            for (int i = 0; i < sysUserImportParamList.size(); i++) {
+                JSONObject jsonObject = this.doImport(allUserList, sysUserImportParamList.get(i), i);
+                if(jsonObject.getBool("success")) {
+                    successCount += 1;
+                } else {
+                    errorCount += 1;
+                    errorDetail.add(jsonObject);
+                }
+            }*/
+            return JSONUtil.createObj()
+                    .set("totalCount", sysUserImportParamList.size())
+                    .set("successCount", successCount)
+                    .set("errorCount", errorCount)
+                    .set("errorDetail", errorDetail);
+        } catch (Exception e) {
+            log.error(">>> 用户导入失败：", e);
+            throw new CommonException("用户导入失败");
         }
     }
 }

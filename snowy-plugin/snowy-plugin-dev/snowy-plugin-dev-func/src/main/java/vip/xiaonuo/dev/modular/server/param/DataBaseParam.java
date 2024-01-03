@@ -25,4 +25,7 @@ public class DataBaseParam {
 
     @ApiModelProperty(value = "mysql数据库端口", required = true,position = 5)
     private String port;
+
+    @ApiModelProperty(value = "系统服务ID",position = 6)
+    private String systemId;
 }
