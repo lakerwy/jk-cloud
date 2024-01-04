@@ -45,5 +45,5 @@ public interface InitConfigService {
     /**
      * 初始化EPC用户信息
      * */
-    JSONObject importUser(MultipartFile file,String systemId/*UserParam userParam*/);
+    JSONObject importUser(ImportUserParam importUserParam);
 }

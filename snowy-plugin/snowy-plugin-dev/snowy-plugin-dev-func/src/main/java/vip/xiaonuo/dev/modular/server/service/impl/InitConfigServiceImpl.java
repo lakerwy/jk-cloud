@@ -191,32 +191,18 @@ public class InitConfigServiceImpl implements InitConfigService {
     }
 
     @Override
-    public JSONObject importUser(MultipartFile file,String systemId) {
+    public JSONObject importUser(ImportUserParam importUserParam) {
         try {
-            int successCount = 0;
-            int errorCount = 0;
-            JSONArray errorDetail = JSONUtil.createArray();
             // 创建临时文件
-            File tempFile = FileUtil.writeBytes(file.getBytes(), FileUtil.file(FileUtil.getTmpDir() +
-                    FileUtil.FILE_SEPARATOR + "userImportTemplate.xlsx"));
+            File tempFile = FileUtil.writeBytes(importUserParam.getFile().getBytes(), FileUtil.file(FileUtil.getTmpDir() +
+                    FileUtil.FILE_SEPARATOR + "serverUserTemplate.xlsx"));
             // 读取excel
             List<UserParam> sysUserImportParamList =  EasyExcel.read(tempFile).head(UserParam.class).sheet()
                     .headRowNumber(2).doReadSync();
-            /*List<SysUser> allUserList = this.list();
-            for (int i = 0; i < sysUserImportParamList.size(); i++) {
-                JSONObject jsonObject = this.doImport(allUserList, sysUserImportParamList.get(i), i);
-                if(jsonObject.getBool("success")) {
-                    successCount += 1;
-                } else {
-                    errorCount += 1;
-                    errorDetail.add(jsonObject);
-                }
-            }*/
-            return JSONUtil.createObj()
-                    .set("totalCount", sysUserImportParamList.size())
-                    .set("successCount", successCount)
-                    .set("errorCount", errorCount)
-                    .set("errorDetail", errorDetail);
+            InitUserParam initUserParam = BeanUtil.toBean(importUserParam,InitUserParam.class);
+            initUserParam.setUserParamList(sysUserImportParamList);
+            initData(initUserParam);
+            return JSONUtil.createObj().set("totalCount", sysUserImportParamList.size());
         } catch (Exception e) {
             log.error(">>> 用户导入失败：", e);
             throw new CommonException("用户导入失败");

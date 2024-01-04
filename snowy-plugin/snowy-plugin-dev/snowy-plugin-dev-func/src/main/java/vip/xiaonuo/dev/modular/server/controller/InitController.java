@@ -141,8 +141,8 @@ public class InitController {
     @ApiOperationSupport(order = 8)
     @ApiOperation("用户导入")
     @CommonLog("用户导入")
-    @PostMapping("//sys/server/importUser")
-    public CommonResult<JSONObject> importUser(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file,String systemId) {
-        return CommonResult.data(initConfigService.importUser(file,systemId));
+    @PostMapping("/sys/server/importUser")
+    public CommonResult<JSONObject> importUser(ImportUserParam importUserParam) {
+        return CommonResult.data(initConfigService.importUser(importUserParam));
     }
 }
