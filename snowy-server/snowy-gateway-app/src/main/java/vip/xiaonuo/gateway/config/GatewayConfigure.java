@@ -185,6 +185,7 @@ public class GatewayConfigure {
 
             /* cad - 插件端 */
             "/api/bizapp/biz/cad/plugin/**",
+            "/api/webapp/sys/server/downloadImportUserTemplate",
 
     };
 

@@ -191,7 +191,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/pan/file/zipFile",
             "/sys/userAttendance/monthExcel",
             "/sys/rez/detail",
-            "/sys/userSign/add"
+            "/sys/userSign/add",
+            "/sys/server/downloadImportUserTemplate"
     };
 
     /**
