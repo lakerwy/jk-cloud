@@ -4,6 +4,9 @@ import cn.hutool.json.JSONObject;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.server.param.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+
 public interface InitConfigService {
 
     /**
@@ -46,4 +49,12 @@ public interface InitConfigService {
      * 初始化EPC用户信息
      * */
     JSONObject importUser(ImportUserParam importUserParam);
+
+    /**
+     * 下载用户导入模板
+     *
+     * @author ljy
+     * @date 2024/01/04 10:30
+     **/
+    void downloadImportUserTemplate(HttpServletResponse response) throws IOException;
 }

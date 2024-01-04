@@ -7,6 +7,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -17,7 +18,9 @@ import vip.xiaonuo.dev.modular.server.service.InitConfigService;
 import vip.xiaonuo.dev.modular.server.param.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
+import java.io.IOException;
 
 @Api(tags = "系统环境配置类")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
@@ -135,7 +138,7 @@ public class InitController {
     /**
      * 用户导入
      *
-     * @author xuyuxiang
+     * @author ljy
      * @date 2024/01/03 16:50
      */
     @ApiOperationSupport(order = 8)
@@ -144,5 +147,19 @@ public class InitController {
     @PostMapping("/sys/server/importUser")
     public CommonResult<JSONObject> importUser(ImportUserParam importUserParam) {
         return CommonResult.data(initConfigService.importUser(importUserParam));
+    }
+
+    /**
+     * 下载用户导入模板
+     *
+     * @author ljy
+     * @date 2024/01/04 10:30
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("下载EPC用户导入模板")
+    @CommonLog("下载EPC用户导入模板")
+    @GetMapping(value = "/sys/server/downloadImportUserTemplate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void downloadImportUserTemplate(HttpServletResponse response) throws IOException {
+        initConfigService.downloadImportUserTemplate(response);
     }
 }

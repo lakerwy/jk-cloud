@@ -1,20 +1,26 @@
 package vip.xiaonuo.dev.modular.server.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.catalina.connector.ClientAbortException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonResponseUtil;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.service.InitConfigService;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
@@ -23,7 +29,11 @@ import vip.xiaonuo.dev.modular.server.util.YamlUtil;
 import vip.xiaonuo.dev.modular.server.param.*;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -206,6 +216,18 @@ public class InitConfigServiceImpl implements InitConfigService {
         } catch (Exception e) {
             log.error(">>> 用户导入失败：", e);
             throw new CommonException("用户导入失败");
+        }
+    }
+
+    @Override
+    public void downloadImportUserTemplate(HttpServletResponse response) throws IOException {
+        try {
+            InputStream inputStream = POICacheManager.getFile("serverUserTemplate.xlsx");
+            byte[] bytes = IoUtil.readBytes(inputStream);
+            CommonDownloadUtil.download("EPC人员导入模板.xlsx", bytes, response);
+        } catch (Exception e) {
+            log.error(">>> 下载用户导入模板失败：", e);
+            CommonResponseUtil.renderError(response, "下载用户导入模板失败");
         }
     }
 }
