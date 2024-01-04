@@ -256,13 +256,6 @@ public class InitConfigServiceImpl implements InitConfigService {
 
     @Override
     public void connectDataBase(ConnectDataBaseParam connectDataBaseParam){
-       /* List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,connectDataBaseParam.getSystemId()));
-        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
-            throw new CommonException("未找到系统服务操作记录！");
-        }
-        SystemConfExec systemConfExec = systemConfExecs.get(0);
-        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
-        BeanUtil.copyProperties(dataBaseParam,connectDataBaseParam);*/
         databaseCreator.connectDataBase(connectDataBaseParam);
     }
 }

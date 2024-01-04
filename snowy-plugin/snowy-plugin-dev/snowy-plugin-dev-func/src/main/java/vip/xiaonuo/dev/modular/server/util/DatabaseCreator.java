@@ -32,21 +32,14 @@ public class DatabaseCreator {
      * 数据库连接测试
      * */
     public void connectDataBase(ConnectDataBaseParam connectDataBaseParam){
-        // 数据库连接参数
-        //String unicode = "?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true";
-        //String url =String.format("jdbc:mysql://%s%s%s%s",connectDataBaseParam.getDbIp(),":",connectDataBaseParam.getPort(),unicode);
-
         try {
-          /*  Class.forName("com.mysql.cj.jdbc.Driver");//加载MySQL JDBC驱动
-            // 建立数据库连接
-            Connection connection = DriverManager.getConnection(url, connectDataBaseParam.getUsername(), connectDataBaseParam.getPassword());*/
             String unicode = "?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true";
             String url =String.format("jdbc:mysql://%s%s%s%s",connectDataBaseParam.getDbIp(),":",connectDataBaseParam.getPort(),unicode);
-            log.info("url-connectSql:"+url);
+            log.info("数据库连接测试—:"+url);
             Class.forName("com.mysql.cj.jdbc.Driver");
             Connection connection = DriverManager.getConnection(url, connectDataBaseParam.getUsername(), connectDataBaseParam.getPassword());//建立连接
             if (connection != null) {
-                log.info("连接数据库成功！");
+                log.info("连接数据库成功！"+url);
                 connection.close(); // 关闭连接
             } else {
                 throw new CommonException("连接数据库失败");
