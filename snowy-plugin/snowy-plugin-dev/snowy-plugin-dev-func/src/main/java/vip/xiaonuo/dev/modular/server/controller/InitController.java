@@ -159,7 +159,23 @@ public class InitController {
     @ApiOperation("下载EPC用户导入模板")
     @CommonLog("下载EPC用户导入模板")
     @GetMapping(value = "/sys/server/downloadImportUserTemplate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public void downloadImportUserTemplate(HttpServletResponse response) throws IOException {
+    public CommonResult<String> downloadImportUserTemplate(HttpServletResponse response) throws IOException {
         initConfigService.downloadImportUserTemplate(response);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 连接数据库测试
+     *
+     * @author ljy
+     * @date 2024/01/04 16:27
+     **/
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("连接数据库测试")
+    @CommonLog("连接数据库测试")
+    @PostMapping("/epc/create/connectDataBase")
+    public CommonResult<String> connectDataBase(@RequestBody @Valid ConnectDataBaseParam connectDataBaseParam){
+        initConfigService.connectDataBase(connectDataBaseParam);
+        return CommonResult.ok();
     }
 }

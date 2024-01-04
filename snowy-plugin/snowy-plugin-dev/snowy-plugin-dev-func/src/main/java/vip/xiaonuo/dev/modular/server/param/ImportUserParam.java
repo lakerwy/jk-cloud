@@ -3,7 +3,6 @@ package vip.xiaonuo.dev.modular.server.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
@@ -23,9 +22,9 @@ public class ImportUserParam {
     @ApiModelProperty(value = "数据库名称", required = true,position = 5)
     private String dbName;
 
-    @ApiModelProperty(value = "数据库名称", required = true,position = 6)
-    private MultipartFile file;
+    @ApiModelProperty(value = "导入的文件名称", required = true,position = 6)
+    private String fileId;
 
-    @ApiModelProperty(value = "数据库名称", required = true,position = 7)
+    @ApiModelProperty(value = "系统服务ID", required = true,position = 7)
     String systemId;
 }

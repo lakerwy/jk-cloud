@@ -57,4 +57,6 @@ public interface InitConfigService {
      * @date 2024/01/04 10:30
      **/
     void downloadImportUserTemplate(HttpServletResponse response) throws IOException;
+
+    void connectDataBase(ConnectDataBaseParam connectDataBaseParam);
 }

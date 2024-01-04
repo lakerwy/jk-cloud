@@ -7,20 +7,19 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.URLUtil;
-import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.yunpian.sdk.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.catalina.connector.ClientAbortException;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.common.util.CommonResponseUtil;
+import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.service.InitConfigService;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
@@ -28,12 +27,13 @@ import vip.xiaonuo.dev.modular.server.util.DatabaseCreator;
 import vip.xiaonuo.dev.modular.server.util.YamlUtil;
 import vip.xiaonuo.dev.modular.server.param.*;
 
-import javax.annotation.Resource;
-import javax.servlet.ServletOutputStream;
-import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -47,6 +47,9 @@ public class InitConfigServiceImpl implements InitConfigService {
     private YamlUtil yamlUtil;
     @Resource
     SystemConfExecService systemConfExecService;
+    @Resource
+    DevFileService devFileService;
+
     @Override
     public void createDataBase(DataBaseParam dataBaseParam) throws Exception{
         databaseCreator.createDatabase(dataBaseParam);
@@ -54,7 +57,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         String datebaseJson = JSONUtil.toJsonStr(dataBaseParam);
         if(ObjectUtil.isEmpty(dataBaseParam.getSystemId())){
             log.error("系统服务ID不能为空");
-            return;
+            throw new CommonException("系统服务systemId不能为空。");
         }
         List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,dataBaseParam.getSystemId()));
         SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
@@ -69,8 +72,6 @@ public class InitConfigServiceImpl implements InitConfigService {
         tableParam.setCommand(command);
         UnixCommandParam unixCommandParam = BeanUtil.toBean(tableParam,UnixCommandParam.class);
         databaseCreator.importDatabase(unixCommandParam);
-        tableParam.setSshPassword("");
-        tableParam.setDatabasePassword("");
         String tableJson = JSONUtil.toJsonStr(tableParam);
         if(ObjectUtil.isEmpty(tableParam.getSystemId())){
             log.error("系统服务ID不能为空");
@@ -109,7 +110,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             String yamlJson = JSONUtil.toJsonStr(yamlParam);
             if(ObjectUtil.isEmpty(yamlParam.getSystemId())){
                 log.error("系统服务ID不能为空");
-                return;
+                throw new CommonException("系统服务systemId不能为空。");
             }
             List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,yamlParam.getSystemId()));
             SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
@@ -151,7 +152,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         singleConfParam.setTargetPassword("");
         if(ObjectUtil.isEmpty(singleConfParam.getSystemId())){
             log.error("系统服务ID不能为空");
-            return;
+            throw new CommonException("系统服务systemId不能为空。");
         }
         List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,singleConfParam.getSystemId()));
         SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
@@ -188,7 +189,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             unixCommandParam.setSshPassword("");
             if(ObjectUtil.isEmpty(unixCommandParam.getSystemId())){
                 log.error("系统服务ID不能为空");
-                return;
+                throw new CommonException("系统服务systemId不能为空。");
             }
             List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,unixCommandParam.getSystemId()));
             SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
@@ -203,8 +204,13 @@ public class InitConfigServiceImpl implements InitConfigService {
     @Override
     public JSONObject importUser(ImportUserParam importUserParam) {
         try {
+            DevFile devFile = devFileService.getById(importUserParam.getFileId());
+            if(ObjectUtil.isEmpty(devFile) || !FileUtil.file(devFile.getStoragePath()).exists()){
+                throw new CommonException("文件不存在！fileId："+importUserParam.getFileId());
+            }
+            File file = FileUtil.file(devFile.getStoragePath());
             // 创建临时文件
-            File tempFile = FileUtil.writeBytes(importUserParam.getFile().getBytes(), FileUtil.file(FileUtil.getTmpDir() +
+            File tempFile = FileUtil.writeBytes(getFileBytes(file), FileUtil.file(FileUtil.getTmpDir() +
                     FileUtil.FILE_SEPARATOR + "serverUserTemplate.xlsx"));
             // 读取excel
             List<UserParam> sysUserImportParamList =  EasyExcel.read(tempFile).head(UserParam.class).sheet()
@@ -212,10 +218,27 @@ public class InitConfigServiceImpl implements InitConfigService {
             InitUserParam initUserParam = BeanUtil.toBean(importUserParam,InitUserParam.class);
             initUserParam.setUserParamList(sysUserImportParamList);
             initData(initUserParam);
+            String remoteExecJson = JSONUtil.toJsonStr(importUserParam);
+            importUserParam.setPassword("");
+            if(ObjectUtil.isEmpty(importUserParam.getSystemId())){
+                log.error("系统服务ID不能为空");
+                throw new CommonException("系统服务systemId不能为空。");
+            }
+            List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,importUserParam.getSystemId()));
+            SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+            systemConfExec.setInitUserJson(remoteExecJson);
+            systemConfExecService.saveOrUpdate(systemConfExec);
             return JSONUtil.createObj().set("totalCount", sysUserImportParamList.size());
         } catch (Exception e) {
             log.error(">>> 用户导入失败：", e);
             throw new CommonException("用户导入失败");
+        }
+    }
+    public byte[] getFileBytes(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] bytes = new byte[(int) file.length()];
+            fis.read(bytes);
+            return bytes;
         }
     }
 
@@ -229,5 +252,17 @@ public class InitConfigServiceImpl implements InitConfigService {
             log.error(">>> 下载用户导入模板失败：", e);
             CommonResponseUtil.renderError(response, "下载用户导入模板失败");
         }
+    }
+
+    @Override
+    public void connectDataBase(ConnectDataBaseParam connectDataBaseParam){
+       /* List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,connectDataBaseParam.getSystemId()));
+        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
+            throw new CommonException("未找到系统服务操作记录！");
+        }
+        SystemConfExec systemConfExec = systemConfExecs.get(0);
+        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
+        BeanUtil.copyProperties(dataBaseParam,connectDataBaseParam);*/
+        databaseCreator.connectDataBase(connectDataBaseParam);
     }
 }
