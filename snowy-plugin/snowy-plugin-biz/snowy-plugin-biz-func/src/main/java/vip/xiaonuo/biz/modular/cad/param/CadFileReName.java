@@ -13,7 +13,7 @@ public class CadFileReName {
 
     /** 文件|文件夹|批注 - 主键ID */
     @ApiModelProperty(value = "文件|文件夹|批注 - 主键ID", position = 1)
-    private String fId;
+    private String id;
 
     /** 文件|文件夹|批注 - 文件名称 */
     @ApiModelProperty(value = "文件|文件夹|批注 - 文件名称", position = 1)

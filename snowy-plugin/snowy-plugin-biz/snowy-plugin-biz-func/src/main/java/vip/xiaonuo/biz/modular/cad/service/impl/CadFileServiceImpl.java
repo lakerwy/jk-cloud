@@ -118,7 +118,7 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
 
     @Override
     public void reName(CadFileReName cadFileReName) {
-        CadFile cadFile = this.queryEntity(cadFileReName.getFId());
+        CadFile cadFile = this.queryEntity(cadFileReName.getId());
         cadFile.setName(cadFileReName.getNewName());
         this.updateById(cadFile);
     }
@@ -145,9 +145,14 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
 
     @Override
     public void updateTagStatus(UpdateTagStatusParam updateTagStatusParam) {
-        CadFile cadFile = this.queryEntity(updateTagStatusParam.getFileId());
-        cadFile.setStatus(updateTagStatusParam.getStatus());
-        this.updateById(cadFile);
+        // 0:未修改  1：修改中 2：已修改 -100：已删除
+        if(updateTagStatusParam.getStatus().equals("-100")){
+            this.removeById(updateTagStatusParam.getFileId());
+        }else {
+            CadFile cadFile = this.queryEntity(updateTagStatusParam.getFileId());
+            cadFile.setStatus(updateTagStatusParam.getStatus());
+            this.updateById(cadFile);
+        }
     }
 
     @Override
