@@ -62,11 +62,19 @@ public class InitConfigServiceImpl implements InitConfigService {
         List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,dataBaseParam.getSystemId()));
         SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
         systemConfExec.setDataBaseJson(datebaseJson);
+        systemConfExec.setSystemId(dataBaseParam.getSystemId());
         systemConfExecService.saveOrUpdate(systemConfExec);
     }
 
     @Override
     public void createTable(TableParam tableParam){
+        /*List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
+        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
+            throw new CommonException("未找到系统服务操作记录！");
+        }
+        SystemConfExec systemConfExec = systemConfExecs.get(0);
+        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
+        BeanUtil.copyProperties(dataBaseParam,tableParam);*/
         String command = String.format(" docker exec -i %s mysql -u%s -p%s  %s < %s ",tableParam.getDockerMyName(),tableParam.getDatabaseUsername(),
                 tableParam.getDatabasePassword(),tableParam.getDatabaseName(),tableParam.getDumpFilePath());
         tableParam.setCommand(command);
@@ -80,11 +88,19 @@ public class InitConfigServiceImpl implements InitConfigService {
         List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
         SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
         systemConfExec.setTableJson(tableJson);
+        systemConfExec.setSystemId(tableParam.getSystemId());
         systemConfExecService.saveOrUpdate(systemConfExec);
     }
 
     @Override
     public void initData(InitUserParam initUserParam){
+         /*List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
+        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
+            throw new CommonException("未找到系统服务操作记录！");
+        }
+        SystemConfExec systemConfExec = systemConfExecs.get(0);
+        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
+        BeanUtil.copyProperties(dataBaseParam,tableParam);*/
         checkInitData(initUserParam);
         databaseCreator.initUser(initUserParam);
     }
@@ -105,6 +121,13 @@ public class InitConfigServiceImpl implements InitConfigService {
 
     @Override
     public void createYaml(YamlParam yamlParam){
+         /*List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
+        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
+            throw new CommonException("未找到系统服务操作记录！");
+        }
+        SystemConfExec systemConfExec = systemConfExecs.get(0);
+        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
+        BeanUtil.copyProperties(dataBaseParam,tableParam);*/
         try{
             yamlUtil.yamlData(yamlParam);
             String yamlJson = JSONUtil.toJsonStr(yamlParam);
@@ -119,6 +142,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             }else if(yamlParam.getConfigPath().contains("yml")){
                 systemConfExec.setDockYamlJson(yamlJson);
             }
+            systemConfExec.setSystemId(yamlParam.getSystemId());
             systemConfExecService.saveOrUpdate(systemConfExec);
         }catch (Exception e){
             log.error("创建yaml文件失败，e:"+e.getMessage());
@@ -131,6 +155,13 @@ public class InitConfigServiceImpl implements InitConfigService {
      * */
     @Override
     public void singleConf(SingleConfParam singleConfParam){
+         /*List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
+        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
+            throw new CommonException("未找到系统服务操作记录！");
+        }
+        SystemConfExec systemConfExec = systemConfExecs.get(0);
+        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
+        BeanUtil.copyProperties(dataBaseParam,tableParam);*/
         File file = new File(singleConfParam.getConfigPath());
         List<Map<String,String>> fileList = new ArrayList<>();
         getFileDataList(file,fileList);//获取全部文件
@@ -148,8 +179,6 @@ public class InitConfigServiceImpl implements InitConfigService {
             }
         });
         String remoteYamlJson = JSONUtil.toJsonStr(singleConfParam);
-        singleConfParam.setSourcePassword("");
-        singleConfParam.setTargetPassword("");
         if(ObjectUtil.isEmpty(singleConfParam.getSystemId())){
             log.error("系统服务ID不能为空");
             throw new CommonException("系统服务systemId不能为空。");
@@ -157,6 +186,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,singleConfParam.getSystemId()));
         SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
         systemConfExec.setRemoteYamlJson(remoteYamlJson);
+        systemConfExec.setSystemId(singleConfParam.getSystemId());
         systemConfExecService.saveOrUpdate(systemConfExec);
     }
 
@@ -183,10 +213,16 @@ public class InitConfigServiceImpl implements InitConfigService {
 
     @Override
     public void commandSh(UnixCommandParam unixCommandParam){
+         /*List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
+        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
+            throw new CommonException("未找到系统服务操作记录！");
+        }
+        SystemConfExec systemConfExec = systemConfExecs.get(0);
+        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
+        BeanUtil.copyProperties(dataBaseParam,tableParam);*/
         try{
             databaseCreator.importDatabase(unixCommandParam);
             String remoteExecJson = JSONUtil.toJsonStr(unixCommandParam);
-            unixCommandParam.setSshPassword("");
             if(ObjectUtil.isEmpty(unixCommandParam.getSystemId())){
                 log.error("系统服务ID不能为空");
                 throw new CommonException("系统服务systemId不能为空。");
@@ -194,6 +230,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,unixCommandParam.getSystemId()));
             SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
             systemConfExec.setRemoteExecJson(remoteExecJson);
+            systemConfExec.setSystemId(unixCommandParam.getSystemId());
             systemConfExecService.saveOrUpdate(systemConfExec);
         }catch (Exception e){
             log.error("执行脚本失败！command:"+unixCommandParam.getCommand()+",host:"+unixCommandParam.getSshHost());
@@ -203,6 +240,13 @@ public class InitConfigServiceImpl implements InitConfigService {
 
     @Override
     public JSONObject importUser(ImportUserParam importUserParam) {
+         /*List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
+        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
+            throw new CommonException("未找到系统服务操作记录！");
+        }
+        SystemConfExec systemConfExec = systemConfExecs.get(0);
+        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
+        BeanUtil.copyProperties(dataBaseParam,tableParam);*/
         try {
             DevFile devFile = devFileService.getById(importUserParam.getFileId());
             if(ObjectUtil.isEmpty(devFile) || !FileUtil.file(devFile.getStoragePath()).exists()){
@@ -219,7 +263,6 @@ public class InitConfigServiceImpl implements InitConfigService {
             initUserParam.setUserParamList(sysUserImportParamList);
             initData(initUserParam);
             String remoteExecJson = JSONUtil.toJsonStr(importUserParam);
-            importUserParam.setPassword("");
             if(ObjectUtil.isEmpty(importUserParam.getSystemId())){
                 log.error("系统服务ID不能为空");
                 throw new CommonException("系统服务systemId不能为空。");
@@ -227,6 +270,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,importUserParam.getSystemId()));
             SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
             systemConfExec.setInitUserJson(remoteExecJson);
+            systemConfExec.setSystemId(importUserParam.getSystemId());
             systemConfExecService.saveOrUpdate(systemConfExec);
             return JSONUtil.createObj().set("totalCount", sysUserImportParamList.size());
         } catch (Exception e) {
