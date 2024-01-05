@@ -70,4 +70,12 @@ public class BizEmpPerformanceVo {
     /** 员工第四季度-绩效等级 */
     @ApiModelProperty(value = "员工第四季度-绩效等级", position = 17)
     private String SeasonLevel4;
+
+    /**一级部门id*/
+    @ApiModelProperty(value = "一级部门Id", position = 19)
+    private String firstOrgId;
+
+    /**一级部门名称*/
+    @ApiModelProperty(value = "一级部门名称", position = 20)
+    private String firstOrgName;
 }

@@ -53,6 +53,8 @@ import vip.xiaonuo.flw.api.FlwCommonApi;
 import javax.annotation.Resource;
 import java.util.*;
 
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
+
 /**
  * 业务表-员工绩效考核-季度评分审批流程Service接口实现类
  *
@@ -109,7 +111,14 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         } else {
             queryWrapper.lambda().orderByAsc(BizEmpPerformance::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<BizEmpPerformance> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        result.getRecords().forEach(x->{
+            String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getOrgId()));
+            String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getOrgId()));
+            x.setFirstOrgId(StrUtil.isNotEmpty(sOrgId)?sOrgId:x.getOrgId());
+            x.setFirstOrgName(StrUtil.isNotEmpty(sOrgName)?sOrgName:x.getOrgName());
+        });
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -219,6 +228,7 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         }
         /* 考核人员列表 */
         QueryWrapper<BizEmpAssList> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizEmpAssList::getDeleteFlag,"NOT_DELETE");
         if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getYear())) {
             queryWrapper.lambda().eq(BizEmpAssList::getYear, bizEmpPerformancePageParam.getYear());
         }
@@ -271,6 +281,10 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
             performanceVo.setOrgName(empAss.getOrgName());
             performanceVo.setUserId(empAss.getUserId());
             performanceVo.setUserName(empAss.getUserName());
+            String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + empAss.getOrgId()));
+            String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + empAss.getOrgId()));
+            performanceVo.setFirstOrgId(StrUtil.isNotEmpty(sOrgId)?sOrgId:empAss.getOrgId());
+            performanceVo.setFirstOrgName(StrUtil.isNotEmpty(sOrgName)?sOrgName:empAss.getOrgName());
             //循环四个季度
             for (String season:seasons)
             {

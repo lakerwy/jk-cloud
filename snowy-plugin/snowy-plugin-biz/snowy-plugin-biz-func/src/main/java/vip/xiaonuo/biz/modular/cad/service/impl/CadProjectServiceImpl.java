@@ -178,7 +178,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         //获取该项目下自定义文件目录结构
         QueryWrapper<CadFile> fileQueryWrapper = new QueryWrapper<>();
         fileQueryWrapper.eq("file.PRJ_ID",myFileTreeParam.getPrjId());
-        fileQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        fileQueryWrapper.eq("file.DELETE_FLAG","NOT_DELETE");
         List<CadFileVo> prjFileList = cadProjectMapper.getPrjFile(fileQueryWrapper);
 
         //构建项目+自定义文件目录树状结构

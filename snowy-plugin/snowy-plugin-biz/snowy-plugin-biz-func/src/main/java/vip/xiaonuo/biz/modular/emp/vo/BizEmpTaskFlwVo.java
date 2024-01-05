@@ -59,4 +59,12 @@ public class BizEmpTaskFlwVo extends BizEmpTaskFlw {
     /** 流程状态(绩效评估流程) */
     @ApiModelProperty(value = "流程状态(绩效评估流程)", position = 23)
     private String epStatus;
+
+    /**一级部门id*/
+    @ApiModelProperty(value = "一级部门Id", position = 19)
+    private String firstOrgId;
+
+    /**一级部门名称*/
+    @ApiModelProperty(value = "一级部门名称", position = 20)
+    private String firstOrgName;
 }

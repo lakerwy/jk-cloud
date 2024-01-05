@@ -145,4 +145,14 @@ public class BizEmpPerformance {
     @ApiModelProperty(value = "机构名称", position = 10)
     @TableField(exist = false)
     private String orgName;
+
+    /**一级部门id*/
+    @ApiModelProperty(value = "一级部门Id", position = 19)
+    @TableField(exist = false)
+    private String firstOrgId;
+
+    /**一级部门名称*/
+    @ApiModelProperty(value = "一级部门名称", position = 20)
+    @TableField(exist = false)
+    private String firstOrgName;
 }

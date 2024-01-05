@@ -88,4 +88,14 @@ public class BizEmpAssList {
     /** 季度(如:1) */
     @ApiModelProperty(value = "季度(如:1)", position = 13)
     private String season;
+
+    /**一级部门id*/
+    @ApiModelProperty(value = "一级部门Id", position = 15)
+    @TableField(exist = false)
+    private String firstOrgId;
+
+    /**一级部门名称*/
+    @ApiModelProperty(value = "一级部门名称", position = 16)
+    @TableField(exist = false)
+    private String firstOrgName;
 }

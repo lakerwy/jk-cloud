@@ -37,6 +37,7 @@ import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -48,6 +49,8 @@ import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
 
 /**
  * 业务表-员工绩效考核-季度任务流程审批单Service接口实现类
@@ -74,6 +77,9 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
 
     @Resource
     private SysOrgService sysOrgService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<BizEmpTaskFlw> page(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam) {
@@ -211,7 +217,14 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         } else {
             queryWrapper.orderByDesc("emp.YEAR").orderByDesc("emp.SEASON").orderByDesc("emp.ORG_ID").orderByDesc("b.EMP_SEASON_SCORE");
         }
-        return bizEmpTaskFlwMapper.getList(CommonPageRequest.defaultPage(),queryWrapper);
+        IPage<BizEmpTaskFlwVo> result = bizEmpTaskFlwMapper.getList(CommonPageRequest.defaultPage(),queryWrapper);
+        result.getRecords().forEach(x->{
+            String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getOrgId()));
+            String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getOrgId()));
+            x.setFirstOrgId(StrUtil.isNotEmpty(sOrgId)?sOrgId:x.getOrgId());
+            x.setFirstOrgName(StrUtil.isNotEmpty(sOrgName)?sOrgName:x.getOrgName());
+        });
+        return result;
     }
 
     @Override
