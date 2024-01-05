@@ -174,6 +174,7 @@ public class FlwProcessMyController {
         List<String> myCopyUnreadProcessInstanceIdList = flwProcessService.getMyCopyUnreadProcessInstanceIdList();
         if(ObjectUtil.isNotEmpty(myCopyUnreadProcessInstanceIdList)) {
             flwProcessMonitorPageParam.setProcessInstanceIdList(myCopyUnreadProcessInstanceIdList);
+            flwProcessMonitorPageParam.setCopyFlag(Boolean.TRUE);
             return CommonResult.data(flwProcessService.monitorPage(flwProcessMonitorPageParam));
         }
         return CommonResult.data(new Page<>());
@@ -209,6 +210,7 @@ public class FlwProcessMyController {
         List<String> myCopyUnreadProcessInstanceIdList = flwProcessService.getMyCopyHasReadProcessInstanceIdList();
         if(ObjectUtil.isNotEmpty(myCopyUnreadProcessInstanceIdList)) {
             flwProcessMonitorPageParam.setProcessInstanceIdList(myCopyUnreadProcessInstanceIdList);
+            flwProcessMonitorPageParam.setCopyFlag(Boolean.TRUE);
             return CommonResult.data(flwProcessService.monitorPage(flwProcessMonitorPageParam));
         }
         return CommonResult.data(new Page<>());

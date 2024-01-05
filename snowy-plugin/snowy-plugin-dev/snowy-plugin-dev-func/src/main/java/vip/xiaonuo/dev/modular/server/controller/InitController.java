@@ -178,4 +178,18 @@ public class InitController {
         initConfigService.connectDataBase(connectDataBaseParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 传数据表执行文件
+     *
+     * @author ljy
+     * @date  2024/01/04 22:31
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("传输数据表执行文件sql")
+    @PostMapping("/sys/server/transferSqlFile")
+    public CommonResult<String> transferSqlFile(@RequestBody @Valid TransferFileParam transferFileParam){
+        initConfigService.transferFile(transferFileParam);
+        return CommonResult.ok();
+    }
 }

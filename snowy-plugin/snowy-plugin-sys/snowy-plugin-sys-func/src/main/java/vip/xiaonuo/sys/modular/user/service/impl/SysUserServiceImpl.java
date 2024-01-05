@@ -1481,7 +1481,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public Page<SysUser> getAllUserSelectorList() {
-        return this.page(CommonPageRequest.defaultPage(), new LambdaQueryWrapper<SysUser>().select(SysUser::getId,
+        return this.page(CommonPageRequest.defaultPage(), new LambdaQueryWrapper<SysUser>().eq(SysUser::getUserStatus,SysUserStatusEnum.ENABLE.getValue()).select(SysUser::getId,
                 SysUser::getAvatar, SysUser::getOrgId, SysUser::getPositionId, SysUser::getAccount, SysUser::getName,
                 SysUser::getSortCode, SysUser::getGender, SysUser::getEntryDate).orderByAsc(SysUser::getSortCode));
     }

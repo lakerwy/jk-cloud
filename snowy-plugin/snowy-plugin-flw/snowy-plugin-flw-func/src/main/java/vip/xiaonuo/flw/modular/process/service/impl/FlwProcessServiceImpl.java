@@ -344,7 +344,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         }
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         //合作伙伴的只能看自己部门的
-        if(loginUser.getCategory().equals("PARTNER")){
+        if(flwProcessMonitorPageParam.getCopyFlag() && loginUser.getCategory().equals("PARTNER")){
             historicProcessInstanceQuery.variableValueEquals("initiatorOrgId",loginUser.getOrgId());
         }
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getProcessInstanceIdList())) {

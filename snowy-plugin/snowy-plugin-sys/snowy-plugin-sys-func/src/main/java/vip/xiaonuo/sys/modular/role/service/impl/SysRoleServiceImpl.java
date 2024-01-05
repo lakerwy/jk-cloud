@@ -31,6 +31,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.CacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -353,7 +354,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                         sysMenu.getTitle(), sysMenu.getSortCode())).collect(Collectors.toList());
         List<Tree<String>> treeList = TreeUtil.build(treeNodeList, "-1");
         sysMenuList.forEach(sysMenu -> {
-            boolean isLeafMenu = this.getChildListById(sysMenuList, sysMenu.getId(), false).size() == 0;
+            boolean isLeafMenu = this.getChildListById(sysMenuList, sysMenu.getId(), false).isEmpty();
             if(isLeafMenu) {
                 SysRoleGrantResourceTreeResult.SysRoleGrantResourceMenuResult sysRoleGrantResourceMenuResult =
                         new SysRoleGrantResourceTreeResult.SysRoleGrantResourceMenuResult();
@@ -465,6 +466,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             if (ObjectUtil.isNotEmpty(sysRoleSelectorUserParam.getSearchKey())) {
                 lambdaQueryWrapper.like(SysUser::getName, sysRoleSelectorUserParam.getSearchKey());
             }
+            lambdaQueryWrapper.eq(SysUser::getUserStatus, SysUserStatusEnum.ENABLE.getValue());
             lambdaQueryWrapper.orderByAsc(SysUser::getSortCode);
             return sysUserService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
         }
