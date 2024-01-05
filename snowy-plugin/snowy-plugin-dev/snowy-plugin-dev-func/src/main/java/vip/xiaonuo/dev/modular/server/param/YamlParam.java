@@ -9,13 +9,13 @@ import java.util.Map;
 @Setter
 @Getter
 public class YamlParam {
-    @ApiModelProperty(value = "模板配置文件路径", required = true,position = 1)
+    @ApiModelProperty(value = "模板配置文件路径",position = 1)
     private String configPath;
 
-    @ApiModelProperty(value = "配置文件输出路径", required = true,position = 2)
+    @ApiModelProperty(value = "配置文件输出路径",position = 2)
     private String outYamlPath;
 
-    @ApiModelProperty(value = "需要修改的参数，例：key-param， value 82", required = true,position = 3)
+    @ApiModelProperty(value = "需要修改的参数，例：key-param， value 82",position = 3)
     private Map<String,Object> paramMap;
 
     @ApiModelProperty(value = "系统服务ID",position = 4)

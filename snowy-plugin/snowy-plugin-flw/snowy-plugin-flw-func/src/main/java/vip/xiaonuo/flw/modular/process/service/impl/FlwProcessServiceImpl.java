@@ -74,6 +74,7 @@ import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelFormTypeEnum;
 import vip.xiaonuo.flw.modular.model.enums.FlwModelStatusEnum;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
+import vip.xiaonuo.flw.modular.process.mapper.FlwCommonMapper;
 import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
@@ -145,6 +146,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Resource
     private CommonProperties commonProperties;
+
+    @Resource
+    FlwCommonMapper flwCommonMapper;
 
     @Override
     public void saveDraft(FlwProcessSaveDraftParam flwProcessSaveDraftParam) {
@@ -339,8 +343,17 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getInitiatorProcessTitle())) {
             historicProcessInstanceQuery.variableValueLike("initiatorProcessTitle", "%" + flwProcessMonitorPageParam.getInitiatorProcessTitle() + "%");
         }
+//        historicProcessInstanceQuery.or().processDefinitionNameLike("%" + flwProcessMonitorPageParam.getName()+ "%");
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getName())) {
-            historicProcessInstanceQuery.processDefinitionNameLike("%" + flwProcessMonitorPageParam.getName() + "%");
+            String key = getNameList(flwProcessMonitorPageParam.getName());
+            historicProcessInstanceQuery.processDefinitionKey(key);
+            // 使用手动添加 or 关系的方式
+//            for (int i = 0; i < nameList.size(); i++) {
+//                if (i > 0) {
+//                    historicProcessInstanceQuery.or();
+//                }
+//                historicProcessInstanceQuery.processDefinitionNameLike("%" + nameList.get(i) + "%");
+//            }
         }
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         //合作伙伴的只能看自己部门的
@@ -1317,6 +1330,11 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         resultMap.put("startUserId",startUserId);
         resultMap.put("assignee",task.getAssignee());
         return resultMap;
+    }
+
+    @Override
+    public String getNameList(String name){
+        return flwCommonMapper.getNameList(name);
     }
 
 }

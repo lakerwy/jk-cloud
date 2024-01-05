@@ -142,8 +142,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         NodeRuntimeUtil.handleTenAuth();
         TaskQuery taskQuery = taskService.createTaskQuery().active().taskAssignee(StpUtil.getLoginIdAsString()).orderByTaskCreateTime().desc();
         if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getName())) {
-            taskQuery.processDefinitionName(flwTaskPageTodoParam.getName()).or()
-                    .processVariableValueLike("initiatorProcessAbstract", "%" + flwTaskPageTodoParam.getName() + "%");
+//            taskQuery.processDefinitionName(flwTaskPageTodoParam.getName()).or()
+//                    .processVariableValueLike("initiatorProcessAbstract", "%" + flwTaskPageTodoParam.getName() + "%");
+            String key = flwProcessService.getNameList(flwTaskPageTodoParam.getName());
+            taskQuery.processDefinitionKey(key);
         }
         if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getInitiator())) {
             taskQuery.processVariableValueEquals("initiator", flwTaskPageTodoParam.getInitiator());
@@ -225,7 +227,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         HistoricTaskInstanceQuery historicTaskInstanceQuery = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString())
                 .orderByHistoricTaskInstanceEndTime().desc();
         if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getName())) {
-            historicTaskInstanceQuery.processDefinitionName(flwTaskPageDoneParam.getName());
+//            historicTaskInstanceQuery.processDefinitionName(flwTaskPageDoneParam.getName());
+            String key = flwProcessService.getNameList(flwTaskPageDoneParam.getName());
+            historicTaskInstanceQuery.processDefinitionKey(key);
         }
         if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiator())) {
             historicTaskInstanceQuery.processVariableValueEquals("initiator", flwTaskPageDoneParam.getInitiator());

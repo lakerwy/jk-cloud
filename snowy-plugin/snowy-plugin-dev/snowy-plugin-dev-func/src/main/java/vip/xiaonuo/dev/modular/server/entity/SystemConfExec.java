@@ -92,4 +92,8 @@ public class SystemConfExec {
     @ApiModelProperty(value = "修改用户", position = 14)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 传输数据表执行文件sql的JSON  */
+    @ApiModelProperty(value = "传输数据表执行文件sql的JSON", position = 15)
+    private String transferSqlJson;
 }

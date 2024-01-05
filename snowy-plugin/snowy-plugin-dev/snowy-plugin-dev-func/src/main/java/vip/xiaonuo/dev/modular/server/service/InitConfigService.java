@@ -59,4 +59,6 @@ public interface InitConfigService {
     void downloadImportUserTemplate(HttpServletResponse response) throws IOException;
 
     void connectDataBase(ConnectDataBaseParam connectDataBaseParam);
+
+    void transferSqlFile(TransferFileParam transferFileParam);
 }

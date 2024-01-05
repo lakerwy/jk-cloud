@@ -189,7 +189,7 @@ public class InitController {
     @ApiOperation("传输数据表执行文件sql")
     @PostMapping("/sys/server/transferSqlFile")
     public CommonResult<String> transferSqlFile(@RequestBody @Valid TransferFileParam transferFileParam){
-        initConfigService.transferFile(transferFileParam);
+        initConfigService.transferSqlFile(transferFileParam);
         return CommonResult.ok();
     }
 }
