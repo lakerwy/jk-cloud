@@ -1,0 +1,47 @@
+seata:
+  config:
+    # support: nacos, consul, apollo, zk, etcd3
+    type: nacos
+    nacos:
+      server-addr: ${spring.cloud.nacos.config.server-addr}
+      namespace: ${spring.cloud.nacos.config.namespace}
+      group: ${spring.cloud.nacos.config.group}
+      username: ${spring.cloud.nacos.config.username}
+      password: ${spring.cloud.nacos.config.password}
+
+  registry:
+    # support: nacos, eureka, redis, zk, consul, etcd3, sofa
+    type: nacos
+    nacos:
+      application: ${spring.application.name}
+      server-addr: ${spring.cloud.nacos.config.server-addr}
+      group: ${spring.cloud.nacos.config.group}
+      namespace: ${spring.cloud.nacos.config.namespace}
+      # tc集群名称
+      cluster: default
+      username: ${spring.cloud.nacos.config.username}
+      password: ${spring.cloud.nacos.config.password}
+  #  server:
+  #    service-port: 8091 #If not configured, the default is '${server.port} + 1000'
+  security:
+    secretKey: SeataSecretKey0c382ef121d778043159209298fd40bf3850a017
+    tokenValidityInMilliseconds: 1800000
+    ignore:
+      urls: /,/**/*.css,/**/*.js,/**/*.html,/**/*.map,/**/*.svg,/**/*.png,/**/*.ico,/console-fe/public/**,/api/v1/auth/login
+
+store:
+  db:
+    branchTable: branch_table
+    datasource: druid
+    dbType: mysql
+    driverClassName: com.mysql.cj.jdbc.Driver
+    globalTable: global_table
+    lockTable: lock_table
+    maxConn: 20
+    maxWait: 5000
+    minConn: 1
+    password: 123456
+    queryLimit: 100
+    url: jdbc:mysql://10.0.33.82:3306/jk-seata?useUnicode=true&characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
+    user: root
+  mode: db

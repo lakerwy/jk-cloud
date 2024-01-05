@@ -144,8 +144,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getName())) {
 //            taskQuery.processDefinitionName(flwTaskPageTodoParam.getName()).or()
 //                    .processVariableValueLike("initiatorProcessAbstract", "%" + flwTaskPageTodoParam.getName() + "%");
-            String key = flwProcessService.getNameList(flwTaskPageTodoParam.getName());
-            taskQuery.processDefinitionKey(key);
+            List<String> keys = flwProcessService.getNameList(flwTaskPageTodoParam.getName());
+            if(CollUtil.isNotEmpty(keys)){
+                taskQuery.processDefinitionKeyIn(keys.toArray(new String[0]));
+            }
         }
         if (ObjectUtil.isNotEmpty(flwTaskPageTodoParam.getInitiator())) {
             taskQuery.processVariableValueEquals("initiator", flwTaskPageTodoParam.getInitiator());
@@ -228,8 +230,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 .orderByHistoricTaskInstanceEndTime().desc();
         if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getName())) {
 //            historicTaskInstanceQuery.processDefinitionName(flwTaskPageDoneParam.getName());
-            String key = flwProcessService.getNameList(flwTaskPageDoneParam.getName());
-            historicTaskInstanceQuery.processDefinitionKey(key);
+            List<String> keys = flwProcessService.getNameList(flwTaskPageDoneParam.getName());
+            if(CollUtil.isNotEmpty(keys)){
+                historicTaskInstanceQuery.or().processDefinitionKey(keys.get(0));
+            }
         }
         if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiator())) {
             historicTaskInstanceQuery.processVariableValueEquals("initiator", flwTaskPageDoneParam.getInitiator());

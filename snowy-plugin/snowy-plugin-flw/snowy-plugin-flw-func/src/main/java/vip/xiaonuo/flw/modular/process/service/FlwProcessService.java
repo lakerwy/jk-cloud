@@ -350,5 +350,5 @@ public interface FlwProcessService {
 
     Map<String,String> getInstance(String processInstanceId);
 
-    String getNameList(String name);
+    List<String> getNameList(String name);
 }

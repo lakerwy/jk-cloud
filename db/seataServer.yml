@@ -1,0 +1,27 @@
+server:
+    maxCommitRetryTimeout: -1
+    maxRollbackRetryTimeout: -1
+    recovery:
+        asynCommittingRetryPeriod: 1000
+        committingRetryPeriod: 1000
+        rollbackingRetryPeriod: 1000
+        timeoutRetryPeriod: 1000
+    undo:
+        logDeletePeriod: 86400000
+        logSaveDays: 7
+store:
+    db:
+        branchTable: branch_table
+        datasource: druid
+        dbType: mysql
+        driverClassName: com.mysql.cj.jdbc.Driver
+        globalTable: global_table
+        lockTable: lock_table
+        maxConn: 20
+        maxWait: 5000
+        minConn: 1
+        password: ??
+        queryLimit: 100
+        url: jdbc:mysql://127.0.0.1:3306/seata-server?useUnicode=true&characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useSSL=false
+        user: ???
+    mode: db

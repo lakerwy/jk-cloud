@@ -14,6 +14,7 @@ package vip.xiaonuo.flw.modular.process.service.impl;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateUnit;
@@ -345,15 +346,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         }
 //        historicProcessInstanceQuery.or().processDefinitionNameLike("%" + flwProcessMonitorPageParam.getName()+ "%");
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getName())) {
-            String key = getNameList(flwProcessMonitorPageParam.getName());
-            historicProcessInstanceQuery.processDefinitionKey(key);
-            // 使用手动添加 or 关系的方式
-//            for (int i = 0; i < nameList.size(); i++) {
-//                if (i > 0) {
-//                    historicProcessInstanceQuery.or();
-//                }
-//                historicProcessInstanceQuery.processDefinitionNameLike("%" + nameList.get(i) + "%");
-//            }
+            List<String> keys  = getNameList(flwProcessMonitorPageParam.getName());
+            if(CollUtil.isNotEmpty(keys)){
+                historicProcessInstanceQuery.processDefinitionKeyIn(keys.toArray(new String[0]));
+            }
         }
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         //合作伙伴的只能看自己部门的
@@ -1333,7 +1329,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
     }
 
     @Override
-    public String getNameList(String name){
+    public List<String> getNameList(String name){
         return flwCommonMapper.getNameList(name);
     }
 

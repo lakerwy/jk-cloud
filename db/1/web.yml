@@ -1,0 +1,367 @@
+#########################################
+# server configuration
+#########################################
+server:
+  port: 9101
+
+#########################################
+# spring profiles configuration
+#########################################
+spring:
+
+  #########################################
+  # multipart configuration
+  #########################################
+  servlet:
+    multipart:
+      max-request-size: 5120MB
+      max-file-size: 5120MB
+
+  #########################################
+  # mvc configuration
+  #########################################
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  #########################################
+  # main configuration
+  #########################################
+  main:
+    allow-circular-references: true
+
+  #########################################
+  # boot configuration
+  #########################################
+  boot:
+    admin:
+      client:
+        url: http://10.0.33.82:9001
+        instance:
+          # 默认使用的是主机名注册，改为使用ip注册
+          prefer-ip: true
+
+  rabbitmq:
+    host: 10.0.33.81
+    port: 5672
+    username: guest
+    password: guest
+
+  #########################################
+  # cloud configuration
+  #########################################
+  cloud:
+    loadbalancer:
+      ribbon:
+        enabled: false
+      cache:
+        enabled: true
+        caffeine:
+          spec: initialCapacity=500,expireAfterWrite=5s
+    nacos:
+      discovery:
+        server-addr: ${spring.cloud.nacos.config.server-addr}
+        namespace: ${spring.cloud.nacos.config.namespace}
+        group: ${spring.cloud.nacos.config.group}
+        username: ${spring.cloud.nacos.config.username}
+        password: ${spring.cloud.nacos.config.password}
+
+    function:
+      definition: source;sink #函数名称，对应服务中的注入的Bean  transfer 非必须
+    #      definition: source;sink;transfer #函数名称，对应服务中的注入的Bean
+    stream:
+      bindings:        #服务的整合处理
+        jkYunOutPut-test:    #这个是消息通道的名称 --->保存消息到输出通道
+          destination: exchange-jkCloud-test     #exchange名称,交换模式默认是topic;把SpringCloud stream的消息输出通道绑定到RabbitMQ的exchange-saveOrder交换器。
+          content-type: application/json      #设置消息的类型，本次为json
+          default-binder: defaultRabbit
+          group: ${spring.application.name}               #分组
+
+        #        transfer-in-0: #这个是消息通道的名称 --->保存消息到输出通道
+        #          destination: exchange-jkCloud     #exchange名称,交换模式默认是topic;把SpringCloud stream的消息输出通道绑定到RabbitMQ的exchange-saveOrder交换器。
+        #          content-type: application/json      #设置消息的类型，本次为json
+        #          default-binder: defaultRabbit
+        #          group: ${spring.application.name}               #分组
+        #
+        #        transfer-out-0: #这个是消息通道的名称 --->保存消息到输出通道
+        #          destination: exchange-jkCloud     #exchange名称,交换模式默认是topic;把SpringCloud stream的消息输出通道绑定到RabbitMQ的exchange-saveOrder交换器。
+        #          content-type: application/json      #设置消息的类型，本次为json
+        #          default-binder: defaultRabbit
+        #          group: ${spring.application.name}               #分组
+
+        sink-in-0: #这个是消息通道的名称 --->保存消息到输入通道
+          destination: exchange-jkCloud-test      #exchange名称,交换模式默认是topic;把SpringCloud stream的消息输出通道绑定到RabbitMQ的exchange-saveOrder交换器。
+          content-type: application/json      #设置消息的类型，本次为json
+          default-binder: defaultRabbit
+          group: ${spring.application.name}              #分组
+
+  #########################################
+  # datasource configuration
+  #########################################
+
+  # mysql
+  datasource:
+    dynamic:
+      datasource:
+        master:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://10.0.33.82:3306/jk-cloud-test?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true
+          username: root
+          password: 123456
+        slave_1:
+          driver-class-name: com.mysql.cj.jdbc.Driver
+          url: jdbc:mysql://10.0.33.82:3306/jk-cloud-biz-test?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true
+          username: root
+          password: 123456
+      strict: true
+
+      # oracle
+      #  datasource:
+      #    dynamic:
+      #      datasource:
+      #        master:
+      #          driver-class-name: oracle.jdbc.driver.OracleDriver
+      #          url: jdbc:oracle:thin:@//127.0.0.1:1521/XE?remarksReporting=true
+      #          username: SNOWY
+      #          password: 12345678
+      #      strict: true
+
+      # mssql
+      #  datasource:
+      #    dynamic:
+      #      datasource:
+      #        master:
+      #          driver-class-name: com.microsoft.sqlserver.jdbc.SQLServerDriver
+      #          url: jdbc:sqlserver://localhost:1433;DatabaseName=SNOWY
+      #          username: sa
+      #          password: 12345678
+      #      strict: true
+
+      # dm database
+      #  datasource:
+      #    dynamic:
+      #      datasource:
+      #        master:
+      #          driver-class-name: dm.jdbc.driver.DmDriver
+      #          url: jdbc:dm://localhost:5236/SYSDBA
+      #          username: SYSDBA
+      #          password: SYSDBA
+      #      strict: true
+
+      # kingbase database
+      #  datasource:
+      #    dynamic:
+      #      datasource:
+      #        master:
+      #          driver-class-name: com.kingbase8.Driver
+      #          url: jdbc:kingbase8://localhost:54321/snowy
+      #          username: SYSTEM
+      #          password: 123456
+      #      strict: true
+
+      # druid global configuration
+      public-key: MFwwDQYJKoZIhvcNAQEBBQADSwAwSAJBAMWiTVtdXFVrgFHDDKELZM0SywkWY3KjugN90eY5Sogon1j8Y0ClPF7nx3FuE7pAeBKiv7ChIS0vvx/59WUpKmUCAwEAAQ==
+      druid:
+        initial-size: 5
+        max-active: 20
+        min-idle: 5
+        max-wait: 60000
+        pool-prepared-statements: true
+        max-pool-prepared-statement-per-connection-size: 20
+        validation-query-timeout: 2000
+        test-on-borrow: false
+        test-on-return: false
+        test-while-idle: true
+        time-between-eviction-runs-millis: 6000
+        min-evictable-idle-time-millis: 300000
+        filters: stat
+        break-after-acquire-failure: false
+
+    # druid monitor configuration
+    druid:
+      stat-view-servlet:
+        enabled: true
+        login-username: admin
+        login-password: 123456
+
+  #########################################
+  # jackson configuration
+  #########################################
+  jackson:
+    time-zone: GMT+8
+    date-format: yyyy-MM-dd HH:mm:ss
+    locale: zh_CN
+
+  #########################################
+  # redis configuration
+  #########################################
+  redis:
+    database: 11
+    host: 10.0.33.82
+    port: 6779
+    password:
+    timeout: 10s
+    lettuce:
+      pool:
+        max-active: 200
+        max-wait: -1ms
+        max-idle: 10
+        min-idle: 0
+
+#########################################
+# 开放所有endpoint，实际生产根据自身需要开放，出于安全考虑不建议全部开放
+#########################################
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+    health:
+      show-details: "ALWAYS"
+
+#########################################
+# mybatis-plus configuration
+#########################################
+mybatis-plus:
+  configuration:
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    banner: false
+    enable-sql-runner: true
+    db-config:
+      id-type: ASSIGN_ID
+      logic-delete-field: DELETE_FLAG
+      logic-delete-value: DELETED
+      logic-not-delete-value: NOT_DELETE
+  mapper-locations: classpath*:vip/xiaonuo/**/mapping/*.xml,com/bstek/**/mapping/*.xml
+  type-handlers-package: vip.xiaonuo.common.handler
+
+#########################################
+# easy-trans configuration
+#########################################
+easy-trans:
+  is-enable-redis: true
+  is-enable-global: true
+  is-enable-tile: true
+
+#########################################
+# sa-token configuration
+#########################################
+sa-token:
+  token-name: token
+  timeout: 86400
+  activity-timeout: -1
+  is-concurrent: true
+  is-share: false
+  max-login-count: -1
+  token-style: random-32
+  is-log: false
+  is-print: false
+
+  # sa-token alone-redis configuration
+  alone-redis:
+    database: 12
+    host: ${spring.redis.host}
+    port: ${spring.redis.port}
+    password: ${spring.redis.password}
+    timeout: ${spring.redis.timeout}
+    lettuce:
+      pool:
+        max-active: ${spring.redis.lettuce.pool.max-active}
+        max-wait: ${spring.redis.lettuce.pool.max-wait}
+        max-idle: ${spring.redis.lettuce.pool.max-idle}
+        min-idle: ${spring.redis.lettuce.pool.min-idle}
+
+#########################################
+# knife4j configuration
+#########################################
+knife4j:
+  enable: true
+  production: false
+  basic:
+    enable: false
+    username: admin
+    password: 123456
+  setting:
+    enableOpenApi: false
+    enableSwaggerModels: false
+    enableFooter: false
+    enableFooterCustom: true
+    footerCustomContent: Apache License 2.0 | Copyright 2022-[SNOWY](https://www.xiaonuo.vip)
+
+#########################################
+# camunda configuration
+#########################################
+camunda:
+  bpm:
+    database:
+      schema-update: true
+    auto-deployment-enabled: false
+    job-execution:
+      enabled: false
+    eventing:
+      history: false
+    metrics:
+      enabled: false
+
+#########################################
+# snowy configuration
+#########################################
+
+# common configuration
+snowy:
+  config:
+    common:
+      front-url: http://10.0.33.82:9780
+      backend-url: http://10.0.33.82:9703
+
+    # plugin ten configuration
+    ten:
+      enabled: false
+      ignore-table-names:
+      ten-id-column-name: TENANT_ID
+      default-ten-id: -1
+
+dingtalk:
+  agentId: 2124084395
+  appKey: dingt8huy4ebf11uxafv
+  appSecret: emw9oZflLGQhZJ_YDyWl8UtBkLQHher77KMAR1_MdCWK3Y-q06t2WworrrpoCMpu
+  isSend: true
+uniPush:
+  appId: wNJ7QUllQa9bJbfG7QAAl2
+  appKey: mUN1ulb8D08AVJQIWZaaQ4
+  masterSecret: D332QIH70N9eZycu2Fw46A
+jpush:
+  appKey: b4ccd59feaadf08eb811ab7b
+  masterSecret: bd4a17c71f552b5cf7c87d39
+  apnsProduction: false   # 是否生成环境，true表示生成环境
+
+files:
+  docservice:
+    convert-docs: .docm|.dotx|.dotm|.dot|.doc|.odt|.fodt|.ott|.xlsm|.xlsb|.xltx|.xltm|.xlt|.xls|.ods|.fods|.ots|.pptm|.ppt|.ppsx|.ppsm|.pps|.potx|.potm|.pot|.odp|.fodp|.otp|.rtf|.mht|.html|.htm|.xml|.epub|.fb2
+    edited-docs: .docx|.xlsx|.csv|.pptx|.txt|.docxf|.doc|.xls|.ppt
+    fillforms-docs: .oform|.docx
+    header: Authorization
+    history:
+      postfix: -hist
+    languages: en:English|hy:Armenian|az:Azerbaijani|eu:Basque|be:Belarusian|bg:Bulgarian|ca:Catalan|zh:Chinese (People's Republic of China)|zh-TW:Chinese (Traditional, Taiwan)|cs:Czech|da:Danish|nl:Dutch|fi:Finnish|fr:French|gl:Galego|de:German|el:Greek|hu:Hungarian|id:Indonesian|it:Italian|ja:Japanese|ko:Korean|lv:Latvian|lo:Lao|ms:Malay (Malaysia)|nb:Norwegian|pl:Polish|pt:Portuguese (Brazil)|pt-PT:Portuguese (Portugal)|ro:Romanian|ru:Russian|sk:Slovak|sl:Slovenian|es:Spanish|sv:Swedish|tr:Turkish|uk:Ukrainian|vi:Vietnamese
+    secret: secret
+    timeout: 120000
+    url:
+      api: web-apps/apps/api/documents/api.js
+      command: coauthoring/CommandService.ashx
+      converter: ConvertService.ashx
+      example: ''
+      preloader: web-apps/apps/api/documents/cache-scripts.html
+      site: https://onlyoffice.jianke.co/
+    verify-peer-off: true
+    viewed-docs: .pdf|.djvu|.xps|.oxps
+  storage: ''
+  storage.folder: documents
+
+logo:
+  image: ''
+  imageEmbedded: ''
+  url: https://www.onlyoffice.com
+
+

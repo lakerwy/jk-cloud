@@ -25,5 +25,5 @@ import java.util.Map;
  * @date 2022/5/11 15:32
  **/
 public interface FlwCommonMapper extends BaseMapper<Object> {
-    String getNameList(String name);
+    List<String> getNameList(String name);
 }

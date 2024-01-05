@@ -2,6 +2,14 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.flw.modular.process.mapper.FlwCommonMapper">
     <select id="getNameList" parameterType="string" resultType="string">
-        SELECT DISTINCT KEY_ FROM ACT_RE_PROCDEF WHERE NAME_ = #{name}
+        SELECT t.KEY_
+        FROM ACT_RE_PROCDEF t
+                 JOIN (
+            SELECT KEY_, MAX(VERSION_) AS max_version
+            FROM ACT_RE_PROCDEF
+            WHERE NAME_ LIKE CONCAT('%', #{name}, '%')
+            GROUP BY KEY_
+        ) t_max ON t.KEY_ = t_max.KEY_ AND t.VERSION_ = t_max.max_version ORDER BY t.VERSION_ DESC
+
     </select>
 </mapper>
