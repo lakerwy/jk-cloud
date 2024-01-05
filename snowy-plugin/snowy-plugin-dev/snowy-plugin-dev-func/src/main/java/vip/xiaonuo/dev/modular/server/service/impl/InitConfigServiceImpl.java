@@ -277,13 +277,21 @@ public class InitConfigServiceImpl implements InitConfigService {
 
     @Override
     public void commandSh(UnixCommandParam unixCommandParam){
-         /*List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
+        if(ObjectUtil.isEmpty(unixCommandParam.getSystemId())){
+            log.error("系统服务ID不能为空");
+            throw new CommonException("系统服务systemId不能为空。");
+        }
+         List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,unixCommandParam.getSystemId()));
         if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
             throw new CommonException("未找到系统服务操作记录！");
         }
         SystemConfExec systemConfExec = systemConfExecs.get(0);
-        DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
-        BeanUtil.copyProperties(dataBaseParam,tableParam);*/
+        TransferFileParam transferFileParam = BeanUtil.toBean(systemConfExec.getTransferSqlJson(),TransferFileParam.class);
+        unixCommandParam.setSshHost(transferFileParam.getTargetHost());
+        unixCommandParam.setSshUsername(transferFileParam.getTargetUsername());
+        unixCommandParam.setSshPassword(transferFileParam.getTargetPassword());
+        unixCommandParam.setSshPort(22);
+
         try{
             databaseCreator.importDatabase(unixCommandParam);
             String remoteExecJson = JSONUtil.toJsonStr(unixCommandParam);
@@ -291,8 +299,6 @@ public class InitConfigServiceImpl implements InitConfigService {
                 log.error("系统服务ID不能为空");
                 throw new CommonException("系统服务systemId不能为空。");
             }
-            List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,unixCommandParam.getSystemId()));
-            SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
             systemConfExec.setRemoteExecJson(remoteExecJson);
             systemConfExec.setSystemId(unixCommandParam.getSystemId());
             systemConfExecService.saveOrUpdate(systemConfExec);
@@ -339,6 +345,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             systemConfExec.setInitUserJson(remoteExecJson);
             systemConfExec.setSystemId(importUserParam.getSystemId());
             systemConfExecService.saveOrUpdate(systemConfExec);
+            updateSystemServer(importUserParam.getSystemId(),4);
             return JSONUtil.createObj().set("totalCount", sysUserImportParamList.size());
         } catch (Exception e) {
             log.error(">>> 用户导入失败：", e);
