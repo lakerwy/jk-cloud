@@ -51,6 +51,7 @@ import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
+import vip.xiaonuo.sys.modular.user.param.SysUserIdParam;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
@@ -248,6 +249,12 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             sysUserAddParam.setEmpNo(personnel.getFileNo());
             sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
             sysUserService.addAndGrantRole(sysUserAddParam);
+        }
+        //已修改为离职 ，删除系统账号
+        if(personnelEditParam.getStatus().equals("1")){
+            SysUserIdParam sysUserIdParam = new SysUserIdParam();
+            sysUserIdParam.setId(personnelEditParam.getSysUserId());
+            sysUserService.delete(Collections.singletonList(sysUserIdParam));
         }
     }
 
