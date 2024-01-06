@@ -133,6 +133,15 @@ public class FlwNode {
         /** 完成通知模板 */
         private String processCompleteNoticeTemplate;
 
+        /** 开启拒绝通知 */
+        private Boolean processEnableRejectNotice;
+
+        /** 退回拒绝渠道 */
+        private List<String> processRejectNoticeChannel;
+
+        /** 退回拒绝模板 */
+        private String processRejectNoticeTemplate;
+
         /** 开启自动去重 */
         private Boolean processEnableAutoDistinct;
 

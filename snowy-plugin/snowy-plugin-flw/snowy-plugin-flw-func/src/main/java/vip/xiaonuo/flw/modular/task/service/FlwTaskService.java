@@ -183,4 +183,6 @@ public interface FlwTaskService {
      * @return
      */
     void putComments(String inputValue);
+
+    FlwTodoTaskResult getOneByProcessInstanceId(FlwProcessInstanceIdParam flwProcessInstanceIdParam);
 }

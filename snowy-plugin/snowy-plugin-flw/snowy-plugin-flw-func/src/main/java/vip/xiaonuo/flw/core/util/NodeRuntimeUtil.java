@@ -818,6 +818,15 @@ public class NodeRuntimeUtil {
     }
 
     /**
+     * 处理流程拒绝通知
+     */
+    public static void handleUserTaskRejectNotice(DelegateTask delegateTask){
+        handleProcessNotice(delegateTask, null, "REJECT", "processEnableRejectNotice",
+                "processCompleteRejectChannel", "processRejectNoticeTemplate");
+    }
+
+
+    /**
      * 处理流程通知
      *
      * @author xuyuxiang
@@ -836,7 +845,8 @@ public class NodeRuntimeUtil {
             AtomicReference<String> processNoticeTemplate = new AtomicReference<>();
             Collection<ExtensionElements> processExtensionElementsCollection;
 
-            if(noticeType.equals("TODO") || noticeType.equals("BACK")) {
+            boolean flag = noticeType.equals("TODO") || noticeType.equals("BACK") || noticeType.equals("REJECT");
+            if(flag) {
                 if(noticeType.equals("BACK")) {
                     processExtensionElementsCollection = repositoryService.getBpmnModelInstance(delegateTask.getProcessDefinitionId())
                             .getDocumentElement().getUniqueChildElementByType(Process.class).getChildElementsByType(ExtensionElements.class);
@@ -864,7 +874,7 @@ public class NodeRuntimeUtil {
                                 })));
             }
             if(processNoticeEnabled[0]) {
-                if(noticeType.equals("TODO") || noticeType.equals("BACK")) {
+                if(flag) {
                     handleProcessNoticeExecute(delegateTask, null, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
                 } else {
                     handleProcessNoticeExecute(null, delegateExecution, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
@@ -982,6 +992,11 @@ public class NodeRuntimeUtil {
                     if(ObjectUtil.isNotEmpty(initiatorObjForBack)) {
                         participateUserIdList = CollectionUtil.newArrayList(Convert.toStr(initiatorObjForBack));
                     }
+                    processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
+                    break;
+                case "REJECT":
+                    //拒绝只发送给申请人
+                    participateUserIdList = Collections.singletonList(String.valueOf(delegateTask.getVariable("initiator")));
                     processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
                     break;
                 default:
