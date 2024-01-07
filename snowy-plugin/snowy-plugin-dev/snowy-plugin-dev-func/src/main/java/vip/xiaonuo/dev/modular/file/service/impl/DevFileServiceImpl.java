@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
@@ -65,6 +66,7 @@ import java.util.stream.Collectors;
  * @author xuyuxiang
  * @date 2022/2/23 18:43
  **/
+@Slf4j
 @Service
 public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> implements DevFileService {
 
@@ -783,12 +785,15 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         try {
             unRarZip7Z.unzipUnix(prefixPath+filePath,fileName);
             List<Map<String,String>> filePaths = new ArrayList<>();
-            String outFile ="";
+            String outFilePath ="";
             int outIndex = devFile.getName().lastIndexOf(".");
             if (outIndex != -1) {
-                outFile = prefixPath+filePath+"/"+devFile.getName().substring(0, outIndex);
+                outFilePath = prefixPath+filePath+"/"+devFile.getName().substring(0, outIndex);
             }
-            getFileList(new File(outFile),filePaths,"");
+            File outFile = new File(outFilePath);
+            log.info("outPath:"+outFile+",isTrue:"+outFile.exists());
+            getFileList(outFile,filePaths,fileName);
+
             List<DevFileUnzip> devFileIds = new ArrayList<>();
             String fileIdPre = DateUtil.date().toString("yyyyMMdd");
             for(Map<String,String> data : filePaths){
