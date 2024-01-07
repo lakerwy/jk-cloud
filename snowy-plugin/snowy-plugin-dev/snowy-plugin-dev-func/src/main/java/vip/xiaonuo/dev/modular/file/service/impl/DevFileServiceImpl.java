@@ -788,13 +788,10 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             String outFilePath ="";
             int outIndex = devFile.getName().lastIndexOf(".");
             if (outIndex != -1) {
-                outFilePath = prefixPath+filePath+"/"+devFile.getName().substring(0, outIndex);
+                outFilePath = filePath+"/"+devFile.getName().substring(0, outIndex);
             }
             File outFile = new File(outFilePath);
             log.info("outPath:"+outFilePath+",isTrue:"+outFile.exists());
-            String newFilePath = filePath+"/"+devFile.getName().substring(0, outIndex);
-            File newFile = new File(newFilePath);
-            log.info("outPath:"+newFilePath+",isTrue:"+newFile.exists());
             getFileList(outFile,filePaths,fileName);
 
             List<DevFileUnzip> devFileIds = new ArrayList<>();
