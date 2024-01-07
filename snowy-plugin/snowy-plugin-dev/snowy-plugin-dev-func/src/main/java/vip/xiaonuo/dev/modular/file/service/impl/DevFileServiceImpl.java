@@ -32,6 +32,8 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.common.util.CommonResponseUtil;
+import vip.xiaonuo.dev.modular.config.entity.DevConfig;
+import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.enums.DevFileEngineTypeEnum;
@@ -77,8 +79,12 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     @Resource
     private UnRarZip7Z unRarZip7Z;
 
+    @Resource
+    DevConfigService devConfigService;
+
     private final static String DOWNLOADURL = "/dev/file/download?id=";
     private final static String GATEWAYDOWNLOADURL = "/api/webapp/dev/file/download?id=";
+    private final static String PREFIX_UNZIP_PATH = "PREFIX_UNZIP_PATH";
 
     @Override
     public String uploadReturnId(String engine, MultipartFile file) {
@@ -679,6 +685,10 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             return devFileUnzipService.list(new LambdaQueryWrapper<DevFileUnzip>().eq(DevFileUnzip::getParentId,devFile.getId()));
         }
         File file = isParentFile ? FileUtil.file(devFile.getStoragePath()): FileUtil.file(devFile.getStoragePath()+ "." + devFile.getSuffix());
+        if(devFile.getStoragePath().contains("/")){
+            List<DevConfig> prefixPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,PREFIX_UNZIP_PATH));
+            return unzipSp( prefixPath.get(0).getConfigValue(),devFile,isParentFile );
+        }
         String oldFileName = file.getName();
         if(!FileUtil.exist(file)) {
             throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
@@ -759,6 +769,51 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         } catch (IOException e) {
             e.printStackTrace();
             return null;
+        }
+    }
+
+    private List<DevFileUnzip> unzipSp(String prefixPath,DevFile devFile,Boolean isParentFile ){
+
+        int dotIndex = devFile.getStoragePath().lastIndexOf("/");
+        String filePath = "";
+        if (dotIndex != -1) {
+            filePath = devFile.getStoragePath().substring(0, dotIndex);
+        }
+        String fileName = devFile.getStoragePath().substring(dotIndex, devFile.getStoragePath().length());
+        try {
+            unRarZip7Z.unzipUnix(prefixPath+filePath,fileName);
+            List<Map<String,String>> filePaths = new ArrayList<>();
+            String outFile ="";
+            int outIndex = devFile.getName().lastIndexOf(".");
+            if (outIndex != -1) {
+                outFile = prefixPath+filePath+"/"+devFile.getName().substring(0, outIndex);
+            }
+            getFileList(new File(outFile),filePaths,"");
+            List<DevFileUnzip> devFileIds = new ArrayList<>();
+            String fileIdPre = DateUtil.date().toString("yyyyMMdd");
+            for(Map<String,String> data : filePaths){
+                DevFileUnzip devFileUnzip = new DevFileUnzip();
+                String randomNumbers = RandomUtil.randomNumbers(10);
+                String fullFileId = fileIdPre+randomNumbers;
+                devFileUnzip.setId(fullFileId);
+                devFileUnzip.setEngine(devFile.getEngine());
+                devFileUnzip.setBucket(devFile.getBucket());
+                devFileUnzip.setName(data.get("fileName"));
+                devFileUnzip.setParentId(devFile.getId());
+                devFileUnzip.setSuffix(data.get("suffix"));
+                //devFileUnzip.setSizeKb(devFile.getSizeKb().toString());
+                devFileUnzip.setSizeInfo(devFile.getSizeInfo());
+                devFileUnzip.setStoragePath(data.get("absolutePath"));
+                devFileUnzip.setDownloadPath(GATEWAYDOWNLOADURL+fullFileId);
+                devFileIds.add(devFileUnzip);
+            }
+            devFileUnzipService.saveBatch(devFileIds);
+            devFile.setIsUnzip(1);
+            if(isParentFile){ this.saveOrUpdate(devFile);}
+            return devFileIds;
+        } catch (Exception e) {
+            log.error(e+"");
+            throw new CommonException("解压失败--",e);
         }
     }
 }

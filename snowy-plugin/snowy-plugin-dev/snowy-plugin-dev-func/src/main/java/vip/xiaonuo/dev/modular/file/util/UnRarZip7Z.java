@@ -1,5 +1,7 @@
 package vip.xiaonuo.dev.modular.file.util;
 
+import cn.hutool.core.date.DateUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import net.sf.sevenzipjbinding.*;
 import net.sf.sevenzipjbinding.impl.RandomAccessFileInStream;
@@ -18,7 +20,11 @@ import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
 import com.jcraft.jsch.Session;
+import vip.xiaonuo.dev.modular.config.entity.DevConfig;
+import vip.xiaonuo.dev.modular.config.service.DevConfigService;
+import vip.xiaonuo.dev.modular.server.param.UnixCommandParam;
 
+import javax.annotation.Resource;
 import java.io.*;
 import java.net.InetAddress;
 import java.nio.charset.Charset;
@@ -29,22 +35,53 @@ import java.util.zip.ZipFile;
 @Component
 @Slf4j
 public class UnRarZip7Z {
+    @Resource
+    private DevConfigService devConfigService;
+    private String SYSTEM_SOURCE_IP = "SYSTEM_SOURCE_IP";
+    private String SOURCE_SERVER_NAME = "SOURCE_SERVER_NAME";
+    private String SOURCE_SERVER_PS = "SOURCE_SERVER_PS";
     /**
      * rar解压缩
      * @param rarFile    rar文件的全路径
      * @param outPath  解压路径
      * @return  压缩包中所有的文件
      */
-    public void unRarZip7Z(String rarFile, String outPath) throws Exception {
-        if (rarFile.toLowerCase().endsWith(".zip")) {
-            unZip(rarFile, outPath, false);
-        } else if (rarFile.toLowerCase().endsWith(".rar")) {
-            unRar(rarFile, outPath, "");
-        } else if (rarFile.toLowerCase().endsWith(".7z")) {
-            un7z(rarFile, outPath);
+    public void unRarZip7Z(String filePath, String outPath) throws Exception {
+        if (filePath.toLowerCase().endsWith(".zip")) {
+            unZip(filePath, outPath, false);
+        } else if (filePath.toLowerCase().endsWith(".rar")) {
+            unRar(filePath, outPath, "");
+        } else if (filePath.toLowerCase().endsWith(".7z")) {
+            un7z(filePath, outPath);
         }
     }
 
+    public void unzipUnix(String filePath,String fileName){
+        int dotIndex = fileName.lastIndexOf(".");
+        String fileNowName = "";
+        if (dotIndex != -1) {
+            fileNowName = fileName.substring(0, dotIndex);
+        }
+        UnixCommandParam unixCommandParam = new UnixCommandParam();
+        List<DevConfig> ips = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SYSTEM_SOURCE_IP));
+        List<DevConfig> userNames = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SOURCE_SERVER_NAME));
+        List<DevConfig> psList = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SOURCE_SERVER_PS));
+        unixCommandParam.setSshPort(22);
+        unixCommandParam.setSshHost(ips.get(0).getConfigValue());
+        unixCommandParam.setSshUsername(userNames.get(0).getConfigValue());
+        unixCommandParam.setSshPassword(psList.get(0).getConfigValue());
+        //cp -f  4167382863 1112  && mv -f  1112  4167382863.zip  && unzip -o 4167382863.zip && rm  -f 4167382863.zip
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        String unzipFilePath = filePath+fileName;
+        String rmZipPath = unzipFilePath+".zip";
+        String tempPath = filePath+timestamp;
+        String tempPathzip = tempPath+".zip";
+        String command = String.format(" cp -f  %s  %s  && mv -f  %s  %s && unzip -o %s  -d  %s  && rm  -f  %s ",
+                unzipFilePath,tempPath,tempPath,rmZipPath,rmZipPath,filePath,rmZipPath);
+        log.info("unzip解压命令："+command);
+        unixCommandParam.setCommand(command);
+        command(unixCommandParam);
+    }
 
     /**
      * rar解压缩
@@ -141,6 +178,51 @@ public class UnRarZip7Z {
         return files;
     }
 
+    /**
+     * zip解压缩，直接命令行解压
+     * */
+    public static void command(UnixCommandParam unixCommandParam) {
+        try {
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(unixCommandParam.getSshUsername(), unixCommandParam.getSshHost(), unixCommandParam.getSshPort());
+            session.setPassword(unixCommandParam.getSshPassword());
+
+            session.setConfig("StrictHostKeyChecking", "no"); //允许连接不信任的主机
+            session.connect();
+            Channel channel = session.openChannel("exec");
+            ((ChannelExec) channel).setCommand(unixCommandParam.getCommand());
+            OutputStream out = channel.getOutputStream();
+            InputStream in = channel.getInputStream();
+            channel.connect();
+            byte[] tmp = new byte[1024];
+            while (true) {
+                while (in.available() > 0) {
+                    int i = in.read(tmp, 0, 1024);
+                    if (i < 0) break;
+                    log.info(new String(tmp, 0, i));
+                }
+                if (channel.isClosed()) {
+                    if (in.available() > 0) continue;
+                    if(channel.getExitStatus() != 0){
+                        log.error("解压失败，请检查连接信息！exit-status: " + channel.getExitStatus());
+                        throw new CommonException("解压失败！status:"+channel.getExitStatus());
+                    }
+                    log.info("解压成功-exit-status: " + channel.getExitStatus());
+                    break;
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                }
+            }
+            channel.disconnect();
+            session.disconnect();
+        } catch (Exception e) {
+            log.error("执行命令失败：" + e.getMessage());
+            e.printStackTrace();
+            throw new CommonException("解压失败：" + e.getMessage());
+        }
+    }
     /**
      * zip解压缩
      * @param zipFilePath            zip文件的全路径
@@ -332,18 +414,6 @@ public class UnRarZip7Z {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }
-    }
-
-
-    public static void main(String[] args) {
-        try {
-            String inputFile = "C:\\Users\\Administrator\\Desktop\\压缩测试\\Desktop.7z";
-            String destDirPath = "C:\\Users\\Administrator\\Desktop\\压缩测试\\"+UUID.randomUUID().toString();
-            String suffix = inputFile.substring(inputFile.lastIndexOf("."));
-            //unRarZip7Z(inputFile, destDirPath);
-        } catch (Exception e) {
-            e.printStackTrace();
         }
     }
 
