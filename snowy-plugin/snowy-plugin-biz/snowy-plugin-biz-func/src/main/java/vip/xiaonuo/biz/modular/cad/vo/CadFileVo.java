@@ -40,4 +40,7 @@ public class CadFileVo extends PrjStageSubProfVo{
     @ApiModelProperty(value = "文件类型:文件夹|文件|批注", position = 10)
     private String fStatus;
 
+    /** 源始数据 - 目录主键Id  用于批注，写回最开始的文件下 【CadFile.Id | CadStorage.OldFID】 */
+    @ApiModelProperty(value = "源始数据 - 目录主键Id  用于批注，写回最开始的文件下 【CadFile.Id | CadStorage.OldFID】", position = 11)
+    private String oldFId;
 }

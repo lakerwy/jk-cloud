@@ -354,6 +354,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
                 tmp.setFId(x.getStageId());
                 tmp.setFParentId(x.getPrjId());
                 tmp.setFName(x.getStageName());
+                tmp.setOldFId(tmp.getFId());
                 result.add(tmp);
             });
             //2. 处理项目子项 - 【fId = 子项id  fParentId = 阶段id fName = 子项名称】
@@ -365,6 +366,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
                 tmp.setFId(x.getSubItemId());
                 tmp.setFParentId(x.getStageId());
                 tmp.setFName(x.getSubItemName());
+                tmp.setOldFId(tmp.getFId());
                 result.add(tmp);
             });
             //3. 处理项目子项下专业 - 【fId = 子项id+专业id  fParentId = 子项id fName = 专业名称】
@@ -376,6 +378,7 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
                 tmp.setFId(StrUtil.join("", x.getSubItemId(),x.getProfessionId()));
                 tmp.setFParentId(x.getSubItemId());
                 tmp.setFName(x.getProfessionName());
+                tmp.setOldFId(tmp.getFId());
                 result.add(tmp);
             });
         }
