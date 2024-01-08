@@ -54,7 +54,10 @@ public class InitConfigServiceImpl implements InitConfigService {
     private final String YML_CONFIG_PATH = "YML_CONFIG_PATH";
     private final String YML_OUT_CONFIG_PATH = "YML_OUT_CONFIG_PATH";
     private final String SYSTEM_SOURCE_IP = "SYSTEM_SOURCE_IP";
-    private final String SINGLE_CONFIG_PATH = "SINGLE_CONFIG_PATH";
+    private final String SINGLE_SOURCE_CONFIG_PATH = "SINGLE_SOURCE_CONFIG_PATH";
+    private final String SINGLE_TARGET_CONFIG_PATH = "SINGLE_TARGET_CONFIG_PATH";
+
+    private final String CONF = "conf";
     @Resource
     private DatabaseCreator databaseCreator;
     @Resource
@@ -240,7 +243,10 @@ public class InitConfigServiceImpl implements InitConfigService {
         String systemSourceIp = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SYSTEM_SOURCE_IP)).get(0).getConfigValue();
         singleConfParam.setSourceHost(systemSourceIp);
 
-        String singleConfigPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SINGLE_CONFIG_PATH)).get(0).getConfigValue();
+        String currentTimeMillis = String.valueOf(System.currentTimeMillis());
+        String singleTargetConfigPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SINGLE_TARGET_CONFIG_PATH)).get(0).getConfigValue()+"/"+currentTimeMillis+"/";
+
+        String singleConfigPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SINGLE_SOURCE_CONFIG_PATH)).get(0).getConfigValue();
         singleConfParam.setConfigPath(singleConfigPath);
         File file = new File(singleConfParam.getConfigPath());
         List<Map<String,String>> fileList = new ArrayList<>();
@@ -249,8 +255,12 @@ public class InitConfigServiceImpl implements InitConfigService {
             TransferFileParam transferFileParam = BeanUtil.toBean(singleConfParam,TransferFileParam.class);//singleConfParam.getTransferLocalFileParam();
 
             transferFileParam.setSourceFilePath(map.get("path"));
+            String filePath = map.get("path");
+            transferFileParam.setTargetFilePath(singleTargetConfigPath);
+            if(filePath.contains(CONF)){
+                transferFileParam.setTargetFilePath(singleTargetConfigPath+"conf/");
+            }
             transferFileParam.setFileName(map.get("name"));
-            transferFileParam.setTargetFilePath(map.get("path"));
             log.info("singleConf,配置文件路径,path："+map.get("path")+",name:"+map.get("name"));
             try{
                 yamlUtil.transferFile(transferFileParam);
