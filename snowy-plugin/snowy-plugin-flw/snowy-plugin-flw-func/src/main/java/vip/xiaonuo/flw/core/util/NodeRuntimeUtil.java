@@ -1047,7 +1047,8 @@ public class NodeRuntimeUtil {
                                 taskId = delegateTask.getId();
                             }
 //                            taskMap.put("noticeType", transfer(processInstanceId,noticeType,taskId));
-                            taskMap.put("noticeType",transfer(processInstanceId,noticeType,delegateExecution));
+                            taskMap.put("status",transfer(processInstanceId,noticeType,delegateExecution));
+                            taskMap.put("noticeType",noticeType);
                             devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,processInstanceId,taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                             if(noticeType.equals("TODO")){

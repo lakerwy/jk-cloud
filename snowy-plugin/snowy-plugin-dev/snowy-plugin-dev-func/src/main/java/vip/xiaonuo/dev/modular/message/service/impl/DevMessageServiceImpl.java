@@ -123,11 +123,35 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
         Object initiatorName = taskMap.get("initiatorName");
         jsonObject.set(FlwCacheConstant.FLW_STARTER,initiatorName);
         jsonObject.set(FlwCacheConstant.FLW_START_TIME,initiatorTime);
-        Object o1 = taskMap.get("noticeType");
+        Object o1 = taskMap.get("status");
         jsonObject.set(FlwCacheConstant.FLW_STATUS,o1);
 //        if(o1.toString().equals("COMPLETE")){
 //            jsonObject.set(FlwCacheConstant.FLW_STATUS,"已完成");
 //        }
+        String msgType = "通用通知";
+        String s = taskMap.get("noticeType");
+        if(StrUtil.isNotEmpty(s)){
+            switch (s){
+                case "TODO":
+                    msgType = "待办通知";
+                    break;
+                case "COPY":
+                    msgType = "抄送通知";
+                    break;
+                case "COMPLETE":
+                    msgType = "完成通知";
+                    break;
+                case "BACK":
+                    msgType = "退回通知";
+                    break;
+                case "REJECT":
+                    msgType = "拒绝通知";
+                    break;
+                default:
+                    break;
+            }
+        }
+        jsonObject.set(FlwCacheConstant.FLW_MSG_TYPE,msgType);
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
         //消息ID 存入到redis 中，消费后直接删除，保证消息不会被重复消费
