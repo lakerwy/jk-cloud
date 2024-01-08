@@ -124,9 +124,10 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
         jsonObject.set(FlwCacheConstant.FLW_STARTER,initiatorName);
         jsonObject.set(FlwCacheConstant.FLW_START_TIME,initiatorTime);
         Object o1 = taskMap.get("noticeType");
-        if(o1.toString().equals("COMPLETE")){
-            jsonObject.set(FlwCacheConstant.FLW_STATUS,"已完成");
-        }
+        jsonObject.set(FlwCacheConstant.FLW_STATUS,o1);
+//        if(o1.toString().equals("COMPLETE")){
+//            jsonObject.set(FlwCacheConstant.FLW_STATUS,"已完成");
+//        }
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
         //消息ID 存入到redis 中，消费后直接删除，保证消息不会被重复消费
