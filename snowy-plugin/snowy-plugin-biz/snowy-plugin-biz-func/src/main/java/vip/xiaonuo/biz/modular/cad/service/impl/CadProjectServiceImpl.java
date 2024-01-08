@@ -270,8 +270,8 @@ public class CadProjectServiceImpl extends ServiceImpl<CadProjectMapper, CadProj
         queryWrapper.eq("proofread.DELETE_FLAG","NOT_DELETE");
         queryWrapper.orderByDesc("proofread.CREATE_TIME");
         List<CadProofreadVo> myProofreadList = cadProofreadMapper.getPrjProofread(queryWrapper);
-        result.setReceiveList(myProofreadList.stream().filter(x->x.getStatus().equals(ProofreadAuditStatusEnum.PRE_AUDIT.getValue())).collect(Collectors.toList()));
-        result.setDealList(myProofreadList.stream().filter(x->x.getStatus() != ProofreadAuditStatusEnum.PRE_AUDIT.getValue()).collect(Collectors.toList()));
+        result.setReceiveList(myProofreadList.stream().filter(x->ProofreadAuditStatusEnum.PRE_AUDIT.getValue().equals(x.getStatus())).collect(Collectors.toList()));
+        result.setDealList(myProofreadList.stream().filter(x->!ProofreadAuditStatusEnum.PRE_AUDIT.getValue().equals(x.getStatus())).collect(Collectors.toList()));
         return result;
     }
 

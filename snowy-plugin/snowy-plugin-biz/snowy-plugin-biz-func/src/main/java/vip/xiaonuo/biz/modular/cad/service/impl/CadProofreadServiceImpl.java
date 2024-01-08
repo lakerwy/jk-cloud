@@ -139,6 +139,7 @@ public class CadProofreadServiceImpl extends ServiceImpl<CadProofreadMapper, Cad
                 cadStorage.setHisId(x.getId());
                 cadStorage.setHisDownLoadUrl(x.getDownLoadUrl());
                 cadStorage.setCreateUser(startFlwParam.getOprId());
+                cadStorage.setOldFId(x.getFileId());
                 addStorageFileList.add(cadStorage);
             });
             if(CollUtil.isNotEmpty(addStorageFileList)){
@@ -192,6 +193,7 @@ public class CadProofreadServiceImpl extends ServiceImpl<CadProofreadMapper, Cad
                 cadStorage.setHisId(x.getId());
                 cadStorage.setHisDownLoadUrl(x.getDownLoadUrl());
                 cadStorage.setCreateUser(startFlwParam.getOprId());
+                cadStorage.setOldFId(x.getFileId());
                 addStorageFileList.add(cadStorage);
             });
             if(CollUtil.isNotEmpty(addStorageFileList)){

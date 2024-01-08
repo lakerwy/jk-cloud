@@ -2,4 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.cad.mapper.CadFileHistoryMapper">
 
+    <select id="getFileHisById" resultType="vip.xiaonuo.biz.modular.cad.entity.CadFileHistory">
+        select a.*,b.NAME as oprUserName
+        from BIZ_CAD_FILE_HISTORY a
+                 LEFT JOIN BIZ_CAD_USER b on b.ID = a.OPR_USER
+        where a.FILE_ID = #{fileId} order by a.VERSION desc
+    </select>
+
 </mapper>

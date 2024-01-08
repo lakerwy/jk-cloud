@@ -132,6 +132,7 @@ public class CadProductServiceImpl extends ServiceImpl<CadProductMapper, CadProd
                 cadStorage.setHisId(x.getId());
                 cadStorage.setHisDownLoadUrl(x.getDownLoadUrl());
                 cadStorage.setCreateUser(filingParam.getOprId());
+                cadStorage.setOldFId(x.getFileId());
                 addStorageFileList.add(cadStorage);
             });
             if(CollUtil.isNotEmpty(addStorageFileList)){

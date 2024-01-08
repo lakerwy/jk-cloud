@@ -129,15 +129,23 @@ public class CadSubItemServiceImpl extends ServiceImpl<CadSubItemMapper, CadSubI
         if(ObjectUtil.isEmpty(isSplitRole)) return subItemUserVoList;
         List<SubItemUserVo> result = new ArrayList<>();
         //按照充当的角色拆分
-        List<SubItemUserVo> auditList = subItemUserVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getIsAudit()) && "1".equals(x.getIsAudit())).collect(Collectors.toList());
-        List<SubItemUserVo> examineList = subItemUserVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getIsExamine()) && "1".equals(x.getIsExamine())).collect(Collectors.toList());
-        List<SubItemUserVo> proofList = subItemUserVoList.stream().filter(x->ObjectUtil.isNotEmpty(x.getIsProofread()) && "1".equals(x.getIsProofread())).collect(Collectors.toList());
-        auditList.forEach(x->x.setRoleName(CadSubItemUserEnum.AUDIT.getValue()));
-        examineList.forEach(x->x.setRoleName(CadSubItemUserEnum.EXAMINE.getValue()));
-        proofList.forEach(x->x.setRoleName(CadSubItemUserEnum.PROOFREAD.getValue()));
-        result.addAll(auditList);
-        result.addAll(examineList);
-        result.addAll(proofList);
+        for (SubItemUserVo subItemUserVo : subItemUserVoList) {
+            if (ObjectUtil.isNotEmpty(subItemUserVo.getIsAudit()) && "1".equals(subItemUserVo.getIsAudit())) {
+                SubItemUserVo tmpObj = BeanUtil.copyProperties(subItemUserVo,SubItemUserVo.class); //复制一份，改变不影响原值
+                tmpObj.setRoleName(CadSubItemUserEnum.AUDIT.getValue());
+                result.add(tmpObj);
+            }
+            if (ObjectUtil.isNotEmpty(subItemUserVo.getIsExamine()) && "1".equals(subItemUserVo.getIsExamine())) {
+                SubItemUserVo tmpObj = BeanUtil.copyProperties(subItemUserVo,SubItemUserVo.class); //复制一份，改变不影响原值
+                tmpObj.setRoleName(CadSubItemUserEnum.EXAMINE.getValue());
+                result.add(tmpObj);
+            }
+            if (ObjectUtil.isNotEmpty(subItemUserVo.getIsProofread()) && "1".equals(subItemUserVo.getIsProofread())) {
+                SubItemUserVo tmpObj = BeanUtil.copyProperties(subItemUserVo,SubItemUserVo.class); //复制一份，改变不影响原值
+                tmpObj.setRoleName(CadSubItemUserEnum.PROOFREAD.getValue());
+                result.add(tmpObj);
+            }
+        }
         return result;
     }
 }

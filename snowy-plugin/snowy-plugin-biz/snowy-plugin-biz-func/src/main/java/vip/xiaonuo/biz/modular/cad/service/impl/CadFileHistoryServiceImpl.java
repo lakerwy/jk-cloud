@@ -33,6 +33,7 @@ import vip.xiaonuo.biz.modular.cad.param.CadFileHistoryIdParam;
 import vip.xiaonuo.biz.modular.cad.param.CadFileHistoryPageParam;
 import vip.xiaonuo.biz.modular.cad.service.CadFileHistoryService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -46,6 +47,8 @@ import java.util.List;
 @Service
 public class CadFileHistoryServiceImpl extends ServiceImpl<CadFileHistoryMapper, CadFileHistory> implements CadFileHistoryService {
 
+    @Resource
+    private CadFileHistoryMapper cadFileHistoryMapper;
     @Override
     public Page<CadFileHistory> page(CadFileHistoryPageParam cadFileHistoryPageParam) {
         QueryWrapper<CadFileHistory> queryWrapper = new QueryWrapper<>();
@@ -97,9 +100,7 @@ public class CadFileHistoryServiceImpl extends ServiceImpl<CadFileHistoryMapper,
 
     @Override
     public List<CadFileHistory> listHisByFileId(String fileId) {
-        return this.list(new QueryWrapper<CadFileHistory>().lambda()
-                .eq(CadFileHistory::getFileId,fileId)
-                .orderByDesc(CadFileHistory::getVersion));
+        return cadFileHistoryMapper.getFileHisById(fileId);
     }
 
     @Override

@@ -7,7 +7,7 @@
                file.STAGE_ID as stageId,e.NAME as stageName,
                file.SUB_ITEM_ID as subItemId,b.NAME as subItemName,
                file.PROFESSION_ID as professionId,f.NAME as professionName,
-               u.NAME as userName
+               u.NAME as userName,tag.*
         from BIZ_CAD_TAG tag
                  left join BIZ_CAD_FILE file on file.ID = tag.FILE_ID
                  left join BIZ_CAD_PROJECT a on a.ID = file.PRJ_ID
@@ -15,7 +15,7 @@
                  LEFT JOIN BIZ_CAD_STAGE e on e.ID = file.STAGE_ID
                  LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = file.PROFESSION_ID
                  left join BIZ_CAD_USER u on u.ID = tag.OPR_USER
-            ${ew.customSqlSegment}
+        where tag.FILE_ID = #{fileId}
     </select>
 
 </mapper>

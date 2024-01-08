@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -50,6 +51,7 @@ import java.util.stream.Collectors;
  * @date  2023/12/12 15:14
  **/
 @Service
+@DS("slave_1")
 public class CadStorageServiceImpl extends ServiceImpl<CadStorageMapper, CadStorage> implements CadStorageService {
 
     @Resource
@@ -116,6 +118,7 @@ public class CadStorageServiceImpl extends ServiceImpl<CadStorageMapper, CadStor
         Map<String,String> newStorageIdMap = new HashMap<>();
         //1. 根据选择的存储路径对应的 设计区 目录Id，获取其父级
         List<CadFile> oldResourceList = cadFileService.getParent(storageId);
+        if(CollUtil.isEmpty(oldResourceList)) return storageId;  //没有父级目录结构，返回选则的目录id(专业|子项|阶段)
         //1.1 根据原始目录结构，构建新目录结构（临时数据）
         List<CadStorage> cadStorageList = new ArrayList<>();
         oldResourceList.forEach(x->{

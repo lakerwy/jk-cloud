@@ -56,7 +56,7 @@
                file.SUB_ITEM_ID as subItemId,b.NAME as subItemName,
                file.PROFESSION_ID as professionId,f.NAME as professionName,
                file.ID as fId,file.PARENT_ID as fParentId,file.NAME as fName,file.TYPE as fType,
-               file.CLOUD_POINTS as fCloudPoints,file.NOTE_POINTS as fNotePoints
+               file.CLOUD_POINTS as fCloudPoints,file.NOTE_POINTS as fNotePoints,file.STATUS as fStatus
         from BIZ_CAD_FILE file
              left join BIZ_CAD_PROJECT a on a.ID = file.PRJ_ID
              LEFT JOIN BIZ_CAD_SUB_ITEM b on b.ID = file.SUB_ITEM_ID

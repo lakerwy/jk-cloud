@@ -109,4 +109,9 @@ public class CadFileHistory {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date oprTime;
+
+    /** 操作人 */
+    @ApiModelProperty(value = "操作人-提交人姓名", position = 7)
+    @TableField(exist = false)
+    private String oprUserName;
 }

@@ -7,13 +7,17 @@
                a.NAME as prjName,
                e.NAME as stageName,
                b.NAME as subItemName,
-               f.NAME as professionName
+               f.NAME as professionName,
+               u.NAME as createUserName,
+               h.NAME as fileName,
+               h.OLD_F_ID as oldFId
         from BIZ_CAD_PROOFREAD proofread
                  left join BIZ_CAD_PROJECT a on a.ID = proofread.PRJ_ID
                  LEFT JOIN BIZ_CAD_SUB_ITEM b on b.ID = proofread.SUB_ITEM_ID
                  LEFT JOIN BIZ_CAD_STAGE e on e.ID = proofread.STAGE_ID
                  LEFT JOIN BIZ_CAD_PROFESSION f on f.ID = proofread.PROFESSION_ID
                  left join BIZ_CAD_USER u on u.ID = proofread.CREATE_USER
+                 left join BIZ_CAD_STORAGE h on h.ID = proofread.STORAGE_ID
             ${ew.customSqlSegment}
     </select>
 

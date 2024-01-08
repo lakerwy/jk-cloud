@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.cad.controller;
 
 import cn.hutool.core.lang.tree.Tree;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -22,9 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.cad.entity.CadFile;
-import vip.xiaonuo.biz.modular.cad.entity.CadFileHistory;
-import vip.xiaonuo.biz.modular.cad.entity.CadUser;
+import vip.xiaonuo.biz.modular.cad.entity.*;
 import vip.xiaonuo.biz.modular.cad.param.*;
 import vip.xiaonuo.biz.modular.cad.service.*;
 import vip.xiaonuo.biz.modular.cad.vo.*;
@@ -62,7 +61,10 @@ public class CadPluginController {
     private CadTagService cadTagService;
     @Resource
     private CadSubItemService cadSubItemService;
-
+    @Resource
+    private CadStorageService cadStorageService;
+    @Resource
+    private CadUserProfessionService cadUserProfessionService;
 
 
     /**
@@ -313,17 +315,17 @@ public class CadPluginController {
     }
 
     /**
-     * 【CAD-插件端】CAD- 更新批注状态
+     * 【CAD-插件端】CAD- 更新文件|批注状态
      *
      * @author yong.ye
      * @date  2023/12/11 17:40
      */
     @ApiOperationSupport(order = 17)
-    @ApiOperation("【CAD-插件端】CAD- 更新批注状态 ")
-    @CommonLog("【CAD-插件端】CAD- 更新批注状态 ")
-    @PostMapping("/biz/cad/plugin/updateTagStatus")
-    public CommonResult<String> updateTagStatus(@RequestBody @Valid UpdateTagStatusParam updateTagStatusParam) {
-        cadFileService.updateTagStatus(updateTagStatusParam);
+    @ApiOperation("【CAD-插件端】CAD- 更新文件|批注状态 ")
+    @CommonLog("【CAD-插件端】CAD- 更新文件|批注状态 ")
+    @PostMapping("/biz/cad/plugin/updateFileStatus")
+    public CommonResult<String> updateFileStatus(@RequestBody @Valid UpdateTagStatusParam updateTagStatusParam) {
+        cadFileService.updateFileStatus(updateTagStatusParam);
         return CommonResult.ok();
     }
 
@@ -433,6 +435,31 @@ public class CadPluginController {
     @GetMapping("/biz/cad/plugin/getProfessionUser")
     public CommonResult<List<SubItemUserVo>> getProfessionUser(String subItemId,String professionId,String isSplitRole) {
         return CommonResult.data(cadSubItemService.getProfessionUser(subItemId,professionId,isSplitRole));
+    }
+
+    /**
+     * 【CAD-插件端】根据CadStorage.Id，获取存储文件信息
+     * @author yong.ye
+     * @date  2023/12/01 10:40
+     */
+    @ApiOperationSupport(order = 26)
+    @ApiOperation("【CAD-插件端】根据CadStorage.Id，获取存储文件信息")
+    @GetMapping("/biz/cad/plugin/getStorageById")
+    public CommonResult<CadStorage> getStorageById(String storageId) {
+        return CommonResult.data(cadStorageService.queryEntity(storageId));
+    }
+
+    /**
+     * 【CAD-插件端】根据cadUserId，获取当前用户所属专业
+     * @author yong.ye
+     * @date  2023/01/07 10:40
+     */
+    @ApiOperationSupport(order = 27)
+    @ApiOperation("【CAD-插件端】根据cadUserId，获取当前用户所属专业")
+    @GetMapping("/biz/cad/plugin/getProfessionByUserId")
+    public CommonResult<List<CadUserProfession>> getProfessionByUserId(String userId) {
+        return CommonResult.data(cadUserProfessionService.list(
+                new QueryWrapper<CadUserProfession>().lambda().eq(CadUserProfession::getCadUserId,userId)));
     }
 
 }

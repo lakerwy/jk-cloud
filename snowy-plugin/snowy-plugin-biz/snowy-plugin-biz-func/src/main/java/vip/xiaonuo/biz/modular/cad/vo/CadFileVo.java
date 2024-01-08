@@ -36,5 +36,8 @@ public class CadFileVo extends PrjStageSubProfVo{
     @ApiModelProperty(value = "存储批注文字的坐标点集", position = 10)
     private String fNotePoints;
 
+    /** 文件类型:文件夹|文件|批注 状态 */
+    @ApiModelProperty(value = "文件类型:文件夹|文件|批注", position = 10)
+    private String fStatus;
 
 }

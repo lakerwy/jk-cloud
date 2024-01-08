@@ -15,6 +15,8 @@ package vip.xiaonuo.biz.modular.cad.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.cad.entity.CadFileHistory;
 
+import java.util.List;
+
 /**
  * CAD-文件历史版本记录表Mapper接口
  *
@@ -22,4 +24,11 @@ import vip.xiaonuo.biz.modular.cad.entity.CadFileHistory;
  * @date  2023/12/01 15:34
  **/
 public interface CadFileHistoryMapper extends BaseMapper<CadFileHistory> {
+
+    /**
+     * 获取文件历史列表
+     * @param fileId 文件Id
+     * @return
+     */
+    List<CadFileHistory> getFileHisById(String fileId);
 }

@@ -29,4 +29,11 @@ public class CadProofreadVo extends CadProofread {
     @ApiModelProperty(value = "提交人", position = 20)
     private String createUserName;
 
+    /** 文件名 */
+    @ApiModelProperty(value = "文件名", position = 20)
+    private String fileName;
+
+    /** 源目录Id(比如：对文件进行批注，这就是原Id) */
+    @ApiModelProperty(value = "源目录Id(比如：对文件进行批注，这就是原Id)", position = 20)
+    private String oldFId;
 }

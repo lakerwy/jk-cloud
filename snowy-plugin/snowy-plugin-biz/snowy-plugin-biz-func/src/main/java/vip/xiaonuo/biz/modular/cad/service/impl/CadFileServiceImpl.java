@@ -144,7 +144,7 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
     }
 
     @Override
-    public void updateTagStatus(UpdateTagStatusParam updateTagStatusParam) {
+    public void updateFileStatus(UpdateTagStatusParam updateTagStatusParam) {
         // 0:未修改  1：修改中 2：已修改 -100：已删除
         if(updateTagStatusParam.getStatus().equals("-100")){
             this.removeById(updateTagStatusParam.getFileId());
@@ -192,18 +192,19 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
             List<CadFile> cadFileList = cadFileMapper.getParent(fileId);
             //拼接自定目录
             if(CollUtil.isNotEmpty(cadFileList)) {
-                while (ObjectUtil.isNotEmpty(fileId)) {
-                    String finalFileId = fileId;
-                    CadFile cadFile = cadFileList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
+                String tmpFileId = fileId;   //变量值，循环找父级
+                while (ObjectUtil.isNotEmpty(tmpFileId)) {
+                    String finalTmpFileId = tmpFileId;
+                    CadFile cadFile = cadFileList.stream().filter(x->x.getId().equals(finalTmpFileId)).findFirst().orElse(null);
                     if(ObjectUtil.isNotEmpty(cadFile)){
                         if(cadFile.getId().equals(fileId) && cadFile.getType().equals(CadFileEnum.FILE.getValue())){
                             fileName = cadFile.getName();
                         }else {
                             filePathDir = cadFile.getName() + (ObjectUtil.isNotEmpty(filePathDir) ? File.separator + filePathDir : filePathDir);
                         }
-                        fileId = cadFile.getParentId();
+                        tmpFileId = cadFile.getParentId();
                     }else{
-                        fileId = "";
+                        tmpFileId = "";
                     }
                 }
             }
@@ -212,18 +213,19 @@ public class CadFileServiceImpl extends ServiceImpl<CadFileMapper, CadFile> impl
             List<CadStorage> cadStorageList = cadStorageMapper.getParent(fileId);
             //拼接自定目录
             if(CollUtil.isNotEmpty(cadStorageList)) {
-                while (ObjectUtil.isNotEmpty(fileId)) {
-                    String finalFileId = fileId;
-                    CadStorage cadStorage = cadStorageList.stream().filter(x->x.getId().equals(finalFileId)).findFirst().orElse(null);
+                String tmpFileId = fileId;   //变量值，循环找父级
+                while (ObjectUtil.isNotEmpty(tmpFileId)) {
+                    String finalTmpFileId = tmpFileId;
+                    CadStorage cadStorage = cadStorageList.stream().filter(x->x.getId().equals(finalTmpFileId)).findFirst().orElse(null);
                     if(ObjectUtil.isNotEmpty(cadStorage)){
                         if(cadStorage.getId().equals(fileId)){
                             fileName = cadStorage.getName();
                         }else {
                             filePathDir = cadStorage.getName() + (ObjectUtil.isNotEmpty(filePathDir) ? File.separator + filePathDir : filePathDir);
                         }
-                        fileId = cadStorage.getParentId();
+                        tmpFileId = cadStorage.getParentId();
                     }else{
-                        fileId = "";
+                        tmpFileId = "";
                     }
                 }
             }

@@ -100,10 +100,10 @@ public interface CadFileService extends IService<CadFile> {
     List<CadFile> getChildren(String prjId,String stageId,String subItemId,String professionId,String fileId,String fileType);
 
     /**
-     * 更新批注状态
+     * 更新文件|批注状态
      * @param updateTagStatusParam
      */
-    void updateTagStatus(UpdateTagStatusParam updateTagStatusParam);
+    void updateFileStatus(UpdateTagStatusParam updateTagStatusParam);
 
     /**
      * 【CAD-插件端】根据fileId和区域,获取目录文件夹路径
