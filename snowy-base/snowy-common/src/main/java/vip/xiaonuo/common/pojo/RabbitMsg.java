@@ -122,6 +122,15 @@ public class RabbitMsg {
         if(StrUtil.isNotEmpty(flwName)){
             form.setKey("流程名称： ");
             form.setValue(flwName);
+            forms.add(form);
+        }
+
+        String flwMsgType = jsonObject.getStr(FlwCacheConstant.FLW_MSG_TYPE);
+        if(StrUtil.isNotEmpty(flwMsgType)){
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("通知类型： ");
+            form.setValue(flwMsgType);
+            forms.add(form);
         }
 
         String flwBaseInfo = jsonObject.getStr(FlwCacheConstant.FLW_BASE_INFO);
