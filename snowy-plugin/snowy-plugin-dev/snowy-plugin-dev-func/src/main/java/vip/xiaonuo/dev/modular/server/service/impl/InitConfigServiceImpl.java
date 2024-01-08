@@ -251,6 +251,8 @@ public class InitConfigServiceImpl implements InitConfigService {
         File file = new File(singleConfParam.getConfigPath());
         List<Map<String,String>> fileList = new ArrayList<>();
         getFileDataList(file,fileList);//获取全部文件
+        File file1 = new File("/home/epc/source/sh/conf/application.yaml");
+        log.info("singleConfigPath:SINGLE_SOURCE_CONFIG_PATH:"+singleConfigPath+",fileList.size():"+fileList.size()+",file.isEx:"+file.exists()+",file1.isEx:"+file1.exists());
         fileList.forEach(map -> {
             TransferFileParam transferFileParam = BeanUtil.toBean(singleConfParam,TransferFileParam.class);//singleConfParam.getTransferLocalFileParam();
 
@@ -261,7 +263,7 @@ public class InitConfigServiceImpl implements InitConfigService {
                 transferFileParam.setTargetFilePath(singleTargetConfigPath+"conf/");
             }
             transferFileParam.setFileName(map.get("name"));
-            log.info("singleConf,配置文件路径,path："+map.get("path")+",name:"+map.get("name"));
+            log.info("SINGLE_SOURCE_CONFIG_PATH,singleConf,配置文件路径,path："+map.get("path")+",name:"+map.get("name"));
             try{
                 yamlUtil.transferFile(transferFileParam);
             }catch (Exception e){
