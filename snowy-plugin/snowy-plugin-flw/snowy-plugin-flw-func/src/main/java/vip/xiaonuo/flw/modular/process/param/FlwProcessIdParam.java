@@ -32,4 +32,7 @@ public class FlwProcessIdParam {
     @ApiModelProperty(value = "流程id", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
+
+    @ApiModelProperty(value = "消息中跳转到流程详情的参数，必传，此时id 传-1")
+    private String processInstanceId;
 }

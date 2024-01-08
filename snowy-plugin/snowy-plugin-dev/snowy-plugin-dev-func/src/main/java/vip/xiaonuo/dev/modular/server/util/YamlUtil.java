@@ -47,6 +47,7 @@ public class YamlUtil {
             options.setPrettyFlow(true);
             options.setIndent(4);
             options.setIndicatorIndent(0);
+            options.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN); // 设置字符串默认样式为普通样式，即不加任何引号
 
             Path tempYamlPath = Paths.get(yamlParam.getOutYamlPath());
             if (!Files.exists(tempYamlPath.getParent())) {

@@ -4,6 +4,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotNull;
 import java.util.Map;
 
 @Setter
@@ -20,4 +21,8 @@ public class YamlParam {
 
     @ApiModelProperty(value = "系统服务ID",position = 4)
     private String systemId;
+
+    @ApiModelProperty(value = "docker容器ID",required = true,position = 5)
+    @NotNull(message = "docker容器ID不能为空")
+    private String dockerComposeProt;
 }

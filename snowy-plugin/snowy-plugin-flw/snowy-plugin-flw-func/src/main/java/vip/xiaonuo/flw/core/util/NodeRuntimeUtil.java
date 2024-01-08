@@ -35,18 +35,22 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
+import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
 import org.camunda.bpm.engine.impl.pvm.PvmActivity;
 import org.camunda.bpm.engine.impl.pvm.PvmTransition;
 import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
+import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
+import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.messaging.Message;
@@ -70,6 +74,7 @@ import vip.xiaonuo.flw.core.common.service.GenericService;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
+import vip.xiaonuo.flw.core.parser.EndNodeCheck;
 import vip.xiaonuo.flw.modular.task.param.FlwTaskAttachmentParam;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysRelationApi;
@@ -818,6 +823,15 @@ public class NodeRuntimeUtil {
     }
 
     /**
+     * 处理流程拒绝通知
+     */
+    public static void handleUserTaskRejectNotice(DelegateTask delegateTask){
+        handleProcessNotice(delegateTask, null, "REJECT", "processEnableRejectNotice",
+                "processCompleteRejectChannel", "processRejectNoticeTemplate");
+    }
+
+
+    /**
      * 处理流程通知
      *
      * @author xuyuxiang
@@ -836,7 +850,8 @@ public class NodeRuntimeUtil {
             AtomicReference<String> processNoticeTemplate = new AtomicReference<>();
             Collection<ExtensionElements> processExtensionElementsCollection;
 
-            if(noticeType.equals("TODO") || noticeType.equals("BACK")) {
+            boolean flag = noticeType.equals("TODO") || noticeType.equals("BACK") || noticeType.equals("REJECT");
+            if(flag) {
                 if(noticeType.equals("BACK")) {
                     processExtensionElementsCollection = repositoryService.getBpmnModelInstance(delegateTask.getProcessDefinitionId())
                             .getDocumentElement().getUniqueChildElementByType(Process.class).getChildElementsByType(ExtensionElements.class);
@@ -864,7 +879,7 @@ public class NodeRuntimeUtil {
                                 })));
             }
             if(processNoticeEnabled[0]) {
-                if(noticeType.equals("TODO") || noticeType.equals("BACK")) {
+                if(flag) {
                     handleProcessNoticeExecute(delegateTask, null, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
                 } else {
                     handleProcessNoticeExecute(null, delegateExecution, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
@@ -984,6 +999,11 @@ public class NodeRuntimeUtil {
                     }
                     processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
                     break;
+                case "REJECT":
+                    //拒绝只发送给申请人
+                    participateUserIdList = Collections.singletonList(String.valueOf(delegateTask.getVariable("initiator")));
+                    processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
+                    break;
                 default:
                     throw new CommonException("不支持的通知类型：{}", noticeType);
             }
@@ -1027,7 +1047,7 @@ public class NodeRuntimeUtil {
                                 taskId = delegateTask.getId();
                             }
 //                            taskMap.put("noticeType", transfer(processInstanceId,noticeType,taskId));
-                            taskMap.put("noticeType",noticeType);
+                            taskMap.put("noticeType",transfer(processInstanceId,noticeType,delegateExecution));
                             devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,processInstanceId,taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
                             if(noticeType.equals("TODO")){
@@ -1602,13 +1622,24 @@ public class NodeRuntimeUtil {
     }
 
 
-    public static  String transfer(String processInstanceId,String noticeType,String taskId) {
+    public static  String transfer(String processInstanceId, String noticeType, DelegateExecution delegateExecution) {
+        String result = null;
+        if(noticeType.equals("COMPLETE")){
+            return "已完成";
+        }
         HistoryService historyService = SpringUtil.getBean(HistoryService.class);
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId)
                 .orderByProcessInstanceStartTime().desc().singleResult();
+        if(null == historicProcessInstance){
+            return "审批中";
+        }
         String state = historicProcessInstance.getState();
         String deleteReason = historicProcessInstance.getDeleteReason();
-        String result = null;
+        if(noticeType.equals("COPY")){
+            EndNodeCheck endNodeCheck = SpringUtil.getBean(EndNodeCheck.class);
+            state = endNodeCheck.nextTaskIsEnd(delegateExecution)?"COMPLETED":state;
+        }
+
         switch (state) {
             case "ACTIVE":
                 result = "审批中";
@@ -1643,36 +1674,42 @@ public class NodeRuntimeUtil {
         return result;
     }
 
-    public static Boolean nextTaskIsEnd(String taskId) {
-        if(null == taskId){
-            return Boolean.TRUE;
-        }
-        //参数校验
-        // 查询当前任务对象
-        Task task = ProcessEngines.getDefaultProcessEngine().getTaskService()
-                .createTaskQuery().taskId(taskId).singleResult();
-        //根据taskId获取流程实例Id
-        String processInstanceId = task.getProcessInstanceId();
-        String definitionId = ProcessEngines.getDefaultProcessEngine()
-                .getRuntimeService().createProcessInstanceQuery()
-                .processInstanceId(processInstanceId).singleResult()
-                .getProcessDefinitionId();
-        ProcessDefinitionEntity processDefinitionEntity =
-                (ProcessDefinitionEntity) ((RepositoryServiceImpl)
-                        ProcessEngines.getDefaultProcessEngine().getRepositoryService())
-                        .getDeployedProcessDefinition(definitionId);
-        ActivityImpl activityImpl = processDefinitionEntity.
-                findActivity(task.getTaskDefinitionKey());
-        // 获取节点所有流向线路信息
-        List<PvmTransition> outTransitions = activityImpl.getOutgoingTransitions();
-        for (PvmTransition tr : outTransitions) {
-            // 获取线路的终点节点
-            PvmActivity ac = tr.getDestination();
-            //当其中一条流线的中点不是结束节点时，直接返回 false（不是结束节点）
-            if (!BpmnModelConstants.BPMN_ELEMENT_END_EVENT.equals(ac.getProperty("type"))) {
-                return false;
-            }
-        }
-        return true;
+    private static Collection<SequenceFlow> getOutgoingFlows(BpmnModelInstance bpmnModel, FlowElement flowElement) {
+        return bpmnModel.getModelElementsByType(SequenceFlow.class)
+                .stream()
+                .filter(sequenceFlow -> sequenceFlow.getSource().equals(flowElement)).collect(Collectors.toList());
     }
+
+//    public static Boolean nextTaskIsEnd(String taskId) {
+//        if(null == taskId){
+//            return Boolean.TRUE;
+//        }
+//        //参数校验
+//        // 查询当前任务对象
+//        Task task = ProcessEngines.getDefaultProcessEngine().getTaskService()
+//                .createTaskQuery().taskId(taskId).singleResult();
+//        //根据taskId获取流程实例Id
+//        String processInstanceId = task.getProcessInstanceId();
+//        String definitionId = ProcessEngines.getDefaultProcessEngine()
+//                .getRuntimeService().createProcessInstanceQuery()
+//                .processInstanceId(processInstanceId).singleResult()
+//                .getProcessDefinitionId();
+//        ProcessDefinitionEntity processDefinitionEntity =
+//                (ProcessDefinitionEntity) ((RepositoryServiceImpl)
+//                        ProcessEngines.getDefaultProcessEngine().getRepositoryService())
+//                        .getDeployedProcessDefinition(definitionId);
+//        ActivityImpl activityImpl = processDefinitionEntity.
+//                findActivity(task.getTaskDefinitionKey());
+//        // 获取节点所有流向线路信息
+//        List<PvmTransition> outTransitions = activityImpl.getOutgoingTransitions();
+//        for (PvmTransition tr : outTransitions) {
+//            // 获取线路的终点节点
+//            PvmActivity ac = tr.getDestination();
+//            //当其中一条流线的中点不是结束节点时，直接返回 false（不是结束节点）
+//            if (!BpmnModelConstants.BPMN_ELEMENT_END_EVENT.equals(ac.getProperty("type"))) {
+//                return false;
+//            }
+//        }
+//        return true;
+//    }
 }

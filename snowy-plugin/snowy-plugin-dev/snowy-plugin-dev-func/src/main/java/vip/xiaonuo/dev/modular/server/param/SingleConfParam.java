@@ -21,13 +21,16 @@ public class SingleConfParam {
     @ApiModelProperty(value = "源服务器IP地址", position = 4)
     private String sourceHost;
 
-    @ApiModelProperty(value = "目标服务器用户名", position = 5)
+    @ApiModelProperty(value = "目标服务器用户名", required = true,position = 5)
+    @NotNull(message = "目标服务器用户名不能为空")
     private String targetUsername;
 
-    @ApiModelProperty(value = "目标服务器密码",position = 6)
+    @ApiModelProperty(value = "目标服务器密码",required = true,position = 6)
+    @NotNull(message = "目标服务器密码不能为空")
     private String targetPassword;
 
-    @ApiModelProperty(value = "目标服务器IP地址",position = 7)
+    @ApiModelProperty(value = "目标服务器IP地址",required = true,position = 7)
+    @NotNull(message = "目标服务器IP地址不能为空")
     private String targetHost;
 
     @ApiModelProperty(value = "系统服务ID",required = true,position = 8)

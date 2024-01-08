@@ -12,4 +12,10 @@
         ) t_max ON t.KEY_ = t_max.KEY_ AND t.VERSION_ = t_max.max_version ORDER BY t.VERSION_ DESC
 
     </select>
+
+    <select id="getKey" parameterType="string" resultType="string">
+        SELECT DISTINCT KEY_
+        FROM ACT_RE_PROCDEF
+        WHERE NAME_ = #{name}
+    </select>
 </mapper>
