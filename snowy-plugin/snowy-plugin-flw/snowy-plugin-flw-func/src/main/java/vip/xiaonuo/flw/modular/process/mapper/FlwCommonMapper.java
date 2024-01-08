@@ -26,4 +26,6 @@ import java.util.Map;
  **/
 public interface FlwCommonMapper extends BaseMapper<Object> {
     List<String> getNameList(String name);
+
+    String getKey(String name);
 }

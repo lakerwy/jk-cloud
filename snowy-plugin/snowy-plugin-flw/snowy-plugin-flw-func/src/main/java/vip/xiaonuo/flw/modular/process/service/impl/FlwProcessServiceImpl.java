@@ -1330,6 +1330,13 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Override
     public List<String> getNameList(String name){
+        /**
+         * 如果全匹配就返回全匹配的key,未找到就模糊匹配
+         */
+        String key = flwCommonMapper.getKey(name);
+        if(StrUtil.isNotEmpty(key)){
+            return CollectionUtil.newArrayList(key);
+        }
         return flwCommonMapper.getNameList(name);
     }
 
