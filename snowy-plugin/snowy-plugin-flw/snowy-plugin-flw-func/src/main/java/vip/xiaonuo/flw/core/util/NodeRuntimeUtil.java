@@ -86,6 +86,8 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -227,12 +229,12 @@ public class NodeRuntimeUtil {
                                     if(ObjectUtil.isNotEmpty(initiatorTableJson)) {
                                         handleDataJsonPrimaryTableField(Convert.toStr(initiatorDataJson)).forEach((key, value) -> {
                                             titleResult.set(StrUtil.replace(titleResult.get(), key, Convert.toStr(value)));
-                                            abstractResult.set(StrUtil.replace(abstractResult.get(), key,  Convert.toStr(value)));
+                                            abstractResult.set(replaceExactMatches(abstractResult.get(), key,  Convert.toStr(value)));
                                         });
                                     } else {
                                         JSONUtil.parseObj(initiatorDataJson).forEach((key, value) -> {
                                             titleResult.set(StrUtil.replace(titleResult.get(), key, Convert.toStr(value)));
-                                            abstractResult.set(StrUtil.replace(abstractResult.get(), key,  Convert.toStr(value)));
+                                            abstractResult.set(replaceExactMatches(abstractResult.get(), key,  Convert.toStr(value)));
                                         });
                                     }
                                 }
@@ -1681,36 +1683,21 @@ public class NodeRuntimeUtil {
                 .filter(sequenceFlow -> sequenceFlow.getSource().equals(flowElement)).collect(Collectors.toList());
     }
 
-//    public static Boolean nextTaskIsEnd(String taskId) {
-//        if(null == taskId){
-//            return Boolean.TRUE;
-//        }
-//        //参数校验
-//        // 查询当前任务对象
-//        Task task = ProcessEngines.getDefaultProcessEngine().getTaskService()
-//                .createTaskQuery().taskId(taskId).singleResult();
-//        //根据taskId获取流程实例Id
-//        String processInstanceId = task.getProcessInstanceId();
-//        String definitionId = ProcessEngines.getDefaultProcessEngine()
-//                .getRuntimeService().createProcessInstanceQuery()
-//                .processInstanceId(processInstanceId).singleResult()
-//                .getProcessDefinitionId();
-//        ProcessDefinitionEntity processDefinitionEntity =
-//                (ProcessDefinitionEntity) ((RepositoryServiceImpl)
-//                        ProcessEngines.getDefaultProcessEngine().getRepositoryService())
-//                        .getDeployedProcessDefinition(definitionId);
-//        ActivityImpl activityImpl = processDefinitionEntity.
-//                findActivity(task.getTaskDefinitionKey());
-//        // 获取节点所有流向线路信息
-//        List<PvmTransition> outTransitions = activityImpl.getOutgoingTransitions();
-//        for (PvmTransition tr : outTransitions) {
-//            // 获取线路的终点节点
-//            PvmActivity ac = tr.getDestination();
-//            //当其中一条流线的中点不是结束节点时，直接返回 false（不是结束节点）
-//            if (!BpmnModelConstants.BPMN_ELEMENT_END_EVENT.equals(ac.getProperty("type"))) {
-//                return false;
-//            }
-//        }
-//        return true;
-//    }
+    /**
+     * 字符串全匹配替换
+     * @param original
+     * @param key
+     * @param value
+     * @return
+     */
+    private static String replaceExactMatches(String original, String key, String value) {
+        // Use regex for exact match
+        String regex = "\\b" + Pattern.quote(key) + "\\b";
+        // Compile the pattern
+        Pattern pattern = Pattern.compile(regex);
+        // Use matcher to perform the replacement
+        Matcher matcher = pattern.matcher(original);
+        return matcher.replaceAll(value);
+    }
+
 }

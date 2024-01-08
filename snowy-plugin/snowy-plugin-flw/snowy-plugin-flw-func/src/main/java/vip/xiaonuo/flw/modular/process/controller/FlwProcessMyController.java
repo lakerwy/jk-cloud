@@ -175,6 +175,8 @@ public class FlwProcessMyController {
         if(ObjectUtil.isNotEmpty(myCopyUnreadProcessInstanceIdList)) {
             flwProcessMonitorPageParam.setProcessInstanceIdList(myCopyUnreadProcessInstanceIdList);
             flwProcessMonitorPageParam.setCopyFlag(Boolean.TRUE);
+            flwProcessMonitorPageParam.setSearchKey(flwProcessMyPageParam.getName());
+            flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getName());
             return CommonResult.data(flwProcessService.monitorPage(flwProcessMonitorPageParam));
         }
         return CommonResult.data(new Page<>());
@@ -211,6 +213,8 @@ public class FlwProcessMyController {
         if(ObjectUtil.isNotEmpty(myCopyUnreadProcessInstanceIdList)) {
             flwProcessMonitorPageParam.setProcessInstanceIdList(myCopyUnreadProcessInstanceIdList);
             flwProcessMonitorPageParam.setCopyFlag(Boolean.TRUE);
+            flwProcessMonitorPageParam.setSearchKey(flwProcessMyPageParam.getName());
+            flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getName());
             return CommonResult.data(flwProcessService.monitorPage(flwProcessMonitorPageParam));
         }
         return CommonResult.data(new Page<>());
