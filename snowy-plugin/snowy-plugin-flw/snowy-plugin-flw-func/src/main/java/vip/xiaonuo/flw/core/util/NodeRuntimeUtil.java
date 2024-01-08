@@ -34,6 +34,8 @@ import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
+import org.camunda.bpm.engine.history.HistoricVariableInstance;
+import org.camunda.bpm.engine.history.HistoricVariableInstanceQuery;
 import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
 import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
@@ -1029,7 +1031,7 @@ public class NodeRuntimeUtil {
                             Map<String,String> taskMap = new HashMap<>();
                             String processInstanceId = null;
                             //完成事件通知中无delegateTask
-                            String taskId = null;
+//                            String taskId = null;
                             if(ObjectUtil.isNull(delegateTask)){
                                 taskMap.put("processInstanceId",delegateExecution.getProcessInstanceId());
                                 processInstanceId = delegateExecution.getProcessInstanceId();
@@ -1042,20 +1044,29 @@ public class NodeRuntimeUtil {
                                 taskMap.put("initiatorName",String.valueOf(delegateExecution.getVariable("initiatorName")));
                                 taskMap.put("processDefinitionId",delegateExecution.getProcessDefinitionId());
                                 taskMap.put("currentActivityId",delegateExecution.getCurrentActivityId());
-                                taskMap.put("noticeType",noticeType);
+//                                taskMap.put("noticeType",noticeType);
                             }else {
                                 processInstanceId = delegateTask.getProcessInstanceId();
-                                taskMap.put("processInstanceId", delegateTask.getProcessInstanceId());
+                                taskMap.put("processInstanceId", processInstanceId);
                                 taskMap.put("taskId", delegateTask.getId());
                                 taskMap.put("taskDefKey", delegateTask.getTaskDefinitionKey());
-                                taskMap.put("initiatorProcessTitle", (String) Optional.ofNullable(delegateTask.getVariable("initiatorProcessTitle")).orElse(""));
-                                taskMap.put("initiatorProcessAbstract", (String) Optional.ofNullable(delegateTask.getVariable("initiatorProcessAbstract")).orElse(""));
-                                taskMap.put("initiatorProcessSn", (String) Optional.ofNullable(delegateTask.getVariable("initiatorProcessSn")).orElse(""));
-                                taskMap.put("initiatorTime", (String) Optional.ofNullable(delegateTask.getVariable("initiatorTime")).orElse(""));
-                                taskMap.put("initiatorName", (String) Optional.ofNullable(delegateTask.getVariable("initiatorName")).orElse(""));
+                                if(noticeType.equals("REJECT")){
+                                    Map<String, Object> map = getMap(processInstanceId);
+                                    taskMap.put("initiatorProcessTitle",String.valueOf(map.get("initiatorProcessTitle")));
+                                    taskMap.put("initiatorProcessAbstract",String.valueOf(map.get("initiatorProcessAbstract")));
+                                    taskMap.put("initiatorProcessSn",String.valueOf(map.get("initiatorProcessSn")));
+                                    taskMap.put("initiatorTime",String.valueOf(map.get("initiatorTime")));
+                                    taskMap.put("initiatorName",String.valueOf(map.get("initiatorName")));
+                                }else {
+                                    taskMap.put("initiatorProcessTitle", String.valueOf(delegateTask.getVariable("initiatorProcessTitle")));
+                                    taskMap.put("initiatorProcessAbstract", String.valueOf(delegateTask.getVariable("initiatorProcessAbstract")));
+                                    taskMap.put("initiatorProcessSn", String.valueOf(delegateTask.getVariable("initiatorProcessSn")));
+                                    taskMap.put("initiatorTime", String.valueOf(delegateTask.getVariable("initiatorTime")));
+                                    taskMap.put("initiatorName", String.valueOf(delegateTask.getVariable("initiatorName")));
+                                }
                                 taskMap.put("processDefinitionId", delegateTask.getProcessDefinitionId());
                                 taskMap.put("currentActivityId", delegateTask.getTaskDefinitionKey());
-                                taskId = delegateTask.getId();
+//                                taskId = delegateTask.getId();
                             }
 //                            taskMap.put("noticeType", transfer(processInstanceId,noticeType,taskId));
                             taskMap.put("status",transfer(processInstanceId,noticeType,delegateExecution));
@@ -1639,6 +1650,9 @@ public class NodeRuntimeUtil {
         if(noticeType.equals("COMPLETE")){
             return "已完成";
         }
+        if(noticeType.equals("REJECT")){
+            return "已拒绝";
+        }
         HistoryService historyService = SpringUtil.getBean(HistoryService.class);
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId)
                 .orderByProcessInstanceStartTime().desc().singleResult();
@@ -1707,6 +1721,19 @@ public class NodeRuntimeUtil {
         // Use matcher to perform the replacement
         Matcher matcher = pattern.matcher(original);
         return matcher.replaceAll(value);
+    }
+
+    private static Map<String,Object> getMap(String processInstanceId){
+        HistoryService historyService = SpringUtil.getBean(HistoryService.class);
+        HistoricVariableInstanceQuery historicVariableInstanceQuery = historyService
+                .createHistoricVariableInstanceQuery().processInstanceId(processInstanceId)
+                .orderByVariableName().desc();
+        List<HistoricVariableInstance> list = historicVariableInstanceQuery.list();
+        Map<String,Object> taskMap = new HashMap<>();
+        if (CollUtil.isNotEmpty(list)) {
+            taskMap = list.stream().filter(f -> ObjectUtil.isNotEmpty(f.getName()) && ObjectUtil.isNotEmpty(f.getValue())).collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue, (v1, v2) -> v2));
+        }
+        return taskMap;
     }
 
 }
