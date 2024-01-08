@@ -233,8 +233,12 @@ public class InitConfigServiceImpl implements InitConfigService {
             throw new CommonException("未找到系统服务操作记录！");
         }
         SystemConfExec systemConfExec = systemConfExecs.get(0);
-        TransferFileParam transferFile = BeanUtil.toBean(systemConfExec.getTransferSqlJson(),TransferFileParam.class);
-        BeanUtil.copyProperties(transferFile,singleConfParam);
+        TransferFileParam transferFile = JsonUtil.fromJson(systemConfExec.getTransferSqlJson(),TransferFileParam.class);
+        //BeanUtil.copyProperties(transferFile,singleConfParam);
+        singleConfParam.setSourceUsername(transferFile.getSourceUsername());
+        singleConfParam.setSourcePassword(transferFile.getSourcePassword());
+        String systemSourceIp = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SYSTEM_SOURCE_IP)).get(0).getConfigValue();
+        singleConfParam.setSourceHost(systemSourceIp);
 
         String singleConfigPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SINGLE_CONFIG_PATH)).get(0).getConfigValue();
         singleConfParam.setConfigPath(singleConfigPath);
@@ -247,6 +251,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             transferFileParam.setSourceFilePath(map.get("path"));
             transferFileParam.setFileName(map.get("name"));
             transferFileParam.setTargetFilePath(map.get("path"));
+            log.info("singleConf,配置文件路径,path："+map.get("path")+",name:"+map.get("name"));
             try{
                 yamlUtil.transferFile(transferFileParam);
             }catch (Exception e){
