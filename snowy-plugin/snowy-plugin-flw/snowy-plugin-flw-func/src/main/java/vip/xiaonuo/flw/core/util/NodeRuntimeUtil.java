@@ -829,7 +829,7 @@ public class NodeRuntimeUtil {
      */
     public static void handleUserTaskRejectNotice(DelegateTask delegateTask){
         handleProcessNotice(delegateTask, null, "REJECT", "processEnableRejectNotice",
-                "processCompleteRejectChannel", "processRejectNoticeTemplate");
+                "processRejectNoticeChannel", "processRejectNoticeTemplate");
     }
 
 
@@ -854,7 +854,7 @@ public class NodeRuntimeUtil {
 
             boolean flag = noticeType.equals("TODO") || noticeType.equals("BACK") || noticeType.equals("REJECT");
             if(flag) {
-                if(noticeType.equals("BACK")) {
+                if(noticeType.equals("BACK")||noticeType.equals("REJECT")) {
                     processExtensionElementsCollection = repositoryService.getBpmnModelInstance(delegateTask.getProcessDefinitionId())
                             .getDocumentElement().getUniqueChildElementByType(Process.class).getChildElementsByType(ExtensionElements.class);
                 } else {
@@ -1002,8 +1002,17 @@ public class NodeRuntimeUtil {
                     processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
                     break;
                 case "REJECT":
-                    //拒绝只发送给申请人
-                    participateUserIdList = Collections.singletonList(String.valueOf(delegateTask.getVariable("initiator")));
+                    Object initiator;
+                    try {
+                        initiator = delegateTask.getVariable("initiator");
+                    } catch (Exception e) {
+                        initiator = runtimeService.getVariable(delegateTask.getProcessInstanceId(), "initiator");
+                    }
+                    if(ObjectUtil.isNotEmpty(initiator)){
+                        //拒绝只发送给申请人
+                        participateUserIdList = Collections.singletonList(Convert.toStr(initiator));
+
+                    }
                     processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
                     break;
                 default:
@@ -1039,11 +1048,11 @@ public class NodeRuntimeUtil {
                                 taskMap.put("processInstanceId", delegateTask.getProcessInstanceId());
                                 taskMap.put("taskId", delegateTask.getId());
                                 taskMap.put("taskDefKey", delegateTask.getTaskDefinitionKey());
-                                taskMap.put("initiatorProcessTitle", String.valueOf(delegateTask.getVariable("initiatorProcessTitle")));
-                                taskMap.put("initiatorProcessAbstract", String.valueOf(delegateTask.getVariable("initiatorProcessAbstract")));
-                                taskMap.put("initiatorProcessSn", String.valueOf(delegateTask.getVariable("initiatorProcessSn")));
-                                taskMap.put("initiatorTime", String.valueOf(delegateTask.getVariable("initiatorTime")));
-                                taskMap.put("initiatorName", String.valueOf(delegateTask.getVariable("initiatorName")));
+                                taskMap.put("initiatorProcessTitle", (String) Optional.ofNullable(delegateTask.getVariable("initiatorProcessTitle")).orElse(""));
+                                taskMap.put("initiatorProcessAbstract", (String) Optional.ofNullable(delegateTask.getVariable("initiatorProcessAbstract")).orElse(""));
+                                taskMap.put("initiatorProcessSn", (String) Optional.ofNullable(delegateTask.getVariable("initiatorProcessSn")).orElse(""));
+                                taskMap.put("initiatorTime", (String) Optional.ofNullable(delegateTask.getVariable("initiatorTime")).orElse(""));
+                                taskMap.put("initiatorName", (String) Optional.ofNullable(delegateTask.getVariable("initiatorName")).orElse(""));
                                 taskMap.put("processDefinitionId", delegateTask.getProcessDefinitionId());
                                 taskMap.put("currentActivityId", delegateTask.getTaskDefinitionKey());
                                 taskId = delegateTask.getId();
