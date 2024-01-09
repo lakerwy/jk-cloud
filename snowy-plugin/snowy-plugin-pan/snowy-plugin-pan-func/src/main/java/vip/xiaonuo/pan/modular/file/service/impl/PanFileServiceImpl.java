@@ -262,11 +262,12 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             UserFile userFile = userFileService.getById(zipFileParam.getSaveFileId());
             if(ObjectUtil.isEmpty(inputFile)){ throw new CommonException("未找到该文件夹！");}
             if(!userFile.isDirectory()){ throw new CommonException("保存的路径不是文件夹！");}
-            if (zipFileParam.getZipName().contains("/")) {
+            inputFile = inputFile+"/"+UUID.randomUUID().toString()+".zip";
+            /*if (zipFileParam.getZipName().contains("/")) {
                 inputFile = inputFile+"/"+UUID.randomUUID().toString()+".zip";
             }else{
                 inputFile = inputFile+"\\"+UUID.randomUUID().toString()+".zip";
-            }
+            }*/
             Long fileSize = CommonZipUtil.unzip(sourceFileList,inputFile);
             //插入PAN_FILE表数据
             PanFile panFile = new PanFile();
