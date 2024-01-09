@@ -73,4 +73,7 @@ public class FlwProcessMonitorPageParam {
     @ApiModelProperty(value = "是否来源于抄送")
     private Boolean copyFlag = Boolean.FALSE;
 
+    @ApiModelProperty(value = "是否开启数据权限过滤，默认不开启")
+    private Boolean isDataScope = Boolean.FALSE;
+
 }

@@ -362,16 +362,18 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if(flwProcessMonitorPageParam.getCopyFlag() && loginUser.getCategory().equals("PARTNER")){
             historicProcessInstanceQuery.variableValueEquals("initiatorOrgId",loginUser.getOrgId());
         }else{
-            //查看权限【数据权限】
-            List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-            if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-                historicProcessInstanceQuery = historicProcessInstanceQuery.or();
-                for (String orgId:loginUserDataScope) {
-                    historicProcessInstanceQuery = historicProcessInstanceQuery.variableValueEquals("initiatorOrgId",orgId);
+            //查看权限【数据权限过滤开启】
+            if(flwProcessMonitorPageParam.getIsDataScope()) {
+                List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+                if (ObjectUtil.isNotEmpty(loginUserDataScope)) {
+                    historicProcessInstanceQuery = historicProcessInstanceQuery.or();
+                    for (String orgId : loginUserDataScope) {
+                        historicProcessInstanceQuery = historicProcessInstanceQuery.variableValueEquals("initiatorOrgId", orgId);
+                    }
+                    historicProcessInstanceQuery = historicProcessInstanceQuery.endOr();
+                } else {
+                    historicProcessInstanceQuery.variableValueEquals("initiator", loginUser.getOrgId());
                 }
-                historicProcessInstanceQuery = historicProcessInstanceQuery.endOr();
-            } else {
-                historicProcessInstanceQuery.variableValueEquals("initiator",loginUser.getOrgId());
             }
         }
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
