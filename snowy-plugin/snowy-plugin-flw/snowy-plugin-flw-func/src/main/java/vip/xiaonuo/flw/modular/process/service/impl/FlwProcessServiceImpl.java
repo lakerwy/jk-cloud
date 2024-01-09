@@ -351,16 +351,28 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 historicProcessInstanceQuery.processDefinitionKeyIn(keys.toArray(new String[0]));
             }
         }
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        //合作伙伴的只能看自己部门的
-        if(flwProcessMonitorPageParam.getCopyFlag() && loginUser.getCategory().equals("PARTNER")){
-            historicProcessInstanceQuery.variableValueEquals("initiatorOrgId",loginUser.getOrgId());
-        }
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getProcessInstanceIdList())) {
             historicProcessInstanceQuery.processInstanceIds(CollectionUtil.newHashSet(flwProcessMonitorPageParam.getProcessInstanceIdList()));
         }
         if(ObjectUtil.isAllNotEmpty(flwProcessMonitorPageParam.getVariableValueKey(),flwProcessMonitorPageParam.getVariableValue())){
             historicProcessInstanceQuery.variableValueEquals(flwProcessMonitorPageParam.getVariableValueKey(),flwProcessMonitorPageParam.getVariableValue());
+        }
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        //合作伙伴的只能看自己部门的
+        if(flwProcessMonitorPageParam.getCopyFlag() && loginUser.getCategory().equals("PARTNER")){
+            historicProcessInstanceQuery.variableValueEquals("initiatorOrgId",loginUser.getOrgId());
+        }else{
+            //查看权限【数据权限】
+            List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+            if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+                historicProcessInstanceQuery = historicProcessInstanceQuery.or();
+                for (String orgId:loginUserDataScope) {
+                    historicProcessInstanceQuery = historicProcessInstanceQuery.variableValueEquals("initiatorOrgId",orgId);
+                }
+                historicProcessInstanceQuery = historicProcessInstanceQuery.endOr();
+            } else {
+                historicProcessInstanceQuery.variableValueEquals("initiator",loginUser.getOrgId());
+            }
         }
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();

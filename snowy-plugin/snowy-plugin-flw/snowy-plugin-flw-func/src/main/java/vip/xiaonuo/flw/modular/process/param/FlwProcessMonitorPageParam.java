@@ -70,6 +70,7 @@ public class FlwProcessMonitorPageParam {
     @ApiModelProperty(value = "流程变量中的字段查询值",example = "合同名称字段 name = 武汉")
     private String variableValue;
 
+    @ApiModelProperty(value = "是否来源于抄送")
     private Boolean copyFlag = Boolean.FALSE;
 
 }
