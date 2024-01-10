@@ -14,15 +14,19 @@ import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
+import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
 import vip.xiaonuo.dev.modular.server.enums.InitRelationCategoryEnum;
 import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.vo.ObjInfo;
 
+import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @Slf4j
@@ -31,47 +35,94 @@ public class DatabaseCreator {
     /**
      * 数据库连接测试
      * */
-    public void connectDataBase(ConnectDataBaseParam connectDataBaseParam){
+    public boolean connectDataBase(ConnectDataBaseParam connectDataBaseParam) {
         try {
-            String unicode = "?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true";
-            String url =String.format("jdbc:mysql://%s%s%s%s",connectDataBaseParam.getDbIp(),":",connectDataBaseParam.getPort(),unicode);
-            log.info("数据库连接测试—:"+url);
+            String url = String.format("jdbc:mysql://%s:%s%s", connectDataBaseParam.getDbIp(), connectDataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS);
+            log.info("数据库连接测试—: {}", url);
+
             Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection(url, connectDataBaseParam.getUsername(), connectDataBaseParam.getPassword());//建立连接
-            if (connection != null) {
-                log.info("连接数据库成功！"+url);
-                connection.close(); // 关闭连接
-            } else {
-                throw new CommonException("连接数据库失败");
+
+            try (Connection connection = DriverManager.getConnection(url, connectDataBaseParam.getUsername(), connectDataBaseParam.getPassword())) {
+                if (connection != null) {
+                    log.info("连接数据库成功！{}", url);
+                    return true; // 连接成功返回 true
+                } else {
+                    log.error("连接数据库失败");
+                    return false; // 连接失败返回 false
+                }
             }
-        } catch (ClassNotFoundException e) {
-            e.printStackTrace();
-            throw new CommonException("连接数据库失败");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            throw new CommonException("连接数据库失败");
+
+        } catch (ClassNotFoundException | SQLException e) {
+            log.error("连接数据库失败", e);
+            return false; // 连接失败返回 false
         }
     }
 
-    public void createDatabase(DataBaseParam dataBaseParam) throws Exception{
-        try {
-            //jdbc:mysql://10.0.33.81:3306?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true
-            String unicode = "?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true";
-            String url =String.format("jdbc:mysql://%s%s%s%s",dataBaseParam.getDbIp(),":",dataBaseParam.getPort(),unicode);
-            log.info("url-connectSql:"+url);
-            Class.forName("com.mysql.cj.jdbc.Driver");
-            Connection connection = DriverManager.getConnection(url, dataBaseParam.getUsername(), dataBaseParam.getPassword());//建立连接
-            Statement stmt = connection.createStatement();//创建Statement对象
 
-            String sql = "CREATE DATABASE IF NOT EXISTS " + dataBaseParam.getDbName();//执行创建数据库的SQL命令
-            stmt.executeUpdate(sql);
-            stmt.close();
-            connection.close();
-            log.info("远程创建数据库成功，数据库名称："+dataBaseParam.getDbName());
+    public Boolean createDatabase(DataBaseParam dataBaseParam){
+        Boolean flag = Boolean.TRUE;
+        try {
+            String url = String.format("jdbc:mysql://%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS);
+            log.info("url-connectSql:" + url);
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            try (Connection connection = DriverManager.getConnection(url, dataBaseParam.getUsername(), dataBaseParam.getPassword());
+                 Statement statement = connection.createStatement()) {
+                //不能预编译（数据库名因为 库名需要``）
+                String createDatabaseSql = "CREATE DATABASE IF NOT EXISTS " + dataBaseParam.getDbName();
+                int rowsAffected = statement.executeUpdate(createDatabaseSql);
+                if (rowsAffected <= 0) {
+                    flag = Boolean.FALSE;
+                }
+            }
+            log.info("远程创建数据库成功，数据库名称：" + dataBaseParam.getDbName());
         } catch (SQLException e) {
-            log.error("远程创建数据库失败，数据库名称："+dataBaseParam.getDbName()+",e:"+e.toString());
-            throw new CommonException("数据库创建失败！e:"+e.getMessage());
+            log.error("远程创建数据库失败，数据库名称：" + dataBaseParam.getDbName() + ", e:" + e);
+            flag = Boolean.FALSE;
+        } catch (ClassNotFoundException e) {
+            log.error("MySQL驱动未找到，e:" + e);
+            flag = Boolean.FALSE;
         }
+        return flag;
+    }
+
+    /**
+     * 执行sh 脚本命令
+     * 需要返回结果
+     * @param unixCommandParam
+     */
+    public  CompletableFuture<Boolean> executeCommand(UnixCommandParam unixCommandParam) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                JSch jsch = new JSch();
+                Session session = jsch.getSession(unixCommandParam.getSshUsername(), unixCommandParam.getSshHost(), unixCommandParam.getSshPort());
+                session.setPassword(unixCommandParam.getSshPassword());
+                session.setConfig("StrictHostKeyChecking", "no");
+                session.connect();
+
+                String command = unixCommandParam.getCommand();
+                ChannelExec channelExec = (ChannelExec) session.openChannel("exec");
+                channelExec.setCommand(command);
+
+                try {
+                    channelExec.connect();
+
+                    int exitStatus = channelExec.getExitStatus();
+                    if (exitStatus != 0) {
+                        log.error("Error executing remote command. Exit status: " + exitStatus);
+                        return Boolean.FALSE;
+                    }
+
+                    return Boolean.TRUE;
+
+                } finally {
+                    channelExec.disconnect();
+                    session.disconnect();
+                }
+
+            } catch (Exception e) {
+                throw new CommonException("Error executing remote command: " + e.getMessage());
+            }
+        });
     }
 
     public void importDatabase(UnixCommandParam unixCommandParam) {
@@ -84,7 +135,6 @@ public class DatabaseCreator {
             session.connect();
             Channel channel = session.openChannel("exec");
             ((ChannelExec) channel).setCommand(unixCommandParam.getCommand());
-            OutputStream out = channel.getOutputStream();
             InputStream in = channel.getInputStream();
             channel.connect();
             byte[] tmp = new byte[1024];

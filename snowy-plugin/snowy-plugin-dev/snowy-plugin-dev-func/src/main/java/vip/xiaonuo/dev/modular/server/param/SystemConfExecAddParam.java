@@ -35,32 +35,11 @@ public class SystemConfExecAddParam {
     @ApiModelProperty(value = "系统服务主键", position = 2)
     private String systemId;
 
-    /** 数据库JSON */
-    @ApiModelProperty(value = "数据库JSON", position = 3)
+    /** 数据库信息 */
+    @ApiModelProperty(value = "数据库配置信息(数据库ip、端口、用户、密码)", position = 3)
     private String dataBaseJson;
 
-    /** 数据库表JSON */
-    @ApiModelProperty(value = "数据库表JSON", position = 4)
-    private String tableJson;
-
-    /** 本地application.yaml */
-    @ApiModelProperty(value = "本地application.yaml", position = 5)
-    private String applYamlJson;
-
-    /** 本地docker-compose.yml */
-    @ApiModelProperty(value = "本地docker-compose.yml", position = 6)
-    private String dockYamlJson;
-
-    /** 推送远程YAML和YML文件 */
-    @ApiModelProperty(value = "推送远程YAML和YML文件", position = 7)
-    private String remoteYamlJson;
-
-    /** 远程执行.sh脚本 */
-    @ApiModelProperty(value = "远程执行.sh脚本", position = 8)
-    private String remoteExecJson;
-
-    /** 初始化EPC用户信息 */
-    @ApiModelProperty(value = "初始化EPC用户信息", position = 9)
-    private String initUserJson;
+    @ApiModelProperty(value = "系统部署服务器信息(部署的服务器IP,用户,密码,配置文件存放地址《默认/epc/server/》,容器外放端口,域名)", position = 4)
+    private String systemServerJson;
 
 }

@@ -2,17 +2,19 @@ package vip.xiaonuo.dev.modular.server.service;
 
 import cn.hutool.json.JSONObject;
 import org.springframework.web.multipart.MultipartFile;
+import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.param.*;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.concurrent.CompletableFuture;
 
 public interface InitConfigService {
 
     /**
      * 建库
      * */
-    void createDataBase(DataBaseParam dataBaseParam) throws Exception;
+    Boolean createDataBase(SystemConfExec systemConfExec) throws Exception;
 
     /**
      * 建表
@@ -22,7 +24,7 @@ public interface InitConfigService {
     /**
      * 输出yaml配置文件
      * */
-    void createYaml(YamlParam yamlParam);
+    Boolean createYaml(SystemConfExec systemConfExec);
 
     /**
      * 初始化用户数据
@@ -58,7 +60,17 @@ public interface InitConfigService {
      **/
     void downloadImportUserTemplate(HttpServletResponse response) throws IOException;
 
-    void connectDataBase(ConnectDataBaseParam connectDataBaseParam);
+    Boolean connectDataBase(ConnectDataBaseParam connectDataBaseParam);
 
-    void transferSqlFile(TransferFileParam transferFileParam);
+    CompletableFuture<Boolean> transferSqlFile(TransferFileParam transferFileParam);
+
+    /**
+     * 初始化系统
+     * @param systemConfExecIdParam
+     */
+    void initSystem(SystemConfExecIdParam systemConfExecIdParam);
+
+    Boolean uploadConf(SystemConfExec systemConfExec);
+
+    Boolean updateConf(SystemConfExec systemConfExec);
 }

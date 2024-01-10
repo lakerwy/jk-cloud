@@ -16,6 +16,7 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.service.InitConfigService;
 import vip.xiaonuo.dev.modular.server.param.*;
+import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -31,6 +32,27 @@ public class InitController {
     @Resource
     InitConfigService initConfigService;
 
+    @Resource
+    SystemConfExecService systemConfExecService;
+
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("初始化系统配置")
+    @CommonLog("初始化系统配置")
+    @PostMapping("/system/initSystemConf")
+    public CommonResult<String> initSystemConf(@RequestBody @Valid SystemConfExecAddParam systemConfExecAddParam){
+        systemConfExecService.add(systemConfExecAddParam);
+        return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("初始化系统")
+    @CommonLog("初始化系统")
+    @PostMapping("/system/initSystem")
+    public CommonResult<String> initSystem(@RequestBody @Valid SystemConfExecIdParam systemConfExecIdParam){
+        initConfigService.initSystem(systemConfExecIdParam);
+        return CommonResult.ok();
+    }
+
     /**
      * epc建库
      *
@@ -42,7 +64,7 @@ public class InitController {
     @CommonLog("epc建库")
     @PostMapping("/epc/create/dataBase")
     public CommonResult<String> createDataBase(@RequestBody @Valid DataBaseParam dataBaseParam) throws Exception{
-        initConfigService.createDataBase(dataBaseParam);
+//        initConfigService.createDataBase(dataBaseParam);
         return CommonResult.ok();
     }
 
@@ -67,12 +89,12 @@ public class InitController {
      * @author xuyuxiang
      * @date 2023/12/28 11:01
      **/
-    @ApiOperationSupport(order = 3)
+    @ApiOperationSupport(order = 4)
     @ApiOperation("yaml配置文件")
     @CommonLog("yaml配置文件")
     @PostMapping("/epc/create/yaml")
     public CommonResult<String> createYaml(@RequestBody @Valid YamlParam yamlParam){
-        initConfigService.createYaml(yamlParam);
+//        initConfigService.createYaml(yamlParam);
         return CommonResult.ok();
     }
 
@@ -83,7 +105,7 @@ public class InitController {
      * @author yong.ye
      * @date  2023/11/21 11:14
      */
-    @ApiOperationSupport(order = 4)
+    @ApiOperationSupport(order = 3)
     @ApiOperation("epc-根据导入的用户表，初始化 部门、角色、用户--前端勿单独调用")
     @CommonLog("epc-根据导入的用户表，初始化 部门、角色、用户--前端勿单独调用")
     @PostMapping("/epc/create/initData")

@@ -41,6 +41,6 @@ public class TransferFileParam {
     @NotNull(message = "非系统服务，文件名称必传")
     private String fileName;
 
-    @ApiModelProperty(value = "系统服务ID",position = 10)
+    @ApiModelProperty(value = "系统服务ID",position = 10,required = true)
     private String systemId;
 }

@@ -7,6 +7,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
@@ -15,20 +16,25 @@ import com.yunpian.sdk.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonIpAddressUtil;
 import vip.xiaonuo.common.util.CommonResponseUtil;
+import vip.xiaonuo.common.util.CommonServletUtil;
 import vip.xiaonuo.dev.modular.config.entity.DevConfig;
 import vip.xiaonuo.dev.modular.config.service.DevConfigService;
-import vip.xiaonuo.dev.modular.dict.entity.DevDict;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
+import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.service.InitConfigService;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 import vip.xiaonuo.dev.modular.server.util.DatabaseCreator;
+import vip.xiaonuo.dev.modular.server.util.SftpFileUploader;
+import vip.xiaonuo.dev.modular.server.util.YamlFileUtil;
 import vip.xiaonuo.dev.modular.server.util.YamlUtil;
 import vip.xiaonuo.dev.modular.server.param.*;
 
@@ -38,24 +44,15 @@ import java.io.IOException;
 import java.io.InputStream;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class InitConfigServiceImpl implements InitConfigService {
-
-    private final String MYSQL_DOCKER_NAME = "MYSQL_DOCKER_NAME";
-    private final String DUMP_SQL_SOURCE_PATH = "DUMP_SQL_SOURCE_PATH";
-    private final String DUMP_SQL_TARGET_PATH = "DUMP_SQL_TARGET_PATH";
-    private final String YAML_OUT_CONFIG_PATH = "YAML_OUT_CONFIG_PATH";
-    private final String YAML_CONFIG_PATH = "YAML_CONFIG_PATH";
-    private final String YML_CONFIG_PATH = "YML_CONFIG_PATH";
-    private final String YML_OUT_CONFIG_PATH = "YML_OUT_CONFIG_PATH";
-    private final String SYSTEM_SOURCE_IP = "SYSTEM_SOURCE_IP";
-    private final String SINGLE_SOURCE_CONFIG_PATH = "SINGLE_SOURCE_CONFIG_PATH";
-    private final String SINGLE_TARGET_CONFIG_PATH = "SINGLE_TARGET_CONFIG_PATH";
 
     private final String CONF = "conf";
     @Resource
@@ -71,33 +68,66 @@ public class InitConfigServiceImpl implements InitConfigService {
     @Resource
     private SystemServerService systemServerService;
 
+    @Resource
+    CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    YamlFileUtil yamlFileUtil;
+
+    /**
+     * 系统初始化
+     * @param systemConfExecIdParam
+     */
     @Override
-    public void createDataBase(DataBaseParam dataBaseParam) throws Exception{
-        if(ObjectUtil.isEmpty(dataBaseParam.getSystemId())){
-            log.error("系统服务ID不能为空");
-            throw new CommonException("系统服务ID不能为空");
+    public void initSystem(SystemConfExecIdParam systemConfExecIdParam) {
+        SystemConfExec systemConfExec = systemConfExecService.getById(systemConfExecIdParam.getId());
+        if(ObjectUtil.isEmpty(systemConfExec)){
+            throw new CommonException("未找到系统配置");
         }
-        if(systemConfExecService.count(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,dataBaseParam.getSystemId())) > 0){
-            log.error("项目不能重复建库！");
-            throw new CommonException("项目不能重复建库！");
+        //生成系统的唯一表示
+        generateNo();
+        /**
+         * 1、创建数据库
+         * 2、上传配置文件（2-3合并）
+         * 3、修改替换配置文件
+         * 4、执行sh构建
+         * 下面的步骤必须等上面步骤完成以后才可以执行
+         *
+         */
+        Boolean flag = createDataBase(systemConfExec);
+        if(flag){
+                //上传配置文件
+            flag = uploadConf(systemConfExec);
+            if(flag){
+                //修改
+                flag = updateConf(systemConfExec);
+                if(flag){
+                    //执行sh 脚本
+                }
+            }
+
         }
-        String dataBaseName = "EPC"+String.valueOf(System.currentTimeMillis());
+
+    }
+
+    @Override
+    public Boolean createDataBase(SystemConfExec systemConfExec){
+        String dataBaseJson = systemConfExec.getDataBaseJson();
+        DataBaseParam dataBaseParam = JsonUtil.fromJson(dataBaseJson, DataBaseParam.class);
+        String dataBaseName = "EPC" +getSystemNo();
         dataBaseParam.setDbName(dataBaseName);
-        databaseCreator.createDatabase(dataBaseParam);
-        String datebaseJson = JSONUtil.toJsonStr(dataBaseParam);
-        SystemConfExec systemConfExec = new SystemConfExec();
-        systemConfExec.setDataBaseJson(datebaseJson);
-        systemConfExec.setSystemId(dataBaseParam.getSystemId());
-        systemConfExecService.saveOrUpdate(systemConfExec);
-        updateSystemServer(dataBaseParam.getSystemId(),1);
+        Boolean flag = databaseCreator.createDatabase(dataBaseParam);
+        if(!flag){
+//            throw new CommonException("创建数据库失败，请检查配置后重新创建");
+            log.error("创建数据库失败");
+            return false;
+        }
+        updateSystemServer(systemConfExec.getSystemId(),1);
+        return true;
     }
 
     @Override
     public void createTable(TableParam tableParam){
-        if(ObjectUtil.isEmpty(tableParam.getSystemId())){
-            log.error("系统服务ID不能为空");
-            throw new CommonException("系统服务ID不能为空");
-        }
         List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,tableParam.getSystemId()));
         if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
             throw new CommonException("未找到系统服务操作记录！");
@@ -105,28 +135,44 @@ public class InitConfigServiceImpl implements InitConfigService {
         SystemConfExec systemConfExec = systemConfExecs.get(0);
         //DataBaseParam dataBaseParam = BeanUtil.toBean(systemConfExec.getDataBaseJson(),DataBaseParam.class);
         DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExec.getDataBaseJson(), DataBaseParam.class);
-        TransferFileParam transferFileParam = JsonUtil.fromJson(systemConfExec.getTransferSqlJson(), TransferFileParam.class);
+//        TransferFileParam transferFileParam = JsonUtil.fromJson(systemConfExec.getTransferSqlJson(), TransferFileParam.class);
         tableParam.setSshHost(dataBaseParam.getDbIp());
         tableParam.setSshPort(22);
         tableParam.setDatabaseName(dataBaseParam.getDbName());
         tableParam.setDatabaseUsername(dataBaseParam.getUsername());
         tableParam.setDatabasePassword(dataBaseParam.getPassword());
-        String dumpFilePathConf = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,DUMP_SQL_TARGET_PATH)).get(0).getConfigValue();
-        tableParam.setDumpFilePath(dumpFilePathConf+"/"+transferFileParam.getFileName());
-        String dockerName = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,MYSQL_DOCKER_NAME)).get(0).getConfigValue();
+        String dumpFilePathConf = devConfigService.getValueByKey(InitConfConstant.DUMP_SQL_SOURCE_PATH);
+        if(StrUtil.isEmpty(dumpFilePathConf)){
+            dumpFilePathConf = "/home/sql/snowy_ten_mysql.sql";
+        }
+//        String dumpFilePathConf = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,DUMP_SQL_TARGET_PATH)).get(0).getConfigValue();
+//        tableParam.setDumpFilePath(dumpFilePathConf+transferFileParam.getFileName());
+        tableParam.setDumpFilePath(dumpFilePathConf);
+        String dockerName = devConfigService.getValueByKey(InitConfConstant.MYSQL_DOCKER_NAME);
+//        String dockerName = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,InitConfConstant.MYSQL_DOCKER_NAME)).get(0).getConfigValue();
+        if(StrUtil.isEmpty(dockerName)){
+            dockerName = "epcMysql";
+        }
         tableParam.setDockerMyName(dockerName);
 
         String command = String.format(" docker exec -i %s mysql -u%s -p%s  %s < %s ",tableParam.getDockerMyName(),tableParam.getDatabaseUsername(),
                 tableParam.getDatabasePassword(),tableParam.getDatabaseName(),tableParam.getDumpFilePath());
         tableParam.setCommand(command);
         UnixCommandParam unixCommandParam = BeanUtil.toBean(tableParam,UnixCommandParam.class);
-        unixCommandParam.setSshPort(22);
-        databaseCreator.importDatabase(unixCommandParam);
-        String tableJson = JSONUtil.toJsonStr(tableParam);
-        systemConfExec.setTableJson(tableJson);
-        systemConfExec.setSystemId(tableParam.getSystemId());
-        systemConfExecService.saveOrUpdate(systemConfExec);
-        updateSystemServer(systemConfExec.getSystemId(),3);
+//        unixCommandParam.setSshPort(22);
+//        databaseCreator.importDatabase(unixCommandParam);
+        CompletableFuture<Boolean> completableFuture = databaseCreator.executeCommand(unixCommandParam);
+        completableFuture.thenAccept(flag->{
+            if(flag){
+                String tableJson = JSONUtil.toJsonStr(tableParam);
+//                systemConfExec.setTableJson(tableJson);
+                systemConfExec.setSystemId(tableParam.getSystemId());
+                //可能存在异常-----上下文context中无法获取到userId
+                systemConfExecService.saveOrUpdate(systemConfExec);
+                updateSystemServer(systemConfExec.getSystemId(),3);
+            }
+        });
+
     }
 
     @Override
@@ -149,77 +195,168 @@ public class InitConfigServiceImpl implements InitConfigService {
     }
 
 
+//    public void createYaml2(YamlParam yamlParam){
+//        List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,yamlParam.getSystemId()));
+//        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
+//            throw new CommonException("未找到系统服务操作记录！");
+//        }
+//        String  currentTimeMillis = String.valueOf(System.currentTimeMillis());
+//        String configYamlPath = devConfigService.getValueByKey(InitConfConstant.YAML_CONFIG_PATH);
+//        if(StrUtil.isEmpty(configYamlPath)){
+//            configYamlPath = "/home/epc/sh/conf/application.yaml";
+//        }
+////        String configYamlPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,InitConfConstant.YAML_CONFIG_PATH)).get(0).getConfigValue();
+//        File configYamlFile = new File(configYamlPath);
+//        if(!configYamlFile.exists()){
+//            throw new CommonException("配置文件不存在！configYamlPath："+configYamlPath);
+//        }
+//        yamlParam.setConfigPath(configYamlPath);
+//        String outYamlPath = devConfigService.getValueByKey(InitConfConstant.YAML_OUT_CONFIG_PATH);
+////        String outYamlPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,InitConfConstant.YAML_OUT_CONFIG_PATH)).get(0).getConfigValue();
+//        yamlParam.setOutYamlPath(outYamlPath);
+//        try{
+//            DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExecs.get(0).getDataBaseJson(),DataBaseParam.class);
+//            String url =String.format("jdbc:mysql://%s/%s%s%s%s",dataBaseParam.getDbIp(),dataBaseParam.getDbName(),":",dataBaseParam.getPort(),InitConfConstant.MYSQL_PARAMS);
+//            Map<String,Object> paramMap = new HashMap<>();
+//            paramMap.put("mysql.url",url);
+//            Object  mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
+//            paramMap.put("mysqlpassword",mysqlPassword);
+//            paramMap.put("mysqlusername",dataBaseParam.getUsername());
+//
+//            String exEpc = "exchange-epc-"+currentTimeMillis;
+//            paramMap.put("exchange-epc-namex",exEpc);
+//            String exEpcDelayed = "exchange-epc-delayed-"+currentTimeMillis;
+//            paramMap.put("exchange-epc-delayed-namex",exEpcDelayed);
+//            yamlParam.setParamMap(paramMap);
+//            yamlUtil.yamlData(yamlParam);
+//            yamlParam.setParamMap(null);
+//            String yamlJson = JSONUtil.toJsonStr(yamlParam);
+//            List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,yamlParam.getSystemId()));
+//            SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+//            systemConfExec.setApplYamlJson(yamlJson);
+//            systemConfExec.setSystemId(yamlParam.getSystemId());
+//            systemConfExecService.saveOrUpdate(systemConfExec);
+//        }catch (Exception e){
+//            log.error("创建yaml文件失败，e:"+e.getMessage());
+//            throw new CommonException("创建yaml文件失败,e:"+e.getMessage());
+//        }
+//        String configYmlPath = devConfigService.getValueByKey(InitConfConstant.COMPOSE_YML_CONFIG_PATH);
+//        if(StrUtil.isEmpty(configYmlPath)){
+//            configYmlPath = "/home/epc/sh/docker-compose.yml";
+//        }
+////        String configYmlPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,InitConfConstant.COMPOSE_YML_CONFIG_PATH)).get(0).getConfigValue();
+//        yamlParam.setConfigPath(configYmlPath);
+//        String outYmlPath = devConfigService.getValueByKey(InitConfConstant.COMPOSE_YML_OUT_CONFIG_PATH);
+//        if(StrUtil.isEmpty(outYmlPath)){
+//            outYmlPath = "/home/epc/source/sh/docker-compose.yml";
+//        }
+//       // String outYmlPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,InitConfConstant.COMPOSE_YML_OUT_CONFIG_PATH)).get(0).getConfigValue();
+//        yamlParam.setOutYamlPath(outYmlPath);
+//        try{
+//            Map<String,Object> paramMap = new HashMap<>();
+//            String dockerComposePort = yamlParam.getDockerComposePort();
+//            //- "${SYSTEM_PORT}:80"
+//            paramMap.put("dockerComposeProt","- \""+dockerComposePort+":80\"");
+//            String dockerName = "epc-"+ currentTimeMillis;
+//            paramMap.put("system.container.name",dockerName);
+//            yamlParam.setParamMap(paramMap);
+//            yamlUtil.yamlData(yamlParam);
+//            yamlParam.setParamMap(null);
+//            String yamlJson = JSONUtil.toJsonStr(yamlParam);
+//            List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,yamlParam.getSystemId()));
+//            SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+//            systemConfExec.setDockYamlJson(yamlJson);
+//            systemConfExec.setSystemId(yamlParam.getSystemId());
+//            systemConfExecService.saveOrUpdate(systemConfExec);
+//        }catch (Exception e){
+//            log.error("创建yaml文件失败，e:"+e.getMessage());
+//            throw new CommonException("创建yaml文件失败,e:"+e.getMessage());
+//        }
+//    }
+
+
     @Override
-    public void createYaml(YamlParam yamlParam){
-        if(ObjectUtil.isEmpty(yamlParam.getSystemId())){
-            log.error("系统服务ID不能为空");
-            throw new CommonException("系统服务systemId不能为空。");
+    public Boolean createYaml(SystemConfExec systemConfExec) {
+        Boolean flag = saveYamlInfoToDB(systemConfExec, "app");
+        if(!flag){
+            return false;
         }
-        List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,yamlParam.getSystemId()));
-        if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
-            throw new CommonException("未找到系统服务操作记录！");
-        }
-        String  currentTimeMillis = String.valueOf(System.currentTimeMillis());
-        String configYamlPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,YAML_CONFIG_PATH)).get(0).getConfigValue();
-        File configYamlFile = new File(configYamlPath);
-        if(!configYamlFile.exists()){
-            throw new CommonException("配置文件不存在！configYamlPath："+configYamlPath);
-        }
-        yamlParam.setConfigPath(configYamlPath);
-        String outYamlPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,YAML_OUT_CONFIG_PATH)).get(0).getConfigValue();
-        yamlParam.setOutYamlPath(outYamlPath);
-        try{
-            DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExecs.get(0).getDataBaseJson(),DataBaseParam.class);
-            String unicode = "?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true";
-            String url =String.format("jdbc:mysql://%s/%s%s%s%s",dataBaseParam.getDbIp(),dataBaseParam.getDbName(),":",dataBaseParam.getPort(),unicode);
-            Map<String,Object> paramMap = new HashMap<>();
-            paramMap.put("mysql.url",url);
-            Object  mysqlpassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
-            paramMap.put("mysqlpassword",mysqlpassword);
-            paramMap.put("mysqlusername",dataBaseParam.getUsername());
+        flag = saveYamlInfoToDB(systemConfExec, "docker");
+        return flag;
+    }
 
-            String exEpc = "exchange-epc-"+currentTimeMillis;
-            paramMap.put("exchange-epc-namex",exEpc);
-            String exEpcDelayed = "exchange-epc-delayed-"+currentTimeMillis;
-            paramMap.put("exchange-epc-delayed-namex",exEpcDelayed);
-            yamlParam.setParamMap(paramMap);
-            yamlUtil.yamlData(yamlParam);
-            yamlParam.setParamMap(null);
-            String yamlJson = JSONUtil.toJsonStr(yamlParam);
-            List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,yamlParam.getSystemId()));
-            SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
-            systemConfExec.setApplYamlJson(yamlJson);
+    private Boolean saveYamlInfoToDB(SystemConfExec systemConfExec, String yamlType) {
+        int systemNo = getSystemNo();
+        String configPathKey = getConfigPathKey(yamlType);
+        String outYamlPathKey = getOutYamlPathKey(yamlType);
+        String configPath = getConfigPath(configPathKey, yamlType.equals("app")?"/home/epc/sh/conf/application.yaml":"/home/epc/sh/docker-compose.yml");
+        String outYamlPath = getOutYamlPath(outYamlPathKey, yamlType.equals("app")?"/home/epc/source/sh/conf/application.yaml":"/home/epc/source/sh/docker-compose.yml");
+
+//        yamlParam.setConfigPath(configPath);
+//        yamlParam.setOutYamlPath(outYamlPath);
+        Map<String, Object> paramMap = new HashMap<>();
+        try {
+            DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExec.getDataBaseJson(), DataBaseParam.class);
+            YamlParam yamlParam = JsonUtil.fromJson(systemConfExec.getSystemServerJson(), YamlParam.class);
+
+            if ("app".equals(yamlType)) {
+                paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s/%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getDbName(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS));
+                Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
+                paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
+                paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUsername());
+                paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_1,InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE+systemNo);
+                paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_2,InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE+systemNo);
+                paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_1,InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE+systemNo);
+                paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_2,InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE+systemNo);
+                String snowyConfigUrl = yamlParam.getSystemDomain();
+                if(StrUtil.isEmpty(snowyConfigUrl)){
+                    if(StrUtil.isAllNotEmpty(yamlParam.getSystemIp(),yamlParam.getSystemPort())){
+                        snowyConfigUrl = String.format("http://%s:%s",yamlParam.getSystemIp(),yamlParam.getSystemPort());
+                    }else {
+                        throw new CommonException("端口或ip为空");
+                    }
+                }
+                paramMap.put(InitConfConstant.SNOWY_CONFIG_COMMON_FRONT_RUL,snowyConfigUrl);
+                paramMap.put(InitConfConstant.SNOWY_CONFIG_COMMON_BACKEND_RUL,snowyConfigUrl);
+            } else if ("docker".equals(yamlType)) {
+                String dockerComposePort = yamlParam.getSystemDockerPort();
+                //- "${SYSTEM_PORT}:80"
+                paramMap.put(InitConfConstant.DOCKER_PORT,"- \"" + dockerComposePort + ":80\"");
+                String dockerName = "epc-" + systemNo;
+                paramMap.put(InitConfConstant.DOCKER_CONTAINER_NAME, dockerName);
+            } else {
+                log.error("Unsupported yamlType: " + yamlType);
+                return false;
+            }
+            yamlFileUtil.updateYamlFile(configPath,outYamlPath,paramMap);
+
             systemConfExec.setSystemId(yamlParam.getSystemId());
             systemConfExecService.saveOrUpdate(systemConfExec);
-        }catch (Exception e){
-            log.error("创建yaml文件失败，e:"+e.getMessage());
-            throw new CommonException("创建yaml文件失败,e:"+e.getMessage());
-        }
 
-        String configYmlPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,YML_CONFIG_PATH)).get(0).getConfigValue();
-        yamlParam.setConfigPath(configYmlPath);
-        String outYmlPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,YML_OUT_CONFIG_PATH)).get(0).getConfigValue();
-        yamlParam.setOutYamlPath(outYmlPath);
-        try{
-            Map<String,Object> paramMap = new HashMap<>();
-            String dockerComposeProt = yamlParam.getDockerComposeProt();
-            //- "${SYSTEM_PORT}:80"
-            paramMap.put("dockerComposeProt","- \""+dockerComposeProt+":80\"");
-            String dockerName = "epc-"+ currentTimeMillis;
-            paramMap.put("system.container.name",dockerName);
-            yamlParam.setParamMap(paramMap);
-            yamlUtil.yamlData(yamlParam);
-            yamlParam.setParamMap(null);
-            String yamlJson = JSONUtil.toJsonStr(yamlParam);
-            List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,yamlParam.getSystemId()));
-            SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
-            systemConfExec.setDockYamlJson(yamlJson);
-            systemConfExec.setSystemId(yamlParam.getSystemId());
-            systemConfExecService.saveOrUpdate(systemConfExec);
-        }catch (Exception e){
-            log.error("创建yaml文件失败，e:"+e.getMessage());
-            throw new CommonException("创建yaml文件失败,e:"+e.getMessage());
+        } catch (Exception e) {
+            log.error("创建yaml文件失败，e: {}", e.getMessage(), e);
+   //         throw new CommonException("创建yaml文件失败,e: " + e.getMessage());
+            return false;
         }
+        return true;
+    }
+
+    private String getConfigPath(String key, String defaultValue) {
+        String configPath = devConfigService.getValueByKey(key);
+        return StrUtil.isEmpty(configPath) ? defaultValue : configPath;
+    }
+
+    private String getOutYamlPath(String key, String defaultValue) {
+        String outYamlPath = devConfigService.getValueByKey(key);
+        return StrUtil.isEmpty(outYamlPath) ? defaultValue : outYamlPath;
+    }
+
+    private String getConfigPathKey(String yamlType) {
+        return "YAML_" + yamlType.toUpperCase() + "_CONFIG_PATH";
+    }
+
+    private String getOutYamlPathKey(String yamlType) {
+        return "YAML_" + yamlType.toUpperCase() + "_OUT_CONFIG_PATH";
     }
 
     /**
@@ -227,26 +364,26 @@ public class InitConfigServiceImpl implements InitConfigService {
      * */
     @Override
     public void singleConf(SingleConfParam singleConfParam){
-        if(ObjectUtil.isEmpty(singleConfParam.getSystemId())){
-            log.error("系统服务ID不能为空");
-            throw new CommonException("系统服务systemId不能为空。");
-        }
+//        if(StrUtil.isEmpty(singleConfParam.getSystemId())){
+//            log.error("系统服务ID不能为空");
+//            throw new CommonException("系统服务systemId不能为空。");
+//        }
          List<SystemConfExec> systemConfExecs = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,singleConfParam.getSystemId()));
         if(CollectionUtil.isEmpty(systemConfExecs) || StringUtils.isEmpty(systemConfExecs.get(0).getDataBaseJson())){
             throw new CommonException("未找到系统服务操作记录！");
         }
         SystemConfExec systemConfExec = systemConfExecs.get(0);
-        TransferFileParam transferFile = JsonUtil.fromJson(systemConfExec.getTransferSqlJson(),TransferFileParam.class);
+//        TransferFileParam transferFile = JsonUtil.fromJson(systemConfExec.getTransferSqlJson(),TransferFileParam.class);
         //BeanUtil.copyProperties(transferFile,singleConfParam);
-        singleConfParam.setSourceUsername(transferFile.getSourceUsername());
-        singleConfParam.setSourcePassword(transferFile.getSourcePassword());
-        String systemSourceIp = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SYSTEM_SOURCE_IP)).get(0).getConfigValue();
+//        singleConfParam.setSourceUsername(transferFile.getSourceUsername());
+//        singleConfParam.setSourcePassword(transferFile.getSourcePassword());
+        String systemSourceIp = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,InitConfConstant.SYSTEM_SOURCE_IP)).get(0).getConfigValue();
         singleConfParam.setSourceHost(systemSourceIp);
 
         String currentTimeMillis = String.valueOf(System.currentTimeMillis());
-        String singleTargetConfigPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SINGLE_TARGET_CONFIG_PATH)).get(0).getConfigValue()+"/"+currentTimeMillis+"/";
+        String singleTargetConfigPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,InitConfConstant.SINGLE_TARGET_CONFIG_PATH)).get(0).getConfigValue()+"/"+currentTimeMillis+"/";
 
-        String singleConfigPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SINGLE_SOURCE_CONFIG_PATH)).get(0).getConfigValue();
+        String singleConfigPath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,InitConfConstant.SINGLE_SOURCE_CONFIG_PATH)).get(0).getConfigValue();
         singleConfParam.setConfigPath(singleConfigPath);
         File file = new File(singleConfParam.getConfigPath());
         List<Map<String,String>> fileList = new ArrayList<>();
@@ -272,39 +409,58 @@ public class InitConfigServiceImpl implements InitConfigService {
             }
         });
         String remoteYamlJson = JSONUtil.toJsonStr(singleConfParam);
-        systemConfExec.setRemoteYamlJson(remoteYamlJson);
+//        systemConfExec.setRemoteYamlJson(remoteYamlJson);
         systemConfExec.setSystemId(singleConfParam.getSystemId());
         systemConfExecService.saveOrUpdate(systemConfExec);
     }
 
-    @Override
-    public  void transferSqlFile(TransferFileParam transferFileParam){
-        if(ObjectUtil.isEmpty(transferFileParam.getSystemId())){
-            log.error("系统服务ID不能为空");
-            throw new CommonException("系统服务systemId不能为空。");
-        }
-        String systemSourceIp =  devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,SYSTEM_SOURCE_IP)).get(0).getConfigValue();
-        transferFileParam.setSourceHost(systemSourceIp);
-        String sourceFilePath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,DUMP_SQL_SOURCE_PATH)).get(0).getConfigValue();
-        transferFileParam.setSourceFilePath(sourceFilePath);
-        String targetFilePath = devConfigService.list(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey,DUMP_SQL_TARGET_PATH)).get(0).getConfigValue();
-        transferFileParam.setTargetFilePath(targetFilePath);
-        File file = new File(transferFileParam.getSourceFilePath());
-       /* if(!file.exists()){
-            throw new CommonException("该文件不存在！");
-        }*/
-        transferFileParam.setFileName(file.getName());
-        yamlUtil.transferFile(transferFileParam);
+   @Override
+    public CompletableFuture<Boolean> transferSqlFile(TransferFileParam transferFileParam) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String systemSourceIp = devConfigService.getValueByKey(InitConfConstant.SYSTEM_SOURCE_IP);
+                if (StrUtil.isNotEmpty(systemSourceIp)) {
+                    HttpServletRequest request = CommonServletUtil.getRequest();
+                    systemSourceIp = CommonIpAddressUtil.getIp(request);
+                }
+                transferFileParam.setSourceHost(systemSourceIp);
 
-        //保存操作记录
-        transferFileParam.setTargetFilePath(transferFileParam.getTargetFilePath()+"/"+file.getName());
-        String transferSqlJson = JSONUtil.toJsonStr(transferFileParam);
-        List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,transferFileParam.getSystemId()));
-        SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
-        systemConfExec.setTransferSqlJson(transferSqlJson);
-        systemConfExec.setSystemId(transferFileParam.getSystemId());
-        systemConfExecService.saveOrUpdate(systemConfExec);
-        updateSystemServer(systemConfExec.getSystemId(),2);
+                String sourceFilePath = devConfigService.getValueByKey(InitConfConstant.DUMP_SQL_SOURCE_PATH);
+                if (StrUtil.isEmpty(sourceFilePath)) {
+                    sourceFilePath = "/home/sql/epc-single-server.sql";
+                }
+                transferFileParam.setSourceFilePath(sourceFilePath);
+
+                String targetFilePath = devConfigService.getValueByKey(InitConfConstant.DUMP_SQL_TARGET_PATH);
+                if (StrUtil.isEmpty(targetFilePath)) {
+                    targetFilePath = "/home/sql/";
+                }
+                transferFileParam.setTargetFilePath(targetFilePath);
+
+                File file = new File(transferFileParam.getSourceFilePath());
+
+                transferFileParam.setFileName(file.getName());
+
+                yamlUtil.transferFile(transferFileParam);
+
+                // 保存操作记录
+                transferFileParam.setTargetFilePath(transferFileParam.getTargetFilePath() + "/" + file.getName());
+                String transferSqlJson = JSONUtil.toJsonStr(transferFileParam);
+
+                List<SystemConfExec> confExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId, transferFileParam.getSystemId()));
+                SystemConfExec systemConfExec = CollectionUtil.isNotEmpty(confExecList) ? confExecList.get(0) : new SystemConfExec();
+//                systemConfExec.setTransferSqlJson(transferSqlJson);
+                systemConfExec.setSystemId(transferFileParam.getSystemId());
+                systemConfExecService.saveOrUpdate(systemConfExec);
+
+                updateSystemServer(systemConfExec.getSystemId(), 2);
+
+                return true;
+            } catch (Exception e) {
+                log.error("数据库脚本文件上传失败" + e);
+                return false;
+            }
+        });
     }
 
     @Override
@@ -339,11 +495,11 @@ public class InitConfigServiceImpl implements InitConfigService {
             throw new CommonException("未找到系统服务操作记录！");
         }
         SystemConfExec systemConfExec = systemConfExecs.get(0);
-        TransferFileParam transferFileParam = BeanUtil.toBean(systemConfExec.getTransferSqlJson(),TransferFileParam.class);
-        unixCommandParam.setSshHost(transferFileParam.getTargetHost());
-        unixCommandParam.setSshUsername(transferFileParam.getTargetUsername());
-        unixCommandParam.setSshPassword(transferFileParam.getTargetPassword());
-        unixCommandParam.setSshPort(22);
+//        TransferFileParam transferFileParam = BeanUtil.toBean(systemConfExec.getTransferSqlJson(),TransferFileParam.class);
+//        unixCommandParam.setSshHost(transferFileParam.getTargetHost());
+//        unixCommandParam.setSshUsername(transferFileParam.getTargetUsername());
+//        unixCommandParam.setSshPassword(transferFileParam.getTargetPassword());
+//        unixCommandParam.setSshPort(22);
 
         try{
             databaseCreator.importDatabase(unixCommandParam);
@@ -352,7 +508,7 @@ public class InitConfigServiceImpl implements InitConfigService {
                 log.error("系统服务ID不能为空");
                 throw new CommonException("系统服务systemId不能为空。");
             }
-            systemConfExec.setRemoteExecJson(remoteExecJson);
+//            systemConfExec.setRemoteExecJson(remoteExecJson);
             systemConfExec.setSystemId(unixCommandParam.getSystemId());
             systemConfExecService.saveOrUpdate(systemConfExec);
         }catch (Exception e){
@@ -395,7 +551,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             initData(initUserParam);
             String remoteExecJson = JSONUtil.toJsonStr(importUserParam);
 
-            systemConfExec.setInitUserJson(remoteExecJson);
+//            systemConfExec.setInitUserJson(remoteExecJson);
             systemConfExec.setSystemId(importUserParam.getSystemId());
             systemConfExecService.saveOrUpdate(systemConfExec);
             updateSystemServer(systemConfExec.getSystemId(),4);
@@ -426,8 +582,8 @@ public class InitConfigServiceImpl implements InitConfigService {
     }
 
     @Override
-    public void connectDataBase(ConnectDataBaseParam connectDataBaseParam){
-        databaseCreator.connectDataBase(connectDataBaseParam);
+    public Boolean connectDataBase(ConnectDataBaseParam connectDataBaseParam){
+       return databaseCreator.connectDataBase(connectDataBaseParam);
     }
 
     /**
@@ -437,5 +593,108 @@ public class InitConfigServiceImpl implements InitConfigService {
         SystemServer systemServer = systemServerService.getById(systemId);
         systemServer.setSystemStatus(systemStatus);
         systemServerService.updateById(systemServer);
+    }
+
+    /**
+     * 获取系统的编号
+     * @return
+     */
+    public int getSystemNo(){
+        Object o = commonCacheOperator.get(InitConfConstant.SYSTEM_NO_KEY);
+        if(ObjectUtil.isNotEmpty(o)){
+            return Integer.parseInt(String.valueOf(commonCacheOperator.get(InitConfConstant.SYSTEM_NO_KEY)));
+        }
+        return 1000;
+    }
+
+    /**
+     * 自动生成系统编号
+     * @return
+     */
+    public void generateNo(){
+        Object o = commonCacheOperator.get(InitConfConstant.SYSTEM_NO_KEY);
+        if(ObjectUtil.isNotEmpty(o)){
+            commonCacheOperator.put(InitConfConstant.SYSTEM_NO_KEY,Integer.parseInt(String.valueOf(commonCacheOperator.get(InitConfConstant.SYSTEM_NO_KEY)))+1);
+        }else {
+            commonCacheOperator.put(InitConfConstant.SYSTEM_NO_KEY,1000);
+        }
+    }
+
+    @Override
+    public Boolean uploadConf(SystemConfExec systemConfExec){
+        SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemConfExec.getSystemServerJson(), SftpFileUploader.class);
+        String systemSourceIp = devConfigService.getValueByKey(InitConfConstant.SYSTEM_SOURCE_IP);
+        if(StrUtil.isEmpty(systemSourceIp)){
+            systemSourceIp = "10.0.33.82";
+            sftpFileUploader.setSourceHost(systemSourceIp);
+        }
+        String sourceServerName = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_NAME);
+        if(StrUtil.isEmpty(sourceServerName)){
+            sourceServerName = "root";
+            sftpFileUploader.setSourceUserName(sourceServerName);
+        }
+        String sourceServerPs = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_PS);
+        if(StrUtil.isEmpty(sourceServerPs)){
+            sourceServerPs = "Jianke66";
+            sftpFileUploader.setSourcePassword(sourceServerPs);
+        }
+
+        String sourceServerConfPath = devConfigService.getValueByKey(InitConfConstant.SINGLE_SOURCE_CONFIG_PATH);
+        if(StrUtil.isEmpty(sourceServerConfPath)){
+            sourceServerConfPath = "/home/source/conf";
+            sftpFileUploader.setSourceRemoteFolderPath(sourceServerConfPath);
+        }
+        try {
+            sftpFileUploader.uploadFolderToRemote();
+            return true;
+        }catch (Exception e){
+            return false;
+        }
+    }
+
+    @Override
+    public Boolean updateConf(SystemConfExec systemConfExec){
+        String systemServerJson = systemConfExec.getSystemServerJson();
+        SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemServerJson, SftpFileUploader.class);
+        String systemDomain = (String) JSONUtil.parseObj(systemServerJson).get("systemDomain");
+        String dockerPort = (String) JSONUtil.parseObj(systemServerJson).get("dockerPort");
+        String sourceFile = CONF + StrUtil.SLASH + InitConfConstant.APPLICATION_YML_NAME;
+        int systemNo = getSystemNo();
+        Map<String, Object> paramMap = new HashMap<>();
+        try {
+            DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExec.getDataBaseJson(), DataBaseParam.class);
+            paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s/%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getDbName(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS));
+            Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
+            paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
+            paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUsername());
+            paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_1,InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE+systemNo);
+            paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_2,InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE+systemNo);
+            paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_1,InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE+systemNo);
+            paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_2,InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE+systemNo);
+            if(StrUtil.isEmpty(systemDomain)){
+                if(StrUtil.isAllNotEmpty(sftpFileUploader.getTargetHost(),dockerPort)){
+                    systemDomain = String.format("http://%s:%s",sftpFileUploader.getTargetHost(),dockerPort);
+                }else {
+                    throw new CommonException("端口或ip为空");
+                }
+            }
+            paramMap.put(InitConfConstant.SNOWY_CONFIG_COMMON_FRONT_RUL,systemDomain);
+            paramMap.put(InitConfConstant.SNOWY_CONFIG_COMMON_BACKEND_RUL,systemDomain);
+            sftpFileUploader.updateRemoteFile(sourceFile,paramMap);
+
+            paramMap.clear();
+//            String dockerComposePort = yamlParam.getSystemDockerPort();
+            //- "${SYSTEM_PORT}:80"
+            paramMap.put(InitConfConstant.DOCKER_PORT,"- \"" + dockerPort + ":80\"");
+            String dockerName = "epc-" + systemNo;
+            paramMap.put(InitConfConstant.DOCKER_CONTAINER_NAME, dockerName);
+            sourceFile = StrUtil.SLASH + InitConfConstant.DOCKER_YML_NAME;
+            sftpFileUploader.updateRemoteFile(sourceFile,paramMap);
+            return true;
+        }catch (Exception e){
+            log.error("修改配置文件错误",e);
+            return false;
+        }
+
     }
 }

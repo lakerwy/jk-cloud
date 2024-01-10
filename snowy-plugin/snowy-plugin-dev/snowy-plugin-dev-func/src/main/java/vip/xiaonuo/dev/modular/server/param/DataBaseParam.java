@@ -9,9 +9,6 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Getter
 public class DataBaseParam {
-    /*@ApiModelProperty(value = "服务器连接地址，例如：jdbc:mysql://10.0.33.81:3306?useUnicode=true&characterEncoding=utf-8&useSSL=false&allowPublicKeyRetrieval=true&nullCatalogMeansCurrent=true&useInformationSchema=true", required = true,position = 1)
-    private String url;*/
-
     @ApiModelProperty(value = "mysql用户名", required = true,position = 1)
     @NotNull(message = "mysql用户名不能为空")
     private String username;
@@ -30,8 +27,4 @@ public class DataBaseParam {
     @ApiModelProperty(value = "mysql数据库端口", required = true,position = 5)
     @NotNull(message = "mysql数据库端口不能为空")
     private String port;
-
-    @ApiModelProperty(value = "系统服务ID",position = 6)
-    @NotNull(message = "系统服务ID不能为空")
-    private String systemId;
 }

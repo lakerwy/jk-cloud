@@ -10,19 +10,19 @@ import java.util.Map;
 @Setter
 @Getter
 public class YamlParam {
-    @ApiModelProperty(value = "模板配置文件路径",position = 1)
-    private String configPath;
 
-    @ApiModelProperty(value = "配置文件输出路径",position = 2)
-    private String outYamlPath;
-
-    @ApiModelProperty(value = "需要修改的参数，例：key-param， value 82",position = 3)
-    private Map<String,Object> paramMap;
-
-    @ApiModelProperty(value = "系统服务ID",position = 4)
+    @ApiModelProperty(value = "系统服务ID",position = 1,required = true)
     private String systemId;
 
-    @ApiModelProperty(value = "docker容器ID",required = true,position = 5)
-    @NotNull(message = "docker容器ID不能为空")
-    private String dockerComposeProt;
+    @ApiModelProperty(value = "系统服务ip地址",position = 2)
+    private String systemIp;
+
+    @ApiModelProperty(value = "系统服务端口",position = 3)
+    private String systemPort;
+
+    @ApiModelProperty(value = "系统服务docker 外放端口范围（9800-9900）",position = 4,required = true)
+    private String systemDockerPort;
+
+    @ApiModelProperty(value = "系统服务域名地址",position = 5)
+    private String systemDomain;
 }

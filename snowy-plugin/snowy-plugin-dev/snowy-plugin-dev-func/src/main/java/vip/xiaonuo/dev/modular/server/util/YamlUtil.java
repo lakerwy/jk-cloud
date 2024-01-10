@@ -24,42 +24,41 @@ import java.util.*;
 @Slf4j
 public class YamlUtil {
 
-    public void yamlData(YamlParam yamlParam){
-        try {
-            //读取文本文件的内容
-            byte[] bytes = Files.readAllBytes(Paths.get(yamlParam.getConfigPath()));
-            String externalConfig = new String(bytes, StandardCharsets.UTF_8);
-
-            Yaml yaml = new Yaml();//格式转换
-            Map<String, Object> data = yaml.load(externalConfig);
-            yamlParam.getParamMap().entrySet().forEach(param -> {
-                //updateValueMap(data,param.getKey(),param.getValue());
-                //List<String> keys = Arrays.asList(param.getKey().split(":"));
-                //updateValueMap(data, keys.get(0), keys.get(1), param.getValue());
-                Object newValue = param.getValue();
-                if (param.getValue().getClass() == String.class) {
-                    newValue =param.getValue().toString().trim();
-                }
-                findMapValue(data,param.getKey().trim(),newValue);
-            });
-            DumperOptions options = new DumperOptions();
-            options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
-            options.setPrettyFlow(true);
-            options.setIndent(4);
-            options.setIndicatorIndent(0);
-            options.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN); // 设置字符串默认样式为普通样式，即不加任何引号
-
-            Path tempYamlPath = Paths.get(yamlParam.getOutYamlPath());
-            if (!Files.exists(tempYamlPath.getParent())) {
-                Files.createDirectories(tempYamlPath.getParent());
-            }
-            if (!Files.exists(tempYamlPath)) { Files.createFile(tempYamlPath);}
-            Yaml yamlNew = new Yaml(new Representer(), options);//Representer：创建自定义Representer以保留特殊对象的标签
-            writeYamlFile(yamlParam.getOutYamlPath(), yamlNew.dump(data));//文件写入，将数据写入格式化的YAML文件
-        } catch (IOException e) {
-            log.error(("创建yaml文件失败" + e.getMessage()));
-        }
-    }
+//    public void yamlData(YamlParam yamlParam){
+//        try {
+//            //读取文本文件的内容
+//            byte[] bytes = Files.readAllBytes(Paths.get(yamlParam.getConfigPath()));
+//            String externalConfig = new String(bytes, StandardCharsets.UTF_8);
+//
+//            Yaml yaml = new Yaml();//格式转换
+//            Map<String, Object> data = yaml.load(externalConfig);
+//            yamlParam.getParamMap().forEach((key, newValue) -> {
+//                //updateValueMap(data,param.getKey(),param.getValue());
+//                //List<String> keys = Arrays.asList(param.getKey().split(":"));
+//                //updateValueMap(data, keys.get(0), keys.get(1), param.getValue());
+//                if (newValue.getClass() == String.class) {
+//                    newValue = newValue.toString().trim();
+//                }
+//                findMapValue(data, key.trim(), newValue);
+//            });
+//            DumperOptions options = new DumperOptions();
+//            options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK);
+//            options.setPrettyFlow(true);
+//            options.setIndent(4);
+//            options.setIndicatorIndent(0);
+//            options.setDefaultScalarStyle(DumperOptions.ScalarStyle.PLAIN); // 设置字符串默认样式为普通样式，即不加任何引号
+//
+//            Path tempYamlPath = Paths.get(yamlParam.getOutYamlPath());
+//            if (!Files.exists(tempYamlPath.getParent())) {
+//                Files.createDirectories(tempYamlPath.getParent());
+//            }
+//            if (!Files.exists(tempYamlPath)) { Files.createFile(tempYamlPath);}
+//            Yaml yamlNew = new Yaml(new Representer(), options);//Representer：创建自定义Representer以保留特殊对象的标签
+//            writeYamlFile(yamlParam.getOutYamlPath(), yamlNew.dump(data));//文件写入，将数据写入格式化的YAML文件
+//        } catch (IOException e) {
+//            log.error(("创建yaml文件失败" + e.getMessage()));
+//        }
+//    }
 
     public static void writeYamlFile(String filePath, String content) throws IOException {
         File file = new File(filePath);
@@ -153,7 +152,7 @@ public class YamlUtil {
 
         } catch (Exception e) {
             log.error("文件传输过程中发生错误: {}", e.getMessage());
-            e.printStackTrace();
+//            e.printStackTrace();
             throw new CommonException("文件传输过程中发生错误");
         } finally {
             if (sourceSftpChannel != null && sourceSftpChannel.isConnected()) {
