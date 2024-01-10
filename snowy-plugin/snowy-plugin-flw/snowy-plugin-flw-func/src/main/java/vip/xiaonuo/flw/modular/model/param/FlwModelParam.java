@@ -9,7 +9,7 @@ import javax.validation.constraints.NotNull;
 @Setter
 @Getter
 public class FlwModelParam {
-    @ApiModelProperty(value = "主键ID" ,required = true)
-    @NotNull(message = "主键ID必")
-    private String ID;
+    @ApiModelProperty(value = "主键id" ,required = true)
+    @NotNull(message = "主键id必传")
+    private String id;
 }
