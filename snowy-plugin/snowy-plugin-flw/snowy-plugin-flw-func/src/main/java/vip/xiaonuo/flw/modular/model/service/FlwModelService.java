@@ -57,6 +57,14 @@ public interface FlwModelService extends IService<FlwModel> {
     List<FlwModel> myList(FlwModelMyParam flwModelMyParam);
 
     /**
+     * 获取模型详情
+     *
+     * @author xuyuxiang
+     * @date 2024/01/10 11:08
+     */
+    FlwModel myFlwModel(FlwModelParam flwModelParam);
+
+    /**
      * 添加模型
      *
      * @author xuyuxiang
