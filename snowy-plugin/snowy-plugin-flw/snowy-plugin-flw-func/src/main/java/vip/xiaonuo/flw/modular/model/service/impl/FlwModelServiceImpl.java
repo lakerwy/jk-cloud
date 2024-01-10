@@ -69,6 +69,7 @@ import javax.annotation.Resource;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -107,6 +108,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     @Resource
     private FlwModelMapper flwModelMapper;
 
+    private static ConcurrentHashMap<String,Boolean> flowModelMap = new ConcurrentHashMap<>();
     @Override
     public Page<FlwModel> page(FlwModelPageParam flwModelPageParam) {
         QueryWrapper<FlwModel> queryWrapper = new QueryWrapper<>();
@@ -156,23 +158,33 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         // 只查询已启用的
         lambdaQueryWrapper.eq(FlwModel::getModelStatus, FlwModelStatusEnum.ENABLE.getValue());
 //        lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,FlwModelStatusEnum.ENABLE.getValue());
-        List<FlwModel> list = this.list(lambdaQueryWrapper);
-
+        lambdaQueryWrapper.select(FlwModel::getId, FlwModel::getTenantId,FlwModel::getDefinitionId,FlwModel::getDeploymentId,FlwModel::getAdminId,FlwModel::getName,FlwModel::getCode,FlwModel::getVersionCode,
+                FlwModel::getFormType,FlwModel::getIcon,FlwModel::getIconMobile,FlwModel::getColor,FlwModel::getFormUrl,FlwModel::getSortCode,FlwModel::getModelStatus,FlwModel::getDeleteFlag,
+                FlwModel::getCreateTime,FlwModel::getCreateUser,FlwModel::getUpdateTime,FlwModel::getUpdateUser,FlwModel::getProcessJson,FlwModel::getCategory);
+        List<FlwModel> list = flwModelMapper.selectList(lambdaQueryWrapper);
+        //return list;
         // 过滤已经设计了的
-        list =  CollectionUtil.removeNull(list.stream().map(flwModel -> {
+        List<FlwModel> newList =  CollectionUtil.removeNull(list.stream().map(flwModel -> {
+            Boolean flag = flowModelMap.get(flwModel.getId());
+            if(null!=flag && flag){
+                return flwModel;
+            }
             String processJson = flwModel.getProcessJson();
             if(ObjectUtil.isNotEmpty(processJson)) {
                 FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
                 List<FlwNode.FlwNodeParticipateProp> participateInfo = flwNode.getProperties().getParticipateInfo();
                 if(ObjectUtil.isEmpty(participateInfo)) {
+                    flowModelMap.put(flwModel.getId(),Boolean.TRUE);
                     return flwModel;
                 } else {
                     String participateInfoJson = JSONUtil.toJsonStr(participateInfo);
                     List<String> processParticipateInfo = NodeRuntimeUtil.handleProcessParticipateInfo(participateInfoJson);
                     if(ObjectUtil.isEmpty(processParticipateInfo)) {
+                        flowModelMap.put(flwModel.getId(),Boolean.TRUE);
                         return flwModel;
                     } else {
                         if(processParticipateInfo.contains(StpUtil.getLoginIdAsString())) {
+                            flowModelMap.put(flwModel.getId(),Boolean.TRUE);
                             return flwModel;
                         } else {
                             return null;
@@ -183,14 +195,14 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
                 return null;
             }
         }).collect(Collectors.toList()));
-        list.forEach(flwModel -> {
+        newList.forEach(flwModel -> {
             flwModel.setProcessJson(null);
             flwModel.setProcessXml(null);
             flwModel.setTableJson(null);
             flwModel.setFormJson(null);
             flwModel.setExtJson(null);
         });
-        return list;
+        return newList;
     }
 
 
@@ -269,6 +281,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
 
             //流程名称从flwModel中读取 保证和流程设计页面的流程名称同步，更新缓存
             commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + flwModel.getDefinitionId(),flwModel.getName());
+            flowModelMap.clear();
 
         } catch (ProcessEngineException e) {
             throw new CommonException("模型部署异常，id值为：{}，原因为：{}", flwModelIdParam.getId(), ExceptionUtil.getMessage(e));
