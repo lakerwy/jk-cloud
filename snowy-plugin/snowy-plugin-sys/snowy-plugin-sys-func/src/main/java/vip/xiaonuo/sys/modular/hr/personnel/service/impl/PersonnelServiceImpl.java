@@ -467,6 +467,15 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if(ObjectUtil.isNotEmpty(sysPosition)){
             personnelVo.setDuty(sysPosition.getName());
         }
+        //处理职称和证书
+        List<PersonnelFileCert> certlist = personnelFileCertService.list(new QueryWrapper<PersonnelFileCert>().lambda().eq(PersonnelFileCert::getFileId, personnelVo.getId()));
+        List<PersonnelFileTitle> titlelist = personnelFileTitleService.list(new QueryWrapper<PersonnelFileTitle>().lambda().eq(PersonnelFileTitle::getFileId, personnelVo.getId()));
+        if(CollUtil.isNotEmpty(certlist)){
+            personnelVo.setCertType(certlist.get(0).getCertType());
+        }
+        if(CollUtil.isNotEmpty(titlelist)){
+            personnelVo.setTitleLever(titlelist.get(0).getTitleLever());
+        }
         return personnelVo;
     }
 }

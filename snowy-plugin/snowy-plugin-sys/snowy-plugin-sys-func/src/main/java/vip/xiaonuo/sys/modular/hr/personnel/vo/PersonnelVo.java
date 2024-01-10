@@ -312,4 +312,17 @@ public class PersonnelVo extends PersonnelListVo{
     @ApiModelProperty(value = "是否第一负责人", position = 32)
     @TableField(exist = false)
     private String isLeader;
+
+
+    /**
+     * 最高职称
+     */
+    @ApiModelProperty(value = "最高职称", position = 60)
+    private String titleLever;
+
+    /**
+     * 注册证书
+     */
+    @ApiModelProperty(value = "注册证书", position = 60)
+    private String certType;
 }
