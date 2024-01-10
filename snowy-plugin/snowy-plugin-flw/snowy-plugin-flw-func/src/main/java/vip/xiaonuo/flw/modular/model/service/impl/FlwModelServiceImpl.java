@@ -156,12 +156,10 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         // 只查询已启用的
         lambdaQueryWrapper.eq(FlwModel::getModelStatus, FlwModelStatusEnum.ENABLE.getValue());
 //        lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,FlwModelStatusEnum.ENABLE.getValue());
-        lambdaQueryWrapper.select(FlwModel::getId, FlwModel::getTenantId,FlwModel::getDefinitionId,FlwModel::getDeploymentId,FlwModel::getAdminId,FlwModel::getName,FlwModel::getCode,FlwModel::getVersionCode,
-                FlwModel::getFormType,FlwModel::getIcon,FlwModel::getIconMobile,FlwModel::getColor,FlwModel::getFormUrl,FlwModel::getSortCode,FlwModel::getModelStatus,FlwModel::getDeleteFlag,
-                FlwModel::getCreateTime,FlwModel::getCreateUser,FlwModel::getUpdateTime,FlwModel::getUpdateUser,FlwModel::getProcessJson,FlwModel::getCategory);
-        List<FlwModel> list = flwModelMapper.selectList(lambdaQueryWrapper);
+        List<FlwModel> list = this.list(lambdaQueryWrapper);
+
         // 过滤已经设计了的
-        return CollectionUtil.removeNull(list.stream().map(flwModel -> {
+        list =  CollectionUtil.removeNull(list.stream().map(flwModel -> {
             String processJson = flwModel.getProcessJson();
             if(ObjectUtil.isNotEmpty(processJson)) {
                 FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
@@ -185,12 +183,21 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
                 return null;
             }
         }).collect(Collectors.toList()));
+        list.forEach(flwModel -> {
+            flwModel.setProcessJson(null);
+            flwModel.setProcessXml(null);
+            flwModel.setTableJson(null);
+            flwModel.setFormJson(null);
+            flwModel.setExtJson(null);
+        });
+        return list;
     }
 
 
     @Override
     public FlwModel myFlwModel(FlwModelParam flwModelParam){
-        return this.queryEntity(flwModelParam.getId());
+        FlwModel flwModel = this.queryEntity(flwModelParam.getId());
+        return flwModel;
     }
 
 
