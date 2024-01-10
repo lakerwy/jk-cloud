@@ -104,6 +104,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
+    @Resource
     private FlwModelMapper flwModelMapper;
 
     @Override
@@ -155,7 +156,10 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         // 只查询已启用的
         lambdaQueryWrapper.eq(FlwModel::getModelStatus, FlwModelStatusEnum.ENABLE.getValue());
 //        lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,FlwModelStatusEnum.ENABLE.getValue());
-        List<FlwModel> list = this.list(lambdaQueryWrapper);
+        lambdaQueryWrapper.select(FlwModel::getId, FlwModel::getTenantId,FlwModel::getDefinitionId,FlwModel::getDeploymentId,FlwModel::getAdminId,FlwModel::getName,FlwModel::getCode,FlwModel::getVersionCode,
+                FlwModel::getFormType,FlwModel::getIcon,FlwModel::getIconMobile,FlwModel::getColor,FlwModel::getFormUrl,FlwModel::getSortCode,FlwModel::getModelStatus,FlwModel::getDeleteFlag,
+                FlwModel::getCreateUser,FlwModel::getUpdateTime,FlwModel::getUpdateUser,FlwModel::getProcessJson);
+        List<FlwModel> list = flwModelMapper.selectList(lambdaQueryWrapper);
         // 过滤已经设计了的
         return CollectionUtil.removeNull(list.stream().map(flwModel -> {
             String processJson = flwModel.getProcessJson();
@@ -182,6 +186,13 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
             }
         }).collect(Collectors.toList()));
     }
+
+
+    @Override
+    public FlwModel myFlwModel(FlwModelParam flwModelParam){
+        return this.queryEntity(flwModelParam.getID());
+    }
+
 
     @Override
     public void add(FlwModelAddParam flwModelAddParam) {

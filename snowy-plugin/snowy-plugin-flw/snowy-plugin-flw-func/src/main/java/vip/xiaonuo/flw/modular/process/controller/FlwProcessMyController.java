@@ -27,6 +27,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.model.param.FlwModelIdParam;
 import vip.xiaonuo.flw.modular.model.param.FlwModelMyParam;
+import vip.xiaonuo.flw.modular.model.param.FlwModelParam;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.process.param.*;
 import vip.xiaonuo.flw.modular.process.result.*;
@@ -67,6 +68,18 @@ public class FlwProcessMyController {
     @GetMapping("/flw/process/myModelList")
     public CommonResult<List<FlwModel>> myList(FlwModelMyParam flwModelMyParam) {
         return CommonResult.data(flwModelService.myList(flwModelMyParam));
+    }
+    /**
+     * 获取模型详情
+     *
+     * @author xuyuxiang
+     * @date 2024/01/10 11:00
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取模型详情")
+    @GetMapping("/flw/process/myModelDetail")
+    public CommonResult<FlwModel> myModelIdList(FlwModelParam flwModelParam) {
+        return CommonResult.data(flwModelService.myFlwModel(flwModelParam));
     }
 
     /**
