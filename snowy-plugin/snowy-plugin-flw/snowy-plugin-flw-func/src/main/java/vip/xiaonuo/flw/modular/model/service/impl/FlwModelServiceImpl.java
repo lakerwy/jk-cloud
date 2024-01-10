@@ -158,7 +158,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
 //        lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,FlwModelStatusEnum.ENABLE.getValue());
         lambdaQueryWrapper.select(FlwModel::getId, FlwModel::getTenantId,FlwModel::getDefinitionId,FlwModel::getDeploymentId,FlwModel::getAdminId,FlwModel::getName,FlwModel::getCode,FlwModel::getVersionCode,
                 FlwModel::getFormType,FlwModel::getIcon,FlwModel::getIconMobile,FlwModel::getColor,FlwModel::getFormUrl,FlwModel::getSortCode,FlwModel::getModelStatus,FlwModel::getDeleteFlag,
-                FlwModel::getCreateUser,FlwModel::getUpdateTime,FlwModel::getUpdateUser,FlwModel::getProcessJson);
+                FlwModel::getCreateTime,FlwModel::getCreateUser,FlwModel::getUpdateTime,FlwModel::getUpdateUser,FlwModel::getProcessJson,FlwModel::getCategory);
         List<FlwModel> list = flwModelMapper.selectList(lambdaQueryWrapper);
         // 过滤已经设计了的
         return CollectionUtil.removeNull(list.stream().map(flwModel -> {
