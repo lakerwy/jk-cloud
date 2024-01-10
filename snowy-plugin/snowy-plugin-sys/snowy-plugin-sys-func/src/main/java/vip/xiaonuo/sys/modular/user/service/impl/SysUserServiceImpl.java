@@ -1418,13 +1418,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             throw new CommonException("组织不存在，id值为：{}", primaryOrgId);
         }
         String primaryOrgName = primarySysOrg.getName();
-        List<SysPosition> sysPositionList = sysPositionService.list();
+        //List<SysPosition> sysPositionList = sysPositionService.list();
         String primaryPositionId = sysUser.getPositionId();
-        SysPosition primaryPosition = sysPositionService.getById(sysPositionList, primaryPositionId);
+        /*SysPosition primaryPosition = sysPositionService.getById(sysPositionList, primaryPositionId);
         if (ObjectUtil.isEmpty(primaryPosition)) {
             throw new CommonException("职位不存在，id值为：{}", primaryPositionId);
-        }
-        String primaryPositionName = primaryPosition.getName();
+        }*/
+        //String primaryPositionName = primaryPosition.getName();
         SysUserPositionResult primarySysUserPositionResult = new SysUserPositionResult();
         String orgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + primaryOrgId));
         if(StrUtil.isBlank(orgId) || "null".equals(orgId)){
@@ -1437,7 +1437,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         primarySysUserPositionResult.setOrgId(orgId);
         primarySysUserPositionResult.setOrgName(orgName);
         primarySysUserPositionResult.setPositionId(primaryPositionId);
-        primarySysUserPositionResult.setPositionName(primaryPositionName);
+        //primarySysUserPositionResult.setPositionName(primaryPositionName);
         primarySysUserPositionResult.setCategory(primarySysOrg.getCategory());
         primarySysUserPositionResult.setType("primary");
         sysUserPositionResultList.add(primarySysUserPositionResult);
@@ -1458,18 +1458,18 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
                     }
                     String slaveOrgName = slaveSysOrg.getName();
 
-                    SysPosition slavePosition = sysPositionService.getById(sysPositionList, slavePositionId);
+                    /*SysPosition slavePosition = sysPositionService.getById(sysPositionList, slavePositionId);
                     if (ObjectUtil.isEmpty(slavePosition)) {
                         throw new CommonException("职位不存在，id值为：{}", slavePositionId);
-                    }
-                    String slavePositionName = slavePosition.getName();
+                    }*/
+                    //String slavePositionName = slavePosition.getName();
                     SysUserPositionResult slaveSysUserPositionResult = new SysUserPositionResult();
                     String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + slaveOrgId));
                     String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + slaveOrgId));
                     slaveSysUserPositionResult.setOrgId((StrUtil.isNotBlank(sOrgId) && "null".equals(sOrgId))?sOrgId:slaveOrgId);
                     slaveSysUserPositionResult.setOrgName((StrUtil.isNotBlank(sOrgName) && "null".equals(sOrgName))?sOrgName:slaveOrgName);
                     slaveSysUserPositionResult.setPositionId(slavePositionId);
-                    slaveSysUserPositionResult.setPositionName(slavePositionName);
+                    //slaveSysUserPositionResult.setPositionName(slavePositionName);
                     slaveSysUserPositionResult.setCategory(slaveSysOrg.getCategory());
                     slaveSysUserPositionResult.setType("slave");
                     sysUserPositionResultList.add(slaveSysUserPositionResult);
