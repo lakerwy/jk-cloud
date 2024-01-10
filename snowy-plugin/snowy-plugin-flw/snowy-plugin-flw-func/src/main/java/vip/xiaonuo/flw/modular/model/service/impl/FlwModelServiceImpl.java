@@ -190,7 +190,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
 
     @Override
     public FlwModel myFlwModel(FlwModelParam flwModelParam){
-        return this.queryEntity(flwModelParam.getID());
+        return this.queryEntity(flwModelParam.getId());
     }
 
 
