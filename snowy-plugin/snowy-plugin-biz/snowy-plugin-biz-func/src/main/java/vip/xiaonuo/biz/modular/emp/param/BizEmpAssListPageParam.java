@@ -72,4 +72,11 @@ public class BizEmpAssListPageParam {
     @ApiModelProperty(value = "季度(如:1)")
     private String season;
 
+    /**一级部门id*/
+    @ApiModelProperty(value = "一级部门Id", position = 15)
+    private String firstOrgId;
+
+    /**一级部门名称*/
+    @ApiModelProperty(value = "一级部门名称", position = 16)
+    private String firstOrgName;
 }

@@ -18,7 +18,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -30,7 +29,6 @@ import vip.xiaonuo.biz.modular.emp.param.*;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpPerformanceService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
-import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -42,9 +40,6 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
 
 /**
  * 业务表-员工绩效考核-考核人员名单Service接口实现类
@@ -65,9 +60,6 @@ public class BizEmpAssListServiceImpl extends ServiceImpl<BizEmpAssListMapper, B
 
     @Resource
     private BizEmpPerformanceService bizEmpPerformanceService;
-
-    @Resource
-    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<BizEmpAssList> page(BizEmpAssListPageParam bizEmpAssListPageParam) {
@@ -90,10 +82,17 @@ public class BizEmpAssListServiceImpl extends ServiceImpl<BizEmpAssListMapper, B
         if(ObjectUtil.isNotEmpty(bizEmpAssListPageParam.getSeason())) {
             queryWrapper.lambda().eq(BizEmpAssList::getSeason, bizEmpAssListPageParam.getSeason());
         }
+        if(ObjectUtil.isNotEmpty(bizEmpAssListPageParam.getFirstOrgId())){
+            queryWrapper.lambda().eq(BizEmpAssList::getFirstOrgId,bizEmpAssListPageParam.getFirstOrgId());
+        }
+        if(ObjectUtil.isNotEmpty(bizEmpAssListPageParam.getFirstOrgName())){
+            queryWrapper.lambda().like(BizEmpAssList::getFirstOrgName,bizEmpAssListPageParam.getFirstOrgName());
+        }
         //关键字
         if(ObjectUtil.isNotEmpty(bizEmpAssListPageParam.getSearchKey())){
             queryWrapper.and(q->q.lambda().like(BizEmpAssList::getUserName,bizEmpAssListPageParam.getSearchKey())
-                    .or().like(BizEmpAssList::getOrgName,bizEmpAssListPageParam.getSearchKey()));
+                    .or().like(BizEmpAssList::getOrgName,bizEmpAssListPageParam.getSearchKey())
+                    .or().like(BizEmpAssList::getFirstOrgName,bizEmpAssListPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(bizEmpAssListPageParam.getSortField(), bizEmpAssListPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizEmpAssListPageParam.getSortOrder());
@@ -102,14 +101,7 @@ public class BizEmpAssListServiceImpl extends ServiceImpl<BizEmpAssListMapper, B
         } else {
             queryWrapper.lambda().orderByDesc(BizEmpAssList::getYear).orderByDesc(BizEmpAssList::getSeason).orderByAsc(BizEmpAssList::getUserId);
         }
-        Page<BizEmpAssList> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        result.getRecords().forEach(x->{
-            String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getOrgId()));
-            String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getOrgId()));
-            x.setFirstOrgId(StrUtil.isNotEmpty(sOrgId)?sOrgId:x.getOrgId());
-            x.setFirstOrgName(StrUtil.isNotEmpty(sOrgName)?sOrgName:x.getOrgName());
-        });
-        return result;
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

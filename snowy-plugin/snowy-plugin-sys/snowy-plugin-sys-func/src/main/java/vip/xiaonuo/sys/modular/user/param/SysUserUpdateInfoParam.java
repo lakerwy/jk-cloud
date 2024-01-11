@@ -61,4 +61,8 @@ public class SysUserUpdateInfoParam {
     /** 签名 */
     @ApiModelProperty(value = "签名，图片base64", position = 8)
     private String signature;
+
+    /** maskClosable 布尔默认为true */
+    @ApiModelProperty(value = "maskClosable 布尔默认为true", position = 9)
+    private Boolean maskClosable = Boolean.TRUE;
 }

@@ -32,7 +32,6 @@ import vip.xiaonuo.biz.modular.emp.entity.BizEmpAssList;
 import vip.xiaonuo.biz.modular.emp.entity.BizEmpTask;
 import vip.xiaonuo.biz.modular.emp.mapper.BizEmpAssListMapper;
 import vip.xiaonuo.biz.modular.emp.param.*;
-import vip.xiaonuo.biz.modular.emp.service.BizEmpAssListService;
 import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskService;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssListVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpPerformanceVo;
@@ -53,7 +52,6 @@ import vip.xiaonuo.flw.api.FlwCommonApi;
 import javax.annotation.Resource;
 import java.util.*;
 
-import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
 
 /**
  * 业务表-员工绩效考核-季度评分审批流程Service接口实现类
@@ -70,9 +68,6 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
 
     @Resource
     private BizEmpTaskService bizEmpTaskService;
-
-    @Resource
-    private BizEmpAssListService bizEmpAssListService;
 
     @Resource
     private BizEmpAssListMapper bizEmpAssListMapper;
@@ -111,14 +106,7 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         } else {
             queryWrapper.lambda().orderByAsc(BizEmpPerformance::getId);
         }
-        Page<BizEmpPerformance> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        result.getRecords().forEach(x->{
-            String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getOrgId()));
-            String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getOrgId()));
-            x.setFirstOrgId(StrUtil.isNotEmpty(sOrgId)?sOrgId:x.getOrgId());
-            x.setFirstOrgName(StrUtil.isNotEmpty(sOrgName)?sOrgName:x.getOrgName());
-        });
-        return result;
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -238,10 +226,14 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
         if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getUserId())){
             queryWrapper.lambda().eq(BizEmpAssList::getUserId,bizEmpPerformancePageParam.getUserId());
         }
+        if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getFirstOrgId())){
+            queryWrapper.lambda().eq(BizEmpAssList::getFirstOrgId,bizEmpPerformancePageParam.getFirstOrgId());
+        }
         //关键字查询
         if(ObjectUtil.isNotEmpty(bizEmpPerformancePageParam.getSearchKey())){
             queryWrapper.and(q->q.lambda().like(BizEmpAssList::getUserName,bizEmpPerformancePageParam.getSearchKey())
-                    .or().like(BizEmpAssList::getOrgName,bizEmpPerformancePageParam.getSearchKey()));
+                    .or().like(BizEmpAssList::getOrgName,bizEmpPerformancePageParam.getSearchKey())
+                    .or().like(BizEmpAssList::getFirstOrgName,bizEmpPerformancePageParam.getSearchKey()));
         }
         // 校验数据范围（由于本列表是根据组织架构决定的）
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
@@ -281,10 +273,8 @@ public class BizEmpPerformanceServiceImpl extends ServiceImpl<BizEmpPerformanceM
             performanceVo.setOrgName(empAss.getOrgName());
             performanceVo.setUserId(empAss.getUserId());
             performanceVo.setUserName(empAss.getUserName());
-            String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + empAss.getOrgId()));
-            String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + empAss.getOrgId()));
-            performanceVo.setFirstOrgId(StrUtil.isNotEmpty(sOrgId)?sOrgId:empAss.getOrgId());
-            performanceVo.setFirstOrgName(StrUtil.isNotEmpty(sOrgName)?sOrgName:empAss.getOrgName());
+            performanceVo.setFirstOrgId(empAss.getFirstOrgId());
+            performanceVo.setFirstOrgName(empAss.getFirstOrgName());
             //循环四个季度
             for (String season:seasons)
             {

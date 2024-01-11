@@ -922,6 +922,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if(ObjectUtil.isNotEmpty(sysUserUpdateInfoParam.getSignature())) {
             lambdaUpdateWrapper.set(SysUser::getSignature, sysUserUpdateInfoParam.getSignature());
         }
+        if(ObjectUtil.isNotEmpty(sysUserUpdateInfoParam.getMaskClosable())){
+            lambdaUpdateWrapper.set(SysUser::getMaskClosable,sysUserUpdateInfoParam.getMaskClosable());
+        }
         // 更新指定字段
         this.update(lambdaUpdateWrapper);
     }

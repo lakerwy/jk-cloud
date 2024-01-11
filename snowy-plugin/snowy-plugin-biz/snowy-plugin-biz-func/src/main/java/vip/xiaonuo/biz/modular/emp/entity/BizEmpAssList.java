@@ -91,11 +91,9 @@ public class BizEmpAssList {
 
     /**一级部门id*/
     @ApiModelProperty(value = "一级部门Id", position = 15)
-    @TableField(exist = false)
     private String firstOrgId;
 
     /**一级部门名称*/
     @ApiModelProperty(value = "一级部门名称", position = 16)
-    @TableField(exist = false)
     private String firstOrgName;
 }

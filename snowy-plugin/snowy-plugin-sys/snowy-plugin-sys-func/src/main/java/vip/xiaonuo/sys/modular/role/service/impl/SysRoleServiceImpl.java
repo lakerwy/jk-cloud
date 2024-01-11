@@ -68,6 +68,8 @@ import java.util.Set;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
+
 /**
  * 角色Service接口实现类
  *
@@ -451,7 +453,14 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
                 SysUser::getName, SysUser::getSortCode, SysUser::getGender, SysUser::getEntryDate);
         // 如果查询条件为空，则直接查询
         if(ObjectUtil.isAllEmpty(sysRoleSelectorUserParam.getOrgId(), sysRoleSelectorUserParam.getSearchKey())) {
-            return sysUserService.getAllUserSelectorList();
+            Page<SysUser> result = sysUserService.getAllUserSelectorList();
+            result.getRecords().forEach(x->{
+                String firstOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getOrgId()));
+                String firstOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getOrgId()));
+                x.setFirstOrgId(StrUtil.isNotEmpty(firstOrgId)?firstOrgId:x.getOrgId());
+                x.setFirstOrgName(StrUtil.isNotEmpty(firstOrgName)?firstOrgName:x.getOrgName());
+            });
+            return result;
         } else {
             if (ObjectUtil.isNotEmpty(sysRoleSelectorUserParam.getOrgId())) {
                 // 如果组织id不为空，则查询该组织及其子组织下的所有人
@@ -468,7 +477,14 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             }
             lambdaQueryWrapper.eq(SysUser::getUserStatus, SysUserStatusEnum.ENABLE.getValue());
             lambdaQueryWrapper.orderByAsc(SysUser::getSortCode);
-            return sysUserService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
+            Page<SysUser> result = sysUserService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
+            result.getRecords().forEach(x->{
+                String firstOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getOrgId()));
+                String firstOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getOrgId()));
+                x.setFirstOrgId(StrUtil.isNotEmpty(firstOrgId)?firstOrgId:x.getOrgId());
+                x.setFirstOrgName(StrUtil.isNotEmpty(firstOrgName)?firstOrgName:x.getOrgName());
+            });
+            return result;
         }
     }
 

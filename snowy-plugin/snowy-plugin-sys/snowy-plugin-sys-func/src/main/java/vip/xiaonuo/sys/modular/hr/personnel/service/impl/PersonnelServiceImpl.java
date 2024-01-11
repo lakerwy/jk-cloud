@@ -250,11 +250,22 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
             sysUserService.addAndGrantRole(sysUserAddParam);
         }
-        //已修改为离职 ，删除系统账号
+        //已修改为离职 ，删除系统账号【禁用】
         if(personnelEditParam.getStatus().equals("1")){
-            SysUserIdParam sysUserIdParam = new SysUserIdParam();
-            sysUserIdParam.setId(personnelEditParam.getSysUserId());
-            sysUserService.delete(Collections.singletonList(sysUserIdParam));
+            SysUser sysUser = sysUserService.getById(personnelEditParam.getSysUserId());
+            sysUser.setUserStatus("DISABLED");
+            sysUserService.updateById(sysUser);
+            PersonnelFileMoves personnelFileMoves = new PersonnelFileMoves();
+            personnelFileMoves.setFileId(personnelEditParam.getId());
+            personnelFileMoves.setMoveType("2");
+            personnelFileMoves.setMoveItem("离职");
+            personnelFileMoves.setStatus("1");
+            personnelFileMoves.setOptDate(new Date());
+            personnelFileMoves.setOrigDept(personnelEditParam.getDept());
+            personnelFileMoves.setOrigDuty(personnelEditParam.getDuty());
+            personnelFileMoves.setApplyTime(new Date());
+            personnelFileMoves.setApplyUser(personnelEditParam.getName());
+            personnelFileMovesService.save(personnelFileMoves);
         }
     }
 

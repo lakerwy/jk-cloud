@@ -271,6 +271,10 @@ public abstract class SaBaseLoginUser {
     /** 分类 */
     private String category;
 
+    /** maskClosable 是否点击空白出关闭弹窗 */
+    @ApiModelProperty(value = "maskClosable 是否点击空白出关闭弹窗", position = 60)
+    private Boolean maskClosable;
+
     /**
      * 数据范围类
      *

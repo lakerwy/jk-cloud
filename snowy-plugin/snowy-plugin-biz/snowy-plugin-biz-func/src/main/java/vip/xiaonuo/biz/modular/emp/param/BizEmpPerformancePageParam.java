@@ -80,4 +80,8 @@ public class BizEmpPerformancePageParam {
     @ApiModelProperty(value = "流程状态")
     private String status;
 
+    /**一级部门id*/
+    @ApiModelProperty(value = "一级部门Id", position = 15)
+    private String firstOrgId;
+
 }

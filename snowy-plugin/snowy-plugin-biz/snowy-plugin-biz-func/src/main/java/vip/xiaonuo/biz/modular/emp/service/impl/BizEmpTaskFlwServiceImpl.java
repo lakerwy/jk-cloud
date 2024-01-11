@@ -36,7 +36,6 @@ import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssTotalVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpAssVo;
 import vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
-import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -49,8 +48,6 @@ import vip.xiaonuo.biz.modular.emp.service.BizEmpTaskFlwService;
 import javax.annotation.Resource;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
 
 /**
  * 业务表-员工绩效考核-季度任务流程审批单Service接口实现类
@@ -74,12 +71,6 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
 
     @Resource
     private BizEmpAssListService bizEmpAssListService;
-
-    @Resource
-    private SysOrgService sysOrgService;
-
-    @Resource
-    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<BizEmpTaskFlw> page(BizEmpTaskFlwPageParam bizEmpTaskFlwPageParam) {
@@ -185,6 +176,9 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSeason())) {
             queryWrapper.eq("emp.SEASON", bizEmpTaskFlwPageParam.getSeason());
         }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getFirstOrgId())){
+            queryWrapper.eq("emp.FIRST_ORG_ID",bizEmpTaskFlwPageParam.getFirstOrgId());
+        }
         //若筛选（已填报|未填报）
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getIsFill())){
             //筛选是否填报
@@ -201,7 +195,8 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         //关键字
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("emp.USER_NAME",bizEmpTaskFlwPageParam.getSearchKey())
-                    .or().like("emp.ORG_NAME",bizEmpTaskFlwPageParam.getSearchKey()));
+                    .or().like("emp.ORG_NAME",bizEmpTaskFlwPageParam.getSearchKey())
+                    .or().like("emp.FIRST_ORG_NAME",bizEmpTaskFlwPageParam.getSearchKey()));
         }
         // 校验数据范围（由于本列表是根据组织架构决定的）
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
@@ -217,14 +212,7 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         } else {
             queryWrapper.orderByDesc("emp.YEAR").orderByDesc("emp.SEASON").orderByDesc("emp.ORG_ID").orderByDesc("b.EMP_SEASON_SCORE");
         }
-        IPage<BizEmpTaskFlwVo> result = bizEmpTaskFlwMapper.getList(CommonPageRequest.defaultPage(),queryWrapper);
-        result.getRecords().forEach(x->{
-            String sOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getOrgId()));
-            String sOrgName = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getOrgId()));
-            x.setFirstOrgId(StrUtil.isNotEmpty(sOrgId)?sOrgId:x.getOrgId());
-            x.setFirstOrgName(StrUtil.isNotEmpty(sOrgName)?sOrgName:x.getOrgName());
-        });
-        return result;
+        return bizEmpTaskFlwMapper.getList(CommonPageRequest.defaultPage(),queryWrapper);
     }
 
     @Override

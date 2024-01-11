@@ -71,4 +71,8 @@ public class BizEmpTaskFlwPageParam {
     /** 是否已填报 1: 已填报  2：未填报 */
     @ApiModelProperty(value = "是否已填报 1: 已填报  2：未填报", position = 7)
     private String IsFill;
+
+    /**一级部门id*/
+    @ApiModelProperty(value = "一级部门Id", position = 15)
+    private String firstOrgId;
 }

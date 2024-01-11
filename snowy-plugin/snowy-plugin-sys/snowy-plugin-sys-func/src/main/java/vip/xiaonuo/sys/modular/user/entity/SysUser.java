@@ -309,4 +309,8 @@ public class SysUser extends CommonEntity implements TransPojo {
     /** 用户二级密码（应用于特定页面控制，如工资） */
     @ApiModelProperty(value = "用户二级密码（应用于特定页面控制，如工资）", position = 64)
     private String secondPassword;
+
+    /** maskClosable 是否点击空白出关闭弹窗 */
+    @ApiModelProperty(value = "maskClosable 是否点击空白出关闭弹窗", position = 65)
+    private Boolean maskClosable;
 }

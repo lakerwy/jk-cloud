@@ -21,7 +21,7 @@
 
     <select id="getList" resultType="vip.xiaonuo.biz.modular.emp.vo.BizEmpTaskFlwVo" >
         select emp.USER_ID as userId,emp.USER_NAME as userName,emp.ORG_ID as orgId,emp.ORG_NAME as orgName,
-               emp.YEAR as year,emp.SEASON as season,
+               emp.YEAR as year,emp.SEASON as season,emp.FIRST_ORG_ID as firstOrgId,emp.FIRST_ORG_NAME as firstOrgName,
                a.ID as id,a.SN as sn,a.MODEL_ID as modelId,a.PROCESS_INSTANCE_ID as processInstanceId,a.STATUS as status,
                b.ID as epId,b.SN as epSn,b.MODEL_ID as epModelId,b.PROCESS_INSTANCE_ID as epProcessInstanceId,
                b.EMP_TASK_SELF_SCORE as epEmpTaskSelfScore,b.EMP_EXPRESSION_SELF_SCORE as epEmpExpressionSelfScore,

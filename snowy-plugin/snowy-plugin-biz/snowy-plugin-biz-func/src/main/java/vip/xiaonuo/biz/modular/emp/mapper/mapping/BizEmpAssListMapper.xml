@@ -3,7 +3,7 @@
 <mapper namespace="vip.xiaonuo.biz.modular.emp.mapper.BizEmpAssListMapper">
 
     <select id="getPageList" resultType="vip.xiaonuo.biz.modular.emp.vo.BizEmpAssListVo" >
-        select distinct `YEAR` as `year`, ORG_ID as orgId, ORG_NAME as orgName, USER_ID as userId, USER_NAME as userName
+        select distinct `YEAR` as `year`, ORG_ID as orgId, ORG_NAME as orgName, USER_ID as userId, USER_NAME as userName,FIRST_ORG_ID as firstOrgId,FIRST_ORG_NAME as firstOrgName
         from BIZ_EMP_ASS_LIST emp  ${ew.customSqlSegment}
     </select>
 
