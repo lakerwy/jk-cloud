@@ -201,7 +201,7 @@ public class NodeRuntimeUtil {
 
 //                                // 流水号模板id
 //                                String processSnTemplateId = configInfo.getStr("processSnTemplateId");
-//
+//                                   orgName|month[月]|[流程名称]
 //                                // 流水号内容
 //                                String processSnTemplate = flwTemplateSnService.getTemplateValueBydId(processSnTemplateId);
 
@@ -242,7 +242,8 @@ public class NodeRuntimeUtil {
                                 }
                                // delegateExecution.setVariable("initiatorProcessSn", processSnTemplate);
                                 delegateExecution.setVariable("initiatorProcessTitle", titleResult.get());
-                                delegateExecution.setVariable("initiatorProcessAbstract", abstractResult.get());
+
+                                delegateExecution.setVariable("initiatorProcessAbstract", abstractResult.get().replace("[", "").replace("]", ""));
                             }
                         })));
         }
