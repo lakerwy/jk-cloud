@@ -346,45 +346,6 @@ public class SftpFileUploader {
      * 执行远程sh脚本
      * @param scriptPath
      */
-//    public boolean executeRemoteScript(String scriptPath) {
-//        JSch jsch = new JSch();
-//        Session session = null;
-//        ChannelExec channelExec = null;
-//
-//        try {
-//            // Connect to the SSH server
-//            session = connectToServer(jsch, targetHost, targetUserName, targetPassword);
-//
-//            // Open an exec channel
-//            channelExec = (ChannelExec) session.openChannel("exec");
-//
-//            // Set the command to run the script
-//            channelExec.setCommand(scriptPath);
-//
-//            // Connect to the channel
-//            channelExec.connect();
-//
-//            // Get the exit status
-//            int exitStatus = channelExec.getExitStatus();
-//
-//            // Process the result
-//            return (exitStatus == 0);
-//
-//        } catch (JSchException e) {
-//            e.printStackTrace();
-//            return false; // Return false in case of exception
-//        } finally {
-//            // Disconnect from the server
-//            if (channelExec != null && channelExec.isConnected()) {
-//                channelExec.disconnect();
-//            }
-//            if (session != null && session.isConnected()) {
-//                session.disconnect();
-//            }
-//        }
-//    }
-
-
     public boolean executeRemoteScript(String scriptPath) {
         JSch jsch = new JSch();
         Session session = null;
@@ -399,6 +360,7 @@ public class SftpFileUploader {
 
             // Set the command to run the script
             channelExec.setCommand(scriptPath);
+            System.out.println(scriptPath);
 
             // Connect to the channel
             channelExec.connect();
