@@ -171,6 +171,8 @@ public class SftpFileUploader {
                             try (InputStream modifiedInputStream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8))) {
                                 targetChannel.put(modifiedInputStream, targetFolderPath + "/" + entry.getFilename());
                             }
+                            //set file permissions
+                            targetChannel.chmod(777, targetFolderPath + "/" + entry.getFilename());
                         }
                     }
                 }
