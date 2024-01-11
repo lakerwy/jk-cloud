@@ -30,6 +30,7 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.modular.config.entity.DevConfig;
 import vip.xiaonuo.dev.modular.config.enums.DevConfigCategoryEnum;
 import vip.xiaonuo.dev.modular.config.mapper.DevConfigMapper;
@@ -64,6 +65,9 @@ public class DevConfigServiceImpl extends ServiceImpl<DevConfigMapper, DevConfig
     }
 
     @Resource
+    private CommonProperties commonProperties;
+
+    @Resource
     private TenApi tenApi;
 
     @Resource
@@ -72,7 +76,14 @@ public class DevConfigServiceImpl extends ServiceImpl<DevConfigMapper, DevConfig
     @Override
     public String getValueByKey(String key) {
         // 缓存的键前缀
-        String cacheKeyPrefix = CONFIG_CACHE_KEY + tenApi.getCurrentTenDomain() + ":";
+        String cacheKeyPrefix = null;
+        try {
+             cacheKeyPrefix = CONFIG_CACHE_KEY + tenApi.getCurrentTenDomain() + ":";
+        }catch (CommonException e){
+            if(e.getMsg().equals("非Web上下文无法获取Request")){
+                cacheKeyPrefix = commonProperties.getFrontUrl();
+            }
+        }
 
         // 从缓存中取
         Object cacheValue = commonCacheOperator.get(cacheKeyPrefix + key);

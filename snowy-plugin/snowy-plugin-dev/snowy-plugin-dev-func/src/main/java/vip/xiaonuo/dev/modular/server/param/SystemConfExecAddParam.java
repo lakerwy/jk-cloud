@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.dev.modular.server.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -37,9 +38,11 @@ public class SystemConfExecAddParam {
 
     /** 数据库信息 */
     @ApiModelProperty(value = "数据库配置信息(数据库ip、端口、用户、密码)", position = 3)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String dataBaseJson;
 
     @ApiModelProperty(value = "系统部署服务器信息(部署的服务器IP,用户,密码,配置文件存放地址《默认/epc/server/》,容器外放端口,域名)", position = 4)
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String systemServerJson;
 
 }
