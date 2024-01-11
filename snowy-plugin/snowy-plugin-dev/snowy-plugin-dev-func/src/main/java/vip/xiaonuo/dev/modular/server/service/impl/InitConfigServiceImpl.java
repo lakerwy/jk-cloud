@@ -12,6 +12,8 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.yunpian.sdk.util.JsonUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +50,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -81,50 +84,51 @@ public class InitConfigServiceImpl implements InitConfigService {
     @Override
     public void initSystem(SystemConfExecIdParam systemConfExecIdParam) {
         SystemConfExec systemConfExec = systemConfExecService.getById(systemConfExecIdParam.getId());
-        if(ObjectUtil.isEmpty(systemConfExec)){
+        if (ObjectUtil.isEmpty(systemConfExec)) {
             throw new CommonException("未找到系统配置");
         }
-        //生成系统的唯一表示
-        generateNo();
-        /**
-         * 1、创建数据库
-         * 2、上传配置文件（2-3合并）
-         * 3、修改替换配置文件
-         * 4、执行sh构建
-         * 下面的步骤必须等上面步骤完成以后才可以执行
-         *
-         */
-        Boolean flag = createDataBase(systemConfExec);
-        if(flag){
-                //上传配置文件
-            flag = uploadConf(systemConfExec);
-            if(flag){
-                //修改
-                flag = updateConf(systemConfExec);
-                if(flag){
-                    //执行sh 脚本
-                }
-            }
+//
+//        // 生成系统的唯一标识
+//        generateNo();
 
-        }
+        SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemConfExec.getSystemServerJson(), SftpFileUploader.class);
 
+        CompletableFuture<Boolean> createDbFuture = createDataBaseAsync(systemConfExec);
+
+        createDbFuture
+                .thenComposeAsync(createDbFlag -> createDbFlag ? uploadConfAsync(sftpFileUploader,systemConfExec.getSystemId(),2) : CompletableFuture.completedFuture(false))
+                .thenComposeAsync(uploadConfFlag -> uploadConfFlag ? updateConfAsync(systemConfExec, sftpFileUploader, 3) : CompletableFuture.completedFuture(false))
+                .thenComposeAsync(executeConfFlag -> executeConfFlag ? executeRemoteScriptAsync(sftpFileUploader,systemConfExec.getSystemId(),4) : CompletableFuture.completedFuture(false));
     }
+
 
     @Override
-    public Boolean createDataBase(SystemConfExec systemConfExec){
-        String dataBaseJson = systemConfExec.getDataBaseJson();
-        DataBaseParam dataBaseParam = JsonUtil.fromJson(dataBaseJson, DataBaseParam.class);
-        String dataBaseName = "EPC" +getSystemNo();
-        dataBaseParam.setDbName(dataBaseName);
-        Boolean flag = databaseCreator.createDatabase(dataBaseParam);
-        if(!flag){
-//            throw new CommonException("创建数据库失败，请检查配置后重新创建");
-            log.error("创建数据库失败");
+    public CompletableFuture<Boolean> createDataBaseAsync(SystemConfExec systemConfExec) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                String dataBaseJson = systemConfExec.getDataBaseJson();
+                DataBaseParam dataBaseParam = JsonUtil.fromJson(dataBaseJson, DataBaseParam.class);
+                String dataBaseName = "EPC" + systemConfExec.getSystemServerNo();
+                dataBaseParam.setDbName(dataBaseName);
+
+                Boolean flag = databaseCreator.createDatabase(dataBaseParam);
+                if (!flag) {
+                    log.error("创建数据库失败");
+                    return false;
+                }
+                systemConfExecService.update(new LambdaUpdateWrapper<SystemConfExec>().set(SystemConfExec::getDataBaseJson,JSONUtil.toJsonStr(dataBaseParam)).eq(SystemConfExec::getId,systemConfExec.getId()));
+                updateSystemServer(systemConfExec.getSystemId(), 1);
+                return true;
+            } catch (Exception e) {
+                log.error("异步创建数据库失败", e);
+                return false;
+            }
+        }).exceptionally(e -> {
+            log.error("createDataBaseAsync failed", e);
             return false;
-        }
-        updateSystemServer(systemConfExec.getSystemId(),1);
-        return true;
+        });
     }
+
 
     @Override
     public void createTable(TableParam tableParam){
@@ -139,7 +143,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         tableParam.setSshHost(dataBaseParam.getDbIp());
         tableParam.setSshPort(22);
         tableParam.setDatabaseName(dataBaseParam.getDbName());
-        tableParam.setDatabaseUsername(dataBaseParam.getUsername());
+        tableParam.setDatabaseUsername(dataBaseParam.getUserName());
         tableParam.setDatabasePassword(dataBaseParam.getPassword());
         String dumpFilePathConf = devConfigService.getValueByKey(InitConfConstant.DUMP_SQL_SOURCE_PATH);
         if(StrUtil.isEmpty(dumpFilePathConf)){
@@ -303,7 +307,7 @@ public class InitConfigServiceImpl implements InitConfigService {
                 paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s/%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getDbName(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS));
                 Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
                 paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
-                paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUsername());
+                paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUserName());
                 paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_1,InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE+systemNo);
                 paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_2,InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE+systemNo);
                 paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_1,InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE+systemNo);
@@ -532,7 +536,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         importUserParam.setIp(dataBaseParam.getDbIp());
         importUserParam.setDbName(dataBaseParam.getDbName());
         importUserParam.setPort(dataBaseParam.getPort());
-        importUserParam.setUsername(dataBaseParam.getUsername());
+        importUserParam.setUsername(dataBaseParam.getUserName());
         importUserParam.setPassword(dataBaseParam.getPassword());
         try {
             DevFile devFile = devFileService.getById(importUserParam.getFileId());
@@ -621,80 +625,115 @@ public class InitConfigServiceImpl implements InitConfigService {
     }
 
     @Override
-    public Boolean uploadConf(SystemConfExec systemConfExec){
-        SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemConfExec.getSystemServerJson(), SftpFileUploader.class);
-        String systemSourceIp = devConfigService.getValueByKey(InitConfConstant.SYSTEM_SOURCE_IP);
-        if(StrUtil.isEmpty(systemSourceIp)){
-            systemSourceIp = "10.0.33.82";
+    public CompletableFuture<Boolean> uploadConfAsync(SftpFileUploader sftpFileUploader,String systemId,Integer status) {
+        return CompletableFuture.supplyAsync(() -> {
+//            SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemConfExec.getSystemServerJson(), SftpFileUploader.class);
+            sftpFileUploader.setTargetRemoteFolderPath(sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + "epc" + getSystemNo());
+            String systemSourceIp = devConfigService.getValueByKey(InitConfConstant.SYSTEM_SOURCE_IP);
+            if (StrUtil.isEmpty(systemSourceIp)) {
+                systemSourceIp = "10.0.33.82";
+            }
             sftpFileUploader.setSourceHost(systemSourceIp);
-        }
-        String sourceServerName = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_NAME);
-        if(StrUtil.isEmpty(sourceServerName)){
-            sourceServerName = "root";
+            String sourceServerName = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_NAME);
+            if (StrUtil.isEmpty(sourceServerName)) {
+                sourceServerName = "root";
+            }
             sftpFileUploader.setSourceUserName(sourceServerName);
-        }
-        String sourceServerPs = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_PS);
-        if(StrUtil.isEmpty(sourceServerPs)){
-            sourceServerPs = "Jianke66";
+            String sourceServerPs = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_PS);
+            if (StrUtil.isEmpty(sourceServerPs)) {
+                sourceServerPs = "Jianke66";
+            }
             sftpFileUploader.setSourcePassword(sourceServerPs);
-        }
 
-        String sourceServerConfPath = devConfigService.getValueByKey(InitConfConstant.SINGLE_SOURCE_CONFIG_PATH);
-        if(StrUtil.isEmpty(sourceServerConfPath)){
-            sourceServerConfPath = "/home/source/conf";
+            String sourceServerConfPath = devConfigService.getValueByKey(InitConfConstant.SINGLE_SOURCE_CONFIG_PATH);
+            if (StrUtil.isEmpty(sourceServerConfPath)) {
+                sourceServerConfPath = "/home/source/conf";
+            }
             sftpFileUploader.setSourceRemoteFolderPath(sourceServerConfPath);
-        }
-        try {
-            sftpFileUploader.uploadFolderToRemote();
-            return true;
-        }catch (Exception e){
+
+            try {
+                sftpFileUploader.uploadFolderToRemote();
+                updateSystemServer(systemId, status);
+                return true;
+            } catch (Exception e) {
+                return false;
+            }
+        }).exceptionally(e -> {
+            log.error("uploadConfAsync failed", e);
             return false;
-        }
+        });
+    }
+
+
+    @Override
+    public CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status) {
+        return CompletableFuture.supplyAsync(() -> {
+            String systemServerJson = systemConfExec.getSystemServerJson();
+            // SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemServerJson, SftpFileUploader.class);
+            String systemDomain = (String) JSONUtil.parseObj(systemServerJson).get("systemDomain");
+            String dockerPort = (String) JSONUtil.parseObj(systemServerJson).get("dockerPort");
+            String sourceFile = CONF + StrUtil.SLASH + InitConfConstant.APPLICATION_YML_NAME;
+            int systemNo = systemConfExec.getSystemServerNo();
+            Map<String, Object> paramMap = new HashMap<>();
+            try {
+                DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExec.getDataBaseJson(), DataBaseParam.class);
+                paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s/%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getDbName(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS));
+                Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
+                paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
+                paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUserName());
+                paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_1, InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE + systemNo);
+                paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_2, InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE + systemNo);
+                paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_1, InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE + systemNo);
+                paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_2, InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE + systemNo);
+                if (StrUtil.isEmpty(systemDomain)) {
+                    if (StrUtil.isAllNotEmpty(sftpFileUploader.getTargetHost(), dockerPort)) {
+                        systemDomain = String.format("http://%s:%s", sftpFileUploader.getTargetHost(), dockerPort);
+                    } else {
+                        throw new CommonException("端口或ip为空");
+                    }
+                }
+                paramMap.put(InitConfConstant.SNOWY_CONFIG_COMMON_FRONT_RUL, systemDomain);
+                paramMap.put(InitConfConstant.SNOWY_CONFIG_COMMON_BACKEND_RUL, systemDomain);
+                sftpFileUploader.updateRemoteFile(sourceFile, paramMap);
+
+                paramMap.clear();
+                // String dockerComposePort = yamlParam.getSystemDockerPort();
+                // - "${SYSTEM_PORT}:80"
+                paramMap.put(InitConfConstant.DOCKER_PORT, "     - " + dockerPort + ":80");
+                String dockerName = "epc-" + systemNo;
+                paramMap.put(InitConfConstant.DOCKER_CONTAINER_NAME, dockerName);
+                sourceFile = InitConfConstant.DOCKER_YML_NAME;
+                sftpFileUploader.updateRemoteFile(sourceFile, paramMap);
+                updateSystemServer(systemConfExec.getSystemId(), status);
+                return true;
+            } catch (Exception e) {
+                log.error("修改配置文件错误", e);
+                return false;
+            }
+        }).exceptionally(e -> {
+            log.error("updateConfAsync failed", e);
+            return false;
+        });
     }
 
     @Override
-    public Boolean updateConf(SystemConfExec systemConfExec){
-        String systemServerJson = systemConfExec.getSystemServerJson();
-        SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemServerJson, SftpFileUploader.class);
-        String systemDomain = (String) JSONUtil.parseObj(systemServerJson).get("systemDomain");
-        String dockerPort = (String) JSONUtil.parseObj(systemServerJson).get("dockerPort");
-        String sourceFile = CONF + StrUtil.SLASH + InitConfConstant.APPLICATION_YML_NAME;
-        int systemNo = getSystemNo();
-        Map<String, Object> paramMap = new HashMap<>();
-        try {
-            DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExec.getDataBaseJson(), DataBaseParam.class);
-            paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s/%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getDbName(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS));
-            Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
-            paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
-            paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUsername());
-            paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_1,InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE+systemNo);
-            paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_2,InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE+systemNo);
-            paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_1,InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE+systemNo);
-            paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_2,InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE+systemNo);
-            if(StrUtil.isEmpty(systemDomain)){
-                if(StrUtil.isAllNotEmpty(sftpFileUploader.getTargetHost(),dockerPort)){
-                    systemDomain = String.format("http://%s:%s",sftpFileUploader.getTargetHost(),dockerPort);
-                }else {
-                    throw new CommonException("端口或ip为空");
+    public CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, String systemId, Integer status) {
+        return CompletableFuture.supplyAsync(() -> {
+            String script = "sh " +sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + InitConfConstant.BUILD_SH;
+            try {
+                boolean b = sftpFileUploader.executeRemoteScript(script);
+                if(b){
+                    updateSystemServer(systemId, status);
                 }
+            }catch (Exception e){
+                log.error("系统初始化失败", e);
+                return false;
             }
-            paramMap.put(InitConfConstant.SNOWY_CONFIG_COMMON_FRONT_RUL,systemDomain);
-            paramMap.put(InitConfConstant.SNOWY_CONFIG_COMMON_BACKEND_RUL,systemDomain);
-            sftpFileUploader.updateRemoteFile(sourceFile,paramMap);
-
-            paramMap.clear();
-//            String dockerComposePort = yamlParam.getSystemDockerPort();
-            //- "${SYSTEM_PORT}:80"
-            paramMap.put(InitConfConstant.DOCKER_PORT,"- \"" + dockerPort + ":80\"");
-            String dockerName = "epc-" + systemNo;
-            paramMap.put(InitConfConstant.DOCKER_CONTAINER_NAME, dockerName);
-            sourceFile = StrUtil.SLASH + InitConfConstant.DOCKER_YML_NAME;
-            sftpFileUploader.updateRemoteFile(sourceFile,paramMap);
             return true;
-        }catch (Exception e){
-            log.error("修改配置文件错误",e);
+        }).exceptionally(e -> {
+            log.error("executeRemoteScriptAsync failed", e);
             return false;
-        }
-
+        });
     }
+
 }

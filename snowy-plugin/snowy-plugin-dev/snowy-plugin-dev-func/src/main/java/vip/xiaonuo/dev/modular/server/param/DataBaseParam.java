@@ -11,7 +11,7 @@ import javax.validation.constraints.NotNull;
 public class DataBaseParam {
     @ApiModelProperty(value = "mysql用户名", required = true,position = 1)
     @NotNull(message = "mysql用户名不能为空")
-    private String username;
+    private String userName;
 
     @ApiModelProperty(value = "密码", required = true,position = 2)
     @NotNull(message = "mysql密码不能为空")

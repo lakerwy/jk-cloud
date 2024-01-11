@@ -46,6 +46,9 @@ public class SystemConfExec {
     @ApiModelProperty(value = "系统部署服务器信息(部署的服务器IP,用户,密码,配置文件存放地址《默认/epc/server/》,容器外放端口,域名)", position = 4)
     private String systemServerJson;
 
+    @ApiModelProperty(value = "系统编号", position = 5)
+    private Integer systemServerNo;
+
     /** 删除标志 */
     @ApiModelProperty(value = "删除标志", position = 10)
     @TableLogic

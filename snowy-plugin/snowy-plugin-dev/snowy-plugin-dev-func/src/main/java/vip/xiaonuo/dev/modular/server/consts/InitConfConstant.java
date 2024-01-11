@@ -113,4 +113,6 @@ public interface InitConfConstant {
     public final String APPLICATION_YML_NAME = "application.yaml";
 
     public final String DOCKER_YML_NAME = "docker-compose.yml";
+
+    public final String BUILD_SH = "build.sh";
 }

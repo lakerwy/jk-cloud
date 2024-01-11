@@ -65,7 +65,7 @@ public class DatabaseCreator {
             String url = String.format("jdbc:mysql://%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS);
             log.info("url-connectSql:" + url);
             Class.forName("com.mysql.cj.jdbc.Driver");
-            try (Connection connection = DriverManager.getConnection(url, dataBaseParam.getUsername(), dataBaseParam.getPassword());
+            try (Connection connection = DriverManager.getConnection(url, dataBaseParam.getUserName(), dataBaseParam.getPassword());
                  Statement statement = connection.createStatement()) {
                 //不能预编译（数据库名因为 库名需要``）
                 String createDatabaseSql = "CREATE DATABASE IF NOT EXISTS " + dataBaseParam.getDbName();

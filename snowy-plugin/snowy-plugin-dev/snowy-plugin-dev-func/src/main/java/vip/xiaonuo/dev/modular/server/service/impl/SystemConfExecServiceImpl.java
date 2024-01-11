@@ -19,11 +19,14 @@ import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import io.swagger.models.auth.In;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.mapper.SystemConfExecMapper;
 import vip.xiaonuo.dev.modular.server.param.SystemConfExecAddParam;
@@ -33,6 +36,7 @@ import vip.xiaonuo.dev.modular.server.param.SystemConfExecPageParam;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -43,6 +47,9 @@ import java.util.List;
  **/
 @Service
 public class SystemConfExecServiceImpl extends ServiceImpl<SystemConfExecMapper, SystemConfExec> implements SystemConfExecService {
+
+    @Resource
+    CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<SystemConfExec> page(SystemConfExecPageParam systemConfExecPageParam) {
@@ -64,6 +71,7 @@ public class SystemConfExecServiceImpl extends ServiceImpl<SystemConfExecMapper,
     @Override
     public void add(SystemConfExecAddParam systemConfExecAddParam) {
         SystemConfExec systemConfExec = BeanUtil.toBean(systemConfExecAddParam, SystemConfExec.class);
+        systemConfExec.setSystemServerNo(generateNo());
         this.save(systemConfExec);
     }
 
@@ -94,5 +102,17 @@ public class SystemConfExecServiceImpl extends ServiceImpl<SystemConfExecMapper,
             throw new CommonException("系统服务操作记录表不存在，id值为：{}", id);
         }
         return systemConfExec;
+    }
+
+    public Integer generateNo(){
+        Object o = commonCacheOperator.get(InitConfConstant.SYSTEM_NO_KEY);
+        int sysNo = 1000;
+        if(ObjectUtil.isNotEmpty(o)){
+            sysNo = Integer.parseInt(String.valueOf(commonCacheOperator.get(InitConfConstant.SYSTEM_NO_KEY))) + 1;
+            commonCacheOperator.put(InitConfConstant.SYSTEM_NO_KEY,sysNo);
+        }else {
+            commonCacheOperator.put(InitConfConstant.SYSTEM_NO_KEY,1000);
+        }
+        return sysNo;
     }
 }

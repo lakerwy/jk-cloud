@@ -4,17 +4,21 @@ import cn.hutool.json.JSONObject;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.param.*;
+import vip.xiaonuo.dev.modular.server.util.SftpFileUploader;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
 
 public interface InitConfigService {
 
     /**
      * 建库
      * */
-    Boolean createDataBase(SystemConfExec systemConfExec) throws Exception;
+//    Boolean createDataBase(SystemConfExec systemConfExec) throws Exception;
+
+    CompletableFuture<Boolean> createDataBaseAsync(SystemConfExec systemConfExec);
 
     /**
      * 建表
@@ -70,7 +74,10 @@ public interface InitConfigService {
      */
     void initSystem(SystemConfExecIdParam systemConfExecIdParam);
 
-    Boolean uploadConf(SystemConfExec systemConfExec);
+    CompletableFuture<Boolean> uploadConfAsync(SftpFileUploader sftpFileUploader,String systemId,Integer status);
 
-    Boolean updateConf(SystemConfExec systemConfExec);
+
+    CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status);
+
+    CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, String systemId, Integer status);
 }
