@@ -197,22 +197,4 @@ public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceM
             return bytes;
         }
     }
-
-    public static void main(String[] args) throws IOException{
-        File file = FileUtil.file("C:\\Users\\Administrator\\Desktop\\doctest\\TBPROJECTSYSRELATION.xlsx");
-        // 创建临时文件
-        File tempFile = FileUtil.writeBytes(getFileBytes111(file), FileUtil.file(FileUtil.getTmpDir() +
-                FileUtil.FILE_SEPARATOR + "serverRuralTemplate.xlsx"));
-        List<TBCorpperFormance> sysUserImportParamList =  EasyExcel.read(tempFile).head(TBCorpperFormance.class).sheet()
-                .headRowNumber(2).doReadSync();
-        System.out.println("yyyy");
-    }
-
-    public static byte[] getFileBytes111(File file) throws IOException {
-        try (FileInputStream fis = new FileInputStream(file)) {
-            byte[] bytes = new byte[(int) file.length()];
-            fis.read(bytes);
-            return bytes;
-        }
-    }
 }
