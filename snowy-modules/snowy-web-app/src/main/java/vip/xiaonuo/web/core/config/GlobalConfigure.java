@@ -192,7 +192,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/sys/userAttendance/monthExcel",
             "/sys/rez/detail",
             "/sys/userSign/add",
-            "/sys/server/downloadImportUserTemplate"
+            "/sys/server/downloadImportUserTemplate",
+            "/rural/Tbcorpperformance/downloadImportUserTemplate",
     };
 
     /**

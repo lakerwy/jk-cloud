@@ -12,26 +12,47 @@
  */
 package vip.xiaonuo.dev.modular.supervisionPlatform.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonResponseUtil;
+import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBCorpperFormance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBPersonPerFormance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBProjectSysRelation;
 import vip.xiaonuo.dev.modular.supervisionPlatform.mapper.TBCorpperFormanceMapper;
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceAddParam;
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceEditParam;
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceIdParam;
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormancePageParam;
 import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBCorpperFormanceService;
+import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBPersonPerFormanceService;
+import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBProjectSysRelationService;
 
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
 
 /**
@@ -42,6 +63,13 @@ import java.util.List;
  **/
 @Service
 public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceMapper, TBCorpperFormance> implements TBCorpperFormanceService {
+
+    @Resource
+    DevFileService devFileService;
+    @Resource
+    TBPersonPerFormanceService tbPersonPerFormanceService;
+    @Resource
+    TBProjectSysRelationService tbProjectSysRelationService;
 
     @Override
     public Page<TBCorpperFormance> page(TBCorpperFormancePageParam tbcorpperformancePageParam) {
@@ -99,5 +127,92 @@ public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceM
             throw new CommonException("市场监管公共服务平台-企业业绩技术指标信息表不存在，id值为：{}", id);
         }
         return tbcorpperformance;
+    }
+
+    @Override
+    public void downloadImportUserTemplate(HttpServletResponse response,Integer excelType) throws IOException {
+        if(ObjectUtil.isEmpty(excelType)){
+            log.error("excelType数据不能为空！excelType:"+excelType);
+            throw new CommonException("excelType数据不能为空！");
+        }
+        //模板名称固定
+        String excelName = excelType == 1 ? "TBCORPPERFORMANCE.xlsx" : excelType == 2 ?  "TBPERSONPERFORMANCE.xlsx": excelType == 3 ?  "TBPROJECTSYSRELATION.xlsx" : "";
+        String outExcelName = excelType == 1 ? "企业业绩技术指标信息导入模板.xlsx" : excelType == 2 ?  "个人业绩信息导入模板.xlsx": excelType == 3 ?  "其他系统项目关联导入模板.xlsx" : "";
+        if(StringUtils.isEmpty(excelName)){
+            log.error("excelType数据错误！excelType:"+excelType);
+            throw new CommonException("excelType数据错误！");
+        }
+        try {
+            InputStream inputStream = POICacheManager.getFile(excelName);
+            byte[] bytes = IoUtil.readBytes(inputStream);
+            CommonDownloadUtil.download(outExcelName, bytes, response);
+        } catch (Exception e) {
+            log.error(">>> 下载用户导入模板失败：", e);
+            CommonResponseUtil.renderError(response, "下载用户导入模板失败");
+        }
+    }
+
+    @Override
+    public void importRuralData(String fileId,Integer excelType) {
+        try {
+            DevFile devFile = devFileService.getById(fileId);
+            if(ObjectUtil.isEmpty(devFile) || !FileUtil.file(devFile.getStoragePath()).exists()){
+                throw new CommonException("文件不存在！fileId："+fileId);
+            }
+            File file = FileUtil.file(devFile.getStoragePath());
+            // 创建临时文件
+            File tempFile = FileUtil.writeBytes(getFileBytes(file), FileUtil.file(FileUtil.getTmpDir() +
+                    FileUtil.FILE_SEPARATOR + "serverRuralTemplate.xlsx"));
+            switch (excelType){
+                case 1:
+                    // 读取excel  企业业绩技术指标信息表
+                    List<TBCorpperFormance> tbCorpperFormanceList =  EasyExcel.read(tempFile).head(TBCorpperFormance.class).sheet()
+                            .headRowNumber(2).doReadSync();
+                    this.saveBatch(tbCorpperFormanceList);
+                    break;
+                case 2:
+                    // 读取excel  个人业绩信息表
+                    List<TBPersonPerFormance> tbPersonPerFormanceList =  EasyExcel.read(tempFile).head(TBPersonPerFormance.class).sheet()
+                            .headRowNumber(2).doReadSync();
+                    tbPersonPerFormanceService.saveBatch(tbPersonPerFormanceList);
+                    break;
+                case 3:
+                    // 读取excel  与其他系统项目关联信息表
+                    List<TBProjectSysRelation> tbProjectSysRelationList =  EasyExcel.read(tempFile).head(TBProjectSysRelation.class).sheet()
+                            .headRowNumber(2).doReadSync();
+                    tbProjectSysRelationService.saveBatch(tbProjectSysRelationList);
+                    break;
+                default:
+                    throw new CommonException("类别数据错误！");
+            }
+        } catch (Exception e) {
+            log.error(">>> 用户导入失败：", e);
+            throw new CommonException("用户导入失败");
+        }
+    }
+    public byte[] getFileBytes(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] bytes = new byte[(int) file.length()];
+            fis.read(bytes);
+            return bytes;
+        }
+    }
+
+    public static void main(String[] args) throws IOException{
+        File file = FileUtil.file("C:\\Users\\Administrator\\Desktop\\doctest\\TBPROJECTSYSRELATION.xlsx");
+        // 创建临时文件
+        File tempFile = FileUtil.writeBytes(getFileBytes111(file), FileUtil.file(FileUtil.getTmpDir() +
+                FileUtil.FILE_SEPARATOR + "serverRuralTemplate.xlsx"));
+        List<TBCorpperFormance> sysUserImportParamList =  EasyExcel.read(tempFile).head(TBCorpperFormance.class).sheet()
+                .headRowNumber(2).doReadSync();
+        System.out.println("yyyy");
+    }
+
+    public static byte[] getFileBytes111(File file) throws IOException {
+        try (FileInputStream fis = new FileInputStream(file)) {
+            byte[] bytes = new byte[(int) file.length()];
+            fis.read(bytes);
+            return bytes;
+        }
     }
 }

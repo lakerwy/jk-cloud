@@ -12,11 +12,13 @@
  */
 package vip.xiaonuo.dev.modular.supervisionPlatform.controller;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -34,8 +36,10 @@ import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBPersonPerFormanceSe
 import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBProjectSysRelationService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.io.IOException;
 
 /**
  * 市场监管公共服务平台-企业业绩技术指标信息表控制器
@@ -64,8 +68,7 @@ public class TBCorpPerformanceController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取市场监管公共服务平台-企业业绩技术指标信息表分页")
-    //@SaCheckPermission("/biz/TBCorpperFormance/page")
-    @GetMapping("/biz/Tbcorpperformance/page")
+    @GetMapping("/rural/Tbcorpperformance/page")
     public CommonResult<Page<TBCorpperFormance>> page(TBCorpperFormancePageParam tbcorpperformancePageParam) {
         return CommonResult.data(tbcorpperformanceService.page(tbcorpperformancePageParam));
     }
@@ -79,8 +82,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加市场监管公共服务平台-企业业绩技术指标信息表")
     @CommonLog("添加市场监管公共服务平台-企业业绩技术指标信息表")
-    //@SaCheckPermission("/biz/TBCorpperFormance/add")
-    @PostMapping("/biz/Tbcorpperformance/add")
+    @PostMapping("/rural/Tbcorpperformance/add")
     public CommonResult<String> add(@RequestBody @Valid TBCorpperFormanceAddParam tbcorpperformanceAddParam) {
         tbcorpperformanceService.add(tbcorpperformanceAddParam);
         return CommonResult.ok();
@@ -95,8 +97,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑市场监管公共服务平台-企业业绩技术指标信息表")
     @CommonLog("编辑市场监管公共服务平台-企业业绩技术指标信息表")
-    //@SaCheckPermission("/biz/TBCorpperFormance/edit")
-    @PostMapping("/biz/Tbcorpperformance/edit")
+    @PostMapping("/rural/Tbcorpperformance/edit")
     public CommonResult<String> edit(@RequestBody @Valid TBCorpperFormanceEditParam tbcorpperformanceEditParam) {
         tbcorpperformanceService.edit(tbcorpperformanceEditParam);
         return CommonResult.ok();
@@ -111,8 +112,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除市场监管公共服务平台-企业业绩技术指标信息表")
     @CommonLog("删除市场监管公共服务平台-企业业绩技术指标信息表")
-    //@SaCheckPermission("/biz/TBCorpperFormance/delete")
-    @PostMapping("/biz/Tbcorpperformance/delete")
+    @PostMapping("/rural/Tbcorpperformance/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<TBCorpperFormanceIdParam> TBCorpperFormanceIdParamList) {
         tbcorpperformanceService.delete(TBCorpperFormanceIdParamList);
@@ -127,8 +127,7 @@ public class TBCorpPerformanceController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取市场监管公共服务平台-企业业绩技术指标信息表详情")
-    //@SaCheckPermission("/biz/TBCorpperFormance/detail")
-    @GetMapping("/biz/Tbcorpperformance/detail")
+    @GetMapping("/rural/Tbcorpperformance/detail")
     public CommonResult<TBCorpperFormance> detail(@Valid TBCorpperFormanceIdParam tbcorpperformanceIdParam) {
         return CommonResult.data(tbcorpperformanceService.detail(tbcorpperformanceIdParam));
     }
@@ -147,7 +146,7 @@ public class TBCorpPerformanceController {
      */
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取市场监管公共服务平台-个人业绩信息表分页")
-    @GetMapping("/biz/Tbpersonperformance/personPage")
+    @GetMapping("/rural/Tbpersonperformance/personPage")
     public CommonResult<Page<TBPersonPerFormance>> personPage(TBPersonPerFormancePageParam tbpersonperformancePageParam) {
         return CommonResult.data(tbpersonperformanceService.page(tbpersonperformancePageParam));
     }
@@ -161,7 +160,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 7)
     @ApiOperation("添加市场监管公共服务平台-个人业绩信息表")
     @CommonLog("添加市场监管公共服务平台-个人业绩信息表")
-    @PostMapping("/biz/Tbpersonperformance/personAdd")
+    @PostMapping("/rural/Tbpersonperformance/personAdd")
     public CommonResult<String> personAdd(@RequestBody @Valid TBPersonPerFormanceAddParam tbpersonperformanceAddParam) {
         tbpersonperformanceService.add(tbpersonperformanceAddParam);
         return CommonResult.ok();
@@ -176,7 +175,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 8)
     @ApiOperation("编辑市场监管公共服务平台-个人业绩信息表")
     @CommonLog("编辑市场监管公共服务平台-个人业绩信息表")
-    @PostMapping("/biz/Tbpersonperformance/personEdit")
+    @PostMapping("/rural/Tbpersonperformance/personEdit")
     public CommonResult<String> personEdit(@RequestBody @Valid TBPersonPerFormanceEditParam tbpersonperformanceEditParam) {
         tbpersonperformanceService.edit(tbpersonperformanceEditParam);
         return CommonResult.ok();
@@ -191,7 +190,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 9)
     @ApiOperation("删除市场监管公共服务平台-个人业绩信息表")
     @CommonLog("删除市场监管公共服务平台-个人业绩信息表")
-    @PostMapping("/biz/Tbpersonperformance/personDelete")
+    @PostMapping("/rural/Tbpersonperformance/personDelete")
     public CommonResult<String> personDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                CommonValidList<TBPersonPerFormanceIdParam> TBPersonPerFormanceIdParamList) {
         tbpersonperformanceService.delete(TBPersonPerFormanceIdParamList);
@@ -206,7 +205,7 @@ public class TBCorpPerformanceController {
      */
     @ApiOperationSupport(order = 10)
     @ApiOperation("获取市场监管公共服务平台-个人业绩信息表详情")
-    @GetMapping("/biz/Tbpersonperformance/personDetail")
+    @GetMapping("/rural/Tbpersonperformance/personDetail")
     public CommonResult<TBPersonPerFormance> personDetail(@Valid TBPersonPerFormanceIdParam tbpersonperformanceIdParam) {
         return CommonResult.data(tbpersonperformanceService.detail(tbpersonperformanceIdParam));
     }
@@ -225,7 +224,7 @@ public class TBCorpPerformanceController {
      */
     @ApiOperationSupport(order = 11)
     @ApiOperation("获取市场监管公共服务平台-与其他系统项目关联信息表分页")
-    @GetMapping("/biz/Tbprojectsysrelation/relationPage")
+    @GetMapping("/rural/Tbprojectsysrelation/relationPage")
     public CommonResult<Page<TBProjectSysRelation>> relationPage(TBProjectSysRelationPageParam tbprojectsysrelationPageParam) {
         return CommonResult.data(tbprojectsysrelationService.page(tbprojectsysrelationPageParam));
     }
@@ -239,7 +238,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 12)
     @ApiOperation("添加市场监管公共服务平台-与其他系统项目关联信息表")
     @CommonLog("添加市场监管公共服务平台-与其他系统项目关联信息表")
-    @PostMapping("/biz/Tbprojectsysrelation/relationAdd")
+    @PostMapping("/rural/Tbprojectsysrelation/relationAdd")
     public CommonResult<String> relationAdd(@RequestBody @Valid TBProjectSysRelationAddParam tbprojectsysrelationAddParam) {
         tbprojectsysrelationService.add(tbprojectsysrelationAddParam);
         return CommonResult.ok();
@@ -254,7 +253,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 13)
     @ApiOperation("编辑市场监管公共服务平台-与其他系统项目关联信息表")
     @CommonLog("编辑市场监管公共服务平台-与其他系统项目关联信息表")
-    @PostMapping("/biz/Tbprojectsysrelation/relationEdit")
+    @PostMapping("/rural/Tbprojectsysrelation/relationEdit")
     public CommonResult<String> relationEdit(@RequestBody @Valid TBProjectSysRelationEditParam tbprojectsysrelationEditParam) {
         tbprojectsysrelationService.edit(tbprojectsysrelationEditParam);
         return CommonResult.ok();
@@ -269,7 +268,7 @@ public class TBCorpPerformanceController {
     @ApiOperationSupport(order = 14)
     @ApiOperation("删除市场监管公共服务平台-与其他系统项目关联信息表")
     @CommonLog("删除市场监管公共服务平台-与其他系统项目关联信息表")
-    @PostMapping("/biz/Tbprojectsysrelation/relationDelete")
+    @PostMapping("/rural/Tbprojectsysrelation/relationDelete")
     public CommonResult<String> relationDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                CommonValidList<TBProjectSysRelationIdParam> TBProjectSysRelationIdParamList) {
         tbprojectsysrelationService.delete(TBProjectSysRelationIdParamList);
@@ -284,8 +283,38 @@ public class TBCorpPerformanceController {
      */
     @ApiOperationSupport(order = 15)
     @ApiOperation("获取市场监管公共服务平台-与其他系统项目关联信息表详情")
-    @GetMapping("/biz/Tbprojectsysrelation/relationDetail")
+    @GetMapping("/rural/Tbprojectsysrelation/relationDetail")
     public CommonResult<TBProjectSysRelation> relationDetail(@Valid TBProjectSysRelationIdParam tbprojectsysrelationIdParam) {
         return CommonResult.data(tbprojectsysrelationService.detail(tbprojectsysrelationIdParam));
+    }
+
+    /**
+     * 下载用户导入模板
+     *
+     * @author ljy
+     * @date 2024/01/12 10:30
+     */
+    @ApiOperationSupport(order = 16)
+    @ApiOperation("下载建筑监管市场导入模板")
+    @CommonLog("下载建筑监管市场导入模板")
+    @GetMapping(value = "/rural/Tbcorpperformance/downloadImportUserTemplate", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public CommonResult<String> downloadImportUserTemplate(HttpServletResponse response,Integer excelType) throws IOException {
+        tbcorpperformanceService.downloadImportUserTemplate(response,excelType);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 建筑监管市场数据导入
+     *
+     * @author ljy
+     * @date 2024/01/12 16:50
+     */
+    @ApiOperationSupport(order = 17)
+    @ApiOperation("建筑监管市场数据导入")
+    @CommonLog("建筑监管市场数据导入")
+    @PostMapping("/rural/Tbcorpperformance/importRuralData")
+    public CommonResult<String> importRuralData(String fileId,Integer excelType) {
+        tbcorpperformanceService.importRuralData(fileId,excelType);
+        return CommonResult.ok();
     }
 }

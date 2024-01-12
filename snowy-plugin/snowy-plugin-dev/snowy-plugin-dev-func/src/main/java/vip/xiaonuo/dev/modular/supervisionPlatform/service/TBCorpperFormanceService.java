@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.dev.modular.supervisionPlatform.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBCorpperFormance;
@@ -20,6 +21,8 @@ import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceEditPa
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceIdParam;
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormancePageParam;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -77,4 +80,18 @@ public interface TBCorpperFormanceService extends IService<TBCorpperFormance> {
      * @date  2024/01/11 10:57
      **/
     TBCorpperFormance queryEntity(String id);
+
+
+    /**
+     * 下载用户导入模板
+     *
+     * @author ljy
+     * @date 2024/01/12 10:30
+     **/
+    void downloadImportUserTemplate(HttpServletResponse response,Integer excelType) throws IOException;
+
+    /**
+     * 建筑监管市场数据导入
+     * */
+    void importRuralData(String fileId,Integer excelType);
 }
