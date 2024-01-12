@@ -37,11 +37,12 @@ public class SystemConfExecAddParam {
     private String systemId;
 
     /** 数据库信息 */
-    @ApiModelProperty(value = "数据库配置信息(数据库ip、端口、用户、密码)", position = 3)
+    @ApiModelProperty(value = "数据库配置信息(数据库ip - dbIp、端口 - port、用户名 - userName、密码 - password)", position = 3)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String dataBaseJson;
 
-    @ApiModelProperty(value = "系统部署服务器信息(部署的服务器IP,用户,密码,配置文件存放地址《默认/epc/server/》,容器外放端口,域名)", position = 4)
+    @ApiModelProperty(value = "系统部署服务器信息(部署的服务器IP - targetHost,用户 - targetUserName," +
+            "密码 - targetPassword,配置文件存放地址《默认/epc/server/》 - targetRemoteFolderPath,容器外放端口 - dockerPort,域名 - systemDomain[选填])", position = 4)
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String systemServerJson;
 
