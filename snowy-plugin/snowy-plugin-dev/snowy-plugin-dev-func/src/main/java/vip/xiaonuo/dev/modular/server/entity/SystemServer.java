@@ -72,7 +72,7 @@ public class SystemServer {
     private String remark;
 
     /** EPC单体服务部署状态 */
-    @ApiModelProperty(value = "EPC单体服务部署状态", position = 11)
+    @ApiModelProperty(value = "EPC单体服务部署状态：1 创建数据库，2 上传配置文件，3 生成配置文件，4 服务启动", position = 11)
     private Integer systemStatus;
 
     /** 删除标志 */
@@ -106,4 +106,19 @@ public class SystemServer {
     @TableField(exist = false)
     private SystemConfExec systemConfExec;
 
+    /** 项目编码 */
+    @ApiModelProperty(value = "项目编码", position = 18)
+    private String sn;
+
+    /** 行业分类 */
+    @ApiModelProperty(value = "行业分类", position = 19)
+    private String industrySort;
+
+    /** 项目类型 */
+    @ApiModelProperty(value = "项目类型", position = 20)
+    private String projectType;
+
+    /** 项目经理 */
+    @ApiModelProperty(value = "项目经理", position = 21)
+    private String projectManage;
 }
