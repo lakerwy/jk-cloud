@@ -37,7 +37,7 @@ public class TBCorpperFormanceAddParam {
 
     /** 项目编号 */
     @ApiModelProperty(value = "项目编号", position = 3)
-    private String prjNuim;
+    private String prjNum;
 
     /** 工程项目名称 */
     @ApiModelProperty(value = "工程项目名称", position = 4)

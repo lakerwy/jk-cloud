@@ -77,8 +77,8 @@ public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceM
         if(ObjectUtil.isNotEmpty(tbcorpperformancePageParam.getPerfNum())) {
             queryWrapper.lambda().eq(TBCorpperFormance::getPerfNum, tbcorpperformancePageParam.getPerfNum());
         }
-        if(ObjectUtil.isNotEmpty(tbcorpperformancePageParam.getPrjNuim())) {
-            queryWrapper.lambda().eq(TBCorpperFormance::getPrjNuim, tbcorpperformancePageParam.getPrjNuim());
+        if(ObjectUtil.isNotEmpty(tbcorpperformancePageParam.getPrjNum())) {
+            queryWrapper.lambda().eq(TBCorpperFormance::getPrjNum, tbcorpperformancePageParam.getPrjNum());
         }
         if(ObjectUtil.isNotEmpty(tbcorpperformancePageParam.getCorpCode())) {
             queryWrapper.lambda().eq(TBCorpperFormance::getCorpCode, tbcorpperformancePageParam.getCorpCode());

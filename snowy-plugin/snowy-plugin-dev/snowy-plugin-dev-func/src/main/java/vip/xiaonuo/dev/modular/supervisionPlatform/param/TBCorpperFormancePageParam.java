@@ -54,7 +54,7 @@ public class TBCorpperFormancePageParam {
 
     /** 项目编号 */
     @ApiModelProperty(value = "项目编号")
-    private String prjNuim;
+    private String prjNum;
 
     /** 统一社会信用代码 */
     @ApiModelProperty(value = "统一社会信用代码")
