@@ -28,6 +28,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -166,16 +167,12 @@ public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceM
     }
 
     @Override
-    public void importRuralData(String fileId,Integer excelType) {
+    public void importRuralData(MultipartFile file,Integer excelType) {
         try {
-            DevFile devFile = devFileService.getById(fileId);
-            if(ObjectUtil.isEmpty(devFile) || !FileUtil.file(devFile.getStoragePath()).exists()){
-                throw new CommonException("文件不存在！fileId："+fileId);
-            }
-            File file = FileUtil.file(devFile.getStoragePath());
+            String currentTimeMillis = String.valueOf(System.currentTimeMillis());
             // 创建临时文件
-            File tempFile = FileUtil.writeBytes(getFileBytes(file), FileUtil.file(FileUtil.getTmpDir() +
-                    FileUtil.FILE_SEPARATOR + "serverRuralTemplate.xlsx"));
+            File tempFile = FileUtil.writeBytes(file.getBytes(), FileUtil.file(FileUtil.getTmpDir() +
+                    FileUtil.FILE_SEPARATOR + currentTimeMillis+".xlsx"));
             switch (excelType){
                 case 1:
                     // 读取excel  企业业绩技术指标信息表

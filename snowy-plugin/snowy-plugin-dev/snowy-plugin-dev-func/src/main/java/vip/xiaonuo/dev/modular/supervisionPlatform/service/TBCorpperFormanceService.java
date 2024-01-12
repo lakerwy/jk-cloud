@@ -15,6 +15,7 @@ package vip.xiaonuo.dev.modular.supervisionPlatform.service;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBCorpperFormance;
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceAddParam;
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceEditParam;
@@ -101,5 +102,5 @@ public interface TBCorpperFormanceService extends IService<TBCorpperFormance> {
     /**
      * 建筑监管市场数据导入
      * */
-    void importRuralData(String fileId,Integer excelType);
+    void importRuralData(MultipartFile file,Integer excelType);
 }

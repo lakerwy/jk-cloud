@@ -18,12 +18,11 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -359,8 +358,8 @@ public class TBCorpPerformanceController {
     @ApiOperation("建筑监管市场数据导入")
     @CommonLog("建筑监管市场数据导入")
     @PostMapping("/rural/Tbcorpperformance/importRuralData")
-    public CommonResult<String> importRuralData(String fileId,Integer excelType) {
-        tbcorpperformanceService.importRuralData(fileId,excelType);
+    public CommonResult<String> importRuralData(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file,Integer excelType) {
+        tbcorpperformanceService.importRuralData(file,excelType);
         return CommonResult.ok();
     }
 }
