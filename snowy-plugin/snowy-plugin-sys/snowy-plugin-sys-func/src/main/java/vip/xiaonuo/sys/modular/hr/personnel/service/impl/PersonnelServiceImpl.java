@@ -186,20 +186,23 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             sysUserAddParam.setPositionId(personnel.getDutyId());
             sysUserAddParam.setEmpNo(personnel.getFileNo());
             sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+            if(ObjectUtil.isNotEmpty(personnelAddParam.getHireDate())){
+                sysUserAddParam.setEntryDate(personnelAddParam.getHireDate().toString());
+            }
             sysUserService.addAndGrantRole(sysUserAddParam);
-//            sysUserService.add(sysUserAddParam);
-//            SysUserGrantRoleParam sysUserGrantRoleParam = new SysUserGrantRoleParam();
-//            sysUserGrantRoleParam.setId();
-//            sysUserService.grantRole(new SysUserGrantRoleParam().setId(););
         }else {
             SysUserAddParam sysUserAddParam = new SysUserAddParam();
-            //sysUserAddParam.setAccount(personnelAddParam.getPhone());
             sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
             sysUserAddParam.setName(personnelAddParam.getName());
             sysUserAddParam.setPhone(personnelAddParam.getPhone());
             sysUserAddParam.setPositionId(personnel.getDutyId());
             sysUserAddParam.setEmpNo(personnel.getFileNo());
-            sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+            if(ObjectUtil.isNotEmpty(personnel.getSex())){
+                sysUserAddParam.setGender(personnel.getSex());
+            }
+            if(ObjectUtil.isNotEmpty(personnelAddParam.getHireDate())){
+                sysUserAddParam.setEntryDate(personnelAddParam.getHireDate().toString());
+            }
             SysUser sysUser = BeanUtil.toBean(sysUserAddParam, SysUser.class);
             sysUser.setId(user.getId());
             sysUserService.updateById(sysUser);
@@ -210,11 +213,23 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
     @Override
     public void edit(PersonnelEditParam personnelEditParam) {
         Personnel personnel = this.queryEntity(personnelEditParam.getId());
+
+        //编辑数据与源数据对比，判断职位是否需要新增 - 新增岗位
+        String dutyId = personnel.getDutyId();
+        if(personnel.getDeptId()!=personnelEditParam.getDeptId() || personnel.getDuty()!=personnelEditParam.getDuty()){
+            SysPositionAddParam positionAddParam = new SysPositionAddParam();
+            positionAddParam.setName(personnelEditParam.getDuty());
+            positionAddParam.setOrgId(personnelEditParam.getDeptId());
+            positionAddParam.setCategory("LOW");
+            positionAddParam.setSortCode(99);
+            dutyId = sysPositionService.newAdd(positionAddParam).getId();
+        }
         BeanUtil.copyProperties(personnelEditParam, personnel);
         personnelFileRegisterService.deleteByFileId(personnel.getId());
         personnelFileMovesService.deleteByFileId(personnel.getId());
         personnelFileTitleService.deleteByFileId(personnel.getId());
         personnelFileCertService.deleteByFileId(personnel.getId());
+        personnel.setDutyId(dutyId);
         this.updateById(personnel);
         if (CollUtil.isNotEmpty(personnelEditParam.getPersonnelFileCertList())) {
             List<PersonnelFileCert> collect = personnelEditParam.getPersonnelFileCertList().stream().map(param -> BeanUtil.toBean(param, PersonnelFileCert.class)).collect(Collectors.toList());
@@ -248,7 +263,20 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             sysUserAddParam.setPositionId(personnel.getDutyId());
             sysUserAddParam.setEmpNo(personnel.getFileNo());
             sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+            if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
+                sysUserAddParam.setEntryDate(personnel.getHireDate().toString());
+            }
             sysUserService.addAndGrantRole(sysUserAddParam);
+        }else{
+            if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
+                user.setEntryDate(personnel.getHireDate().toString());
+            }
+            if(ObjectUtil.isNotEmpty(personnel.getDutyId())) {
+                user.setPositionId(personnel.getDutyId());
+            }
+            if(ObjectUtil.isNotEmpty(personnel.getHireDate()) || ObjectUtil.isNotEmpty(personnel.getDutyId())) {
+                sysUserService.updateById(user);
+            }
         }
         //已修改为离职 ，删除系统账号【禁用】
         if(personnelEditParam.getStatus().equals("1")){
@@ -342,10 +370,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                 }
             }
         }
-        if(StrUtil.isNotEmpty(personnelVo.getDutyId())){
-            SysPosition sysPosition = sysPositionService.getById(personnelVo.getDutyId());
-            personnelVo.setDuty(sysPosition.getName());
-        }
+//        if(StrUtil.isNotEmpty(personnelVo.getDutyId())){
+//            SysPosition sysPosition = sysPositionService.getById(personnelVo.getDutyId());
+//            personnelVo.setDuty(sysPosition.getName());
+//        }
 
         Map<String, Object> columnMap = new HashMap<>();
         columnMap.put("FILE_ID", personnel.getId());
@@ -474,10 +502,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                 }
             }
         }
-        SysPosition sysPosition = sysPositionService.getById(personnelVo.getDutyId());
-        if(ObjectUtil.isNotEmpty(sysPosition)){
-            personnelVo.setDuty(sysPosition.getName());
-        }
+//        SysPosition sysPosition = sysPositionService.getById(personnelVo.getDutyId());
+//        if(ObjectUtil.isNotEmpty(sysPosition)){
+//            personnelVo.setDuty(sysPosition.getName());
+//        }
         //处理职称和证书
         List<PersonnelFileCert> certlist = personnelFileCertService.list(new QueryWrapper<PersonnelFileCert>().lambda().eq(PersonnelFileCert::getFileId, personnelVo.getId()));
         List<PersonnelFileTitle> titlelist = personnelFileTitleService.list(new QueryWrapper<PersonnelFileTitle>().lambda().eq(PersonnelFileTitle::getFileId, personnelVo.getId()));

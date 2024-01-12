@@ -161,7 +161,7 @@ public class SysUserAddParam {
     private String empNo;
 
     /** 入职日期 */
-    @ApiModelProperty(value = "员工编号", position = 33)
+    @ApiModelProperty(value = "入职日期", position = 33)
     private String entryDate;
 
     /** 兼任信息 */
