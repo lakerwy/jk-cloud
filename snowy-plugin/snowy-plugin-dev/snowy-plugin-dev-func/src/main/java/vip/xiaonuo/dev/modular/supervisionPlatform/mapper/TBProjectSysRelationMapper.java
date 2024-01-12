@@ -10,26 +10,16 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.supervisionPlatform.param;
+package vip.xiaonuo.dev.modular.supervisionPlatform.mapper;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.validation.constraints.NotBlank;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBProjectSysRelation;
 
 /**
- * 市场监管公共服务平台-企业业绩技术指标信息表Id参数
+ * 市场监管公共服务平台-与其他系统项目关联信息表Mapper接口
  *
  * @author ljy
- * @date  2024/01/11 10:57
+ * @date  2024/01/11 10:59
  **/
-@Getter
-@Setter
-public class TbcorpperformanceIdParam {
-
-    /** 主键 */
-    @ApiModelProperty(value = "主键", required = true)
-    @NotBlank(message = "id不能为空")
-    private String id;
+public interface TBProjectSysRelationMapper extends BaseMapper<TBProjectSysRelation> {
 }

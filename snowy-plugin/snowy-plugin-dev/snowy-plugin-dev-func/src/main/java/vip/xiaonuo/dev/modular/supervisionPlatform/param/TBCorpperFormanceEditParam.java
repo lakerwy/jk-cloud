@@ -22,14 +22,19 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 市场监管公共服务平台-企业业绩技术指标信息表添加参数
+ * 市场监管公共服务平台-企业业绩技术指标信息表编辑参数
  *
  * @author ljy
  * @date  2024/01/11 10:57
  **/
 @Getter
 @Setter
-public class TbcorpperformanceAddParam {
+public class TBCorpperFormanceEditParam {
+
+    /** 主键 */
+    @ApiModelProperty(value = "主键", required = true, position = 1)
+    @NotBlank(message = "id不能为空")
+    private String id;
 
     /** 业绩记录编号 */
     @ApiModelProperty(value = "业绩记录编号", position = 2)

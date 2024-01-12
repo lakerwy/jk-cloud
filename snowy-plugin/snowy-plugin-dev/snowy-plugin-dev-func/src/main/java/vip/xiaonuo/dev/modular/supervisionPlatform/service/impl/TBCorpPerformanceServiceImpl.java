@@ -24,13 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbcorpperformance;
-import vip.xiaonuo.dev.modular.supervisionPlatform.mapper.TbcorpperformanceMapper;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbcorpperformanceAddParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbcorpperformanceEditParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbcorpperformanceIdParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbcorpperformancePageParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.service.TbcorpperformanceService;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBCorpperFormance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.mapper.TBCorpperFormanceMapper;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceAddParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceEditParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceIdParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormancePageParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBCorpperFormanceService;
 
 import java.util.List;
 
@@ -41,60 +41,60 @@ import java.util.List;
  * @date  2024/01/11 10:57
  **/
 @Service
-public class TbcorpperformanceServiceImpl extends ServiceImpl<TbcorpperformanceMapper, Tbcorpperformance> implements TbcorpperformanceService {
+public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceMapper, TBCorpperFormance> implements TBCorpperFormanceService {
 
     @Override
-    public Page<Tbcorpperformance> page(TbcorpperformancePageParam tbcorpperformancePageParam) {
-        QueryWrapper<Tbcorpperformance> queryWrapper = new QueryWrapper<>();
+    public Page<TBCorpperFormance> page(TBCorpperFormancePageParam tbcorpperformancePageParam) {
+        QueryWrapper<TBCorpperFormance> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(tbcorpperformancePageParam.getPerfNum())) {
-            queryWrapper.lambda().eq(Tbcorpperformance::getPerfNum, tbcorpperformancePageParam.getPerfNum());
+            queryWrapper.lambda().eq(TBCorpperFormance::getPerfNum, tbcorpperformancePageParam.getPerfNum());
         }
         if(ObjectUtil.isNotEmpty(tbcorpperformancePageParam.getPrjNuim())) {
-            queryWrapper.lambda().eq(Tbcorpperformance::getPrjNuim, tbcorpperformancePageParam.getPrjNuim());
+            queryWrapper.lambda().eq(TBCorpperFormance::getPrjNuim, tbcorpperformancePageParam.getPrjNuim());
         }
         if(ObjectUtil.isNotEmpty(tbcorpperformancePageParam.getCorpCode())) {
-            queryWrapper.lambda().eq(Tbcorpperformance::getCorpCode, tbcorpperformancePageParam.getCorpCode());
+            queryWrapper.lambda().eq(TBCorpperFormance::getCorpCode, tbcorpperformancePageParam.getCorpCode());
         }
         if(ObjectUtil.isAllNotEmpty(tbcorpperformancePageParam.getSortField(), tbcorpperformancePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(tbcorpperformancePageParam.getSortOrder());
             queryWrapper.orderBy(true, tbcorpperformancePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(tbcorpperformancePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Tbcorpperformance::getId);
+            queryWrapper.lambda().orderByAsc(TBCorpperFormance::getId);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(TbcorpperformanceAddParam tbcorpperformanceAddParam) {
-        Tbcorpperformance tbcorpperformance = BeanUtil.toBean(tbcorpperformanceAddParam, Tbcorpperformance.class);
+    public void add(TBCorpperFormanceAddParam tbcorpperformanceAddParam) {
+        TBCorpperFormance tbcorpperformance = BeanUtil.toBean(tbcorpperformanceAddParam, TBCorpperFormance.class);
         this.save(tbcorpperformance);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(TbcorpperformanceEditParam tbcorpperformanceEditParam) {
-        Tbcorpperformance tbcorpperformance = this.queryEntity(tbcorpperformanceEditParam.getId());
+    public void edit(TBCorpperFormanceEditParam tbcorpperformanceEditParam) {
+        TBCorpperFormance tbcorpperformance = this.queryEntity(tbcorpperformanceEditParam.getId());
         BeanUtil.copyProperties(tbcorpperformanceEditParam, tbcorpperformance);
         this.updateById(tbcorpperformance);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void delete(List<TbcorpperformanceIdParam> tbcorpperformanceIdParamList) {
+    public void delete(List<TBCorpperFormanceIdParam> TBCorpperFormanceIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(tbcorpperformanceIdParamList, TbcorpperformanceIdParam::getId));
+        this.removeByIds(CollStreamUtil.toList(TBCorpperFormanceIdParamList, TBCorpperFormanceIdParam::getId));
     }
 
     @Override
-    public Tbcorpperformance detail(TbcorpperformanceIdParam tbcorpperformanceIdParam) {
+    public TBCorpperFormance detail(TBCorpperFormanceIdParam tbcorpperformanceIdParam) {
         return this.queryEntity(tbcorpperformanceIdParam.getId());
     }
 
     @Override
-    public Tbcorpperformance queryEntity(String id) {
-        Tbcorpperformance tbcorpperformance = this.getById(id);
+    public TBCorpperFormance queryEntity(String id) {
+        TBCorpperFormance tbcorpperformance = this.getById(id);
         if(ObjectUtil.isEmpty(tbcorpperformance)) {
             throw new CommonException("市场监管公共服务平台-企业业绩技术指标信息表不存在，id值为：{}", id);
         }

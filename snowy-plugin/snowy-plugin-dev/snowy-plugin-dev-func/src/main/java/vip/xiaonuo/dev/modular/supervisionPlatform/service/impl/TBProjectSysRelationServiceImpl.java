@@ -24,13 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbprojectsysrelation;
-import vip.xiaonuo.dev.modular.supervisionPlatform.mapper.TbprojectsysrelationMapper;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbprojectsysrelationAddParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbprojectsysrelationEditParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbprojectsysrelationIdParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbprojectsysrelationPageParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.service.TbprojectsysrelationService;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBProjectSysRelation;
+import vip.xiaonuo.dev.modular.supervisionPlatform.mapper.TBProjectSysRelationMapper;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationAddParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationEditParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationIdParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationPageParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBProjectSysRelationService;
 
 import java.util.List;
 
@@ -41,54 +41,54 @@ import java.util.List;
  * @date  2024/01/11 10:59
  **/
 @Service
-public class TbprojectsysrelationServiceImpl extends ServiceImpl<TbprojectsysrelationMapper, Tbprojectsysrelation> implements TbprojectsysrelationService {
+public class TBProjectSysRelationServiceImpl extends ServiceImpl<TBProjectSysRelationMapper, TBProjectSysRelation> implements TBProjectSysRelationService {
 
     @Override
-    public Page<Tbprojectsysrelation> page(TbprojectsysrelationPageParam tbprojectsysrelationPageParam) {
-        QueryWrapper<Tbprojectsysrelation> queryWrapper = new QueryWrapper<>();
+    public Page<TBProjectSysRelation> page(TBProjectSysRelationPageParam tbprojectsysrelationPageParam) {
+        QueryWrapper<TBProjectSysRelation> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(tbprojectsysrelationPageParam.getPrinum())) {
-            queryWrapper.lambda().eq(Tbprojectsysrelation::getPrinum, tbprojectsysrelationPageParam.getPrinum());
+            queryWrapper.lambda().eq(TBProjectSysRelation::getPrinum, tbprojectsysrelationPageParam.getPrinum());
         }
         if(ObjectUtil.isAllNotEmpty(tbprojectsysrelationPageParam.getSortField(), tbprojectsysrelationPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(tbprojectsysrelationPageParam.getSortOrder());
             queryWrapper.orderBy(true, tbprojectsysrelationPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(tbprojectsysrelationPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Tbprojectsysrelation::getId);
+            queryWrapper.lambda().orderByAsc(TBProjectSysRelation::getId);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(TbprojectsysrelationAddParam tbprojectsysrelationAddParam) {
-        Tbprojectsysrelation tbprojectsysrelation = BeanUtil.toBean(tbprojectsysrelationAddParam, Tbprojectsysrelation.class);
+    public void add(TBProjectSysRelationAddParam tbprojectsysrelationAddParam) {
+        TBProjectSysRelation tbprojectsysrelation = BeanUtil.toBean(tbprojectsysrelationAddParam, TBProjectSysRelation.class);
         this.save(tbprojectsysrelation);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(TbprojectsysrelationEditParam tbprojectsysrelationEditParam) {
-        Tbprojectsysrelation tbprojectsysrelation = this.queryEntity(tbprojectsysrelationEditParam.getId());
+    public void edit(TBProjectSysRelationEditParam tbprojectsysrelationEditParam) {
+        TBProjectSysRelation tbprojectsysrelation = this.queryEntity(tbprojectsysrelationEditParam.getId());
         BeanUtil.copyProperties(tbprojectsysrelationEditParam, tbprojectsysrelation);
         this.updateById(tbprojectsysrelation);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void delete(List<TbprojectsysrelationIdParam> tbprojectsysrelationIdParamList) {
+    public void delete(List<TBProjectSysRelationIdParam> TBProjectSysRelationIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(tbprojectsysrelationIdParamList, TbprojectsysrelationIdParam::getId));
+        this.removeByIds(CollStreamUtil.toList(TBProjectSysRelationIdParamList, TBProjectSysRelationIdParam::getId));
     }
 
     @Override
-    public Tbprojectsysrelation detail(TbprojectsysrelationIdParam tbprojectsysrelationIdParam) {
+    public TBProjectSysRelation detail(TBProjectSysRelationIdParam tbprojectsysrelationIdParam) {
         return this.queryEntity(tbprojectsysrelationIdParam.getId());
     }
 
     @Override
-    public Tbprojectsysrelation queryEntity(String id) {
-        Tbprojectsysrelation tbprojectsysrelation = this.getById(id);
+    public TBProjectSysRelation queryEntity(String id) {
+        TBProjectSysRelation tbprojectsysrelation = this.getById(id);
         if(ObjectUtil.isEmpty(tbprojectsysrelation)) {
             throw new CommonException("市场监管公共服务平台-与其他系统项目关联信息表不存在，id值为：{}", id);
         }

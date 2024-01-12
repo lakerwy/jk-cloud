@@ -24,13 +24,13 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbpersonperformance;
-import vip.xiaonuo.dev.modular.supervisionPlatform.mapper.TbpersonperformanceMapper;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbpersonperformanceAddParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbpersonperformanceEditParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbpersonperformanceIdParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbpersonperformancePageParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.service.TbpersonperformanceService;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBPersonPerFormance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.mapper.TBPersonPerFormanceMapper;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormanceAddParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormanceEditParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormanceIdParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormancePageParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBPersonPerFormanceService;
 
 import java.util.List;
 
@@ -41,60 +41,60 @@ import java.util.List;
  * @date  2024/01/11 10:58
  **/
 @Service
-public class TbpersonperformanceServiceImpl extends ServiceImpl<TbpersonperformanceMapper, Tbpersonperformance> implements TbpersonperformanceService {
+public class TBPersonPerformanceServiceImpl extends ServiceImpl<TBPersonPerFormanceMapper, TBPersonPerFormance> implements TBPersonPerFormanceService {
 
     @Override
-    public Page<Tbpersonperformance> page(TbpersonperformancePageParam tbpersonperformancePageParam) {
-        QueryWrapper<Tbpersonperformance> queryWrapper = new QueryWrapper<>();
+    public Page<TBPersonPerFormance> page(TBPersonPerFormancePageParam tbpersonperformancePageParam) {
+        QueryWrapper<TBPersonPerFormance> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(tbpersonperformancePageParam.getPersonPerfNum())) {
-            queryWrapper.lambda().eq(Tbpersonperformance::getPersonPerfNum, tbpersonperformancePageParam.getPersonPerfNum());
+            queryWrapper.lambda().eq(TBPersonPerFormance::getPersonPerfNum, tbpersonperformancePageParam.getPersonPerfNum());
         }
         if(ObjectUtil.isNotEmpty(tbpersonperformancePageParam.getPerfNum())) {
-            queryWrapper.lambda().eq(Tbpersonperformance::getPerfNum, tbpersonperformancePageParam.getPerfNum());
+            queryWrapper.lambda().eq(TBPersonPerFormance::getPerfNum, tbpersonperformancePageParam.getPerfNum());
         }
         if(ObjectUtil.isNotEmpty(tbpersonperformancePageParam.getPersonIdCard())) {
-            queryWrapper.lambda().eq(Tbpersonperformance::getPersonIdCard, tbpersonperformancePageParam.getPersonIdCard());
+            queryWrapper.lambda().eq(TBPersonPerFormance::getPersonIdCard, tbpersonperformancePageParam.getPersonIdCard());
         }
         if(ObjectUtil.isAllNotEmpty(tbpersonperformancePageParam.getSortField(), tbpersonperformancePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(tbpersonperformancePageParam.getSortOrder());
             queryWrapper.orderBy(true, tbpersonperformancePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(tbpersonperformancePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Tbpersonperformance::getId);
+            queryWrapper.lambda().orderByAsc(TBPersonPerFormance::getId);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(TbpersonperformanceAddParam tbpersonperformanceAddParam) {
-        Tbpersonperformance tbpersonperformance = BeanUtil.toBean(tbpersonperformanceAddParam, Tbpersonperformance.class);
+    public void add(TBPersonPerFormanceAddParam tbpersonperformanceAddParam) {
+        TBPersonPerFormance tbpersonperformance = BeanUtil.toBean(tbpersonperformanceAddParam, TBPersonPerFormance.class);
         this.save(tbpersonperformance);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(TbpersonperformanceEditParam tbpersonperformanceEditParam) {
-        Tbpersonperformance tbpersonperformance = this.queryEntity(tbpersonperformanceEditParam.getId());
+    public void edit(TBPersonPerFormanceEditParam tbpersonperformanceEditParam) {
+        TBPersonPerFormance tbpersonperformance = this.queryEntity(tbpersonperformanceEditParam.getId());
         BeanUtil.copyProperties(tbpersonperformanceEditParam, tbpersonperformance);
         this.updateById(tbpersonperformance);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void delete(List<TbpersonperformanceIdParam> tbpersonperformanceIdParamList) {
+    public void delete(List<TBPersonPerFormanceIdParam> TBPersonPerFormanceIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(tbpersonperformanceIdParamList, TbpersonperformanceIdParam::getId));
+        this.removeByIds(CollStreamUtil.toList(TBPersonPerFormanceIdParamList, TBPersonPerFormanceIdParam::getId));
     }
 
     @Override
-    public Tbpersonperformance detail(TbpersonperformanceIdParam tbpersonperformanceIdParam) {
+    public TBPersonPerFormance detail(TBPersonPerFormanceIdParam tbpersonperformanceIdParam) {
         return this.queryEntity(tbpersonperformanceIdParam.getId());
     }
 
     @Override
-    public Tbpersonperformance queryEntity(String id) {
-        Tbpersonperformance tbpersonperformance = this.getById(id);
+    public TBPersonPerFormance queryEntity(String id) {
+        TBPersonPerFormance tbpersonperformance = this.getById(id);
         if(ObjectUtil.isEmpty(tbpersonperformance)) {
             throw new CommonException("市场监管公共服务平台-个人业绩信息表不存在，id值为：{}", id);
         }

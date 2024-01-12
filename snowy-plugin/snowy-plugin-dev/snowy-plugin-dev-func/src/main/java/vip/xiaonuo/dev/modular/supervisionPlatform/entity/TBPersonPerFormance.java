@@ -28,7 +28,7 @@ import java.util.Date;
 @Getter
 @Setter
 @TableName("TBPERSONPERFORMANCE")
-public class Tbpersonperformance {
+public class TBPersonPerFormance {
 
     /** 主键 */
     @TableId

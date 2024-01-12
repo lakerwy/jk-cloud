@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.dev.modular.supervisionPlatform.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -26,13 +25,13 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbcorpperformance;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbpersonperformance;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbprojectsysrelation;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBCorpperFormance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBPersonPerFormance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBProjectSysRelation;
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.*;
-import vip.xiaonuo.dev.modular.supervisionPlatform.service.TbcorpperformanceService;
-import vip.xiaonuo.dev.modular.supervisionPlatform.service.TbpersonperformanceService;
-import vip.xiaonuo.dev.modular.supervisionPlatform.service.TbprojectsysrelationService;
+import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBCorpperFormanceService;
+import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBPersonPerFormanceService;
+import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBProjectSysRelationService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -48,14 +47,14 @@ import javax.validation.constraints.NotEmpty;
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
-public class TbcorpperformanceController {
+public class TBCorpPerformanceController {
 
     @Resource
-    private TbcorpperformanceService tbcorpperformanceService;
+    private TBCorpperFormanceService tbcorpperformanceService;
     @Resource
-    private TbpersonperformanceService tbpersonperformanceService;
+    private TBPersonPerFormanceService tbpersonperformanceService;
     @Resource
-    private TbprojectsysrelationService tbprojectsysrelationService;
+    private TBProjectSysRelationService tbprojectsysrelationService;
 
     /**
      * 获取市场监管公共服务平台-企业业绩技术指标信息表分页
@@ -65,9 +64,9 @@ public class TbcorpperformanceController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取市场监管公共服务平台-企业业绩技术指标信息表分页")
-    //@SaCheckPermission("/biz/Tbcorpperformance/page")
+    //@SaCheckPermission("/biz/TBCorpperFormance/page")
     @GetMapping("/biz/Tbcorpperformance/page")
-    public CommonResult<Page<Tbcorpperformance>> page(TbcorpperformancePageParam tbcorpperformancePageParam) {
+    public CommonResult<Page<TBCorpperFormance>> page(TBCorpperFormancePageParam tbcorpperformancePageParam) {
         return CommonResult.data(tbcorpperformanceService.page(tbcorpperformancePageParam));
     }
 
@@ -80,9 +79,9 @@ public class TbcorpperformanceController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加市场监管公共服务平台-企业业绩技术指标信息表")
     @CommonLog("添加市场监管公共服务平台-企业业绩技术指标信息表")
-    //@SaCheckPermission("/biz/Tbcorpperformance/add")
+    //@SaCheckPermission("/biz/TBCorpperFormance/add")
     @PostMapping("/biz/Tbcorpperformance/add")
-    public CommonResult<String> add(@RequestBody @Valid TbcorpperformanceAddParam tbcorpperformanceAddParam) {
+    public CommonResult<String> add(@RequestBody @Valid TBCorpperFormanceAddParam tbcorpperformanceAddParam) {
         tbcorpperformanceService.add(tbcorpperformanceAddParam);
         return CommonResult.ok();
     }
@@ -96,9 +95,9 @@ public class TbcorpperformanceController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑市场监管公共服务平台-企业业绩技术指标信息表")
     @CommonLog("编辑市场监管公共服务平台-企业业绩技术指标信息表")
-    //@SaCheckPermission("/biz/Tbcorpperformance/edit")
+    //@SaCheckPermission("/biz/TBCorpperFormance/edit")
     @PostMapping("/biz/Tbcorpperformance/edit")
-    public CommonResult<String> edit(@RequestBody @Valid TbcorpperformanceEditParam tbcorpperformanceEditParam) {
+    public CommonResult<String> edit(@RequestBody @Valid TBCorpperFormanceEditParam tbcorpperformanceEditParam) {
         tbcorpperformanceService.edit(tbcorpperformanceEditParam);
         return CommonResult.ok();
     }
@@ -112,11 +111,11 @@ public class TbcorpperformanceController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除市场监管公共服务平台-企业业绩技术指标信息表")
     @CommonLog("删除市场监管公共服务平台-企业业绩技术指标信息表")
-    //@SaCheckPermission("/biz/Tbcorpperformance/delete")
+    //@SaCheckPermission("/biz/TBCorpperFormance/delete")
     @PostMapping("/biz/Tbcorpperformance/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<TbcorpperformanceIdParam> tbcorpperformanceIdParamList) {
-        tbcorpperformanceService.delete(tbcorpperformanceIdParamList);
+                                                   CommonValidList<TBCorpperFormanceIdParam> TBCorpperFormanceIdParamList) {
+        tbcorpperformanceService.delete(TBCorpperFormanceIdParamList);
         return CommonResult.ok();
     }
 
@@ -128,9 +127,9 @@ public class TbcorpperformanceController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取市场监管公共服务平台-企业业绩技术指标信息表详情")
-    //@SaCheckPermission("/biz/Tbcorpperformance/detail")
+    //@SaCheckPermission("/biz/TBCorpperFormance/detail")
     @GetMapping("/biz/Tbcorpperformance/detail")
-    public CommonResult<Tbcorpperformance> detail(@Valid TbcorpperformanceIdParam tbcorpperformanceIdParam) {
+    public CommonResult<TBCorpperFormance> detail(@Valid TBCorpperFormanceIdParam tbcorpperformanceIdParam) {
         return CommonResult.data(tbcorpperformanceService.detail(tbcorpperformanceIdParam));
     }
 
@@ -149,7 +148,7 @@ public class TbcorpperformanceController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取市场监管公共服务平台-个人业绩信息表分页")
     @GetMapping("/biz/Tbpersonperformance/personPage")
-    public CommonResult<Page<Tbpersonperformance>> personPage(TbpersonperformancePageParam tbpersonperformancePageParam) {
+    public CommonResult<Page<TBPersonPerFormance>> personPage(TBPersonPerFormancePageParam tbpersonperformancePageParam) {
         return CommonResult.data(tbpersonperformanceService.page(tbpersonperformancePageParam));
     }
 
@@ -163,7 +162,7 @@ public class TbcorpperformanceController {
     @ApiOperation("添加市场监管公共服务平台-个人业绩信息表")
     @CommonLog("添加市场监管公共服务平台-个人业绩信息表")
     @PostMapping("/biz/Tbpersonperformance/personAdd")
-    public CommonResult<String> personAdd(@RequestBody @Valid TbpersonperformanceAddParam tbpersonperformanceAddParam) {
+    public CommonResult<String> personAdd(@RequestBody @Valid TBPersonPerFormanceAddParam tbpersonperformanceAddParam) {
         tbpersonperformanceService.add(tbpersonperformanceAddParam);
         return CommonResult.ok();
     }
@@ -178,7 +177,7 @@ public class TbcorpperformanceController {
     @ApiOperation("编辑市场监管公共服务平台-个人业绩信息表")
     @CommonLog("编辑市场监管公共服务平台-个人业绩信息表")
     @PostMapping("/biz/Tbpersonperformance/personEdit")
-    public CommonResult<String> personEdit(@RequestBody @Valid TbpersonperformanceEditParam tbpersonperformanceEditParam) {
+    public CommonResult<String> personEdit(@RequestBody @Valid TBPersonPerFormanceEditParam tbpersonperformanceEditParam) {
         tbpersonperformanceService.edit(tbpersonperformanceEditParam);
         return CommonResult.ok();
     }
@@ -194,8 +193,8 @@ public class TbcorpperformanceController {
     @CommonLog("删除市场监管公共服务平台-个人业绩信息表")
     @PostMapping("/biz/Tbpersonperformance/personDelete")
     public CommonResult<String> personDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                               CommonValidList<TbpersonperformanceIdParam> tbpersonperformanceIdParamList) {
-        tbpersonperformanceService.delete(tbpersonperformanceIdParamList);
+                                               CommonValidList<TBPersonPerFormanceIdParam> TBPersonPerFormanceIdParamList) {
+        tbpersonperformanceService.delete(TBPersonPerFormanceIdParamList);
         return CommonResult.ok();
     }
 
@@ -208,7 +207,7 @@ public class TbcorpperformanceController {
     @ApiOperationSupport(order = 10)
     @ApiOperation("获取市场监管公共服务平台-个人业绩信息表详情")
     @GetMapping("/biz/Tbpersonperformance/personDetail")
-    public CommonResult<Tbpersonperformance> personDetail(@Valid TbpersonperformanceIdParam tbpersonperformanceIdParam) {
+    public CommonResult<TBPersonPerFormance> personDetail(@Valid TBPersonPerFormanceIdParam tbpersonperformanceIdParam) {
         return CommonResult.data(tbpersonperformanceService.detail(tbpersonperformanceIdParam));
     }
 
@@ -227,7 +226,7 @@ public class TbcorpperformanceController {
     @ApiOperationSupport(order = 11)
     @ApiOperation("获取市场监管公共服务平台-与其他系统项目关联信息表分页")
     @GetMapping("/biz/Tbprojectsysrelation/relationPage")
-    public CommonResult<Page<Tbprojectsysrelation>> relationPage(TbprojectsysrelationPageParam tbprojectsysrelationPageParam) {
+    public CommonResult<Page<TBProjectSysRelation>> relationPage(TBProjectSysRelationPageParam tbprojectsysrelationPageParam) {
         return CommonResult.data(tbprojectsysrelationService.page(tbprojectsysrelationPageParam));
     }
 
@@ -241,7 +240,7 @@ public class TbcorpperformanceController {
     @ApiOperation("添加市场监管公共服务平台-与其他系统项目关联信息表")
     @CommonLog("添加市场监管公共服务平台-与其他系统项目关联信息表")
     @PostMapping("/biz/Tbprojectsysrelation/relationAdd")
-    public CommonResult<String> relationAdd(@RequestBody @Valid TbprojectsysrelationAddParam tbprojectsysrelationAddParam) {
+    public CommonResult<String> relationAdd(@RequestBody @Valid TBProjectSysRelationAddParam tbprojectsysrelationAddParam) {
         tbprojectsysrelationService.add(tbprojectsysrelationAddParam);
         return CommonResult.ok();
     }
@@ -256,7 +255,7 @@ public class TbcorpperformanceController {
     @ApiOperation("编辑市场监管公共服务平台-与其他系统项目关联信息表")
     @CommonLog("编辑市场监管公共服务平台-与其他系统项目关联信息表")
     @PostMapping("/biz/Tbprojectsysrelation/relationEdit")
-    public CommonResult<String> relationEdit(@RequestBody @Valid TbprojectsysrelationEditParam tbprojectsysrelationEditParam) {
+    public CommonResult<String> relationEdit(@RequestBody @Valid TBProjectSysRelationEditParam tbprojectsysrelationEditParam) {
         tbprojectsysrelationService.edit(tbprojectsysrelationEditParam);
         return CommonResult.ok();
     }
@@ -272,8 +271,8 @@ public class TbcorpperformanceController {
     @CommonLog("删除市场监管公共服务平台-与其他系统项目关联信息表")
     @PostMapping("/biz/Tbprojectsysrelation/relationDelete")
     public CommonResult<String> relationDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                               CommonValidList<TbprojectsysrelationIdParam> tbprojectsysrelationIdParamList) {
-        tbprojectsysrelationService.delete(tbprojectsysrelationIdParamList);
+                                               CommonValidList<TBProjectSysRelationIdParam> TBProjectSysRelationIdParamList) {
+        tbprojectsysrelationService.delete(TBProjectSysRelationIdParamList);
         return CommonResult.ok();
     }
 
@@ -286,7 +285,7 @@ public class TbcorpperformanceController {
     @ApiOperationSupport(order = 15)
     @ApiOperation("获取市场监管公共服务平台-与其他系统项目关联信息表详情")
     @GetMapping("/biz/Tbprojectsysrelation/relationDetail")
-    public CommonResult<Tbprojectsysrelation> relationDetail(@Valid TbprojectsysrelationIdParam tbprojectsysrelationIdParam) {
+    public CommonResult<TBProjectSysRelation> relationDetail(@Valid TBProjectSysRelationIdParam tbprojectsysrelationIdParam) {
         return CommonResult.data(tbprojectsysrelationService.detail(tbprojectsysrelationIdParam));
     }
 }

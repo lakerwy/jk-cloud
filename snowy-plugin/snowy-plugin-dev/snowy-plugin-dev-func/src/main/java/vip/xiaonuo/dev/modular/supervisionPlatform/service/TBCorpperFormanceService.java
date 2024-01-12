@@ -14,11 +14,11 @@ package vip.xiaonuo.dev.modular.supervisionPlatform.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbcorpperformance;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbcorpperformanceAddParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbcorpperformanceEditParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbcorpperformanceIdParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbcorpperformancePageParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBCorpperFormance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceAddParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceEditParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormanceIdParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBCorpperFormancePageParam;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  * @author ljy
  * @date  2024/01/11 10:57
  **/
-public interface TbcorpperformanceService extends IService<Tbcorpperformance> {
+public interface TBCorpperFormanceService extends IService<TBCorpperFormance> {
 
     /**
      * 获取市场监管公共服务平台-企业业绩技术指标信息表分页
@@ -36,7 +36,7 @@ public interface TbcorpperformanceService extends IService<Tbcorpperformance> {
      * @author ljy
      * @date  2024/01/11 10:57
      */
-    Page<Tbcorpperformance> page(TbcorpperformancePageParam tbcorpperformancePageParam);
+    Page<TBCorpperFormance> page(TBCorpperFormancePageParam tbcorpperformancePageParam);
 
     /**
      * 添加市场监管公共服务平台-企业业绩技术指标信息表
@@ -44,7 +44,7 @@ public interface TbcorpperformanceService extends IService<Tbcorpperformance> {
      * @author ljy
      * @date  2024/01/11 10:57
      */
-    void add(TbcorpperformanceAddParam tbcorpperformanceAddParam);
+    void add(TBCorpperFormanceAddParam tbcorpperformanceAddParam);
 
     /**
      * 编辑市场监管公共服务平台-企业业绩技术指标信息表
@@ -52,7 +52,7 @@ public interface TbcorpperformanceService extends IService<Tbcorpperformance> {
      * @author ljy
      * @date  2024/01/11 10:57
      */
-    void edit(TbcorpperformanceEditParam tbcorpperformanceEditParam);
+    void edit(TBCorpperFormanceEditParam tbcorpperformanceEditParam);
 
     /**
      * 删除市场监管公共服务平台-企业业绩技术指标信息表
@@ -60,7 +60,7 @@ public interface TbcorpperformanceService extends IService<Tbcorpperformance> {
      * @author ljy
      * @date  2024/01/11 10:57
      */
-    void delete(List<TbcorpperformanceIdParam> tbcorpperformanceIdParamList);
+    void delete(List<TBCorpperFormanceIdParam> TBCorpperFormanceIdParamList);
 
     /**
      * 获取市场监管公共服务平台-企业业绩技术指标信息表详情
@@ -68,7 +68,7 @@ public interface TbcorpperformanceService extends IService<Tbcorpperformance> {
      * @author ljy
      * @date  2024/01/11 10:57
      */
-    Tbcorpperformance detail(TbcorpperformanceIdParam tbcorpperformanceIdParam);
+    TBCorpperFormance detail(TBCorpperFormanceIdParam tbcorpperformanceIdParam);
 
     /**
      * 获取市场监管公共服务平台-企业业绩技术指标信息表详情
@@ -76,5 +76,5 @@ public interface TbcorpperformanceService extends IService<Tbcorpperformance> {
      * @author ljy
      * @date  2024/01/11 10:57
      **/
-    Tbcorpperformance queryEntity(String id);
+    TBCorpperFormance queryEntity(String id);
 }

@@ -29,7 +29,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-public class TbprojectsysrelationEditParam {
+public class TBProjectSysRelationEditParam {
 
     /** 主键 */
     @ApiModelProperty(value = "主键", required = true, position = 1)

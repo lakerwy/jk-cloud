@@ -14,11 +14,11 @@ package vip.xiaonuo.dev.modular.supervisionPlatform.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbprojectsysrelation;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbprojectsysrelationAddParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbprojectsysrelationEditParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbprojectsysrelationIdParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbprojectsysrelationPageParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBProjectSysRelation;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationAddParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationEditParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationIdParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationPageParam;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  * @author ljy
  * @date  2024/01/11 10:59
  **/
-public interface TbprojectsysrelationService extends IService<Tbprojectsysrelation> {
+public interface TBProjectSysRelationService extends IService<TBProjectSysRelation> {
 
     /**
      * 获取市场监管公共服务平台-与其他系统项目关联信息表分页
@@ -36,7 +36,7 @@ public interface TbprojectsysrelationService extends IService<Tbprojectsysrelati
      * @author ljy
      * @date  2024/01/11 10:59
      */
-    Page<Tbprojectsysrelation> page(TbprojectsysrelationPageParam tbprojectsysrelationPageParam);
+    Page<TBProjectSysRelation> page(TBProjectSysRelationPageParam tbprojectsysrelationPageParam);
 
     /**
      * 添加市场监管公共服务平台-与其他系统项目关联信息表
@@ -44,7 +44,7 @@ public interface TbprojectsysrelationService extends IService<Tbprojectsysrelati
      * @author ljy
      * @date  2024/01/11 10:59
      */
-    void add(TbprojectsysrelationAddParam tbprojectsysrelationAddParam);
+    void add(TBProjectSysRelationAddParam tbprojectsysrelationAddParam);
 
     /**
      * 编辑市场监管公共服务平台-与其他系统项目关联信息表
@@ -52,7 +52,7 @@ public interface TbprojectsysrelationService extends IService<Tbprojectsysrelati
      * @author ljy
      * @date  2024/01/11 10:59
      */
-    void edit(TbprojectsysrelationEditParam tbprojectsysrelationEditParam);
+    void edit(TBProjectSysRelationEditParam tbprojectsysrelationEditParam);
 
     /**
      * 删除市场监管公共服务平台-与其他系统项目关联信息表
@@ -60,7 +60,7 @@ public interface TbprojectsysrelationService extends IService<Tbprojectsysrelati
      * @author ljy
      * @date  2024/01/11 10:59
      */
-    void delete(List<TbprojectsysrelationIdParam> tbprojectsysrelationIdParamList);
+    void delete(List<TBProjectSysRelationIdParam> TBProjectSysRelationIdParamList);
 
     /**
      * 获取市场监管公共服务平台-与其他系统项目关联信息表详情
@@ -68,7 +68,7 @@ public interface TbprojectsysrelationService extends IService<Tbprojectsysrelati
      * @author ljy
      * @date  2024/01/11 10:59
      */
-    Tbprojectsysrelation detail(TbprojectsysrelationIdParam tbprojectsysrelationIdParam);
+    TBProjectSysRelation detail(TBProjectSysRelationIdParam tbprojectsysrelationIdParam);
 
     /**
      * 获取市场监管公共服务平台-与其他系统项目关联信息表详情
@@ -76,5 +76,5 @@ public interface TbprojectsysrelationService extends IService<Tbprojectsysrelati
      * @author ljy
      * @date  2024/01/11 10:59
      **/
-    Tbprojectsysrelation queryEntity(String id);
+    TBProjectSysRelation queryEntity(String id);
 }

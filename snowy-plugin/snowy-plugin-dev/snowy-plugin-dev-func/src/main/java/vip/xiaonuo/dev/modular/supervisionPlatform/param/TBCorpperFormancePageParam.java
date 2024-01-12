@@ -26,7 +26,7 @@ import java.util.Date;
  **/
 @Getter
 @Setter
-public class TbcorpperformancePageParam {
+public class TBCorpperFormancePageParam {
 
     /** 当前页 */
     @ApiModelProperty(value = "当前页码")

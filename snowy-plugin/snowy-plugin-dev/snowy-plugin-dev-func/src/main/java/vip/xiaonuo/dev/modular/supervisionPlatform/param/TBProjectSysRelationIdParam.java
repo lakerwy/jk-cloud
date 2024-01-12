@@ -19,14 +19,14 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 市场监管公共服务平台-个人业绩信息表Id参数
+ * 市场监管公共服务平台-与其他系统项目关联信息表Id参数
  *
  * @author ljy
- * @date  2024/01/11 10:58
+ * @date  2024/01/11 10:59
  **/
 @Getter
 @Setter
-public class TbpersonperformanceIdParam {
+public class TBProjectSysRelationIdParam {
 
     /** 主键 */
     @ApiModelProperty(value = "主键", required = true)

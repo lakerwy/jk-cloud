@@ -14,11 +14,11 @@ package vip.xiaonuo.dev.modular.supervisionPlatform.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbpersonperformance;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbpersonperformanceAddParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbpersonperformanceEditParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbpersonperformanceIdParam;
-import vip.xiaonuo.dev.modular.supervisionPlatform.param.TbpersonperformancePageParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBPersonPerFormance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormanceAddParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormanceEditParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormanceIdParam;
+import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormancePageParam;
 
 import java.util.List;
 
@@ -28,7 +28,7 @@ import java.util.List;
  * @author ljy
  * @date  2024/01/11 10:58
  **/
-public interface TbpersonperformanceService extends IService<Tbpersonperformance> {
+public interface TBPersonPerFormanceService extends IService<TBPersonPerFormance> {
 
     /**
      * 获取市场监管公共服务平台-个人业绩信息表分页
@@ -36,7 +36,7 @@ public interface TbpersonperformanceService extends IService<Tbpersonperformance
      * @author ljy
      * @date  2024/01/11 10:58
      */
-    Page<Tbpersonperformance> page(TbpersonperformancePageParam tbpersonperformancePageParam);
+    Page<TBPersonPerFormance> page(TBPersonPerFormancePageParam tbpersonperformancePageParam);
 
     /**
      * 添加市场监管公共服务平台-个人业绩信息表
@@ -44,7 +44,7 @@ public interface TbpersonperformanceService extends IService<Tbpersonperformance
      * @author ljy
      * @date  2024/01/11 10:58
      */
-    void add(TbpersonperformanceAddParam tbpersonperformanceAddParam);
+    void add(TBPersonPerFormanceAddParam tbpersonperformanceAddParam);
 
     /**
      * 编辑市场监管公共服务平台-个人业绩信息表
@@ -52,7 +52,7 @@ public interface TbpersonperformanceService extends IService<Tbpersonperformance
      * @author ljy
      * @date  2024/01/11 10:58
      */
-    void edit(TbpersonperformanceEditParam tbpersonperformanceEditParam);
+    void edit(TBPersonPerFormanceEditParam tbpersonperformanceEditParam);
 
     /**
      * 删除市场监管公共服务平台-个人业绩信息表
@@ -60,7 +60,7 @@ public interface TbpersonperformanceService extends IService<Tbpersonperformance
      * @author ljy
      * @date  2024/01/11 10:58
      */
-    void delete(List<TbpersonperformanceIdParam> tbpersonperformanceIdParamList);
+    void delete(List<TBPersonPerFormanceIdParam> TBPersonPerFormanceIdParamList);
 
     /**
      * 获取市场监管公共服务平台-个人业绩信息表详情
@@ -68,7 +68,7 @@ public interface TbpersonperformanceService extends IService<Tbpersonperformance
      * @author ljy
      * @date  2024/01/11 10:58
      */
-    Tbpersonperformance detail(TbpersonperformanceIdParam tbpersonperformanceIdParam);
+    TBPersonPerFormance detail(TBPersonPerFormanceIdParam tbpersonperformanceIdParam);
 
     /**
      * 获取市场监管公共服务平台-个人业绩信息表详情
@@ -76,5 +76,5 @@ public interface TbpersonperformanceService extends IService<Tbpersonperformance
      * @author ljy
      * @date  2024/01/11 10:58
      **/
-    Tbpersonperformance queryEntity(String id);
+    TBPersonPerFormance queryEntity(String id);
 }

@@ -10,30 +10,26 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.supervisionPlatform.entity;
+package vip.xiaonuo.dev.modular.supervisionPlatform.param;
 
-import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 市场监管公共服务平台-企业业绩技术指标信息表实体
+ * 市场监管公共服务平台-企业业绩技术指标信息表添加参数
  *
  * @author ljy
  * @date  2024/01/11 10:57
  **/
 @Getter
 @Setter
-@TableName("TBCORPPERFORMANCE")
-public class Tbcorpperformance {
-
-    /** 主键 */
-    @TableId
-    @ApiModelProperty(value = "主键", position = 1)
-    private String id;
+public class TBCorpperFormanceAddParam {
 
     /** 业绩记录编号 */
     @ApiModelProperty(value = "业绩记录编号", position = 2)
@@ -91,29 +87,4 @@ public class Tbcorpperformance {
     @ApiModelProperty(value = "入参信息", position = 15)
     private String extJson;
 
-    /** 删除状态标记 */
-    @ApiModelProperty(value = "删除状态标记", position = 16)
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
-    private String deleteFlag;
-
-    /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 17)
-    @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
-
-    /** 创建人 */
-    @ApiModelProperty(value = "创建人", position = 18)
-    @TableField(fill = FieldFill.INSERT)
-    private String createUser;
-
-    /** 更新时间 */
-    @ApiModelProperty(value = "更新时间", position = 19)
-    @TableField(fill = FieldFill.UPDATE)
-    private Date updateTime;
-
-    /** 更新人 */
-    @ApiModelProperty(value = "更新人", position = 20)
-    @TableField(fill = FieldFill.UPDATE)
-    private String updateUser;
 }

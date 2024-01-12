@@ -10,25 +10,16 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.supervisionPlatform.enums;
+package vip.xiaonuo.dev.modular.supervisionPlatform.mapper;
 
-import lombok.Getter;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBPersonPerFormance;
 
 /**
- * 市场监管公共服务平台-企业业绩技术指标信息表枚举
+ * 市场监管公共服务平台-个人业绩信息表Mapper接口
  *
  * @author ljy
- * @date  2024/01/11 10:57
+ * @date  2024/01/11 10:58
  **/
-@Getter
-public enum TbcorpperformanceEnum {
-
-    /** 测试 */
-    TEST("TEST");
-
-    private final String value;
-
-    TbcorpperformanceEnum(String value) {
-        this.value = value;
-    }
+public interface TBPersonPerFormanceMapper extends BaseMapper<TBPersonPerFormance> {
 }

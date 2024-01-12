@@ -13,13 +13,13 @@
 package vip.xiaonuo.dev.modular.supervisionPlatform.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import vip.xiaonuo.dev.modular.supervisionPlatform.entity.Tbpersonperformance;
+import vip.xiaonuo.dev.modular.supervisionPlatform.entity.TBCorpperFormance;
 
 /**
- * 市场监管公共服务平台-个人业绩信息表Mapper接口
+ * 市场监管公共服务平台-企业业绩技术指标信息表Mapper接口
  *
  * @author ljy
- * @date  2024/01/11 10:58
+ * @date  2024/01/11 10:57
  **/
-public interface TbpersonperformanceMapper extends BaseMapper<Tbpersonperformance> {
+public interface TBCorpperFormanceMapper extends BaseMapper<TBCorpperFormance> {
 }
