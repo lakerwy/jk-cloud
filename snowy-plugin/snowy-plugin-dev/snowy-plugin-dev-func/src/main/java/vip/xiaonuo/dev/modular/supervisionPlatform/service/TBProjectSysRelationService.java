@@ -47,6 +47,14 @@ public interface TBProjectSysRelationService extends IService<TBProjectSysRelati
     void add(TBProjectSysRelationAddParam tbprojectsysrelationAddParam);
 
     /**
+     * 添加市场监管公共服务平台-与其他系统项目关联信息表
+     *
+     * @author ljy
+     * @date  2024/01/11 10:59
+     */
+    void relationAddBatch(List<TBProjectSysRelationAddParam> tbprojectsysrelationAddParamList);
+
+    /**
      * 编辑市场监管公共服务平台-与其他系统项目关联信息表
      *
      * @author ljy

@@ -50,6 +50,14 @@ public interface TBCorpperFormanceService extends IService<TBCorpperFormance> {
     void add(TBCorpperFormanceAddParam tbcorpperformanceAddParam);
 
     /**
+     * 添加市场监管公共服务平台-企业业绩技术指标信息表
+     *
+     * @author ljy
+     * @date  2024/01/11 10:57
+     */
+    void addBatch(List<TBCorpperFormanceAddParam> tbcorpperformanceAddParamList);
+
+    /**
      * 编辑市场监管公共服务平台-企业业绩技术指标信息表
      *
      * @author ljy

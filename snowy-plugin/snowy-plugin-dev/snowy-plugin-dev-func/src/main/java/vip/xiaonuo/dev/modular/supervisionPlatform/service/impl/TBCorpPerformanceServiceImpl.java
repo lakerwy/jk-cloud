@@ -53,6 +53,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -98,6 +99,18 @@ public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceM
     public void add(TBCorpperFormanceAddParam tbcorpperformanceAddParam) {
         TBCorpperFormance tbcorpperformance = BeanUtil.toBean(tbcorpperformanceAddParam, TBCorpperFormance.class);
         this.save(tbcorpperformance);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void addBatch(List<TBCorpperFormanceAddParam> tbCorpperFormanceAddParamList) {
+        try{
+            List<TBCorpperFormance> tbCorpperFormanceList = new ArrayList<>();
+            tbCorpperFormanceAddParamList.forEach(param -> tbCorpperFormanceList.add(BeanUtil.toBean(param, TBCorpperFormance.class)) );
+            this.saveBatch(tbCorpperFormanceList);
+        }catch (Exception e){
+            throw new CommonException("批量插入数据错误！");
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

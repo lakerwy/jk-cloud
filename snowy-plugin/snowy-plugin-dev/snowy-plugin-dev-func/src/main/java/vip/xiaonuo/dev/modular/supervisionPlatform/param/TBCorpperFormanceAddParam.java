@@ -65,11 +65,11 @@ public class TBCorpperFormanceAddParam {
 
     /** 工作开始时间/施工许可开工时间 */
     @ApiModelProperty(value = "工作开始时间/施工许可开工时间", position = 10)
-    private Date bDate;
+    private String bDate;
 
     /** 工作结束时间/竣工验收结束时间 */
     @ApiModelProperty(value = "工作结束时间/竣工验收结束时间", position = 11)
-    private Date eDate;
+    private String eDate;
 
     /** 信息审核部门 */
     @ApiModelProperty(value = "信息审核部门", position = 12)

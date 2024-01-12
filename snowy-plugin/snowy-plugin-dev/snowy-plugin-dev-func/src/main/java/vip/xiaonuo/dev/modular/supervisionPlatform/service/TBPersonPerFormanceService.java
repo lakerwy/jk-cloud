@@ -47,6 +47,13 @@ public interface TBPersonPerFormanceService extends IService<TBPersonPerFormance
     void add(TBPersonPerFormanceAddParam tbpersonperformanceAddParam);
 
     /**
+     * 添加市场监管公共服务平台-个人业绩信息表
+     *
+     * @author ljy
+     * @date  2024/01/11 10:58
+     */
+    void personAddBatch(List<TBPersonPerFormanceAddParam> tbpersonperformanceAddParamList);
+    /**
      * 编辑市场监管公共服务平台-个人业绩信息表
      *
      * @author ljy

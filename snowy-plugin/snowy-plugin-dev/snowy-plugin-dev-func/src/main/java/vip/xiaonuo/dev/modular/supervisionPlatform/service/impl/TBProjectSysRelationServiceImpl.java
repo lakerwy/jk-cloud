@@ -32,6 +32,7 @@ import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationIdP
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBProjectSysRelationPageParam;
 import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBProjectSysRelationService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -64,6 +65,20 @@ public class TBProjectSysRelationServiceImpl extends ServiceImpl<TBProjectSysRel
     public void add(TBProjectSysRelationAddParam tbprojectsysrelationAddParam) {
         TBProjectSysRelation tbprojectsysrelation = BeanUtil.toBean(tbprojectsysrelationAddParam, TBProjectSysRelation.class);
         this.save(tbprojectsysrelation);
+    }
+
+    //relationAddBatch
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void relationAddBatch(List<TBProjectSysRelationAddParam> tbprojectsysrelationAddParamList) {
+        try{
+            List<TBProjectSysRelation> tbProjectSysRelationList = new ArrayList<>();
+            tbprojectsysrelationAddParamList.forEach(param -> tbProjectSysRelationList.add(BeanUtil.toBean(param, TBProjectSysRelation.class)));
+            this.saveBatch(tbProjectSysRelationList);
+        }catch (Exception e){
+            log.error("数据批量导入失败！"+e.getMessage());
+            throw new CommonException("数据批量导入失败！"+e.getMessage());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

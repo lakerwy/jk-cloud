@@ -32,6 +32,7 @@ import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormanceIdPa
 import vip.xiaonuo.dev.modular.supervisionPlatform.param.TBPersonPerFormancePageParam;
 import vip.xiaonuo.dev.modular.supervisionPlatform.service.TBPersonPerFormanceService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -70,6 +71,19 @@ public class TBPersonPerformanceServiceImpl extends ServiceImpl<TBPersonPerForma
     public void add(TBPersonPerFormanceAddParam tbpersonperformanceAddParam) {
         TBPersonPerFormance tbpersonperformance = BeanUtil.toBean(tbpersonperformanceAddParam, TBPersonPerFormance.class);
         this.save(tbpersonperformance);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void personAddBatch(List<TBPersonPerFormanceAddParam> tbpersonperformanceAddParamList) {
+        try{
+            List<TBPersonPerFormance> tbPersonPerFormanceList = new ArrayList<>();
+            tbpersonperformanceAddParamList.forEach(param -> tbPersonPerFormanceList.add(BeanUtil.toBean(param, TBPersonPerFormance.class)));
+            this.saveBatch(tbPersonPerFormanceList);
+        }catch (Exception e){
+            log.error("批量导入失败！e:"+e.toString());
+            throw new CommonException("批量导入失败！"+e.getMessage());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
