@@ -98,7 +98,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         createDbFuture
                 .thenComposeAsync(createDbFlag -> createDbFlag ? uploadConfAsync(sftpFileUploader,systemConfExec.getSystemId(),2) : CompletableFuture.completedFuture(false))
                 .thenComposeAsync(uploadConfFlag -> uploadConfFlag ? updateConfAsync(systemConfExec, sftpFileUploader, 3) : CompletableFuture.completedFuture(false))
-                .thenComposeAsync(executeConfFlag -> executeConfFlag ? executeRemoteScriptAsync(sftpFileUploader,systemConfExec.getSystemId(),4) : CompletableFuture.completedFuture(false));
+                .thenComposeAsync(executeConfFlag -> executeConfFlag ? executeRemoteScriptAsync(sftpFileUploader,systemConfExec,4) : CompletableFuture.completedFuture(false));
     }
 
 
@@ -717,13 +717,15 @@ public class InitConfigServiceImpl implements InitConfigService {
     }
 
     @Override
-    public CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, String systemId, Integer status) {
+    public CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, SystemConfExec systemConfExec , Integer status) {
         return CompletableFuture.supplyAsync(() -> {
-            String script = "sh " +sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + InitConfConstant.BUILD_SH;
+            //String script = "sh " +sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + InitConfConstant.BUILD_SH;
+            //String  script = "nohup  /home/epcServer/epc1095/build.sh > /home/epcServer/epc1095/build.log 2>&1 &";
+            String script = String.format("nohup  /home/epcServer/epc%s/build.sh > /home/epcServer/epc%s/build.log 2>&1 &",systemConfExec.getSystemServerNo(),systemConfExec.getSystemServerNo());
             try {
-                boolean b = sftpFileUploader.executeRemoteScript(script);
-                if(b){
-                    updateSystemServer(systemId, status);
+                //boolean b = sftpFileUploader.executeRemoteScript(script);
+                if(false){
+                    updateSystemServer(systemConfExec.getSystemId(), status);
                 }
             }catch (Exception e){
                 log.error("系统初始化失败", e);

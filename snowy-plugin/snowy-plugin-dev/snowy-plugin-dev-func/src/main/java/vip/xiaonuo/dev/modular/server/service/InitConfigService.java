@@ -79,5 +79,5 @@ public interface InitConfigService {
 
     CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status);
 
-    CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, String systemId, Integer status);
+    CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, SystemConfExec systemConfExec, Integer status);
 }
