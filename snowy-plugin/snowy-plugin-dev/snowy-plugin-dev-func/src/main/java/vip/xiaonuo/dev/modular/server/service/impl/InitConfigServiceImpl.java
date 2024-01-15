@@ -304,7 +304,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             YamlParam yamlParam = JsonUtil.fromJson(systemConfExec.getSystemServerJson(), YamlParam.class);
 
             if ("app".equals(yamlType)) {
-                paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s/%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getDbName(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS));
+                paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s:%s/%s%s", dataBaseParam.getDbIp(), dataBaseParam.getPort(),dataBaseParam.getDbName(), InitConfConstant.MYSQL_PARAMS));
                 Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
                 paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
                 paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUserName());
@@ -677,7 +677,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             Map<String, Object> paramMap = new HashMap<>();
             try {
                 DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExec.getDataBaseJson(), DataBaseParam.class);
-                paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s:%s%s%s", dataBaseParam.getDbIp(), dataBaseParam.getPort(),dataBaseParam.getDbName(), InitConfConstant.MYSQL_PARAMS));
+                paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s:%s/%s%s", dataBaseParam.getDbIp(), dataBaseParam.getPort(),dataBaseParam.getDbName(), InitConfConstant.MYSQL_PARAMS));
                 Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
                 paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
                 paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUserName());
