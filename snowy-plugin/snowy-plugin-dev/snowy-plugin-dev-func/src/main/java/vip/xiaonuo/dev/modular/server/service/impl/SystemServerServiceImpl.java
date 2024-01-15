@@ -23,23 +23,19 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.mapper.SystemServerMapper;
-import vip.xiaonuo.dev.modular.server.param.SystemServerAddParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerEditParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerIdParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerPageParam;
+import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +49,8 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
 
     @Resource
     SystemConfExecService systemConfExecService;
+    @Resource
+    SystemServerMapper systemServerMapper;
     @Override
     public Page<SystemServer> page(SystemServerPageParam systemServerPageParam) {
         QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
@@ -129,5 +127,21 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             throw new CommonException("系统服务表不存在，id值为：{}", id);
         }
         return systemServer;
+    }
+
+    @Override
+    public Page<SystemServer> myServerTask(MyServerParam myServerParam){
+        try {
+            QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
+            String sqlSegment = " FIND_IN_SET(#{param1}, PARTER) > 0";
+            queryWrapper.apply(sqlSegment, Collections.singletonMap("param1", StpLoginUserUtil.getLoginUser().getId()));
+            Page<SystemServer> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+            return page;
+            //Page<SystemServer> systemServerList = systemServerMapper.selectPage(new Page<>(),queryWrapper);
+            //List<SystemServer> systemServerList = systemServerMapper.selectServerList(StpLoginUserUtil.getLoginUser().getId());
+        }catch (Exception e){
+            log.error("数据查询失败!"+e.getMessage());
+            throw new CommonException("数据查询失败!"+e.getMessage());
+        }
     }
 }

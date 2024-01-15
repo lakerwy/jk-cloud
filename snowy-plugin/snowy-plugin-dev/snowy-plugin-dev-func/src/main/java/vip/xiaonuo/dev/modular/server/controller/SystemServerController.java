@@ -27,15 +27,13 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
-import vip.xiaonuo.dev.modular.server.param.SystemServerAddParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerEditParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerIdParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerPageParam;
+import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 系统服务表控制器
@@ -127,5 +125,18 @@ public class SystemServerController {
     @GetMapping("/sys/server/detail")
     public CommonResult<SystemServer> detail(@Valid SystemServerIdParam systemServerIdParam) {
         return CommonResult.data(systemServerService.detail(systemServerIdParam));
+    }
+
+    /**
+     * 我的项目
+     *
+     * @author ljy
+     * @date  2024/01/15 15:31
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("我的项目")
+    @GetMapping("/sys/server/myServerTask")
+    public CommonResult<Page<SystemServer>> myServerTask(MyServerParam myServerParam) {
+        return CommonResult.data(systemServerService.myServerTask(myServerParam));
     }
 }

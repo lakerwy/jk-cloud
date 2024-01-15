@@ -72,4 +72,6 @@ public class SystemServerEditParam {
     @ApiModelProperty(value = "EPC单体服务部署状态", position = 11)
     private Integer systemStatus;
 
+    @ApiModelProperty(value = "项目参与人,英文逗号隔开", position = 12)
+    private String parter;
 }

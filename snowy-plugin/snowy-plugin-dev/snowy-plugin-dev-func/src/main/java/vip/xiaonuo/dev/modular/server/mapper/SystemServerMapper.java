@@ -15,6 +15,8 @@ package vip.xiaonuo.dev.modular.server.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 
+import java.util.List;
+
 /**
  * 系统服务表Mapper接口
  *
@@ -22,4 +24,6 @@ import vip.xiaonuo.dev.modular.server.entity.SystemServer;
  * @date  2023/12/29 11:31
  **/
 public interface SystemServerMapper extends BaseMapper<SystemServer> {
+
+    List<SystemServer> selectServerList(String parter);
 }

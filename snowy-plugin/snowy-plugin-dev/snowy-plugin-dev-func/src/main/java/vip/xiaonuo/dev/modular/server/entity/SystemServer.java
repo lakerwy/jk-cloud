@@ -121,4 +121,8 @@ public class SystemServer {
     /** 项目经理 */
     @ApiModelProperty(value = "项目经理", position = 21)
     private String projectManage;
+
+    /** 项目参与人 PARTER*/
+    @ApiModelProperty(value = "项目参与人，英文逗号隔开", position = 22)
+    private String parter;
 }
