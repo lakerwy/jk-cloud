@@ -115,4 +115,6 @@ public interface InitConfConstant {
     public final String DOCKER_YML_NAME = "docker-compose.yml";
 
     public final String BUILD_SH = "build.sh";
+
+    public final String DATABASE_CODE = " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
 }

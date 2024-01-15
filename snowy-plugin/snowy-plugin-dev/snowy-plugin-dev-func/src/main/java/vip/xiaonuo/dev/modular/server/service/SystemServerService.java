@@ -15,10 +15,7 @@ package vip.xiaonuo.dev.modular.server.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
-import vip.xiaonuo.dev.modular.server.param.SystemServerAddParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerEditParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerIdParam;
-import vip.xiaonuo.dev.modular.server.param.SystemServerPageParam;
+import vip.xiaonuo.dev.modular.server.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,12 @@ public interface SystemServerService extends IService<SystemServer> {
      * @date  2023/12/29 11:31
      **/
     SystemServer queryEntity(String id);
+
+    /**
+     * 我的项目
+     *
+     * @author ljy
+     * @date  2024/01/15 15:31
+     */
+    Page<SystemServer> myServerTask(MyServerParam myServerParam);
 }
