@@ -34,4 +34,8 @@ public class MyServerParam {
     /** EPC单体服务部署状态 */
     @ApiModelProperty(value = "EPC单体服务部署状态")
     private Integer systemStatus;
+
+    /** 系统名称 */
+    @ApiModelProperty(value = "系统名称")
+    private String systemName;
 }

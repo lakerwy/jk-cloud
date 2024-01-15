@@ -132,12 +132,28 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     @Override
     public Page<SystemServer> myServerTask(MyServerParam myServerParam){
         try {
+
             QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
-            String sqlSegment = " FIND_IN_SET(#{param1}, PARTER) > 0";
-            queryWrapper.apply(sqlSegment, Collections.singletonMap("param1", StpLoginUserUtil.getLoginUser().getId()));
+            if(ObjectUtil.isNotEmpty(myServerParam.getSystemName())) {
+                queryWrapper.lambda().like(SystemServer::getSystemName, myServerParam.getSystemName());
+            }
+            if(ObjectUtil.isNotEmpty(myServerParam.getSystemType())) {
+                queryWrapper.lambda().eq(SystemServer::getSystemType, myServerParam.getSystemType());
+            }
+            if(ObjectUtil.isNotEmpty(myServerParam.getSystemStatus())) {
+                queryWrapper.lambda().eq(SystemServer::getSystemStatus, myServerParam.getSystemStatus());
+            }
+            if(ObjectUtil.isAllNotEmpty(myServerParam.getSortField(), myServerParam.getSortOrder())) {
+                CommonSortOrderEnum.validate(myServerParam.getSortOrder());
+                queryWrapper.orderBy(true, myServerParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                        StrUtil.toUnderlineCase(myServerParam.getSortField()));
+            } else {
+                queryWrapper.lambda().orderByAsc(SystemServer::getId);
+            }
+            String sqlSegment = String.format(" FIND_IN_SET('%s', PARTER) > 0",StpLoginUserUtil.getLoginUser().getId());
+            queryWrapper.apply(sqlSegment);
             Page<SystemServer> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
             return page;
-            //Page<SystemServer> systemServerList = systemServerMapper.selectPage(new Page<>(),queryWrapper);
             //List<SystemServer> systemServerList = systemServerMapper.selectServerList(StpLoginUserUtil.getLoginUser().getId());
         }catch (Exception e){
             log.error("数据查询失败!"+e.getMessage());

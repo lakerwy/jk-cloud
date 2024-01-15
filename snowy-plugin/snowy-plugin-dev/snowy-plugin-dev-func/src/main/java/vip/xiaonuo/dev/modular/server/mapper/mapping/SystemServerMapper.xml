@@ -5,4 +5,9 @@
         SELECT * FROM SYSTEM_SERVER
         WHERE FIND_IN_SET(#{parter}, PARTER) > 0
     </select>
+
+   <!-- <select id="selectPageList" resultType="vip.xiaonuo.dev.modular.server.entity.SystemServer">
+        SELECT * FROM SYSTEM_SERVER
+        WHERE FIND_IN_SET(#{parter}, PARTER) > 0
+    </select>-->
 </mapper>

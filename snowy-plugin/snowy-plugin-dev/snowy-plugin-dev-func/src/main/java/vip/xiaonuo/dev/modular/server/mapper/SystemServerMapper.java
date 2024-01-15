@@ -25,5 +25,7 @@ import java.util.List;
  **/
 public interface SystemServerMapper extends BaseMapper<SystemServer> {
 
+    //IPage<SystemServer> selectPageList(Page<SystemServer> page, @Param(Constants.WRAPPER) Wrapper<MyServerParam> queryWrapper);
+
     List<SystemServer> selectServerList(String parter);
 }
