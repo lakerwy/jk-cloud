@@ -68,7 +68,7 @@ public class DatabaseCreator {
             try (Connection connection = DriverManager.getConnection(url, dataBaseParam.getUserName(), dataBaseParam.getPassword());
                  Statement statement = connection.createStatement()) {
                 //不能预编译（数据库名因为 库名需要``）
-                String createDatabaseSql = "CREATE DATABASE IF NOT EXISTS " + dataBaseParam.getDbName();
+                String createDatabaseSql = "CREATE DATABASE IF NOT EXISTS " + dataBaseParam.getDbName() + InitConfConstant.DATABASE_CODE;
                 int rowsAffected = statement.executeUpdate(createDatabaseSql);
                 if (rowsAffected <= 0) {
                     flag = Boolean.FALSE;
