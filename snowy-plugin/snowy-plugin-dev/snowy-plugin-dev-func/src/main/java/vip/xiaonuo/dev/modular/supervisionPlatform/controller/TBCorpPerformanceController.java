@@ -359,7 +359,6 @@ public class TBCorpPerformanceController {
     @CommonLog("建筑监管市场数据导入")
     @PostMapping("/rural/Tbcorpperformance/importRuralData")
     public CommonResult<String> importRuralData(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file,Integer excelType) {
-        tbcorpperformanceService.importRuralData(file,excelType);
-        return CommonResult.ok();
+        return CommonResult.data(tbcorpperformanceService.importRuralData(file,excelType));
     }
 }

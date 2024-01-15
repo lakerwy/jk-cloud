@@ -167,7 +167,7 @@ public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceM
     }
 
     @Override
-    public void importRuralData(MultipartFile file,Integer excelType) {
+    public String importRuralData(MultipartFile file,Integer excelType) {
         try {
             String currentTimeMillis = String.valueOf(System.currentTimeMillis());
             // 创建临时文件
@@ -193,12 +193,14 @@ public class TBCorpPerformanceServiceImpl extends ServiceImpl<TBCorpperFormanceM
                     tbProjectSysRelationService.saveBatch(tbProjectSysRelationList);
                     break;
                 default:
-                    throw new CommonException("类别数据错误！");
+                    log.error(">>> 用户导入失败：");
+                    return "类别数据错误！";
             }
         } catch (Exception e) {
             log.error(">>> 用户导入失败：", e);
-            throw new CommonException("用户导入失败");
+            return "类别数据错误！";
         }
+        return "导入成功";
     }
     public byte[] getFileBytes(File file) throws IOException {
         try (FileInputStream fis = new FileInputStream(file)) {

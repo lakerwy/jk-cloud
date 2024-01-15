@@ -102,5 +102,5 @@ public interface TBCorpperFormanceService extends IService<TBCorpperFormance> {
     /**
      * 建筑监管市场数据导入
      * */
-    void importRuralData(MultipartFile file,Integer excelType);
+    String importRuralData(MultipartFile file,Integer excelType);
 }
