@@ -677,7 +677,7 @@ public class InitConfigServiceImpl implements InitConfigService {
             Map<String, Object> paramMap = new HashMap<>();
             try {
                 DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExec.getDataBaseJson(), DataBaseParam.class);
-                paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s/%s:%s%s", dataBaseParam.getDbIp(), dataBaseParam.getDbName(), dataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS));
+                paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s:%s%s%s", dataBaseParam.getDbIp(), dataBaseParam.getPort(),dataBaseParam.getDbName(), InitConfConstant.MYSQL_PARAMS));
                 Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
                 paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
                 paramMap.put(InitConfConstant.MYSQL_USERNAME, dataBaseParam.getUserName());
@@ -719,12 +719,13 @@ public class InitConfigServiceImpl implements InitConfigService {
     @Override
     public CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, SystemConfExec systemConfExec , Integer status) {
         return CompletableFuture.supplyAsync(() -> {
-            //String script = "sh " +sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + InitConfConstant.BUILD_SH;
+//            String script = "nohup " +sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + InitConfConstant.BUILD_SH;
+            String script = String.format("nohup  %s > %sbuild.log 2>&1 &",sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + InitConfConstant.BUILD_SH,sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH);
             //String  script = "nohup  /home/epcServer/epc1095/build.sh > /home/epcServer/epc1095/build.log 2>&1 &";
-            String script = String.format("nohup  /home/epcServer/epc%s/build.sh > /home/epcServer/epc%s/build.log 2>&1 &",systemConfExec.getSystemServerNo(),systemConfExec.getSystemServerNo());
+            //String script = String.format("nohup  /home/epcServer/epc%s/build.sh > /home/epcServer/epc%s/build.log 2>&1 &",systemConfExec.getSystemServerNo(),systemConfExec.getSystemServerNo());
             try {
-                //boolean b = sftpFileUploader.executeRemoteScript(script);
-                if(false){
+                boolean b = sftpFileUploader.executeRemoteScript(script);
+                if(b){
                     updateSystemServer(systemConfExec.getSystemId(), status);
                 }
             }catch (Exception e){
