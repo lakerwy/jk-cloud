@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 业务表-CRM-合同查询参数
@@ -158,5 +159,22 @@ public class HetongPageParam {
     /** 立项-所属大区 */
     @ApiModelProperty(value = "立项-所属大区", position = 66)
     private String region;
+
+
+    /** 是否存在 0|1, 合同扫描件 */
+    @ApiModelProperty(value = "是否存在 0|1, 合同扫描件 ", position = 66)
+    private String hasHtAttach;
+
+    /** 是否存在 0|1, 中标通知书  */
+    @ApiModelProperty(value = "是否存在 0|1, 中标通知书 ", position = 66)
+    private String hasZbAttach;
+
+    /** 是否存在 0|1, 图审合格证  */
+    @ApiModelProperty(value = "是否存在 0|1, 图审合格证 ", position = 66)
+    private String hasTsAttach;
+
+    /** 是否存在 0|1, 竣工资料  */
+    @ApiModelProperty(value = "是否存在 0|1, 竣工资料 ", position = 66)
+    private String hasJgAttach;
 
 }

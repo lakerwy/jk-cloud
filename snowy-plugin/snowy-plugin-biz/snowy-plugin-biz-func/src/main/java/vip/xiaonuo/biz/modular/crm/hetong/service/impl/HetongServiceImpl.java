@@ -171,6 +171,34 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         if(ObjectUtil.isNotEmpty(hetongPageParam.getIndustryClassification())){
             queryWrapper.like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getIndustryClassification());
         }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getHasHtAttach())){
+            if("1".equals(hetongPageParam.getHasHtAttach())){
+                queryWrapper.and(q1->q1.apply(" a.ATTACHMENTS IS NOT NULL AND a.ATTACHMENTS<>'' "));
+            }else{
+                queryWrapper.and(q1->q1.apply(" a.ATTACHMENTS IS NULL OR a.ATTACHMENTS='' "));
+            }
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getHasZbAttach())){
+            if("1".equals(hetongPageParam.getHasZbAttach())){
+                queryWrapper.and(q1->q1.apply(" a.BID_ATTACHES IS NOT NULL AND a.BID_ATTACHES<>'' "));
+            }else{
+                queryWrapper.and(q1->q1.apply(" a.BID_ATTACHES IS NULL OR a.BID_ATTACHES='' "));
+            }
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getHasTsAttach())){
+            if("1".equals(hetongPageParam.getHasTsAttach())){
+                queryWrapper.and(q1->q1.apply(" a.CERTIFICATE IS NOT NULL AND a.CERTIFICATE<>'' "));
+            }else{
+                queryWrapper.and(q1->q1.apply(" a.CERTIFICATE IS NULL OR a.CERTIFICATE='' "));
+            }
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getHasJgAttach())){
+            if("1".equals(hetongPageParam.getHasJgAttach())){
+                queryWrapper.and(q1->q1.apply(" a.COMPLE_DATA IS NOT NULL AND a.COMPLE_DATA<>'' "));
+            }else{
+                queryWrapper.and(q1->q1.apply(" a.COMPLE_DATA IS NULL OR a.COMPLE_DATA='' "));
+            }
+        }
 
         if(ObjectUtil.isAllNotEmpty(hetongPageParam.getSortField(), hetongPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(hetongPageParam.getSortOrder());
@@ -388,6 +416,35 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getIndustryClassification())){
             queryWrapper.like("b.INDUSTRY_CLASSIFICATION",hetongPageParam.getIndustryClassification());
+        }
+
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getHasHtAttach())){
+            if("1".equals(hetongPageParam.getHasHtAttach())){
+                queryWrapper.and(q1->q1.apply(" a.ATTACHMENTS IS NOT NULL AND a.ATTACHMENTS<>'' "));
+            }else{
+                queryWrapper.and(q1->q1.apply(" a.ATTACHMENTS IS NULL OR a.ATTACHMENTS='' "));
+            }
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getHasZbAttach())){
+            if("1".equals(hetongPageParam.getHasZbAttach())){
+                queryWrapper.and(q1->q1.apply(" a.BID_ATTACHES IS NOT NULL AND a.BID_ATTACHES<>'' "));
+            }else{
+                queryWrapper.and(q1->q1.apply(" a.BID_ATTACHES IS NULL OR a.BID_ATTACHES='' "));
+            }
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getHasTsAttach())){
+            if("1".equals(hetongPageParam.getHasTsAttach())){
+                queryWrapper.and(q1->q1.apply(" a.CERTIFICATE IS NOT NULL AND a.CERTIFICATE<>'' "));
+            }else{
+                queryWrapper.and(q1->q1.apply(" a.CERTIFICATE IS NULL OR a.CERTIFICATE='' "));
+            }
+        }
+        if(ObjectUtil.isNotEmpty(hetongPageParam.getHasJgAttach())){
+            if("1".equals(hetongPageParam.getHasJgAttach())){
+                queryWrapper.and(q1->q1.apply(" a.COMPLE_DATA IS NOT NULL AND a.COMPLE_DATA<>'' "));
+            }else{
+                queryWrapper.and(q1->q1.apply(" a.COMPLE_DATA IS NULL OR a.COMPLE_DATA='' "));
+            }
         }
 
         // 校验数据范围
