@@ -76,7 +76,7 @@ public interface InitConfConstant {
     /**
      * rabbbitmq交换机key
      */
-    public final String RABBIT_MQ_TOPIC_DESTINATION_1 = "spring.cloud.stream.bindings.jkYunOutPut-test.destination";
+    public final String RABBIT_MQ_TOPIC_DESTINATION_1 = "spring.cloud.stream.bindings.topic-output-1.destination";
 
     public final String RABBIT_MQ_TOPIC_DESTINATION_2 = "spring.cloud.stream.bindings.sink-in-0.destination";
 
