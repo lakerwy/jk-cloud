@@ -165,4 +165,33 @@ public class DevConfigController {
         devConfigService.editBatch(devConfigBatchParamList);
         return CommonResult.ok();
     }
+
+
+    /**
+     * 更改配置项值
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:47
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("更改配置项值")
+    @CommonLog("更改配置项值")
+    @PostMapping("/dev/center/setConfig")
+    public CommonResult<String> setConfig(@RequestBody @Valid DevConfigSetParam devConfigSetParam) {
+        devConfigService.setConfig(devConfigSetParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取配置项值
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:47
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取配置项值")
+    @GetMapping("/dev/center/getConfigByKey")
+    public CommonResult<String> getConfigByKey(String configKey) {
+        return CommonResult.data(devConfigService.getConfigByKey(configKey));
+    }
 }

@@ -223,4 +223,19 @@ public class DevConfigServiceImpl extends ServiceImpl<DevConfigMapper, DevConfig
 //            }
         });
     }
+
+    @Override
+    public void setConfig(DevConfigSetParam devConfigSetParam) {
+        this.update(new LambdaUpdateWrapper<DevConfig>()
+                .eq(DevConfig::getConfigKey, devConfigSetParam.getConfigKey())
+                .set(DevConfig::getConfigValue, devConfigSetParam.getConfigValue()));
+        // 移除对应的缓存
+        commonCacheOperator.remove(CONFIG_CACHE_KEY + tenApi.getCurrentTenDomain() + ":" + devConfigSetParam.getConfigKey());
+    }
+
+    @Override
+    public String getConfigByKey(String configKey) {
+        DevConfig devConfig = this.getOne(new LambdaQueryWrapper<DevConfig>().eq(DevConfig::getConfigKey, configKey));
+        return ObjectUtil.isNotEmpty(devConfig) ? devConfig.getConfigValue() : "";
+    }
 }

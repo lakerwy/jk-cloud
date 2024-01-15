@@ -14,6 +14,7 @@ package vip.xiaonuo.dev.modular.config.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.dev.modular.config.entity.DevConfig;
 import vip.xiaonuo.dev.modular.config.param.*;
 
@@ -98,4 +99,17 @@ public interface DevConfigService extends IService<DevConfig> {
      * @date 2022/6/28 11:09
      **/
     void editBatch(List<DevConfigBatchParam> devConfigBatchParamList);
+
+    /**
+     * 设置某个Key的value值
+     * @param devConfigSetParam
+     */
+    void setConfig(DevConfigSetParam devConfigSetParam);
+
+    /**
+     * 根据key获取配置值
+     * @param configKey
+     * @return
+     */
+    String getConfigByKey(String configKey);
 }
