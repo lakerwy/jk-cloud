@@ -125,7 +125,7 @@ public class DatabaseCreator {
         });
     }
 
-    public void importDatabase(UnixCommandParam unixCommandParam) {
+    public void unixCommandExec(UnixCommandParam unixCommandParam) {
         try {
             JSch jsch = new JSch();
             Session session = jsch.getSession(unixCommandParam.getSshUsername(), unixCommandParam.getSshHost(), unixCommandParam.getSshPort());

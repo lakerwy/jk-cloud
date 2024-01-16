@@ -506,7 +506,7 @@ public class InitConfigServiceImpl implements InitConfigService {
 //        unixCommandParam.setSshPort(22);
 
         try{
-            databaseCreator.importDatabase(unixCommandParam);
+            databaseCreator.unixCommandExec(unixCommandParam);
             String remoteExecJson = JSONUtil.toJsonStr(unixCommandParam);
             if(ObjectUtil.isEmpty(unixCommandParam.getSystemId())){
                 log.error("系统服务ID不能为空");

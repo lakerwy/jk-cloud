@@ -81,6 +81,8 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
     @Resource
     AsyncTaskComp asyncTaskComp;
+    @Resource
+    CommonZipUtil commonZipUtil;
 
     public static Executor exec = Executors.newFixedThreadPool(20);
 
@@ -268,7 +270,7 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             }else{
                 inputFile = inputFile+"\\"+UUID.randomUUID().toString()+".zip";
             }*/
-            Long fileSize = CommonZipUtil.unzip(sourceFileList,inputFile);
+            Long fileSize = commonZipUtil.unzip(sourceFileList,inputFile);
             //插入PAN_FILE表数据
             PanFile panFile = new PanFile();
             panFile.setFileSize(fileSize);
@@ -293,4 +295,5 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             userFileService.save(userFile1);
         }
     }
+
 }

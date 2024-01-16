@@ -1,7 +1,20 @@
 package vip.xiaonuo.pan.modular.file.util;
 
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.jcraft.jsch.Channel;
+import com.jcraft.jsch.ChannelExec;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.Session;
+import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.dev.modular.config.entity.DevConfig;
+import vip.xiaonuo.dev.modular.config.service.DevConfigService;
+import vip.xiaonuo.dev.modular.server.param.UnixCommandParam;
+
+import javax.annotation.Resource;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,8 +30,16 @@ import java.util.concurrent.locks.ReentrantLock;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
+@Slf4j
+@Component
 public class CommonZipUtil {
-    public static Long unzip(List<String> sourceFile,String inputFile) throws IOException, InterruptedException {
+    private String SYSTEM_SOURCE_IP = "SYSTEM_SOURCE_IP";
+    private String SOURCE_SERVER_NAME = "SOURCE_SERVER_NAME";
+    private String SOURCE_SERVER_PS = "SOURCE_SERVER_PS";
+
+    @Resource
+    DevConfigService devConfigService;
+    public Long unzip(List<String> sourceFile,String inputFile) throws IOException, InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(10);//初始化线程池
         //long start = System.currentTimeMillis();
         ZipOutputStream zops = new ZipOutputStream(Files.newOutputStream(Paths.get(inputFile))); //初始化ZIP输出流
@@ -95,6 +116,61 @@ public class CommonZipUtil {
         sourceFile.add("C:\\Users\\Administrator\\Desktop\\任务管理SQL.txt");
         String uuid = UUID.randomUUID().toString();
         String inputFile = "C:\\Users\\Administrator\\Desktop\\测试文件\\中文名称.zip";
-        unzip(sourceFile,inputFile);
+        //unzip(sourceFile,inputFile);
+    }
+
+    public void zipData(){
+        UnixCommandParam unixCommandParam = new UnixCommandParam();
+        String ip = devConfigService.getValueByKey(SYSTEM_SOURCE_IP);
+        ip = StringUtils.isNotEmpty(ip) ? ip : "10.0.33.82";
+        String userName = devConfigService.getValueByKey(SOURCE_SERVER_NAME);
+        userName = StringUtils.isNotEmpty(userName) ? userName : "root";
+        String password = devConfigService.getValueByKey(SOURCE_SERVER_PS);
+        password = StringUtils.isNotEmpty(password) ? password : "";
+        unixCommandParam.setSshPort(22);
+        unixCommandParam.setSshHost(ip);
+        unixCommandParam.setSshUsername(userName);
+        unixCommandParam.setSshPassword(password);
+        zipUnixCommandExec(unixCommandParam);
+    }
+    public void zipUnixCommandExec(UnixCommandParam unixCommandParam) {
+        try {
+            JSch jsch = new JSch();
+            Session session = jsch.getSession(unixCommandParam.getSshUsername(), unixCommandParam.getSshHost(), unixCommandParam.getSshPort());
+            session.setPassword(unixCommandParam.getSshPassword());
+
+            session.setConfig("StrictHostKeyChecking", "no"); //允许连接不信任的主机
+            session.connect();
+            Channel channel = session.openChannel("exec");
+            ((ChannelExec) channel).setCommand(unixCommandParam.getCommand());
+            InputStream in = channel.getInputStream();
+            channel.connect();
+            byte[] tmp = new byte[1024];
+            while (true) {
+                while (in.available() > 0) {
+                    int i = in.read(tmp, 0, 1024);
+                    if (i < 0) break;
+                    log.info(new String(tmp, 0, i));
+                }
+                if (channel.isClosed()) {
+                    if (in.available() > 0) continue;
+                    if(channel.getExitStatus() != 0){
+                        log.error("压缩失败，请检查连接信息！exit-status: " + channel.getExitStatus());
+                    }
+                    log.info("压缩失败，请检查连接信息-exit-status: " + channel.getExitStatus());
+                    break;
+                }
+                try {
+                    Thread.sleep(1000);
+                } catch (Exception e) {
+                }
+            }
+            channel.disconnect();
+            session.disconnect();
+        } catch (Exception e) {
+            log.error("执行远程mysql建表命令时发生错误：" + e.getMessage());
+            e.printStackTrace();
+            throw new CommonException("执行远程mysql建表命令时发生错误：" + e.getMessage());
+        }
     }
 }
