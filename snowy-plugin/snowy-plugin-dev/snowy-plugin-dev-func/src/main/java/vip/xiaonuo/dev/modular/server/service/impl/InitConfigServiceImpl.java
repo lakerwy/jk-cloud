@@ -586,7 +586,7 @@ public class InitConfigServiceImpl implements InitConfigService {
     }
 
     @Override
-    public Boolean connectDataBase(ConnectDataBaseParam connectDataBaseParam){
+    public String connectDataBase(ConnectDataBaseParam connectDataBaseParam){
        return databaseCreator.connectDataBase(connectDataBaseParam);
     }
 

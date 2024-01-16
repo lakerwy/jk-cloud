@@ -64,7 +64,7 @@ public interface InitConfigService {
      **/
     void downloadImportUserTemplate(HttpServletResponse response) throws IOException;
 
-    Boolean connectDataBase(ConnectDataBaseParam connectDataBaseParam);
+    String connectDataBase(ConnectDataBaseParam connectDataBaseParam);
 
     CompletableFuture<Boolean> transferSqlFile(TransferFileParam transferFileParam);
 

@@ -4,6 +4,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.jcraft.jsch.Channel;
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -35,8 +36,12 @@ public class DatabaseCreator {
     /**
      * 数据库连接测试
      * */
-    public boolean connectDataBase(ConnectDataBaseParam connectDataBaseParam) {
+    public String connectDataBase(ConnectDataBaseParam connectDataBaseParam) {
         try {
+            if(StringUtils.isEmpty(connectDataBaseParam.getDbIp()) || StringUtils.isEmpty(connectDataBaseParam.getPort())){
+                log.error("数据未空！");
+                throw new CommonException("连接失败，数据存在空值！");
+            }
             String url = String.format("jdbc:mysql://%s:%s%s", connectDataBaseParam.getDbIp(), connectDataBaseParam.getPort(), InitConfConstant.MYSQL_PARAMS);
             log.info("数据库连接测试—: {}", url);
 
@@ -45,16 +50,18 @@ public class DatabaseCreator {
             try (Connection connection = DriverManager.getConnection(url, connectDataBaseParam.getUsername(), connectDataBaseParam.getPassword())) {
                 if (connection != null) {
                     log.info("连接数据库成功！{}", url);
-                    return true; // 连接成功返回 true
+                    return "连接成功"; // 连接成功返回 true
                 } else {
                     log.error("连接数据库失败");
-                    return false; // 连接失败返回 false
+                    throw new CommonException("连接失败，请检查连接参数！");
+                    //return false; // 连接失败返回 false
                 }
             }
 
         } catch (ClassNotFoundException | SQLException e) {
             log.error("连接数据库失败", e);
-            return false; // 连接失败返回 false
+            throw new CommonException("连接失败，请检查连接参数！");
+            //return false; // 连接失败返回 false
         }
     }
 

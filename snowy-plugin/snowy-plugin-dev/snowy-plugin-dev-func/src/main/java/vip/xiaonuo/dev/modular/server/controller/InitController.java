@@ -197,8 +197,7 @@ public class InitController {
     @CommonLog("连接数据库测试")
     @PostMapping("/epc/create/connectDataBase")
     public CommonResult<String> connectDataBase(@RequestBody @Valid ConnectDataBaseParam connectDataBaseParam){
-        initConfigService.connectDataBase(connectDataBaseParam);
-        return CommonResult.ok();
+        return CommonResult.data(initConfigService.connectDataBase(connectDataBaseParam));
     }
 
     /**
