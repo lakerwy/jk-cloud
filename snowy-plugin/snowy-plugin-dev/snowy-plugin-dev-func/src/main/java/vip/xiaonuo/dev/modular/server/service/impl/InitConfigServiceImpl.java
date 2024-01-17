@@ -83,10 +83,15 @@ public class InitConfigServiceImpl implements InitConfigService {
      */
     @Override
     public void initSystem(SystemConfExecIdParam systemConfExecIdParam) {
-        SystemConfExec systemConfExec = systemConfExecService.getById(systemConfExecIdParam.getId());
-        if (ObjectUtil.isEmpty(systemConfExec)) {
+        List<SystemConfExec> systemConfExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,systemConfExecIdParam.getId()));
+        if(CollectionUtil.isEmpty(systemConfExecList)){
             throw new CommonException("未找到系统配置");
         }
+        SystemConfExec systemConfExec = systemConfExecList.get(0);
+       /* SystemConfExec systemConfExec = systemConfExecService.getById(systemConfExecIdParam.getId());
+        if (ObjectUtil.isEmpty(systemConfExec)) {
+            throw new CommonException("未找到系统配置");
+        }*/
 //
 //        // 生成系统的唯一标识
 //        generateNo();
