@@ -281,7 +281,7 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
             //插入PAN_USER_FILE表数据
             UserFile userFile1 = new UserFile();
-            userFile.setParentId(userFile.getId());
+            userFile1.setParentId(userFile.getId());
             userFile1.setFileName(zipFileParam.getZipName());
             userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()+"/"+userFile.getFileName()));
             //userFile1.setParentId(userFile.getParentId());
