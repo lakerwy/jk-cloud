@@ -22,17 +22,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.prj.plan.param.*;
+import vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanInvoice;
 import vip.xiaonuo.biz.modular.prj.plan.mapper.BizPrjPlanInvoiceMapper;
-import vip.xiaonuo.biz.modular.prj.plan.param.BizPrjPlanInvoiceAddParam;
-import vip.xiaonuo.biz.modular.prj.plan.param.BizPrjPlanInvoiceEditParam;
-import vip.xiaonuo.biz.modular.prj.plan.param.BizPrjPlanInvoiceIdParam;
-import vip.xiaonuo.biz.modular.prj.plan.param.BizPrjPlanInvoicePageParam;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanInvoiceService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -46,6 +45,8 @@ import java.util.List;
 @Service
 public class BizPrjPlanInvoiceServiceImpl extends ServiceImpl<BizPrjPlanInvoiceMapper, BizPrjPlanInvoice> implements BizPrjPlanInvoiceService {
 
+    @Resource
+    private BizPrjPlanInvoiceMapper bizPrjPlanInvoiceMapper;
     @Override
     public Page<BizPrjPlanInvoice> page(BizPrjPlanInvoicePageParam bizPrjPlanInvoicePageParam) {
         QueryWrapper<BizPrjPlanInvoice> queryWrapper = new QueryWrapper<>();
@@ -93,5 +94,38 @@ public class BizPrjPlanInvoiceServiceImpl extends ServiceImpl<BizPrjPlanInvoiceM
             throw new CommonException("业务表-项目计划付款单-本次提供发票不存在，id值为：{}", id);
         }
         return bizPrjPlanInvoice;
+    }
+
+    @Override
+    public Page<PlanInvoiceVo> invoicePage(PlanInvoicePage planInvoicePage) {
+        QueryWrapper<BizPrjPlanInvoice> queryWrapper = new QueryWrapper<>();
+        //审核通过|审核中
+        queryWrapper.in("a.STATUS","1","0");
+        //有效数据
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        //合同编号
+        if(ObjectUtil.isNotEmpty(planInvoicePage.getContractNo())){
+            queryWrapper.eq("a.CONTRACT_NO",planInvoicePage.getContractNo());
+        }
+        //合同名称
+        if(ObjectUtil.isNotEmpty(planInvoicePage.getContractName())){
+            queryWrapper.like("a.CONTRACT_NAME",planInvoicePage.getContractName());
+        }
+        //计划单号
+        if(ObjectUtil.isNotEmpty(planInvoicePage.getPlanNo())){
+            queryWrapper.eq("a.PLAN_NO",planInvoicePage.getPlanNo());
+        }
+        //流程状态筛选
+        if(ObjectUtil.isNotEmpty(planInvoicePage.getStatus())){
+            queryWrapper.eq("a.STATUS",planInvoicePage.getStatus());
+        }
+        //关键字搜索
+        if(ObjectUtil.isNotEmpty(planInvoicePage.getSearchKey())){
+            queryWrapper.and(q->q.like("a.CONTRACT_NO",planInvoicePage.getSearchKey())
+                    .or().like("a.CONTRACT_NAME",planInvoicePage.getSearchKey())
+                    .or().like("a.PLAN_NO",planInvoicePage.getSearchKey()));
+        }
+        queryWrapper.orderByDesc("a.PLAN_NO").orderByDesc("b.CREATE_TIME");
+        return bizPrjPlanInvoiceMapper.getInvoicePage(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }

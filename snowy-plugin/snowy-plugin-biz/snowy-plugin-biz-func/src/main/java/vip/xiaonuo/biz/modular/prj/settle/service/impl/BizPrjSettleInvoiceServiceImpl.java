@@ -22,17 +22,16 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.prj.settle.param.*;
+import vip.xiaonuo.biz.modular.prj.settle.vo.SettleInvoiceVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettleInvoice;
 import vip.xiaonuo.biz.modular.prj.settle.mapper.BizPrjSettleInvoiceMapper;
-import vip.xiaonuo.biz.modular.prj.settle.param.BizPrjSettleInvoiceAddParam;
-import vip.xiaonuo.biz.modular.prj.settle.param.BizPrjSettleInvoiceEditParam;
-import vip.xiaonuo.biz.modular.prj.settle.param.BizPrjSettleInvoiceIdParam;
-import vip.xiaonuo.biz.modular.prj.settle.param.BizPrjSettleInvoicePageParam;
 import vip.xiaonuo.biz.modular.prj.settle.service.BizPrjSettleInvoiceService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -46,6 +45,8 @@ import java.util.List;
 @Service
 public class BizPrjSettleInvoiceServiceImpl extends ServiceImpl<BizPrjSettleInvoiceMapper, BizPrjSettleInvoice> implements BizPrjSettleInvoiceService {
 
+    @Resource
+    private BizPrjSettleInvoiceMapper bizPrjSettleInvoiceMapper;
     @Override
     public Page<BizPrjSettleInvoice> page(BizPrjSettleInvoicePageParam bizPrjSettleInvoicePageParam) {
         QueryWrapper<BizPrjSettleInvoice> queryWrapper = new QueryWrapper<>();
@@ -93,5 +94,38 @@ public class BizPrjSettleInvoiceServiceImpl extends ServiceImpl<BizPrjSettleInvo
             throw new CommonException("业务表-项目款结算单-本次开票不存在，id值为：{}", id);
         }
         return bizPrjSettleInvoice;
+    }
+
+    @Override
+    public Page<SettleInvoiceVo> invoicePage(SettleInvoicePage settleInvoicePage) {
+        QueryWrapper<BizPrjSettleInvoice> queryWrapper = new QueryWrapper<>();
+        //审核通过|审核中
+        queryWrapper.in("a.STATUS","1","0");
+        //有效数据
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        //合同编号
+        if(ObjectUtil.isNotEmpty(settleInvoicePage.getContractNo())){
+            queryWrapper.eq("a.CONTRACT_NO",settleInvoicePage.getContractNo());
+        }
+        //合同名称
+        if(ObjectUtil.isNotEmpty(settleInvoicePage.getContractName())){
+            queryWrapper.like("a.CONTRACT_NAME",settleInvoicePage.getContractName());
+        }
+        //计划单号
+        if(ObjectUtil.isNotEmpty(settleInvoicePage.getSettleNo())){
+            queryWrapper.eq("a.SETTLE_NO",settleInvoicePage.getSettleNo());
+        }
+        //流程状态筛选
+        if(ObjectUtil.isNotEmpty(settleInvoicePage.getStatus())){
+            queryWrapper.eq("a.STATUS",settleInvoicePage.getStatus());
+        }
+        //关键字搜索
+        if(ObjectUtil.isNotEmpty(settleInvoicePage.getSearchKey())){
+            queryWrapper.and(q->q.like("a.CONTRACT_NO",settleInvoicePage.getSearchKey())
+                    .or().like("a.CONTRACT_NAME",settleInvoicePage.getSearchKey())
+                    .or().like("a.SETTLE_NO",settleInvoicePage.getSearchKey()));
+        }
+        queryWrapper.orderByDesc("a.SETTLE_NO").orderByDesc("b.CREATE_TIME");
+        return bizPrjSettleInvoiceMapper.getInvoicePage(CommonPageRequest.defaultPage(), queryWrapper);
     }
 }

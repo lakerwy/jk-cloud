@@ -15,10 +15,8 @@ package vip.xiaonuo.biz.modular.prj.settle.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.settle.entity.BizPrjSettleInvoice;
-import vip.xiaonuo.biz.modular.prj.settle.param.BizPrjSettleInvoiceAddParam;
-import vip.xiaonuo.biz.modular.prj.settle.param.BizPrjSettleInvoiceEditParam;
-import vip.xiaonuo.biz.modular.prj.settle.param.BizPrjSettleInvoiceIdParam;
-import vip.xiaonuo.biz.modular.prj.settle.param.BizPrjSettleInvoicePageParam;
+import vip.xiaonuo.biz.modular.prj.settle.param.*;
+import vip.xiaonuo.biz.modular.prj.settle.vo.SettleInvoiceVo;
 
 import java.util.List;
 
@@ -77,4 +75,11 @@ public interface BizPrjSettleInvoiceService extends IService<BizPrjSettleInvoice
      * @date  2023/09/28 11:37
      **/
     BizPrjSettleInvoice queryEntity(String id);
+
+    /**
+     * 根据 合同号|结算单号，查询发票信息分页
+     * @param settleInvoicePage
+     * @return
+     */
+    Page<SettleInvoiceVo> invoicePage(SettleInvoicePage settleInvoicePage);
 }

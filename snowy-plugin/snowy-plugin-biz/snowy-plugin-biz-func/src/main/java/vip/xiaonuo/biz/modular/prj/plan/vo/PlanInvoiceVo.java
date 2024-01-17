@@ -32,4 +32,8 @@ public class PlanInvoiceVo extends BizPrjPlanInvoice {
     @ApiModelProperty(value = " 计划表 -合同名称", position = 1)
     private String contractName;
 
+    /** 计划表 - 审批状态 */
+    @ApiModelProperty(value = " 计划表 -审批状态", position = 1)
+    private String status;
+
 }

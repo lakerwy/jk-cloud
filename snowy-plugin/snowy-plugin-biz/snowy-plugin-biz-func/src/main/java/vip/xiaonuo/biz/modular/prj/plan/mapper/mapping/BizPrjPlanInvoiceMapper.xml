@@ -2,4 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.prj.plan.mapper.BizPrjPlanInvoiceMapper">
 
+    <select id="getInvoicePage" resultType="vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo">
+        select a.PLAN_NO as planNo,a.CONTRACT_NO as contractNo,a.CONTRACT_AMOUNT as contractAmount,
+               a.CONTRACT_NAME as contractName,a.STATUS as status,b.*
+        from BIZ_PRJ_PLAN a
+        left join BIZ_PRJ_PLAN_INVOICE b on a.ID = b.PLAN_ID and b.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

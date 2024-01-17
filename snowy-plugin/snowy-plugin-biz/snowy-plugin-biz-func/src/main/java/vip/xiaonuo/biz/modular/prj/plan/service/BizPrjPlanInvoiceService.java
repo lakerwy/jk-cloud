@@ -15,10 +15,8 @@ package vip.xiaonuo.biz.modular.prj.plan.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanInvoice;
-import vip.xiaonuo.biz.modular.prj.plan.param.BizPrjPlanInvoiceAddParam;
-import vip.xiaonuo.biz.modular.prj.plan.param.BizPrjPlanInvoiceEditParam;
-import vip.xiaonuo.biz.modular.prj.plan.param.BizPrjPlanInvoiceIdParam;
-import vip.xiaonuo.biz.modular.prj.plan.param.BizPrjPlanInvoicePageParam;
+import vip.xiaonuo.biz.modular.prj.plan.param.*;
+import vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo;
 
 import java.util.List;
 
@@ -77,4 +75,11 @@ public interface BizPrjPlanInvoiceService extends IService<BizPrjPlanInvoice> {
      * @date  2023/09/28 11:28
      **/
     BizPrjPlanInvoice queryEntity(String id);
+
+    /**
+     * 计划的 - 发票信息 分页查询
+     * @param planInvoicePage
+     * @return
+     */
+    Page<PlanInvoiceVo> invoicePage(PlanInvoicePage planInvoicePage);
 }

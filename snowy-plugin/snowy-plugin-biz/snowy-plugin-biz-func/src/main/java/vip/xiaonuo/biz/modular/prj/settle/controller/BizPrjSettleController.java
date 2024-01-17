@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.settle.param.*;
+import vip.xiaonuo.biz.modular.prj.settle.service.BizPrjSettleInvoiceService;
 import vip.xiaonuo.biz.modular.prj.settle.vo.BizPrjSettleVo;
 import vip.xiaonuo.biz.modular.prj.settle.vo.SettleInvoiceVo;
 import vip.xiaonuo.common.annotation.CommonLog;
@@ -51,6 +52,9 @@ public class BizPrjSettleController {
 
     @Resource
     private BizPrjSettleService bizPrjSettleService;
+
+    @Resource
+    private BizPrjSettleInvoiceService bizPrjSettleInvoiceService;
 
     /**
      * 获取业务表-项目款结算单分页
@@ -155,6 +159,19 @@ public class BizPrjSettleController {
     @GetMapping("/biz/prj/settle/settleList")
     public CommonResult<List<BizPrjSettle>> settleList(@Valid InvoiceParam invoiceParam) {
         return CommonResult.data(bizPrjSettleService.settleList(invoiceParam));
+    }
+
+    /**
+     * 根据 【合同编号|结算单号】 - 获取 发票信息 分页
+     *
+     * @author yong.ye
+     * @date  2024/01/17 16:36
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("根据 【合同编号|结算单号】 - 获取 发票信息 分页")
+    @GetMapping("/biz/prj/settle/invoicePage")
+    public CommonResult<Page<SettleInvoiceVo>> invoicePage(SettleInvoicePage settleInvoicePage) {
+        return CommonResult.data(bizPrjSettleInvoiceService.invoicePage(settleInvoicePage));
     }
 
 }

@@ -32,4 +32,8 @@ public class SettleInvoiceVo extends BizPrjSettleInvoice {
     @ApiModelProperty(value = "总包-合同金额", position = 14)
     private BigDecimal contractAmount;
 
+    /** 结算单-状态 */
+    @ApiModelProperty(value = "结算单-状态", position = 14)
+    private String status;
+
 }

@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlan;
 import vip.xiaonuo.biz.modular.prj.plan.param.*;
+import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanInvoiceService;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanService;
 import vip.xiaonuo.biz.modular.prj.plan.vo.BizPrjPlanVo;
 import vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo;
@@ -51,6 +52,9 @@ public class BizPrjPlanController {
 
     @Resource
     private BizPrjPlanService bizPrjPlanService;
+
+    @Resource
+    private BizPrjPlanInvoiceService bizPrjPlanInvoiceService;
 
     /**
      * 获取业务表-项目计划付款单分页
@@ -156,4 +160,18 @@ public class BizPrjPlanController {
     public CommonResult<List<BizPrjPlanVo>> planList(@Valid InvoiceParam invoiceParam) {
         return CommonResult.data(bizPrjPlanService.planList(invoiceParam));
     }
+
+    /**
+     * 根据 【合同编号|计划单号】 - 获取 发票信息 分页
+     *
+     * @author yong.ye
+     * @date  2024/01/17 16:36
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("根据 【合同编号|计划单号】 - 获取 发票信息 分页")
+    @GetMapping("/biz/prj/plan/invoicePage")
+    public CommonResult<Page<PlanInvoiceVo>> invoicePage(PlanInvoicePage planInvoicePage) {
+        return CommonResult.data(bizPrjPlanInvoiceService.invoicePage(planInvoicePage));
+    }
+
 }

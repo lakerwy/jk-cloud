@@ -2,4 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.prj.settle.mapper.BizPrjSettleInvoiceMapper">
 
+    <select id="getInvoicePage" resultType="vip.xiaonuo.biz.modular.prj.settle.vo.SettleInvoiceVo">
+        select a.SETTLE_NO as settleNo,a.ZB_CONTRACT_NO as contractNo,a.ZB_CONTRACT_AMOUNT as contractAmount,
+               a.ZB_CONTRACT_NAME as contractName,a.STATUS as status,b.*
+        from BIZ_PRJ_SETTLE a
+        left join BIZ_PRJ_SETTLE_INVOICE b on a.ID = b.SETTLE_ID and b.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.prj.plan.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanInvoice;
+import vip.xiaonuo.biz.modular.prj.plan.vo.PlanInvoiceVo;
 
 /**
  * 业务表-项目计划付款单-本次提供发票Mapper接口
@@ -22,4 +27,12 @@ import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanInvoice;
  * @date  2023/09/28 11:28
  **/
 public interface BizPrjPlanInvoiceMapper extends BaseMapper<BizPrjPlanInvoice> {
+
+    /**
+     * 计划单 发票列表  分页查询
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<PlanInvoiceVo> getInvoicePage(Page<PlanInvoiceVo> page, @Param(Constants.WRAPPER) Wrapper<BizPrjPlanInvoice> queryWrapper);
 }
