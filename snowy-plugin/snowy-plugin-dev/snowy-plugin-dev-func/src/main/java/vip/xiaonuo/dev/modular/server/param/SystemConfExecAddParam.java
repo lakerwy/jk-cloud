@@ -44,7 +44,7 @@ public class SystemConfExecAddParam {
     private String dataBaseJson;
 
     @ApiModelProperty(value = "系统部署服务器信息(部署的服务器IP - targetHost,用户 - targetUserName," +
-            "密码 - targetPassword,配置文件存放地址《默认/epc/server/》 - targetRemoteFolderPath,容器外放端口 - dockerPort,域名 - systemDomain[选填])", required = true,position = 4)
+            "密码 - targetPassword,配置文件存放地址《默认/home/epcServer》 - targetRemoteFolderPath,容器外放端口 - dockerPort,域名 - systemDomain[选填])", required = true,position = 4)
     @NotNull(message = "数据库信息不能为空")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String systemServerJson;

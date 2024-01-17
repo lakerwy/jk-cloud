@@ -731,7 +731,12 @@ public class InitConfigServiceImpl implements InitConfigService {
             try {
                 boolean b = sftpFileUploader.executeRemoteScript(script);
                 if(b){
-                    updateSystemServer(systemConfExec.getSystemId(), status);
+                    SystemServer systemServer = systemServerService.getById(systemConfExec.getSystemId());
+                    systemServer.setSystemStatus(status);
+                    String systemDomain = "http://"+sftpFileUploader.getTargetHost()+":"+sftpFileUploader.getDockerPort();
+                    systemServer.setSystemDomain(systemDomain);
+                    systemServerService.updateById(systemServer);
+                    //updateSystemServer(systemConfExec.getSystemId(), status);
                 }
             }catch (Exception e){
                 log.error("系统初始化失败", e);
