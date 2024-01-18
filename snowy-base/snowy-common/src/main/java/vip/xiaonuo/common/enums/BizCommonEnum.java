@@ -32,7 +32,9 @@ public enum BizCommonEnum {
     HR_USER_BUSINESS_TRIP_FLW("HR_USER_BUSINESS_TRIP_FLW","HR_USER_BUSINESS_TRIP_FLW","HrUserBusinessTripFlwServiceImpl"), //申请出差流程表
     HR_USER_BUSINESS_TRIP("HR_USER_BUSINESS_TRIP","HR_USER_BUSINESS_TRIP","HrUserBusinessTripServiceImpl"), //申请出差主体表（1-n）
     HR_SUB_PERSONNEL("HR_SUB_PERSONNEL","HR_SUB_PERSONNEL","SubPersonnelServiceImpl"),  //分公司人事管理
-    HR_SUB_SALARY("HR_SUB_SALARY","HR_SUB_SALARY","SubSalaryServiceImpl");  //分公司人事管理-工资条
+    HR_SUB_SALARY("HR_SUB_SALARY","HR_SUB_SALARY","SubSalaryServiceImpl"),  //分公司人事管理-工资条
+
+    HR_SUB_TRANSFER("HR_SUB_TRANSFER","HR_SUB_TRANSFER","HrSubTransferServiceImpl");  //分公司人事管理-工资社保转入|转出总部
 
 
     String bizModel;
