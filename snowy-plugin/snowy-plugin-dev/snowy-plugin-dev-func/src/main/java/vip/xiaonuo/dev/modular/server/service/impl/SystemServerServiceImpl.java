@@ -63,6 +63,13 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         if(ObjectUtil.isNotEmpty(systemServerPageParam.getSystemStatus())) {
             queryWrapper.lambda().eq(SystemServer::getSystemStatus, systemServerPageParam.getSystemStatus());
         }
+        if(ObjectUtil.isNotEmpty(systemServerPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(SystemServer::getSystemName,systemServerPageParam.getSearchKey())
+                    .or().like(SystemServer::getSystemDomain,systemServerPageParam.getSearchKey())
+                    .or().like(SystemServer::getSystemSource,systemServerPageParam.getSearchKey())
+                    .or().like(SystemServer::getSystemSourceId,systemServerPageParam.getSearchKey())
+            );
+        }
         if(ObjectUtil.isAllNotEmpty(systemServerPageParam.getSortField(), systemServerPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(systemServerPageParam.getSortOrder());
             queryWrapper.orderBy(true, systemServerPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -94,6 +101,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     @Override
     public void add(SystemServerAddParam systemServerAddParam) {
         SystemServer systemServer = BeanUtil.toBean(systemServerAddParam, SystemServer.class);
+        systemServer.setSystemStatus(0);
         this.save(systemServer);
     }
 
@@ -142,6 +150,13 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             }
             if(ObjectUtil.isNotEmpty(myServerParam.getSystemStatus())) {
                 queryWrapper.lambda().eq(SystemServer::getSystemStatus, myServerParam.getSystemStatus());
+            }
+            if(ObjectUtil.isNotEmpty(myServerParam.getSearchKey())){
+                queryWrapper.lambda().and(q->q.like(SystemServer::getSystemName,myServerParam.getSearchKey())
+                        .or().like(SystemServer::getSystemDomain,myServerParam.getSearchKey())
+                        .or().like(SystemServer::getSystemSource,myServerParam.getSearchKey())
+                        .or().like(SystemServer::getSystemSourceId,myServerParam.getSearchKey())
+                );
             }
             if(ObjectUtil.isAllNotEmpty(myServerParam.getSortField(), myServerParam.getSortOrder())) {
                 CommonSortOrderEnum.validate(myServerParam.getSortOrder());
