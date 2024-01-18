@@ -83,10 +83,15 @@ public class InitConfigServiceImpl implements InitConfigService {
      */
     @Override
     public void initSystem(SystemConfExecIdParam systemConfExecIdParam) {
-        SystemConfExec systemConfExec = systemConfExecService.getById(systemConfExecIdParam.getId());
-        if (ObjectUtil.isEmpty(systemConfExec)) {
+        List<SystemConfExec> systemConfExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,systemConfExecIdParam.getId()));
+        if(CollectionUtil.isEmpty(systemConfExecList)){
             throw new CommonException("未找到系统配置");
         }
+        SystemConfExec systemConfExec = systemConfExecList.get(0);
+       /* SystemConfExec systemConfExec = systemConfExecService.getById(systemConfExecIdParam.getId());
+        if (ObjectUtil.isEmpty(systemConfExec)) {
+            throw new CommonException("未找到系统配置");
+        }*/
 //
 //        // 生成系统的唯一标识
 //        generateNo();
@@ -670,7 +675,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         return CompletableFuture.supplyAsync(() -> {
             String systemServerJson = systemConfExec.getSystemServerJson();
             // SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemServerJson, SftpFileUploader.class);
-            String systemDomain = (String) JSONUtil.parseObj(systemServerJson).get("systemDomain");
+            Object systemDomain = JSONUtil.parseObj(systemServerJson).get("systemDomain");
             String dockerPort = (String) JSONUtil.parseObj(systemServerJson).get("dockerPort");
             String sourceFile = CONF + StrUtil.SLASH + InitConfConstant.APPLICATION_YML_NAME;
             int systemNo = systemConfExec.getSystemServerNo();
@@ -685,7 +690,7 @@ public class InitConfigServiceImpl implements InitConfigService {
                 paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_2, InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE + systemNo);
                 paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_1, InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE + systemNo);
                 paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_2, InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE + systemNo);
-                if (StrUtil.isEmpty(systemDomain)) {
+                if (ObjectUtil.isEmpty(systemDomain) || systemDomain.toString().equals("null")) {
                     if (StrUtil.isAllNotEmpty(sftpFileUploader.getTargetHost(), dockerPort)) {
                         systemDomain = String.format("http://%s:%s", sftpFileUploader.getTargetHost(), dockerPort);
                     } else {
@@ -726,7 +731,17 @@ public class InitConfigServiceImpl implements InitConfigService {
             try {
                 boolean b = sftpFileUploader.executeRemoteScript(script);
                 if(b){
-                    updateSystemServer(systemConfExec.getSystemId(), status);
+                    SystemServer systemServer = systemServerService.getById(systemConfExec.getSystemId());
+                    systemServer.setSystemStatus(status);
+                    String systemDomain = "http://"+sftpFileUploader.getTargetHost()+":"+sftpFileUploader.getDockerPort();
+                    if(StringUtils.isEmpty(systemServer.getSystemUrl())){
+                        systemServer.setSystemUrl(systemDomain);
+                    }
+                    if(StringUtils.isEmpty(systemServer.getSystemDomain())){
+                        systemServer.setSystemDomain(systemDomain);
+                    }
+                    systemServerService.updateById(systemServer);
+                    //updateSystemServer(systemConfExec.getSystemId(), status);
                 }
             }catch (Exception e){
                 log.error("系统初始化失败", e);

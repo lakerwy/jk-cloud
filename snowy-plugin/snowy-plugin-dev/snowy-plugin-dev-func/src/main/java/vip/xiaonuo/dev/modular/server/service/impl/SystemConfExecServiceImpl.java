@@ -14,8 +14,10 @@ package vip.xiaonuo.dev.modular.server.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -70,6 +72,14 @@ public class SystemConfExecServiceImpl extends ServiceImpl<SystemConfExecMapper,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SystemConfExecAddParam systemConfExecAddParam) {
+        List<SystemConfExec> systemConfExecList = this.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,systemConfExecAddParam.getSystemId()));
+        if(CollectionUtil.isNotEmpty(systemConfExecList)){
+            SystemConfExec systemConfExec = systemConfExecList.get(0);
+            systemConfExec.setDataBaseJson(systemConfExecAddParam.getDataBaseJson());
+            systemConfExec.setSystemServerJson(systemConfExecAddParam.getSystemServerJson());
+            this.saveOrUpdate(systemConfExec);
+            return;
+        }
         SystemConfExec systemConfExec = BeanUtil.toBean(systemConfExecAddParam, SystemConfExec.class);
         systemConfExec.setSystemServerNo(generateNo());
         this.save(systemConfExec);

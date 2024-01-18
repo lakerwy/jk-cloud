@@ -39,6 +39,7 @@ public class SftpFileUploader {
     private String targetUserName;
     private String targetPassword;
     private String targetRemoteFolderPath;  // Remote folder path on Server B
+    private String dockerPort;
 
     private ReentrantLock lock ;
 
@@ -373,21 +374,17 @@ public class SftpFileUploader {
                 // Add some delay or other logic here if needed
                 // For example, Thread.sleep(100);
             }
-
             // Get the exit status
             int exitStatus = channelExec.getExitStatus();
-
             // Get the error stream
-            InputStream errorStream = channelExec.getErrStream();
-            String errorMessage = readStream(errorStream);
-
+            //InputStream errorStream = channelExec.getErrStream();
+            //String errorMessage = readStream(errorStream);
             // Print the error message
-            System.out.println("Error Message: " + errorMessage);
-
+            //System.out.println("Error Message: " + errorMessage);
             // Process the result
             return (exitStatus == 0);
 
-        } catch (JSchException | IOException e) {
+        } catch (JSchException e) {
             e.printStackTrace();
             return false; // Return false in case of exception
         } finally {

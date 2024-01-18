@@ -33,16 +33,19 @@ import java.util.Date;
 public class SystemConfExecAddParam {
 
     /** 系统服务主键 */
-    @ApiModelProperty(value = "系统服务主键", position = 2)
+    @ApiModelProperty(value = "系统服务主键", required = true,position = 2)
+    @NotNull(message = "系统服务主键不能为空")
     private String systemId;
 
     /** 数据库信息 */
-    @ApiModelProperty(value = "数据库配置信息(数据库ip - dbIp、端口 - port、用户名 - userName、密码 - password)", position = 3)
+    @ApiModelProperty(value = "数据库配置信息(数据库ip - dbIp、端口 - port、用户名 - userName、密码 - password)", required = true,position = 3)
+    @NotNull(message = "数据库信息不能为空")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String dataBaseJson;
 
     @ApiModelProperty(value = "系统部署服务器信息(部署的服务器IP - targetHost,用户 - targetUserName," +
-            "密码 - targetPassword,配置文件存放地址《默认/epc/server/》 - targetRemoteFolderPath,容器外放端口 - dockerPort,域名 - systemDomain[选填])", position = 4)
+            "密码 - targetPassword,配置文件存放地址《默认/home/epcServer》 - targetRemoteFolderPath,容器外放端口 - dockerPort,域名 - systemDomain[选填])", required = true,position = 4)
+    @NotNull(message = "数据库信息不能为空")
     @JsonFormat(shape = JsonFormat.Shape.STRING)
     private String systemServerJson;
 
