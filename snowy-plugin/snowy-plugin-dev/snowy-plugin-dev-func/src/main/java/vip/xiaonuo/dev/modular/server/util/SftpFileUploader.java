@@ -161,20 +161,12 @@ public class SftpFileUploader {
                         // Recursively upload subdirectories
                         uploadFolder(sourceSession, targetSession, sourceFolderPath + "/" + entry.getFilename(), targetFolderPath + "/" + entry.getFilename());
                     } else {
-                        // Upload files
+                        // Upload files without additional character encoding conversion
                         try (InputStream inputStream = sourceChannel.get(entry.getFilename())) {
-                            // Read content and convert line endings to Unix format
-//                            String fileContent = new String(inputStream.readAllBytes(), StandardCharsets.UTF_8);
-                            String fileContent = IOUtils.toString(inputStream, StandardCharsets.UTF_8);
-                            fileContent = fileContent.replaceAll("\r\n", "\n");
-
-                            // Upload modified content to the target server
-                            try (InputStream modifiedInputStream = new ByteArrayInputStream(fileContent.getBytes(StandardCharsets.UTF_8))) {
-                                targetChannel.put(modifiedInputStream, targetFolderPath + "/" + entry.getFilename());
-                            }
-                            //set file permissions
-                            targetChannel.chmod(777, targetFolderPath + "/" + entry.getFilename());
+                            targetChannel.put(inputStream, targetFolderPath + "/" + entry.getFilename());
                         }
+                        // Set file permissions (execute permission for owner, group, and others)
+                        targetChannel.chmod(755, targetFolderPath + "/" + entry.getFilename());
                     }
                 }
             }
@@ -183,6 +175,7 @@ public class SftpFileUploader {
             targetChannel.disconnect();
         }
     }
+
 
     private void createRemoteFolder(ChannelSftp channel, String folderPath) throws SftpException {
         // Create remote folder on target server (Server B) if it doesn't exist
