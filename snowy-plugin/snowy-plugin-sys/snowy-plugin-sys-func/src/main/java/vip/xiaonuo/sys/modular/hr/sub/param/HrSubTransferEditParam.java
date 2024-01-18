@@ -183,9 +183,9 @@ public class HrSubTransferEditParam {
     @ApiModelProperty(value = "扩展信息", position = 37)
     private String extJson;
 
-    /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 44)
-    private String dataScopeId;
+//    /** 数据权限控制字段 */
+//    @ApiModelProperty(value = "数据权限控制字段", position = 44)
+//    private String dataScopeId;
 
     /** SN */
     @ApiModelProperty(value = "SN", position = 45)
