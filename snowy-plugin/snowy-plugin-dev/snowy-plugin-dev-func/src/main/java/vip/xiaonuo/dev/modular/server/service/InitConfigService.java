@@ -74,7 +74,7 @@ public interface InitConfigService {
      */
     void initSystem(SystemConfExecIdParam systemConfExecIdParam);
 
-    CompletableFuture<Boolean> uploadConfAsync(SftpFileUploader sftpFileUploader,String systemId,Integer status);
+    CompletableFuture<Boolean> uploadConfAsync(SftpFileUploader sftpFileUploader,SystemConfExec systemConfExec,Integer status);
 
 
     CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status);

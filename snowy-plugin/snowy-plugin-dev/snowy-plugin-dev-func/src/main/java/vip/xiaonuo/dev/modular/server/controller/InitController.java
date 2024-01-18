@@ -53,6 +53,16 @@ public class InitController {
         return CommonResult.ok();
     }
 
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("更新前端服务")
+    @CommonLog("更新前端服务")
+    @PostMapping("/system/updateFront")
+    public CommonResult<String> updateFront(@RequestBody @Valid SystemConfExecIdParam systemConfExecIdParam){
+       //todo
+        initConfigService.initSystem(systemConfExecIdParam);
+        return CommonResult.ok();
+    }
+
     /**
      * epc建库
      *

@@ -101,7 +101,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         CompletableFuture<Boolean> createDbFuture = createDataBaseAsync(systemConfExec);
 
         createDbFuture
-                .thenComposeAsync(createDbFlag -> createDbFlag ? uploadConfAsync(sftpFileUploader,systemConfExec.getSystemId(),2) : CompletableFuture.completedFuture(false))
+                .thenComposeAsync(createDbFlag -> createDbFlag ? uploadConfAsync(sftpFileUploader,systemConfExec,2) : CompletableFuture.completedFuture(false))
                 .thenComposeAsync(uploadConfFlag -> uploadConfFlag ? updateConfAsync(systemConfExec, sftpFileUploader, 3) : CompletableFuture.completedFuture(false))
                 .thenComposeAsync(executeConfFlag -> executeConfFlag ? executeRemoteScriptAsync(sftpFileUploader,systemConfExec,4) : CompletableFuture.completedFuture(false));
     }
@@ -630,10 +630,10 @@ public class InitConfigServiceImpl implements InitConfigService {
     }
 
     @Override
-    public CompletableFuture<Boolean> uploadConfAsync(SftpFileUploader sftpFileUploader,String systemId,Integer status) {
+    public CompletableFuture<Boolean> uploadConfAsync(SftpFileUploader sftpFileUploader,SystemConfExec systemConfExec,Integer status) {
         return CompletableFuture.supplyAsync(() -> {
 //            SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemConfExec.getSystemServerJson(), SftpFileUploader.class);
-            sftpFileUploader.setTargetRemoteFolderPath(sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + "epc" + getSystemNo());
+            sftpFileUploader.setTargetRemoteFolderPath(sftpFileUploader.getTargetRemoteFolderPath() + StrUtil.SLASH + "epc" + systemConfExec.getSystemServerNo());
             String systemSourceIp = devConfigService.getValueByKey(InitConfConstant.SYSTEM_SOURCE_IP);
             if (StrUtil.isEmpty(systemSourceIp)) {
                 systemSourceIp = "10.0.33.82";
@@ -658,7 +658,7 @@ public class InitConfigServiceImpl implements InitConfigService {
 
             try {
                 sftpFileUploader.uploadFolderToRemote();
-                updateSystemServer(systemId, status);
+                updateSystemServer(systemConfExec.getSystemId(), status);
                 return true;
             } catch (Exception e) {
                 return false;
