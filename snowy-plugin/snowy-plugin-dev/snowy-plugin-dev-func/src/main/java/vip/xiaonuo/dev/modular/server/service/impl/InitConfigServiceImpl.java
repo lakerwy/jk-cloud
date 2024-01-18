@@ -115,7 +115,7 @@ public class InitConfigServiceImpl implements InitConfigService {
                 DataBaseParam dataBaseParam = JsonUtil.fromJson(dataBaseJson, DataBaseParam.class);
                 String dataBaseName = "EPC" + systemConfExec.getSystemServerNo();
                 dataBaseParam.setDbName(dataBaseName);
-
+                systemConfExec.setDataBaseJson(dataBaseJson);
                 Boolean flag = databaseCreator.createDatabase(dataBaseParam);
                 if (!flag) {
                     log.error("创建数据库失败");
