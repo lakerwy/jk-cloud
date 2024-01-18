@@ -233,4 +233,8 @@ public class HrSubTransfer {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 48)
     private String status;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 49)
+    private String memo;
 }
