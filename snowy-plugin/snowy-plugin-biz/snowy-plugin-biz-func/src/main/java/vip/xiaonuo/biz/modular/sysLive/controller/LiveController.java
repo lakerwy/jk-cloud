@@ -62,7 +62,7 @@ public class LiveController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取直播地址表分页")
-    @SaCheckPermission("/biz/sysLive/page")
+//    @SaCheckPermission("/biz/sysLive/page")
     @GetMapping("/biz/sysLive/page")
     public CommonResult<Page<Live>> page(LivePageParam livePageParam) {
         return CommonResult.data(liveService.page(livePageParam));
@@ -77,7 +77,7 @@ public class LiveController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加直播地址表")
     @CommonLog("添加直播地址表")
-    @SaCheckPermission("/biz/sysLive/add")
+//    @SaCheckPermission("/biz/sysLive/add")
     @PostMapping("/biz/sysLive/add")
     public CommonResult<String> add(@RequestBody @Valid LiveAddParam liveAddParam) {
         liveService.add(liveAddParam);
@@ -93,7 +93,7 @@ public class LiveController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑直播地址表")
     @CommonLog("编辑直播地址表")
-    @SaCheckPermission("/biz/sysLive/edit")
+//    @SaCheckPermission("/biz/sysLive/edit")
     @PostMapping("/biz/sysLive/edit")
     public CommonResult<String> edit(@RequestBody @Valid LiveEditParam liveEditParam) {
         liveService.edit(liveEditParam);
@@ -109,7 +109,7 @@ public class LiveController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除直播地址表")
     @CommonLog("删除直播地址表")
-    @SaCheckPermission("/biz/sysLive/delete")
+//    @SaCheckPermission("/biz/sysLive/delete")
     @PostMapping("/biz/sysLive/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<LiveIdParam> liveIdParamList) {
@@ -125,7 +125,7 @@ public class LiveController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取直播地址表详情")
-    @SaCheckPermission("/biz/sysLive/detail")
+//    @SaCheckPermission("/biz/sysLive/detail")
     @GetMapping("/biz/sysLive/detail")
     public CommonResult<Live> detail(@Valid LiveIdParam liveIdParam) {
         return CommonResult.data(liveService.detail(liveIdParam));

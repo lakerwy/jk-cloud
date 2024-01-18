@@ -476,7 +476,7 @@ public class DingDingServiceImpl implements IDingDingService {
         OapiMessageCorpconversationAsyncsendV2Request.Body body = new OapiMessageCorpconversationAsyncsendV2Request.Body();
         body.setTitle(rabbitMsg.getTitle());
         body.setForm(rabbitMsg.getForms());
-        String mg = "处理时间："+ DateUtil.formatDateTime(new Date()) +"\n详情请登录建科云2.0官网(https://yun.jianke.co)处理";
+        String mg = "处理时间："+ DateUtil.formatDateTime(new Date());
         body.setContent(mg);
         oa.setBody(body);
         if(ObjectUtil.isNotEmpty(rabbitMsg.getUrl())){
