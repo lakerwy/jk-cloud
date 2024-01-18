@@ -734,7 +734,12 @@ public class InitConfigServiceImpl implements InitConfigService {
                     SystemServer systemServer = systemServerService.getById(systemConfExec.getSystemId());
                     systemServer.setSystemStatus(status);
                     String systemDomain = "http://"+sftpFileUploader.getTargetHost()+":"+sftpFileUploader.getDockerPort();
-                    systemServer.setSystemDomain(systemDomain);
+                    if(StringUtils.isEmpty(systemServer.getSystemUrl())){
+                        systemServer.setSystemUrl(systemDomain);
+                    }
+                    if(StringUtils.isEmpty(systemServer.getSystemDomain())){
+                        systemServer.setSystemDomain(systemDomain);
+                    }
                     systemServerService.updateById(systemServer);
                     //updateSystemServer(systemConfExec.getSystemId(), status);
                 }
