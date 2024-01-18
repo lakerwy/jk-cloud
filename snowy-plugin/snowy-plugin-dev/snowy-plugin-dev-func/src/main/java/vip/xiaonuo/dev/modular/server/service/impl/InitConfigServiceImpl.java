@@ -97,9 +97,12 @@ public class InitConfigServiceImpl implements InitConfigService {
 //        generateNo();
 
         SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemConfExec.getSystemServerJson(), SftpFileUploader.class);
-
+        String dataBaseJson = systemConfExec.getDataBaseJson();
+        DataBaseParam dataBaseParam = JsonUtil.fromJson(dataBaseJson, DataBaseParam.class);
+        String dataBaseName = "EPC" + systemConfExec.getSystemServerNo();
+        dataBaseParam.setDbName(dataBaseName);
+        systemConfExec.setDataBaseJson(JSONUtil.toJsonPrettyStr(dataBaseParam));
         CompletableFuture<Boolean> createDbFuture = createDataBaseAsync(systemConfExec);
-
         createDbFuture
                 .thenComposeAsync(createDbFlag -> createDbFlag ? uploadConfAsync(sftpFileUploader,systemConfExec,2) : CompletableFuture.completedFuture(false))
                 .thenComposeAsync(uploadConfFlag -> uploadConfFlag ? updateConfAsync(systemConfExec, sftpFileUploader, 3) : CompletableFuture.completedFuture(false))
@@ -113,9 +116,6 @@ public class InitConfigServiceImpl implements InitConfigService {
             try {
                 String dataBaseJson = systemConfExec.getDataBaseJson();
                 DataBaseParam dataBaseParam = JsonUtil.fromJson(dataBaseJson, DataBaseParam.class);
-                String dataBaseName = "EPC" + systemConfExec.getSystemServerNo();
-                dataBaseParam.setDbName(dataBaseName);
-
                 Boolean flag = databaseCreator.createDatabase(dataBaseParam);
                 if (!flag) {
                     log.error("创建数据库失败");
@@ -682,6 +682,8 @@ public class InitConfigServiceImpl implements InitConfigService {
             Map<String, Object> paramMap = new HashMap<>();
             try {
                 DataBaseParam dataBaseParam = JsonUtil.fromJson(systemConfExec.getDataBaseJson(), DataBaseParam.class);
+                //String jdbcConnect = String.format("jdbc:mysql://%s:%s/%s%s", dataBaseParam.getDbIp(), dataBaseParam.getPort(),dataBaseParam.getDbName(), InitConfConstant.MYSQL_PARAMS);
+                //paramMap.put(InitConfConstant.MYSQL_RUL, jdbcConnect);
                 paramMap.put(InitConfConstant.MYSQL_RUL, String.format("jdbc:mysql://%s:%s/%s%s", dataBaseParam.getDbIp(), dataBaseParam.getPort(),dataBaseParam.getDbName(), InitConfConstant.MYSQL_PARAMS));
                 Object mysqlPassword = StringUtils.isNumeric(dataBaseParam.getPassword()) ? Integer.parseInt(dataBaseParam.getPassword()) : dataBaseParam.getPassword();
                 paramMap.put(InitConfConstant.MYSQL_PASSWORD, mysqlPassword);
