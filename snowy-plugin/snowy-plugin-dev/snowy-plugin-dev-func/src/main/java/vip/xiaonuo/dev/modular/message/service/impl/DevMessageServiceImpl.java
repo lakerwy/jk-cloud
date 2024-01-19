@@ -121,10 +121,12 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
         jsonObject.set(FlwCacheConstant.TITLE,"【流程处理通知单】");
         Object initiatorTime = taskMap.get("initiatorTime");
         Object initiatorName = taskMap.get("initiatorName");
+        String processInstanceId = taskMap.get("processInstanceId");
         jsonObject.set(FlwCacheConstant.FLW_STARTER,initiatorName);
         jsonObject.set(FlwCacheConstant.FLW_START_TIME,initiatorTime);
         Object o1 = taskMap.get("status");
         jsonObject.set(FlwCacheConstant.FLW_STATUS,o1);
+        jsonObject.set(FlwCacheConstant.FLE_PROCESS_INSTANCE_ID,processInstanceId);
 //        if(o1.toString().equals("COMPLETE")){
 //            jsonObject.set(FlwCacheConstant.FLW_STATUS,"已完成");
 //        }
