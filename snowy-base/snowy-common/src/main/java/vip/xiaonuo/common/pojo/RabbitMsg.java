@@ -184,7 +184,10 @@ public class RabbitMsg {
         if(CollUtil.isNotEmpty(userSets)){
             builder.userSets(userSets);
         }
-
+        String processInstanceId = jsonObject.getStr(FlwCacheConstant.FLE_PROCESS_INSTANCE_ID);
+        if(StrUtil.isNotEmpty(processInstanceId)){
+            builder.url(processInstanceId);
+        }
         return builder.build();
     }
 
