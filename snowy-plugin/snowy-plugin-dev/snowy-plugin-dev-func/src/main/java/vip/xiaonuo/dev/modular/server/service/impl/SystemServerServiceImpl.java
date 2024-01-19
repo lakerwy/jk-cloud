@@ -75,7 +75,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             queryWrapper.orderBy(true, systemServerPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(systemServerPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SystemServer::getId);
+            queryWrapper.lambda().orderByDesc(SystemServer::getCreateTime);
         }
         Page<SystemServer> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         getSystemExec(page);
@@ -179,7 +179,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
                 queryWrapper.orderBy(true, myServerParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                         StrUtil.toUnderlineCase(myServerParam.getSortField()));
             } else {
-                queryWrapper.lambda().orderByAsc(SystemServer::getId);
+                queryWrapper.lambda().orderByDesc(SystemServer::getCreateTime);
             }
             String sqlSegment = String.format(" FIND_IN_SET('%s', PARTER) > 0",StpLoginUserUtil.getLoginUser().getId());
             queryWrapper.apply(sqlSegment);
