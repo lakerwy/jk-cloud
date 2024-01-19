@@ -86,5 +86,5 @@ public interface PanFileService extends IService<PanFile> {
     void updateFileDetail(String userFileId, String identifier, long fileSize);
 
     /** 在线压缩文件 */
-    void zipFile(ZipFileParam zipFileParam) throws IOException, InterruptedException;
+    void zipFile(ZipFileParam zipFileParam);
 }

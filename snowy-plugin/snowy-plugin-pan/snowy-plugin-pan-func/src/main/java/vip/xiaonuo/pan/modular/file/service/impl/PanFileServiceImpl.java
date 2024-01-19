@@ -223,7 +223,7 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
     }
 
     @Override
-    public void zipFile(ZipFileParam zipFileParam) throws IOException, InterruptedException{
+    public void zipFile(ZipFileParam zipFileParam){
         if(CollectionUtil.isEmpty(zipFileParam.getUserFileId())){
             throw new CommonException("需要压缩的文件夹ID不能为空！");
         }
@@ -265,12 +265,8 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             if(ObjectUtil.isEmpty(inputFile)){ throw new CommonException("未找到该文件夹！");}
             if(!userFile.isDirectory()){ throw new CommonException("保存的路径不是文件夹！");}
             inputFile = inputFile+"/"+UUID.randomUUID().toString()+".zip";
-            /*if (zipFileParam.getZipName().contains("/")) {
-                inputFile = inputFile+"/"+UUID.randomUUID().toString()+".zip";
-            }else{
-                inputFile = inputFile+"\\"+UUID.randomUUID().toString()+".zip";
-            }*/
-            Long fileSize = commonZipUtil.unzip(sourceFileList,inputFile);
+
+            Long fileSize = commonZipUtil.zip(sourceFileList,inputFile);
             //插入PAN_FILE表数据
             PanFile panFile = new PanFile();
             panFile.setFileSize(fileSize);
@@ -284,7 +280,6 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             userFile1.setParentId(userFile.getId());
             userFile1.setFileName(zipFileParam.getZipName());
             userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()+"/"+userFile.getFileName()));
-            //userFile1.setParentId(userFile.getParentId());
             userFile1.setIsDir(0);
             userFile1.setFileSize(fileSize);
             userFile1.setFoldType(userFile.getFoldType());
