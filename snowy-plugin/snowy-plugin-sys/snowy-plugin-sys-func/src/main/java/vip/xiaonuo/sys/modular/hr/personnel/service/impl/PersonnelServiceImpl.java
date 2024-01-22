@@ -46,12 +46,10 @@ import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
-import vip.xiaonuo.sys.modular.position.entity.SysPosition;
 import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
-import vip.xiaonuo.sys.modular.user.param.SysUserIdParam;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
@@ -187,7 +185,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             sysUserAddParam.setEmpNo(personnel.getFileNo());
             sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
             if(ObjectUtil.isNotEmpty(personnelAddParam.getHireDate())){
-                sysUserAddParam.setEntryDate(personnelAddParam.getHireDate().toString());
+                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnelAddParam.getHireDate()));
             }
             sysUserService.addAndGrantRole(sysUserAddParam);
         }else {
@@ -201,7 +199,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                 sysUserAddParam.setGender(personnel.getSex());
             }
             if(ObjectUtil.isNotEmpty(personnelAddParam.getHireDate())){
-                sysUserAddParam.setEntryDate(personnelAddParam.getHireDate().toString());
+                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnelAddParam.getHireDate()));
             }
             SysUser sysUser = BeanUtil.toBean(sysUserAddParam, SysUser.class);
             sysUser.setId(user.getId());
@@ -264,12 +262,13 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             sysUserAddParam.setEmpNo(personnel.getFileNo());
             sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
             if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
-                sysUserAddParam.setEntryDate(personnel.getHireDate().toString());
+                // 创建DateTimeFormatter对象，并定义格式
+                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnel.getHireDate()));
             }
             sysUserService.addAndGrantRole(sysUserAddParam);
         }else{
             if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
-                user.setEntryDate(personnel.getHireDate().toString());
+                user.setEntryDate(DateUtil.formatDate(personnel.getHireDate()));
             }
             if(ObjectUtil.isNotEmpty(personnel.getDutyId())) {
                 user.setPositionId(personnel.getDutyId());
