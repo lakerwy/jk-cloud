@@ -136,7 +136,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.like("a.PROJECT_LEADER", hetongPageParam.getProjectLeader());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getInvestScale())) {
-            queryWrapper.like("a.INVEST_SCALE", hetongPageParam.getInvestScale());
+            queryWrapper.ge(" CAST(a.INVEST_SCALE AS SIGNED) ", hetongPageParam.getInvestScale());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getDescription())) {
             queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());
@@ -382,7 +382,7 @@ public class HetongServiceImpl extends ServiceImpl<HetongMapper, Hetong> impleme
             queryWrapper.like("a.PROJECT_LEADER", hetongPageParam.getProjectLeader());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getInvestScale())) {
-            queryWrapper.like("a.INVEST_SCALE", hetongPageParam.getInvestScale());
+            queryWrapper.ge(" CAST(a.INVEST_SCALE AS SIGNED) ", hetongPageParam.getInvestScale());
         }
         if(ObjectUtil.isNotEmpty(hetongPageParam.getDescription())) {
             queryWrapper.like("a.DESCRIPTION", hetongPageParam.getDescription());

@@ -80,7 +80,8 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
                     .like("a.COUNTERPARTY", subcontractPageParam.getSearchKey()).or()
                     .like("a.MAIN_CONTRACT_NO", subcontractPageParam.getSearchKey()).or()
                     .like("a.OWNER", subcontractPageParam.getSearchKey()).or()
-                    .like("a.FIRSTPARTY", subcontractPageParam.getSearchKey()));
+                    .like("a.FIRSTPARTY", subcontractPageParam.getSearchKey())
+                    .like("a.EXPENSE_NATURE",subcontractPageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getOpt())) {
             queryWrapper.like("a.OPT", subcontractPageParam.getOpt());
@@ -123,6 +124,9 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getSubType())) {
             queryWrapper.eq("a.SUB_TYPE", subcontractPageParam.getSubType());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getExpenseNature())){
+            queryWrapper.eq("a.EXPENSE_NATURE",subcontractPageParam.getExpenseNature());
         }
         if(ObjectUtil.isAllNotEmpty(subcontractPageParam.getSortField(), subcontractPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(subcontractPageParam.getSortOrder());
@@ -242,7 +246,8 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
                     .like("a.COUNTERPARTY", subcontractPageParam.getSearchKey()).or()
                     .like("a.MAIN_CONTRACT_NO", subcontractPageParam.getSearchKey()).or()
                     .like("a.OWNER", subcontractPageParam.getSearchKey()).or()
-                    .like("a.FIRSTPARTY", subcontractPageParam.getSearchKey()));
+                    .like("a.FIRSTPARTY", subcontractPageParam.getSearchKey())
+                    .like("a.EXPENSE_NATURE",subcontractPageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getOpt())) {
             queryWrapper.like("a.OPT", subcontractPageParam.getOpt());
@@ -285,6 +290,9 @@ public class SubcontractServiceImpl extends ServiceImpl<SubcontractMapper, Subco
         }
         if(ObjectUtil.isNotEmpty(subcontractPageParam.getSubType())) {
             queryWrapper.eq("a.SUB_TYPE", subcontractPageParam.getSubType());
+        }
+        if(ObjectUtil.isNotEmpty(subcontractPageParam.getExpenseNature())){
+            queryWrapper.eq("a.EXPENSE_NATURE",subcontractPageParam.getExpenseNature());
         }
 
         // 校验数据范围

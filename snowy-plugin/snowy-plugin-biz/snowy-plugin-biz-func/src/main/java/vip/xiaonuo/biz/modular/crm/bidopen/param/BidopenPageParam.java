@@ -88,4 +88,12 @@ public class BidopenPageParam {
     @ApiModelProperty(value = "立项-所属部门（历史表BidOpen.Dept）")
     private String dept;
 
+    /** 中标时间开始 */
+    @ApiModelProperty(value = "中标时间开始")
+    private String startBidDate;
+
+    /** 中标时间结束 */
+    @ApiModelProperty(value = "中标时间结束")
+    private String endBidDate;
+
 }

@@ -162,4 +162,12 @@ public class SubContractInfoVo {
     /** 源合同信息-项目类型 */
     @ApiModelProperty(value = "源合同信息-项目类型", position = 66)
     private String mainBizProjectType;
+
+    /** 费用性质 */
+    @ApiModelProperty(value = "费用性质", position = 66)
+    private String expenseNature;
+
+    /** 费用性质 - 其他 备注 */
+    @ApiModelProperty(value = "费用性质 - 其他 备注", position = 66)
+    private String expenseNatureMemo;
 }

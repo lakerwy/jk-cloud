@@ -126,4 +126,12 @@ public class SubcontractAddParam {
     /** 分包类型（新的） */
     @ApiModelProperty(value = "分包类型（新的）", position = 66)
     private String subType;
+
+    /** 费用性质 */
+    @ApiModelProperty(value = "费用性质", position = 66)
+    private String expenseNature;
+
+    /** 费用性质 - 其他 备注 */
+    @ApiModelProperty(value = "费用性质 - 其他 备注", position = 66)
+    private String expenseNatureMemo;
 }

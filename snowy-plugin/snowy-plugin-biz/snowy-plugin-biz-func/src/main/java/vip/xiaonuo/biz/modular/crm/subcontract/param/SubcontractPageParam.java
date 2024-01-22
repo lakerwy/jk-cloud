@@ -112,4 +112,8 @@ public class SubcontractPageParam {
     @ApiModelProperty(value = "分包类型（新的）")
     private String subType;
 
+    /** 费用性质 */
+    @ApiModelProperty(value = "费用性质")
+    private String expenseNature;
+
 }

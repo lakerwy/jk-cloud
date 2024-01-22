@@ -61,6 +61,9 @@ public class BidopenServiceImpl extends ServiceImpl<BidopenMapper, Bidopen> impl
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getStartOptDate()) && ObjectUtil.isNotEmpty(bidopenPageParam.getEndOptDate())) {
             queryWrapper.between("a.OPT_DATE",bidopenPageParam.getStartOptDate(), bidopenPageParam.getEndOptDate());
         }
+        if(ObjectUtil.isNotEmpty(bidopenPageParam.getStartBidDate()) && ObjectUtil.isNotEmpty(bidopenPageParam.getEndBidDate())) {
+            queryWrapper.between("a.BID_DATE",bidopenPageParam.getStartBidDate(), bidopenPageParam.getEndBidDate());
+        }
         if(ObjectUtil.isNotEmpty(bidopenPageParam.getSn())) {
             queryWrapper.like("a.SN", bidopenPageParam.getSn());
         }
