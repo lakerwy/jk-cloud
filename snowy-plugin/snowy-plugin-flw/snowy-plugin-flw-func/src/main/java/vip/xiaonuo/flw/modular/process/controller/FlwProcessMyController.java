@@ -190,6 +190,7 @@ public class FlwProcessMyController {
             flwProcessMonitorPageParam.setCopyFlag(Boolean.TRUE);
 //            flwProcessMonitorPageParam.setName(flwProcessMyPageParam.getName());
             flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getName());
+            flwProcessMonitorPageParam.setSn(flwProcessMyPageParam.getSn());
             return CommonResult.data(flwProcessService.monitorPage(flwProcessMonitorPageParam));
         }
         return CommonResult.data(new Page<>());
@@ -228,6 +229,7 @@ public class FlwProcessMyController {
             flwProcessMonitorPageParam.setCopyFlag(Boolean.TRUE);
 //            flwProcessMonitorPageParam.setName(flwProcessMyPageParam.getName());
             flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getName());
+            flwProcessMonitorPageParam.setSn(flwProcessMyPageParam.getSn());
             return CommonResult.data(flwProcessService.monitorPage(flwProcessMonitorPageParam));
         }
         return CommonResult.data(new Page<>());
