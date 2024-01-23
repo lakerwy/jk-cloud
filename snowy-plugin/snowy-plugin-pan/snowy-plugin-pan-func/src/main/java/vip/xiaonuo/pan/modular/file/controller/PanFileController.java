@@ -591,7 +591,7 @@ public class PanFileController {
 
     @ApiOperationSupport(order = 21)
     @ApiOperation("根据文件id获取文件")
-    @GetMapping("/dev/attachment/info")
+    @GetMapping("/pan/attachment/info")
     public CommonResult<Object> getAttachments(@RequestParam(value = "ids") String ids,@RequestParam(value = "fromService") Boolean fromService){
         String[] split = ids.split(";");
         List<String> list = Arrays.asList(split);

@@ -116,6 +116,7 @@ public class GatewayConfigure {
             /*文件免token上传*/
             "/api/webapp/dev/file/NoToken/uploadLocalReturnUrl",
             "/api/webapp/dev/attachment/info",
+            "/api/webapp/pan/attachment/info",
 
             /* 用户个人中心相关 */
             "/api/webapp/sys/userCenter/getPicCaptcha",
