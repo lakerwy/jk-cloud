@@ -29,7 +29,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.SysBuildInEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -37,6 +36,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
+import vip.xiaonuo.pan.modular.file.constant.FoldNameConstant;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
@@ -66,6 +66,7 @@ import javax.annotation.Resource;
 import java.io.File;
 import java.io.InputStream;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -120,6 +121,8 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Resource
     private PanFileRightService panFileRightService;
+
+    protected Map<String,UserFile>  foldFlag = new ConcurrentHashMap<>();
 
 
     @Override
@@ -1033,5 +1036,60 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         UserFile userFile = this.getById(userFileMemoParam.getFileId());
         userFile.setMemo(userFileMemoParam.getMemo());
         this.updateById(userFile);
+    }
+
+    /***
+     * 创建图审业务目录
+     * @param serviceName
+     * @return
+     */
+    @Override
+    public UserFile createServiceFold(String serviceName) {
+        UserFile userFile = foldFlag.get(serviceName);
+        if(ObjectUtil.isNotEmpty(userFile)){
+            return userFile;
+        }
+
+        UserFile rootFold= foldFlag.get(FoldNameConstant.SERVICE_ROOT_FOLD_NAME);
+        if(ObjectUtil.isNull(rootFold)){
+            rootFold = createServiceRootFold();
+        }
+        userFile = new UserFile();
+        userFile.setFoldType(2);
+        userFile.setParentId(rootFold.getId());
+        userFile.setParentId(ROOT_FOLD_ID);
+        userFile.setFileName(serviceName);
+        userFile.setFilePath(rootFold.getFilePath()+rootFold.getFileName()+ROOT_FOLD_PATH);
+        userFile.setIsDir(1);
+        List<UserFile> folds = getFolds(userFile);
+        if(CollUtil.isNotEmpty(folds)){
+            userFile = folds.get(0);
+        }else {
+            save(userFile);
+        }
+        foldFlag.put(serviceName,userFile);
+        return userFile;
+    }
+
+    /**
+     * 创建业务根目录，存系统中所有业务相关的的文件
+     */
+    public UserFile createServiceRootFold(){
+        UserFile rootFold;
+        UserFile userFile = new UserFile();
+        userFile.setFoldType(2);
+        userFile.setParentId(ROOT_FOLD_ID);
+        userFile.setFileName(FoldNameConstant.SERVICE_ROOT_FOLD_NAME);
+        userFile.setFilePath(ROOT_FOLD_PATH);
+        userFile.setIsDir(1);
+        List<UserFile> folds = getFolds(userFile);
+        if(CollUtil.isEmpty(folds)){
+             save(userFile);
+             rootFold = userFile;
+        }else {
+            rootFold = folds.get(0);
+        }
+        foldFlag.put(FoldNameConstant.SERVICE_ROOT_FOLD_NAME,rootFold);
+        return rootFold;
     }
 }

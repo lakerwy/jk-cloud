@@ -112,8 +112,8 @@ public abstract class Uploader {
     protected abstract UploadFileResult organizationalResults(MultipartFile multipartFile, UploadFile uploadFile);
 
     private void rectifier(MultipartFile multipartFile, UploadFile uploadFile) {
-        String key = "QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":lock";
-        String current_upload_chunk_number = "QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number";
+        String key = "Uploader:Identifier:" + uploadFile.getIdentifier() + ":lock";
+        String current_upload_chunk_number = "Uploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number";
 
         redisLock.lock(key);
         try {
@@ -147,11 +147,11 @@ public abstract class Uploader {
             if (uploadFile.getChunkNumber() == currentUploadChunkNumber) {
                 doUploadFileChunk(multipartFile, uploadFile);
                 log.info("文件名{},第{}块上传成功", multipartFile.getMultipartFile().getOriginalFilename(), uploadFile.getChunkNumber());
-                this.redisUtil.getIncr("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
+                this.redisUtil.getIncr("Uploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number");
             }
         } catch (Exception e) {
             log.error("第{}块上传失败，自动重试", uploadFile.getChunkNumber());
-            redisUtil.set("QiwenUploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", String.valueOf(uploadFile.getChunkNumber()), 1000 * 60 * 60);
+            redisUtil.set("Uploader:Identifier:" + uploadFile.getIdentifier() + ":current_upload_chunk_number", String.valueOf(uploadFile.getChunkNumber()), 1000 * 60 * 60);
             throw new CommonException("更新远程文件出错", e);
         } finally {
 

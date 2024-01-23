@@ -51,4 +51,7 @@ public class UploadFileParam {
     @ApiModelProperty(value = "0个人文件夹内上传 1 群组内文件上传")
     private Integer foldType;
 
+    @ApiModelProperty(value = "是否来自业务上传")
+    private Boolean formService = Boolean.FALSE;
+
 }

@@ -5,6 +5,7 @@ import vip.xiaonuo.pan.modular.file.param.DownloadFileParam;
 import vip.xiaonuo.pan.modular.file.param.PreviewParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
 import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
+import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -18,7 +19,7 @@ import java.util.List;
 public interface IFileTransferService {
     UploadFileVo uploadFileSpeed(UploadFileParam uploadFileParam);
 
-    void uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam);
+    List<UserFile> uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam);
 
     void downloadFile(HttpServletResponse httpServletResponse, List<String> fileIds,String rightType);
     void downloadUserFileList(HttpServletResponse httpServletResponse, String filePath, String fileName, List<String> userFileIds,String rightType);

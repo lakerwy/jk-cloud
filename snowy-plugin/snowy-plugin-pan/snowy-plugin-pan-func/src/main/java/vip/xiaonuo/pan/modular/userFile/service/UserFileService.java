@@ -171,4 +171,10 @@ public interface UserFileService extends IService<UserFile> {
      */
     void saveMemo(UserFileMemoParam userFileMemoParam);
 
+    /**
+     * 创建业务文件夹
+     * @return
+     */
+    UserFile createServiceFold(String serviceName);
+
 }

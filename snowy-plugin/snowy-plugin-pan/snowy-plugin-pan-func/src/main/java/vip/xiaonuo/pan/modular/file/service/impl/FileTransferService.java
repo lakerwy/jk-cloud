@@ -207,7 +207,8 @@ public class FileTransferService implements IFileTransferService {
 
     @Override
     @Transactional
-    public void uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam) {
+    public List<UserFile> uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam) {
+        List<UserFile> userFileList = new ArrayList<>();
         UploadFile uploadFile = new UploadFile();
         uploadFile.setChunkNumber(uploadFileParam.getChunkNumber());
         uploadFile.setChunkSize(uploadFileParam.getChunkSize());
@@ -330,6 +331,7 @@ public class FileTransferService implements IFileTransferService {
 
                 fileDealComp.parseMusicFile(uploadFileResult.getExtendName(), uploadFileResult.getStorageType().getCode(), uploadFileResult.getFileUrl(), panFile.getId());
 
+                userFileList.add(userFile);
             } else if (UploadFileStatusEnum.UNCOMPLATE.equals(uploadFileResult.getStatus())) {
                 PanUploadTaskDetail uploadTaskDetail = new PanUploadTaskDetail();
                 uploadTaskDetail.setFilePath(commonFile.getParent());
@@ -353,6 +355,7 @@ public class FileTransferService implements IFileTransferService {
                 panUploadTaskService.update(lambdaUpdateWrapper);
             }
         }
+        return userFileList;
     }
 
     /***

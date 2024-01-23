@@ -42,6 +42,7 @@ import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.dev.modular.file.service.DevFileUnzipService;
+import vip.xiaonuo.pan.modular.file.constant.FoldNameConstant;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
@@ -200,18 +201,38 @@ public class PanFileController {
     @ApiOperation("上传文件")
 //    @SaCheckPermission("/pan/file/uploadFile")
     @PostMapping("/pan/file/uploadFile")
-    public CommonResult<String> uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam){
+    public CommonResult<Object> uploadFile(HttpServletRequest request, UploadFileParam uploadFileParam){
+        if(!uploadFileParam.getFormService()){
+            UserFile parentUserFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+            //校验权限
+            panFileRightService.checkFileRight(Collections.singletonList(parentUserFile.getId()),FileRight.UPLOAD,uploadFileParam.getRightType());
 
-        UserFile parentUserFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
-        //校验权限
-        panFileRightService.checkFileRight(Collections.singletonList(parentUserFile.getId()),FileRight.UPLOAD,uploadFileParam.getRightType());
+            fileTransferService.uploadFile(request,uploadFileParam);
 
-        fileTransferService.uploadFile(request,uploadFileParam);
+            //记录文件操作日志
+            devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Collections.singletonList(parentUserFile.getId()));
 
-        //记录文件操作日志
-        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Collections.singletonList(parentUserFile.getId()));
+            return CommonResult.ok();
+        }else {
+            List<Map<String, Object>> mapList = new ArrayList<>();
+            UserFile serviceFold = userFileService.createServiceFold(FoldNameConstant.SERVICE_CHART_REVIEW);
+            if(ObjectUtil.isNotNull(serviceFold)){
+                uploadFileParam.setFilePath(serviceFold.getFilePath()+serviceFold.getFileName()+StrUtil.SLASH);
+                uploadFileParam.setParentId(serviceFold.getId());
+                List<UserFile> userFiles = fileTransferService.uploadFile(request, uploadFileParam);
+                userFiles.forEach(userFile -> {
+                    Map<String, Object> re = new HashMap<>();
+                    String downloadUrl = String.format("api/webapp/pan/file/downloadFile?fileIds=%s&shareBatchNum=&extractionCode=&tenantId=",userFile.getId());
+                    re.put("url",downloadUrl);
+                    re.put("name",userFile.getFileName());
+                    re.put("fileId",userFile.getId());
+                    re.put("previewUrl",commonProperties.getBackendUrl()+downloadUrl);
+                    mapList.add(re);
+                });
+            }
+            return CommonResult.data(mapList);
+        }
 
-        return CommonResult.ok();
     }
 
     @ApiOperationSupport(order = 9)
