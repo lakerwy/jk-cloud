@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.dev.modular.server.param.SystemConfExecIdParam;
 import vip.xiaonuo.sys.modular.user.param.*;
 import vip.xiaonuo.sys.modular.user.service.ThirdUserService;
 
@@ -101,5 +102,14 @@ public class ThirdUserController {
     @PostMapping("/sys/third/unBindECard")
     public CommonResult<Boolean> unBindECard(@RequestBody @Valid WeChatUnBindParam weChatUnBindParam) {
         return CommonResult.data(thirdUserService.unBindECard(weChatUnBindParam));
+    }
+
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("同步建科人员到EPC")
+    @CommonLog("同步建科人员到EPC")
+    @GetMapping("/sys/third/putUserToEpc")
+    public CommonResult<String> putUserToEpc(SystemConfExecIdParam systemConfExecIdParam){
+        thirdUserService.putUserToEpc(systemConfExecIdParam);
+        return CommonResult.ok();
     }
 }
