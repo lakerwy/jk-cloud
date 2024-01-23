@@ -39,6 +39,7 @@ import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.api.DevLogApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
+import vip.xiaonuo.dev.modular.file.entity.DevFileVo;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.dev.modular.file.service.DevFileUnzipService;
@@ -586,5 +587,30 @@ public class PanFileController {
     public CommonResult<String> zipFile(@Valid @RequestBody ZipFileParam zipFileParam){
         panFileService.zipFile(zipFileParam);
         return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("根据文件id获取文件")
+    @GetMapping("/dev/attachment/info")
+    public CommonResult<Object> getAttachments(@RequestParam(value = "ids") String ids,@RequestParam(value = "fromService") Boolean fromService){
+        String[] split = ids.split(";");
+        List<String> list = Arrays.asList(split);
+        List<DevFileVo> vos = null;
+        String apiUrl = commonProperties.getBackendUrl();
+        if(!fromService){
+            List<DevFile> infos = devFileService.getInfosByIds(list);
+            List<DevFileUnzip> devFileUnzipList = devFileUnzipService.list(new LambdaQueryWrapper<DevFileUnzip>().in(DevFileUnzip::getId,list));
+            devFileUnzipList.forEach(unzip -> {
+                infos.add(BeanUtil.toBean(unzip,DevFile.class));
+            });
+            vos = infos.stream().map(v-> new DevFileVo(v.getName(),apiUrl+v.getDownloadPath(), v.getId(), v.getSizeKb(),v.getSizeInfo())).collect(Collectors.toList());
+        }else {
+            List<UserFile> userFiles = userFileService.listByIds(list);
+            //String baseDownloadUrl = String.format("api/webapp/pan/file/downloadFile?fileIds=%s&shareBatchNum=&extractionCode=&tenantId=",userFile.getId());
+            String baseDownloadUrl = apiUrl+"api/webapp/pan/file/downloadFile?fileIds=";
+            String extendUrl = "&shareBatchNum=&extractionCode=&tenantId=";
+            vos = userFiles.stream().map(v->new DevFileVo(v.getFileName()+StrUtil.DOT+v.getExtendName(),baseDownloadUrl+v.getId()+extendUrl,v.getId(),String.valueOf(v.getFileSize()),String.valueOf(v.getFileSize()))).collect(Collectors.toList());
+        }
+        return CommonResult.data(vos);
     }
 }
