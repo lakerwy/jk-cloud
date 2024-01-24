@@ -32,4 +32,8 @@ public class SystemConfExecIdParam {
     @ApiModelProperty(value = "主键", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
+
+    /** 角色ID */
+    @ApiModelProperty(value = "角色ID")
+    private String roleId;
 }

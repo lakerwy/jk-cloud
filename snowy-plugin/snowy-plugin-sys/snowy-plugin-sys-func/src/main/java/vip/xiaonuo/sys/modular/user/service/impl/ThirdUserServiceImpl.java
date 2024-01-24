@@ -2,6 +2,7 @@ package vip.xiaonuo.sys.modular.user.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dingtalk.api.response.OapiV2UserGetResponse;
@@ -10,6 +11,7 @@ import com.fhs.common.utils.JsonUtils;
 import com.fhs.common.utils.StringUtil;
 import com.fhs.trans.service.impl.TransService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.api.AuthThirdApi;
 import vip.xiaonuo.auth.api.LoginThirdApi;
@@ -18,6 +20,14 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
+import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
+import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
+import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.server.param.SystemConfExecIdParam;
+import vip.xiaonuo.dev.modular.server.service.SystemServerService;
+import vip.xiaonuo.dev.modular.server.util.PingServiceUtil;
+import vip.xiaonuo.dev.modular.server.vo.JiankeUserVo;
+import vip.xiaonuo.sys.modular.hr.conference.rez.util.HttpUtil;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
 import vip.xiaonuo.sys.modular.user.mapper.SysUserMapper;
@@ -26,9 +36,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 import vip.xiaonuo.sys.modular.user.service.ThirdUserService;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -52,6 +60,11 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
 
     @Resource
     private SysUserService sysUserService;
+
+    @Resource
+    SystemServerService systemServerService;
+    @Resource
+    PingServiceUtil pingServiceUtil;
 
     @Override
     public String toDoDingDingApplication(DingDingLoginParam dingDingLoginParam) {
@@ -146,5 +159,44 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
     @Override
     public Boolean unBindECard(WeChatUnBindParam weChatUnBindParam) {
         return authThirdApi.delAuthThird(weChatUnBindParam.getUserId(),AuthThirdCategoryEnum.WeChat_ECard.getValue());
+    }
+
+    @Override
+    public void putUserToEpc(SystemConfExecIdParam systemConfExecIdParam){
+        if(StringUtils.isEmpty(systemConfExecIdParam.getRoleId())){
+            throw new CommonException("同步用户时，角色ID不能为空！");
+        }
+        SystemServer systemServer = systemServerService.getById(systemConfExecIdParam.getId());
+
+        if(ObjectUtil.isEmpty(systemServer)){
+            throw new CommonException("未找到系统配置信息！");
+        }
+        if(StringUtils.isEmpty(systemServer.getSystemUrl())){
+            throw new CommonException("系统还未启动成功！");
+        }
+        if(!pingServiceUtil.pingUrl(systemServer.getSystemUrl(),3000)){
+            throw new CommonException("系统还未启动成功！");
+        }
+        List<SysUser> sysUserList = new ArrayList<>();
+        try{
+            sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId, Arrays.asList(systemServer.getParter().split(","))));
+        }catch (Exception e){
+            log.error("同步用户失败！e:"+e.getMessage());
+            throw new CommonException("同步用户失败！");
+        }
+        List<JiankeUserVo> jiankeUserList = new ArrayList<>();
+        sysUserList.forEach(user -> {
+            JiankeUserVo jiankeUserVo = new JiankeUserVo();
+            jiankeUserVo.setAccount(user.getAccount());
+            jiankeUserVo.setUserName(user.getName());
+            jiankeUserVo.setRoleId(systemConfExecIdParam.getRoleId());
+            jiankeUserList.add(jiankeUserVo);
+        });
+        try{
+            HttpUtil.sendPostRequest(systemServer.getSystemUrl()+InitConfConstant.EPC_USER_URL,JSONUtil.toJsonStr(jiankeUserList));
+        }catch (Exception e){
+            log.error("同步建科用户到EPC失败！e:"+e.getMessage());
+            throw new CommonException("同步建科用户到EPC失败！");
+        }
     }
 }

@@ -117,4 +117,6 @@ public interface InitConfConstant {
     public final String BUILD_SH = "build.sh";
 
     public final String DATABASE_CODE = " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
+
+    public final String EPC_USER_URL = "/api/epc/third/syncJkUser";
 }

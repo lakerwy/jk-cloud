@@ -2,6 +2,7 @@ package vip.xiaonuo.sys.modular.user.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
+import vip.xiaonuo.dev.modular.server.param.SystemConfExecIdParam;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.param.*;
 
@@ -46,4 +47,12 @@ public interface ThirdUserService extends IService<SysUser> {
      * @return
      */
     Boolean unBindECard(WeChatUnBindParam weChatUnBindParam);
+
+    /**
+     * 添加系统服务操作记录表
+     *
+     * @author ljy
+     * @date  2024/01/03 16:07
+     */
+    void putUserToEpc(SystemConfExecIdParam systemConfExecIdParam);
 }
