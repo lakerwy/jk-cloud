@@ -835,6 +835,14 @@ public class NodeRuntimeUtil {
                 "processRejectNoticeChannel", "processRejectNoticeTemplate");
     }
 
+    /**
+     * 处理流程拒绝通知
+     */
+    public static void handleUserTaskUrgeNotice(DelegateTask delegateTask){
+        handleProcessNotice(delegateTask, null, "URGE", "processEnableUrgeNotice",
+                "processUrgeNoticeChannel", "processUrgeNoticeTemplate");
+    }
+
 
     /**
      * 处理流程通知
@@ -855,9 +863,9 @@ public class NodeRuntimeUtil {
             AtomicReference<String> processNoticeTemplate = new AtomicReference<>();
             Collection<ExtensionElements> processExtensionElementsCollection;
 
-            boolean flag = noticeType.equals("TODO") || noticeType.equals("BACK") || noticeType.equals("REJECT");
+            boolean flag = noticeType.equals("TODO") || noticeType.equals("BACK") || noticeType.equals("REJECT") || noticeType.equals("URGE");
             if(flag) {
-                if(noticeType.equals("BACK")||noticeType.equals("REJECT")) {
+                if(noticeType.equals("BACK")||noticeType.equals("REJECT")||noticeType.equals("URGE")) {
                     processExtensionElementsCollection = repositoryService.getBpmnModelInstance(delegateTask.getProcessDefinitionId())
                             .getDocumentElement().getUniqueChildElementByType(Process.class).getChildElementsByType(ExtensionElements.class);
                 } else {

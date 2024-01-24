@@ -82,6 +82,13 @@ public interface FlwTaskService {
     void reject(FlwTaskRejectParam flwTaskRejectParam);
 
     /**
+     * 审批催办
+     *
+     * @author ljy
+     * @date 2024/01/24 8:31
+     **/
+    void urge(FlwTaskUrgeParam flwTaskUrgeParam);
+    /**
      * 审批退回
      *
      * @author xuyuxiang
