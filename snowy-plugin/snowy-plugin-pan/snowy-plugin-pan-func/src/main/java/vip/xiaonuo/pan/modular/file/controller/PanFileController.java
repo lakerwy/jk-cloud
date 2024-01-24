@@ -223,7 +223,7 @@ public class PanFileController {
                 List<UserFile> userFiles = fileTransferService.uploadFile(request, uploadFileParam);
                 userFiles.forEach(userFile -> {
                     Map<String, Object> re = new HashMap<>();
-                    String downloadUrl = String.format("api/webapp/pan/file/downloadFile?fileIds=%s&shareBatchNum=&extractionCode=&tenantId=",userFile.getId());
+                    String downloadUrl = String.format("/api/webapp/pan/file/downloadFile?fileIds=%s&shareBatchNum=&extractionCode=&tenantId=",userFile.getId());
                     re.put("url",downloadUrl);
                     re.put("name",userFile.getFileName());
                     re.put("fileId",userFile.getId());
@@ -607,7 +607,7 @@ public class PanFileController {
         }else {
             List<UserFile> userFiles = userFileService.listByIds(list);
             //String baseDownloadUrl = String.format("api/webapp/pan/file/downloadFile?fileIds=%s&shareBatchNum=&extractionCode=&tenantId=",userFile.getId());
-            String baseDownloadUrl = apiUrl+"api/webapp/pan/file/downloadFile?fileIds=";
+            String baseDownloadUrl = apiUrl+"/api/webapp/pan/file/downloadFile?fileIds=";
             String extendUrl = "&shareBatchNum=&extractionCode=&tenantId=";
             vos = userFiles.stream().map(v->new DevFileVo(v.getFileName()+StrUtil.DOT+v.getExtendName(),baseDownloadUrl+v.getId()+extendUrl,v.getId(),String.valueOf(v.getFileSize()),String.valueOf(v.getFileSize()))).collect(Collectors.toList());
         }
