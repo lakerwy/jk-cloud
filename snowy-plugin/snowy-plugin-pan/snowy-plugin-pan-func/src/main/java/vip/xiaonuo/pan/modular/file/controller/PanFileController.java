@@ -13,7 +13,6 @@
 package vip.xiaonuo.pan.modular.file.controller;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.net.url.UrlBuilder;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -175,25 +174,34 @@ public class PanFileController {
 //            return CommonResult.error("用重名文件，重命名后再上传");
 //        }
         Integer foldType = 0;
-        if(StrUtil.isNotEmpty(uploadFileParam.getFilePath())){
-            UserFile userFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
-            if(ObjectUtil.isNotEmpty(userFile)){
-                uploadFileParam.setParentId(userFile.getId());
-                foldType =userFile.getFoldType();
-                uploadFileParam.setFoldType(foldType);
+        UploadFileVo uploadFileVo = null;
+        if(!uploadFileParam.getFormService()) {
+            if (StrUtil.isNotEmpty(uploadFileParam.getFilePath())) {
+                UserFile userFile = userFileService.getParentIdByPath(uploadFileParam.getFilePath());
+                if (ObjectUtil.isNotEmpty(userFile)) {
+                    uploadFileParam.setParentId(userFile.getId());
+                    foldType = userFile.getFoldType();
+                    uploadFileParam.setFoldType(foldType);
+                }
             }
-        }
-        //校验权限
-        panFileRightService.checkFileRight(Arrays.asList(uploadFileParam.getParentId()), FileRight.UPLOAD,uploadFileParam.getRightType());
+            //校验权限
+            panFileRightService.checkFileRight(Arrays.asList(uploadFileParam.getParentId()), FileRight.UPLOAD, uploadFileParam.getRightType());
 
-        boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize(),uploadFileParam.getType());
-        if (!isCheckSuccess) {
-            return CommonResult.error("存储空间不足");
-        }
-        UploadFileVo uploadFileVo = fileTransferService.uploadFileSpeed(uploadFileParam);
+            boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize(), uploadFileParam.getType());
+            if (!isCheckSuccess) {
+                return CommonResult.error("存储空间不足");
+            }
+            uploadFileVo = fileTransferService.uploadFileSpeed(uploadFileParam);
 
-        //记录文件操作日志
-        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(),uploadFileParam.getFilename(), Arrays.asList(uploadFileParam.getParentId()));
+            //记录文件操作日志
+            devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.UPLOAD.getValue(), uploadFileParam.getFilename(), Arrays.asList(uploadFileParam.getParentId()));
+        }else {
+            UserFile serviceFold = userFileService.createServiceFold(FoldNameConstant.SERVICE_CHART_REVIEW);
+            uploadFileParam.setParentId(serviceFold.getId());
+            foldType = serviceFold.getFoldType();
+            uploadFileParam.setFoldType(foldType);
+            uploadFileVo = fileTransferService.uploadFileSpeed(uploadFileParam);
+        }
 
         return CommonResult.data(uploadFileVo);
     }
@@ -592,25 +600,22 @@ public class PanFileController {
     @ApiOperationSupport(order = 21)
     @ApiOperation("根据文件id获取文件")
     @GetMapping("/pan/attachment/info")
-    public CommonResult<Object> getAttachments(@RequestParam(value = "ids") String ids,@RequestParam(value = "fromService") Boolean fromService){
+    public CommonResult<Object> getAttachments(@RequestParam(value = "ids") String ids){
         String[] split = ids.split(";");
         List<String> list = Arrays.asList(split);
         List<DevFileVo> vos = null;
         String apiUrl = commonProperties.getBackendUrl();
-        if(!fromService){
-            List<DevFile> infos = devFileService.getInfosByIds(list);
-            List<DevFileUnzip> devFileUnzipList = devFileUnzipService.list(new LambdaQueryWrapper<DevFileUnzip>().in(DevFileUnzip::getId,list));
-            devFileUnzipList.forEach(unzip -> {
-                infos.add(BeanUtil.toBean(unzip,DevFile.class));
-            });
-            vos = infos.stream().map(v-> new DevFileVo(v.getName(),apiUrl+v.getDownloadPath(), v.getId(), v.getSizeKb(),v.getSizeInfo())).collect(Collectors.toList());
-        }else {
-            List<UserFile> userFiles = userFileService.listByIds(list);
+        List<DevFile> infos = devFileService.getInfosByIds(list);
+        List<DevFileUnzip> devFileUnzipList = devFileUnzipService.list(new LambdaQueryWrapper<DevFileUnzip>().in(DevFileUnzip::getId,list));
+        devFileUnzipList.forEach(unzip -> {
+            infos.add(BeanUtil.toBean(unzip,DevFile.class));
+        });
+        vos = infos.stream().map(v-> new DevFileVo(v.getName(),apiUrl+v.getDownloadPath(), v.getId(), v.getSizeKb(),v.getSizeInfo())).collect(Collectors.toList());
+        List<UserFile> userFiles = userFileService.listByIds(list);
             //String baseDownloadUrl = String.format("api/webapp/pan/file/downloadFile?fileIds=%s&shareBatchNum=&extractionCode=&tenantId=",userFile.getId());
-            String baseDownloadUrl = apiUrl+"/api/webapp/pan/file/downloadFile?fileIds=";
-            String extendUrl = "&shareBatchNum=&extractionCode=&tenantId=";
-            vos = userFiles.stream().map(v->new DevFileVo(v.getFileName()+StrUtil.DOT+v.getExtendName(),baseDownloadUrl+v.getId()+extendUrl,v.getId(),String.valueOf(v.getFileSize()),String.valueOf(v.getFileSize()))).collect(Collectors.toList());
-        }
+        String baseDownloadUrl = apiUrl+"/api/webapp/pan/file/downloadFile?fileIds=";
+        String extendUrl = "&shareBatchNum=&extractionCode=&tenantId=";
+        vos.addAll(userFiles.stream().map(v->new DevFileVo(v.getFileName()+StrUtil.DOT+v.getExtendName(),baseDownloadUrl+v.getId()+extendUrl,v.getId(),String.valueOf(v.getFileSize()),String.valueOf(v.getFileSize()))).collect(Collectors.toList()));
         return CommonResult.data(vos);
     }
 }
