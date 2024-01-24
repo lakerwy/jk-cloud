@@ -140,4 +140,19 @@ public class CertManageController {
     public CommonResult<List<PersonVo>> list(@Valid PersonParam personParam) {
         return CommonResult.data(certManageService.list(personParam));
     }
+
+
+    /**
+     * 获取人员资质管理分页【综合搜索】
+     *
+     * @author yong.ye
+     * @date  2024/01/23 17:23
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取人员资质管理分页【综合搜索】")
+//    @SaCheckPermission("/sys/hr/cert/manage/searchPage")
+    @GetMapping("/sys/hr/cert/manage/searchPage")
+    public CommonResult<Page<CertManage>> searchPage(CertSearchPageParam certSearchPageParam) {
+        return CommonResult.data(certManageService.searchPage(certSearchPageParam));
+    }
 }

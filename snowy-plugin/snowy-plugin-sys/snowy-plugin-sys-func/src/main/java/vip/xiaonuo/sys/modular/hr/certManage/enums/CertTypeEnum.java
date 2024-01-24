@@ -21,14 +21,20 @@ import lombok.Getter;
  * @date  2024/01/23 17:23
  **/
 @Getter
-public enum CertManageEnum {
+public enum CertTypeEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 注册类 */
+    REGISTER("注册证书"),
+
+    /** 培训类 */
+    TRAIN("培训证书"),
+
+    /** 其他类 */
+    OTHER("3");
 
     private final String value;
 
-    CertManageEnum(String value) {
+    CertTypeEnum(String value) {
         this.value = value;
     }
 }

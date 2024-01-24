@@ -82,4 +82,11 @@ public interface CertManageService extends IService<CertManage> {
      * @return
      */
     List<PersonVo> list(PersonParam personParam);
+
+    /**
+     * 普通搜索+综合搜索（均支持）
+     * @param certSearchPageParam
+     * @return
+     */
+    Page<CertManage> searchPage(CertSearchPageParam certSearchPageParam);
 }
