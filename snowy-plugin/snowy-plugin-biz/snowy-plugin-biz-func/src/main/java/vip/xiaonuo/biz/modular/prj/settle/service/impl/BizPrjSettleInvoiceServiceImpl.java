@@ -119,6 +119,7 @@ public class BizPrjSettleInvoiceServiceImpl extends ServiceImpl<BizPrjSettleInvo
         if(ObjectUtil.isNotEmpty(settleInvoicePage.getStatus())){
             queryWrapper.eq("a.STATUS",settleInvoicePage.getStatus());
         }
+        queryWrapper.isNotNull("b.ID");
         //关键字搜索
         if(ObjectUtil.isNotEmpty(settleInvoicePage.getSearchKey())){
             queryWrapper.and(q->q.like("a.CONTRACT_NO",settleInvoicePage.getSearchKey())

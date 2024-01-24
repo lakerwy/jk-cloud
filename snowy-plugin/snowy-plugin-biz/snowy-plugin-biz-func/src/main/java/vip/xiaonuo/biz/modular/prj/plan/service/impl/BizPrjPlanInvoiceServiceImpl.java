@@ -119,6 +119,7 @@ public class BizPrjPlanInvoiceServiceImpl extends ServiceImpl<BizPrjPlanInvoiceM
         if(ObjectUtil.isNotEmpty(planInvoicePage.getStatus())){
             queryWrapper.eq("a.STATUS",planInvoicePage.getStatus());
         }
+        queryWrapper.isNotNull("b.ID");
         //关键字搜索
         if(ObjectUtil.isNotEmpty(planInvoicePage.getSearchKey())){
             queryWrapper.and(q->q.like("a.CONTRACT_NO",planInvoicePage.getSearchKey())
