@@ -268,116 +268,131 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
      */
     public List<String> getFilter(CertSearchPageParam param){
         QueryWrapper<CertManage> query = new QueryWrapper<>();
+        if(!param.getIsRe() && !param.getIsTr() && !param.getIsOther()){
+            return null;
+        }
         //注册类
-        query.lambda().or(q1->{
-            q1.eq(CertManage::getType, CertTypeEnum.REGISTER.getValue());
-            if(ObjectUtil.isNotEmpty(param.getReCertType())) {
-                q1.eq(CertManage::getCertType, param.getReCertType());
-            }
-            if(ObjectUtil.isNotEmpty(param.getReMajor())) {
-                q1.like(CertManage::getMajor, param.getReMajor());
-            }
-            if(ObjectUtil.isNotEmpty(param.getReUnit())) {
-                q1.like(CertManage::getUnit, param.getReUnit());
-            }
-            if(ObjectUtil.isNotEmpty(param.getReDepositAddress())) {
-                q1.like(CertManage::getDepositAddress, param.getReDepositAddress());
-            }
-            if(ObjectUtil.isNotEmpty(param.getReStartIssueDate()) && ObjectUtil.isNotEmpty(param.getReEndIssueDate())) {
-                q1.between(CertManage::getIssueDate, param.getReStartIssueDate(), param.getReEndIssueDate());
-            }
-            if(ObjectUtil.isNotEmpty(param.getReSearchKey())){
-                q1.and(q11->q11.like(CertManage::getCertNo, param.getReSearchKey())
-                        .or().like(CertManage::getCertName, param.getReSearchKey())
-                        .or().like(CertManage::getCertSealNo, param.getReSearchKey())
-                        .or().like(CertManage::getCertType, param.getReSearchKey())
-                        .or().like(CertManage::getCompanyName, param.getReSearchKey())
-                        .or().like(CertManage::getDepositAddress, param.getReSearchKey())
-                        .or().like(CertManage::getIdNumber, param.getReSearchKey())
-                        .or().like(CertManage::getMajor, param.getReSearchKey())
-                        .or().like(CertManage::getUnit, param.getReSearchKey())
-                        .or().like(CertManage::getTechnicalTitle, param.getReSearchKey())
-                        .or().like(CertManage::getName, param.getReSearchKey())
-                        .or().like(CertManage::getJobType, param.getReSearchKey()));
-            }
-        });
+        if(param.getIsRe()) {
+            query.lambda().or(q1 -> {
+                q1.eq(CertManage::getType, CertTypeEnum.REGISTER.getValue());
+                if (ObjectUtil.isNotEmpty(param.getReCertType())) {
+                    q1.eq(CertManage::getCertType, param.getReCertType());
+                }
+                if (ObjectUtil.isNotEmpty(param.getReMajor())) {
+                    q1.like(CertManage::getMajor, param.getReMajor());
+                }
+                if (ObjectUtil.isNotEmpty(param.getReUnit())) {
+                    q1.like(CertManage::getUnit, param.getReUnit());
+                }
+                if (ObjectUtil.isNotEmpty(param.getReDepositAddress())) {
+                    q1.like(CertManage::getDepositAddress, param.getReDepositAddress());
+                }
+                if (ObjectUtil.isNotEmpty(param.getReStartIssueDate()) && ObjectUtil.isNotEmpty(param.getReEndIssueDate())) {
+                    q1.between(CertManage::getIssueDate, param.getReStartIssueDate(), param.getReEndIssueDate());
+                }
+                if (ObjectUtil.isNotEmpty(param.getReSearchKey())) {
+                    q1.and(q11 -> q11.like(CertManage::getCertNo, param.getReSearchKey())
+                            .or().like(CertManage::getCertName, param.getReSearchKey())
+                            .or().like(CertManage::getCertSealNo, param.getReSearchKey())
+                            .or().like(CertManage::getCertType, param.getReSearchKey())
+                            .or().like(CertManage::getCompanyName, param.getReSearchKey())
+                            .or().like(CertManage::getDepositAddress, param.getReSearchKey())
+                            .or().like(CertManage::getIdNumber, param.getReSearchKey())
+                            .or().like(CertManage::getMajor, param.getReSearchKey())
+                            .or().like(CertManage::getUnit, param.getReSearchKey())
+                            .or().like(CertManage::getTechnicalTitle, param.getReSearchKey())
+                            .or().like(CertManage::getName, param.getReSearchKey())
+                            .or().like(CertManage::getJobType, param.getReSearchKey()));
+                }
+            });
+        }
 
         //培训类
-        query.lambda().or(q2->{
-            q2.eq(CertManage::getType, CertTypeEnum.TRAIN.getValue());
-            if(ObjectUtil.isNotEmpty(param.getTrCertName())) {
-                q2.eq(CertManage::getCertName, param.getTrCertName());
-            }
-            if(ObjectUtil.isNotEmpty(param.getTrMajor())) {
-                q2.like(CertManage::getMajor, param.getTrMajor());
-            }
-            if(ObjectUtil.isNotEmpty(param.getTrUnit())) {
-                q2.like(CertManage::getUnit, param.getTrUnit());
-            }
-            if(ObjectUtil.isNotEmpty(param.getTrDepositAddress())) {
-                q2.like(CertManage::getDepositAddress, param.getTrDepositAddress());
-            }
-            if(ObjectUtil.isNotEmpty(param.getTrStartIssueDate()) && ObjectUtil.isNotEmpty(param.getTrEndIssueDate())) {
-                q2.between(CertManage::getIssueDate, param.getTrStartIssueDate(), param.getTrEndIssueDate());
-            }
-            if(ObjectUtil.isNotEmpty(param.getTrJobType())) {
-                q2.like(CertManage::getJobType, param.getTrJobType());
-            }
-            if(ObjectUtil.isNotEmpty(param.getTrTechnicalTitle())) {
-                q2.like(CertManage::getTechnicalTitle, param.getTrTechnicalTitle());
-            }
-            if(ObjectUtil.isNotEmpty(param.getTrSearchKey())){
-                q2.and(q22->q22.like(CertManage::getCertNo, param.getTrSearchKey())
-                        .or().like(CertManage::getCertName, param.getTrSearchKey())
-                        .or().like(CertManage::getCertSealNo, param.getTrSearchKey())
-                        .or().like(CertManage::getCertType, param.getTrSearchKey())
-                        .or().like(CertManage::getCompanyName, param.getTrSearchKey())
-                        .or().like(CertManage::getDepositAddress, param.getTrSearchKey())
-                        .or().like(CertManage::getIdNumber, param.getTrSearchKey())
-                        .or().like(CertManage::getMajor, param.getTrSearchKey())
-                        .or().like(CertManage::getUnit, param.getTrSearchKey())
-                        .or().like(CertManage::getTechnicalTitle, param.getTrSearchKey())
-                        .or().like(CertManage::getName, param.getTrSearchKey())
-                        .or().like(CertManage::getJobType, param.getTrSearchKey()));
-            }
-        });
+        if(param.getIsTr()) {
+            query.lambda().or(q2 -> {
+                q2.eq(CertManage::getType, CertTypeEnum.TRAIN.getValue());
+                if (ObjectUtil.isNotEmpty(param.getTrCertType())) {
+                    q2.eq(CertManage::getCertType, param.getTrCertType());
+                }
+                if (ObjectUtil.isNotEmpty(param.getTrCertName())) {
+                    q2.eq(CertManage::getCertName, param.getTrCertName());
+                }
+                if (ObjectUtil.isNotEmpty(param.getTrMajor())) {
+                    q2.like(CertManage::getMajor, param.getTrMajor());
+                }
+                if (ObjectUtil.isNotEmpty(param.getTrUnit())) {
+                    q2.like(CertManage::getUnit, param.getTrUnit());
+                }
+                if (ObjectUtil.isNotEmpty(param.getTrDepositAddress())) {
+                    q2.like(CertManage::getDepositAddress, param.getTrDepositAddress());
+                }
+                if (ObjectUtil.isNotEmpty(param.getTrStartIssueDate()) && ObjectUtil.isNotEmpty(param.getTrEndIssueDate())) {
+                    q2.between(CertManage::getIssueDate, param.getTrStartIssueDate(), param.getTrEndIssueDate());
+                }
+                if (ObjectUtil.isNotEmpty(param.getTrJobType())) {
+                    q2.like(CertManage::getJobType, param.getTrJobType());
+                }
+                if (ObjectUtil.isNotEmpty(param.getTrTechnicalTitle())) {
+                    q2.like(CertManage::getTechnicalTitle, param.getTrTechnicalTitle());
+                }
+                if (ObjectUtil.isNotEmpty(param.getTrSearchKey())) {
+                    q2.and(q22 -> q22.like(CertManage::getCertNo, param.getTrSearchKey())
+                            .or().like(CertManage::getCertName, param.getTrSearchKey())
+                            .or().like(CertManage::getCertSealNo, param.getTrSearchKey())
+                            .or().like(CertManage::getCertType, param.getTrSearchKey())
+                            .or().like(CertManage::getCompanyName, param.getTrSearchKey())
+                            .or().like(CertManage::getDepositAddress, param.getTrSearchKey())
+                            .or().like(CertManage::getIdNumber, param.getTrSearchKey())
+                            .or().like(CertManage::getMajor, param.getTrSearchKey())
+                            .or().like(CertManage::getUnit, param.getTrSearchKey())
+                            .or().like(CertManage::getTechnicalTitle, param.getTrSearchKey())
+                            .or().like(CertManage::getName, param.getTrSearchKey())
+                            .or().like(CertManage::getJobType, param.getTrSearchKey()));
+                }
+            });
+        }
 
         //其他类
-        query.lambda().or(q3->{
-            q3.eq(CertManage::getType, CertTypeEnum.OTHER.getValue());
-            if(ObjectUtil.isNotEmpty(param.getOtherCertName())) {
-                q3.eq(CertManage::getCertName, param.getOtherCertName());
-            }
-            if(ObjectUtil.isNotEmpty(param.getOtherMajor())) {
-                q3.like(CertManage::getMajor, param.getOtherMajor());
-            }
-            if(ObjectUtil.isNotEmpty(param.getOtherUnit())) {
-                q3.like(CertManage::getUnit, param.getOtherUnit());
-            }
-            if(ObjectUtil.isNotEmpty(param.getOtherDepositAddress())) {
-                q3.like(CertManage::getDepositAddress, param.getOtherDepositAddress());
-            }
-            if(ObjectUtil.isNotEmpty(param.getOtherStartIssueDate()) && ObjectUtil.isNotEmpty(param.getOtherEndIssueDate())) {
-                q3.between(CertManage::getIssueDate, param.getOtherStartIssueDate(), param.getOtherEndIssueDate());
-            }
-            if(ObjectUtil.isNotEmpty(param.getOtherTechnicalTitle())) {
-                q3.like(CertManage::getTechnicalTitle, param.getOtherTechnicalTitle());
-            }
-            if(ObjectUtil.isNotEmpty(param.getOtherSearchKey())){
-                q3.and(q33->q33.like(CertManage::getCertNo, param.getOtherSearchKey())
-                        .or().like(CertManage::getCertName, param.getOtherSearchKey())
-                        .or().like(CertManage::getCertSealNo, param.getOtherSearchKey())
-                        .or().like(CertManage::getCertType, param.getOtherSearchKey())
-                        .or().like(CertManage::getCompanyName, param.getOtherSearchKey())
-                        .or().like(CertManage::getDepositAddress, param.getOtherSearchKey())
-                        .or().like(CertManage::getIdNumber, param.getOtherSearchKey())
-                        .or().like(CertManage::getMajor, param.getOtherSearchKey())
-                        .or().like(CertManage::getUnit, param.getOtherSearchKey())
-                        .or().like(CertManage::getTechnicalTitle, param.getOtherSearchKey())
-                        .or().like(CertManage::getName, param.getOtherSearchKey())
-                        .or().like(CertManage::getJobType, param.getOtherSearchKey()));
-            }
-        });
+        if(param.getIsOther()) {
+            query.lambda().or(q3 -> {
+                q3.eq(CertManage::getType, CertTypeEnum.OTHER.getValue());
+                if (ObjectUtil.isNotEmpty(param.getOtherCertType())) {
+                    q3.eq(CertManage::getCertType, param.getOtherCertType());
+                }
+                if (ObjectUtil.isNotEmpty(param.getOtherCertName())) {
+                    q3.eq(CertManage::getCertName, param.getOtherCertName());
+                }
+                if (ObjectUtil.isNotEmpty(param.getOtherMajor())) {
+                    q3.like(CertManage::getMajor, param.getOtherMajor());
+                }
+                if (ObjectUtil.isNotEmpty(param.getOtherUnit())) {
+                    q3.like(CertManage::getUnit, param.getOtherUnit());
+                }
+                if (ObjectUtil.isNotEmpty(param.getOtherDepositAddress())) {
+                    q3.like(CertManage::getDepositAddress, param.getOtherDepositAddress());
+                }
+                if (ObjectUtil.isNotEmpty(param.getOtherStartIssueDate()) && ObjectUtil.isNotEmpty(param.getOtherEndIssueDate())) {
+                    q3.between(CertManage::getIssueDate, param.getOtherStartIssueDate(), param.getOtherEndIssueDate());
+                }
+                if (ObjectUtil.isNotEmpty(param.getOtherTechnicalTitle())) {
+                    q3.like(CertManage::getTechnicalTitle, param.getOtherTechnicalTitle());
+                }
+                if (ObjectUtil.isNotEmpty(param.getOtherSearchKey())) {
+                    q3.and(q33 -> q33.like(CertManage::getCertNo, param.getOtherSearchKey())
+                            .or().like(CertManage::getCertName, param.getOtherSearchKey())
+                            .or().like(CertManage::getCertSealNo, param.getOtherSearchKey())
+                            .or().like(CertManage::getCertType, param.getOtherSearchKey())
+                            .or().like(CertManage::getCompanyName, param.getOtherSearchKey())
+                            .or().like(CertManage::getDepositAddress, param.getOtherSearchKey())
+                            .or().like(CertManage::getIdNumber, param.getOtherSearchKey())
+                            .or().like(CertManage::getMajor, param.getOtherSearchKey())
+                            .or().like(CertManage::getUnit, param.getOtherSearchKey())
+                            .or().like(CertManage::getTechnicalTitle, param.getOtherSearchKey())
+                            .or().like(CertManage::getName, param.getOtherSearchKey())
+                            .or().like(CertManage::getJobType, param.getOtherSearchKey()));
+                }
+            });
+        }
 
         //查询【并集】
         List<CertManage> listCert = this.list(query);
@@ -388,10 +403,15 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         List<String> trainList = listCert.stream().filter(x->CertTypeEnum.TRAIN.getValue().equals(x.getType())).map(x->x.getIdNumber()).collect(Collectors.toList());
         List<String> otherList = listCert.stream().filter(x->CertTypeEnum.OTHER.getValue().equals(x.getType())).map(x->x.getIdNumber()).collect(Collectors.toList());
         for (CertManage cert:listCert) {
-            if(ObjectUtil.isNotEmpty(cert.getIdNumber()) && registerList.contains(cert.getIdNumber())
-               && trainList.contains(cert.getIdNumber()) && otherList.contains(cert.getIdNumber())){
-                filterIds.add(cert.getId());
+            Boolean isAdd = Boolean.TRUE;
+            if(ObjectUtil.isEmpty(cert.getIdNumber())
+                    || (param.getIsRe() && !registerList.contains(cert.getIdNumber()))
+                    || (param.getIsTr() && !trainList.contains(cert.getIdNumber()))
+                    || (param.getIsOther() && !otherList.contains(cert.getIdNumber())))
+            {
+                isAdd = Boolean.FALSE;
             }
+            if(isAdd) filterIds.add(cert.getId());
         }
         return filterIds;
     }

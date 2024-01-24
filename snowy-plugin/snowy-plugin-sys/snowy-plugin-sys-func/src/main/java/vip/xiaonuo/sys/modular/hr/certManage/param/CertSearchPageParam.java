@@ -14,6 +14,9 @@ public class CertSearchPageParam extends CertManagePageParam {
     @ApiModelProperty(value = "标记字段 - 是否开启综合搜索")
     private Boolean isOpen;
 
+    /** 注册类 - 是否参与查询 */
+    @ApiModelProperty(value = "注册类 - 是否参与查询")
+    private Boolean isRe;
 
     /** 注册类 - 关键词 */
     @ApiModelProperty(value = "注册类 - 关键词")
@@ -45,10 +48,17 @@ public class CertSearchPageParam extends CertManagePageParam {
 
 
 
+    /** 培训证书类 - 是否参与查询 */
+    @ApiModelProperty(value = "培训证书类 - 是否参与查询")
+    private Boolean isTr;
 
     /** 培训证书类 - 关键词 */
     @ApiModelProperty(value = "培训证书类 - 关键词")
     private String trSearchKey;
+
+    /** 培训证书类 - 类别 */
+    @ApiModelProperty(value = "培训证书类 - 类别")
+    private String trCertType;
 
     /** 培训证书类 - 证书名称 */
     @ApiModelProperty(value = "培训证书类 - 证书名称")
@@ -85,9 +95,17 @@ public class CertSearchPageParam extends CertManagePageParam {
 
 
 
+    /** 其他类 - 是否参与查询 */
+    @ApiModelProperty(value = "其他类 - 是否参与查询")
+    private Boolean isOther;
+
     /** 其他类 - 关键词 */
     @ApiModelProperty(value = "其他类 - 关键词")
     private String otherSearchKey;
+
+    /** 其他类 - 类别 */
+    @ApiModelProperty(value = "其他类 - 类别")
+    private String otherCertType;
 
     /** 其他类 - 证书名称 */
     @ApiModelProperty(value = "其他类 - 证书名称")
