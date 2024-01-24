@@ -320,4 +320,19 @@ public class FlwTaskController {
     public CommonResult<FlwTodoTaskResult> getOneByProcessInstanceId(@Valid FlwProcessInstanceIdParam flwProcessInstanceIdParam) {
         return CommonResult.data(flwTaskService.getOneByProcessInstanceId(flwProcessInstanceIdParam));
     }
+
+    /**
+     * 审批拒绝
+     *
+     * @author ljy
+     * @date 2022/4/24 20:47
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("审批催办")
+    @CommonLog("审批催办")
+    @PostMapping("/flw/task/urge")
+    public CommonResult<String> urge(@RequestBody @Valid FlwTaskUrgeParam flwTaskUrgeParam) {
+        flwTaskService.urge(flwTaskUrgeParam);
+        return CommonResult.ok();
+    }
 }

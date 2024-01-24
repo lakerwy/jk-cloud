@@ -1040,4 +1040,15 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         return flwTodoTaskResult;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void urge(FlwTaskUrgeParam flwTaskUrgeParam) {
+        Task task = validTask(flwTaskUrgeParam.getId(), flwTaskUrgeParam.getComment());
+        String taskId = task.getId();
+        String processInstanceId = task.getProcessInstanceId();
+        NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.URGE.getValue(), "审批催办",
+                flwTaskUrgeParam.getComment(), flwTaskUrgeParam.getAttachmentList());
+        //处理催办流程通知
+        NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
+    }
 }

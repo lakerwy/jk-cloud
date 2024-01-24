@@ -87,7 +87,12 @@ public enum NodeApproveOperateTypeEnum {
     /**
      *评论
      */
-    COMMENT("COMMENT");
+    COMMENT("COMMENT"),
+
+    /**
+     * 催办
+     * */
+    URGE("URGE");
 
     private final String value;
 
@@ -101,7 +106,8 @@ public enum NodeApproveOperateTypeEnum {
                 END.getValue().equals(value) || REVOKE.getValue().equals(value) ||
                 PASS.getValue().equals(value) || REJECT.getValue().equals(value) ||
                 BACK.getValue().equals(value) || TURN.getValue().equals(value) ||
-                JUMP.getValue().equals(value) || ADD_SIGN.getValue().equals(value) || COMMENT.getValue().equals(value);
+                JUMP.getValue().equals(value) || ADD_SIGN.getValue().equals(value) || COMMENT.getValue().equals(value)
+                || URGE.getValue().equals(value);
         if(!flag) {
             throw new CommonException("不支持的审批操作类型：{}", value);
         }
