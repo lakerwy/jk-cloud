@@ -145,6 +145,9 @@ public class FlwNode {
         /** 开启催办通知 */
         private Boolean processEnableUrgeNotice;
 
+        /** 退回催办渠道 */
+        private List<String> processUrgeNoticeChannel;
+
         /** 催办模板 */
         private String processUrgeNoticeTemplate;
 

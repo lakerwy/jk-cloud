@@ -17,6 +17,8 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.util.ObjectUtil;
@@ -73,6 +75,9 @@ import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -1048,7 +1053,22 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         String processInstanceId = task.getProcessInstanceId();
         NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.URGE.getValue(), "审批催办",
                 flwTaskUrgeParam.getComment(), flwTaskUrgeParam.getAttachmentList());
-        //处理催办流程通知
-        NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
+
+        String nowDate = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN);
+        Object object = commonCacheOperator.get(FlwCacheConstant.FLW_URGE_KEY + processInstanceId);
+        if(ObjectUtil.isNotEmpty(object)){
+            String date = String.valueOf(object);
+            //时间处理
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN);
+            LocalDateTime ldt = LocalDateTime.parse(date, formatter);
+            Date urgeDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+            long hours = DateUtil.between(new Date(),urgeDate, DateUnit.HOUR);
+            if(hours < Integer.parseInt(FlwCacheConstant.FLW_URGE_HOURS)) return;
+            NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
+        }else{
+            //处理催办流程通知
+            NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
+        }
+        commonCacheOperator.put(FlwCacheConstant.FLW_URGE_KEY + processInstanceId,nowDate);//写入缓存
     }
 }

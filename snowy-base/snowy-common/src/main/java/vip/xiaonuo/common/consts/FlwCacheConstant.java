@@ -59,4 +59,9 @@ public class FlwCacheConstant {
     public static final String FLW_MSG_TYPE= "flw_msg_type";
 
     public static final String FLE_PROCESS_INSTANCE_ID = "flw_processInstanceId";
+
+
+    public static  final String FLW_URGE_KEY = "flw_urge:";
+
+    public static  final String FLW_URGE_HOURS = "24";
 }

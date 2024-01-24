@@ -74,6 +74,7 @@ import vip.xiaonuo.dev.api.DevMessageApi;
 import vip.xiaonuo.flw.core.common.entity.GenericEntity;
 import vip.xiaonuo.flw.core.common.service.GenericService;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
+import vip.xiaonuo.flw.core.enums.NodeUrgeTaskEnum;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.parser.EndNodeCheck;
@@ -862,37 +863,43 @@ public class NodeRuntimeUtil {
             AtomicReference<List<String>> processNoticeChannelList = new AtomicReference<>();
             AtomicReference<String> processNoticeTemplate = new AtomicReference<>();
             Collection<ExtensionElements> processExtensionElementsCollection;
-
-            boolean flag = noticeType.equals("TODO") || noticeType.equals("BACK") || noticeType.equals("REJECT") || noticeType.equals("URGE");
-            if(flag) {
-                if(noticeType.equals("BACK")||noticeType.equals("REJECT")||noticeType.equals("URGE")) {
-                    processExtensionElementsCollection = repositoryService.getBpmnModelInstance(delegateTask.getProcessDefinitionId())
-                            .getDocumentElement().getUniqueChildElementByType(Process.class).getChildElementsByType(ExtensionElements.class);
+            boolean urgeTrue = noticeType.equals("URGE");//催办
+            boolean flag = noticeType.equals("TODO") || noticeType.equals("BACK") || noticeType.equals("REJECT");
+            if (!urgeTrue) {
+                if (flag) {
+                    if (noticeType.equals("BACK") || noticeType.equals("REJECT") || noticeType.equals("URGE")) {
+                        processExtensionElementsCollection = repositoryService.getBpmnModelInstance(delegateTask.getProcessDefinitionId())
+                                .getDocumentElement().getUniqueChildElementByType(Process.class).getChildElementsByType(ExtensionElements.class);
+                    } else {
+                        processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance()
+                                .getParentElement().getChildElementsByType(ExtensionElements.class);
+                    }
                 } else {
-                    processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance()
+                    processExtensionElementsCollection = delegateExecution.getBpmnModelElementInstance()
                             .getParentElement().getChildElementsByType(ExtensionElements.class);
                 }
-            } else {
-                processExtensionElementsCollection = delegateExecution.getBpmnModelElementInstance()
-                        .getParentElement().getChildElementsByType(ExtensionElements.class);
-            }
-
-            if(ObjectUtil.isNotEmpty(processExtensionElementsCollection)) {
-                processExtensionElementsCollection.forEach(processExtensionElements ->
-                        processExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(processCamundaProperties ->
-                                processCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(processCamundaProperty -> {
-                                    if (processCamundaProperty.getCamundaName().equals("configInfo")) {
-                                        JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
-                                        processNoticeEnabled[0] = processConfigInfo.getBool(processNoticeEnablePropertyKey);
-                                        if(processNoticeEnabled[0]) {
-                                            processNoticeChannelList.set(JSONUtil.toList(JSONUtil.parseArray(processConfigInfo.getStr(processNoticeChannelPropertyKey)), String.class));
-                                            processNoticeTemplate.set(processConfigInfo.getStr(processNoticeTemplatePropertyKey));
+                if (ObjectUtil.isNotEmpty(processExtensionElementsCollection)) {
+                    processExtensionElementsCollection.forEach(processExtensionElements ->
+                            processExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(processCamundaProperties ->
+                                    processCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(processCamundaProperty -> {
+                                        if (processCamundaProperty.getCamundaName().equals("configInfo")) {
+                                            JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
+                                            processNoticeEnabled[0] = processConfigInfo.getBool(processNoticeEnablePropertyKey);
+                                            if (processNoticeEnabled[0]) {
+                                                processNoticeChannelList.set(JSONUtil.toList(JSONUtil.parseArray(processConfigInfo.getStr(processNoticeChannelPropertyKey)), String.class));
+                                                processNoticeTemplate.set(processConfigInfo.getStr(processNoticeTemplatePropertyKey));
+                                            }
                                         }
-                                    }
-                                })));
+                                    })));
+                }
+            } else {
+                processNoticeEnabled[0] = true;
+                flag = true;
+                processNoticeTemplate.set(NodeUrgeTaskEnum.URGE_TEMPLATE.getValue());
+                processNoticeChannelList.set(JSONUtil.toList(JSONUtil.parseArray(NodeUrgeTaskEnum.URGE_CHANNEL.getValue()), String.class));
             }
-            if(processNoticeEnabled[0]) {
-                if(flag) {
+            if (processNoticeEnabled[0]) {
+                if (flag) {
                     handleProcessNoticeExecute(delegateTask, null, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
                 } else {
                     handleProcessNoticeExecute(null, delegateExecution, noticeType, processNoticeTemplate.get(), processNoticeChannelList.get());
@@ -901,7 +908,6 @@ public class NodeRuntimeUtil {
         }catch (Exception e){
             log.error(e.getMessage());
         }
-
     }
 
     private static void handlerAssigner(UserTask userTask,String processInstanceId,List<String> users){
@@ -1026,6 +1032,20 @@ public class NodeRuntimeUtil {
                     }
                     processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
                     break;
+                case "URGE":
+                    Object initiatorUrge;
+                    try {
+                        initiatorUrge = delegateTask.getVariable("initiator");
+                    } catch (Exception e) {
+                        initiatorUrge = runtimeService.getVariable(delegateTask.getProcessInstanceId(), "initiator");
+                    }
+                    if(ObjectUtil.isNotEmpty(initiatorUrge)){
+                        //delegateTask.getAssignee() 获取当前审批人，当前办理人
+                        //催办只发给下一个审批人
+                        participateUserIdList.add(delegateTask.getAssignee());
+                    }
+                    processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);
+                    break;
                 default:
                     throw new CommonException("不支持的通知类型：{}", noticeType);
             }
@@ -1060,6 +1080,13 @@ public class NodeRuntimeUtil {
                                 taskMap.put("taskId", delegateTask.getId());
                                 taskMap.put("taskDefKey", delegateTask.getTaskDefinitionKey());
                                 if(noticeType.equals("REJECT")){
+                                    Map<String, Object> map = getMap(processInstanceId);
+                                    taskMap.put("initiatorProcessTitle",String.valueOf(map.get("initiatorProcessTitle")));
+                                    taskMap.put("initiatorProcessAbstract",String.valueOf(map.get("initiatorProcessAbstract")));
+                                    taskMap.put("initiatorProcessSn",String.valueOf(map.get("initiatorProcessSn")));
+                                    taskMap.put("initiatorTime",String.valueOf(map.get("initiatorTime")));
+                                    taskMap.put("initiatorName",String.valueOf(map.get("initiatorName")));
+                                }else if(noticeType.equals("URGE")){
                                     Map<String, Object> map = getMap(processInstanceId);
                                     taskMap.put("initiatorProcessTitle",String.valueOf(map.get("initiatorProcessTitle")));
                                     taskMap.put("initiatorProcessAbstract",String.valueOf(map.get("initiatorProcessAbstract")));

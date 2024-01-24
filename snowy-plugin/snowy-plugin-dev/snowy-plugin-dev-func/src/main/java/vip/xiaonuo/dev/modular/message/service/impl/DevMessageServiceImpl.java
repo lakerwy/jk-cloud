@@ -149,6 +149,9 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
                 case "REJECT":
                     msgType = "拒绝通知";
                     break;
+                case "URGE":
+                    msgType = "催办通知";
+                    break;
                 default:
                     break;
             }
