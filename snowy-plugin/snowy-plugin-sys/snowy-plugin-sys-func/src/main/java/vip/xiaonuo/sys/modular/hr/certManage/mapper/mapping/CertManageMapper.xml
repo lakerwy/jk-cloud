@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.sys.modular.hr.certManage.mapper.CertManageMapper">
+
+    <select id="getPersonList" parameterType="vip.xiaonuo.sys.modular.hr.certManage.param.PersonParam" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo">
+            select ID as id,`NAME` as name,DEPT as dept,DEPT_ID as deptId,ID_NUMBER as idNumber,1 as personType
+            from PERSONNEL where DELETE_FLAG='NOT_DELETE' and `STATUS` = '0'
+                                    <if test="param.name != null and param.name != ''">
+                                        and `NAME` like CONCAT('%', #{param.name}, '%')
+                                    </if>
+        union all
+            select ID as id,`NAME` as name,DEPT as dept,DEPT_ID as deptId,ID_NUMBER as idNumber,2 as personType
+            from HR_SUB_PERSONNEL where DELETE_FLAG='NOT_DELETE' and HR_STATUS='0' and `STATUS` in ('0','1')
+                                    <if test="param.name != null and param.name != ''">
+                                        and `NAME` like CONCAT('%', #{param.name}, '%')
+                                    </if>
+    </select>
+
+</mapper>
