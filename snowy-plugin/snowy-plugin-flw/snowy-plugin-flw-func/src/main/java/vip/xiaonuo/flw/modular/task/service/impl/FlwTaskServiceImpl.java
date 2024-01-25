@@ -1048,6 +1048,12 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void urge(FlwTaskUrgeParam flwTaskUrgeParam) {
+        List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
+                .processInstanceId(flwTaskUrgeParam.getId()).orderByHistoricActivityInstanceStartTime().asc().list();
+        if(CollectionUtil.isEmpty(historicTaskInstanceList)){
+            throw new CommonException("实例数据不存在！");
+        }
+        flwTaskUrgeParam.setId(historicTaskInstanceList.get(historicTaskInstanceList.size()-1).getId());
         Task task = validTask(flwTaskUrgeParam.getId(), flwTaskUrgeParam.getComment());
         String taskId = task.getId();
         String processInstanceId = task.getProcessInstanceId();
