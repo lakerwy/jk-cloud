@@ -105,11 +105,11 @@ public class BizPrjSettleInvoiceServiceImpl extends ServiceImpl<BizPrjSettleInvo
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         //合同编号
         if(ObjectUtil.isNotEmpty(settleInvoicePage.getContractNo())){
-            queryWrapper.eq("a.CONTRACT_NO",settleInvoicePage.getContractNo());
+            queryWrapper.eq("a.ZB_CONTRACT_NO",settleInvoicePage.getContractNo());
         }
         //合同名称
         if(ObjectUtil.isNotEmpty(settleInvoicePage.getContractName())){
-            queryWrapper.like("a.CONTRACT_NAME",settleInvoicePage.getContractName());
+            queryWrapper.like("a.ZB_CONTRACT_NAME",settleInvoicePage.getContractName());
         }
         //计划单号
         if(ObjectUtil.isNotEmpty(settleInvoicePage.getSettleNo())){
@@ -122,8 +122,8 @@ public class BizPrjSettleInvoiceServiceImpl extends ServiceImpl<BizPrjSettleInvo
         queryWrapper.isNotNull("b.ID");
         //关键字搜索
         if(ObjectUtil.isNotEmpty(settleInvoicePage.getSearchKey())){
-            queryWrapper.and(q->q.like("a.CONTRACT_NO",settleInvoicePage.getSearchKey())
-                    .or().like("a.CONTRACT_NAME",settleInvoicePage.getSearchKey())
+            queryWrapper.and(q->q.like("a.ZB_CONTRACT_NO",settleInvoicePage.getSearchKey())
+                    .or().like("a.ZB_CONTRACT_NAME",settleInvoicePage.getSearchKey())
                     .or().like("a.SETTLE_NO",settleInvoicePage.getSearchKey()));
         }
         queryWrapper.orderByDesc("a.SETTLE_NO").orderByDesc("b.CREATE_TIME");

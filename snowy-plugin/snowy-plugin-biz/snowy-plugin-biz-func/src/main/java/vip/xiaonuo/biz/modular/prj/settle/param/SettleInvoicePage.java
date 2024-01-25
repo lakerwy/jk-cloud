@@ -35,11 +35,11 @@ public class SettleInvoicePage {
     @ApiModelProperty(value = "结算单编号")
     private String settleNo;
 
-    /** 合同编号 */
+    /** 合同编号 - 总包 */
     @ApiModelProperty(value = "合同编号")
     private String contractNo;
 
-    /** 合同名称 */
+    /** 合同名称 - 总包 */
     @ApiModelProperty(value = "合同名称")
     private String contractName;
 
