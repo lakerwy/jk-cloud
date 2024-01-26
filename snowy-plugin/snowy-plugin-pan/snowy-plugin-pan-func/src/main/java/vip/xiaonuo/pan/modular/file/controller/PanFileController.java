@@ -610,12 +610,12 @@ public class PanFileController {
         devFileUnzipList.forEach(unzip -> {
             infos.add(BeanUtil.toBean(unzip,DevFile.class));
         });
-        vos = infos.stream().map(v-> new DevFileVo(v.getName(),apiUrl+v.getDownloadPath(), v.getId(), v.getSizeKb(),v.getSizeInfo())).collect(Collectors.toList());
+        vos = infos.stream().map(v-> new DevFileVo(v.getName(),apiUrl+v.getDownloadPath(), v.getId(), v.getSizeKb(),v.getSizeInfo(),false)).collect(Collectors.toList());
         List<UserFile> userFiles = userFileService.listByIds(list);
             //String baseDownloadUrl = String.format("api/webapp/pan/file/downloadFile?fileIds=%s&shareBatchNum=&extractionCode=&tenantId=",userFile.getId());
         String baseDownloadUrl = apiUrl+"/api/webapp/pan/file/downloadFile?fileIds=";
         String extendUrl = "&shareBatchNum=&extractionCode=&tenantId=";
-        vos.addAll(userFiles.stream().map(v->new DevFileVo(v.getFileName()+StrUtil.DOT+v.getExtendName(),baseDownloadUrl+v.getId()+extendUrl,v.getId(),String.valueOf(v.getFileSize()),String.valueOf(v.getFileSize()))).collect(Collectors.toList()));
+        vos.addAll(userFiles.stream().map(v->new DevFileVo(v.getFileName()+StrUtil.DOT+v.getExtendName(),baseDownloadUrl+v.getId()+extendUrl,v.getId(),String.valueOf(v.getFileSize()),String.valueOf(v.getFileSize()),true)).collect(Collectors.toList()));
         return CommonResult.data(vos);
     }
 }
