@@ -1,6 +1,7 @@
 package vip.xiaonuo.sys.modular.user.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -21,9 +22,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
-import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
-import vip.xiaonuo.dev.modular.server.param.SystemConfExecIdParam;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 import vip.xiaonuo.dev.modular.server.util.PingServiceUtil;
 import vip.xiaonuo.dev.modular.server.vo.JiankeUserVo;
@@ -162,11 +161,11 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
     }
 
     @Override
-    public void putUserToEpc(SystemConfExecIdParam systemConfExecIdParam){
-        if(StringUtils.isEmpty(systemConfExecIdParam.getRoleId())){
-            throw new CommonException("同步用户时，角色ID不能为空！");
+    public void putUserToEpc(SystemEpcParam systemEpcParam){
+        if(CollectionUtil.isEmpty(systemEpcParam.getSystemEpcResultList())){
+            throw new CommonException("用户信息不能为空！");
         }
-        SystemServer systemServer = systemServerService.getById(systemConfExecIdParam.getId());
+        SystemServer systemServer = systemServerService.getById(systemEpcParam.getId());
 
         if(ObjectUtil.isEmpty(systemServer)){
             throw new CommonException("未找到系统配置信息！");
@@ -178,8 +177,12 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
             throw new CommonException("系统还未启动成功！");
         }
         List<SysUser> sysUserList = new ArrayList<>();
+        Map<String,String> roleMap = new HashMap<>();
         try{
-            sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId, Arrays.asList(systemServer.getParter().split(","))));
+            //sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId, Arrays.asList(systemServer.getParter().split(","))));
+            sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,
+                    systemEpcParam.getSystemEpcResultList().stream().map(param -> param.getUserId()).collect(Collectors.toList())));
+            systemEpcParam.getSystemEpcResultList().forEach(param -> roleMap.put(param.getUserId(),param.getRoleId()));
         }catch (Exception e){
             log.error("同步用户失败！e:"+e.getMessage());
             throw new CommonException("同步用户失败！");
@@ -189,7 +192,7 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
             JiankeUserVo jiankeUserVo = new JiankeUserVo();
             jiankeUserVo.setAccount(user.getAccount());
             jiankeUserVo.setUserName(user.getName());
-            jiankeUserVo.setRoleId(systemConfExecIdParam.getRoleId());
+            jiankeUserVo.setRoleId(roleMap.get(user.getId()) != null ? roleMap.get(user.getId()) : "");
             jiankeUserList.add(jiankeUserVo);
         });
         try{
