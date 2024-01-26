@@ -17,12 +17,31 @@ public class DevFileVo implements Serializable {
 
     private String sizeInfo;
 
+    private boolean panFileFlag;
+
     public DevFileVo(String name, String url, String fileId, String sizeKb, String sizeInfo) {
         this.name = name;
         this.url = url;
         this.fileId = fileId;
         this.sizeKb = sizeKb;
         this.sizeInfo = sizeInfo;
+    }
+
+    public DevFileVo(String name, String url, String fileId, String sizeKb, String sizeInfo, boolean panFileFlag) {
+        this.name = name;
+        this.url = url;
+        this.fileId = fileId;
+        this.sizeKb = sizeKb;
+        this.sizeInfo = sizeInfo;
+        this.panFileFlag = panFileFlag;
+    }
+
+    public boolean isPanFileFlag() {
+        return panFileFlag;
+    }
+
+    public void setPanFileFlag(boolean panFileFlag) {
+        this.panFileFlag = panFileFlag;
     }
 
     public DevFileVo() {

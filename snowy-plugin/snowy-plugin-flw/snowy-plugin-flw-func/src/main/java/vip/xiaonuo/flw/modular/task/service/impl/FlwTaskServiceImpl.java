@@ -1048,20 +1048,13 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void urge(FlwTaskUrgeParam flwTaskUrgeParam) {
-        List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
-                .processInstanceId(flwTaskUrgeParam.getId()).orderByHistoricActivityInstanceStartTime().asc().list();
-        if(CollectionUtil.isEmpty(historicTaskInstanceList)){
-            throw new CommonException("实例数据不存在！");
-        }
-        flwTaskUrgeParam.setId(historicTaskInstanceList.get(historicTaskInstanceList.size()-1).getId());
-        Task task = validTask(flwTaskUrgeParam.getId(), flwTaskUrgeParam.getComment());
+        Task task = taskService.createTaskQuery().processInstanceId(flwTaskUrgeParam.getId()).active().singleResult();
         String taskId = task.getId();
-        String processInstanceId = task.getProcessInstanceId();
-        NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.URGE.getValue(), "审批催办",
-                flwTaskUrgeParam.getComment(), flwTaskUrgeParam.getAttachmentList());
-
+        if (ObjectUtil.isEmpty(task)) {
+            throw new CommonException("任务不存在，id值为：{}", taskId);
+        }
         String nowDate = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN);
-        Object object = commonCacheOperator.get(FlwCacheConstant.FLW_URGE_KEY + processInstanceId);
+        Object object = commonCacheOperator.get(FlwCacheConstant.FLW_URGE_KEY + taskId);
         if(ObjectUtil.isNotEmpty(object)){
             String date = String.valueOf(object);
             //时间处理
@@ -1075,6 +1068,6 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             //处理催办流程通知
             NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
         }
-        commonCacheOperator.put(FlwCacheConstant.FLW_URGE_KEY + processInstanceId,nowDate);//写入缓存
+        commonCacheOperator.put(FlwCacheConstant.FLW_URGE_KEY + taskId,nowDate);//写入缓存
     }
 }
