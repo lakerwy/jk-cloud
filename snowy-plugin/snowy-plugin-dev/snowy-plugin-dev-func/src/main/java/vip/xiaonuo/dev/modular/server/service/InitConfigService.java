@@ -80,4 +80,9 @@ public interface InitConfigService {
     CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status);
 
     CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, SystemConfExec systemConfExec, Integer status);
+
+    /**
+     * 初始化系统,定时更新代码-定时任务
+     */
+    void initSystemJob();
 }

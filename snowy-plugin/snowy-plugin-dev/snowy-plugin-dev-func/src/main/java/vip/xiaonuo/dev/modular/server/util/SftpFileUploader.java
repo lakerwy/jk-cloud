@@ -5,6 +5,7 @@ import com.jcraft.jsch.*;
 import jdk.nashorn.internal.objects.annotations.Constructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.IOUtils;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -29,6 +30,7 @@ import java.util.concurrent.locks.ReentrantLock;
  */
 @Setter
 @Getter
+@Slf4j
 public class SftpFileUploader {
     private String sourceHost;  // Server A
     private String sourceUserName;
@@ -47,7 +49,12 @@ public class SftpFileUploader {
     {
         this.lock = new ReentrantLock();
     }
-
+    public SftpFileUploader(String sourceHost, String sourceUserName, String sourcePassword, String sourceRemoteFolderPath){
+        this.sourceHost = sourceHost;
+        this.sourceUserName = sourceUserName;
+        this.sourcePassword = sourcePassword;
+        this.sourceRemoteFolderPath = sourceRemoteFolderPath;
+    }
     public SftpFileUploader(String sourceHost, String sourceUserName, String sourcePassword, String sourceRemoteFolderPath,
                             String targetHost, String targetUserName, String targetPassword, String targetRemoteFolderPath) {
         this.sourceHost = sourceHost;
@@ -127,6 +134,38 @@ public class SftpFileUploader {
             if (targetSession != null && targetSession.isConnected()) {
                 targetSession.disconnect();
             }
+        }
+    }
+
+    public void execBulidRemote(String scriptPath,String path) {
+        JSch jsch = new JSch();
+        Session session = null;
+        ChannelExec channelExec = null;
+        try {
+            session = connectToServer(jsch, sourceHost, sourceUserName, sourcePassword);
+
+            ChannelSftp targetChannel = (ChannelSftp) session.openChannel("sftp");
+            targetChannel.connect();
+            targetChannel.chmod(755, path);
+
+            channelExec = (ChannelExec) session.openChannel("exec");
+            channelExec.setCommand(scriptPath);
+            channelExec.connect();
+            Integer exitStatus =  channelExec.getExitStatus();
+            if(exitStatus != 0){
+                log.error("更新EPC代码失败！exitStatus:"+exitStatus);
+            }
+        } catch (JSchException e) {
+            e.printStackTrace();
+            log.error("更新EPC代码失败！e:"+e.getMessage());
+        } finally {
+            if (channelExec != null && channelExec.isConnected()) {
+                channelExec.disconnect();
+            }
+            if (session != null && session.isConnected()) {
+                session.disconnect();
+            }
+            return;
         }
     }
 

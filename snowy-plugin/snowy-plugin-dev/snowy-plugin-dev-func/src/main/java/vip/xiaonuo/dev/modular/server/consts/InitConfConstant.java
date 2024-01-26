@@ -119,4 +119,6 @@ public interface InitConfConstant {
     public final String DATABASE_CODE = " CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;";
 
     public final String EPC_USER_URL = "/api/epc/third/syncJkUser";
+
+    public final String EPC_SOURCE_BULID_PATH = "/home/epc/source/sh/";
 }

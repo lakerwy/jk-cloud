@@ -756,4 +756,24 @@ public class InitConfigServiceImpl implements InitConfigService {
         });
     }
 
+    @Override
+    public void initSystemJob(){
+        String systemSourceIp = devConfigService.getValueByKey(InitConfConstant.SYSTEM_SOURCE_IP);//源服务器IP
+        if (StrUtil.isEmpty(systemSourceIp)) {
+            systemSourceIp = "10.0.33.82";
+        }
+        String sourceServerName = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_NAME);//源服务器账号
+        if (StrUtil.isEmpty(sourceServerName)) {
+            sourceServerName = "root";
+        }
+        String sourceServerPs = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_PS);//源服务器密码
+        if (StrUtil.isEmpty(sourceServerPs)) {
+            sourceServerPs = "Jianke66";
+        }
+        //String script = String.format("nohup  %s > %sbuild.log 2>&1 &","/home/epc/sh/build.sh","/home/epc/sh/");
+        String script = String.format("nohup  %s > %sbuild.log 2>&1 &",InitConfConstant.EPC_SOURCE_BULID_PATH+InitConfConstant.BUILD_SH,InitConfConstant.EPC_SOURCE_BULID_PATH);
+        SftpFileUploader sftpFileUploader = new SftpFileUploader(systemSourceIp,sourceServerName,sourceServerPs,script);
+        sftpFileUploader.execBulidRemote(script,InitConfConstant.EPC_SOURCE_BULID_PATH+InitConfConstant.BUILD_SH);
+    }
+
 }
