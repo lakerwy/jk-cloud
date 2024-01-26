@@ -36,6 +36,14 @@ public class DevFileVo implements Serializable {
         this.panFileFlag = panFileFlag;
     }
 
+    public boolean isPanFileFlag() {
+        return panFileFlag;
+    }
+
+    public void setPanFileFlag(boolean panFileFlag) {
+        this.panFileFlag = panFileFlag;
+    }
+
     public DevFileVo() {
     }
 
