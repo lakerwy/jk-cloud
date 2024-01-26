@@ -546,12 +546,18 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         }
     }
 
+    /**
+     * userFileTreeParam.setUserFileIds(); 只针对 有权限设置的群组网盘
+     * @param userFileTreeParam
+     * @return
+     */
     @Override
     public List<NodeFold> buildTree(UserFileTreeParam userFileTreeParam) {
         Integer foldType = userFileTreeParam.getFoldType();
         if(0==foldType){
             userFileTreeParam.setUserId(StpLoginUserUtil.getLoginUser().getId());
             userFileTreeParam.setFoldTypes(new ArrayList<>(Collections.singletonList(0)));
+            userFileTreeParam.setUserFileIds(null);
         } else if (1==foldType) {
 //            String orgId = StpLoginUserUtil.getLoginUser().getOrgId();
 ////            List<String> childrenIds = sysOrgApi.getChildrenIds(orgId);
@@ -582,6 +588,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
         }else{
             userFileTreeParam.setFoldTypes(new ArrayList<>(Arrays.asList(1,2)));
+            userFileTreeParam.setUserFileIds(null);
         }
         List<NodeFold> nodeFolds = userFileMapper.nodeList(userFileTreeParam);
         return buildDeptTreeByStream(nodeFolds,userFileTreeParam.getId());
