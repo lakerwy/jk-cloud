@@ -23,7 +23,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import java.util.List;
 
 /**
- * Sa-Token 权限认证工具类 (C端用户版)
+ * Sa-Token 权限认证工具类 (C端用户版) 1
  *
  * @author xuyuxiang
  * @date 2022/3/10 10:43
