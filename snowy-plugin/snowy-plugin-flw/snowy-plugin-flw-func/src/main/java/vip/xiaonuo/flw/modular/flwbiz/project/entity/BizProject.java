@@ -313,4 +313,8 @@ public class BizProject {
     /** 区域负责人 */
     @ApiModelProperty(value = "区域负责人Id", position = 78)
     private String areaLeaderId;
+
+    /** 用印审批-流程实例id，多个英文逗号分割 */
+    @ApiModelProperty(value = "用印审批-流程实例id，多个英文逗号分割", position = 80)
+    private String sealProcessInstanceId;
 }

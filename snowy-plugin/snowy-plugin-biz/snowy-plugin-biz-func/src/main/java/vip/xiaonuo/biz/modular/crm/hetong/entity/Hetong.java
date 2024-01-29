@@ -267,4 +267,8 @@ public class Hetong {
     @ApiModelProperty(value = "合同总金额", position = 63)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal sumAmount;
+
+    /** 用印审批-流程实例id，多个英文逗号分割 */
+    @ApiModelProperty(value = "用印审批-流程实例id，多个英文逗号分割", position = 64)
+    private String sealProcessInstanceId;
 }

@@ -122,4 +122,8 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "用户类型：总部|分公司|外部人员")
     private String userType;
 
+    /** 证书有效期状态标识 */
+    @ApiModelProperty(value = "证书有效期状态标识")
+    private String certStage;
+
 }

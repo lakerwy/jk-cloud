@@ -16,4 +16,15 @@
                                     </if>
     </select>
 
+    <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage">
+        select a.* from
+                (select * ,
+                       CASE WHEN TYPE='注册证书' AND CERT_TYPE='一级注册建造师' AND VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 12 MONTH) then '一年'
+                            WHEN TYPE='注册证书' AND CERT_TYPE='一级注册建造师' AND VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '半年'
+                            WHEN TYPE='注册证书' AND CERT_TYPE='一级注册建造师' AND VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '一个月'
+                       ELSE ''  END AS certStage
+                from HR_CERT_MANAGE where DELETE_FLAG='NOT_DELETE' ) a
+                         ${ew.customSqlSegment}
+    </select>
+
 </mapper>

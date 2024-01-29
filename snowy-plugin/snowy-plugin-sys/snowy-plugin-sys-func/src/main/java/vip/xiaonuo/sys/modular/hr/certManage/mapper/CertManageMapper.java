@@ -37,4 +37,12 @@ public interface CertManageMapper extends BaseMapper<CertManage> {
      */
     List<PersonVo> getPersonList(@Param("param") PersonParam param);
 
+    /**
+     * 分页查询（自定义）
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<CertManage> getPageList(Page<CertManage> page, @Param(Constants.WRAPPER) Wrapper<CertManage> queryWrapper);
+
 }

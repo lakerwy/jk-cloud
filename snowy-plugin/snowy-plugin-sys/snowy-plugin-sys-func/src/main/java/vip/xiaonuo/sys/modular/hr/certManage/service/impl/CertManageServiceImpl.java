@@ -64,71 +64,73 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
     public Page<CertManage> page(CertManagePageParam certManagePageParam) {
         QueryWrapper<CertManage> queryWrapper = new QueryWrapper<>();
         if (ObjectUtil.isNotEmpty(certManagePageParam.getType())) {
-            queryWrapper.lambda().eq(CertManage::getType, certManagePageParam.getType());
+            queryWrapper.eq("a.TYPE", certManagePageParam.getType());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getCertType())) {
-            queryWrapper.lambda().eq(CertManage::getCertType, certManagePageParam.getCertType());
+            queryWrapper.eq("a.CERT_TYPE", certManagePageParam.getCertType());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getName())) {
-            queryWrapper.lambda().like(CertManage::getName, certManagePageParam.getName());
+            queryWrapper.like("a.NAME", certManagePageParam.getName());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getMajor())) {
-            queryWrapper.lambda().and(q->q.like(CertManage::getMajor, certManagePageParam.getMajor())
-                    .or().like(CertManage::getMajor2,certManagePageParam.getMajor()));
+            queryWrapper.and(q->q.like("a.MAJOR", certManagePageParam.getMajor())
+                    .or().like("a.MAJOR2",certManagePageParam.getMajor()));
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getIdNumber())) {
-            queryWrapper.lambda().like(CertManage::getIdNumber, certManagePageParam.getIdNumber());
+            queryWrapper.like("a.ID_NUMBER", certManagePageParam.getIdNumber());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getCertNo())) {
-            queryWrapper.lambda().like(CertManage::getCertNo, certManagePageParam.getCertNo());
+            queryWrapper.like("a.CERT_NO", certManagePageParam.getCertNo());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getCertSealNo())) {
-            queryWrapper.lambda().like(CertManage::getCertSealNo, certManagePageParam.getCertSealNo());
+            queryWrapper.like("a.CERT_SEAL_NO", certManagePageParam.getCertSealNo());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getStartIssueDate()) && ObjectUtil.isNotEmpty(certManagePageParam.getEndIssueDate())) {
-            queryWrapper.lambda().between(CertManage::getIssueDate, certManagePageParam.getStartIssueDate(), certManagePageParam.getEndIssueDate());
+            queryWrapper.between("a.ISSUE_DATE", certManagePageParam.getStartIssueDate(), certManagePageParam.getEndIssueDate());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getStartValidity()) && ObjectUtil.isNotEmpty(certManagePageParam.getEndValidity())) {
-            queryWrapper.lambda().between(CertManage::getValidity, certManagePageParam.getStartValidity(), certManagePageParam.getEndValidity());
+            queryWrapper.between("a.VALIDITY", certManagePageParam.getStartValidity(), certManagePageParam.getEndValidity());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getDepositAddress())) {
-            queryWrapper.lambda().like(CertManage::getDepositAddress, certManagePageParam.getDepositAddress());
+            queryWrapper.like("a.DEPOSIT_ADDRESS", certManagePageParam.getDepositAddress());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getUnit())) {
-            queryWrapper.lambda().like(CertManage::getUnit, certManagePageParam.getUnit());
+            queryWrapper.like("a.UNIT", certManagePageParam.getUnit());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getCertName())) {
-            queryWrapper.lambda().like(CertManage::getCertName, certManagePageParam.getCertName());
+            queryWrapper.like("a.CERT_NAME", certManagePageParam.getCertName());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getJobType())) {
-            queryWrapper.lambda().like(CertManage::getJobType, certManagePageParam.getJobType());
+            queryWrapper.like("a.JOB_TYPE", certManagePageParam.getJobType());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getTechnicalTitle())) {
-            queryWrapper.lambda().like(CertManage::getTechnicalTitle, certManagePageParam.getTechnicalTitle());
+            queryWrapper.like("a.TECHNICAL_TITLE", certManagePageParam.getTechnicalTitle());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getCompanyName())) {
-            queryWrapper.lambda().like(CertManage::getCompanyName, certManagePageParam.getCompanyName());
+            queryWrapper.like("a.COMPANY_NAME", certManagePageParam.getCompanyName());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getCertStatus())) {
-            queryWrapper.lambda().eq(CertManage::getCertStatus, certManagePageParam.getCertStatus());
+            queryWrapper.eq("a.CERT_STATUS", certManagePageParam.getCertStatus());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getUserType())) {
-            queryWrapper.lambda().eq(CertManage::getUserType, certManagePageParam.getUserType());
+            queryWrapper.eq("a.USER_TYPE", certManagePageParam.getUserType());
+        }
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getCertStage())){
+            queryWrapper.eq("a.certStage", certManagePageParam.getCertStage());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getSearchKey())) {
-            queryWrapper.lambda().and(q -> q.like(CertManage::getCertNo, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getCertName, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getCertSealNo, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getCertType, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getCompanyName, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getDepositAddress, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getIdNumber, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getMajor, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getMajor2, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getUnit, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getTechnicalTitle, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getName, certManagePageParam.getSearchKey())
-                    .or().like(CertManage::getJobType, certManagePageParam.getSearchKey())
+            queryWrapper.and(q -> q.like("a.CERT_NO", certManagePageParam.getSearchKey())
+                    .or().like("a.CERT_NAME", certManagePageParam.getSearchKey())
+                    .or().like("a.CERT_SEAL_NO", certManagePageParam.getSearchKey())
+                    .or().like("a.CERT_TYPE", certManagePageParam.getSearchKey())
+                    .or().like("a.COMPANY_NAME", certManagePageParam.getSearchKey())
+                    .or().like("a.ID_NUMBER", certManagePageParam.getSearchKey())
+                    .or().like("a.MAJOR", certManagePageParam.getSearchKey())
+                    .or().like("a.MAJOR2", certManagePageParam.getSearchKey())
+                    .or().like("a.UNIT", certManagePageParam.getSearchKey())
+                    .or().like("a.TECHNICAL_TITLE", certManagePageParam.getSearchKey())
+                    .or().like("a.NAME", certManagePageParam.getSearchKey())
+                    .or().like("a.JOB_TYPE", certManagePageParam.getSearchKey())
             );
         }
         if (ObjectUtil.isAllNotEmpty(certManagePageParam.getSortField(), certManagePageParam.getSortOrder())) {
@@ -136,9 +138,9 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
             queryWrapper.orderBy(true, certManagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(certManagePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(CertManage::getName).orderByAsc(CertManage::getType).orderByAsc(CertManage::getCertType);
+            queryWrapper.orderByAsc("a.ID_NUMBER").orderByAsc("a.TYPE").orderByAsc("a.CERT_TYPE");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return certManageMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

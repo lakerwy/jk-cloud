@@ -163,4 +163,9 @@ public class CertManage {
     @ApiModelProperty(value = "数据权限控制字段", position = 30)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 证书有效期预警标识 */
+    @ApiModelProperty(value = "证书有效期预警标识", position = 31)
+    @TableField(exist = false)
+    private String certStage;
 }
