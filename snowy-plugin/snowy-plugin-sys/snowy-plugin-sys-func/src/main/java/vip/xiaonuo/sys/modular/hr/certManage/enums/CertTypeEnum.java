@@ -29,8 +29,8 @@ public enum CertTypeEnum {
     /** 培训类 */
     TRAIN("培训证书"),
 
-    /** 其他类 */
-    OTHER("3");
+    /** 职称类 */
+    OTHER("职称证书");
 
     private final String value;
 

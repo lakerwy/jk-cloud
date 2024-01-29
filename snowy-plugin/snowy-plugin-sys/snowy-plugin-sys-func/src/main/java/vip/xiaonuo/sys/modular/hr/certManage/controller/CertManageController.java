@@ -30,6 +30,8 @@ import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
 import vip.xiaonuo.sys.modular.hr.certManage.param.*;
 import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchDetailVo;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -143,16 +145,33 @@ public class CertManageController {
 
 
     /**
-     * 获取人员资质管理分页【综合搜索】
+     * 综合搜索 - 一个查询，分三个列表（注册|培训|职称）展示（不分页）
      *
      * @author yong.ye
      * @date  2024/01/23 17:23
      */
     @ApiOperationSupport(order = 7)
-    @ApiOperation("获取人员资质管理分页【综合搜索】")
+    @ApiOperation("综合搜索 - 一个查询，分三个列表（注册|培训|职称）展示（不分页）")
 //    @SaCheckPermission("/sys/hr/cert/manage/searchPage")
     @GetMapping("/sys/hr/cert/manage/searchPage")
-    public CommonResult<Page<CertManage>> searchPage(CertSearchPageParam certSearchPageParam) {
+    public CommonResult<SearchVo> searchPage(CertSearchPageParam certSearchPageParam) {
         return CommonResult.data(certManageService.searchPage(certSearchPageParam));
     }
+
+
+    /**
+     * 综合搜索 - 详情页 - 分四块（注册|培训|职称|花名册）
+     *
+     * @author yong.ye
+     * @date  2024/01/23 17:23
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("综合搜索 - 详情页 - 分四块（注册|培训|职称|花名册）")
+//    @SaCheckPermission("/sys/hr/cert/manage/searchPage")
+    @GetMapping("/sys/hr/cert/manage/searchDetail")
+    public CommonResult<SearchDetailVo> searchDetail(String id) {
+        return CommonResult.data(certManageService.searchDetail(id));
+    }
+
+
 }

@@ -17,6 +17,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
 import vip.xiaonuo.sys.modular.hr.certManage.param.*;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchDetailVo;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchVo;
 
 import java.util.List;
 
@@ -84,9 +86,16 @@ public interface CertManageService extends IService<CertManage> {
     List<PersonVo> list(PersonParam personParam);
 
     /**
-     * 普通搜索+综合搜索（均支持）
+     * 普通搜索+综合搜索（均支持） - 一个查询，分三个列表（注册|培训|职称）展示（不分页）
      * @param certSearchPageParam
      * @return
      */
-    Page<CertManage> searchPage(CertSearchPageParam certSearchPageParam);
+    SearchVo searchPage(CertSearchPageParam certSearchPageParam);
+
+    /**
+     * 综合搜索页面 - 详情页 - 分四块（注册|培训|职称|花名册）
+     * @param id
+     * @return
+     */
+    SearchDetailVo searchDetail(String id);
 }

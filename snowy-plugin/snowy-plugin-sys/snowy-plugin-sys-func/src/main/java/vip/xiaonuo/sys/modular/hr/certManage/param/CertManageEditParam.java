@@ -48,13 +48,13 @@ public class CertManageEditParam {
     @ApiModelProperty(value = "姓名", position = 4)
     private String name;
 
-    /** 专业-大类 */
-    @ApiModelProperty(value = "专业-大类", position = 5)
-    private String majorType;
-
-    /** 注册专业|专业 */
-    @ApiModelProperty(value = "注册专业|专业", position = 6)
+    /** 专业1 */
+    @ApiModelProperty(value = "专业1", position = 5)
     private String major;
+
+    /** 专业2 */
+    @ApiModelProperty(value = "专业2", position = 6)
+    private String major2;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号", position = 7)

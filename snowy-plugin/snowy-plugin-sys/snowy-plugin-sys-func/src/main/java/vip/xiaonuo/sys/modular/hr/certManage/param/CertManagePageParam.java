@@ -58,8 +58,8 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "姓名")
     private String name;
 
-    /** 注册专业|专业 */
-    @ApiModelProperty(value = "注册专业|专业")
+    /** 专业 */
+    @ApiModelProperty(value = "专业")
     private String major;
 
     /** 身份证号 */
