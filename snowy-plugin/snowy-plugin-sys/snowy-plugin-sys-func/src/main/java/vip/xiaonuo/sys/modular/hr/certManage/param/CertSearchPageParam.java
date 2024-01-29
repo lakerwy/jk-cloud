@@ -93,11 +93,11 @@ public class CertSearchPageParam {
 
     /** 标记字段 - 是否开启综合搜索 */
     @ApiModelProperty(value = "标记字段 - 是否开启综合搜索")
-    private Boolean isOpen;
+    private Boolean isOpen = Boolean.FALSE;
 
     /** 注册类 - 是否参与查询 */
     @ApiModelProperty(value = "注册类 - 是否参与查询")
-    private Boolean isRe;
+    private Boolean isRe = Boolean.FALSE;
 
     /** 注册类 - 关键词 */
     @ApiModelProperty(value = "注册类 - 关键词")
@@ -127,7 +127,7 @@ public class CertSearchPageParam {
 
     /** 培训证书类 - 是否参与查询 */
     @ApiModelProperty(value = "培训证书类 - 是否参与查询")
-    private Boolean isTr;
+    private Boolean isTr = Boolean.FALSE;
 
     /** 培训证书类 - 关键词 */
     @ApiModelProperty(value = "培训证书类 - 关键词")
@@ -168,40 +168,40 @@ public class CertSearchPageParam {
 
 
 
-    /** 其他类 - 是否参与查询 */
-    @ApiModelProperty(value = "其他类 - 是否参与查询")
-    private Boolean isOther;
+    /** 职称类 - 是否参与查询 */
+    @ApiModelProperty(value = "职称类 - 是否参与查询")
+    private Boolean isOther = Boolean.FALSE;
 
-    /** 其他类 - 关键词 */
-    @ApiModelProperty(value = "其他类 - 关键词")
+    /** 职称类 - 关键词 */
+    @ApiModelProperty(value = "职称类 - 关键词")
     private String otherSearchKey;
 
-    /** 其他类 - 类别 */
-    @ApiModelProperty(value = "其他类 - 类别")
+    /** 职称类 - 类别 */
+    @ApiModelProperty(value = "职称类 - 类别")
     private String otherCertType;
 
-    /** 其他类 - 证书名称 */
-    @ApiModelProperty(value = "其他类 - 证书名称")
+    /** 职称类 - 证书名称 */
+    @ApiModelProperty(value = "职称类 - 证书名称")
     private String otherCertName;
 
-    /** 其他类 - 技术职称 */
-    @ApiModelProperty(value = "其他类 - 技术职称")
+    /** 职称类 - 技术职称 */
+    @ApiModelProperty(value = "职称类 - 技术职称")
     private String otherTechnicalTitle;
 
-    /** 其他类 - 专业 */
-    @ApiModelProperty(value = "其他类 - 专业")
+    /** 职称类 - 专业 */
+    @ApiModelProperty(value = "职称类 - 专业")
     private String otherMajor;
 
-    /** 其他类 - 发证日期开始 */
-    @ApiModelProperty(value = "其他类 - 发证日期开始")
+    /** 职称类 - 发证日期开始 */
+    @ApiModelProperty(value = "职称类 - 发证日期开始")
     private String otherStartIssueDate;
 
-    /** 其他类 - 发证日期结束 */
-    @ApiModelProperty(value = "其他类 - 发证日期结束")
+    /** 职称类 - 发证日期结束 */
+    @ApiModelProperty(value = "职称类 - 发证日期结束")
     private String otherEndIssueDate;
 
-    /** 其他类 - 发证单位 */
-    @ApiModelProperty(value = "其他类 - 发证单位")
+    /** 职称类 - 发证单位 */
+    @ApiModelProperty(value = "职称类 - 发证单位")
     private String otherUnit;
 
 }
