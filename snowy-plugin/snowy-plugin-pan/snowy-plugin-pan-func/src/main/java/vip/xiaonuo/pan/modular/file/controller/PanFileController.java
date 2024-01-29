@@ -47,6 +47,7 @@ import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.*;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.file.service.impl.FileTransferService;
+import vip.xiaonuo.pan.modular.file.util.DownloadZipUtil;
 import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanFileStorage;
@@ -267,10 +268,8 @@ public class PanFileController {
                     fileName = userFile.getFileName() + ".zip";
                 } else {
                     fileName = userFile.getFileName() + "." + userFile.getExtendName();
-
                 }
                 fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
-
                 httpServletResponse.addHeader("Content-Disposition", "attachment;fileName=" + fileName);// 设置文件名
 
                 fileTransferService.downloadFile(httpServletResponse, collect,downloadParam.getRightType());
