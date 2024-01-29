@@ -20,6 +20,7 @@ import vip.xiaonuo.pan.modular.file.param.PreviewParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
 import vip.xiaonuo.pan.modular.file.service.IFileTransferService;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
+import vip.xiaonuo.pan.modular.file.util.DownloadZipUtil;
 import vip.xiaonuo.pan.modular.file.vo.UploadFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
 import vip.xiaonuo.pan.modular.fileCenter.entity.PanImage;
@@ -41,7 +42,6 @@ import vip.xiaonuo.pan.modular.fileCenter.service.PanPictureFileService;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.fileCenter.util.MimeUtils;
-import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
 import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTask;
 import vip.xiaonuo.pan.modular.uploadTask.entity.PanUploadTaskDetail;
@@ -109,6 +109,8 @@ public class FileTransferService implements IFileTransferService {
 
     @Resource
     PanFileRightService panFileRightService;
+    @Resource
+    DownloadZipUtil downloadZipUtil;
 
 
     public static Executor exec = Executors.newFixedThreadPool(20);
@@ -416,6 +418,16 @@ public class FileTransferService implements IFileTransferService {
             //下载的时候处理权限过滤（单个文件 权限校验通过后，不用过滤）
 
             PanFile fileBean = panFileService.getById(userFile.getFileId());
+            if(fileBean.getFileUrl().contains("zip")){ //特殊处理：压缩的zip文件走单独的下载通道
+                try{
+                    downloadZipUtil.doGet(httpServletResponse,fileBean.getFileUrl(),userFile.getFileName()+"."+userFile.getExtendName());
+                }catch (IOException e){
+                    log.error("下载压缩包失败！e:"+e.getMessage());
+                    e.printStackTrace();
+                }finally {
+                    return;
+                }
+            }
             Downloader downloader = fileFactory.getDownloader(fileBean.getStorageType());
             if (downloader == null) {
                 log.error("下载失败，文件存储类型不支持下载，storageType:{}", fileBean.getStorageType());
