@@ -36,6 +36,6 @@ public class SearchDetailVo {
      * 花名册信息
      */
     @ApiModelProperty(value = "花名册信息", position = 4)
-    public PersonVo userInfo;
+    public UserInfo userInfo;
 
 }

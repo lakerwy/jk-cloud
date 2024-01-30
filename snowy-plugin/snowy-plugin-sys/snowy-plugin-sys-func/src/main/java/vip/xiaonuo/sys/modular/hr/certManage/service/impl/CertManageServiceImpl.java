@@ -31,11 +31,10 @@ import vip.xiaonuo.sys.modular.hr.certManage.enums.PersonTypeEnum;
 import vip.xiaonuo.sys.modular.hr.certManage.mapper.CertManageMapper;
 import vip.xiaonuo.sys.modular.hr.certManage.param.*;
 import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
-import vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo;
-import vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo;
-import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchDetailVo;
-import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchVo;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.*;
+import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
+import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnel;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubPersonnelService;
 
 import javax.annotation.Resource;
@@ -283,13 +282,20 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         searchDetailVo.setReCertList(list.stream().filter(x->CertTypeEnum.REGISTER.getValue().equals(x.getType())).collect(Collectors.toList()));
         searchDetailVo.setTrCertList(list.stream().filter(x->CertTypeEnum.TRAIN.getValue().equals(x.getType())).collect(Collectors.toList()));
         searchDetailVo.setOtherCertList(list.stream().filter(x->CertTypeEnum.OTHER.getValue().equals(x.getType())).collect(Collectors.toList()));
+        UserInfo userInfo = new UserInfo();
+        userInfo.setUserType(certManage.getUserType());
         if(PersonTypeEnum.MASTER.getValue().equals(certManage.getUserType())){
-            personnelService.getById(certManage.getUserId());
+            Personnel personnel = personnelService.getById(certManage.getUserId());
+            BeanUtil.copyProperties(personnel, userInfo);
+            userInfo.setHrStatus(personnel.getStatus());
         }else if(PersonTypeEnum.SUB.getValue().equals(certManage.getUserType())){
-            subPersonnelService.getById(certManage.getUserId());
+            SubPersonnel subPersonnel = subPersonnelService.getById(certManage.getUserId());
+            BeanUtil.copyProperties(subPersonnel,userInfo);
         }else{
-
+            userInfo.setIdNumber(certManage.getIdNumber());
+            userInfo.setName(certManage.getName());
         }
+        searchDetailVo.setUserInfo(userInfo);
         return searchDetailVo;
     }
 

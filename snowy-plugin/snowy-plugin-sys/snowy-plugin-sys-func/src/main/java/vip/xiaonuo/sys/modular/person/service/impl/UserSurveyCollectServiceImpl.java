@@ -95,7 +95,7 @@ public class UserSurveyCollectServiceImpl extends ServiceImpl<UserSurveyCollectM
             queryWrapper.orderBy(true, userSurveyCollectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(userSurveyCollectPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(UserSurveyCollect::getId);
+            queryWrapper.lambda().orderByDesc(UserSurveyCollect::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
