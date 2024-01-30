@@ -286,11 +286,15 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         userInfo.setUserType(certManage.getUserType());
         if(PersonTypeEnum.MASTER.getValue().equals(certManage.getUserType())){
             Personnel personnel = personnelService.getById(certManage.getUserId());
-            BeanUtil.copyProperties(personnel, userInfo);
-            userInfo.setHrStatus(personnel.getStatus());
+            if(ObjectUtil.isNotEmpty(personnel)) {
+                BeanUtil.copyProperties(personnel, userInfo);
+                userInfo.setHrStatus(personnel.getStatus());
+            }
         }else if(PersonTypeEnum.SUB.getValue().equals(certManage.getUserType())){
             SubPersonnel subPersonnel = subPersonnelService.getById(certManage.getUserId());
-            BeanUtil.copyProperties(subPersonnel,userInfo);
+            if(ObjectUtil.isNotEmpty(subPersonnel)) {
+                BeanUtil.copyProperties(subPersonnel, userInfo);
+            }
         }else{
             userInfo.setIdNumber(certManage.getIdNumber());
             userInfo.setName(certManage.getName());
