@@ -6,6 +6,6 @@
         select a.*,b.SEAL_DATE as sealDate,b.FILING_DATE as filingDate
         from BIZ_PRJ_PLAN_COLLECTION a
             left join BIZ_CRM_SUBCONTRACT b on a.SUB_CONTRACT_ID = b.ID
-        where a.PLAN_ID = ${planId}
+        where a.PLAN_ID = ${planId} and a.DELETE_FLAG = 'NOT_DELETE'
     </select>
 </mapper>
