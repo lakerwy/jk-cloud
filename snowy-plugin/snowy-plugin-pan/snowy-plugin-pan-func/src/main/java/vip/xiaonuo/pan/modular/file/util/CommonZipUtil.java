@@ -26,60 +26,51 @@ import java.util.zip.ZipOutputStream;
 @Slf4j
 @Component
 public class CommonZipUtil {
-    private String SYSTEM_SOURCE_IP = "SYSTEM_SOURCE_IP";
-    private String SOURCE_SERVER_NAME = "SOURCE_SERVER_NAME";
-    private String SOURCE_SERVER_PS = "SOURCE_SERVER_PS";
 
     @Resource
     DevConfigService devConfigService;
-    public Long zip(List<String> sourceFile,String inputFile){
-        try{
-            ExecutorService executorService = Executors.newFixedThreadPool(10);//初始化线程池
-            ZipOutputStream zops = new ZipOutputStream(Files.newOutputStream(Paths.get(inputFile))); //初始化ZIP输出流
-            List<ZipDownloadBean> list = new ArrayList<>();
-            sourceFile.forEach(sourcePath -> {
-                File file = new File(sourcePath);
-                getFileList(file, list);//递归读取源文件夹下所有文件，并记录其路径信息
-            });
-            CountDownLatch countDownLatch = new CountDownLatch(list.size()); //初始化计数器，线程等待
 
-            Map<String,Long> sizeMap = new HashMap<>();
-            sizeMap.put("fileSize",0l);
-            Lock lock = new ReentrantLock();// 锁初始化
+    public Long zip(List<String> sourceFile,String inputFile){
+        try {
+            ExecutorService executorService = Executors.newFixedThreadPool(10);
+            ZipOutputStream zops = new ZipOutputStream(Files.newOutputStream(Paths.get(inputFile)));
+            List<ZipDownloadBean> list = new ArrayList<>();
+            for (String sourcePath : sourceFile) {
+                File file = new File(sourcePath);
+                getFileList(file, list);
+            }
+
+            CountDownLatch countDownLatch = new CountDownLatch(list.size());
+            Map<String, Long> sizeMap = new HashMap<>();
+            sizeMap.put("fileSize", 0L);
+            Lock lock = new ReentrantLock();
+
             for (ZipDownloadBean bean : list) {
                 executorService.execute(() -> {
-                    try(InputStream ips = Files.newInputStream(Paths.get(bean.getPath()))) {
-                        String relativePath = bean.getPath();
-                        String fileName = relativePath.contains("\\") ? relativePath.substring(relativePath.lastIndexOf("\\") + 1) : relativePath;
-
-                        //String fileName = inputFile.contains("\\") ? inputFile.substring(inputFile.lastIndexOf("\\") + 1) : inputFile;
-                        //String relativePath = bean.getPath();
-                        //String fileName = relativePath.contains("\\") ? relativePath.substring(relativePath.lastIndexOf("\\") + 1) : relativePath;
-                        ZipEntry zipEntry = new ZipEntry(fileName);//初始化ZipEntry
+                    try (InputStream ips = Files.newInputStream(Paths.get(bean.getAbsolutePath()))) {
+                        // 使用文件名（即相对路径）创建ZipEntry
+                        ZipEntry zipEntry = new ZipEntry(bean.getPath());
 
                         lock.lock();
                         zops.putNextEntry(zipEntry);
-                        byte[] bytes = new byte[bean.getFileLength() == null ? (1024*10) : bean.getFileLength().intValue()];
+                        byte[] bytes = new byte[bean.getFileLength() == null ? (1024 * 10) : bean.getFileLength().intValue()];
                         Long fileSize = bean.getFileLength();
-                        sizeMap.put("fileSize",sizeMap.get("fileSize")+fileSize);
+                        sizeMap.put("fileSize", sizeMap.get("fileSize") + fileSize);
                         int len;
-                        // 通过二进制流写文件
                         while ((len = ips.read(bytes)) > 0) {
                             zops.write(bytes, 0, len);
                         }
-                        zops.closeEntry();// 关闭ZipEntry
+                        zops.closeEntry();
                         lock.unlock();
                         zops.flush();
                     } catch (Exception e) {
-                        throw new CommonException(Thread.currentThread().getName() + "读取文件异常，文件路径：" + bean.getPath());
+                        throw new CommonException(Thread.currentThread().getName() + "读取文件异常，文件路径：" + bean.getAbsolutePath());
                     }
                     countDownLatch.countDown();
                 });
             }
             countDownLatch.await();
             zops.close(); // 关闭流
-            //long end = System.currentTimeMillis();
-            //System.out.println("耗时：" + (end - start));
             executorService.shutdownNow();
             return sizeMap.get("fileSize") != null ? sizeMap.get("fileSize") : 0l;
         }catch (Exception e){
@@ -93,21 +84,21 @@ public class CommonZipUtil {
      * @param file 文件对象
      * @param fileList 文件信息集合
      */
-    private void getFileList(File file, List<ZipDownloadBean> fileList){
+    private void getFileList(File file, List<ZipDownloadBean> fileList) {
         if (file == null) { return; }
-        // 如果是文件夹，就继续递归
+
+        // 如果是文件夹，递归获取子文件及其路径信息
         if (file.isDirectory()) {
             for (File tempFile : Objects.requireNonNull(file.listFiles())) {
                 getFileList(tempFile, fileList);
             }
         }
-        // 如果是文件，就解析一下，放到文件集合中
-        if (file.isFile()) {
-            if(file.length() != 0){
-                ZipDownloadBean bean = new ZipDownloadBean(null, file.getAbsolutePath(),file.getPath());
-                bean.setFileLength(file.length());
-                fileList.add(bean);
-            }
+        // 如果是文件，则只保留文件名作为相对路径，并添加到ZipDownloadBean中
+        else if (file.isFile() && file.length() != 0) {
+            String fileName = file.getName();
+            ZipDownloadBean bean = new ZipDownloadBean(null, file.getAbsolutePath(), fileName);
+            bean.setFileLength(file.length());
+            fileList.add(bean);
         }
     }
 
@@ -130,7 +121,7 @@ public class CommonZipUtil {
         files.forEach(path -> sourceFile.append(path).append(" "));
         String script = String.format("zip  %s  %s",zipPath,sourceFile);
         SftpFileUploader sftpFileUploader = new SftpFileUploader(systemSourceIp,sourceServerName,sourceServerPs,script);
-        log.info("压缩命令日志打压zip："+script);
+        log.error("压缩命令日志打压zip："+script);
         sftpFileUploader.execZipRemote(script,InitConfConstant.EPC_SOURCE_BULID_PATH+InitConfConstant.BUILD_SH);
     }
 
