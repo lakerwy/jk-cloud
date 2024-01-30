@@ -24,6 +24,6 @@ public class BizPrjPlanVo extends BizPrjPlan {
 
     /** 项目计划付款单-收款单位列表 */
     @ApiModelProperty(value = "项目计划付款单-收款单位列表", position = 50)
-    private List<BizPrjPlanCollection> planCollectionList;
+    private List<PlanCollectionVo> planCollectionList;
 
 }

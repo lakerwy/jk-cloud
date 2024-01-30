@@ -31,6 +31,10 @@ import java.util.Date;
 @Setter
 public class BizPrjPlanCollectionAddParam {
 
+    /** 分包合同-主键Id */
+    @ApiModelProperty(value = "分包合同-主键Id", position = 25)
+    private String subContractId;
+
     /** 分包合同编号 */
     @ApiModelProperty(value = "分包合同编号", position = 22)
     private String subContractNo;

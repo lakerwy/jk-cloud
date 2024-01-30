@@ -2,4 +2,10 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.prj.plan.mapper.BizPrjPlanCollectionMapper">
 
+    <select id="getCollectionList" resultType="vip.xiaonuo.biz.modular.prj.plan.vo.PlanCollectionVo">
+        select a.*,b.SEAL_DATE as sealDate,b.FILING_DATE as filingDate
+        from BIZ_PRJ_PLAN_COLLECTION a
+            left join BIZ_CRM_SUBCONTRACT b on a.SUB_CONTRACT_ID = b.ID
+        where a.PLAN_ID = ${planId}
+    </select>
 </mapper>

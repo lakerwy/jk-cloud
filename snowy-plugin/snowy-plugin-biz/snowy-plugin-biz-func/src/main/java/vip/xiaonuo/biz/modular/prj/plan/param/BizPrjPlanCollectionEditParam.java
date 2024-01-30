@@ -96,4 +96,7 @@ public class BizPrjPlanCollectionEditParam {
     @ApiModelProperty(value = "项目计划付款单主表主键BIZ_PRJ_PLAN.Id", position = 18)
     private String planId;
 
+    /** 分包合同-主键Id */
+    @ApiModelProperty(value = "分包合同-主键Id", position = 25)
+    private String subContractId;
 }

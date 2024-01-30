@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlan;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanCollection;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanInvoice;
+import vip.xiaonuo.biz.modular.prj.plan.mapper.BizPrjPlanCollectionMapper;
 import vip.xiaonuo.biz.modular.prj.plan.mapper.BizPrjPlanMapper;
 import vip.xiaonuo.biz.modular.prj.plan.param.*;
 import vip.xiaonuo.biz.modular.prj.plan.service.BizPrjPlanCollectionService;
@@ -74,6 +75,9 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
 
     @Resource
     private BizPrjPlanMapper bizPrjPlanMapper;
+
+    @Resource
+    private BizPrjPlanCollectionMapper bizPrjPlanCollectionMapper;
 
     @Override
     public Page<BizPrjPlanVo> page(BizPrjPlanPageParam bizPrjPlanPageParam) {
@@ -130,7 +134,7 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         Page<BizPrjPlanVo> result = bizPrjPlanMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
         for (BizPrjPlanVo vo:result.getRecords()) {
             vo.setPlanInvoiceList(bizPrjPlanInvoiceService.list(new QueryWrapper<BizPrjPlanInvoice>().lambda().eq(BizPrjPlanInvoice::getPlanId,vo.getId())));
-            vo.setPlanCollectionList(bizPrjPlanCollectionService.list(new QueryWrapper<BizPrjPlanCollection>().lambda().eq(BizPrjPlanCollection::getPlanId,vo.getId())));
+            vo.setPlanCollectionList(bizPrjPlanCollectionMapper.getCollectionList(vo.getId()));
         }
         return result;
     }
@@ -309,7 +313,7 @@ public class BizPrjPlanServiceImpl extends ServiceImpl<BizPrjPlanMapper, BizPrjP
         List<BizPrjPlan> tmp = this.list(queryWrapper);
         List<BizPrjPlanVo> result = BeanUtil.copyToList(tmp,BizPrjPlanVo.class);
         result.forEach(x->{
-            x.setPlanCollectionList(bizPrjPlanCollectionService.list(new QueryWrapper<BizPrjPlanCollection>().lambda().eq(BizPrjPlanCollection::getPlanId,x.getId())));
+            x.setPlanCollectionList(bizPrjPlanCollectionMapper.getCollectionList(x.getId()));
             x.setPlanInvoiceList(bizPrjPlanInvoiceService.list(new QueryWrapper<BizPrjPlanInvoice>().lambda().eq(BizPrjPlanInvoice::getPlanId,x.getId())));
         });
         return result;

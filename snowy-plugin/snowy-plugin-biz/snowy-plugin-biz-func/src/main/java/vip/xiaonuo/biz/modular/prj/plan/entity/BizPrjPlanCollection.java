@@ -120,4 +120,8 @@ public class BizPrjPlanCollection {
     /** 分包合同金额 */
     @ApiModelProperty(value = "分包合同金额", position = 24)
     private BigDecimal subContractAmount;
+
+    /** 分包合同-主键Id */
+    @ApiModelProperty(value = "分包合同-主键Id", position = 25)
+    private String subContractId;
 }

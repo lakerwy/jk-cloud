@@ -14,6 +14,9 @@ package vip.xiaonuo.biz.modular.prj.plan.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanCollection;
+import vip.xiaonuo.biz.modular.prj.plan.vo.PlanCollectionVo;
+
+import java.util.List;
 
 /**
  * 业务表-项目计划付款单-收款单位Mapper接口
@@ -22,4 +25,12 @@ import vip.xiaonuo.biz.modular.prj.plan.entity.BizPrjPlanCollection;
  * @date  2023/09/28 11:28
  **/
 public interface BizPrjPlanCollectionMapper extends BaseMapper<BizPrjPlanCollection> {
+
+    /**
+     * 根据 planId，获取收款单位信息
+     * @param planId
+     * @return
+     */
+    List<PlanCollectionVo> getCollectionList(String planId);
+
 }
