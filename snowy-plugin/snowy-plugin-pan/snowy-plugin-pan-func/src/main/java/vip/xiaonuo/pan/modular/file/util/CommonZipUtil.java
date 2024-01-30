@@ -56,8 +56,10 @@ public class CommonZipUtil {
             for (ZipDownloadBean bean : list) {
                 executorService.execute(() -> {
                     try(InputStream ips = Files.newInputStream(Paths.get(bean.getPath()))) {
-                        String relativePath = bean.getPath().substring(bean.getPath().lastIndexOf("CodeFormer\\") + 11);
-                        String fileName = relativePath.contains("\\") ? relativePath.substring(relativePath.lastIndexOf("\\") + 1) : relativePath;
+                        //String relativePath = bean.getPath();
+                        //String fileName = relativePath.contains("\\") ? relativePath.substring(relativePath.lastIndexOf("\\") + 1) : relativePath;
+
+                        String fileName = inputFile.contains("\\") ? inputFile.substring(inputFile.lastIndexOf("\\") + 1) : inputFile;
                         ZipEntry zipEntry = new ZipEntry(fileName);//初始化ZipEntry
 
                         lock.lock();
