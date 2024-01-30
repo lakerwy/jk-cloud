@@ -169,6 +169,33 @@ public class SftpFileUploader {
         }
     }
 
+    public void execZipRemote(String scriptPath,String path) {
+        JSch jsch = new JSch();
+        Session session = null;
+        ChannelExec channelExec = null;
+        try {
+            session = connectToServer(jsch, sourceHost, sourceUserName, sourcePassword);
+            channelExec = (ChannelExec) session.openChannel("exec");
+            channelExec.setCommand(scriptPath);
+            channelExec.connect();
+            Integer exitStatus =  channelExec.getExitStatus();
+            if(exitStatus != 0){
+                log.error("压缩失败！exitStatus:"+exitStatus);
+            }
+        } catch (JSchException e) {
+            e.printStackTrace();
+            log.error("压缩失败！e:"+e.getMessage());
+        } finally {
+            if (channelExec != null && channelExec.isConnected()) {
+                channelExec.disconnect();
+            }
+            if (session != null && session.isConnected()) {
+                session.disconnect();
+            }
+            return;
+        }
+    }
+
     private Session connectToServer(JSch jsch, String host, String username, String password) throws JSchException {
         Session session = jsch.getSession(username, host, 22);
         session.setPassword(password);

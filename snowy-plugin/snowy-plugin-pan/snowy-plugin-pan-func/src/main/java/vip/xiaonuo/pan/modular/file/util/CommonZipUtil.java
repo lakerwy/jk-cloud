@@ -1,28 +1,21 @@
 package vip.xiaonuo.pan.modular.file.util;
 
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.jcraft.jsch.Channel;
-import com.jcraft.jsch.ChannelExec;
-import com.jcraft.jsch.JSch;
-import com.jcraft.jsch.Session;
+import cn.hutool.core.util.StrUtil;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.dev.modular.config.entity.DevConfig;
 import vip.xiaonuo.dev.modular.config.service.DevConfigService;
-import vip.xiaonuo.dev.modular.server.param.UnixCommandParam;
+import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
+import vip.xiaonuo.dev.modular.server.util.SftpFileUploader;
 
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.locks.Lock;
@@ -56,10 +49,12 @@ public class CommonZipUtil {
             for (ZipDownloadBean bean : list) {
                 executorService.execute(() -> {
                     try(InputStream ips = Files.newInputStream(Paths.get(bean.getPath()))) {
+                        String relativePath = bean.getPath();
+                        String fileName = relativePath.contains("\\") ? relativePath.substring(relativePath.lastIndexOf("\\") + 1) : relativePath;
+
+                        //String fileName = inputFile.contains("\\") ? inputFile.substring(inputFile.lastIndexOf("\\") + 1) : inputFile;
                         //String relativePath = bean.getPath();
                         //String fileName = relativePath.contains("\\") ? relativePath.substring(relativePath.lastIndexOf("\\") + 1) : relativePath;
-
-                        String fileName = inputFile.contains("\\") ? inputFile.substring(inputFile.lastIndexOf("\\") + 1) : inputFile;
                         ZipEntry zipEntry = new ZipEntry(fileName);//初始化ZipEntry
 
                         lock.lock();
@@ -98,7 +93,7 @@ public class CommonZipUtil {
      * @param file 文件对象
      * @param fileList 文件信息集合
      */
-    private static void getFileList(File file, List<ZipDownloadBean> fileList){
+    private void getFileList(File file, List<ZipDownloadBean> fileList){
         if (file == null) { return; }
         // 如果是文件夹，就继续递归
         if (file.isDirectory()) {
@@ -115,67 +110,28 @@ public class CommonZipUtil {
             }
         }
     }
-    public static void main(String[] args) throws IOException, ExecutionException, InterruptedException{
-        List<String> sourceFile = new ArrayList<>();
-        sourceFile.add("C:\\Users\\Administrator\\Desktop\\测试文件");
-        sourceFile.add("C:\\Users\\Administrator\\Desktop\\任务管理SQL.txt");
-        String uuid = UUID.randomUUID().toString();
-        String inputFile = "C:\\Users\\Administrator\\Desktop\\测试文件\\中文名称.zip";
-        //unzip(sourceFile,inputFile);
-    }
 
-    public void zipData(){
-        UnixCommandParam unixCommandParam = new UnixCommandParam();
-        String ip = devConfigService.getValueByKey(SYSTEM_SOURCE_IP);
-        ip = StringUtils.isNotEmpty(ip) ? ip : "10.0.33.82";
-        String userName = devConfigService.getValueByKey(SOURCE_SERVER_NAME);
-        userName = StringUtils.isNotEmpty(userName) ? userName : "root";
-        String password = devConfigService.getValueByKey(SOURCE_SERVER_PS);
-        password = StringUtils.isNotEmpty(password) ? password : "";
-        unixCommandParam.setSshPort(22);
-        unixCommandParam.setSshHost(ip);
-        unixCommandParam.setSshUsername(userName);
-        unixCommandParam.setSshPassword(password);
-        zipUnixCommandExec(unixCommandParam);
-    }
-    public void zipUnixCommandExec(UnixCommandParam unixCommandParam) {
-        try {
-            JSch jsch = new JSch();
-            Session session = jsch.getSession(unixCommandParam.getSshUsername(), unixCommandParam.getSshHost(), unixCommandParam.getSshPort());
-            session.setPassword(unixCommandParam.getSshPassword());
 
-            session.setConfig("StrictHostKeyChecking", "no"); //允许连接不信任的主机
-            session.connect();
-            Channel channel = session.openChannel("exec");
-            ((ChannelExec) channel).setCommand(unixCommandParam.getCommand());
-            InputStream in = channel.getInputStream();
-            channel.connect();
-            byte[] tmp = new byte[1024];
-            while (true) {
-                while (in.available() > 0) {
-                    int i = in.read(tmp, 0, 1024);
-                    if (i < 0) break;
-                    log.info(new String(tmp, 0, i));
-                }
-                if (channel.isClosed()) {
-                    if (in.available() > 0) continue;
-                    if(channel.getExitStatus() != 0){
-                        log.error("压缩失败，请检查连接信息！exit-status: " + channel.getExitStatus());
-                    }
-                    log.info("压缩失败，请检查连接信息-exit-status: " + channel.getExitStatus());
-                    break;
-                }
-                try {
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                }
-            }
-            channel.disconnect();
-            session.disconnect();
-        } catch (Exception e) {
-            log.error("执行远程mysql建表命令时发生错误：" + e.getMessage());
-            e.printStackTrace();
-            throw new CommonException("执行远程mysql建表命令时发生错误：" + e.getMessage());
+    public void zipUnixCommandExec(String zipPath,List<String> files){
+        String systemSourceIp = devConfigService.getValueByKey(InitConfConstant.SYSTEM_SOURCE_IP);//源服务器IP
+        if (StrUtil.isEmpty(systemSourceIp)) {
+            systemSourceIp = "10.0.33.82";
         }
+        String sourceServerName = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_NAME);//源服务器账号
+        if (StrUtil.isEmpty(sourceServerName)) {
+            sourceServerName = "root";
+        }
+        String sourceServerPs = devConfigService.getValueByKey(InitConfConstant.SOURCE_SERVER_PS);//源服务器密码
+        if (StrUtil.isEmpty(sourceServerPs)) {
+            sourceServerPs = "Jianke66";
+        }
+        //String zipName = zipPath+File.separator+"zip_"+ new Date().getTime();
+        StringBuffer sourceFile =  new StringBuffer();
+        files.forEach(path -> sourceFile.append(path).append(" "));
+        String script = String.format("zip  %s  %s",zipPath,sourceFile);
+        SftpFileUploader sftpFileUploader = new SftpFileUploader(systemSourceIp,sourceServerName,sourceServerPs,script);
+        log.info("压缩命令日志打压zip："+script);
+        sftpFileUploader.execZipRemote(script,InitConfConstant.EPC_SOURCE_BULID_PATH+InitConfConstant.BUILD_SH);
     }
+
 }

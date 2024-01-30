@@ -181,9 +181,10 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
         try {
 //            fileEntryNameList = FileOperation.unzip(destFile, unzipUrl);
             ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
-            fileEntryNameList =  Arrays.stream(FileUtil.ls(unzipUrl))
+           /* fileEntryNameList =  Arrays.stream(FileUtil.ls(unzipUrl))
                     .map(File::getName)
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList());*/
+            getFileList(new File(unzipUrl),fileEntryNameList);
         } catch (Exception e) {
             log.error(e+"");
             throw new CommonException("解压失败--",e);
@@ -208,6 +209,27 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
         }
         for (String entryName : fileEntryNameList) {
             asyncTaskComp.saveUnzipFile(userFile, panFile, unzipFileParam.getUnzipMode(), entryName, unzipFileParam.getFilePath(),parentId);
+        }
+    }
+
+    private void getFileList(File file, List<String> fileList){
+        if (file == null) { return; }
+        // 如果是文件夹，就继续递归
+        if (file.isDirectory()) {
+            for (File tempFile : Objects.requireNonNull(file.listFiles())) {
+                getFileList(tempFile, fileList);
+            }
+        }
+        // 如果是文件，就解析一下，放到文件集合中
+        if (file.isFile()) {
+            if(file.length() != 0){
+                int lastSeparatorIndex = file.getAbsolutePath().lastIndexOf(File.separator);
+                if (lastSeparatorIndex != -1) {
+                    fileList.add(file.getAbsolutePath().substring(lastSeparatorIndex + 1));
+                } else {
+                    fileList.add(file.getAbsolutePath());
+                }
+            }
         }
     }
 
@@ -260,20 +282,18 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             });
         }
         String inputFile = StringUtils.isNotEmpty(inputMap.get("inputFile")) ? inputMap.get("inputFile") : "";
-        boolean isTrue = inputFile.contains("/") ? true : false;
         if(CollectionUtil.isNotEmpty(sourceFileList)){
             UserFile userFile = userFileService.getById(zipFileParam.getSaveFileId());
             if(ObjectUtil.isEmpty(inputFile)){ throw new CommonException("未找到该文件夹！");}
             if(!userFile.isDirectory()){ throw new CommonException("保存的路径不是文件夹！");}
-            if(isTrue){
-                inputFile = inputFile+"/"+zipFileParam.getIdentifier()+".zip";
-            }else {
-                inputFile = inputFile+"\\"+zipFileParam.getIdentifier()+".zip";
-            }
+            inputFile = inputFile+File.separator+zipFileParam.getIdentifier()+".zip";
 
-            Long fileSize = commonZipUtil.zip(sourceFileList,inputFile);
+            //Long fileSize = commonZipUtil.zip(sourceFileList,inputFile);
+            commonZipUtil.zipUnixCommandExec(inputFile,sourceFileList);
             //插入PAN_FILE表数据
             PanFile panFile = new PanFile();
+            Long fileSize = 0l;
+            if (new File(inputFile).exists() && new File(inputFile).isFile()){ fileSize = new File(inputFile).length();}
             panFile.setFileSize(fileSize);
             panFile.setFileUrl(inputFile);
             panFile.setFileStatus(1);
