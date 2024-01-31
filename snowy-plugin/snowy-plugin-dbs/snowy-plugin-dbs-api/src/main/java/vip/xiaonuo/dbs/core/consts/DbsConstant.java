@@ -30,4 +30,9 @@ public interface DbsConstant {
      */
     String SLAVE_1_DATASOURCE_NAME = "slave_1";
 
+    /**
+     * epc公共库
+     * */
+    String EPC_CENTER_DATASOURCE_NAME = "EpcCenter";
+
 }
