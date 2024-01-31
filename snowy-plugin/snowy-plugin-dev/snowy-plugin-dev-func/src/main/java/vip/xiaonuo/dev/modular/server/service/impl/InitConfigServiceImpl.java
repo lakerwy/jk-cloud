@@ -84,7 +84,8 @@ public class InitConfigServiceImpl implements InitConfigService {
     @Override
     public void initSystem(SystemConfExecIdParam systemConfExecIdParam) {
         List<SystemConfExec> systemConfExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().eq(SystemConfExec::getSystemId,systemConfExecIdParam.getId()));
-        if(CollectionUtil.isEmpty(systemConfExecList)){
+        SystemServer systemServer = systemServerService.getById(systemConfExecIdParam.getId());
+        if(CollectionUtil.isEmpty(systemConfExecList) || ObjectUtil.isEmpty(systemServer)){
             throw new CommonException("未找到系统配置");
         }
         SystemConfExec systemConfExec = systemConfExecList.get(0);
@@ -105,7 +106,7 @@ public class InitConfigServiceImpl implements InitConfigService {
         CompletableFuture<Boolean> createDbFuture = createDataBaseAsync(systemConfExec);
         createDbFuture
                 .thenComposeAsync(createDbFlag -> createDbFlag ? uploadConfAsync(sftpFileUploader,systemConfExec,2) : CompletableFuture.completedFuture(false))
-                .thenComposeAsync(uploadConfFlag -> uploadConfFlag ? updateConfAsync(systemConfExec, sftpFileUploader, 3) : CompletableFuture.completedFuture(false))
+                .thenComposeAsync(uploadConfFlag -> uploadConfFlag ? updateConfAsync(systemConfExec, sftpFileUploader, 3,systemServer) : CompletableFuture.completedFuture(false))
                 .thenComposeAsync(executeConfFlag -> executeConfFlag ? executeRemoteScriptAsync(sftpFileUploader,systemConfExec,4) : CompletableFuture.completedFuture(false));
     }
 
@@ -671,7 +672,7 @@ public class InitConfigServiceImpl implements InitConfigService {
 
 
     @Override
-    public CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status) {
+    public CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status,SystemServer systemServer) {
         return CompletableFuture.supplyAsync(() -> {
             String systemServerJson = systemConfExec.getSystemServerJson();
             // SftpFileUploader sftpFileUploader = JsonUtil.fromJson(systemServerJson, SftpFileUploader.class);
@@ -692,6 +693,10 @@ public class InitConfigServiceImpl implements InitConfigService {
                 paramMap.put(InitConfConstant.RABBIT_MQ_TOPIC_DESTINATION_2, InitConfConstant.STREAM_TOPIC_EXCHANGE_PRE + systemNo);
                 paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_1, InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE + systemNo);
                 paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_2, InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE + systemNo);
+                /** 项目配置信息*/
+                paramMap.put(InitConfConstant.APPLICATION_prjSn, systemServer.getSystemSourceId());
+                paramMap.put(InitConfConstant.APPLICATION_prjName, systemServer.getSystemName());
+
                 if (ObjectUtil.isEmpty(systemDomain) || systemDomain.toString().equals("null")) {
                     if (StrUtil.isAllNotEmpty(sftpFileUploader.getTargetHost(), dockerPort)) {
                         systemDomain = String.format("http://%s:%s", sftpFileUploader.getTargetHost(), dockerPort);

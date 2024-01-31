@@ -176,6 +176,12 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
         if(!pingServiceUtil.pingUrl(systemServer.getSystemUrl(),3000)){
             throw new CommonException("系统还未启动成功！");
         }
+
+        StringBuffer stringBuffer = new StringBuffer();
+        systemEpcParam.getSystemEpcResultList().forEach(jkUser -> stringBuffer.append(jkUser.getUserId()).append(","));
+        systemServer.setParter(stringBuffer.toString());
+        systemServerService.saveOrUpdate(systemServer);
+
         List<SysUser> sysUserList = new ArrayList<>();
         Map<String,String> roleMap = new HashMap<>();
         try{

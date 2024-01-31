@@ -3,6 +3,7 @@ package vip.xiaonuo.dev.modular.server.service;
 import cn.hutool.json.JSONObject;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
+import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.util.SftpFileUploader;
 
@@ -77,7 +78,7 @@ public interface InitConfigService {
     CompletableFuture<Boolean> uploadConfAsync(SftpFileUploader sftpFileUploader,SystemConfExec systemConfExec,Integer status);
 
 
-    CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status);
+    CompletableFuture<Boolean> updateConfAsync(SystemConfExec systemConfExec, SftpFileUploader sftpFileUploader, Integer status, SystemServer systemServer);
 
     CompletionStage<Boolean> executeRemoteScriptAsync(SftpFileUploader sftpFileUploader, SystemConfExec systemConfExec, Integer status);
 

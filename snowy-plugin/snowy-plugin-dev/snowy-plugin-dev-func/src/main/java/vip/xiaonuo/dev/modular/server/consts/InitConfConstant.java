@@ -121,4 +121,11 @@ public interface InitConfConstant {
     public final String EPC_USER_URL = "/api/epc/third/syncJkUser";
 
     public final String EPC_SOURCE_BULID_PATH = "/home/epc/source/sh/";
+
+    /**
+     * 项目信息配置
+     * */
+    public final String APPLICATION_prjSn = "application.prjSn";
+
+    public final String APPLICATION_prjName = "application.prjName";
 }
