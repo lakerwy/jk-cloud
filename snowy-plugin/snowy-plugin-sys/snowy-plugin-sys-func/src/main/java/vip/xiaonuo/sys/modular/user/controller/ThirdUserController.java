@@ -14,6 +14,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.sys.modular.user.param.*;
 import vip.xiaonuo.sys.modular.user.service.ThirdUserService;
+import vip.xiaonuo.sys.modular.user.vo.EpcRoleVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -110,5 +111,13 @@ public class ThirdUserController {
     public CommonResult<String> putUserToEpc(@RequestBody @Valid SystemEpcParam systemEpcParam){
         thirdUserService.putUserToEpc(systemEpcParam);
         return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("EPC角色数据")
+    @CommonLog("EPC角色数据")
+    @GetMapping("/sys/third/putUserToEpc")
+    public CommonResult<List<EpcRoleVo>> getEpcRole(){
+        return CommonResult.data(thirdUserService.getEpcRole());
     }
 }

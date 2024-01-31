@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.dingtalk.api.response.OapiV2UserGetResponse;
@@ -21,6 +22,7 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
+import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
 import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
@@ -28,12 +30,14 @@ import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 import vip.xiaonuo.dev.modular.server.util.PingServiceUtil;
 import vip.xiaonuo.dev.modular.server.vo.JiankeUserVo;
 import vip.xiaonuo.sys.modular.hr.conference.rez.util.HttpUtil;
+import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
 import vip.xiaonuo.sys.modular.user.mapper.SysUserMapper;
 import vip.xiaonuo.sys.modular.user.param.*;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 import vip.xiaonuo.sys.modular.user.service.ThirdUserService;
+import vip.xiaonuo.sys.modular.user.vo.EpcRoleVo;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -67,6 +71,8 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
     PingServiceUtil pingServiceUtil;
     @Resource
     SysProjectService sysProjectService;
+    @Resource
+    DevConfigService devConfigService;
 
     @Override
     public String toDoDingDingApplication(DingDingLoginParam dingDingLoginParam) {
@@ -211,5 +217,20 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
             log.error("同步建科用户到EPC失败！e:"+e.getMessage());
             throw new CommonException("同步建科用户到EPC失败！");
         }
+    }
+
+    @Override
+    public List<EpcRoleVo> getEpcRole(){
+        List<EpcRoleVo>  epcRoleVoList = new ArrayList<>();
+        String epcRoleJson = devConfigService.getValueByKey(InitConfConstant.EPC_CONFIG_ROLE_DATA);
+
+        try{
+            if(StringUtils.isNotEmpty(epcRoleJson)){
+                epcRoleVoList = JSONArray.parseArray(epcRoleJson, EpcRoleVo.class);
+            }
+        }catch (Exception e){
+            log.error("获取字典表数据失败！EPC_CONFIG_ROLE_DATA："+e.getMessage());
+        }
+        return epcRoleVoList;
     }
 }

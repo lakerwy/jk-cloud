@@ -128,4 +128,6 @@ public interface InitConfConstant {
     public final String APPLICATION_prjSn = "application.prjSn";
 
     public final String APPLICATION_prjName = "application.prjName";
+
+    public final String EPC_CONFIG_ROLE_DATA = "EPC_CONFIG_ROLE_DATA";
 }

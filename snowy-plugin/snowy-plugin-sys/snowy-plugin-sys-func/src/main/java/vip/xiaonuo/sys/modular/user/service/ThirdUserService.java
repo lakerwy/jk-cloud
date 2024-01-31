@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.param.*;
+import vip.xiaonuo.sys.modular.user.vo.EpcRoleVo;
 
 import java.util.List;
 import java.util.Map;
@@ -54,4 +55,6 @@ public interface ThirdUserService extends IService<SysUser> {
      * @date  2024/01/03 16:07
      */
     void putUserToEpc(SystemEpcParam systemEpcParam);
+
+    List<EpcRoleVo> getEpcRole();
 }
