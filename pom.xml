@@ -87,7 +87,7 @@
         <pinyin.version>2.5.1</pinyin.version>
         <postgres.connector.java.version>42.2.25</postgres.connector.java.version>
         <protobuf.java.version>3.21.12</protobuf.java.version>
-        <sa.token.version>1.31.0</sa.token.version>
+        <sa.token.version>1.37.0</sa.token.version>
         <smcrypto.version>0.3.2</smcrypto.version>
         <snakeyaml.version>1.31</snakeyaml.version><!-- cloud使用2.0版本yaml存在冲突 -->
         <spring.context.version>5.3.19</spring.context.version>
@@ -386,6 +386,20 @@
                 <version>${snowy.version}</version>
             </dependency>
 
+            <!-- snowy-plugin-sso-api -->
+            <dependency>
+                <groupId>vip.xiaonuo.sso</groupId>
+                <artifactId>snowy-plugin-sso-api</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
+            <!-- snowy-plugin-sso-func -->
+            <dependency>
+                <groupId>vip.xiaonuo.sso</groupId>
+                <artifactId>snowy-plugin-sso-func</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
             <!-- snowy-cloud-inner-end -->
 
             <!-- ===================== snowy-cloud-base ========================= -->
@@ -585,10 +599,10 @@
                 <version>${sa.token.version}</version>
             </dependency>
 
-            <!-- sa-token 整合 redis （使用jackson序列化方式） -->
+            <!-- Sa-Token 整合redis (使用jackson序列化方式) -->
             <dependency>
                 <groupId>cn.dev33</groupId>
-                <artifactId>sa-token-dao-redis-jackson</artifactId>
+                <artifactId>sa-token-redis-jackson</artifactId>
                 <version>${sa.token.version}</version>
             </dependency>
 
