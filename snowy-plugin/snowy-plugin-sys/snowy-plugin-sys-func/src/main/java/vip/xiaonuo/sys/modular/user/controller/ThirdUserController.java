@@ -116,7 +116,7 @@ public class ThirdUserController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("EPC角色数据")
     @CommonLog("EPC角色数据")
-    @GetMapping("/sys/third/putUserToEpc")
+    @GetMapping("/sys/third/getEpcRole")
     public CommonResult<List<EpcRoleVo>> getEpcRole(){
         return CommonResult.data(thirdUserService.getEpcRole());
     }
