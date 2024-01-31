@@ -185,7 +185,7 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
         systemServer.setParter(stringBuffer.toString());
         systemServerService.saveOrUpdate(systemServer);
 
-        List<SysUser> sysUserList = new ArrayList<>();
+        /*List<SysUser> sysUserList = new ArrayList<>();
         Map<String,String> roleMap = new HashMap<>();
         try{
             //sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId, Arrays.asList(systemServer.getParter().split(","))));
@@ -195,13 +195,13 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
         }catch (Exception e){
             log.error("同步用户失败！e:"+e.getMessage());
             throw new CommonException("同步用户失败！");
-        }
+        }*/
         List<JiankeUserVo> jiankeUserList = new ArrayList<>();
-        sysUserList.forEach(user -> {
+        systemEpcParam.getSystemEpcResultList().forEach(user -> {
             JiankeUserVo jiankeUserVo = new JiankeUserVo();
             jiankeUserVo.setAccount(user.getAccount());
-            jiankeUserVo.setUserName(user.getName());
-            jiankeUserVo.setRoleId(roleMap.get(user.getId()) != null ? roleMap.get(user.getId()) : "");
+            jiankeUserVo.setUserName(user.getUserName());
+            jiankeUserVo.setRoleId(user.getRoleId());
             jiankeUserList.add(jiankeUserVo);
         });
         sysProjectService.putEpcProjectData(systemServer,jiankeUserList);

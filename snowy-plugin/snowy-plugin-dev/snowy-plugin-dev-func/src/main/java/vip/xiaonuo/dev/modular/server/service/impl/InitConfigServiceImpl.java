@@ -695,7 +695,7 @@ public class InitConfigServiceImpl implements InitConfigService {
                 paramMap.put(InitConfConstant.RABBIT_MQ_DELAYED_DESTINATION_2, InitConfConstant.STREAM_DELAYED_EXCHANGE_PRE + systemNo);
                 /** 项目配置信息*/
                 paramMap.put(InitConfConstant.APPLICATION_prjSn, systemServer.getSystemSourceId());
-                paramMap.put(InitConfConstant.APPLICATION_prjName, systemServer.getSystemName());
+                paramMap.put(InitConfConstant.APPLICATION_prjName, systemServer.getSystemSource());
 
                 if (ObjectUtil.isEmpty(systemDomain) || systemDomain.toString().equals("null")) {
                     if (StrUtil.isAllNotEmpty(sftpFileUploader.getTargetHost(), dockerPort)) {
