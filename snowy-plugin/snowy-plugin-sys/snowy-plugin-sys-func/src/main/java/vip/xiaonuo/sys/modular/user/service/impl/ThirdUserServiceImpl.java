@@ -21,6 +21,7 @@ import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
+import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
 import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
@@ -64,6 +65,8 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
     SystemServerService systemServerService;
     @Resource
     PingServiceUtil pingServiceUtil;
+    @Resource
+    SysProjectService sysProjectService;
 
     @Override
     public String toDoDingDingApplication(DingDingLoginParam dingDingLoginParam) {
@@ -201,6 +204,7 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
             jiankeUserVo.setRoleId(roleMap.get(user.getId()) != null ? roleMap.get(user.getId()) : "");
             jiankeUserList.add(jiankeUserVo);
         });
+        sysProjectService.putEpcProjectData(systemServer,jiankeUserList);
         try{
             HttpUtil.sendPostRequest(systemServer.getSystemUrl()+InitConfConstant.EPC_USER_URL,JSONUtil.toJsonStr(jiankeUserList));
         }catch (Exception e){

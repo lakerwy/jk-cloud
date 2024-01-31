@@ -19,6 +19,8 @@ import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectAddParam;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectEditParam;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectIdParam;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectPageParam;
+import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.server.vo.JiankeUserVo;
 
 import java.util.List;
 
@@ -77,4 +79,6 @@ public interface SysProjectService extends IService<SysProject> {
      * @date  2024/01/31 11:39
      **/
     SysProject queryEntity(String id);
+
+    void putEpcProjectData(SystemServer systemServer, List<JiankeUserVo> jiankeUserList);
 }

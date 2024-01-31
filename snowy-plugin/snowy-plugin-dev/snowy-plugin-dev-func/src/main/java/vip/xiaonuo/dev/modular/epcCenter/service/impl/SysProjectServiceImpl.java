@@ -18,23 +18,32 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.dynamic.datasource.annotation.DSTransactional;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.modular.epcCenter.entity.SysProject;
+import vip.xiaonuo.dev.modular.epcCenter.entity.SysProjectUser;
 import vip.xiaonuo.dev.modular.epcCenter.mapper.SysProjectMapper;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectAddParam;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectEditParam;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectIdParam;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectPageParam;
 import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
+import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectUserService;
+import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.server.vo.JiankeUserVo;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 系统项目表Service接口实现类
@@ -47,6 +56,9 @@ import java.util.List;
 @DSTransactional
 public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProject> implements SysProjectService {
 
+
+    @Resource
+    SysProjectUserService sysProjectUserService;
     @Override
     public Page<SysProject> page(SysProjectPageParam sysProjectPageParam) {
         QueryWrapper<SysProject> queryWrapper = new QueryWrapper<>();
@@ -104,4 +116,34 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
         }
         return sysProject;
     }
+
+
+    /** 项目sn，项目名称，电话号码，域名或url */
+    @Override
+    public  void putEpcProjectData(SystemServer systemServer, List<JiankeUserVo> jiankeUserList){
+        if(ObjectUtil.isEmpty(jiankeUserList)){
+            return;
+        }
+        SysProject sysProject = new SysProject();
+        sysProject.setPrjName(systemServer.getSystemName());
+        sysProject.setPrjSn(systemServer.getSystemSourceId());
+        sysProject.setPrjType("EPC");
+        String url = StringUtils.isNotEmpty(systemServer.getSystemDomain()) ? systemServer.getSystemDomain() : systemServer.getSystemUrl();
+        sysProject.setPrjUrl(url);
+        this.saveOrUpdate(sysProject);
+        /** 先批量删除原来的SysProjectUser的数据,再插入新的数据*/
+        List<SysProjectUser> delProjectUserList = sysProjectUserService.list(new LambdaQueryWrapper<SysProjectUser>().eq(SysProjectUser::getSysProjectId,sysProject.getId()));
+        List<String> ids = delProjectUserList.stream().map(user -> user.getId()).collect(Collectors.toList());
+        sysProjectUserService.removeBatchByIds(ids);
+
+        List<SysProjectUser> sysProjectUserList = new ArrayList<>();
+        jiankeUserList.forEach(jk -> {
+            SysProjectUser sysProjectUser = new SysProjectUser();
+            sysProjectUser.setAccount(jk.getAccount());
+            sysProjectUser.setSysProjectId(sysProject.getId());
+            sysProjectUserList.add(sysProjectUser);
+        });
+        sysProjectUserService.saveBatch(sysProjectUserList);
+    }
+
 }

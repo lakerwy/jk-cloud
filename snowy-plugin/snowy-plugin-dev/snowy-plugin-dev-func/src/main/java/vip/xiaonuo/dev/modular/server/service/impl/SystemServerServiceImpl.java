@@ -21,12 +21,15 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.epcCenter.entity.SysProject;
+import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.mapper.SystemServerMapper;
@@ -51,6 +54,8 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     SystemConfExecService systemConfExecService;
     @Resource
     SystemServerMapper systemServerMapper;
+    @Resource
+    SysProjectService sysProjectService;
     @Override
     public Page<SystemServer> page(SystemServerPageParam systemServerPageParam) {
         QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
@@ -116,6 +121,16 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         long count = this.count(new QueryWrapper<SystemServer>().lambda().eq(SystemServer::getSystemSourceId,systemServerEditParam.getSystemSourceId()).ne(SystemServer::getId,systemServerEditParam.getId()));
         if(count>0){
             throw new CommonException("{}服务已存在",systemServerEditParam.getSystemSourceId());
+        }
+        String oldSystemDomain = StringUtils.isNotEmpty(systemServer.getSystemDomain()) ? systemServer.getSystemDomain() : "";
+        String newSystemDomain = StringUtils.isNotEmpty(systemServerEditParam.getSystemDomain()) ? systemServerEditParam.getSystemDomain() : "";
+        if(!oldSystemDomain.equals(newSystemDomain)){
+            List<SysProject> sysProjectList = sysProjectService.list(new LambdaQueryWrapper<SysProject>().eq(SysProject::getPrjSn,systemServer.getSystemSourceId()));
+            if(CollectionUtil.isNotEmpty(sysProjectList)){
+                SysProject sysProject = sysProjectList.get(0);
+                sysProject.setPrjUrl(newSystemDomain);
+                sysProjectService.saveOrUpdate(sysProject);
+            }
         }
         BeanUtil.copyProperties(systemServerEditParam, systemServer);
         this.updateById(systemServer);
