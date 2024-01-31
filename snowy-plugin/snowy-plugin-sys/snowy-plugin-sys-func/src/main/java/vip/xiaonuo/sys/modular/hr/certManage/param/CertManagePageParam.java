@@ -126,4 +126,11 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "证书有效期状态标识")
     private String certStage;
 
+    /** 级别 */
+    @ApiModelProperty(value = "级别", position = 3)
+    private String level;
+
+    /** 部门 */
+    @ApiModelProperty(value = "部门", position = 4)
+    private String dept;
 }

@@ -128,4 +128,19 @@ public class CertManageEditParam {
     @ApiModelProperty(value = "扩展信息", position = 23)
     private String extJson;
 
+    /** 级别 */
+    @ApiModelProperty(value = "级别", position = 3)
+    private String level;
+
+    /** 部门 */
+    @ApiModelProperty(value = "部门", position = 4)
+    private String dept;
+
+    /** 社保所在地 */
+    @ApiModelProperty(value = "社保所在地", position = 13)
+    private String socialLocation;
+
+    /** 学历信息 */
+    @ApiModelProperty(value = "学历信息", position = 13)
+    private String eduInfo;
 }

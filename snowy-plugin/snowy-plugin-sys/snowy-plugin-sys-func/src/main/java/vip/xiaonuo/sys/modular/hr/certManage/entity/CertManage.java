@@ -45,9 +45,17 @@ public class CertManage {
     @ApiModelProperty(value = "证书类别：注册类别|培训类别", position = 3)
     private String certType;
 
+    /** 级别 */
+    @ApiModelProperty(value = "级别", position = 3)
+    private String level;
+
     /** 姓名 */
     @ApiModelProperty(value = "姓名", position = 4)
     private String name;
+
+    /** 部门 */
+    @ApiModelProperty(value = "部门", position = 4)
+    private String dept;
 
     /** 专业1 */
     @ApiModelProperty(value = "专业1", position = 5)
@@ -88,6 +96,14 @@ public class CertManage {
     /** 注册单位|发证单位 */
     @ApiModelProperty(value = "注册单位|发证单位", position = 13)
     private String unit;
+
+    /** 社保所在地 */
+    @ApiModelProperty(value = "社保所在地", position = 13)
+    private String socialLocation;
+
+    /** 学历信息 */
+    @ApiModelProperty(value = "学历信息", position = 13)
+    private String eduInfo;
 
     /** 证书名称 */
     @ApiModelProperty(value = "证书名称", position = 14)

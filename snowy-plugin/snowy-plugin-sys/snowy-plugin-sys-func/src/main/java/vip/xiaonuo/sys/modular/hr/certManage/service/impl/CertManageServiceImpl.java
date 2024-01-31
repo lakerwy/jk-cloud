@@ -68,6 +68,12 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         if (ObjectUtil.isNotEmpty(certManagePageParam.getCertType())) {
             queryWrapper.eq("a.CERT_TYPE", certManagePageParam.getCertType());
         }
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getLevel())){
+            queryWrapper.eq("a.LEVEL",certManagePageParam.getLevel());
+        }
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getDept())){
+            queryWrapper.like("a.DEPT",certManagePageParam.getDept());
+        }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getName())) {
             queryWrapper.like("a.NAME", certManagePageParam.getName());
         }

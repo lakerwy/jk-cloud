@@ -105,4 +105,20 @@ public class CertManageVo {
     /** 用户类型：总部|分公司|外部人员 */
     @ApiModelProperty(value = "用户类型：总部|分公司|外部人员", position = 22)
     private String userType;
+
+    /** 级别 */
+    @ApiModelProperty(value = "级别", position = 3)
+    private String level;
+
+    /** 部门 */
+    @ApiModelProperty(value = "部门", position = 4)
+    private String dept;
+
+    /** 社保所在地 */
+    @ApiModelProperty(value = "社保所在地", position = 13)
+    private String socialLocation;
+
+    /** 学历信息 */
+    @ApiModelProperty(value = "学历信息", position = 13)
+    private String eduInfo;
 }
