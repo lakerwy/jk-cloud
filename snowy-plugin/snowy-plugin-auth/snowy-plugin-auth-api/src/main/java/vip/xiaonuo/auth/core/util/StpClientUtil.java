@@ -419,7 +419,7 @@ public class StpClientUtil {
      * 检查当前token 是否已经[临时过期]，如果已经过期则抛出异常
      */
     public static void checkActivityTimeout() {
-        stpLogic.checkActivityTimeout();
+        stpLogic.checkActiveTimeout();
     }
 
     /**
@@ -428,7 +428,7 @@ public class StpClientUtil {
      * 如果此场景下需要提示续签失败，可在此之前调用 checkActivityTimeout() 强制检查是否过期即可 </h1>
      */
     public static void updateLastActivityToNow() {
-        stpLogic.updateLastActivityToNow();
+        stpLogic.updateLastActiveToNow();
     }
 
 
@@ -463,7 +463,7 @@ public class StpClientUtil {
      * @return token [临时过期] 剩余有效时间
      */
     public static long getTokenActivityTimeout() {
-        return stpLogic.getTokenActivityTimeout();
+        return stpLogic.getTokenActiveTimeout();
     }
 
     /**

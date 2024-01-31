@@ -56,6 +56,9 @@
 
         <!--云盘插件-->
         <module>snowy-plugin-pan</module>
+
+        <!--sso单点插件-->
+        <module>snowy-plugin-sso</module>
     </modules>
 
 </project>

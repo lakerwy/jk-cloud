@@ -98,6 +98,16 @@ public class AuthListener implements SaTokenListener {
         // ...
     }
 
+    @Override
+    public void doOpenSafe(String loginType, String tokenValue, String service, long safeTime) {
+
+    }
+
+    @Override
+    public void doCloseSafe(String loginType, String tokenValue, String service) {
+
+    }
+
     /** 每次创建Session时触发 */
     @Override
     public void doCreateSession(String id) {
