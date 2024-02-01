@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.person.entity.UserSurveyCollect;
 import vip.xiaonuo.sys.modular.person.param.*;
+import vip.xiaonuo.sys.modular.person.vo.UserSurveyCollectVo;
 
 import java.util.List;
 
@@ -65,7 +66,7 @@ public interface UserSurveyCollectService extends IService<UserSurveyCollect> {
      * @author yong.ye
      * @date  2024/01/25 10:44
      */
-    UserSurveyCollect detail(UserSurveyCollectIdParam userSurveyCollectIdParam);
+    UserSurveyCollectVo detail(UserSurveyCollectIdParam userSurveyCollectIdParam);
 
     /**
      * 获取用户问卷收集-问题|意见详情

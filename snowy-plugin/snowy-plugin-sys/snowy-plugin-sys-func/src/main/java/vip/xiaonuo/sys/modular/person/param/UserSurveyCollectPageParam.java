@@ -74,16 +74,8 @@ public class UserSurveyCollectPageParam {
     @ApiModelProperty(value = "提交时间结束")
     private String endSubmitTime;
 
-    /** 回复时间开始 */
-    @ApiModelProperty(value = "回复时间开始")
-    private String startReplyTime;
-
-    /** 回复时间结束 */
-    @ApiModelProperty(value = "回复时间结束")
-    private String endReplyTime;
-
     /** 状态：已回复|未回复|已关闭 */
-    @ApiModelProperty(value = "状态：已回复|未回复|已关闭")
+    @ApiModelProperty(value = "状态：已回复|待回复|已关闭")
     private String status;
 
     /** 提交人姓名 */

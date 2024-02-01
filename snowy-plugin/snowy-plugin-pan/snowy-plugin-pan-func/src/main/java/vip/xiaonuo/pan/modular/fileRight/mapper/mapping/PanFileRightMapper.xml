@@ -33,7 +33,7 @@
                  left join SYS_ORG b on a.ORG_ID = b.ID
                  left join SYS_RELATION c on a.ID = c.OBJECT_ID and c.CATEGORY = 'SYS_USER_HAS_ROLE'
                  left join SYS_ROLE d on c.TARGET_ID = d.ID
-        where a.DELETE_FLAG = 'NOT_DELETE'
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.USER_STATUS = 'ENABLE'
         <if test="objIds != null and objIds.size() !=0  ">
             and ( a.ID in
             <foreach collection="objIds" item="item" open="(" close=")" separator=",">

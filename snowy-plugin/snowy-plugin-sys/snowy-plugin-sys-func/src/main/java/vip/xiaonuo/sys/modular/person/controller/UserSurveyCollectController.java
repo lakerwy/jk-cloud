@@ -29,10 +29,14 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.person.entity.UserSurveyCollect;
 import vip.xiaonuo.sys.modular.person.param.*;
 import vip.xiaonuo.sys.modular.person.service.UserSurveyCollectService;
+import vip.xiaonuo.sys.modular.person.service.UserSurveyRecordService;
+import vip.xiaonuo.sys.modular.person.vo.UserSurveyCollectVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 用户问卷收集-问题|意见控制器
@@ -48,6 +52,9 @@ public class UserSurveyCollectController {
 
     @Resource
     private UserSurveyCollectService userSurveyCollectService;
+
+    @Resource
+    private UserSurveyRecordService userSurveyRecordService;
 
     /**
      * 获取用户问卷收集-问题|意见分页
@@ -122,22 +129,54 @@ public class UserSurveyCollectController {
     @ApiOperation("获取用户问卷收集-问题|意见详情")
 //    @SaCheckPermission("/sys/person/survey/detail")
     @GetMapping("/sys/person/survey/detail")
-    public CommonResult<UserSurveyCollect> detail(@Valid UserSurveyCollectIdParam userSurveyCollectIdParam) {
+    public CommonResult<UserSurveyCollectVo> detail(@Valid UserSurveyCollectIdParam userSurveyCollectIdParam) {
         return CommonResult.data(userSurveyCollectService.detail(userSurveyCollectIdParam));
     }
 
     /**
-     * 操作：回复|关闭
+     * 操作：回复|关闭|删除
      *
      * @author yong.ye
      * @date  2024/01/25 10:44
      */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("操作：回复|关闭")
-    @CommonLog("操作：回复|关闭")
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("操作：回复|关闭|删除")
+    @CommonLog("操作：回复|关闭|删除")
     @PostMapping("/sys/person/survey/doAction")
     public CommonResult<String> doAction(@RequestBody @Valid ActionParam actionParam) {
         userSurveyCollectService.doAction(actionParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 根据id,删除用户问卷收集-问题|意见 - 沟通记录
+     *
+     * @author yong.ye
+     * @date  2024/01/25 10:44
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("根据id,删除用户问卷收集-问题|意见 - 沟通记录")
+    @CommonLog("根据id,删除用户问卷收集-问题|意见 - 沟通记录")
+//    @SaCheckPermission("/sys/person/survey/record/delete")
+    @PostMapping("/sys/person/survey/record/delete")
+    public CommonResult<String> delRecordById(String id) {
+        userSurveyRecordService.removeById(id);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑用户问卷收集-问题|意见 - 沟通记录
+     *
+     * @author yong.ye
+     * @date  2024/01/25 10:44
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("编辑用户问卷收集-问题|意见 - 沟通记录")
+    @CommonLog("编辑用户问卷收集-问题|意见 - 沟通记录")
+//    @SaCheckPermission("/sys/person/survey/edit")
+    @PostMapping("/sys/person/survey/record/edit")
+    public CommonResult<String> recordEdit(@RequestBody @Valid UserSurveyRecordEditParam userSurveyRecordEditParam) {
+        userSurveyRecordService.edit(userSurveyRecordEditParam);
         return CommonResult.ok();
     }
 }

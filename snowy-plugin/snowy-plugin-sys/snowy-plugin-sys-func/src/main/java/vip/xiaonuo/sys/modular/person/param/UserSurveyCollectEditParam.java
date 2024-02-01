@@ -52,28 +52,12 @@ public class UserSurveyCollectEditParam {
     @ApiModelProperty(value = "内容", position = 5)
     private String content;
 
-//    /** 流水号 */
-//    @ApiModelProperty(value = "流水号", position = 6)
-//    private String sn;
-
     /** 是否匿名 0-1 */
     @ApiModelProperty(value = "是否匿名 0-1", position = 7)
     private String isAnony;
 
-//    /** 提交时间 */
-//    @ApiModelProperty(value = "提交时间", position = 8)
-//    private Date submitTime;
-//
-//    /** 回复时间 */
-//    @ApiModelProperty(value = "回复时间", position = 9)
-//    private Date replyTime;
-
-    /** 评价|回复 */
-    @ApiModelProperty(value = "评价|回复", position = 10)
-    private String reviewContent;
-
     /** 状态：已回复|未回复|已关闭 */
-    @ApiModelProperty(value = "状态：已回复|未回复|已关闭", position = 11)
+    @ApiModelProperty(value = "状态：已回复|待回复|已关闭", position = 11)
     private String status;
 
     /** 附件 */

@@ -66,12 +66,8 @@ public class UserSurveyCollect {
     @ApiModelProperty(value = "回复时间", position = 9)
     private Date replyTime;
 
-    /** 评价|回复 */
-    @ApiModelProperty(value = "评价|回复", position = 10)
-    private String reviewContent;
-
     /** 状态：已回复|未回复|已关闭 */
-    @ApiModelProperty(value = "状态：已回复|未回复|已关闭", position = 11)
+    @ApiModelProperty(value = "状态：已回复|待回复|已关闭", position = 11)
     private String status;
 
     /** 附件 */
@@ -124,8 +120,4 @@ public class UserSurveyCollect {
     /** 提交人姓名 */
     @ApiModelProperty(value = "提交人姓名", position = 22)
     private String submitName;
-
-    /** 回复者姓名|操作人姓名 */
-    @ApiModelProperty(value = "回复者姓名|操作人姓名", position = 23)
-    private String replyName;
 }

@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.person.service.impl;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -22,6 +23,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -29,12 +31,16 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonSnUtil;
 import vip.xiaonuo.sys.modular.person.entity.UserSurveyCollect;
+import vip.xiaonuo.sys.modular.person.entity.UserSurveyRecord;
 import vip.xiaonuo.sys.modular.person.enums.ActionTypeEnum;
+import vip.xiaonuo.sys.modular.person.enums.RecordTypeEnum;
 import vip.xiaonuo.sys.modular.person.enums.SurveyStatusEnum;
 import vip.xiaonuo.sys.modular.person.mapper.UserSurveyCollectMapper;
 import vip.xiaonuo.sys.modular.person.param.*;
 import vip.xiaonuo.sys.modular.person.service.UserSurveyCollectService;
+import vip.xiaonuo.sys.modular.person.vo.UserSurveyCollectVo;
 
+import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -47,6 +53,8 @@ import java.util.List;
 @Service
 public class UserSurveyCollectServiceImpl extends ServiceImpl<UserSurveyCollectMapper, UserSurveyCollect> implements UserSurveyCollectService {
 
+    @Resource
+    private UserSurveyRecordServiceImpl userSurveyRecordService;
     @Override
     public Page<UserSurveyCollect> page(UserSurveyCollectPageParam userSurveyCollectPageParam) {
         QueryWrapper<UserSurveyCollect> queryWrapper = new QueryWrapper<>();
@@ -68,9 +76,6 @@ public class UserSurveyCollectServiceImpl extends ServiceImpl<UserSurveyCollectM
         if(ObjectUtil.isNotEmpty(userSurveyCollectPageParam.getStartSubmitTime()) && ObjectUtil.isNotEmpty(userSurveyCollectPageParam.getEndSubmitTime())) {
             queryWrapper.lambda().between(UserSurveyCollect::getSubmitTime, userSurveyCollectPageParam.getStartSubmitTime(), userSurveyCollectPageParam.getEndSubmitTime());
         }
-        if(ObjectUtil.isNotEmpty(userSurveyCollectPageParam.getStartReplyTime()) && ObjectUtil.isNotEmpty(userSurveyCollectPageParam.getEndReplyTime())) {
-            queryWrapper.lambda().between(UserSurveyCollect::getReplyTime, userSurveyCollectPageParam.getStartReplyTime(), userSurveyCollectPageParam.getEndReplyTime());
-        }
         if(ObjectUtil.isNotEmpty(userSurveyCollectPageParam.getStatus())) {
             queryWrapper.lambda().eq(UserSurveyCollect::getStatus, userSurveyCollectPageParam.getStatus());
         }
@@ -80,8 +85,7 @@ public class UserSurveyCollectServiceImpl extends ServiceImpl<UserSurveyCollectM
         if(ObjectUtil.isNotEmpty(userSurveyCollectPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(UserSurveyCollect::getTitle,userSurveyCollectPageParam.getSearchKey())
                     .or().like(UserSurveyCollect::getSn,userSurveyCollectPageParam.getSearchKey())
-                    .or().like(UserSurveyCollect::getSubmitName,userSurveyCollectPageParam.getSearchKey())
-                    .or().like(UserSurveyCollect::getReplyName,userSurveyCollectPageParam.getSearchKey()));
+                    .or().like(UserSurveyCollect::getSubmitName,userSurveyCollectPageParam.getSearchKey()));
         }
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
@@ -125,13 +129,23 @@ public class UserSurveyCollectServiceImpl extends ServiceImpl<UserSurveyCollectM
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<UserSurveyCollectIdParam> userSurveyCollectIdParamList) {
+        List<String> ids = CollStreamUtil.toList(userSurveyCollectIdParamList, UserSurveyCollectIdParam::getId);
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(userSurveyCollectIdParamList, UserSurveyCollectIdParam::getId));
+        this.removeByIds(ids);
+        // 删除回复记录
+        if(CollUtil.isNotEmpty(ids)) {
+            userSurveyRecordService.remove(new QueryWrapper<UserSurveyRecord>().lambda().in(UserSurveyRecord::getSurveyId,ids));
+        }
     }
 
     @Override
-    public UserSurveyCollect detail(UserSurveyCollectIdParam userSurveyCollectIdParam) {
-        return this.queryEntity(userSurveyCollectIdParam.getId());
+    public UserSurveyCollectVo detail(UserSurveyCollectIdParam userSurveyCollectIdParam) {
+        UserSurveyCollect collect = this.queryEntity(userSurveyCollectIdParam.getId());
+        UserSurveyCollectVo collectVo = BeanUtil.copyProperties(collect, UserSurveyCollectVo.class);
+        QueryWrapper<UserSurveyRecord> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(UserSurveyRecord::getSurveyId,userSurveyCollectIdParam.getId()).orderByAsc(UserSurveyRecord::getCreateTime);
+        collectVo.setRecordList(userSurveyRecordService.list(queryWrapper));
+        return collectVo;
     }
 
     @Override
@@ -145,19 +159,35 @@ public class UserSurveyCollectServiceImpl extends ServiceImpl<UserSurveyCollectM
 
     @Override
     public void doAction(ActionParam actionParam) {
-        UserSurveyCollect userSurveyCollect = this.queryEntity(actionParam.getId());
+        UserSurveyCollect userSurveyCollect = this.queryEntity(actionParam.getSurveyId());
         if(ActionTypeEnum.DELETE.getValue().equals(actionParam.getActionType())){
             this.removeById(userSurveyCollect);
+            userSurveyRecordService.remove(new QueryWrapper<UserSurveyRecord>().lambda().eq(UserSurveyRecord::getSurveyId,actionParam.getSurveyId()));
             return;
         }
-        userSurveyCollect.setReplyTime(new Date());
-        userSurveyCollect.setReviewContent(actionParam.getReviewContent());
-        userSurveyCollect.setMemo(actionParam.getMemo());
-        userSurveyCollect.setReplyName(StpLoginUserUtil.getLoginUser().getName());
         if(ActionTypeEnum.REPLY.getValue().equals(actionParam.getActionType())){
-            userSurveyCollect.setStatus(SurveyStatusEnum.HAVE_REPLY.getValue());
+            SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+            //判断是否 提问方 再次回答 [问题创建者]
+            UserSurveyRecordAddParam recordAddParam = new UserSurveyRecordAddParam();
+            recordAddParam.setSurveyId(actionParam.getSurveyId());
+            recordAddParam.setContent(actionParam.getContent());
+            recordAddParam.setAttach(actionParam.getAttach());
+            recordAddParam.setExtJson(actionParam.getExtJson());
+            recordAddParam.setMemo(actionParam.getMemo());
+            if(loginUser.getId().equals(userSurveyCollect.getCreateUser())){
+                recordAddParam.setType(RecordTypeEnum.SUBMIT.getValue());
+                userSurveyCollect.setStatus(SurveyStatusEnum.NO_REPLY.getValue());
+                userSurveyCollect.setReplyTime(null);
+            }else{
+                recordAddParam.setType(RecordTypeEnum.REPLAY.getValue());
+                userSurveyCollect.setStatus(SurveyStatusEnum.HAVE_REPLY.getValue());
+                userSurveyCollect.setReplyTime(new Date());
+            }
+            userSurveyRecordService.add(recordAddParam);
+
         }else if(ActionTypeEnum.CLOSE.getValue().equals(actionParam.getActionType())){
             userSurveyCollect.setStatus(SurveyStatusEnum.HAVE_CLOSE.getValue());
+            userSurveyCollect.setReplyTime(new Date());
         }
         this.updateById(userSurveyCollect);
     }

@@ -55,22 +55,6 @@ public class UserSurveyCollectAddParam {
     @ApiModelProperty(value = "是否匿名 0-1", position = 7)
     private String isAnony;
 
-//    /** 提交时间 */
-//    @ApiModelProperty(value = "提交时间", position = 8)
-//    private Date submitTime;
-//
-//    /** 回复时间 */
-//    @ApiModelProperty(value = "回复时间", position = 9)
-//    private Date replyTime;
-
-//    /** 评价|回复 */
-//    @ApiModelProperty(value = "评价|回复", position = 10)
-//    private String reviewContent;
-//
-//    /** 状态：已回复|未回复|已关闭 */
-//    @ApiModelProperty(value = "状态：已回复|未回复|已关闭", position = 11)
-//    private String status;
-
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 12)
     private String attach;

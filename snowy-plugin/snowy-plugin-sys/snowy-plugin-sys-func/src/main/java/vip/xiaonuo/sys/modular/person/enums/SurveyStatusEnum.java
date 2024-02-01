@@ -23,7 +23,7 @@ import lombok.Getter;
 @Getter
 public enum SurveyStatusEnum {
 
-    /** 未回复 */
+    /** 待回复 */
     NO_REPLY("0"),
     /** 已回复 */
     HAVE_REPLY("1"),
