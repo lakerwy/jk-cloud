@@ -113,7 +113,7 @@ public class ThirdUserController {
         return CommonResult.ok();
     }
 
-    @ApiOperationSupport(order = 6)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("EPC角色数据")
     @CommonLog("EPC角色数据")
     @GetMapping("/sys/third/getEpcRole")
