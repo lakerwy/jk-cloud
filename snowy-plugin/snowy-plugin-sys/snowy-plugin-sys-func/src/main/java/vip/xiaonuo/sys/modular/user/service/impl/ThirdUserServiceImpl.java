@@ -186,22 +186,18 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
             throw new CommonException("系统还未启动成功！");
         }
 
-        StringBuffer stringBuffer = new StringBuffer();
-        systemEpcParam.getSystemEpcResultList().forEach(jkUser -> stringBuffer.append(jkUser.getUserId()).append(","));
-        systemServer.setParter(stringBuffer.toString());
-        systemServerService.saveOrUpdate(systemServer);
-
-        /*List<SysUser> sysUserList = new ArrayList<>();
-        Map<String,String> roleMap = new HashMap<>();
         try{
-            //sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId, Arrays.asList(systemServer.getParter().split(","))));
-            sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,
-                    systemEpcParam.getSystemEpcResultList().stream().map(param -> param.getUserId()).collect(Collectors.toList())));
-            systemEpcParam.getSystemEpcResultList().forEach(param -> roleMap.put(param.getUserId(),param.getRoleId()));
+            StringBuffer stringBuffer = new StringBuffer();
+            List<String> parterList = StringUtils.isNotEmpty(systemServer.getParter()) ? Arrays.asList(systemServer.getParter().split(",")) : new ArrayList<>();
+            systemEpcParam.getSystemEpcResultList().forEach(jkUser -> {if(StringUtils.isNotEmpty(jkUser.getUserId())){parterList.add(jkUser.getUserId());}});
+            Set<String> mySet = new HashSet<>();//去重
+            parterList.forEach(parter -> mySet.add(parter));
+            mySet.forEach(set -> stringBuffer.append(set).append(","));
+            systemServer.setParter(stringBuffer.toString());
+            systemServerService.saveOrUpdate(systemServer);
         }catch (Exception e){
-            log.error("同步用户失败！e:"+e.getMessage());
-            throw new CommonException("同步用户失败！");
-        }*/
+            log.error("保存参与者失败！e:"+e.getMessage());
+        }
         List<JiankeUserVo> jiankeUserList = new ArrayList<>();
         systemEpcParam.getSystemEpcResultList().forEach(user -> {
             JiankeUserVo jiankeUserVo = new JiankeUserVo();
