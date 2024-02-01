@@ -1,4 +1,4 @@
-package vip.xiaonuo.sso.controller;
+package vip.xiaonuo.sso.modular.center.controller;
 
 import cn.dev33.satoken.config.SaSsoConfig;
 import cn.hutool.http.HttpUtil;
@@ -16,7 +16,7 @@ import vip.xiaonuo.auth.modular.login.param.AuthAccountPasswordLoginParam;
 import vip.xiaonuo.auth.modular.login.service.AuthService;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
-import vip.xiaonuo.sso.core.CustomSaSsoProcessor;
+import vip.xiaonuo.sso.modular.center.core.CustomSaSsoProcessor;
 
 import javax.annotation.Resource;
 
@@ -41,7 +41,7 @@ public class SsoServerController {
     @Resource
     AuthService authService;
 
-    @Resource
+    //@Resource
     /*
      * SSO-Server端：处理所有SSO相关请求
      * 		http://{host}:{port}/sso/auth			-- 单点登录授权地址，接受参数：redirect=授权重定向地址

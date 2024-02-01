@@ -360,7 +360,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         taskService.complete(task.getId());
     }
 
-    @Transactional(rollbackFor = Exception.class)
+    //@Transactional(rollbackFor = Exception.class)
     @Override
     public void pass(FlwTaskPassParam flwTaskPassParam) {
         Task task = validTask(flwTaskPassParam.getId(), flwTaskPassParam.getComment());
