@@ -15,6 +15,7 @@ package vip.xiaonuo.dev.modular.epcCenter.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.dev.modular.epcCenter.entity.SysProject;
+import vip.xiaonuo.dev.modular.epcCenter.entity.SysProjectUser;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectAddParam;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectEditParam;
 import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectIdParam;
@@ -81,4 +82,6 @@ public interface SysProjectService extends IService<SysProject> {
     SysProject queryEntity(String id);
 
     void putEpcProjectData(SystemServer systemServer, List<JiankeUserVo> jiankeUserList);
+
+    void syncUserAndProjectData(String proJSn, String account);
 }

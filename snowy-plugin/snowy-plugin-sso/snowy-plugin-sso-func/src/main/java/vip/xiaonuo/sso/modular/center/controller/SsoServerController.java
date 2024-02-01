@@ -1,4 +1,4 @@
-package vip.xiaonuo.sso.controller;
+package vip.xiaonuo.sso.modular.center.controller;
 
 import cn.dev33.satoken.config.SaSsoConfig;
 import cn.hutool.http.HttpUtil;

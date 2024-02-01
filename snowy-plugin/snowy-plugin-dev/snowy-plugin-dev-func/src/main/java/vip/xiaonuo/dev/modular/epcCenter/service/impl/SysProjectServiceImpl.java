@@ -23,6 +23,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -38,6 +39,7 @@ import vip.xiaonuo.dev.modular.epcCenter.param.SysProjectPageParam;
 import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
 import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectUserService;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 import vip.xiaonuo.dev.modular.server.vo.JiankeUserVo;
 
 import javax.annotation.Resource;
@@ -56,9 +58,12 @@ import java.util.stream.Collectors;
 @DSTransactional
 public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProject> implements SysProjectService {
 
-
     @Resource
     SysProjectUserService sysProjectUserService;
+
+    @Resource
+    SystemServerService systemServerService;
+
     @Override
     public Page<SysProject> page(SysProjectPageParam sysProjectPageParam) {
         QueryWrapper<SysProject> queryWrapper = new QueryWrapper<>();
@@ -124,13 +129,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
         if(ObjectUtil.isEmpty(jiankeUserList)){
             return;
         }
-        SysProject sysProject = new SysProject();
-        sysProject.setPrjName(systemServer.getSystemName());
-        sysProject.setPrjSn(systemServer.getSystemSourceId());
-        sysProject.setPrjType("EPC");
-        String url = StringUtils.isNotEmpty(systemServer.getSystemDomain()) ? systemServer.getSystemDomain() : systemServer.getSystemUrl();
-        sysProject.setPrjUrl(url);
-        this.saveOrUpdate(sysProject);
+        SysProject sysProject = saveProject(systemServer);
         /** 先批量删除原来的SysProjectUser的数据,再插入新的数据*/
         List<SysProjectUser> delProjectUserList = sysProjectUserService.list(new LambdaQueryWrapper<SysProjectUser>().eq(SysProjectUser::getSysProjectId,sysProject.getId()));
         List<String> ids = delProjectUserList.stream().map(user -> user.getId()).collect(Collectors.toList());
@@ -144,6 +143,37 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
             sysProjectUserList.add(sysProjectUser);
         });
         sysProjectUserService.saveBatch(sysProjectUserList);
+    }
+
+    private SysProject saveProject(SystemServer systemServer) {
+        SysProject sysProject = new SysProject();
+        sysProject.setPrjName(systemServer.getSystemName());
+        sysProject.setPrjSn(systemServer.getSystemSourceId());
+        sysProject.setPrjType("EPC");
+        String url = StringUtils.isNotEmpty(systemServer.getSystemDomain()) ? systemServer.getSystemDomain() : systemServer.getSystemUrl();
+        sysProject.setPrjUrl(url);
+        this.saveOrUpdate(sysProject);
+        return sysProject;
+    }
+
+    /** 项目sn，项目名称，电话号码，域名或url */
+    @Override
+    public  void syncUserAndProjectData(String proJSn, String account){
+        SysProject one = this.getOne(new LambdaQueryWrapper<SysProject>().eq(SysProject::getPrjSn, proJSn));
+        if(ObjectUtil.isNull(one)){
+            SystemServer systemServer = systemServerService.getOne(new LambdaQueryWrapper<SystemServer>().eq(SystemServer::getSn, proJSn));
+            if(ObjectUtil.isNotNull(systemServer)){
+                one = saveProject(systemServer);
+            }
+            return;
+        }
+        SysProjectUser sysProjectUser1 = sysProjectUserService.getOne(new LambdaQueryWrapper<SysProjectUser>().eq(SysProjectUser::getAccount, account).eq(SysProjectUser::getSysProjectId, one.getId()));
+        if(ObjectUtil.isNull(sysProjectUser1)){
+            sysProjectUser1 = new SysProjectUser();
+            sysProjectUser1.setAccount(account);
+            sysProjectUser1.setSysProjectId(one.getId());
+            sysProjectUserService.save(sysProjectUser1);
+        }
     }
 
 }

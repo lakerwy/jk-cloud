@@ -25,11 +25,16 @@
             <artifactId>snowy-plugin-auth-func</artifactId>
         </dependency>
 
+
         <!-- sa-token-core -->
         <dependency>
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-core</artifactId>
             <version>${sa.token.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-dev-func</artifactId>
         </dependency>
     </dependencies>
 

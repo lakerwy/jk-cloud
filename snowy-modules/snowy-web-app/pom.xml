@@ -106,6 +106,12 @@
             <artifactId>snowy-plugin-pan-func</artifactId>
         </dependency>
 
+        <!--单点登录插件-->
+        <dependency>
+            <groupId>vip.xiaonuo.sso</groupId>
+            <artifactId>snowy-plugin-sso-func</artifactId>
+        </dependency>
+
         <!-- snowy-plugin-dev-feign，向外暴露feign接口 -->
         <dependency>
             <groupId>vip.xiaonuo</groupId>
