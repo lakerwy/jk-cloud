@@ -9,23 +9,25 @@ import cn.dev33.satoken.sso.SaSsoManager;
 import cn.dev33.satoken.sso.SaSsoProcessor;
 import cn.dev33.satoken.sso.name.ParamName;
 import cn.dev33.satoken.stp.StpLogic;
-import cn.hutool.core.convert.Convert;
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
-import org.springframework.beans.factory.annotation.Value;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import org.springframework.stereotype.Component;
+import vip.xiaonuo.auth.api.SaBaseLoginUserApi;
 import vip.xiaonuo.auth.core.enums.SaClientTypeEnum;
-import vip.xiaonuo.auth.core.pojo.SaBaseClientLoginUser;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
-import vip.xiaonuo.auth.modular.login.enums.AuthDeviceTypeEnum;
 import vip.xiaonuo.auth.modular.login.enums.AuthExceptionEnum;
 import vip.xiaonuo.auth.modular.login.param.AuthAccountPasswordLoginParam;
+import vip.xiaonuo.auth.modular.login.service.AuthService;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.common.prop.CommonProperties;
-import vip.xiaonuo.common.util.CommonCryptogramUtil;
+import vip.xiaonuo.sso.modular.userextend.entity.SysUserExtend;
+import vip.xiaonuo.sso.modular.userextend.service.SysUserExtendService;
 
 import javax.annotation.Resource;
+import java.util.AbstractMap;
 import java.util.HashMap;
+import java.util.Map;
 
 /**
  * @author mayike
@@ -43,6 +45,15 @@ public class CustomSaSsoProcessor extends SaSsoProcessor {
 //
 //    @Value("${server.servlet.context-path}")
 //    private String preFix;
+
+    @Resource
+    AuthService authService;
+
+    @Resource(name = "loginUserApi")
+    private SaBaseLoginUserApi loginUserApi;
+
+    @Resource
+    SysUserExtendService sysUserExtendService;
 
     @Override
     public Object ssoAuth() {
@@ -80,74 +91,28 @@ public class CustomSaSsoProcessor extends SaSsoProcessor {
         // 获取对象
         SaRequest req = SaHolder.getRequest();
         SaSsoConfig cfg = SaSsoManager.getConfig();
-        ParamName paramName = ssoTemplate.paramName;
+        Map<String, String> paramMap = req.getParamMap();
+        AuthAccountPasswordLoginParam authAccountPasswordLoginParam = new AuthAccountPasswordLoginParam();
+        BeanUtil.fillBeanWithMap(paramMap, authAccountPasswordLoginParam, true);
+        // ParamName paramName = ssoTemplate.paramName;
+        AbstractMap.SimpleEntry<String, String> result = authService.checkUser(authAccountPasswordLoginParam);
+        String passwordHash = result.getKey();
+        Boolean flag = Boolean.TRUE;
+        SaBaseLoginUser saBaseLoginUser = loginUserApi.getUserByAccount(authAccountPasswordLoginParam.getAccount());
+        if(ObjectUtil.isEmpty(saBaseLoginUser)) {
+            SysUserExtend sysUserExtend = sysUserExtendService.getOne(new LambdaQueryWrapper<SysUserExtend>().eq(SysUserExtend::getAccount, authAccountPasswordLoginParam.getAccount()));
+            if(ObjectUtil.isEmpty(sysUserExtend)){
+                throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
+            }
+            flag = Boolean.FALSE;
+            saBaseLoginUser = BeanUtil.toBean(sysUserExtend,SaBaseLoginUser.class);
+        }
+        if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
+            throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
+        }
+        String token = authService.ssoExecLoginB(saBaseLoginUser, SaClientTypeEnum.B.getValue(), flag);
 
         // 处理
-        return cfg.getDoLoginHandle().apply(req.getParam(paramName.name), req.getParam(paramName.pwd));
+        return cfg.getDoLoginHandle().apply(token,null);
     }
-
-//    public String doLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam, String type) {
-//        // 获取账号
-//        String account = authAccountPasswordLoginParam.getAccount();
-//        // 获取密码
-//        String password = authAccountPasswordLoginParam.getPassword();
-//        // 获取设备
-//        String device = authAccountPasswordLoginParam.getDevice();
-//        // 默认指定为PC，如在小程序跟移动端的情况下，自行指定即可
-//        if(ObjectUtil.isEmpty(device)) {
-//            device = AuthDeviceTypeEnum.PC.getValue();
-//        } else {
-//            AuthDeviceTypeEnum.validate(device);
-//        }
-//        // 校验验证码
-//        String defaultCaptchaOpen = devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_CAPTCHA_OPEN_KEY);
-//        if(ObjectUtil.isNotEmpty(defaultCaptchaOpen)) {
-//            if(Convert.toBool(defaultCaptchaOpen)) {
-//                // 获取验证码
-//                String validCode = authAccountPasswordLoginParam.getValidCode();
-//                // 获取验证码请求号
-//                String validCodeReqNo = authAccountPasswordLoginParam.getValidCodeReqNo();
-//                // 开启验证码则必须传入验证码
-//                if(ObjectUtil.isEmpty(validCode)) {
-//                    throw new CommonException(AuthExceptionEnum.VALID_CODE_EMPTY.getValue());
-//                }
-//                // 开启验证码则必须传入验证码请求号
-//                if(ObjectUtil.isEmpty(validCodeReqNo)) {
-//                    throw new CommonException(AuthExceptionEnum.VALID_CODE_REQ_NO_EMPTY.getValue());
-//                }
-//                // 执行校验验证码
-//                validValidCode(null, validCode, validCodeReqNo);
-//            }
-//        }
-//        // SM2解密并获得前端传来的密码哈希值
-//        String passwordHash;
-//        try {
-//            // 解密，并做哈希值
-//            passwordHash = CommonCryptogramUtil.doHashValue(CommonCryptogramUtil.doSm2Decrypt(password));
-//        } catch (Exception e) {
-//            throw new CommonException(AuthExceptionEnum.PWD_DECRYPT_ERROR.getValue());
-//        }
-//        // 根据账号获取用户信息，根据B端或C端判断
-//        if(SaClientTypeEnum.B.getValue().equals(type)) {
-//            SaBaseLoginUser saBaseLoginUser = loginUserApi.getUserByAccount(account);
-//            if(ObjectUtil.isEmpty(saBaseLoginUser)) {
-//                throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
-//            }
-//            if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
-//                throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
-//            }
-//            // 执行B端登录
-//            return execLoginB(saBaseLoginUser, device);
-//        } else {
-//            SaBaseClientLoginUser saBaseClientLoginUser = clientLoginUserApi.getClientUserByAccount(account);
-//            if(ObjectUtil.isEmpty(saBaseClientLoginUser)) {
-//                throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
-//            }
-//            if (!saBaseClientLoginUser.getPassword().equals(passwordHash)) {
-//                throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
-//            }
-//            // 执行C端登录
-//            return execLoginC(saBaseClientLoginUser, device);
-//        }
-//    }
 }

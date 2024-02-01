@@ -121,4 +121,6 @@ public interface SaBaseLoginUserApi {
      * @date 2022/4/27 22:57
      */
     void updateUserLoginInfo(String userId, String device);
+
+    void updateUserExtJson(String id, String extJson);
 }

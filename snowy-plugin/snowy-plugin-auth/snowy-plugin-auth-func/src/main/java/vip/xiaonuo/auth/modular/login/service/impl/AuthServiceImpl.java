@@ -23,6 +23,7 @@ import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.api.SaBaseLoginUserApi;
@@ -49,6 +50,7 @@ import vip.xiaonuo.dev.api.DevSmsApi;
 import vip.xiaonuo.pan.api.DevFoldApi;
 import javax.annotation.Resource;
 import java.net.URLEncoder;
+import java.util.AbstractMap;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -210,6 +212,35 @@ public class AuthServiceImpl implements AuthService {
     public String doLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam, String type) {
         // 获取账号
         String account = authAccountPasswordLoginParam.getAccount();
+        AbstractMap.SimpleEntry<String, String> result = checkUser(authAccountPasswordLoginParam);
+        String passwordHash = result.getKey();
+        String device = result.getValue();
+        // 根据账号获取用户信息，根据B端或C端判断
+        if(SaClientTypeEnum.B.getValue().equals(type)) {
+            SaBaseLoginUser saBaseLoginUser = loginUserApi.getUserByAccount(account);
+            if(ObjectUtil.isEmpty(saBaseLoginUser)) {
+                throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
+            }
+            if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
+                throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
+            }
+            // 执行B端登录
+            return execLoginB(saBaseLoginUser, device);
+        } else {
+            SaBaseClientLoginUser saBaseClientLoginUser = clientLoginUserApi.getClientUserByAccount(account);
+            if(ObjectUtil.isEmpty(saBaseClientLoginUser)) {
+                throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
+            }
+            if (!saBaseClientLoginUser.getPassword().equals(passwordHash)) {
+                throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
+            }
+            // 执行C端登录
+            return execLoginC(saBaseClientLoginUser, device);
+        }
+    }
+
+    @Override
+    public AbstractMap.SimpleEntry<String, String> checkUser(AuthAccountPasswordLoginParam authAccountPasswordLoginParam){
         // 获取密码
         String password = authAccountPasswordLoginParam.getPassword();
         // 获取设备
@@ -248,29 +279,9 @@ public class AuthServiceImpl implements AuthService {
         } catch (Exception e) {
             throw new CommonException(AuthExceptionEnum.PWD_DECRYPT_ERROR.getValue());
         }
-        // 根据账号获取用户信息，根据B端或C端判断
-        if(SaClientTypeEnum.B.getValue().equals(type)) {
-            SaBaseLoginUser saBaseLoginUser = loginUserApi.getUserByAccount(account);
-            if(ObjectUtil.isEmpty(saBaseLoginUser)) {
-                throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
-            }
-            if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
-                throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
-            }
-            // 执行B端登录
-            return execLoginB(saBaseLoginUser, device);
-        } else {
-            SaBaseClientLoginUser saBaseClientLoginUser = clientLoginUserApi.getClientUserByAccount(account);
-            if(ObjectUtil.isEmpty(saBaseClientLoginUser)) {
-                throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
-            }
-            if (!saBaseClientLoginUser.getPassword().equals(passwordHash)) {
-                throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
-            }
-            // 执行C端登录
-            return execLoginC(saBaseClientLoginUser, device);
-        }
+        return new AbstractMap.SimpleEntry<>(passwordHash,device);
     }
+
 
     @Override
     public String doLoginByPhone(AuthPhoneValidCodeLoginParam authPhoneValidCodeLoginParam, String type) {
@@ -501,5 +512,66 @@ public class AuthServiceImpl implements AuthService {
         result.put("name",loginUser.getName());
         result.put("Token",token);
         return result;
+    }
+
+
+    /**
+     * 单点登录验证
+     * @param saBaseLoginUser
+     * @param device
+     * @param flag
+     * @return
+     */
+    @Override
+    public String ssoExecLoginB(SaBaseLoginUser saBaseLoginUser, String device, Boolean flag) {
+        // 校验状态
+        if(!saBaseLoginUser.getEnabled()) {
+            throw new CommonException(AuthExceptionEnum.ACCOUNT_DISABLED.getValue());
+        }
+        // 执行登录
+        StpUtil.login(saBaseLoginUser.getId(), new SaLoginModel().setDevice(device).setExtra("name", saBaseLoginUser.getName()));
+        //三方用户不执行下面的操作
+        if(flag){
+            // 角色集合
+            List<JSONObject> roleList = loginUserApi.getRoleListByUserId(saBaseLoginUser.getId());
+            // 角色id集合
+            List<String> roleIdList = roleList.stream().map(jsonObject -> jsonObject.getStr("id")).collect(Collectors.toList());
+            // 角色码集合
+            List<String> roleCodeList = roleList.stream().map(jsonObject -> jsonObject.getStr("code")).collect(Collectors.toList());
+            // 角色id和用户id集合
+            List<String> userAndRoleIdList = CollectionUtil.unionAll(roleIdList, CollectionUtil.newArrayList(saBaseLoginUser.getId()));
+            // 获取按钮码
+            saBaseLoginUser.setButtonCodeList(loginUserApi.getButtonCodeListListByUserAndRoleIdList(userAndRoleIdList));
+            // 获取移动端按钮码
+            saBaseLoginUser.setMobileButtonCodeList(loginUserApi.getMobileButtonCodeListListByUserIdAndRoleIdList(userAndRoleIdList));
+            // 获取数据范围
+            saBaseLoginUser.setDataScopeList(Convert.toList(SaBaseLoginUser.DataScope.class,
+                    loginUserApi.getPermissionListByUserIdAndRoleIdList(userAndRoleIdList, saBaseLoginUser.getOrgId())));
+            // 获取权限码
+            saBaseLoginUser.setPermissionCodeList(saBaseLoginUser.getDataScopeList().stream()
+                    .map(SaBaseLoginUser.DataScope::getApiUrl).collect(Collectors.toList()));
+            // 获取角色码
+            saBaseLoginUser.setRoleCodeList(roleCodeList);
+        }
+        // 缓存用户信息，此处使用TokenSession为了指定时间内无操作则自动下线
+        StpUtil.getTokenSession().set("loginUser", saBaseLoginUser);
+        //设置loginUser 必须在前
+        if(flag){
+            String extJson = saBaseLoginUser.getExtJson();
+            JSONObject jsonObject = JSONUtil.parseObj(extJson);
+            //是否初始化过个人文件夹
+            Boolean initFlag = jsonObject.getBool("initFlag", false);
+            if(!initFlag){
+                devFoldApi.createSelfFold();
+                jsonObject.set("initFlag",true);
+                extJson = jsonObject.toString();
+                loginUserApi.updateUserExtJson(saBaseLoginUser.getId(),extJson);
+            }
+        }
+        commonCacheOperator.put(CacheConstant.USER_INFO+saBaseLoginUser.getId(),saBaseLoginUser.getAccount());
+
+//        devFoldApi.createGroupFold();
+        // 返回token
+        return StpUtil.getTokenInfo().tokenValue;
     }
 }

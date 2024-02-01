@@ -188,7 +188,8 @@ public class GatewayConfigure {
             "/api/bizapp/biz/cad/plugin/**",
             "/api/webapp/sys/server/downloadImportUserTemplate",
             "/api/webapp/rural/Tbcorpperformance/downloadImportUserTemplate",
-            "api/webapp/sso/userExtend/sync"
+            "/api/webapp/ssoUser/userExtend/sync",
+            "/api/webapp/sso/*"
     };
 
     /**

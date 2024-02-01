@@ -60,8 +60,8 @@ public class SysUserExtendController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取外部用户表分页")
-//    @SaCheckPermission("/sso/userExtend/page")
-    @GetMapping("/sso/userExtend/page")
+//    @SaCheckPermission("/ssoUser/userExtend/page")
+    @GetMapping("/ssoUser/userExtend/page")
     public CommonResult<Page<SysUserExtend>> page(SysUserExtendPageParam sysUserExtendPageParam) {
         return CommonResult.data(sysUserExtendService.page(sysUserExtendPageParam));
     }
@@ -75,8 +75,8 @@ public class SysUserExtendController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加外部用户表")
     @CommonLog("添加外部用户表")
-//    @SaCheckPermission("/sso/userExtend/add")
-    @PostMapping("/sso/userExtend/add")
+//    @SaCheckPermission("/ssoUser/userExtend/add")
+    @PostMapping("/ssoUser/userExtend/add")
     public CommonResult<String> add(@RequestBody @Valid SysUserExtendAddParam sysUserExtendAddParam) {
         sysUserExtendService.add(sysUserExtendAddParam);
         return CommonResult.ok();
@@ -91,8 +91,8 @@ public class SysUserExtendController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑外部用户表")
     @CommonLog("编辑外部用户表")
-//    @SaCheckPermission("/sso/userExtend/edit")
-    @PostMapping("/sso/userExtend/edit")
+//    @SaCheckPermission("/ssoUser/userExtend/edit")
+    @PostMapping("/ssoUser/userExtend/edit")
     public CommonResult<String> edit(@RequestBody @Valid SysUserExtendEditParam sysUserExtendEditParam) {
         sysUserExtendService.edit(sysUserExtendEditParam);
         return CommonResult.ok();
@@ -107,8 +107,8 @@ public class SysUserExtendController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除外部用户表")
     @CommonLog("删除外部用户表")
-//    @SaCheckPermission("/sso/userExtend/delete")
-    @PostMapping("/sso/userExtend/delete")
+//    @SaCheckPermission("/ssoUser/userExtend/delete")
+    @PostMapping("/ssoUser/userExtend/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<SysUserExtendIdParam> sysUserExtendIdParamList) {
         sysUserExtendService.delete(sysUserExtendIdParamList);
@@ -123,8 +123,8 @@ public class SysUserExtendController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取外部用户表详情")
-//    @SaCheckPermission("/sso/userExtend/detail")
-    @GetMapping("/sso/userExtend/detail")
+//    @SaCheckPermission("/ssoUser/userExtend/detail")
+    @GetMapping("/ssoUser/userExtend/detail")
     public CommonResult<SysUserExtend> detail(@Valid SysUserExtendIdParam sysUserExtendIdParam) {
         return CommonResult.data(sysUserExtendService.detail(sysUserExtendIdParam));
     }
@@ -132,8 +132,8 @@ public class SysUserExtendController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("同步外部人员")
     @CommonLog("同步外部人员")
-//    @SaCheckPermission("/sso/userExtend/sync")
-    @PostMapping("/sso/userExtend/sync")
+//    @SaCheckPermission("/ssoUser/userExtend/sync")
+    @PostMapping("/ssoUser/userExtend/sync")
     public CommonResult<String> sync(@RequestBody @Valid SysUserExtendAddParam sysUserExtendAddParam) {
         sysUserExtendService.sync(sysUserExtendAddParam);
         return CommonResult.ok();

@@ -1889,4 +1889,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return this.updateById(sysUser);
     }
 
+    @Override
+    public void updateExtJson(String userId, String extJson) {
+        this.update(new LambdaUpdateWrapper<SysUser>().eq(SysUser::getId,
+                userId).set(SysUser::getExtJson, extJson));
+    }
+
 }

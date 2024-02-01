@@ -523,4 +523,6 @@ public interface SysUserService extends IService<SysUser> {
      * @param setSecondPwd
      */
     Boolean setSecondPwd(SysUserSetSecondPwd setSecondPwd);
+
+    void updateExtJson(String userId, String extJson);
 }

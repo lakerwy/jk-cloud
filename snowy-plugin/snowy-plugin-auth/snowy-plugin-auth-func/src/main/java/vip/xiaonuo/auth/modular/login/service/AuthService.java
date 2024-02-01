@@ -19,6 +19,7 @@ import vip.xiaonuo.auth.modular.login.param.AuthGetPhoneValidCodeParam;
 import vip.xiaonuo.auth.modular.login.param.AuthPhoneValidCodeLoginParam;
 import vip.xiaonuo.auth.modular.login.result.AuthPicValidCodeResult;
 
+import java.util.AbstractMap;
 import java.util.Map;
 
 /**
@@ -53,6 +54,8 @@ public interface AuthService {
      **/
     String doLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam, String type);
 
+    AbstractMap.SimpleEntry<String, String> checkUser(AuthAccountPasswordLoginParam authAccountPasswordLoginParam);
+
     /**
      * 手机验证码登录
      *
@@ -86,4 +89,6 @@ public interface AuthService {
     String doLoginById(String userId, String device, String type);
 
     Map<String,String> cadDoLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam);
+
+    String ssoExecLoginB(SaBaseLoginUser saBaseLoginUser, String device, Boolean flag);
 }

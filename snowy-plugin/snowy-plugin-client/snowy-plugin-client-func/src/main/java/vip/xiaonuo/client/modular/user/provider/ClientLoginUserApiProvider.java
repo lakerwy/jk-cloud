@@ -173,4 +173,9 @@ public class ClientLoginUserApiProvider implements SaBaseLoginUserApi {
     public void updateUserLoginInfo(String userId, String device) {
         clientUserService.updateUserLoginInfo(userId, device);
     }
+
+    @Override
+    public void updateUserExtJson(String userId, String extJson) {
+        //todo
+    }
 }

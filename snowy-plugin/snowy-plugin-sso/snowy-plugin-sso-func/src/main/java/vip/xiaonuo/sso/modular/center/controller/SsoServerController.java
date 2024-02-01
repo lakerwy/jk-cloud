@@ -8,17 +8,17 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.CrossOrigin;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.auth.core.enums.SaClientTypeEnum;
 import vip.xiaonuo.auth.modular.login.param.AuthAccountPasswordLoginParam;
 import vip.xiaonuo.auth.modular.login.service.AuthService;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.sso.modular.center.core.CustomSaSsoProcessor;
+import vip.xiaonuo.sso.modular.userextend.param.SysUserExtendAddParam;
 
 import javax.annotation.Resource;
+import javax.validation.Valid;
 
 /**
  * @author mayike
@@ -38,9 +38,6 @@ public class SsoServerController {
     @Resource
     private CustomSaSsoProcessor saSsoProcessor;
 
-    @Resource
-    AuthService authService;
-
     //@Resource
     /*
      * SSO-Server端：处理所有SSO相关请求
@@ -52,7 +49,6 @@ public class SsoServerController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("单点登录通用接口")
     @RequestMapping("/sso/*")
-    @CrossOrigin
     public Object ssoRequest() {
         return saSsoProcessor.serverDister();
     }
@@ -67,11 +63,11 @@ public class SsoServerController {
         });
 
         // 配置：登录处理函数
-        sso.setDoLoginHandle((name, pwd) -> {
-            AuthAccountPasswordLoginParam authAccountPasswordLoginParam = new AuthAccountPasswordLoginParam();
-            authAccountPasswordLoginParam.setAccount(name);
-            authAccountPasswordLoginParam.setPassword(pwd);
-            String token = authService.doLogin(authAccountPasswordLoginParam, SaClientTypeEnum.B.getValue());
+        sso.setDoLoginHandle((token, t) -> {
+//            AuthAccountPasswordLoginParam authAccountPasswordLoginParam = new AuthAccountPasswordLoginParam();
+//            authAccountPasswordLoginParam.setAccount(name);
+//            authAccountPasswordLoginParam.setPassword(pwd);
+//            String token = authService.doLogin(authAccountPasswordLoginParam, SaClientTypeEnum.B.getValue());
             return CommonResult.data(token);
         });
 

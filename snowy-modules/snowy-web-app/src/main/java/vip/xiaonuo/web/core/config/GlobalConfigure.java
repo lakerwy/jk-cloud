@@ -195,7 +195,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/sys/userSign/add",
             "/sys/server/downloadImportUserTemplate",
             "/rural/Tbcorpperformance/downloadImportUserTemplate",
-            "/sso/userExtend/sync"
+            "/ssoUser/userExtend/sync",
+            "/sso/*"
     };
 
     /**
