@@ -1,4 +1,4 @@
-package vip.xiaonuo.sso.core;
+package vip.xiaonuo.sso.modular.center.core;
 
 import cn.dev33.satoken.sso.SaSsoTemplate;
 import org.springframework.stereotype.Component;

@@ -16,7 +16,7 @@ import vip.xiaonuo.auth.modular.login.param.AuthAccountPasswordLoginParam;
 import vip.xiaonuo.auth.modular.login.service.AuthService;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
-import vip.xiaonuo.sso.core.CustomSaSsoProcessor;
+import vip.xiaonuo.sso.modular.center.core.CustomSaSsoProcessor;
 
 import javax.annotation.Resource;
 
