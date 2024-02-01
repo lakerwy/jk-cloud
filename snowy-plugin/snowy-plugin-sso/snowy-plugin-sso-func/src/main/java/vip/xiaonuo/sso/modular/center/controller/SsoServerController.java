@@ -41,7 +41,7 @@ public class SsoServerController {
     @Resource
     AuthService authService;
 
-    @Resource
+    //@Resource
     /*
      * SSO-Server端：处理所有SSO相关请求
      * 		http://{host}:{port}/sso/auth			-- 单点登录授权地址，接受参数：redirect=授权重定向地址
