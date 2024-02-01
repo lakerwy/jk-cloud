@@ -6,9 +6,10 @@
         select a.*,IF(b.ID is not null,b.NAME,c.NAME) as objName,
                IF(b.ID is not null,'1','2') as objType
         from PAN_FILE_RIGHT a
-            left join SYS_USER b on a.OBJECT_ID = b.ID
-            left join SYS_ORG c on a.OBJECT_ID = c.ID
+            left join SYS_USER b on a.OBJECT_ID = b.ID and b.DELETE_FLAG = 'NOT_DELETE' and b.USER_STATUS = 'ENABLE'
+            left join SYS_ORG c on a.OBJECT_ID = c.ID and c.DELETE_FLAG = 'NOT_DELETE'
         where a.DELETE_FLAG = 'NOT_DELETE' and a.USER_FILE_ID = #{userFileId}
+                and (b.ID is not null or c.ID is not null)
     </select>
 
     <select id="getFileRightList" resultType="vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight">

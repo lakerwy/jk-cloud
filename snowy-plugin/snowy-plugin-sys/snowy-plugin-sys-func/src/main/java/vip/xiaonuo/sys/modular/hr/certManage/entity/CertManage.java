@@ -99,11 +99,15 @@ public class CertManage {
 
     /** 社保所在地 */
     @ApiModelProperty(value = "社保所在地", position = 13)
-    private String socialLocation;
+    private String insUnit;
 
-    /** 学历信息 */
-    @ApiModelProperty(value = "学历信息", position = 13)
-    private String eduInfo;
+    /** 学校专业 */
+    @ApiModelProperty(value = "学校专业", position = 13)
+    private String eduMajor;
+
+    /** 毕业时间 */
+    @ApiModelProperty(value = "毕业时间", position = 13)
+    private String graduateDate;
 
     /** 证书名称 */
     @ApiModelProperty(value = "证书名称", position = 14)

@@ -288,23 +288,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         searchDetailVo.setReCertList(list.stream().filter(x->CertTypeEnum.REGISTER.getValue().equals(x.getType())).collect(Collectors.toList()));
         searchDetailVo.setTrCertList(list.stream().filter(x->CertTypeEnum.TRAIN.getValue().equals(x.getType())).collect(Collectors.toList()));
         searchDetailVo.setOtherCertList(list.stream().filter(x->CertTypeEnum.OTHER.getValue().equals(x.getType())).collect(Collectors.toList()));
-        UserInfo userInfo = new UserInfo();
-        userInfo.setUserType(certManage.getUserType());
-        if(PersonTypeEnum.MASTER.getValue().equals(certManage.getUserType())){
-            Personnel personnel = personnelService.getById(certManage.getUserId());
-            if(ObjectUtil.isNotEmpty(personnel)) {
-                BeanUtil.copyProperties(personnel, userInfo);
-                userInfo.setHrStatus(personnel.getStatus());
-            }
-        }else if(PersonTypeEnum.SUB.getValue().equals(certManage.getUserType())){
-            SubPersonnel subPersonnel = subPersonnelService.getById(certManage.getUserId());
-            if(ObjectUtil.isNotEmpty(subPersonnel)) {
-                BeanUtil.copyProperties(subPersonnel, userInfo);
-            }
-        }else{
-            userInfo.setIdNumber(certManage.getIdNumber());
-            userInfo.setName(certManage.getName());
-        }
+        UserInfo userInfo = BeanUtil.copyProperties(certManage,UserInfo.class);
         searchDetailVo.setUserInfo(userInfo);
         return searchDetailVo;
     }

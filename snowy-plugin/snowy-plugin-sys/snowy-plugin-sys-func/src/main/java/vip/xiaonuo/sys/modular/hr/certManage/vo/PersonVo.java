@@ -32,12 +32,24 @@ public class PersonVo {
     @ApiModelProperty(value = "身份证号", position = 5)
     private String idNumber;
 
-    /** 手机 */
-    @ApiModelProperty(value = "手机", position = 6)
-    private String phone;
+//    /** 手机 */
+//    @ApiModelProperty(value = "手机", position = 6)
+//    private String phone;
 
-    /** 人员信息来源：1 总部花名册 2 分公司花名册 */
+    /** 人员信息来源：1 总部花名册 2 分公司花名册  用户类型：总部|分公司|外部人员 */
     @ApiModelProperty(value = "人员信息来源：1 总部花名册 2 分公司花名册", position = 7)
-    private String personType;
+    private String userType;
+
+    /** 社保所在地 */
+    @ApiModelProperty(value = "社保所在地", position = 8)
+    private String insUnit;
+
+    /** 学校专业 */
+    @ApiModelProperty(value = "学校专业", position = 9)
+    private String eduMajor;
+
+    /** 毕业时间 */
+    @ApiModelProperty(value = "毕业时间", position = 10)
+    private String graduateDate;
 
 }
