@@ -19,9 +19,9 @@
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage">
         select a.* from
                 (select * ,
-                       CASE WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
+                       CASE WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
                             WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
-                            WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
+                            WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                        ELSE ''  END AS certStage
                 from HR_CERT_MANAGE where DELETE_FLAG='NOT_DELETE' ) a
                          ${ew.customSqlSegment}
