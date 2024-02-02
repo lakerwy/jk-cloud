@@ -367,15 +367,23 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
             // 清除【将这些用户作为兼任职位的主管】的信息
             this.list(new LambdaQueryWrapper<SysUser>().isNotNull(SysUser::getPositionJson)).forEach(sysUser -> {
-                List<JSONObject> handledJsonObjectList = JSONUtil.toList(JSONUtil.parseArray(sysUser.getPositionJson()),
-                        JSONObject.class).stream().peek(jsonObject -> {
-                    String directorId = jsonObject.getStr("directorId");
-                    if (ObjectUtil.isNotEmpty(directorId) && sysUserIdList.contains(directorId)) {
-                        jsonObject.remove("directorId");
+                List<JSONObject> handledJsonObjectList = new ArrayList<>();
+                try{
+                    if(StringUtils.isNotEmpty(sysUser.getPositionJson())){
+                        handledJsonObjectList = JSONUtil.toList(JSONUtil.parseArray(sysUser.getPositionJson()),
+                                JSONObject.class).stream().peek(jsonObject -> {
+                            String directorId = jsonObject.getStr("directorId");
+                            if (ObjectUtil.isNotEmpty(directorId) && sysUserIdList.contains(directorId)) {
+                                jsonObject.remove("directorId");
+                            }
+                        }).collect(Collectors.toList());
                     }
-                }).collect(Collectors.toList());
+                }catch (Exception e){
+                    log.error("PositionJson信息失败！e:"+e.getMessage());
+                }
+                String positionJson = CollectionUtil.isNotEmpty(handledJsonObjectList) ? JSONUtil.toJsonStr(handledJsonObjectList) : "";
                 this.update(new LambdaUpdateWrapper<SysUser>().eq(SysUser::getId, sysUser.getId())
-                        .set(SysUser::getPositionJson, JSONUtil.toJsonStr(handledJsonObjectList)));
+                        .set(SysUser::getPositionJson, positionJson));
             });
 
             // 清除【将这些用户作为主管】的机构的主管信息
