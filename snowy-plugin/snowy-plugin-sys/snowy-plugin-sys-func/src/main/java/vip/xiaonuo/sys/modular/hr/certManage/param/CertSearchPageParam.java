@@ -23,13 +23,25 @@ public class CertSearchPageParam {
     @ApiModelProperty(value = "证书类别：注册类别|培训类别")
     private String certType;
 
+    /** 级别 */
+    @ApiModelProperty(value = "级别")
+    private String level;
+
     /** 姓名 */
     @ApiModelProperty(value = "姓名")
     private String name;
 
-    /** 专业 */
-    @ApiModelProperty(value = "专业")
-    private String major;
+    /** 专业1 */
+    @ApiModelProperty(value = "专业1")
+    private String major1;
+
+    /** 专业2 */
+    @ApiModelProperty(value = "专业2")
+    private String major2;
+
+    /** 专业3 */
+    @ApiModelProperty(value = "专业3")
+    private String major3;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号")
@@ -63,22 +75,6 @@ public class CertSearchPageParam {
     @ApiModelProperty(value = "注册单位|发证单位")
     private String unit;
 
-    /** 证书名称 */
-    @ApiModelProperty(value = "证书名称")
-    private String certName;
-
-    /** 职务工种 */
-    @ApiModelProperty(value = "职务工种")
-    private String jobType;
-
-    /** 技术职称 */
-    @ApiModelProperty(value = "技术职称")
-    private String technicalTitle;
-
-    /** 企业名称 */
-    @ApiModelProperty(value = "企业名称")
-    private String companyName;
-
     /** 证书状态：有效|无效 */
     @ApiModelProperty(value = "证书状态：有效|无效")
     private String certStatus;
@@ -87,6 +83,13 @@ public class CertSearchPageParam {
     @ApiModelProperty(value = "用户类型：总部|分公司|外部人员")
     private String userType;
 
+    /** 社保所在地 */
+    @ApiModelProperty(value = "社保所在地")
+    private String insUnit;
+
+    /** 学校专业 */
+    @ApiModelProperty(value = "学校专业")
+    private String eduMajor;
 
 
 
@@ -106,6 +109,10 @@ public class CertSearchPageParam {
     /** 注册类 - 注册类别 */
     @ApiModelProperty(value = "注册类 - 注册类别")
     private String reCertType;
+
+    /** 注册类 - 等级 */
+    @ApiModelProperty(value = "注册类 - 等级")
+    private String reLevel;
 
     /** 注册类 - 注册专业 */
     @ApiModelProperty(value = "注册类 - 注册专业")
@@ -137,17 +144,9 @@ public class CertSearchPageParam {
     @ApiModelProperty(value = "培训证书类 - 类别")
     private String trCertType;
 
-    /** 培训证书类 - 证书名称 */
-    @ApiModelProperty(value = "培训证书类 - 证书名称")
-    private String trCertName;
-
-    /** 培训证书类 - 职务工种 */
-    @ApiModelProperty(value = "培训证书类 - 职务工种")
-    private String trJobType;
-
-    /** 培训证书类 - 技术职称 */
-    @ApiModelProperty(value = "培训证书类 - 技术职称")
-    private String trTechnicalTitle;
+    /** 培训证书类 - 等级 */
+    @ApiModelProperty(value = "培训证书类 - 等级")
+    private String trLevel;
 
     /** 培训证书类 - 专业 */
     @ApiModelProperty(value = "培训证书类 - 专业")
@@ -180,13 +179,9 @@ public class CertSearchPageParam {
     @ApiModelProperty(value = "职称类 - 类别")
     private String otherCertType;
 
-    /** 职称类 - 证书名称 */
-    @ApiModelProperty(value = "职称类 - 证书名称")
-    private String otherCertName;
-
-    /** 职称类 - 技术职称 */
-    @ApiModelProperty(value = "职称类 - 技术职称")
-    private String otherTechnicalTitle;
+    /** 职称类 - 等级 */
+    @ApiModelProperty(value = "职称类 - 等级")
+    private String otherLevel;
 
     /** 职称类 - 专业 */
     @ApiModelProperty(value = "职称类 - 专业")

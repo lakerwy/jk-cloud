@@ -3,23 +3,26 @@
 <mapper namespace="vip.xiaonuo.sys.modular.hr.certManage.mapper.CertManageMapper">
 
     <select id="getPersonList" parameterType="vip.xiaonuo.sys.modular.hr.certManage.param.PersonParam" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo">
-            select ID as id,`NAME` as name,DEPT as dept,DEPT_ID as deptId,ID_NUMBER as idNumber,'1' as userType,'' as insUnit,MAJOR as eduMajor,'' as graduateDate
+            select ID as id,`NAME` as name,DEPT as dept,DEPT_ID as deptId,ID_NUMBER as idNumber,'1' as userType,'' as insUnit,MAJOR as eduMajor,
+                   GREATEST(IFNULL(FIRST_GRADUATE_DATE,''),IFNULL(SECOND_GRADUATE_DATE,''),IFNULL(THIRD_GRADUATE_DATE,'')) as graduateDate
             from PERSONNEL where DELETE_FLAG='NOT_DELETE' and `STATUS` = '0'
                                     <if test="param.name != null and param.name != ''">
                                         and `NAME` like CONCAT('%', #{param.name}, '%')
                                     </if>
         union all
-            select ID as id,`NAME` as name,DEPT as dept,DEPT_ID as deptId,ID_NUMBER as idNumber,'2' as userType,INS_UNIT as insUnit,MAJOR as eduMajor,'' as graduateDate
-            from HR_SUB_PERSONNEL where DELETE_FLAG='NOT_DELETE' and HR_STATUS='0' and `STATUS` in ('0','1')
+            select a.ID as id,a.`NAME` as name,a.DEPT as dept,a.DEPT_ID as deptId,a.ID_NUMBER as idNumber,'2' as userType,a.INS_UNIT as insUnit,a.MAJOR as eduMajor,b.GRADUATE_DATE as graduateDate
+            from HR_SUB_PERSONNEL a left join
+                (select FILE_ID,max(GRADUATE_DATE) as GRADUATE_DATE from HR_SUB_PERSONNEL_DEGREE where DELETE_FLAG='NOT_DELETE' GROUP BY FILE_ID ) b on a.ID = b.FILE_ID
+            where a.DELETE_FLAG='NOT_DELETE' and a.HR_STATUS='0' and a.`STATUS` in ('0','1')
                                     <if test="param.name != null and param.name != ''">
-                                        and `NAME` like CONCAT('%', #{param.name}, '%')
+                                        and a.`NAME` like CONCAT('%', #{param.name}, '%')
                                     </if>
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage">
         select a.* from
                 (select * ,
-                       CASE WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
+                       CASE WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt; NOW() then '已过期'
                             WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
                             WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                        ELSE ''  END AS certStage

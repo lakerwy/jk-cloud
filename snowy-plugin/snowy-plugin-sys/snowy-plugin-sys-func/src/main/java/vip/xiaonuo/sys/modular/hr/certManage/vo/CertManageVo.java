@@ -1,5 +1,9 @@
 package vip.xiaonuo.sys.modular.hr.certManage.vo;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -26,17 +30,25 @@ public class CertManageVo {
     @ApiModelProperty(value = "证书类别：注册类别|培训类别", position = 3)
     private String certType;
 
+    /** 级别 */
+    @ApiModelProperty(value = "级别", position = 3)
+    private String level;
+
     /** 姓名 */
     @ApiModelProperty(value = "姓名", position = 4)
     private String name;
 
     /** 专业1 */
     @ApiModelProperty(value = "专业1", position = 5)
-    private String major;
+    private String major1;
 
     /** 专业2 */
     @ApiModelProperty(value = "专业2", position = 6)
     private String major2;
+
+    /** 专业3 */
+    @ApiModelProperty(value = "专业3", position = 6)
+    private String major3;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号", position = 7)
@@ -62,67 +74,40 @@ public class CertManageVo {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date validity;
 
-//    /** 存管部门 */
-//    @ApiModelProperty(value = "存管部门", position = 12)
-//    private String depositAddress;
-
     /** 注册单位|发证单位 */
     @ApiModelProperty(value = "注册单位|发证单位", position = 13)
     private String unit;
 
-    /** 证书名称 */
-    @ApiModelProperty(value = "证书名称", position = 14)
-    private String certName;
+    /** 证书所在单位 */
+    @ApiModelProperty(value = "证书所在单位", position = 14)
+    private String certUnit;
 
-    /** 职务工种 */
-    @ApiModelProperty(value = "职务工种", position = 15)
-    private String jobType;
+//    /** 证书状态：有效|无效 */
+//    @ApiModelProperty(value = "证书状态：有效|无效", position = 20)
+//    private String certStatus;
+//
+//    /** 系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员 */
+//    @ApiModelProperty(value = "系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员", position = 21)
+//    private String userId;
+//
+//    /** 用户类型：总部|分公司|外部人员 */
+//    @ApiModelProperty(value = "用户类型：总部|分公司|外部人员", position = 22)
+//    private String userType;
+//
+//    /** 部门 */
+//    @ApiModelProperty(value = "部门", position = 4)
+//    private String dept;
+//
+//    /** 社保所在地 */
+//    @ApiModelProperty(value = "社保所在地", position = 13)
+//    private String insUnit;
+//
+//    /** 学校专业 */
+//    @ApiModelProperty(value = "学校专业", position = 13)
+//    private String eduMajor;
+//
+//    /** 毕业时间 */
+//    @ApiModelProperty(value = "毕业时间", position = 13)
+//    private String graduateDate;
 
-    /** 技术职称 */
-    @ApiModelProperty(value = "技术职称", position = 16)
-    private String technicalTitle;
-
-//    /** 企业名称 */
-//    @ApiModelProperty(value = "企业名称", position = 17)
-//    private String companyName;
-
-//    /** 备注 */
-//    @ApiModelProperty(value = "备注", position = 18)
-//    private String memo;
-
-//    /** 附件 */
-//    @ApiModelProperty(value = "附件", position = 19)
-//    private String attach;
-
-    /** 证书状态：有效|无效 */
-    @ApiModelProperty(value = "证书状态：有效|无效", position = 20)
-    private String certStatus;
-
-    /** 系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员 */
-    @ApiModelProperty(value = "系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员", position = 21)
-    private String userId;
-
-    /** 用户类型：总部|分公司|外部人员 */
-    @ApiModelProperty(value = "用户类型：总部|分公司|外部人员", position = 22)
-    private String userType;
-
-    /** 级别 */
-    @ApiModelProperty(value = "级别", position = 3)
-    private String level;
-
-    /** 部门 */
-    @ApiModelProperty(value = "部门", position = 4)
-    private String dept;
-
-    /** 社保所在地 */
-    @ApiModelProperty(value = "社保所在地", position = 13)
-    private String insUnit;
-
-    /** 学校专业 */
-    @ApiModelProperty(value = "学校专业", position = 13)
-    private String eduMajor;
-
-    /** 毕业时间 */
-    @ApiModelProperty(value = "毕业时间", position = 13)
-    private String graduateDate;
 }

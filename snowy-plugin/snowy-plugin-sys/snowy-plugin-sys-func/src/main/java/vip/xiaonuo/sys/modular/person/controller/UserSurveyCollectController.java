@@ -35,8 +35,6 @@ import vip.xiaonuo.sys.modular.person.vo.UserSurveyCollectVo;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 用户问卷收集-问题|意见控制器
