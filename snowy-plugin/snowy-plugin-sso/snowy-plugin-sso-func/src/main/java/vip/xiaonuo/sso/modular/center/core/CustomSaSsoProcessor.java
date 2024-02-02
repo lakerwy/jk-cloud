@@ -79,10 +79,10 @@ public class CustomSaSsoProcessor extends SaSsoProcessor {
             return res.redirect(redirect);
         } else {
             String ticket = customSaSsoTemplate.createTicket(stpLogic.getLoginId(), req.getParam(paramName.client));
-            HashMap<String, Object> dataMap = new HashMap<>();
-            dataMap.put("ticket",ticket);
+//            HashMap<String, Object> dataMap = new HashMap<>();
+//            dataMap.put("ticket",ticket);
 //            dataMap.put("checkTicket",commonProperties.getBackendUrl()+preFix+ssoTemplate.apiName.ssoCheckTicket);
-            return CommonResult.data(dataMap);
+            return CommonResult.data(ticket);
         }
     }
 
