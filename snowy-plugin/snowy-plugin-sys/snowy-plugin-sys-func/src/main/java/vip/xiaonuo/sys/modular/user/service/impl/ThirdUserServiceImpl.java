@@ -30,7 +30,6 @@ import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 import vip.xiaonuo.dev.modular.server.util.PingServiceUtil;
 import vip.xiaonuo.dev.modular.server.vo.JiankeUserVo;
 import vip.xiaonuo.sys.modular.hr.conference.rez.util.HttpUtil;
-import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
 import vip.xiaonuo.sys.modular.user.mapper.SysUserMapper;
@@ -41,7 +40,6 @@ import vip.xiaonuo.sys.modular.user.vo.EpcRoleVo;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author yong.ye
@@ -185,14 +183,24 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
         if(!pingServiceUtil.pingUrl(systemServer.getSystemUrl(),3000)){
             throw new CommonException("系统还未启动成功！");
         }
-
+        Map<String,String> mapEpc = new HashMap<>();
         try{
             StringBuffer stringBuffer = new StringBuffer();
+            Map<String,String> map = new HashMap<>();
             List<String> parterList = StringUtils.isNotEmpty(systemServer.getParter()) ? Arrays.asList(systemServer.getParter().split(",")) : new ArrayList<>();
-            systemEpcParam.getSystemEpcResultList().forEach(jkUser -> {if(StringUtils.isNotEmpty(jkUser.getUserId())){parterList.add(jkUser.getUserId());}});
-            Set<String> mySet = new HashSet<>();//去重
-            parterList.forEach(parter -> mySet.add(parter));
-            mySet.forEach(set -> stringBuffer.append(set).append(","));
+            if(CollectionUtil.isNotEmpty(parterList)){
+                List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,parterList));
+                sysUserList.forEach(user -> {if(StringUtils.isNotEmpty(user.getAccount())){mapEpc.put(user.getAccount(),user.getAccount());}});
+                parterList.forEach(parter -> map.put(parter,parter));
+            }
+            if(CollectionUtil.isNotEmpty(systemEpcParam.getSystemEpcResultList())){
+                systemEpcParam.getSystemEpcResultList().forEach(jkUser -> {
+                    if(StringUtils.isNotEmpty(jkUser.getUserId())){ map.put(jkUser.getUserId(),jkUser.getUserId());}
+                });
+            }
+            if(ObjectUtil.isNotEmpty(map)){
+                map.entrySet().forEach(data -> stringBuffer.append(data.getValue()).append(","));
+            }
             systemServer.setParter(stringBuffer.toString());
             systemServerService.saveOrUpdate(systemServer);
         }catch (Exception e){
@@ -201,12 +209,13 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
         List<JiankeUserVo> jiankeUserList = new ArrayList<>();
         systemEpcParam.getSystemEpcResultList().forEach(user -> {
             JiankeUserVo jiankeUserVo = new JiankeUserVo();
+            if(ObjectUtil.isNotEmpty(mapEpc.get(user.getAccount()))){ mapEpc.remove(user.getAccount());}
             jiankeUserVo.setAccount(user.getAccount());
             jiankeUserVo.setUserName(user.getUserName());
             jiankeUserVo.setRoleId(user.getRoleId());
             jiankeUserList.add(jiankeUserVo);
         });
-        sysProjectService.putEpcProjectData(systemServer,jiankeUserList);
+        sysProjectService.putEpcProjectData(systemServer,jiankeUserList,mapEpc);
         try{
             HttpUtil.sendPostRequest(systemServer.getSystemUrl()+InitConfConstant.EPC_USER_URL,JSONUtil.toJsonStr(jiankeUserList));
         }catch (Exception e){

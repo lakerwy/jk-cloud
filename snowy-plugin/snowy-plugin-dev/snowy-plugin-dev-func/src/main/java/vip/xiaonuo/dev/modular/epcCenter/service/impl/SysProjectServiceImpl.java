@@ -14,6 +14,7 @@ package vip.xiaonuo.dev.modular.epcCenter.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -23,7 +24,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
-import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -45,6 +45,7 @@ import vip.xiaonuo.dev.modular.server.vo.JiankeUserVo;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -125,7 +126,7 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
 
     /** 项目sn，项目名称，电话号码，域名或url */
     @Override
-    public  void putEpcProjectData(SystemServer systemServer, List<JiankeUserVo> jiankeUserList){
+    public  void putEpcProjectData(SystemServer systemServer, List<JiankeUserVo> jiankeUserList,Map<String,String> map){
         if(ObjectUtil.isEmpty(jiankeUserList)){
             return;
         }
@@ -142,11 +143,23 @@ public class SysProjectServiceImpl extends ServiceImpl<SysProjectMapper, SysProj
             sysProjectUser.setSysProjectId(sysProject.getId());
             sysProjectUserList.add(sysProjectUser);
         });
+        if(ObjectUtil.isNotEmpty(map)){
+            map.entrySet().forEach(temp -> {
+                SysProjectUser sysProjectUser = new SysProjectUser();
+                sysProjectUser.setAccount(temp.getValue());
+                sysProjectUser.setSysProjectId(sysProject.getId());
+                sysProjectUserList.add(sysProjectUser);
+            });
+        }
         sysProjectUserService.saveBatch(sysProjectUserList);
     }
 
     private SysProject saveProject(SystemServer systemServer) {
         SysProject sysProject = new SysProject();
+        List<SysProject> sysProjectList = this.list(new LambdaQueryWrapper<SysProject>().eq(SysProject::getPrjSn,systemServer.getSystemSourceId()));
+        if(CollectionUtil.isNotEmpty(sysProjectList)){
+            return sysProjectList.get(0);
+        }
         sysProject.setPrjName(systemServer.getSystemName());
         sysProject.setPrjSn(systemServer.getSystemSourceId());
         sysProject.setPrjType("EPC");
