@@ -66,17 +66,9 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "级别")
     private String level;
 
-    /** 专业1 */
-    @ApiModelProperty(value = "专业1")
-    private String major1;
-
-    /** 专业2 */
-    @ApiModelProperty(value = "专业2")
-    private String major2;
-
-    /** 专业3 */
-    @ApiModelProperty(value = "专业3")
-    private String major3;
+    /** 专业123 */
+    @ApiModelProperty(value = "专业123")
+    private String major;
 
     /** 注册单位|发证单位 */
     @ApiModelProperty(value = "注册单位|发证单位")

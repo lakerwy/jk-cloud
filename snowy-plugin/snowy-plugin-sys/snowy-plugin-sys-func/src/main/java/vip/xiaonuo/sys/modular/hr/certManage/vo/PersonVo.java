@@ -32,10 +32,6 @@ public class PersonVo {
     @ApiModelProperty(value = "身份证号", position = 5)
     private String idNumber;
 
-//    /** 手机 */
-//    @ApiModelProperty(value = "手机", position = 6)
-//    private String phone;
-
     /** 人员信息来源：1 总部花名册 2 分公司花名册  用户类型：总部|分公司|外部人员 */
     @ApiModelProperty(value = "人员信息来源：1 总部花名册 2 分公司花名册", position = 7)
     private String userType;

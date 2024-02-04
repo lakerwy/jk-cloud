@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -33,9 +34,8 @@ import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.*;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -62,14 +62,8 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         if(ObjectUtil.isNotEmpty(certManagePageParam.getLevel())){
             queryWrapper.eq("a.LEVEL",certManagePageParam.getLevel());
         }
-        if(ObjectUtil.isNotEmpty(certManagePageParam.getMajor1())){
-            queryWrapper.like("a.MAJOR1",certManagePageParam.getMajor1());
-        }
-        if(ObjectUtil.isNotEmpty(certManagePageParam.getMajor2())){
-            queryWrapper.like("a.MAJOR2",certManagePageParam.getMajor2());
-        }
-        if(ObjectUtil.isNotEmpty(certManagePageParam.getMajor3())){
-            queryWrapper.like("a.MAJOR3",certManagePageParam.getMajor3());
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getMajor())){
+            queryWrapper.like("a.MAJOR",certManagePageParam.getMajor());
         }
         if (ObjectUtil.isNotEmpty(certManagePageParam.getName())) {
             queryWrapper.like("a.NAME", certManagePageParam.getName());
@@ -115,9 +109,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
             queryWrapper.and(q -> q.like("a.CERT_NO", certManagePageParam.getSearchKey())
                     .or().like("a.CERT_SEAL_NO", certManagePageParam.getSearchKey())
                     .or().like("a.ID_NUMBER", certManagePageParam.getSearchKey())
-                    .or().like("a.MAJOR1", certManagePageParam.getSearchKey())
-                    .or().like("a.MAJOR2", certManagePageParam.getSearchKey())
-                    .or().like("a.MAJOR3", certManagePageParam.getSearchKey())
+                    .or().like("a.MAJOR", certManagePageParam.getSearchKey())
                     .or().like("a.UNIT", certManagePageParam.getSearchKey())
                     .or().like("a.NAME", certManagePageParam.getSearchKey())
                     .or().like("a.INS_UNIT", certManagePageParam.getSearchKey())
@@ -178,83 +170,82 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
     @Override
     public SearchVo searchPage(CertSearchPageParam certSearchPageParam) {
         //不开启综合搜索，普通搜索模块
-        QueryWrapper<CertManage> queryWrapper = new QueryWrapper<>();
-        if (!certSearchPageParam.getIsOpen()) {
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getType())) {
-                queryWrapper.lambda().eq(CertManage::getType, certSearchPageParam.getType());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getCertType())) {
-                queryWrapper.lambda().eq(CertManage::getCertType, certSearchPageParam.getCertType());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getLevel())) {
-                queryWrapper.lambda().eq(CertManage::getLevel, certSearchPageParam.getLevel());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getName())) {
-                queryWrapper.lambda().like(CertManage::getName, certSearchPageParam.getName());
-            }
-            if(ObjectUtil.isNotEmpty(certSearchPageParam.getMajor1())){
-                queryWrapper.lambda().like(CertManage::getMajor1,certSearchPageParam.getMajor1());
-            }
-            if(ObjectUtil.isNotEmpty(certSearchPageParam.getMajor2())){
-                queryWrapper.lambda().like(CertManage::getMajor2,certSearchPageParam.getMajor2());
-            }
-            if(ObjectUtil.isNotEmpty(certSearchPageParam.getMajor3())){
-                queryWrapper.lambda().like(CertManage::getMajor3,certSearchPageParam.getMajor3());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getIdNumber())) {
-                queryWrapper.lambda().like(CertManage::getIdNumber, certSearchPageParam.getIdNumber());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getCertNo())) {
-                queryWrapper.lambda().like(CertManage::getCertNo, certSearchPageParam.getCertNo());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getCertSealNo())) {
-                queryWrapper.lambda().like(CertManage::getCertSealNo, certSearchPageParam.getCertSealNo());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getStartIssueDate()) && ObjectUtil.isNotEmpty(certSearchPageParam.getEndIssueDate())) {
-                queryWrapper.lambda().between(CertManage::getIssueDate, certSearchPageParam.getStartIssueDate(), certSearchPageParam.getEndIssueDate());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getStartValidity()) && ObjectUtil.isNotEmpty(certSearchPageParam.getEndValidity())) {
-                queryWrapper.lambda().between(CertManage::getValidity, certSearchPageParam.getStartValidity(), certSearchPageParam.getEndValidity());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getUnit())) {
-                queryWrapper.lambda().like(CertManage::getUnit, certSearchPageParam.getUnit());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getInsUnit())) {
-                queryWrapper.lambda().like(CertManage::getInsUnit, certSearchPageParam.getInsUnit());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getEduMajor())) {
-                queryWrapper.lambda().like(CertManage::getEduMajor, certSearchPageParam.getEduMajor());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getCertStatus())) {
-                queryWrapper.lambda().eq(CertManage::getCertStatus, certSearchPageParam.getCertStatus());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getUserType())) {
-                queryWrapper.lambda().eq(CertManage::getUserType, certSearchPageParam.getUserType());
-            }
-            if (ObjectUtil.isNotEmpty(certSearchPageParam.getSearchKey())) {
-                queryWrapper.lambda().and(q -> q.like(CertManage::getCertNo, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getCertSealNo, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getIdNumber, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getMajor1, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getMajor2, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getMajor3, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getUnit, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getName, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getInsUnit, certSearchPageParam.getSearchKey())
-                        .or().like(CertManage::getEduMajor, certSearchPageParam.getSearchKey())
-                );
-            }
-        } else {
-            //开启综合搜索（注册类|培训类|职称类 证书同时满足情况）
-            List<String> ids = getFilter(certSearchPageParam);
+        LambdaQueryWrapper<CertManage> queryWrapper = new LambdaQueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getType())) {
+            queryWrapper.eq(CertManage::getType, certSearchPageParam.getType());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getCertType())) {
+            queryWrapper.eq(CertManage::getCertType, certSearchPageParam.getCertType());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getLevel())) {
+            queryWrapper.eq(CertManage::getLevel, certSearchPageParam.getLevel());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getName())) {
+            queryWrapper.like(CertManage::getName, certSearchPageParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(certSearchPageParam.getMajor())){
+            queryWrapper.like(CertManage::getMajor,certSearchPageParam.getMajor());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getIdNumber())) {
+            queryWrapper.like(CertManage::getIdNumber, certSearchPageParam.getIdNumber());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getCertNo())) {
+            queryWrapper.like(CertManage::getCertNo, certSearchPageParam.getCertNo());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getCertSealNo())) {
+            queryWrapper.like(CertManage::getCertSealNo, certSearchPageParam.getCertSealNo());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getStartIssueDate()) && ObjectUtil.isNotEmpty(certSearchPageParam.getEndIssueDate())) {
+            queryWrapper.between(CertManage::getIssueDate, certSearchPageParam.getStartIssueDate(), certSearchPageParam.getEndIssueDate());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getStartValidity()) && ObjectUtil.isNotEmpty(certSearchPageParam.getEndValidity())) {
+            queryWrapper.between(CertManage::getValidity, certSearchPageParam.getStartValidity(), certSearchPageParam.getEndValidity());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getUnit())) {
+            queryWrapper.like(CertManage::getUnit, certSearchPageParam.getUnit());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getInsUnit())) {
+            queryWrapper.like(CertManage::getInsUnit, certSearchPageParam.getInsUnit());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getEduMajor())) {
+            queryWrapper.like(CertManage::getEduMajor, certSearchPageParam.getEduMajor());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getCertStatus())) {
+            queryWrapper.eq(CertManage::getCertStatus, certSearchPageParam.getCertStatus());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getUserType())) {
+            queryWrapper.eq(CertManage::getUserType, certSearchPageParam.getUserType());
+        }
+        if (ObjectUtil.isNotEmpty(certSearchPageParam.getSearchKey())) {
+            queryWrapper.and(q -> q.like(CertManage::getCertNo, certSearchPageParam.getSearchKey())
+                    .or().like(CertManage::getCertSealNo, certSearchPageParam.getSearchKey())
+                    .or().like(CertManage::getIdNumber, certSearchPageParam.getSearchKey())
+                    .or().like(CertManage::getMajor, certSearchPageParam.getSearchKey())
+                    .or().like(CertManage::getUnit, certSearchPageParam.getSearchKey())
+                    .or().like(CertManage::getName, certSearchPageParam.getSearchKey())
+                    .or().like(CertManage::getInsUnit, certSearchPageParam.getSearchKey())
+                    .or().like(CertManage::getEduMajor, certSearchPageParam.getSearchKey())
+            );
+        }
+        //1. 基本查询参数过滤结果
+        //2. 三级联动搜索（启用模式）（注册类|培训类|职称类 证书同时满足情况）
+        if(ObjectUtil.isNotEmpty(certSearchPageParam.getRegisterSearch())
+                || ObjectUtil.isNotEmpty(certSearchPageParam.getTrainSearch())
+                || ObjectUtil.isNotEmpty(certSearchPageParam.getTitleSearch())
+        ){
+            //需要用到的字段
+            queryWrapper.select(CertManage::getId,CertManage::getName,CertManage::getType,CertManage::getUnit,CertManage::getCertNo,
+                    CertManage::getCertUnit,CertManage::getIssueDate,CertManage::getIdNumber,CertManage::getCertType,CertManage::getLevel,CertManage::getMajor);
+            List<CertManage> certManageList = this.list(queryWrapper);
+            List<String> ids = getFilterIds(certSearchPageParam,certManageList);
             if(CollUtil.isNotEmpty(ids)){
-                queryWrapper.lambda().in(CertManage::getId,ids);
+                queryWrapper.in(CertManage::getId,ids);
             }else{
-                queryWrapper.lambda().in(CertManage::getId, Arrays.asList(""));
+                return null;
             }
         }
         //排序
-        queryWrapper.lambda().orderByAsc(CertManage::getIdNumber).orderByAsc(CertManage::getType).orderByAsc(CertManage::getCertType);
+        queryWrapper.orderByAsc(CertManage::getIdNumber).orderByAsc(CertManage::getType).orderByAsc(CertManage::getCertType);
         List<CertManageVo> list = BeanUtil.copyToList(this.list(queryWrapper),CertManageVo.class);
         if(CollUtil.isEmpty(list)){
             return null;
@@ -280,139 +271,145 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
     }
 
     /**
-     * 启动综合查询开关，框定同时满足 注册类|培训类|职称类 搜索的结果集 【三个的交集】
+     * 当 注册|培训|职称 类 有搜索条件时,获取id范围
+     * @param param
+     * @param certManageList
+     * @return
+     */
+    public List<String> getFilterIds(CertSearchPageParam param,List<CertManage> certManageList){
+        List<String> ids = new ArrayList<>();
+        //注册 registerList  培训 trainList  职称 titleList
+        try {
+            //获取三个集合并集
+            List<CertManage> mergeResource = new ArrayList<>();
+            List<CertManage> registerList = new ArrayList<>();
+            List<CertManage> trainList = new ArrayList<>();
+            List<CertManage> titleList = new ArrayList<>();
+            if(ObjectUtil.isNotEmpty(param.getRegisterSearch())) {
+                registerList = getFilter(param.getRegisterSearch(), certManageList);
+                mergeResource.addAll(registerList);
+            }
+            if(ObjectUtil.isNotEmpty(param.getTrainSearch())) {
+                trainList = getFilter(param.getTrainSearch(), certManageList);
+                mergeResource.addAll(trainList);
+            }
+            if(ObjectUtil.isNotEmpty(param.getTitleSearch())) {
+                titleList = getFilter(param.getTitleSearch(), certManageList);
+                mergeResource.addAll(titleList);
+            }
+            List<CertManage> tmpFilterSource = mergeResource.stream().distinct().collect(Collectors.toList());
+            for (CertManage cert:tmpFilterSource) {
+                Boolean isAdd = true;
+                if(ObjectUtil.isEmpty(cert.getIdNumber())) {
+                    isAdd = false;
+                }
+                if(isAdd && ObjectUtil.isNotEmpty(param.getRegisterSearch()) &&
+                        registerList.stream().filter(m1->cert.getIdNumber().equals(m1.getIdNumber())).count()<=0){
+                    isAdd = false;
+                }
+                if(isAdd && ObjectUtil.isNotEmpty(param.getTrainSearch()) &&
+                        trainList.stream().filter(m1->cert.getIdNumber().equals(m1.getIdNumber())).count()<=0){
+                    isAdd = false;
+                }
+                if(isAdd && ObjectUtil.isNotEmpty(param.getTitleSearch()) &&
+                        titleList.stream().filter(m1->cert.getIdNumber().equals(m1.getIdNumber())).count()<=0){
+                    isAdd = false;
+                }
+                if(isAdd){
+                    ids.add(cert.getId());
+                }
+            }
+            return ids;
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+
+    /**
+     * 启动综合查询开关，框定同时满足 注册类|培训类|职称类 (各类搜索参数) 搜索的结果集 【三个的交集】
      * @param param
      * @return
      */
-    public List<String> getFilter(CertSearchPageParam param){
-        QueryWrapper<CertManage> query = new QueryWrapper<>();
-        if(!param.getIsRe() && !param.getIsTr() && !param.getIsOther()){
-            return null;
+    public List<CertManage> getFilter(HybridSearchParam param,List<CertManage> certManageList) throws Exception {
+        if(ObjectUtil.isEmpty(param) || CollUtil.isEmpty(certManageList)){
+            return certManageList;
         }
-        //注册类
-        if(param.getIsRe()) {
-            query.lambda().or(q1 -> {
-                q1.eq(CertManage::getType, CertTypeEnum.REGISTER.getValue());
-                if (ObjectUtil.isNotEmpty(param.getReCertType())) {
-                    q1.eq(CertManage::getCertType, param.getReCertType());
-                }
-                if (ObjectUtil.isNotEmpty(param.getReLevel())) {
-                    q1.eq(CertManage::getLevel, param.getReLevel());
-                }
-                if (ObjectUtil.isNotEmpty(param.getReMajor())) {
-                    q1.and(q->q.like(CertManage::getMajor1, param.getReMajor())
-                            .or().like(CertManage::getMajor2,param.getReMajor())
-                            .or().like(CertManage::getMajor3,param.getReMajor())
-                    );
-                }
-                if (ObjectUtil.isNotEmpty(param.getReUnit())) {
-                    q1.like(CertManage::getUnit, param.getReUnit());
-                }
-                if (ObjectUtil.isNotEmpty(param.getReStartIssueDate()) && ObjectUtil.isNotEmpty(param.getReEndIssueDate())) {
-                    q1.between(CertManage::getIssueDate, param.getReStartIssueDate(), param.getReEndIssueDate());
-                }
-                if (ObjectUtil.isNotEmpty(param.getReSearchKey())) {
-                    q1.and(q11 -> q11.like(CertManage::getCertNo, param.getReSearchKey())
-                            .or().like(CertManage::getCertSealNo, param.getReSearchKey())
-                            .or().like(CertManage::getIdNumber, param.getReSearchKey())
-                            .or().like(CertManage::getMajor1, param.getReSearchKey())
-                            .or().like(CertManage::getMajor2, param.getReSearchKey())
-                            .or().like(CertManage::getMajor3, param.getReSearchKey())
-                            .or().like(CertManage::getUnit, param.getReSearchKey())
-                            .or().like(CertManage::getName, param.getReSearchKey()));
-                }
-            });
+        //第一步，查询过滤(不含联动查询参数)
+        List<CertManage> certList = BeanUtil.copyToList(certManageList,CertManage.class);
+        if(ObjectUtil.isNotEmpty(param.getType())){
+            certList = certList.stream().filter(x -> ObjectUtil.isNotEmpty(x.getType()) && x.getType().equals(param.getType())).collect(Collectors.toList());
         }
-
-        //培训类
-        if(param.getIsTr()) {
-            query.lambda().or(q2 -> {
-                q2.eq(CertManage::getType, CertTypeEnum.TRAIN.getValue());
-                if (ObjectUtil.isNotEmpty(param.getTrCertType())) {
-                    q2.eq(CertManage::getCertType, param.getTrCertType());
-                }
-                if (ObjectUtil.isNotEmpty(param.getTrLevel())) {
-                    q2.eq(CertManage::getLevel, param.getTrLevel());
-                }
-                if (ObjectUtil.isNotEmpty(param.getTrMajor())) {
-                    q2.and(q->q.like(CertManage::getMajor1, param.getReMajor())
-                            .or().like(CertManage::getMajor2,param.getReMajor())
-                            .or().like(CertManage::getMajor3,param.getReMajor())
-                    );
-                }
-                if (ObjectUtil.isNotEmpty(param.getTrUnit())) {
-                    q2.like(CertManage::getUnit, param.getTrUnit());
-                }
-                if (ObjectUtil.isNotEmpty(param.getTrStartIssueDate()) && ObjectUtil.isNotEmpty(param.getTrEndIssueDate())) {
-                    q2.between(CertManage::getIssueDate, param.getTrStartIssueDate(), param.getTrEndIssueDate());
-                }
-                if (ObjectUtil.isNotEmpty(param.getTrSearchKey())) {
-                    q2.and(q22 -> q22.like(CertManage::getCertNo, param.getTrSearchKey())
-                            .or().like(CertManage::getCertSealNo, param.getTrSearchKey())
-                            .or().like(CertManage::getIdNumber, param.getTrSearchKey())
-                            .or().like(CertManage::getMajor1, param.getTrSearchKey())
-                            .or().like(CertManage::getMajor2, param.getTrSearchKey())
-                            .or().like(CertManage::getMajor3, param.getTrSearchKey())
-                            .or().like(CertManage::getUnit, param.getTrSearchKey())
-                            .or().like(CertManage::getName, param.getTrSearchKey()));
-                }
-            });
+        if(ObjectUtil.isNotEmpty(param.getUnit())) {
+            certList = certList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getUnit()) && x.getUnit().contains(param.getUnit())).collect(Collectors.toList());
         }
-
-        //职称类
-        if(param.getIsOther()) {
-            query.lambda().or(q3 -> {
-                q3.eq(CertManage::getType, CertTypeEnum.OTHER.getValue());
-                if (ObjectUtil.isNotEmpty(param.getOtherCertType())) {
-                    q3.eq(CertManage::getCertType, param.getOtherCertType());
-                }
-                if (ObjectUtil.isNotEmpty(param.getOtherLevel())) {
-                    q3.eq(CertManage::getLevel, param.getOtherLevel());
-                }
-                if (ObjectUtil.isNotEmpty(param.getOtherMajor())) {
-                    q3.and(q->q.like(CertManage::getMajor1, param.getReMajor())
-                            .or().like(CertManage::getMajor2,param.getReMajor())
-                            .or().like(CertManage::getMajor3,param.getReMajor())
-                    );
-                }
-                if (ObjectUtil.isNotEmpty(param.getOtherUnit())) {
-                    q3.like(CertManage::getUnit, param.getOtherUnit());
-                }
-                if (ObjectUtil.isNotEmpty(param.getOtherStartIssueDate()) && ObjectUtil.isNotEmpty(param.getOtherEndIssueDate())) {
-                    q3.between(CertManage::getIssueDate, param.getOtherStartIssueDate(), param.getOtherEndIssueDate());
-                }
-                if (ObjectUtil.isNotEmpty(param.getOtherSearchKey())) {
-                    q3.and(q33 -> q33.like(CertManage::getCertNo, param.getOtherSearchKey())
-                            .or().like(CertManage::getCertSealNo, param.getOtherSearchKey())
-                            .or().like(CertManage::getIdNumber, param.getOtherSearchKey())
-                            .or().like(CertManage::getMajor1, param.getOtherSearchKey())
-                            .or().like(CertManage::getMajor2, param.getOtherSearchKey())
-                            .or().like(CertManage::getMajor3, param.getOtherSearchKey())
-                            .or().like(CertManage::getUnit, param.getOtherSearchKey())
-                            .or().like(CertManage::getName, param.getOtherSearchKey()));
-                }
-            });
+        if(ObjectUtil.isNotEmpty(param.getStartIssueDate()) && ObjectUtil.isNotEmpty(param.getEndIssueDate())){
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            Date startIssueDate = sdf.parse(param.getStartIssueDate());
+            Date endIssueDate = sdf.parse(param.getEndIssueDate());
+            certList = certList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getIssueDate())
+                    && !x.getIssueDate().before(startIssueDate) && !x.getIssueDate().after(endIssueDate))
+                    .collect(Collectors.toList());
         }
+        if(ObjectUtil.isNotEmpty(param.getSearchKey())){
+            certList = certList.stream().filter(x-> (ObjectUtil.isNotEmpty(x.getName()) &&  x.getName().contains(param.getSearchKey()))
+                    || (ObjectUtil.isNotEmpty(x.getCertNo()) && x.getCertNo().contains(param.getSearchKey()))
+                    || (ObjectUtil.isNotEmpty(x.getIdNumber()) && x.getIdNumber().contains(param.getSearchKey())))
+                    .collect(Collectors.toList());
+        }
+        //第二步，查询过滤（联动查询参数），获取交集
+        return getFilterThree(param.getThreeParams(),certList);
+    }
 
-        //查询【并集】
-        List<CertManage> listCert = this.list(query);
 
-        //过滤，获取【交集】
-        List<String> filterIds = new ArrayList<>();
-        List<String> registerList = listCert.stream().filter(x->CertTypeEnum.REGISTER.getValue().equals(x.getType())).map(x->x.getIdNumber()).collect(Collectors.toList());
-        List<String> trainList = listCert.stream().filter(x->CertTypeEnum.TRAIN.getValue().equals(x.getType())).map(x->x.getIdNumber()).collect(Collectors.toList());
-        List<String> otherList = listCert.stream().filter(x->CertTypeEnum.OTHER.getValue().equals(x.getType())).map(x->x.getIdNumber()).collect(Collectors.toList());
-        for (CertManage cert:listCert) {
-            Boolean isAdd = Boolean.TRUE;
-            if(ObjectUtil.isEmpty(cert.getIdNumber())
-                    || (param.getIsRe() && !registerList.contains(cert.getIdNumber()))
-                    || (param.getIsTr() && !trainList.contains(cert.getIdNumber()))
-                    || (param.getIsOther() && !otherList.contains(cert.getIdNumber())))
-            {
-                isAdd = Boolean.FALSE;
+    /**
+     * 三级联动搜索： 框定同时满足 注册类|培训类|职称类 搜索的结果集 【三个的交集】
+     * @param paramList 三级联动查询条件集合
+     *        resource 数据源
+     * @return
+     */
+    public List<CertManage> getFilterThree(List<ThreeParam> paramList,List<CertManage> resource){
+        if(CollUtil.isEmpty(resource) || CollUtil.isEmpty(paramList)){
+            return resource;
+        }
+        List<CertManage> tmpCertList = BeanUtil.copyToList(resource,CertManage.class);
+        //返回交集结果
+        List<CertManage> result = new ArrayList<>();
+        //数据联动查询，交集结果过滤   //map 记录 每组 类别|等级|专业 查询结果
+        Map<ThreeParam,List<CertManage>> filterMap = new HashMap<>();
+        List<CertManage> filterResource = new ArrayList<>();
+        for (ThreeParam threeParam:paramList) {
+            if(ObjectUtil.isNotEmpty(threeParam.getCertType())){
+                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getCertType()) &&  x.getCertType().equals(threeParam.getCertType())).collect(Collectors.toList());
             }
-            if(isAdd) filterIds.add(cert.getId());
+            if(ObjectUtil.isNotEmpty(threeParam.getLevel())){
+                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getLevel()) && x.getLevel().equals(threeParam.getLevel())).collect(Collectors.toList());
+            }
+            if(ObjectUtil.isNotEmpty(threeParam.getMajor())){
+                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getMajor()) && x.getMajor().contains(threeParam.getMajor())).collect(Collectors.toList());
+            }
+            //存在某个查询组，不存在记录，直接返回空
+            if(CollUtil.isEmpty(tmpCertList)){
+                return null;
+            }else{
+                filterResource.addAll(tmpCertList);
+            }
+            filterMap.put(threeParam,tmpCertList);
         }
-        return filterIds;
+        //取所有查询结果的交集[均含]
+        filterResource.stream().distinct().forEach(cert->{
+            Boolean isAdd = true;
+            for (Map.Entry<ThreeParam,List<CertManage>> entry: filterMap.entrySet()) {
+                List<CertManage> tmpList = entry.getValue().stream().filter(value->
+                        ObjectUtil.isNotEmpty(value.getIdNumber()) &&  value.getIdNumber().equals(cert.getIdNumber()))
+                        .collect(Collectors.toList());
+                if(CollUtil.isEmpty(tmpList)) {
+                    isAdd = false;
+                    break;
+                }
+            }
+            if(isAdd) result.add(cert);
+        });
+        return result;
     }
 }

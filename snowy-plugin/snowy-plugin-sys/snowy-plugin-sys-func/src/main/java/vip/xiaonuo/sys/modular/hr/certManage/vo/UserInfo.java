@@ -32,10 +32,6 @@ public class UserInfo {
     @ApiModelProperty(value = "身份证号", position = 5)
     private String idNumber;
 
-    /** 手机 */
-    @ApiModelProperty(value = "手机", position = 6)
-    private String phone;
-
     /** 用户类型：总部|分公司|外部人员 */
     @ApiModelProperty(value = "用户类型：总部|分公司|外部人员", position = 7)
     private String userType;

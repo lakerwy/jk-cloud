@@ -38,17 +38,9 @@ public class CertManageVo {
     @ApiModelProperty(value = "姓名", position = 4)
     private String name;
 
-    /** 专业1 */
-    @ApiModelProperty(value = "专业1", position = 5)
-    private String major1;
-
-    /** 专业2 */
-    @ApiModelProperty(value = "专业2", position = 6)
-    private String major2;
-
-    /** 专业3 */
-    @ApiModelProperty(value = "专业3", position = 6)
-    private String major3;
+    /** 专业123 */
+    @ApiModelProperty(value = "专业123", position = 5)
+    private String major;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号", position = 7)
@@ -81,33 +73,5 @@ public class CertManageVo {
     /** 证书所在单位 */
     @ApiModelProperty(value = "证书所在单位", position = 14)
     private String certUnit;
-
-//    /** 证书状态：有效|无效 */
-//    @ApiModelProperty(value = "证书状态：有效|无效", position = 20)
-//    private String certStatus;
-//
-//    /** 系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员 */
-//    @ApiModelProperty(value = "系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员", position = 21)
-//    private String userId;
-//
-//    /** 用户类型：总部|分公司|外部人员 */
-//    @ApiModelProperty(value = "用户类型：总部|分公司|外部人员", position = 22)
-//    private String userType;
-//
-//    /** 部门 */
-//    @ApiModelProperty(value = "部门", position = 4)
-//    private String dept;
-//
-//    /** 社保所在地 */
-//    @ApiModelProperty(value = "社保所在地", position = 13)
-//    private String insUnit;
-//
-//    /** 学校专业 */
-//    @ApiModelProperty(value = "学校专业", position = 13)
-//    private String eduMajor;
-//
-//    /** 毕业时间 */
-//    @ApiModelProperty(value = "毕业时间", position = 13)
-//    private String graduateDate;
 
 }

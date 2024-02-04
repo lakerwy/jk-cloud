@@ -31,17 +31,9 @@ public class CertSearchPageParam {
     @ApiModelProperty(value = "姓名")
     private String name;
 
-    /** 专业1 */
-    @ApiModelProperty(value = "专业1")
-    private String major1;
-
-    /** 专业2 */
-    @ApiModelProperty(value = "专业2")
-    private String major2;
-
-    /** 专业3 */
-    @ApiModelProperty(value = "专业3")
-    private String major3;
+    /** 专业123 */
+    @ApiModelProperty(value = "专业123")
+    private String major;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号")
@@ -91,112 +83,16 @@ public class CertSearchPageParam {
     @ApiModelProperty(value = "学校专业")
     private String eduMajor;
 
+    /** 注册证书类 - 混合搜索实体 */
+    @ApiModelProperty(value = "注册证书类 - 混合搜索实体")
+    private HybridSearchParam registerSearch;
 
+    /** 培训证书类 - 混合搜索实体 */
+    @ApiModelProperty(value = "培训证书类 - 混合搜索实体")
+    private HybridSearchParam trainSearch;
 
-
-    /** 标记字段 - 是否开启综合搜索 */
-    @ApiModelProperty(value = "标记字段 - 是否开启综合搜索")
-    private Boolean isOpen = Boolean.FALSE;
-
-    /** 注册类 - 是否参与查询 */
-    @ApiModelProperty(value = "注册类 - 是否参与查询")
-    private Boolean isRe = Boolean.FALSE;
-
-    /** 注册类 - 关键词 */
-    @ApiModelProperty(value = "注册类 - 关键词")
-    private String reSearchKey;
-
-    /** 注册类 - 注册类别 */
-    @ApiModelProperty(value = "注册类 - 注册类别")
-    private String reCertType;
-
-    /** 注册类 - 等级 */
-    @ApiModelProperty(value = "注册类 - 等级")
-    private String reLevel;
-
-    /** 注册类 - 注册专业 */
-    @ApiModelProperty(value = "注册类 - 注册专业")
-    private String reMajor;
-
-    /** 注册类 - 发证日期开始 */
-    @ApiModelProperty(value = "注册类 - 发证日期开始")
-    private String reStartIssueDate;
-
-    /** 注册类 - 发证日期结束 */
-    @ApiModelProperty(value = "注册类 - 发证日期结束")
-    private String reEndIssueDate;
-
-    /** 注册类 - 注册单位 */
-    @ApiModelProperty(value = "注册类 - 注册单位")
-    private String reUnit;
-
-
-
-    /** 培训证书类 - 是否参与查询 */
-    @ApiModelProperty(value = "培训证书类 - 是否参与查询")
-    private Boolean isTr = Boolean.FALSE;
-
-    /** 培训证书类 - 关键词 */
-    @ApiModelProperty(value = "培训证书类 - 关键词")
-    private String trSearchKey;
-
-    /** 培训证书类 - 类别 */
-    @ApiModelProperty(value = "培训证书类 - 类别")
-    private String trCertType;
-
-    /** 培训证书类 - 等级 */
-    @ApiModelProperty(value = "培训证书类 - 等级")
-    private String trLevel;
-
-    /** 培训证书类 - 专业 */
-    @ApiModelProperty(value = "培训证书类 - 专业")
-    private String trMajor;
-
-    /** 培训证书类 - 发证日期开始 */
-    @ApiModelProperty(value = "培训证书类 - 发证日期开始")
-    private String trStartIssueDate;
-
-    /** 培训证书类 - 发证日期结束 */
-    @ApiModelProperty(value = "培训证书类 - 发证日期结束")
-    private String trEndIssueDate;
-
-    /** 培训证书类 - 发证单位 */
-    @ApiModelProperty(value = "培训证书类 - 发证单位")
-    private String trUnit;
-
-
-
-
-    /** 职称类 - 是否参与查询 */
-    @ApiModelProperty(value = "职称类 - 是否参与查询")
-    private Boolean isOther = Boolean.FALSE;
-
-    /** 职称类 - 关键词 */
-    @ApiModelProperty(value = "职称类 - 关键词")
-    private String otherSearchKey;
-
-    /** 职称类 - 类别 */
-    @ApiModelProperty(value = "职称类 - 类别")
-    private String otherCertType;
-
-    /** 职称类 - 等级 */
-    @ApiModelProperty(value = "职称类 - 等级")
-    private String otherLevel;
-
-    /** 职称类 - 专业 */
-    @ApiModelProperty(value = "职称类 - 专业")
-    private String otherMajor;
-
-    /** 职称类 - 发证日期开始 */
-    @ApiModelProperty(value = "职称类 - 发证日期开始")
-    private String otherStartIssueDate;
-
-    /** 职称类 - 发证日期结束 */
-    @ApiModelProperty(value = "职称类 - 发证日期结束")
-    private String otherEndIssueDate;
-
-    /** 职称类 - 发证单位 */
-    @ApiModelProperty(value = "职称类 - 发证单位")
-    private String otherUnit;
+    /** 职称证书类 - 混合搜索实体 */
+    @ApiModelProperty(value = "职称证书类 - 混合搜索实体")
+    private HybridSearchParam titleSearch;
 
 }
