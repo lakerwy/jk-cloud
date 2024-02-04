@@ -116,8 +116,8 @@ public class CertManageEditParam {
     @ApiModelProperty(value = "附件", position = 19)
     private String attach;
 
-    /** 证书状态：有效|无效 */
-    @ApiModelProperty(value = "证书状态：有效|无效", position = 20)
+    /** 证书状态：控制外部人员证书 - 有效|无效 */
+    @ApiModelProperty(value = "证书状态：控制外部人员证书 - 0有效| 1无效", position = 20)
     private String certStatus;
 
     /** 系统用户：总部 SysUser.ID |分公司 HR_SUB_PERSONNEL.ID|外部人员 */

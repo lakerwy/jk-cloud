@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
 import vip.xiaonuo.sys.modular.hr.certManage.param.PersonParam;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo;
 
 import java.util.List;
@@ -43,6 +44,19 @@ public interface CertManageMapper extends BaseMapper<CertManage> {
      * @param queryWrapper
      * @return
      */
-    Page<CertManage> getPageList(Page<CertManage> page, @Param(Constants.WRAPPER) Wrapper<CertManage> queryWrapper);
+    Page<CertManageVo> getPageList(Page<CertManageVo> page, @Param(Constants.WRAPPER) Wrapper<CertManage> queryWrapper);
+
+    /**
+     * （自定义）表别名【过滤】
+     * @param queryWrapper
+     * @return
+     */
+    List<CertManageVo> getMyAliasList(@Param(Constants.WRAPPER) Wrapper<CertManage> queryWrapper);
+
+    /**
+     * @param queryWrapper
+     * @return
+     */
+    List<CertManageVo> getMyList(@Param(Constants.WRAPPER) Wrapper<CertManage> queryWrapper);
 
 }

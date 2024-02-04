@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
 import vip.xiaonuo.sys.modular.hr.certManage.param.*;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchDetailVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchVo;
@@ -36,7 +37,7 @@ public interface CertManageService extends IService<CertManage> {
      * @author yong.ye
      * @date  2024/01/23 17:23
      */
-    Page<CertManage> page(CertManagePageParam certManagePageParam);
+    Page<CertManageVo> page(CertManagePageParam certManagePageParam);
 
     /**
      * 添加人员资质管理

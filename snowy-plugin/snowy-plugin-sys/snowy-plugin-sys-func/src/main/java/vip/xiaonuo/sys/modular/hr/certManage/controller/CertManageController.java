@@ -29,6 +29,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
 import vip.xiaonuo.sys.modular.hr.certManage.param.*;
 import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchDetailVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchVo;
@@ -63,7 +64,7 @@ public class CertManageController {
     @ApiOperation("获取人员资质管理分页")
 //    @SaCheckPermission("/sys/hr/cert/manage/page")
     @GetMapping("/sys/hr/cert/manage/page")
-    public CommonResult<Page<CertManage>> page(CertManagePageParam certManagePageParam) {
+    public CommonResult<Page<CertManageVo>> page(CertManagePageParam certManagePageParam) {
         return CommonResult.data(certManageService.page(certManagePageParam));
     }
 

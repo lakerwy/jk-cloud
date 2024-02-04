@@ -19,15 +19,49 @@
                                     </if>
     </select>
 
-    <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage">
-        select a.* from
-                (select * ,
-                       CASE WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt; NOW() then '已过期'
-                            WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
-                            WHEN VALIDITY IS NOT NULL AND  VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
+    <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo">
+        select a.*
+        from (select cert.*,
+                     IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
+                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
+                            WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
+                            WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                        ELSE ''  END AS certStage
-                from HR_CERT_MANAGE where DELETE_FLAG='NOT_DELETE' ) a
-                         ${ew.customSqlSegment}
+              from HR_CERT_MANAGE cert
+                  left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID
+                  left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID
+                      where cert.DELETE_FLAG='NOT_DELETE') a
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getMyAliasList" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo">
+        select a.*
+        from (select cert.ID,cert.NAME,cert.TYPE,cert.UNIT,cert.CERT_NO,cert.CERT_UNIT,cert.ISSUE_DATE,cert.ID_NUMBER,cert.CERT_TYPE,cert.LEVEL,cert.MAJOR,cert.DELETE_FLAG,
+                     IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
+                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
+                          WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
+                          WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
+                          ELSE ''  END AS certStage
+              from HR_CERT_MANAGE cert
+                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID
+                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID
+              where cert.DELETE_FLAG='NOT_DELETE') a
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getMyList" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo">
+        select a.*
+        from (select cert.*,
+                     IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
+                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
+                          WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
+                          WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
+                          ELSE ''  END AS certStage
+              from HR_CERT_MANAGE cert
+                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID
+                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID
+              where cert.DELETE_FLAG='NOT_DELETE') a
+            ${ew.customSqlSegment}
     </select>
 
 </mapper>
