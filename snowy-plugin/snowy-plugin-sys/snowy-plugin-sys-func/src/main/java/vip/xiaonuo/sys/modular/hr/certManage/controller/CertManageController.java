@@ -62,9 +62,10 @@ public class CertManageController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取人员资质管理分页")
+    @CommonLog("人员资质查询")
 //    @SaCheckPermission("/sys/hr/cert/manage/page")
-    @GetMapping("/sys/hr/cert/manage/page")
-    public CommonResult<Page<CertManageVo>> page(CertManagePageParam certManagePageParam) {
+    @PostMapping("/sys/hr/cert/manage/page")
+    public CommonResult<Page<CertManageVo>> page(@RequestBody @Valid CertManagePageParam certManagePageParam) {
         return CommonResult.data(certManageService.page(certManagePageParam));
     }
 
@@ -153,9 +154,10 @@ public class CertManageController {
      */
     @ApiOperationSupport(order = 7)
     @ApiOperation("综合搜索 - 一个查询，分三个列表（注册|培训|职称）展示（不分页）")
+    @CommonLog("人员资质管理混合查询")
 //    @SaCheckPermission("/sys/hr/cert/manage/searchPage")
-    @GetMapping("/sys/hr/cert/manage/searchPage")
-    public CommonResult<SearchVo> searchPage(CertSearchPageParam certSearchPageParam) {
+    @PostMapping("/sys/hr/cert/manage/searchPage")
+    public CommonResult<SearchVo> searchPage(@RequestBody @Valid CertSearchPageParam certSearchPageParam) {
         return CommonResult.data(certManageService.searchPage(certSearchPageParam));
     }
 
