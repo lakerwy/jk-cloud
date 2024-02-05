@@ -353,13 +353,13 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         if(CollUtil.isEmpty(resource) || CollUtil.isEmpty(paramList)){
             return resource;
         }
-        List<CertManageVo> tmpCertList = BeanUtil.copyToList(resource,CertManageVo.class);
         //返回交集结果
         List<CertManageVo> result = new ArrayList<>();
         //数据联动查询，交集结果过滤   //map 记录 每组 类别|等级|专业 查询结果
         Map<ThreeParam,List<CertManageVo>> filterMap = new HashMap<>();
         List<CertManageVo> filterResource = new ArrayList<>();
         for (ThreeParam threeParam:paramList) {
+            List<CertManageVo> tmpCertList = BeanUtil.copyToList(resource,CertManageVo.class);
             if(ObjectUtil.isNotEmpty(threeParam.getCertTypeId())){
                 tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getCertTypeId()) &&  x.getCertTypeId().equals(threeParam.getCertTypeId())).collect(Collectors.toList());
             }
