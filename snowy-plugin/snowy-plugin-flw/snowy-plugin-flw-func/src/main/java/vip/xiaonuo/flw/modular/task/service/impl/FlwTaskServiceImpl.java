@@ -996,53 +996,56 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         TaskQuery taskQuery = taskService.createTaskQuery().active().taskAssignee(StpUtil.getLoginIdAsString()).orderByTaskCreateTime().desc();
         taskQuery.processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId());
         Task task = taskQuery.active().singleResult();
-        JSONObject variableJsonObject = JSONUtil.createObj();
-        historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
-                .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
-                        historicVariableInstance.getValue()));
-        FlwTodoTaskResult flwTodoTaskResult = new FlwTodoTaskResult();
-        flwTodoTaskResult.setId(task.getId());
-        flwTodoTaskResult.setProcessInstanceId(task.getProcessInstanceId());
-        flwTodoTaskResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
-        flwTodoTaskResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
-        flwTodoTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
-        String processDefinitionId = task.getProcessDefinitionId();
-        Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-        if (ObjectUtil.isNotEmpty(o)) {
-            flwTodoTaskResult.setProcessDefinitionName(String.valueOf(o));
-        } else {
-            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-            if (ObjectUtil.isNotEmpty(processDefinition)) {
-                commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
-                flwTodoTaskResult.setProcessDefinitionName(processDefinition.getName());
+        if(ObjectUtil.isNotNull(task)){
+            JSONObject variableJsonObject = JSONUtil.createObj();
+            historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
+                    .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
+                            historicVariableInstance.getValue()));
+            FlwTodoTaskResult flwTodoTaskResult = new FlwTodoTaskResult();
+            flwTodoTaskResult.setId(task.getId());
+            flwTodoTaskResult.setProcessInstanceId(task.getProcessInstanceId());
+            flwTodoTaskResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
+            flwTodoTaskResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
+            flwTodoTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
+            String processDefinitionId = task.getProcessDefinitionId();
+            Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+            if (ObjectUtil.isNotEmpty(o)) {
+                flwTodoTaskResult.setProcessDefinitionName(String.valueOf(o));
+            } else {
+                ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+                if (ObjectUtil.isNotEmpty(processDefinition)) {
+                    commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
+                    flwTodoTaskResult.setProcessDefinitionName(processDefinition.getName());
+                }
             }
+            flwTodoTaskResult.setProcessDefinitionId(processDefinitionId);
+            flwTodoTaskResult.setCurrentActivityId(task.getTaskDefinitionKey());
+            flwTodoTaskResult.setCurrentActivityName(task.getName());
+            String taskAssignee = task.getAssignee();
+            if (ObjectUtil.isNotEmpty(taskAssignee)) {
+                JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
+                if (ObjectUtil.isNotEmpty(taskAssigneeUser)) {
+                    flwTodoTaskResult.setAssignees(taskAssigneeUser.getStr("name"));
+                }
+            } else {
+                String assignee = variableJsonObject.getStr("assignee" + StrUtil.UNDERLINE + task.getTaskDefinitionKey());
+                if (ObjectUtil.isNotEmpty(assignee)) {
+                    List<String> userIdList = JSONUtil.toList(assignee, String.class);
+                    flwTodoTaskResult.setAssignees(StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(userIdList).stream()
+                            .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList())));
+                }
+            }
+            flwTodoTaskResult.setInitiator(variableJsonObject.getStr("initiator"));
+            flwTodoTaskResult.setInitiatorName(variableJsonObject.getStr("initiatorName"));
+            flwTodoTaskResult.setInitiatorOrgId(variableJsonObject.getStr("initiatorOrgId"));
+            flwTodoTaskResult.setInitiatorOrgName(variableJsonObject.getStr("initiatorOrgName"));
+            flwTodoTaskResult.setInitiatorPositionId(variableJsonObject.getStr("initiatorPositionId"));
+            flwTodoTaskResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
+            flwTodoTaskResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
+            flwTodoTaskResult.setTenantId(task.getTenantId());
+            return flwTodoTaskResult;
         }
-        flwTodoTaskResult.setProcessDefinitionId(processDefinitionId);
-        flwTodoTaskResult.setCurrentActivityId(task.getTaskDefinitionKey());
-        flwTodoTaskResult.setCurrentActivityName(task.getName());
-        String taskAssignee = task.getAssignee();
-        if (ObjectUtil.isNotEmpty(taskAssignee)) {
-            JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
-            if (ObjectUtil.isNotEmpty(taskAssigneeUser)) {
-                flwTodoTaskResult.setAssignees(taskAssigneeUser.getStr("name"));
-            }
-        } else {
-            String assignee = variableJsonObject.getStr("assignee" + StrUtil.UNDERLINE + task.getTaskDefinitionKey());
-            if (ObjectUtil.isNotEmpty(assignee)) {
-                List<String> userIdList = JSONUtil.toList(assignee, String.class);
-                flwTodoTaskResult.setAssignees(StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(userIdList).stream()
-                        .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList())));
-            }
-        }
-        flwTodoTaskResult.setInitiator(variableJsonObject.getStr("initiator"));
-        flwTodoTaskResult.setInitiatorName(variableJsonObject.getStr("initiatorName"));
-        flwTodoTaskResult.setInitiatorOrgId(variableJsonObject.getStr("initiatorOrgId"));
-        flwTodoTaskResult.setInitiatorOrgName(variableJsonObject.getStr("initiatorOrgName"));
-        flwTodoTaskResult.setInitiatorPositionId(variableJsonObject.getStr("initiatorPositionId"));
-        flwTodoTaskResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
-        flwTodoTaskResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
-        flwTodoTaskResult.setTenantId(task.getTenantId());
-        return flwTodoTaskResult;
+        return new FlwTodoTaskResult();
     }
 
     @Transactional(rollbackFor = Exception.class)
