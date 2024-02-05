@@ -120,4 +120,10 @@ public class DevFileUnzip {
     /** 是否是目录(0-否,1-是) */
     @ApiModelProperty(value = "是否是目录(0-否,1-是)", position = 21)
     private Integer isDir;
+
+    /**是否带后缀名*/
+    @ApiModelProperty(value = "是否带后缀名", position = 22)
+    @TableField(exist = false)
+    private Boolean isSuffix;
+
 }

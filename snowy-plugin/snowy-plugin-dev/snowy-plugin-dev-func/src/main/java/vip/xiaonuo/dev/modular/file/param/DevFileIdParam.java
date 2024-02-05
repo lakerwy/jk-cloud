@@ -32,4 +32,12 @@ public class DevFileIdParam {
     @ApiModelProperty(value = "id", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
+
+    /** panFileFlag */
+    @ApiModelProperty(value = "是否为网盘文件")
+    private Boolean panFileFlag;
+
+
+    @ApiModelProperty(value = "文件格式")
+    private String Suffix;
 }

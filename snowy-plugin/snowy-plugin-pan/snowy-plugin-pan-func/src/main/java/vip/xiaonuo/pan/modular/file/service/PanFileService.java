@@ -14,6 +14,8 @@ package vip.xiaonuo.pan.modular.file.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
+import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.PanFileAddParam;
 import vip.xiaonuo.pan.modular.file.param.PanFileEditParam;
@@ -87,4 +89,6 @@ public interface PanFileService extends IService<PanFile> {
 
     /** 在线压缩文件 */
     void zipFile(ZipFileParam zipFileParam);
+
+    List<DevFileUnzip> unZip(DevFileIdParam devFileIdParam);
 }

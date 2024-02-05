@@ -13,6 +13,8 @@ public class ZipDownloadBean {
 
     private String absolutePath;
 
+    private String fileName;//真实文件名称
+
     public ZipDownloadBean(){}
 
     public ZipDownloadBean(Long fileLength,String absolutePath,String path){

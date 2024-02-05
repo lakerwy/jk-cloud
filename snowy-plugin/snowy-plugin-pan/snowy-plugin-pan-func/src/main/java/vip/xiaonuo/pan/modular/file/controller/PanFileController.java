@@ -617,4 +617,16 @@ public class PanFileController {
         vos.addAll(userFiles.stream().map(v->new DevFileVo(v.getFileName()+StrUtil.DOT+v.getExtendName(),baseDownloadUrl+v.getId()+extendUrl,v.getId(),String.valueOf(v.getFileSize()),String.valueOf(v.getFileSize()),true)).collect(Collectors.toList()));
         return CommonResult.data(vos);
     }
+
+    /**
+     * 本地文件创建文件夹
+     *
+     **/
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("解压文件")
+    @CommonLog("解压文件")
+    @GetMapping("/dev/file/unZip")
+    public CommonResult<List<DevFileUnzip>> unZip(DevFileIdParam devFileIdParam) {
+        return CommonResult.data(panFileService.unZip(devFileIdParam));
+    }
 }
