@@ -62,10 +62,10 @@ public class CertManageController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取人员资质管理分页")
-    @CommonLog("人员资质查询")
+//    @CommonLog("人员资质查询")
 //    @SaCheckPermission("/sys/hr/cert/manage/page")
-    @PostMapping("/sys/hr/cert/manage/page")
-    public CommonResult<Page<CertManageVo>> page(@RequestBody @Valid CertManagePageParam certManagePageParam) {
+    @GetMapping("/sys/hr/cert/manage/page")
+    public CommonResult<Page<CertManageVo>> page(CertManagePageParam certManagePageParam) {
         return CommonResult.data(certManageService.page(certManagePageParam));
     }
 
