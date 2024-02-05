@@ -47,13 +47,14 @@ public interface CertManageMapper extends BaseMapper<CertManage> {
     Page<CertManageVo> getPageList(Page<CertManageVo> page, @Param(Constants.WRAPPER) Wrapper<CertManage> queryWrapper);
 
     /**
-     * （自定义）表别名【过滤】
+     * （自定义）表别名【过滤交集Id】
      * @param queryWrapper
      * @return
      */
     List<CertManageVo> getMyAliasList(@Param(Constants.WRAPPER) Wrapper<CertManage> queryWrapper);
 
     /**
+     * 搜索 - 列表
      * @param queryWrapper
      * @return
      */

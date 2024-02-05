@@ -40,6 +40,18 @@ public class CertManageEditParam {
     @ApiModelProperty(value = "模块类别：注册证书|培训证书", position = 2)
     private String type;
 
+    /** 证书类别：注册类别|证书名称 - 字典值 id */
+    @ApiModelProperty(value = "证书类别：注册类别|证书名称- 字典值 id", position = 3)
+    private String certTypeId;
+
+    /** 级别|类别/工种 - 字典值 id*/
+    @ApiModelProperty(value = "级别|类别/工种- 字典值 id", position = 4)
+    private String levelId;
+
+    /** 专业123 - 字典值 id 多个用[专业1]，[专业2] */
+    @ApiModelProperty(value = "专业123- 字典值 id 多个用[专业1]，[专业2]", position = 6)
+    private String majorId;
+
     /** 证书类别：注册类别|证书名称 */
     @ApiModelProperty(value = "证书类别：注册类别|证书名称", position = 3)
     private String certType;

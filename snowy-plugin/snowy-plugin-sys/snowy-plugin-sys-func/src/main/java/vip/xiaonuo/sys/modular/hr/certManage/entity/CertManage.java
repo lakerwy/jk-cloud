@@ -41,21 +41,34 @@ public class CertManage {
     @ApiModelProperty(value = "模块类别：注册证书|培训证书", position = 2)
     private String type;
 
-    /** 证书类别：注册类别|证书名称 */
-    @ApiModelProperty(value = "证书类别：注册类别|证书名称", position = 3)
+    /** 证书类别：注册类别|证书名称 - 字典值 id */
+    @ApiModelProperty(value = "证书类别：注册类别|证书名称- 字典值 id", position = 3)
+    private String certTypeId;
+
+    /** 级别|类别/工种 - 字典值 id*/
+    @ApiModelProperty(value = "级别|类别/工种- 字典值 id", position = 4)
+    private String levelId;
+
+    /** 专业123 - 字典值 id*/
+    @ApiModelProperty(value = "专业123- 字典值 id", position = 6)
+    private String majorId;
+
+    /** 证书类别：注册类别|证书名称 (字典value-留痕)*/
+    @ApiModelProperty(value = "证书类别：注册类别|证书名称(字典value-留痕)", position = 60)
     private String certType;
 
-    /** 级别|类别/工种 */
-    @ApiModelProperty(value = "级别|类别/工种", position = 4)
+    /** 级别|类别/工种 (字典value-留痕)*/
+    @ApiModelProperty(value = "级别|类别/工种(字典value-留痕)", position = 60)
     private String level;
 
-    /** 姓名 */
-    @ApiModelProperty(value = "姓名", position = 5)
-    private String name;
-
-    /** 专业123 */
-    @ApiModelProperty(value = "专业123", position = 6)
+    /** 专业123(字典value-留痕) */
+    @ApiModelProperty(value = "专业123(字典value-留痕)", position = 60)
     private String major;
+
+
+    /** 姓名 */
+    @ApiModelProperty(value = "姓名", position = 7)
+    private String name;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号", position = 7)

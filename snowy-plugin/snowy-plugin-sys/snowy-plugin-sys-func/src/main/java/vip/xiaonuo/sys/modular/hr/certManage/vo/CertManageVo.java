@@ -23,21 +23,29 @@ public class CertManageVo {
     @ApiModelProperty(value = "模块类别：注册证书|培训证书", position = 2)
     private String type;
 
-    /** 证书类别：注册类别|培训类别 */
-    @ApiModelProperty(value = "证书类别：注册类别|培训类别", position = 3)
-    private String certType;
+    /** 证书类别：注册类别|证书名称 - 字典值 id */
+    @ApiModelProperty(value = "证书类别：注册类别|证书名称- 字典值 id", position = 3)
+    private String certTypeId;
 
-    /** 级别 */
-    @ApiModelProperty(value = "级别", position = 3)
-    private String level;
+    /** 级别|类别/工种 - 字典值 id*/
+    @ApiModelProperty(value = "级别|类别/工种- 字典值 id", position = 4)
+    private String levelId;
+
+    /** 专业123 - 字典值 id - 多个不翻译，直接取值*/
+    @ApiModelProperty(value = "专业123- 字典值 id", position = 6)
+    private String majorId;
+
+    /** 证书类别：注册类别|证书名称 (根据字典certTypeId，翻译的字典value)*/
+    @ApiModelProperty(value = "证书类别：注册类别|证书名称(根据字典certTypeId，翻译的字典value)", position = 60)
+    private String certTypeDict;
+
+    /** 级别|类别/工种 (根据字典levelId，翻译的字典value)*/
+    @ApiModelProperty(value = "级别|类别/工种(根据字典levelId，翻译的字典value)", position = 60)
+    private String levelDict;
 
     /** 姓名 */
-    @ApiModelProperty(value = "姓名", position = 4)
+    @ApiModelProperty(value = "姓名", position = 7)
     private String name;
-
-    /** 专业123 */
-    @ApiModelProperty(value = "专业123", position = 5)
-    private String major;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号", position = 7)
@@ -103,4 +111,17 @@ public class CertManageVo {
     /** 部门 */
     @ApiModelProperty(value = "部门", position = 15)
     private String dept;
+
+
+    /** 证书类别：注册类别|证书名称 (字典value-留痕)*/
+    @ApiModelProperty(value = "证书类别：注册类别|证书名称(字典value-留痕)", position = 60)
+    private String certType;
+
+    /** 级别|类别/工种 (字典value-留痕)*/
+    @ApiModelProperty(value = "级别|类别/工种(字典value-留痕)", position = 60)
+    private String level;
+
+    /** 专业123(字典value-留痕) */
+    @ApiModelProperty(value = "专业123(字典value-留痕)", position = 60)
+    private String major;
 }

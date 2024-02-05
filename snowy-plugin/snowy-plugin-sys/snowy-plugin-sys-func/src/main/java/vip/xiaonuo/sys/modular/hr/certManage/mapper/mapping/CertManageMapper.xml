@@ -20,7 +20,8 @@
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo">
-        select a.*
+        select a.*,IF(d1.ID is not null,d1.DICT_LABEL,a.CERT_TYPE) as certTypeDict,
+               IF(d2.ID is not null,d2.DICT_LABEL,a.LEVEL) as levelDict
         from (select cert.*,
                      IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
                      CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
@@ -31,12 +32,15 @@
                   left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID
                   left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID
                       where cert.DELETE_FLAG='NOT_DELETE') a
+              left join DEV_DICT d1 on a.CERT_TYPE_ID = d1.ID and d1.CATEGORY='BIZ'
+              left join DEV_DICT d2 on a.LEVEL_ID = d2.ID and d2.CATEGORY='BIZ'
             ${ew.customSqlSegment}
     </select>
 
     <select id="getMyAliasList" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo">
         select a.*
         from (select cert.ID,cert.NAME,cert.TYPE,cert.UNIT,cert.CERT_NO,cert.CERT_UNIT,cert.ISSUE_DATE,cert.ID_NUMBER,cert.CERT_TYPE,cert.LEVEL,cert.MAJOR,cert.DELETE_FLAG,
+                     cert.CERT_TYPE_ID,cert.LEVEL_ID,cert.MAJOR_ID,
                      IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
                      CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
@@ -50,7 +54,8 @@
     </select>
 
     <select id="getMyList" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo">
-        select a.*
+        select a.*,IF(d1.ID is not null,d1.DICT_LABEL,a.CERT_TYPE) as certTypeDict,
+               IF(d2.ID is not null,d2.DICT_LABEL,a.LEVEL) as levelDict
         from (select cert.*,
                      IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
                      CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
@@ -61,6 +66,8 @@
                        left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID
                        left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID
               where cert.DELETE_FLAG='NOT_DELETE') a
+                 left join DEV_DICT d1 on a.CERT_TYPE_ID = d1.ID and d1.CATEGORY='BIZ'
+                 left join DEV_DICT d2 on a.LEVEL_ID = d2.ID and d2.CATEGORY='BIZ'
             ${ew.customSqlSegment}
     </select>
 

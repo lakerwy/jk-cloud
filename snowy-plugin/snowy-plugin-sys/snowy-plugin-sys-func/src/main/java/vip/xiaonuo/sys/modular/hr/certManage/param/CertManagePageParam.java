@@ -60,18 +60,6 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "身份证号")
     private String idNumber;
 
-//    /** 证书类别：注册类别|培训类别 */
-//    @ApiModelProperty(value = "证书类别：注册类别|培训类别")
-//    private String certType;
-//
-//    /** 级别 */
-//    @ApiModelProperty(value = "级别")
-//    private String level;
-//
-//    /** 专业123 */
-//    @ApiModelProperty(value = "专业123")
-//    private String major;
-
     /** 注册单位|发证单位 */
     @ApiModelProperty(value = "注册单位|发证单位")
     private String unit;
@@ -88,18 +76,6 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "混合搜索： 类别|等级|专业联动")
     private List<ThreeParam> threeParams;
 
-//    /** 部门 */
-//    @ApiModelProperty(value = "部门")
-//    private String dept;
-//
-//    /** 证书编号 */
-//    @ApiModelProperty(value = "证书编号")
-//    private String certNo;
-//
-//    /** 执业印章号 */
-//    @ApiModelProperty(value = "执业印章号")
-//    private String certSealNo;
-
     /** 发证日期开始 */
     @ApiModelProperty(value = "发证日期开始")
     private String startIssueDate;
@@ -107,18 +83,6 @@ public class CertManagePageParam {
     /** 发证日期结束 */
     @ApiModelProperty(value = "发证日期结束")
     private String endIssueDate;
-
-//    /** 有效期开始 */
-//    @ApiModelProperty(value = "有效期开始")
-//    private String startValidity;
-//
-//    /** 有效期结束 */
-//    @ApiModelProperty(value = "有效期结束")
-//    private String endValidity;
-//
-//    /** 证书状态：有效|无效 */
-//    @ApiModelProperty(value = "证书状态：有效|无效")
-//    private String certStatus;
 
     /** 用户类型：总部|分公司|外部人员 */
     @ApiModelProperty(value = "用户类型：总部|分公司|外部人员")
@@ -132,4 +96,38 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "员工状态  0 :在职  1：离职")
     private String userStatus;
 
+
+//    /** 部门 */
+//    @ApiModelProperty(value = "部门")
+//    private String dept;
+//
+//    /** 证书编号 */
+//    @ApiModelProperty(value = "证书编号")
+//    private String certNo;
+//
+//    /** 执业印章号 */
+//    @ApiModelProperty(value = "执业印章号")
+//    private String certSealNo;
+//    /** 证书类别：注册类别|培训类别 */
+//    @ApiModelProperty(value = "证书类别：注册类别|培训类别")
+//    private String certType;
+//
+//    /** 级别 */
+//    @ApiModelProperty(value = "级别")
+//    private String level;
+//
+//    /** 专业123 */
+//    @ApiModelProperty(value = "专业123")
+//    private String major;
+//    /** 有效期开始 */
+//    @ApiModelProperty(value = "有效期开始")
+//    private String startValidity;
+//
+//    /** 有效期结束 */
+//    @ApiModelProperty(value = "有效期结束")
+//    private String endValidity;
+//
+//    /** 证书状态：有效|无效 */
+//    @ApiModelProperty(value = "证书状态：有效|无效")
+//    private String certStatus;
 }

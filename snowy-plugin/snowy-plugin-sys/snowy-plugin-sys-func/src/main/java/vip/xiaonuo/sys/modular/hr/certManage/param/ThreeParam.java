@@ -12,15 +12,15 @@ import lombok.Setter;
 @Setter
 public class ThreeParam {
 
-    /** 证书类别：注册类别|培训类别 */
-    @ApiModelProperty(value = "证书类别：注册类别|培训类别")
-    private String certType;
+    /** 证书类别：注册类别|培训类别 -- 字典Id*/
+    @ApiModelProperty(value = "证书类别：注册类别|培训类别 - 字典id")
+    private String certTypeId;
 
-    /** 级别 */
-    @ApiModelProperty(value = "级别")
-    private String level;
+    /** 级别 - 字典id*/
+    @ApiModelProperty(value = "级别- 字典id")
+    private String levelId;
 
     /** 专业123 */
-    @ApiModelProperty(value = "专业123")
-    private String major;
+    @ApiModelProperty(value = "专业123- 字典id")
+    private String majorId;
 }

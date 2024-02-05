@@ -109,7 +109,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
             queryWrapper.orderBy(true, certManagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(certManagePageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.ID_NUMBER").orderByAsc("a.TYPE").orderByAsc("a.CERT_TYPE");
+            queryWrapper.orderByAsc("a.ID_NUMBER").orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE");
         }
         return certManageMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -212,14 +212,14 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
             //需要用到的字段
             List<String> ids = getFilterIds(certSearchPageParam,certManageMapper.getMyAliasList(queryWrapper));
             if(CollUtil.isNotEmpty(ids)){
-                queryWrapper.lambda().in(CertManage::getId,ids);
+                queryWrapper.in("a.ID",ids);
             }else{
                 return null;
             }
         }
 
         //排序
-        queryWrapper.orderByAsc("a.ID_NUMBER").orderByAsc("a.TYPE").orderByAsc("a.CERT_TYPE");
+        queryWrapper.orderByAsc("a.ID_NUMBER").orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE");
         List<CertManageVo> list = certManageMapper.getMyList(queryWrapper);
         if(CollUtil.isEmpty(list)){
             return null;
@@ -234,7 +234,11 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
     @Override
     public SearchDetailVo searchDetail(String id) {
         CertManage certManage = this.queryEntity(id);
-        List<CertManageVo> list = BeanUtil.copyToList(this.list(new QueryWrapper<CertManage>().lambda().eq(CertManage::getIdNumber,certManage.getIdNumber())),CertManageVo.class);
+        QueryWrapper<CertManage> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("a.ID_NUMBER",certManage.getIdNumber());
+        queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE");
+        List<CertManageVo> list = certManageMapper.getMyList(queryWrapper);
         SearchDetailVo searchDetailVo = new SearchDetailVo();
         searchDetailVo.setReCertList(list.stream().filter(x->CertTypeEnum.REGISTER.getValue().equals(x.getType())).collect(Collectors.toList()));
         searchDetailVo.setTrCertList(list.stream().filter(x->CertTypeEnum.TRAIN.getValue().equals(x.getType())).collect(Collectors.toList()));
@@ -353,14 +357,14 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         Map<ThreeParam,List<CertManageVo>> filterMap = new HashMap<>();
         List<CertManageVo> filterResource = new ArrayList<>();
         for (ThreeParam threeParam:paramList) {
-            if(ObjectUtil.isNotEmpty(threeParam.getCertType())){
-                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getCertType()) &&  x.getCertType().equals(threeParam.getCertType())).collect(Collectors.toList());
+            if(ObjectUtil.isNotEmpty(threeParam.getCertTypeId())){
+                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getCertTypeId()) &&  x.getCertTypeId().equals(threeParam.getCertTypeId())).collect(Collectors.toList());
             }
-            if(ObjectUtil.isNotEmpty(threeParam.getLevel())){
-                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getLevel()) && x.getLevel().equals(threeParam.getLevel())).collect(Collectors.toList());
+            if(ObjectUtil.isNotEmpty(threeParam.getLevelId())){
+                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getLevelId()) && x.getLevelId().equals(threeParam.getLevelId())).collect(Collectors.toList());
             }
-            if(ObjectUtil.isNotEmpty(threeParam.getMajor())){
-                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getMajor()) && x.getMajor().contains(threeParam.getMajor())).collect(Collectors.toList());
+            if(ObjectUtil.isNotEmpty(threeParam.getMajorId())){
+                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getMajorId()) && x.getMajorId().contains(threeParam.getMajorId())).collect(Collectors.toList());
             }
             //存在某个查询组，不存在记录，直接返回空
             if(CollUtil.isEmpty(tmpCertList)){
