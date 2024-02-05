@@ -158,6 +158,10 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
 
     @Override
     public SearchVo searchPage(CertSearchPageParam certSearchPageParam) {
+        SearchVo searchVo = new SearchVo();
+        searchVo.setOtherCertList(new ArrayList<>());
+        searchVo.setTrCertList(new ArrayList<>());
+        searchVo.setReCertList(new ArrayList<>());
         //不开启综合搜索，普通搜索模块
         QueryWrapper<CertManage> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
@@ -214,7 +218,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
             if(CollUtil.isNotEmpty(ids)){
                 queryWrapper.in("a.ID",ids);
             }else{
-                return null;
+                return searchVo;
             }
         }
 
@@ -222,9 +226,8 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         queryWrapper.orderByAsc("a.ID_NUMBER").orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE");
         List<CertManageVo> list = certManageMapper.getMyList(queryWrapper);
         if(CollUtil.isEmpty(list)){
-            return null;
+            return searchVo;
         }
-        SearchVo searchVo = new SearchVo();
         searchVo.setReCertList(list.stream().filter(x->CertTypeEnum.REGISTER.getValue().equals(x.getType())).collect(Collectors.toList()));
         searchVo.setTrCertList(list.stream().filter(x->CertTypeEnum.TRAIN.getValue().equals(x.getType())).collect(Collectors.toList()));
         searchVo.setOtherCertList(list.stream().filter(x->CertTypeEnum.OTHER.getValue().equals(x.getType())).collect(Collectors.toList()));
