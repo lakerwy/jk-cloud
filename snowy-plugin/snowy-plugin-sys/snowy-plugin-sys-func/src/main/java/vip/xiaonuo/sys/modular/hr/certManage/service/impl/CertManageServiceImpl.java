@@ -364,7 +364,8 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
                 tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getLevelId()) && x.getLevelId().equals(threeParam.getLevelId())).collect(Collectors.toList());
             }
             if(ObjectUtil.isNotEmpty(threeParam.getMajorId())){
-                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getMajorId()) && x.getMajorId().contains(threeParam.getMajorId())).collect(Collectors.toList());
+                String tmpMajorId = StrUtil.BRACKET_START + threeParam.getMajorId() + StrUtil.BRACKET_END;
+                tmpCertList = tmpCertList.stream().filter(x-> ObjectUtil.isNotEmpty(x.getMajorId()) && x.getMajorId().contains(tmpMajorId)).collect(Collectors.toList());
             }
             //存在某个查询组，不存在记录，直接返回空
             if(CollUtil.isEmpty(tmpCertList)){
