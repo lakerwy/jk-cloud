@@ -109,7 +109,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
             queryWrapper.orderBy(true, certManagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(certManagePageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.ID_NUMBER").orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE");
+            queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE").orderByAsc("a.ID_NUMBER");
         }
         return certManageMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -223,7 +223,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         }
 
         //排序
-        queryWrapper.orderByAsc("a.ID_NUMBER").orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE");
+        queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE").orderByAsc("a.ID_NUMBER");
         List<CertManageVo> list = certManageMapper.getMyList(queryWrapper);
         if(CollUtil.isEmpty(list)){
             return searchVo;

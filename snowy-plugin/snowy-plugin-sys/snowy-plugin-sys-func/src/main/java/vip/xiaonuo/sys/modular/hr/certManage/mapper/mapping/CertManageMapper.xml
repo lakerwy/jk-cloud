@@ -25,7 +25,7 @@
         from (select cert.*,
                      IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
                      CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
-                            WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
+                            WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
                             WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                        ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
@@ -43,7 +43,7 @@
                      cert.CERT_TYPE_ID,cert.LEVEL_ID,cert.MAJOR_ID,
                      IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
                      CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
-                          WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
+                          WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                           ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
@@ -59,7 +59,7 @@
         from (select cert.*,
                      IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
                      CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
-                          WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 3 MONTH) then '临近三个月'
+                          WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                           ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
