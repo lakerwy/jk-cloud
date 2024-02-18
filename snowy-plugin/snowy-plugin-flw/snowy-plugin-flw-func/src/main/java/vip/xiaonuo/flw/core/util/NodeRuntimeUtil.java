@@ -89,6 +89,7 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -528,6 +529,27 @@ public class NodeRuntimeUtil {
 //            }
 //        });
         return CollectionUtil.newArrayList(resultUserIdSet);
+    }
+
+    public static Set<String> handleUserTaskParticipateInfo2(BpmnModelInstance bpmnModelInstance) {
+        List<FlwNode.FlwNodeParticipateProp> users = new ArrayList<>();
+        bpmnModelInstance.getModelElementsByType(UserTask.class).forEach(userTask -> {
+            String userTaskParticipateInfo = getUserTaskParticipateInfo(userTask);
+            if(StrUtil.isNotEmpty(userTaskParticipateInfo)){
+                List<FlwNode.FlwNodeParticipateProp> list = JSONUtil.toList(new JSONArray(userTaskParticipateInfo), FlwNode.FlwNodeParticipateProp.class);
+//            if (ObjectUtil.isNotEmpty(userTaskParticipateInfo)) {
+//                List<String> participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), userTaskParticipateInfo);
+//                if (ObjectUtil.isEmpty(participateUserIdList)) {
+//                    handleUserTaskEmptyParticipateInfo(delegateExecution.getProcessInstanceId(), userTask);
+//                } else {
+//                    delegateExecution.setVariable("assignee" + StrUtil.UNDERLINE + userTask.getId(), participateUserIdList);
+//                }
+//                handlerAssigner(userTask,delegateExecution.getProcessInstanceId(),participateUserIdList);
+//            }
+                users.addAll(list);
+            }
+        });
+        return users.stream().map(FlwNode.FlwNodeParticipateProp::getValue).collect(Collectors.toSet());
     }
 
     /**

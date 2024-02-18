@@ -317,7 +317,7 @@ public class FlwTaskController {
     @ApiOperationSupport(order = 20)
     @ApiOperation("获取任务基本信息")
     @GetMapping("/flw/task/getOneByProcessInstanceId")
-    public CommonResult<FlwTodoTaskResult> getOneByProcessInstanceId(@Valid FlwProcessInstanceIdParam flwProcessInstanceIdParam) {
+    public CommonResult<FlwTaskInfoResult> getOneByProcessInstanceId(@Valid FlwProcessInstanceIdParam flwProcessInstanceIdParam) {
         return CommonResult.data(flwTaskService.getOneByProcessInstanceId(flwProcessInstanceIdParam));
     }
 
