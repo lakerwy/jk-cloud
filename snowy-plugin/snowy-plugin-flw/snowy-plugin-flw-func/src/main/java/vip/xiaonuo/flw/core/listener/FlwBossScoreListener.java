@@ -20,6 +20,8 @@ public class FlwBossScoreListener implements TaskListener {
     @Override
     public void notify(DelegateTask delegateTask) {
         try{
+            //董事长评分流程实例Id
+            String bossProcessInstanceId = delegateTask.getProcessInstanceId();
             //获取主键Id
             String id = String.valueOf(delegateTask.getVariable("taskId"));
             //获取boosScore
@@ -27,7 +29,7 @@ public class FlwBossScoreListener implements TaskListener {
             //获取备注
             String boosMemo =  String.valueOf(delegateTask.getVariable("boosMemo"));
             if(StrUtil.isNotEmpty(id)){
-                String sql = "UPDATE BIZ_TASK SET BOOS_SCORE = "+boosScore+",STATUS='100',BOOS_MEMO = '"+boosMemo+"' WHERE ID = '" + id + "'";
+                String sql = "UPDATE BIZ_TASK SET BOOS_SCORE = "+boosScore+",STATUS='100',BOSS_PROCESS_INSTANCE_ID='"+bossProcessInstanceId+"',BOOS_MEMO = '"+boosMemo+"' WHERE ID = '" + id + "'";
                 CommonHandleUtil.handleSqlExecution(sql);
             }
             log.info("董事长打分任务更新业务表状态-----");

@@ -161,4 +161,8 @@ public class BizTask {
     /** 任务进度分系数自动计算留痕备注 */
     @ApiModelProperty(value = "任务进度分系数自动计算留痕备注", position = 30)
     private String autoMemo;
+
+    /** 董事长评分流程实例Id */
+    @ApiModelProperty(value = "董事长评分流程实例Id", position = 31)
+    private String bossProcessInstanceId;
 }
