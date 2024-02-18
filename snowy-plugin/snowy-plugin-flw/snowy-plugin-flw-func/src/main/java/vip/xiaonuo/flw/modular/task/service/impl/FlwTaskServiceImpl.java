@@ -36,6 +36,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
+import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
@@ -55,6 +56,7 @@ import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
 import vip.xiaonuo.flw.core.node.FlwNode;
+import vip.xiaonuo.flw.core.parser.ProcessParser;
 import vip.xiaonuo.flw.core.util.NodeInfoUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
 import vip.xiaonuo.flw.modular.model.dto.FlwModelDTO;
@@ -258,88 +260,93 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         long size = defaultPage.getSize();
         List<FlwDoneTaskResult> flwDoneTaskResultList = historicTaskInstanceQuery.listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
                 .map(historicTaskInstance -> {
-                    JSONObject variableJsonObject = JSONUtil.createObj();
-                    historyService.createHistoricVariableInstanceQuery().processInstanceId(historicTaskInstance.getProcessInstanceId()).list()
-                            .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
-                                    historicVariableInstance.getValue()));
-                    FlwDoneTaskResult flwDoneTaskResult = new FlwDoneTaskResult();
-                    flwDoneTaskResult.setId(historicTaskInstance.getId());
-                    flwDoneTaskResult.setProcessInstanceId(historicTaskInstance.getProcessInstanceId());
-                    flwDoneTaskResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
-                    flwDoneTaskResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
-                    flwDoneTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
-                    String processDefinitionId = historicTaskInstance.getProcessDefinitionId();
-                    flwDoneTaskResult.setProcessDefinitionId(processDefinitionId);
-                    Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-                    if (ObjectUtil.isNotEmpty(o)) {
-                        flwDoneTaskResult.setProcessDefinitionName(String.valueOf(o));
-                    } else {
-                        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-                        if (ObjectUtil.isNotEmpty(processDefinition)) {
-                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
-                            flwDoneTaskResult.setProcessDefinitionName(processDefinition.getName());
-                        }
-                    }
-
-                    flwDoneTaskResult.setDoneActivityId(historicTaskInstance.getTaskDefinitionKey());
-                    flwDoneTaskResult.setDoneActivityName(historicTaskInstance.getName());
-                    flwDoneTaskResult.setDoneTime(DateUtil.formatDateTime(historicTaskInstance.getEndTime()));
-                    flwDoneTaskResult.setInitiator(variableJsonObject.getStr("initiator"));
-                    flwDoneTaskResult.setInitiatorName(variableJsonObject.getStr("initiatorName"));
-                    flwDoneTaskResult.setInitiatorOrgId(variableJsonObject.getStr("initiatorOrgId"));
-                    flwDoneTaskResult.setInitiatorOrgName(variableJsonObject.getStr("initiatorOrgName"));
-                    flwDoneTaskResult.setInitiatorPositionId(variableJsonObject.getStr("initiatorPositionId"));
-                    flwDoneTaskResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
-                    flwDoneTaskResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
-                    flwDoneTaskResult.setTenantId(historicTaskInstance.getTenantId());
-                    HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-                            .processInstanceId(flwDoneTaskResult.getProcessInstanceId()).singleResult();
-                    String state = historicProcessInstance.getState();
-                    switch (state) {
-                        case "ACTIVE":
-                            flwDoneTaskResult.setStateCode(state);
-                            flwDoneTaskResult.setStateText("审批中");
-                            break;
-                        case "SUSPENDED":
-                            flwDoneTaskResult.setStateCode(state);
-                            flwDoneTaskResult.setStateText("已挂起");
-                            break;
-                        case "COMPLETED":
-                            flwDoneTaskResult.setStateCode(state);
-                            flwDoneTaskResult.setStateText("已完成");
-                            break;
-                        case "EXTERNALLY_TERMINATED":
-                            String deleteReason = historicProcessInstance.getDeleteReason();
-                            switch (deleteReason) {
-                                case "END":
-                                    flwDoneTaskResult.setStateCode(deleteReason);
-                                    flwDoneTaskResult.setStateText("已终止");
-                                    break;
-                                case "REVOKE":
-                                    flwDoneTaskResult.setStateCode(deleteReason);
-                                    flwDoneTaskResult.setStateText("已撤回");
-                                    break;
-                                case "REJECT":
-                                    flwDoneTaskResult.setStateCode(deleteReason);
-                                    flwDoneTaskResult.setStateText("已拒绝");
-                                    break;
-                                default:
-                                    throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
-                            }
-                            break;
-                        case "INTERNALLY_TERMINATED":
-                            flwDoneTaskResult.setStateCode(state);
-                            flwDoneTaskResult.setStateText("内部终止");
-                            break;
-                        default:
-                            throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
-                    }
-                    return flwDoneTaskResult;
+                    return getDoneTaskResult(historicTaskInstance);
                 }).collect(Collectors.toList());
         defaultPage.setTotal(historicTaskInstanceQuery.count());
         defaultPage.setRecords(flwDoneTaskResultList);
         return defaultPage;
 
+    }
+
+    @NotNull
+    private FlwDoneTaskResult getDoneTaskResult(HistoricTaskInstance historicTaskInstance) {
+        JSONObject variableJsonObject = JSONUtil.createObj();
+        historyService.createHistoricVariableInstanceQuery().processInstanceId(historicTaskInstance.getProcessInstanceId()).list()
+                .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
+                        historicVariableInstance.getValue()));
+        FlwDoneTaskResult flwDoneTaskResult = new FlwDoneTaskResult();
+        flwDoneTaskResult.setId(historicTaskInstance.getId());
+        flwDoneTaskResult.setProcessInstanceId(historicTaskInstance.getProcessInstanceId());
+        flwDoneTaskResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
+        flwDoneTaskResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
+        flwDoneTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
+        String processDefinitionId = historicTaskInstance.getProcessDefinitionId();
+        flwDoneTaskResult.setProcessDefinitionId(processDefinitionId);
+        Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
+        if (ObjectUtil.isNotEmpty(o)) {
+            flwDoneTaskResult.setProcessDefinitionName(String.valueOf(o));
+        } else {
+            ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
+            if (ObjectUtil.isNotEmpty(processDefinition)) {
+                commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
+                flwDoneTaskResult.setProcessDefinitionName(processDefinition.getName());
+            }
+        }
+
+        flwDoneTaskResult.setDoneActivityId(historicTaskInstance.getTaskDefinitionKey());
+        flwDoneTaskResult.setDoneActivityName(historicTaskInstance.getName());
+        flwDoneTaskResult.setDoneTime(DateUtil.formatDateTime(historicTaskInstance.getEndTime()));
+        flwDoneTaskResult.setInitiator(variableJsonObject.getStr("initiator"));
+        flwDoneTaskResult.setInitiatorName(variableJsonObject.getStr("initiatorName"));
+        flwDoneTaskResult.setInitiatorOrgId(variableJsonObject.getStr("initiatorOrgId"));
+        flwDoneTaskResult.setInitiatorOrgName(variableJsonObject.getStr("initiatorOrgName"));
+        flwDoneTaskResult.setInitiatorPositionId(variableJsonObject.getStr("initiatorPositionId"));
+        flwDoneTaskResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
+        flwDoneTaskResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
+        flwDoneTaskResult.setTenantId(historicTaskInstance.getTenantId());
+        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                .processInstanceId(flwDoneTaskResult.getProcessInstanceId()).singleResult();
+        String state = historicProcessInstance.getState();
+        switch (state) {
+            case "ACTIVE":
+                flwDoneTaskResult.setStateCode(state);
+                flwDoneTaskResult.setStateText("审批中");
+                break;
+            case "SUSPENDED":
+                flwDoneTaskResult.setStateCode(state);
+                flwDoneTaskResult.setStateText("已挂起");
+                break;
+            case "COMPLETED":
+                flwDoneTaskResult.setStateCode(state);
+                flwDoneTaskResult.setStateText("已完成");
+                break;
+            case "EXTERNALLY_TERMINATED":
+                String deleteReason = historicProcessInstance.getDeleteReason();
+                switch (deleteReason) {
+                    case "END":
+                        flwDoneTaskResult.setStateCode(deleteReason);
+                        flwDoneTaskResult.setStateText("已终止");
+                        break;
+                    case "REVOKE":
+                        flwDoneTaskResult.setStateCode(deleteReason);
+                        flwDoneTaskResult.setStateText("已撤回");
+                        break;
+                    case "REJECT":
+                        flwDoneTaskResult.setStateCode(deleteReason);
+                        flwDoneTaskResult.setStateText("已拒绝");
+                        break;
+                    default:
+                        throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
+                }
+                break;
+            case "INTERNALLY_TERMINATED":
+                flwDoneTaskResult.setStateCode(state);
+                flwDoneTaskResult.setStateText("内部终止");
+                break;
+            default:
+                throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
+        }
+        return flwDoneTaskResult;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -942,10 +949,17 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         for (FlwModel flwModel : allFlwModels) {
             String processJson = flwModel.getProcessJson();
             if (ObjectUtil.isNotEmpty(processJson)) {
-                FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
-                if (checkNodeParticipateInfo(flwNode, flwTaskTransferPageParam.getOldAssignee())) {
-                    transferTasks.add(BeanUtil.toBean(flwModel, FlwModelDTO.class));
-                }
+                //FlwNode flwNode = JSONUtil.toBean(processJson, FlwNode.class);
+                BpmnModelInstance bpmnModelInstance = ProcessParser.buildBpmnModelInstance(processJson);
+                Set<String> users = NodeRuntimeUtil.handleUserTaskParticipateInfo2(bpmnModelInstance);
+//                if (checkNodeParticipateInfo(flwNode, flwTaskTransferPageParam.getOldAssignee())) {
+//                    transferTasks.add(BeanUtil.toBean(flwModel, FlwModelDTO.class));
+//                }
+                users.forEach(str-> {
+                    if(str.contains(flwTaskTransferPageParam.getOldAssignee())){
+                        transferTasks.add(BeanUtil.toBean(flwModel, FlwModelDTO.class));
+                    }
+                });
             }
         }
         return transferTasks;
@@ -966,7 +980,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 return true;
             }
         }
-
+//        NodeRuntimeUtil.handleUserTaskParticipateInfo(delegateExecution);
         FlwNode childNode = flwNode.getChildNode();
         if (childNode != null) {
             return checkNodeParticipateInfo(childNode, oldAssignee);
@@ -991,62 +1005,67 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     }
 
     @Override
-    public  FlwTodoTaskResult getOneByProcessInstanceId(FlwProcessInstanceIdParam flwProcessInstanceIdParam){
+    public  FlwTaskInfoResult getOneByProcessInstanceId(FlwProcessInstanceIdParam flwProcessInstanceIdParam){
         NodeRuntimeUtil.handleTenAuth();
         TaskQuery taskQuery = taskService.createTaskQuery().active().taskAssignee(StpUtil.getLoginIdAsString()).orderByTaskCreateTime().desc();
         taskQuery.processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId());
         Task task = taskQuery.active().singleResult();
+        FlwTaskInfoResult flwTaskInfoResult = new FlwTaskInfoResult();
         if(ObjectUtil.isNotNull(task)){
             JSONObject variableJsonObject = JSONUtil.createObj();
             historyService.createHistoricVariableInstanceQuery().processInstanceId(task.getProcessInstanceId()).list()
                     .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
                             historicVariableInstance.getValue()));
-            FlwTodoTaskResult flwTodoTaskResult = new FlwTodoTaskResult();
-            flwTodoTaskResult.setId(task.getId());
-            flwTodoTaskResult.setProcessInstanceId(task.getProcessInstanceId());
-            flwTodoTaskResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
-            flwTodoTaskResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
-            flwTodoTaskResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
+            flwTaskInfoResult.setId(task.getId());
+            flwTaskInfoResult.setProcessInstanceId(task.getProcessInstanceId());
+            flwTaskInfoResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
+            flwTaskInfoResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
+            flwTaskInfoResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
             String processDefinitionId = task.getProcessDefinitionId();
             Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
             if (ObjectUtil.isNotEmpty(o)) {
-                flwTodoTaskResult.setProcessDefinitionName(String.valueOf(o));
+                flwTaskInfoResult.setProcessDefinitionName(String.valueOf(o));
             } else {
                 ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
                 if (ObjectUtil.isNotEmpty(processDefinition)) {
                     commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
-                    flwTodoTaskResult.setProcessDefinitionName(processDefinition.getName());
+                    flwTaskInfoResult.setProcessDefinitionName(processDefinition.getName());
                 }
             }
-            flwTodoTaskResult.setProcessDefinitionId(processDefinitionId);
-            flwTodoTaskResult.setCurrentActivityId(task.getTaskDefinitionKey());
-            flwTodoTaskResult.setCurrentActivityName(task.getName());
+            flwTaskInfoResult.setProcessDefinitionId(processDefinitionId);
+            flwTaskInfoResult.setCurrentActivityId(task.getTaskDefinitionKey());
+            flwTaskInfoResult.setCurrentActivityName(task.getName());
             String taskAssignee = task.getAssignee();
             if (ObjectUtil.isNotEmpty(taskAssignee)) {
                 JSONObject taskAssigneeUser = sysUserApi.getUserByIdWithoutException(taskAssignee);
                 if (ObjectUtil.isNotEmpty(taskAssigneeUser)) {
-                    flwTodoTaskResult.setAssignees(taskAssigneeUser.getStr("name"));
+                    flwTaskInfoResult.setAssignees(taskAssigneeUser.getStr("name"));
                 }
             } else {
                 String assignee = variableJsonObject.getStr("assignee" + StrUtil.UNDERLINE + task.getTaskDefinitionKey());
                 if (ObjectUtil.isNotEmpty(assignee)) {
                     List<String> userIdList = JSONUtil.toList(assignee, String.class);
-                    flwTodoTaskResult.setAssignees(StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(userIdList).stream()
+                    flwTaskInfoResult.setAssignees(StrUtil.join("、", sysUserApi.getUserListByIdListWithoutException(userIdList).stream()
                             .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList())));
                 }
             }
-            flwTodoTaskResult.setInitiator(variableJsonObject.getStr("initiator"));
-            flwTodoTaskResult.setInitiatorName(variableJsonObject.getStr("initiatorName"));
-            flwTodoTaskResult.setInitiatorOrgId(variableJsonObject.getStr("initiatorOrgId"));
-            flwTodoTaskResult.setInitiatorOrgName(variableJsonObject.getStr("initiatorOrgName"));
-            flwTodoTaskResult.setInitiatorPositionId(variableJsonObject.getStr("initiatorPositionId"));
-            flwTodoTaskResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
-            flwTodoTaskResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
-            flwTodoTaskResult.setTenantId(task.getTenantId());
-            return flwTodoTaskResult;
+            flwTaskInfoResult.setInitiator(variableJsonObject.getStr("initiator"));
+            flwTaskInfoResult.setInitiatorName(variableJsonObject.getStr("initiatorName"));
+            flwTaskInfoResult.setInitiatorOrgId(variableJsonObject.getStr("initiatorOrgId"));
+            flwTaskInfoResult.setInitiatorOrgName(variableJsonObject.getStr("initiatorOrgName"));
+            flwTaskInfoResult.setInitiatorPositionId(variableJsonObject.getStr("initiatorPositionId"));
+            flwTaskInfoResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
+            flwTaskInfoResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
+            flwTaskInfoResult.setTenantId(task.getTenantId());
+            return flwTaskInfoResult;
+        }else {
+            HistoricTaskInstance historicTaskInstance = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString()).processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
+                    .orderByHistoricTaskInstanceEndTime().desc().singleResult();
+            FlwDoneTaskResult doneTaskResult = getDoneTaskResult(historicTaskInstance);
+            flwTaskInfoResult = BeanUtil.copyProperties(doneTaskResult, FlwTaskInfoResult.class);
         }
         //return new FlwTodoTaskResult();
-        return null;
+        return flwTaskInfoResult;
     }
 
     @Transactional(rollbackFor = Exception.class)
