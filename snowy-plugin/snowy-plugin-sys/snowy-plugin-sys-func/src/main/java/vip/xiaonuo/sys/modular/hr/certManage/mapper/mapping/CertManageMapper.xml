@@ -39,8 +39,7 @@
 
     <select id="getMyAliasList" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo">
         select a.*
-        from (select cert.ID,cert.NAME,cert.TYPE,cert.UNIT,cert.CERT_NO,cert.CERT_UNIT,cert.ISSUE_DATE,cert.ID_NUMBER,cert.CERT_TYPE,cert.LEVEL,cert.MAJOR,cert.DELETE_FLAG,
-                     cert.CERT_TYPE_ID,cert.LEVEL_ID,cert.MAJOR_ID,
+        from (select cert.*,
                      IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
                      CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
