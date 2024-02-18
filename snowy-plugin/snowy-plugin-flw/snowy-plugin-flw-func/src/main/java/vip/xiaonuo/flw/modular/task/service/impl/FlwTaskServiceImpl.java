@@ -1045,7 +1045,8 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             flwTodoTaskResult.setTenantId(task.getTenantId());
             return flwTodoTaskResult;
         }
-        return new FlwTodoTaskResult();
+        //return new FlwTodoTaskResult();
+        return null;
     }
 
     @Transactional(rollbackFor = Exception.class)
