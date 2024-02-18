@@ -88,12 +88,12 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "用户类型：总部|分公司|外部人员")
     private String userType;
 
-    /** 证书有效期状态标识 */
-    @ApiModelProperty(value = "证书有效期状态标识")
+    /** 证书有效期标识（已过期|临近一个月|临近六个月） */
+    @ApiModelProperty(value = "证书有效期标识（已过期|临近一个月|临近六个月）")
     private String certStage;
 
-    /** 员工状态  0 :在职  1：离职*/
-    @ApiModelProperty(value = "员工状态  0 :在职  1：离职")
+    /** （证书是否失效，总部|分公司人员离职即证书失效，外部人员证书是否失效由页面自行维护） 状态  0 :有效  1：失效 */
+    @ApiModelProperty(value = "（证书是否失效，总部|分公司人员离职即证书失效，外部人员证书是否失效由页面自行维护） 状态  0 :有效  1：失效 ")
     private String userStatus;
 
 

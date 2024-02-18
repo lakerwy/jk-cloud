@@ -24,14 +24,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.card.entity.CardImages;
+import vip.xiaonuo.biz.modular.card.param.*;
+import vip.xiaonuo.biz.modular.card.service.CardImagesService;
+import vip.xiaonuo.biz.modular.card.vo.EcardVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.card.entity.Ecards;
-import vip.xiaonuo.biz.modular.card.param.EcardsAddParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsEditParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsIdParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsPageParam;
 import vip.xiaonuo.biz.modular.card.service.EcardsService;
 
 import javax.annotation.Resource;
@@ -52,6 +52,10 @@ public class EcardsController {
 
     @Resource
     private EcardsService ecardsService;
+
+
+    @Resource
+    private CardImagesService cardImagesService;
 
     /**
      * 获取Ecard-电子名片分页
@@ -126,8 +130,8 @@ public class EcardsController {
     @ApiOperation("获取Ecard-电子名片详情(通过cardId主键获取)")
 //    @SaCheckPermission("/biz/applet/eCard/getEcardByCardId")
     @GetMapping("/biz/applet/eCard/getEcardByCardId")
-    public CommonResult<Ecards> detailByCardId(String cardId) {
-        return CommonResult.data(ecardsService.getById(cardId));
+    public CommonResult<EcardVo> detailByCardId(String cardId) {
+        return CommonResult.data(ecardsService.getByCardId(cardId));
     }
 
     /**
@@ -140,7 +144,7 @@ public class EcardsController {
     @ApiOperation("获取Ecard-电子名片详情(通过userId获取)")
 //    @SaCheckPermission("/biz/applet/eCard/getEcardByUserId")
     @GetMapping("/biz/applet/eCard/getEcardByUserId")
-    public CommonResult<Ecards> detailByUserId(String userId) {
+    public CommonResult<EcardVo> detailByUserId(String userId) {
         return CommonResult.data(ecardsService.detailByUserId(userId));
     }
 
@@ -154,7 +158,7 @@ public class EcardsController {
     @ApiOperation("获取Ecard-电子名片详情(通过openId获取)")
 //    @SaCheckPermission("/biz/applet/eCard/getEcardByOpenId")
     @GetMapping("/biz/applet/eCard/getEcardByOpenId")
-    public CommonResult<Ecards> detailByOpenId(String openId) {
+    public CommonResult<EcardVo> detailByOpenId(String openId) {
         return CommonResult.data(ecardsService.detailByOpenId(openId));
     }
 
@@ -170,5 +174,89 @@ public class EcardsController {
     @GetMapping("/biz/applet/eCard/getAppletCardOpenIdByCode")
     public CommonResult<JSONObject> openIdByCode(String code) {
         return CommonResult.data(ecardsService.openIdByCode(code));
+    }
+
+
+
+
+
+
+
+
+    /**
+     * 获取Ecard-电子名片-图片分页
+     *
+     * @author yong.ye
+     * @date  2024/02/18 15:40
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取Ecard-电子名片-图片分页")
+//    @SaCheckPermission("/biz/applet/eCard/image/page")
+    @GetMapping("/biz/applet/eCard/image/page")
+    public CommonResult<Page<CardImages>> imgPage(CardImagesPageParam cardImagesPageParam) {
+        return CommonResult.data(cardImagesService.page(cardImagesPageParam));
+    }
+
+    /**
+     * 添加Ecard-电子名片-图片
+     *
+     * @author yong.ye
+     * @date  2024/02/18 15:40
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("添加Ecard-电子名片-图片")
+    @CommonLog("添加Ecard-电子名片-图片")
+//    @SaCheckPermission("/biz/applet/eCard/image/add")
+    @PostMapping("/biz/applet/eCard/image/add")
+    public CommonResult<String> imgAdd(@RequestBody @Valid CardImagesAddParam cardImagesAddParam) {
+        cardImagesService.add(cardImagesAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑Ecard-电子名片-图片
+     *
+     * @author yong.ye
+     * @date  2024/02/18 15:40
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("编辑Ecard-电子名片-图片")
+    @CommonLog("编辑Ecard-电子名片-图片")
+//    @SaCheckPermission("/biz/applet/eCard/image/edit")
+    @PostMapping("/biz/applet/eCard/image/edit")
+    public CommonResult<String> imgEdit(@RequestBody @Valid CardImagesEditParam cardImagesEditParam) {
+        cardImagesService.edit(cardImagesEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除Ecard-电子名片-图片
+     *
+     * @author yong.ye
+     * @date  2024/02/18 15:40
+     */
+    @ApiOperationSupport(order = 13)
+    @ApiOperation("删除Ecard-电子名片-图片")
+    @CommonLog("删除Ecard-电子名片-图片")
+//    @SaCheckPermission("/biz/applet/eCard/image/delete")
+    @PostMapping("/biz/applet/eCard/image/delete")
+    public CommonResult<String> imgDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                       CommonValidList<CardImagesIdParam> cardImagesIdParamList) {
+        cardImagesService.delete(cardImagesIdParamList);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取Ecard-电子名片-图片详情
+     *
+     * @author yong.ye
+     * @date  2024/02/18 15:40
+     */
+    @ApiOperationSupport(order = 14)
+    @ApiOperation("获取Ecard-电子名片-图片详情")
+//    @SaCheckPermission("/biz/applet/eCard/image/detail")
+    @GetMapping("/biz/applet/eCard/image/detail")
+    public CommonResult<CardImages> imgDetail(@Valid CardImagesIdParam cardImagesIdParam) {
+        return CommonResult.data(cardImagesService.detail(cardImagesIdParam));
     }
 }

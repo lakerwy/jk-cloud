@@ -31,6 +31,9 @@ import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.card.config.AppletCardProperties;
+import vip.xiaonuo.biz.modular.card.entity.CardImages;
+import vip.xiaonuo.biz.modular.card.service.CardImagesService;
+import vip.xiaonuo.biz.modular.card.vo.EcardVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -58,6 +61,10 @@ public class EcardsServiceImpl extends ServiceImpl<EcardsMapper, Ecards> impleme
 
     @Resource
     private AppletCardProperties appletCardProperties;
+
+    @Resource
+    private CardImagesService cardImagesService;
+
     @Override
     public Page<Ecards> page(EcardsPageParam ecardsPageParam) {
         QueryWrapper<Ecards> queryWrapper = new QueryWrapper<>();
@@ -112,7 +119,12 @@ public class EcardsServiceImpl extends ServiceImpl<EcardsMapper, Ecards> impleme
     @Override
     public void delete(List<EcardsIdParam> ecardsIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(ecardsIdParamList, EcardsIdParam::getCardId));
+        List<String> cardIds = CollStreamUtil.toList(ecardsIdParamList, EcardsIdParam::getCardId);
+        this.removeByIds(cardIds);
+        //删除电子名片，同时删除该用户的私有图片资源
+        if(CollUtil.isNotEmpty(cardIds)){
+            cardImagesService.remove(new QueryWrapper<CardImages>().lambda().in(CardImages::getCardId,cardIds));
+        }
     }
 
     @Override
@@ -130,19 +142,29 @@ public class EcardsServiceImpl extends ServiceImpl<EcardsMapper, Ecards> impleme
     }
 
     @Override
-    public Ecards detailByUserId(String userId) {
+    public EcardVo detailByUserId(String userId) {
         QueryWrapper<Ecards> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().and(q->q.eq(Ecards::getUserId,userId).or().eq(Ecards::getOldUserId,userId));
         queryWrapper.last("limit 1");
-        return this.getOne(queryWrapper);
+        Ecards ecards = this.getOne(queryWrapper);
+        EcardVo ecardVo = BeanUtil.copyProperties(ecards,EcardVo.class);
+        if(ObjectUtil.isNotEmpty(ecards)){
+            ecardVo.setImages(cardImagesService.getImagesById(ecards.getCardId()));
+        }
+        return ecardVo;
     }
 
     @Override
-    public Ecards detailByOpenId(String openId) {
+    public EcardVo detailByOpenId(String openId) {
         QueryWrapper<Ecards> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(Ecards::getOpenId,openId);
         queryWrapper.last("limit 1");
-        return this.getOne(queryWrapper);
+        Ecards ecards = this.getOne(queryWrapper);
+        EcardVo ecardVo = BeanUtil.copyProperties(ecards,EcardVo.class);
+        if(ObjectUtil.isNotEmpty(ecards)){
+            ecardVo.setImages(cardImagesService.getImagesById(ecards.getCardId()));
+        }
+        return ecardVo;
     }
 
     @Override
@@ -168,5 +190,13 @@ public class EcardsServiceImpl extends ServiceImpl<EcardsMapper, Ecards> impleme
             e.printStackTrace();
             return null;
         }
+    }
+
+    @Override
+    public EcardVo getByCardId(String cardId) {
+        Ecards ecards = this.queryEntity(cardId);
+        EcardVo ecardVo = BeanUtil.copyProperties(ecards,EcardVo.class);
+        ecardVo.setImages(cardImagesService.getImagesById(cardId));
+        return ecardVo;
     }
 }
