@@ -8,7 +8,7 @@
                             UPDATE_TIME = current_time,
                             AUTO_MEMO = CONCAT( IF(AUTO_MEMO is null,'',AUTO_MEMO),
                                 '  进度分系数第一次自动计算：计算时间【',NOW(),'】，计算时任务完成进度为【',FINISH_STATUS,'%】，','本次计算结果为【',PROGRESS_RATE,'】')
-        where STATUS in ('1','100')
+        where STATUS in ('1','100') and DELETE_FLAG='NOT_DELETE'
           and date(DATE_ADD(END_DATE,INTERVAL 7 DAY)) = date(NOW())
           and FINISH_STATUS IS NOT NULL and PROGRESS_RATE IS NULL
     </update>
@@ -19,7 +19,7 @@
                             UPDATE_TIME = current_time,
                             AUTO_MEMO = CONCAT( IF(AUTO_MEMO is null,'',AUTO_MEMO),
                                 '  进度分系数第二次自动计算：计算时间【',NOW(),'】，计算时任务完成进度为【',FINISH_STATUS,'%】，','本次计算结果为【',PROGRESS_RATE,'】')
-        where STATUS in ('1','100')
+        where STATUS in ('1','100') and DELETE_FLAG='NOT_DELETE'
           and date(DATE_ADD(END_DATE,INTERVAL 1 MONTH)) = date(NOW())
           and FINISH_STATUS IS NOT NULL and AUTO_FLAG = 1
     </update>
@@ -30,7 +30,7 @@
                             UPDATE_TIME = current_time,
                             AUTO_MEMO = CONCAT( IF(AUTO_MEMO is null,'',AUTO_MEMO),
                                 '  进度分系数第三次自动计算：计算时间【',NOW(),'】，计算时任务完成进度为【',FINISH_STATUS,'%】，','本次计算结果为【',PROGRESS_RATE,'】')
-        where STATUS in ('1','100')
+        where STATUS in ('1','100') and DELETE_FLAG='NOT_DELETE'
           and date(CONCAT(YEAR(END_DATE),'-12-31')) = date(NOW())
           and FINISH_STATUS IS NOT NULL and AUTO_FLAG = 2
     </update>
