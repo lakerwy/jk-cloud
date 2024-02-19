@@ -77,27 +77,26 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
         try {
             //获取token
             String token = getDingDingToken(dingDingLoginParam.getAppKey(), dingDingLoginParam.getAppSecret());
-            //获取钉钉用户信息
+            //获取钉钉用户信息（免登码）
             OapiV2UserGetuserinfoResponse.UserGetByCodeResponse info = CommonDingDingUtil.getUserInfo(token, dingDingLoginParam.getCode());
-            log.info("钉钉结果："+ JsonUtils.object2json(info));
+            log.info("【免登】钉钉(免登码)结果："+ JsonUtils.object2json(info));
             //根据钉钉用户Id，获取系统用户信息 category = 2 代表钉钉
             String userId = authThirdApi.getUserIdByThirdId(info.getUserid(), AuthThirdCategoryEnum.DingDing.getValue());
             //逻辑判断：若当前系统中不存在dingdinguserid的记录，则新增一条记录
             if(StringUtil.isEmpty(userId)){
                 OapiV2UserGetResponse.UserGetResponse dingUser = CommonDingDingUtil.getUserById(token, info.getUserid());
-//                SysLoginUser tmpUser = sysUserService.getUserByPhone(dingUser.getMobile());
+                log.info("【免登】钉钉用户详情：" + JsonUtils.object2json(dingUser));
                 SysLoginUser tmpUser = sysUserService.getUserByAccount(dingUser.getMobile());
-                log.info("钉钉用户详情：" + JsonUtils.object2json(dingUser));
                 if(ObjectUtil.isNotEmpty(tmpUser)) {
                     userId = tmpUser.getId();
-                    log.info("钉钉用户匹配的系统用户userId：" + userId);
+                    log.info("【免登】钉钉用户匹配的系统用户userId：" + userId);
                     authThirdApi.addAuthThird(userId, dingUser.getUserid(), AuthThirdCategoryEnum.DingDing.getValue(), tmpUser.getName());
                 }
             }
             //绑定系统用户，并返回token
             return loginThirdApi.doLoginThirdById(userId, "", "");
         }catch (Exception ex){
-            log.info("钉钉："+ JsonUtils.object2json(ex));
+            log.info("【免登】钉钉异常："+ ex.getMessage());
             return "";
         }
     }

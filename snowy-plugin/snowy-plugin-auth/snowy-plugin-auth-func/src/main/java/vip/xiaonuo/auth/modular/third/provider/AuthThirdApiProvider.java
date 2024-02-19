@@ -1,7 +1,9 @@
 package vip.xiaonuo.auth.modular.third.provider;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.api.AuthThirdApi;
 import vip.xiaonuo.auth.modular.third.entity.AuthThirdUser;
@@ -32,19 +34,25 @@ public class AuthThirdApiProvider implements AuthThirdApi {
     @Override
     public String getUserIdByThirdId(String thirdId,String category) {
         AuthThirdUser thirdUser = authThirdService.getOne(new LambdaQueryWrapper<AuthThirdUser>().eq(AuthThirdUser::getThirdId, thirdId)
-                .eq(AuthThirdUser::getCategory, category));
-        return ObjectUtil.isEmpty(thirdUser)?"":thirdUser.getUserId();
+                .eq(AuthThirdUser::getCategory, category).last(" limit 1 "));
+        return ObjectUtil.isEmpty(thirdUser) ? "" : thirdUser.getUserId();
     }
 
     @Override
     public String getThirdIdByUserId(String userId, String category) {
         AuthThirdUser thirdUser = authThirdService.getOne(new LambdaQueryWrapper<AuthThirdUser>().eq(AuthThirdUser::getUserId, userId)
-                .eq(AuthThirdUser::getCategory, category));
-        return ObjectUtil.isEmpty(thirdUser)?"":thirdUser.getThirdId();
+                .eq(AuthThirdUser::getCategory, category).last(" limit 1 "));
+        return ObjectUtil.isEmpty(thirdUser) ? "" : thirdUser.getThirdId();
     }
 
     @Override
     public Boolean addAuthThird(String userId, String thirdId, String category, String name) {
+        //为了避免微秒级重复调用（增加判断逻辑）
+        List<AuthThirdUser> oldList = authThirdService.list(new QueryWrapper<AuthThirdUser>().lambda().eq(AuthThirdUser::getCategory,category).eq(AuthThirdUser::getUserId,userId).eq(AuthThirdUser::getThirdId,thirdId));
+        //已存在相同记录，不再新增，直接返回
+        if(CollUtil.isNotEmpty(oldList)){
+            return true;
+        }
         AuthThirdUser thirdUser = new AuthThirdUser();
         thirdUser.setThirdId(thirdId);
         thirdUser.setUserId(userId);
