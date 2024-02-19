@@ -41,6 +41,7 @@ import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
 import vip.xiaonuo.sys.modular.org.mapper.SysOrgMapper;
 import vip.xiaonuo.sys.modular.org.param.*;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
+import vip.xiaonuo.sys.modular.org.vo.NodeVo;
 import vip.xiaonuo.sys.modular.position.entity.SysPosition;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 import vip.xiaonuo.sys.modular.role.entity.SysRole;
@@ -488,7 +489,16 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
 
     @Override
     public List<SysUser> getChildrenUser(SysOrgIdParam sysOrgIdParam){
-        List<String> orgIds = sysOrgMapper.getChildren(sysOrgIdParam.getId()).stream().map(org -> org.getId()).collect(Collectors.toList());
+        List<String> orgIds = sysOrgMapper.getChildren(sysOrgIdParam.getId()).stream().map(SysOrg::getId).collect(Collectors.toList());
         return sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getOrgId,orgIds));
+    }
+
+    @Override
+    public Page<NodeVo> getOrgOrUser(SysOrgPageParam sysOrgPageParam) {
+        String parentId = sysOrgPageParam.getParentId();
+        if(StrUtil.isEmpty(parentId)){
+            parentId = "0";
+        }
+        return sysOrgMapper.getOrgOrUser(CommonPageRequest.defaultPage(),parentId,sysOrgPageParam.getSearchKey());
     }
 }

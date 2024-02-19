@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.param.*;
+import vip.xiaonuo.sys.modular.org.vo.NodeVo;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import java.util.List;
@@ -185,4 +186,6 @@ public interface SysOrgService extends IService<SysOrg> {
     List<SysOrg> listByCategory(String category);
 
     List<SysUser> getChildrenUser(SysOrgIdParam sysOrgIdParam);
+
+    Page<NodeVo> getOrgOrUser(SysOrgPageParam sysOrgPageParam);
 }
