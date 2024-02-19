@@ -23,14 +23,14 @@
         select a.*,IF(d1.ID is not null,d1.DICT_LABEL,a.CERT_TYPE) as certTypeDict,
                IF(d2.ID is not null,d2.DICT_LABEL,a.LEVEL) as levelDict
         from (select cert.*,
-                     IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
-                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
+                     IF(b.ID is not null or c.ID is not null,1,cert.CERT_STATUS ) as userStatus,
+                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; DATE(NOW()) then '已过期'
                             WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
                             WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                        ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
-                  left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID
-                  left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID
+                  left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1'
+                  left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1'
                       where cert.DELETE_FLAG='NOT_DELETE') a
               left join DEV_DICT d1 on a.CERT_TYPE_ID = d1.ID and d1.CATEGORY='BIZ'
               left join DEV_DICT d2 on a.LEVEL_ID = d2.ID and d2.CATEGORY='BIZ'
@@ -40,14 +40,14 @@
     <select id="getMyAliasList" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo">
         select a.*
         from (select cert.*,
-                     IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
-                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
+                     IF(b.ID is not null or c.ID is not null,1,cert.CERT_STATUS ) as userStatus,
+                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; DATE(NOW()) then '已过期'
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                           ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
-                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID
-                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID
+                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1'
+                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1'
               where cert.DELETE_FLAG='NOT_DELETE') a
             ${ew.customSqlSegment}
     </select>
@@ -56,14 +56,14 @@
         select a.*,IF(d1.ID is not null,d1.DICT_LABEL,a.CERT_TYPE) as certTypeDict,
                IF(d2.ID is not null,d2.DICT_LABEL,a.LEVEL) as levelDict
         from (select cert.*,
-                     IF(cert.USER_TYPE = '总部', b.STATUS,IF(cert.USER_TYPE = '分公司', c.HR_STATUS, cert.CERT_STATUS)) as userStatus,
-                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; NOW() then '已过期'
+                     IF(b.ID is not null or c.ID is not null,1,cert.CERT_STATUS ) as userStatus,
+                     CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; DATE(NOW()) then '已过期'
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                           ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
-                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID
-                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID
+                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1'
+                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1'
               where cert.DELETE_FLAG='NOT_DELETE') a
                  left join DEV_DICT d1 on a.CERT_TYPE_ID = d1.ID and d1.CATEGORY='BIZ'
                  left join DEV_DICT d2 on a.LEVEL_ID = d2.ID and d2.CATEGORY='BIZ'
