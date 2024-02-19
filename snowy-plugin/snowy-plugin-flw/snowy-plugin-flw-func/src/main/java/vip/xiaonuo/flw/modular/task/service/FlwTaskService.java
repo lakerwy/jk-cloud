@@ -192,4 +192,6 @@ public interface FlwTaskService {
     void putComments(String inputValue);
 
     FlwTaskInfoResult getOneByProcessInstanceId(FlwProcessInstanceIdParam flwProcessInstanceIdParam);
+
+    String getFlwDiagram(FlwProcessInstanceIdParam flwProcessInstanceIdParam);
 }

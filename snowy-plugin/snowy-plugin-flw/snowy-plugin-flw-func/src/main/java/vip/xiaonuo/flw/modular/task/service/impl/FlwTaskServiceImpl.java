@@ -25,6 +25,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
@@ -32,10 +33,12 @@ import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.engine.task.TaskQuery;
+import org.camunda.bpm.model.bpmn.Bpmn;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
 import org.camunda.bpm.model.bpmn.instance.*;
@@ -77,6 +80,9 @@ import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -1094,5 +1100,26 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
         }
         commonCacheOperator.put(FlwCacheConstant.FLW_URGE_KEY + taskId,nowDate);//写入缓存
+    }
+
+    @Override
+    public String getFlwDiagram(FlwProcessInstanceIdParam flwProcessInstanceIdParam){
+        // 生成流程图图片
+        String processDefinitionId = runtimeService.createProcessInstanceQuery()
+                .processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
+                .singleResult().getProcessDefinitionId();
+        // 获取 BPMN 模型实例
+        BpmnModelInstance bpmnModelInstance = repositoryService.getBpmnModelInstance(processDefinitionId);
+        // 创建字节数组输出流
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+        // 将 BPMN 模型实例渲染为图片并写入字节数组输出流
+        Bpmn.writeModelToStream(outputStream, bpmnModelInstance);
+
+        // 将字节数组输出流转换为字节数组
+        byte[] imageBytes = outputStream.toByteArray();
+
+        // 将字节数组转换为 Base64 字符串
+        return Base64.getEncoder().encodeToString(imageBytes);
     }
 }

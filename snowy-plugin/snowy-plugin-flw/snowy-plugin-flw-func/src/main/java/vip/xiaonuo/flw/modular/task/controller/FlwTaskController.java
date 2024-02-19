@@ -22,11 +22,8 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
-import vip.xiaonuo.common.cache.CommonCacheOperator;
-import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.flw.modular.model.dto.FlwModelDTO;
-import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.task.param.*;
 import vip.xiaonuo.flw.modular.task.result.*;
@@ -334,5 +331,12 @@ public class FlwTaskController {
     public CommonResult<String> urge(@RequestBody @Valid FlwTaskUrgeParam flwTaskUrgeParam) {
         flwTaskService.urge(flwTaskUrgeParam);
         return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("获取流程图树")
+    @GetMapping("/flw/task/getFlwDiagram")
+    public CommonResult<String> getFlwDiagram(@Valid FlwProcessInstanceIdParam flwProcessInstanceIdParam) {
+        return CommonResult.data(flwTaskService.getFlwDiagram(flwProcessInstanceIdParam));
     }
 }
