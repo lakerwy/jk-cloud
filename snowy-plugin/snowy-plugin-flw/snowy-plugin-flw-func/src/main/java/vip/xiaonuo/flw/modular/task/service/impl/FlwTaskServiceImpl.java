@@ -1059,10 +1059,12 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             flwTaskInfoResult.setTenantId(task.getTenantId());
             return flwTaskInfoResult;
         }else {
-            HistoricTaskInstance historicTaskInstance = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString()).processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
-                    .orderByHistoricTaskInstanceEndTime().desc().singleResult();
-            FlwDoneTaskResult doneTaskResult = getDoneTaskResult(historicTaskInstance);
-            flwTaskInfoResult = BeanUtil.copyProperties(doneTaskResult, FlwTaskInfoResult.class);
+            List<HistoricTaskInstance> list = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString()).processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
+                    .orderByHistoricTaskInstanceEndTime().desc().list();
+            if(CollUtil.isNotEmpty(list)){
+                FlwDoneTaskResult doneTaskResult = getDoneTaskResult(list.get(0));
+                flwTaskInfoResult = BeanUtil.copyProperties(doneTaskResult, FlwTaskInfoResult.class);
+            }
         }
         //return new FlwTodoTaskResult();
         return flwTaskInfoResult;

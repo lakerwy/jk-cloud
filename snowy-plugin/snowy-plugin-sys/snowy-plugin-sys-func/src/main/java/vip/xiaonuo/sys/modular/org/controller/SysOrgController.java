@@ -29,6 +29,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.param.*;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
+import vip.xiaonuo.sys.modular.org.vo.NodeVo;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import javax.annotation.Resource;
@@ -215,5 +216,17 @@ public class SysOrgController {
     @GetMapping("/sys/org/getChildrenUser")
     public CommonResult<List<SysUser>> getChildrenUser(@Valid SysOrgIdParam sysOrgIdParam) {
         return CommonResult.data(sysOrgService.getChildrenUser(sysOrgIdParam));
+    }
+
+    /**
+     *
+     * @param sysOrgPageParam
+     * @return
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("获取组织或用户分页")
+    @GetMapping("/sys/org/getOrgOrUser")
+    public CommonResult<Page<NodeVo>> getOrgOrUser(SysOrgPageParam sysOrgPageParam) {
+        return CommonResult.data(sysOrgService.getOrgOrUser(sysOrgPageParam));
     }
 }

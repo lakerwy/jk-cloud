@@ -13,7 +13,10 @@
 package vip.xiaonuo.sys.modular.org.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.vo.NodeVo;
 
 import java.util.List;
 
@@ -27,4 +30,6 @@ public interface SysOrgMapper extends BaseMapper<SysOrg> {
     List<SysOrg> getChildren(String orgId);
 
     List<SysOrg> getNewAllOrgList();
+
+    Page<NodeVo>  getOrgOrUser(Page<NodeVo> page,@Param("id") String id, @Param("searchKey") String searchKey);
 }
