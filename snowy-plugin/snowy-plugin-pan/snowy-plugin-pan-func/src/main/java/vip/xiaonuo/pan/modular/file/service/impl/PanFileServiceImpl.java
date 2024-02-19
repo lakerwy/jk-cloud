@@ -339,10 +339,10 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             return devFileUnzipService.list(new LambdaQueryWrapper<DevFileUnzip>().eq(DevFileUnzip::getParentId,devFile.getId()));
         }
         File file = isParentFile ? FileUtil.file(devFile.getStoragePath()): FileUtil.file(devFile.getStoragePath()+ "." + devFile.getSuffix());
-        if(devFile.getSuffix().equals("zip") && File.separator.contains("/")){
+        /*if(devFile.getSuffix().equals("zip") && File.separator.contains("/")){
             String unixPath = devConfigService.getConfigByKey(PREFIX_UNZIP_PATH);
             return unzipSp( unixPath,devFile,isParentFile );
-        }
+        }*/
         String oldFileName = file.getName();
         if(!FileUtil.exist(file)) {
             throw new CommonException("找不到存储的文件，id值为："+devFileIdParam.getId());
