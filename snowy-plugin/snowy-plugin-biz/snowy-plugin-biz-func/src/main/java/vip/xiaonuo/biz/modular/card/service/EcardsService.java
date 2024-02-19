@@ -20,6 +20,7 @@ import vip.xiaonuo.biz.modular.card.param.EcardsAddParam;
 import vip.xiaonuo.biz.modular.card.param.EcardsEditParam;
 import vip.xiaonuo.biz.modular.card.param.EcardsIdParam;
 import vip.xiaonuo.biz.modular.card.param.EcardsPageParam;
+import vip.xiaonuo.biz.modular.card.vo.EcardVo;
 
 import java.util.List;
 
@@ -80,18 +81,18 @@ public interface EcardsService extends IService<Ecards> {
     Ecards queryEntity(String id);
 
     /**
-     * 获取Ecard-电子名片详情(通过userId获取)
+     * 获取Ecard-电子名片详情,含图片资源(通过userId获取)
      * @param userId
      * @return
      */
-    Ecards detailByUserId(String userId);
+    EcardVo detailByUserId(String userId);
 
     /**
      * 获取Ecard-电子名片详情(通过userId获取)
      * @param openId
      * @return
      */
-    Ecards detailByOpenId(String openId);
+    EcardVo detailByOpenId(String openId);
 
     /**
      * 获取电子名片小程序OpenId
@@ -99,4 +100,12 @@ public interface EcardsService extends IService<Ecards> {
      * @return
      */
     JSONObject openIdByCode(String code);
+
+
+    /**
+     * 获取Ecard-电子名片详情,含图片资源(通过CardId获取)
+     * @param cardId
+     * @return
+     */
+    EcardVo getByCardId(String cardId);
 }
