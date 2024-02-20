@@ -32,7 +32,6 @@ public class CommonZipUtil {
 
     public Long zip(List<String> sourceFile,String inputFile){
         try {
-            ExecutorService executorService = Executors.newFixedThreadPool(10);
             ZipOutputStream zops = new ZipOutputStream(Files.newOutputStream(Paths.get(inputFile)));
             List<ZipDownloadBean> list = new ArrayList<>();
             for (String sourcePath : sourceFile) {
@@ -46,35 +45,31 @@ public class CommonZipUtil {
             Lock lock = new ReentrantLock();
 
             for (ZipDownloadBean bean : list) {
-                executorService.execute(() -> {
-                    try (InputStream ips = Files.newInputStream(Paths.get(bean.getAbsolutePath()))) {
-                        // 使用文件名（即相对路径）创建ZipEntry
-                        ZipEntry zipEntry = new ZipEntry(bean.getPath());
+                try (InputStream ips = Files.newInputStream(Paths.get(bean.getAbsolutePath()))) {
+                    // 使用文件名（即相对路径）创建ZipEntry
+                    ZipEntry zipEntry = new ZipEntry(bean.getPath());
 
-                        lock.lock();
-                        zops.putNextEntry(zipEntry);
-                        byte[] bytes = new byte[bean.getFileLength() == null ? (1024 * 10) : bean.getFileLength().intValue()];
-                        Long fileSize = bean.getFileLength();
-                        sizeMap.put("fileSize", sizeMap.get("fileSize") + fileSize);
-                        int len;
-                        while ((len = ips.read(bytes)) > 0) {
-                            zops.write(bytes, 0, len);
-                        }
-                        zops.closeEntry();
-                        lock.unlock();
-                        zops.flush();
-                    } catch (Exception e) {
-                        throw new CommonException(Thread.currentThread().getName() + "读取文件异常，文件路径：" + bean.getAbsolutePath());
+                    lock.lock();
+                    zops.putNextEntry(zipEntry);
+                    byte[] bytes = new byte[bean.getFileLength() == null ? (1024 * 10) : bean.getFileLength().intValue()];
+                    Long fileSize = bean.getFileLength();
+                    sizeMap.put("fileSize", sizeMap.get("fileSize") + fileSize);
+                    int len;
+                    while ((len = ips.read(bytes)) > 0) {
+                        zops.write(bytes, 0, len);
                     }
-                    countDownLatch.countDown();
-                });
+                    zops.closeEntry();
+                    lock.unlock();
+                    zops.flush();
+                } catch (Exception e) {
+                    throw new CommonException(Thread.currentThread().getName() + "读取文件异常，文件路径：" + bean.getAbsolutePath());
+                }
             }
             countDownLatch.await();
             zops.close(); // 关闭流
-            executorService.shutdownNow();
             return sizeMap.get("fileSize") != null ? sizeMap.get("fileSize") : 0l;
         }catch (Exception e){
-            throw new CommonException("解压失败！e:"+e.getMessage());
+            throw new CommonException("压缩失败！e:"+e.getMessage());
         }
     }
 
@@ -92,9 +87,7 @@ public class CommonZipUtil {
             for (File tempFile : Objects.requireNonNull(file.listFiles())) {
                 getFileList(tempFile, fileList);
             }
-        }
-        // 如果是文件，则只保留文件名作为相对路径，并添加到ZipDownloadBean中
-        else if (file.isFile() && file.length() != 0) {
+        } else if (file.isFile() && file.length() != 0) {// 如果是文件，则只保留文件名作为相对路径，并添加到ZipDownloadBean中
             String fileName = file.getName();
             ZipDownloadBean bean = new ZipDownloadBean(null, file.getAbsolutePath(), fileName);
             bean.setFileLength(file.length());
