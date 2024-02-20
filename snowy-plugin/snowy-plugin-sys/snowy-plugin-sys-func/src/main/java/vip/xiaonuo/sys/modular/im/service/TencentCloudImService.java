@@ -47,10 +47,14 @@ public class TencentCloudImService {
      * 获取腾讯云用户签名
      */
     public String getTxCloudUserSig() {
-        Object userSig = commonCacheOperator.get(REDIS_IM_USER_SIG + tencentImProperties.getAppManager());
+        return createUserSignByUserId(tencentImProperties.getAppManager());
+    }
+
+    public String createUserSignByUserId(String userId) {
+        Object userSig = commonCacheOperator.get(REDIS_IM_USER_SIG + userId);
         if (ObjectUtil.isEmpty(userSig)) {
             TLSSigAPIv2 tlsSigApi = new TLSSigAPIv2(tencentImProperties.getSdkAppId(), tencentImProperties.getSecretKey());
-            userSig = tlsSigApi.genUserSig(tencentImProperties.getAppManager(), tencentImProperties.getExpireTime());
+            userSig = tlsSigApi.genUserSig(userId, tencentImProperties.getExpireTime());
             commonCacheOperator.put(REDIS_IM_USER_SIG + tencentImProperties.getAppManager(), userSig, 86400L);
         }
         return String.valueOf(userSig);
