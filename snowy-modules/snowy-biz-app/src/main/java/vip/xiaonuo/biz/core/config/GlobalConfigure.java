@@ -185,6 +185,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             /* 电子名片 */
             "/biz/applet/eCard/getAppletCardOpenIdByCode",
             "/biz/applet/eCard/getEcardByUserId",
+            "/biz/applet/eCard/image/page",
 
             /* 校招 */
             "/biz/sys/resume/saveResume",

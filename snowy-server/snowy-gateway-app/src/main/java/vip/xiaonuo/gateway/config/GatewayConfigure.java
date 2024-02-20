@@ -180,6 +180,7 @@ public class GatewayConfigure {
             /* 电子名片 */
             "/api/bizapp/biz/applet/eCard/getAppletCardOpenIdByCode",
             "/api/bizapp/biz/applet/eCard/getEcardByUserId",
+            "/api/bizapp/biz/applet/eCard/image/page",
 
             /* 校招 */
             "/api/bizapp/biz/sys/resume/saveResume",
