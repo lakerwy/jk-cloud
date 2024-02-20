@@ -139,4 +139,8 @@ public class CertManageAddParam {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 23)
     private String extJson;
+
+    /** 是否长期有效 1 ：长期有效 */
+    @ApiModelProperty(value = "是否长期有效 1 ：长期有效", position = 31)
+    private String isValid;
 }

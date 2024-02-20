@@ -96,38 +96,4 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "（证书是否失效，总部|分公司人员离职即证书失效，外部人员证书是否失效由页面自行维护） 状态  0 :有效  1：失效 ")
     private String userStatus;
 
-
-//    /** 部门 */
-//    @ApiModelProperty(value = "部门")
-//    private String dept;
-//
-//    /** 证书编号 */
-//    @ApiModelProperty(value = "证书编号")
-//    private String certNo;
-//
-//    /** 执业印章号 */
-//    @ApiModelProperty(value = "执业印章号")
-//    private String certSealNo;
-//    /** 证书类别：注册类别|培训类别 */
-//    @ApiModelProperty(value = "证书类别：注册类别|培训类别")
-//    private String certType;
-//
-//    /** 级别 */
-//    @ApiModelProperty(value = "级别")
-//    private String level;
-//
-//    /** 专业123 */
-//    @ApiModelProperty(value = "专业123")
-//    private String major;
-//    /** 有效期开始 */
-//    @ApiModelProperty(value = "有效期开始")
-//    private String startValidity;
-//
-//    /** 有效期结束 */
-//    @ApiModelProperty(value = "有效期结束")
-//    private String endValidity;
-//
-//    /** 证书状态：有效|无效 */
-//    @ApiModelProperty(value = "证书状态：有效|无效")
-//    private String certStatus;
 }

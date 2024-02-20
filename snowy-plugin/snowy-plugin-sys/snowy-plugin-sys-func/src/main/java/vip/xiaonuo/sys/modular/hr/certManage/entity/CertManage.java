@@ -82,12 +82,14 @@ public class CertManage {
     @ApiModelProperty(value = "发证日期", position = 10)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date issueDate;
 
     /** 有效期 */
     @ApiModelProperty(value = "有效期", position = 11)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date validity;
 
     /** 存管部门 */
@@ -181,4 +183,7 @@ public class CertManage {
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 
+    /** 是否长期有效 1 ：长期有效 */
+    @ApiModelProperty(value = "是否长期有效 1 ：长期有效", position = 31)
+    private String isValid;
 }

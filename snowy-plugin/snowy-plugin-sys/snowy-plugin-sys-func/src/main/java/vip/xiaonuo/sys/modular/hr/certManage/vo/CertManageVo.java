@@ -124,4 +124,8 @@ public class CertManageVo {
     /** 专业123(字典value-留痕) */
     @ApiModelProperty(value = "专业123(字典value-留痕)", position = 60)
     private String major;
+
+    /** 是否长期有效 1 ：长期有效 */
+    @ApiModelProperty(value = "是否长期有效 1 ：长期有效", position = 31)
+    private String isValid;
 }
