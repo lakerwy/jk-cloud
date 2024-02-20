@@ -32,14 +32,16 @@ public class CommonZipUtil {
 
     public Long zip(List<String> sourceFile,String inputFile){
         try {
+            log.error("ZipDownloadBean01:压缩文件数量："+sourceFile.size());
             ExecutorService executorService = Executors.newFixedThreadPool(10);
             ZipOutputStream zops = new ZipOutputStream(Files.newOutputStream(Paths.get(inputFile)));
             List<ZipDownloadBean> list = new ArrayList<>();
             for (String sourcePath : sourceFile) {
+                log.error("ZipDownloadBean01-1:压缩文件路径："+sourcePath);
                 File file = new File(sourcePath);
                 getFileList(file, list);
             }
-            log.error("ZipDownloadBean:压缩文件数量："+list.size());
+            log.error("ZipDownloadBean02:压缩文件数量："+list.size());
             CountDownLatch countDownLatch = new CountDownLatch(list.size());
             Map<String, Long> sizeMap = new HashMap<>();
             sizeMap.put("fileSize", 0L);
@@ -99,6 +101,7 @@ public class CommonZipUtil {
             }
         } else if (file.isFile() && file.length() != 0) {// 如果是文件，则只保留文件名作为相对路径，并添加到ZipDownloadBean中
             String fileName = file.getName();
+            log.error("ZipDownloadBean03:压缩文件名称："+fileName);
             ZipDownloadBean bean = new ZipDownloadBean(null, file.getAbsolutePath(), fileName);
             bean.setFileLength(file.length());
             fileList.add(bean);
