@@ -47,4 +47,8 @@ public class CardImagesAddParam {
     @ApiModelProperty(value = "排序", position = 6)
     private Integer sortIndex;
 
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 12)
+    private String memo;
+
 }

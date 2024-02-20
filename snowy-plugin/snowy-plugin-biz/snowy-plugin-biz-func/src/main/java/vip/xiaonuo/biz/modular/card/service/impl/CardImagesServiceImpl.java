@@ -56,6 +56,9 @@ public class CardImagesServiceImpl extends ServiceImpl<CardImagesMapper, CardIma
         if(ObjectUtil.isNotEmpty(cardImagesPageParam.getType())) {
             queryWrapper.lambda().eq(CardImages::getType, cardImagesPageParam.getType());
         }
+        if(ObjectUtil.isNotEmpty(cardImagesPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(CardImages::getMemo,cardImagesPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(cardImagesPageParam.getSortField(), cardImagesPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(cardImagesPageParam.getSortOrder());
             queryWrapper.orderBy(true, cardImagesPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

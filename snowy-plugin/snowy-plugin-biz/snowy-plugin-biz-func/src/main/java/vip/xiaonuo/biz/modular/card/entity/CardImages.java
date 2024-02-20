@@ -80,4 +80,8 @@ public class CardImages {
     @ApiModelProperty(value = "更新人", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 12)
+    private String memo;
 }
