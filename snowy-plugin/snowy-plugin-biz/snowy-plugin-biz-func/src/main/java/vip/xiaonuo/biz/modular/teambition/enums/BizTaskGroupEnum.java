@@ -27,9 +27,9 @@ public enum BizTaskGroupEnum {
     TEST("TEST"),
     ZRROR("0"),
     ONE("1"),
-    NOT_START("未开始"),
-    END("完成"),
-    NOT_END("未完成");
+    NOT_START("进行中"),
+    END("已完成"),
+    NOT_END("已取消");
 
     private final String value;
 

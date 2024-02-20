@@ -37,6 +37,7 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.org.entity.BizOrg;
 import vip.xiaonuo.biz.modular.org.service.BizOrgService;
 import vip.xiaonuo.biz.modular.teambition.ThirdParam.ThirdTaskPageParam;
+import vip.xiaonuo.biz.modular.teambition.consts.TaskConfConstant;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskFile;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskInfo;
 import vip.xiaonuo.biz.modular.teambition.entity.BizTaskProject;
@@ -208,7 +209,6 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         }
     }
 
-
     /** 新增任务
      *  1.任务数据
      *  2.任务来源数据，比如会议A 的详情数据
@@ -218,7 +218,12 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     public void add(BizTaskInfoAddParam bizTaskInfoAddParam) {
         String proId = null;
         String infoStatus = null;
-        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo()) && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo().getProName())){
+        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && (ObjectUtil.isEmpty(bizTaskInfoAddParam.getBizTaskProjectVo())
+                || ObjectUtil.isEmpty(bizTaskInfoAddParam.getBizTaskProjectVo().getProName()))){
+            throw new CommonException("非子任务需要填写任务来源");
+        }
+        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo())
+                && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo().getProName())){
             BizTaskProjectVo  bizTaskProjectVo = bizTaskInfoAddParam.getBizTaskProjectVo();
             BizTaskProject bizTaskProject = BeanUtil.toBean(bizTaskProjectVo, BizTaskProject.class);
             bizTaskProjectService.save(bizTaskProject);
@@ -236,6 +241,8 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         BizTaskInfo bizTaskInfo = BeanUtil.toBean(bizTaskInfoAddParam, BizTaskInfo.class);
         bizTaskInfo.setProId(proId);
         initBizTaskInfo(bizTaskInfo);
+        generateNo();//系统编号
+        bizTaskInfo.setSn(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY).toString());
         this.save(bizTaskInfo);
         sendAddMsg(bizTaskInfo);
         putTaskComment(bizTaskInfo,infoStatus);
@@ -311,17 +318,42 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         sendMsg(map,bizUserList.stream().map(user -> user.getId()).collect(Collectors.toList()));
     }
 
+    /**
+     * 生成项目编号
+     * @return
+     */
+    public void generateNo(){
+        String day = DateUtil.format(new Date(),DatePattern.PURE_DATE_PATTERN);
+        String sn = day+TaskConfConstant.TASK_NO_ONE;
+        Object o = commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY);
+        if(ObjectUtil.isNotEmpty(o)){
+            String taskNoKey = String.valueOf(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY));
+            if(taskNoKey.startsWith(day)){
+                commonCacheOperator.put(TaskConfConstant.TASK_NO_KEY,Integer.parseInt(taskNoKey)+1);
+            }else{
+                commonCacheOperator.put(TaskConfConstant.TASK_NO_KEY,sn);
+            }
+        }else {
+            commonCacheOperator.put(TaskConfConstant.TASK_NO_KEY,sn);
+        }
+    }
+
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizTaskInfoEditParam bizTaskInfoEditParam) {
         String infoStatus = "";
         BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoEditParam.getId());
-        if(bizTaskInfoEditParam.getTaskStatus().equals(bizTaskInfo.getTaskStatus())){
-            String startStatus = bizTaskInfo.getTaskStatus().equals("0") ? BizTaskGroupEnum.NOT_START.getValue() :bizTaskInfo.getTaskStatus().equals("1") ?
+        if(!bizTaskInfoEditParam.getTaskStatus().equals(bizTaskInfo.getTaskStatus())){//修改任务状态
+            String startStatus = bizTaskInfo.getTaskStatus().equals(BizTaskGroupEnum.ZRROR.getValue()) ?
+                    BizTaskGroupEnum.NOT_START.getValue() :bizTaskInfo.getTaskStatus().equals(BizTaskGroupEnum.ONE.getValue()) ?
                     BizTaskGroupEnum.END.getValue() : BizTaskGroupEnum.NOT_END.getValue();
-            String changeStatus = bizTaskInfo.getTaskStatus().equals("0") ? BizTaskGroupEnum.NOT_START.getValue() :bizTaskInfo.getTaskStatus().equals("1") ?
+            String changeStatus = bizTaskInfoEditParam.getTaskStatus().equals(BizTaskGroupEnum.ZRROR.getValue()) ?
+                    BizTaskGroupEnum.NOT_START.getValue() :bizTaskInfoEditParam.getTaskStatus().equals(BizTaskGroupEnum.ONE.getValue()) ?
                     BizTaskGroupEnum.END.getValue() : BizTaskGroupEnum.NOT_END.getValue();
             infoStatus = "将任务状态从"+startStatus+"改为"+changeStatus;
+            if(bizTaskInfoEditParam.getTaskStatus().equals("2")){
+                infoStatus = "任务完成";
+            }
         }
         BeanUtil.copyProperties(bizTaskInfoEditParam, bizTaskInfo);
         this.updateById(bizTaskInfo);

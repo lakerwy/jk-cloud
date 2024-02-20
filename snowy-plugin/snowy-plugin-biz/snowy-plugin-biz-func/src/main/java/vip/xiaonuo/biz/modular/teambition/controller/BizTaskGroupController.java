@@ -455,8 +455,8 @@ public class BizTaskGroupController {
      * @date  2023/12/18 11:40
      */
     @ApiOperationSupport(order = 28)
-    @ApiOperation("第三方来源添加任务-前端勿调")
-    @CommonLog("第三方来源添加任务-前端勿调")
+    @ApiOperation("第三方来源添加任务")
+    @CommonLog("第三方来源添加任务")
     @PostMapping("/biz/taskInfo/thirdAdd")
     public CommonResult<String> thirdAdd(@RequestBody @Valid BizTaskInfoAddParam bizTaskInfoAddParam) {
         bizTaskInfoService.thirdAdd(bizTaskInfoAddParam);
