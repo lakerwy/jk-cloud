@@ -32,41 +32,51 @@ public class CommonZipUtil {
 
     public Long zip(List<String> sourceFile,String inputFile){
         try {
+            ExecutorService executorService = Executors.newFixedThreadPool(10);
             ZipOutputStream zops = new ZipOutputStream(Files.newOutputStream(Paths.get(inputFile)));
             List<ZipDownloadBean> list = new ArrayList<>();
             for (String sourcePath : sourceFile) {
                 File file = new File(sourcePath);
                 getFileList(file, list);
             }
-
+            log.error("ZipDownloadBean:压缩文件数量："+list.size());
             CountDownLatch countDownLatch = new CountDownLatch(list.size());
             Map<String, Long> sizeMap = new HashMap<>();
             sizeMap.put("fileSize", 0L);
             Lock lock = new ReentrantLock();
 
             for (ZipDownloadBean bean : list) {
-                try (InputStream ips = Files.newInputStream(Paths.get(bean.getAbsolutePath()))) {
-                    // 使用文件名（即相对路径）创建ZipEntry
-                    ZipEntry zipEntry = new ZipEntry(bean.getPath());
+                executorService.execute(() -> {
+                    try (InputStream ips = Files.newInputStream(Paths.get(bean.getAbsolutePath()))) {
+                        lock.lock();
+                        try {
+                            // 使用文件名（即相对路径）创建ZipEntry
+                            ZipEntry zipEntry = new ZipEntry(bean.getPath());
+                            zops.putNextEntry(zipEntry);
 
-                    lock.lock();
-                    zops.putNextEntry(zipEntry);
-                    byte[] bytes = new byte[bean.getFileLength() == null ? (1024 * 10) : bean.getFileLength().intValue()];
-                    Long fileSize = bean.getFileLength();
-                    sizeMap.put("fileSize", sizeMap.get("fileSize") + fileSize);
-                    int len;
-                    while ((len = ips.read(bytes)) > 0) {
-                        zops.write(bytes, 0, len);
+                            byte[] bytes = new byte[bean.getFileLength() == null ? (1024 * 10) : bean.getFileLength().intValue()];
+                            Long fileSize = bean.getFileLength();
+                            sizeMap.put("fileSize", sizeMap.get("fileSize") + fileSize);
+                            int len;
+                            while ((len = ips.read(bytes)) > 0) {
+                                zops.write(bytes, 0, len);
+                            }
+                            zops.closeEntry();
+                        } finally {
+                            lock.unlock();
+                        }
+                        zops.flush();
+                    } catch (Exception e) {// ...
+                        log.error("读取文件异常，文件路径：" + bean.getAbsolutePath());
+                        throw new CommonException(Thread.currentThread().getName() + "读取文件异常，文件路径：" + bean.getAbsolutePath());
+                    } finally {
+                        countDownLatch.countDown();
                     }
-                    zops.closeEntry();
-                    lock.unlock();
-                    zops.flush();
-                } catch (Exception e) {
-                    throw new CommonException(Thread.currentThread().getName() + "读取文件异常，文件路径：" + bean.getAbsolutePath());
-                }
+                });
             }
             countDownLatch.await();
             zops.close(); // 关闭流
+            executorService.shutdownNow();
             return sizeMap.get("fileSize") != null ? sizeMap.get("fileSize") : 0l;
         }catch (Exception e){
             throw new CommonException("压缩失败！e:"+e.getMessage());
