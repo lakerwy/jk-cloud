@@ -109,7 +109,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
             queryWrapper.orderBy(true, certManagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(certManagePageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE").orderByAsc("d2.SORT_CODE").orderByAsc("a.MAJOR").orderByAsc("a.ID_NUMBER");
+            queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE").orderByAsc("d2.SORT_CODE").orderByAsc("a.MAJOR").orderByAsc("a.UNIT").orderByAsc("a.ID_NUMBER");
         }
         return certManageMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -223,7 +223,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         }
 
         //排序
-        queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE").orderByAsc("d2.SORT_CODE").orderByAsc("a.MAJOR").orderByAsc("a.ID_NUMBER");
+        queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE").orderByAsc("d2.SORT_CODE").orderByAsc("a.MAJOR").orderByAsc("a.UNIT").orderByAsc("a.ID_NUMBER");
         List<CertManageVo> list = certManageMapper.getMyList(queryWrapper);
         if(CollUtil.isEmpty(list)){
             return searchVo;
@@ -240,7 +240,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         QueryWrapper<CertManage> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.eq("a.ID_NUMBER",certManage.getIdNumber());
-        queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE").orderByAsc("d2.SORT_CODE").orderByAsc("a.MAJOR");
+        queryWrapper.orderByAsc("a.TYPE").orderByAsc("d1.SORT_CODE").orderByAsc("d2.SORT_CODE").orderByAsc("a.MAJOR").orderByAsc("a.UNIT");
         List<CertManageVo> list = certManageMapper.getMyList(queryWrapper);
         SearchDetailVo searchDetailVo = new SearchDetailVo();
         searchDetailVo.setReCertList(list.stream().filter(x->CertTypeEnum.REGISTER.getValue().equals(x.getType())).collect(Collectors.toList()));
