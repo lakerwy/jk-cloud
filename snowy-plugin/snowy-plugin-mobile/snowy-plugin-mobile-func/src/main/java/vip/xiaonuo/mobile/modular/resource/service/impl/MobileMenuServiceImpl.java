@@ -135,6 +135,9 @@ public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileM
 
     /**移动图标转BASE64 */
     private void setMobileIcon(MultipartFile file,MobileMenu mobileMenu){
+        if(ObjectUtil.isEmpty(file) || file.isEmpty()){
+            return;
+        }
         try {
             String suffix = Objects.requireNonNull(FileUtil.getSuffix(file.getOriginalFilename())).toLowerCase();
             String base64 = ImgUtil.toBase64DataUri(ImgUtil.scale(ImgUtil.toImage(file.getBytes()),
