@@ -20,7 +20,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.*;
-import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,12 +30,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.dev.modular.config.entity.DevConfig;
-import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.param.DevFileIdParam;
@@ -51,9 +47,9 @@ import vip.xiaonuo.pan.modular.file.param.PanFileIdParam;
 import vip.xiaonuo.pan.modular.file.param.PanFilePageParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.file.util.CommonZipUtil;
+import vip.xiaonuo.pan.modular.file.vo.PanSourceFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.component.AsyncTaskComp;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
-import vip.xiaonuo.pan.modular.fileCenter.operation.FileOperation;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.Downloader;
 import vip.xiaonuo.pan.modular.fileCenter.operation.download.domain.DownloadFile;
 import vip.xiaonuo.pan.modular.fileCenter.param.UnzipFileParam;
@@ -61,6 +57,7 @@ import vip.xiaonuo.pan.modular.fileCenter.param.ZipFileParam;
 import vip.xiaonuo.pan.modular.fileCenter.util.CommonFile;
 import vip.xiaonuo.pan.modular.fileCenter.util.FileCenterUtil;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
+import vip.xiaonuo.pan.modular.userFile.mapper.UserFileMapper;
 import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 
 import javax.annotation.Resource;
@@ -81,9 +78,6 @@ import java.util.stream.Collectors;
 public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> implements PanFileService {
 
     private final static String GATEWAYDOWNLOADURL = "/api/webapp/dev/file/download?id=";
-    private final static String PREFIX_UNZIP_TEMP_PATH = "temp";
-    private final static String PREFIX_UNZIP_PATH = "PREFIX_UNZIP_PATH";
-
 
     @Resource
     private UserFileService userFileService;
@@ -94,7 +88,6 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
     private PanFileService panFileService;
     @Resource
     UnRarZip7Z unRarZip7Z;
-
     @Resource
     AsyncTaskComp asyncTaskComp;
     @Resource
@@ -102,11 +95,9 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
     @Resource
     DevFileService devFileService;
     @Resource
-    CommonCacheOperator commonCacheOperator;
-    @Resource
     DevFileUnzipService devFileUnzipService;
     @Resource
-    DevConfigService devConfigService;
+    private UserFileMapper userFileMapper;
 
 
     public static Executor exec = Executors.newFixedThreadPool(20);
@@ -254,44 +245,22 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
         }
         Map<String,String> inputMap = new HashMap<>();
         inputMap.put("inputFile","");//压缩文件输出路径
-        List<String> sourceFileList = new ArrayList<>();
         if(CollectionUtil.isNotEmpty(zipFileParam.getUserFileId())){
             List<UserFile> userFiles = userFileService.list(new LambdaQueryWrapper<UserFile>().in(UserFile::getId,zipFileParam.getUserFileId()));
-            List<String> filePaths = new ArrayList<>();
-            List<String> panFileIds = new ArrayList<>();
-            userFiles.forEach(file -> {
-                if(file.isDirectory()){
-                    filePaths.add(file.getFilePath());//文件夹
-                }else{
-                    panFileIds.add(file.getFileId());
-                }
-            });
-            if(CollectionUtil.isNotEmpty(filePaths)){
-                filePaths.forEach(path -> {
-                    List<UserFile>  list = userFileService.selectUserFileByLikeRightFilePath(path,StpLoginUserUtil.getLoginUser().getId());
-                    if(CollectionUtil.isNotEmpty(list)){
-                        list.forEach(file -> { if(!file.isDirectory()){ panFileIds.add(file.getFileId());}});
-                    }
-                });
+            if(CollectionUtil.isEmpty(userFiles)){
+                throw new CommonException("未找到文件数据！");
             }
-            if(CollectionUtil.isEmpty(panFileIds)){ throw new CommonException("需要压缩的文件为空！");}
-            List<PanFile> panFileList = panFileService.list(new LambdaQueryWrapper<PanFile>().in(PanFile::getId,panFileIds));
-            panFileList.forEach(pan -> {
-                sourceFileList.add(pan.getFileUrl());
-                if(StringUtils.isEmpty(inputMap.get("inputFile"))){
-                    File file = new File(pan.getFileUrl());
-                    inputMap.put("inputFile",file.getParent());
-                }
-            });
         }
+        List<PanSourceFileVo> childrenFileList = getChildrenFileList(zipFileParam,new ArrayList<>(),inputMap);
+
         String inputFile = StringUtils.isNotEmpty(inputMap.get("inputFile")) ? inputMap.get("inputFile") : "";
-        if(CollectionUtil.isNotEmpty(sourceFileList)){
+        if(CollectionUtil.isNotEmpty(childrenFileList)){
             UserFile userFile = userFileService.getById(zipFileParam.getSaveFileId());
             if(ObjectUtil.isEmpty(inputFile)){ throw new CommonException("未找到该文件夹！");}
             if(!userFile.isDirectory()){ throw new CommonException("保存的路径不是文件夹！");}
             inputFile = inputFile+File.separator+zipFileParam.getIdentifier()+".zip";
 
-            Long fileSize = commonZipUtil.zip(sourceFileList,inputFile);
+            Long fileSize = commonZipUtil.zip(childrenFileList,inputFile);
             //插入PAN_FILE表数据
             PanFile panFile = new PanFile();
             panFile.setFileSize(fileSize);
@@ -314,6 +283,40 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             userFile1.setFileId(panFile.getId());
             userFileService.save(userFile1);
         }
+    }
+
+    private List<PanSourceFileVo> getChildrenFileList(ZipFileParam zipFileParam,List<PanSourceFileVo> panSourceFileVoList,Map<String,String> inputMap){
+        List<UserFile> userFiles = userFileService.list(new LambdaQueryWrapper<UserFile>().in(UserFile::getId,zipFileParam.getUserFileId()));
+        List<UserFile> childrenFileList =  new ArrayList<>();
+        if(CollectionUtil.isEmpty(userFiles)){
+            throw new CommonException("未找到文件数据！");
+        }
+        userFiles.forEach(file -> {
+            if(file.isDirectory()){
+                List<UserFile> childrenList = userFileMapper.getChildren(file.getId());
+                if(CollectionUtil.isNotEmpty(childrenList)){ childrenFileList.addAll(childrenList);}
+            }else{
+                childrenFileList.add(file);
+            }
+        });
+        if(CollectionUtil.isEmpty(childrenFileList)){ throw new CommonException("需要压缩的文件为空！");}
+        List<String> ids = new ArrayList<>();
+        childrenFileList.forEach(file -> {
+            if(StringUtils.isNotEmpty(file.getFileId())){
+                panSourceFileVoList.add(new PanSourceFileVo(file.getFileName()+"."+file.getExtendName(),file.getFileId()));
+                ids.add(file.getFileId());
+            }
+        });
+        List<PanFile> panFileList = panFileService.list(new LambdaQueryWrapper<PanFile>().in(PanFile::getId,ids));
+        Map<String,String> map = new HashMap<>();
+        panFileList.forEach(pan ->{ map.put(pan.getId(),pan.getFileUrl());
+            if(StringUtils.isEmpty(inputMap.get("inputFile"))){
+                File fileTemp = new File(pan.getFileUrl());
+                inputMap.put("inputFile",fileTemp.getParent());
+            }
+        });
+        panSourceFileVoList.forEach( pan -> pan.setFilePath(map.get(pan.getFileId())));
+        return panSourceFileVoList;
     }
 
     /** 解压文件 */

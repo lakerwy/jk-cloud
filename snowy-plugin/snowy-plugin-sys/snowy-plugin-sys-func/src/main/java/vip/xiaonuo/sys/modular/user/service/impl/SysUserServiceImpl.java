@@ -229,8 +229,13 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public SysLoginUser getUserByPhone(String phone) {
         SysUser sysUser = this.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getPhone, CommonCryptogramUtil.doSm4CbcEncrypt(phone)));
         if (ObjectUtil.isNotEmpty(sysUser)) {
+            /*transService.transOne(sysUser);
+            return BeanUtil.copyProperties(sysUser, SysLoginUser.class);*/
+            SysOrg sysOrg = sysOrgService.getById(sysUser.getOrgId());
             transService.transOne(sysUser);
-            return BeanUtil.copyProperties(sysUser, SysLoginUser.class);
+            SysLoginUser sysLoginUser = BeanUtil.copyProperties(sysUser, SysLoginUser.class);
+            sysLoginUser.setCategory(sysOrg.getCategory());
+            return sysLoginUser;
         }
         return null;
     }
