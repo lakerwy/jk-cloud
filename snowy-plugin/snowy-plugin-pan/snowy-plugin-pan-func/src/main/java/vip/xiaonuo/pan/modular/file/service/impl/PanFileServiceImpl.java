@@ -307,6 +307,7 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
                 ids.add(file.getFileId());
             }
         });
+        if(CollectionUtil.isEmpty(ids)){ throw new CommonException("需要压缩的文件为空！");}
         List<PanFile> panFileList = panFileService.list(new LambdaQueryWrapper<PanFile>().in(PanFile::getId,ids));
         Map<String,String> map = new HashMap<>();
         panFileList.forEach(pan ->{ map.put(pan.getId(),pan.getFileUrl());
