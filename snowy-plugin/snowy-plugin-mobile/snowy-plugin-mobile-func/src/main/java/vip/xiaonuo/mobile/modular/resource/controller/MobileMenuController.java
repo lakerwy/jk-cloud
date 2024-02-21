@@ -17,11 +17,10 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -163,5 +162,19 @@ public class MobileMenuController {
     @GetMapping("/mobile/menu/menuTreeSelector")
     public CommonResult<List<Tree<String>>> menuTreeSelector(MobileMenuSelectorMenuParam mobileMenuSelectorMenuParam) {
         return CommonResult.data(mobileMenuService.menuTreeSelector(mobileMenuSelectorMenuParam));
+    }
+
+    /**
+     * 修改移动端图标文件生成base64
+     *
+     * @author ljy
+     * @date 2024/4/21 14:01
+     **/
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("修改移动端图标文件生成base64")
+    @CommonLog("修改移动端图标文件生成base64")
+    @PostMapping("/mobile/menu/updateMobileIcon")
+    public CommonResult<String> updateAvatar(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file) {
+        return CommonResult.data(mobileMenuService.updateMobileIcon(file));
     }
 }

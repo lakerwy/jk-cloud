@@ -83,7 +83,7 @@ public class MobileMenuAddParam {
     @ApiModelProperty(value = "排序码", position = 11)
     private Integer sortCode;
 
-    /** 移动图标 */
-    @ApiModelProperty(value = "移动图标", position = 12)
-    private MultipartFile file;
+    /** 附件ID */
+    @ApiModelProperty(value = "附件ID", position = 12)
+    private String fileId;
 }

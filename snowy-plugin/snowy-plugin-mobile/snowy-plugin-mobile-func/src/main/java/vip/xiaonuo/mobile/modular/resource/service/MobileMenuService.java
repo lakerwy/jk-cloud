@@ -15,6 +15,7 @@ package vip.xiaonuo.mobile.modular.resource.service;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.mobile.modular.resource.entity.MobileMenu;
 import vip.xiaonuo.mobile.modular.resource.entity.MobileModule;
 import vip.xiaonuo.mobile.modular.resource.param.menu.*;
@@ -134,4 +135,12 @@ public interface MobileMenuService extends IService<MobileMenu> {
      * @date 2023/1/31 10:30
      **/
     List<Tree<String>> loginMobileMenuTree(List<String> menuIdList);
+
+    /**
+     * 修改用户头像返回base64
+     *
+     * @author ljy
+     * @date 2024/2/21 15:53
+     **/
+    String updateMobileIcon(MultipartFile file);
 }
