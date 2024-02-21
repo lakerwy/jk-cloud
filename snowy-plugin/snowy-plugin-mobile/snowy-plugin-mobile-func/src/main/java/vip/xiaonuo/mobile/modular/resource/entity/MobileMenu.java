@@ -93,4 +93,8 @@ public class MobileMenu extends CommonEntity {
     @ApiModelProperty(value = "扩展信息", position = 15)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private String extJson;
+
+    /** 移动图标BASE64 */
+    @ApiModelProperty(value = "移动图标BASE64", position = 15)
+    private String mobileIcon;
 }

@@ -15,6 +15,7 @@ package vip.xiaonuo.mobile.modular.resource.param.menu;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.validation.constraints.NotBlank;
 
@@ -86,4 +87,8 @@ public class MobileMenuEditParam {
     /** 排序码 */
     @ApiModelProperty(value = "排序码", position = 12)
     private Integer sortCode;
+
+    /** 移动图标BASE64*/
+    @ApiModelProperty(value = "移动图标BASE64", position = 13)
+    private MultipartFile file;
 }

@@ -15,6 +15,8 @@ package vip.xiaonuo.mobile.modular.resource.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.img.ImgUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.lang.tree.TreeUtil;
@@ -27,6 +29,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.mobile.modular.resource.entity.MobileMenu;
 import vip.xiaonuo.mobile.modular.resource.entity.MobileModule;
@@ -38,10 +41,8 @@ import vip.xiaonuo.mobile.modular.resource.service.MobileModuleService;
 import vip.xiaonuo.sys.api.SysRelationApi;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.io.IOException;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -97,6 +98,7 @@ public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileM
                 throw new CommonException("module与上级菜单不一致");
             }
         }
+        setMobileIcon(mobileMenuAddParam.getFile(),mobileMenu);
         mobileMenu.setCategory(MobileResourceCategoryEnum.MENU.getValue());
         this.save(mobileMenu);
     }
@@ -127,9 +129,21 @@ public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileM
                 throw new CommonException("module与上级菜单不一致");
             }
         }
+        setMobileIcon(mobileMenuEditParam.getFile(),mobileMenu);
         this.updateById(mobileMenu);
     }
 
+    /**移动图标转BASE64 */
+    private void setMobileIcon(MultipartFile file,MobileMenu mobileMenu){
+        try {
+            String suffix = Objects.requireNonNull(FileUtil.getSuffix(file.getOriginalFilename())).toLowerCase();
+            String base64 = ImgUtil.toBase64DataUri(ImgUtil.scale(ImgUtil.toImage(file.getBytes()),
+                    100, 100, null), suffix);
+            mobileMenu.setMobileIcon(base64);
+        } catch (IOException e) {
+            log.error(">>> 上传移动端图标失败：", e);
+        }
+    }
     @Override
     public void changeModule(MobileMenuChangeModuleParam mobileMenuChangeModuleParam) {
         MobileMenu mobileMenu = this.queryEntity(mobileMenuChangeModuleParam.getId());
