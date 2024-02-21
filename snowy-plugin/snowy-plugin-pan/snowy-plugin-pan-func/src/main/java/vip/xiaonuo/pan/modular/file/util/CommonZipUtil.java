@@ -8,6 +8,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
 import vip.xiaonuo.dev.modular.server.util.SftpFileUploader;
+import vip.xiaonuo.pan.modular.file.vo.PanSourceFileVo;
 
 import javax.annotation.Resource;
 import java.io.File;
@@ -30,23 +31,27 @@ public class CommonZipUtil {
     @Resource
     DevConfigService devConfigService;
 
-    public Long zip(List<String> sourceFile,String inputFile){
+    public Long zip(List<PanSourceFileVo> childrenFileList, String inputFile){
         try {
-            log.error("ZipDownloadBean01:压缩文件数量："+sourceFile.size());
+            log.error("PanSourceFile:压缩文件数量："+childrenFileList.size());
             ExecutorService executorService = Executors.newFixedThreadPool(10);
             ZipOutputStream zops = new ZipOutputStream(Files.newOutputStream(Paths.get(inputFile)));
             List<ZipDownloadBean> list = new ArrayList<>();
-            for (String sourcePath : sourceFile) {
-                log.error("ZipDownloadBean01-1:压缩文件路径："+sourcePath);
-                File file = new File(sourcePath);
-                getFileList(file, list);
+            for (PanSourceFileVo panSourceFileVo : childrenFileList) {
+                File file = new File(panSourceFileVo.getFilePath());
+                if(!file.exists()){
+                    log.error("文件不存在！panId:"+panSourceFileVo.getFileId()+",fileName:"+panSourceFileVo.getFileName());
+                    continue;
+                }
+                ZipDownloadBean bean = new ZipDownloadBean(null, panSourceFileVo.getFilePath(), panSourceFileVo.getFileName());
+                bean.setFileLength(file.length());
+                list.add(bean);
             }
-            log.error("ZipDownloadBean02:压缩文件数量："+list.size());
+            log.error("ZipDownloadBean:压缩文件数量："+list.size());
             CountDownLatch countDownLatch = new CountDownLatch(list.size());
             Map<String, Long> sizeMap = new HashMap<>();
             sizeMap.put("fileSize", 0L);
             Lock lock = new ReentrantLock();
-
             for (ZipDownloadBean bean : list) {
                 executorService.execute(() -> {
                     try (InputStream ips = Files.newInputStream(Paths.get(bean.getAbsolutePath()))) {

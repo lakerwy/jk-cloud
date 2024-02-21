@@ -16,4 +16,15 @@ public class PanSourceFileVo {
     @ApiModelProperty(value = "文件路径", position = 2)
     private String filePath;
 
+    /** 文件ID */
+    @ApiModelProperty(value = "文件ID", position = 3)
+    private String fileId;
+
+    public PanSourceFileVo(){}
+
+    public PanSourceFileVo(String fileName,String fileId){
+        this.fileName = fileName;
+        this.fileId = fileId;
+    }
+
 }
