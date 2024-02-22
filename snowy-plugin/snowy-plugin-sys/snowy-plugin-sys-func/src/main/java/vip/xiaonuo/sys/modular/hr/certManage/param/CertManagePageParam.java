@@ -72,9 +72,9 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "学校专业")
     private String eduMajor;
 
-    /** 混合搜索： 类别|等级|专业联动 */
-    @ApiModelProperty(value = "混合搜索： 类别|等级|专业联动")
-    private List<ThreeParam> threeParams;
+//    /** 混合搜索： 类别|等级|专业联动 */
+//    @ApiModelProperty(value = "混合搜索： 类别|等级|专业联动")
+//    private List<ThreeParam> threeParams;
 
     /** 发证日期开始 */
     @ApiModelProperty(value = "发证日期开始")

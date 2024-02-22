@@ -82,27 +82,18 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         }else{
             queryWrapper.eq("a.userStatus","0");
         }
+        // 关键字搜索
         if (ObjectUtil.isNotEmpty(certManagePageParam.getSearchKey())) {
             queryWrapper.and(q -> q.like("a.CERT_NO", certManagePageParam.getSearchKey())
-                    .or().like("a.CERT_SEAL_NO", certManagePageParam.getSearchKey())
                     .or().like("a.CERT_TYPE", certManagePageParam.getSearchKey())
                     .or().like("a.LEVEL", certManagePageParam.getSearchKey())
                     .or().like("a.MAJOR", certManagePageParam.getSearchKey())
                     .or().like("a.ID_NUMBER", certManagePageParam.getSearchKey())
                     .or().like("a.UNIT", certManagePageParam.getSearchKey())
                     .or().like("a.NAME", certManagePageParam.getSearchKey())
-                    .or().like("a.INS_UNIT", certManagePageParam.getSearchKey())
-                    .or().like("a.EDU_MAJOR", certManagePageParam.getSearchKey())
+                    .or().like("d1.DICT_LABEL", certManagePageParam.getSearchKey())
+                    .or().like("d2.DICT_LABEL", certManagePageParam.getSearchKey())
             );
-        }
-        //三级联动查询
-        if(CollUtil.isNotEmpty(certManagePageParam.getThreeParams())){
-            List<CertManageVo> filterList = getFilterThree(certManagePageParam.getThreeParams(),certManageMapper.getMyAliasList(queryWrapper));
-            if(CollUtil.isNotEmpty(filterList)){
-                queryWrapper.in("a.ID",filterList.stream().map(x->x.getId()).collect(Collectors.toList()));
-            }else{
-                return null;
-            }
         }
         if (ObjectUtil.isAllNotEmpty(certManagePageParam.getSortField(), certManagePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(certManagePageParam.getSortOrder());
@@ -197,15 +188,12 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         }
         if (ObjectUtil.isNotEmpty(certSearchPageParam.getSearchKey())) {
             queryWrapper.and(q -> q.like("a.CERT_NO", certSearchPageParam.getSearchKey())
-                    .or().like("a.CERT_SEAL_NO", certSearchPageParam.getSearchKey())
                     .or().like("a.CERT_TYPE", certSearchPageParam.getSearchKey())
                     .or().like("a.LEVEL", certSearchPageParam.getSearchKey())
                     .or().like("a.MAJOR", certSearchPageParam.getSearchKey())
                     .or().like("a.ID_NUMBER", certSearchPageParam.getSearchKey())
                     .or().like("a.UNIT", certSearchPageParam.getSearchKey())
                     .or().like("a.NAME", certSearchPageParam.getSearchKey())
-                    .or().like("a.INS_UNIT", certSearchPageParam.getSearchKey())
-                    .or().like("a.EDU_MAJOR", certSearchPageParam.getSearchKey())
             );
         }
         // 三级联动搜索（启用模式）（注册类|培训类|职称类 证书同时满足情况）
