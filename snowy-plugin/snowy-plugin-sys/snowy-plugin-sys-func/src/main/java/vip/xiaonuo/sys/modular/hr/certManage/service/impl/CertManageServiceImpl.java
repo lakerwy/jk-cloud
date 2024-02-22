@@ -85,8 +85,6 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         // 关键字搜索
         if (ObjectUtil.isNotEmpty(certManagePageParam.getSearchKey())) {
             queryWrapper.and(q -> q.like("a.CERT_NO", certManagePageParam.getSearchKey())
-                    .or().like("a.CERT_TYPE", certManagePageParam.getSearchKey())
-                    .or().like("a.LEVEL", certManagePageParam.getSearchKey())
                     .or().like("a.MAJOR", certManagePageParam.getSearchKey())
                     .or().like("a.ID_NUMBER", certManagePageParam.getSearchKey())
                     .or().like("a.UNIT", certManagePageParam.getSearchKey())
@@ -188,9 +186,6 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         }
         if (ObjectUtil.isNotEmpty(certSearchPageParam.getSearchKey())) {
             queryWrapper.and(q -> q.like("a.CERT_NO", certSearchPageParam.getSearchKey())
-                    .or().like("a.CERT_TYPE", certSearchPageParam.getSearchKey())
-                    .or().like("a.LEVEL", certSearchPageParam.getSearchKey())
-                    .or().like("a.MAJOR", certSearchPageParam.getSearchKey())
                     .or().like("a.ID_NUMBER", certSearchPageParam.getSearchKey())
                     .or().like("a.UNIT", certSearchPageParam.getSearchKey())
                     .or().like("a.NAME", certSearchPageParam.getSearchKey())
