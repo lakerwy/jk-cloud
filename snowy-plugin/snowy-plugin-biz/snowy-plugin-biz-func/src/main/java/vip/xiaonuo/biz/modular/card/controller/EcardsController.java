@@ -25,8 +25,10 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.card.entity.CardImages;
+import vip.xiaonuo.biz.modular.card.entity.CardQrCode;
 import vip.xiaonuo.biz.modular.card.param.*;
 import vip.xiaonuo.biz.modular.card.service.CardImagesService;
+import vip.xiaonuo.biz.modular.card.service.CardQrCodeService;
 import vip.xiaonuo.biz.modular.card.vo.EcardVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -56,6 +58,9 @@ public class EcardsController {
 
     @Resource
     private CardImagesService cardImagesService;
+
+    @Resource
+    private CardQrCodeService cardQrCodeService;
 
     /**
      * 获取Ecard-电子名片分页
@@ -149,13 +154,13 @@ public class EcardsController {
     }
 
     /**
-     * 获取Ecard-电子名片详情(通过openId获取)
+     * 获取Ecard-电子名片详情(通过openId获取)【未用到】
      *
      * @author yong.ye
      * @date  2023/11/13 11:22
      */
     @ApiOperationSupport(order = 7)
-    @ApiOperation("获取Ecard-电子名片详情(通过openId获取)")
+    @ApiOperation("获取Ecard-电子名片详情(通过openId获取)【未用到】")
 //    @SaCheckPermission("/biz/applet/eCard/getEcardByOpenId")
     @GetMapping("/biz/applet/eCard/getEcardByOpenId")
     public CommonResult<EcardVo> detailByOpenId(String openId) {
@@ -259,4 +264,108 @@ public class EcardsController {
     public CommonResult<CardImages> imgDetail(@Valid CardImagesIdParam cardImagesIdParam) {
         return CommonResult.data(cardImagesService.detail(cardImagesIdParam));
     }
+
+
+
+
+    /**
+     * 获取电子名片小程序,AccessToken
+     *
+     * @author yong.ye
+     * @date  2024/02/21 11:22
+     */
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("获取电子名片小程序,AccessToken")
+    @GetMapping("/biz/applet/eCard/getAccessToken")
+    public CommonResult<String> getAccessToken() {
+        return CommonResult.data(ecardsService.getAccessToken());
+    }
+
+    /**
+     * 电子名片小程序,生成二维码
+     *
+     * @author yong.ye
+     * @date  2024/02/21 11:22
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("电子名片小程序,生成二维码")
+    @CommonLog("电子名片小程序,生成二维码")
+    @PostMapping("/biz/applet/eCard/createQRCode")
+    public CommonResult<Boolean> createQRCode(@RequestBody @Valid QRCodeParam qrCodeParam) {
+        return CommonResult.data(ecardsService.createQRCode(qrCodeParam));
+    }
+
+
+    /**
+     * 获取Ecard-电子名片-二维码分页
+     *
+     * @author yong.ye
+     * @date  2024/02/21 15:52
+     */
+    @ApiOperationSupport(order = 22)
+    @ApiOperation("获取Ecard-电子名片-二维码分页")
+    @GetMapping("/biz/applet/eCard/qrCode/page")
+    public CommonResult<Page<CardQrCode>> qrCodePage(CardQrCodePageParam cardQrCodePageParam) {
+        return CommonResult.data(cardQrCodeService.page(cardQrCodePageParam));
+    }
+
+    /**
+     * 添加Ecard-电子名片-二维码
+     *
+     * @author yong.ye
+     * @date  2024/02/21 15:52
+     */
+    @ApiOperationSupport(order = 23)
+    @ApiOperation("添加Ecard-电子名片-二维码")
+    @CommonLog("添加Ecard-电子名片-二维码")
+    @PostMapping("/biz/applet/eCard/qrCode/add")
+    public CommonResult<String> qrCodeAdd(@RequestBody @Valid CardQrCodeAddParam cardQrCodeAddParam) {
+        cardQrCodeService.add(cardQrCodeAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑Ecard-电子名片-二维码
+     *
+     * @author yong.ye
+     * @date  2024/02/21 15:52
+     */
+    @ApiOperationSupport(order = 24)
+    @ApiOperation("编辑Ecard-电子名片-二维码")
+    @CommonLog("编辑Ecard-电子名片-二维码")
+    @PostMapping("/biz/applet/eCard/qrCode/edit")
+    public CommonResult<String> qrCodeEdit(@RequestBody @Valid CardQrCodeEditParam cardQrCodeEditParam) {
+        cardQrCodeService.edit(cardQrCodeEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除Ecard-电子名片-二维码
+     *
+     * @author yong.ye
+     * @date  2024/02/21 15:52
+     */
+    @ApiOperationSupport(order = 25)
+    @ApiOperation("删除Ecard-电子名片-二维码")
+    @CommonLog("删除Ecard-电子名片-二维码")
+    @PostMapping("/biz/applet/eCard/qrCode/delete")
+    public CommonResult<String> qrCodeDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                       CommonValidList<CardQrCodeIdParam> cardQrCodeIdParamList) {
+        cardQrCodeService.delete(cardQrCodeIdParamList);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取Ecard-电子名片-二维码详情
+     *
+     * @author yong.ye
+     * @date  2024/02/21 15:52
+     */
+    @ApiOperationSupport(order = 26)
+    @ApiOperation("获取Ecard-电子名片-二维码详情")
+    @GetMapping("/biz/applet/eCard/qrCode/detail")
+    public CommonResult<CardQrCode> qrCodeDetail(@Valid CardQrCodeIdParam cardQrCodeIdParam) {
+        return CommonResult.data(cardQrCodeService.detail(cardQrCodeIdParam));
+    }
+
 }

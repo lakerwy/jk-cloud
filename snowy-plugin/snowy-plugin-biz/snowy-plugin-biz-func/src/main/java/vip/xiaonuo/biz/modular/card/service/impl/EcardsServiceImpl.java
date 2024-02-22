@@ -17,35 +17,42 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.URLUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
 import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.util.EntityUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.card.config.AppletCardProperties;
 import vip.xiaonuo.biz.modular.card.entity.CardImages;
+import vip.xiaonuo.biz.modular.card.entity.CardQrCode;
+import vip.xiaonuo.biz.modular.card.param.*;
 import vip.xiaonuo.biz.modular.card.service.CardImagesService;
+import vip.xiaonuo.biz.modular.card.service.CardQrCodeService;
 import vip.xiaonuo.biz.modular.card.vo.EcardVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.card.entity.Ecards;
 import vip.xiaonuo.biz.modular.card.mapper.EcardsMapper;
-import vip.xiaonuo.biz.modular.card.param.EcardsAddParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsEditParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsIdParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsPageParam;
 import vip.xiaonuo.biz.modular.card.service.EcardsService;
 
 import javax.annotation.Resource;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Base64;
 import java.util.List;
 
 /**
@@ -64,6 +71,9 @@ public class EcardsServiceImpl extends ServiceImpl<EcardsMapper, Ecards> impleme
 
     @Resource
     private CardImagesService cardImagesService;
+
+    @Resource
+    private CardQrCodeService cardQrCodeService;
 
     @Override
     public Page<Ecards> page(EcardsPageParam ecardsPageParam) {
@@ -198,5 +208,103 @@ public class EcardsServiceImpl extends ServiceImpl<EcardsMapper, Ecards> impleme
         EcardVo ecardVo = BeanUtil.copyProperties(ecards,EcardVo.class);
         ecardVo.setImages(cardImagesService.getImagesById(cardId));
         return ecardVo;
+    }
+
+    @Override
+    public String getAccessToken() {
+        if(ObjectUtil.isEmpty(appletCardProperties.getAppId()) || ObjectUtil.isEmpty(appletCardProperties.getAppSecret())){
+            throw new CommonException("电子名片小程序应用参数错误");
+        }
+        //此处填写自己小程序的appid和secret
+        String url = "https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&appid=" + appletCardProperties.getAppId() + "&secret=" + appletCardProperties.getAppSecret();
+        //请求get
+        try {
+            // 创建HttpClient实例
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            // 创建HttpGet实例
+            HttpGet httpGet = new HttpGet(url);
+            // 执行请求并获取响应
+            HttpResponse httpResponse = httpClient.execute(httpGet);
+            // 从响应中获取状态码和响应体
+            String responseBody = EntityUtils.toString(httpResponse.getEntity());
+            // 输出状态码和响应体
+            JSONObject objResult = JSONUtil.parseObj(responseBody);
+            return objResult.getStr("access_token");
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
+    @Override
+    public Boolean createQRCode(QRCodeParam qrCodeParam) {
+        //0. 判断是否已开通（二维码）
+        List<CardQrCode> qrCodeList = cardQrCodeService.list(new QueryWrapper<CardQrCode>().lambda().eq(CardQrCode::getUserId,qrCodeParam.getUserId()));
+        if(CollUtil.isNotEmpty(qrCodeList)){
+            throw new CommonException("已开通过电子名片");
+        }
+        //1. 获取接口调用凭证
+        String accessToken = getAccessToken();
+        if(ObjectUtil.isEmpty(accessToken)){
+            throw new CommonException("获取AccessToken失败");
+        }
+        //2. post 请求生成二维码
+        String url = "https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token="+accessToken;
+        try{
+            // 创建HttpClient实例
+            HttpClient httpClient = HttpClientBuilder.create().build();
+            // 创建HttpGet实例
+            HttpPost httpPost = new HttpPost(url);
+            // 设置请求接口参数
+            JSONObject json = new JSONObject();
+            json.put("path",  "pages/info/info?userId=" + qrCodeParam.getUserId());   // 参数
+            StringEntity params = new StringEntity(json.toString());
+            httpPost.setEntity(params);
+            // 执行请求并获取响应
+            HttpResponse httpResponse = httpClient.execute(httpPost);
+            HttpEntity httpEntity = httpResponse.getEntity();
+            // 从响应中获取状态码和响应体  接口成功，处理buffer
+            String contentType = httpEntity.getContentType().getValue();
+            if(contentType.contains("image")) {
+                byte[] bytes = EntityUtils.toByteArray(httpEntity);
+                //转base64
+                String qrCodeBase64 = URLUtil.getDataUri("image/jpg", "base64", Base64.getEncoder().encodeToString(bytes));
+                CardQrCode cardQrCode = new CardQrCode();
+                cardQrCode.setUserId(qrCodeParam.getUserId());
+                cardQrCode.setUserName(qrCodeParam.getUserName());
+                cardQrCode.setDeptName(qrCodeParam.getDeptName());
+                cardQrCode.setQrCode(qrCodeBase64);
+                cardQrCodeService.save(cardQrCode);
+
+                //开通时，若不存在ECard记录，直接生成ECard记录
+                List<Ecards> ecardsList = this.list(new QueryWrapper<Ecards>().lambda().and(q->q.eq(Ecards::getUserId,qrCodeParam.getUserId()).or().eq(Ecards::getOldUserId,qrCodeParam.getUserId())));
+                if(CollUtil.isEmpty(ecardsList)){
+                    Ecards eCardsAdd = new Ecards();
+                    eCardsAdd.setUserId(qrCodeParam.getUserId());
+                    eCardsAdd.setPhone(qrCodeParam.getPhone());
+                    eCardsAdd.setUserName(qrCodeParam.getUserName());
+                    this.save(eCardsAdd);
+                }
+                return true;
+            }else{ //生成失败
+                throw new CommonException("二维码生成失败");
+            }
+        }catch (Exception e){
+            throw new CommonException(e.getMessage());
+        }
+    }
+
+    /**
+     * 输入流转字节流
+     * */
+    private byte[] InputStreamToByte(InputStream in) throws IOException {
+        ByteArrayOutputStream bytestream = new ByteArrayOutputStream();
+        byte[] buffer=new byte[1024];
+        int ch;
+        while ((ch = in.read(buffer)) != -1) {
+            bytestream.write(buffer,0,ch);
+        }
+        byte data[] = bytestream.toByteArray();
+        bytestream.close();
+        return data;
     }
 }

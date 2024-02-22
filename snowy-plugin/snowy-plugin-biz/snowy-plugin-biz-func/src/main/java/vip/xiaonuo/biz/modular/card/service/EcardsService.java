@@ -16,10 +16,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.card.entity.Ecards;
-import vip.xiaonuo.biz.modular.card.param.EcardsAddParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsEditParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsIdParam;
-import vip.xiaonuo.biz.modular.card.param.EcardsPageParam;
+import vip.xiaonuo.biz.modular.card.param.*;
 import vip.xiaonuo.biz.modular.card.vo.EcardVo;
 
 import java.util.List;
@@ -108,4 +105,17 @@ public interface EcardsService extends IService<Ecards> {
      * @return
      */
     EcardVo getByCardId(String cardId);
+
+    /**
+     * 获取电子名片小程序 AccessToken
+     * @return
+     */
+    String getAccessToken();
+
+    /**
+     * 生成微信电子名片二维码
+     * @param qrCodeParam
+     * @return
+     */
+    Boolean createQRCode(QRCodeParam qrCodeParam);
 }
