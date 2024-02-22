@@ -25,7 +25,6 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
@@ -79,10 +78,9 @@ import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
-import javax.annotation.Resource;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import java.io.InputStream;
+import javax.annotation.Resource;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -1104,22 +1102,51 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Override
     public String getFlwDiagram(FlwProcessInstanceIdParam flwProcessInstanceIdParam){
-        // 生成流程图图片
-        String processDefinitionId = runtimeService.createProcessInstanceQuery()
-                .processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
-                .singleResult().getProcessDefinitionId();
-        // 获取 BPMN 模型实例
-        BpmnModelInstance bpmnModelInstance = repositoryService.getBpmnModelInstance(processDefinitionId);
-        // 创建字节数组输出流
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        // 从正在运行的流程实例中获取流程图
+        ProcessInstance runningProcessInstance = runtimeService.createProcessInstanceQuery().processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
+                .singleResult();
+        if (runningProcessInstance != null) {
+            return getProcessDiagramBase64FromInstance(runningProcessInstance);
+        }
 
-        // 将 BPMN 模型实例渲染为图片并写入字节数组输出流
-        Bpmn.writeModelToStream(outputStream, bpmnModelInstance);
+        // 从历史流程实例中获取流程图
+        HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
+                .finished()
+                .singleResult();
+        if (historicProcessInstance != null) {
+            return getProcessDiagramBase64FromInstance(historicProcessInstance);
+        }
+        return null;
+    }
 
-        // 将字节数组输出流转换为字节数组
-        byte[] imageBytes = outputStream.toByteArray();
+    private String getProcessDiagramBase64FromInstance(Object processInstance) {
+        try {
+            // 获取流程定义的 ID
+            String processDefinitionId;
+            if (processInstance instanceof ProcessInstance) {
+                processDefinitionId = ((ProcessInstance) processInstance).getProcessDefinitionId();
+            } else {
+                processDefinitionId = ((HistoricProcessInstance) processInstance).getProcessDefinitionId();
+            }
 
-        // 将字节数组转换为 Base64 字符串
-        return Base64.getEncoder().encodeToString(imageBytes);
+            // 获取流程定义的 BPMN 资源
+//            InputStream processDiagramStream  = repositoryService.getProcessModel(processDefinitionId);
+            //InputStream processDiagramStream = repositoryService.getProcessDiagram(processDefinitionId);
+            BpmnModelInstance bpmnModelInstance = repositoryService.getBpmnModelInstance(processDefinitionId);
+            // 将流程图转换为 base64 编码的字符串
+            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            Bpmn.writeModelToStream(outputStream,bpmnModelInstance);
+
+//            byte[] buffer = new byte[1024];
+//            int length;
+//            while ((length = processDiagramStream.read(buffer)) != -1) {
+//                outputStream.write(buffer, 0, length);
+//            }
+            String base64Image = Base64.getEncoder().encodeToString(outputStream.toByteArray());
+            return "data:image/png;base64," + base64Image;
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+        return null;
     }
 }
