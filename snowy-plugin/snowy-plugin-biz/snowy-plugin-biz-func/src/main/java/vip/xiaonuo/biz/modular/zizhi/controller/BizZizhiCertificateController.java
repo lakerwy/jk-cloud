@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.zizhi.vo.BizZizhiCertificateVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -61,7 +62,7 @@ public class BizZizhiCertificateController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-资质-企业资质证书表分页")
     @GetMapping("/biz/ziZhi/page")
-    public CommonResult<Page<BizZizhiCertificate>> page(BizZizhiCertificatePageParam bizZizhiCertificatePageParam) {
+    public CommonResult<Page<BizZizhiCertificateVo>> page(BizZizhiCertificatePageParam bizZizhiCertificatePageParam) {
         return CommonResult.data(bizZizhiCertificateService.page(bizZizhiCertificatePageParam));
     }
 

@@ -12,9 +12,12 @@
  */
 package vip.xiaonuo.biz.modular.zizhi.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -67,5 +70,13 @@ public class BizZizhiCertificatePageParam {
     /** 颁发机构 */
     @ApiModelProperty(value = "颁发机构")
     private String issueOrg;
+
+    /** 证书编号 */
+    @ApiModelProperty(value = "证书编号")
+    private String certNo;
+
+    /** 证书有效期标识（已过期|临近六个月） */
+    @ApiModelProperty(value = "证书有效期标识（已过期|临近六个月）", position = 20)
+    private String certStage;
 
 }

@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.zizhi.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.zizhi.entity.BizZizhiCertificate;
+import vip.xiaonuo.biz.modular.zizhi.vo.BizZizhiCertificateVo;
 
 /**
  * 业务表-资质-企业资质证书表Mapper接口
@@ -22,4 +27,12 @@ import vip.xiaonuo.biz.modular.zizhi.entity.BizZizhiCertificate;
  * @date  2023/09/01 09:56
  **/
 public interface BizZizhiCertificateMapper extends BaseMapper<BizZizhiCertificate> {
+
+    /**
+     * 分页查询（自定义）
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<BizZizhiCertificateVo> getPageList(Page<BizZizhiCertificateVo> page, @Param(Constants.WRAPPER) Wrapper<BizZizhiCertificate> queryWrapper);
 }

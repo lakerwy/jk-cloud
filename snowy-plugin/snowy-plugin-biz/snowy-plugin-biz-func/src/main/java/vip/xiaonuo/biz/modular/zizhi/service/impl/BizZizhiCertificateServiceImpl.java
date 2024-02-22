@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.zizhi.vo.BizZizhiCertificateVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -33,6 +34,7 @@ import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateIdParam;
 import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificatePageParam;
 import vip.xiaonuo.biz.modular.zizhi.service.BizZizhiCertificateService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -45,38 +47,49 @@ import java.util.List;
 @Service
 public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertificateMapper, BizZizhiCertificate> implements BizZizhiCertificateService {
 
+    @Resource
+    private BizZizhiCertificateMapper bizZizhiCertificateMapper;
+
     @Override
-    public Page<BizZizhiCertificate> page(BizZizhiCertificatePageParam bizZizhiCertificatePageParam) {
+    public Page<BizZizhiCertificateVo> page(BizZizhiCertificatePageParam bizZizhiCertificatePageParam) {
         QueryWrapper<BizZizhiCertificate> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getSn())) {
-            queryWrapper.lambda().eq(BizZizhiCertificate::getSn, bizZizhiCertificatePageParam.getSn());
+            queryWrapper.eq("a.SN", bizZizhiCertificatePageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getCompany())) {
-            queryWrapper.lambda().like(BizZizhiCertificate::getCompany, bizZizhiCertificatePageParam.getCompany());
+            queryWrapper.like("a.COMPANY", bizZizhiCertificatePageParam.getCompany());
         }
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getType())) {
-            queryWrapper.lambda().eq(BizZizhiCertificate::getType, bizZizhiCertificatePageParam.getType());
+            queryWrapper.eq("a.TYPE", bizZizhiCertificatePageParam.getType());
         }
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getZiZhiName())) {
-            queryWrapper.lambda().like(BizZizhiCertificate::getZiZhiName, bizZizhiCertificatePageParam.getZiZhiName());
+            queryWrapper.like("a.ZI_ZHI_NAME", bizZizhiCertificatePageParam.getZiZhiName());
         }
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getIssueOrg())) {
-            queryWrapper.lambda().like(BizZizhiCertificate::getIssueOrg, bizZizhiCertificatePageParam.getIssueOrg());
+            queryWrapper.like("a.ISSUE_ORG", bizZizhiCertificatePageParam.getIssueOrg());
+        }
+        if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getCertNo())){
+            queryWrapper.like("a.CERT_NO",bizZizhiCertificatePageParam.getCertNo());
         }
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(BizZizhiCertificate::getCompany,bizZizhiCertificatePageParam.getSearchKey())
-                    .or().like(BizZizhiCertificate::getIssueOrg,bizZizhiCertificatePageParam.getSearchKey())
-                    .or().like(BizZizhiCertificate::getType,bizZizhiCertificatePageParam.getSearchKey())
-                    .or().like(BizZizhiCertificate::getZiZhiName,bizZizhiCertificatePageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("a.COMPANY",bizZizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.ISSUE_ORG",bizZizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.TYPE",bizZizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.ZI_ZHI_NAME",bizZizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.CERT_NO",bizZizhiCertificatePageParam.getSearchKey()));
+        }
+        if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getCertStage())){
+            queryWrapper.eq("a.certStage",bizZizhiCertificatePageParam.getCertStage());
         }
         if(ObjectUtil.isAllNotEmpty(bizZizhiCertificatePageParam.getSortField(), bizZizhiCertificatePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizZizhiCertificatePageParam.getSortOrder());
             queryWrapper.orderBy(true, bizZizhiCertificatePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizZizhiCertificatePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizZizhiCertificate::getSn);
+            queryWrapper.orderByAsc("a.COMPANY").orderByAsc("a.TYPE").orderByAsc("a.ZI_ZHI_NAME");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return bizZizhiCertificateMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

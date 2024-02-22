@@ -66,4 +66,13 @@ public class BizZizhiCertificateEditParam {
     @ApiModelProperty(value = "备注", position = 8)
     private String memo;
 
+    /** 证书编号 */
+    @ApiModelProperty(value = "证书编号", position = 14)
+    private String certNo;
+
+    /** 有效期 */
+    @ApiModelProperty(value = "有效期", position = 15)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date validity;
 }

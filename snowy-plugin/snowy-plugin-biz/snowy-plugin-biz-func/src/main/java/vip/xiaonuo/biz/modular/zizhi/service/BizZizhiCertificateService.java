@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateAddParam;
 import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateEditParam;
 import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateIdParam;
 import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificatePageParam;
+import vip.xiaonuo.biz.modular.zizhi.vo.BizZizhiCertificateVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface BizZizhiCertificateService extends IService<BizZizhiCertificate
      * @author yong.ye
      * @date  2023/09/01 09:56
      */
-    Page<BizZizhiCertificate> page(BizZizhiCertificatePageParam bizZizhiCertificatePageParam);
+    Page<BizZizhiCertificateVo> page(BizZizhiCertificatePageParam bizZizhiCertificatePageParam);
 
     /**
      * 添加业务表-资质-企业资质证书表

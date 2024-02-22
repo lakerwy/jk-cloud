@@ -91,4 +91,15 @@ public class BizZizhiCertificate {
     @ApiModelProperty(value = "更新人", position = 13)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 证书编号 */
+    @ApiModelProperty(value = "证书编号", position = 14)
+    private String certNo;
+
+    /** 有效期 */
+    @ApiModelProperty(value = "有效期", position = 15)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private Date validity;
 }
