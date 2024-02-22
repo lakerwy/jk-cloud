@@ -6,6 +6,7 @@
         select a.*
         from (select cert.*,
                   CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; DATE(NOW()) then '已过期'
+                       WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 1 MONTH) then '临近一个月'
                        WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                   ELSE ''  END AS certStage
               from BIZ_ZIZHI_CERTIFICATE cert where cert.DELETE_FLAG='NOT_DELETE') a
