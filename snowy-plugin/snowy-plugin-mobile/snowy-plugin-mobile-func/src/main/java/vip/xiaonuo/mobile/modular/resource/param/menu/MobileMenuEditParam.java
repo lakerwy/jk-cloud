@@ -91,4 +91,8 @@ public class MobileMenuEditParam {
     /** 移动图标BASE64*/
     @ApiModelProperty(value = "移动图标", position = 13)
     private MultipartFile file;
+
+    /** 附件ID */
+    @ApiModelProperty(value = "附件ID", position = 14)
+    private String fileId;
 }

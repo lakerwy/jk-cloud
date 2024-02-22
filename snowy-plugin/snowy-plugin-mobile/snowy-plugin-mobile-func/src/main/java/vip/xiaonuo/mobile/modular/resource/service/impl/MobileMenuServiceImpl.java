@@ -27,6 +27,7 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -54,6 +55,7 @@ import java.util.stream.Collectors;
 @Service
 public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileMenu> implements MobileMenuService {
 
+    private final static String GATEWAYDOWNLOADURL = "/api/webapp/dev/file/download?id=";
     @Resource
     private MobileModuleService mobileModuleService;
 
@@ -72,6 +74,9 @@ public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileM
         lambdaQueryWrapper.eq(MobileMenu::getCategory, MobileResourceCategoryEnum.MENU.getValue());
         lambdaQueryWrapper.orderByDesc(MobileMenu::getSortCode);
         List<MobileMenu> mobileMenuList = this.list(lambdaQueryWrapper);
+        mobileMenuList.forEach(mobileMenu -> {
+            if(StringUtils.isNotEmpty(mobileMenu.getFileId())){ mobileMenu.setDownloadUtil(GATEWAYDOWNLOADURL+mobileMenu.getFileId());}
+        });
         List<TreeNode<String>> treeNodeList = mobileMenuList.stream().map(mobileMenu ->
                         new TreeNode<>(mobileMenu.getId(), mobileMenu.getParentId(),
                                 mobileMenu.getTitle(), mobileMenu.getSortCode()).setExtra(JSONUtil.parseObj(mobileMenu)))
@@ -98,7 +103,6 @@ public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileM
                 throw new CommonException("module与上级菜单不一致");
             }
         }
-        setMobileIcon(mobileMenuAddParam.getFile(),mobileMenu);
         mobileMenu.setCategory(MobileResourceCategoryEnum.MENU.getValue());
         this.save(mobileMenu);
     }
@@ -129,22 +133,22 @@ public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileM
                 throw new CommonException("module与上级菜单不一致");
             }
         }
-        setMobileIcon(mobileMenuEditParam.getFile(),mobileMenu);
         this.updateById(mobileMenu);
     }
 
-    /**移动图标转BASE64 */
-    private void setMobileIcon(MultipartFile file,MobileMenu mobileMenu){
-        if(ObjectUtil.isEmpty(file) || file.isEmpty()){
-            return;
-        }
+    /**
+     * 修改移动端图标文件生成base64
+     * */
+    @Override
+    public String updateMobileIcon(MultipartFile file) {
         try {
             String suffix = Objects.requireNonNull(FileUtil.getSuffix(file.getOriginalFilename())).toLowerCase();
             String base64 = ImgUtil.toBase64DataUri(ImgUtil.scale(ImgUtil.toImage(file.getBytes()),
                     100, 100, null), suffix);
-            mobileMenu.setMobileIcon(base64);
+            return base64;
         } catch (IOException e) {
-            log.error(">>> 上传移动端图标失败：", e);
+            log.error(">>> 图片生成base64失败："+e.getMessage());
+            throw new CommonException("图片生成base64失败："+e.getMessage());
         }
     }
     @Override
