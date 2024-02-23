@@ -32,6 +32,7 @@ import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
+import org.camunda.bpm.engine.runtime.Execution;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.task.Comment;
@@ -1078,10 +1079,13 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     @Override
     public void urge(FlwTaskUrgeParam flwTaskUrgeParam) {
         Task task = taskService.createTaskQuery().processInstanceId(flwTaskUrgeParam.getId()).active().singleResult();
+        String taskId = ObjectUtil.isNotEmpty(task) ? task.getId() : "";
         if (ObjectUtil.isEmpty(task)) {
-            throw new CommonException("任务不存在，id值为：{}", flwTaskUrgeParam.getId());
+            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
+                    .processInstanceId(flwTaskUrgeParam.getId()).singleResult();
+            if(ObjectUtil.isEmpty(historicProcessInstance)){throw new CommonException("任务不存在，id值为：{}", flwTaskUrgeParam.getId());}
+            taskId = historicProcessInstance.getId();
         }
-        String taskId = task.getId();
         String nowDate = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN);
         Object object = commonCacheOperator.get(FlwCacheConstant.FLW_URGE_KEY + taskId);
         if(ObjectUtil.isNotEmpty(object)){

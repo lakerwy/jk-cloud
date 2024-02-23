@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
 @Setter
 public class FlwTaskUrgeParam {
     /** 任务Id */
-    @ApiModelProperty(value = "任务Id", required = true, position = 1)
+    @ApiModelProperty(value = "任务Id,已发栏传ID，已办栏传processInstanceId", required = true, position = 1)
     @NotBlank(message = "id不能为空")
     private String id;
 
