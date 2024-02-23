@@ -50,6 +50,16 @@ public class TencentCloudImService {
         return createUserSignByUserId(tencentImProperties.getAppManager());
     }
 
+    public String getOldTxCloudUserSig() {
+        Object userSig = commonCacheOperator.get(REDIS_IM_USER_SIG + tencentImProperties.getAppManager());
+        if (ObjectUtil.isEmpty(userSig)) {
+            TLSSigAPIv2 tlsSigApi = new TLSSigAPIv2(tencentImProperties.getSdkAppId(), tencentImProperties.getSecretKey());
+            userSig = tlsSigApi.genUserSig(tencentImProperties.getAppManager(), tencentImProperties.getExpireTime());
+            commonCacheOperator.put(REDIS_IM_USER_SIG + tencentImProperties.getAppManager(), userSig, 86400L);
+        }
+        return String.valueOf(userSig);
+    }
+
     public String createUserSignByUserId(String userId) {
         Object userSig = commonCacheOperator.get(REDIS_IM_USER_SIG + userId);
         if (ObjectUtil.isEmpty(userSig)) {
@@ -65,7 +75,7 @@ public class TencentCloudImService {
      */
     private String getHttpsUrl(String imServiceApi) {
         return String.format("%s%s?sdkappid=%s&identifier=%s&usersig=%s&random=%s&contenttype=json",
-                tencentImProperties.getPrefixUrl(), imServiceApi, tencentImProperties.getSdkAppId(), tencentImProperties.getAppManager(), this.getTxCloudUserSig(), RandomUtils.nextInt(0, 999999999));
+                tencentImProperties.getPrefixUrl(), imServiceApi, tencentImProperties.getSdkAppId(), tencentImProperties.getAppManager(), this.getOldTxCloudUserSig(), RandomUtils.nextInt(0, 999999999));
     }
 
     /**
