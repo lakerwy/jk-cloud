@@ -1078,10 +1078,10 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     @Override
     public void urge(FlwTaskUrgeParam flwTaskUrgeParam) {
         Task task = taskService.createTaskQuery().processInstanceId(flwTaskUrgeParam.getId()).active().singleResult();
-        String taskId = task.getId();
         if (ObjectUtil.isEmpty(task)) {
-            throw new CommonException("任务不存在，id值为：{}", taskId);
+            throw new CommonException("任务不存在，id值为：{}", flwTaskUrgeParam.getId());
         }
+        String taskId = task.getId();
         String nowDate = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN);
         Object object = commonCacheOperator.get(FlwCacheConstant.FLW_URGE_KEY + taskId);
         if(ObjectUtil.isNotEmpty(object)){
