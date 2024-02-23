@@ -7,8 +7,8 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.tencentyun.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
+import com.tencentyun.TLSSigAPIv2;
 import org.apache.commons.lang3.RandomUtils;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -22,7 +22,6 @@ import vip.xiaonuo.sys.modular.im.param.AccountParam;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 import static vip.xiaonuo.common.pojo.CommonResult.CODE_ERROR;
@@ -50,22 +49,12 @@ public class TencentCloudImService {
         return createUserSignByUserId(tencentImProperties.getAppManager());
     }
 
-    public String getOldTxCloudUserSig() {
-        Object userSig = commonCacheOperator.get(REDIS_IM_USER_SIG + tencentImProperties.getAppManager());
-        if (ObjectUtil.isEmpty(userSig)) {
-            TLSSigAPIv2 tlsSigApi = new TLSSigAPIv2(tencentImProperties.getSdkAppId(), tencentImProperties.getSecretKey());
-            userSig = tlsSigApi.genUserSig(tencentImProperties.getAppManager(), tencentImProperties.getExpireTime());
-            commonCacheOperator.put(REDIS_IM_USER_SIG + tencentImProperties.getAppManager(), userSig, 86400L);
-        }
-        return String.valueOf(userSig);
-    }
-
     public String createUserSignByUserId(String userId) {
         Object userSig = commonCacheOperator.get(REDIS_IM_USER_SIG + userId);
         if (ObjectUtil.isEmpty(userSig)) {
             TLSSigAPIv2 tlsSigApi = new TLSSigAPIv2(tencentImProperties.getSdkAppId(), tencentImProperties.getSecretKey());
             userSig = tlsSigApi.genUserSig(userId, tencentImProperties.getExpireTime());
-            commonCacheOperator.put(REDIS_IM_USER_SIG + tencentImProperties.getAppManager(), userSig, 86400L);
+            commonCacheOperator.put(REDIS_IM_USER_SIG + userId, userSig, 86400L);
         }
         return String.valueOf(userSig);
     }
@@ -75,7 +64,7 @@ public class TencentCloudImService {
      */
     private String getHttpsUrl(String imServiceApi) {
         return String.format("%s%s?sdkappid=%s&identifier=%s&usersig=%s&random=%s&contenttype=json",
-                tencentImProperties.getPrefixUrl(), imServiceApi, tencentImProperties.getSdkAppId(), tencentImProperties.getAppManager(), this.getOldTxCloudUserSig(), RandomUtils.nextInt(0, 999999999));
+                tencentImProperties.getPrefixUrl(), imServiceApi, tencentImProperties.getSdkAppId(), tencentImProperties.getAppManager(), this.getTxCloudUserSig(), RandomUtils.nextInt(0, 999999999));
     }
 
     /**

@@ -91,8 +91,8 @@ public class TencentImController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("创建账号userSig")
     @CommonLog("创建账号userSig")
-    @PostMapping("//sys/im/createUserSign")
-    public CommonResult<Object> createUserSign(AccountParam accountParam) {
+    @PostMapping("/sys/im/createUserSign")
+    public CommonResult<Object> createUserSign(@RequestBody @Valid AccountParam accountParam) {
         String userSign = tencentCloudImService.createUserSignByUserId(accountParam.getUserID());
         return CommonResult.data(userSign);
     }
