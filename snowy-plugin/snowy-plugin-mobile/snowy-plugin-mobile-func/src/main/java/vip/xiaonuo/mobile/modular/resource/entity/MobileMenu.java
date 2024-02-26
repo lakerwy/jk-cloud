@@ -97,9 +97,4 @@ public class MobileMenu extends CommonEntity {
     /** 附件ID */
     @ApiModelProperty(value = "附件ID", position = 15)
     private String fileId;
-
-    /** 附件下载地址 */
-    @ApiModelProperty(value = "附件下载地址", position = 16)
-    @TableField(exist = false)
-    private String downloadUtil;
 }

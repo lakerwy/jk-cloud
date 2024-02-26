@@ -1707,6 +1707,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             map.put("firstOrgLeaderName",String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + user.getOrgId())));
             map.put("positionName",postionMap.get(user.getPositionId()) != null ? postionMap.get(user.getPositionId()).toString() : "");
             map.put("avatar",user.getAvatar());
+            map.put("account",user.getAccount());
+            map.put("phone",user.getPhone());
             return map;
         }).collect(Collectors.toList());
     }
@@ -1716,8 +1718,10 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         List<Map<String, Object>> mapList = CommonHandleUtil.handleSqlQuery2(sql, Boolean.TRUE);
         Map<String,Object> map = new HashMap<>();
         mapList.forEach(data -> {
-            if(ObjectUtil.isNotEmpty(data.get("postionId")) && ObjectUtil.isNotEmpty(data.get("postionName"))){}
-            map.put(data.get("postionId").toString(),data.get("postionName"));
+            Object postionName = ObjectUtil.isNotEmpty(data.get("postionName"))?  data.get("postionName") : "";
+            if(ObjectUtil.isNotEmpty(data.get("postionId"))){
+                map.put(data.get("postionId").toString(),postionName);
+            }
         });
         return map;
     }

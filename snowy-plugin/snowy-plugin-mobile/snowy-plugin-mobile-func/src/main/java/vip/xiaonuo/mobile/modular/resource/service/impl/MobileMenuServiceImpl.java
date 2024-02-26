@@ -74,14 +74,18 @@ public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileM
         lambdaQueryWrapper.eq(MobileMenu::getCategory, MobileResourceCategoryEnum.MENU.getValue());
         lambdaQueryWrapper.orderByDesc(MobileMenu::getSortCode);
         List<MobileMenu> mobileMenuList = this.list(lambdaQueryWrapper);
-        mobileMenuList.forEach(mobileMenu -> {
+        /*mobileMenuList.forEach(mobileMenu -> {
             if(StringUtils.isNotEmpty(mobileMenu.getFileId())){ mobileMenu.setDownloadUtil(GATEWAYDOWNLOADURL+mobileMenu.getFileId());}
-        });
+        });*/
         List<TreeNode<String>> treeNodeList = mobileMenuList.stream().map(mobileMenu ->
                         new TreeNode<>(mobileMenu.getId(), mobileMenu.getParentId(),
                                 mobileMenu.getTitle(), mobileMenu.getSortCode()).setExtra(JSONUtil.parseObj(mobileMenu)))
                 .collect(Collectors.toList());
-        return TreeUtil.build(treeNodeList, "0");
+
+        return TreeUtil.build(treeNodeList, "0").stream().map(tree -> {
+            if(ObjectUtil.isEmpty(tree.get("fileId"))){ tree.put("fileId","");}
+            return tree;
+        }).collect(Collectors.toList());
     }
 
     @Override
@@ -221,7 +225,10 @@ public class MobileMenuServiceImpl extends ServiceImpl<MobileMenuMapper, MobileM
                         new TreeNode<>(mobileMenu.getId(), mobileMenu.getParentId(),
                                 mobileMenu.getTitle(), mobileMenu.getSortCode()).setExtra(JSONUtil.parseObj(mobileMenu)))
                 .collect(Collectors.toList());
-        return TreeUtil.build(treeNodeList, "0");
+        return TreeUtil.build(treeNodeList, "0").stream().map(tree -> {
+            if(ObjectUtil.isEmpty(tree.get("fileId"))){ tree.put("fileId","");}
+            return tree;
+        }).collect(Collectors.toList());
     }
 
     @Override
