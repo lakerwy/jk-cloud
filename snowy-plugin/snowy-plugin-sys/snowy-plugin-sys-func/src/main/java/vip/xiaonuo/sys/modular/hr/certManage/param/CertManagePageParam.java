@@ -64,6 +64,10 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "注册单位|发证单位")
     private String unit;
 
+    /** 证书所在单位 */
+    @ApiModelProperty(value = "证书所在单位")
+    private String certUnit;
+
     /** 社保所在地 */
     @ApiModelProperty(value = "社保所在地")
     private String insUnit;
