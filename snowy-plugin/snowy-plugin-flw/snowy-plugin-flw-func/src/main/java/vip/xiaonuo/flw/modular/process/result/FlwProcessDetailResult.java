@@ -66,6 +66,9 @@ public class FlwProcessDetailResult {
     @ApiModelProperty(value = "状态码", position = 19)
     private String stateCode;
 
+    @ApiModelProperty(value = "流程图",position = 20)
+    private String flwDiagram;
+
 
     /**
      * 审批记录类

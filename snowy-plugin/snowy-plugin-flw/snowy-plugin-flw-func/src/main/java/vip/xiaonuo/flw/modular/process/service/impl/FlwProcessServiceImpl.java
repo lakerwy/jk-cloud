@@ -889,7 +889,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         NodeRuntimeUtil.handleTenAuth();
         FlwProcessDetailResult flwProcessDetailResult = new FlwProcessDetailResult();
         String processInstanceId = flwProcessIdParam.getId();
-        flwProcessDetailResult.setModelId(this.getProcessModelIdVariable(processInstanceId));
+        String modelIdVariable = this.getProcessModelIdVariable(processInstanceId);
+        flwProcessDetailResult.setModelId(modelIdVariable);
+        FlwModel flwModel = flwModelService.getById(modelIdVariable);
+        if(ObjectUtil.isNotNull(flwModel)){
+            flwProcessDetailResult.setFlwDiagram(flwModel.getFlwDiagram());
+        }
         flwProcessDetailResult.setProcessInstanceId(processInstanceId);
         flwProcessDetailResult.setFormType(this.getProcessFormTypeVariable(processInstanceId));
         flwProcessDetailResult.setInitiatorModelJson(this.getProcessModelJsonVariable(processInstanceId));
