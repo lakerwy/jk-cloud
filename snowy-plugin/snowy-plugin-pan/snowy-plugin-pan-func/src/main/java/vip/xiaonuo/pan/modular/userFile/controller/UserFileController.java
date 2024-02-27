@@ -21,6 +21,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -32,6 +33,7 @@ import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.fileRight.enums.FileActionEnum;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
+import vip.xiaonuo.pan.modular.userFile.event.UserDevLogEvent;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
@@ -41,9 +43,7 @@ import vip.xiaonuo.pan.modular.userFile.service.UserFileService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 /**
  * 文件主表控制器
@@ -66,6 +66,8 @@ public class UserFileController {
     @Resource
     DevLogApi devLogApi;
 
+    @Resource
+    private ApplicationEventPublisher eventPublisher;
 
     /**
      * 获取根目录文件夹
@@ -139,9 +141,15 @@ public class UserFileController {
 
         userFileService.delete(userFileIdParamList);
 
-        //记录文件操作日志
-        devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.DELETE.getValue(),"",CollStreamUtil.toList(userFileIdParamList,UserFileIdParam::getId));
+        //记录文件操作日志，做异步
+        UserDevLogEvent userDevLogEvent = new UserDevLogEvent();
+        userDevLogEvent.setUserName(StpLoginUserUtil.getLoginUser().getName());
+        userDevLogEvent.setActionType(FileActionEnum.DELETE.getValue());
+        userDevLogEvent.setMessage("");
+        userDevLogEvent.setFileIds(CollStreamUtil.toList(userFileIdParamList,UserFileIdParam::getId));
+        eventPublisher.publishEvent(userDevLogEvent);
 
+        //devLogApi.executeFileActionLog(StpLoginUserUtil.getLoginUser().getName(), FileActionEnum.DELETE.getValue(),"",CollStreamUtil.toList(userFileIdParamList,UserFileIdParam::getId));
         return CommonResult.ok();
     }
 

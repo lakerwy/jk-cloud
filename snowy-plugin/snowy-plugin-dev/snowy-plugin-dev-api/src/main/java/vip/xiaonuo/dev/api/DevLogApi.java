@@ -63,4 +63,12 @@ public interface DevLogApi {
      * @date 2022/9/2 16:03
      */
     void executeFileActionLog(String userName, String actionType,String message, List<String> userFileIds);
+
+    /**
+     * 记录文件操作日志
+     *
+     * @author ljy
+     * @date 2024/02/27 10:03
+     */
+    void asynExecuteFileActionLog(String userName, String actionType,String message, List<String> userFileIds);
 }
