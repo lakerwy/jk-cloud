@@ -30,4 +30,7 @@ public class FlwTaskInfoResult extends FlwTodoTaskResult {
     @ApiModelProperty(value = "办理节点名称", position = 22)
     private String doneActivityName;
 
+    @ApiModelProperty(value = "id 类型 0、任务id 2、流程实例id", position = 13)
+    private int idType;
+
 }

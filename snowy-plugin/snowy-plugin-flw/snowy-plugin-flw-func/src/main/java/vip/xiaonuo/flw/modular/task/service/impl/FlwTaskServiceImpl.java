@@ -79,9 +79,11 @@ import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -1062,6 +1064,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             flwTaskInfoResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
             flwTaskInfoResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
             flwTaskInfoResult.setTenantId(task.getTenantId());
+            flwTaskInfoResult.setIdType(0);
             return flwTaskInfoResult;
         }else {
             List<HistoricTaskInstance> list = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString()).processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
@@ -1069,6 +1072,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             if(CollUtil.isNotEmpty(list)){
                 FlwDoneTaskResult doneTaskResult = getDoneTaskResult(list.get(0));
                 flwTaskInfoResult = BeanUtil.copyProperties(doneTaskResult, FlwTaskInfoResult.class);
+                flwTaskInfoResult.setIdType(1);
             }
         }
         //return new FlwTodoTaskResult();
