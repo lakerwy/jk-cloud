@@ -818,6 +818,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 //                values.put("url",)
                 HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(comment.getProcessInstanceId()).caseInstanceId(historicTaskInstance.getCaseInstanceId()).singleResult();
                 values.put("stateCode", historicProcessInstance.getState());
+                values.put("processInstanceId",processInstanceId);
                 iDingDingService.customBatchSend(buildForms(processInstanceId, flwcommentParam.getComment()), collect, values);
             } catch (Exception e) {
                 log.error(e.getMessage());
