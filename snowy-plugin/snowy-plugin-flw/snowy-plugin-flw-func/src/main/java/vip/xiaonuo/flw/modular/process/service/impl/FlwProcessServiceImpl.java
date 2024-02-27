@@ -348,6 +348,14 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSn())) {
             historicProcessInstanceQuery.variableValueLike("initiatorProcessSn","%" + flwProcessMonitorPageParam.getSn() + "%");
         }
+        if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate())){
+            historicProcessInstanceQuery.startedAfter(DateUtil.parseDate(flwProcessMonitorPageParam.getStartOptDate()));
+        }else {
+            historicProcessInstanceQuery.startedAfter(DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime()));
+        }
+        if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getEndOptDate())){
+            historicProcessInstanceQuery.startedBefore(DateUtil.parseDate(flwProcessMonitorPageParam.getEndOptDate()));
+        }
 
 //        historicProcessInstanceQuery.or().processDefinitionNameLike("%" + flwProcessMonitorPageParam.getName()+ "%");
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getName())) {

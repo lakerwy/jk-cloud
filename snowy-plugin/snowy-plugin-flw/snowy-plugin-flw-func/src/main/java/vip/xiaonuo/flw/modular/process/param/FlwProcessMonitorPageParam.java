@@ -76,4 +76,12 @@ public class FlwProcessMonitorPageParam {
     @ApiModelProperty(value = "是否开启数据权限过滤，默认不开启")
     private Boolean isDataScope = Boolean.FALSE;
 
+    /** 受理时间开始 */
+    @ApiModelProperty(value = "开始时间")
+    private String startOptDate;
+
+    /** 受理时间结束 */
+    @ApiModelProperty(value = "结束时间")
+    private String endOptDate;
+
 }
