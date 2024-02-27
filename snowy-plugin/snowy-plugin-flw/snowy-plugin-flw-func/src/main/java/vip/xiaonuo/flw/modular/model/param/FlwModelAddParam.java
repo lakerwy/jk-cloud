@@ -85,6 +85,9 @@ public class FlwModelAddParam {
     @ApiModelProperty(value = "扩展信息", position = 12)
     private String extJson;
 
+    @ApiModelProperty(value = "流程图",position = 13)
+    private String flwDiagram;
+
 
 
 //    /** 扩展信息 */

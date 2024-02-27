@@ -89,6 +89,9 @@ public class FlwModelEditParam {
     @ApiModelProperty(value = "扩展信息", position = 13)
     private String extJson;
 
+    @ApiModelProperty(value = "流程图",position = 14)
+    private String flwDiagram;
+
 
 //    /** 扩展信息 */
 //    @ApiModelProperty(value = "模型展示控制字段", position = 13)
