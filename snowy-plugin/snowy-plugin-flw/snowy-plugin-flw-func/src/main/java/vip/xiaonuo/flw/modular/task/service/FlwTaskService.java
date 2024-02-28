@@ -87,7 +87,7 @@ public interface FlwTaskService {
      * @author ljy
      * @date 2024/01/24 8:31
      **/
-    void urge(FlwTaskUrgeParam flwTaskUrgeParam);
+    String urge(FlwTaskUrgeParam flwTaskUrgeParam);
     /**
      * 审批退回
      *

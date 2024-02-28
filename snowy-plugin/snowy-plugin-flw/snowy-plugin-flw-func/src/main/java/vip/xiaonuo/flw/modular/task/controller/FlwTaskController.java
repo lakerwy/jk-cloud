@@ -329,8 +329,8 @@ public class FlwTaskController {
     @CommonLog("审批催办")
     @PostMapping("/flw/task/urge")
     public CommonResult<String> urge(@RequestBody @Valid FlwTaskUrgeParam flwTaskUrgeParam) {
-        flwTaskService.urge(flwTaskUrgeParam);
-        return CommonResult.ok();
+        String urgeMsg = flwTaskService.urge(flwTaskUrgeParam);
+        return CommonResult.data(urgeMsg).setMsg(urgeMsg);
     }
 
     @ApiOperationSupport(order = 21)
