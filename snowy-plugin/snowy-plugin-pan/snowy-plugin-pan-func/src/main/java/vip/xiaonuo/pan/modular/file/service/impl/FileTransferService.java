@@ -55,6 +55,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.awt.image.BufferedImage;
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
@@ -420,7 +421,9 @@ public class FileTransferService implements IFileTransferService {
             PanFile fileBean = panFileService.getById(userFile.getFileId());
             if(fileBean.getFileUrl().contains("zip")){ //特殊处理：压缩的zip文件走单独的下载通道
                 try{
-                    downloadZipUtil.doGet(httpServletResponse,fileBean.getFileUrl(),userFile.getFileName()+"."+userFile.getExtendName());
+                    String fileName = userFile.getFileName()+"."+userFile.getExtendName();
+                    fileName = new String(fileName.getBytes(StandardCharsets.UTF_8), StandardCharsets.ISO_8859_1);
+                    downloadZipUtil.doGet(httpServletResponse,fileBean.getFileUrl(),fileName);
                 }catch (IOException e){
                     log.error("下载压缩包失败！e:"+e.getMessage());
                     e.printStackTrace();
