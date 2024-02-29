@@ -15,8 +15,6 @@ package vip.xiaonuo.biz.modular.mapBiz.MapRegister.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 业务表-出图登记记录表查询参数
@@ -47,5 +45,13 @@ public class BizMapRegisterPageParam {
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
+
+    /** 受理时间开始 */
+    @ApiModelProperty(value = "出图盖章日期开始")
+    private String startSealDate;
+
+    /** 受理时间结束 */
+    @ApiModelProperty(value = "出图盖章日期结束")
+    private String endSealDate;
 
 }

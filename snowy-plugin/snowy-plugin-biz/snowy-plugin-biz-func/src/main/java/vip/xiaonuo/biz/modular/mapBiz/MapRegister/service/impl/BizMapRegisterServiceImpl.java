@@ -79,6 +79,10 @@ public class BizMapRegisterServiceImpl extends ServiceImpl<BizMapRegisterMapper,
             queryWrapper.lambda().or(wrapper ->wrapper.like(BizMapRegister::getProjectName,bizMapRegisterPageParam.getSearchKey()).or().
                     like(BizMapRegister::getSn,bizMapRegisterPageParam.getSearchKey()).or().like(BizMapRegister::getCompanyOrDepartment,bizMapRegisterPageParam.getSearchKey()));
         }
+        if(ObjectUtil.isNotEmpty(bizMapRegisterPageParam.getStartSealDate()) && ObjectUtil.isNotEmpty(bizMapRegisterPageParam.getEndSealDate())) {
+            queryWrapper.lambda().between(BizMapRegister::getSealDate,bizMapRegisterPageParam.getStartSealDate(),bizMapRegisterPageParam.getEndSealDate());
+        }
+
         queryWrapper.lambda().in(BizMapRegister::getStatus, FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
 
         // 校验数据范围
