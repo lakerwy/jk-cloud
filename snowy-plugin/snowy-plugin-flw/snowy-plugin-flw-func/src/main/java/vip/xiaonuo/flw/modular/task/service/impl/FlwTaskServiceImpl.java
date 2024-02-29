@@ -28,6 +28,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.*;
@@ -1082,15 +1083,11 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void urge(FlwTaskUrgeParam flwTaskUrgeParam) {
-        Task task = taskService.createTaskQuery().processInstanceId(flwTaskUrgeParam.getId()).active().singleResult();
-        String taskId = ObjectUtil.isNotEmpty(task) ? task.getId() : "";
-        if (ObjectUtil.isEmpty(task)) {
-            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-                    .processInstanceId(flwTaskUrgeParam.getId()).singleResult();
-            if(ObjectUtil.isEmpty(historicProcessInstance)){throw new CommonException("任务不存在，id值为：{}", flwTaskUrgeParam.getId());}
-            taskId = historicProcessInstance.getId();
-        }
+    public String urge(FlwTaskUrgeParam flwTaskUrgeParam) {
+        List<Task> taskList = taskService.createTaskQuery().processInstanceId(flwTaskUrgeParam.getId()).active().orderByTaskCreateTime().desc().list();
+        String taskId = CollectionUtil.isNotEmpty(taskList) ? taskList.get(0).getId() : "";
+        if (StringUtils.isEmpty(taskId)) { throw new CommonException("任务不存在，id值为：{}", flwTaskUrgeParam.getId()); }
+
         String nowDate = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN);
         Object object = commonCacheOperator.get(FlwCacheConstant.FLW_URGE_KEY + taskId);
         if(ObjectUtil.isNotEmpty(object)){
@@ -1100,13 +1097,12 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             LocalDateTime ldt = LocalDateTime.parse(date, formatter);
             Date urgeDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
             long hours = DateUtil.between(new Date(),urgeDate, DateUnit.HOUR);
-            if(hours < Integer.parseInt(FlwCacheConstant.FLW_URGE_HOURS)) return;
-            NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
-        }else{
-            //处理催办流程通知
-            NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
+            if(hours < Integer.parseInt(FlwCacheConstant.FLW_URGE_HOURS)) return "催办成功";
         }
+        //处理催办流程通知
+        NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) taskList.get(0));
         commonCacheOperator.put(FlwCacheConstant.FLW_URGE_KEY + taskId,nowDate);//写入缓存
+        return "催办成功";
     }
 
     @Override
