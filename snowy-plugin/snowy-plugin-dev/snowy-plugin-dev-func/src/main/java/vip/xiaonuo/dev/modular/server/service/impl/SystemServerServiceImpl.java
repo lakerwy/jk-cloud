@@ -22,9 +22,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -53,9 +55,10 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     @Resource
     SystemConfExecService systemConfExecService;
     @Resource
-    SystemServerMapper systemServerMapper;
-    @Resource
     SysProjectService sysProjectService;
+
+    @Resource
+    private StreamBridge streamBridge;
     @Override
     public Page<SystemServer> page(SystemServerPageParam systemServerPageParam) {
         QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
@@ -110,8 +113,11 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         if(count>0){
             throw new CommonException("{}服务已存在",systemServerAddParam.getSystemSourceId());
         }
+        systemServer.setSystemName(systemServer.getSystemSource());
         systemServer.setSystemStatus(0);
         this.save(systemServer);
+        //系统项目创建完成以后，就通知项目系统去初始化项目信息
+        streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,systemServer.getId()+systemServer.getSystemName());
     }
 
     @Transactional(rollbackFor = Exception.class)
