@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -50,6 +51,7 @@ import java.util.stream.Collectors;
  * @date  2023/12/29 11:31
  **/
 @Service
+@DS("common")
 public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, SystemServer> implements SystemServerService {
 
     @Resource
@@ -85,9 +87,9 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         } else {
             queryWrapper.lambda().orderByDesc(SystemServer::getCreateTime);
         }
-        Page<SystemServer> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        getSystemExec(page);
-        return page;
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+//        getSystemExec(page);
+//        return page;
         //return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
     private void getSystemExec(Page<SystemServer> page){
