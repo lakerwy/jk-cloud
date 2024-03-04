@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.sys.modular.hr.personnel.param.*;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelInfo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -165,5 +166,19 @@ public class PersonnelController {
     @GetMapping("/sys/personnel/info")
     public CommonResult<PersonnelVo> info(@Valid PersonnelIdParam personnelIdParam) {
         return CommonResult.data(personnelService.info(personnelIdParam));
+    }
+
+
+    /**
+     * 获取花名册数据列表，返回前30条记录
+     *
+     * @author mayike
+     * @date  2023/07/10 17:28
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取花名册数据列表，返回前30条记录")
+    @GetMapping("/sys/personnel/infoList")
+    public CommonResult<List<PersonnelInfo>> infoList(@Valid PersonnelParam personnelParam) {
+        return CommonResult.data(personnelService.infoList(personnelParam));
     }
 }

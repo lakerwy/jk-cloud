@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SysLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileCert;
 import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileCertService;
 import vip.xiaonuo.sys.modular.hr.fileMoves.entity.PersonnelFileMoves;
@@ -35,6 +36,7 @@ import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileRegisterService;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileTitle;
 import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileTitleService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.*;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelInfo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
 import vip.xiaonuo.sys.modular.hr.personnel.mapper.PersonnelMapper;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
@@ -44,6 +46,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
+import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
@@ -53,10 +56,13 @@ import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.Period;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
 
 /**
  * 业务表-人事档案Service接口实现类
@@ -90,6 +96,9 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
 
     @Resource
     private SysOrgService sysOrgService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<Personnel> page(PersonnelPageParam personnelPageParam) {
@@ -146,14 +155,54 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         positionAddParam.setCategory("LOW");
         positionAddParam.setSortCode(99);
         String dutyId = sysPositionService.newAdd(positionAddParam).getId();
-
+        //基本信息
         Personnel personnel = BeanUtil.toBean(personnelAddParam, Personnel.class);
         personnel.setDutyId(dutyId);
         personnel.setStatus("0");
         //按照入职时间获取最后一条
         Long max = Long.parseLong(Objects.requireNonNull(list().stream().map(Personnel::getFileNo).filter(ObjectUtil::isNotEmpty).max(Comparator.naturalOrder()).orElse("600000")))+1;
         personnel.setFileNo(String.valueOf(max));
+
+        /**
+         * 先处理 SysUser表逻辑，反更新userId
+         */
+        String userId = "";
+        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnelAddParam.getPhone()));
+        if(ObjectUtil.isEmpty(user)){
+            SysUserAddParam sysUserAddParam = new SysUserAddParam();
+            sysUserAddParam.setAccount(personnelAddParam.getPhone());
+            sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
+            sysUserAddParam.setName(personnelAddParam.getName());
+            sysUserAddParam.setPhone(personnelAddParam.getPhone());
+            sysUserAddParam.setPositionId(personnel.getDutyId());
+            sysUserAddParam.setEmpNo(personnel.getFileNo());
+            sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+            if(ObjectUtil.isNotEmpty(personnelAddParam.getHireDate())){
+                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnelAddParam.getHireDate()));
+            }
+            userId = sysUserService.addAndGrantRole(sysUserAddParam);
+        }else {
+            SysUserAddParam sysUserAddParam = new SysUserAddParam();
+            sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
+            sysUserAddParam.setName(personnelAddParam.getName());
+            sysUserAddParam.setPhone(personnelAddParam.getPhone());
+            sysUserAddParam.setPositionId(personnel.getDutyId());
+            sysUserAddParam.setEmpNo(personnel.getFileNo());
+            if(ObjectUtil.isNotEmpty(personnel.getSex())){
+                sysUserAddParam.setGender(personnel.getSex());
+            }
+            if(ObjectUtil.isNotEmpty(personnelAddParam.getHireDate())){
+                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnelAddParam.getHireDate()));
+            }
+            SysUser sysUser = BeanUtil.toBean(sysUserAddParam, SysUser.class);
+            sysUser.setId(user.getId());
+            sysUserService.updateById(sysUser);
+            userId = user.getId();
+        }
+        personnel.setUserId(userId); //反更新用户Id
         this.save(personnel);
+
+        // 处理学历、证书等
         if (CollUtil.isNotEmpty(personnelAddParam.getPersonnelFileCertList())) {
             List<PersonnelFileCert> collect = personnelAddParam.getPersonnelFileCertList().stream().map(personnelFileCertAddParam -> BeanUtil.toBean(personnelFileCertAddParam, PersonnelFileCert.class)).collect(Collectors.toList());
             collect.forEach(personnelFileCert -> personnelFileCert.setFileId(personnel.getId()));
@@ -173,37 +222,6 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             List<PersonnelFileRegister> collect = personnelAddParam.getPersonnelFileRegisterList().stream().map(personnelFileRegisterAddParam -> BeanUtil.toBean(personnelFileRegisterAddParam, PersonnelFileRegister.class)).collect(Collectors.toList());
             collect.forEach(personnelFileRegister -> personnelFileRegister.setFileId(personnel.getId()));
             personnelFileRegisterService.saveBatch(collect);
-        }
-        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnelAddParam.getPhone()));
-        if(ObjectUtil.isEmpty(user)){
-            SysUserAddParam sysUserAddParam = new SysUserAddParam();
-            sysUserAddParam.setAccount(personnelAddParam.getPhone());
-            sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
-            sysUserAddParam.setName(personnelAddParam.getName());
-            sysUserAddParam.setPhone(personnelAddParam.getPhone());
-            sysUserAddParam.setPositionId(personnel.getDutyId());
-            sysUserAddParam.setEmpNo(personnel.getFileNo());
-            sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
-            if(ObjectUtil.isNotEmpty(personnelAddParam.getHireDate())){
-                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnelAddParam.getHireDate()));
-            }
-            sysUserService.addAndGrantRole(sysUserAddParam);
-        }else {
-            SysUserAddParam sysUserAddParam = new SysUserAddParam();
-            sysUserAddParam.setOrgId(personnelAddParam.getDeptId());
-            sysUserAddParam.setName(personnelAddParam.getName());
-            sysUserAddParam.setPhone(personnelAddParam.getPhone());
-            sysUserAddParam.setPositionId(personnel.getDutyId());
-            sysUserAddParam.setEmpNo(personnel.getFileNo());
-            if(ObjectUtil.isNotEmpty(personnel.getSex())){
-                sysUserAddParam.setGender(personnel.getSex());
-            }
-            if(ObjectUtil.isNotEmpty(personnelAddParam.getHireDate())){
-                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnelAddParam.getHireDate()));
-            }
-            SysUser sysUser = BeanUtil.toBean(sysUserAddParam, SysUser.class);
-            sysUser.setId(user.getId());
-            sysUserService.updateById(sysUser);
         }
     }
 
@@ -250,23 +268,11 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             personnelFileRegisterService.saveBatch(collect);
         }
 
-        /** 增加一个逻辑：编辑时，若组织架构中不存在该账号，则新增 **/
-        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()));
-        if(ObjectUtil.isEmpty(user)){
-            SysUserAddParam sysUserAddParam = new SysUserAddParam();
-            sysUserAddParam.setAccount(personnel.getPhone());
-            sysUserAddParam.setOrgId(personnel.getDeptId());
-            sysUserAddParam.setName(personnel.getName());
-            sysUserAddParam.setPhone(personnel.getPhone());
-            sysUserAddParam.setPositionId(personnel.getDutyId());
-            sysUserAddParam.setEmpNo(personnel.getFileNo());
-            sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
-            if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
-                // 创建DateTimeFormatter对象，并定义格式
-                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnel.getHireDate()));
-            }
-            sysUserService.addAndGrantRole(sysUserAddParam);
-        }else{
+        /**
+         * 新增花名册时，反更新了userId，就无需根据手机号反查了
+         */
+        SysUser user = sysUserService.getById(personnel.getUserId());
+        if(ObjectUtil.isNotEmpty(user)){
             if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
                 user.setEntryDate(DateUtil.formatDate(personnel.getHireDate()));
             }
@@ -277,16 +283,57 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                 sysUserService.updateById(user);
             }
         }
+
+//        /** 增加一个逻辑：编辑时，若组织架构中不存在该账号，则新增 **/
+//        SysUser user = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()));
+//        if(ObjectUtil.isEmpty(user)){
+//            SysUserAddParam sysUserAddParam = new SysUserAddParam();
+//            sysUserAddParam.setAccount(personnel.getPhone());
+//            sysUserAddParam.setOrgId(personnel.getDeptId());
+//            sysUserAddParam.setName(personnel.getName());
+//            sysUserAddParam.setPhone(personnel.getPhone());
+//            sysUserAddParam.setPositionId(personnel.getDutyId());
+//            sysUserAddParam.setEmpNo(personnel.getFileNo());
+//            sysUserAddParam.setGender(StrUtil.isNotBlank(personnel.getSex())?personnel.getSex():"男");
+//            if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
+//                // 创建DateTimeFormatter对象，并定义格式
+//                sysUserAddParam.setEntryDate(DateUtil.formatDate(personnel.getHireDate()));
+//            }
+//            sysUserService.addAndGrantRole(sysUserAddParam);
+//        }else{
+//            if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
+//                user.setEntryDate(DateUtil.formatDate(personnel.getHireDate()));
+//            }
+//            if(ObjectUtil.isNotEmpty(personnel.getDutyId())) {
+//                user.setPositionId(personnel.getDutyId());
+//            }
+//            if(ObjectUtil.isNotEmpty(personnel.getHireDate()) || ObjectUtil.isNotEmpty(personnel.getDutyId())) {
+//                sysUserService.updateById(user);
+//            }
+//        }
         //已修改为离职 ，删除系统账号【禁用】
         if(personnelEditParam.getStatus().equals("1")){
-            SysUser sysUser = sysUserService.getById(personnelEditParam.getSysUserId());
-            sysUser.setUserStatus("DISABLED");
-            sysUserService.updateById(sysUser);
+//            SysUser sysUser = sysUserService.getById(personnelEditParam.getSysUserId());
+            SysUser sysUser = sysUserService.getById(personnel.getUserId());
+            if(ObjectUtil.isNotEmpty(sysUser)) {
+                sysUser.setUserStatus("DISABLED");
+                sysUserService.updateById(sysUser);
+            }
             PersonnelFileMoves personnelFileMoves = new PersonnelFileMoves();
             personnelFileMoves.setFileId(personnelEditParam.getId());
             personnelFileMoves.setMoveType("2");
             personnelFileMoves.setMoveItem("离职");
             personnelFileMoves.setStatus("1");
+            //离职日期
+            Date leaveDate = null;
+            try {
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd");
+                leaveDate = formatter.parse(personnelEditParam.getLeaveDate());
+            } catch (Exception e) {
+                leaveDate = new Date();
+            }
+            DateUtil.parse(personnelEditParam.getLeaveDate());
+            personnelFileMoves.setLivetime(leaveDate);
             personnelFileMoves.setOptDate(new Date());
             personnelFileMoves.setOrigDept(personnelEditParam.getDept());
             personnelFileMoves.setOrigDuty(personnelEditParam.getDuty());
@@ -308,11 +355,18 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         personnelFileMovesService.deleteNewFileId(ids);
         personnelFileRegisterService.deleteNewFileId(ids);
         log.debug("测试删除----"+ids.toString());
-        Set<String> collect = personals.stream().map(Personnel::getPhone).collect(Collectors.toSet());
-        List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getAccount, collect));
-        if(CollUtil.isNotEmpty(list)){
-            List<String> collect1 = list.stream().map(SysUser::getId).collect(Collectors.toList());
-            sysUserService.handleDelete(collect1);
+//        Set<String> collect = personals.stream().map(Personnel::getPhone).collect(Collectors.toSet());
+//        List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getAccount, collect));
+//        if(CollUtil.isNotEmpty(list)){
+//            List<String> collect1 = list.stream().map(SysUser::getId).collect(Collectors.toList());
+//            sysUserService.handleDelete(collect1);
+//        }
+        /**
+         * 新增花名册时，反更新了userId，不用反查
+         */
+        List<String> userIdList = personals.stream().filter(x->ObjectUtil.isNotEmpty(x.getUserId())).map(Personnel::getUserId).collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(userIdList)){
+            sysUserService.handleDelete(userIdList);
         }
     }
 
@@ -360,9 +414,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                     personnelVo.setLeader(user.getName());
                     personnelVo.setDirector(user.getName());
                 }
-                SysUser one = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()).eq(SysUser::getDeleteFlag,"NOT_DELETE"));
+//                SysUser one = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()).eq(SysUser::getDeleteFlag,"NOT_DELETE"));
+                SysUser one = sysUserService.getById(personnel.getUserId());
                 if(ObjectUtil.isNotEmpty(one)){
-                    personnelVo.setSysUserId(one.getId());
+//                    personnelVo.setSysUserId(one.getId());
                     if(directorId.equals(one.getId())){
                         personnelVo.setIsLeader("1");
                     }
@@ -482,10 +537,11 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         }
         //Personnel personnel = this.queryEntity(personnelIdParam.getId());
         PersonnelVo personnelVo = BeanUtil.toBean(personnel, PersonnelVo.class);
-        SysUser one = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()).eq(SysUser::getDeleteFlag,"NOT_DELETE"));
-        if(ObjectUtil.isNotEmpty(one)){
-            personnelVo.setSysUserId(one.getId());
-        }
+//        SysUser one = sysUserService.getOne(new LambdaQueryWrapper<SysUser>().eq(SysUser::getAccount, personnel.getPhone()).eq(SysUser::getDeleteFlag,"NOT_DELETE"));
+//        if(ObjectUtil.isNotEmpty(one)){
+//            personnelVo.setSysUserId(one.getId());
+//        }
+        SysUser one = sysUserService.getById(personnel.getUserId());
         String deptId = personnel.getDeptId();
         SysOrg sysOrg = sysOrgService.getById(deptId);
         personnelVo.setIsLeader("0");
@@ -494,9 +550,11 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             String directorId = sysOrg.getDirectorId();
             if(ObjectUtil.isNotEmpty(directorId)){
                 SysLoginUser user = sysUserService.getUserById(directorId);
-                personnelVo.setLeader(user.getName());
-                personnelVo.setDirector(user.getName());
-                if(directorId.equals(one.getId())){
+                if(ObjectUtil.isNotEmpty(user)) {
+                    personnelVo.setLeader(user.getName());
+                    personnelVo.setDirector(user.getName());
+                }
+                if(ObjectUtil.isNotEmpty(one) && directorId.equals(one.getId())){
                     personnelVo.setIsLeader("1");
                 }
             }
@@ -515,5 +573,15 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             personnelVo.setTitleLever(titlelist.get(0).getTitleLever());
         }
         return personnelVo;
+    }
+
+    @Override
+    public List<PersonnelInfo> infoList(PersonnelParam personnelParam) {
+        List<PersonnelInfo> infoList = personnelMapper.infoList(personnelParam.getName(),personnelParam.getStatus());
+        infoList.forEach(x->{
+            x.setFirstOrgId(ComputeUtil.objToString(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getDeptId())));
+            x.setFirstOrgName(ComputeUtil.objToString(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getDeptId())));
+        });
+        return infoList;
     }
 }

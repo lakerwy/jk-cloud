@@ -42,14 +42,16 @@ public class FlwTurnPositiveTaskListener implements ExecutionListener {
 //                        }
                     } else if ("2".equals(moveType)) {
                         //离职
+                        //离职日期
+                        String leaveDate = String.valueOf(execution.getVariable("leaveDate"));
                         //将用户设置为 禁用
                         if (ObjectUtil.isNotEmpty(info)) {
-                            sql = "UPDATE PERSONNEL SET `STATUS` = '1' where ID = '" + fileId + "'";
+                            sql = "UPDATE PERSONNEL SET `STATUS` = '1',LEAVE_DATE='"+leaveDate+"' where ID = '" + fileId + "'";
                             NodeRuntimeUtil.handleSqlExecution(sql);
-                            sql = "SELECT PHONE FROM PERSONNEL WHERE ID = '" + fileId + "'";
+                            sql = "SELECT PHONE,USER_ID FROM PERSONNEL WHERE ID = '" + fileId + "'";
                             map = CommonHandleUtil.handleSqlQuery(sql, Boolean.TRUE);
-                            if (ObjectUtil.isNotEmpty(map) && ObjectUtil.isNotEmpty(map.get("PHONE"))) {
-                                sql = "UPDATE SYS_USER SET USER_STATUS = 'DISABLED' WHERE `ACCOUNT` = '" + map.get("PHONE") + "'";
+                            if (ObjectUtil.isNotEmpty(map) && ObjectUtil.isNotEmpty(map.get("USER_ID"))) {
+                                sql = "UPDATE SYS_USER SET USER_STATUS = 'DISABLED' WHERE `ID` = '" + map.get("USER_ID") + "'";
                                 NodeRuntimeUtil.handleSqlExecution(sql);
                             }
                         }

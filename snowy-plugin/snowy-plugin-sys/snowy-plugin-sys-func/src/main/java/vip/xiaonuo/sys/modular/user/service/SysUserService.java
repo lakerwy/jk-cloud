@@ -494,12 +494,12 @@ public interface SysUserService extends IService<SysUser> {
     void syncToUserAdd(SyncToUserAddParam syncToUserAddParam);
 
     /**
-     * 添加用户
+     * 添加用户,返回主键id
      *
      * @author xuyuxiang
      * @date 2022/4/24 20:48
      */
-    void addAndGrantRole(SysUserAddParam sysUserAddParam);
+    String addAndGrantRole(SysUserAddParam sysUserAddParam);
 
     void bindCid(SysUserUpdateCidParam sysUserUpdateCidParam);
 

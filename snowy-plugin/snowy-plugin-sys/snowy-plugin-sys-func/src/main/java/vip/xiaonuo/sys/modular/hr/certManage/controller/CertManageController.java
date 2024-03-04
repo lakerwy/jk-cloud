@@ -177,4 +177,16 @@ public class CertManageController {
     }
 
 
+    /**
+     * 根据身份证号，获取名下所有【有效注册证书】
+     *
+     * @author yong.ye
+     * @date  2024/03/01 17:23
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("根据身份证号，获取名下所有有效资质证书")
+    @GetMapping("/sys/hr/cert/manage/listByIdCard")
+    public CommonResult<List<CertManage>> listByIdCard(String idCard) {
+        return CommonResult.data(certManageService.listByIdCard(idCard));
+    }
 }

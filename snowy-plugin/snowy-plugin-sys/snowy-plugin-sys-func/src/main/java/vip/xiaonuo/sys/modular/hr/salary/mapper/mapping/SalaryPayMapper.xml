@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryPayMapper">
+
+    <select id="getSeniorityPersonnel" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo" >
+        select a.ID,a.`NAME`,a.DEPT_ID,a.DUTY_ID,a.`STATUS`,a.SEX,a.ID_NUMBER, a.BIRTH,a.PHONE,a.HIRE_DATE,a.POSITIVE_TIME,a.USER_ID,a.LEAVE_DATE,
+               c.`NAME` as deptName,d.`NAME` as dutyName
+        from PERSONNEL a
+             left join HR_SALARY_PAY b on a.ID = b.PERSONNEL_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{type} and b.`YEAR_MONTH` = #{yearMonth}
+             LEFT JOIN SYS_ORG c ON a.DEPT_ID = c.ID
+             LEFT JOIN SYS_POSITION d ON a.DUTY_ID = d.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.STATUS = '0' and a.POSITIVE_TIME is not null
+              and b.ID is null
+    </select>
+
+    <select id="getBirthdayPersonnel" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo" >
+        select a.ID,a.`NAME`,a.DEPT_ID,a.DUTY_ID,a.`STATUS`,a.SEX,a.ID_NUMBER, a.BIRTH,a.PHONE,a.HIRE_DATE,a.POSITIVE_TIME,a.USER_ID,a.LEAVE_DATE,
+               c.`NAME` as deptName,d.`NAME` as dutyName
+        from PERSONNEL a
+                 left join HR_SALARY_PAY b on a.ID = b.PERSONNEL_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{type} and b.ITEM_TYPE = #{itemType} and b.`YEAR_MONTH` = #{yearMonth}
+                 LEFT JOIN SYS_ORG c ON a.DEPT_ID = c.ID
+                 LEFT JOIN SYS_POSITION d ON a.DUTY_ID = d.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.STATUS = '0' and a.BIRTH is not null and MONTH(a.BIRTH) = #{month}
+          and b.ID is null
+    </select>
+
+
+    <select id="getPersonnelList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo" >
+        select a.ID,a.`NAME`,a.DEPT_ID,a.DUTY_ID,a.`STATUS`,a.SEX,a.ID_NUMBER, a.BIRTH,a.PHONE,a.HIRE_DATE,a.POSITIVE_TIME,a.USER_ID,a.LEAVE_DATE,
+               c.`NAME` as deptName,d.`NAME` as dutyName
+        from PERSONNEL a
+                 LEFT JOIN SYS_ORG c ON a.DEPT_ID = c.ID
+                 LEFT JOIN SYS_POSITION d ON a.DUTY_ID = d.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.STATUS = '0'
+    </select>
+
+</mapper>

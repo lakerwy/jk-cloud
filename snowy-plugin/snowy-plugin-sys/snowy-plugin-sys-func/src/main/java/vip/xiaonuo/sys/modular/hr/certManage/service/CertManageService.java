@@ -99,4 +99,11 @@ public interface CertManageService extends IService<CertManage> {
      * @return
      */
     SearchDetailVo searchDetail(String id);
+
+    /**
+     * 根据身份证号，获取名下有效证书
+     * @param idCard 身份证号
+     * @return
+     */
+    List<CertManage> listByIdCard(String idCard);
 }

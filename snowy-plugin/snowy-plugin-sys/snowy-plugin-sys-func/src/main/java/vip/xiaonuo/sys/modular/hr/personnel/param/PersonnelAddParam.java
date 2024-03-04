@@ -332,4 +332,13 @@ public class PersonnelAddParam {
     @ApiModelProperty(value = "签约信息列表", position = 73)
     private List<PersonnelFileRegisterAddParam> personnelFileRegisterList;
 
+    /**
+     * 系统用户Id,SysUser.Id
+     */
+    @ApiModelProperty(value = "系统用户Id,SysUser.Id", position = 77)
+    private String userId;
+
+    /** 离职日期 */
+    @ApiModelProperty(value = "离职日期", position = 78)
+    private String leaveDate;
 }

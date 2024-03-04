@@ -125,6 +125,8 @@
         <result column="CREATE_USER" jdbcType="VARCHAR" property="createUser" />
         <result column="UPDATE_TIME" jdbcType="TIMESTAMP" property="updateTime" />
         <result column="UPDATE_USER" jdbcType="VARCHAR" property="updateUser" />
+        <result column="USER_ID" jdbcType="VARCHAR" property="userId" />
+        <result column="LEAVE_DATE" jdbcType="VARCHAR" property="leaveDate" />
 
         <collection property="personnelFileMovesList" column="ID" select="getFileMovesList"/>
         <collection property="personnelFileCertList" column="ID" select="getFileCertList"/>
@@ -140,12 +142,12 @@
         a.FIRST_MAJOR, a.FIRST_NOTE, a.SECOND_DEGREE, a.SECOND_DEGREE_CLASS, a.SECOND_GRADUATE_DATE,
         a.SECOND_GRADUATE_SCHOOL, a.SECOND_MAJOR, a.SECOND_NOTE, a.THIRD_DEGREE, a.THIRD_DEGREE_CLASS,
         a.THIRD_GRADUATE_DATE, a.THIRD_GRADUATE_SCHOOL, a.THIRD_MAJOR, a.THIRD_NOTE, a.EXT_JSON, a.TENANT_ID,
-        a.DELETE_FLAG, a.CREATE_TIME, a.CREATE_USER, a.UPDATE_TIME, a.UPDATE_USER
+        a.DELETE_FLAG, a.CREATE_TIME, a.CREATE_USER, a.UPDATE_TIME, a.UPDATE_USER,a.USER_ID,a.LEAVE_DATE
     </sql>
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo">
-        SELECT a.ID,a.FILE_NO, a.`NAME`,a.SEX,a.BIRTH,a.ID_NUMBER,a.HIRE_DATE,a.POSITIVE_TIME,a.DUTY,b.`NAME`
-            AS DEPT,a.`STATUS`,a.EMPLOY_NATURE, su.ID as sysUserId ,c.`NAME` as DUTY_NAME  FROM PERSONNEL a LEFT JOIN SYS_ORG b ON a.DEPT_ID = b.ID LEFT JOIN SYS_POSITION c ON a.DUTY_ID=c.ID
-            LEFT JOIN SYS_USER su on  a.PHONE = su.ACCOUNT and su.DELETE_FLAG = 'NOT_DELETE'
+        SELECT a.ID,a.FILE_NO, a.`NAME`,a.SEX,a.BIRTH,a.ID_NUMBER,a.HIRE_DATE,a.POSITIVE_TIME,a.LEAVE_DATE,a.DUTY,b.`NAME`
+            AS DEPT,a.`STATUS`,a.EMPLOY_NATURE, a.USER_ID as userId ,c.`NAME` as DUTY_NAME  FROM PERSONNEL a LEFT JOIN SYS_ORG b ON a.DEPT_ID = b.ID LEFT JOIN SYS_POSITION c ON a.DUTY_ID=c.ID
+--             LEFT JOIN SYS_USER su on  a.PHONE = su.ACCOUNT and su.DELETE_FLAG = 'NOT_DELETE'
             ${ew.customSqlSegment}
     </select>
 
@@ -158,7 +160,7 @@
                 a.MOVE_RECORD, a.FIRST_DEGREE, a.FIRST_DEGREE_CLASS, a.FIRST_GRADUATE_DATE, a.FIRST_GRADUATE_SCHOOL,
                 a.FIRST_MAJOR, a.FIRST_NOTE, a.SECOND_DEGREE, a.SECOND_DEGREE_CLASS, a.SECOND_GRADUATE_DATE,
                 a.SECOND_GRADUATE_SCHOOL, a.SECOND_MAJOR, a.SECOND_NOTE, a.THIRD_DEGREE, a.THIRD_DEGREE_CLASS,
-                a.THIRD_GRADUATE_DATE, a.THIRD_GRADUATE_SCHOOL, a.THIRD_MAJOR, a.THIRD_NOTE, a.EXT_JSON, a.TENANT_ID,
+                a.THIRD_GRADUATE_DATE, a.THIRD_GRADUATE_SCHOOL, a.THIRD_MAJOR, a.THIRD_NOTE, a.EXT_JSON, a.TENANT_ID,a.USER_ID,a.LEAVE_DATE,
                 a.DELETE_FLAG, a.CREATE_TIME, a.CREATE_USER, a.UPDATE_TIME, a.UPDATE_USER , b.`NAME` AS DEPT,c.`NAME` AS DUTY
         FROM PERSONNEL a LEFT JOIN SYS_ORG b ON a.DEPT_ID = b.ID LEFT JOIN SYS_POSITION c ON a.DUTY_ID=c.ID
         WHERE a.`STATUS`= 0 AND a.DELETE_FLAG ='NOT_DELETE' AND a.ID = ${id}
@@ -203,5 +205,22 @@
         </if>
         group by DEPT_ID
         )  a LEFT JOIN SYS_ORG b on a.DEPT_ID = b.ID
+    </select>
+
+
+    <select id="infoList" resultType="vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelInfo">
+        select a.ID,a.`NAME`,a.DEPT_ID,a.DUTY_ID,a.`STATUS`,a.SEX,a.ID_NUMBER, a.BIRTH,a.PHONE,a.HIRE_DATE,a.POSITIVE_TIME,a.USER_ID,a.LEAVE_DATE,
+               c.`NAME` as deptName,d.`NAME` as dutyName
+        from PERSONNEL a
+                 LEFT JOIN SYS_ORG c ON a.DEPT_ID = c.ID
+                 LEFT JOIN SYS_POSITION d ON a.DUTY_ID=d.ID
+        where a.DELETE_FLAG = 'NOT_DELETE'
+          <if test="name != null and name != ''">
+              and a.`NAME` like CONCAT('%', #{name}, '%')
+          </if>
+          <if test="status != null and status != ''">
+              and a.`STATUS` = #{status}
+          </if>
+        LIMIT 30
     </select>
 </mapper>

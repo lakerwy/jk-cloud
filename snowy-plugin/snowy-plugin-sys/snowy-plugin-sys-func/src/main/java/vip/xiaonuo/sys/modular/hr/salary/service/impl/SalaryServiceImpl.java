@@ -1,0 +1,119 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.sys.modular.hr.salary.service.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
+import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
+import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.SalaryEditParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
+
+import java.util.List;
+
+/**
+ * 工资系统-工资表Service接口实现类
+ *
+ * @author yong.ye
+ * @date  2024/03/01 16:50
+ **/
+@Service
+public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> implements SalaryService {
+
+    @Override
+    public Page<Salary> page(SalaryPageParam salaryPageParam) {
+        QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getYearMonth())) {
+            queryWrapper.lambda().eq(Salary::getYearMonth, salaryPageParam.getYearMonth());
+        }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getIdCardNumber())) {
+            queryWrapper.lambda().like(Salary::getIdCardNumber, salaryPageParam.getIdCardNumber());
+        }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getUserName())) {
+            queryWrapper.lambda().like(Salary::getUserName, salaryPageParam.getUserName());
+        }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getFirstOrgName())) {
+            queryWrapper.lambda().like(Salary::getFirstOrgName, salaryPageParam.getFirstOrgName());
+        }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getOrgName())) {
+            queryWrapper.lambda().like(Salary::getOrgName, salaryPageParam.getOrgName());
+        }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getPosition())) {
+            queryWrapper.lambda().like(Salary::getPosition, salaryPageParam.getPosition());
+        }
+        if(ObjectUtil.isAllNotEmpty(salaryPageParam.getSortField(), salaryPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(salaryPageParam.getSortOrder());
+            queryWrapper.orderBy(true, salaryPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(salaryPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByAsc(Salary::getId);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void add(SalaryAddParam salaryAddParam) {
+        Salary salary = BeanUtil.toBean(salaryAddParam, Salary.class);
+        this.save(salary);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void edit(SalaryEditParam salaryEditParam) {
+        Salary salary = this.queryEntity(salaryEditParam.getId());
+        BeanUtil.copyProperties(salaryEditParam, salary);
+        this.updateById(salary);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void delete(List<SalaryIdParam> salaryIdParamList) {
+        // 执行删除
+        this.removeByIds(CollStreamUtil.toList(salaryIdParamList, SalaryIdParam::getId));
+    }
+
+    @Override
+    public Salary detail(SalaryIdParam salaryIdParam) {
+        return this.queryEntity(salaryIdParam.getId());
+    }
+
+    @Override
+    public Salary queryEntity(String id) {
+        Salary salary = this.getById(id);
+        if(ObjectUtil.isEmpty(salary)) {
+            throw new CommonException("工资系统-工资表不存在，id值为：{}", id);
+        }
+        return salary;
+    }
+
+    @Override
+    public Page<Salary> pageList(SalaryPageParam salaryPageParam) {
+        //基础数据源：员工月度工资标准
+
+        return null;
+    }
+}

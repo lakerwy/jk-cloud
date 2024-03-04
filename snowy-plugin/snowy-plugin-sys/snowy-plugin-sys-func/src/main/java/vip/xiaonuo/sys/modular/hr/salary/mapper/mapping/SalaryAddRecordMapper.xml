@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryAddRecordMapper">
+
+    <select id="getTotalByAddId" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddTotal">
+        select ADD_ID as addId,
+               sum(IF(DICT_TYPE = '1',REAL_AMOUNT,0)) as addAmount,
+               sum(IF(DICT_TYPE = '2',REAL_AMOUNT,0)) as minusAmount
+        from HR_SALARY_ADD_RECORD
+        where DELETE_FLAG = 'NOT_DELETE' and ADD_ID = #{addId}
+        group by ADD_ID
+    </select>
+
+    <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo" >
+        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.USER_ID as userId,
+               b.FIRST_ORG_NAME as firstOrgName,b.FIRST_ORG_ID as firstOrgId,b.ORG_NAME as orgName,b.ORG_ID as orgId,
+               b.ADD_AMOUNT as addAmount,b.MINUS_AMOUNT as minusAmount,b.AMOUNT as totalAmount
+        from HR_SALARY_ADD_RECORD a
+                 left join HR_SALARY_ADD b
+                           on a.ADD_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo" >
+        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.USER_ID as userId,
+               b.FIRST_ORG_NAME as firstOrgName,b.FIRST_ORG_ID as firstOrgId,b.ORG_NAME as orgName,b.ORG_ID as orgId,
+               b.ADD_AMOUNT as addAmount,b.MINUS_AMOUNT as minusAmount,b.AMOUNT as totalAmount
+        from HR_SALARY_ADD_RECORD a
+                 left join HR_SALARY_ADD b
+                           on a.ADD_ID = b.ID
+        where a.ID = #{id}
+    </select>
+
+</mapper>

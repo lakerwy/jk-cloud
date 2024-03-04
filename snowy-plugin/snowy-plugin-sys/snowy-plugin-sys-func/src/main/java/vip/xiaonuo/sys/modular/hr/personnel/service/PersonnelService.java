@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.hr.personnel.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.*;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelInfo;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
@@ -89,4 +90,11 @@ public interface PersonnelService extends IService<Personnel> {
     List<PersonnelStatsVo> getStatsResult(PersonnelStatsParam param);
 
     PersonnelVo info(PersonnelIdParam personnelIdParam);
+
+    /**
+     * 获取花名册数据，默认前30条记录
+     * @param personnelParam
+     * @return
+     */
+    List<PersonnelInfo> infoList(PersonnelParam personnelParam);
 }

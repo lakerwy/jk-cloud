@@ -337,6 +337,16 @@ public class PersonnelEditParam {
     @ApiModelProperty(value = "签约信息列表", position = 73)
     private List<PersonnelFileRegisterEditParam> personnelFileRegisterList;
 
-    @ApiModelProperty(value = "账户id", position = 74)
-    private String sysUserId;
+//    @ApiModelProperty(value = "账户id", position = 74)
+//    private String sysUserId;
+
+    /**
+     * 系统用户Id,SysUser.Id
+     */
+    @ApiModelProperty(value = "系统用户Id,SysUser.Id", position = 77)
+    private String userId;
+
+    /** 离职日期 */
+    @ApiModelProperty(value = "离职日期", position = 78)
+    private String leaveDate;
 }

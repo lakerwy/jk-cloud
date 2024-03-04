@@ -306,8 +306,8 @@ public class PersonnelVo extends PersonnelListVo{
     @ApiModelProperty(value = "部门负责人", position = 75)
     private String leader;
 
-    @ApiModelProperty(value = "账户id", position = 31)
-    private String sysUserId;
+//    @ApiModelProperty(value = "账户id", position = 31)
+//    private String sysUserId;
 
     @ApiModelProperty(value = "是否第一负责人", position = 32)
     @TableField(exist = false)
@@ -325,4 +325,5 @@ public class PersonnelVo extends PersonnelListVo{
      */
     @ApiModelProperty(value = "注册证书", position = 60)
     private String certType;
+
 }

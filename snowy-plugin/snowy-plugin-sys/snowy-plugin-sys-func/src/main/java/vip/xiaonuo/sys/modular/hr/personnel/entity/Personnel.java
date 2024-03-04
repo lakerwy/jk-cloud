@@ -347,4 +347,15 @@ public class Personnel {
      */
     @ApiModelProperty(value = "第三学历备注", position = 65)
     private String thirdNote;
+
+
+    /**
+     * 系统用户Id,SysUser.Id
+     */
+    @ApiModelProperty(value = "系统用户Id,SysUser.Id", position = 66)
+    private String userId;
+
+    /** 离职日期 */
+    @ApiModelProperty(value = "离职日期", position = 67)
+    private String leaveDate;
 }

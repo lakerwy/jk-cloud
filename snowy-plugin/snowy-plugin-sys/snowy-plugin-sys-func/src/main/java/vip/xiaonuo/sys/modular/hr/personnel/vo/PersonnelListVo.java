@@ -75,9 +75,20 @@ public class PersonnelListVo {
     private String employNature;
 
 
-    @ApiModelProperty(value = "账户id", position = 31)
-    private String sysUserId;
+//    @ApiModelProperty(value = "账户id", position = 31)
+//    private String sysUserId;
 
     @ApiModelProperty(value = "账户id", position = 31)
     private String dutyName;
+
+
+    /**
+     * 系统用户Id,SysUser.Id
+     */
+    @ApiModelProperty(value = "系统用户Id,SysUser.Id", position = 77)
+    private String userId;
+
+    /** 离职日期 */
+    @ApiModelProperty(value = "离职日期", position = 78)
+    private String leaveDate;
 }

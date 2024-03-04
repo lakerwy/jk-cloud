@@ -1755,7 +1755,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     @Transactional
-    public void addAndGrantRole(SysUserAddParam sysUserAddParam) {
+    public String addAndGrantRole(SysUserAddParam sysUserAddParam) {
         SysUser sysUser = saveUser(sysUserAddParam);
         SysUserGrantRoleParam sysUserGrantRoleParam = new SysUserGrantRoleParam();
         sysUserGrantRoleParam.setId(sysUser.getId());
@@ -1768,6 +1768,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             sysUserGrantRoleParam.setRoleIdList(roles);
             grantRole(sysUserGrantRoleParam);
         }
+        return sysUser.getId();
     }
 
     private SysUser saveUser(SysUserAddParam sysUserAddParam) {
