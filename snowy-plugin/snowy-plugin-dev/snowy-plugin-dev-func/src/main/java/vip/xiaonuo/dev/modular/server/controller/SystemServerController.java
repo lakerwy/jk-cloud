@@ -136,6 +136,7 @@ public class SystemServerController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("我的项目")
     @GetMapping("/sys/server/myServerTask")
+    @Deprecated
     public CommonResult<Page<SystemServer>> myServerTask(MyServerParam myServerParam) {
         return CommonResult.data(systemServerService.myServerTask(myServerParam));
     }

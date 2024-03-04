@@ -348,6 +348,14 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSn())) {
             historicProcessInstanceQuery.variableValueLike("initiatorProcessSn","%" + flwProcessMonitorPageParam.getSn() + "%");
         }
+        if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate())){
+            historicProcessInstanceQuery.startedAfter(DateUtil.parseDate(flwProcessMonitorPageParam.getStartOptDate()));
+        }else {
+            historicProcessInstanceQuery.startedAfter(DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime()));
+        }
+        if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getEndOptDate())){
+            historicProcessInstanceQuery.startedBefore(DateUtil.parseDate(flwProcessMonitorPageParam.getEndOptDate()));
+        }
 
 //        historicProcessInstanceQuery.or().processDefinitionNameLike("%" + flwProcessMonitorPageParam.getName()+ "%");
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getName())) {
@@ -889,7 +897,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         NodeRuntimeUtil.handleTenAuth();
         FlwProcessDetailResult flwProcessDetailResult = new FlwProcessDetailResult();
         String processInstanceId = flwProcessIdParam.getId();
-        flwProcessDetailResult.setModelId(this.getProcessModelIdVariable(processInstanceId));
+        String modelIdVariable = this.getProcessModelIdVariable(processInstanceId);
+        flwProcessDetailResult.setModelId(modelIdVariable);
+        FlwModel flwModel = flwModelService.getById(modelIdVariable);
+        if(ObjectUtil.isNotNull(flwModel)){
+            flwProcessDetailResult.setFlwDiagram(flwModel.getFlwDiagram());
+        }
         flwProcessDetailResult.setProcessInstanceId(processInstanceId);
         flwProcessDetailResult.setFormType(this.getProcessFormTypeVariable(processInstanceId));
         flwProcessDetailResult.setInitiatorModelJson(this.getProcessModelJsonVariable(processInstanceId));

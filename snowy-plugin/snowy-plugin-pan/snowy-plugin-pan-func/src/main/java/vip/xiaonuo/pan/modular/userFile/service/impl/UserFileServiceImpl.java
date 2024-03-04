@@ -16,6 +16,7 @@ import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -25,6 +26,8 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -36,6 +39,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
+import vip.xiaonuo.dev.modular.log.util.DevLogUtil;
 import vip.xiaonuo.pan.modular.file.constant.FoldNameConstant;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
@@ -44,6 +48,7 @@ import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
 import vip.xiaonuo.pan.modular.fileRight.constant.FileRight;
 import vip.xiaonuo.pan.modular.fileRight.entity.PanFileRight;
 import vip.xiaonuo.pan.modular.fileRight.service.PanFileRightService;
+import vip.xiaonuo.pan.modular.userFile.event.UserDevLogEvent;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.fileCenter.component.FileDealComp;
@@ -112,6 +117,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
 
     @Resource
     private PanFileStorageService panFileStorageService;
+
+    @Resource
+    UserFileService userFileService;
 
     @Resource
     private SysOrgApi sysOrgApi;
@@ -192,6 +200,9 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
         //1、如果是文件夹，则文件夹下所有文件都应该被标记为删除，如果不被标记的话，文件夹下分享出去的文件还是会被展示，就有问题
         List<UserFile> userFiles = listByIds(CollStreamUtil.toList(userFileIdParamList, UserFileIdParam::getId));
         String userId = StpLoginUserUtil.getLoginUser().getId();
+        List<PanRecoveryFile> panRecoveryFileList = new ArrayList<>();
+        List<String> ids = new ArrayList<>();
+        Map<String,String> map = new HashMap<>();
         if(CollUtil.isNotEmpty(userFiles)){
             for (UserFile userFile : userFiles) {
                 String uuid = UUID.randomUUID().toString();
@@ -199,17 +210,33 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                     String filePath = new CommonFile(userFile.getFilePath(), userFile.getFileName(), true).getPath();
                     updateFileDeleteStateByFilePath(filePath,uuid ,userId);
                 }
-                executor.execute(()->{
-                    updateDelete(uuid,userId, Collections.singletonList(userFile.getId()));
-                });
+                ids.add(userFile.getId());
+                map.put(userFile.getId(),uuid);
+                /*executor.execute(()->{ updateDelete(uuid,userId, Collections.singletonList(userFile.getId())); });*/
                 //回收站
                 PanRecoveryFile recoveryFile = new PanRecoveryFile();
                 recoveryFile.setUserFileId(userFile.getId());
                 recoveryFile.setDeleteTime(DateUtil.date());
                 recoveryFile.setDeleteBatchNum(uuid);
-                panRecoveryFileService.save(recoveryFile);
+                panRecoveryFileList.add(recoveryFile);
+                //panRecoveryFileService.save(recoveryFile);
             }
         }
+        if(CollectionUtil.isNotEmpty(panRecoveryFileList)){
+            panRecoveryFileService.saveBatch(panRecoveryFileList);
+        }
+        if(CollectionUtil.isNotEmpty(ids)){
+            List<UserFile> userFileList = userFileService.list(new LambdaQueryWrapper<UserFile>().in(UserFile::getId,ids));
+            userFileList.forEach(file -> { if(map.get(file.getId()) != null){ file.setDeleteBatchNum(map.get(file.getId()));}});
+            userFileService.saveOrUpdateBatch(userFileList);
+            userFileService.removeBatchByIds(ids);
+        }
+    }
+
+    @Async
+    @EventListener
+    public void ascnyExecuteFileActionLog(UserDevLogEvent userDevLogEvent){
+        DevLogUtil.asynExecuteFileActionLog(userDevLogEvent.getUserName(),userDevLogEvent.getActionType(),userDevLogEvent.getMessage(),userDevLogEvent.getFileIds());
     }
 
     @Override

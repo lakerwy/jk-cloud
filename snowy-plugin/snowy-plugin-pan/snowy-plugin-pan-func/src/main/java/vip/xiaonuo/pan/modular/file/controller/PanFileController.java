@@ -33,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.annotation.CommonNoRepeat;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.dev.api.DevLogApi;
@@ -160,6 +161,7 @@ public class PanFileController {
     @CommonLog("解压文件")
 //    @SaCheckPermission("/pan/fold/delete")
     @PostMapping("/pan/file/unzipFile")
+    @CommonNoRepeat(interval = 15000)
     public CommonResult<String> unzipFile(@Valid @RequestBody UnzipFileParam userFileAddParam) {
         panFileService.unzipFile(userFileAddParam);
         return CommonResult.ok();

@@ -1,0 +1,142 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.dev.modular.userRelation.service.impl;
+
+import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.userRelation.config.SyncProperties;
+import vip.xiaonuo.dev.modular.userRelation.entity.SystemUserRelation;
+import vip.xiaonuo.dev.modular.userRelation.mapper.SystemUserRelationMapper;
+import vip.xiaonuo.dev.modular.userRelation.param.*;
+import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * 项目系统和账户的关联关系表Service接口实现类
+ *
+ * @author mayike
+ * @date  2024/02/29 11:22
+ **/
+@Service
+@DS("common")
+public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelationMapper, SystemUserRelation> implements SystemUserRelationService {
+
+    @Resource
+    SyncProperties syncProperties;
+
+    @Override
+    public Page<SystemUserRelation> page(SystemUserRelationPageParam systemUserRelationPageParam) {
+        QueryWrapper<SystemUserRelation> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isAllNotEmpty(systemUserRelationPageParam.getSortField(), systemUserRelationPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(systemUserRelationPageParam.getSortOrder());
+            queryWrapper.orderBy(true, systemUserRelationPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(systemUserRelationPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByAsc(SystemUserRelation::getId);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void add(SystemUserRelationAddParam systemUserRelationAddParam) {
+        SystemUserRelation systemUserRelation = BeanUtil.toBean(systemUserRelationAddParam, SystemUserRelation.class);
+        this.save(systemUserRelation);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void edit(SystemUserRelationEditParam systemUserRelationEditParam) {
+        SystemUserRelation systemUserRelation = this.queryEntity(systemUserRelationEditParam.getId());
+        BeanUtil.copyProperties(systemUserRelationEditParam, systemUserRelation);
+        this.updateById(systemUserRelation);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void delete(List<SystemUserRelationIdParam> systemUserRelationIdParamList) {
+        // 执行删除
+        this.removeByIds(CollStreamUtil.toList(systemUserRelationIdParamList, SystemUserRelationIdParam::getId));
+    }
+
+    @Override
+    public SystemUserRelation detail(SystemUserRelationIdParam systemUserRelationIdParam) {
+        return this.queryEntity(systemUserRelationIdParam.getId());
+    }
+
+    @Override
+    public SystemUserRelation queryEntity(String id) {
+        SystemUserRelation systemUserRelation = this.getById(id);
+        if(ObjectUtil.isEmpty(systemUserRelation)) {
+            throw new CommonException("项目系统和账户的关联关系表不存在，id值为：{}", id);
+        }
+        return systemUserRelation;
+    }
+
+    @Override
+    public void syncUser(SyncParam syncParam) {
+        // 分两步：1、同步到关系表中 2、 同步到项目系统中
+        List<SyncParam.SyncUser> syncUsers = syncParam.getSyncUsers();
+        if(CollUtil.isEmpty(syncUsers)){
+            throw new CommonException("同步人员列表为空");
+        }
+        List<SystemUserRelation> collect = syncUsers.stream().map(syncUser -> {
+            SystemUserRelation systemUserRelation = new SystemUserRelation();
+            systemUserRelation.setSystemId(syncParam.getId());
+            systemUserRelation.setUserAccount(syncUser.getAccount());
+            systemUserRelation.setUserId(syncUser.getUserId());
+            systemUserRelation.setRoleId(syncUser.getRoleId());
+            return systemUserRelation;
+        }).collect(Collectors.toList());
+
+        if(CollUtil.isNotEmpty(collect)){
+            saveOrUpdateBatch(collect);
+            //同步到项目系统中
+            if(syncProperties.isEnable()){
+                String json = JSONUtil.parseArray(collect).toString();
+                //不记录执行结果
+                HttpUtil.createPost(syncProperties.getUrl()).body(json).execute();
+            }
+        }
+
+    }
+
+    @Override
+    public Page<SystemServer> myServer(SystemUserRelationPageParam systemUserRelationPageParam) {
+        QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("b.USER_ID", StpUtil.getLoginIdAsString());
+        if(ObjectUtil.isNotEmpty(systemUserRelationPageParam.getSearchKey())){
+            queryWrapper.like("a.SYSTEM_NAME",systemUserRelationPageParam.getSearchKey());
+        }
+        return baseMapper.myServer(CommonPageRequest.defaultPage(),queryWrapper);
+    }
+}

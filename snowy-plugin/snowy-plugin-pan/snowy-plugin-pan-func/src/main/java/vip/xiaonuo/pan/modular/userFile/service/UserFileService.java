@@ -21,6 +21,7 @@ import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;
 import vip.xiaonuo.pan.modular.file.param.PanRootFoldParam;
 import vip.xiaonuo.pan.modular.file.param.UploadFileParam;
+import vip.xiaonuo.pan.modular.userFile.event.UserDevLogEvent;
 import vip.xiaonuo.pan.modular.userFile.param.UserFileTreeParam;
 import vip.xiaonuo.pan.modular.userFile.entity.UserFile;
 import vip.xiaonuo.pan.modular.userFile.entity.NodeFold;
@@ -177,4 +178,12 @@ public interface UserFileService extends IService<UserFile> {
      */
     UserFile createServiceFold(String serviceName);
 
+
+    /**
+     * 异步记录文件操作日志
+     *
+     * @author ljy
+     * @date 2024/2/27 09:03
+     */
+    void ascnyExecuteFileActionLog(UserDevLogEvent userDevLogEvent);
 }

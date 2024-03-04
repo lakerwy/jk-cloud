@@ -179,4 +179,40 @@ public class DevLogUtil {
             //记录日志异常不做处理
         }
     }
+
+    /**
+     * 网盘文件操作-日志
+     *
+     * @author xuyuxiang
+     * @date 2022/9/2 16:08
+     */
+    public static void asynExecuteFileActionLog(String userName, String actionType,String message, List<String> userFileIds) {
+        try {
+            List<DevLog> addList = new ArrayList<>();
+            for (String userFileId : userFileIds) {
+                DevLog devLog = genBasOpLog();
+                devLog.setTenantId(tenApi.getCurrentTenId());
+                devLog.setCategory(DevLogCategoryEnum.FILE_ACTION.getValue()); //分类
+                devLog.setName(actionType);  //文件操作类型
+                devLog.setExeStatus(DevLogExeStatusEnum.SUCCESS.getValue());
+                devLog.setOpTime(DateTime.now());
+                devLog.setOpUser(userName);      //操作人
+                devLog.setParamJson(userFileId); //文件Id
+                devLog.setExeMessage(message);  //备注
+                asynCreatLogSignValue(devLog);
+                addList.add(devLog);
+            }
+            if (CollUtil.isNotEmpty(addList)) { devLogService.saveBatch(addList);}
+        }catch (Exception e){
+            //记录日志异常不做处理
+        }
+    }
+
+    /**
+     * 构建日志完整性保护签名数据,全部数据改ID
+     */
+    private static void asynCreatLogSignValue (DevLog devLog) {
+        String logStr = devLog.getId().replaceAll(" +","");
+        devLog.setSignData(CommonCryptogramUtil.doSignature(logStr));
+    }
 }

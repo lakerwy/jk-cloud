@@ -28,6 +28,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.*;
@@ -79,9 +80,11 @@ import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
-import java.io.ByteArrayOutputStream;
-import java.io.InputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import javax.annotation.Resource;
+import javax.imageio.ImageIO;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -816,6 +819,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 //                values.put("url",)
                 HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(comment.getProcessInstanceId()).caseInstanceId(historicTaskInstance.getCaseInstanceId()).singleResult();
                 values.put("stateCode", historicProcessInstance.getState());
+                values.put("processInstanceId",processInstanceId);
                 iDingDingService.customBatchSend(buildForms(processInstanceId, flwcommentParam.getComment()), collect, values);
             } catch (Exception e) {
                 log.error(e.getMessage());
@@ -1062,6 +1066,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             flwTaskInfoResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
             flwTaskInfoResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
             flwTaskInfoResult.setTenantId(task.getTenantId());
+            flwTaskInfoResult.setIdType(0);
             return flwTaskInfoResult;
         }else {
             List<HistoricTaskInstance> list = historyService.createHistoricTaskInstanceQuery().finished().taskAssignee(StpUtil.getLoginIdAsString()).processInstanceId(flwProcessInstanceIdParam.getProcessInstanceId())
@@ -1069,6 +1074,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             if(CollUtil.isNotEmpty(list)){
                 FlwDoneTaskResult doneTaskResult = getDoneTaskResult(list.get(0));
                 flwTaskInfoResult = BeanUtil.copyProperties(doneTaskResult, FlwTaskInfoResult.class);
+                flwTaskInfoResult.setIdType(1);
             }
         }
         //return new FlwTodoTaskResult();
@@ -1077,31 +1083,27 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void urge(FlwTaskUrgeParam flwTaskUrgeParam) {
-        Task task = taskService.createTaskQuery().processInstanceId(flwTaskUrgeParam.getId()).active().singleResult();
-        String taskId = ObjectUtil.isNotEmpty(task) ? task.getId() : "";
-        if (ObjectUtil.isEmpty(task)) {
-            HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
-                    .processInstanceId(flwTaskUrgeParam.getId()).singleResult();
-            if(ObjectUtil.isEmpty(historicProcessInstance)){throw new CommonException("任务不存在，id值为：{}", flwTaskUrgeParam.getId());}
-            taskId = historicProcessInstance.getId();
-        }
+    public String urge(FlwTaskUrgeParam flwTaskUrgeParam) {
+        List<Task> taskList = taskService.createTaskQuery().processInstanceId(flwTaskUrgeParam.getId()).active().orderByTaskCreateTime().desc().list();
+        if (CollectionUtil.isEmpty(taskList)) { throw new CommonException("任务不存在，id值为：{}", flwTaskUrgeParam.getId()); }
+        String taskId = CollectionUtil.isNotEmpty(taskList) ? taskList.get(0).getId() : "";//择一判断即可
+
         String nowDate = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN);
         Object object = commonCacheOperator.get(FlwCacheConstant.FLW_URGE_KEY + taskId);
         if(ObjectUtil.isNotEmpty(object)){
             String date = String.valueOf(object);
-            //时间处理
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN);
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN);//时间处理
             LocalDateTime ldt = LocalDateTime.parse(date, formatter);
             Date urgeDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
             long hours = DateUtil.between(new Date(),urgeDate, DateUnit.HOUR);
-            if(hours < Integer.parseInt(FlwCacheConstant.FLW_URGE_HOURS)) return;
-            NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
-        }else{
-            //处理催办流程通知
-            NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
+            if(hours < Integer.parseInt(FlwCacheConstant.FLW_URGE_HOURS)) return "催办成功";
         }
-        commonCacheOperator.put(FlwCacheConstant.FLW_URGE_KEY + taskId,nowDate);//写入缓存
+        //处理催办流程通知
+        taskList.forEach(task -> {
+            NodeRuntimeUtil.handleUserTaskUrgeNotice((DelegateTask) task);
+            commonCacheOperator.put(FlwCacheConstant.FLW_URGE_KEY + task.getId(),nowDate);//写入缓存
+        });
+        return "催办成功";
     }
 
     @Override

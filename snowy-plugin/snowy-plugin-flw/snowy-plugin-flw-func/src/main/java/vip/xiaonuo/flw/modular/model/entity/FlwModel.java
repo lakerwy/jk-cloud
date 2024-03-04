@@ -113,6 +113,9 @@ public class FlwModel extends CommonEntity {
     @ApiModelProperty(value = "扩展信息", position = 21)
     private String extJson;
 
+    @ApiModelProperty(value = "流程图",position = 22)
+    private String flwDiagram;
+
 //    /** 扩展信息 */
 //    @ApiModelProperty(value = "模型展示控制字段", position = 21)
 //    private String modelShowStatus;

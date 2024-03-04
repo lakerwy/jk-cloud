@@ -73,6 +73,7 @@ public class SystemServer {
 
     /** EPC单体服务部署状态 */
     @ApiModelProperty(value = "EPC单体服务部署状态：1 创建数据库，2 上传配置文件，3 生成配置文件，4 服务启动", position = 11)
+    @TableField(exist = false)
     private Integer systemStatus;
 
     /** 删除标志 */
@@ -124,5 +125,6 @@ public class SystemServer {
 
     /** 项目参与人 PARTER*/
     @ApiModelProperty(value = "项目参与人，英文逗号隔开", position = 22)
+    @TableField(exist = false)
     private String parter;
 }

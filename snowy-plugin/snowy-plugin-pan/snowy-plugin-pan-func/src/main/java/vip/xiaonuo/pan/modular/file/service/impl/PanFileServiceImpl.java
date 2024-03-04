@@ -47,6 +47,7 @@ import vip.xiaonuo.pan.modular.file.param.PanFileIdParam;
 import vip.xiaonuo.pan.modular.file.param.PanFilePageParam;
 import vip.xiaonuo.pan.modular.file.service.PanFileService;
 import vip.xiaonuo.pan.modular.file.util.CommonZipUtil;
+import vip.xiaonuo.pan.modular.file.util.PanSpZipUtil;
 import vip.xiaonuo.pan.modular.file.vo.PanSourceFileVo;
 import vip.xiaonuo.pan.modular.fileCenter.component.AsyncTaskComp;
 import vip.xiaonuo.pan.modular.fileCenter.factory.FileFactory;
@@ -98,6 +99,9 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
     DevFileUnzipService devFileUnzipService;
     @Resource
     private UserFileMapper userFileMapper;
+
+    @Resource
+    PanSpZipUtil panSpZipUtil;
 
 
     public static Executor exec = Executors.newFixedThreadPool(20);
@@ -222,9 +226,10 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             userFileService.save(userFile1);
             parentId = userFile1.getId();
         }
-        for (String entryName : fileEntryNameList) {
+        panSpZipUtil.iteraSaveFile(userFile, panFile, unzipFileParam.getUnzipMode(),fileEntryNameList, unzipFileParam.getFilePath(),parentId);
+       /* for (String entryName : fileEntryNameList) {
             asyncTaskComp.saveUnzipFile(userFile, panFile, unzipFileParam.getUnzipMode(), entryName, unzipFileParam.getFilePath(),parentId);
-        }
+        }*/
     }
 
     @Override

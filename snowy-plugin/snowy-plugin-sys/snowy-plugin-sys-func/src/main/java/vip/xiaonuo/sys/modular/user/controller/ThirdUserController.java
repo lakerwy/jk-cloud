@@ -108,6 +108,7 @@ public class ThirdUserController {
     @ApiOperation("同步建科人员到EPC")
     @CommonLog("同步建科人员到EPC")
     @PostMapping("/sys/third/putUserToEpc")
+    @Deprecated
     public CommonResult<String> putUserToEpc(@RequestBody @Valid SystemEpcParam systemEpcParam){
         thirdUserService.putUserToEpc(systemEpcParam);
         return CommonResult.ok();

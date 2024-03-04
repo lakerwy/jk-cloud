@@ -15,4 +15,6 @@ public class RabbitConstant {
     public final static String RABBIT_MESSAGE_ID = "message_id";
 
     public final static String RABBIT_MESSAGE_ID_key = "message_id_key_";
+
+    public final static String DEFAULT_EXT_CHANNEL = "ext-out-0"; //和其他外部服务通信的通道
 }

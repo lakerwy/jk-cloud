@@ -60,6 +60,9 @@ public class FlwTaskDetailResult {
     @ApiModelProperty(value = "审批记录", position = 8)
     private List<FlwProcessComment> commentList;
 
+    @ApiModelProperty(value = "流程图",position = 9)
+    private String flwDiagram;
+
     /**
      * 审批记录类
      *
