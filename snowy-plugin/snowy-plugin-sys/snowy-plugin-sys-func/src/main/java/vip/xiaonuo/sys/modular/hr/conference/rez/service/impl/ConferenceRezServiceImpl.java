@@ -13,14 +13,13 @@
 package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
-import com.alibaba.excel.util.DateUtils;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -31,6 +30,11 @@ import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
+import com.dingtalk.open.app.api.GenericEventListener;
+import com.dingtalk.open.app.api.OpenDingTalkStreamClientBuilder;
+import com.dingtalk.open.app.api.message.GenericOpenDingTalkEvent;
+import com.dingtalk.open.app.api.security.AuthClientCredential;
+import com.dingtalk.open.app.stream.protocol.event.EventAckStatus;
 import com.taobao.api.ApiException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -49,6 +53,7 @@ import vip.xiaonuo.dbs.core.util.BizTableCommon;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
+import vip.xiaonuo.sys.modular.hr.conference.DingDingRec.DingCallbackCrypto;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
@@ -71,11 +76,6 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
-import java.text.SimpleDateFormat;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -686,5 +686,43 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         ConferenceRez rez = this.queryEntity(rezId);
         rez.setEndTime(DateUtil.date());
         this.saveOrUpdate(rez);
+    }
+
+    public void callBack( String msg_signature,  String timeStamp, String nonce,  JSONObject json){
+        try {
+            // 1. 从http请求中获取加解密参数
+            // 2. 使用加解密类型
+            // 2、调用订阅事件接口订阅的事件为企业级事件推送，此时OWNER_KEY为：开发者后台应用的Client ID（原企业内部应用 appKey )
+            DingCallbackCrypto callbackCrypto = new DingCallbackCrypto("cY897TwSDqFFmI6mUMYgmHsb1IDQl49CWDWILf2T",
+                    "cdxy1vqCb2QttkYCcc1EfCSyiwWWctD9soguLvKvJlg", "dingdpzuakabx5swx1xz");
+            log.error("callbackCrypto："+callbackCrypto.toString());
+
+            Object encryptMsg = json.get("encrypt");
+            log.error("encryptMsg："+encryptMsg.toString());
+
+            String decryptMsg = callbackCrypto.getDecryptMsg(msg_signature, timeStamp, nonce, encryptMsg.toString());
+
+            // 3. 反序列化回调事件json数据 JSON.parseObject
+            com.alibaba.fastjson.JSONObject eventJson = JSON.parseObject(decryptMsg);
+            String eventType = eventJson.getString("EventType");
+
+            // 4. 根据EventType分类处理
+            if ("check_url".equals(eventType)) {
+                log.error("测试回调url的正确性"); // 测试回调url的正确性
+            } else if ("user_add_org".equals(eventType)) {
+                log.error("发生了：" + eventType + "事件"); // 处理通讯录用户增加事件
+            } else {
+                log.error("发生了：" + eventType + "事件"); // 添加其他已注册的
+            }
+            // 5. 返回success的加密数据
+            Map<String, String> successMap = callbackCrypto.getEncryptedMap("success");
+            for(String key : successMap.values()){
+                log.error("successMap+key+"+key+",value:+"+successMap.get(key).toString()); // successMap遍历
+            }
+            //return successMap;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        //return null;
     }
 }
