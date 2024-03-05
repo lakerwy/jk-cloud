@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.service;
 
+import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
@@ -113,4 +114,7 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /** 释放会议*/
     void freeRez(String rezId);
+
+    /** 释放会议*/
+    void callBack( String msg_signature,  String timeStamp, String nonce,  JSONObject json);
 }

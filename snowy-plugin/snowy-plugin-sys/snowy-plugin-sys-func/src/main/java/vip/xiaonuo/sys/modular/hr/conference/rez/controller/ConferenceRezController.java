@@ -12,18 +12,15 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -55,8 +52,8 @@ import java.util.List;
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
+@Slf4j
 public class ConferenceRezController {
-
     @Resource
     private ConferenceRezService conferenceRezService;
     @Resource
@@ -338,5 +335,18 @@ public class ConferenceRezController {
     @GetMapping("/sys/workArrange/detail")
     public CommonResult<ConferenceWorkArrange> workArrangeDetail(@Valid ConferenceWorkArrangeIdParam conferenceWorkArrangeIdParam) {
         return CommonResult.data(conferenceWorkArrangeService.detail(conferenceWorkArrangeIdParam));
+    }
+
+    /**
+     * 测试：获取钉钉预约会议数据
+     * */
+    @ApiOperationSupport(order = 18)
+    @ApiOperation("会议-获取钉钉预约会议数据")
+    @PostMapping("/sys/rez/dingCallBack")
+    public CommonResult<String> callBack(
+            @RequestParam(value = "msg_signature", required = false) String msg_signature, @RequestParam(value = "timestamp", required = false) String timeStamp,
+            @RequestParam(value = "nonce", required = false) String nonce, @RequestBody(required = false) JSONObject json) {
+        conferenceRezService.callBack(msg_signature,timeStamp,nonce,json);
+        return CommonResult.ok();
     }
 }
