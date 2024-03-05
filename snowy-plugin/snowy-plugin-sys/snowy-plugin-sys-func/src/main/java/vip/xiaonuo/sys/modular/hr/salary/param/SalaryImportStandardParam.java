@@ -44,6 +44,38 @@ public class SalaryImportStandardParam {
     @ApiModelProperty(value = "姓名", position = 7)
     private String userName;
 
+    /** 公司 */
+    @ApiModelProperty(value = "公司", position = 5)
+    private String company;
+
+    /** 一级部门 */
+    @ApiModelProperty(value = "一级部门", position = 7)
+    private String firstOrgName;
+
+    /** 二级部门 */
+    @ApiModelProperty(value = "二级部门", position = 9)
+    private String orgName;
+
+    /** 职位 */
+    @ApiModelProperty(value = "职位", position = 11)
+    private String position;
+
+    /** 入职日期 */
+    @ApiModelProperty(value = "入职日期", position = 13)
+    private String hireDate;
+
+    /** 离职日期 */
+    @ApiModelProperty(value = "离职日期", position = 14)
+    private String leaveDate;
+
+    /** 转正日期 */
+    @ApiModelProperty(value = "转正日期", position = 14)
+    private String positiveTime;
+
+    /** 生日 */
+    @ApiModelProperty(value = "生日", position = 14)
+    private String birthDay;
+
     /** 基本工资 */
     @ApiModelProperty(value = "基本工资", position = 17)
     private BigDecimal basicAmount;
@@ -60,12 +92,16 @@ public class SalaryImportStandardParam {
     @ApiModelProperty(value = "月度标准工资", position = 20)
     private BigDecimal standardAmount;
 
-    /** 餐饮补助 */
-    @ApiModelProperty(value = "餐饮补助", position = 21)
-    private BigDecimal mealAmount;
-
     /** 当月变动|备注 */
     @ApiModelProperty(value = "当月变动", position = 54)
     private String memo;
+
+    /** 员工类别：总部|分公司|外部 */
+    @ApiModelProperty(value = "员工类别：总部|分公司|外部", position = 28)
+    private String userType;
+
+    /** 是否有生日福利：是 否*/
+    @ApiModelProperty(value = "是否有生日福利：是 否", position = 29)
+    private String haveBirthdayPay;
 
 }

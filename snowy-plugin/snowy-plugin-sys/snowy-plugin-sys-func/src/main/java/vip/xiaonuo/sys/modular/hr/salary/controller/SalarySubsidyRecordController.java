@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalarySubsidyRecord;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -62,7 +62,7 @@ public class SalarySubsidyRecordController {
     @ApiOperation("获取工资系统-各类补贴-明细记录分页")
 //    @SaCheckPermission("/sys/hr/salary/subsidy/page")
     @GetMapping("/sys/hr/salary/subsidy/page")
-    public CommonResult<Page<SalarySubsidyRecord>> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam) {
+    public CommonResult<Page<SalarySubsidyRecordVo>> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam) {
         return CommonResult.data(salarySubsidyRecordService.page(salarySubsidyRecordPageParam));
     }
 
@@ -125,7 +125,7 @@ public class SalarySubsidyRecordController {
     @ApiOperation("获取工资系统-各类补贴-明细记录详情")
 //    @SaCheckPermission("/sys/hr/salary/subsidy/detail")
     @GetMapping("/sys/hr/salary/subsidy/detail")
-    public CommonResult<SalarySubsidyRecord> detail(@Valid SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
+    public CommonResult<SalarySubsidyRecordVo> detail(@Valid SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
         return CommonResult.data(salarySubsidyRecordService.detail(salarySubsidyRecordIdParam));
     }
 

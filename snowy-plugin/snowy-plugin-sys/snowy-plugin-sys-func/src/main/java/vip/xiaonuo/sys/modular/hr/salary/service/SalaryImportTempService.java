@@ -15,8 +15,7 @@ package vip.xiaonuo.sys.modular.hr.salary.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryImportTempIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryImportTempPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
 import java.util.List;

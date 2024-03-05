@@ -39,50 +39,9 @@ public class SalarySubsidyRecord {
     @ApiModelProperty(value = "类别：值班补贴|讲师津贴|...", position = 2)
     private String type;
 
-    /** 所属年月 */
-    @ApiModelProperty(value = "所属年月", position = 3)
-    @TableField("`YEAR_MONTH`")
-    private String yearMonth;
-
-    /** 身份证号 */
-    @ApiModelProperty(value = "身份证号", position = 4)
-    private String idCardNumber;
-
-    /** 姓名 */
-    @ApiModelProperty(value = "姓名", position = 5)
-    private String userName;
-
-    /** 建科云用户Id */
-    @ApiModelProperty(value = "建科云用户Id", position = 6)
-    private String userId;
-
-    /** 花名册Id */
-    @ApiModelProperty(value = "花名册Id", position = 6)
-    private String personnelId;
-
-    /** 一级部门 */
-    @ApiModelProperty(value = "一级部门", position = 7)
-    private String firstOrgName;
-
-    /** 一级部门Id */
-    @ApiModelProperty(value = "一级部门Id", position = 8)
-    private String firstOrgId;
-
-    /** 二级部门 */
-    @ApiModelProperty(value = "二级部门", position = 9)
-    private String orgName;
-
-    /** 二级部门Id */
-    @ApiModelProperty(value = "二级部门Id", position = 10)
-    private String orgId;
-
-    /** 职位|岗位 */
-    @ApiModelProperty(value = "职位|岗位", position = 11)
-    private String position;
-
-    /** 职位Id */
-    @ApiModelProperty(value = "职位Id", position = 12)
-    private String positionId;
+    /** 【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
+    @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 3)
+    private String standardId;
 
     /** 值班日期|课程日期|开工日期 */
     @ApiModelProperty(value = "值班日期|课程日期|开工日期", position = 13)

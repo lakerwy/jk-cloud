@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAdd;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -62,7 +62,7 @@ public class SalaryAddController {
     @ApiOperation("获取工资系统-其他费用扣加分页")
 //    @SaCheckPermission("/sys/hr/salary/deduct/page")
     @GetMapping("/sys/hr/salary/deduct/page")
-    public CommonResult<Page<SalaryAdd>> page(SalaryAddPageParam salaryAddPageParam) {
+    public CommonResult<Page<SalaryAddVo>> page(SalaryAddPageParam salaryAddPageParam) {
         return CommonResult.data(salaryAddService.page(salaryAddPageParam));
     }
 
@@ -125,7 +125,7 @@ public class SalaryAddController {
     @ApiOperation("获取工资系统-其他费用扣加详情")
 //    @SaCheckPermission("/sys/hr/salary/deduct/detail")
     @GetMapping("/sys/hr/salary/deduct/detail")
-    public CommonResult<SalaryAdd> detail(@Valid SalaryAddIdParam salaryAddIdParam) {
+    public CommonResult<SalaryAddVo> detail(@Valid SalaryAddIdParam salaryAddIdParam) {
         return CommonResult.data(salaryAddService.detail(salaryAddIdParam));
     }
 }

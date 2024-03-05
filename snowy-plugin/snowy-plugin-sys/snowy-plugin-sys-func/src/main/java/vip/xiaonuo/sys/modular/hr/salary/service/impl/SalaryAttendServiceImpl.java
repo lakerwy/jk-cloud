@@ -32,7 +32,9 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAttendService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -43,59 +45,53 @@ import java.util.List;
  **/
 @Service
 public class SalaryAttendServiceImpl extends ServiceImpl<SalaryAttendMapper, SalaryAttend> implements SalaryAttendService {
+
+    @Resource
+    private SalaryAttendMapper salaryAttendMapper;
+
     @Override
-    public Page<SalaryAttend> page(SalaryAttendPageParam salaryAttendPageParam) {
+    public Page<SalaryAttendVo> page(SalaryAttendPageParam salaryAttendPageParam) {
         QueryWrapper<SalaryAttend> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getYearMonth())) {
-            queryWrapper.lambda().eq(SalaryAttend::getYearMonth, salaryAttendPageParam.getYearMonth());
+            queryWrapper.eq("b.`YEAR_MONTH`", salaryAttendPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(SalaryAttend::getIdCardNumber, salaryAttendPageParam.getIdCardNumber());
+            queryWrapper.like("b.ID_CARD_NUMBER", salaryAttendPageParam.getIdCardNumber());
         }
         if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getUserName())) {
-            queryWrapper.lambda().like(SalaryAttend::getUserName, salaryAttendPageParam.getUserName());
+            queryWrapper.like("b.USER_NAME", salaryAttendPageParam.getUserName());
         }
         if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getFirstOrgName())) {
-            queryWrapper.lambda().like(SalaryAttend::getFirstOrgName, salaryAttendPageParam.getFirstOrgName());
-        }
-        if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getFirstOrgId())) {
-            queryWrapper.lambda().eq(SalaryAttend::getFirstOrgId, salaryAttendPageParam.getFirstOrgId());
+            queryWrapper.like("b.FIRST_ORG_NAME", salaryAttendPageParam.getFirstOrgName());
         }
         if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getOrgName())) {
-            queryWrapper.lambda().like(SalaryAttend::getOrgName, salaryAttendPageParam.getOrgName());
-        }
-        if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getOrgId())) {
-            queryWrapper.lambda().eq(SalaryAttend::getOrgId, salaryAttendPageParam.getOrgId());
-        }
-        if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getPosition())) {
-            queryWrapper.lambda().like(SalaryAttend::getPosition, salaryAttendPageParam.getPosition());
+            queryWrapper.like("b.ORG_NAME", salaryAttendPageParam.getOrgName());
         }
         if(ObjectUtil.isNotEmpty(salaryAttendPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(SalaryAttend::getIdCardNumber,salaryAttendPageParam.getSearchKey())
-                    .or().like(SalaryAttend::getUserName,salaryAttendPageParam.getSearchKey())
-                    .or().like(SalaryAttend::getFirstOrgName,salaryAttendPageParam.getSearchKey())
-                    .or().like(SalaryAttend::getOrgName,salaryAttendPageParam.getSearchKey())
-                    .or().like(SalaryAttend::getPosition,salaryAttendPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("b.ID_CARD_NUMBER",salaryAttendPageParam.getSearchKey())
+                    .or().like("b.USER_NAME",salaryAttendPageParam.getSearchKey())
+                    .or().like("b.FIRST_ORG_NAME",salaryAttendPageParam.getSearchKey())
+                    .or().like("b.ORG_NAME",salaryAttendPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(salaryAttendPageParam.getSortField(), salaryAttendPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryAttendPageParam.getSortOrder());
             queryWrapper.orderBy(true, salaryAttendPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryAttendPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(SalaryAttend::getYearMonth).orderByAsc(SalaryAttend::getFirstOrgName).orderByAsc(SalaryAttend::getOrgName).orderByAsc(SalaryAttend::getUserName);
+            queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return salaryAttendMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryAttendAddParam salaryAttendAddParam) {
-        //同一年月，同一花名册Id，只存在一条考核记录
+        //同一年月，同一员工，只存在一条记录
         List<SalaryAttend> oldList = this.list(new QueryWrapper<SalaryAttend>().lambda()
-                .eq(SalaryAttend::getYearMonth,salaryAttendAddParam.getYearMonth())
-                .eq(SalaryAttend::getPersonnelId,salaryAttendAddParam.getPersonnelId()));
+                .eq(SalaryAttend::getStandardId,salaryAttendAddParam.getStandardId()));
         if(CollUtil.isNotEmpty(oldList)){
-            throw new CommonException("{}年月{}已存在记录",salaryAttendAddParam.getYearMonth(),salaryAttendAddParam.getUserName());
+            throw new CommonException("当前员工本年月已存在记录");
         }
         SalaryAttend salaryAttend = BeanUtil.toBean(salaryAttendAddParam, SalaryAttend.class);
         this.save(salaryAttend);
@@ -104,13 +100,12 @@ public class SalaryAttendServiceImpl extends ServiceImpl<SalaryAttendMapper, Sal
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(SalaryAttendEditParam salaryAttendEditParam) {
-        //同一年月，同一花名册Id，只存在一条考核记录
+        //同一年月，同一员工，只存在一条考核记录
         List<SalaryAttend> oldList = this.list(new QueryWrapper<SalaryAttend>().lambda()
-                .eq(SalaryAttend::getYearMonth,salaryAttendEditParam.getYearMonth())
-                .eq(SalaryAttend::getPersonnelId,salaryAttendEditParam.getPersonnelId())
+                .eq(SalaryAttend::getStandardId,salaryAttendEditParam.getStandardId())
                 .ne(SalaryAttend::getId,salaryAttendEditParam.getId()));
         if(CollUtil.isNotEmpty(oldList)){
-            throw new CommonException("{}年月{}已存在记录",salaryAttendEditParam.getYearMonth(),salaryAttendEditParam.getUserName());
+            throw new CommonException("当前员工本年月已存在记录");
         }
         SalaryAttend salaryAttend = this.queryEntity(salaryAttendEditParam.getId());
         BeanUtil.copyProperties(salaryAttendEditParam, salaryAttend);
@@ -125,8 +120,8 @@ public class SalaryAttendServiceImpl extends ServiceImpl<SalaryAttendMapper, Sal
     }
 
     @Override
-    public SalaryAttend detail(SalaryAttendIdParam salaryAttendIdParam) {
-        return this.queryEntity(salaryAttendIdParam.getId());
+    public SalaryAttendVo detail(SalaryAttendIdParam salaryAttendIdParam) {
+        return salaryAttendMapper.getDetailById(salaryAttendIdParam.getId());
     }
 
     @Override

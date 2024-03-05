@@ -66,22 +66,22 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
             queryWrapper.like("a.DICT_NAME", salaryAddRecordPageParam.getDictName());
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getYearMonth())){
-            queryWrapper.eq("b.`YEAR_MONTH`",salaryAddRecordPageParam.getYearMonth());
+            queryWrapper.eq("c.`YEAR_MONTH`",salaryAddRecordPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getIdCardNumber())){
-            queryWrapper.like("b.ID_CARD_NUMBER",salaryAddRecordPageParam.getIdCardNumber());
+            queryWrapper.like("c.ID_CARD_NUMBER",salaryAddRecordPageParam.getIdCardNumber());
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getUserName())){
-            queryWrapper.like("b.USER_NAME",salaryAddRecordPageParam.getUserName());
+            queryWrapper.like("c.USER_NAME",salaryAddRecordPageParam.getUserName());
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getItemType())){
             queryWrapper.eq("a.ITEM_TYPE",salaryAddRecordPageParam.getItemType());
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getSearchKey())){
-            queryWrapper.and(q->q.like("b.ID_CARD_NUMBER",salaryAddRecordPageParam.getSearchKey())
-                    .or().like("b.USER_NAME",salaryAddRecordPageParam.getSearchKey())
-                    .or().like("b.FIRST_ORG_NAME",salaryAddRecordPageParam.getSearchKey())
-                    .or().like("b.ORG_NAME",salaryAddRecordPageParam.getSearchKey())
+            queryWrapper.and(q->q.like("c.ID_CARD_NUMBER",salaryAddRecordPageParam.getSearchKey())
+                    .or().like("c.USER_NAME",salaryAddRecordPageParam.getSearchKey())
+                    .or().like("c.FIRST_ORG_NAME",salaryAddRecordPageParam.getSearchKey())
+                    .or().like("c.ORG_NAME",salaryAddRecordPageParam.getSearchKey())
                     .or().like("a.DICT_NAME",salaryAddRecordPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(salaryAddRecordPageParam.getSortField(), salaryAddRecordPageParam.getSortOrder())) {
@@ -89,7 +89,7 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
             queryWrapper.orderBy(true, salaryAddRecordPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryAddRecordPageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.FIRST_ORG_NAME").orderByAsc("b.ORG_NAME").orderByAsc("b.USER_NAME").orderByAsc("a.DICT_NAME");
+            queryWrapper.orderByDesc("c.`YEAR_MONTH`").orderByAsc("c.ID_CARD_NUMBER");
         }
         return salaryAddRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

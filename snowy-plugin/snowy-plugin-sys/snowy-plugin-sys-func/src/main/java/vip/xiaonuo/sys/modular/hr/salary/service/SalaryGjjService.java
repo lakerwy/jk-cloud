@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryGjjVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface SalaryGjjService extends IService<SalaryGjj> {
      * @author yong.ye
      * @date  2024/02/26 09:28
      */
-    Page<SalaryGjj> page(SalaryGjjPageParam salaryGjjPageParam);
+    Page<SalaryGjjVo> page(SalaryGjjPageParam salaryGjjPageParam);
 
     /**
      * 添加工资系统-公积金明细
@@ -68,7 +69,7 @@ public interface SalaryGjjService extends IService<SalaryGjj> {
      * @author yong.ye
      * @date  2024/02/26 09:28
      */
-    SalaryGjj detail(SalaryGjjIdParam salaryGjjIdParam);
+    SalaryGjjVo detail(SalaryGjjIdParam salaryGjjIdParam);
 
     /**
      * 获取工资系统-公积金明细详情

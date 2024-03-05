@@ -16,10 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 工资系统-工龄工资|生日福利添加参数
@@ -39,65 +36,13 @@ public class SalaryPayAddParam {
     @ApiModelProperty(value = "福利小类：结婚|嘉奖|生日福利", position = 2)
     private String itemType;
 
-    /** 所属年月 */
-    @ApiModelProperty(value = "所属年月", position = 3)
-    private String yearMonth;
-
-    /** 身份证号 */
-    @ApiModelProperty(value = "身份证号", position = 4)
-    private String idCardNumber;
-
-    /** 姓名 */
-    @ApiModelProperty(value = "姓名", position = 5)
-    private String userName;
-
-    /** 建科云用户Id */
-    @ApiModelProperty(value = "建科云用户Id", position = 6)
-    private String userId;
-
-    /** 花名册Id */
-    @ApiModelProperty(value = "花名册Id", position = 5)
-    private String personnelId;
-
-    /** 一级部门 */
-    @ApiModelProperty(value = "一级部门", position = 7)
-    private String firstOrgName;
-
-    /** 一级部门Id */
-    @ApiModelProperty(value = "一级部门Id", position = 8)
-    private String firstOrgId;
-
-    /** 二级部门 */
-    @ApiModelProperty(value = "二级部门", position = 9)
-    private String orgName;
-
-    /** 二级部门Id */
-    @ApiModelProperty(value = "二级部门Id", position = 10)
-    private String orgId;
-
-    /** 职位 */
-    @ApiModelProperty(value = "职位", position = 11)
-    private String position;
-
-    /** 职位Id */
-    @ApiModelProperty(value = "职位Id", position = 12)
-    private String positionId;
-
-    /** 入职日期 */
-    @ApiModelProperty(value = "入职日期", position = 13)
-    private String hireDate;
-
-    /** 转正日期 */
-    @ApiModelProperty(value = "转正日期", position = 14)
-    private String positiveTime;
+    /** 【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
+    @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 4)
+    private String standardId;
 
     /** 转正工龄 */
     @ApiModelProperty(value = "转正工龄", position = 15)
     private String positiveAge;
-
-    /** 生日 */
-    @ApiModelProperty(value = "生日", position = 16)
-    private String birthDay;
 
     /** 本月工龄工资|生日福利（元） */
     @ApiModelProperty(value = "本月工龄工资|生日福利（元）", position = 17)

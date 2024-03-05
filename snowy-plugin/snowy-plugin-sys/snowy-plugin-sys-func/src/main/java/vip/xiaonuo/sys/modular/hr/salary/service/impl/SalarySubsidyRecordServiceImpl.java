@@ -14,7 +14,6 @@ package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -26,14 +25,15 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalarySubsidyRecord;
-import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalarySubsidyRecordMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
+import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -48,44 +48,45 @@ import java.util.List;
 @Service
 public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRecordMapper, SalarySubsidyRecord> implements SalarySubsidyRecordService {
 
+    @Resource
+    private SalarySubsidyRecordMapper salarySubsidyRecordMapper;
+
     @Override
-    public Page<SalarySubsidyRecord> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam) {
+    public Page<SalarySubsidyRecordVo> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam) {
         QueryWrapper<SalarySubsidyRecord> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getType())) {
-            queryWrapper.lambda().eq(SalarySubsidyRecord::getType, salarySubsidyRecordPageParam.getType());
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getType())){
+            queryWrapper.eq("a.TYPE",salarySubsidyRecordPageParam.getType());
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getYearMonth())) {
-            queryWrapper.lambda().eq(SalarySubsidyRecord::getYearMonth, salarySubsidyRecordPageParam.getYearMonth());
+            queryWrapper.eq("b.`YEAR_MONTH`", salarySubsidyRecordPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(SalarySubsidyRecord::getIdCardNumber, salarySubsidyRecordPageParam.getIdCardNumber());
+            queryWrapper.like("b.ID_CARD_NUMBER", salarySubsidyRecordPageParam.getIdCardNumber());
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getUserName())) {
-            queryWrapper.lambda().like(SalarySubsidyRecord::getUserName, salarySubsidyRecordPageParam.getUserName());
+            queryWrapper.like("b.USER_NAME", salarySubsidyRecordPageParam.getUserName());
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getFirstOrgName())) {
-            queryWrapper.lambda().like(SalarySubsidyRecord::getFirstOrgName, salarySubsidyRecordPageParam.getFirstOrgName());
-        }
-        if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getFirstOrgId())) {
-            queryWrapper.lambda().eq(SalarySubsidyRecord::getFirstOrgId, salarySubsidyRecordPageParam.getFirstOrgId());
+            queryWrapper.like("b.FIRST_ORG_NAME", salarySubsidyRecordPageParam.getFirstOrgName());
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getOrgName())) {
-            queryWrapper.lambda().like(SalarySubsidyRecord::getOrgName, salarySubsidyRecordPageParam.getOrgName());
+            queryWrapper.like("b.ORG_NAME", salarySubsidyRecordPageParam.getOrgName());
         }
-        if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getOrgId())) {
-            queryWrapper.lambda().eq(SalarySubsidyRecord::getOrgId, salarySubsidyRecordPageParam.getOrgId());
-        }
-        if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getPosition())) {
-            queryWrapper.lambda().like(SalarySubsidyRecord::getPosition, salarySubsidyRecordPageParam.getPosition());
+        if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.ID_CARD_NUMBER",salarySubsidyRecordPageParam.getSearchKey())
+                    .or().like("b.USER_NAME",salarySubsidyRecordPageParam.getSearchKey())
+                    .or().like("b.FIRST_ORG_NAME",salarySubsidyRecordPageParam.getSearchKey())
+                    .or().like("b.ORG_NAME",salarySubsidyRecordPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(salarySubsidyRecordPageParam.getSortField(), salarySubsidyRecordPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salarySubsidyRecordPageParam.getSortOrder());
             queryWrapper.orderBy(true, salarySubsidyRecordPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salarySubsidyRecordPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SalarySubsidyRecord::getId);
+            queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return salarySubsidyRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -111,8 +112,8 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
     }
 
     @Override
-    public SalarySubsidyRecord detail(SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
-        return this.queryEntity(salarySubsidyRecordIdParam.getId());
+    public SalarySubsidyRecordVo detail(SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
+        return salarySubsidyRecordMapper.getDetailById(salarySubsidyRecordIdParam.getId());
     }
 
     @Override
@@ -134,27 +135,27 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
         // 计算上个年月 202401
         YearMonth previousMonth = YearMonth.of(currentDate.getYear(), currentDate.getMonthValue() - 1);
         String previousYearMonth = previousMonth.format(formatter);
-        //1. 判断当前年月是否已存在数据（存在，则不可复制）
-        List<SalarySubsidyRecord> currentData = this.list(new QueryWrapper<SalarySubsidyRecord>().lambda()
-                .eq(SalarySubsidyRecord::getType, SalaryTypeEnum.REGISTER_SUBSIDY.getValue()).eq(SalarySubsidyRecord::getYearMonth,currentYearMonth));
-        if(CollUtil.isNotEmpty(currentData)){
-            throw new CommonException("已存在{}月注册补贴数据",currentYearMonth);
-        }
-        //2. 判断上年月是否存在工资标准数据（不存在，则无法复制）
-        List<SalarySubsidyRecord> previousData = this.list(new QueryWrapper<SalarySubsidyRecord>().lambda()
-                .eq(SalarySubsidyRecord::getType, SalaryTypeEnum.REGISTER_SUBSIDY.getValue()).eq(SalarySubsidyRecord::getYearMonth,previousYearMonth));
-        if(CollUtil.isEmpty(previousData)){
-            throw new CommonException("不存在{}月注册补贴数据",previousYearMonth);
-        }
-        //3. 复制数据
-        previousData.forEach(item->{
-            item.setId(null);
-            item.setYearMonth(currentYearMonth);
-            item.setCreateTime(null);
-            item.setCreateUser(null);
-            item.setUpdateTime(null);
-            item.setUpdateUser(null);
-        });
-        this.saveBatch(previousData);
+//        //1. 判断当前年月是否已存在数据（存在，则不可复制）
+//        List<SalarySubsidyRecord> currentData = this.list(new QueryWrapper<SalarySubsidyRecord>().lambda()
+//                .eq(SalarySubsidyRecord::getType, SalaryTypeEnum.REGISTER_SUBSIDY.getValue()).eq(SalarySubsidyRecord::getYearMonth,currentYearMonth));
+//        if(CollUtil.isNotEmpty(currentData)){
+//            throw new CommonException("已存在{}月注册补贴数据",currentYearMonth);
+//        }
+//        //2. 判断上年月是否存在工资标准数据（不存在，则无法复制）
+//        List<SalarySubsidyRecord> previousData = this.list(new QueryWrapper<SalarySubsidyRecord>().lambda()
+//                .eq(SalarySubsidyRecord::getType, SalaryTypeEnum.REGISTER_SUBSIDY.getValue()).eq(SalarySubsidyRecord::getYearMonth,previousYearMonth));
+//        if(CollUtil.isEmpty(previousData)){
+//            throw new CommonException("不存在{}月注册补贴数据",previousYearMonth);
+//        }
+//        //3. 复制数据
+//        previousData.forEach(item->{
+//            item.setId(null);
+//            item.setYearMonth(currentYearMonth);
+//            item.setCreateTime(null);
+//            item.setCreateUser(null);
+//            item.setUpdateTime(null);
+//            item.setUpdateUser(null);
+//        });
+//        this.saveBatch(previousData);
     }
 }

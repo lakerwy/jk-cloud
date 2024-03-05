@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAttendService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -62,7 +62,7 @@ public class SalaryAttendController {
     @ApiOperation("获取工资系统-月度考勤表分页")
 //    @SaCheckPermission("/sys/hr/salary/attend/page")
     @GetMapping("/sys/hr/salary/attend/page")
-    public CommonResult<Page<SalaryAttend>> page(SalaryAttendPageParam salaryAttendPageParam) {
+    public CommonResult<Page<SalaryAttendVo>> page(SalaryAttendPageParam salaryAttendPageParam) {
         return CommonResult.data(salaryAttendService.page(salaryAttendPageParam));
     }
 
@@ -125,7 +125,7 @@ public class SalaryAttendController {
     @ApiOperation("获取工资系统-月度考勤表详情")
 //    @SaCheckPermission("/sys/hr/salary/attend/detail")
     @GetMapping("/sys/hr/salary/attend/detail")
-    public CommonResult<SalaryAttend> detail(@Valid SalaryAttendIdParam salaryAttendIdParam) {
+    public CommonResult<SalaryAttendVo> detail(@Valid SalaryAttendIdParam salaryAttendIdParam) {
         return CommonResult.data(salaryAttendService.detail(salaryAttendIdParam));
     }
 }

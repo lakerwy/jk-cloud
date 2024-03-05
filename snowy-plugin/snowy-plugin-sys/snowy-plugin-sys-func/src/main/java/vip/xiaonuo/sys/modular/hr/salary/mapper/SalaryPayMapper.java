@@ -12,9 +12,14 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryPay;
-import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 
 import java.util.List;
 
@@ -32,7 +37,7 @@ public interface SalaryPayMapper extends BaseMapper<SalaryPay> {
      * @param yearMonth 当前年月
      * @return
      */
-    List<PersonnelInfoVo> getSeniorityPersonnel(String type, String yearMonth);
+    List<SalaryStandardVo> getSeniorityPersonnel(String type, String yearMonth);
 
     /**
      * 根据 类别：生日福利  年月  月份 获取本月需要增加的生日福利人员
@@ -42,11 +47,20 @@ public interface SalaryPayMapper extends BaseMapper<SalaryPay> {
      * @param month 当前月份
      * @return
      */
-    List<PersonnelInfoVo> getBirthdayPersonnel(String type,String itemType,String yearMonth,Integer month);
+    List<SalaryStandardVo> getBirthdayPersonnel(String type,String itemType,String yearMonth,Integer month);
 
     /**
-     * 获取所有 在职 花名册员工
+     * 分页查询
+     * @param page
+     * @param queryWrapper
      * @return
      */
-    List<PersonnelInfoVo> getPersonnelList();
+    Page<SalaryPayVo> getPageList(Page<SalaryPayVo> page, @Param(Constants.WRAPPER) Wrapper<SalaryPay> queryWrapper);
+
+    /**
+     * 根据主键Id,获取详情
+     * @param id
+     * @return
+     */
+    SalaryPayVo getDetailById(String id);
 }

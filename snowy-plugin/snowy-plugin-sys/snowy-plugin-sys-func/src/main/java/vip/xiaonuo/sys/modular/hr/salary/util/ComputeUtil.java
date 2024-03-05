@@ -6,7 +6,7 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardInfoVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -195,11 +195,10 @@ public class ComputeUtil {
      *
      * @return
      */
-    public static List<SalaryAttend> computeAttendGZ(List<SalaryAttend> attendList,List<SalaryStandardInfoVo> standardList){
+    public static List<SalaryAttend> computeAttendGZ(List<SalaryAttend> attendList,List<SalaryStandardVo> standardList){
         attendList.forEach(item->{
             //获取当前人的月工资标准
-            SalaryStandardInfoVo standard = standardList.stream().filter(x->x.getYearMonth().equals(item.getYearMonth())
-                    && x.getPersonnelId().equals(item.getPersonnelId())).findFirst().orElse(null);
+            SalaryStandardVo standard = standardList.stream().filter(x->x.getId().equals(item.getStandardId())).findFirst().orElse(null);
             //计算
             BigDecimal sickAmount = BIG_DECIMAL_0;
             BigDecimal workAmount = BIG_DECIMAL_0;
@@ -280,8 +279,8 @@ public class ComputeUtil {
                 meritAmount = item.getStandardAmount().multiply(BIG_DECIMAL_02);
             }
             //②岗位工资
-            //岗位工资=月工资标准—考核工资—餐饮补助
-            BigDecimal postAmount = item.getStandardAmount().subtract(meritAmount).subtract(item.getMealAmount());
+            //岗位工资=月工资标准—考核工资
+            BigDecimal postAmount = item.getStandardAmount().subtract(meritAmount);
             item.setMeritAmount(meritAmount);
             item.setPostAmount(postAmount);
         });
@@ -317,9 +316,6 @@ public class ComputeUtil {
             }
             if(ObjectUtil.isEmpty(item.getStandardAmount())){
                 item.setStandardAmount(BIG_DECIMAL_0);
-            }
-            if(ObjectUtil.isEmpty(item.getMealAmount())){
-                item.setMealAmount(BIG_DECIMAL_0);
             }
 
             if(ObjectUtil.isEmpty(item.getMissNum())){

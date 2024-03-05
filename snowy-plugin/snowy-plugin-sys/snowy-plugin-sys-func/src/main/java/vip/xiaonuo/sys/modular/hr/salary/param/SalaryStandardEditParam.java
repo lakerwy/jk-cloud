@@ -12,12 +12,14 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.param;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -42,6 +44,7 @@ public class SalaryStandardEditParam {
 
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月", position = 3)
+    @TableField("`YEAR_MONTH`")
     private String yearMonth;
 
     /** 身份证号 */
@@ -51,6 +54,10 @@ public class SalaryStandardEditParam {
     /** 姓名 */
     @ApiModelProperty(value = "姓名", position = 5)
     private String userName;
+
+    /** 公司 */
+    @ApiModelProperty(value = "公司", position = 5)
+    private String company;
 
     /** 建科云用户Id */
     @ApiModelProperty(value = "建科云用户Id", position = 6)
@@ -86,11 +93,27 @@ public class SalaryStandardEditParam {
 
     /** 入职日期 */
     @ApiModelProperty(value = "入职日期", position = 13)
-    private String hireDate;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date hireDate;
 
     /** 离职日期 */
     @ApiModelProperty(value = "离职日期", position = 14)
-    private String leaveDate;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date leaveDate;
+
+    /** 转正日期 */
+    @ApiModelProperty(value = "转正日期", position = 14)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date positiveTime;
+
+    /** 生日 */
+    @ApiModelProperty(value = "生日", position = 14)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date birthDay;
 
     /** 基本工资 */
     @ApiModelProperty(value = "基本工资", position = 15)
@@ -108,12 +131,15 @@ public class SalaryStandardEditParam {
     @ApiModelProperty(value = "月度标准工资", position = 18)
     private BigDecimal standardAmount;
 
-    /** 餐饮补助 */
-    @ApiModelProperty(value = "餐饮补助", position = 19)
-    private BigDecimal mealAmount;
-
     /** 当月变动 */
     @ApiModelProperty(value = "当月变动", position = 20)
     private String memo;
 
+    /** 员工类别：总部|分公司|外部 */
+    @ApiModelProperty(value = "员工类别：总部|分公司|外部", position = 28)
+    private String userType;
+
+    /** 是否有生日福利：是 否*/
+    @ApiModelProperty(value = "是否有生日福利：是 否", position = 29)
+    private String haveBirthdayPay;
 }

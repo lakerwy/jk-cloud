@@ -15,8 +15,6 @@ package vip.xiaonuo.sys.modular.hr.salary.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 工资系统-工龄工资|生日福利查询参数
@@ -72,17 +70,9 @@ public class SalaryPayPageParam {
     @ApiModelProperty(value = "一级部门")
     private String firstOrgName;
 
-    /** 一级部门Id */
-    @ApiModelProperty(value = "一级部门Id")
-    private String firstOrgId;
-
     /** 二级部门 */
     @ApiModelProperty(value = "二级部门")
     private String orgName;
-
-    /** 二级部门Id */
-    @ApiModelProperty(value = "二级部门Id")
-    private String orgId;
 
     /** 职位 */
     @ApiModelProperty(value = "职位")

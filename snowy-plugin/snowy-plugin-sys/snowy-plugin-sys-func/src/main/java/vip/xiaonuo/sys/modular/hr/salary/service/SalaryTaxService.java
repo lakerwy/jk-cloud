@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryTaxVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface SalaryTaxService extends IService<SalaryTax> {
      * @author yong.ye
      * @date  2024/02/26 09:38
      */
-    Page<SalaryTax> page(SalaryTaxPageParam salaryTaxPageParam);
+    Page<SalaryTaxVo> page(SalaryTaxPageParam salaryTaxPageParam);
 
     /**
      * 添加工资系统-专项扣除
@@ -68,7 +69,7 @@ public interface SalaryTaxService extends IService<SalaryTax> {
      * @author yong.ye
      * @date  2024/02/26 09:38
      */
-    SalaryTax detail(SalaryTaxIdParam salaryTaxIdParam);
+    SalaryTaxVo detail(SalaryTaxIdParam salaryTaxIdParam);
 
     /**
      * 获取工资系统-专项扣除详情

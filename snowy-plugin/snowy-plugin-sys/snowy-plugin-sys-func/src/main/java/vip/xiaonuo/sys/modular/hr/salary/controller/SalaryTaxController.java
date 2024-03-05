@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryTax;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryTaxService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryTaxVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -62,7 +62,7 @@ public class SalaryTaxController {
     @ApiOperation("获取工资系统-专项扣除分页")
 //    @SaCheckPermission("/sys/hr/salary/tax/page")
     @GetMapping("/sys/hr/salary/tax/page")
-    public CommonResult<Page<SalaryTax>> page(SalaryTaxPageParam salaryTaxPageParam) {
+    public CommonResult<Page<SalaryTaxVo>> page(SalaryTaxPageParam salaryTaxPageParam) {
         return CommonResult.data(salaryTaxService.page(salaryTaxPageParam));
     }
 
@@ -125,7 +125,7 @@ public class SalaryTaxController {
     @ApiOperation("获取工资系统-专项扣除详情")
 //    @SaCheckPermission("/sys/hr/salary/tax/detail")
     @GetMapping("/sys/hr/salary/tax/detail")
-    public CommonResult<SalaryTax> detail(@Valid SalaryTaxIdParam salaryTaxIdParam) {
+    public CommonResult<SalaryTaxVo> detail(@Valid SalaryTaxIdParam salaryTaxIdParam) {
         return CommonResult.data(salaryTaxService.detail(salaryTaxIdParam));
     }
 }

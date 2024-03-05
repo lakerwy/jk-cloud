@@ -13,8 +13,6 @@
 package vip.xiaonuo.sys.modular.hr.salary.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
-import cn.hutool.core.collection.CollUtil;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -26,21 +24,18 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
-import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryGjj;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryGjjService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryGjjVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 /**
  * 工资系统-公积金明细控制器
@@ -67,7 +62,7 @@ public class SalaryGjjController {
     @ApiOperation("获取工资系统-公积金明细分页")
 //    @SaCheckPermission("/sys/hr/salary/gjj/page")
     @GetMapping("/sys/hr/salary/gjj/page")
-    public CommonResult<Page<SalaryGjj>> page(SalaryGjjPageParam salaryGjjPageParam) {
+    public CommonResult<Page<SalaryGjjVo>> page(SalaryGjjPageParam salaryGjjPageParam) {
         return CommonResult.data(salaryGjjService.page(salaryGjjPageParam));
     }
 
@@ -130,7 +125,7 @@ public class SalaryGjjController {
     @ApiOperation("获取工资系统-公积金明细详情")
 //    @SaCheckPermission("/sys/hr/salary/gjj/detail")
     @GetMapping("/sys/hr/salary/gjj/detail")
-    public CommonResult<SalaryGjj> detail(@Valid SalaryGjjIdParam salaryGjjIdParam) {
+    public CommonResult<SalaryGjjVo> detail(@Valid SalaryGjjIdParam salaryGjjIdParam) {
         return CommonResult.data(salaryGjjService.detail(salaryGjjIdParam));
     }
 }

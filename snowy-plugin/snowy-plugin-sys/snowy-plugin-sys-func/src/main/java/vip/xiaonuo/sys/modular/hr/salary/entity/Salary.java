@@ -13,9 +13,12 @@
 package vip.xiaonuo.sys.modular.hr.salary.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -77,19 +80,31 @@ public class Salary {
 
     /** 入职日期 */
     @ApiModelProperty(value = "入职日期", position = 12)
-    private String hireDate;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private Date hireDate;
 
     /** 离职日期 */
     @ApiModelProperty(value = "离职日期", position = 13)
-    private String leaveDate;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private Date leaveDate;
 
     /** 转正日期 */
     @ApiModelProperty(value = "转正日期", position = 14)
-    private String positiveTime;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private Date positiveTime;
 
     /** 生日 */
     @ApiModelProperty(value = "生日", position = 15)
-    private String birthDay;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
+    private Date birthDay;
 
     /** 月度标准工资 */
     @ApiModelProperty(value = "月度标准工资", position = 16)
@@ -257,4 +272,16 @@ public class Salary {
     @ApiModelProperty(value = "数据权限控制字段", position = 55)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
+    @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 56)
+    private String standardId;
+
+    /** 员工类别：总部|分公司|外部 */
+    @ApiModelProperty(value = "员工类别：总部|分公司|外部", position = 57)
+    private String userType;
+
+    /** 是否有生日福利：是 否*/
+    @ApiModelProperty(value = "是否有生日福利：是 否", position = 58)
+    private String haveBirthdayPay;
 }

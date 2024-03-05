@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -116,10 +117,6 @@ public class SalaryImportTemp {
     @ApiModelProperty(value = "月度标准工资", position = 20)
     private BigDecimal standardAmount;
 
-    /** 餐饮补助 */
-    @ApiModelProperty(value = "餐饮补助", position = 21)
-    private BigDecimal mealAmount;
-
     /** 当月未打卡次数 */
     @ApiModelProperty(value = "当月未打卡次数", position = 22)
     private Integer missNum;
@@ -164,9 +161,9 @@ public class SalaryImportTemp {
     @ApiModelProperty(value = "丧假天数", position = 32)
     private Float funDay;
 
-    /** 公司名称 */
-    @ApiModelProperty(value = "公司名称", position = 33)
-    private String company;
+    /** 所属单位 */
+    @ApiModelProperty(value = "所属单位", position = 33)
+    private String unitName;
 
     /** 缴费基数 */
     @ApiModelProperty(value = "缴费基数", position = 34)
@@ -342,4 +339,28 @@ public class SalaryImportTemp {
     /** 交通补贴小计 */
     @ApiModelProperty(value = "交通补贴小计", position = 75)
     private BigDecimal btStandard2Total;
+
+    /** 公司 */
+    @ApiModelProperty(value = "公司", position = 76)
+    private String company;
+
+    /** 转正日期 */
+    @ApiModelProperty(value = "转正日期", position = 77)
+    private String positiveTime;
+
+    /** 生日 */
+    @ApiModelProperty(value = "生日", position = 78)
+    private String birthDay;
+
+    /** 员工类别：总部|分公司|外部 */
+    @ApiModelProperty(value = "员工类别：总部|分公司|外部", position = 79)
+    private String userType;
+
+    /** 是否有生日福利：是 否*/
+    @ApiModelProperty(value = "是否有生日福利：是 否", position = 80)
+    private String haveBirthdayPay;
+
+    /** （月工资标准外）其他导入-基于发放工资员工表-【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
+    @ApiModelProperty(value = "月工资标准外）其他导入-基于发放工资员工表-【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 81)
+    private String standardId;
 }

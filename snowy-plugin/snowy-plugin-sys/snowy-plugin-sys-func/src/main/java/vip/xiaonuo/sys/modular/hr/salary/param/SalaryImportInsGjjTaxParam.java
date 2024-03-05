@@ -12,13 +12,11 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.param;
 
-import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 工资系统-社保|公积金|专项扣除导入
@@ -46,9 +44,9 @@ public class SalaryImportInsGjjTaxParam {
     @ApiModelProperty(value = "姓名", position = 7)
     private String userName;
 
-    /** 公司名称 */
-    @ApiModelProperty(value = "公司名称", position = 33)
-    private String company;
+    /** 所属单位 */
+    @ApiModelProperty(value = "所属单位", position = 10)
+    private String unitName;
 
     /** 缴费基数 */
     @ApiModelProperty(value = "缴费基数", position = 34)

@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 
-import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -21,13 +20,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryEditParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
@@ -69,24 +68,9 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.orderBy(true, salaryPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(Salary::getId);
+            queryWrapper.lambda().orderByDesc(Salary::getYearMonth).orderByAsc(Salary::getIdCardNumber);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void add(SalaryAddParam salaryAddParam) {
-        Salary salary = BeanUtil.toBean(salaryAddParam, Salary.class);
-        this.save(salary);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void edit(SalaryEditParam salaryEditParam) {
-        Salary salary = this.queryEntity(salaryEditParam.getId());
-        BeanUtil.copyProperties(salaryEditParam, salary);
-        this.updateById(salary);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -115,5 +99,22 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         //基础数据源：员工月度工资标准
 
         return null;
+    }
+
+    @Override
+    public List<Salary> empSalary(EmpSalaryParam empSalaryParam) {
+        if(ObjectUtil.isEmpty(empSalaryParam.getYear()) || ObjectUtil.isEmpty(empSalaryParam.getYearMonth())){
+            throw new CommonException("请输入所属年月");
+        }
+        QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(empSalaryParam.getYearMonth())) {
+            queryWrapper.lambda().eq(Salary::getYearMonth,empSalaryParam.getYearMonth());
+        }
+        if(ObjectUtil.isNotEmpty(empSalaryParam.getYear())){
+            queryWrapper.lambda().likeRight(Salary::getYearMonth,empSalaryParam.getYear());
+        }
+        queryWrapper.lambda().eq(Salary::getUserId, StpLoginUserUtil.getLoginUser().getId());
+        queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
+        return this.list(queryWrapper);
     }
 }

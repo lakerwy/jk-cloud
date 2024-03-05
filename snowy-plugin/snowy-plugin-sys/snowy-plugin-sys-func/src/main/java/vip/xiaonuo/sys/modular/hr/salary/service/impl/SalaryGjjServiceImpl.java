@@ -32,7 +32,9 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryGjjService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryGjjVo;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -44,52 +46,52 @@ import java.util.List;
 @Service
 public class SalaryGjjServiceImpl extends ServiceImpl<SalaryGjjMapper, SalaryGjj> implements SalaryGjjService {
 
+    @Resource
+    private SalaryGjjMapper salaryGjjMapper;
+
     @Override
-    public Page<SalaryGjj> page(SalaryGjjPageParam salaryGjjPageParam) {
+    public Page<SalaryGjjVo> page(SalaryGjjPageParam salaryGjjPageParam) {
         QueryWrapper<SalaryGjj> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getYearMonth())) {
-            queryWrapper.lambda().eq(SalaryGjj::getYearMonth, salaryGjjPageParam.getYearMonth());
+            queryWrapper.eq("b.`YEAR_MONTH`", salaryGjjPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(SalaryGjj::getIdCardNumber, salaryGjjPageParam.getIdCardNumber());
+            queryWrapper.like("b.ID_CARD_NUMBER", salaryGjjPageParam.getIdCardNumber());
         }
         if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getUserName())) {
-            queryWrapper.lambda().like(SalaryGjj::getUserName, salaryGjjPageParam.getUserName());
+            queryWrapper.like("b.USER_NAME", salaryGjjPageParam.getUserName());
         }
         if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getFirstOrgName())) {
-            queryWrapper.lambda().like(SalaryGjj::getFirstOrgName, salaryGjjPageParam.getFirstOrgName());
-        }
-        if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getFirstOrgId())) {
-            queryWrapper.lambda().eq(SalaryGjj::getFirstOrgId, salaryGjjPageParam.getFirstOrgId());
+            queryWrapper.like("b.FIRST_ORG_NAME", salaryGjjPageParam.getFirstOrgName());
         }
         if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getOrgName())) {
-            queryWrapper.lambda().like(SalaryGjj::getOrgName, salaryGjjPageParam.getOrgName());
+            queryWrapper.like("b.ORG_NAME", salaryGjjPageParam.getOrgName());
         }
-        if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getOrgId())) {
-            queryWrapper.lambda().eq(SalaryGjj::getOrgId, salaryGjjPageParam.getOrgId());
-        }
-        if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getCompany())) {
-            queryWrapper.lambda().like(SalaryGjj::getCompany, salaryGjjPageParam.getCompany());
+        if(ObjectUtil.isNotEmpty(salaryGjjPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.ID_CARD_NUMBER",salaryGjjPageParam.getSearchKey())
+                    .or().like("b.USER_NAME",salaryGjjPageParam.getSearchKey())
+                    .or().like("b.FIRST_ORG_NAME",salaryGjjPageParam.getSearchKey())
+                    .or().like("b.ORG_NAME",salaryGjjPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(salaryGjjPageParam.getSortField(), salaryGjjPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryGjjPageParam.getSortOrder());
             queryWrapper.orderBy(true, salaryGjjPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryGjjPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SalaryGjj::getId);
+            queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return salaryGjjMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryGjjAddParam salaryGjjAddParam) {
-        //同一年月，同一花名册Id，只存在一条记录
+        //同一年月，同一员工，只存在一条记录
         List<SalaryGjj> oldList = this.list(new QueryWrapper<SalaryGjj>().lambda()
-                .eq(SalaryGjj::getYearMonth,salaryGjjAddParam.getYearMonth())
-                .eq(SalaryGjj::getPersonnelId,salaryGjjAddParam.getPersonnelId()));
+                .eq(SalaryGjj::getStandardId,salaryGjjAddParam.getStandardId()));
         if(CollUtil.isNotEmpty(oldList)){
-            throw new CommonException("{}年月{}已存在记录",salaryGjjAddParam.getYearMonth(),salaryGjjAddParam.getUserName());
+            throw new CommonException("当前员工本年月已存在记录");
         }
         SalaryGjj salaryGjj = BeanUtil.toBean(salaryGjjAddParam, SalaryGjj.class);
         this.save(salaryGjj);
@@ -100,11 +102,10 @@ public class SalaryGjjServiceImpl extends ServiceImpl<SalaryGjjMapper, SalaryGjj
     public void edit(SalaryGjjEditParam salaryGjjEditParam) {
         //同一年月，同一花名册Id，只存在一条记录
         List<SalaryGjj> oldList = this.list(new QueryWrapper<SalaryGjj>().lambda()
-                .eq(SalaryGjj::getYearMonth,salaryGjjEditParam.getYearMonth())
-                .eq(SalaryGjj::getPersonnelId,salaryGjjEditParam.getPersonnelId())
+                .eq(SalaryGjj::getStandardId,salaryGjjEditParam.getStandardId())
                 .ne(SalaryGjj::getId,salaryGjjEditParam.getId()));
         if(CollUtil.isNotEmpty(oldList)){
-            throw new CommonException("{}年月{}已存在记录",salaryGjjEditParam.getYearMonth(),salaryGjjEditParam.getUserName());
+            throw new CommonException("当前员工本年月已存在记录");
         }
         SalaryGjj salaryGjj = this.queryEntity(salaryGjjEditParam.getId());
         BeanUtil.copyProperties(salaryGjjEditParam, salaryGjj);
@@ -119,8 +120,8 @@ public class SalaryGjjServiceImpl extends ServiceImpl<SalaryGjjMapper, SalaryGjj
     }
 
     @Override
-    public SalaryGjj detail(SalaryGjjIdParam salaryGjjIdParam) {
-        return this.queryEntity(salaryGjjIdParam.getId());
+    public SalaryGjjVo detail(SalaryGjjIdParam salaryGjjIdParam) {
+        return salaryGjjMapper.getDetailById(salaryGjjIdParam.getId());
     }
 
     @Override

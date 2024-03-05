@@ -15,11 +15,9 @@ package vip.xiaonuo.sys.modular.hr.salary.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryStandardAddParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryStandardEditParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryStandardIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryStandardPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardInfoVo;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 
 import java.util.List;
 
@@ -79,17 +77,22 @@ public interface SalaryStandardService extends IService<SalaryStandard> {
      **/
     SalaryStandard queryEntity(String id);
 
-
-    /**
-     * 根据 类型 + 年月 查询工资标准
-     * @param type
-     * @param yearMonths
-     * @return
-     */
-    List<SalaryStandardInfoVo> getSalaryStandardList(String type,List<String> yearMonths);
-
     /**
      * 复制 - 上月工资标准
      */
     void copy();
+
+    /**
+     * 总部|分公司 花名册
+     * @param personnelParam
+     * @return
+     */
+    List<PersonnelInfoVo> personnelList(PersonnelParam personnelParam);
+
+    /**
+     * 根据 所属年月，获取本年月的待发工资人员名单
+     * @param yearMonth
+     * @return
+     */
+    List<SalaryStandardVo> listByYearMonth(StandardParam standardParam);
 }

@@ -14,6 +14,10 @@ package vip.xiaonuo.sys.modular.hr.salary.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
+import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
+import vip.xiaonuo.sys.modular.hr.salary.param.PersonnelParam;
+
+import java.util.List;
 
 /**
  * 工资系统-月度工资标准Mapper接口
@@ -22,4 +26,11 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
  * @date  2024/02/26 09:36
  **/
 public interface SalaryStandardMapper extends BaseMapper<SalaryStandard> {
+
+    /**
+     * 分公司|总部  花名册
+     * @param personnelParam
+     * @return
+     */
+    List<PersonnelInfoVo> getPersonnelList(PersonnelParam personnelParam);
 }

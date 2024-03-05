@@ -26,8 +26,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryImportTempIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryImportTempPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryImportTempService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 

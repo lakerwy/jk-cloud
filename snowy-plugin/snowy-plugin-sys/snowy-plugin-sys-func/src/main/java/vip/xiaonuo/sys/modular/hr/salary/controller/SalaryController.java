@@ -27,6 +27,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
+import vip.xiaonuo.sys.modular.hr.salary.param.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
@@ -34,6 +35,7 @@ import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 工资系统-工资表控制器
@@ -109,5 +111,19 @@ public class SalaryController {
     @GetMapping("/sys/hr/salary/pageList")
     public CommonResult<Page<Salary>> pageList(SalaryPageParam salaryPageParam) {
         return CommonResult.data(salaryService.pageList(salaryPageParam));
+    }
+
+
+    /**
+     *  获取员工工资条
+     *
+     * @author yong.ye
+     * @date  2024/03/05 09:36
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取员工工资条")
+    @GetMapping("/sys/hr/salary/empSalary")
+    public CommonResult<List<Salary>> empSalary(EmpSalaryParam empSalaryParam) {
+        return CommonResult.data(salaryService.empSalary(empSalaryParam));
     }
 }

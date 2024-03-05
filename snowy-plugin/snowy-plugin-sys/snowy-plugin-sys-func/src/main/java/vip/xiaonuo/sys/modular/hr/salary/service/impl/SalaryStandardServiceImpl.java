@@ -28,13 +28,12 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryStandardAddParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryStandardEditParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryStandardIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryStandardPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardInfoVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 
+import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
@@ -48,6 +47,9 @@ import java.util.List;
  **/
 @Service
 public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper, SalaryStandard> implements SalaryStandardService {
+
+    @Resource
+    private SalaryStandardMapper salaryStandardMapper;
 
     @Override
     public Page<SalaryStandard> page(SalaryStandardPageParam salaryStandardPageParam) {
@@ -67,14 +69,8 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getFirstOrgName())) {
             queryWrapper.lambda().like(SalaryStandard::getFirstOrgName, salaryStandardPageParam.getFirstOrgName());
         }
-        if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getFirstOrgId())) {
-            queryWrapper.lambda().eq(SalaryStandard::getFirstOrgId, salaryStandardPageParam.getFirstOrgId());
-        }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getOrgName())) {
             queryWrapper.lambda().like(SalaryStandard::getOrgName, salaryStandardPageParam.getOrgName());
-        }
-        if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getOrgId())) {
-            queryWrapper.lambda().eq(SalaryStandard::getOrgId, salaryStandardPageParam.getOrgId());
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getPosition())) {
             queryWrapper.lambda().like(SalaryStandard::getPosition, salaryStandardPageParam.getPosition());
@@ -84,7 +80,7 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             queryWrapper.orderBy(true, salaryStandardPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryStandardPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SalaryStandard::getId);
+            queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth).orderByAsc(SalaryStandard::getIdCardNumber);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -92,11 +88,11 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryStandardAddParam salaryStandardAddParam) {
-        //同一年月，同一花名册Id，只存在一条考核记录
+        //同一工资类别，同一年月，同一身份证，只存在一条记录
         List<SalaryStandard> oldList = this.list(new QueryWrapper<SalaryStandard>().lambda()
                 .eq(SalaryStandard::getType,salaryStandardAddParam.getType())
                 .eq(SalaryStandard::getYearMonth,salaryStandardAddParam.getYearMonth())
-                .eq(SalaryStandard::getPersonnelId,salaryStandardAddParam.getPersonnelId()));
+                .eq(SalaryStandard::getIdCardNumber,salaryStandardAddParam.getIdCardNumber()));
         if(CollUtil.isNotEmpty(oldList)){
             throw new CommonException("{}年月{}已存在记录",salaryStandardAddParam.getYearMonth(),salaryStandardAddParam.getUserName());
         }
@@ -107,11 +103,11 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(SalaryStandardEditParam salaryStandardEditParam) {
-        //同一年月，同一花名册Id，只存在一条考核记录
+        //同一工资类别，同一年月，同一身份证，只存在一条记录
         List<SalaryStandard> oldList = this.list(new QueryWrapper<SalaryStandard>().lambda()
                 .eq(SalaryStandard::getType,salaryStandardEditParam.getType())
                 .eq(SalaryStandard::getYearMonth,salaryStandardEditParam.getYearMonth())
-                .eq(SalaryStandard::getPersonnelId,salaryStandardEditParam.getPersonnelId())
+                .eq(SalaryStandard::getIdCardNumber,salaryStandardEditParam.getIdCardNumber())
                 .ne(SalaryStandard::getId,salaryStandardEditParam.getId()));
         if(CollUtil.isNotEmpty(oldList)){
             throw new CommonException("{}年月{}已存在记录",salaryStandardEditParam.getYearMonth(),salaryStandardEditParam.getUserName());
@@ -140,19 +136,6 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             throw new CommonException("工资系统-月度工资标准不存在，id值为：{}", id);
         }
         return salaryStandard;
-    }
-
-    @Override
-    public List<SalaryStandardInfoVo> getSalaryStandardList(String type, List<String> yearMonths) {
-        QueryWrapper<SalaryStandard> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(type)){
-            queryWrapper.lambda().eq(SalaryStandard::getType,type);
-        }
-        if(CollUtil.isNotEmpty(yearMonths)){
-            queryWrapper.lambda().in(SalaryStandard::getYearMonth,yearMonths);
-        }
-        List<SalaryStandard> standardList = this.list(queryWrapper);
-        return BeanUtil.copyToList(standardList, SalaryStandardInfoVo.class);
     }
 
     @Override
@@ -187,5 +170,23 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             item.setUpdateUser(null);
         });
         this.saveBatch(previousData);
+    }
+
+    @Override
+    public List<PersonnelInfoVo> personnelList(PersonnelParam personnelParam) {
+        return salaryStandardMapper.getPersonnelList(personnelParam);
+    }
+
+    @Override
+    public List<SalaryStandardVo> listByYearMonth(StandardParam standardParam) {
+        if(ObjectUtil.isEmpty(standardParam.getYearMonth())){
+            throw new CommonException("所属年月必传参数");
+        }
+        QueryWrapper<SalaryStandard> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(SalaryStandard::getType,SalaryTypeEnum.STANDARD.getValue());
+        queryWrapper.lambda().eq(SalaryStandard::getYearMonth,standardParam.getYearMonth());
+
+        List<SalaryStandard> result = this.list(queryWrapper);
+        return BeanUtil.copyToList(result,SalaryStandardVo.class);
     }
 }

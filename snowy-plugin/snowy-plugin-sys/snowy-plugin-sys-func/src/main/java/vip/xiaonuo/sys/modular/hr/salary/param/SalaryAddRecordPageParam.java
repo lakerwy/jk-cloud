@@ -15,8 +15,6 @@ package vip.xiaonuo.sys.modular.hr.salary.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 工资系统-其他费用扣加-记录查询参数

@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 
 /**
  * 工资系统-月度考勤表Mapper接口
@@ -22,4 +27,19 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
  * @date  2024/02/26 09:26
  **/
 public interface SalaryAttendMapper extends BaseMapper<SalaryAttend> {
+
+    /**
+     * 分页查询
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<SalaryAttendVo> getPageList(Page<SalaryAttendVo> page, @Param(Constants.WRAPPER) Wrapper<SalaryAttend> queryWrapper);
+
+    /**
+     * 根据主键Id,获取详情
+     * @param id
+     * @return
+     */
+    SalaryAttendVo getDetailById(String id);
 }

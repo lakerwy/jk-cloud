@@ -26,12 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryIns;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryInsAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryInsEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryInsIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryInsPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryInsService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryInsVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -62,7 +62,7 @@ public class SalaryInsController {
     @ApiOperation("获取工资系统-社保明细分页")
 //    @SaCheckPermission("/sys/hr/salary/ins/page")
     @GetMapping("/sys/hr/salary/ins/page")
-    public CommonResult<Page<SalaryIns>> page(SalaryInsPageParam salaryInsPageParam) {
+    public CommonResult<Page<SalaryInsVo>> page(SalaryInsPageParam salaryInsPageParam) {
         return CommonResult.data(salaryInsService.page(salaryInsPageParam));
     }
 
@@ -125,7 +125,7 @@ public class SalaryInsController {
     @ApiOperation("获取工资系统-社保明细详情")
 //    @SaCheckPermission("/sys/hr/salary/ins/detail")
     @GetMapping("/sys/hr/salary/ins/detail")
-    public CommonResult<SalaryIns> detail(@Valid SalaryInsIdParam salaryInsIdParam) {
+    public CommonResult<SalaryInsVo> detail(@Valid SalaryInsIdParam salaryInsIdParam) {
         return CommonResult.data(salaryInsService.detail(salaryInsIdParam));
     }
 }

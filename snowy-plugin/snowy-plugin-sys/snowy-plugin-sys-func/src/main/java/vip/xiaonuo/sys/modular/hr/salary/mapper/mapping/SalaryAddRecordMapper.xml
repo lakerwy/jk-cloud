@@ -12,22 +12,20 @@
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo" >
-        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.USER_ID as userId,
-               b.FIRST_ORG_NAME as firstOrgName,b.FIRST_ORG_ID as firstOrgId,b.ORG_NAME as orgName,b.ORG_ID as orgId,
-               b.ADD_AMOUNT as addAmount,b.MINUS_AMOUNT as minusAmount,b.AMOUNT as totalAmount
+        select a.*, c.`YEAR_MONTH` as yearMonth,c.ID_CARD_NUMBER as idCardNumber,c.USER_NAME as userName,c.COMPANY as company,
+               c.FIRST_ORG_NAME as firstOrgName,c.ORG_NAME as orgName
         from HR_SALARY_ADD_RECORD a
-                 left join HR_SALARY_ADD b
-                           on a.ADD_ID = b.ID
+                 left join HR_SALARY_ADD b on a.ADD_ID = b.ID
+                 left join HR_SALARY_STANDARD c on b.STANDARD_ID = c.ID
             ${ew.customSqlSegment}
     </select>
 
     <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo" >
-        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.USER_ID as userId,
-               b.FIRST_ORG_NAME as firstOrgName,b.FIRST_ORG_ID as firstOrgId,b.ORG_NAME as orgName,b.ORG_ID as orgId,
-               b.ADD_AMOUNT as addAmount,b.MINUS_AMOUNT as minusAmount,b.AMOUNT as totalAmount
+        select a.*, c.`YEAR_MONTH` as yearMonth,c.ID_CARD_NUMBER as idCardNumber,c.USER_NAME as userName,c.COMPANY as company,
+               c.FIRST_ORG_NAME as firstOrgName,c.ORG_NAME as orgName
         from HR_SALARY_ADD_RECORD a
-                 left join HR_SALARY_ADD b
-                           on a.ADD_ID = b.ID
+                 left join HR_SALARY_ADD b on a.ADD_ID = b.ID
+                 left join HR_SALARY_STANDARD c on b.STANDARD_ID = c.ID
         where a.ID = #{id}
     </select>
 

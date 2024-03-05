@@ -83,4 +83,16 @@ public class PersonnelInfoVo {
     /** 职位 - 翻译字段 */
     @ApiModelProperty(value = "职位 - 翻译字段 ", position = 100)
     private String dutyName;
+
+    /** 员工类别：总部|分公司 */
+    @ApiModelProperty(value = "员工类别：总部|分公司 ", position = 100)
+    private String userType;
+
+    /** 一级部门 */
+    @ApiModelProperty(value = "一级部门", position = 7)
+    private String firstOrgName;
+
+    /** 一级部门Id */
+    @ApiModelProperty(value = "一级部门Id", position = 8)
+    private String firstOrgId;
 }

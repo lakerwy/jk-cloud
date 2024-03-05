@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface SalarySubsidyRecordService extends IService<SalarySubsidyRecord
      * @author yong.ye
      * @date  2024/02/26 09:37
      */
-    Page<SalarySubsidyRecord> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam);
+    Page<SalarySubsidyRecordVo> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam);
 
     /**
      * 添加工资系统-各类补贴-明细记录
@@ -68,7 +69,7 @@ public interface SalarySubsidyRecordService extends IService<SalarySubsidyRecord
      * @author yong.ye
      * @date  2024/02/26 09:37
      */
-    SalarySubsidyRecord detail(SalarySubsidyRecordIdParam salarySubsidyRecordIdParam);
+    SalarySubsidyRecordVo detail(SalarySubsidyRecordIdParam salarySubsidyRecordIdParam);
 
     /**
      * 获取工资系统-各类补贴-明细记录详情

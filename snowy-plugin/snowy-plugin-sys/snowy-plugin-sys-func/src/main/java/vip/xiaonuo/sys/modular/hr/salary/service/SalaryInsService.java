@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryInsAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryInsEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryInsIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryInsPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryInsVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface SalaryInsService extends IService<SalaryIns> {
      * @author yong.ye
      * @date  2024/02/26 09:33
      */
-    Page<SalaryIns> page(SalaryInsPageParam salaryInsPageParam);
+    Page<SalaryInsVo> page(SalaryInsPageParam salaryInsPageParam);
 
     /**
      * 添加工资系统-社保明细
@@ -68,7 +69,7 @@ public interface SalaryInsService extends IService<SalaryIns> {
      * @author yong.ye
      * @date  2024/02/26 09:33
      */
-    SalaryIns detail(SalaryInsIdParam salaryInsIdParam);
+    SalaryInsVo detail(SalaryInsIdParam salaryInsIdParam);
 
     /**
      * 获取工资系统-社保明细详情

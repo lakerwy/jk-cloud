@@ -15,8 +15,7 @@ package vip.xiaonuo.sys.modular.hr.salary.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryEditParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
 
@@ -37,22 +36,6 @@ public interface SalaryService extends IService<Salary> {
      * @date  2024/03/01 16:50
      */
     Page<Salary> page(SalaryPageParam salaryPageParam);
-
-    /**
-     * 添加工资系统-工资表
-     *
-     * @author yong.ye
-     * @date  2024/03/01 16:50
-     */
-    void add(SalaryAddParam salaryAddParam);
-
-    /**
-     * 编辑工资系统-工资表
-     *
-     * @author yong.ye
-     * @date  2024/03/01 16:50
-     */
-    void edit(SalaryEditParam salaryEditParam);
 
     /**
      * 删除工资系统-工资表
@@ -84,4 +67,11 @@ public interface SalaryService extends IService<Salary> {
      * @return
      */
     Page<Salary> pageList(SalaryPageParam salaryPageParam);
+
+    /**
+     * 根据 所属年 或 所属年月 获取员工工资条
+     * @param empSalaryParam
+     * @return
+     */
+    List<Salary> empSalary(EmpSalaryParam empSalaryParam);
 }

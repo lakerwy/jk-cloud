@@ -14,6 +14,9 @@ package vip.xiaonuo.sys.modular.hr.salary.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
+import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
+
+import java.util.List;
 
 /**
  * 工资系统-相关数据导入临时表Mapper接口
@@ -22,4 +25,11 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
  * @date  2024/02/26 09:31
  **/
 public interface SalaryImportTempMapper extends BaseMapper<SalaryImportTemp> {
+
+    /**
+     * 获取 总部花名册|分公司花名册信息
+     * @return
+     */
+    List<PersonnelInfoVo> getPersonnelList();
+
 }

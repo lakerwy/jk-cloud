@@ -17,9 +17,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 工资系统-公积金明细编辑参数
@@ -36,45 +34,13 @@ public class SalaryGjjEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 所属年月 */
-    @ApiModelProperty(value = "所属年月", position = 2)
-    private String yearMonth;
+    /** 【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
+    @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 3)
+    private String standardId;
 
-    /** 身份证号 */
-    @ApiModelProperty(value = "身份证号", position = 3)
-    private String idCardNumber;
-
-    /** 姓名 */
-    @ApiModelProperty(value = "姓名", position = 4)
-    private String userName;
-
-    /** 建科云用户Id */
-    @ApiModelProperty(value = "建科云用户Id", position = 5)
-    private String userId;
-
-    /** 花名册Id */
-    @ApiModelProperty(value = "花名册Id", position = 5)
-    private String personnelId;
-
-    /** 一级部门 */
-    @ApiModelProperty(value = "一级部门", position = 6)
-    private String firstOrgName;
-
-    /** 一级部门Id */
-    @ApiModelProperty(value = "一级部门Id", position = 7)
-    private String firstOrgId;
-
-    /** 二级部门 */
-    @ApiModelProperty(value = "二级部门", position = 8)
-    private String orgName;
-
-    /** 二级部门Id */
-    @ApiModelProperty(value = "二级部门Id", position = 9)
-    private String orgId;
-
-    /** 公司名称 */
-    @ApiModelProperty(value = "公司名称", position = 10)
-    private String company;
+    /** 所属单位 */
+    @ApiModelProperty(value = "所属单位", position = 10)
+    private String unitName;
 
     /** 缴费基数 */
     @ApiModelProperty(value = "缴费基数", position = 11)

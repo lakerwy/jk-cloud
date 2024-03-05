@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryTax;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryTaxVo;
 
 /**
  * 工资系统-专项扣除Mapper接口
@@ -22,4 +27,20 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryTax;
  * @date  2024/02/26 09:38
  **/
 public interface SalaryTaxMapper extends BaseMapper<SalaryTax> {
+
+    /**
+     * 分页查询
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<SalaryTaxVo> getPageList(Page<SalaryTaxVo> page, @Param(Constants.WRAPPER) Wrapper<SalaryTax> queryWrapper);
+
+    /**
+     * 根据主键Id,获取详情
+     * @param id
+     * @return
+     */
+    SalaryTaxVo getDetailById(String id);
+
 }

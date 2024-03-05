@@ -1,4 +1,4 @@
-package vip.xiaonuo.sys.modular.hr.salary.vo;
+package vip.xiaonuo.sys.modular.hr.salary.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

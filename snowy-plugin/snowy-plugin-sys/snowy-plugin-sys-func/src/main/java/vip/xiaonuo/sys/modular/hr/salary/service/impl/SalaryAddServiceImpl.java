@@ -34,6 +34,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -48,56 +49,52 @@ import java.util.List;
 public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd> implements SalaryAddService {
 
     @Resource
+    private SalaryAddMapper salaryAddMapper;
+    @Resource
     private SalaryAddRecordService salaryAddRecordService;
     @Override
-    public Page<SalaryAdd> page(SalaryAddPageParam salaryAddPageParam) {
+    public Page<SalaryAddVo> page(SalaryAddPageParam salaryAddPageParam) {
         QueryWrapper<SalaryAdd> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getYearMonth())) {
-            queryWrapper.lambda().eq(SalaryAdd::getYearMonth, salaryAddPageParam.getYearMonth());
+            queryWrapper.eq("b.YEAR_MONTH", salaryAddPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(SalaryAdd::getIdCardNumber, salaryAddPageParam.getIdCardNumber());
+            queryWrapper.like("b.ID_CARD_NUMBER", salaryAddPageParam.getIdCardNumber());
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getUserName())) {
-            queryWrapper.lambda().like(SalaryAdd::getUserName, salaryAddPageParam.getUserName());
+            queryWrapper.like("b.USER_NAME", salaryAddPageParam.getUserName());
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getFirstOrgName())) {
-            queryWrapper.lambda().like(SalaryAdd::getFirstOrgName, salaryAddPageParam.getFirstOrgName());
-        }
-        if(ObjectUtil.isNotEmpty(salaryAddPageParam.getFirstOrgId())) {
-            queryWrapper.lambda().eq(SalaryAdd::getFirstOrgId, salaryAddPageParam.getFirstOrgId());
+            queryWrapper.like("b.FIRST_ORG_NAME", salaryAddPageParam.getFirstOrgName());
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getOrgName())) {
-            queryWrapper.lambda().like(SalaryAdd::getOrgName, salaryAddPageParam.getOrgName());
-        }
-        if(ObjectUtil.isNotEmpty(salaryAddPageParam.getOrgId())) {
-            queryWrapper.lambda().eq(SalaryAdd::getOrgId, salaryAddPageParam.getOrgId());
+            queryWrapper.like("b.ORG_NAME", salaryAddPageParam.getOrgName());
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(SalaryAdd::getFirstOrgName,salaryAddPageParam.getSearchKey())
-                    .or().like(SalaryAdd::getOrgName,salaryAddPageParam.getSearchKey())
-                    .or().like(SalaryAdd::getUserName,salaryAddPageParam.getSearchKey())
-                    .or().like(SalaryAdd::getIdCardNumber,salaryAddPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("b.FIRST_ORG_NAME",salaryAddPageParam.getSearchKey())
+                    .or().like("b.ORG_NAME",salaryAddPageParam.getSearchKey())
+                    .or().like("b.USER_NAME",salaryAddPageParam.getSearchKey())
+                    .or().like("b.ID_CARD_NUMBER",salaryAddPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(salaryAddPageParam.getSortField(), salaryAddPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryAddPageParam.getSortOrder());
             queryWrapper.orderBy(true, salaryAddPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryAddPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(SalaryAdd::getYearMonth).orderByAsc(SalaryAdd::getFirstOrgName).orderByAsc(SalaryAdd::getOrgName).orderByAsc(SalaryAdd::getUserName);
+            queryWrapper.orderByDesc("b.YEAR_MONTH").orderByAsc("b.ID_CARD_NUMBER");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return salaryAddMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryAddAddParam salaryAddAddParam) {
-        //同一用户，同一年度月份，只能存在一条有效记录（yearMonth+personnelId）
+        //同一用户，同一年度月份，只能存在一条有效记录
         List<SalaryAdd> oldList = this.list(new QueryWrapper<SalaryAdd>().lambda()
-                .eq(SalaryAdd::getYearMonth,salaryAddAddParam.getYearMonth())
-                .eq(SalaryAdd::getPersonnelId,salaryAddAddParam.getPersonnelId()));
+                .eq(SalaryAdd::getStandardId,salaryAddAddParam.getStandardId()));
         if(CollUtil.isNotEmpty(oldList)){
-            throw new CommonException("{}年月{}已存在记录",salaryAddAddParam.getYearMonth(),salaryAddAddParam.getUserName());
+            throw new CommonException("当前员工本年月已存在记录");
         }
         SalaryAdd salaryAdd = BeanUtil.toBean(salaryAddAddParam, SalaryAdd.class);
         this.save(salaryAdd);
@@ -108,11 +105,10 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
     public void edit(SalaryAddEditParam salaryAddEditParam) {
         //同一用户，同一年度月份，只能存在一条有效记录（yearMonth+personnelId）
         List<SalaryAdd> oldList = this.list(new QueryWrapper<SalaryAdd>().lambda()
-                .eq(SalaryAdd::getYearMonth,salaryAddEditParam.getYearMonth())
-                .eq(SalaryAdd::getPersonnelId,salaryAddEditParam.getPersonnelId())
+                .eq(SalaryAdd::getStandardId,salaryAddEditParam.getStandardId())
                 .ne(SalaryAdd::getId,salaryAddEditParam.getId()));
         if(CollUtil.isNotEmpty(oldList)){
-            throw new CommonException("{}年月{}已存在记录",salaryAddEditParam.getYearMonth(),salaryAddEditParam.getUserName());
+            throw new CommonException("当前员工本年月已存在记录");
         }
         SalaryAdd salaryAdd = this.queryEntity(salaryAddEditParam.getId());
         BeanUtil.copyProperties(salaryAddEditParam, salaryAdd);
@@ -132,8 +128,8 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
     }
 
     @Override
-    public SalaryAdd detail(SalaryAddIdParam salaryAddIdParam) {
-        return this.queryEntity(salaryAddIdParam.getId());
+    public SalaryAddVo detail(SalaryAddIdParam salaryAddIdParam) {
+        return salaryAddMapper.getDetailById(salaryAddIdParam.getId());
     }
 
     @Override

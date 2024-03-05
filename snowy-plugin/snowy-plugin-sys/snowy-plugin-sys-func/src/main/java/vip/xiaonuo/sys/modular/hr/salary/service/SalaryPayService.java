@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface SalaryPayService extends IService<SalaryPay> {
      * @author yong.ye
      * @date  2024/02/26 09:34
      */
-    Page<SalaryPay> page(SalaryPayPageParam salaryPayPageParam);
+    Page<SalaryPayVo> page(SalaryPayPageParam salaryPayPageParam);
 
     /**
      * 添加工资系统-工龄工资|生日福利
@@ -68,7 +69,7 @@ public interface SalaryPayService extends IService<SalaryPay> {
      * @author yong.ye
      * @date  2024/02/26 09:34
      */
-    SalaryPay detail(SalaryPayIdParam salaryPayIdParam);
+    SalaryPayVo detail(SalaryPayIdParam salaryPayIdParam);
 
     /**
      * 获取工资系统-工龄工资|生日福利详情
