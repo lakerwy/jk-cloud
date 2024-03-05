@@ -1000,10 +1000,10 @@ public class NodeRuntimeUtil {
                     participateUserIdList = handleUserTaskMulApproveType(delegateTask);
 //                    participateUserIdList = Convert.toList(String.class, delegateTask
 //                            .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
-                    List<String> assignee = Convert.toList(String.class, delegateTask.getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));//获取下一个审批人
-                    String userId = StpLoginUserUtil.getLoginUser().getId();//当前办理人，当前操作人
+                    //List<String> assignee = Convert.toList(String.class, delegateTask.getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));//获取下一个审批人
+                    //String userId = StpLoginUserUtil.getLoginUser().getId();//当前办理人，当前操作人
                     if(CollUtil.isNotEmpty(participateUserIdList)){
-                        if(participateUserIdList.size() == 1 && assignee.get(0).equals(userId) ){
+                        if(participateUserIdList.size() == 1 && participateUserIdList.get(0).equals("AUTO_COMPLETE") ){
                             return;
                         }
                     }
