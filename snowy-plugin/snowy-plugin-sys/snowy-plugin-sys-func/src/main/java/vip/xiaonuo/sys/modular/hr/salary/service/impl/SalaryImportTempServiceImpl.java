@@ -79,6 +79,11 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
      */
     private static final String[] USER_TYPE_CHECK_LIST = {"总部","分公司"};
 
+    /**
+     * 是否有生日福利 范围 - 否|是 匹配校验
+     */
+    private static final String[] HAVE_BIRTHDAY_PAY_LIST = {"是","否"};
+
     @Override
     public Page<SalaryImportTemp> page(SalaryImportTempPageParam salaryImportTempPageParam) {
         QueryWrapper<SalaryImportTemp> queryWrapper = new QueryWrapper<>();
@@ -136,10 +141,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         String type = SalaryTypeEnum.STANDARD.getValue();
         //3.数据转换，数据初始值
         List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        importData.forEach(x->{
-            x.setBatchId(batchId);
-            x.setType(type);
-        });
+        initData(batchId,type,importData);
         //4.数据校验（必填+匹配）
         checkData(importData);
         //5.校验是否已存在数据（每人每月一条导入记录）--【所属年月+身份证号】
@@ -173,10 +175,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         String type = SalaryTypeEnum.ATTEND.getValue();
         //3.数据转换，数据初始值
         List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        importData.forEach(x->{
-            x.setBatchId(batchId);
-            x.setType(type);
-        });
+        initData(batchId,type,importData);
         //4.数据校验（必填+匹配）
         checkData(importData);
         //5.校验是否已存在数据（每人每月一条导入记录） -- 【月工资标准匹配结果 - standardId】
@@ -206,10 +205,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         String type = input.getType();
         //3.数据转换，数据初始值
         List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        importData.forEach(x->{
-            x.setBatchId(batchId);
-            x.setType(type);
-        });
+        initData(batchId,type,importData);
         //4.数据校验（必填+匹配）
         checkData(importData);
         //6.将数据存放在导入临时表
@@ -226,10 +222,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         String type = input.getType();
         //3.数据转换，数据初始值
         List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        importData.forEach(x->{
-            x.setBatchId(batchId);
-            x.setType(type);
-        });
+        initData(batchId,type,importData);
         //4.数据校验（必填+匹配）
         checkData(importData);
         //5.校验是否已存在数据（每人每月一条导入记录）-- 【月工资标准匹配结果 - standardId】
@@ -320,6 +313,34 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         return true;
     }
 
+    /**
+     * 数据初始化，与去除空格
+     * @param batchId
+     * @param type
+     * @param importData
+     */
+    public void initData(String batchId,String type,List<SalaryImportTemp> importData){
+        importData.forEach(x->{
+            x.setBatchId(batchId);
+            x.setType(type);
+            if(ObjectUtil.isNotEmpty(x.getYearMonth())){
+                x.setYearMonth(x.getYearMonth().trim());
+            }
+            if(ObjectUtil.isNotEmpty(x.getIdCardNumber())){
+                x.setIdCardNumber(x.getIdCardNumber().trim());
+            }
+            if(ObjectUtil.isNotEmpty(x.getUserName())){
+                x.setUserName(x.getUserName().trim());
+            }
+            if(ObjectUtil.isNotEmpty(x.getUserType())){
+                x.setUserType(x.getUserType().trim());
+            }
+            if(ObjectUtil.isNotEmpty(x.getHaveBirthdayPay())){
+                x.setHaveBirthdayPay(x.getHaveBirthdayPay().trim());
+            }
+        });
+    }
+
 
     /**
      * 通用校验（必填，与花名册匹配）
@@ -346,10 +367,23 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                     errMsg += "员工类别不在范围内；";
                 }
             }
-            if(SalaryTypeEnum.STANDARD.getValue().equals(item.getType())){
-                if(ObjectUtil.isEmpty(item.getStandardAmount())){
-                    errMsg += "月度标准工资必填；";
-                }
+            if(ObjectUtil.isNotEmpty(item.getHaveBirthdayPay()) && !CollectionUtil.newArrayList(HAVE_BIRTHDAY_PAY_LIST).contains(item.getHaveBirthdayPay().trim())){
+                errMsg += "是否有生日福利不在范围内；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getBirthDay()) && !ComputeUtil.isValidDate(item.getBirthDay().trim())){
+                errMsg += "生日不是合法日期格式；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getHireDate()) && !ComputeUtil.isValidDate(item.getHireDate().trim())){
+                errMsg += "入职日期不是合法日期格式；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getPositiveTime()) && !ComputeUtil.isValidDate(item.getPositiveTime().trim())){
+                errMsg += "转正日期不是合法日期格式；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getLeaveDate()) && !ComputeUtil.isValidDate(item.getLeaveDate().trim())){
+                errMsg += "离职日期不是合法日期格式；";
+            }
+            if(SalaryTypeEnum.STANDARD.getValue().equals(item.getType()) && ObjectUtil.isEmpty(item.getStandardAmount())){
+                errMsg += "月度标准工资必填；";
             }
             item.setErrorMsg(errMsg);
         });

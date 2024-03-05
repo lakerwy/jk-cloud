@@ -129,19 +129,4 @@ public class SalarySubsidyRecordController {
         return CommonResult.data(salarySubsidyRecordService.detail(salarySubsidyRecordIdParam));
     }
 
-
-    /**
-     * 工资系统-补贴 - 【复制上月注册补贴数据】
-     *
-     * @author yong.ye
-     * @date  2024/02/26 09:36
-     */
-    @ApiOperationSupport(order = 6)
-    @ApiOperation("工资系统-补贴 - 【复制上月注册补贴数据】")
-    @CommonLog("工资系统-补贴 - 【复制上月注册补贴数据】")
-    @PostMapping("/sys/hr/salary/subsidy/copy")
-    public CommonResult<String> copy() {
-        salarySubsidyRecordService.copy();
-        return CommonResult.ok();
-    }
 }

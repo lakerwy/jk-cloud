@@ -34,9 +34,6 @@ import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
 import javax.annotation.Resource;
-import java.time.LocalDate;
-import java.time.YearMonth;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 /**
@@ -123,39 +120,5 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
             throw new CommonException("工资系统-各类补贴-明细记录不存在，id值为：{}", id);
         }
         return salarySubsidyRecord;
-    }
-
-    @Override
-    public void copy() {
-        // 创建格式器
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
-        // 获取当前日期   当前年月 202402
-        LocalDate currentDate = LocalDate.now();
-        String currentYearMonth = currentDate.format(formatter);
-        // 计算上个年月 202401
-        YearMonth previousMonth = YearMonth.of(currentDate.getYear(), currentDate.getMonthValue() - 1);
-        String previousYearMonth = previousMonth.format(formatter);
-//        //1. 判断当前年月是否已存在数据（存在，则不可复制）
-//        List<SalarySubsidyRecord> currentData = this.list(new QueryWrapper<SalarySubsidyRecord>().lambda()
-//                .eq(SalarySubsidyRecord::getType, SalaryTypeEnum.REGISTER_SUBSIDY.getValue()).eq(SalarySubsidyRecord::getYearMonth,currentYearMonth));
-//        if(CollUtil.isNotEmpty(currentData)){
-//            throw new CommonException("已存在{}月注册补贴数据",currentYearMonth);
-//        }
-//        //2. 判断上年月是否存在工资标准数据（不存在，则无法复制）
-//        List<SalarySubsidyRecord> previousData = this.list(new QueryWrapper<SalarySubsidyRecord>().lambda()
-//                .eq(SalarySubsidyRecord::getType, SalaryTypeEnum.REGISTER_SUBSIDY.getValue()).eq(SalarySubsidyRecord::getYearMonth,previousYearMonth));
-//        if(CollUtil.isEmpty(previousData)){
-//            throw new CommonException("不存在{}月注册补贴数据",previousYearMonth);
-//        }
-//        //3. 复制数据
-//        previousData.forEach(item->{
-//            item.setId(null);
-//            item.setYearMonth(currentYearMonth);
-//            item.setCreateTime(null);
-//            item.setCreateUser(null);
-//            item.setUpdateTime(null);
-//            item.setUpdateUser(null);
-//        });
-//        this.saveBatch(previousData);
     }
 }

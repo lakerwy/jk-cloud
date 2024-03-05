@@ -12,6 +12,7 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
@@ -296,6 +297,22 @@ public class ComputeUtil {
         return ObjectUtil.isEmpty(obj) ? "" : String.valueOf(obj);
     }
 
+    /**
+     * 校验字符串 是否为日期格式
+     * @param dateStr
+     * @return
+     */
+    public static Boolean isValidDate(String dateStr){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
+        try {
+            LocalDate.parse(dateStr, formatter);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
+
+    }
+
 
     /**
      * doImport
@@ -427,6 +444,10 @@ public class ComputeUtil {
             }
             if(ObjectUtil.isEmpty(item.getBtStandard2Total())){
                 item.setBtStandard2Total(BIG_DECIMAL_0);
+            }
+
+            if(ObjectUtil.isEmpty(item.getHaveBirthdayPay())){
+                item.setHaveBirthdayPay("是");
             }
         });
         return importTempData;

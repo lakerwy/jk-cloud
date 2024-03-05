@@ -79,8 +79,4 @@ public interface SalarySubsidyRecordService extends IService<SalarySubsidyRecord
      **/
     SalarySubsidyRecord queryEntity(String id);
 
-    /**
-     * 复制 - 注册补贴数据
-     */
-    void copy();
 }
