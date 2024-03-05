@@ -99,7 +99,7 @@ public class ConferenceRez {
     private String remark;
 
     /** 附件 */
-    @ApiModelProperty(value = "会议记录附件ID", position = 17)
+    @ApiModelProperty(value = "会议记录+会议纪要附件ID", position = 17)
     private String fileId;
 
     /** 会议号 */
@@ -118,8 +118,8 @@ public class ConferenceRez {
     @ApiModelProperty(value = "会议议程", position = 21)
     private String rezAgenda;
 
-    /** 会议记录 */
-    @ApiModelProperty(value = "会议记录", position = 22)
+    /** 会议记录 + 会议纪要*/
+    @ApiModelProperty(value = "会议记录 + 会议纪要", position = 22)
     private String record;
 
     /** 审核人 */
@@ -215,13 +215,13 @@ public class ConferenceRez {
     @ApiModelProperty(value = "会议是否取消：1 会议取消", position = 43)
     private Integer conferenceStatus;
 
-    /** 会议纪要*/
+    /** 会议纪要*//*
     @ApiModelProperty(value = "会议纪要", position = 44)
     private String confSummary;
 
-    /** 会议纪要附件ID*/
+    *//** 会议纪要附件ID*//*
     @ApiModelProperty(value = "会议纪要附件ID", position = 45)
-    private String summaryFileId;
+    private String summaryFileId;*/
 
     /** 软联是否删除成功*/
     @ApiModelProperty(value = "软联是否删除成功", position = 46)
@@ -234,4 +234,8 @@ public class ConferenceRez {
     /** 会议议程附件ID*/
     @ApiModelProperty(value = "会议议程附件ID", position = 48)
     private String agendaFileId;
+
+    /** 钉钉预约会议唯一ID*/
+    @ApiModelProperty(value = "钉钉预约会议唯一ID", position = 49)
+    private String eventId;
 }

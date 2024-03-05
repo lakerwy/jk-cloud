@@ -12,7 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.service;
 
-import cn.hutool.json.JSONObject;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
@@ -21,7 +21,6 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceMsgEvent;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.OutsideUser;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import java.util.List;
@@ -116,5 +115,5 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
     void freeRez(String rezId);
 
     /** 释放会议*/
-    void callBack( String msg_signature,  String timeStamp, String nonce,  JSONObject json);
+    void process(JSONObject bizData, String eventType, String eventId);
 }
