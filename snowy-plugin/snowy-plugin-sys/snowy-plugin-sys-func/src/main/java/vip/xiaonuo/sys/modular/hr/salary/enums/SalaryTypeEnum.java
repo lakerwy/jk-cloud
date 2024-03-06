@@ -46,7 +46,7 @@ public enum SalaryTypeEnum {
     /** 生日福利 */
     BIRTHDAY("生日福利"),
     /** 员工福利 */
-    EMP_BONUS("员工福利"),;
+    EMP_BONUS("员工福利");
 
     private final String value;
 

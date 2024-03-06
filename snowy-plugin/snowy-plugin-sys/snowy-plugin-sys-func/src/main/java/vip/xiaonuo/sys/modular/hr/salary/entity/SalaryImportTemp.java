@@ -363,4 +363,8 @@ public class SalaryImportTemp {
     /** （月工资标准外）其他导入-基于发放工资员工表-【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
     @ApiModelProperty(value = "月工资标准外）其他导入-基于发放工资员工表-【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 81)
     private String standardId;
+
+    /** 是否有工龄工资：是 否*/
+    @ApiModelProperty(value = "是否有工龄工资：是 否", position = 82)
+    private String haveSeniorityPay;
 }

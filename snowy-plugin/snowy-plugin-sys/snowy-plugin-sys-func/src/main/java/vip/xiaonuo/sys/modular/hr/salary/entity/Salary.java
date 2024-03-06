@@ -284,4 +284,8 @@ public class Salary {
     /** 是否有生日福利：是 否*/
     @ApiModelProperty(value = "是否有生日福利：是 否", position = 58)
     private String haveBirthdayPay;
+
+    /** 是否有工龄工资：是 否*/
+    @ApiModelProperty(value = "是否有工龄工资：是 否", position = 58)
+    private String haveSeniorityPay;
 }

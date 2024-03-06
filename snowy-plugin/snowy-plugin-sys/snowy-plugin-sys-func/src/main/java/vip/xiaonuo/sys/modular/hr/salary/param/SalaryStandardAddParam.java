@@ -136,4 +136,8 @@ public class SalaryStandardAddParam {
     /** 是否有生日福利：是 否*/
     @ApiModelProperty(value = "是否有生日福利：是 否", position = 29)
     private String haveBirthdayPay;
+
+    /** 是否有工龄工资：是 否*/
+    @ApiModelProperty(value = "是否有工龄工资：是 否", position = 30)
+    private String haveSeniorityPay;
 }

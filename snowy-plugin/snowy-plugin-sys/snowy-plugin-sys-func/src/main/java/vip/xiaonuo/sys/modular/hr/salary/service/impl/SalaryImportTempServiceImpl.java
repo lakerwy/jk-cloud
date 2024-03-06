@@ -72,7 +72,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
     /**
      * 员工类别 范围
      */
-    private static final String[] USER_TYPE_LIST = {"总部","分公司","外部"};
+    private static final String[] USER_TYPE_LIST = {"总部","分公司","外聘人员"};
 
     /**
      * 员工类别 范围 - 总部|分公司 匹配校验
@@ -80,9 +80,9 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
     private static final String[] USER_TYPE_CHECK_LIST = {"总部","分公司"};
 
     /**
-     * 是否有生日福利 范围 - 否|是 匹配校验
+     * 是否有生日福利|工龄工资 范围 - 否|是 匹配校验
      */
-    private static final String[] HAVE_BIRTHDAY_PAY_LIST = {"是","否"};
+    private static final String[] HAVE_PAY_LIST = {"是","否"};
 
     @Override
     public Page<SalaryImportTemp> page(SalaryImportTempPageParam salaryImportTempPageParam) {
@@ -135,138 +135,50 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
 
     @Override
     public ImportResult importStandard(ImportStandard input) {
-        //1.定义一个导入批次号
-        String batchId = IdWorker.getTimeId();
-        //2.导入类型
+        //1.导入类型
         String type = SalaryTypeEnum.STANDARD.getValue();
-        //3.数据转换，数据初始值
+        //2.数据转换，数据初始值
         List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        initData(batchId,type,importData);
-        //4.数据校验（必填+匹配）
-        checkData(importData);
-        //5.校验是否已存在数据（每人每月一条导入记录）--【所属年月+身份证号】
-        List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(yearMonths)) {
-            //涉及到的年月，看是否已导入过
-            QueryWrapper<SalaryStandard> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(SalaryStandard::getType,type);
-            queryWrapper.lambda().in(SalaryStandard::getYearMonth,yearMonths);
-            List<SalaryStandard> oldList = salaryStandardService.list(queryWrapper);
-            if (CollUtil.isNotEmpty(oldList)) {
-                importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
-                    List<SalaryStandard> tmpList = oldList.stream().filter(obj -> obj.getYearMonth().equals(item.getYearMonth()) && obj.getIdCardNumber().equals(item.getIdCardNumber())).collect(Collectors.toList());
-                    if (CollUtil.isNotEmpty(tmpList)) {
-                        item.setErrorMsg("员工已存在当月数据；");
-                    }
-                });
-            }
-        }
-        //6.将数据存放在导入临时表
-        this.saveBatch(importData);
-        //7.返回结果
-        return importResult(batchId,type,importData);
+        //3.校验与导入
+        return checkAndImport(type,importData);
     }
 
     @Override
     public ImportResult importAttend(ImportAttend input) {
-        //1.定义一个导入批次号
-        String batchId = IdWorker.getTimeId();
-        //2.导入类型
+        //1.导入类型
         String type = SalaryTypeEnum.ATTEND.getValue();
-        //3.数据转换，数据初始值
+        //2.数据转换，数据初始值
         List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        initData(batchId,type,importData);
-        //4.数据校验（必填+匹配）
-        checkData(importData);
-        //5.校验是否已存在数据（每人每月一条导入记录） -- 【月工资标准匹配结果 - standardId】
-        List<String> standardIds = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getStandardId()).collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(standardIds)) {
-            List<SalaryAttend> oldList = salaryAttendService.list(new QueryWrapper<SalaryAttend>().lambda().in(SalaryAttend::getStandardId,standardIds));
-            if(CollUtil.isNotEmpty(oldList)){
-                importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-                    List<SalaryAttend> tmpList = oldList.stream().filter(obj->obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
-                    if(CollUtil.isNotEmpty(tmpList)){
-                        item.setErrorMsg("员工已存在当月数据；");
-                    }
-                });
-            }
-        }
-        //6.将数据存放在导入临时表
-        this.saveBatch(importData);
-        //7.返回结果
-        return importResult(batchId,type,importData);
+        //3.校验与导入
+        return checkAndImport(type,importData);
     }
 
     @Override
     public ImportResult importSubsidy(ImportSubsidy input) {
-        //1.定义一个导入批次号
-        String batchId = IdWorker.getTimeId();
-        //2.导入类型
+        //1.导入类型
         String type = input.getType();
-        //3.数据转换，数据初始值
+        //2.数据转换，数据初始值
         List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        initData(batchId,type,importData);
-        //4.数据校验（必填+匹配）
-        checkData(importData);
-        //6.将数据存放在导入临时表
-        this.saveBatch(importData);
-        //7.返回结果
-        return importResult(batchId,type,importData);
+        //3.校验与导入
+        return checkAndImport(type,importData);
     }
 
     @Override
     public ImportResult importInsGjjTax(ImportInsGjjTax input) {
-        //1.定义一个导入批次号
-        String batchId = IdWorker.getTimeId();
-        //2.导入类型
+        //1.导入类型
         String type = input.getType();
-        //3.数据转换，数据初始值
+        //2.数据转换，数据初始值
         List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        initData(batchId,type,importData);
-        //4.数据校验（必填+匹配）
-        checkData(importData);
-        //5.校验是否已存在数据（每人每月一条导入记录）-- 【月工资标准匹配结果 - standardId】
-        List<String> standardIds = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getStandardId()).collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(standardIds)) {
-            if (SalaryTypeEnum.INS.getValue().equals(type)) {
-                List<SalaryIns> oldList = salaryInsService.list(new QueryWrapper<SalaryIns>().lambda().in(SalaryIns::getStandardId,standardIds));
-                if(CollUtil.isNotEmpty(oldList)){
-                    importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-                        List<SalaryIns> tmpList = oldList.stream().filter(obj->obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
-                        if(CollUtil.isNotEmpty(tmpList)){
-                            item.setErrorMsg("员工已存在当月数据；");
-                        }
-                    });
-                }
-            } else if (SalaryTypeEnum.GJJ.getValue().equals(type)) {
-                List<SalaryGjj> oldList = salaryGjjService.list(new QueryWrapper<SalaryGjj>().lambda().in(SalaryGjj::getStandardId,standardIds));
-                if(CollUtil.isNotEmpty(oldList)){
-                    importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-                        List<SalaryGjj> tmpList = oldList.stream().filter(obj->obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
-                        if(CollUtil.isNotEmpty(tmpList)){
-                            item.setErrorMsg("员工已存在当月数据；");
-                        }
-                    });
-                }
-            } else if (SalaryTypeEnum.TAX.getValue().equals(type)) {
-                List<SalaryTax> oldList = salaryTaxService.list(new QueryWrapper<SalaryTax>().lambda().in(SalaryTax::getStandardId,standardIds));
-                if(CollUtil.isNotEmpty(oldList)){
-                    importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-                        List<SalaryTax> tmpList = oldList.stream().filter(obj->obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
-                        if(CollUtil.isNotEmpty(tmpList)){
-                            item.setErrorMsg("员工已存在当月数据；");
-                        }
-                    });
-                }
-            }
-        }
-        //6.将数据存放在导入临时表
-        this.saveBatch(importData);
-        //7.返回结果
-        return importResult(batchId,type,importData);
+        //3.校验与导入
+        return checkAndImport(type,importData);
     }
 
 
+    /**
+     * 导入至正式表
+     * @param input
+     * @return
+     */
     @Override
     public Boolean doImport(DoImport input) {
         //1. 校验请求参数
@@ -343,7 +255,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
 
 
     /**
-     * 通用校验（必填，与花名册匹配）
+     * 通用校验（必填|数据格式校验）
      * @param importData
      * @return
      */
@@ -367,8 +279,11 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                     errMsg += "员工类别不在范围内；";
                 }
             }
-            if(ObjectUtil.isNotEmpty(item.getHaveBirthdayPay()) && !CollectionUtil.newArrayList(HAVE_BIRTHDAY_PAY_LIST).contains(item.getHaveBirthdayPay().trim())){
+            if(ObjectUtil.isNotEmpty(item.getHaveBirthdayPay()) && !CollectionUtil.newArrayList(HAVE_PAY_LIST).contains(item.getHaveBirthdayPay().trim())){
                 errMsg += "是否有生日福利不在范围内；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getHaveSeniorityPay()) && !CollectionUtil.newArrayList(HAVE_PAY_LIST).contains(item.getHaveSeniorityPay().trim())){
+                errMsg += "是否有工龄工资不在范围内；";
             }
             if(ObjectUtil.isNotEmpty(item.getBirthDay()) && !ComputeUtil.isValidDate(item.getBirthDay().trim())){
                 errMsg += "生日不是合法日期格式；";
@@ -387,28 +302,48 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             }
             item.setErrorMsg(errMsg);
         });
+    }
+
+
+    /**
+     * 逻辑校验：员工匹配|唯一性校验
+     *
+     * 导入规则：
+     * 月工资标准：根据userType，与系统 总部花名册|分公司花名册 进行匹配，获取信息（原则，若有导入数据，以导入数据为准，若无，根据花名册获取）
+     * 补助津贴|考勤|社保|公积金|加计扣除（即除导入月工资标准外），均以工资标准表为基准，进行人员匹配
+     *
+     * 匹配员工数据
+     *          * 第一部分：若导入 月工资标准 ，【总部|分公司】 根据花名册信息匹配信息
+     *          * 第二部分 非 月工资标准 ，均按照月工资标准表，匹配用户
+     * 校验数据唯一性【每月每人一条记录】
+     *          * 第一部分 导入月工资标准 校验是否已存在数据（每人每月一条导入记录）--【所属年月+身份证号】
+     *          * 第二部分 导入月度考勤|社保|公积金|加计扣除 校验是否已存在数据（每人每月一条导入记录） -- 【月工资标准匹配结果 - standardId】
+     *
+     * @param type
+     * @param importData
+     */
+    public void checkLogic(String type,List<SalaryImportTemp> importData){
         /**
-         * 导入规则：
-         * 月工资标准：根据userType，与系统 总部花名册|分公司花名册 进行匹配，获取信息（原则，若有导入数据，以导入数据为准，若无，根据花名册获取）
-         * 补助津贴|考勤|社保|公积金|加计扣除（即除导入月工资标准外），均以工资标准表为基准，进行人员匹配
+         * 1. 准备数据【花名册|工资标准数据】
          */
-        // 准备数据
-        List<PersonnelInfoVo> personnelInfoTmpList = salaryImportTempMapper.getPersonnelList();
-        List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
-        List<SalaryStandard> standardTmpList = new ArrayList<>();
-        if(CollUtil.isNotEmpty(yearMonths)){
-            standardTmpList = salaryStandardService.list(new QueryWrapper<SalaryStandard>().lambda()
-                    .in(SalaryStandard::getYearMonth,yearMonths)
-                    .eq(SalaryStandard::getYearMonth,SalaryTypeEnum.STANDARD.getValue()));
+        List<PersonnelInfoVo> personnelAllList = new ArrayList<>();
+        List<SalaryStandardVo> standardAllList = new ArrayList<>();
+        if(SalaryTypeEnum.STANDARD.getValue().equals(type)){
+            personnelAllList = salaryImportTempMapper.getPersonnelList();
+        }else{
+            List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
+            standardAllList = salaryStandardService.getStandardAllList(type,yearMonths);
         }
-        List<SalaryStandard> finalStandardTmpList = standardTmpList;
-        // 处理逻辑
+        List<PersonnelInfoVo> finalPersonnelAllList = personnelAllList;
+        List<SalaryStandardVo> finalStandardAllList = standardAllList;
+        /**
+         * 2. 匹配员工数据
+         * 第一部分：若导入 月工资标准 ，【总部|分公司】 根据花名册信息匹配信息
+         * 第二部分 非 月工资标准 ，均按照月工资标准表，匹配用户
+         */
         importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-            /**
-             * 第一部分：若导入 月工资标准 ，【总部|分公司】 根据花名册信息匹配信息
-             */
             if(SalaryTypeEnum.STANDARD.getValue().equals(item.getType()) && CollectionUtil.newArrayList(USER_TYPE_CHECK_LIST).contains(item.getUserType())){
-                List<PersonnelInfoVo> personnelInfoVos = personnelInfoTmpList.stream().filter(m->item.getUserType().equals(m.getUserType()) && item.getIdCardNumber().equals(m.getIdNumber())).collect(Collectors.toList());
+                List<PersonnelInfoVo> personnelInfoVos = finalPersonnelAllList.stream().filter(m->item.getUserType().equals(m.getUserType()) && item.getIdCardNumber().equals(m.getIdCardNumber())).collect(Collectors.toList());
                 if(personnelInfoVos.size() == 1){
                     PersonnelInfoVo personnel = personnelInfoVos.get(0);
                     item.setUserId(personnel.getUserId());
@@ -421,19 +356,19 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                         item.setPositiveTime(DateUtil.formatDate(personnel.getPositiveTime()));
                     }
                     if(ObjectUtil.isEmpty(item.getBirthDay())) {
-                        item.setBirthDay(DateUtil.formatDate(personnel.getBirth()));
+                        item.setBirthDay(DateUtil.formatDate(personnel.getBirthDay()));
                     }
                     if(ObjectUtil.isEmpty(item.getLeaveDate())) {
                         item.setLeaveDate(personnel.getLeaveDate());
                     }
                     //部门 职位
                     if(ObjectUtil.isEmpty(item.getOrgName())) {
-                        item.setOrgName(personnel.getDeptName());
-                        item.setOrgId(personnel.getDeptId());
+                        item.setOrgName(personnel.getOrgName());
+                        item.setOrgId(personnel.getOrgId());
                     }
                     if(ObjectUtil.isEmpty(item.getPosition())) {
-                        item.setPosition(personnel.getDutyName());
-                        item.setPositionId(personnel.getDutyId());
+                        item.setPosition(personnel.getPosition());
+                        item.setPositionId(personnel.getPositionId());
                     }
                     if(ObjectUtil.isEmpty(item.getFirstOrgName())) {
                         item.setFirstOrgId(ComputeUtil.objToString(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + item.getOrgId())));
@@ -445,12 +380,8 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                     item.setErrorMsg("花名册未能唯一匹配用户；");
                 }
             }
-
-            /**
-             * 第二部分 非 月工资标准 ，均按照月工资标准表，匹配用户
-             */
             if(!SalaryTypeEnum.STANDARD.getValue().equals(item.getType())){
-                List<SalaryStandard> standardList = finalStandardTmpList.stream().filter(n->item.getYearMonth().equals(n.getYearMonth()) && item.getIdCardNumber().equals(n.getIdCardNumber())).collect(Collectors.toList());
+                List<SalaryStandardVo> standardList = finalStandardAllList.stream().filter(n->item.getYearMonth().equals(n.getYearMonth()) && item.getIdCardNumber().equals(n.getIdCardNumber())).collect(Collectors.toList());
                 if(standardList.size() == 1){
                     item.setStandardId(standardList.get(0).getId());
                 }else if(standardList.size() == 0){
@@ -460,6 +391,99 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 }
             }
         });
+        /**
+         * 3. 校验数据唯一性【每月每人一条记录】
+         * 第一部分 导入月工资标准 校验是否已存在数据（每人每月一条导入记录）--【所属年月+身份证号】
+         * 第二部分 导入月度考勤|社保|公积金|加计扣除 校验是否已存在数据（每人每月一条导入记录） -- 【月工资标准匹配结果 - standardId】
+         */
+        if(SalaryTypeEnum.STANDARD.getValue().equals(type)){
+            List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(yearMonths)) {
+                //涉及到的年月，看是否已导入过
+                List<SalaryStandardVo> oldList = salaryStandardService.getStandardAllList(type,yearMonths);
+                if (CollUtil.isNotEmpty(oldList)) {
+                    importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
+                        List<SalaryStandardVo> tmpList = oldList.stream().filter(obj -> obj.getYearMonth().equals(item.getYearMonth()) && obj.getIdCardNumber().equals(item.getIdCardNumber())).collect(Collectors.toList());
+                        if (CollUtil.isNotEmpty(tmpList)) {
+                            item.setErrorMsg("员工已存在当月数据；");
+                        }
+                    });
+                }
+            }
+        }else if(SalaryTypeEnum.ATTEND.getValue().equals(type)){
+            List<String> standardIds = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getStandardId()).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(standardIds)) {
+                List<SalaryAttend> oldList = salaryAttendService.list(new QueryWrapper<SalaryAttend>().lambda().in(SalaryAttend::getStandardId,standardIds));
+                if(CollUtil.isNotEmpty(oldList)){
+                    importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
+                        List<SalaryAttend> tmpList = oldList.stream().filter(obj->obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
+                        if(CollUtil.isNotEmpty(tmpList)){
+                            item.setErrorMsg("员工已存在当月数据；");
+                        }
+                    });
+                }
+            }
+        }else if(SalaryTypeEnum.INS.getValue().equals(type)) {
+            List<String> standardIds = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getStandardId()).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(standardIds)) {
+                List<SalaryIns> oldList = salaryInsService.list(new QueryWrapper<SalaryIns>().lambda().in(SalaryIns::getStandardId, standardIds));
+                if (CollUtil.isNotEmpty(oldList)) {
+                    importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
+                        List<SalaryIns> tmpList = oldList.stream().filter(obj -> obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
+                        if (CollUtil.isNotEmpty(tmpList)) {
+                            item.setErrorMsg("员工已存在当月数据；");
+                        }
+                    });
+                }
+            }
+        } else if (SalaryTypeEnum.GJJ.getValue().equals(type)) {
+            List<String> standardIds = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getStandardId()).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(standardIds)) {
+                List<SalaryGjj> oldList = salaryGjjService.list(new QueryWrapper<SalaryGjj>().lambda().in(SalaryGjj::getStandardId, standardIds));
+                if (CollUtil.isNotEmpty(oldList)) {
+                    importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
+                        List<SalaryGjj> tmpList = oldList.stream().filter(obj -> obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
+                        if (CollUtil.isNotEmpty(tmpList)) {
+                            item.setErrorMsg("员工已存在当月数据；");
+                        }
+                    });
+                }
+            }
+        } else if (SalaryTypeEnum.TAX.getValue().equals(type)) {
+            List<String> standardIds = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getStandardId()).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(standardIds)) {
+                List<SalaryTax> oldList = salaryTaxService.list(new QueryWrapper<SalaryTax>().lambda().in(SalaryTax::getStandardId, standardIds));
+                if (CollUtil.isNotEmpty(oldList)) {
+                    importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
+                        List<SalaryTax> tmpList = oldList.stream().filter(obj -> obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
+                        if (CollUtil.isNotEmpty(tmpList)) {
+                            item.setErrorMsg("员工已存在当月数据；");
+                        }
+                    });
+                }
+            }
+        }
+    }
+
+    /**
+     * 通用导入：校验+导入到临时表
+     * @param type
+     * @param importData
+     * @return
+     */
+    public ImportResult checkAndImport(String type,List<SalaryImportTemp> importData){
+        //1.定义一个导入批次号
+        String batchId = IdWorker.getTimeId();
+        //2.初始化部分信息
+        initData(batchId,type,importData);
+        //3.数据校验（必填项|数据格式）
+        checkData(importData);
+        //4.逻辑校验（匹配员工|唯一校验）
+        checkLogic(type,importData);
+        //6.将数据存放在导入临时表
+        this.saveBatch(importData);
+        //7.返回结果
+        return importResult(batchId,type,importData);
     }
 
     /**

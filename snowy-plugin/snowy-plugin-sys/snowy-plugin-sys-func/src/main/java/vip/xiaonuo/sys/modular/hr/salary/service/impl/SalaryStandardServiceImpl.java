@@ -37,6 +37,7 @@ import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -188,5 +189,18 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
 
         List<SalaryStandard> result = this.list(queryWrapper);
         return BeanUtil.copyToList(result,SalaryStandardVo.class);
+    }
+
+    @Override
+    public List<SalaryStandardVo> getStandardAllList(String type, List<String> yearMonths) {
+        List<SalaryStandardVo> result = new ArrayList<>();
+        if(CollUtil.isEmpty(yearMonths)){
+            return result;
+        }
+        List<SalaryStandard> standardList = this.list(new QueryWrapper<SalaryStandard>().lambda()
+                .in(SalaryStandard::getYearMonth,yearMonths)
+                .eq(SalaryStandard::getType,type));
+        result = BeanUtil.copyToList(standardList,SalaryStandardVo.class);
+        return result;
     }
 }

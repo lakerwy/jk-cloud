@@ -449,6 +449,9 @@ public class ComputeUtil {
             if(ObjectUtil.isEmpty(item.getHaveBirthdayPay())){
                 item.setHaveBirthdayPay("是");
             }
+            if(ObjectUtil.isEmpty(item.getHaveSeniorityPay())){
+                item.setHaveSeniorityPay("是");
+            }
         });
         return importTempData;
     }

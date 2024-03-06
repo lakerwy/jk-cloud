@@ -91,8 +91,16 @@ public interface SalaryStandardService extends IService<SalaryStandard> {
 
     /**
      * 根据 所属年月，获取本年月的待发工资人员名单
-     * @param yearMonth
+     * @param
      * @return
      */
     List<SalaryStandardVo> listByYearMonth(StandardParam standardParam);
+
+    /**
+     * 获取 指定 type 的某几个年月的工资标准数据
+     * @param type 如：月工资标准
+     * @param yearMonths 所属年月集合
+     * @return
+     */
+    List<SalaryStandardVo> getStandardAllList(String type,List<String> yearMonths);
 }

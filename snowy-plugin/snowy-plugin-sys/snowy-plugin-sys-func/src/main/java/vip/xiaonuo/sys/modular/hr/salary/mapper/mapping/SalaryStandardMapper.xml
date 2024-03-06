@@ -3,17 +3,17 @@
 <mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper">
 
     <select id="getPersonnelList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo" parameterType="vip.xiaonuo.sys.modular.hr.salary.param.PersonnelParam" >
-        select a.*,c.`NAME` as deptName, d.`NAME` as dutyName
+        select a.*,c.`NAME` as orgName, d.`NAME` as `position`
         from (select '总部' as userType,
-                     ID,`NAME` as name,DEPT_ID,DUTY_ID,`STATUS`  as status,
-                     SEX,ID_NUMBER,BIRTH,PHONE,HIRE_DATE,POSITIVE_TIME,
+                     ID as id,`NAME` as userName,DEPT_ID as orgId,DUTY_ID as positionId,`STATUS`  as status,
+                     SEX as sex,ID_NUMBER as idCardNumber,BIRTH as birthDay,PHONE as phone,HIRE_DATE as hireDate,POSITIVE_TIME as positiveTime,
                      USER_ID  as userId,LEAVE_DATE as leaveDate
               from PERSONNEL
               where DELETE_FLAG = 'NOT_DELETE'
               union all
               select '分公司' as userType,
-                     ID,`NAME` as name,DEPT_ID,DUTY_ID,HR_STATUS  as status,
-                     SEX,ID_NUMBER,BIRTH,PHONE,HIRE_DATE,POSITIVE_TIME,
+                     ID as id,`NAME` as userName,DEPT_ID as orgId,DUTY_ID as positionId,HR_STATUS  as status,
+                     SEX as sex,ID_NUMBER as idCardNumber,BIRTH as birthDay,PHONE as phone,HIRE_DATE as hireDate,POSITIVE_TIME as positiveTime,
                      null as userId,RESIGNATION_TIME as leaveDate
               from HR_SUB_PERSONNEL
               where DELETE_FLAG = 'NOT_DELETE'and `STATUS` in ('0', '1')) a
@@ -21,7 +21,7 @@
                  LEFT JOIN SYS_POSITION d ON a.DUTY_ID = d.ID
         where 1 = 1
         <if test="name != null and name != ''">
-            and a.name like CONCAT('%', #{name}, '%')
+            and a.userName like CONCAT('%', #{name}, '%')
         </if>
         <if test="status != null and status != ''">
             and a.status = #{status}

@@ -20,17 +20,17 @@ public class PersonnelInfoVo {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
-    /** 姓名 */
-    @ApiModelProperty(value = "姓名", position = 3)
-    private String name;
+    /** 姓名 - name - userName */
+    @ApiModelProperty(value = "姓名 - name - userName", position = 3)
+    private String userName;
 
-    /** 部门ID */
-    @ApiModelProperty(value = "部门ID", position = 4)
-    private String deptId;
+    /** 部门ID - deptId - orgId */
+    @ApiModelProperty(value = "部门ID - deptId - orgId", position = 4)
+    private String orgId;
 
-    /** 职位ID */
-    @ApiModelProperty(value = "职位ID", position = 6)
-    private String dutyId;
+    /** 职位ID - dutyId - positionId */
+    @ApiModelProperty(value = "职位ID - dutyId - positionId", position = 6)
+    private String positionId;
 
     /** 就职状态 */
     @ApiModelProperty(value = "就职状态", position = 8)
@@ -40,15 +40,15 @@ public class PersonnelInfoVo {
     @ApiModelProperty(value = "性别", position = 9)
     private String sex;
 
-    /** 身份证号 */
-    @ApiModelProperty(value = "身份证号", position = 10)
-    private String idNumber;
+    /** 身份证号 idNumber - idCardNumber */
+    @ApiModelProperty(value = "身份证号 idNumber - idCardNumber", position = 10)
+    private String idCardNumber;
 
-    /** 出生日期 */
+    /** 出生日期 - birth - birthday */
     @ApiModelProperty(value = "出生日期", position = 11)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date birth;
+    private Date birthDay;
 
     /** 手机 */
     @ApiModelProperty(value = "手机", position = 18)
@@ -78,11 +78,11 @@ public class PersonnelInfoVo {
 
     /** 部门 - 翻译字段 */
     @ApiModelProperty(value = "部门 - 翻译字段", position = 100)
-    private String deptName;
+    private String orgName;
 
     /** 职位 - 翻译字段 */
     @ApiModelProperty(value = "职位 - 翻译字段 ", position = 100)
-    private String dutyName;
+    private String position;
 
     /** 员工类别：总部|分公司 */
     @ApiModelProperty(value = "员工类别：总部|分公司 ", position = 100)
