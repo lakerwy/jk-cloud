@@ -85,7 +85,7 @@ public class ConferenceRezController {
      * @author ljy
      * @date  2023/12/01 23:35
      */
-    @ApiOperationSupport(order = 2)
+/*    @ApiOperationSupport(order = 2)
     @ApiOperation("添加会议模块-预约会议")
     @CommonLog("添加会议模块-预约会议")
     //@SaCheckPermission("/sys/rez/add")
@@ -93,7 +93,7 @@ public class ConferenceRezController {
     public CommonResult<String> add(@RequestBody @Valid ConferenceRezAddParam conferenceRezAddParam) {
         conferenceRezService.add(conferenceRezAddParam);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 编辑会议模块-预约会议
@@ -101,7 +101,7 @@ public class ConferenceRezController {
      * @author ljy
      * @date  2023/12/01 23:35
      */
-    @ApiOperationSupport(order = 3)
+/*    @ApiOperationSupport(order = 3)
     @ApiOperation("编辑会议模块-预约会议")
     @CommonLog("编辑会议模块-预约会议")
     //@SaCheckPermission("/sys/rez/edit")
@@ -109,7 +109,7 @@ public class ConferenceRezController {
     public CommonResult<String> edit(@RequestBody @Valid ConferenceRezEditParam conferenceRezEditParam) {
         conferenceRezService.edit(conferenceRezEditParam);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 删除会议模块-预约会议
@@ -117,7 +117,7 @@ public class ConferenceRezController {
      * @author ljy
      * @date  2023/12/01 23:35
      */
-    @ApiOperationSupport(order = 4)
+/*    @ApiOperationSupport(order = 4)
     @ApiOperation("删除会议模块-预约会议")
     @CommonLog("删除会议模块-预约会议")
     //@SaCheckPermission("/sys/rez/delete")
@@ -126,7 +126,7 @@ public class ConferenceRezController {
                                                    CommonValidList<ConferenceRezIdParam> conferenceRezIdParamList) {
         conferenceRezService.delete(conferenceRezIdParamList);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 获取会议模块-预约会议详情
@@ -147,13 +147,13 @@ public class ConferenceRezController {
      * @author ljy
      * @date  2023/11/05 23:13
      */
-    @ApiOperationSupport(order = 6)
+/*    @ApiOperationSupport(order = 6)
     @ApiOperation("获取会议预约-时间列表-查看可预约会议数据")
     //@SaCheckPermission("/sys/rez/conferenceTimeList")
     @GetMapping("/sys/rez/conferenceTimeList")
     public CommonResult<List<ConferenceTimeData>> conferenceList(@Valid ConferenceTimeDataParam conferenceTimeDataParam) {
         return CommonResult.data(conferenceRezService.conferenceList(conferenceTimeDataParam));
-    }
+    }*/
 
 
     /** 周期预约*/
@@ -175,7 +175,7 @@ public class ConferenceRezController {
      * @author ljy
      * @date  2023/11/09 22:47
      */
-    @ApiOperationSupport(order = 8)
+/*    @ApiOperationSupport(order = 8)
     @ApiOperation("编辑会议预约-周期预约")
     @CommonLog("编辑会议预约-周期预约")
     //@SaCheckPermission("/sys/rezPeriod/edit")
@@ -183,7 +183,7 @@ public class ConferenceRezController {
     public CommonResult<String> periodEdit(@RequestBody @Valid ConferenceRezPeriodEditParam conferenceRezPeriodEditParam) {
         conferenceRezPeriodService.edit(conferenceRezPeriodEditParam);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 删除会议预约-周期预约
@@ -223,14 +223,14 @@ public class ConferenceRezController {
      * @author ljy
      * @date  2023/11/20 08:39
      */
-    @ApiOperationSupport(order = 11)
+/*    @ApiOperationSupport(order = 11)
     @ApiOperation("软联预约会议")
     @CommonLog("软联预约会议")
     //@SaCheckPermission("/sys/conferenceRecord/setmeeting")
     @GetMapping("/sys/rez/setmeeting")
     public CommonResult<JSONObject> setmeeting(@Valid RuanLianParam ruanLianParam) throws IOException {
         return CommonResult.data(ruanLianApiService.setmeeting(ruanLianParam));
-    }
+    }*/
 
     /**
      * 软联预约会议
@@ -238,7 +238,7 @@ public class ConferenceRezController {
      * @author ljy
      * @date  2023/11/20 08:39
      */
-    @ApiOperationSupport(order = 12)
+/*    @ApiOperationSupport(order = 12)
     @ApiOperation("取消软联预约会议")
     @CommonLog("取消软联预约会议")
     //@SaCheckPermission("/sys/conferenceRecord/delmeeting")
@@ -246,7 +246,7 @@ public class ConferenceRezController {
     public CommonResult<String> delmeeting(@Valid String yyid){
         ruanLianApiService.delmeeting(yyid);
         return CommonResult.ok();
-    }
+    }*/
 
     /**
      * 释放会议
@@ -335,18 +335,5 @@ public class ConferenceRezController {
     @GetMapping("/sys/workArrange/detail")
     public CommonResult<ConferenceWorkArrange> workArrangeDetail(@Valid ConferenceWorkArrangeIdParam conferenceWorkArrangeIdParam) {
         return CommonResult.data(conferenceWorkArrangeService.detail(conferenceWorkArrangeIdParam));
-    }
-
-    /**
-     * 测试：获取钉钉预约会议数据
-     * */
-    @ApiOperationSupport(order = 18)
-    @ApiOperation("会议-获取钉钉预约会议数据")
-    @PostMapping("/sys/rez/dingCallBack")
-    public CommonResult<String> callBack(
-            @RequestParam(value = "msg_signature", required = false) String msg_signature, @RequestParam(value = "timestamp", required = false) String timeStamp,
-            @RequestParam(value = "nonce", required = false) String nonce, @RequestBody(required = false) JSONObject json) {
-        conferenceRezService.callBack(msg_signature,timeStamp,nonce,json);
-        return CommonResult.ok();
     }
 }

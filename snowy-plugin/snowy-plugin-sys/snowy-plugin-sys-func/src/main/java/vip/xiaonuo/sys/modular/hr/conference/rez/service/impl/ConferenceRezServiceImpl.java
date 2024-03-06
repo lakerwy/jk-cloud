@@ -19,7 +19,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
-import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -30,11 +29,6 @@ import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
-import com.dingtalk.open.app.api.GenericEventListener;
-import com.dingtalk.open.app.api.OpenDingTalkStreamClientBuilder;
-import com.dingtalk.open.app.api.message.GenericOpenDingTalkEvent;
-import com.dingtalk.open.app.api.security.AuthClientCredential;
-import com.dingtalk.open.app.stream.protocol.event.EventAckStatus;
 import com.taobao.api.ApiException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationEventPublisher;
@@ -53,7 +47,6 @@ import vip.xiaonuo.dbs.core.util.BizTableCommon;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
-import vip.xiaonuo.sys.modular.hr.conference.DingDingRec.DingCallbackCrypto;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
@@ -87,6 +80,9 @@ import java.util.stream.Collectors;
  **/
 @Service
 public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, ConferenceRez> implements ConferenceRezService {
+
+    private static final String BOOK_SUCCESS = "bookSuccess";
+    private static final String BOOK_CANCEL = "bookCancel";
 
     @Resource
     SysUserService sysUserService;
@@ -688,41 +684,29 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         this.saveOrUpdate(rez);
     }
 
-    public void callBack( String msg_signature,  String timeStamp, String nonce,  JSONObject json){
-        try {
-            // 1. 从http请求中获取加解密参数
-            // 2. 使用加解密类型
-            // 2、调用订阅事件接口订阅的事件为企业级事件推送，此时OWNER_KEY为：开发者后台应用的Client ID（原企业内部应用 appKey )
-            DingCallbackCrypto callbackCrypto = new DingCallbackCrypto("cY897TwSDqFFmI6mUMYgmHsb1IDQl49CWDWILf2T",
-                    "cdxy1vqCb2QttkYCcc1EfCSyiwWWctD9soguLvKvJlg", "dingdpzuakabx5swx1xz");
-            log.error("callbackCrypto："+callbackCrypto.toString());
+    @Override
+    public void process(com.alibaba.fastjson2.JSONObject bizData, String eventType, String eventId){
 
-            Object encryptMsg = json.get("encrypt");
-            log.error("encryptMsg："+encryptMsg.toString());
-
-            String decryptMsg = callbackCrypto.getDecryptMsg(msg_signature, timeStamp, nonce, encryptMsg.toString());
-
-            // 3. 反序列化回调事件json数据 JSON.parseObject
-            com.alibaba.fastjson.JSONObject eventJson = JSON.parseObject(decryptMsg);
-            String eventType = eventJson.getString("EventType");
-
-            // 4. 根据EventType分类处理
-            if ("check_url".equals(eventType)) {
-                log.error("测试回调url的正确性"); // 测试回调url的正确性
-            } else if ("user_add_org".equals(eventType)) {
-                log.error("发生了：" + eventType + "事件"); // 处理通讯录用户增加事件
-            } else {
-                log.error("发生了：" + eventType + "事件"); // 添加其他已注册的
-            }
-            // 5. 返回success的加密数据
-            Map<String, String> successMap = callbackCrypto.getEncryptedMap("success");
-            for(String key : successMap.values()){
-                log.error("successMap+key+"+key+",value:+"+successMap.get(key).toString()); // successMap遍历
-            }
-            //return successMap;
-        } catch (Exception e) {
-            e.printStackTrace();
+        switch(eventType){
+            case BOOK_SUCCESS://预定会议
+                ConferenceRez conferenceRez = new ConferenceRez();
+                conferenceRez.setExtJson(bizData.toString());
+                conferenceRez.setEventId(eventId);
+                log.error("bizDataStream数据:"+BOOK_SUCCESS);
+                //theme 主题，beginTime-endTime开始和结束时间
+                break;
+            case BOOK_CANCEL://取消会议
+                List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>().eq(ConferenceRez::getEventId,eventId));
+                log.error("bizDataStream数据:"+BOOK_CANCEL);
+                if(CollectionUtil.isEmpty(conferenceRezList)){
+                    log.error("未找到该会议数据！eventId+"+eventId);
+                    break;
+                }
+                break;
         }
-        //return null;
+
+        // 在这里处理具体的事件逻辑
+        log.error("bizDataStream数据:"+bizData.toString());
     }
+
 }
