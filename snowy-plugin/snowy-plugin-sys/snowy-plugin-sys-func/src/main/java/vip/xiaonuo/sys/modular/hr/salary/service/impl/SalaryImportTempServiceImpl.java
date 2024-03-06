@@ -403,7 +403,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 List<SalaryStandardVo> oldList = salaryStandardService.getStandardAllList(type,yearMonths);
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
-                        List<SalaryStandardVo> tmpList = oldList.stream().filter(obj -> obj.getYearMonth().equals(item.getYearMonth()) && obj.getIdCardNumber().equals(item.getIdCardNumber())).collect(Collectors.toList());
+                        List<SalaryStandardVo> tmpList = oldList.stream().filter(obj -> item.getYearMonth().equals(obj.getYearMonth()) && item.getIdCardNumber().equals(obj.getIdCardNumber())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
                             item.setErrorMsg("员工已存在当月数据；");
                         }
@@ -416,7 +416,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 List<SalaryAttend> oldList = salaryAttendService.list(new QueryWrapper<SalaryAttend>().lambda().in(SalaryAttend::getStandardId,standardIds));
                 if(CollUtil.isNotEmpty(oldList)){
                     importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-                        List<SalaryAttend> tmpList = oldList.stream().filter(obj->obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
+                        List<SalaryAttend> tmpList = oldList.stream().filter(obj->item.getStandardId().equals(obj.getStandardId())).collect(Collectors.toList());
                         if(CollUtil.isNotEmpty(tmpList)){
                             item.setErrorMsg("员工已存在当月数据；");
                         }
@@ -429,7 +429,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 List<SalaryIns> oldList = salaryInsService.list(new QueryWrapper<SalaryIns>().lambda().in(SalaryIns::getStandardId, standardIds));
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
-                        List<SalaryIns> tmpList = oldList.stream().filter(obj -> obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
+                        List<SalaryIns> tmpList = oldList.stream().filter(obj -> item.getStandardId().equals(obj.getStandardId())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
                             item.setErrorMsg("员工已存在当月数据；");
                         }
@@ -442,7 +442,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 List<SalaryGjj> oldList = salaryGjjService.list(new QueryWrapper<SalaryGjj>().lambda().in(SalaryGjj::getStandardId, standardIds));
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
-                        List<SalaryGjj> tmpList = oldList.stream().filter(obj -> obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
+                        List<SalaryGjj> tmpList = oldList.stream().filter(obj -> item.getStandardId().equals(obj.getStandardId())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
                             item.setErrorMsg("员工已存在当月数据；");
                         }
@@ -455,7 +455,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 List<SalaryTax> oldList = salaryTaxService.list(new QueryWrapper<SalaryTax>().lambda().in(SalaryTax::getStandardId, standardIds));
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
-                        List<SalaryTax> tmpList = oldList.stream().filter(obj -> obj.getStandardId().equals(item.getStandardId())).collect(Collectors.toList());
+                        List<SalaryTax> tmpList = oldList.stream().filter(obj -> item.getStandardId().equals(obj.getStandardId())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
                             item.setErrorMsg("员工已存在当月数据；");
                         }
