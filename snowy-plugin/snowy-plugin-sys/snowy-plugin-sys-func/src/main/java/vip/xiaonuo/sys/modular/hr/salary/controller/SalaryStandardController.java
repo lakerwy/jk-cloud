@@ -30,6 +30,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.ThreeSalaryStandardVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -165,6 +166,21 @@ public class SalaryStandardController {
     @GetMapping("/sys/hr/salary/standard/listByYearMonth")
     public CommonResult<List<SalaryStandardVo>> listByYearMonth(StandardParam standardParam) {
         return CommonResult.data(salaryStandardService.listByYearMonth(standardParam));
+    }
+
+
+
+    /**
+     * 获取工资系统-月度工资标准 - 【分为3个列表】
+     *
+     * @author yong.ye
+     * @date  2024/03/06 09:36
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取工资系统-月度工资标准 - 【分为3个列表】")
+    @GetMapping("/sys/hr/salary/standard/threePageList")
+    public CommonResult<ThreeSalaryStandardVo> threePageList(ThreePageParam threePageParam) {
+        return CommonResult.data(salaryStandardService.threePageList(threePageParam));
     }
 
 }

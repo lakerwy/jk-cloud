@@ -74,4 +74,7 @@ public class SalaryStandardPageParam {
     @ApiModelProperty(value = "职位")
     private String position;
 
+    /** 员工类别：总部|分公司|外部 */
+    @ApiModelProperty(value = "员工类别：总部|分公司|外部")
+    private String userType;
 }

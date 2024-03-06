@@ -1,7 +1,6 @@
 package vip.xiaonuo.sys.modular.hr.salary.vo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -19,7 +18,6 @@ import java.util.Date;
 @Setter
 public class SalaryStandardVo {
     /** 主键ID */
-    @TableId
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 

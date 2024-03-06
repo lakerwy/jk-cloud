@@ -27,11 +27,13 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
+import vip.xiaonuo.sys.modular.hr.salary.enums.UserTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.ThreeSalaryStandardVo;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
@@ -39,6 +41,7 @@ import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 工资系统-月度工资标准Service接口实现类
@@ -57,6 +60,9 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         QueryWrapper<SalaryStandard> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getType())) {
             queryWrapper.lambda().eq(SalaryStandard::getType, salaryStandardPageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getUserType())){
+            queryWrapper.lambda().eq(SalaryStandard::getUserType,salaryStandardPageParam.getUserType());
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getYearMonth())) {
             queryWrapper.lambda().eq(SalaryStandard::getYearMonth, salaryStandardPageParam.getYearMonth());
@@ -201,6 +207,46 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
                 .in(SalaryStandard::getYearMonth,yearMonths)
                 .eq(SalaryStandard::getType,type));
         result = BeanUtil.copyToList(standardList,SalaryStandardVo.class);
+        return result;
+    }
+
+    @Override
+    public ThreeSalaryStandardVo threePageList(ThreePageParam threePageParam) {
+        ThreeSalaryStandardVo result = new ThreeSalaryStandardVo();
+        if(ObjectUtil.isEmpty(threePageParam.getYearMonth())){
+            throw new CommonException("所属年月必传");
+        }
+        QueryWrapper<SalaryStandard> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(SalaryStandard::getYearMonth,threePageParam.getYearMonth());
+        if(ObjectUtil.isNotEmpty(threePageParam.getType())){
+            queryWrapper.lambda().eq(SalaryStandard::getType,threePageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(threePageParam.getUserType())){
+            queryWrapper.lambda().eq(SalaryStandard::getUserType,threePageParam.getUserType());
+        }
+        if(ObjectUtil.isNotEmpty(threePageParam.getIdCardNumber())){
+            queryWrapper.lambda().like(SalaryStandard::getIdCardNumber,threePageParam.getIdCardNumber());
+        }
+        if(ObjectUtil.isNotEmpty(threePageParam.getOrgName())){
+            queryWrapper.lambda().like(SalaryStandard::getOrgName,threePageParam.getOrgName());
+        }
+        if(ObjectUtil.isNotEmpty(threePageParam.getFirstOrgName())){
+            queryWrapper.lambda().like(SalaryStandard::getFirstOrgName,threePageParam.getFirstOrgName());
+        }
+        if(ObjectUtil.isNotEmpty(threePageParam.getUserName())){
+            queryWrapper.lambda().like(SalaryStandard::getUserName,threePageParam.getUserName());
+        }
+        if(ObjectUtil.isNotEmpty(threePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(SalaryStandard::getUserName,threePageParam.getSearchKey())
+                    .or().like(SalaryStandard::getIdCardNumber,threePageParam.getSearchKey())
+                    .or().like(SalaryStandard::getOrgName,threePageParam.getSearchKey())
+                    .or().like(SalaryStandard::getFirstOrgName,threePageParam.getSearchKey()));
+        }
+        queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth).orderByAsc(SalaryStandard::getIdCardNumber);
+        List<SalaryStandard> standardList = this.list(queryWrapper);
+        result.setZbList(standardList.stream().filter(x-> UserTypeEnum.ZB.getValue().equals(x.getUserType())).collect(Collectors.toList()));
+        result.setFgsList(standardList.stream().filter(x-> UserTypeEnum.FGS.getValue().equals(x.getUserType())).collect(Collectors.toList()));
+        result.setWpList(standardList.stream().filter(x-> UserTypeEnum.WP.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         return result;
     }
 }

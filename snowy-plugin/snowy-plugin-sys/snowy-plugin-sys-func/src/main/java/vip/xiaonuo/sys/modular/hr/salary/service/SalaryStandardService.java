@@ -18,6 +18,7 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.ThreeSalaryStandardVo;
 
 import java.util.List;
 
@@ -103,4 +104,11 @@ public interface SalaryStandardService extends IService<SalaryStandard> {
      * @return
      */
     List<SalaryStandardVo> getStandardAllList(String type,List<String> yearMonths);
+
+    /**
+     * 查询列表分3个列表-无分页
+     * @param threePageParam
+     * @return
+     */
+    ThreeSalaryStandardVo threePageList(ThreePageParam threePageParam);
 }
