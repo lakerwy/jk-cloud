@@ -17,8 +17,8 @@
                      null as userId,RESIGNATION_TIME as leaveDate
               from HR_SUB_PERSONNEL
               where DELETE_FLAG = 'NOT_DELETE'and `STATUS` in ('0', '1')) a
-                 LEFT JOIN SYS_ORG c ON a.DEPT_ID = c.ID
-                 LEFT JOIN SYS_POSITION d ON a.DUTY_ID = d.ID
+                 LEFT JOIN SYS_ORG c ON a.orgId = c.ID
+                 LEFT JOIN SYS_POSITION d ON a.positionId = d.ID
         where 1 = 1
         <if test="name != null and name != ''">
             and a.userName like CONCAT('%', #{name}, '%')
