@@ -276,14 +276,14 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 errMsg += "员工类别必填；";
             }else{
                 if(!CollectionUtil.newArrayList(USER_TYPE_LIST).contains(item.getUserType().trim())){
-                    errMsg += "员工类别不在范围内；";
+                    errMsg += "员工类别必须为：" + StrUtil.join("、",USER_TYPE_LIST) +"；";
                 }
             }
             if(ObjectUtil.isNotEmpty(item.getHaveBirthdayPay()) && !CollectionUtil.newArrayList(HAVE_PAY_LIST).contains(item.getHaveBirthdayPay().trim())){
-                errMsg += "是否有生日福利不在范围内；";
+                errMsg += "是否有生日福利必须为：" + StrUtil.join("、",HAVE_PAY_LIST) +"；";
             }
             if(ObjectUtil.isNotEmpty(item.getHaveSeniorityPay()) && !CollectionUtil.newArrayList(HAVE_PAY_LIST).contains(item.getHaveSeniorityPay().trim())){
-                errMsg += "是否有工龄工资不在范围内；";
+                errMsg += "是否有工龄工资必须为：" + StrUtil.join("、",HAVE_PAY_LIST) +"；";
             }
             if(ObjectUtil.isNotEmpty(item.getBirthDay()) && !ComputeUtil.isValidDate(item.getBirthDay().trim())){
                 errMsg += "生日不是合法日期格式；";

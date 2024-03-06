@@ -4,7 +4,8 @@
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo" >
         select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.COMPANY as company,
-               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName
+               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.HIRE_DATE as hireDate,b.LEAVE_DATE as leaveDate,
+               b.POSITIVE_TIME as positiveTime,b.BIRTH_DAY as birthDay,b.STANDARD_AMOUNT as standardAmount,b.USER_TYPE as userType
         from HR_SALARY_ATTEND a
                  left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
             ${ew.customSqlSegment}
@@ -12,7 +13,8 @@
 
     <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo" >
         select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.COMPANY as company,
-               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName
+               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.HIRE_DATE as hireDate,b.LEAVE_DATE as leaveDate,
+               b.POSITIVE_TIME as positiveTime,b.BIRTH_DAY as birthDay,b.STANDARD_AMOUNT as standardAmount,b.USER_TYPE as userType
         from HR_SALARY_ATTEND a
                  left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
         where a.ID = #{id}
