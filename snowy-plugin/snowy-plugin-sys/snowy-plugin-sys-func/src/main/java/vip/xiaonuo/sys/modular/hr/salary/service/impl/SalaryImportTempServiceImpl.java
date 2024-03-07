@@ -196,16 +196,10 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         //月工资标准
         if(SalaryTypeEnum.STANDARD.getValue().equals(input.getType())){
             List<SalaryStandard> importData = BeanUtil.copyToList(importTempData,SalaryStandard.class);
-            List<SalaryStandard> newImportData = ComputeUtil.computeStandardGZ(importData);
-            salaryStandardService.saveBatch(newImportData);
+            salaryStandardService.saveBatch(importData);
         }else if(SalaryTypeEnum.ATTEND.getValue().equals(input.getType())){
             List<SalaryAttend> importData = BeanUtil.copyToList(importTempData,SalaryAttend.class);
-            //获取 本次 涉及到的 员工工资Id
-            List<String> standardIds = importData.stream().map(x->x.getStandardId()).distinct().collect(Collectors.toList());
-            //获取 工资标准 数据
-            List<SalaryStandardVo> standardList = BeanUtil.copyToList(salaryStandardService.listByIds(standardIds),SalaryStandardVo.class);
-            List<SalaryAttend> newImportData = ComputeUtil.computeAttendGZ(importData,standardList);
-            salaryAttendService.saveBatch(newImportData);
+            salaryAttendService.saveBatch(importData);
         }else if(SalaryTypeEnum.REGISTER_SUBSIDY.getValue().equals(input.getType())
                 || SalaryTypeEnum.DUTY_SUBSIDY.getValue().equals(input.getType())
                 || SalaryTypeEnum.TEACHER_SUBSIDY.getValue().equals(input.getType())

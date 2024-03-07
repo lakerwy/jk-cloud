@@ -161,8 +161,8 @@ public class SalaryImportTemp {
     @ApiModelProperty(value = "丧假天数", position = 32)
     private Float funDay;
 
-    /** 所属单位 */
-    @ApiModelProperty(value = "所属单位", position = 33)
+    /** 发放公司 */
+    @ApiModelProperty(value = "发放公司", position = 33)
     private String unitName;
 
     /** 缴费基数 */
@@ -340,8 +340,8 @@ public class SalaryImportTemp {
     @ApiModelProperty(value = "交通补贴小计", position = 75)
     private BigDecimal btStandard2Total;
 
-    /** 公司 */
-    @ApiModelProperty(value = "公司", position = 76)
+    /** 工资发放公司 */
+    @ApiModelProperty(value = "工资发放公司", position = 76)
     private String company;
 
     /** 转正日期 */
@@ -367,4 +367,12 @@ public class SalaryImportTemp {
     /** 是否有工龄工资：是 否*/
     @ApiModelProperty(value = "是否有工龄工资：是 否", position = 82)
     private String haveSeniorityPay;
+
+    /** 绩效系数 */
+    @ApiModelProperty(value = "绩效系数", position = 83)
+    private Float meritRate;
+
+    /** 是否全勤：是 否*/
+    @ApiModelProperty(value = "是否全勤：是 否", position = 84)
+    private String isFull;
 }

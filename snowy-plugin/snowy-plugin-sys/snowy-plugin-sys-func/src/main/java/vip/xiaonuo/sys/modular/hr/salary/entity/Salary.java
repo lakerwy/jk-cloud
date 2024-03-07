@@ -38,6 +38,14 @@ public class Salary {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
+    /** 类别：工资|奖金 */
+    @ApiModelProperty(value = "类别：工资|奖金", position = 2)
+    private String type;
+
+    /** 工资发放公司 */
+    @ApiModelProperty(value = "工资发放公司", position = 5)
+    private String company;
+
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月", position = 2)
     private String yearMonth;
@@ -62,17 +70,9 @@ public class Salary {
     @ApiModelProperty(value = "一级部门", position = 7)
     private String firstOrgName;
 
-    /** 一级部门Id */
-    @ApiModelProperty(value = "一级部门Id", position = 8)
-    private String firstOrgId;
-
     /** 二级部门 */
     @ApiModelProperty(value = "二级部门", position = 9)
     private String orgName;
-
-    /** 二级部门Id */
-    @ApiModelProperty(value = "二级部门Id", position = 10)
-    private String orgId;
 
     /** 职位 */
     @ApiModelProperty(value = "职位", position = 11)
@@ -288,4 +288,8 @@ public class Salary {
     /** 是否有工龄工资：是 否*/
     @ApiModelProperty(value = "是否有工龄工资：是 否", position = 58)
     private String haveSeniorityPay;
+
+    /** 绩效系数 */
+    @ApiModelProperty(value = "绩效系数", position = 59)
+    private Float meritRate;
 }

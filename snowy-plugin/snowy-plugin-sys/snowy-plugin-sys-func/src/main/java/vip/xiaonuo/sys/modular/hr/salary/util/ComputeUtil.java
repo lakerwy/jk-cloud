@@ -240,12 +240,6 @@ public class ComputeUtil {
                 }
                 //⑤全勤奖：当月无迟到、早退、脱岗、旷工、未打卡、病事假、调休等考勤异况，给予全勤奖20元
             }
-            item.setSickAmount(sickAmount);
-            item.setWorkAmount(workAmount);
-            item.setLateAmount(lateAmount);
-            item.setMinerAmount(minerAmount);
-            item.setFullAmount(fullAmount);
-            item.setAmount(fullAmount.subtract(sickAmount).subtract(workAmount).subtract(lateAmount).subtract(minerAmount));
         });
         return attendList;
     }

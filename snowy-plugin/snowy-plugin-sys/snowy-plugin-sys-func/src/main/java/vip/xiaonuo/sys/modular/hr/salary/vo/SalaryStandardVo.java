@@ -130,4 +130,7 @@ public class SalaryStandardVo {
     @ApiModelProperty(value = "是否有工龄工资：是 否", position = 30)
     private String haveSeniorityPay;
 
+    /** 绩效系数 */
+    @ApiModelProperty(value = "绩效系数", position = 31)
+    private Float meritRate;
 }

@@ -55,8 +55,8 @@ public class SalaryStandard {
     @ApiModelProperty(value = "姓名", position = 5)
     private String userName;
 
-    /** 公司 */
-    @ApiModelProperty(value = "公司", position = 5)
+    /** 工资发放公司 */
+    @ApiModelProperty(value = "工资发放公司", position = 5)
     private String company;
 
     /** 建科云用户Id */
@@ -185,4 +185,8 @@ public class SalaryStandard {
     /** 是否有工龄工资：是 否*/
     @ApiModelProperty(value = "是否有工龄工资：是 否", position = 30)
     private String haveSeniorityPay;
+
+    /** 绩效系数 */
+    @ApiModelProperty(value = "绩效系数", position = 31)
+    private Float meritRate;
 }

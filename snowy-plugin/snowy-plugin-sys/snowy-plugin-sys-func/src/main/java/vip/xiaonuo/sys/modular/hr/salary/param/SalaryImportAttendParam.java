@@ -90,4 +90,8 @@ public class SalaryImportAttendParam {
     @ApiModelProperty(value = "备注", position = 54)
     private String memo;
 
+    /** 是否全勤：是 否*/
+    @ApiModelProperty(value = "是否全勤：是 否", position = 33)
+    private String isFull;
+
 }

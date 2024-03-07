@@ -90,4 +90,8 @@ public class SalaryAttendEditParam {
     @ApiModelProperty(value = "备注", position = 26)
     private String memo;
 
+    /** 是否全勤：是 否*/
+    @ApiModelProperty(value = "是否全勤：是 否", position = 84)
+    private String isFull;
+
 }

@@ -126,23 +126,7 @@ public class SalaryAttend {
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 
-    /** 病假工资 */
-    @ApiModelProperty(value = "病假工资", position = 34)
-    private BigDecimal sickAmount;
-
-    /** 事假工资 */
-    @ApiModelProperty(value = "事假工资", position = 35)
-    private BigDecimal workAmount;
-
-    /** 迟到工资 */
-    @ApiModelProperty(value = "迟到工资", position = 36)
-    private BigDecimal lateAmount;
-
-    /** 矿工工资 */
-    @ApiModelProperty(value = "矿工工资", position = 37)
-    private BigDecimal minerAmount;
-
-    /** 全勤工资 */
-    @ApiModelProperty(value = "全勤工资", position = 38)
-    private BigDecimal fullAmount;
+    /** 是否全勤：是 否*/
+    @ApiModelProperty(value = "是否全勤：是 否", position = 84)
+    private String isFull;
 }

@@ -44,8 +44,8 @@ public class SalaryImportInsGjjTaxParam {
     @ApiModelProperty(value = "姓名", position = 7)
     private String userName;
 
-    /** 所属单位 */
-    @ApiModelProperty(value = "所属单位", position = 10)
+    /** 发放公司 */
+    @ApiModelProperty(value = "发放公司", position = 10)
     private String unitName;
 
     /** 缴费基数 */
