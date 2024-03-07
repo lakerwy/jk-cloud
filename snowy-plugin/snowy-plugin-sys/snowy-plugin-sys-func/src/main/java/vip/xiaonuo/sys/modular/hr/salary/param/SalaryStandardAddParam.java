@@ -49,8 +49,8 @@ public class SalaryStandardAddParam {
     @ApiModelProperty(value = "姓名", position = 5)
     private String userName;
 
-    /** 公司 */
-    @ApiModelProperty(value = "公司", position = 5)
+    /** 工资发放公司 */
+    @ApiModelProperty(value = "工资发放公司", position = 5)
     private String company;
 
     /** 建科云用户Id - 可能匹配不到（总部|分公司|外部） */

@@ -60,4 +60,8 @@ public class CompanyListPageParam {
     @ApiModelProperty(value = "登记证号")
     private String certNo;
 
+    /** 公示状态 */
+    @ApiModelProperty(value = "公示状态")
+    private String status;
+
 }

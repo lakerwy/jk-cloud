@@ -93,4 +93,8 @@ public class CompanyList {
     @ApiModelProperty(value = "数据权限控制字段", position = 14)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 公示状态 */
+    @ApiModelProperty(value = "公示状态", position = 15)
+    private String status;
 }

@@ -60,4 +60,8 @@ public class CompanyListEditParam {
     @ApiModelProperty(value = "备注", position = 7)
     private String memo;
 
+    /** 公示状态 */
+    @ApiModelProperty(value = "公示状态", position = 8)
+    private String status;
+
 }

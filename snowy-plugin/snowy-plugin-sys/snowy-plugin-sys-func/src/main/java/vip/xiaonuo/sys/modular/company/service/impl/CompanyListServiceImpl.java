@@ -49,6 +49,9 @@ public class CompanyListServiceImpl extends ServiceImpl<CompanyListMapper, Compa
         if(ObjectUtil.isNotEmpty(companyListPageParam.getType())) {
             queryWrapper.lambda().eq(CompanyList::getType, companyListPageParam.getType());
         }
+        if(ObjectUtil.isNotEmpty(companyListPageParam.getStatus())){
+            queryWrapper.lambda().eq(CompanyList::getStatus,companyListPageParam.getStatus());
+        }
         if(ObjectUtil.isNotEmpty(companyListPageParam.getCompanyName())) {
             queryWrapper.lambda().like(CompanyList::getCompanyName, companyListPageParam.getCompanyName());
         }
