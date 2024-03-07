@@ -2,7 +2,7 @@ spring:
   application:
     name: snowy-gateway-app
   profiles:
-    active: test
+    active: dev
   main:
     allow-bean-definition-overriding: true
     web-application-type: reactive

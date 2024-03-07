@@ -79,7 +79,11 @@ public class SystemUserRelation {
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    @ApiModelProperty(value = "角色ID",position = 11)
+    @ApiModelProperty(value = "角色key",position = 11)
     @TableField(exist = false)
-    private String roleId;
+    private String roleKey;
+
+    @ApiModelProperty(value = "用户姓名",position = 12)
+    @TableField(exist = false)
+    private String userName;
 }

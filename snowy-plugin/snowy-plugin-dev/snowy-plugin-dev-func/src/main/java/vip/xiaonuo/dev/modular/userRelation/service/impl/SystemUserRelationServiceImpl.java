@@ -114,7 +114,8 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             systemUserRelation.setSystemId(syncParam.getId());
             systemUserRelation.setUserAccount(syncUser.getAccount());
             systemUserRelation.setUserId(syncUser.getUserId());
-            systemUserRelation.setRoleId(syncUser.getRoleId());
+            systemUserRelation.setRoleKey(syncUser.getRoleId());
+            systemUserRelation.setUserName(syncUser.getUserName());
             return systemUserRelation;
         }).collect(Collectors.toList());
 

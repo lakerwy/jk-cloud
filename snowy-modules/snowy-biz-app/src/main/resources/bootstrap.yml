@@ -2,7 +2,7 @@ spring:
   application:
     name: snowy-biz-app
   profiles:
-    active: test
+    active: dev
   cloud:
     nacos:
       config:
