@@ -29,8 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
-import vip.xiaonuo.dev.modular.userRelation.config.SyncProperties;
 import vip.xiaonuo.dev.modular.userRelation.entity.SystemUserRelation;
 import vip.xiaonuo.dev.modular.userRelation.mapper.SystemUserRelationMapper;
 import vip.xiaonuo.dev.modular.userRelation.param.*;
@@ -51,7 +51,7 @@ import java.util.stream.Collectors;
 public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelationMapper, SystemUserRelation> implements SystemUserRelationService {
 
     @Resource
-    SyncProperties syncProperties;
+    DevConfigService devConfigService;
 
     @Override
     public Page<SystemUserRelation> page(SystemUserRelationPageParam systemUserRelationPageParam) {
@@ -121,11 +121,11 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
 
         if(CollUtil.isNotEmpty(collect)){
             saveOrUpdateBatch(collect);
-            //同步到项目系统中
-            if(syncProperties.isEnable()){
+            String valueUrl = devConfigService.getValueByKey("EPC_SYSUSER");
+            if(StrUtil.isNotEmpty(valueUrl)){
                 String json = JSONUtil.parseArray(collect).toString();
                 //不记录执行结果
-                HttpUtil.createPost(syncProperties.getUrl()).body(json).execute();
+                HttpUtil.createPost(valueUrl).body(json).execute();
             }
         }
 
