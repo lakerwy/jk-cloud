@@ -15,6 +15,7 @@ package vip.xiaonuo.dev.api;
 import cn.hutool.json.JSONObject;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 动态字段API
@@ -31,5 +32,7 @@ public interface DevDfcApi {
      * @date 2022/7/22 14:47
      **/
     List<JSONObject> getTableFieldList(String dbsId, String tableName);
+
+    void addDingDingScheduleHandler(Map<String,Object> mapParam);
 }
 

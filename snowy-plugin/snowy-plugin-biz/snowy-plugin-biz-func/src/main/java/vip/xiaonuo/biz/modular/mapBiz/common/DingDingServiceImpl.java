@@ -17,7 +17,6 @@ import com.taobao.api.ApiException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import vip.xiaonuo.auth.api.AuthThirdApi;
 import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dbs.core.util.CommonUtils;

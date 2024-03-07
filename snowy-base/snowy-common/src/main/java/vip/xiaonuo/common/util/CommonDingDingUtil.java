@@ -9,6 +9,7 @@ import com.dingtalk.api.request.OapiV2UserGetuserinfoRequest;
 import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserGetuserinfoResponse;
+import com.taobao.api.ApiException;
 
 /**
  * 钉钉通用工具类
@@ -28,6 +29,18 @@ public class CommonDingDingUtil {
         config.protocol = "https";
         config.regionId = "central";
         return new com.aliyun.dingtalkoauth2_1_0.Client(config);
+    }
+
+    /**
+     * 使用 Token 初始化账号Client
+     * @return Client
+     * @throws Exception
+     */
+    public static com.aliyun.dingtalkcalendar_1_0.Client createScheduleClient() throws Exception {
+        com.aliyun.teaopenapi.models.Config config = new com.aliyun.teaopenapi.models.Config();
+        config.protocol = "https";
+        config.regionId = "central";
+        return new com.aliyun.dingtalkcalendar_1_0.Client(config);
     }
 
     /**
@@ -109,5 +122,24 @@ public class CommonDingDingUtil {
         }
     }
 
+    /**
+     * 根据 钉钉userid，获取钉钉用户详情
+     * @param access_token 钉钉内部应用 token
+     * @param userId 钉钉用户userid
+     * @return
+     */
+    public static OapiV2UserGetResponse getUnionId(String access_token, String userId) throws Exception{
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/get");
+            OapiV2UserGetRequest req = new OapiV2UserGetRequest();
+            req.setUserid(userId);
+            req.setLanguage("zh_CN");
+            OapiV2UserGetResponse rsp = client.execute(req, access_token);
+            return rsp;
+        } catch (ApiException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 }

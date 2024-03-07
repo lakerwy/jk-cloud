@@ -1,9 +1,11 @@
 package vip.xiaonuo.auth.modular.third.provider;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.api.AuthThirdApi;
 import vip.xiaonuo.auth.modular.third.entity.AuthThirdUser;
@@ -44,6 +46,12 @@ public class AuthThirdApiProvider implements AuthThirdApi {
                 .eq(AuthThirdUser::getCategory, category).last(" limit 1 "));
         return ObjectUtil.isEmpty(thirdUser) ? "" : thirdUser.getThirdId();
     }
+    @Override
+    public String getUnionIdByUserId(String userId,String category){
+        AuthThirdUser thirdUser = authThirdService.getOne(new LambdaQueryWrapper<AuthThirdUser>().eq(AuthThirdUser::getUserId, userId)
+                .eq(AuthThirdUser::getCategory, category).last(" limit 1 "));
+        return ObjectUtil.isNotEmpty(thirdUser) && StringUtils.isNotEmpty(thirdUser.getUnionId()) ? "" : thirdUser.getUnionId();
+    }
 
     @Override
     public Boolean addAuthThird(String userId, String thirdId, String category, String name) {
@@ -59,6 +67,24 @@ public class AuthThirdApiProvider implements AuthThirdApi {
         thirdUser.setCategory(category);
         thirdUser.setName(name);
         return authThirdService.save(thirdUser);
+    }
+
+    /**
+     * 当thirdId存在，而unionId不存在，修改
+     * 当thirdId和unionId都不存在，新增
+     * */
+    @Override
+    public Boolean updateAuthThird(String userId,String thirdId,String category,String name,String unionId){
+        List<AuthThirdUser> oldList = authThirdService.list(new QueryWrapper<AuthThirdUser>().lambda().eq(AuthThirdUser::getCategory,category).eq(AuthThirdUser::getUserId,userId).eq(AuthThirdUser::getThirdId,thirdId));
+        if(CollectionUtil.isNotEmpty(oldList) && StringUtils.isNotEmpty(oldList.get(0).getUnionId())){ return true; }
+
+        AuthThirdUser thirdUser = CollectionUtil.isNotEmpty(oldList) ? oldList.get(0) : new AuthThirdUser();
+        thirdUser.setThirdId(thirdId);
+        thirdUser.setUserId(userId);
+        thirdUser.setCategory(category);
+        thirdUser.setName(name);
+        thirdUser.setUnionId(unionId);
+        return authThirdService.saveOrUpdate(thirdUser);
     }
 
     @Override

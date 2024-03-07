@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import vip.xiaonuo.common.consts.FeignConstant;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 动态字段Feign接口
@@ -37,5 +38,14 @@ public interface DevDfcFeign {
      */
     @RequestMapping("/feign/dev/dfc/getTableFieldList")
     List<JSONObject> getTableFieldList(@RequestParam("dbsId") String dbsId, @RequestParam("tableName") String tableName);
+
+    /**
+     * 通过数据源id与表明获得数据库表列表
+     *
+     * @author yubaoshan
+     * @date 2023/8/14 20:41
+     */
+    @RequestMapping("/feign/dev/dfc/addDingDingScheduleHandler")
+    void addDingDingScheduleHandler(@RequestParam("mapParam") Map<String,Object> mapParam);
 
 }

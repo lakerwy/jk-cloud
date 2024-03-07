@@ -26,6 +26,14 @@ public interface AuthThirdApi {
     String getThirdIdByUserId(String userId,String category);
 
     /**
+     * 通过系统用户Id,获取三方账号
+     * @param userId 系统用户Id
+     * @param category 类型
+     * @return
+     */
+    String getUnionIdByUserId(String userId,String category);
+
+    /**
      * 新增第三方用户记录
      * @param userId 系统用户Id
      * @param thirdId 第三方用户Id
@@ -34,6 +42,18 @@ public interface AuthThirdApi {
      * @return
      */
     Boolean addAuthThird(String userId,String thirdId,String category,String name);
+
+
+    /**
+     * 新增第三方用户记录
+     * @param userId 系统用户Id
+     * @param thirdId 第三方用户Id
+     * @param category 类型
+     * @param name 用户名
+     * @param unionId 钉钉唯一第三方ID
+     * @return
+     */
+    Boolean updateAuthThird(String userId,String thirdId,String category,String name,String unionId);
 
     /**
      * 删除第三方用户记录

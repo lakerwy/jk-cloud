@@ -17,12 +17,15 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.lang.Console;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fhs.common.utils.JsonUtils;
+import com.yunpian.sdk.util.JsonUtil;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.support.JdbcUtils;
 import org.springframework.stereotype.Service;
@@ -39,11 +42,15 @@ import vip.xiaonuo.dev.modular.dfc.result.DevDfcDbsSelectorResult;
 import vip.xiaonuo.dev.modular.dfc.result.DevDfcTableColumnResult;
 import vip.xiaonuo.dev.modular.dfc.result.DevDfcTableResult;
 import vip.xiaonuo.dev.modular.dfc.service.DevDfcService;
+import vip.xiaonuo.dev.modular.dingDingSchedule.param.DingDingScheduleParam;
+import vip.xiaonuo.dev.modular.dingDingSchedule.service.DingDingScheduleService;
+import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
 
 import javax.annotation.Resource;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -66,6 +73,8 @@ public class DevDfcServiceImpl extends ServiceImpl<DevDfcMapper, DevDfc> impleme
 
     @Resource
     private DbsApi dbsApi;
+    @Resource
+    DingDingScheduleService dingDingScheduleService;
 
     @Override
     public Page<DevDfc> page(DevDfcPageParam devDfcPageParam) {
@@ -375,5 +384,53 @@ public class DevDfcServiceImpl extends ServiceImpl<DevDfcMapper, DevDfc> impleme
             JdbcUtils.closeResultSet(rs);
             JdbcUtils.closeConnection(conn);
         }
+    }
+
+    @Override
+    public void addDingDingScheduleHandler(Map<String,Object> mapParam){
+        DingDingScheduleVo dingDingScheduleVo = new DingDingScheduleVo();
+        String startTime = "";
+        if(ObjectUtil.isEmpty(mapParam.get("GO_TIME"))){
+            log.error("外访开始时间为空！PROCESS_INSTANCE_ID："+mapParam.get("PROCESS_INSTANCE_ID").toString());
+            return;
+        }
+        startTime = mapParam.get("GO_TIME").toString();
+        dingDingScheduleVo.setStartTime(startTime);
+
+        String endTime = "";
+        if(ObjectUtil.isEmpty(mapParam.get("BACK_TIME"))){
+            log.error("外访结束时间为空!PROCESS_INSTANCE_ID："+mapParam.get("PROCESS_INSTANCE_ID").toString());
+            return;
+        }
+        endTime = mapParam.get("BACK_TIME").toString();
+        dingDingScheduleVo.setEndTime(endTime);
+
+        String summary = "";
+        if(ObjectUtil.isEmpty(mapParam.get("PURPOSE"))){
+            log.error("外访标题为空!PROCESS_INSTANCE_ID："+mapParam.get("PROCESS_INSTANCE_ID").toString());
+            return;
+        }
+        summary = mapParam.get("PURPOSE").toString();
+        dingDingScheduleVo.setSummary(summary);
+
+
+        String partPersion = "";
+        if(ObjectUtil.isEmpty(mapParam.get("PERSON"))){
+            log.error("外访参与人为空!PROCESS_INSTANCE_ID："+mapParam.get("PROCESS_INSTANCE_ID").toString());
+            return;
+        }
+        partPersion = mapParam.get("PERSON").toString();
+        JSONArray jsonArray = new JSONArray(partPersion);
+        List<JSONObject> jsonObjectList = jsonArray.toList(JSONObject.class);
+
+        List<DingDingScheduleParam> dingDingScheduleParamList = new ArrayList<>();
+        jsonObjectList.forEach(json -> {
+            DingDingScheduleParam dingDingScheduleParam = new DingDingScheduleParam();
+            dingDingScheduleParam.setUserId(json.get("id") != null ? json.get("id").toString() : "");
+            dingDingScheduleParam.setPhone(json.get("account") != null ? json.get("account").toString() : "");
+            dingDingScheduleParam.setUserName(json.get("name") != null ?  json.get("name").toString() : "");
+            dingDingScheduleParamList.add(dingDingScheduleParam);
+        });
+        dingDingScheduleService.addDingDingSchedule(dingDingScheduleParamList,dingDingScheduleVo,mapParam.get("CREATE_USER").toString());
     }
 }

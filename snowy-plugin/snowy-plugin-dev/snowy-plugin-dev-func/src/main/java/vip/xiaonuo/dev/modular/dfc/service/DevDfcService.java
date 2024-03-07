@@ -22,6 +22,7 @@ import vip.xiaonuo.dev.modular.dfc.result.DevDfcTableColumnResult;
 import vip.xiaonuo.dev.modular.dfc.result.DevDfcTableResult;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 动态字段配置Service接口
@@ -134,4 +135,6 @@ public interface DevDfcService extends IService<DevDfc> {
      * @date  2023/08/02 21:31
      */
     void migrate(DevDfcMigrateParam devDfcMigrateParam);
+
+    void addDingDingScheduleHandler(Map<String,Object> mapParam);
 }
