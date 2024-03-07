@@ -27,10 +27,12 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
+import vip.xiaonuo.sys.modular.hr.salary.param.ConfirmSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -53,14 +55,13 @@ public class SalaryController {
     private SalaryService salaryService;
 
     /**
-     * 获取工资系统-工资表分页
+     * 【已确认-封存的工资数据】获取工资系统-工资表分页
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取工资系统-工资表分页")
-//    @SaCheckPermission("/sys/hr/salary/page")
+    @ApiOperation("【已确认-封存的工资数据】获取工资系统-工资表分页")
     @GetMapping("/sys/hr/salary/page")
     public CommonResult<Page<Salary>> page(SalaryPageParam salaryPageParam) {
         return CommonResult.data(salaryService.page(salaryPageParam));
@@ -68,15 +69,14 @@ public class SalaryController {
 
 
     /**
-     * 删除工资系统-工资表
+     * 【已确认-封存的工资数据】删除工资系统-工资表
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
-    @ApiOperationSupport(order = 4)
-    @ApiOperation("删除工资系统-工资表")
-    @CommonLog("删除工资系统-工资表")
-//    @SaCheckPermission("/sys/hr/salary/delete")
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("【已确认-封存的工资数据】删除工资系统-工资表")
+    @CommonLog("【已确认-封存的工资数据】删除工资系统-工资表")
     @PostMapping("/sys/hr/salary/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<SalaryIdParam> salaryIdParamList) {
@@ -85,45 +85,45 @@ public class SalaryController {
     }
 
     /**
-     * 获取工资系统-工资表详情
+     * 【已确认-封存的工资数据】获取工资系统-工资表详情
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
-    @ApiOperationSupport(order = 5)
-    @ApiOperation("获取工资系统-工资表详情")
-//    @SaCheckPermission("/sys/hr/salary/detail")
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("【已确认-封存的工资数据】获取工资系统-工资表详情")
     @GetMapping("/sys/hr/salary/detail")
     public CommonResult<Salary> detail(@Valid SalaryIdParam salaryIdParam) {
         return CommonResult.data(salaryService.detail(salaryIdParam));
     }
 
+    /**
+     *  【已确认-封存的工资数据】获取员工工资条
+     *
+     * @author yong.ye
+     * @date  2024/03/05 09:36
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("【已确认-封存的工资数据】获取员工工资条")
+    @GetMapping("/sys/hr/salary/empSalary")
+    public CommonResult<List<Salary>> empSalary(EmpSalaryParam empSalaryParam) {
+        return CommonResult.data(salaryService.empSalary(empSalaryParam));
+    }
+
 
     /**
-     * 获取工资系统-工资表分页(pageList)
+     * 获取工资系统-【待确认-已确认工资 - 混合列表】
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("获取工资系统-工资表分页(pageList)")
-//    @SaCheckPermission("/sys/hr/salary/pageList")
-    @GetMapping("/sys/hr/salary/pageList")
-    public CommonResult<Page<Salary>> pageList(SalaryPageParam salaryPageParam) {
-        return CommonResult.data(salaryService.pageList(salaryPageParam));
+    @ApiOperation("获取工资系统-【待确认工资(自动计算) - 已确认工资(封存的数据)】")
+    @GetMapping("/sys/hr/salary/confirmPageList")
+    public CommonResult<List<SalaryVo>> confirmPageList(ConfirmSalaryParam confirmSalaryParam) {
+        return CommonResult.data(salaryService.confirmPageList(confirmSalaryParam));
     }
 
 
-    /**
-     *  获取员工工资条
-     *
-     * @author yong.ye
-     * @date  2024/03/05 09:36
-     */
-    @ApiOperationSupport(order = 8)
-    @ApiOperation("获取员工工资条")
-    @GetMapping("/sys/hr/salary/empSalary")
-    public CommonResult<List<Salary>> empSalary(EmpSalaryParam empSalaryParam) {
-        return CommonResult.data(salaryService.empSalary(empSalaryParam));
-    }
+
 }

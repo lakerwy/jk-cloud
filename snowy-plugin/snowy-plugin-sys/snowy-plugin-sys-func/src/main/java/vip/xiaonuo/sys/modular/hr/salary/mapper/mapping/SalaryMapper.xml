@@ -2,4 +2,62 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper">
 
+    <select id="getConfirmGZ" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo">
+         select tmp.*
+         from (select IF(b.ID is not null,b.ID,a.ID) as id,
+                IF(b.ID is not null,b.YEAR_MONTH,a.YEAR_MONTH) as yearMonth,
+                IF(b.ID is not null,b.USER_TYPE,a.USER_TYPE) as userType,
+                IF(b.ID is not null,b.ID_CARD_NUMBER,a.ID_CARD_NUMBER) as idCardNumber,
+                IF(b.ID is not null,b.USER_NAME,a.USER_NAME) as userName,
+                IF(b.ID is not null,b.FIRST_ORG_NAME,a.FIRST_ORG_NAME) as firstOrgName,
+                IF(b.ID is not null,b.ORG_NAME,a.ORG_NAME) as orgName,
+                IF(b.ID is not null,b.POSITION,a.POSITION) as `position`,
+                IF(b.ID is not null,b.HIRE_DATE,a.HIRE_DATE) as hireDate,
+                IF(b.ID is not null,b.LEAVE_DATE,a.LEAVE_DATE) as leaveDate,
+                IF(b.ID is not null,b.POSITIVE_TIME,a.POSITIVE_TIME) as positiveTime,
+                IF(b.ID is not null,b.BIRTH_DAY,a.BIRTH_DAY) as birthDay,
+                IF(b.ID is not null,b.HAVE_BIRTHDAY_PAY,a.HAVE_BIRTHDAY_PAY) as haveBirthdayPay,
+                IF(b.ID is not null,b.HAVE_SENIORITY_PAY,a.HAVE_SENIORITY_PAY) as haveSeniorityPay,
+                IF(b.ID is not null,b.STANDARD_ID,a.ID) as standardId,
+                IF(b.ID is not null,b.STANDARD_AMOUNT,a.STANDARD_AMOUNT) as standardAmount,
+                IF(b.ID is not null,b.BASIC_AMOUNT,a.BASIC_AMOUNT) as basicAmount,
+                IF(b.ID is not null,b.POST_AMOUNT,a.POST_AMOUNT) as postAmount,
+                IF(b.ID is not null,b.MERIT_AMOUNT,a.MERIT_AMOUNT) as meritAmount,
+                IF(b.ID is not null,b.MEAL_AMOUNT,null) as mealAmount,
+                IF(b.ID is not null,b.REGISTER_AMOUNT,null) as registerAmount,
+                IF(b.ID is not null,b.WORK_AGE_AMOUNT,null) as workAgeAmount,
+                IF(b.ID is not null,b.FULL_AMOUNT,null) as fullAmount,
+                IF(b.ID is not null,b.DUTY_AMOUNT,null) as dutyAmount,
+                IF(b.ID is not null,b.FJ_OTHER_AMOUNT,null) as fjOtherAmount,
+                IF(b.ID is not null,b.SICK_AMOUNT,null) as sickAmount,
+                IF(b.ID is not null,b.WORK_AMOUNT,null) as workAmount,
+                IF(b.ID is not null,b.LATE_AMOUNT,null) as lateAmount,
+                IF(b.ID is not null,b.MINER_AMOUNT,null) as minerAmount,
+                IF(b.ID is not null,b.MOVE_AMOUNT,null) as moveAmount,
+                IF(b.ID is not null,b.KK_OTHER_AMOUNT,null) as kkOtherAmount,
+                IF(b.ID is not null,b.GROSS_PAY_AMOUNT,null) as grossPayAmount,
+                IF(b.ID is not null,b.INS_AMOUNT,null) as insAmount,
+                IF(b.ID is not null,b.GJJ_AMOUNT,null) as gjjAmount,
+                IF(b.ID is not null,b.TAX_SY,null) as taxSy,
+                IF(b.ID is not null,b.TAX_ZN,null) as taxZn,
+                IF(b.ID is not null,b.TAX_FD,null) as taxFd,
+                IF(b.ID is not null,b.TAX_ZF,null) as taxZf,
+                IF(b.ID is not null,b.TAX_JY,null) as taxJy,
+                IF(b.ID is not null,b.TAX_ZH,null) as taxZh,
+                IF(b.ID is not null,b.WELFARE_AMOUNT,null) as welfareAmount,
+                IF(b.ID is not null,b.TAX_INCOME_AMOUNT,null) as taxIncomeAmount,
+                IF(b.ID is not null,b.LJ_TAX_INCOME_AMOUNT,null) as ljTaxIncomeAmount,
+                IF(b.ID is not null,b.LJ_TAX_AMOUNT,null) as ljTaxAmount,
+                IF(b.ID is not null,b.HAVE_LJ_TAX_AMOUNT,null) as haveLjTaxAmount,
+                IF(b.ID is not null,b.MONTH_TAX_AMOUNT,null) as monthTaxAmount,
+                IF(b.ID is not null,b.REAL_PAY_AMOUNT,null) as realPayAmount,
+                IF(b.ID is not null,b.MEMO,'') as memo,
+                IF(b.ID is not null,'已确认','未确认') as confirmStatus
+         from HR_SALARY_STANDARD a
+             left join HR_SALARY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG='NOT_DELETE'
+         where a.DELETE_FLAG='NOT_DELETE' and a.YEAR_MONTH = #{yearMonth} ) tmp
+                ${ew.customSqlSegment}
+
+    </select>
+
 </mapper>

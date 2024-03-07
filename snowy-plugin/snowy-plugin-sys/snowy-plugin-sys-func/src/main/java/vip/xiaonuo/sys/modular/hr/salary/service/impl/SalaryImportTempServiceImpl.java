@@ -332,7 +332,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             personnelAllList = salaryImportTempMapper.getPersonnelList();
         }else{
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
-            standardAllList = salaryStandardService.getStandardAllList(type,yearMonths);
+            standardAllList = salaryStandardService.getStandardAllList(SalaryTypeEnum.STANDARD.getValue(),yearMonths);
         }
         List<PersonnelInfoVo> finalPersonnelAllList = personnelAllList;
         List<SalaryStandardVo> finalStandardAllList = standardAllList;

@@ -12,8 +12,14 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
+
+import java.util.List;
 
 /**
  * 工资系统-工资表Mapper接口
@@ -22,4 +28,9 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
  * @date  2024/03/01 16:50
  **/
 public interface SalaryMapper extends BaseMapper<Salary> {
+    /**
+     * 获取 yearMonth 【待确认|已确认】- 工资数据列表
+     * @return
+     */
+    List<SalaryVo> getConfirmGZ(String yearMonth,@Param(Constants.WRAPPER) Wrapper<Salary> queryWrapper);
 }

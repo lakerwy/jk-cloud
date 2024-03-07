@@ -26,11 +26,14 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
+import vip.xiaonuo.sys.modular.hr.salary.param.ConfirmSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -41,6 +44,9 @@ import java.util.List;
  **/
 @Service
 public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> implements SalaryService {
+
+    @Resource
+    private SalaryMapper salaryMapper;
 
     @Override
     public Page<Salary> page(SalaryPageParam salaryPageParam) {
@@ -116,5 +122,49 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         queryWrapper.lambda().eq(Salary::getUserId, StpLoginUserUtil.getLoginUser().getId());
         queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
         return this.list(queryWrapper);
+    }
+
+
+    /**
+     * 月工资报表 - 2部分组成 ：已确认的封存数据 + 未确认的计算数据
+     * 注意：
+     * 已封存的数据：只能从Salary取
+     * 未确认的数据：通过SalaryStandard月工资标准，自动生成
+     * @param confirmSalaryParam
+     * @return
+     */
+    @Override
+    public List<SalaryVo> confirmPageList(ConfirmSalaryParam confirmSalaryParam) {
+        String yearMonth = confirmSalaryParam.getYearMonth();
+        if(ObjectUtil.isEmpty(yearMonth)){
+            throw new CommonException("所属年月必传");
+        }
+        //查询条件
+        QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getUserType())){
+            queryWrapper.eq("tmp.userType",confirmSalaryParam.getUserType());
+        }
+        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getYearMonth())){
+            queryWrapper.eq("tmp.yearMonth",confirmSalaryParam.getYearMonth());
+        }
+        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getIdCardNumber())){
+            queryWrapper.eq("tmp.idCardNumber",confirmSalaryParam.getIdCardNumber());
+        }
+        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getUserName())){
+            queryWrapper.eq("tmp.userName",confirmSalaryParam.getUserName());
+        }
+        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getOrgName())){
+            queryWrapper.eq("tmp.orgName",confirmSalaryParam.getOrgName());
+        }
+        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getConfirmStatus())){
+            queryWrapper.eq("tmp.confirmStatus",confirmSalaryParam.getConfirmStatus());
+        }
+        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getSearchKey())){
+            queryWrapper.and(q->q.like("tmp.idCardNumber",confirmSalaryParam.getSearchKey())
+                    .or().like("tmp.userName",confirmSalaryParam.getSearchKey())
+                    .or().like("tmp.orgName",confirmSalaryParam.getSearchKey()));
+        }
+        queryWrapper.orderByDesc("tmp.yearMonth").orderByAsc("tmp.idCardNumber");
+        return salaryMapper.getConfirmGZ(yearMonth,queryWrapper);
     }
 }
