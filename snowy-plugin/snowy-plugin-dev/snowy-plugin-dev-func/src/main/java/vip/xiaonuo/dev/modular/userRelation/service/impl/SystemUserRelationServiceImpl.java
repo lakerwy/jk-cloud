@@ -18,15 +18,16 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpResponse;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -39,6 +40,7 @@ import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -53,6 +55,9 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
 
     @Resource
     DevConfigService devConfigService;
+
+    @Resource
+    private StreamBridge streamBridge;
 
     @Override
     public Page<SystemUserRelation> page(SystemUserRelationPageParam systemUserRelationPageParam) {
@@ -121,12 +126,14 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
         }).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(collect)){
             saveOrUpdateBatch(collect);
-            String valueUrl = devConfigService.getValueByKey("EPC_SYSUSER");
-            if(StrUtil.isNotEmpty(valueUrl)){
-                String json = JSONUtil.parseArray(collect).toString();
-                //异步执行
-                HttpUtil.createPost(valueUrl).body(json).execute(true);
-            }
+
+            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,JSONUtil.toJsonStr(collect));
+//            String valueUrl = devConfigService.getValueByKey("EPC_SYSUSER");
+//            if(StrUtil.isNotEmpty(valueUrl)){
+//                String json = JSONUtil.parseArray(collect).toString();
+//                //异步执行
+//                HttpUtil.createPost(valueUrl).body(json).execute(true);
+//            }
         }
 
     }
@@ -139,5 +146,13 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             queryWrapper.like("a.SYSTEM_NAME",systemUserRelationPageParam.getSearchKey());
         }
         return baseMapper.myServer(CommonPageRequest.defaultPage(),queryWrapper);
+    }
+
+    @Override
+    public Map<String, List<SystemUserRelation>> getListByRoleKey(String systemId) {
+        List<SystemUserRelation> originalList = this.list(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId, systemId));
+
+        return originalList.stream()
+                .collect(Collectors.groupingBy(SystemUserRelation::getRoleKey));
     }
 }
