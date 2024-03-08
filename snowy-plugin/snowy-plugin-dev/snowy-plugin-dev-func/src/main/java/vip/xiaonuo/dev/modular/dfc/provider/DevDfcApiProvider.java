@@ -18,7 +18,9 @@ import vip.xiaonuo.dev.api.DevDfcApi;
 import vip.xiaonuo.dev.modular.dfc.service.DevDfcService;
 
 import javax.annotation.Resource;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 动态字段API接口实现类
@@ -35,5 +37,10 @@ public class DevDfcApiProvider implements DevDfcApi {
     @Override
     public List<JSONObject> getTableFieldList(String dbsId, String tableName) {
         return devDfcService.getTableFieldList(dbsId, tableName);
+    }
+
+    @Override
+    public void addDingDingScheduleHandler(Map<String,Object> mapParam){
+        devDfcService.addDingDingScheduleHandler(mapParam);
     }
 }

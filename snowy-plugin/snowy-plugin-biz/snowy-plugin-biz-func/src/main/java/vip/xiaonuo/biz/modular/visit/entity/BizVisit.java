@@ -227,4 +227,8 @@ public class BizVisit {
     /** 入参信息 */
     @ApiModelProperty(value = "入参信息", position = 50)
     private String extJson;
+
+    /** 文件Id */
+    @ApiModelProperty(value = "文件Id", position = 51)
+    private String fileId;
 }

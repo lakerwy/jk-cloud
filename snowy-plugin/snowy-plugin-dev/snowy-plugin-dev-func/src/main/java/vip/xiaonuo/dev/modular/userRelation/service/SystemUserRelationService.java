@@ -19,6 +19,7 @@ import vip.xiaonuo.dev.modular.userRelation.entity.SystemUserRelation;
 import vip.xiaonuo.dev.modular.userRelation.param.*;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 项目系统和账户的关联关系表Service接口
@@ -79,4 +80,6 @@ public interface SystemUserRelationService extends IService<SystemUserRelation> 
     void syncUser(SyncParam syncParam);
 
     Page<SystemServer> myServer(SystemUserRelationPageParam systemUserRelationPageParam);
+
+    Map<String, List<SystemUserRelation>> getListByRoleKey(String systemId);
 }

@@ -19,7 +19,9 @@ import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.api.DevDfcApi;
 import vip.xiaonuo.dev.feign.DevDfcFeign;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 配置APi上下文Bean
@@ -43,6 +45,11 @@ public class DevDfcApiContenxtBean implements DevDfcApi {
     @Override
     public List<JSONObject> getTableFieldList(String dbsId, String tableName) {
         return devDfcFeign.getTableFieldList(dbsId, tableName);
+    }
+
+    @Override
+    public void addDingDingScheduleHandler(Map<String,Object> mapParam){
+        devDfcFeign.addDingDingScheduleHandler(mapParam);
     }
 
 }

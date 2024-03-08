@@ -74,4 +74,8 @@ public class AuthThirdUser extends CommonEntity {
     @ApiModelProperty(value = "扩展信息", position = 10)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private String extJson;
+
+    /** 日程组织者的unionId */
+    @ApiModelProperty(value = "日程组织者的unionId", position = 11)
+    private String unionId;
 }

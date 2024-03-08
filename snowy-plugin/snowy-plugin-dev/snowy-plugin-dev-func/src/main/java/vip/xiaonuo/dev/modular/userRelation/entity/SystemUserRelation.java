@@ -80,7 +80,6 @@ public class SystemUserRelation {
     private String updateUser;
 
     @ApiModelProperty(value = "角色key",position = 11)
-    @TableField(exist = false)
     private String roleKey;
 
     @ApiModelProperty(value = "用户姓名",position = 12)

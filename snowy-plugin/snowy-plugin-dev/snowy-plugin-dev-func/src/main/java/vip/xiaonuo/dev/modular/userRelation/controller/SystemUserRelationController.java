@@ -33,6 +33,8 @@ import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 项目系统和账户的关联关系表控制器
@@ -141,5 +143,13 @@ public class SystemUserRelationController {
     @GetMapping("/dev/userRelation/myServer")
     public CommonResult<Page<SystemServer>> myServer(SystemUserRelationPageParam systemUserRelationPageParam) {
         return CommonResult.data(systemUserRelationService.myServer(systemUserRelationPageParam));
+    }
+
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取项目的设置人员")
+//    @SaCheckPermission("/dev/userRelation/page")
+    @GetMapping("/dev/userRelation/getListRoleKey")
+    public CommonResult<Map<String, List<SystemUserRelation>>> getListRoleKey(SystemUserRelationIdParam systemUserRelationIdParam) {
+        return CommonResult.data(systemUserRelationService.getListByRoleKey(systemUserRelationIdParam.getId()));
     }
 }

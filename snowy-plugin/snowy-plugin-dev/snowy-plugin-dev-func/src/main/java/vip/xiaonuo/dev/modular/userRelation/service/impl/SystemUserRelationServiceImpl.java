@@ -18,19 +18,24 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.config.service.DevConfigService;
+import vip.xiaonuo.dev.modular.server.entity.ExtMessage;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
-import vip.xiaonuo.dev.modular.userRelation.config.SyncProperties;
 import vip.xiaonuo.dev.modular.userRelation.entity.SystemUserRelation;
 import vip.xiaonuo.dev.modular.userRelation.mapper.SystemUserRelationMapper;
 import vip.xiaonuo.dev.modular.userRelation.param.*;
@@ -38,6 +43,7 @@ import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -51,7 +57,10 @@ import java.util.stream.Collectors;
 public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelationMapper, SystemUserRelation> implements SystemUserRelationService {
 
     @Resource
-    SyncProperties syncProperties;
+    DevConfigService devConfigService;
+
+    @Resource
+    private StreamBridge streamBridge;
 
     @Override
     public Page<SystemUserRelation> page(SystemUserRelationPageParam systemUserRelationPageParam) {
@@ -118,15 +127,19 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             systemUserRelation.setUserName(syncUser.getUserName());
             return systemUserRelation;
         }).collect(Collectors.toList());
-
         if(CollUtil.isNotEmpty(collect)){
             saveOrUpdateBatch(collect);
-            //同步到项目系统中
-            if(syncProperties.isEnable()){
-                String json = JSONUtil.parseArray(collect).toString();
-                //不记录执行结果
-                HttpUtil.createPost(syncProperties.getUrl()).body(json).execute();
-            }
+            ExtMessage extMessage = new ExtMessage();
+            extMessage.setId(IdWorker.getIdStr());
+            extMessage.setData(JSONUtil.toJsonStr(collect));
+            //系统项目创建完成以后，就通知项目系统去初始化项目信息
+            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
+//            String valueUrl = devConfigService.getValueByKey("EPC_SYSUSER");
+//            if(StrUtil.isNotEmpty(valueUrl)){
+//                String json = JSONUtil.parseArray(collect).toString();
+//                //异步执行
+//                HttpUtil.createPost(valueUrl).body(json).execute(true);
+//            }
         }
 
     }
@@ -139,5 +152,14 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             queryWrapper.like("a.SYSTEM_NAME",systemUserRelationPageParam.getSearchKey());
         }
         return baseMapper.myServer(CommonPageRequest.defaultPage(),queryWrapper);
+    }
+
+    @Override
+    public Map<String, List<SystemUserRelation>> getListByRoleKey(String systemId) {
+        List<SystemUserRelation> originalList = this.list(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId, systemId));
+
+        return originalList.stream()
+                .filter(systemUserRelation -> StrUtil.isNotEmpty(systemUserRelation.getRoleKey())) // 过滤掉 roleKey 为空的对象
+                .collect(Collectors.groupingBy(SystemUserRelation::getRoleKey)); // 按照 roleKey 进行分组
     }
 }
