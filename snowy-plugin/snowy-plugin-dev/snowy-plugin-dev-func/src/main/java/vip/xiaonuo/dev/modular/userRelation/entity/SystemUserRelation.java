@@ -85,4 +85,8 @@ public class SystemUserRelation {
     @ApiModelProperty(value = "用户姓名",position = 12)
     @TableField(exist = false)
     private String userName;
+
+    @ApiModelProperty(value = "用户类型",position = 13)
+    private int userType;
+
 }

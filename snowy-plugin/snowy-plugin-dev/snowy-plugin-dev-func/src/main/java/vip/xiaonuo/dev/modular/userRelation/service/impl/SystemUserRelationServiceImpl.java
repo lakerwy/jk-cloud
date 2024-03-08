@@ -125,6 +125,7 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             systemUserRelation.setUserId(syncUser.getUserId());
             systemUserRelation.setRoleKey(syncUser.getRoleId());
             systemUserRelation.setUserName(syncUser.getUserName());
+            systemUserRelation.setUserType(1);
             return systemUserRelation;
         }).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(collect)){
@@ -156,7 +157,7 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
 
     @Override
     public Map<String, List<SystemUserRelation>> getListByRoleKey(String systemId) {
-        List<SystemUserRelation> originalList = this.list(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId, systemId));
+        List<SystemUserRelation> originalList = this.list(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId, systemId).eq(SystemUserRelation::getUserType,1));
 
         return originalList.stream()
                 .filter(systemUserRelation -> StrUtil.isNotEmpty(systemUserRelation.getRoleKey())) // 过滤掉 roleKey 为空的对象
