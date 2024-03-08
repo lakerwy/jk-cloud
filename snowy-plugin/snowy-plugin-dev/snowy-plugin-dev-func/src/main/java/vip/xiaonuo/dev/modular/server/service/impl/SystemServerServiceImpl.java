@@ -21,6 +21,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
@@ -34,6 +35,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.modular.epcCenter.entity.SysProject;
 import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
+import vip.xiaonuo.dev.modular.server.entity.ExtMessage;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.mapper.SystemServerMapper;
@@ -119,8 +121,11 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         systemServer.setSystemName(systemServer.getSystemSource());
         systemServer.setSystemStatus(0);
         this.save(systemServer);
+        ExtMessage extMessage = new ExtMessage();
+        extMessage.setId(IdWorker.getIdStr());
+        extMessage.setData(JSONUtil.toJsonStr(systemServer));
         //系统项目创建完成以后，就通知项目系统去初始化项目信息
-        streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,JSONUtil.toJsonStr(systemServer));
+        streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -22,8 +22,10 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,6 +34,7 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.modular.config.service.DevConfigService;
+import vip.xiaonuo.dev.modular.server.entity.ExtMessage;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.userRelation.entity.SystemUserRelation;
 import vip.xiaonuo.dev.modular.userRelation.mapper.SystemUserRelationMapper;
@@ -126,8 +129,11 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
         }).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(collect)){
             saveOrUpdateBatch(collect);
-
-            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,JSONUtil.toJsonStr(collect));
+            ExtMessage extMessage = new ExtMessage();
+            extMessage.setId(IdWorker.getIdStr());
+            extMessage.setData(JSONUtil.toJsonStr(collect));
+            //系统项目创建完成以后，就通知项目系统去初始化项目信息
+            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
 //            String valueUrl = devConfigService.getValueByKey("EPC_SYSUSER");
 //            if(StrUtil.isNotEmpty(valueUrl)){
 //                String json = JSONUtil.parseArray(collect).toString();
