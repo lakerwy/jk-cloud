@@ -15,24 +15,35 @@ package vip.xiaonuo.biz.modular.visit.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
+import vip.xiaonuo.biz.modular.user.entity.BizUser;
+import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisitList;
 import vip.xiaonuo.biz.modular.visit.param.*;
 import vip.xiaonuo.biz.modular.visit.service.BizVisitListService;
 import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
+import vip.xiaonuo.biz.modular.visit.vo.visitInfoMsg;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -45,6 +56,7 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -59,9 +71,10 @@ import java.util.stream.Collectors;
 public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> implements BizVisitService {
     @Resource
     private BizVisitListService bizVisitListService;
-
     @Resource
     private CommonCacheOperator commonCacheOperator;
+    @Resource
+    StreamBridge streamBridge;
 
     @Override
     public Page<BizVisit> page(BizVisitPageParam bizVisitPageParam) {
@@ -202,5 +215,33 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         bizVisit.setSumSummary(summaryParam.getSumSummary());
         bizVisit.setFileId(summaryParam.getFileId());
         this.updateById(bizVisit);
+    }
+
+    @Override
+    public void sendMsg(BizVisitIdParam bizVisitIdParam){
+        List<String> receiverIdList = new ArrayList<>();
+        BizVisit bizVisit = this.queryEntity(bizVisitIdParam.getId());
+        String partPersion = bizVisit.getPerson();
+        JSONArray jsonArray = new JSONArray(partPersion);
+        List<JSONObject> jsonObjectList = jsonArray.toList(JSONObject.class);
+        jsonObjectList.forEach(json -> {
+            if(ObjectUtil.isNotEmpty(json.get("id")) && StringUtils.isNotEmpty(json.get("id").toString())){
+                receiverIdList.add(json.get("id").toString());
+            }
+        });
+        if(CollectionUtil.isEmpty(receiverIdList)){return;}
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.set(FlwCacheConstant.TITLE,"【外访总结完成通知】");
+        jsonObject.set("taskName",bizVisit.getPurpose());
+        try{
+            jsonObject.set("taskTime", DateUtil.format(bizVisit.getBackTime(), "yyyy-MM-dd 06:00:00"));
+        }catch (Exception e){
+            log.error("时间转换失败！e:"+e.getMessage());
+        }
+        jsonObject.set("endFlag","已完成");
+        jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
+        visitInfoMsg taskInfoMsg = visitInfoMsg.buildRabbitMsg(jsonObject);
+        commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
     }
 }

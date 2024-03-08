@@ -136,4 +136,19 @@ public class BizVisitController {
         bizVisitService.summary(summaryParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 总结发送通知
+     *
+     * @author ljy
+     * @date  2024/3/08 10:35
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("总结发送通知")
+    @CommonLog("总结发送通知")
+    @GetMapping("/biz/visit/sendVisitMsg")
+    public CommonResult<String> sendMsg(@Valid BizVisitIdParam bizVisitIdParam) {
+        bizVisitService.sendMsg(bizVisitIdParam);
+        return CommonResult.ok();
+    }
 }
