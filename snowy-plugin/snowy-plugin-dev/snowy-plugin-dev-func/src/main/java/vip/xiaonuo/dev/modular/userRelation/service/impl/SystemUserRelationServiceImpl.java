@@ -159,6 +159,7 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
         List<SystemUserRelation> originalList = this.list(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId, systemId));
 
         return originalList.stream()
-                .collect(Collectors.groupingBy(SystemUserRelation::getRoleKey));
+                .filter(systemUserRelation -> StrUtil.isNotEmpty(systemUserRelation.getRoleKey())) // 过滤掉 roleKey 为空的对象
+                .collect(Collectors.groupingBy(SystemUserRelation::getRoleKey)); // 按照 roleKey 进行分组
     }
 }
