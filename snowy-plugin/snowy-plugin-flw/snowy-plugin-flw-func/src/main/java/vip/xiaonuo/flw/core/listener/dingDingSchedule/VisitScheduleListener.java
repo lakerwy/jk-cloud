@@ -6,20 +6,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.springframework.stereotype.Component;
-import vip.xiaonuo.auth.api.AuthThirdApi;
 import vip.xiaonuo.dev.api.DevDfcApi;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;
-
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 @Slf4j
 @Component
 public class VisitScheduleListener implements ExecutionListener {
 
-
     DevDfcApi devDfcApi;
+
     @Override
     public void notify(DelegateExecution execution) throws Exception {
         String processInstanceId = execution.getProcessInstanceId();
@@ -35,6 +31,7 @@ public class VisitScheduleListener implements ExecutionListener {
                 log.error("未查询到外访数据！流程实例id:"+processInstanceId);
                 return;
             }
+            //authThirdApi.getUnionIdByUserId();
             devDfcApi.addDingDingScheduleHandler(map);
             log.info("处理外访审批，新建日程----流程实例id:----"+processInstanceId);
         }catch (Exception e){

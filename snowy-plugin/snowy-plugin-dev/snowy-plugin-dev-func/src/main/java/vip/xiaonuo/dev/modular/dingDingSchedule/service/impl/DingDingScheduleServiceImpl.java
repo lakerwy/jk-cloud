@@ -1,7 +1,6 @@
 package vip.xiaonuo.dev.modular.dingDingSchedule.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.aliyun.dingtalkcalendar_1_0.models.CreateEventResponse;
 import com.aliyun.tea.TeaConverter;
 import com.aliyun.tea.TeaException;
@@ -12,12 +11,17 @@ import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
-import vip.xiaonuo.auth.api.AuthThirdApi;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.dingDingSchedule.param.DingDingScheduleParam;
 import vip.xiaonuo.dev.modular.dingDingSchedule.service.DingDingScheduleService;
 import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
+import vip.xiaonuo.dev.modular.dingThirdData.service.AuthThirdUserService;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -37,26 +41,22 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
 
     @Resource
     IDingDingService iDingDingService;
-
-    //AuthThirdApi authThirdApi;
-
-    /*private void init(){
-        authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
-    }*/
+    @Resource
+    AuthThirdUserService authThirdUserService;
 
     @Override
     public void addDingDingSchedule(List<DingDingScheduleParam> dingDingScheduleParamList, DingDingScheduleVo dingDingScheduleVo,String createUser){
         try{
-            AuthThirdApi authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
+            //AuthThirdApi authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
             String xAcsDingtalkAccessToken = iDingDingService.getDingToken(appKey,appSecret);//获取token
             List<String> unionIds = new ArrayList<>();
 
             /**  该遍历逻辑后续优化，优化改动较大，暂时用遍历 * */
             dingDingScheduleParamList.forEach(param -> {
-                String unionId = authThirdApi.getUnionIdByUserId(param.getUserId(),DD_CATEGORY);
+                String unionId = authThirdUserService.getUnionIdByUserId(param.getUserId(),DD_CATEGORY);
                 if(StringUtils.isEmpty(unionId)){
                     try{
-                        getUnionId(param.getUserId(),param.getUserName(),param.getPhone(),xAcsDingtalkAccessToken,unionId);
+                        unionId = getUnionId(param.getUserId(),param.getUserName(),param.getPhone(),xAcsDingtalkAccessToken);
                     }catch (Exception e){
                         log.error("获取getUnionId失败！e"+e.getMessage());
                     }
@@ -64,12 +64,14 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
                 unionIds.add(unionId);
             });
             /**  日程创建人 */
-            String unionCreateId = authThirdApi.getUnionIdByUserId(createUser,DD_CATEGORY);
+            String unionCreateId = authThirdUserService.getUnionIdByUserId(createUser,DD_CATEGORY);
             if(StringUtils.isEmpty(unionCreateId)){
                 unionCreateId = unionIds.get(0);//不存在，则默认第一个
             }
             dingDingScheduleVo.setUnionCreateId(unionCreateId);
+            dingDingScheduleVo.setUnionIds(unionIds);
             dingDingScheduleVo.setXAcsDingtalkAccessToken(xAcsDingtalkAccessToken);
+            dingDingScheduleVo.setReminderMinutes(15);
             putHttDingDingSchedule(dingDingScheduleVo);
         }catch (Exception e){
             log.error("创建日程失败！e"+e.getMessage());
@@ -82,18 +84,20 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
      * @param token
      * */
     @Override
-    public void getUnionId(String userId,String userName,String phone,String token,String unionId) throws Exception{
-        AuthThirdApi authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
-        String thirdId = authThirdApi.getThirdIdByUserId(userId,DD_CATEGORY);
+    public String getUnionId(String userId,String userName,String phone,String token) throws Exception{
+        //AuthDingApi authDingApi = SpringUtil.getBean(AuthDingApi.class);
+        //AuthThirdApi authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
+        String thirdId = authThirdUserService.getThirdIdByUserId(userId,DD_CATEGORY);
 
         if(StringUtils.isEmpty(thirdId)){
             OapiV2UserGetbymobileResponse response = iDingDingService.getByMobile(phone);
             thirdId = response.getResult().getUserid();
         }
         OapiV2UserGetResponse dingUserInfo = CommonDingDingUtil.getUnionId(token,thirdId);
-        unionId = ObjectUtil.isNotEmpty(dingUserInfo) &&  ObjectUtil.isNotEmpty(dingUserInfo.getResult())
+        String unionId = ObjectUtil.isNotEmpty(dingUserInfo) &&  ObjectUtil.isNotEmpty(dingUserInfo.getResult())
                 && StringUtils.isNotEmpty(dingUserInfo.getResult().getUnionid())? dingUserInfo.getResult().getUnionid() : "";
-        authThirdApi.updateAuthThird(userId,thirdId,DD_CATEGORY,userName,unionId);
+        authThirdUserService.updateAuthThird(userId,thirdId,DD_CATEGORY,userName,unionId);
+        return unionId;
     }
 
     private void putHttDingDingSchedule(DingDingScheduleVo dingDingScheduleVo) throws Exception{
@@ -116,11 +120,11 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         });
 
         com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest.CreateEventRequestStart start = new com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest.CreateEventRequestStart()
-                .setDateTime(dingDingScheduleVo.getStartTime())
+                .setDateTime(dateTimeFormatConversion(dingDingScheduleVo.getStartTime()))
                 //.setDateTime("2024-03-07T10:15:30+08:00")
                 .setTimeZone(TIME_ZONE);//开始时间
         com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest.CreateEventRequestEnd end = new com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest.CreateEventRequestEnd()
-                .setDateTime(dingDingScheduleVo.getEndTime())
+                .setDateTime(dateTimeFormatConversion(dingDingScheduleVo.getEndTime()))
                 //.setDateTime("2024-03-07T11:16:30+08:00")
                 .setTimeZone(TIME_ZONE);//结束时间
         com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest createEventRequest = new com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest()
@@ -152,6 +156,25 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         }
     }
 
+    private String dateTimeFormatConversion(String standardDateTimeStr){
+
+        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+
+        // 解析为LocalDateTime对象
+        LocalDateTime localDateTime = LocalDateTime.parse(standardDateTimeStr, inputFormatter);
+
+        // 获取东八区（中国标准时间）的ZoneId
+        ZoneId targetZone = ZoneId.of("Asia/Shanghai");
+
+        // 将目标LocalDateTime转换为ZonedDateTime
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, targetZone);
+
+        // 创建ISO-8601格式的DateTimeFormatter
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+
+        // 格式化为ISO-8601格式的字符串
+        return zonedDateTime.format(outputFormatter);
+    }
     @Override
     public void visitScheduleDeal(String processInstanceId){
         //List<BizVisit> bizVisitList = bizVisitService.list(new LambdaQueryWrapper<BizVisit>().eq(BizVisit::getProcessInstanceId,processInstanceId));

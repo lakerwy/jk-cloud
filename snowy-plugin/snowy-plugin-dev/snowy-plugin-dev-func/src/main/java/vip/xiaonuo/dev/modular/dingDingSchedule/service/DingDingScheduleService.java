@@ -17,7 +17,7 @@ public interface DingDingScheduleService {
      * @param token
      * @param phone 用户电话号码
      * */
-    void getUnionId(String userId, String userName, String phone, String token, String unionId) throws Exception;
+    String getUnionId(String userId, String userName, String phone, String token) throws Exception;
 
     void visitScheduleDeal(String processInstanceId);
 }
