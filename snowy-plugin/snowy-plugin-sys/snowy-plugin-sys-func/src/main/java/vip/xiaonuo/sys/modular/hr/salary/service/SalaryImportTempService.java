@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
 import java.util.List;
@@ -86,4 +87,16 @@ public interface SalaryImportTempService extends IService<SalaryImportTemp> {
      * @return
      */
     Boolean doImport(DoImport input);
+
+    /**
+     * 【导入】- 员工福利（除生日福利）
+     */
+    ImportResult importPay(ImportPay input);
+
+    /**
+     * 【导入】- 已确认的 员工工资 数据  HR_SALARY
+     * @param input
+     * @return
+     */
+    ImportResult importSalary(ImportSalary input);
 }

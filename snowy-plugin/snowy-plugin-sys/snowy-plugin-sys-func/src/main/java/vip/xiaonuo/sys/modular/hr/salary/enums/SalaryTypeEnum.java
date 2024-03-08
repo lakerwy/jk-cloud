@@ -46,7 +46,9 @@ public enum SalaryTypeEnum {
     /** 生日福利 */
     BIRTHDAY("生日福利"),
     /** 员工福利 */
-    EMP_BONUS("员工福利");
+    EMP_BONUS("员工福利"),
+    /** 已确认的工资 - 员工工资 */
+    EMP_SALARY("员工工资");
 
     private final String value;
 

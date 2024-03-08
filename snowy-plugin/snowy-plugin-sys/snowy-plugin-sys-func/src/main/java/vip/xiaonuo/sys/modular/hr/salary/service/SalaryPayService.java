@@ -15,10 +15,8 @@ package vip.xiaonuo.sys.modular.hr.salary.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryPay;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayAddParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayEditParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
 
 import java.util.List;
@@ -78,4 +76,28 @@ public interface SalaryPayService extends IService<SalaryPay> {
      * @date  2024/02/26 09:34
      **/
     SalaryPay queryEntity(String id);
+
+    /**
+     * 生成指定 年月 yyyyMM 的工龄工资
+     * @param yearMonth
+     */
+    void computeSeniorityGZ(String yearMonth);
+
+    /**
+     * 生成指定 年月 yyyyMM 的生日福利
+     * @param yearMonth
+     */
+    void computeBirthdayGZ(String yearMonth);
+
+    /**
+     * 重新生成 yyyyMM 月的工龄工资数据【旧数据会删除】
+     * @param payParam
+     */
+    void reSeniorityGZ(PayParam payParam);
+
+    /**
+     * 重新生成 yyyyMM 月的生日福利数据【旧数据会删除】
+     * @param payParam
+     */
+    void reBirthdayGZ(PayParam payParam);
 }

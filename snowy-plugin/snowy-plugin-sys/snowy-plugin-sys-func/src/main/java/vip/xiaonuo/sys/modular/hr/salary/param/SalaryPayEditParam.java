@@ -58,4 +58,8 @@ public class SalaryPayEditParam {
     @ApiModelProperty(value = "备注", position = 18)
     private String memo;
 
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 100)
+    private String note;
+
 }

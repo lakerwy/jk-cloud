@@ -16,75 +16,119 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 工资系统-月度考勤表添加参数
  *
  * @author yong.ye
- * @date  2024/02/26 09:26
+ * @date  2024/03/08 10:31
  **/
 @Getter
 @Setter
 public class SalaryAttendAddParam {
 
-    /** 【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
-    @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 3)
+    /** 【外键】发放工资的员工Id：HR_SALARY_STANDARD.ID */
+    @ApiModelProperty(value = "【外键】发放工资的员工Id：HR_SALARY_STANDARD.ID", position = 2)
     private String standardId;
 
-    /** 当月未打卡次数 */
-    @ApiModelProperty(value = "当月未打卡次数", position = 14)
-    private Integer missNum;
+    /** 未打卡（上班） */
+    @ApiModelProperty(value = "未打卡（上班）", position = 3)
+    private Integer upMissNum;
+
+    /** 未打卡（下班） */
+    @ApiModelProperty(value = "未打卡（下班）", position = 4)
+    private Integer downMissNum;
 
     /** 迟到次数-A类 */
-    @ApiModelProperty(value = "迟到次数-A类", position = 15)
+    @ApiModelProperty(value = "迟到次数-A类", position = 5)
     private Integer lateNumA;
 
     /** 迟到次数-B类 */
-    @ApiModelProperty(value = "迟到次数-B类", position = 16)
+    @ApiModelProperty(value = "迟到次数-B类", position = 6)
     private Integer lateNumB;
 
     /** 迟到次数-C类 */
-    @ApiModelProperty(value = "迟到次数-C类", position = 17)
+    @ApiModelProperty(value = "迟到次数-C类", position = 7)
     private Integer lateNumC;
 
     /** 病假天数 */
-    @ApiModelProperty(value = "病假天数", position = 18)
+    @ApiModelProperty(value = "病假天数", position = 8)
     private Float sickDay;
 
     /** 事假天数 */
-    @ApiModelProperty(value = "事假天数", position = 19)
+    @ApiModelProperty(value = "事假天数", position = 9)
     private Float workDay;
 
     /** 矿工天数 */
-    @ApiModelProperty(value = "矿工天数", position = 20)
+    @ApiModelProperty(value = "矿工天数", position = 10)
     private Float minerDay;
 
     /** 年假天数 */
-    @ApiModelProperty(value = "年假天数", position = 21)
+    @ApiModelProperty(value = "年假天数", position = 11)
     private Float yearDay;
 
     /** 产假天数 */
-    @ApiModelProperty(value = "产假天数", position = 22)
+    @ApiModelProperty(value = "产假天数", position = 12)
     private Float materDay;
 
     /** 婚假天数 */
-    @ApiModelProperty(value = "婚假天数", position = 23)
+    @ApiModelProperty(value = "婚假天数", position = 13)
     private Float marryDay;
 
     /** 丧假天数 */
-    @ApiModelProperty(value = "丧假天数", position = 24)
+    @ApiModelProperty(value = "丧假天数", position = 14)
     private Float funDay;
 
-    /** 考勤金额 */
-    @ApiModelProperty(value = "考勤金额", position = 25)
-    private BigDecimal amount;
+    /** 是否全勤 */
+    @ApiModelProperty(value = "是否全勤", position = 15)
+    private String isFull;
+
+    /** 应勤天数 */
+    @ApiModelProperty(value = "应勤天数", position = 16)
+    private Float requiredDay;
+
+    /** 实勤天数 */
+    @ApiModelProperty(value = "实勤天数", position = 17)
+    private Float realDay;
+
+    /** 调休（h） */
+    @ApiModelProperty(value = "调休（h）", position = 18)
+    private Float adjustHour;
+
+    /** 实扣天数-矿工 */
+    @ApiModelProperty(value = "实扣天数-矿工", position = 19)
+    private Float realMinerDay;
+
+    /** 实扣天数-事假 */
+    @ApiModelProperty(value = "实扣天数-事假", position = 20)
+    private Float realWorkDay;
+
+    /** 实扣天数-全月病假 */
+    @ApiModelProperty(value = "实扣天数-全月病假", position = 21)
+    private Float realMonthSickDay;
+
+    /** 实扣天数-非全月病假 */
+    @ApiModelProperty(value = "实扣天数-非全月病假", position = 22)
+    private Float realUnMonthSickDay;
+
+    /** 实扣天数-产假 */
+    @ApiModelProperty(value = "实扣天数-产假", position = 23)
+    private Float realMaterDay;
+
+    /** 加班时长（h） */
+    @ApiModelProperty(value = "加班时长（h）", position = 24)
+    private Float overtimeHour;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 26)
+    @ApiModelProperty(value = "备注", position = 25)
     private String memo;
 
-    /** 是否全勤：是 否*/
-    @ApiModelProperty(value = "是否全勤：是 否", position = 84)
-    private String isFull;
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 100)
+    private String note;
+
 }

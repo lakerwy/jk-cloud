@@ -150,4 +150,8 @@ public class SalaryStandardEditParam {
     /** 绩效系数 */
     @ApiModelProperty(value = "绩效系数", position = 31)
     private Float meritRate;
+
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 100)
+    private String note;
 }

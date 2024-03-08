@@ -30,6 +30,9 @@ import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.enums.UserTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.StandardParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
@@ -39,7 +42,6 @@ import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -190,24 +192,23 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             throw new CommonException("所属年月必传参数");
         }
         QueryWrapper<SalaryStandard> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(SalaryStandard::getType,SalaryTypeEnum.STANDARD.getValue());
         queryWrapper.lambda().eq(SalaryStandard::getYearMonth,standardParam.getYearMonth());
-
+        if(ObjectUtil.isNotEmpty(standardParam.getType())){
+            queryWrapper.lambda().eq(SalaryStandard::getType,standardParam.getType());
+        }
         List<SalaryStandard> result = this.list(queryWrapper);
         return BeanUtil.copyToList(result,SalaryStandardVo.class);
     }
 
     @Override
     public List<SalaryStandardVo> getStandardAllList(String type, List<String> yearMonths) {
-        List<SalaryStandardVo> result = new ArrayList<>();
         if(CollUtil.isEmpty(yearMonths)){
-            return result;
+            return null;
         }
         List<SalaryStandard> standardList = this.list(new QueryWrapper<SalaryStandard>().lambda()
                 .in(SalaryStandard::getYearMonth,yearMonths)
                 .eq(SalaryStandard::getType,type));
-        result = BeanUtil.copyToList(standardList,SalaryStandardVo.class);
-        return result;
+        return BeanUtil.copyToList(standardList,SalaryStandardVo.class);
     }
 
     @Override

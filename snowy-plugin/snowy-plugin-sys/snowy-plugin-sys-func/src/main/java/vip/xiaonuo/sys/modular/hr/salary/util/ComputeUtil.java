@@ -328,9 +328,23 @@ public class ComputeUtil {
             if(ObjectUtil.isEmpty(item.getStandardAmount())){
                 item.setStandardAmount(BIG_DECIMAL_0);
             }
+            if(ObjectUtil.isEmpty(item.getHaveBirthdayPay())){
+                item.setHaveBirthdayPay("是");
+            }
+            if(ObjectUtil.isEmpty(item.getHaveSeniorityPay())){
+                item.setHaveSeniorityPay("是");
+            }
+            if(ObjectUtil.isEmpty(item.getMeritRate())){
+                item.setMeritRate(FLOAT_0);
+            }
 
-            if(ObjectUtil.isEmpty(item.getMissNum())){
-                item.setMissNum(INT_0);
+
+
+            if(ObjectUtil.isEmpty(item.getUpMissNum())){
+                item.setUpMissNum(INT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getDownMissNum())){
+                item.setDownMissNum(INT_0);
             }
             if(ObjectUtil.isEmpty(item.getLateNumA())){
                 item.setLateNumA(INT_0);
@@ -362,6 +376,53 @@ public class ComputeUtil {
             if(ObjectUtil.isEmpty(item.getFunDay())){
                 item.setFunDay(FLOAT_0);
             }
+            if(ObjectUtil.isEmpty(item.getRequiredDay())){
+                item.setRequiredDay(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRealDay())){
+                item.setRealDay(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getAdjustHour())){
+                item.setAdjustHour(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRealMinerDay())){
+                item.setRealMinerDay(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRealWorkDay())){
+                item.setRealWorkDay(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRealMonthSickDay())){
+                item.setRealMonthSickDay(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRealUnMonthSickDay())){
+                item.setRealUnMonthSickDay(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRealMaterDay())){
+                item.setRealMaterDay(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getOvertimeHour())){
+                item.setOvertimeHour(FLOAT_0);
+            }
+
+
+
+            if(ObjectUtil.isEmpty(item.getBtNum())){
+                item.setBtNum(FLOAT_0);
+            }
+            if(ObjectUtil.isEmpty(item.getBtStandard1())){
+                item.setBtStandard1(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getBtStandard1Total())){
+                item.setBtStandard1Total(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getBtStandard2())){
+                item.setBtStandard2(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getBtStandard2Total())){
+                item.setBtStandard2Total(BIG_DECIMAL_0);
+            }
+
+
 
             if(ObjectUtil.isEmpty(item.getBase())){
                 item.setBase(BIG_DECIMAL_0);
@@ -424,27 +485,79 @@ public class ComputeUtil {
                 item.setTaxZh(BIG_DECIMAL_0);
             }
 
-            if(ObjectUtil.isEmpty(item.getBtNum())){
-                item.setBtNum(FLOAT_0);
-            }
-            if(ObjectUtil.isEmpty(item.getBtStandard1())){
-                item.setBtStandard1(BIG_DECIMAL_0);
-            }
-            if(ObjectUtil.isEmpty(item.getBtStandard1Total())){
-                item.setBtStandard1Total(BIG_DECIMAL_0);
-            }
-            if(ObjectUtil.isEmpty(item.getBtStandard2())){
-                item.setBtStandard2(BIG_DECIMAL_0);
-            }
-            if(ObjectUtil.isEmpty(item.getBtStandard2Total())){
-                item.setBtStandard2Total(BIG_DECIMAL_0);
-            }
 
-            if(ObjectUtil.isEmpty(item.getHaveBirthdayPay())){
-                item.setHaveBirthdayPay("是");
+
+            if(ObjectUtil.isEmpty(item.getRealMeritAmount())){
+                item.setRealMeritAmount(BIG_DECIMAL_0);
             }
-            if(ObjectUtil.isEmpty(item.getHaveSeniorityPay())){
-                item.setHaveSeniorityPay("是");
+            if(ObjectUtil.isEmpty(item.getRegisterAmount())){
+                item.setRegisterAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getWorkAgeAmount())){
+                item.setWorkAgeAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getFullAmount())){
+                item.setFullAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTeacherAmount())){
+                item.setTeacherAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getDutyAmount())){
+                item.setDutyAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getSickAmount())){
+                item.setSickAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getWorkAmount())){
+                item.setWorkAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLateAmount())){
+                item.setLateAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMinerAmount())){
+                item.setMinerAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMaterAmount())){
+                item.setMaterAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getAddAmount())){
+                item.setAddAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMinusAmount())){
+                item.setMinusAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getGrossPayAmount())){
+                item.setGrossPayAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getEmpWelfareAmount())){
+                item.setEmpWelfareAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getOuterAmount())){
+                item.setOuterAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLastAddAmount())){
+                item.setLastAddAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLastMinusAmount())){
+                item.setLastMinusAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTaxIncomeAmount())){
+                item.setTaxIncomeAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLjTaxIncomeAmount())){
+                item.setLjTaxIncomeAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLjTaxAmount())){
+                item.setLjTaxAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getHaveLjTaxAmount())){
+                item.setHaveLjTaxAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMonthTaxAmount())){
+                item.setMonthTaxAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRealPayAmount())){
+                item.setRealPayAmount(BIG_DECIMAL_0);
             }
         });
         return importTempData;

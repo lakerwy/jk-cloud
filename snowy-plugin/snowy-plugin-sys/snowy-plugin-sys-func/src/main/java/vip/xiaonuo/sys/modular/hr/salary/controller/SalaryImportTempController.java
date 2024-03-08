@@ -27,6 +27,7 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryImportTempService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
@@ -151,12 +152,41 @@ public class SalaryImportTempController {
 
 
     /**
+     * 【导入】- 员工福利（除生日福利） 数据
+     *
+     * @author yong.ye
+     * @date  2024/02/28 09:31
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("【导入】- 员工福利（除生日福利） 数据 ")
+    @CommonLog("【导入】- 员工福利（除生日福利） 数据 ")
+    @PostMapping("/sys/hr/salary/import/importPay")
+    public CommonResult<ImportResult> importPay(@RequestBody @Valid ImportPay input) {
+        return CommonResult.data(salaryImportTempService.importPay(input));
+    }
+
+    /**
+     * 【导入】- 已确认的 员工工资 数据  HR_SALARY
+     *
+     * @author yong.ye
+     * @date  2024/02/28 09:31
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("【导入】- 已确认的 员工工资 数据  HR_SALARY ")
+    @CommonLog("【导入】- 已确认的 员工工资 数据  HR_SALARY ")
+    @PostMapping("/sys/hr/salary/import/importSalary")
+    public CommonResult<ImportResult> importSalary(@RequestBody @Valid ImportSalary input) {
+        return CommonResult.data(salaryImportTempService.importSalary(input));
+    }
+
+
+    /**
      * 【导入】- 确认导入，数据正式入库
      *
      * @author yong.ye
      * @date  2024/02/28 09:31
      */
-    @ApiOperationSupport(order = 8)
+    @ApiOperationSupport(order = 20)
     @ApiOperation("【导入】- 确认导入，数据正式入库 ")
     @CommonLog("【导入】- 确认导入，数据正式入库 ")
     @PostMapping("/sys/hr/salary/import/doImport")

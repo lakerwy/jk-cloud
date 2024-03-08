@@ -106,7 +106,8 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
             SalaryAdd salaryAdd = salaryAddService.queryEntity(addId);
             salaryAdd.setAddAmount(salaryAddTotal.getAddAmount());
             salaryAdd.setMinusAmount(salaryAddTotal.getMinusAmount());
-            salaryAdd.setAmount(salaryAddTotal.getAddAmount().subtract(salaryAddTotal.getMinusAmount()));
+            salaryAdd.setLastAddAmount(salaryAddTotal.getLastAddAmount());
+            salaryAdd.setLastMinusAmount(salaryAddTotal.getLastMinusAmount());
             salaryAddService.updateById(salaryAdd);
         }
     }
@@ -124,7 +125,8 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
             SalaryAdd salaryAdd = salaryAddService.queryEntity(addId);
             salaryAdd.setAddAmount(salaryAddTotal.getAddAmount());
             salaryAdd.setMinusAmount(salaryAddTotal.getMinusAmount());
-            salaryAdd.setAmount(salaryAddTotal.getAddAmount().subtract(salaryAddTotal.getMinusAmount()));
+            salaryAdd.setLastAddAmount(salaryAddTotal.getLastAddAmount());
+            salaryAdd.setLastMinusAmount(salaryAddTotal.getLastMinusAmount());
             salaryAddService.updateById(salaryAdd);
         }
     }
@@ -146,7 +148,8 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
                 SalaryAdd salaryAdd = salaryAddService.queryEntity(addId);
                 salaryAdd.setAddAmount(salaryAddTotal.getAddAmount());
                 salaryAdd.setMinusAmount(salaryAddTotal.getMinusAmount());
-                salaryAdd.setAmount(salaryAddTotal.getAddAmount().subtract(salaryAddTotal.getMinusAmount()));
+                salaryAdd.setLastAddAmount(salaryAddTotal.getLastAddAmount());
+                salaryAdd.setLastMinusAmount(salaryAddTotal.getLastMinusAmount());
                 salaryAddList.add(salaryAdd);
             }
             salaryAddService.updateBatchById(salaryAddList);

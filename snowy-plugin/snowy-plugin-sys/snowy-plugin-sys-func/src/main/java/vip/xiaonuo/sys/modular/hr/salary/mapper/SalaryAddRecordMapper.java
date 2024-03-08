@@ -29,7 +29,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddTotal;
  **/
 public interface SalaryAddRecordMapper extends BaseMapper<SalaryAddRecord> {
     /**
-     * 通过外键 加扣记录addId,统计嘉奖金额|扣减金额
+     * 通过外键 加扣记录addId,统计补发|补扣
      * @param addId
      * @return
      */

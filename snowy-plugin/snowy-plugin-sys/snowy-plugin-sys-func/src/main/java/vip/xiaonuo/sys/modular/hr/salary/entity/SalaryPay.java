@@ -93,4 +93,8 @@ public class SalaryPay {
     @ApiModelProperty(value = "数据权限控制字段", position = 25)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 100)
+    private String note;
 }

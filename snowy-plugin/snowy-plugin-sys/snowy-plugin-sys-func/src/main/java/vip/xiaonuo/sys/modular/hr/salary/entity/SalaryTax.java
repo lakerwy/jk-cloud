@@ -39,8 +39,8 @@ public class SalaryTax {
     @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 3)
     private String standardId;
 
-    /** 所属单位 */
-    @ApiModelProperty(value = "所属单位", position = 10)
+    /** 发放公司 */
+    @ApiModelProperty(value = "发放公司", position = 10)
     private String unitName;
 
     /** 合计 */
@@ -109,4 +109,8 @@ public class SalaryTax {
     @ApiModelProperty(value = "数据权限控制字段", position = 25)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 100)
+    private String note;
 }

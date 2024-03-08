@@ -20,7 +20,7 @@ public class SalarySeniorityVo {
     private String positiveAge;
 
     /** 本月工龄工资|生日福利（元） */
-    @ApiModelProperty(value = "本月工龄工资|生日福利（元）", position = 2)
+    @ApiModelProperty(value = "本月工龄工资", position = 2)
     private BigDecimal amount;
 
     /** 备注 */

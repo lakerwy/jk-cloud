@@ -23,10 +23,6 @@ public class SalaryAddVo extends SalaryAdd {
     @ApiModelProperty(value = "姓名", position = 103)
     private String userName;
 
-    /** 公司 */
-    @ApiModelProperty(value = "公司", position = 104)
-    private String company;
-
     /** 一级部门 */
     @ApiModelProperty(value = "一级部门", position = 105)
     private String firstOrgName;

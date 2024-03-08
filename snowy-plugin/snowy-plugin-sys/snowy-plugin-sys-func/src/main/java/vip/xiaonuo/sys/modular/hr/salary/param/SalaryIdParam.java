@@ -22,7 +22,7 @@ import javax.validation.constraints.NotBlank;
  * 工资系统-工资表Id参数
  *
  * @author yong.ye
- * @date  2024/03/01 16:50
+ * @date  2024/03/08 10:30
  **/
 @Getter
 @Setter

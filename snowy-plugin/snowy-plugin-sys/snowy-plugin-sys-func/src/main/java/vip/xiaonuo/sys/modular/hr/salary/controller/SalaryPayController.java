@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -26,10 +25,8 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayAddParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayEditParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPayService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
 
@@ -127,5 +124,36 @@ public class SalaryPayController {
     @GetMapping("/sys/hr/salary/pay/detail")
     public CommonResult<SalaryPayVo> detail(@Valid SalaryPayIdParam salaryPayIdParam) {
         return CommonResult.data(salaryPayService.detail(salaryPayIdParam));
+    }
+
+
+    /**
+     * 重新生成 yyyyMM 月的工龄工资数据【旧数据会删除】
+     *
+     * @author yong.ye
+     * @date  2024/03/26 09:34
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("重新生成 yyyyMM 月的工龄工资数据【旧数据会删除】")
+    @CommonLog("重新生成 yyyyMM 月的工龄工资数据【旧数据会删除】")
+    @PostMapping("/sys/hr/salary/pay/reSeniorityGZ")
+    public CommonResult<String> reSeniorityGZ(@RequestBody @Valid PayParam payParam) {
+        salaryPayService.reSeniorityGZ(payParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 重新生成 yyyyMM 月的生日福利数据【旧数据会删除】
+     *
+     * @author yong.ye
+     * @date  2024/03/26 09:34
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("重新生成 yyyyMM 月的生日福利数据【旧数据会删除】")
+    @CommonLog("重新生成 yyyyMM 月的生日福利数据【旧数据会删除】")
+    @PostMapping("/sys/hr/salary/pay/reBirthdayGZ")
+    public CommonResult<String> reBirthdayGZ(@RequestBody @Valid PayParam payParam) {
+        salaryPayService.reBirthdayGZ(payParam);
+        return CommonResult.ok();
     }
 }

@@ -17,11 +17,19 @@ public class SalaryAddTotal {
     @ApiModelProperty(value = "外键（HR_SALARY_ADD.ID)", position = 2)
     private String addId;
 
-    /** 嘉奖小计 */
-    @ApiModelProperty(value = "嘉奖小计", position = 10)
+    /** 税前补发小计 */
+    @ApiModelProperty(value = "税前补发小计", position = 10)
     private BigDecimal addAmount;
 
-    /** 扣除小计 */
-    @ApiModelProperty(value = "扣除小计", position = 11)
+    /** 税前补扣小计 */
+    @ApiModelProperty(value = "税前补扣小计", position = 11)
     private BigDecimal minusAmount;
+
+    /** 税后补发小计 */
+    @ApiModelProperty(value = "税后补发小计", position = 10)
+    private BigDecimal lastAddAmount;
+
+    /** 税后补扣小计 */
+    @ApiModelProperty(value = "税后补扣小计", position = 11)
+    private BigDecimal lastMinusAmount;
 }

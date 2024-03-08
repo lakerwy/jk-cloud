@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -27,10 +26,11 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
-import vip.xiaonuo.sys.modular.hr.salary.param.ConfirmSalaryParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.EmpSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.ConfirmSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 
@@ -112,6 +112,22 @@ public class SalaryController {
 
 
     /**
+     * 【已确认-封存的工资数据】删除某年月的所有工资数据
+     *
+     * @author yong.ye
+     * @date  2024/03/01 16:50
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("【已确认-封存的工资数据】删除某年月的所有工资数据")
+    @CommonLog("【已确认-封存的工资数据】删除某年月的所有工资数据")
+    @PostMapping("/sys/hr/salary/deleteByMonth")
+    public CommonResult<String> deleteByMonth(@RequestBody @Valid PayParam param) {
+        salaryService.deleteByMonth(param);
+        return CommonResult.ok();
+    }
+
+
+    /**
      * 获取工资系统-【待确认-已确认工资 - 混合列表】
      *
      * @author yong.ye
@@ -123,7 +139,6 @@ public class SalaryController {
     public CommonResult<List<SalaryVo>> confirmPageList(ConfirmSalaryParam confirmSalaryParam) {
         return CommonResult.data(salaryService.confirmPageList(confirmSalaryParam));
     }
-
 
 
 }

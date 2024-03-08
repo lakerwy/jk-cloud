@@ -141,4 +141,8 @@ public class SalarySubsidyRecord {
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 36)
     private String extJson;
+
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 100)
+    private String note;
 }

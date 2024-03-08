@@ -12,7 +12,9 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -26,10 +28,10 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
-import vip.xiaonuo.sys.modular.hr.salary.param.ConfirmSalaryParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.EmpSalaryParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.ConfirmSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 
@@ -53,6 +55,12 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(salaryPageParam.getYearMonth())) {
             queryWrapper.lambda().eq(Salary::getYearMonth, salaryPageParam.getYearMonth());
+        }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getType())){
+            queryWrapper.lambda().eq(Salary::getType,salaryPageParam.getType());
+        }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getUserType())){
+            queryWrapper.lambda().eq(Salary::getUserType,salaryPageParam.getUserType());
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getIdCardNumber())) {
             queryWrapper.lambda().like(Salary::getIdCardNumber, salaryPageParam.getIdCardNumber());
@@ -78,6 +86,20 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
+
+    @Override
+    public void add(SalaryAddParam salaryAddParam) {
+        Salary salary = BeanUtil.toBean(salaryAddParam, Salary.class);
+        this.save(salary);
+    }
+
+    @Override
+    public void edit(SalaryEditParam salaryEditParam) {
+        Salary salary = this.queryEntity(salaryEditParam.getId());
+        BeanUtil.copyProperties(salaryEditParam, salary);
+        this.updateById(salary);
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -166,5 +188,25 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         }
         queryWrapper.orderByDesc("tmp.yearMonth").orderByAsc("tmp.idCardNumber");
         return salaryMapper.getConfirmGZ(yearMonth,queryWrapper);
+    }
+
+    @Override
+    public List<SalaryVo> getSalaryAllList(String type, List<String> yearMonths) {
+        if(CollUtil.isEmpty(yearMonths)){
+            return null;
+        }
+        QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(type)) {
+            queryWrapper.lambda().eq(Salary::getType,type);
+        }
+        queryWrapper.lambda().in(Salary::getYearMonth,yearMonths);
+        return BeanUtil.copyToList(this.list(queryWrapper),SalaryVo.class);
+    }
+
+    @Override
+    public void deleteByMonth(PayParam param) {
+        QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(Salary::getYearMonth,param.getYearMonth());
+        this.remove(queryWrapper);
     }
 }

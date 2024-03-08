@@ -38,17 +38,21 @@ public class SalaryAddEditParam {
     @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 3)
     private String standardId;
 
-    /** 嘉奖小计 */
-    @ApiModelProperty(value = "嘉奖小计", position = 10)
+    /** 税前补发小计 */
+    @ApiModelProperty(value = "税前补发小计", position = 10)
     private BigDecimal addAmount;
 
-    /** 扣除小计 */
-    @ApiModelProperty(value = "扣除小计", position = 11)
+    /** 税前补扣小计 */
+    @ApiModelProperty(value = "税前补扣小计", position = 11)
     private BigDecimal minusAmount;
 
-    /** 合计金额 */
-    @ApiModelProperty(value = "合计金额", position = 12)
-    private BigDecimal amount;
+    /** 税后补发小计 */
+    @ApiModelProperty(value = "税后补发小计", position = 10)
+    private BigDecimal lastAddAmount;
+
+    /** 税后补扣小计 */
+    @ApiModelProperty(value = "税后补扣小计", position = 11)
+    private BigDecimal lastMinusAmount;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 13)
