@@ -12,15 +12,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
-import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.dingDingSchedule.param.DingDingScheduleParam;
 import vip.xiaonuo.dev.modular.dingDingSchedule.service.DingDingScheduleService;
 import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
 import vip.xiaonuo.dev.modular.dingThirdData.service.AuthThirdUserService;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZonedDateTime;
+
+import java.time.*;
 import java.time.format.DateTimeFormatter;
 
 import javax.annotation.Resource;
@@ -71,7 +69,7 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
             dingDingScheduleVo.setUnionCreateId(unionCreateId);
             dingDingScheduleVo.setUnionIds(unionIds);
             dingDingScheduleVo.setXAcsDingtalkAccessToken(xAcsDingtalkAccessToken);
-            dingDingScheduleVo.setReminderMinutes(15);
+            dingDingScheduleVo.setReminderMinutes(350);
             putHttDingDingSchedule(dingDingScheduleVo);
         }catch (Exception e){
             log.error("创建日程失败！e"+e.getMessage());
@@ -120,11 +118,11 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         });
 
         com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest.CreateEventRequestStart start = new com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest.CreateEventRequestStart()
-                .setDateTime(dateTimeFormatConversion(dingDingScheduleVo.getStartTime()))
+                .setDateTime(dateTimeFormatConversion(dingDingScheduleVo.getStartTime(),0))
                 //.setDateTime("2024-03-07T10:15:30+08:00")
                 .setTimeZone(TIME_ZONE);//开始时间
         com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest.CreateEventRequestEnd end = new com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest.CreateEventRequestEnd()
-                .setDateTime(dateTimeFormatConversion(dingDingScheduleVo.getEndTime()))
+                .setDateTime(dateTimeFormatConversion(dingDingScheduleVo.getEndTime(),1))
                 //.setDateTime("2024-03-07T11:16:30+08:00")
                 .setTimeZone(TIME_ZONE);//结束时间
         com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest createEventRequest = new com.aliyun.dingtalkcalendar_1_0.models.CreateEventRequest()
@@ -156,22 +154,27 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         }
     }
 
-    private String dateTimeFormatConversion(String standardDateTimeStr){
-
-        DateTimeFormatter inputFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
-
-        // 解析为LocalDateTime对象
-        LocalDateTime localDateTime = LocalDateTime.parse(standardDateTimeStr, inputFormatter);
-
+    private String dateTimeFormatConversion(String standardDateTimeStr,Integer flag){
+        standardDateTimeStr = standardDateTimeStr.substring(0,10);
+        // 解析日期部分
+        LocalDate localDate = LocalDate.parse(standardDateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        // 解析时间部分，如果flag有特殊需求，则覆盖时间
+        LocalTime localTime;
+        if (flag == 0) {
+            localTime = LocalTime.of(0, 0);
+        } else if (flag == 1) {
+            localTime = LocalTime.of(23, 59);
+        } else {
+            localTime = LocalTime.parse(standardDateTimeStr.split("T")[1], DateTimeFormatter.ofPattern("HH:mm"));
+        }
+        // 合并日期和时间
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
         // 获取东八区（中国标准时间）的ZoneId
         ZoneId targetZone = ZoneId.of("Asia/Shanghai");
-
         // 将目标LocalDateTime转换为ZonedDateTime
         ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, targetZone);
-
         // 创建ISO-8601格式的DateTimeFormatter
         DateTimeFormatter outputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-
         // 格式化为ISO-8601格式的字符串
         return zonedDateTime.format(outputFormatter);
     }
