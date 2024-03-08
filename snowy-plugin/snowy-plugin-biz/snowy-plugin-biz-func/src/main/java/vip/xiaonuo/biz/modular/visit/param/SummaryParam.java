@@ -32,4 +32,8 @@ public class SummaryParam {
     /** 总结：工作总结 */
     @ApiModelProperty(value = "总结：工作总结", position = 35)
     private String sumSummary;
+
+    /** 文件ID */
+    @ApiModelProperty(value = "文件ID", position = 36)
+    private String fileId;
 }

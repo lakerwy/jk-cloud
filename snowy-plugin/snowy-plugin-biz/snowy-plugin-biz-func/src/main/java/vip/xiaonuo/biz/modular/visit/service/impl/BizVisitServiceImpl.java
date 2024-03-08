@@ -200,6 +200,7 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         bizVisit.setSumImplComplete(summaryParam.getSumImplComplete());
         bizVisit.setSumPlanComplete(summaryParam.getSumPlanComplete());
         bizVisit.setSumSummary(summaryParam.getSumSummary());
+        bizVisit.setFileId(summaryParam.getFileId());
         this.updateById(bizVisit);
     }
 }
