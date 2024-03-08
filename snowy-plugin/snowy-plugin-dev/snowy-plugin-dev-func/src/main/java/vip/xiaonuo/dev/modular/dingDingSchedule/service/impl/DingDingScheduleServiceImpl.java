@@ -45,7 +45,6 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
     @Override
     public void addDingDingSchedule(List<DingDingScheduleParam> dingDingScheduleParamList, DingDingScheduleVo dingDingScheduleVo,String createUser){
         try{
-            //AuthThirdApi authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
             String xAcsDingtalkAccessToken = iDingDingService.getDingToken(appKey,appSecret);//获取token
             List<String> unionIds = new ArrayList<>();
 
@@ -83,8 +82,6 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
      * */
     @Override
     public String getUnionId(String userId,String userName,String phone,String token) throws Exception{
-        //AuthDingApi authDingApi = SpringUtil.getBean(AuthDingApi.class);
-        //AuthThirdApi authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
         String thirdId = authThirdUserService.getThirdIdByUserId(userId,DD_CATEGORY);
 
         if(StringUtils.isEmpty(thirdId)){
@@ -155,8 +152,7 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
     }
 
     private String dateTimeFormatConversion(String standardDateTimeStr,Integer flag){
-        standardDateTimeStr = standardDateTimeStr.substring(0,10);
-        // 解析日期部分
+        standardDateTimeStr = standardDateTimeStr.substring(0,10); // 解析日期部分
         LocalDate localDate = LocalDate.parse(standardDateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         // 解析时间部分，如果flag有特殊需求，则覆盖时间
         LocalTime localTime;
@@ -167,20 +163,10 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         } else {
             localTime = LocalTime.parse(standardDateTimeStr.split("T")[1], DateTimeFormatter.ofPattern("HH:mm"));
         }
-        // 合并日期和时间
-        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);
-        // 获取东八区（中国标准时间）的ZoneId
-        ZoneId targetZone = ZoneId.of("Asia/Shanghai");
-        // 将目标LocalDateTime转换为ZonedDateTime
-        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, targetZone);
-        // 创建ISO-8601格式的DateTimeFormatter
-        DateTimeFormatter outputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
-        // 格式化为ISO-8601格式的字符串
-        return zonedDateTime.format(outputFormatter);
-    }
-    @Override
-    public void visitScheduleDeal(String processInstanceId){
-        //List<BizVisit> bizVisitList = bizVisitService.list(new LambdaQueryWrapper<BizVisit>().eq(BizVisit::getProcessInstanceId,processInstanceId));
-        log.error("processInstanceId:"+processInstanceId);
+        LocalDateTime localDateTime = LocalDateTime.of(localDate, localTime);// 合并日期和时间
+        ZoneId targetZone = ZoneId.of("Asia/Shanghai");// 获取东八区（中国标准时间）的ZoneId
+        ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, targetZone);// 将目标LocalDateTime转换为ZonedDateTime
+        DateTimeFormatter outputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;// 创建ISO-8601格式的DateTimeFormatter
+        return zonedDateTime.format(outputFormatter);// 格式化为ISO-8601格式的字符串
     }
 }

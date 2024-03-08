@@ -25,13 +25,12 @@ public class VisitScheduleListener implements ExecutionListener {
             }
             String sql = "select T.GO_TIME AS GO_TIME,T.BACK_TIME as BACK_TIME,T.CREATE_USER as CREATE_USER,T.PERSON as PERSON,T.PURPOSE as PURPOSE,T.CREATE_USER as CREATE_USER,T.PROCESS_INSTANCE_ID as PROCESS_INSTANCE_ID" +
                     " from BIZ_VISIT T where PROCESS_INSTANCE_ID = '"+processInstanceId+"'";
-            log.info("离职人员查询----"+sql);
+            log.info("外访数据查询----"+sql);
             Map<String,Object> map= CommonHandleUtil.handleSqlQuery(sql, Boolean.FALSE);
             if(ObjectUtil.isEmpty(map)){
                 log.error("未查询到外访数据！流程实例id:"+processInstanceId);
                 return;
             }
-            //authThirdApi.getUnionIdByUserId();
             devDfcApi.addDingDingScheduleHandler(map);
             log.info("处理外访审批，新建日程----流程实例id:----"+processInstanceId);
         }catch (Exception e){
