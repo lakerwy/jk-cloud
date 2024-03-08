@@ -19,6 +19,7 @@ import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.DesensitizedUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.Master;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -51,6 +52,7 @@ import java.util.stream.Collectors;
  * @date 2022/4/22 10:41
  **/
 @Service
+@Master
 public class DevConfigServiceImpl extends ServiceImpl<DevConfigMapper, DevConfig> implements DevConfigService {
 
     private static final String CONFIG_CACHE_KEY = "dev-config:";

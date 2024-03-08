@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -118,14 +119,13 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             systemUserRelation.setUserName(syncUser.getUserName());
             return systemUserRelation;
         }).collect(Collectors.toList());
-
         if(CollUtil.isNotEmpty(collect)){
             saveOrUpdateBatch(collect);
             String valueUrl = devConfigService.getValueByKey("EPC_SYSUSER");
             if(StrUtil.isNotEmpty(valueUrl)){
                 String json = JSONUtil.parseArray(collect).toString();
-                //不记录执行结果
-                HttpUtil.createPost(valueUrl).body(json).execute();
+                //异步执行
+                HttpUtil.createPost(valueUrl).body(json).execute(true);
             }
         }
 
