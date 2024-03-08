@@ -26,17 +26,22 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
+import vip.xiaonuo.sys.modular.hr.salary.entity.*;
+import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
+import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryImportTempMapper;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ConfirmSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
-import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
+import vip.xiaonuo.sys.modular.hr.salary.service.*;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 工资系统-工资表Service接口实现类
@@ -49,6 +54,19 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
 
     @Resource
     private SalaryMapper salaryMapper;
+
+    @Resource
+    private SalaryAttendService salaryAttendService;
+    @Resource
+    private SalarySubsidyRecordService salarySubsidyRecordService;
+    @Resource
+    private SalaryInsService salaryInsService;
+    @Resource
+    private SalaryGjjService salaryGjjService;
+    @Resource
+    private SalaryTaxService salaryTaxService;
+    @Resource
+    private SalaryPayService salaryPayService;
 
     @Override
     public Page<Salary> page(SalaryPageParam salaryPageParam) {
@@ -148,46 +166,43 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
 
 
     /**
-     * 月工资报表 - 2部分组成 ：已确认的封存数据 + 未确认的计算数据
-     * 注意：
-     * 已封存的数据：只能从Salary取
-     * 未确认的数据：通过SalaryStandard月工资标准，自动生成
-     * @param confirmSalaryParam
+     * 月工资报表 - (未确认的)预览数据（自动生成）
+     * @param param
      * @return
      */
     @Override
-    public List<SalaryVo> confirmPageList(ConfirmSalaryParam confirmSalaryParam) {
-        String yearMonth = confirmSalaryParam.getYearMonth();
+    public List<SalaryVo> prePageList(MySalaryParam param) {
+        String yearMonth = param.getYearMonth();
         if(ObjectUtil.isEmpty(yearMonth)){
             throw new CommonException("所属年月必传");
         }
         //查询条件
         QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getUserType())){
-            queryWrapper.eq("tmp.userType",confirmSalaryParam.getUserType());
+        if(ObjectUtil.isNotEmpty(param.getUserType())){
+            queryWrapper.eq("a.USER_TYPE",param.getUserType());
         }
-        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getYearMonth())){
-            queryWrapper.eq("tmp.yearMonth",confirmSalaryParam.getYearMonth());
+        if(ObjectUtil.isNotEmpty(param.getYearMonth())){
+            queryWrapper.eq("a.`YEAR_MONTH`",param.getYearMonth());
         }
-        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getIdCardNumber())){
-            queryWrapper.eq("tmp.idCardNumber",confirmSalaryParam.getIdCardNumber());
+        if(ObjectUtil.isNotEmpty(param.getIdCardNumber())){
+            queryWrapper.eq("a.ID_CARD_NUMBER",param.getIdCardNumber());
         }
-        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getUserName())){
-            queryWrapper.eq("tmp.userName",confirmSalaryParam.getUserName());
+        if(ObjectUtil.isNotEmpty(param.getUserName())){
+            queryWrapper.eq("a.USER_NAME",param.getUserName());
         }
-        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getOrgName())){
-            queryWrapper.eq("tmp.orgName",confirmSalaryParam.getOrgName());
+        if(ObjectUtil.isNotEmpty(param.getOrgName())){
+            queryWrapper.eq("a.ORG_NAME",param.getOrgName());
         }
-        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getConfirmStatus())){
-            queryWrapper.eq("tmp.confirmStatus",confirmSalaryParam.getConfirmStatus());
+        if(ObjectUtil.isNotEmpty(param.getSearchKey())){
+            queryWrapper.and(q->q.like("a.ID_CARD_NUMBER",param.getSearchKey())
+                    .or().like("a.USER_NAME",param.getSearchKey())
+                    .or().like("a.ORG_NAME",param.getSearchKey()));
         }
-        if(ObjectUtil.isNotEmpty(confirmSalaryParam.getSearchKey())){
-            queryWrapper.and(q->q.like("tmp.idCardNumber",confirmSalaryParam.getSearchKey())
-                    .or().like("tmp.userName",confirmSalaryParam.getSearchKey())
-                    .or().like("tmp.orgName",confirmSalaryParam.getSearchKey()));
-        }
-        queryWrapper.orderByDesc("tmp.yearMonth").orderByAsc("tmp.idCardNumber");
-        return salaryMapper.getConfirmGZ(yearMonth,queryWrapper);
+        queryWrapper.orderByDesc("a.TYPE").orderByAsc("a.ID_CARD_NUMBER");
+        List<SalaryStandard> standardList = salaryMapper.getPrePageList(queryWrapper);
+        //自动生成工资数据
+        List<SalaryVo> tmpSalaryVoList = BeanUtil.copyToList(standardList,SalaryVo.class);
+        return computePreGZ(tmpSalaryVoList);
     }
 
     @Override
@@ -208,5 +223,108 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(Salary::getYearMonth,param.getYearMonth());
         this.remove(queryWrapper);
+    }
+
+
+    /**
+     * 根据 各种数据 ，计算工资（预览数据）
+     * @param salaryVoList
+     * @return
+     */
+    public List<SalaryVo> computePreGZ(List<SalaryVo> salaryVoList){
+        if(CollUtil.isEmpty(salaryVoList)){
+            return salaryVoList;
+        }
+        //获取涉及到的员工 standardIds
+        List<String> standardIds = salaryVoList.stream().map(x->x.getId()).collect(Collectors.toList());
+        if(CollUtil.isEmpty(standardIds)){
+            return salaryVoList;
+        }
+        //获取补贴数据(按type+standardId分组)
+        List<SumTypeData> subsidyData = salaryMapper.getSubsidyData(standardIds);
+        //获取福利数据(按type+standardId分组)
+        List<SumTypeData> payData = salaryMapper.getPayData(standardIds);
+        //获取考勤数据
+        List<SalaryAttend> attendData = salaryMapper.getAttendData(standardIds);
+        //获取社保数据
+        List<SalaryIns> insData = salaryMapper.getInsData(standardIds);
+        //获取公积金数据
+        List<SalaryGjj> gjjData = salaryMapper.getGjjData(standardIds);
+        //获取加计扣除数据
+        List<SalaryTax> taxData = salaryMapper.getTaxData(standardIds);
+        //获取税前税后补发补扣数据
+        List<SalaryAdd> addData = salaryMapper.getAddData(standardIds);
+
+        salaryVoList.forEach(item->{
+            item.setRealMeritAmount(item.getMeritAmount().multiply(BigDecimal.valueOf(item.getMeritRate())));
+            //注册补贴
+            SumTypeData registerBT = subsidyData.stream().filter(x-> SalaryTypeEnum.REGISTER_SUBSIDY.getValue().equals(x.getType()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setRegisterAmount(ObjectUtil.isNotEmpty(registerBT) ? registerBT.getSumAmount() : BigDecimal.ZERO);
+            //工龄工资
+            SumTypeData seniorityGZ = payData.stream().filter(x-> SalaryTypeEnum.SENIORITY.getValue().equals(x.getType()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setWorkAgeAmount(ObjectUtil.isNotEmpty(seniorityGZ) ? seniorityGZ.getSumAmount() : BigDecimal.ZERO);
+            //讲师津贴
+            SumTypeData teacherBT = subsidyData.stream().filter(x-> SalaryTypeEnum.TEACHER_SUBSIDY.getValue().equals(x.getType()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setTeacherAmount(ObjectUtil.isNotEmpty(teacherBT) ? teacherBT.getSumAmount() : BigDecimal.ZERO);
+            //值班补贴
+            SumTypeData dutyBT = subsidyData.stream().filter(x-> SalaryTypeEnum.DUTY_SUBSIDY.getValue().equals(x.getType()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setDutyAmount(ObjectUtil.isNotEmpty(dutyBT) ? dutyBT.getSumAmount() : BigDecimal.ZERO);
+            //考勤 ： 全勤奖|考勤扣款
+            SalaryAttend attend = attendData.stream().filter(x->item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(attend)){
+                item.setFullAmount(BigDecimal.ZERO);
+                item.setSickAmount(BigDecimal.ZERO);
+                item.setWorkAmount(BigDecimal.ZERO);
+                item.setLateAmount(BigDecimal.ZERO);
+                item.setMinerAmount(BigDecimal.ZERO);
+                item.setMaterAmount(BigDecimal.ZERO);
+            }
+            //税前补发补扣
+            SalaryAdd add = addData.stream().filter(x->item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setAddAmount(ObjectUtil.isNotEmpty(add) ? add.getAddAmount() : BigDecimal.ZERO);
+            item.setMinusAmount(ObjectUtil.isNotEmpty(add) ? add.getMinusAmount() : BigDecimal.ZERO);
+            //其他税后补发补扣
+            item.setLastAddAmount(ObjectUtil.isNotEmpty(add) ? add.getLastAddAmount() : BigDecimal.ZERO);
+            item.setLastMinusAmount(ObjectUtil.isNotEmpty(add) ? add.getLastMinusAmount() : BigDecimal.ZERO);
+            //应发工资
+            item.setGrossPayAmount(BigDecimal.ZERO);
+            //个人社保扣除
+            SalaryIns ins = insData.stream().filter(x->item.getCompany().equals(x.getUnitName()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setYnPer(ObjectUtil.isNotEmpty(ins) ? ins.getYnPer() : BigDecimal.ZERO);
+            item.setYlPer(ObjectUtil.isNotEmpty(ins) ? ins.getYlPer() : BigDecimal.ZERO);
+            item.setYlSale(ObjectUtil.isNotEmpty(ins) ? ins.getYlSale() : BigDecimal.ZERO);
+            item.setSyPer(ObjectUtil.isNotEmpty(ins) ? ins.getSyPer() : BigDecimal.ZERO);
+            item.setPer(ObjectUtil.isNotEmpty(ins) ? ins.getPer() : BigDecimal.ZERO);
+            //个人公积金扣款
+            SalaryGjj gjj = gjjData.stream().filter(x->item.getCompany().equals(x.getUnitName()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setSysPer(ObjectUtil.isNotEmpty(gjj) ? gjj.getSysPer() : BigDecimal.ZERO);
+            //专项附加扣除
+            SalaryTax tax = taxData.stream().filter(x->item.getCompany().equals(x.getUnitName()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setTaxSy(ObjectUtil.isNotEmpty(tax) ? tax.getTaxSy() : BigDecimal.ZERO);
+            item.setTaxZn(ObjectUtil.isNotEmpty(tax) ? tax.getTaxZn() : BigDecimal.ZERO);
+            item.setTaxFd(ObjectUtil.isNotEmpty(tax) ? tax.getTaxFd() : BigDecimal.ZERO);
+            item.setTaxZf(ObjectUtil.isNotEmpty(tax) ? tax.getTaxZf() : BigDecimal.ZERO);
+            item.setTaxJy(ObjectUtil.isNotEmpty(tax) ? tax.getTaxJy() : BigDecimal.ZERO);
+            item.setTaxZh(ObjectUtil.isNotEmpty(tax) ? tax.getTaxZh() : BigDecimal.ZERO);
+            //员工福利扣税额
+            SumTypeData empBonusGZ = payData.stream().filter(x-> SalaryTypeEnum.EMP_BONUS.getValue().equals(x.getType()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setEmpWelfareAmount(ObjectUtil.isNotEmpty(empBonusGZ) ? empBonusGZ.getSumAmount() : BigDecimal.ZERO);
+            //外业补贴扣税额
+            SumTypeData outerBT = subsidyData.stream().filter(x-> SalaryTypeEnum.OUTER_SUBSIDY.getValue().equals(x.getType()) && item.getId().equals(x.getStandardId())).findFirst().orElse(null);
+            item.setOuterAmount(ObjectUtil.isNotEmpty(outerBT) ? outerBT.getSumAmount() : BigDecimal.ZERO);
+            //本月因纳税所得额
+            item.setTaxIncomeAmount(BigDecimal.ZERO);
+            //累计应纳税所得额
+            item.setLjTaxIncomeAmount(BigDecimal.ZERO);
+            //累计税额
+            item.setLjTaxAmount(BigDecimal.ZERO);
+            //已累计税额
+            item.setHaveLjTaxAmount(BigDecimal.ZERO);
+            //本月应扣税额
+            item.setMonthTaxAmount(BigDecimal.ZERO);
+            //实发工资
+            item.setRealPayAmount(BigDecimal.ZERO);
+        });
+        return salaryVoList;
     }
 }

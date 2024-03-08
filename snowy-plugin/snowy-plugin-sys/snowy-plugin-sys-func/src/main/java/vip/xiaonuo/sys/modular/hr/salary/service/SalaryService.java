@@ -16,7 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ConfirmSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
@@ -94,11 +94,11 @@ public interface SalaryService extends IService<Salary> {
     List<Salary> empSalary(EmpSalaryParam empSalaryParam);
 
     /**
-     * 月工资报表 - 2部分组成 ：已确认的封存数据 + 未确认的计算数据
+     * 月工资报表 - (未确认的)预览数据（自动生成）
      * @param
      * @return
      */
-    List<SalaryVo> confirmPageList(ConfirmSalaryParam confirmSalaryParam);
+    List<SalaryVo> prePageList(MySalaryParam param);
 
     /**
      * 获取所涉及月份的工资数据

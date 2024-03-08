@@ -57,6 +57,7 @@ public class SalaryImportTemp {
 
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月", position = 7)
+    @TableField("`YEAR_MONTH`")
     private String yearMonth;
 
     /** 身份证号 */

@@ -26,7 +26,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ConfirmSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
@@ -128,16 +128,16 @@ public class SalaryController {
 
 
     /**
-     * 获取工资系统-【待确认-已确认工资 - 混合列表】
+     * 获取工资系统-【工资预览列表】 - 未确认的工资数据
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("获取工资系统-【待确认工资(自动计算) - 已确认工资(封存的数据)】")
-    @GetMapping("/sys/hr/salary/confirmPageList")
-    public CommonResult<List<SalaryVo>> confirmPageList(ConfirmSalaryParam confirmSalaryParam) {
-        return CommonResult.data(salaryService.confirmPageList(confirmSalaryParam));
+    @ApiOperation("获取工资系统-【工资预览列表】 - 未确认的工资数据")
+    @GetMapping("/sys/hr/salary/prePageList")
+    public CommonResult<List<SalaryVo>> prePageList(MySalaryParam param) {
+        return CommonResult.data(salaryService.prePageList(param));
     }
 
 

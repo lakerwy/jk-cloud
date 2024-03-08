@@ -48,6 +48,7 @@ public class Salary {
 
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月", position = 4)
+    @TableField("`YEAR_MONTH`")
     private String yearMonth;
 
     /** 员工类型：总部|分公司|外部 */
