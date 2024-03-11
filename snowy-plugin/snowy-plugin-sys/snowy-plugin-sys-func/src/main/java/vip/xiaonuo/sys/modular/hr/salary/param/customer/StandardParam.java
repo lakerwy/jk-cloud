@@ -15,8 +15,4 @@ public class StandardParam {
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月")
     private String yearMonth;
-
-    /** 类型：工资|年终奖 */
-    @ApiModelProperty(value = "类型：工资|年终奖")
-    private String type;
 }

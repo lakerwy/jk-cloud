@@ -174,7 +174,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
         //获取当前年月  格式化当前日期的年月部分
         String payType = SalaryTypeEnum.SENIORITY.getValue();
         //条件：(框定计算工龄工资的人员范围),且当月无记录
-        List<SalaryStandardVo> personnelList = salaryPayMapper.getSeniorityPersonnel(payType, yearMonth,SalaryTypeEnum.STANDARD.getValue());
+        List<SalaryStandardVo> personnelList = salaryPayMapper.getSeniorityPersonnel(payType, yearMonth);
         if(CollUtil.isNotEmpty(personnelList)){
             List<SalaryPay> addList = new ArrayList<>();
             personnelList.forEach(item->{
@@ -203,7 +203,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
         LocalDate tmpDate = LocalDate.parse(yearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
         int month = tmpDate.getMonthValue();
         //条件：出生日期为当前月(框定计算生日福利的人员范围),且当月无记录
-        List<SalaryStandardVo> personnelList = salaryPayMapper.getBirthdayPersonnel(payType,itemType, yearMonth,SalaryTypeEnum.STANDARD.getValue(), month);
+        List<SalaryStandardVo> personnelList = salaryPayMapper.getBirthdayPersonnel(payType,itemType, yearMonth, month);
         if(CollUtil.isNotEmpty(personnelList)){
             List<SalaryPay> addList = new ArrayList<>();
             personnelList.forEach(item->{
@@ -222,7 +222,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
     @Override
     public void reSeniorityGZ(PayParam payParam) {
         //0. 获取年月 yyyyMM 涉及的 standardIds
-        List<String> delIds = salaryPayMapper.getSeniorityDelIds(SalaryTypeEnum.SENIORITY.getValue(),payParam.getYearMonth(),SalaryTypeEnum.STANDARD.getValue());
+        List<String> delIds = salaryPayMapper.getSeniorityDelIds(SalaryTypeEnum.SENIORITY.getValue(),payParam.getYearMonth());
         //1. 删除历史数据
         if(CollUtil.isNotEmpty(delIds)) {
             this.removeByIds(delIds);
@@ -234,7 +234,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
     @Override
     public void reBirthdayGZ(PayParam payParam) {
         //0. 获取年月 yyyyMM 涉及的 standardIds
-        List<String> delIds = salaryPayMapper.getBirthdayDelIds(SalaryTypeEnum.EMP_BONUS.getValue(), SalaryTypeEnum.BIRTHDAY.getValue(), payParam.getYearMonth(),SalaryTypeEnum.STANDARD.getValue());
+        List<String> delIds = salaryPayMapper.getBirthdayDelIds(SalaryTypeEnum.EMP_BONUS.getValue(), SalaryTypeEnum.BIRTHDAY.getValue(), payParam.getYearMonth());
         //1. 删除历史数据
         if(CollUtil.isNotEmpty(delIds)) {
             this.removeByIds(delIds);

@@ -38,10 +38,6 @@ public class SalaryStandardEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 类别：工资|奖金 */
-    @ApiModelProperty(value = "类别：工资|奖金", position = 2)
-    private String type;
-
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月", position = 3)
     @TableField("`YEAR_MONTH`")

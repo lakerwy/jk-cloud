@@ -6,7 +6,7 @@
         select a.*
         from HR_SALARY_STANDARD a
              left join HR_SALARY_PAY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{payType}
-        where a.DELETE_FLAG = 'NOT_DELETE' and a.TYPE = #{type} and a.`YEAR_MONTH` = #{yearMonth} and a.HAVE_SENIORITY_PAY = '是' and a.POSITIVE_TIME is not null
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.`YEAR_MONTH` = #{yearMonth} and a.HAVE_SENIORITY_PAY = '是' and a.POSITIVE_TIME is not null
               and b.ID is null
     </select>
 
@@ -14,7 +14,7 @@
         select a.*
         from HR_SALARY_STANDARD a
                  left join HR_SALARY_PAY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{payType} and b.ITEM_TYPE = #{itemType}
-        where a.DELETE_FLAG = 'NOT_DELETE' and a.TYPE = #{type} and a.`YEAR_MONTH` = #{yearMonth} and a.BIRTH_DAY is not null and MONTH(a.BIRTH_DAY) = #{month}
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.`YEAR_MONTH` = #{yearMonth} and a.BIRTH_DAY is not null and MONTH(a.BIRTH_DAY) = #{month}
           and b.ID is null
     </select>
 
@@ -42,7 +42,7 @@
         from HR_SALARY_PAY a
              join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
         where a.DELETE_FLAG = 'NOT_DELETE' and a.TYPE = #{payType}
-          and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{type} and b.`YEAR_MONTH` = #{yearMonth}
+          and b.DELETE_FLAG = 'NOT_DELETE' and b.`YEAR_MONTH` = #{yearMonth}
     </select>
 
     <select id="getBirthdayDelIds" resultType="java.lang.String" >
@@ -50,7 +50,7 @@
         from HR_SALARY_PAY a
                  join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
         where a.DELETE_FLAG = 'NOT_DELETE' and a.TYPE = #{payType} and a.ITEM_TYPE = #{itemType}
-          and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{type} and b.`YEAR_MONTH` = #{yearMonth}
+          and b.DELETE_FLAG = 'NOT_DELETE' and b.`YEAR_MONTH` = #{yearMonth}
     </select>
 
 </mapper>

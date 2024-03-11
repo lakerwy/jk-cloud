@@ -195,6 +195,28 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         return checkAndImport(type,importData);
     }
 
+    @Override
+    public ImportResult importPay(ImportPay input) {
+        //1.导入类型
+        String type = SalaryTypeEnum.EMP_BONUS.getValue();
+        //2.数据转换，数据初始值
+        List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
+        //3.校验与导入
+        return checkAndImport(type,importData);
+    }
+
+    @Override
+    public ImportResult importSalary(ImportSalary input) {
+        //1.导入类型
+        String type = SalaryTypeEnum.EMP_SALARY.getValue();
+        //2.数据转换，数据初始值
+        List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
+        //3.校验与导入
+        return checkAndImport(type,importData);
+    }
+
+
+
 
     /**
      * 导入至正式表
@@ -248,25 +270,6 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         return true;
     }
 
-    @Override
-    public ImportResult importPay(ImportPay input) {
-        //1.导入类型
-        String type = SalaryTypeEnum.EMP_BONUS.getValue();
-        //2.数据转换，数据初始值
-        List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        //3.校验与导入
-        return checkAndImport(type,importData);
-    }
-
-    @Override
-    public ImportResult importSalary(ImportSalary input) {
-        //1.导入类型
-        String type = SalaryTypeEnum.EMP_SALARY.getValue();
-        //2.数据转换，数据初始值
-        List<SalaryImportTemp> importData = BeanUtil.copyToList(input.getImportList(), SalaryImportTemp.class);
-        //3.校验与导入
-        return checkAndImport(type,importData);
-    }
 
     /**
      * 数据初始化，与去除空格
@@ -344,6 +347,11 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                     errMsg += "发放公司必填；";
                 }
             }
+            if(SalaryTypeEnum.EMP_SALARY.getValue().equals(item.getType())){
+                if(ObjectUtil.isEmpty(item.getUserType())){
+                    errMsg += "员工类别必填；";
+                }
+            }
             //若有值校验
             if(ObjectUtil.isNotEmpty(item.getUserType()) && !CollectionUtil.newArrayList(USER_TYPE_LIST).contains(item.getUserType().trim())){
                 errMsg += "员工类别必须为：" + StrUtil.join("、",USER_TYPE_LIST) +"；";
@@ -394,12 +402,14 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
          */
         List<PersonnelInfoVo> personnelAllList = new ArrayList<>();
         List<SalaryStandardVo> standardAllList = new ArrayList<>();
-        if(SalaryTypeEnum.STANDARD.getValue().equals(type)){
+        if(SalaryTypeEnum.STANDARD.getValue().equals(type)
+           || SalaryTypeEnum.EMP_SALARY.getValue().equals(type))
+        {
             personnelAllList = salaryImportTempMapper.getPersonnelList();
         }
         if(IMPORT_LIST.contains(type)){
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
-            standardAllList = salaryStandardService.getStandardAllList(SalaryTypeEnum.STANDARD.getValue(),yearMonths);
+            standardAllList = salaryStandardService.getStandardAllList(yearMonths);
         }
         List<PersonnelInfoVo> finalPersonnelAllList = personnelAllList;
         List<SalaryStandardVo> finalStandardAllList = standardAllList;
@@ -409,7 +419,9 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
          * 第二部分 非 月工资标准 ，均按照月工资标准表，匹配用户
          */
         importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-            if(SalaryTypeEnum.STANDARD.getValue().equals(item.getType())){
+            if(SalaryTypeEnum.STANDARD.getValue().equals(item.getType())
+               || SalaryTypeEnum.EMP_SALARY.getValue().equals(item.getType()))
+            {
                 if(CollectionUtil.newArrayList(USER_TYPE_CHECK_LIST).contains(item.getUserType())) {
                     List<PersonnelInfoVo> personnelInfoVos = finalPersonnelAllList.stream().filter(m -> item.getUserType().equals(m.getUserType()) && item.getIdCardNumber().equals(m.getIdCardNumber())).collect(Collectors.toList());
                     if (personnelInfoVos.size() == 1) {
@@ -469,7 +481,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
             if(CollUtil.isNotEmpty(yearMonths)) {
                 //涉及到的年月，看是否已导入过
-                List<SalaryStandardVo> oldList = salaryStandardService.getStandardAllList(type,yearMonths);
+                List<SalaryStandardVo> oldList = salaryStandardService.getStandardAllList(yearMonths);
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
                         List<SalaryStandardVo> tmpList = oldList.stream().filter(obj -> item.getYearMonth().equals(obj.getYearMonth()) && item.getIdCardNumber().equals(obj.getIdCardNumber())).collect(Collectors.toList());
@@ -535,7 +547,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
             if(CollUtil.isNotEmpty(yearMonths)) {
                 //涉及到的年月，看是否已导入过
-                List<SalaryVo> oldList = salaryService.getSalaryAllList(SalaryTypeEnum.STANDARD.getValue(), yearMonths);
+                List<SalaryVo> oldList = salaryService.getSalaryAllList(type, yearMonths);
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
                         List<SalaryVo> tmpList = oldList.stream().filter(obj -> item.getYearMonth().equals(obj.getYearMonth()) && item.getIdCardNumber().equals(obj.getIdCardNumber())).collect(Collectors.toList());
