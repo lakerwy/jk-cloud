@@ -5,35 +5,52 @@
     <select id="getSeniorityPersonnel" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo" >
         select a.*
         from HR_SALARY_STANDARD a
-             left join HR_SALARY_PAY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{type}
-        where a.DELETE_FLAG = 'NOT_DELETE' and a.TYPE='月工资标准' and a.`YEAR_MONTH` = #{yearMonth} and a.HAVE_SENIORITY_PAY = '是' and a.POSITIVE_TIME is not null
+             left join HR_SALARY_PAY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{payType}
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.`YEAR_MONTH` = #{yearMonth} and a.HAVE_SENIORITY_PAY = '是' and a.POSITIVE_TIME is not null
               and b.ID is null
     </select>
 
     <select id="getBirthdayPersonnel" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo" >
         select a.*
         from HR_SALARY_STANDARD a
-                 left join HR_SALARY_PAY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{type} and b.ITEM_TYPE = #{itemType}
-        where a.DELETE_FLAG = 'NOT_DELETE' and a.TYPE='月工资标准' and a.`YEAR_MONTH` = #{yearMonth} and a.BIRTH_DAY is not null and MONTH(a.BIRTH_DAY) = #{month}
+                 left join HR_SALARY_PAY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{payType} and b.ITEM_TYPE = #{itemType}
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.`YEAR_MONTH` = #{yearMonth} and a.BIRTH_DAY is not null and MONTH(a.BIRTH_DAY) = #{month}
           and b.ID is null
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo" >
-        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.COMPANY as company,
+        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,
                b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.HIRE_DATE as hireDate,b.LEAVE_DATE as leaveDate,
-               b.POSITIVE_TIME as positiveTime,b.BIRTH_DAY as birthDay,b.STANDARD_AMOUNT as standardAmount,b.USER_TYPE as userType
+               b.POSITIVE_TIME as positiveTime,b.BIRTH_DAY as birthDay,b.USER_TYPE as userType
         from HR_SALARY_PAY a
                  left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
             ${ew.customSqlSegment}
     </select>
 
     <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo" >
-        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.COMPANY as company,
+        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,
                b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.HIRE_DATE as hireDate,b.LEAVE_DATE as leaveDate,
-               b.POSITIVE_TIME as positiveTime,b.BIRTH_DAY as birthDay,b.STANDARD_AMOUNT as standardAmount,b.USER_TYPE as userType
+               b.POSITIVE_TIME as positiveTime,b.BIRTH_DAY as birthDay,b.USER_TYPE as userType
         from HR_SALARY_PAY a
                  left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
         where a.ID = #{id}
+    </select>
+
+
+    <select id="getSeniorityDelIds" resultType="java.lang.String" >
+        select a.ID
+        from HR_SALARY_PAY a
+             join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.TYPE = #{payType}
+          and b.DELETE_FLAG = 'NOT_DELETE' and b.`YEAR_MONTH` = #{yearMonth}
+    </select>
+
+    <select id="getBirthdayDelIds" resultType="java.lang.String" >
+        select a.ID
+        from HR_SALARY_PAY a
+                 join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.TYPE = #{payType} and a.ITEM_TYPE = #{itemType}
+          and b.DELETE_FLAG = 'NOT_DELETE' and b.`YEAR_MONTH` = #{yearMonth}
     </select>
 
 </mapper>

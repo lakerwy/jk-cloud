@@ -26,7 +26,7 @@ import java.util.Date;
  * 工资系统-工资表实体
  *
  * @author yong.ye
- * @date  2024/03/01 16:50
+ * @date  2024/03/08 10:30
  **/
 @Getter
 @Setter
@@ -43,253 +43,290 @@ public class Salary {
     private String type;
 
     /** 工资发放公司 */
-    @ApiModelProperty(value = "工资发放公司", position = 5)
+    @ApiModelProperty(value = "工资发放公司", position = 3)
     private String company;
 
     /** 所属年月 */
-    @ApiModelProperty(value = "所属年月", position = 2)
+    @ApiModelProperty(value = "所属年月", position = 4)
+    @TableField("`YEAR_MONTH`")
     private String yearMonth;
 
+    /** 员工类型：总部|分公司|外部 */
+    @ApiModelProperty(value = "员工类型：总部|分公司|外部", position = 5)
+    private String userType;
+
     /** 身份证号 */
-    @ApiModelProperty(value = "身份证号", position = 3)
+    @ApiModelProperty(value = "身份证号", position = 6)
     private String idCardNumber;
 
     /** 姓名 */
-    @ApiModelProperty(value = "姓名", position = 4)
+    @ApiModelProperty(value = "姓名", position = 7)
     private String userName;
 
     /** 建科云用户Id */
-    @ApiModelProperty(value = "建科云用户Id", position = 5)
+    @ApiModelProperty(value = "建科云用户Id", position = 8)
     private String userId;
 
     /** 花名册Id */
-    @ApiModelProperty(value = "花名册Id", position = 6)
+    @ApiModelProperty(value = "花名册Id", position = 9)
     private String personnelId;
 
     /** 一级部门 */
-    @ApiModelProperty(value = "一级部门", position = 7)
+    @ApiModelProperty(value = "一级部门", position = 10)
     private String firstOrgName;
 
     /** 二级部门 */
-    @ApiModelProperty(value = "二级部门", position = 9)
+    @ApiModelProperty(value = "二级部门", position = 11)
     private String orgName;
 
     /** 职位 */
-    @ApiModelProperty(value = "职位", position = 11)
+    @ApiModelProperty(value = "职位", position = 12)
     private String position;
 
     /** 入职日期 */
-    @ApiModelProperty(value = "入职日期", position = 12)
+    @ApiModelProperty(value = "入职日期", position = 13)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date hireDate;
 
     /** 离职日期 */
-    @ApiModelProperty(value = "离职日期", position = 13)
+    @ApiModelProperty(value = "离职日期", position = 14)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date leaveDate;
 
     /** 转正日期 */
-    @ApiModelProperty(value = "转正日期", position = 14)
+    @ApiModelProperty(value = "转正日期", position = 15)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date positiveTime;
 
     /** 生日 */
-    @ApiModelProperty(value = "生日", position = 15)
+    @ApiModelProperty(value = "生日", position = 16)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date birthDay;
 
+    /** 是否有生日福利 */
+    @ApiModelProperty(value = "是否有生日福利", position = 17)
+    private String haveBirthdayPay;
+
+    /** 是否有工龄工资 */
+    @ApiModelProperty(value = "是否有工龄工资", position = 18)
+    private String haveSeniorityPay;
+
+    /** 【外键】发放工资的员工Id：HR_SALARY_STANDARD.ID */
+    @ApiModelProperty(value = "【外键】发放工资的员工Id：HR_SALARY_STANDARD.ID", position = 19)
+    private String standardId;
+
     /** 月度标准工资 */
-    @ApiModelProperty(value = "月度标准工资", position = 16)
+    @ApiModelProperty(value = "月度标准工资", position = 20)
     private BigDecimal standardAmount;
 
-    /** 工资组成-基本工资 */
-    @ApiModelProperty(value = "工资组成-基本工资", position = 17)
+    /** 工资结构-基本工资 */
+    @ApiModelProperty(value = "工资结构-基本工资", position = 21)
     private BigDecimal basicAmount;
 
-    /** 工资组成-岗位工资 */
-    @ApiModelProperty(value = "工资组成-岗位工资", position = 18)
+    /** 工资结构-岗位工资 */
+    @ApiModelProperty(value = "工资结构-岗位工资", position = 22)
     private BigDecimal postAmount;
 
-    /** 工资组成-绩效（考核）工资 */
-    @ApiModelProperty(value = "工资组成-绩效（考核）工资", position = 19)
+    /** 工资结构-考核工资 */
+    @ApiModelProperty(value = "工资结构-考核工资", position = 23)
     private BigDecimal meritAmount;
 
-    /** 附加工资-餐饮补助 */
-    @ApiModelProperty(value = "附加工资-餐饮补助", position = 20)
-    private BigDecimal mealAmount;
+    /** 绩效工资-绩效系数 */
+    @ApiModelProperty(value = "绩效工资-绩效系数", position = 24)
+    private Float meritRate;
+
+    /** 绩效工资-实发绩效 */
+    @ApiModelProperty(value = "绩效工资-实发绩效", position = 25)
+    private BigDecimal realMeritAmount;
 
     /** 附加工资-注册补贴 */
-    @ApiModelProperty(value = "附加工资-注册补贴", position = 21)
+    @ApiModelProperty(value = "附加工资-注册补贴", position = 26)
     private BigDecimal registerAmount;
 
     /** 附加工资-工龄工资 */
-    @ApiModelProperty(value = "附加工资-工龄工资", position = 22)
+    @ApiModelProperty(value = "附加工资-工龄工资", position = 27)
     private BigDecimal workAgeAmount;
 
     /** 附加工资-全勤奖 */
-    @ApiModelProperty(value = "附加工资-全勤奖", position = 23)
+    @ApiModelProperty(value = "附加工资-全勤奖", position = 28)
     private BigDecimal fullAmount;
 
+    /** 附加工资-讲师津贴 */
+    @ApiModelProperty(value = "附加工资-讲师津贴", position = 29)
+    private BigDecimal teacherAmount;
+
     /** 附加工资-值班补贴 */
-    @ApiModelProperty(value = "附加工资-值班补贴", position = 24)
+    @ApiModelProperty(value = "附加工资-值班补贴", position = 30)
     private BigDecimal dutyAmount;
 
-    /** 附加工资-其他 */
-    @ApiModelProperty(value = "附加工资-其他", position = 25)
-    private BigDecimal fjOtherAmount;
-
-    /** 扣款-病假工资 */
-    @ApiModelProperty(value = "扣款-病假工资", position = 26)
+    /** 考勤扣款-病假 */
+    @ApiModelProperty(value = "考勤扣款-病假", position = 31)
     private BigDecimal sickAmount;
 
-    /** 扣款-事假工资 */
-    @ApiModelProperty(value = "扣款-事假工资", position = 27)
+    /** 考勤扣款-事假 */
+    @ApiModelProperty(value = "考勤扣款-事假", position = 32)
     private BigDecimal workAmount;
 
-    /** 扣款-迟到工资 */
-    @ApiModelProperty(value = "扣款-迟到工资", position = 28)
+    /** 考勤扣款-迟到 */
+    @ApiModelProperty(value = "考勤扣款-迟到", position = 33)
     private BigDecimal lateAmount;
 
-    /** 扣款-矿工工资 */
-    @ApiModelProperty(value = "扣款-矿工工资", position = 29)
+    /** 考勤扣款-矿工 */
+    @ApiModelProperty(value = "考勤扣款-矿工", position = 34)
     private BigDecimal minerAmount;
 
-    /** 扣款-异动调整 */
-    @ApiModelProperty(value = "扣款-异动调整", position = 30)
-    private BigDecimal moveAmount;
+    /** 考勤扣款-产假 */
+    @ApiModelProperty(value = "考勤扣款-产假", position = 35)
+    private BigDecimal materAmount;
 
-    /** 扣款-其他 */
-    @ApiModelProperty(value = "扣款-其他", position = 31)
-    private BigDecimal kkOtherAmount;
+    /** 税前补发补扣-其他税前补发 */
+    @ApiModelProperty(value = "税前补发补扣-其他税前补发", position = 36)
+    private BigDecimal addAmount;
+
+    /** 税前补发补扣-其他税前补扣 */
+    @ApiModelProperty(value = "税前补发补扣-其他税前补扣", position = 37)
+    private BigDecimal minusAmount;
 
     /** 应发工资 */
-    @ApiModelProperty(value = "应发工资", position = 32)
+    @ApiModelProperty(value = "应发工资", position = 38)
     private BigDecimal grossPayAmount;
 
-    /** 五险一金-社保 */
-    @ApiModelProperty(value = "五险一金-社保", position = 33)
-    private BigDecimal insAmount;
+    /** 个人社保扣款-小计-个人 */
+    @ApiModelProperty(value = "个人社保扣款-小计-个人", position = 39)
+    private BigDecimal per;
 
-    /** 五险一金-公积金 */
-    @ApiModelProperty(value = "五险一金-公积金", position = 34)
-    private BigDecimal gjjAmount;
+    /** 个人社保扣款-养老-个人 */
+    @ApiModelProperty(value = "个人社保扣款-养老-个人", position = 40)
+    private BigDecimal ynPer;
+
+    /** 个人社保扣款-失业-个人 */
+    @ApiModelProperty(value = "个人社保扣款-失业-个人", position = 41)
+    private BigDecimal syPer;
+
+    /** 个人社保扣款-医疗-个人 */
+    @ApiModelProperty(value = "个人社保扣款-医疗-个人", position = 42)
+    private BigDecimal ylPer;
+
+    /** 个人社保扣款-大额医疗-个人 */
+    @ApiModelProperty(value = "个人社保扣款-大额医疗-个人", position = 43)
+    private BigDecimal ylSale;
+
+    /** 个人公积金扣款 */
+    @ApiModelProperty(value = "个人公积金扣款", position = 44)
+    private BigDecimal sysPer;
 
     /** 专项附加扣除项-赡养老人 */
-    @ApiModelProperty(value = "专项附加扣除项-赡养老人", position = 35)
+    @ApiModelProperty(value = "专项附加扣除项-赡养老人", position = 45)
     private BigDecimal taxSy;
 
     /** 专项附加扣除项-子女教育 */
-    @ApiModelProperty(value = "专项附加扣除项-子女教育", position = 36)
+    @ApiModelProperty(value = "专项附加扣除项-子女教育", position = 46)
     private BigDecimal taxZn;
 
     /** 专项附加扣除项-房贷利息 */
-    @ApiModelProperty(value = "专项附加扣除项-房贷利息", position = 37)
+    @ApiModelProperty(value = "专项附加扣除项-房贷利息", position = 47)
     private BigDecimal taxFd;
 
     /** 专项附加扣除项-住房租金 */
-    @ApiModelProperty(value = "专项附加扣除项-住房租金", position = 38)
+    @ApiModelProperty(value = "专项附加扣除项-住房租金", position = 48)
     private BigDecimal taxZf;
 
     /** 专项附加扣除项-继续教育 */
-    @ApiModelProperty(value = "专项附加扣除项-继续教育", position = 39)
+    @ApiModelProperty(value = "专项附加扣除项-继续教育", position = 49)
     private BigDecimal taxJy;
 
     /** 专项附加扣除项-婴幼儿照护 */
-    @ApiModelProperty(value = "专项附加扣除项-婴幼儿照护", position = 40)
+    @ApiModelProperty(value = "专项附加扣除项-婴幼儿照护", position = 50)
     private BigDecimal taxZh;
 
-    /** 福利补助 */
-    @ApiModelProperty(value = "福利补助", position = 41)
-    private BigDecimal welfareAmount;
+    /** 员工福利扣税额 */
+    @ApiModelProperty(value = "员工福利扣税额", position = 51)
+    private BigDecimal empWelfareAmount;
 
-    /** 应纳税所得额 */
-    @ApiModelProperty(value = "应纳税所得额", position = 42)
+    /** 外业补贴扣税额 */
+    @ApiModelProperty(value = "外业补贴扣税额", position = 52)
+    private BigDecimal outerAmount;
+
+    /** 其他税后补发 */
+    @ApiModelProperty(value = "其他税后补发", position = 53)
+    private BigDecimal lastAddAmount;
+
+    /** 其他税后补扣 */
+    @ApiModelProperty(value = "其他税后补扣", position = 54)
+    private BigDecimal lastMinusAmount;
+
+    /** 本月应纳税所得额 */
+    @ApiModelProperty(value = "本月应纳税所得额", position = 55)
     private BigDecimal taxIncomeAmount;
 
     /** 累计应纳税所得额 */
-    @ApiModelProperty(value = "累计应纳税所得额", position = 43)
+    @ApiModelProperty(value = "累计应纳税所得额", position = 56)
     private BigDecimal ljTaxIncomeAmount;
 
     /** 累计税额 */
-    @ApiModelProperty(value = "累计税额", position = 44)
+    @ApiModelProperty(value = "累计税额", position = 57)
     private BigDecimal ljTaxAmount;
 
-    /** 已累计税额 */
-    @ApiModelProperty(value = "已累计税额", position = 45)
+    /** 已缴累计税额 */
+    @ApiModelProperty(value = "已缴累计税额", position = 58)
     private BigDecimal haveLjTaxAmount;
 
     /** 本月应扣税额 */
-    @ApiModelProperty(value = "本月应扣税额", position = 46)
+    @ApiModelProperty(value = "本月应扣税额", position = 59)
     private BigDecimal monthTaxAmount;
 
     /** 实发工资 */
-    @ApiModelProperty(value = "实发工资", position = 47)
+    @ApiModelProperty(value = "实发工资", position = 60)
     private BigDecimal realPayAmount;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 48)
+    @ApiModelProperty(value = "备注", position = 61)
     private String memo;
 
     /** 租户id */
-    @ApiModelProperty(value = "租户id", position = 49)
+    @ApiModelProperty(value = "租户id", position = 62)
     private String tenantId;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 50)
+    @ApiModelProperty(value = "删除标志", position = 63)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 51)
+    @ApiModelProperty(value = "创建时间", position = 64)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 52)
+    @ApiModelProperty(value = "创建用户", position = 65)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 53)
+    @ApiModelProperty(value = "修改时间", position = 66)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 54)
+    @ApiModelProperty(value = "修改用户", position = 67)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 55)
+    @ApiModelProperty(value = "数据权限控制字段", position = 68)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 
-    /** 【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
-    @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 56)
-    private String standardId;
-
-    /** 员工类别：总部|分公司|外部 */
-    @ApiModelProperty(value = "员工类别：总部|分公司|外部", position = 57)
-    private String userType;
-
-    /** 是否有生日福利：是 否*/
-    @ApiModelProperty(value = "是否有生日福利：是 否", position = 58)
-    private String haveBirthdayPay;
-
-    /** 是否有工龄工资：是 否*/
-    @ApiModelProperty(value = "是否有工龄工资：是 否", position = 58)
-    private String haveSeniorityPay;
-
-    /** 绩效系数 */
-    @ApiModelProperty(value = "绩效系数", position = 59)
-    private Float meritRate;
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 100)
+    private String note;
 }

@@ -16,8 +16,8 @@ import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Param;
-import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
+import vip.xiaonuo.sys.modular.hr.salary.entity.*;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData;
 
 import java.util.List;
 
@@ -29,8 +29,57 @@ import java.util.List;
  **/
 public interface SalaryMapper extends BaseMapper<Salary> {
     /**
-     * 获取 yearMonth 【待确认|已确认】- 工资数据列表
+     * 月工资报表 - (未确认的)预览数据（自动生成）
      * @return
      */
-    List<SalaryVo> getConfirmGZ(String yearMonth,@Param(Constants.WRAPPER) Wrapper<Salary> queryWrapper);
+    List<SalaryStandard> getPrePageList(@Param(Constants.WRAPPER) Wrapper<Salary> queryWrapper);
+
+    /**
+     * 对指定yyyyMM员工工资，分类统计各类补贴金额
+     * @param standardIds
+     * @return
+     */
+    List<SumTypeData> getSubsidyData(List<String> standardIds);
+
+    /**
+     * 对指定yyyyMM员工工资，分类统计各类福利金额
+     * @param standardIds
+     * @return
+     */
+    List<SumTypeData> getPayData(List<String> standardIds);
+
+    /**
+     * 对指定yyyyMM员工工资，获取考勤数据
+     * @param standardIds
+     * @return
+     */
+    List<SalaryAttend> getAttendData(List<String> standardIds);
+
+    /**
+     * 对指定yyyyMM员工工资，获取社保数据
+     * @param standardIds
+     * @return
+     */
+    List<SalaryIns> getInsData(List<String> standardIds);
+
+    /**
+     * 对指定yyyyMM员工工资，获取公积金数据
+     * @param standardIds
+     * @return
+     */
+    List<SalaryGjj> getGjjData(List<String> standardIds);
+
+    /**
+     * 对指定yyyyMM员工工资，获取加计扣除数据
+     * @param standardIds
+     * @return
+     */
+    List<SalaryTax> getTaxData(List<String> standardIds);
+
+    /**
+     * 对指定yyyyMM员工工资，获取 税前税后 补发补扣 数据
+     * @param standardIds
+     * @return
+     */
+    List<SalaryAdd> getAddData(List<String> standardIds);
 }

@@ -35,13 +35,9 @@ public class SalaryDict {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
-    /** 字典类型（扣除、嘉奖） */
-    @ApiModelProperty(value = "字典类型（扣除、嘉奖）", position = 2)
+    /** 字典类型（1 补发、2 补扣） */
+    @ApiModelProperty(value = "字典类型（1 补发、2 补扣）", position = 2)
     private String dictType;
-
-    /** 字典栏目类别：税前|税后 */
-    @ApiModelProperty(value = "字典栏目类别：税前|税后", position = 3)
-    private String itemType;
 
     /** 字典栏目 */
     @ApiModelProperty(value = "字典栏目", position = 3)

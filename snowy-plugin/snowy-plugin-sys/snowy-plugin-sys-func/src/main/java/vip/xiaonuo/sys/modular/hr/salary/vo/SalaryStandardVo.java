@@ -21,13 +21,8 @@ public class SalaryStandardVo {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
-    /** 类别：工资|奖金 */
-    @ApiModelProperty(value = "类别：工资|奖金", position = 2)
-    private String type;
-
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月", position = 3)
-    @TableField("`YEAR_MONTH`")
     private String yearMonth;
 
     /** 身份证号 */

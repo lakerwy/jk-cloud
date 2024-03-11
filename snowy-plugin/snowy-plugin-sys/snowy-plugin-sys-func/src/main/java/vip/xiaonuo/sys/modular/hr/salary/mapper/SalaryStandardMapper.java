@@ -15,7 +15,7 @@ package vip.xiaonuo.sys.modular.hr.salary.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
-import vip.xiaonuo.sys.modular.hr.salary.param.PersonnelParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
 
 import java.util.List;
 

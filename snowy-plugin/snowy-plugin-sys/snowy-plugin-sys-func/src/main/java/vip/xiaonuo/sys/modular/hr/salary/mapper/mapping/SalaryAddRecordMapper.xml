@@ -4,15 +4,17 @@
 
     <select id="getTotalByAddId" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddTotal">
         select ADD_ID as addId,
-               sum(IF(DICT_TYPE = '1',REAL_AMOUNT,0)) as addAmount,
-               sum(IF(DICT_TYPE = '2',REAL_AMOUNT,0)) as minusAmount
+               sum(IF(DICT_TYPE = '1', IF(ITEM_TYPE = '税前',REAL_AMOUNT,0),0) as addAmount,
+               sum(IF(DICT_TYPE = '1', IF(ITEM_TYPE = '税后',REAL_AMOUNT,0),0) as lastAddAmount,
+               sum(IF(DICT_TYPE = '2', IF(ITEM_TYPE = '税前',REAL_AMOUNT,0),0)) as minusAmount,
+               sum(IF(DICT_TYPE = '2', IF(ITEM_TYPE = '税后',REAL_AMOUNT,0),0)) as lastMinusAmount
         from HR_SALARY_ADD_RECORD
         where DELETE_FLAG = 'NOT_DELETE' and ADD_ID = #{addId}
         group by ADD_ID
     </select>
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo" >
-        select a.*, c.`YEAR_MONTH` as yearMonth,c.ID_CARD_NUMBER as idCardNumber,c.USER_NAME as userName,c.COMPANY as company,
+        select a.*, c.`YEAR_MONTH` as yearMonth,c.ID_CARD_NUMBER as idCardNumber,c.USER_NAME as userName,
                c.FIRST_ORG_NAME as firstOrgName,c.ORG_NAME as orgName
         from HR_SALARY_ADD_RECORD a
                  left join HR_SALARY_ADD b on a.ADD_ID = b.ID
@@ -21,7 +23,7 @@
     </select>
 
     <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo" >
-        select a.*, c.`YEAR_MONTH` as yearMonth,c.ID_CARD_NUMBER as idCardNumber,c.USER_NAME as userName,c.COMPANY as company,
+        select a.*, c.`YEAR_MONTH` as yearMonth,c.ID_CARD_NUMBER as idCardNumber,c.USER_NAME as userName,
                c.FIRST_ORG_NAME as firstOrgName,c.ORG_NAME as orgName
         from HR_SALARY_ADD_RECORD a
                  left join HR_SALARY_ADD b on a.ADD_ID = b.ID

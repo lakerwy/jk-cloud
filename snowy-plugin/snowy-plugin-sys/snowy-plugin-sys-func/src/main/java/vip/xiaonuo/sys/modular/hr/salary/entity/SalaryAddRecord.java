@@ -39,16 +39,16 @@ public class SalaryAddRecord {
     @ApiModelProperty(value = "外键（HR_SALARY_ADD.ID)", position = 2)
     private String addId;
 
-    /** 字典类型（加项、减项） */
-    @ApiModelProperty(value = "字典类型（加项、减项）", position = 3)
+    /** 字典类型（1 补发、2 补扣） */
+    @ApiModelProperty(value = "字典类型（1 补发、2 补扣）", position = 3)
     private String dictType;
 
-    /** 字典栏目类别：税前|税后 */
-    @ApiModelProperty(value = "字典栏目类别：税前|税后", position = 3)
+    /** 类别：税前|税后 */
+    @ApiModelProperty(value = "类别：税前|税后", position = 3)
     private String itemType;
 
-    /** 加分|减分类型 */
-    @ApiModelProperty(value = "加分|减分类型", position = 4)
+    /** 1 补发、2 补扣 栏目名称 */
+    @ApiModelProperty(value = "1 补发、2 补扣 栏目名称", position = 4)
     private String dictName;
 
     /** 标准金额 */

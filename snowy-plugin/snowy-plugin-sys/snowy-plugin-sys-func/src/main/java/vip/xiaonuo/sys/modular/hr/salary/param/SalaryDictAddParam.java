@@ -44,8 +44,4 @@ public class SalaryDictAddParam {
     @ApiModelProperty(value = "描述", position = 5)
     private String dictDescription;
 
-    /** 字典栏目类别：税前|税后 */
-    @ApiModelProperty(value = "字典栏目类别：税前|税后", position = 3)
-    private String itemType;
-
 }

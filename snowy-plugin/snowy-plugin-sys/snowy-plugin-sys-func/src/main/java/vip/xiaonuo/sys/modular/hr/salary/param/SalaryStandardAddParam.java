@@ -32,10 +32,6 @@ import java.util.Date;
 @Setter
 public class SalaryStandardAddParam {
 
-    /** 类别：工资|奖金 */
-    @ApiModelProperty(value = "类别：工资|奖金", position = 2)
-    private String type;
-
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月", position = 3)
     @TableField("`YEAR_MONTH`")
@@ -144,4 +140,8 @@ public class SalaryStandardAddParam {
     /** 绩效系数 */
     @ApiModelProperty(value = "绩效系数", position = 31)
     private Float meritRate;
+
+    /** 留痕备注 */
+    @ApiModelProperty(value = "留痕备注", position = 100)
+    private String note;
 }

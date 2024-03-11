@@ -15,12 +15,14 @@ package vip.xiaonuo.sys.modular.hr.salary.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * 工资系统-工资表查询参数
  *
  * @author yong.ye
- * @date  2024/03/01 16:50
+ * @date  2024/03/08 10:30
  **/
 @Getter
 @Setter
@@ -46,6 +48,10 @@ public class SalaryPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 类别：工资|奖金 */
+    @ApiModelProperty(value = "类别：工资|奖金")
+    private String type;
+
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月")
     private String yearMonth;
@@ -69,5 +75,9 @@ public class SalaryPageParam {
     /** 职位 */
     @ApiModelProperty(value = "职位")
     private String position;
+
+    /** 员工类别：总部|分公司|外部 */
+    @ApiModelProperty(value = "员工类别：总部|分公司|外部")
+    private String userType;
 
 }

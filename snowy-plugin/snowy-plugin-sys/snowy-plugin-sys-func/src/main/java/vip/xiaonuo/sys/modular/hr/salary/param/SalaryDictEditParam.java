@@ -34,8 +34,8 @@ public class SalaryDictEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 字典类型（扣除、嘉奖） */
-    @ApiModelProperty(value = "字典类型（扣除、嘉奖）", position = 2)
+    /** 字典类型（1 补发 2 补扣） */
+    @ApiModelProperty(value = "字典类型（1 补发 2 补扣）", position = 2)
     private String dictType;
 
     /** 字典栏目 */
@@ -49,9 +49,5 @@ public class SalaryDictEditParam {
     /** 描述 */
     @ApiModelProperty(value = "描述", position = 5)
     private String dictDescription;
-
-    /** 字典栏目类别：税前|税后 */
-    @ApiModelProperty(value = "字典栏目类别：税前|税后", position = 3)
-    private String itemType;
 
 }

@@ -4,7 +4,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryImportAttendParam;
 
 import java.util.List;
 

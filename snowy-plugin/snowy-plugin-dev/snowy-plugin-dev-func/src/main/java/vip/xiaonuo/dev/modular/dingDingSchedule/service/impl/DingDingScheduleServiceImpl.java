@@ -95,7 +95,8 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         return unionId;
     }
 
-    private void putHttDingDingSchedule(DingDingScheduleVo dingDingScheduleVo) throws Exception{
+    @Override
+    public void putHttDingDingSchedule(DingDingScheduleVo dingDingScheduleVo) throws Exception{
         com.aliyun.dingtalkcalendar_1_0.Client client = CommonDingDingUtil.createScheduleClient();
         com.aliyun.dingtalkcalendar_1_0.models.CreateEventHeaders createEventHeaders = new com.aliyun.dingtalkcalendar_1_0.models.CreateEventHeaders();
         createEventHeaders.xAcsDingtalkAccessToken = dingDingScheduleVo.getXAcsDingtalkAccessToken();
@@ -151,7 +152,8 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         }
     }
 
-    private String dateTimeFormatConversion(String standardDateTimeStr,Integer flag){
+    @Override
+    public String dateTimeFormatConversion(String standardDateTimeStr,Integer flag){
         standardDateTimeStr = standardDateTimeStr.substring(0,10); // 解析日期部分
         LocalDate localDate = LocalDate.parse(standardDateTimeStr, DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         // 解析时间部分，如果flag有特殊需求，则覆盖时间

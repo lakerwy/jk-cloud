@@ -15,10 +15,10 @@ package vip.xiaonuo.sys.modular.hr.salary.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
-import vip.xiaonuo.sys.modular.hr.salary.param.ConfirmSalaryParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.EmpSalaryParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 
 import java.util.List;
@@ -38,6 +38,22 @@ public interface SalaryService extends IService<Salary> {
      * @date  2024/03/01 16:50
      */
     Page<Salary> page(SalaryPageParam salaryPageParam);
+
+    /**
+     * 添加工资系统-工资表
+     *
+     * @author yong.ye
+     * @date  2024/03/08 10:30
+     */
+    void add(SalaryAddParam salaryAddParam);
+
+    /**
+     * 编辑工资系统-工资表
+     *
+     * @author yong.ye
+     * @date  2024/03/08 10:30
+     */
+    void edit(SalaryEditParam salaryEditParam);
 
     /**
      * 删除工资系统-工资表
@@ -78,9 +94,23 @@ public interface SalaryService extends IService<Salary> {
     List<Salary> empSalary(EmpSalaryParam empSalaryParam);
 
     /**
-     * 月工资报表 - 2部分组成 ：已确认的封存数据 + 未确认的计算数据
+     * 月工资报表 - (未确认的)预览数据（自动生成）
      * @param
      * @return
      */
-    List<SalaryVo> confirmPageList(ConfirmSalaryParam confirmSalaryParam);
+    List<SalaryVo> prePageList(MySalaryParam param);
+
+    /**
+     * 获取所涉及月份的工资数据
+     * @param type 工资类型
+     * @param yearMonths 月份
+     * @return
+     */
+    List<SalaryVo> getSalaryAllList(String type,List<String> yearMonths);
+
+    /**
+     * 删除 工资表 已确认的数据 - 删除某年月数据
+     * @param param
+     */
+    void deleteByMonth(PayParam param);
 }

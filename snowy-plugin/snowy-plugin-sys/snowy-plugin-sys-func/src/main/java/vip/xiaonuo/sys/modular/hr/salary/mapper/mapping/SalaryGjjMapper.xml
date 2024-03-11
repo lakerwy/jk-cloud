@@ -3,7 +3,7 @@
 <mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryGjjMapper">
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryGjjVo" >
-        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.COMPANY as company,
+        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,
                b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName
         from HR_SALARY_GJJ a
                  left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
@@ -11,7 +11,7 @@
     </select>
 
     <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryGjjVo" >
-        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,b.COMPANY as company,
+        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,
                b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName
         from HR_SALARY_GJJ a
                  left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID

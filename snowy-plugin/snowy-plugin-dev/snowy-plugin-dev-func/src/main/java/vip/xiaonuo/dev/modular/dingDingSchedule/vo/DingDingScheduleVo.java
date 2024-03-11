@@ -3,6 +3,7 @@ package vip.xiaonuo.dev.modular.dingDingSchedule.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.dev.modular.dingDingSchedule.param.DingDingScheduleParam;
 
 import java.util.List;
 
@@ -10,7 +11,7 @@ import java.util.List;
 @Setter
 public class DingDingScheduleVo {
 
-    /** 日程创建人Id */
+    /** 钉钉日程创建人Id */
     @ApiModelProperty(value = "日程创建人Id")
     private String unionCreateId;
 
@@ -45,4 +46,15 @@ public class DingDingScheduleVo {
     /** 日程提前提醒时间，单位：分钟 */
     @ApiModelProperty(value = "日程提前提醒时间，单位：分钟")
     private Integer reminderMinutes;
+
+    /** 日程参与人 */
+    @ApiModelProperty(value = "日程参与人")
+    List<DingDingScheduleParam> dingDingScheduleParamList;
+
+    /** 建科云日程创建人userId */
+    @ApiModelProperty(value = "建科云日程创建人userId")
+    private String createUser;
+
+    @ApiModelProperty(value = "任何可反查的唯一标识ID")
+    private String id;
 }

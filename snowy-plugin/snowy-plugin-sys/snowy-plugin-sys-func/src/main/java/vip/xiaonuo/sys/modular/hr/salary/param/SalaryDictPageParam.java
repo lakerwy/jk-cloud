@@ -46,16 +46,12 @@ public class SalaryDictPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 字典类型（扣除、嘉奖） */
-    @ApiModelProperty(value = "字典类型（扣除、嘉奖）")
+    /** 字典类型（1 补发、2 补扣） */
+    @ApiModelProperty(value = "字典类型（1 补发、2 补扣）")
     private String dictType;
 
     /** 字典栏目 */
     @ApiModelProperty(value = "字典栏目")
     private String dictName;
-
-    /** 字典栏目类别：税前|税后 */
-    @ApiModelProperty(value = "字典栏目类别：税前|税后")
-    private String itemType;
 
 }

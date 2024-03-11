@@ -33,21 +33,21 @@ public interface SalaryPayMapper extends BaseMapper<SalaryPay> {
 
     /**
      * 根据 类别：工龄工资  年月 获取本次需要增加的工龄工资人员
-     * @param type 工龄工资
+     * @param payType 工龄工资
      * @param yearMonth 当前年月
      * @return
      */
-    List<SalaryStandardVo> getSeniorityPersonnel(String type, String yearMonth);
+    List<SalaryStandardVo> getSeniorityPersonnel(String payType, String yearMonth);
 
     /**
      * 根据 类别：生日福利  年月  月份 获取本月需要增加的生日福利人员
-     * @param type 员工福利
+     * @param payType 员工福利
      * @param itemType 生日福利
      * @param yearMonth 当前年月
      * @param month 当前月份
      * @return
      */
-    List<SalaryStandardVo> getBirthdayPersonnel(String type,String itemType,String yearMonth,Integer month);
+    List<SalaryStandardVo> getBirthdayPersonnel(String payType,String itemType,String yearMonth,Integer month);
 
     /**
      * 分页查询
@@ -63,4 +63,23 @@ public interface SalaryPayMapper extends BaseMapper<SalaryPay> {
      * @return
      */
     SalaryPayVo getDetailById(String id);
+
+    /**
+     * 【工龄工资】根据 所属年月|福利类型 获取要删除的Ids
+     *
+     * @param payType SalaryPay.Type 福利类型
+     * @param yearMonth 所属年月
+     * @return
+     */
+    List<String> getSeniorityDelIds(String payType, String yearMonth);
+
+    /**
+     * 【生日福利】根据 所属年月|福利类型 获取要删除的Ids
+     * @param payType SalaryPay.Type 福利大类
+     * @param itemType SalaryPay.itemType 福利小类
+     * @param yearMonth 所属年月
+     * @return
+     */
+    List<String> getBirthdayDelIds(String payType, String itemType, String yearMonth);
+
 }

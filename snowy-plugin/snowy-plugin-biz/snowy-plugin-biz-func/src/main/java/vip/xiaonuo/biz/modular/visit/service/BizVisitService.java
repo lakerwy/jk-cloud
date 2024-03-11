@@ -83,4 +83,12 @@ public interface BizVisitService extends IService<BizVisit> {
      * @date  2023/10/24 10:35
      */
     void summary(SummaryParam summaryParam);
+
+    /**
+     * 编辑外访表(总结)
+     *
+     * @author ljy
+     * @date  2024/03/08 10:35
+     */
+    void sendMsg(BizVisitIdParam bizVisitIdParam);
 }

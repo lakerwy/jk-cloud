@@ -1,16 +1,16 @@
-package vip.xiaonuo.sys.modular.hr.salary.param;
+package vip.xiaonuo.sys.modular.hr.salary.param.customer;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 待确认工资|已确认封存工资 混合列表
+ * 工资列表查询 - 自定义查询参数
  */
 
 @Getter
 @Setter
-public class ConfirmSalaryParam {
+public class MySalaryParam {
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;

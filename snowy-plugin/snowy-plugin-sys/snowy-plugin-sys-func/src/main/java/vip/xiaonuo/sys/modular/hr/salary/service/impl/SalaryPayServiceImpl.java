@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -28,14 +29,19 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryPay;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryPayMapper;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayAddParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayEditParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPayPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.*;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPayService;
+import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
+import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -49,6 +55,9 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
 
     @Resource
     private SalaryPayMapper salaryPayMapper;
+
+    @Resource
+    private SalaryStandardService salaryStandardService;
 
     @Override
     public Page<SalaryPayVo> page(SalaryPayPageParam salaryPayPageParam) {
@@ -154,5 +163,83 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
             throw new CommonException("工资系统-工龄工资|生日福利不存在，id值为：{}", id);
         }
         return salaryPay;
+    }
+
+    /**
+     * 生成 指定 年月 的工龄工资
+     * @param yearMonth
+     */
+    @Override
+    public void computeSeniorityGZ(String yearMonth) {
+        //获取当前年月  格式化当前日期的年月部分
+        String payType = SalaryTypeEnum.SENIORITY.getValue();
+        //条件：(框定计算工龄工资的人员范围),且当月无记录
+        List<SalaryStandardVo> personnelList = salaryPayMapper.getSeniorityPersonnel(payType, yearMonth);
+        if(CollUtil.isNotEmpty(personnelList)){
+            List<SalaryPay> addList = new ArrayList<>();
+            personnelList.forEach(item->{
+                SalaryPay addParam = new SalaryPay();
+                addParam.setType(payType);
+                addParam.setStandardId(item.getId());
+                SalarySeniorityVo salarySeniorityVo = ComputeUtil.seniorityGZ(item.getPositiveTime());
+                addParam.setAmount(salarySeniorityVo.getAmount());
+                addParam.setPositiveAge(salarySeniorityVo.getPositiveAge());
+                addParam.setMemo("记录生成时间："+ DateUtil.now()+"，"+salarySeniorityVo.getMemo()+"，转正日期："+ DateUtil.formatDate(item.getPositiveTime()));
+                addList.add(addParam);
+            });
+            this.saveBatch(addList);
+        }
+    }
+
+    /**
+     * 生成 指定 年月 的生日福利
+     * @param yearMonth
+     */
+    @Override
+    public void computeBirthdayGZ(String yearMonth) {
+        //获取当前年月  格式化当前日期的年月部分
+        String payType = SalaryTypeEnum.EMP_BONUS.getValue();
+        String itemType = SalaryTypeEnum.BIRTHDAY.getValue();
+        LocalDate tmpDate = LocalDate.parse(yearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
+        int month = tmpDate.getMonthValue();
+        //条件：出生日期为当前月(框定计算生日福利的人员范围),且当月无记录
+        List<SalaryStandardVo> personnelList = salaryPayMapper.getBirthdayPersonnel(payType,itemType, yearMonth, month);
+        if(CollUtil.isNotEmpty(personnelList)){
+            List<SalaryPay> addList = new ArrayList<>();
+            personnelList.forEach(item->{
+                SalaryPay addParam = new SalaryPay();
+                addParam.setType(payType);
+                addParam.setItemType(itemType);
+                addParam.setStandardId(item.getId());
+                addParam.setAmount(ComputeUtil.birthdayGZ(item.getBirthDay()));
+                addParam.setMemo("记录生成时间："+DateUtil.now()+"，生日日期是："+DateUtil.formatDate(item.getBirthDay()));
+                addList.add(addParam);
+            });
+            this.saveBatch(addList);
+        }
+    }
+
+    @Override
+    public void reSeniorityGZ(PayParam payParam) {
+        //0. 获取年月 yyyyMM 涉及的 standardIds
+        List<String> delIds = salaryPayMapper.getSeniorityDelIds(SalaryTypeEnum.SENIORITY.getValue(),payParam.getYearMonth());
+        //1. 删除历史数据
+        if(CollUtil.isNotEmpty(delIds)) {
+            this.removeByIds(delIds);
+        }
+        //2. 重新生成数据
+        computeSeniorityGZ(payParam.getYearMonth());
+    }
+
+    @Override
+    public void reBirthdayGZ(PayParam payParam) {
+        //0. 获取年月 yyyyMM 涉及的 standardIds
+        List<String> delIds = salaryPayMapper.getBirthdayDelIds(SalaryTypeEnum.EMP_BONUS.getValue(), SalaryTypeEnum.BIRTHDAY.getValue(), payParam.getYearMonth());
+        //1. 删除历史数据
+        if(CollUtil.isNotEmpty(delIds)) {
+            this.removeByIds(delIds);
+        }
+        //2. 重新生成数据
+        computeBirthdayGZ(payParam.getYearMonth());
     }
 }
