@@ -307,6 +307,16 @@ public class ComputeUtil {
 
     }
 
+    /**
+     * BigDecimal 给与默认值 0
+     * @param data1
+     * @return
+     */
+    public static BigDecimal fillZero(BigDecimal data1){
+        return ObjectUtil.isNotEmpty(data1) ? data1 : BigDecimal.ZERO;
+    }
+
+
 
     /**
      * doImport

@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper">
 
-    <select id="getPrePageList" resultType="vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard">
-         select a.*
+    <select id="getPrePageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo">
+         select a.*,a.ID as standardId,'工资' as dataType
          from HR_SALARY_STANDARD a
              left join HR_SALARY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG='NOT_DELETE'
              ${ew.customSqlSegment}

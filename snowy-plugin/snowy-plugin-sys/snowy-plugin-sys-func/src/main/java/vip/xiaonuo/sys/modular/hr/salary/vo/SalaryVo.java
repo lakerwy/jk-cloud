@@ -272,4 +272,7 @@ public class SalaryVo {
     @ApiModelProperty(value = "留痕备注", position = 100)
     private String note;
 
+    /** 数据类别：工资|社保|公积金 */
+    @ApiModelProperty(value = "数据类别：工资|社保|公积金", position = 101)
+    private String dataType;
 }

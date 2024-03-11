@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.task.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -131,6 +132,7 @@ public class BizDeptAssController {
      */
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取业务表-部门绩效考核-年度考核报表")
+    @SaCheckPermission("/biz/task/dept/ass/yearReport")
     @GetMapping("/biz/task/dept/ass/yearReport")
     public CommonResult<List<DeptAssReportVo>> yearReport(DeptAssReportParam deptAssReportParam) {
         return CommonResult.data(bizDeptAssService.yearReport(deptAssReportParam));
