@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.task.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -23,6 +24,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.task.entity.BizDeptAss;
 import vip.xiaonuo.biz.modular.task.entity.BizDeptAssSynergy;
 import vip.xiaonuo.biz.modular.task.entity.BizGroupPerformance;
@@ -154,25 +156,20 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
         List<String> taskOrgIds = ndTask.stream().map(DeptAssReportVo::getOrgId).collect(Collectors.toList());
         //构造结果集
         List<DeptAssReportVo> result = ndTask;
-//        for (BizDeptAss item:ndAssess) {
-//            if(!taskOrgIds.contains(item.getOrgId())){
-//                DeptAssReportVo reportVo = new DeptAssReportVo();
-//                reportVo.setAssYear(deptAssReportParam.getAssYear());
-//                reportVo.setOrgId(item.getOrgId());
-//                reportVo.setKhScore(item.getAddScore()-item.getMinusScore());
-//                result.add(reportVo);
-//            }
-//        }
-
         //获取携带信息
         List<BizSysOrgVo> orgList = sysOrgService.getOrgList();  //部门字典列表
         //集团经营业绩分(一年一条)
         BizGroupPerformance bizGroupPerformance = bizGroupPerformanceService.getOne(new QueryWrapper<BizGroupPerformance>().lambda().eq(BizGroupPerformance::getAssYear,deptAssReportParam.getAssYear()));
         //各部门年度协同分
         List<BizDeptAssSynergy> bizDeptAssSynergyList = bizDeptAssSynergyService.list(new QueryWrapper<BizDeptAssSynergy>().lambda().eq(BizDeptAssSynergy::getAssYear,deptAssReportParam.getAssYear()));
-        //拼接结果
-        if(StrUtil.isNotEmpty(deptAssReportParam.getOrgId())){
-            result = result.stream().filter(x->x.getOrgId().equals(deptAssReportParam.getOrgId())).collect(Collectors.toList());
+        //拼接结果 校验数据范围（由于本列表是根据组织架构决定的）
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(CollUtil.isNotEmpty(loginUserDataScope)){
+            result = result.stream().filter(x->loginUserDataScope.contains(x.getOrgId())).collect(Collectors.toList());
+        }else {
+            if (StrUtil.isNotEmpty(deptAssReportParam.getOrgId())) {
+                result = result.stream().filter(x -> x.getOrgId().equals(deptAssReportParam.getOrgId())).collect(Collectors.toList());
+            }
         }
         result.forEach(item->{
             //部门名称

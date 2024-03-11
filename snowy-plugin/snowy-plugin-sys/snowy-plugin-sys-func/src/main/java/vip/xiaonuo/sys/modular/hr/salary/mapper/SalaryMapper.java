@@ -17,6 +17,8 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.*;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData;
 
 import java.util.List;
@@ -32,7 +34,7 @@ public interface SalaryMapper extends BaseMapper<Salary> {
      * 月工资报表 - (未确认的)预览数据（自动生成）
      * @return
      */
-    List<SalaryStandard> getPrePageList(@Param(Constants.WRAPPER) Wrapper<Salary> queryWrapper);
+    List<SalaryVo> getPrePageList(@Param(Constants.WRAPPER) Wrapper<Salary> queryWrapper);
 
     /**
      * 对指定yyyyMM员工工资，分类统计各类补贴金额

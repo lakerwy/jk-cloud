@@ -27,6 +27,7 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.*;
+import vip.xiaonuo.sys.modular.hr.salary.enums.DataTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryImportTempMapper;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
@@ -35,11 +36,13 @@ import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.*;
+import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -198,11 +201,11 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                     .or().like("a.USER_NAME",param.getSearchKey())
                     .or().like("a.ORG_NAME",param.getSearchKey()));
         }
+        queryWrapper.isNull("b.ID");
         queryWrapper.orderByDesc("a.TYPE").orderByAsc("a.ID_CARD_NUMBER");
-        List<SalaryStandard> standardList = salaryMapper.getPrePageList(queryWrapper);
+        List<SalaryVo> salaryVoList = salaryMapper.getPrePageList(queryWrapper);
         //自动生成工资数据
-        List<SalaryVo> tmpSalaryVoList = BeanUtil.copyToList(standardList,SalaryVo.class);
-        return computePreGZ(tmpSalaryVoList);
+        return computePreGZ(salaryVoList);
     }
 
     @Override
@@ -254,6 +257,36 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         List<SalaryTax> taxData = salaryMapper.getTaxData(standardIds);
         //获取税前税后补发补扣数据
         List<SalaryAdd> addData = salaryMapper.getAddData(standardIds);
+
+        //1. 第一步，所有的 【工资】 数据copy
+        List<SalaryVo> newSalaryVoList = BeanUtil.copyToList(salaryVoList,SalaryVo.class);
+        //2.
+        salaryVoList.forEach(item->{
+            //临时集合
+            List<SalaryVo> tempSalaryVoList = new ArrayList<>();
+            //社保 - (该员工所有社保数据)
+            List<SalaryIns> insList = insData.stream().filter(x->item.getStandardId().equals(x.getStandardId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(insList)) {
+                insList.forEach(ins -> {
+                    // 定义临时对象(工资)
+                    SalaryVo tempSalaryVo = BeanUtil.copyProperties(item, SalaryVo.class);
+                    if (!tempSalaryVo.getCompany().equals(ins.getUnitName())) {
+                        tempSalaryVo.setCompany(ins.getUnitName());
+                        tempSalaryVo.setDataType(DataTypeEnum.INS.getValue());
+                    }
+                    tempSalaryVo.setYnPer(ComputeUtil.fillZero(ins.getYnPer()));
+                    tempSalaryVo.setYlPer(ComputeUtil.fillZero(ins.getYlPer()));
+                    tempSalaryVo.setYlSale(ComputeUtil.fillZero(ins.getYlSale()));
+                    tempSalaryVo.setSyPer(ComputeUtil.fillZero(ins.getSyPer()));
+                    tempSalaryVo.setPer(ComputeUtil.fillZero(ins.getPer()));
+                });
+            }
+
+
+        });
+
+
+
 
         salaryVoList.forEach(item->{
             item.setRealMeritAmount(item.getMeritAmount().multiply(BigDecimal.valueOf(item.getMeritRate())));
