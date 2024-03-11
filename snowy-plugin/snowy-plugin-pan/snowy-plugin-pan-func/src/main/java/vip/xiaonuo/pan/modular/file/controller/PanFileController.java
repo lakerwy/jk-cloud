@@ -532,7 +532,7 @@ public class PanFileController {
 //        }catch (Exception e) {
 //            throw new CommonException(e.getMessage());
 //        }
-
+        log.info("测试是否执行IndexServlet 接口----------------");
         PrintWriter writer = response.getWriter();
         Scanner scanner = new Scanner(request.getInputStream()).useDelimiter("\\A");
         String body = scanner.hasNext() ? scanner.next() : "";
