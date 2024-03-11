@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.biz.modular.task.vo.DeptAssReportVo;
@@ -85,6 +86,11 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         }
         if(ObjectUtil.isNotEmpty(bizTaskPageParam.getYear())) {
             queryWrapper.lambda().eq(BizTask::getYear, bizTaskPageParam.getYear());
+        }
+        //拼接结果 校验数据范围（由于本列表是根据组织架构决定的）
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(CollUtil.isNotEmpty(loginUserDataScope)){
+            queryWrapper.lambda().in(BizTask::getOrgId,loginUserDataScope);
         }
         if(ObjectUtil.isAllNotEmpty(bizTaskPageParam.getSortField(), bizTaskPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizTaskPageParam.getSortOrder());

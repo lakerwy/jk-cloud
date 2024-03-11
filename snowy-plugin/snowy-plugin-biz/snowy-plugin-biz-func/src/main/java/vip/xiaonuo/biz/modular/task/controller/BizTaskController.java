@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.task.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -57,6 +58,7 @@ public class BizTaskController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-绩效考核-任务表分页")
+    @SaCheckPermission("/biz/task/page")
     @GetMapping("/biz/task/page")
     public CommonResult<List<DeptTaskResult>> page(BizTaskPageParam bizTaskPageParam) {
         return CommonResult.data(bizTaskService.page(bizTaskPageParam));
