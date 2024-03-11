@@ -29,7 +29,6 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.*;
 import vip.xiaonuo.sys.modular.hr.salary.enums.DataTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
-import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryImportTempMapper;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
@@ -44,6 +43,7 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
 /**
@@ -260,34 +260,69 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
 
         //1. 第一步，所有的 【工资】 数据copy
         List<SalaryVo> newSalaryVoList = BeanUtil.copyToList(salaryVoList,SalaryVo.class);
-        //2.
-        salaryVoList.forEach(item->{
-            //临时集合
-            List<SalaryVo> tempSalaryVoList = new ArrayList<>();
+        List<SalaryVo> addSalaryVoList = new ArrayList<>();
+        //2. 第二步，生成(匹配社保|公积金 -> 生成 1，2，3条记录)
+        newSalaryVoList.forEach(item->{
             //社保 - (该员工所有社保数据)
+            List<SalaryVo> addInsSalaryVoList = new ArrayList<>();
             List<SalaryIns> insList = insData.stream().filter(x->item.getStandardId().equals(x.getStandardId())).collect(Collectors.toList());
             if(CollUtil.isNotEmpty(insList)) {
                 insList.forEach(ins -> {
-                    // 定义临时对象(工资)
-                    SalaryVo tempSalaryVo = BeanUtil.copyProperties(item, SalaryVo.class);
-                    if (!tempSalaryVo.getCompany().equals(ins.getUnitName())) {
+                    if (item.getCompany().equals(ins.getUnitName())) {
+                        //直接更新
+                        item.setYnPer(ComputeUtil.fillZero(ins.getYnPer()));
+                        item.setYlPer(ComputeUtil.fillZero(ins.getYlPer()));
+                        item.setYlSale(ComputeUtil.fillZero(ins.getYlSale()));
+                        item.setSyPer(ComputeUtil.fillZero(ins.getSyPer()));
+                        item.setPer(ComputeUtil.fillZero(ins.getPer()));
+                    }else{
+                        // 定义临时对象(工资)
+                        SalaryVo tempSalaryVo = BeanUtil.copyProperties(item, SalaryVo.class);
                         tempSalaryVo.setCompany(ins.getUnitName());
                         tempSalaryVo.setDataType(DataTypeEnum.INS.getValue());
+                        tempSalaryVo.setYnPer(ComputeUtil.fillZero(ins.getYnPer()));
+                        tempSalaryVo.setYlPer(ComputeUtil.fillZero(ins.getYlPer()));
+                        tempSalaryVo.setYlSale(ComputeUtil.fillZero(ins.getYlSale()));
+                        tempSalaryVo.setSyPer(ComputeUtil.fillZero(ins.getSyPer()));
+                        tempSalaryVo.setPer(ComputeUtil.fillZero(ins.getPer()));
+                        addInsSalaryVoList.add(tempSalaryVo);
                     }
-                    tempSalaryVo.setYnPer(ComputeUtil.fillZero(ins.getYnPer()));
-                    tempSalaryVo.setYlPer(ComputeUtil.fillZero(ins.getYlPer()));
-                    tempSalaryVo.setYlSale(ComputeUtil.fillZero(ins.getYlSale()));
-                    tempSalaryVo.setSyPer(ComputeUtil.fillZero(ins.getSyPer()));
-                    tempSalaryVo.setPer(ComputeUtil.fillZero(ins.getPer()));
                 });
             }
-
-
+            //公积金 - (该员工所有公积金数据)
+            List<SalaryVo> addGjjSalaryVoList = new ArrayList<>();
+            List<SalaryGjj> gjjList = gjjData.stream().filter(x->item.getStandardId().equals(x.getStandardId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(gjjList)) {
+                gjjList.forEach(gjj -> {
+                    if (item.getCompany().equals(gjj.getUnitName())) {
+                        //直接更新
+                        item.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
+                    }else{
+                        //公积金和社保匹配一下（当前员工）
+                        AtomicReference<Boolean> isInsGjjFlag = new AtomicReference<>(false);
+                        if(CollUtil.isNotEmpty(addInsSalaryVoList)) {
+                            addInsSalaryVoList.forEach(objIns -> {
+                                if(objIns.getCompany().equals(gjj.getUnitName())){
+                                    isInsGjjFlag.set(true);
+                                    objIns.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
+                                }
+                            });
+                        }
+                        if(isInsGjjFlag.equals(false)){
+                            // 定义临时对象(工资)
+                            SalaryVo tempSalaryVo = BeanUtil.copyProperties(item, SalaryVo.class);
+                            tempSalaryVo.setCompany(gjj.getUnitName());
+                            tempSalaryVo.setDataType(DataTypeEnum.GJJ.getValue());
+                            tempSalaryVo.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
+                            addGjjSalaryVoList.add(tempSalaryVo);
+                        }
+                    }
+                });
+            }
+            addSalaryVoList.addAll(addInsSalaryVoList);
+            addSalaryVoList.addAll(addGjjSalaryVoList);
         });
-
-
-
-
+        //3. 第三步，生成（匹配公积金）
         salaryVoList.forEach(item->{
             item.setRealMeritAmount(item.getMeritAmount().multiply(BigDecimal.valueOf(item.getMeritRate())));
             //注册补贴
