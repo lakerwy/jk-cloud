@@ -156,16 +156,6 @@ public class BizDeptAssServiceImpl extends ServiceImpl<BizDeptAssMapper, BizDept
         List<String> taskOrgIds = ndTask.stream().map(DeptAssReportVo::getOrgId).collect(Collectors.toList());
         //构造结果集
         List<DeptAssReportVo> result = ndTask;
-//        for (BizDeptAss item:ndAssess) {
-//            if(!taskOrgIds.contains(item.getOrgId())){
-//                DeptAssReportVo reportVo = new DeptAssReportVo();
-//                reportVo.setAssYear(deptAssReportParam.getAssYear());
-//                reportVo.setOrgId(item.getOrgId());
-//                reportVo.setKhScore(item.getAddScore()-item.getMinusScore());
-//                result.add(reportVo);
-//            }
-//        }
-
         //获取携带信息
         List<BizSysOrgVo> orgList = sysOrgService.getOrgList();  //部门字典列表
         //集团经营业绩分(一年一条)
