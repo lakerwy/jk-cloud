@@ -77,4 +77,6 @@ public interface ConferenceConfigService extends IService<ConferenceConfig> {
      * @date  2023/11/05 23:12
      **/
     ConferenceConfig queryEntity(String id);
+
+    String getIdForName(String name);
 }

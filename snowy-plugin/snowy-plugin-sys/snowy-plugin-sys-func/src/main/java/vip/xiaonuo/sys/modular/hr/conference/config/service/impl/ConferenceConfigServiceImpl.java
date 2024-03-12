@@ -14,9 +14,11 @@ package vip.xiaonuo.sys.modular.hr.conference.config.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -103,5 +105,12 @@ public class ConferenceConfigServiceImpl extends ServiceImpl<ConferenceConfigMap
             throw new CommonException("会议预约-会议室数据不存在，id值为：{}", id);
         }
         return conferenceConfig;
+    }
+
+    @Override
+    public String getIdForName(String name){
+        List<ConferenceConfig> conferenceConfigs = this.list(new LambdaQueryWrapper<ConferenceConfig>().eq(ConferenceConfig::getName,name));
+        if(CollectionUtil.isEmpty(conferenceConfigs)){ return "";}
+        return conferenceConfigs.get(0).getId();
     }
 }

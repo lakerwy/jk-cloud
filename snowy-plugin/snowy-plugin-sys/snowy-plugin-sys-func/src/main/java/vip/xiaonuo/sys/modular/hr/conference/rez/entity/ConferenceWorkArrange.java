@@ -43,25 +43,29 @@ public class ConferenceWorkArrange {
     @ApiModelProperty(value = "部署事项", position = 3)
     private String workArrange;
 
+    /** 任务时间 */
+    @ApiModelProperty(value = "任务开始时间", position = 4)
+    private Date startTime;
+
     /** 完成时间 */
     @ApiModelProperty(value = "完成时间", position = 4)
     private Date finishTime;
 
     /** 责任部门ID */
-    @ApiModelProperty(value = "责任部门ID", position = 5)
-    private String dutyOrgId;
+   /* @ApiModelProperty(value = "责任部门ID", position = 5)
+    private String dutyOrgId;*/
 
     /** 责任部门名称 */
-    @ApiModelProperty(value = "责任部门名称", position = 6)
-    private String dutyOrgName;
+    /*@ApiModelProperty(value = "责任部门名称", position = 6)
+    private String dutyOrgName;*/
 
     /** 责任人ID */
     @ApiModelProperty(value = "责任人ID", position = 7)
     private String dutyUserId;
 
     /** 责任人名称 */
-    @ApiModelProperty(value = "责任人名称", position = 8)
-    private String dutyUserName;
+    /*@ApiModelProperty(value = "责任人名称", position = 8)
+    private String dutyUserName;*/
 
     /** 工作进展 */
     @ApiModelProperty(value = "工作进展", position = 9)
@@ -108,4 +112,8 @@ public class ConferenceWorkArrange {
     @ApiModelProperty(value = "修改用户", position = 18)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 是否创建日程，1 为已创建 */
+    @ApiModelProperty(value = "是否创建日程，1 为已创建", position = 12)
+    private String isSchedule;
 }

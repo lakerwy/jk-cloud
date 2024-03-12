@@ -3,6 +3,7 @@ package vip.xiaonuo.dev.modular.dingDingSchedule.util;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
@@ -27,14 +28,8 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
+@DS("slave_1")
 public class StartDingDingScheduleCore {
-
-    //@Value("${dingschedulestream.appKey}")
-    private String appKey;
-
-    //@Value("${dingschedulestream.appSecret}")
-    private String appSecret;
-
 
     private static final String DD_CATEGORY = "DingDing";
 
@@ -46,7 +41,13 @@ public class StartDingDingScheduleCore {
     DingDingScheduleService dingDingScheduleService;
 
     /**   钉钉日程   */
-    public void addDingDingSchedule( DingDingScheduleVo dingDingScheduleVo){
+    public void addDingDingSchedule( DingDingScheduleVo dingDingScheduleVo,String appKey,String appSecret){
+
+        if(StringUtils.isEmpty(appKey) || StringUtils.isEmpty(appSecret)){
+            log.error("appKey和appSecret不能为空！");
+            throw new CommonException("appKey和appSecret不能为空！");
+        }
+
         try{
             if(StringUtils.isEmpty(dingDingScheduleVo.getId())){
                 log.error("id表示不能为空 - (可以是任何可反查的唯一标识)！");

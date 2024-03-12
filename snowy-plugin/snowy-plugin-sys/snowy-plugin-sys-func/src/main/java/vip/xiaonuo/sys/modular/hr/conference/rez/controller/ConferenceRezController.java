@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.controller;
 
-import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
+import vip.xiaonuo.sys.modular.hr.conference.DingDingRec.DingdingCalendarUtil;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceWorkArrange;
@@ -32,15 +31,10 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceWorkArrangeService;
-import vip.xiaonuo.sys.modular.hr.conference.rez.service.RuanLianApiService;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceTimeData;
-import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.io.IOException;
-import java.util.List;
 
 /**
  * 会议模块-预约会议控制器
@@ -59,11 +53,9 @@ public class ConferenceRezController {
     @Resource
     private ConferenceRezPeriodService conferenceRezPeriodService;
     @Resource
-    private RuanLianApiService ruanLianApiService;
-    @Resource
-    private HrUserAttendanceService hrUserAttendanceService;
-    @Resource
     ConferenceWorkArrangeService conferenceWorkArrangeService;
+    @Resource
+    DingdingCalendarUtil dingdingCalendarUtil;
 
     /**
      * 获取会议模块-预约会议分页
@@ -80,55 +72,6 @@ public class ConferenceRezController {
     }
 
     /**
-     * 添加会议模块-预约会议
-     *
-     * @author ljy
-     * @date  2023/12/01 23:35
-     */
-/*    @ApiOperationSupport(order = 2)
-    @ApiOperation("添加会议模块-预约会议")
-    @CommonLog("添加会议模块-预约会议")
-    //@SaCheckPermission("/sys/rez/add")
-    @PostMapping("/sys/rez/add")
-    public CommonResult<String> add(@RequestBody @Valid ConferenceRezAddParam conferenceRezAddParam) {
-        conferenceRezService.add(conferenceRezAddParam);
-        return CommonResult.ok();
-    }*/
-
-    /**
-     * 编辑会议模块-预约会议
-     *
-     * @author ljy
-     * @date  2023/12/01 23:35
-     */
-/*    @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑会议模块-预约会议")
-    @CommonLog("编辑会议模块-预约会议")
-    //@SaCheckPermission("/sys/rez/edit")
-    @PostMapping("/sys/rez/edit")
-    public CommonResult<String> edit(@RequestBody @Valid ConferenceRezEditParam conferenceRezEditParam) {
-        conferenceRezService.edit(conferenceRezEditParam);
-        return CommonResult.ok();
-    }*/
-
-    /**
-     * 删除会议模块-预约会议
-     *
-     * @author ljy
-     * @date  2023/12/01 23:35
-     */
-/*    @ApiOperationSupport(order = 4)
-    @ApiOperation("删除会议模块-预约会议")
-    @CommonLog("删除会议模块-预约会议")
-    //@SaCheckPermission("/sys/rez/delete")
-    @PostMapping("/sys/rez/delete")
-    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<ConferenceRezIdParam> conferenceRezIdParamList) {
-        conferenceRezService.delete(conferenceRezIdParamList);
-        return CommonResult.ok();
-    }*/
-
-    /**
      * 获取会议模块-预约会议详情
      *
      * @author ljy
@@ -141,20 +84,6 @@ public class ConferenceRezController {
     public CommonResult<ConferenceRez> detail(@Valid ConferenceRezIdParam conferenceRezIdParam) {
         return CommonResult.data(conferenceRezService.detail(conferenceRezIdParam));
     }
-
-    /**
-     * 获取会议预约-时间列表-查看可预约会议数据
-     * @author ljy
-     * @date  2023/11/05 23:13
-     */
-/*    @ApiOperationSupport(order = 6)
-    @ApiOperation("获取会议预约-时间列表-查看可预约会议数据")
-    //@SaCheckPermission("/sys/rez/conferenceTimeList")
-    @GetMapping("/sys/rez/conferenceTimeList")
-    public CommonResult<List<ConferenceTimeData>> conferenceList(@Valid ConferenceTimeDataParam conferenceTimeDataParam) {
-        return CommonResult.data(conferenceRezService.conferenceList(conferenceTimeDataParam));
-    }*/
-
 
     /** 周期预约*/
     /**
@@ -171,37 +100,6 @@ public class ConferenceRezController {
     }
 
     /**
-     * 编辑会议预约-周期预约
-     * @author ljy
-     * @date  2023/11/09 22:47
-     */
-/*    @ApiOperationSupport(order = 8)
-    @ApiOperation("编辑会议预约-周期预约")
-    @CommonLog("编辑会议预约-周期预约")
-    //@SaCheckPermission("/sys/rezPeriod/edit")
-    @PostMapping("/sys/rezPeriod/edit")
-    public CommonResult<String> periodEdit(@RequestBody @Valid ConferenceRezPeriodEditParam conferenceRezPeriodEditParam) {
-        conferenceRezPeriodService.edit(conferenceRezPeriodEditParam);
-        return CommonResult.ok();
-    }*/
-
-    /**
-     * 删除会议预约-周期预约
-     * @author ljy
-     * @date  2023/11/09 22:47
-     */
-    /*@ApiOperationSupport(order = 9)
-    @ApiOperation("取消会议预约-周期预约")
-    @CommonLog("取消会议预约-周期预约")
-    //@SaCheckPermission("/sys/rezPeriod/delete")
-    @PostMapping("/sys/rezPeriod/delete")
-    public CommonResult<String> periodDelete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                               CommonValidList<ConferenceRezPeriodIdParam> conferenceRezPeriodIdParamList) {
-        conferenceRezPeriodService.delete(conferenceRezPeriodIdParamList);
-        return CommonResult.ok();
-    }*/
-
-    /**
      * 会议记录确认通知
      *
      * @author ljy
@@ -216,53 +114,6 @@ public class ConferenceRezController {
         conferenceRezService.recordNotice(rezId);
         return CommonResult.ok();
     }
-
-    /**
-     * 软联预约会议
-     *
-     * @author ljy
-     * @date  2023/11/20 08:39
-     */
-/*    @ApiOperationSupport(order = 11)
-    @ApiOperation("软联预约会议")
-    @CommonLog("软联预约会议")
-    //@SaCheckPermission("/sys/conferenceRecord/setmeeting")
-    @GetMapping("/sys/rez/setmeeting")
-    public CommonResult<JSONObject> setmeeting(@Valid RuanLianParam ruanLianParam) throws IOException {
-        return CommonResult.data(ruanLianApiService.setmeeting(ruanLianParam));
-    }*/
-
-    /**
-     * 软联预约会议
-     *
-     * @author ljy
-     * @date  2023/11/20 08:39
-     */
-/*    @ApiOperationSupport(order = 12)
-    @ApiOperation("取消软联预约会议")
-    @CommonLog("取消软联预约会议")
-    //@SaCheckPermission("/sys/conferenceRecord/delmeeting")
-    @GetMapping("/sys/rez/delmeeting")
-    public CommonResult<String> delmeeting(@Valid String yyid){
-        ruanLianApiService.delmeeting(yyid);
-        return CommonResult.ok();
-    }*/
-
-    /**
-     * 释放会议
-     *
-     * @author ljy
-     * @date  2023/11/20 08:39
-     */
-    @ApiOperationSupport(order = 12)
-    @ApiOperation("释放会议")
-    @CommonLog("释放会议")
-    @GetMapping("/sys/rez/freeRez")
-    public CommonResult<String> freeRez(String rezId){
-        conferenceRezService.freeRez(rezId);
-        return CommonResult.ok();
-    }
-
 
     /** 工作部署模块接口 */
     /**
@@ -335,5 +186,19 @@ public class ConferenceRezController {
     @GetMapping("/sys/workArrange/detail")
     public CommonResult<ConferenceWorkArrange> workArrangeDetail(@Valid ConferenceWorkArrangeIdParam conferenceWorkArrangeIdParam) {
         return CommonResult.data(conferenceWorkArrangeService.detail(conferenceWorkArrangeIdParam));
+    }
+
+    /**
+     * 获取日程参与人列表接口
+     *
+     * @author ljy
+     * @date  2024/03/12 15:43
+     */
+    @ApiOperationSupport(order = 18)
+    @ApiOperation("获取日程参与人列表接口")
+    @GetMapping("/sys/workArrange/getCalendarPart")
+    public CommonResult<String > dingdingCalendarUtil(String unionId,String eventId,String xAcsDingtalkAccessToken) throws Exception{
+        dingdingCalendarUtil.getCalendarPart(unionId,eventId,xAcsDingtalkAccessToken);
+        return CommonResult.ok();
     }
 }

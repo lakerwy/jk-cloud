@@ -115,5 +115,5 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
     void freeRez(String rezId);
 
     /** 释放会议*/
-    void process(JSONObject bizData, String eventType, String eventId);
+    void process(JSONObject bizData, String bookId) throws Exception;
 }
