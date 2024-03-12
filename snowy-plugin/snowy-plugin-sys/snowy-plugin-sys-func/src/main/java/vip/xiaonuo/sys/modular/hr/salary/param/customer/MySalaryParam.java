@@ -38,8 +38,4 @@ public class MySalaryParam {
     /** 员工类别：总部|分公司|外聘人员 */
     @ApiModelProperty(value = "员工类别：总部|分公司|外聘人员")
     private String userType;
-
-    /** 确认状态：已确认|未确认*/
-    @ApiModelProperty(value = "确认状态：已确认|未确认")
-    private String confirmStatus;
 }

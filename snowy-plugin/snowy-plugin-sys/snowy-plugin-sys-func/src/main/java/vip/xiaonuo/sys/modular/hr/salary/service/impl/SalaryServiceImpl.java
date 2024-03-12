@@ -91,6 +91,11 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         if(ObjectUtil.isNotEmpty(salaryPageParam.getPosition())) {
             queryWrapper.lambda().like(Salary::getPosition, salaryPageParam.getPosition());
         }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(Salary::getIdCardNumber,salaryPageParam.getSearchKey())
+                    .or().like(Salary::getUserName,salaryPageParam.getSearchKey())
+                    .or().like(Salary::getOrgName,salaryPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(salaryPageParam.getSortField(), salaryPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryPageParam.getSortOrder());
             queryWrapper.orderBy(true, salaryPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -196,7 +201,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                     .or().like("a.ORG_NAME",param.getSearchKey()));
         }
         queryWrapper.isNull("b.ID");
-        queryWrapper.orderByDesc("a.TYPE").orderByAsc("a.ID_CARD_NUMBER");
+        queryWrapper.orderByAsc("a.ID_CARD_NUMBER");
         List<SalaryVo> salaryVoList = salaryMapper.getPrePageList(queryWrapper);
         //自动生成工资数据
         return computePreGZ(yearMonth,salaryVoList);
@@ -229,7 +234,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.eq("a.`YEAR_MONTH`",param.getYearMonth());
         queryWrapper.isNull("b.ID");
-        queryWrapper.orderByDesc("a.TYPE").orderByAsc("a.ID_CARD_NUMBER");
+        queryWrapper.orderByAsc("a.ID_CARD_NUMBER");
         List<SalaryVo> salaryVoList = salaryMapper.getPrePageList(queryWrapper);
         //自动生成工资数据
         List<SalaryVo> sureData = computePreGZ(param.getYearMonth(),salaryVoList);
