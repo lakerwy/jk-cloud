@@ -42,8 +42,7 @@ import vip.xiaonuo.dev.modular.userRelation.param.*;
 import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
 
 import javax.annotation.Resource;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -118,7 +117,31 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
         if(CollUtil.isEmpty(syncUsers)){
             throw new CommonException("同步人员列表为空");
         }
-        List<SystemUserRelation> collect = syncUsers.stream().map(syncUser -> {
+
+        Map<String,SyncParam.SyncUser> params = new HashMap<>();
+        for (SyncParam.SyncUser syncUser : syncUsers) {
+            params.put(syncUser.getAccount()+syncUser.getRoleId(),syncUser);
+        }
+
+        //原关系人员
+        List<SystemUserRelation> list = list(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId, syncParam.getId()).eq(SystemUserRelation::getUserType,1));
+        //获取需要修改的，新增的，删除的
+        //List<SystemUserRelation> relations = new ArrayList<>();  //新增列表
+        List<SystemUserRelation> deletes = new ArrayList<>();   //删除列表
+        if(CollUtil.isNotEmpty(list)){
+            for (SystemUserRelation userRelation : list) {
+                SyncParam.SyncUser syncUser = params.get(userRelation.getUserAccount() + userRelation.getRoleKey());
+                if(null!=syncUser){
+                    //原来的从新的里面可以获取的到，说明存在，从新的params 移除，就剩下新增的了
+                    params.remove(userRelation.getUserAccount() + userRelation.getRoleKey());
+                }else {
+                    deletes.add(userRelation);
+                }
+            }
+        }
+
+
+        List<SystemUserRelation> collect = params.values().stream().map(syncUser -> {
             SystemUserRelation systemUserRelation = new SystemUserRelation();
             systemUserRelation.setSystemId(syncParam.getId());
             systemUserRelation.setUserAccount(syncUser.getAccount());
@@ -141,6 +164,10 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
 //                //异步执行
 //                HttpUtil.createPost(valueUrl).body(json).execute(true);
 //            }
+        }
+        if(CollUtil.isNotEmpty(deletes)){
+            List<String> ids = deletes.stream().map(SystemUserRelation::getId).collect(Collectors.toList());
+            removeByIds(ids);
         }
 
     }
