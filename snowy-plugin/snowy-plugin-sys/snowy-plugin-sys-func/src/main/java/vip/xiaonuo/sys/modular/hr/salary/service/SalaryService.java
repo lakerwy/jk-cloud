@@ -113,4 +113,10 @@ public interface SalaryService extends IService<Salary> {
      * @param param
      */
     void deleteByMonth(PayParam param);
+
+    /**
+     * 预览工资数据 - 确认封存
+     * @param param
+     */
+    void preSalarySure(PayParam param);
 }

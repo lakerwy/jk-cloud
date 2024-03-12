@@ -89,9 +89,10 @@ public class SalaryTaxServiceImpl extends ServiceImpl<SalaryTaxMapper, SalaryTax
     public void add(SalaryTaxAddParam salaryTaxAddParam) {
         //同一年月，同一花名册Id，只存在一条记录
         List<SalaryTax> oldList = this.list(new QueryWrapper<SalaryTax>().lambda()
-                .eq(SalaryTax::getStandardId,salaryTaxAddParam.getStandardId()));
+                        .eq(SalaryTax::getUnitName,salaryTaxAddParam.getUnitName())
+                        .eq(SalaryTax::getStandardId,salaryTaxAddParam.getStandardId()));
         if(CollUtil.isNotEmpty(oldList)){
-            throw new CommonException("当前员工本年月已存在记录");
+            throw new CommonException("当前员工本年月本公司已存在记录");
         }
         SalaryTax salaryTax = BeanUtil.toBean(salaryTaxAddParam, SalaryTax.class);
         this.save(salaryTax);
@@ -102,10 +103,11 @@ public class SalaryTaxServiceImpl extends ServiceImpl<SalaryTaxMapper, SalaryTax
     public void edit(SalaryTaxEditParam salaryTaxEditParam) {
         //同一年月，同一花名册Id，只存在一条记录
         List<SalaryTax> oldList = this.list(new QueryWrapper<SalaryTax>().lambda()
+                .eq(SalaryTax::getUnitName,salaryTaxEditParam.getUnitName())
                 .eq(SalaryTax::getStandardId,salaryTaxEditParam.getStandardId())
                 .ne(SalaryTax::getId,salaryTaxEditParam.getId()));
         if(CollUtil.isNotEmpty(oldList)){
-            throw new CommonException("当前员工本年月已存在记录");
+            throw new CommonException("当前员工本年月本公司已存在记录");
         }
         SalaryTax salaryTax = this.queryEntity(salaryTaxEditParam.getId());
         BeanUtil.copyProperties(salaryTaxEditParam, salaryTax);

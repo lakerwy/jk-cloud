@@ -297,6 +297,15 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             if(ObjectUtil.isNotEmpty(x.getHaveBirthdayPay())){
                 x.setHaveBirthdayPay(x.getHaveBirthdayPay().trim());
             }
+            if(ObjectUtil.isNotEmpty(x.getHaveSeniorityPay())){
+                x.setHaveSeniorityPay(x.getHaveSeniorityPay().trim());
+            }
+            if(ObjectUtil.isNotEmpty(x.getCompany())){
+                x.setCompany(x.getCompany().trim());
+            }
+            if(ObjectUtil.isNotEmpty(x.getUnitName())){
+                x.setUnitName(x.getUnitName().trim());
+            }
         });
     }
 
@@ -348,6 +357,9 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 }
             }
             if(SalaryTypeEnum.EMP_SALARY.getValue().equals(item.getType())){
+                if(ObjectUtil.isEmpty(item.getCompany())){
+                    errMsg += "工资发放公司必填；";
+                }
                 if(ObjectUtil.isEmpty(item.getUserType())){
                     errMsg += "员工类别必填；";
                 }
@@ -512,7 +524,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
                         List<SalaryIns> tmpList = oldList.stream().filter(obj -> item.getStandardId().equals(obj.getStandardId()) && item.getUnitName().equals(obj.getUnitName())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
-                            item.setErrorMsg("员工已存在当前公司当月数据；");
+                            item.setErrorMsg("员工已存在当月当前公司数据；");
                         }
                     });
                 }
@@ -525,7 +537,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
                         List<SalaryGjj> tmpList = oldList.stream().filter(obj -> item.getStandardId().equals(obj.getStandardId()) && item.getUnitName().equals(obj.getUnitName())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
-                            item.setErrorMsg("员工已存在当前公司当月数据；");
+                            item.setErrorMsg("员工已存在当月当前公司数据；");
                         }
                     });
                 }
@@ -538,7 +550,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
                         List<SalaryTax> tmpList = oldList.stream().filter(obj -> item.getStandardId().equals(obj.getStandardId()) && item.getUnitName().equals(obj.getUnitName())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
-                            item.setErrorMsg("员工已存在当前公司当月数据；");
+                            item.setErrorMsg("员工已存在当月当前公司数据；");
                         }
                     });
                 }
@@ -550,9 +562,9 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 List<SalaryVo> oldList = salaryService.getSalaryAllList(type, yearMonths);
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
-                        List<SalaryVo> tmpList = oldList.stream().filter(obj -> item.getYearMonth().equals(obj.getYearMonth()) && item.getIdCardNumber().equals(obj.getIdCardNumber())).collect(Collectors.toList());
+                        List<SalaryVo> tmpList = oldList.stream().filter(obj -> item.getYearMonth().equals(obj.getYearMonth()) && item.getIdCardNumber().equals(obj.getIdCardNumber()) && item.getCompany().equals(obj.getCompany())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
-                            item.setErrorMsg("员工已存在当月工资数据；");
+                            item.setErrorMsg("员工已存在当月当前公司工资数据；");
                         }
                     });
                 }

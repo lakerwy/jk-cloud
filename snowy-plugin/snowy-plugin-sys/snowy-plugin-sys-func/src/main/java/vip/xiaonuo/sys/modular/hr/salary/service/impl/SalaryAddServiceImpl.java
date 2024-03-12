@@ -57,7 +57,7 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
         QueryWrapper<SalaryAdd> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getYearMonth())) {
-            queryWrapper.eq("b.YEAR_MONTH", salaryAddPageParam.getYearMonth());
+            queryWrapper.eq("b.`YEAR_MONTH`", salaryAddPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getIdCardNumber())) {
             queryWrapper.like("b.ID_CARD_NUMBER", salaryAddPageParam.getIdCardNumber());
@@ -82,7 +82,7 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
             queryWrapper.orderBy(true, salaryAddPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryAddPageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("b.YEAR_MONTH").orderByAsc("b.ID_CARD_NUMBER");
+            queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
         }
         return salaryAddMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }

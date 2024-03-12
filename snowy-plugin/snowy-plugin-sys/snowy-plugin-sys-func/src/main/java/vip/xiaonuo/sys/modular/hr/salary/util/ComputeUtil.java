@@ -3,19 +3,25 @@ package vip.xiaonuo.sys.modular.hr.salary.util;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
+import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryGjj;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
+import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryIns;
+import vip.xiaonuo.sys.modular.hr.salary.enums.FullStatusEnum;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumAttendData;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.Period;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * 工资系统 - 相关计算工具类
@@ -36,17 +42,9 @@ public class ComputeUtil {
      */
     private static final BigDecimal BIG_DECIMAL_002 = new BigDecimal("0.02");
     /**
-     * BigDecimal value = 0.1
+     * BigDecimal value = 0.03
      */
-    private static final BigDecimal BIG_DECIMAL_01 = new BigDecimal("0.1");
-    /**
-     * BigDecimal value = 0.15
-     */
-    private static final BigDecimal BIG_DECIMAL_015 = new BigDecimal("0.15");
-    /**
-     * BigDecimal value = 0.2
-     */
-    private static final BigDecimal BIG_DECIMAL_02 = new BigDecimal("0.2");
+    private static final BigDecimal BIG_DECIMAL_003 = new BigDecimal("0.03");
     /**
      * BigDecimal value = 0.5
      */
@@ -56,13 +54,17 @@ public class ComputeUtil {
      */
     private static final BigDecimal BIG_DECIMAL_12 = new BigDecimal("1.2");
     /**
+     * BigDecimal value = 2
+     */
+    private static final BigDecimal BIG_DECIMAL_2 = new BigDecimal("2");
+    /**
      * BigDecimal value = 4
      */
     private static final BigDecimal BIG_DECIMAL_4 = new BigDecimal("4");
     /**
-     * BigDecimal value = 6
+     * 全勤奖 20
      */
-    private static final BigDecimal BIG_DECIMAL_6 = new BigDecimal("6");
+    private static final BigDecimal FULL_AMOUNT = new BigDecimal("20");
     /**
      * BigDecimal value = 21.75 月工作日天数
      */
@@ -84,25 +86,13 @@ public class ComputeUtil {
      */
     private static final BigDecimal BIG_DECIMAL_500 = new BigDecimal("500");
     /**
-     * BigDecimal value = 4000
-     */
-    private static final BigDecimal BIG_DECIMAL_4000 = new BigDecimal("4000");
-    /**
-     * BigDecimal value = 10000
-     */
-    private static final BigDecimal BIG_DECIMAL_10000 = new BigDecimal("10000");
-    /**
      * Float value = 0
      */
     private static final Float FLOAT_0 = 0F;
     /**
-     * Float value = 1
+     * Float value = 2
      */
-    private static final Float FLOAT_1 = 1.0F;
-    /**
-     * Float value = 1.5
-     */
-    private static final Float FLOAT_15 = 1.5F;
+    private static final Float FLOAT_2 = 2F;
     /**
      * Int value = 0
      */
@@ -184,102 +174,115 @@ public class ComputeUtil {
 
     /**
      * 根据考勤数据，计算考勤工资
-     *
-     * 计算规则：
-     * ①病假工资=月标准工资/21.75*病假天数*0.5
-     * ②事假天数小于等于1.5天，事假工资=月标准工资/21.75*事假天数
-     * 事假天数大于1.5天，事假工资=月标准工资/21.75*1+月标准工资/21.75*（事假天数-1）*1.2
-     * ③迟到工资=月标准工资*1%*A类迟到次数+月标准工资*2%*B类迟到次数+月标准工资/21.75*0.5*C类迟到次数
-     * ④旷工1天，旷工工资=月标准工资/21.75*旷工天数*4
-     * 连续旷工2天，旷工工资=月标准工资/21.75*旷工天数*6
-     * ⑤全勤奖：当月无迟到、早退、脱岗、旷工、未打卡、病事假、调休等考勤异况，给予全勤奖20元
-     *
-     * @return
+     * @return SumAttendData
      */
-    public static List<SalaryAttend> computeAttendGZ(List<SalaryAttend> attendList,List<SalaryStandardVo> standardList){
-        attendList.forEach(item->{
-            //获取当前人的月工资标准
-            SalaryStandardVo standard = standardList.stream().filter(x->x.getId().equals(item.getStandardId())).findFirst().orElse(null);
-            //计算
-            BigDecimal sickAmount = BIG_DECIMAL_0;
-            BigDecimal workAmount = BIG_DECIMAL_0;
-            BigDecimal lateAmount = BIG_DECIMAL_0;
-            BigDecimal minerAmount = BIG_DECIMAL_0;
-            BigDecimal fullAmount = BIG_DECIMAL_0;
-            if(ObjectUtil.isNotEmpty(standard)){
-                //月工资标准
-                BigDecimal standardAmount = standard.getStandardAmount();
-                //①病假工资=月标准工资/21.75*病假天数*0.5
-                sickAmount = standardAmount.divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                        .multiply(BigDecimal.valueOf(item.getSickDay()))
-                        .multiply(BIG_DECIMAL_05);
-                //②事假天数小于等于1.5天，事假工资=月标准工资/21.75*事假天数
-                //  事假天数大于1.5天，事假工资=月标准工资/21.75*1+月标准工资/21.75*（事假天数-1）*1.2
-                if(item.getWorkDay() > FLOAT_15){
-                    workAmount = standardAmount.divide(BIG_DECIMAL_2175,INT_2,RoundingMode.HALF_UP)
-                            .add(standardAmount.divide(BIG_DECIMAL_2175,INT_2,RoundingMode.HALF_UP)
-                                    .multiply(BigDecimal.valueOf(item.getWorkDay()-FLOAT_1))
-                                    .multiply(BIG_DECIMAL_12));
-                }else{
-                    workAmount = standardAmount.divide(BIG_DECIMAL_2175,INT_2,RoundingMode.HALF_UP)
-                            .multiply(BigDecimal.valueOf(item.getWorkDay()));
-                }
-                //③迟到工资=月标准工资*1%*A类迟到次数+月标准工资*2%*B类迟到次数+月标准工资/21.75*0.5*C类迟到次数
-                lateAmount = standardAmount.multiply(BIG_DECIMAL_001).multiply(BigDecimal.valueOf(item.getLateNumA()))
-                        .add(standardAmount.multiply(BIG_DECIMAL_002).multiply(BigDecimal.valueOf(item.getLateNumB())))
-                        .add(standardAmount.divide(BIG_DECIMAL_2175,INT_2,RoundingMode.HALF_UP)
-                                .multiply(BigDecimal.valueOf(item.getLateNumC())).multiply(BIG_DECIMAL_05));
-                //④旷工1天，旷工工资=月标准工资/21.75*旷工天数*4
-                //     * 连续旷工2天，旷工工资=月标准工资/21.75*旷工天数*6
-                if(item.getMinerDay() <= FLOAT_1){
-                    minerAmount = standardAmount.divide(BIG_DECIMAL_2175,INT_2,RoundingMode.HALF_UP)
-                            .multiply(BigDecimal.valueOf(item.getMinerDay())).multiply(BIG_DECIMAL_4);
-                }else{
-                    minerAmount = standardAmount.divide(BIG_DECIMAL_2175,INT_2,RoundingMode.HALF_UP)
-                            .multiply(BigDecimal.valueOf(item.getMinerDay())).multiply(BIG_DECIMAL_6);
-                }
-                //⑤全勤奖：当月无迟到、早退、脱岗、旷工、未打卡、病事假、调休等考勤异况，给予全勤奖20元
-            }
-        });
-        return attendList;
-    }
-
-
-    /**
-     * 月工资标准 - 计算 ③考核工资 ②岗位工资
-     *
-     * ①基本工资
-     * 根据武汉市中心城区上一年度最低月工资标准确定
-     * 目前刚从2010调整为2210元，后续会根据政策变化同步调整
-     * ②岗位工资
-     * 岗位工资=月工资标准—考核工资—餐饮补助
-     * ③考核工资
-     * 月标准工资4000以下，考核工资为月标准工资的10%
-     * 月标准工资大于等于4000小于等于10000，考核工资为月标准工资的15%
-     * 月标准工资10000以上，考核工资为月标准工资的20%
-     * 有另行约定的按约定金额或比例
-     * ④餐饮补助目前为150元
-     *
-     * @param standardList 月工资标准数据集合
-     * @return
-     */
-    public static List<SalaryStandard> computeStandardGZ(List<SalaryStandard> standardList){
-        standardList.forEach(item->{
-            BigDecimal meritAmount = BIG_DECIMAL_0;
-            if(item.getStandardAmount().compareTo(BIG_DECIMAL_4000)<0){
-                meritAmount = item.getStandardAmount().multiply(BIG_DECIMAL_01);
-            }else if(item.getStandardAmount().compareTo(BIG_DECIMAL_4000)>=0 && item.getStandardAmount().compareTo(BIG_DECIMAL_10000)<=0){
-                meritAmount = item.getStandardAmount().multiply(BIG_DECIMAL_015);
-            }else{
-                meritAmount = item.getStandardAmount().multiply(BIG_DECIMAL_02);
-            }
-            //②岗位工资
-            //岗位工资=月工资标准—考核工资
-            BigDecimal postAmount = item.getStandardAmount().subtract(meritAmount);
-            item.setMeritAmount(meritAmount);
-            item.setPostAmount(postAmount);
-        });
-        return standardList;
+    public static SumAttendData computeAttendGZ(SalaryAttend attend, SalaryVo salaryVo, List<SalaryIns> insData, List<SalaryGjj> gjjData){
+        //考勤扣款
+        SumAttendData attendData = new SumAttendData();
+        //全勤奖
+        attendData.setFullAmount(FullStatusEnum.YES.getValue().equals(attend.getIsFull()) ? FULL_AMOUNT : BIG_DECIMAL_0);
+        /**
+         * 病假
+         * 一个月以内的病假扣款=月工资标准/21.75*病假天数*50%
+         * 一个月以上病假扣款=（月工资标准-基本工资）/21.75*病假天数
+         */
+        BigDecimal realMonthSickAmount = salaryVo.getStandardAmount()
+                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(attend.getRealMonthSickDay()))
+                .multiply(BIG_DECIMAL_05);
+        BigDecimal realUnMonthSickAmount = (salaryVo.getStandardAmount()
+                .subtract(salaryVo.getBasicAmount()))
+                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(attend.getRealUnMonthSickDay()));
+        attendData.setSickAmount(realMonthSickAmount.add(realUnMonthSickAmount).setScale(2));
+        /**
+         * 事假
+         * 2天以内的事假扣款=月工资标准/21.75*事假天数
+         * 超过2天的事假扣款=月工资标准/21.75*事假天数*2+月工资标准/21.75*（事假天数-2）*1.2
+         */
+        BigDecimal workAmount = BIG_DECIMAL_0;
+        if(attend.getRealWorkDay()<=FLOAT_2){
+            workAmount = salaryVo.getStandardAmount()
+                    .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(attend.getRealWorkDay()));
+        }else{
+            workAmount = salaryVo.getStandardAmount()
+                    .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                    .multiply(BIG_DECIMAL_2)
+                    .add(
+                         salaryVo.getStandardAmount()
+                                 .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                                 .multiply(BigDecimal.valueOf(attend.getRealWorkDay() - FLOAT_2))
+                                 .multiply(BIG_DECIMAL_12));
+        }
+        attendData.setWorkAmount(workAmount.setScale(2));
+        /**
+         * 迟到
+         * A类迟到超2次：
+         * 扣款=月工资标准*1%*（A类迟到次数-2）
+         *
+         * B类迟到：
+         * 扣款=月工资标准*2%
+         *
+         * C类迟到：
+         * 扣款1=月工资标准*3%
+         * 扣款2=月工资标准/21.75*0.5
+         * 扣款1和扣款2比较取最小值
+         *
+         * 迟到扣款=A类迟到扣款+B类迟到扣款+C类迟到扣款
+         */
+        BigDecimal lateAmountA = BIG_DECIMAL_0;
+        if(attend.getLateNumA() > INT_2){
+            lateAmountA = salaryVo.getStandardAmount()
+                    .multiply(BIG_DECIMAL_001)
+                    .multiply(BigDecimal.valueOf(attend.getLateNumA() - FLOAT_2));
+        }
+        BigDecimal lateAmountB = salaryVo.getStandardAmount()
+                .multiply(BIG_DECIMAL_002)
+                .multiply(BigDecimal.valueOf(attend.getLateNumB()));
+        BigDecimal lateAmountC1 = salaryVo.getStandardAmount()
+                .multiply(BIG_DECIMAL_003)
+                .multiply(BigDecimal.valueOf(attend.getLateNumC()));
+        BigDecimal lateAmountC2 = salaryVo.getStandardAmount()
+                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                .multiply(BIG_DECIMAL_05)
+                .multiply(BigDecimal.valueOf(attend.getLateNumC()));
+        BigDecimal lateAmountC = lateAmountC1.compareTo(lateAmountC2) <=0 ? lateAmountC1 : lateAmountC2;
+        attendData.setLateAmount(lateAmountA.add(lateAmountB).add(lateAmountC).setScale(2));
+        /**
+         * 旷工：
+         * 扣款=月工资标准/21.75*旷工天数*4
+         */
+        BigDecimal minerAmount = salaryVo.getStandardAmount()
+                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(attend.getRealMinerDay()))
+                .multiply(BIG_DECIMAL_4);
+        attendData.setMinerAmount(minerAmount.setScale(2));
+        /**
+         * 产假
+         * 全月产假扣款=月工资标准-个人社保小计-个人公积金-公积金差额
+         * 非全月产假=月工资标准/21.75*产假天数
+         * 产假天数=应出勤天数，则为全月产假扣款，否则为非全月产假扣款
+         */
+        BigDecimal materAmount = BIG_DECIMAL_0;
+        if(attend.getRealMaterDay() == attend.getRequiredDay()){
+            //获取 个人社保小计-个人公积金-公积金差额
+            SalaryIns ins = insData.stream().filter(x->x.getStandardId().equals(attend.getStandardId())).findFirst().orElse(null);
+            SalaryGjj gjj = gjjData.stream().filter(x->x.getStandardId().equals(attend.getStandardId())).findFirst().orElse(null);
+            BigDecimal insPer = ObjectUtil.isNotEmpty(ins) ? ins.getPer() : BIG_DECIMAL_0;
+            BigDecimal gjjSysPer = ObjectUtil.isNotEmpty(gjj) ? gjj.getSysPer() : BIG_DECIMAL_0;
+            BigDecimal gjjCha = ObjectUtil.isNotEmpty(gjj) ? gjj.getAmount() : BIG_DECIMAL_0;
+            materAmount = salaryVo.getStandardAmount()
+                    .subtract(insPer)
+                    .subtract(gjjSysPer)
+                    .subtract(gjjCha);
+        }else{
+            materAmount = salaryVo.getStandardAmount()
+                    .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                    .multiply(BigDecimal.valueOf(attend.getRealMaterDay()));
+        }
+        attendData.setMaterAmount(materAmount.setScale(2));
+        return attendData;
     }
 
     /**
@@ -316,6 +319,59 @@ public class ComputeUtil {
         return ObjectUtil.isNotEmpty(data1) ? data1 : BigDecimal.ZERO;
     }
 
+
+    /**
+     * 根据当前 年月 yyyyMM 获取上个月
+     * @param currentYearMonth 当前年月 yyyyMM 202401
+     * @return 202312
+     */
+    public static String getPreviousYM(String currentYearMonth){
+        // 创建格式器
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+        // 当前年月2024-01
+        YearMonth currentYM = YearMonth.parse(currentYearMonth,formatter);
+        // 计算上个年月2023-12
+        YearMonth previousYM = currentYM.minusMonths(1);
+        String previousYearMonth = previousYM.format(formatter);
+        return previousYearMonth;
+    }
+
+
+    /**
+     * 累计预扣预缴应纳税所得额 税率 速算扣除数
+     *
+     * 全年应纳税所得额税率表一（综合所得适用）
+     *
+     * 1.年度不超过36000元的税率为：3%   速算扣除数：0
+     *
+     * 2.超过36000-144000元的部分税率为：10%   速算扣除数：2520
+     *
+     * 3.超过144000-300000元的部分税率为：20%   速算扣除数：16920
+     *
+     * 4.超过300000-420000元的部分税率为：25%    速算扣除数：31920
+     *
+     * 5.超过420000-660000元的部分税率为：30%     速算扣除数：52920
+     *
+     * 6.超过660000-960000元的部分税率为：35%     速算扣除数：85920
+     *
+     * 7.超过960000元的税率为：45%   速算扣除数：181920
+     *
+     * @return 累计税额，小于0，则取0
+     */
+    public static BigDecimal getLjTax(BigDecimal ljTaxIncomeAmount){
+        List<BigDecimal> taxList = new ArrayList<>();
+        taxList.add(BIG_DECIMAL_0);
+        taxList.add(ljTaxIncomeAmount.multiply(BigDecimal.valueOf(0.03)));
+        taxList.add(ljTaxIncomeAmount.multiply(BigDecimal.valueOf(0.1)).subtract(BigDecimal.valueOf(2520)));
+        taxList.add(ljTaxIncomeAmount.multiply(BigDecimal.valueOf(0.2)).subtract(BigDecimal.valueOf(16920)));
+        taxList.add(ljTaxIncomeAmount.multiply(BigDecimal.valueOf(0.25)).subtract(BigDecimal.valueOf(31920)));
+        taxList.add(ljTaxIncomeAmount.multiply(BigDecimal.valueOf(0.3)).subtract(BigDecimal.valueOf(52920)));
+        taxList.add(ljTaxIncomeAmount.multiply(BigDecimal.valueOf(0.35)).subtract(BigDecimal.valueOf(85920)));
+        taxList.add(ljTaxIncomeAmount.multiply(BigDecimal.valueOf(0.45)).subtract(BigDecimal.valueOf(181920)));
+        // 使用Optional.max()防止空列表异常
+        Optional<BigDecimal> maxValue = taxList.stream().max(BigDecimal::compareTo);
+        return maxValue.get().setScale(2);
+    }
 
 
     /**
@@ -571,5 +627,141 @@ public class ComputeUtil {
             }
         });
         return importTempData;
+    }
+
+
+    /**
+     * 预览工资数据 - 默认 0
+     * @param salaryList
+     */
+    public static List<SalaryVo> initGZData(List<SalaryVo> salaryList){
+        salaryList.forEach(item->{
+            if(ObjectUtil.isEmpty(item.getBasicAmount())){
+                item.setBasicAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getPostAmount())){
+                item.setPostAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMeritAmount())){
+                item.setMeritAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getStandardAmount())){
+                item.setStandardAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMeritRate())){
+                item.setMeritRate(FLOAT_0);
+            }
+
+            if(ObjectUtil.isEmpty(item.getPer())){
+                item.setPer(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getYnPer())){
+                item.setYnPer(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getSyPer())){
+                item.setSysPer(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getYlPer())){
+                item.setYlPer(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getYlSale())){
+                item.setYlSale(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getSysPer())){
+                item.setSysPer(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTaxSy())){
+                item.setTaxSy(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTaxZn())){
+                item.setTaxZn(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTaxFd())){
+                item.setTaxFd(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTaxZf())){
+                item.setTaxZf(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTaxJy())){
+                item.setTaxJy(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTaxZh())){
+                item.setTaxZh(BIG_DECIMAL_0);
+            }
+
+            if(ObjectUtil.isEmpty(item.getRealMeritAmount())){
+                item.setRealMeritAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRegisterAmount())){
+                item.setRegisterAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getWorkAgeAmount())){
+                item.setWorkAgeAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getFullAmount())){
+                item.setFullAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTeacherAmount())){
+                item.setTeacherAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getDutyAmount())){
+                item.setDutyAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getSickAmount())){
+                item.setSickAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getWorkAmount())){
+                item.setWorkAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLateAmount())){
+                item.setLateAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMinerAmount())){
+                item.setMinerAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMaterAmount())){
+                item.setMaterAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getAddAmount())){
+                item.setAddAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMinusAmount())){
+                item.setMinusAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getGrossPayAmount())){
+                item.setGrossPayAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getEmpWelfareAmount())){
+                item.setEmpWelfareAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getOuterAmount())){
+                item.setOuterAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLastAddAmount())){
+                item.setLastAddAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLastMinusAmount())){
+                item.setLastMinusAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getTaxIncomeAmount())){
+                item.setTaxIncomeAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLjTaxIncomeAmount())){
+                item.setLjTaxIncomeAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getLjTaxAmount())){
+                item.setLjTaxAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getHaveLjTaxAmount())){
+                item.setHaveLjTaxAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getMonthTaxAmount())){
+                item.setMonthTaxAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getRealPayAmount())){
+                item.setRealPayAmount(BIG_DECIMAL_0);
+            }
+        });
+        return salaryList;
     }
 }

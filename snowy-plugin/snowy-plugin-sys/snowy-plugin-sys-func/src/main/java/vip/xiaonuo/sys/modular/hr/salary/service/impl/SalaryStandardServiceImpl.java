@@ -26,7 +26,6 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
-import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.enums.UserTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
@@ -34,13 +33,13 @@ import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.StandardParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
+import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.ThreeSalaryStandardVo;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
-import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -144,14 +143,10 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
 
     @Override
     public void copy() {
-        // 创建格式器
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
-        // 获取当前日期   当前年月 202402
-        LocalDate currentDate = LocalDate.now();
-        String currentYearMonth = currentDate.format(formatter);
-        // 计算上个年月 202401
-        YearMonth previousMonth = YearMonth.of(currentDate.getYear(), currentDate.getMonthValue() - 1);
-        String previousYearMonth = previousMonth.format(formatter);
+        // 当前年月
+        String currentYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+        String previousYearMonth = ComputeUtil.getPreviousYM(currentYearMonth);
+
         //1. 判断当前年月是否已存在工资标准数据（存在，则不可复制）
         List<SalaryStandard> currentData = this.list(new QueryWrapper<SalaryStandard>().lambda()
                 .eq(SalaryStandard::getYearMonth,currentYearMonth));

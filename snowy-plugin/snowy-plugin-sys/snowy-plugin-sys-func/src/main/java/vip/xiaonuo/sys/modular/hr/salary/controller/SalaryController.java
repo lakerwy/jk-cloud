@@ -141,4 +141,20 @@ public class SalaryController {
     }
 
 
+    /**
+     * 封存-【工资预览列表】 - 未确认的工资数据 - 确认封存
+     *
+     * @author yong.ye
+     * @date  2024/03/01 16:50
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("封存-【工资预览列表】 - 未确认的工资数据 - 确认封存")
+    @GetMapping("/sys/hr/salary/preSalarySure")
+    public CommonResult<String> preSalarySure(PayParam param) {
+        salaryService.preSalarySure(param);
+        return CommonResult.ok();
+    }
+
+
+
 }
