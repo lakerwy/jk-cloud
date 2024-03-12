@@ -170,6 +170,7 @@ public class FlwProcessMyController {
         flwProcessMonitorPageParam.setSearchKey(flwProcessMyPageParam.getSearchKey());
         flwProcessMonitorPageParam.setSn(flwProcessMyPageParam.getSn());
         flwProcessMonitorPageParam.setInitiatorProcessAbstract(flwProcessMyPageParam.getInitiatorProcessAbstract());
+        flwProcessMonitorPageParam.setCloseDate(true);
         return CommonResult.data(flwProcessService.monitorPage(flwProcessMonitorPageParam));
     }
 

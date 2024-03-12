@@ -84,4 +84,6 @@ public class FlwProcessMonitorPageParam {
     @ApiModelProperty(value = "结束时间")
     private String endOptDate;
 
+    private boolean closeDate; //关闭时间条件的标志
+
 }
