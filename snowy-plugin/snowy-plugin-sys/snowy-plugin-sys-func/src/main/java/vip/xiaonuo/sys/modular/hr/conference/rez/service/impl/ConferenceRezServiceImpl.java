@@ -31,6 +31,7 @@ import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
 import com.taobao.api.ApiException;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -46,7 +47,11 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dbs.core.util.BizTableCommon;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.dev.api.IDingDingService;
+import vip.xiaonuo.dev.modular.dingDingSchedule.util.StartDingDingScheduleCore;
+import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
+import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
+import vip.xiaonuo.sys.modular.hr.conference.DingDingRec.DingdingCalendarUtil;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
@@ -69,6 +74,7 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
+import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -83,6 +89,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
 
     private static final String BOOK_SUCCESS = "bookSuccess";
     private static final String BOOK_CANCEL = "bookCancel";
+    private static final String EVENT_SUB_TYPE = "eventSubType";
 
     @Resource
     SysUserService sysUserService;
@@ -104,6 +111,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     private ApplicationEventPublisher eventPublisher;
     @Resource
     RuanLianApiService ruanLianApiService;
+    @Resource
+    DingdingCalendarUtil dingdingCalendarUtil;
 
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -685,28 +694,52 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     }
 
     @Override
-    public void process(com.alibaba.fastjson2.JSONObject bizData, String eventType, String eventId){
+    public void process(com.alibaba.fastjson2.JSONObject bizData, String bookId) throws Exception{
+        String eventType = ObjectUtil.isNotEmpty(bizData.get(EVENT_SUB_TYPE)) ? bizData.get(EVENT_SUB_TYPE).toString() : "";
+        String userId = "";
+        if(ObjectUtil.isNotEmpty(bizData.get("userName"))){
+            List<SysUser> sysUsers = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getName,bizData.get("userName").toString()));
+            if(ObjectUtil.isNotEmpty(sysUsers)){ userId = sysUsers.get(0).getId(); }
+        }
+        String conferenceConfigId = "";
+        if(ObjectUtil.isNotEmpty(bizData.get("roomName"))){ conferenceConfigId = conferenceConfigService.getIdForName(bizData.get("roomName").toString()); }
+        String roomId = ObjectUtil.isNotEmpty(bizData.get("roomId")) ? bizData.get("roomId").toString() : "";
 
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         switch(eventType){
             case BOOK_SUCCESS://预定会议
+                //theme 主题，beginTime-endTime开始和结束时间
                 ConferenceRez conferenceRez = new ConferenceRez();
                 conferenceRez.setExtJson(bizData.toString());
-                conferenceRez.setEventId(eventId);
-                log.error("bizDataStream数据:"+BOOK_SUCCESS);
-                //theme 主题，beginTime-endTime开始和结束时间
+                conferenceRez.setEventId(bookId);
+                if(ObjectUtil.isNotEmpty(bizData.get("startTime"))){
+                    Date beginTime = sdf.parse(bizData.get("startTime").toString());
+                    conferenceRez.setBeginTime(beginTime);
+                }
+                if(ObjectUtil.isNotEmpty(bizData.get("endTime"))){
+                    Date endTime = sdf.parse(bizData.get("endTime").toString());
+                    conferenceRez.setEndTime(endTime);
+                }
+                conferenceRez.setSn(DateUtil.format(new Date(),DatePattern.PURE_DATETIME_PATTERN)+roomId);
+                conferenceRez.setConferenceConfigId(conferenceConfigId);
+                conferenceRez.setTheme(ObjectUtil.isNotEmpty(bizData.get("title")) ? bizData.get("title").toString() : "");
+                conferenceRez.setCreateUser(userId);
+                conferenceRez.setJoinUser(ObjectUtil.isNotEmpty(bizData.get("joinUser")) ? bizData.get("joinUser").toString() : "");
+                conferenceRez.setJoinSize(ObjectUtil.isNotEmpty(bizData.get("joinSize")) ? Integer.valueOf(bizData.get("joinSize").toString()) : 0);
+                this.save(conferenceRez);
                 break;
             case BOOK_CANCEL://取消会议
-                List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>().eq(ConferenceRez::getEventId,eventId));
-                log.error("bizDataStream数据:"+BOOK_CANCEL);
+                List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>().eq(ConferenceRez::getEventId,bookId));
                 if(CollectionUtil.isEmpty(conferenceRezList)){
-                    log.error("未找到该会议数据！eventId+"+eventId);
+                    log.error("未找到该会议数据！bookId+"+bookId);
                     break;
+                }
+                try{
+                    this.removeBatchByIds(conferenceRezList.stream().map(rez -> rez.getId()).collect(Collectors.toList()));
+                }catch (Exception e){
+                    log.error("删除数据失败！e:"+e.getMessage());
                 }
                 break;
         }
-
-        // 在这里处理具体的事件逻辑
-        log.error("bizDataStream数据:"+bizData.toString());
     }
-
 }

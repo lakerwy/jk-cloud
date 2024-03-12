@@ -17,14 +17,18 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.dingDingSchedule.util.StartDingDingScheduleCore;
+import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceWorkArrange;
 import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceWorkArrangeMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeAddParam;
@@ -34,6 +38,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangePage
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceWorkArrangeService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceWorkArrangeAdd;
 
+import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,21 +51,29 @@ import java.util.List;
 @Service
 public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWorkArrangeMapper, ConferenceWorkArrange> implements ConferenceWorkArrangeService {
 
+    @Value("${dingtalkstream.clientId}")
+    private String appKey;
+    @Value("${dingtalkstream.clientSecret}")
+    private String appSecret;
+
+    @Resource
+    StartDingDingScheduleCore startDingDingScheduleCore;
+
     @Override
     public Page<ConferenceWorkArrange> page(ConferenceWorkArrangePageParam conferenceWorkArrangePageParam) {
         QueryWrapper<ConferenceWorkArrange> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getRezId())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getRezId, conferenceWorkArrangePageParam.getRezId());
         }
-        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyOrgId())) {
+        /*if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyOrgId())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getDutyOrgId, conferenceWorkArrangePageParam.getDutyOrgId());
-        }
+        }*/
         if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyUserId())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getDutyUserId, conferenceWorkArrangePageParam.getDutyUserId());
         }
-        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyUserName())) {
+        /*if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyUserName())) {
             queryWrapper.lambda().like(ConferenceWorkArrange::getDutyUserName, conferenceWorkArrangePageParam.getDutyUserName());
-        }
+        }*/
         if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getIsWorkEnd())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getIsWorkEnd, conferenceWorkArrangePageParam.getIsWorkEnd());
         }
@@ -115,5 +128,15 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
             throw new CommonException("会议模块-工作部署不存在，id值为：{}", id);
         }
         return conferenceWorkArrange;
+    }
+
+    /** 会议增加日程 */
+    private void addRecSchedule(String rezId){
+        List<ConferenceWorkArrange> conferenceWorkArrangeList = this.list(new LambdaQueryWrapper<ConferenceWorkArrange>().eq(ConferenceWorkArrange::getRezId,rezId));
+
+        conferenceWorkArrangeList.forEach(conferenceWorkArrange -> {
+            DingDingScheduleVo dingDingScheduleVo = new DingDingScheduleVo();
+            startDingDingScheduleCore.addDingDingSchedule(dingDingScheduleVo,appKey,appSecret);
+        });
     }
 }

@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -32,14 +33,11 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
-import vip.xiaonuo.biz.modular.user.entity.BizUser;
-import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.biz.modular.visit.entity.BizVisitList;
 import vip.xiaonuo.biz.modular.visit.param.*;
 import vip.xiaonuo.biz.modular.visit.service.BizVisitListService;
 import vip.xiaonuo.biz.modular.visit.vo.BizVisitVo;
-import vip.xiaonuo.biz.modular.visit.vo.visitInfoMsg;
+import vip.xiaonuo.biz.modular.visit.vo.VisitInfoMsg;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -56,7 +54,11 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -219,6 +221,9 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
 
     @Override
     public void sendMsg(BizVisitIdParam bizVisitIdParam){
+        Object object = commonCacheOperator.get(FlwCacheConstant.BIZ_VISIT_KEY + bizVisitIdParam.getId());
+        if(ObjectUtil.isNotEmpty(object) && !"null".equals(object.toString()) && getHours(String.valueOf(object))) return;
+
         List<String> receiverIdList = new ArrayList<>();
         BizVisit bizVisit = this.queryEntity(bizVisitIdParam.getId());
         String partPersion = bizVisit.getPerson();
@@ -240,8 +245,18 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         }
         jsonObject.set("endFlag","已完成");
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
-        visitInfoMsg taskInfoMsg = visitInfoMsg.buildRabbitMsg(jsonObject);
-        commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
-        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
+        VisitInfoMsg taskInfoMsg = VisitInfoMsg.buildRabbitMsg(jsonObject);
+        String nowDate = DateUtil.format(new Date(), DatePattern.NORM_DATETIME_PATTERN);
+
+        streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);//发送消息
+        commonCacheOperator.put(FlwCacheConstant.BIZ_VISIT_KEY + bizVisitIdParam.getId(),nowDate,24*60*60L);//写入缓存，24小时以后过期
+    }
+
+    private boolean getHours(String date){
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern(DatePattern.NORM_DATETIME_PATTERN); //时间处理
+        LocalDateTime ldt = LocalDateTime.parse(date, formatter);
+        Date urgeDate = Date.from(ldt.atZone(ZoneId.systemDefault()).toInstant());
+        //long hours = DateUtil.between(new Date(),urgeDate, DateUnit.HOUR);
+        return DateUtil.between(new Date(),urgeDate, DateUnit.HOUR) < Integer.parseInt(FlwCacheConstant.FLW_URGE_HOURS);
     }
 }

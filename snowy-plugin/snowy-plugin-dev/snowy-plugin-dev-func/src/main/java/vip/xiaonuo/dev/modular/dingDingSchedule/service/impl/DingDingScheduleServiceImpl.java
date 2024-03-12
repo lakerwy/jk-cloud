@@ -68,7 +68,7 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
             dingDingScheduleVo.setUnionCreateId(unionCreateId);
             dingDingScheduleVo.setUnionIds(unionIds);
             dingDingScheduleVo.setXAcsDingtalkAccessToken(xAcsDingtalkAccessToken);
-            dingDingScheduleVo.setReminderMinutes(350);
+            dingDingScheduleVo.setReminderMinutes(480);
             putHttDingDingSchedule(dingDingScheduleVo);
         }catch (Exception e){
             log.error("创建日程失败！e"+e.getMessage());

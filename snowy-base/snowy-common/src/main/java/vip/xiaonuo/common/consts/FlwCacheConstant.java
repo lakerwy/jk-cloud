@@ -64,4 +64,6 @@ public class FlwCacheConstant {
     public static  final String FLW_URGE_KEY = "flw_urge:";
 
     public static  final String FLW_URGE_HOURS = "24";
+
+    public static  final String BIZ_VISIT_KEY = "biz_visit_expire";
 }

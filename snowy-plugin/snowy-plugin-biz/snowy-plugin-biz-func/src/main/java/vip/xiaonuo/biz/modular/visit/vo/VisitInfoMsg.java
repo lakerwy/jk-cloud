@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Getter
 @Setter
-public class visitInfoMsg {
+public class VisitInfoMsg {
 
     /**
      * oa 消息体forms
@@ -37,10 +37,10 @@ public class visitInfoMsg {
     @ApiModelProperty(value = "消息的唯一表示",position = 6)
     String uuid;
 
-    public visitInfoMsg() {
+    public VisitInfoMsg() {
     }
 
-    public visitInfoMsg(visitInfoMsg.Builder builder) {
+    public VisitInfoMsg(VisitInfoMsg.Builder builder) {
         this.forms = builder.forms;
         this.userSets = builder.userSets;
         this.title = builder.title;
@@ -52,23 +52,23 @@ public class visitInfoMsg {
         Set<String> userSets;
         String title;
 
-        public visitInfoMsg.Builder forms(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms) {
+        public VisitInfoMsg.Builder forms(List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms) {
             this.forms = forms;
             return this;
         }
 
-        public visitInfoMsg.Builder userSets(Set<String> userSets) {
+        public VisitInfoMsg.Builder userSets(Set<String> userSets) {
             this.userSets = userSets;
             return this;
         }
 
-        public visitInfoMsg.Builder title(String title){
+        public VisitInfoMsg.Builder title(String title){
             this.title = title;
             return this;
         };
 
-        public visitInfoMsg build(){
-            return new visitInfoMsg(this);
+        public VisitInfoMsg build(){
+            return new VisitInfoMsg(this);
         }
     }
 
@@ -80,7 +80,7 @@ public class visitInfoMsg {
      * 任务执行时间：taskTime
      * 任务参与人：taskParticipants
      */
-    public static visitInfoMsg buildRabbitMsg(JSONObject jsonObject) {
+    public static VisitInfoMsg buildRabbitMsg(JSONObject jsonObject) {
         List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
         OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
 
