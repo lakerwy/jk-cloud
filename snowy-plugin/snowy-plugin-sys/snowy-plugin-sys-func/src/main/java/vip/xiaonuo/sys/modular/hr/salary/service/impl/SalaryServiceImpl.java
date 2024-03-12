@@ -321,6 +321,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                         item.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
                         //公积金里的 差额 ，记录到 税前补扣
                         item.setMinusAmount(ComputeUtil.fillZero(gjj.getAmount()));
+                        item.setGjjDiffAmount(ComputeUtil.fillZero(gjj.getAmount()));
                     }else{
                         //公积金和社保匹配一下（当前员工）
                         AtomicReference<Boolean> isInsGjjFlag = new AtomicReference<>(false);
@@ -331,6 +332,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                                     objIns.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
                                     //公积金里的 差额 ，记录到 税前补扣
                                     objIns.setMinusAmount(ComputeUtil.fillZero(gjj.getAmount()));
+                                    item.setGjjDiffAmount(ComputeUtil.fillZero(gjj.getAmount()));
                                 }
                             });
                         }
@@ -342,6 +344,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                             tempSalaryVo.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
                             //公积金里的 差额 ，记录到 税前补扣
                             tempSalaryVo.setMinusAmount(ComputeUtil.fillZero(gjj.getAmount()));
+                            item.setGjjDiffAmount(ComputeUtil.fillZero(gjj.getAmount()));
                             addGjjSalaryVoList.add(tempSalaryVo);
                         }
                     }

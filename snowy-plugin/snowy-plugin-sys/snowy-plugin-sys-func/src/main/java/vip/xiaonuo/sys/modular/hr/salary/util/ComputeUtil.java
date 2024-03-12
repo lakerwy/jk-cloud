@@ -592,6 +592,9 @@ public class ComputeUtil {
             if(ObjectUtil.isEmpty(item.getMinusAmount())){
                 item.setMinusAmount(BIG_DECIMAL_0);
             }
+            if(ObjectUtil.isEmpty(item.getGjjDiffAmount())){
+                item.setGjjDiffAmount(BIG_DECIMAL_0);
+            }
             if(ObjectUtil.isEmpty(item.getGrossPayAmount())){
                 item.setGrossPayAmount(BIG_DECIMAL_0);
             }
@@ -727,6 +730,9 @@ public class ComputeUtil {
             }
             if(ObjectUtil.isEmpty(item.getMinusAmount())){
                 item.setMinusAmount(BIG_DECIMAL_0);
+            }
+            if(ObjectUtil.isEmpty(item.getGjjDiffAmount())){
+                item.setGjjDiffAmount(BIG_DECIMAL_0);
             }
             if(ObjectUtil.isEmpty(item.getGrossPayAmount())){
                 item.setGrossPayAmount(BIG_DECIMAL_0);

@@ -175,6 +175,10 @@ public class SalaryImportSalaryParam {
     @ApiModelProperty(value = "税前补发补扣-其他税前补扣", position = 37)
     private BigDecimal minusAmount;
 
+    /** 公积金差额 */
+    @ApiModelProperty(value = "公积金差额", position = 38)
+    private BigDecimal gjjDiffAmount;
+
     /** 应发工资 */
     @ApiModelProperty(value = "应发工资", position = 38)
     private BigDecimal grossPayAmount;
