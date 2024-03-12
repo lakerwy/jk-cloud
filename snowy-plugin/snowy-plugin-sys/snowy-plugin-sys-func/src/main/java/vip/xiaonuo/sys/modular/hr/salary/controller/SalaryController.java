@@ -149,12 +149,11 @@ public class SalaryController {
      */
     @ApiOperationSupport(order = 7)
     @ApiOperation("封存-【工资预览列表】 - 未确认的工资数据 - 确认封存")
-    @GetMapping("/sys/hr/salary/preSalarySure")
-    public CommonResult<String> preSalarySure(PayParam param) {
+    @CommonLog("封存-【工资预览列表】 - 未确认的工资数据 - 确认封存")
+    @PostMapping("/sys/hr/salary/preSalarySure")
+    public CommonResult<String> preSalarySure(@RequestBody @Valid PayParam param) {
         salaryService.preSalarySure(param);
         return CommonResult.ok();
     }
-
-
 
 }

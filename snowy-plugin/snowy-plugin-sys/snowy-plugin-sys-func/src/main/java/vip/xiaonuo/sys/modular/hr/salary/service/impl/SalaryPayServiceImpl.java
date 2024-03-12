@@ -39,7 +39,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 
 import javax.annotation.Resource;
-import java.time.LocalDate;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -200,8 +200,8 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
         //获取当前年月  格式化当前日期的年月部分
         String payType = SalaryTypeEnum.EMP_BONUS.getValue();
         String itemType = SalaryTypeEnum.BIRTHDAY.getValue();
-        LocalDate tmpDate = LocalDate.parse(yearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
-        int month = tmpDate.getMonthValue();
+        YearMonth tmpYM = YearMonth.parse(yearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
+        int month = tmpYM.getMonthValue();
         //条件：出生日期为当前月(框定计算生日福利的人员范围),且当月无记录
         List<SalaryStandardVo> personnelList = salaryPayMapper.getBirthdayPersonnel(payType,itemType, yearMonth, month);
         if(CollUtil.isNotEmpty(personnelList)){
