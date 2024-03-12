@@ -469,6 +469,6 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             //实发工资
             item.setRealPayAmount(item.getGrossPayAmount().subtract(item.getSysPer()).subtract(item.getPer()).add(item.getLastAddAmount()).subtract(item.getLastMinusAmount()).subtract(item.getMonthTaxAmount()));
         });
-        return salaryVoList;
+        return preSalaryList;
     }
 }
