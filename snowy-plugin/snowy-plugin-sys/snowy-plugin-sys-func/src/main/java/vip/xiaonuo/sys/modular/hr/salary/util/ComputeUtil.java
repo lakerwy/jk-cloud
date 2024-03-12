@@ -199,12 +199,15 @@ public class ComputeUtil {
          * 事假
          * 2天以内的事假扣款=月工资标准/21.75*事假天数
          * 超过2天的事假扣款=月工资标准/21.75*事假天数*2+月工资标准/21.75*（事假天数-2）*1.2
+         * 未打卡按事假扣款=月工资标准/21.75*（上班+下班未打卡次数）/2
+         * 扣款=事假扣款+未打卡事假扣款
+         *
          */
         BigDecimal workAmount = BIG_DECIMAL_0;
-        if(attend.getRealWorkDay()<=FLOAT_2){
+        if(attend.getWorkDay()<=FLOAT_2){
             workAmount = salaryVo.getStandardAmount()
                     .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(attend.getRealWorkDay()));
+                    .multiply(BigDecimal.valueOf(attend.getWorkDay()));
         }else{
             workAmount = salaryVo.getStandardAmount()
                     .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
@@ -212,21 +215,24 @@ public class ComputeUtil {
                     .add(
                          salaryVo.getStandardAmount()
                                  .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                                 .multiply(BigDecimal.valueOf(attend.getRealWorkDay() - FLOAT_2))
+                                 .multiply(BigDecimal.valueOf(attend.getWorkDay() - FLOAT_2))
                                  .multiply(BIG_DECIMAL_12));
         }
-        attendData.setWorkAmount(workAmount.setScale(2));
+        BigDecimal noWorkAmount = salaryVo.getStandardAmount()
+                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf((attend.getUpMissNum()+attend.getDownMissNum())/2));
+        attendData.setWorkAmount(workAmount.add(noWorkAmount).setScale(2));
         /**
          * 迟到
          * A类迟到超2次：
          * 扣款=月工资标准*1%*（A类迟到次数-2）
          *
          * B类迟到：
-         * 扣款=月工资标准*2%
+         * 扣款=月工资标准*2%*B类迟到次数
          *
          * C类迟到：
-         * 扣款1=月工资标准*3%
-         * 扣款2=月工资标准/21.75*0.5
+         * 扣款1=月工资标准*3%*C类迟到次数
+         * 扣款2=月工资标准/21.75*0.5*C类迟到次数
          * 扣款1和扣款2比较取最小值
          *
          * 迟到扣款=A类迟到扣款+B类迟到扣款+C类迟到扣款
@@ -255,7 +261,7 @@ public class ComputeUtil {
          */
         BigDecimal minerAmount = salaryVo.getStandardAmount()
                 .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(attend.getRealMinerDay()))
+                .multiply(BigDecimal.valueOf(attend.getMinerDay()))
                 .multiply(BIG_DECIMAL_4);
         attendData.setMinerAmount(minerAmount.setScale(2));
         /**
@@ -450,12 +456,6 @@ public class ComputeUtil {
             }
             if(ObjectUtil.isEmpty(item.getAdjustHour())){
                 item.setAdjustHour(FLOAT_0);
-            }
-            if(ObjectUtil.isEmpty(item.getRealMinerDay())){
-                item.setRealMinerDay(FLOAT_0);
-            }
-            if(ObjectUtil.isEmpty(item.getRealWorkDay())){
-                item.setRealWorkDay(FLOAT_0);
             }
             if(ObjectUtil.isEmpty(item.getRealMonthSickDay())){
                 item.setRealMonthSickDay(FLOAT_0);

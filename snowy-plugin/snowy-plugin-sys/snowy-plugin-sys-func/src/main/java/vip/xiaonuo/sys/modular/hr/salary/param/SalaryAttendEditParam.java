@@ -104,20 +104,12 @@ public class SalaryAttendEditParam {
     @ApiModelProperty(value = "调休（h）", position = 18)
     private Float adjustHour;
 
-    /** 实扣天数-矿工 */
-    @ApiModelProperty(value = "实扣天数-矿工", position = 19)
-    private Float realMinerDay;
-
-    /** 实扣天数-事假 */
-    @ApiModelProperty(value = "实扣天数-事假", position = 20)
-    private Float realWorkDay;
-
-    /** 实扣天数-全月病假 */
-    @ApiModelProperty(value = "实扣天数-全月病假", position = 21)
+    /** 实扣天数-当月病假（一个月以上病假） */
+    @ApiModelProperty(value = "实扣天数-当月病假（一个月以上病假）", position = 21)
     private Float realMonthSickDay;
 
-    /** 实扣天数-非全月病假 */
-    @ApiModelProperty(value = "实扣天数-非全月病假", position = 22)
+    /** 实扣天数-病假（一个月以内） */
+    @ApiModelProperty(value = "实扣天数-病假（一个月以内）", position = 22)
     private Float realUnMonthSickDay;
 
     /** 实扣天数-产假 */
