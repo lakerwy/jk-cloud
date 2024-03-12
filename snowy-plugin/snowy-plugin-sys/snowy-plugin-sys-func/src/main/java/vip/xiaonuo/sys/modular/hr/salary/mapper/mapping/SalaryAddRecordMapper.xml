@@ -4,10 +4,10 @@
 
     <select id="getTotalByAddId" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddTotal">
         select ADD_ID as addId,
-               sum(IF(DICT_TYPE = '1', IF(ITEM_TYPE = '税前',REAL_AMOUNT,0),0) as addAmount,
-               sum(IF(DICT_TYPE = '1', IF(ITEM_TYPE = '税后',REAL_AMOUNT,0),0) as lastAddAmount,
-               sum(IF(DICT_TYPE = '2', IF(ITEM_TYPE = '税前',REAL_AMOUNT,0),0)) as minusAmount,
-               sum(IF(DICT_TYPE = '2', IF(ITEM_TYPE = '税后',REAL_AMOUNT,0),0)) as lastMinusAmount
+               sum(IF(DICT_TYPE = '1' and ITEM_TYPE = '税前',REAL_AMOUNT,0)) as addAmount,
+               sum(IF(DICT_TYPE = '1' and ITEM_TYPE = '税后',REAL_AMOUNT,0)) as lastAddAmount,
+               sum(IF(DICT_TYPE = '2' and ITEM_TYPE = '税前',REAL_AMOUNT,0)) as minusAmount,
+               sum(IF(DICT_TYPE = '2' and ITEM_TYPE = '税后',REAL_AMOUNT,0)) as lastMinusAmount
         from HR_SALARY_ADD_RECORD
         where DELETE_FLAG = 'NOT_DELETE' and ADD_ID = #{addId}
         group by ADD_ID
