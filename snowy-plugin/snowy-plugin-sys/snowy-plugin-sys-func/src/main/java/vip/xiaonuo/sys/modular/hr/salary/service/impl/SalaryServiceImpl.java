@@ -45,6 +45,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
@@ -502,6 +503,6 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             //实发工资
             item.setRealPayAmount(item.getGrossPayAmount().subtract(item.getSysPer()).subtract(item.getPer()).add(item.getLastAddAmount()).subtract(item.getLastMinusAmount()).subtract(item.getMonthTaxAmount()));
         });
-        return preSalaryList;
+        return preSalaryList.stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
     }
 }
