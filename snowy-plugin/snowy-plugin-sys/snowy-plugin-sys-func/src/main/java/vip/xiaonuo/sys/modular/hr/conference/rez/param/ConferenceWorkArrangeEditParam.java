@@ -63,8 +63,10 @@ public class ConferenceWorkArrangeEditParam {
     @ApiModelProperty(value = "扩展信息", position = 9)
     private String extJson;
 
-    /** 任务参与人 */
+    /** 任务参与人 *//*
     @ApiModelProperty(value = "任务参与人", position = 16)
-    private List<SysUser> joinUsers;
-
+    private List<SysUser> joinUsers;*/
+    /** 责任部门ID */
+    @ApiModelProperty(value = "责任部门ID", position = 10)
+    private String dutyOrgId;
 }

@@ -3,11 +3,8 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.sys.modular.user.entity.SysUser;
-
 import javax.validation.constraints.NotNull;
 import java.util.Date;
-import java.util.List;
 
 @Setter
 @Getter
@@ -37,7 +34,12 @@ public class ConferenceWorkArrangeAdd {
     @ApiModelProperty(value = "扩展信息", position = 9)
     private String extJson;
 
-    /** 任务参与人 */
+   /* *//** 任务参与人 *//*
     @ApiModelProperty(value = "任务参与人", position = 16)
-    private List<SysUser> joinUsers;
+    private List<SysUser> joinUsers;*/
+
+    /** 责任部门ID */
+    @ApiModelProperty(value = "责任部门ID", position = 10)
+    @NotNull(message = "责任人不能为空")
+    private String dutyOrgId;
 }

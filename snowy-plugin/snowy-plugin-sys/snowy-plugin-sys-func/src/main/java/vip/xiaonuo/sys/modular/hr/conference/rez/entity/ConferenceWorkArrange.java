@@ -55,8 +55,8 @@ public class ConferenceWorkArrange {
     @ApiModelProperty(value = "责任人ID", position = 6)
     private String dutyUserId;
 
-    /** 工作进展：1 未开始，2 完成中，3 已完成 */
-    @ApiModelProperty(value = "工作进展：1 未开始，2 完成中，3 已完成", position = 7)
+    /** 工作进展：1 未开始，3 已完成 */
+    @ApiModelProperty(value = "工作进展：1 未开始，2 已完成", position = 7)
     private Integer workEvolve;
 
     /** 是否反馈：1 未反馈，2 已反馈 */
@@ -97,9 +97,9 @@ public class ConferenceWorkArrange {
     @ApiModelProperty(value = "是否创建日程：0 未创建，1 为已创建", position = 15)
     private Integer isSchedule;
 
-    /** 任务参与人，存在多个，英文逗号隔开 */
+    /** 任务参与人，存在多个，英文逗号隔开 *//*
     @ApiModelProperty(value = "任务参与人，存在多个，英文逗号隔开", position = 16)
-    private String joinUsers;
+    private String joinUsers;*/
 
     /** 会议主题 */
     @ApiModelProperty(value = "会议主题", position = 16)
@@ -109,4 +109,8 @@ public class ConferenceWorkArrange {
     /** 钉钉日程ID */
     @ApiModelProperty(value = "钉钉日程ID", position = 17)
     private String scheduleId;
+
+    /** 责任部门ID */
+    @ApiModelProperty(value = "责任部门ID", position = 18)
+    private String dutyOrgId;
 }
