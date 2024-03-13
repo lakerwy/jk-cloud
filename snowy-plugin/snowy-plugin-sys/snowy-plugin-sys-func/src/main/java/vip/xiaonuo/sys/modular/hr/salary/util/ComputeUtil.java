@@ -10,6 +10,7 @@ import vip.xiaonuo.sys.modular.hr.salary.enums.FullStatusEnum;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumAttendData;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumInsGjjVo;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -22,6 +23,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 工资系统 - 相关计算工具类
@@ -258,22 +260,18 @@ public class ComputeUtil {
         attendData.setMinerAmount(minerAmount);
         /**
          * 产假
-         * 全月产假扣款=月工资标准-个人社保小计-个人公积金-公积金差额
+         * 全月产假扣款=月工资标准-个人社保小计-个人公积金-公积金差额(合计额)
          * 非全月产假=月工资标准/21.75*产假天数
          * 产假天数=应出勤天数，则为全月产假扣款，否则为非全月产假扣款
          */
         BigDecimal materAmount = BIG_DECIMAL_0;
         if(attend.getRealMaterDay() == attend.getRequiredDay()){
             //获取 个人社保小计-个人公积金-公积金差额
-            SalaryIns ins = insData.stream().filter(x->x.getStandardId().equals(attend.getStandardId())).findFirst().orElse(null);
-            SalaryGjj gjj = gjjData.stream().filter(x->x.getStandardId().equals(attend.getStandardId())).findFirst().orElse(null);
-            BigDecimal insPer = ObjectUtil.isNotEmpty(ins) ? ins.getPer() : BIG_DECIMAL_0;
-            BigDecimal gjjSysPer = ObjectUtil.isNotEmpty(gjj) ? gjj.getSysPer() : BIG_DECIMAL_0;
-            BigDecimal gjjCha = ObjectUtil.isNotEmpty(gjj) ? gjj.getAmount() : BIG_DECIMAL_0;
+            SumInsGjjVo sumInsGjjVo = getSumInsGjj(attend.getStandardId(),insData,gjjData);
             materAmount = salaryVo.getStandardAmount()
-                    .subtract(insPer)
-                    .subtract(gjjSysPer)
-                    .subtract(gjjCha);
+                    .subtract(sumInsGjjVo.getInsPerAmount())
+                    .subtract(sumInsGjjVo.getGjjPerAmount())
+                    .subtract(sumInsGjjVo.getGjjChaAmount());
         }else{
             materAmount = salaryVo.getStandardAmount()
                     .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
@@ -325,6 +323,33 @@ public class ComputeUtil {
      */
     public static BigDecimal setScale(BigDecimal data,int scaleNum){
         return data.setScale(2,RoundingMode.HALF_UP);
+    }
+
+
+    /**
+     * 由于 一个人 可能 存在 多条 社保 公积金 数据，汇总统计
+     * @param standardId 工资人员Id
+     * @param insData 社保数据集合
+     * @param gjjData 公积金数据集合
+     * @return 个人社保小计|个人公积金小计|个人公积金差额小计
+     */
+    public static SumInsGjjVo getSumInsGjj(String standardId,List<SalaryIns> insData, List<SalaryGjj> gjjData){
+        //获取 个人社保小计-个人公积金-公积金差额
+        SumInsGjjVo sumInsGjjVo = new SumInsGjjVo();
+        List<SalaryIns> insList = insData.stream().filter(x->x.getStandardId().equals(standardId)).collect(Collectors.toList());
+        List<SalaryGjj> gjjList = gjjData.stream().filter(x->x.getStandardId().equals(standardId)).collect(Collectors.toList());
+        BigDecimal insPer = BIG_DECIMAL_0;
+        BigDecimal gjjSysPer = BIG_DECIMAL_0;
+        BigDecimal gjjCha = BIG_DECIMAL_0;
+        insList.forEach(x-> insPer.add(x.getPer()));
+        gjjList.forEach(x->{
+            gjjSysPer.add(x.getSysPer());
+            gjjCha.add(x.getAmount());
+        });
+        sumInsGjjVo.setInsPerAmount(insPer);
+        sumInsGjjVo.setGjjPerAmount(gjjSysPer);
+        sumInsGjjVo.setGjjChaAmount(gjjCha);
+        return sumInsGjjVo;
     }
 
 

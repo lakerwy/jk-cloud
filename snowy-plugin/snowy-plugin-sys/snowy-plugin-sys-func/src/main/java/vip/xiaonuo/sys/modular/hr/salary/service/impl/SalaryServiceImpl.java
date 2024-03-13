@@ -38,6 +38,7 @@ import vip.xiaonuo.sys.modular.hr.salary.service.*;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumAttendData;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumInsGjjVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData;
 
 import javax.annotation.Resource;
@@ -296,7 +297,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                         item.setYlPer(ComputeUtil.fillZero(ins.getYlPer()));
                         item.setYlSale(ComputeUtil.fillZero(ins.getYlSale()));
                         item.setSyPer(ComputeUtil.fillZero(ins.getSyPer()));
-                        item.setPer(item.getYnPer().add(item.getYlPer()).add(item.getYlSale()).add(item.getSyPer()));
+                        item.setPer(ComputeUtil.fillZero(ins.getPer()));
                     }else{
                         // 定义临时对象(工资)
                         SalaryVo tempSalaryVo = BeanUtil.copyProperties(tmpCopySalaryVo, SalaryVo.class);
@@ -306,7 +307,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                         tempSalaryVo.setYlPer(ComputeUtil.fillZero(ins.getYlPer()));
                         tempSalaryVo.setYlSale(ComputeUtil.fillZero(ins.getYlSale()));
                         tempSalaryVo.setSyPer(ComputeUtil.fillZero(ins.getSyPer()));
-                        tempSalaryVo.setPer(tempSalaryVo.getYnPer().add(tempSalaryVo.getYlPer()).add(tempSalaryVo.getYlSale()).add(tempSalaryVo.getSyPer()));
+                        tempSalaryVo.setPer(ComputeUtil.fillZero(ins.getPer()));
                         addInsSalaryVoList.add(tempSalaryVo);
                     }
                 });
@@ -360,6 +361,11 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         preSalaryList.forEach(item->{
             //先处理各类特殊
             if(DataTypeEnum.SALARY.getValue().equals(item.getDataType())) {
+                //岗位工资（减去社保、公积金）
+                SumInsGjjVo sumInsGjjVo = ComputeUtil.getSumInsGjj(item.getStandardId(),insData,gjjData);
+                BigDecimal postAmount = item.getPostAmount().subtract(sumInsGjjVo.getInsPerAmount()).subtract(sumInsGjjVo.getGjjPerAmount());
+                item.setPostAmount(ComputeUtil.setScale(postAmount,2));
+
                 //实发绩效
                 BigDecimal realMeritAmount = item.getMeritAmount().multiply(BigDecimal.valueOf(item.getMeritRate()));
                 item.setRealMeritAmount(ComputeUtil.setScale(realMeritAmount,2));
