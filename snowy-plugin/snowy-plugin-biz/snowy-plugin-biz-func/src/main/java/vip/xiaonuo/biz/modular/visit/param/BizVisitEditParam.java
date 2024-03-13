@@ -197,4 +197,12 @@ public class BizVisitEditParam {
 
     @ApiModelProperty(value = "外访-计划表", position = 50)
     private List<BizVisitList> paramList;
+
+    /** 审核人ID */
+    @ApiModelProperty(value = "审核人ID", position = 51)
+    private String reviewedUserId;
+
+    /** 文件Id */
+    @ApiModelProperty(value = "文件Id", position = 52)
+    private String fileId;
 }
