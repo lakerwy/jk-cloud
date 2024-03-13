@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -44,6 +45,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData;
 import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -243,6 +245,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         saveSureData.forEach(x->{
             x.setId(null);
             x.setType(SalaryTypeEnum.EMP_SALARY.getValue());
+            x.setNote("确认时间："+ DateUtil.formatDate(new Date())+"；操作人："+StpLoginUserUtil.getLoginUser().getName());
         });
         this.saveBatch(saveSureData);
     }
