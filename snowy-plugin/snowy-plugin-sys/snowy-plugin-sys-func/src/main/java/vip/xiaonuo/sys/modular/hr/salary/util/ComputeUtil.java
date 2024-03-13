@@ -180,14 +180,14 @@ public class ComputeUtil {
          * 一个月以内的病假扣款=月工资标准/21.75*病假天数*50%
          * 一个月以上病假扣款=（月工资标准-基本工资）/21.75*病假天数
          */
-        BigDecimal realMonthSickAmount = salaryVo.getStandardAmount()
-                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(attend.getRealMonthSickDay()))
-                .multiply(BIG_DECIMAL_05);
-        BigDecimal realUnMonthSickAmount = (salaryVo.getStandardAmount()
+        BigDecimal realUnMonthSickAmount = salaryVo.getStandardAmount()
+                .multiply(BigDecimal.valueOf(attend.getRealUnMonthSickDay()))
+                .multiply(BIG_DECIMAL_05)
+                .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
+        BigDecimal realMonthSickAmount = (salaryVo.getStandardAmount()
                 .subtract(salaryVo.getBasicAmount()))
-                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf(attend.getRealUnMonthSickDay()));
+                .multiply(BigDecimal.valueOf(attend.getRealMonthSickDay()))
+                .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
         attendData.setSickAmount(realMonthSickAmount.add(realUnMonthSickAmount));
         /**
          * 事假
@@ -200,21 +200,21 @@ public class ComputeUtil {
         BigDecimal workAmount = BIG_DECIMAL_0;
         if(attend.getWorkDay()<=FLOAT_2){
             workAmount = salaryVo.getStandardAmount()
-                    .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(attend.getWorkDay()));
+                    .multiply(BigDecimal.valueOf(attend.getWorkDay()))
+                    .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
         }else{
             workAmount = salaryVo.getStandardAmount()
-                    .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
                     .multiply(BIG_DECIMAL_2)
+                    .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP)
                     .add(
                          salaryVo.getStandardAmount()
-                                 .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
                                  .multiply(BigDecimal.valueOf(attend.getWorkDay() - FLOAT_2))
-                                 .multiply(BIG_DECIMAL_12));
+                                 .multiply(BIG_DECIMAL_12)
+                                 .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP));
         }
         BigDecimal noWorkAmount = salaryVo.getStandardAmount()
-                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                .multiply(BigDecimal.valueOf((attend.getUpMissNum()+attend.getDownMissNum())/2));
+                .multiply(BigDecimal.valueOf((attend.getUpMissNum()+attend.getDownMissNum())/2))
+                .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
         attendData.setWorkAmount(workAmount.add(noWorkAmount));
         /**
          * 迟到
@@ -244,9 +244,9 @@ public class ComputeUtil {
                 .multiply(BIG_DECIMAL_003)
                 .multiply(BigDecimal.valueOf(attend.getLateNumC()));
         BigDecimal lateAmountC2 = salaryVo.getStandardAmount()
-                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
                 .multiply(BIG_DECIMAL_05)
-                .multiply(BigDecimal.valueOf(attend.getLateNumC()));
+                .multiply(BigDecimal.valueOf(attend.getLateNumC()))
+                .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
         BigDecimal lateAmountC = lateAmountC1.compareTo(lateAmountC2) <=0 ? lateAmountC1 : lateAmountC2;
         attendData.setLateAmount(lateAmountA.add(lateAmountB).add(lateAmountC));
         /**
@@ -254,9 +254,9 @@ public class ComputeUtil {
          * 扣款=月工资标准/21.75*旷工天数*4
          */
         BigDecimal minerAmount = salaryVo.getStandardAmount()
-                .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(attend.getMinerDay()))
-                .multiply(BIG_DECIMAL_4);
+                .multiply(BIG_DECIMAL_4)
+                .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
         attendData.setMinerAmount(minerAmount);
         /**
          * 产假
@@ -274,8 +274,8 @@ public class ComputeUtil {
                     .subtract(sumInsGjjVo.getGjjChaAmount());
         }else{
             materAmount = salaryVo.getStandardAmount()
-                    .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
-                    .multiply(BigDecimal.valueOf(attend.getRealMaterDay()));
+                    .multiply(BigDecimal.valueOf(attend.getRealMaterDay()))
+                    .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
         }
         attendData.setMaterAmount(materAmount);
         return attendData;
@@ -341,11 +341,13 @@ public class ComputeUtil {
         BigDecimal insPer = BIG_DECIMAL_0;
         BigDecimal gjjSysPer = BIG_DECIMAL_0;
         BigDecimal gjjCha = BIG_DECIMAL_0;
-        insList.forEach(x-> insPer.add(x.getPer()));
-        gjjList.forEach(x->{
-            gjjSysPer.add(x.getSysPer());
-            gjjCha.add(x.getAmount());
-        });
+        for (SalaryIns item : insList) {
+            insPer = insPer.add(item.getPer());
+        }
+        for (SalaryGjj item : gjjList){
+            gjjSysPer = gjjSysPer.add(item.getSysPer());
+            gjjCha = gjjCha.add(item.getAmount());
+        }
         sumInsGjjVo.setStandardId(standardId);
         sumInsGjjVo.setInsPerAmount(insPer);
         sumInsGjjVo.setGjjPerAmount(gjjSysPer);

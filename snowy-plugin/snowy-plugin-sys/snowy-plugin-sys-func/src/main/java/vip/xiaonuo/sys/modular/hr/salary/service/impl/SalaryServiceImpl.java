@@ -337,7 +337,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                                 }
                             });
                         }
-                        if(isInsGjjFlag.equals(false)){
+                        if(!isInsGjjFlag.get()){
                             // 定义临时对象(工资)
                             SalaryVo tempSalaryVo = BeanUtil.copyProperties(tmpCopySalaryVo, SalaryVo.class);
                             tempSalaryVo.setCompany(gjj.getUnitName());
@@ -485,13 +485,13 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             item.setLjTaxAmount(ComputeUtil.getLjTax(item.getLjTaxIncomeAmount()));
 
             //已缴累计税额
-            BigDecimal previousLjTaxAmount = BigDecimal.ZERO;
+            BigDecimal previousHaveLjTaxAmount = BigDecimal.ZERO;
             BigDecimal previousMonthTaxAmount = BigDecimal.ZERO;
             if(!yearMonth.endsWith("12") && ObjectUtil.isNotEmpty(tempPreviousSalary)){
-                previousLjTaxAmount = tempPreviousSalary.getLjTaxAmount();
+                previousHaveLjTaxAmount = tempPreviousSalary.getHaveLjTaxAmount();
                 previousMonthTaxAmount = tempPreviousSalary.getMonthTaxAmount();
             }
-            item.setHaveLjTaxAmount(previousLjTaxAmount.add(previousMonthTaxAmount));
+            item.setHaveLjTaxAmount(previousHaveLjTaxAmount.add(previousMonthTaxAmount));
 
             //本月应扣税额
             item.setMonthTaxAmount(item.getLjTaxAmount().subtract(item.getHaveLjTaxAmount()));
