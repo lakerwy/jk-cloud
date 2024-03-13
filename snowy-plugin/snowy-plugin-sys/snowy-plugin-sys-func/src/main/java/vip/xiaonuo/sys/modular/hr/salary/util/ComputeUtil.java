@@ -346,6 +346,7 @@ public class ComputeUtil {
             gjjSysPer.add(x.getSysPer());
             gjjCha.add(x.getAmount());
         });
+        sumInsGjjVo.setStandardId(standardId);
         sumInsGjjVo.setInsPerAmount(insPer);
         sumInsGjjVo.setGjjPerAmount(gjjSysPer);
         sumInsGjjVo.setGjjChaAmount(gjjCha);
