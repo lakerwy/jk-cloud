@@ -78,9 +78,6 @@ public class ConferenceWorkArrangePageParam {
     @ApiModelProperty(value = "工作进展：1 未开始，2 完成中，3 已完成", position = 7)
     private Integer workEvolve;
 
-    /** 是否反馈：1 未反馈，2 已反馈 */
-    @ApiModelProperty(value = "是否反馈：1 未反馈，2 已反馈", position = 8)
-    private Integer isFeedback;
 
     /** 是否创建日程：0 未创建，1 为已创建 */
     @ApiModelProperty(value = "是否创建日程：0 未创建，1 为已创建", position = 15)

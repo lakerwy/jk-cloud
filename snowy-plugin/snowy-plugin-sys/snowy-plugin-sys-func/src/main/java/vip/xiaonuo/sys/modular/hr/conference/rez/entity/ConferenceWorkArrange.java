@@ -59,10 +59,6 @@ public class ConferenceWorkArrange {
     @ApiModelProperty(value = "工作进展：1 未开始，2 已完成", position = 7)
     private Integer workEvolve;
 
-    /** 是否反馈：1 未反馈，2 已反馈 */
-    @ApiModelProperty(value = "是否反馈：1 未反馈，2 已反馈", position = 8)
-    private Integer isFeedback;
-
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 9)
     private String extJson;

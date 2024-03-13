@@ -74,4 +74,12 @@ public class SystemServerEditParam {
 
     @ApiModelProperty(value = "项目参与人,英文逗号隔开", position = 12)
     private String parter;
+
+    /** 行业分类 */
+    @ApiModelProperty(value = "行业分类", position = 13)
+    private String industrySort;
+
+    /** 项目类型 */
+    @ApiModelProperty(value = "项目类型", position = 14)
+    private String projectType;
 }

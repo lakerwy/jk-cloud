@@ -84,9 +84,6 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyUserId())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getDutyUserId, conferenceWorkArrangePageParam.getDutyUserId());
         }
-        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getIsFeedback())) {
-            queryWrapper.lambda().like(ConferenceWorkArrange::getIsFeedback, conferenceWorkArrangePageParam.getIsFeedback());
-        }
         if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getWorkArrange())) {
             queryWrapper.lambda().like(ConferenceWorkArrange::getWorkArrange, conferenceWorkArrangePageParam.getWorkArrange());
         }
