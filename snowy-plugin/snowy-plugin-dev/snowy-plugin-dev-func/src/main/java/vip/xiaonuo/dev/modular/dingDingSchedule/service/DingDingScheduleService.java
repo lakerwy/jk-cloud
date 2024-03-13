@@ -21,5 +21,8 @@ public interface DingDingScheduleService {
 
     String dateTimeFormatConversion(String standardDateTimeStr,Integer flag);
 
-    void putHttDingDingSchedule(DingDingScheduleVo dingDingScheduleVo) throws Exception;
+    String putHttDingDingSchedule(DingDingScheduleVo dingDingScheduleVo) throws Exception;
+
+    /** 删除日程 */
+    void deleteDingDingSchedule(String token,String unionId,String scheduleId) throws Exception;
 }

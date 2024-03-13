@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.param;
 
+import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -48,24 +49,40 @@ public class ConferenceWorkArrangePageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** ID */
+    @TableId
+    @ApiModelProperty(value = "ID", position = 1)
+    private String id;
+
     /** 会议ID */
-    @ApiModelProperty(value = "会议ID")
+    @ApiModelProperty(value = "会议ID", position = 2)
     private String rezId;
 
-    /** 责任部门ID */
-    @ApiModelProperty(value = "责任部门ID")
-    private String dutyOrgId;
+    /** 部署事项 */
+    @ApiModelProperty(value = "部署事项", position = 3)
+    private String workArrange;
+
+    /** 任务时间 */
+    @ApiModelProperty(value = "任务开始时间", position = 4)
+    private Date startTime;
+
+    /** 完成时间 */
+    @ApiModelProperty(value = "完成时间", position = 5)
+    private Date finishTime;
 
     /** 责任人ID */
-    @ApiModelProperty(value = "责任人ID")
+    @ApiModelProperty(value = "责任人ID", position = 6)
     private String dutyUserId;
 
-    /** 责任人名称 */
-    @ApiModelProperty(value = "责任人名称")
-    private String dutyUserName;
+    /** 工作进展：1 未开始，2 完成中，3 已完成 */
+    @ApiModelProperty(value = "工作进展：1 未开始，2 完成中，3 已完成", position = 7)
+    private Integer workEvolve;
 
-    /** 是否完成,1 完成 */
-    @ApiModelProperty(value = "是否完成,1 完成")
-    private Integer isWorkEnd;
+    /** 是否反馈：1 未反馈，2 已反馈 */
+    @ApiModelProperty(value = "是否反馈：1 未反馈，2 已反馈", position = 8)
+    private Integer isFeedback;
 
+    /** 是否创建日程：0 未创建，1 为已创建 */
+    @ApiModelProperty(value = "是否创建日程：0 未创建，1 为已创建", position = 15)
+    private Integer isSchedule;
 }

@@ -1,6 +1,7 @@
 package vip.xiaonuo.dev.modular.dingDingSchedule.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import com.alibaba.fastjson2.JSONObject;
 import com.aliyun.dingtalkcalendar_1_0.models.CreateEventResponse;
 import com.aliyun.tea.TeaConverter;
 import com.aliyun.tea.TeaException;
@@ -96,7 +97,8 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
     }
 
     @Override
-    public void putHttDingDingSchedule(DingDingScheduleVo dingDingScheduleVo) throws Exception{
+    public String putHttDingDingSchedule(DingDingScheduleVo dingDingScheduleVo) throws Exception{
+
         com.aliyun.dingtalkcalendar_1_0.Client client = CommonDingDingUtil.createScheduleClient();
         com.aliyun.dingtalkcalendar_1_0.models.CreateEventHeaders createEventHeaders = new com.aliyun.dingtalkcalendar_1_0.models.CreateEventHeaders();
         createEventHeaders.xAcsDingtalkAccessToken = dingDingScheduleVo.getXAcsDingtalkAccessToken();
@@ -138,6 +140,7 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
             CreateEventResponse createEventResponse = client.createEventWithOptions(dingDingScheduleVo.getUnionCreateId(), "primary",
                     createEventRequest, createEventHeaders, new com.aliyun.teautil.models.RuntimeOptions());
             log.info("创建日程成功！code:"+createEventResponse.getStatusCode());
+            return createEventResponse.getBody().getId();
         } catch (TeaException err) {
             if (!com.aliyun.teautil.Common.empty(err.code) && !com.aliyun.teautil.Common.empty(err.message)) {
                 // err 中含有 code 和 message 属性，可帮助开发定位问题
@@ -150,6 +153,7 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
                 log.error("Exception:生成钉钉日历失败，err-code:"+err.code+",err-message:"+err.message);
             }
         }
+        return "";
     }
 
     @Override
@@ -170,5 +174,29 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         ZonedDateTime zonedDateTime = ZonedDateTime.of(localDateTime, targetZone);// 将目标LocalDateTime转换为ZonedDateTime
         DateTimeFormatter outputFormatter = DateTimeFormatter.ISO_OFFSET_DATE_TIME;// 创建ISO-8601格式的DateTimeFormatter
         return zonedDateTime.format(outputFormatter);// 格式化为ISO-8601格式的字符串
+    }
+
+    @Override
+    public void deleteDingDingSchedule(String token,String unionId,String scheduleId) throws Exception{
+        if(StringUtils.isEmpty(token) || StringUtils.isEmpty(unionId) || StringUtils.isEmpty(scheduleId)){
+            log.error("deleteDingDingSchedule：参数不能为空！");
+            return;
+        }
+        com.aliyun.dingtalkcalendar_1_0.Client client = CommonDingDingUtil.createScheduleClient();
+        com.aliyun.dingtalkcalendar_1_0.models.DeleteEventHeaders deleteEventHeaders = new com.aliyun.dingtalkcalendar_1_0.models.DeleteEventHeaders();
+        deleteEventHeaders.xAcsDingtalkAccessToken = token;
+        try {
+            client.deleteEventWithOptions(unionId, "primary", scheduleId, deleteEventHeaders, new com.aliyun.teautil.models.RuntimeOptions());
+        } catch (TeaException err) {
+            if (!com.aliyun.teautil.Common.empty(err.code) && !com.aliyun.teautil.Common.empty(err.message)) {
+                log.error("TeaException:删除钉钉日历失败，err-code:"+err.code+",err-message:"+err.message);
+            }
+        } catch (Exception _err) {
+            TeaException err = new TeaException(_err.getMessage(), _err);
+            if (!com.aliyun.teautil.Common.empty(err.code) && !com.aliyun.teautil.Common.empty(err.message)) {
+                log.error("Exception:删除钉钉日历失败，err-code:"+err.code+",err-message:"+err.message);
+
+            }
+        }
     }
 }

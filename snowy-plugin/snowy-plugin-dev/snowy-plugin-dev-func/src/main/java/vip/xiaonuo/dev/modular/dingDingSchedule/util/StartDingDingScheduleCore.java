@@ -9,7 +9,6 @@ import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
@@ -41,7 +40,7 @@ public class StartDingDingScheduleCore {
     DingDingScheduleService dingDingScheduleService;
 
     /**   钉钉日程   */
-    public void addDingDingSchedule( DingDingScheduleVo dingDingScheduleVo,String appKey,String appSecret){
+    public String addDingDingSchedule( DingDingScheduleVo dingDingScheduleVo,String appKey,String appSecret){
 
         if(StringUtils.isEmpty(appKey) || StringUtils.isEmpty(appSecret)){
             log.error("appKey和appSecret不能为空！");
@@ -51,15 +50,15 @@ public class StartDingDingScheduleCore {
         try{
             if(StringUtils.isEmpty(dingDingScheduleVo.getId())){
                 log.error("id表示不能为空 - (可以是任何可反查的唯一标识)！");
-                return;
+                return "";
             }
             if(CollectionUtil.isEmpty(dingDingScheduleVo.getDingDingScheduleParamList())){
                 log.error("无日程参与人！id:"+dingDingScheduleVo.getId());
-                return;
+                return "";
             }
             if(isLackParam(dingDingScheduleVo)){
                 log.error("开始时间，结束时间和日程标题为必传！");
-                return;
+                return "";
             }
             String xAcsDingtalkAccessToken = iDingDingService.getDingToken(appKey,appSecret);//获取token
 
@@ -70,14 +69,14 @@ public class StartDingDingScheduleCore {
             List<String> unionIds = getUnionIds(dingDingScheduleVo, authMap, xAcsDingtalkAccessToken);
             if(CollectionUtil.isEmpty(unionIds)){
                 log.error("未找到钉钉unionId数据！id:"+dingDingScheduleVo.getId());
-                return;
+                return "";
             }
             String unionCreateId = authThirdUserService.getUnionIdByUserId(dingDingScheduleVo.getCreateUser(),DD_CATEGORY);
             if(StringUtils.isEmpty(unionCreateId)){
                 unionCreateId = unionIds.get(0);//不存在，则默认第一个
             }
             dingDingScheduleVo.setUnionCreateId(unionCreateId);
-            dingDingScheduleService.putHttDingDingSchedule(dingDingScheduleVo);
+            return dingDingScheduleService.putHttDingDingSchedule(dingDingScheduleVo);
         }catch (Exception e){
             throw new CommonException("新建日程失败！e:"+e.getMessage()+",id:"+dingDingScheduleVo.getId());
         }
@@ -121,5 +120,20 @@ public class StartDingDingScheduleCore {
         if(StringUtils.isEmpty(dingDingScheduleVo.getEndTime())){return true;}
         if(StringUtils.isEmpty(dingDingScheduleVo.getSummary())){return true;}
         return false;
+    }
+
+    public void  deleteScheduleForUserId(String appKey,String appSecret,List<String> userIds,String scheduleId) throws Exception{
+        List<AuthThirdUser> authThirdUserList = authThirdUserService.list(new LambdaQueryWrapper<AuthThirdUser>()
+                .eq(AuthThirdUser::getCategory,DD_CATEGORY).in(AuthThirdUser::getUserId,userIds));
+        String xAcsDingtalkAccessToken = iDingDingService.getDingToken(appKey,appSecret);//获取token
+        for(AuthThirdUser authThirdUser : authThirdUserList){
+            if(StringUtils.isNotEmpty(authThirdUser.getUnionId())){
+                deleteScheduleCore(xAcsDingtalkAccessToken,authThirdUser.getUnionId(),scheduleId);
+            }
+        }
+    }
+
+    public void  deleteScheduleCore(String token,String unionId,String scheduleId) throws Exception{
+        dingDingScheduleService.deleteDingDingSchedule(token,unionId,scheduleId);
     }
 }
