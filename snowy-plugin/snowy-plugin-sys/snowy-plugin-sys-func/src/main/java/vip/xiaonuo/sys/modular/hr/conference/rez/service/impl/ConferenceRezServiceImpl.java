@@ -47,9 +47,6 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dbs.core.util.BizTableCommon;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.dev.api.IDingDingService;
-import vip.xiaonuo.dev.modular.dingDingSchedule.util.StartDingDingScheduleCore;
-import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
-import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 import vip.xiaonuo.sys.modular.hr.conference.DingDingRec.DingdingCalendarUtil;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
@@ -111,8 +108,6 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     private ApplicationEventPublisher eventPublisher;
     @Resource
     RuanLianApiService ruanLianApiService;
-    @Resource
-    DingdingCalendarUtil dingdingCalendarUtil;
 
     @Override
     public Page<ConferenceRez> page(ConferenceRezPageParam conferenceRezPageParam) {
@@ -141,6 +136,13 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getSn())) {
             queryWrapper.lambda().eq(ConferenceRez::getSn, conferenceRezPageParam.getSn());
         }
+        if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getBeginTime())) {
+            queryWrapper.lambda().gt(ConferenceRez::getBeginTime, conferenceRezPageParam.getBeginTime());
+        }
+        if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getEndTime())) {
+            queryWrapper.lambda().lt(ConferenceRez::getSn, conferenceRezPageParam.getSn());
+        }
+
         if(ObjectUtil.isAllNotEmpty(conferenceRezPageParam.getSortField(), conferenceRezPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(conferenceRezPageParam.getSortOrder());
             queryWrapper.orderBy(true, conferenceRezPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

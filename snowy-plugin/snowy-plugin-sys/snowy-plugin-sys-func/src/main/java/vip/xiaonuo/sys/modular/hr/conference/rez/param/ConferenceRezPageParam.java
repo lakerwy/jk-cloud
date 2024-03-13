@@ -79,4 +79,12 @@ public class ConferenceRezPageParam {
     /** 流水号 */
     @ApiModelProperty(value = "流水号")
     private String sn;
+
+    /** 开始时间 */
+    @ApiModelProperty(value = "开始时间")
+    private String beginTime;
+
+    /** 结束时间 */
+    @ApiModelProperty(value = "结束时间")
+    private String endTime;
 }

@@ -55,14 +55,14 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
      * */
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        /*if(enable){
+        if(enable){
             try{ OpenDingTalkStreamClientBuilder.custom()
                         .credential(new AuthClientCredential(clientId, clientSecret))
                         .registerAllEventListener(new GenericEventListener() {//注册事件监听
                             public EventAckStatus onEvent(GenericOpenDingTalkEvent event) {
                                 try {
                                     String eventType = event.getEventType();//事件类型
-                                    log.error("ding-eventType:"+eventType);
+                                    log.info("ding-eventType:"+eventType);
                                     //log.error("GenericOpenDingTalkEvent-json："+event.getData().toString());
                                     if(MEETING_BOOK.equals(eventType)){
                                         JSONObject bizData = event.getData();//获取事件体
@@ -79,7 +79,7 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
             }catch (Exception e){
                 log.error("获取OpenDingTalkStream失败！");
             }
-        }*/
+        }
     }
 
     private JSONObject getRecPart(JSONObject bizData){

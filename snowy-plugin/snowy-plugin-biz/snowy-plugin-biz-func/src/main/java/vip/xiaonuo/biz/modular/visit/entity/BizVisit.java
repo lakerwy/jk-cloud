@@ -231,4 +231,8 @@ public class BizVisit {
     /** 文件Id */
     @ApiModelProperty(value = "文件Id", position = 51)
     private String fileId;
+
+    /** 审核人ID */
+    @ApiModelProperty(value = "审核人ID", position = 52)
+    private String reviewedUserId;
 }

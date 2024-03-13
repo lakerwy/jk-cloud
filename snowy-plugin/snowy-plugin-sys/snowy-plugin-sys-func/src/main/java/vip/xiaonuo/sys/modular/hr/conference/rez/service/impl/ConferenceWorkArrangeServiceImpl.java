@@ -15,32 +15,40 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.dingDingSchedule.param.DingDingScheduleParam;
 import vip.xiaonuo.dev.modular.dingDingSchedule.util.StartDingDingScheduleCore;
 import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
+import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceWorkArrange;
 import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceWorkArrangeMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeAddParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeEditParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeIdParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangePageParam;
+import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceWorkArrangeService;
-import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceWorkArrangeAdd;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+
+import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 会议模块-工作部署Service接口实现类
@@ -58,6 +66,8 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
 
     @Resource
     StartDingDingScheduleCore startDingDingScheduleCore;
+    @Resource
+    ConferenceRezService conferenceRezService;
 
     @Override
     public Page<ConferenceWorkArrange> page(ConferenceWorkArrangePageParam conferenceWorkArrangePageParam) {
@@ -71,11 +81,11 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyUserId())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getDutyUserId, conferenceWorkArrangePageParam.getDutyUserId());
         }
-        /*if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyUserName())) {
-            queryWrapper.lambda().like(ConferenceWorkArrange::getDutyUserName, conferenceWorkArrangePageParam.getDutyUserName());
-        }*/
-        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getIsWorkEnd())) {
-            queryWrapper.lambda().eq(ConferenceWorkArrange::getIsWorkEnd, conferenceWorkArrangePageParam.getIsWorkEnd());
+        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getIsFeedback())) {
+            queryWrapper.lambda().like(ConferenceWorkArrange::getIsFeedback, conferenceWorkArrangePageParam.getIsFeedback());
+        }
+        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getWorkArrange())) {
+            queryWrapper.lambda().like(ConferenceWorkArrange::getWorkArrange, conferenceWorkArrangePageParam.getWorkArrange());
         }
         if(ObjectUtil.isAllNotEmpty(conferenceWorkArrangePageParam.getSortField(), conferenceWorkArrangePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(conferenceWorkArrangePageParam.getSortOrder());
@@ -90,14 +100,69 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ConferenceWorkArrangeAddParam conferenceWorkArrangeAddParam) {
+        if(CollectionUtil.isEmpty(conferenceWorkArrangeAddParam.getWorkArrangeAddList())){
+            throw new CommonException("任务数据不能为空");
+        }
+        List<Map<String,Object>>  arrangeMapList = new ArrayList<>();
+        ConferenceRez conferenceRez = conferenceRezService.getById(conferenceWorkArrangeAddParam.getRezId());
         List<ConferenceWorkArrange> conferenceWorkArrangeList = new ArrayList<>();
-        conferenceWorkArrangeAddParam.getWorkArrangeAddList().forEach(workArrange -> {
-            ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(workArrange, ConferenceWorkArrange.class);
+        conferenceWorkArrangeAddParam.getWorkArrangeAddList().forEach(workArrangeParam -> {
+            Map<String,Object> map = new HashMap<>();
+            ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(workArrangeParam, ConferenceWorkArrange.class);
+            StringBuilder sysUserIds = new StringBuilder();
+            workArrangeParam.getJoinUsers().forEach(user -> sysUserIds.append(user.getId()).append(","));
+            conferenceWorkArrange.setJoinUsers(sysUserIds.toString());
+            conferenceWorkArrange.setRezTheme(conferenceRez.getTheme());
             conferenceWorkArrange.setRezId(conferenceWorkArrangeAddParam.getRezId());
+            map.put("conferenceWorkArrange",conferenceWorkArrange);
+            map.put("sysUserList",workArrangeParam.getJoinUsers());
             conferenceWorkArrangeList.add(conferenceWorkArrange);
         });
+        boolean isSaveTrue = false;
         if(CollectionUtil.isNotEmpty(conferenceWorkArrangeList)){
-            this.saveBatch(conferenceWorkArrangeList);
+            isSaveTrue = this.saveBatch(conferenceWorkArrangeList);
+        }
+        if(isSaveTrue){
+            arrangeMapList.forEach(map -> asyCreateSchedule(map));
+        }
+    }
+    /**  异步创建日程 */
+    private Future<String> asyCreateSchedule(Map<String,Object> map) {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                if(ObjectUtil.isEmpty(map.get("conferenceWorkArrange"))){ return ""; }
+                if(ObjectUtil.isEmpty(map.get("sysUserList"))){ return ""; }
+                ConferenceWorkArrange conferenceWorkArrange = (ConferenceWorkArrange) map.get("conferenceWorkArrange");
+                List<SysUser> sysUserList = (List<SysUser>) map.get("sysUserList");
+                createSchedule(conferenceWorkArrange,sysUserList);
+            } catch (Exception e) {
+                log.error("创建日程失败");
+            }
+            return "异步响应数据";
+        });
+
+        return future;
+    }
+    private void createSchedule(ConferenceWorkArrange conferenceWorkArrange,List<SysUser> sysUserList){
+        List<DingDingScheduleParam> dingDingScheduleParamList = new ArrayList<>();
+        sysUserList.forEach(user -> {
+            DingDingScheduleParam dingDingScheduleParam = new DingDingScheduleParam();
+            dingDingScheduleParam.setUserId(user.getId());
+            dingDingScheduleParam.setUserName(user.getName());
+            dingDingScheduleParam.setPhone(user.getAccount());
+            dingDingScheduleParamList.add(dingDingScheduleParam);
+        });
+        DingDingScheduleVo dingDingScheduleVo = new DingDingScheduleVo();
+        dingDingScheduleVo.setDingDingScheduleParamList(dingDingScheduleParamList);
+        dingDingScheduleVo.setStartTime(DateUtil.format(conferenceWorkArrange.getStartTime(), DatePattern.NORM_DATETIME_PATTERN));
+        dingDingScheduleVo.setEndTime(DateUtil.format(conferenceWorkArrange.getFinishTime(), DatePattern.NORM_DATETIME_PATTERN));
+        dingDingScheduleVo.setSummary(conferenceWorkArrange.getWorkArrange());
+        dingDingScheduleVo.setDescription(conferenceWorkArrange.getRezTheme());
+        dingDingScheduleVo.setId(conferenceWorkArrange.getId());
+        String scheduleId = startDingDingScheduleCore.addDingDingSchedule(dingDingScheduleVo, appKey, appSecret);
+        if(StringUtils.isNotEmpty(scheduleId)){
+            conferenceWorkArrange.setScheduleId(scheduleId);
+            this.saveOrUpdate(conferenceWorkArrange);
         }
     }
 
@@ -106,14 +171,30 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
     public void edit(ConferenceWorkArrangeEditParam conferenceWorkArrangeEditParam) {
         ConferenceWorkArrange conferenceWorkArrange = this.queryEntity(conferenceWorkArrangeEditParam.getId());
         BeanUtil.copyProperties(conferenceWorkArrangeEditParam, conferenceWorkArrange);
+        StringBuilder sysUserIds = new StringBuilder();
+        conferenceWorkArrangeEditParam.getJoinUsers().forEach(user -> sysUserIds.append(user.getId()).append(","));
+        conferenceWorkArrange.setJoinUsers(sysUserIds.toString());
         this.updateById(conferenceWorkArrange);
     }
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<ConferenceWorkArrangeIdParam> conferenceWorkArrangeIdParamList) {
+        List<ConferenceWorkArrange> conferenceWorkArrangeList = this.list(new LambdaQueryWrapper<ConferenceWorkArrange>().in(ConferenceWorkArrange::getId,conferenceWorkArrangeIdParamList));
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(conferenceWorkArrangeIdParamList, ConferenceWorkArrangeIdParam::getId));
+        /**  开始删除日程 */
+        conferenceWorkArrangeList.forEach(arrange -> {
+            if(StringUtils.isNotEmpty(arrange.getScheduleId()) && StringUtils.isNotEmpty(arrange.getJoinUsers())){
+                List<String> userIds = Arrays.asList(arrange.getJoinUsers().split(","));
+                try{
+                    startDingDingScheduleCore.deleteScheduleForUserId( appKey, appSecret,userIds, arrange.getScheduleId());
+                }catch (Exception e){
+                    log.error("删除日程失败！e:"+e.getMessage());
+                }
+            }
+        });
     }
 
     @Override

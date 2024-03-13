@@ -194,4 +194,8 @@ public class BizVisitAddParam {
     @ApiModelProperty(value = "外访-计划表", position = 50)
     private List<BizVisitList> paramList;
 
+    /** 审核人ID */
+    @ApiModelProperty(value = "审核人ID", position = 50)
+    private String reviewedUserId;
+
 }

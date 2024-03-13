@@ -48,72 +48,65 @@ public class ConferenceWorkArrange {
     private Date startTime;
 
     /** 完成时间 */
-    @ApiModelProperty(value = "完成时间", position = 4)
+    @ApiModelProperty(value = "完成时间", position = 5)
     private Date finishTime;
 
-    /** 责任部门ID */
-   /* @ApiModelProperty(value = "责任部门ID", position = 5)
-    private String dutyOrgId;*/
-
-    /** 责任部门名称 */
-    /*@ApiModelProperty(value = "责任部门名称", position = 6)
-    private String dutyOrgName;*/
-
     /** 责任人ID */
-    @ApiModelProperty(value = "责任人ID", position = 7)
+    @ApiModelProperty(value = "责任人ID", position = 6)
     private String dutyUserId;
 
-    /** 责任人名称 */
-    /*@ApiModelProperty(value = "责任人名称", position = 8)
-    private String dutyUserName;*/
+    /** 工作进展：1 未开始，2 完成中，3 已完成 */
+    @ApiModelProperty(value = "工作进展：1 未开始，2 完成中，3 已完成", position = 7)
+    private Integer workEvolve;
 
-    /** 工作进展 */
-    @ApiModelProperty(value = "工作进展", position = 9)
-    private String workEvolve;
-
-    /** 是否完成,1 完成 */
-    @ApiModelProperty(value = "是否完成,1 完成", position = 10)
-    private Integer isWorkEnd;
-
-    /** 通知类别：1 记录通知，2 纪要通知 */
-    @ApiModelProperty(value = "通知类别：1 记录通知，2 纪要通知", position = 11)
-    private Integer noticeType;
-
-    /** 反馈方式 */
-    @ApiModelProperty(value = "反馈方式", position = 12)
-    private String feedbackType;
+    /** 是否反馈：1 未反馈，2 已反馈 */
+    @ApiModelProperty(value = "是否反馈：1 未反馈，2 已反馈", position = 8)
+    private Integer isFeedback;
 
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 13)
+    @ApiModelProperty(value = "扩展信息", position = 9)
     private String extJson;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 14)
+    @ApiModelProperty(value = "删除标志", position = 10)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 15)
+    @ApiModelProperty(value = "创建时间", position = 11)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 16)
+    @ApiModelProperty(value = "创建用户", position = 12)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 17)
+    @ApiModelProperty(value = "修改时间", position = 13)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 18)
+    @ApiModelProperty(value = "修改用户", position = 14)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    /** 是否创建日程，1 为已创建 */
-    @ApiModelProperty(value = "是否创建日程，1 为已创建", position = 12)
-    private String isSchedule;
+    /** 是否创建日程：0 未创建，1 为已创建 */
+    @ApiModelProperty(value = "是否创建日程：0 未创建，1 为已创建", position = 15)
+    private Integer isSchedule;
+
+    /** 任务参与人，存在多个，英文逗号隔开 */
+    @ApiModelProperty(value = "任务参与人，存在多个，英文逗号隔开", position = 16)
+    private String joinUsers;
+
+    /** 会议主题 */
+    @ApiModelProperty(value = "会议主题", position = 16)
+    @TableField(exist = false)
+    private String rezTheme;
+
+    /** 钉钉日程ID */
+    @ApiModelProperty(value = "钉钉日程ID", position = 17)
+    private String scheduleId;
 }
