@@ -43,6 +43,7 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangePage
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceWorkArrangeService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -68,6 +69,8 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
     StartDingDingScheduleCore startDingDingScheduleCore;
     @Resource
     ConferenceRezService conferenceRezService;
+    @Resource
+    SysUserService sysUserService;
 
     @Override
     public Page<ConferenceWorkArrange> page(ConferenceWorkArrangePageParam conferenceWorkArrangePageParam) {
@@ -75,9 +78,9 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getRezId())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getRezId, conferenceWorkArrangePageParam.getRezId());
         }
-        /*if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyOrgId())) {
+        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyOrgId())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getDutyOrgId, conferenceWorkArrangePageParam.getDutyOrgId());
-        }*/
+        }
         if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyUserId())) {
             queryWrapper.lambda().eq(ConferenceWorkArrange::getDutyUserId, conferenceWorkArrangePageParam.getDutyUserId());
         }
@@ -103,19 +106,16 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         if(CollectionUtil.isEmpty(conferenceWorkArrangeAddParam.getWorkArrangeAddList())){
             throw new CommonException("任务数据不能为空");
         }
-        List<Map<String,Object>>  arrangeMapList = new ArrayList<>();
         ConferenceRez conferenceRez = conferenceRezService.getById(conferenceWorkArrangeAddParam.getRezId());
         List<ConferenceWorkArrange> conferenceWorkArrangeList = new ArrayList<>();
         conferenceWorkArrangeAddParam.getWorkArrangeAddList().forEach(workArrangeParam -> {
-            Map<String,Object> map = new HashMap<>();
             ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(workArrangeParam, ConferenceWorkArrange.class);
-            StringBuilder sysUserIds = new StringBuilder();
-            workArrangeParam.getJoinUsers().forEach(user -> sysUserIds.append(user.getId()).append(","));
-            conferenceWorkArrange.setJoinUsers(sysUserIds.toString());
+            if(ObjectUtil.isEmpty(workArrangeParam.getStartTime())){
+                conferenceWorkArrange.setStartTime(new Date());
+            }
             conferenceWorkArrange.setRezTheme(conferenceRez.getTheme());
             conferenceWorkArrange.setRezId(conferenceWorkArrangeAddParam.getRezId());
-            map.put("conferenceWorkArrange",conferenceWorkArrange);
-            map.put("sysUserList",workArrangeParam.getJoinUsers());
+            conferenceWorkArrange.setIsSchedule(0);//未建日程
             conferenceWorkArrangeList.add(conferenceWorkArrange);
         });
         boolean isSaveTrue = false;
@@ -123,35 +123,30 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
             isSaveTrue = this.saveBatch(conferenceWorkArrangeList);
         }
         if(isSaveTrue){
-            arrangeMapList.forEach(map -> asyCreateSchedule(map));
+            conferenceWorkArrangeList.forEach(conferenceWorkArrange -> asyCreateSchedule(conferenceWorkArrange));
         }
     }
     /**  异步创建日程 */
-    private Future<String> asyCreateSchedule(Map<String,Object> map) {
+    private Future<String> asyCreateSchedule(ConferenceWorkArrange conferenceWorkArrange) {
         CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
             try {
-                if(ObjectUtil.isEmpty(map.get("conferenceWorkArrange"))){ return ""; }
-                if(ObjectUtil.isEmpty(map.get("sysUserList"))){ return ""; }
-                ConferenceWorkArrange conferenceWorkArrange = (ConferenceWorkArrange) map.get("conferenceWorkArrange");
-                List<SysUser> sysUserList = (List<SysUser>) map.get("sysUserList");
-                createSchedule(conferenceWorkArrange,sysUserList);
+                createSchedule(conferenceWorkArrange);
             } catch (Exception e) {
                 log.error("创建日程失败");
             }
-            return "异步响应数据";
+            return "异步创建日程";
         });
-
         return future;
     }
-    private void createSchedule(ConferenceWorkArrange conferenceWorkArrange,List<SysUser> sysUserList){
+    private void createSchedule(ConferenceWorkArrange conferenceWorkArrange){
         List<DingDingScheduleParam> dingDingScheduleParamList = new ArrayList<>();
-        sysUserList.forEach(user -> {
-            DingDingScheduleParam dingDingScheduleParam = new DingDingScheduleParam();
-            dingDingScheduleParam.setUserId(user.getId());
-            dingDingScheduleParam.setUserName(user.getName());
-            dingDingScheduleParam.setPhone(user.getAccount());
-            dingDingScheduleParamList.add(dingDingScheduleParam);
-        });
+        SysUser user = sysUserService.getById(conferenceWorkArrange.getDutyUserId());
+        DingDingScheduleParam dingDingScheduleParam = new DingDingScheduleParam();
+        dingDingScheduleParam.setUserId(user.getId());
+        dingDingScheduleParam.setUserName(user.getName());
+        dingDingScheduleParam.setPhone(user.getAccount());
+        dingDingScheduleParamList.add(dingDingScheduleParam);
+
         DingDingScheduleVo dingDingScheduleVo = new DingDingScheduleVo();
         dingDingScheduleVo.setDingDingScheduleParamList(dingDingScheduleParamList);
         dingDingScheduleVo.setStartTime(DateUtil.format(conferenceWorkArrange.getStartTime(), DatePattern.NORM_DATETIME_PATTERN));
@@ -162,6 +157,7 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         String scheduleId = startDingDingScheduleCore.addDingDingSchedule(dingDingScheduleVo, appKey, appSecret);
         if(StringUtils.isNotEmpty(scheduleId)){
             conferenceWorkArrange.setScheduleId(scheduleId);
+            conferenceWorkArrange.setIsSchedule(1);//已建日程
             this.saveOrUpdate(conferenceWorkArrange);
         }
     }
@@ -171,9 +167,6 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
     public void edit(ConferenceWorkArrangeEditParam conferenceWorkArrangeEditParam) {
         ConferenceWorkArrange conferenceWorkArrange = this.queryEntity(conferenceWorkArrangeEditParam.getId());
         BeanUtil.copyProperties(conferenceWorkArrangeEditParam, conferenceWorkArrange);
-        StringBuilder sysUserIds = new StringBuilder();
-        conferenceWorkArrangeEditParam.getJoinUsers().forEach(user -> sysUserIds.append(user.getId()).append(","));
-        conferenceWorkArrange.setJoinUsers(sysUserIds.toString());
         this.updateById(conferenceWorkArrange);
     }
 
@@ -186,10 +179,9 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         this.removeByIds(CollStreamUtil.toList(conferenceWorkArrangeIdParamList, ConferenceWorkArrangeIdParam::getId));
         /**  开始删除日程 */
         conferenceWorkArrangeList.forEach(arrange -> {
-            if(StringUtils.isNotEmpty(arrange.getScheduleId()) && StringUtils.isNotEmpty(arrange.getJoinUsers())){
-                List<String> userIds = Arrays.asList(arrange.getJoinUsers().split(","));
+            if(StringUtils.isNotEmpty(arrange.getScheduleId()) && StringUtils.isNotEmpty(arrange.getDutyUserId())){
                 try{
-                    startDingDingScheduleCore.deleteScheduleForUserId( appKey, appSecret,userIds, arrange.getScheduleId());
+                    startDingDingScheduleCore.deleteScheduleForUserId( appKey, appSecret,arrange.getDutyUserId(), arrange.getScheduleId());
                 }catch (Exception e){
                     log.error("删除日程失败！e:"+e.getMessage());
                 }
@@ -209,15 +201,5 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
             throw new CommonException("会议模块-工作部署不存在，id值为：{}", id);
         }
         return conferenceWorkArrange;
-    }
-
-    /** 会议增加日程 */
-    private void addRecSchedule(String rezId){
-        List<ConferenceWorkArrange> conferenceWorkArrangeList = this.list(new LambdaQueryWrapper<ConferenceWorkArrange>().eq(ConferenceWorkArrange::getRezId,rezId));
-
-        conferenceWorkArrangeList.forEach(conferenceWorkArrange -> {
-            DingDingScheduleVo dingDingScheduleVo = new DingDingScheduleVo();
-            startDingDingScheduleCore.addDingDingSchedule(dingDingScheduleVo,appKey,appSecret);
-        });
     }
 }

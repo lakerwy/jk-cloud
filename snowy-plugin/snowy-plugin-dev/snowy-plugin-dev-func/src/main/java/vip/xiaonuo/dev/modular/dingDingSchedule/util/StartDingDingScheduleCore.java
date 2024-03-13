@@ -46,20 +46,19 @@ public class StartDingDingScheduleCore {
             log.error("appKey和appSecret不能为空！");
             throw new CommonException("appKey和appSecret不能为空！");
         }
-
+        if(StringUtils.isEmpty(dingDingScheduleVo.getId())){
+            log.error("id表示不能为空 - (可以是任何可反查的唯一标识)！");
+            return "";
+        }
+        if(CollectionUtil.isEmpty(dingDingScheduleVo.getDingDingScheduleParamList())){
+            log.error("无日程参与人！id:"+dingDingScheduleVo.getId());
+            return "";
+        }
+        if(isLackParam(dingDingScheduleVo)){
+            log.error("开始时间，结束时间和日程标题为必传！");
+            return "";
+        }
         try{
-            if(StringUtils.isEmpty(dingDingScheduleVo.getId())){
-                log.error("id表示不能为空 - (可以是任何可反查的唯一标识)！");
-                return "";
-            }
-            if(CollectionUtil.isEmpty(dingDingScheduleVo.getDingDingScheduleParamList())){
-                log.error("无日程参与人！id:"+dingDingScheduleVo.getId());
-                return "";
-            }
-            if(isLackParam(dingDingScheduleVo)){
-                log.error("开始时间，结束时间和日程标题为必传！");
-                return "";
-            }
             String xAcsDingtalkAccessToken = iDingDingService.getDingToken(appKey,appSecret);//获取token
 
             List<AuthThirdUser> authThirdUserList = authThirdUserService.list(new LambdaQueryWrapper<AuthThirdUser>()
@@ -122,9 +121,9 @@ public class StartDingDingScheduleCore {
         return false;
     }
 
-    public void  deleteScheduleForUserId(String appKey,String appSecret,List<String> userIds,String scheduleId) throws Exception{
+    public void  deleteScheduleForUserId(String appKey,String appSecret,String userId,String scheduleId) throws Exception{
         List<AuthThirdUser> authThirdUserList = authThirdUserService.list(new LambdaQueryWrapper<AuthThirdUser>()
-                .eq(AuthThirdUser::getCategory,DD_CATEGORY).in(AuthThirdUser::getUserId,userIds));
+                .eq(AuthThirdUser::getCategory,DD_CATEGORY).eq(AuthThirdUser::getUserId,userId));
         String xAcsDingtalkAccessToken = iDingDingService.getDingToken(appKey,appSecret);//获取token
         for(AuthThirdUser authThirdUser : authThirdUserList){
             if(StringUtils.isNotEmpty(authThirdUser.getUnionId())){

@@ -85,4 +85,8 @@ public class ConferenceWorkArrangePageParam {
     /** 是否创建日程：0 未创建，1 为已创建 */
     @ApiModelProperty(value = "是否创建日程：0 未创建，1 为已创建", position = 15)
     private Integer isSchedule;
+
+    /** 责任部门ID */
+    @ApiModelProperty(value = "责任部门ID", position = 16)
+    private String dutyOrgId;
 }
