@@ -186,7 +186,7 @@ public class ComputeUtil {
                 .subtract(salaryVo.getBasicAmount()))
                 .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(attend.getRealUnMonthSickDay()));
-        attendData.setSickAmount(realMonthSickAmount.add(realUnMonthSickAmount).setScale(2));
+        attendData.setSickAmount(realMonthSickAmount.add(realUnMonthSickAmount));
         /**
          * 事假
          * 2天以内的事假扣款=月工资标准/21.75*事假天数
@@ -213,7 +213,7 @@ public class ComputeUtil {
         BigDecimal noWorkAmount = salaryVo.getStandardAmount()
                 .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf((attend.getUpMissNum()+attend.getDownMissNum())/2));
-        attendData.setWorkAmount(workAmount.add(noWorkAmount).setScale(2));
+        attendData.setWorkAmount(workAmount.add(noWorkAmount));
         /**
          * 迟到
          * A类迟到超2次：
@@ -246,7 +246,7 @@ public class ComputeUtil {
                 .multiply(BIG_DECIMAL_05)
                 .multiply(BigDecimal.valueOf(attend.getLateNumC()));
         BigDecimal lateAmountC = lateAmountC1.compareTo(lateAmountC2) <=0 ? lateAmountC1 : lateAmountC2;
-        attendData.setLateAmount(lateAmountA.add(lateAmountB).add(lateAmountC).setScale(2));
+        attendData.setLateAmount(lateAmountA.add(lateAmountB).add(lateAmountC));
         /**
          * 旷工：
          * 扣款=月工资标准/21.75*旷工天数*4
@@ -255,7 +255,7 @@ public class ComputeUtil {
                 .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
                 .multiply(BigDecimal.valueOf(attend.getMinerDay()))
                 .multiply(BIG_DECIMAL_4);
-        attendData.setMinerAmount(minerAmount.setScale(2));
+        attendData.setMinerAmount(minerAmount);
         /**
          * 产假
          * 全月产假扣款=月工资标准-个人社保小计-个人公积金-公积金差额
@@ -279,7 +279,7 @@ public class ComputeUtil {
                     .divide(BIG_DECIMAL_2175,INT_2, RoundingMode.HALF_UP)
                     .multiply(BigDecimal.valueOf(attend.getRealMaterDay()));
         }
-        attendData.setMaterAmount(materAmount.setScale(2));
+        attendData.setMaterAmount(materAmount);
         return attendData;
     }
 
@@ -309,12 +309,22 @@ public class ComputeUtil {
     }
 
     /**
-     * BigDecimal 给与默认值 0
-     * @param data1
+     * BigDecimal  若为null,给默认值 0,否则格式化保留2位小数
+     * @param data
      * @return
      */
-    public static BigDecimal fillZero(BigDecimal data1){
-        return ObjectUtil.isNotEmpty(data1) ? data1 : BigDecimal.ZERO;
+    public static BigDecimal fillZero(BigDecimal data){
+        return ObjectUtil.isNotEmpty(data) ? setScale(data,2) : BigDecimal.ZERO;
+    }
+
+    /**
+     * BigDecimal 保留几位小数
+     * @param data BigDecimal 数据
+     * @param scaleNum 保留小数位
+     * @return
+     */
+    public static BigDecimal setScale(BigDecimal data,int scaleNum){
+        return data.setScale(2,RoundingMode.HALF_UP);
     }
 
 
@@ -368,7 +378,7 @@ public class ComputeUtil {
         taxList.add(ljTaxIncomeAmount.multiply(BigDecimal.valueOf(0.45)).subtract(BigDecimal.valueOf(181920)));
         // 使用Optional.max()防止空列表异常
         Optional<BigDecimal> maxValue = taxList.stream().max(BigDecimal::compareTo);
-        return maxValue.get().setScale(2);
+        return setScale(maxValue.get(),2);
     }
 
 

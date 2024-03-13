@@ -359,64 +359,86 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         List<SalaryVo> preSalaryList = ComputeUtil.initGZData(newSalaryVoList);
         preSalaryList.forEach(item->{
             //先处理各类特殊
-            if(DataTypeEnum.SALARY.equals(item.getDataType())) {
+            if(DataTypeEnum.SALARY.getValue().equals(item.getDataType())) {
                 //实发绩效
-                item.setRealMeritAmount(item.getMeritAmount().multiply(BigDecimal.valueOf(item.getMeritRate())));
+                BigDecimal realMeritAmount = item.getMeritAmount().multiply(BigDecimal.valueOf(item.getMeritRate()));
+                item.setRealMeritAmount(ComputeUtil.setScale(realMeritAmount,2));
+
                 //注册补贴
                 SumTypeData registerBT = subsidyData.stream().filter(x -> SalaryTypeEnum.REGISTER_SUBSIDY.getValue().equals(x.getType())
                         && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-                item.setRegisterAmount(ObjectUtil.isNotEmpty(registerBT) ? registerBT.getSumAmount() : BigDecimal.ZERO);
+                if(ObjectUtil.isNotEmpty(registerBT)) {
+                    item.setRegisterAmount(ComputeUtil.setScale(registerBT.getSumAmount(), 2));
+                }
+
                 //工龄工资
                 SumTypeData seniorityGZ = payData.stream().filter(x -> SalaryTypeEnum.SENIORITY.getValue().equals(x.getType())
                         && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-                item.setWorkAgeAmount(ObjectUtil.isNotEmpty(seniorityGZ) ? seniorityGZ.getSumAmount() : BigDecimal.ZERO);
+                if(ObjectUtil.isNotEmpty(seniorityGZ)) {
+                    item.setWorkAgeAmount(ComputeUtil.setScale(seniorityGZ.getSumAmount(), 2));
+                }
+
                 //讲师津贴
                 SumTypeData teacherBT = subsidyData.stream().filter(x -> SalaryTypeEnum.TEACHER_SUBSIDY.getValue().equals(x.getType())
                         && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-                item.setTeacherAmount(ObjectUtil.isNotEmpty(teacherBT) ? teacherBT.getSumAmount() : BigDecimal.ZERO);
+                if(ObjectUtil.isNotEmpty(teacherBT)) {
+                    item.setTeacherAmount(ComputeUtil.setScale(teacherBT.getSumAmount(), 2));
+                }
+
                 //值班补贴
                 SumTypeData dutyBT = subsidyData.stream().filter(x -> SalaryTypeEnum.DUTY_SUBSIDY.getValue().equals(x.getType())
                         && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-                item.setDutyAmount(ObjectUtil.isNotEmpty(dutyBT) ? dutyBT.getSumAmount() : BigDecimal.ZERO);
+                if(ObjectUtil.isNotEmpty(dutyBT)) {
+                    item.setDutyAmount(ComputeUtil.setScale(dutyBT.getSumAmount(), 2));
+                }
+
                 //考勤 ： 全勤奖|考勤扣款
                 SalaryAttend attend = attendData.stream().filter(x -> item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
                 if (ObjectUtil.isNotEmpty(attend)) {
                     SumAttendData sumAttendData = ComputeUtil.computeAttendGZ(attend,item,insData,gjjData);
                     //全勤奖
-                    item.setFullAmount(sumAttendData.getFullAmount());
-                    item.setSickAmount(sumAttendData.getSickAmount());
-                    item.setWorkAmount(sumAttendData.getWorkAmount());
-                    item.setLateAmount(sumAttendData.getLateAmount());
-                    item.setMinerAmount(sumAttendData.getMinerAmount());
-                    item.setMaterAmount(sumAttendData.getMaterAmount());
+                    item.setFullAmount(ComputeUtil.setScale(sumAttendData.getFullAmount(),2));
+                    item.setSickAmount(ComputeUtil.setScale(sumAttendData.getSickAmount(),2));
+                    item.setWorkAmount(ComputeUtil.setScale(sumAttendData.getWorkAmount(),2));
+                    item.setLateAmount(ComputeUtil.setScale(sumAttendData.getLateAmount(),2));
+                    item.setMinerAmount(ComputeUtil.setScale(sumAttendData.getMinerAmount(),2));
+                    item.setMaterAmount(ComputeUtil.setScale(sumAttendData.getMaterAmount(),2));
                 }
-                //税前补发补扣
+
+                //税前补发补扣|其他税后补发补扣
                 SalaryAdd add = addData.stream().filter(x -> item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-                item.setAddAmount(ObjectUtil.isNotEmpty(add) ? add.getAddAmount() : BigDecimal.ZERO);
-                //由于公积金 差额 被记录在 税前补扣中
-                BigDecimal minusAmount = ObjectUtil.isNotEmpty(add) ? add.getMinusAmount() : BigDecimal.ZERO;
-                item.setMinusAmount(item.getMinusAmount().add(minusAmount));
-                //其他税后补发补扣
-                item.setLastAddAmount(ObjectUtil.isNotEmpty(add) ? add.getLastAddAmount() : BigDecimal.ZERO);
-                item.setLastMinusAmount(ObjectUtil.isNotEmpty(add) ? add.getLastMinusAmount() : BigDecimal.ZERO);
+                if(ObjectUtil.isNotEmpty(add)) {
+                    item.setAddAmount(ComputeUtil.setScale(add.getAddAmount(), 2));
+                    //由于公积金 差额 被记录在 税前补扣中
+                    item.setMinusAmount(item.getMinusAmount().add(ComputeUtil.setScale(add.getMinusAmount(),2)));
+                    //其他税后补发补扣
+                    item.setLastAddAmount(ComputeUtil.setScale(add.getLastAddAmount(),2));
+                    item.setLastMinusAmount(ComputeUtil.setScale(add.getLastMinusAmount(),2));
+                }
+
                 //员工福利扣税额
                 SumTypeData empBonusGZ = payData.stream().filter(x -> SalaryTypeEnum.EMP_BONUS.getValue().equals(x.getType())
                         && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-                item.setEmpWelfareAmount(ObjectUtil.isNotEmpty(empBonusGZ) ? empBonusGZ.getSumAmount() : BigDecimal.ZERO);
+                if(ObjectUtil.isNotEmpty(empBonusGZ)) {
+                    item.setEmpWelfareAmount(ComputeUtil.setScale(empBonusGZ.getSumAmount(), 2));
+                }
+
                 //外业补贴扣税额
                 SumTypeData outerBT = subsidyData.stream().filter(x -> SalaryTypeEnum.OUTER_SUBSIDY.getValue().equals(x.getType())
                         && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-                item.setOuterAmount(ObjectUtil.isNotEmpty(outerBT) ? outerBT.getSumAmount() : BigDecimal.ZERO);
+                if(ObjectUtil.isNotEmpty(outerBT)) {
+                    item.setOuterAmount(ComputeUtil.setScale(outerBT.getSumAmount(), 2));
+                }
             }else if(DataTypeEnum.INS.getValue().equals(item.getDataType())){
                 item.setBasicAmount(BigDecimal.ZERO);
                 item.setPostAmount(item.getPer().add(item.getSysPer()));
                 item.setMeritAmount(BigDecimal.ZERO);
-                item.setMeritRate(0F);
+                item.setMeritRate(0.0F);
             }else if(DataTypeEnum.GJJ.getValue().equals(item.getDataType())){
                 item.setBasicAmount(BigDecimal.ZERO);
                 item.setPostAmount(item.getPer().add(item.getSysPer()));
                 item.setMeritAmount(BigDecimal.ZERO);
-                item.setMeritRate(0F);
+                item.setMeritRate(0.0F);
             }
 
             /**
@@ -430,12 +452,14 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
 
             //【个人社保扣除|个人公积金扣款】 - 已生成 - 匹配 - 专项附加扣除
             SalaryTax tax = taxData.stream().filter(x -> item.getCompany().equals(x.getUnitName()) && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-            item.setTaxSy(ObjectUtil.isNotEmpty(tax) ? tax.getTaxSy() : BigDecimal.ZERO);
-            item.setTaxZn(ObjectUtil.isNotEmpty(tax) ? tax.getTaxZn() : BigDecimal.ZERO);
-            item.setTaxFd(ObjectUtil.isNotEmpty(tax) ? tax.getTaxFd() : BigDecimal.ZERO);
-            item.setTaxZf(ObjectUtil.isNotEmpty(tax) ? tax.getTaxZf() : BigDecimal.ZERO);
-            item.setTaxJy(ObjectUtil.isNotEmpty(tax) ? tax.getTaxJy() : BigDecimal.ZERO);
-            item.setTaxZh(ObjectUtil.isNotEmpty(tax) ? tax.getTaxZh() : BigDecimal.ZERO);
+            if(ObjectUtil.isNotEmpty(tax)) {
+                item.setTaxSy(ComputeUtil.setScale(tax.getTaxSy(),2));
+                item.setTaxZn(ComputeUtil.setScale(tax.getTaxZn(),2));
+                item.setTaxFd(ComputeUtil.setScale(tax.getTaxFd(),2));
+                item.setTaxZf(ComputeUtil.setScale(tax.getTaxZf(),2));
+                item.setTaxJy(ComputeUtil.setScale(tax.getTaxJy(),2));
+                item.setTaxZh(ComputeUtil.setScale(tax.getTaxZh(),2));
+            }
 
             //本月因纳税所得额
             item.setTaxIncomeAmount(item.getGrossPayAmount().subtract(item.getSysPer()).subtract(item.getPer())
