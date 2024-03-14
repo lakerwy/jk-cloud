@@ -13,7 +13,6 @@
 package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
-import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
@@ -21,20 +20,16 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
-import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.*;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryImportTempMapper;
-import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.*;
+import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
@@ -104,55 +99,6 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         IMPORT_LIST.add(SalaryTypeEnum.GJJ.getValue());
         IMPORT_LIST.add(SalaryTypeEnum.TAX.getValue());
         IMPORT_LIST.add(SalaryTypeEnum.EMP_BONUS.getValue());
-    }
-
-    @Override
-    public Page<SalaryImportTemp> page(SalaryImportTempPageParam salaryImportTempPageParam) {
-        QueryWrapper<SalaryImportTemp> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(salaryImportTempPageParam.getBatchId())) {
-            queryWrapper.lambda().eq(SalaryImportTemp::getBatchId, salaryImportTempPageParam.getBatchId());
-        }
-        if(ObjectUtil.isNotEmpty(salaryImportTempPageParam.getType())) {
-            queryWrapper.lambda().eq(SalaryImportTemp::getType, salaryImportTempPageParam.getType());
-        }
-        if(ObjectUtil.isNotEmpty(salaryImportTempPageParam.getYearMonth())) {
-            queryWrapper.lambda().eq(SalaryImportTemp::getYearMonth, salaryImportTempPageParam.getYearMonth());
-        }
-        if(ObjectUtil.isNotEmpty(salaryImportTempPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(SalaryImportTemp::getIdCardNumber, salaryImportTempPageParam.getIdCardNumber());
-        }
-        if(ObjectUtil.isNotEmpty(salaryImportTempPageParam.getUserName())) {
-            queryWrapper.lambda().like(SalaryImportTemp::getUserName, salaryImportTempPageParam.getUserName());
-        }
-        if(ObjectUtil.isAllNotEmpty(salaryImportTempPageParam.getSortField(), salaryImportTempPageParam.getSortOrder())) {
-            CommonSortOrderEnum.validate(salaryImportTempPageParam.getSortOrder());
-            queryWrapper.orderBy(true, salaryImportTempPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
-                    StrUtil.toUnderlineCase(salaryImportTempPageParam.getSortField()));
-        } else {
-            queryWrapper.lambda().orderByAsc(SalaryImportTemp::getId);
-        }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
-    }
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void delete(List<SalaryImportTempIdParam> salaryImportTempIdParamList) {
-        // 执行删除
-        this.removeByIds(CollStreamUtil.toList(salaryImportTempIdParamList, SalaryImportTempIdParam::getId));
-    }
-
-    @Override
-    public SalaryImportTemp detail(SalaryImportTempIdParam salaryImportTempIdParam) {
-        return this.queryEntity(salaryImportTempIdParam.getId());
-    }
-
-    @Override
-    public SalaryImportTemp queryEntity(String id) {
-        SalaryImportTemp salaryImportTemp = this.getById(id);
-        if(ObjectUtil.isEmpty(salaryImportTemp)) {
-            throw new CommonException("工资系统-相关数据导入临时表不存在，id值为：{}", id);
-        }
-        return salaryImportTemp;
     }
 
     @Override
@@ -306,6 +252,15 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             if(ObjectUtil.isNotEmpty(x.getUnitName())){
                 x.setUnitName(x.getUnitName().trim());
             }
+            if(ObjectUtil.isNotEmpty(x.getOrgName())){
+                x.setOrgName(x.getOrgName().trim());
+            }
+            if(ObjectUtil.isNotEmpty(x.getFirstOrgName())){
+                x.setFirstOrgName(x.getFirstOrgName().trim());
+            }
+            if(ObjectUtil.isNotEmpty(x.getPosition())){
+                x.setPosition(x.getPosition().trim());
+            }
         });
     }
 
@@ -392,7 +347,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
 
 
     /**
-     * 逻辑校验：员工匹配|唯一性校验
+     * 逻辑校验：员工匹配
      *
      * 导入规则：
      * 月工资标准：根据userType，与系统 总部花名册|分公司花名册 进行匹配，获取信息（原则，若有导入数据，以导入数据为准，若无，根据花名册获取）
@@ -401,30 +356,28 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
      * 匹配员工数据
      *          * 第一部分：若导入 月工资标准 ，【总部|分公司】 根据花名册信息匹配信息
      *          * 第二部分 非 月工资标准 ，均按照月工资标准表，匹配用户
-     * 校验数据唯一性【每月每人一条记录】
-     *          * 第一部分 导入月工资标准 校验是否已存在数据（每人每月一条导入记录）--【所属年月+身份证号】
-     *          * 第二部分 导入月度考勤|社保|公积金|加计扣除 校验是否已存在数据（每人每月一条导入记录） -- 【月工资标准匹配结果 - standardId】
      *
-     * @param type
-     * @param importData
+     * @param type 导入类型
+     * @param importData 导入数据，此时还是明文
      */
-    public void checkLogic(String type,List<SalaryImportTemp> importData){
+    public void matchLogic(String type,List<SalaryImportTemp> importData){
         /**
          * 1. 准备数据【花名册|工资标准数据】
          */
         List<PersonnelInfoVo> personnelAllList = new ArrayList<>();
         List<SalaryStandardVo> standardAllList = new ArrayList<>();
         if(SalaryTypeEnum.STANDARD.getValue().equals(type)
-           || SalaryTypeEnum.EMP_SALARY.getValue().equals(type))
+                || SalaryTypeEnum.EMP_SALARY.getValue().equals(type))
         {
-            personnelAllList = salaryImportTempMapper.getPersonnelList();
+            personnelAllList = salaryImportTempMapper.getPersonnelList(); //明文
         }
         if(IMPORT_LIST.contains(type)){
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
-            standardAllList = salaryStandardService.getStandardAllList(yearMonths);
+            standardAllList = salaryStandardService.getStandardAllList(yearMonths); //密文
         }
-        List<PersonnelInfoVo> finalPersonnelAllList = personnelAllList;
-        List<SalaryStandardVo> finalStandardAllList = standardAllList;
+        //加密参数用于匹配
+        List<PersonnelInfoVo> finalPersonnelAllList = personnelAllList; //明文
+        List<SalaryStandardVo> finalStandardAllList = AesUtil.decryptGZList(standardAllList); //身份证->明文
         /**
          * 2. 匹配员工数据
          * 第一部分：若导入 月工资标准 ，【总部|分公司】 根据花名册信息匹配信息
@@ -432,7 +385,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
          */
         importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
             if(SalaryTypeEnum.STANDARD.getValue().equals(item.getType())
-               || SalaryTypeEnum.EMP_SALARY.getValue().equals(item.getType()))
+                    || SalaryTypeEnum.EMP_SALARY.getValue().equals(item.getType()))
             {
                 if(CollectionUtil.newArrayList(USER_TYPE_CHECK_LIST).contains(item.getUserType())) {
                     List<PersonnelInfoVo> personnelInfoVos = finalPersonnelAllList.stream().filter(m -> item.getUserType().equals(m.getUserType()) && item.getIdCardNumber().equals(m.getIdCardNumber())).collect(Collectors.toList());
@@ -484,11 +437,24 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                 }
             }
         });
-        /**
-         * 3. 校验数据唯一性【每月每人一条记录】
-         * 第一部分 导入月工资标准 校验是否已存在数据（每人每月一条导入记录）--【所属年月+身份证号】
-         * 第二部分 导入月度考勤|社保|公积金|加计扣除 校验是否已存在数据（每人每月（每公司）一条导入记录） -- 【月工资标准匹配结果 - standardId】
-         */
+    }
+
+
+
+    /**
+     * 逻辑校验：员工匹配|唯一性校验 【导入数据变密文】
+     *
+     * 校验数据唯一性【每月每人一条记录】
+     *          * 第一部分 导入月工资标准 校验是否已存在数据（每人每月一条导入记录）--【所属年月+身份证号】
+     *          * 第二部分 导入月度考勤|社保|公积金|加计扣除 校验是否已存在数据（每人每月一条导入记录） -- 【月工资标准匹配结果 - standardId】
+     *
+     * @param type
+     * @param importData
+     */
+    public void checkLogic(String type,List<SalaryImportTemp> importData){
+        //明文 -> 密文
+        importData = AesUtil.encryptGZList(importData);
+        //校验
         if(SalaryTypeEnum.STANDARD.getValue().equals(type)){
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
             if(CollUtil.isNotEmpty(yearMonths)) {
@@ -559,7 +525,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
             if(CollUtil.isNotEmpty(yearMonths)) {
                 //涉及到的年月，看是否已导入过
-                List<SalaryVo> oldList = salaryService.getSalaryAllList(type, yearMonths);
+                List<SalaryVo> oldList = salaryService.getSalaryAllList(type, yearMonths);  //密文
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
                         List<SalaryVo> tmpList = oldList.stream().filter(obj -> item.getYearMonth().equals(obj.getYearMonth()) && item.getIdCardNumber().equals(obj.getIdCardNumber()) && item.getCompany().equals(obj.getCompany())).collect(Collectors.toList());
@@ -585,7 +551,9 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         initData(batchId,type,importData);
         //3.数据校验（必填项|数据格式）
         checkData(importData);
-        //4.逻辑校验（匹配员工|唯一校验）
+        //4.员工匹配
+        matchLogic(type,importData);
+        //5.逻辑校验（唯一校验）
         checkLogic(type,importData);
         //6.将数据存放在导入临时表
         this.saveBatch(importData);
@@ -601,6 +569,8 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
      * @return
      */
     public ImportResult importResult(String batchId,String type,List<SalaryImportTemp> importData){
+        //密文->明文
+        importData = AesUtil.decryptGZList(importData);
         ImportResult result = new ImportResult();
         result.setBatchId(batchId);
         result.setType(type);

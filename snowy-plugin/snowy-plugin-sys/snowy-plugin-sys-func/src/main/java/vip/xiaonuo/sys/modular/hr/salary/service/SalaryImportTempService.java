@@ -12,14 +12,10 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.service;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
-import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
-
-import java.util.List;
 
 /**
  * 工资系统-相关数据导入临时表Service接口
@@ -28,38 +24,6 @@ import java.util.List;
  * @date  2024/02/26 09:31
  **/
 public interface SalaryImportTempService extends IService<SalaryImportTemp> {
-
-    /**
-     * 获取工资系统-相关数据导入临时表分页
-     *
-     * @author yong.ye
-     * @date  2024/02/26 09:31
-     */
-    Page<SalaryImportTemp> page(SalaryImportTempPageParam salaryImportTempPageParam);
-
-    /**
-     * 删除工资系统-相关数据导入临时表
-     *
-     * @author yong.ye
-     * @date  2024/02/26 09:31
-     */
-    void delete(List<SalaryImportTempIdParam> salaryImportTempIdParamList);
-
-    /**
-     * 获取工资系统-相关数据导入临时表详情
-     *
-     * @author yong.ye
-     * @date  2024/02/26 09:31
-     */
-    SalaryImportTemp detail(SalaryImportTempIdParam salaryImportTempIdParam);
-
-    /**
-     * 获取工资系统-相关数据导入临时表详情
-     *
-     * @author yong.ye
-     * @date  2024/02/26 09:31
-     **/
-    SalaryImportTemp queryEntity(String id);
 
     /**
      * 【导入】- 社保|公积金|专项扣除数据

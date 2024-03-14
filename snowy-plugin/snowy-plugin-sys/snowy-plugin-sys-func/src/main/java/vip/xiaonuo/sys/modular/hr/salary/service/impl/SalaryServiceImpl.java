@@ -36,6 +36,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.*;
+import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumAttendData;
@@ -81,24 +82,24 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.lambda().eq(Salary::getUserType,salaryPageParam.getUserType());
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(Salary::getIdCardNumber, salaryPageParam.getIdCardNumber());
+            queryWrapper.lambda().like(Salary::getIdCardNumber, AesUtil.encrypt(salaryPageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getUserName())) {
-            queryWrapper.lambda().like(Salary::getUserName, salaryPageParam.getUserName());
+            queryWrapper.lambda().like(Salary::getUserName, AesUtil.encrypt(salaryPageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getFirstOrgName())) {
-            queryWrapper.lambda().like(Salary::getFirstOrgName, salaryPageParam.getFirstOrgName());
+            queryWrapper.lambda().like(Salary::getFirstOrgName, AesUtil.encrypt(salaryPageParam.getFirstOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getOrgName())) {
-            queryWrapper.lambda().like(Salary::getOrgName, salaryPageParam.getOrgName());
+            queryWrapper.lambda().like(Salary::getOrgName, AesUtil.encrypt(salaryPageParam.getOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getPosition())) {
-            queryWrapper.lambda().like(Salary::getPosition, salaryPageParam.getPosition());
+            queryWrapper.lambda().like(Salary::getPosition, AesUtil.encrypt(salaryPageParam.getPosition()));
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(Salary::getIdCardNumber,salaryPageParam.getSearchKey())
-                    .or().like(Salary::getUserName,salaryPageParam.getSearchKey())
-                    .or().like(Salary::getOrgName,salaryPageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(Salary::getIdCardNumber,AesUtil.encrypt(salaryPageParam.getSearchKey()))
+                    .or().like(Salary::getUserName,AesUtil.encrypt(salaryPageParam.getSearchKey()))
+                    .or().like(Salary::getOrgName,AesUtil.encrypt(salaryPageParam.getSearchKey())));
         }
         if(ObjectUtil.isAllNotEmpty(salaryPageParam.getSortField(), salaryPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryPageParam.getSortOrder());
@@ -107,19 +108,21 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         } else {
             queryWrapper.lambda().orderByDesc(Salary::getYearMonth).orderByAsc(Salary::getIdCardNumber);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<Salary> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        return result;
     }
 
     @Override
     public void add(SalaryAddParam salaryAddParam) {
-        Salary salary = BeanUtil.toBean(salaryAddParam, Salary.class);
+        Salary salary = BeanUtil.toBean(AesUtil.encryptGZ(salaryAddParam), Salary.class);
         this.save(salary);
     }
 
     @Override
     public void edit(SalaryEditParam salaryEditParam) {
         Salary salary = this.queryEntity(salaryEditParam.getId());
-        BeanUtil.copyProperties(salaryEditParam, salary);
+        BeanUtil.copyProperties(AesUtil.encryptGZ(salaryEditParam), salary);
         this.updateById(salary);
     }
 
@@ -133,7 +136,8 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
 
     @Override
     public Salary detail(SalaryIdParam salaryIdParam) {
-        return this.queryEntity(salaryIdParam.getId());
+        Salary salary = this.queryEntity(salaryIdParam.getId());
+        return AesUtil.decryptGZ(salary);
     }
 
     @Override
@@ -145,12 +149,6 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         return salary;
     }
 
-    @Override
-    public Page<Salary> pageList(SalaryPageParam salaryPageParam) {
-        //基础数据源：员工月度工资标准
-
-        return null;
-    }
 
     @Override
     public List<Salary> empSalary(EmpSalaryParam empSalaryParam) {
@@ -164,9 +162,10 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         if(ObjectUtil.isNotEmpty(empSalaryParam.getYear())){
             queryWrapper.lambda().likeRight(Salary::getYearMonth,empSalaryParam.getYear());
         }
-        queryWrapper.lambda().eq(Salary::getUserId, StpLoginUserUtil.getLoginUser().getId());
+        queryWrapper.lambda().eq(Salary::getUserId, AesUtil.encrypt(StpLoginUserUtil.getLoginUser().getId()));
         queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
-        return this.list(queryWrapper);
+        List<Salary> result = this.list(queryWrapper);
+        return AesUtil.decryptGZList(result);
     }
 
 
@@ -191,24 +190,25 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.eq("a.`YEAR_MONTH`",param.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(param.getIdCardNumber())){
-            queryWrapper.eq("a.ID_CARD_NUMBER",param.getIdCardNumber());
+            queryWrapper.eq("a.ID_CARD_NUMBER",AesUtil.encrypt(param.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(param.getUserName())){
-            queryWrapper.eq("a.USER_NAME",param.getUserName());
+            queryWrapper.eq("a.USER_NAME",AesUtil.encrypt(param.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(param.getOrgName())){
-            queryWrapper.eq("a.ORG_NAME",param.getOrgName());
+            queryWrapper.eq("a.ORG_NAME",AesUtil.encrypt(param.getOrgName()));
         }
         if(ObjectUtil.isNotEmpty(param.getSearchKey())){
-            queryWrapper.and(q->q.like("a.ID_CARD_NUMBER",param.getSearchKey())
-                    .or().like("a.USER_NAME",param.getSearchKey())
-                    .or().like("a.ORG_NAME",param.getSearchKey()));
+            queryWrapper.and(q->q.like("a.ID_CARD_NUMBER",AesUtil.encrypt(param.getSearchKey()))
+                    .or().like("a.USER_NAME",AesUtil.encrypt(param.getSearchKey()))
+                    .or().like("a.ORG_NAME",AesUtil.encrypt(param.getSearchKey())));
         }
         queryWrapper.isNull("b.ID");
         queryWrapper.orderByAsc("a.ID_CARD_NUMBER");
         List<SalaryVo> salaryVoList = salaryMapper.getPrePageList(queryWrapper);
         //自动生成工资数据
-        return computePreGZ(yearMonth,salaryVoList);
+        List<SalaryVo> result = computePreGZ(yearMonth,salaryVoList);
+        return AesUtil.decryptGZList(result);
     }
 
     @Override

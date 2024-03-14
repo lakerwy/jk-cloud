@@ -33,6 +33,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.StandardParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
+import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
@@ -66,19 +67,19 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             queryWrapper.lambda().eq(SalaryStandard::getYearMonth, salaryStandardPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(SalaryStandard::getIdCardNumber, salaryStandardPageParam.getIdCardNumber());
+            queryWrapper.lambda().like(SalaryStandard::getIdCardNumber, AesUtil.encrypt(salaryStandardPageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getUserName())) {
-            queryWrapper.lambda().like(SalaryStandard::getUserName, salaryStandardPageParam.getUserName());
+            queryWrapper.lambda().like(SalaryStandard::getUserName, AesUtil.encrypt(salaryStandardPageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getFirstOrgName())) {
-            queryWrapper.lambda().like(SalaryStandard::getFirstOrgName, salaryStandardPageParam.getFirstOrgName());
+            queryWrapper.lambda().like(SalaryStandard::getFirstOrgName, AesUtil.encrypt(salaryStandardPageParam.getFirstOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getOrgName())) {
-            queryWrapper.lambda().like(SalaryStandard::getOrgName, salaryStandardPageParam.getOrgName());
+            queryWrapper.lambda().like(SalaryStandard::getOrgName, AesUtil.encrypt(salaryStandardPageParam.getOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getPosition())) {
-            queryWrapper.lambda().like(SalaryStandard::getPosition, salaryStandardPageParam.getPosition());
+            queryWrapper.lambda().like(SalaryStandard::getPosition, AesUtil.encrypt(salaryStandardPageParam.getPosition()));
         }
         if(ObjectUtil.isAllNotEmpty(salaryStandardPageParam.getSortField(), salaryStandardPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryStandardPageParam.getSortOrder());
@@ -87,7 +88,9 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         } else {
             queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth).orderByAsc(SalaryStandard::getIdCardNumber);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<SalaryStandard> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -96,11 +99,11 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         //同一工资类别，同一年月，同一身份证，只存在一条记录
         List<SalaryStandard> oldList = this.list(new QueryWrapper<SalaryStandard>().lambda()
                 .eq(SalaryStandard::getYearMonth,salaryStandardAddParam.getYearMonth())
-                .eq(SalaryStandard::getIdCardNumber,salaryStandardAddParam.getIdCardNumber()));
+                .eq(SalaryStandard::getIdCardNumber,AesUtil.encrypt(salaryStandardAddParam.getIdCardNumber())));
         if(CollUtil.isNotEmpty(oldList)){
             throw new CommonException("{}年月{}已存在记录",salaryStandardAddParam.getYearMonth(),salaryStandardAddParam.getUserName());
         }
-        SalaryStandard salaryStandard = BeanUtil.toBean(salaryStandardAddParam, SalaryStandard.class);
+        SalaryStandard salaryStandard = BeanUtil.toBean(AesUtil.encryptGZ(salaryStandardAddParam), SalaryStandard.class);
         this.save(salaryStandard);
     }
 
@@ -110,13 +113,13 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         //同一工资类别，同一年月，同一身份证，只存在一条记录
         List<SalaryStandard> oldList = this.list(new QueryWrapper<SalaryStandard>().lambda()
                 .eq(SalaryStandard::getYearMonth,salaryStandardEditParam.getYearMonth())
-                .eq(SalaryStandard::getIdCardNumber,salaryStandardEditParam.getIdCardNumber())
+                .eq(SalaryStandard::getIdCardNumber,AesUtil.encrypt(salaryStandardEditParam.getIdCardNumber()))
                 .ne(SalaryStandard::getId,salaryStandardEditParam.getId()));
         if(CollUtil.isNotEmpty(oldList)){
             throw new CommonException("{}年月{}已存在记录",salaryStandardEditParam.getYearMonth(),salaryStandardEditParam.getUserName());
         }
         SalaryStandard salaryStandard = this.queryEntity(salaryStandardEditParam.getId());
-        BeanUtil.copyProperties(salaryStandardEditParam, salaryStandard);
+        BeanUtil.copyProperties(AesUtil.encryptGZ(salaryStandardEditParam), salaryStandard);
         this.updateById(salaryStandard);
     }
 
@@ -129,7 +132,8 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
 
     @Override
     public SalaryStandard detail(SalaryStandardIdParam salaryStandardIdParam) {
-        return this.queryEntity(salaryStandardIdParam.getId());
+        SalaryStandard salaryStandard = this.queryEntity(salaryStandardIdParam.getId());
+        return AesUtil.decryptGZ(salaryStandard);
     }
 
     @Override
@@ -183,8 +187,9 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         }
         QueryWrapper<SalaryStandard> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(SalaryStandard::getYearMonth,standardParam.getYearMonth());
-        List<SalaryStandard> result = this.list(queryWrapper);
-        return BeanUtil.copyToList(result,SalaryStandardVo.class);
+        List<SalaryStandard> standardList = this.list(queryWrapper);
+        List<SalaryStandardVo> result = BeanUtil.copyToList(standardList,SalaryStandardVo.class);
+        return AesUtil.decryptGZList(result);
     }
 
     @Override
@@ -209,25 +214,26 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             queryWrapper.lambda().eq(SalaryStandard::getUserType,threePageParam.getUserType());
         }
         if(ObjectUtil.isNotEmpty(threePageParam.getIdCardNumber())){
-            queryWrapper.lambda().like(SalaryStandard::getIdCardNumber,threePageParam.getIdCardNumber());
+            queryWrapper.lambda().like(SalaryStandard::getIdCardNumber,AesUtil.encrypt(threePageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(threePageParam.getOrgName())){
-            queryWrapper.lambda().like(SalaryStandard::getOrgName,threePageParam.getOrgName());
+            queryWrapper.lambda().like(SalaryStandard::getOrgName,AesUtil.encrypt(threePageParam.getOrgName()));
         }
         if(ObjectUtil.isNotEmpty(threePageParam.getFirstOrgName())){
-            queryWrapper.lambda().like(SalaryStandard::getFirstOrgName,threePageParam.getFirstOrgName());
+            queryWrapper.lambda().like(SalaryStandard::getFirstOrgName,AesUtil.encrypt(threePageParam.getFirstOrgName()));
         }
         if(ObjectUtil.isNotEmpty(threePageParam.getUserName())){
-            queryWrapper.lambda().like(SalaryStandard::getUserName,threePageParam.getUserName());
+            queryWrapper.lambda().like(SalaryStandard::getUserName,AesUtil.encrypt(threePageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(threePageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(SalaryStandard::getUserName,threePageParam.getSearchKey())
-                    .or().like(SalaryStandard::getIdCardNumber,threePageParam.getSearchKey())
-                    .or().like(SalaryStandard::getOrgName,threePageParam.getSearchKey())
-                    .or().like(SalaryStandard::getFirstOrgName,threePageParam.getSearchKey()));
+            queryWrapper.lambda().and(q->q.like(SalaryStandard::getUserName,AesUtil.encrypt(threePageParam.getSearchKey()))
+                    .or().like(SalaryStandard::getIdCardNumber,AesUtil.encrypt(threePageParam.getSearchKey()))
+                    .or().like(SalaryStandard::getOrgName,AesUtil.encrypt(threePageParam.getSearchKey()))
+                    .or().like(SalaryStandard::getFirstOrgName,AesUtil.encrypt(threePageParam.getSearchKey())));
         }
         queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth).orderByAsc(SalaryStandard::getIdCardNumber);
-        List<SalaryStandard> standardList = this.list(queryWrapper);
+        List<SalaryStandard> standardListTemp = this.list(queryWrapper);
+        List<SalaryStandard> standardList = AesUtil.decryptGZList(standardListTemp);
         result.setZbList(standardList.stream().filter(x-> UserTypeEnum.ZB.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setFgsList(standardList.stream().filter(x-> UserTypeEnum.FGS.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setWpList(standardList.stream().filter(x-> UserTypeEnum.WP.getValue().equals(x.getUserType())).collect(Collectors.toList()));

@@ -80,13 +80,6 @@ public interface SalaryService extends IService<Salary> {
     Salary queryEntity(String id);
 
     /**
-     * 自定义 - 工资分页列表【工资标准+已确认工资】
-     * @param salaryPageParam
-     * @return
-     */
-    Page<Salary> pageList(SalaryPageParam salaryPageParam);
-
-    /**
      * 根据 所属年 或 所属年月 获取员工工资条
      * @param empSalaryParam
      * @return

@@ -32,7 +32,7 @@ import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryPayMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPayService;
-import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
+import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
@@ -56,9 +56,6 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
     @Resource
     private SalaryPayMapper salaryPayMapper;
 
-    @Resource
-    private SalaryStandardService salaryStandardService;
-
     @Override
     public Page<SalaryPayVo> page(SalaryPayPageParam salaryPayPageParam) {
         QueryWrapper<SalaryPay> queryWrapper = new QueryWrapper<>();
@@ -73,22 +70,22 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
             queryWrapper.eq("b.`YEAR_MONTH`", salaryPayPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryPayPageParam.getIdCardNumber())) {
-            queryWrapper.like("b.ID_CARD_NUMBER", salaryPayPageParam.getIdCardNumber());
+            queryWrapper.like("b.ID_CARD_NUMBER", AesUtil.encrypt(salaryPayPageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(salaryPayPageParam.getUserName())) {
-            queryWrapper.like("b.USER_NAME", salaryPayPageParam.getUserName());
+            queryWrapper.like("b.USER_NAME", AesUtil.encrypt(salaryPayPageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(salaryPayPageParam.getFirstOrgName())) {
-            queryWrapper.like("b.FIRST_ORG_NAME", salaryPayPageParam.getFirstOrgName());
+            queryWrapper.like("b.FIRST_ORG_NAME", AesUtil.encrypt(salaryPayPageParam.getFirstOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryPayPageParam.getOrgName())) {
-            queryWrapper.like("b.ORG_NAME", salaryPayPageParam.getOrgName());
+            queryWrapper.like("b.ORG_NAME", AesUtil.encrypt(salaryPayPageParam.getOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryPayPageParam.getSearchKey())){
-            queryWrapper.and(q->q.like("b.ID_CARD_NUMBER",salaryPayPageParam.getSearchKey())
-                    .or().like("b.USER_NAME",salaryPayPageParam.getSearchKey())
-                    .or().like("b.FIRST_ORG_NAME",salaryPayPageParam.getSearchKey())
-                    .or().like("b.ORG_NAME",salaryPayPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("b.ID_CARD_NUMBER",AesUtil.encrypt(salaryPayPageParam.getSearchKey()))
+                    .or().like("b.USER_NAME",AesUtil.encrypt(salaryPayPageParam.getSearchKey()))
+                    .or().like("b.FIRST_ORG_NAME",AesUtil.encrypt(salaryPayPageParam.getSearchKey()))
+                    .or().like("b.ORG_NAME",AesUtil.encrypt(salaryPayPageParam.getSearchKey())));
         }
         if(ObjectUtil.isAllNotEmpty(salaryPayPageParam.getSortField(), salaryPayPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryPayPageParam.getSortOrder());
@@ -97,7 +94,9 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
         } else {
             queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
         }
-        return salaryPayMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<SalaryPayVo> result = salaryPayMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -153,7 +152,8 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
 
     @Override
     public SalaryPayVo detail(SalaryPayIdParam salaryPayIdParam) {
-        return salaryPayMapper.getDetailById(salaryPayIdParam.getId());
+        SalaryPayVo salaryPayVo = salaryPayMapper.getDetailById(salaryPayIdParam.getId());
+        return AesUtil.decryptGZ(salaryPayVo);
     }
 
     @Override

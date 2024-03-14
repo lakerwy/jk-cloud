@@ -34,6 +34,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddRecordPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
+import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddTotal;
 
@@ -69,19 +70,19 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
             queryWrapper.eq("c.`YEAR_MONTH`",salaryAddRecordPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getIdCardNumber())){
-            queryWrapper.like("c.ID_CARD_NUMBER",salaryAddRecordPageParam.getIdCardNumber());
+            queryWrapper.like("c.ID_CARD_NUMBER", AesUtil.encrypt(salaryAddRecordPageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getUserName())){
-            queryWrapper.like("c.USER_NAME",salaryAddRecordPageParam.getUserName());
+            queryWrapper.like("c.USER_NAME",AesUtil.encrypt(salaryAddRecordPageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getItemType())){
             queryWrapper.eq("a.ITEM_TYPE",salaryAddRecordPageParam.getItemType());
         }
         if(ObjectUtil.isNotEmpty(salaryAddRecordPageParam.getSearchKey())){
-            queryWrapper.and(q->q.like("c.ID_CARD_NUMBER",salaryAddRecordPageParam.getSearchKey())
-                    .or().like("c.USER_NAME",salaryAddRecordPageParam.getSearchKey())
-                    .or().like("c.FIRST_ORG_NAME",salaryAddRecordPageParam.getSearchKey())
-                    .or().like("c.ORG_NAME",salaryAddRecordPageParam.getSearchKey())
+            queryWrapper.and(q->q.like("c.ID_CARD_NUMBER",AesUtil.encrypt(salaryAddRecordPageParam.getSearchKey()))
+                    .or().like("c.USER_NAME",AesUtil.encrypt(salaryAddRecordPageParam.getSearchKey()))
+                    .or().like("c.FIRST_ORG_NAME",AesUtil.encrypt(salaryAddRecordPageParam.getSearchKey()))
+                    .or().like("c.ORG_NAME",AesUtil.encrypt(salaryAddRecordPageParam.getSearchKey()))
                     .or().like("a.DICT_NAME",salaryAddRecordPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(salaryAddRecordPageParam.getSortField(), salaryAddRecordPageParam.getSortOrder())) {
@@ -91,7 +92,9 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
         } else {
             queryWrapper.orderByDesc("c.`YEAR_MONTH`").orderByAsc("c.ID_CARD_NUMBER");
         }
-        return salaryAddRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<SalaryAddRecordVo> result = salaryAddRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -158,7 +161,8 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
 
     @Override
     public SalaryAddRecordVo detail(SalaryAddRecordIdParam salaryAddRecordIdParam) {
-        return salaryAddRecordMapper.getDetailById(salaryAddRecordIdParam.getId());
+        SalaryAddRecordVo salaryAddRecordVo = salaryAddRecordMapper.getDetailById(salaryAddRecordIdParam.getId());
+        return AesUtil.decryptGZ(salaryAddRecordVo);
     }
 
     @Override

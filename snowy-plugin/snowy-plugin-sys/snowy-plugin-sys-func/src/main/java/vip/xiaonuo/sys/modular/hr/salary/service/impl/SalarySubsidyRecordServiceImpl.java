@@ -31,6 +31,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
+import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
 import javax.annotation.Resource;
@@ -59,22 +60,22 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
             queryWrapper.eq("b.`YEAR_MONTH`", salarySubsidyRecordPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getIdCardNumber())) {
-            queryWrapper.like("b.ID_CARD_NUMBER", salarySubsidyRecordPageParam.getIdCardNumber());
+            queryWrapper.like("b.ID_CARD_NUMBER", AesUtil.encrypt(salarySubsidyRecordPageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getUserName())) {
-            queryWrapper.like("b.USER_NAME", salarySubsidyRecordPageParam.getUserName());
+            queryWrapper.like("b.USER_NAME", AesUtil.encrypt(salarySubsidyRecordPageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getFirstOrgName())) {
-            queryWrapper.like("b.FIRST_ORG_NAME", salarySubsidyRecordPageParam.getFirstOrgName());
+            queryWrapper.like("b.FIRST_ORG_NAME", AesUtil.encrypt(salarySubsidyRecordPageParam.getFirstOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getOrgName())) {
-            queryWrapper.like("b.ORG_NAME", salarySubsidyRecordPageParam.getOrgName());
+            queryWrapper.like("b.ORG_NAME", AesUtil.encrypt(salarySubsidyRecordPageParam.getOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salarySubsidyRecordPageParam.getSearchKey())){
-            queryWrapper.and(q->q.like("b.ID_CARD_NUMBER",salarySubsidyRecordPageParam.getSearchKey())
-                    .or().like("b.USER_NAME",salarySubsidyRecordPageParam.getSearchKey())
-                    .or().like("b.FIRST_ORG_NAME",salarySubsidyRecordPageParam.getSearchKey())
-                    .or().like("b.ORG_NAME",salarySubsidyRecordPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("b.ID_CARD_NUMBER",AesUtil.encrypt(salarySubsidyRecordPageParam.getSearchKey()))
+                    .or().like("b.USER_NAME",AesUtil.encrypt(salarySubsidyRecordPageParam.getSearchKey()))
+                    .or().like("b.FIRST_ORG_NAME",AesUtil.encrypt(salarySubsidyRecordPageParam.getSearchKey()))
+                    .or().like("b.ORG_NAME",AesUtil.encrypt(salarySubsidyRecordPageParam.getSearchKey())));
         }
         if(ObjectUtil.isAllNotEmpty(salarySubsidyRecordPageParam.getSortField(), salarySubsidyRecordPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salarySubsidyRecordPageParam.getSortOrder());
@@ -83,7 +84,9 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
         } else {
             queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
         }
-        return salarySubsidyRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<SalarySubsidyRecordVo> result = salarySubsidyRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -110,7 +113,8 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
 
     @Override
     public SalarySubsidyRecordVo detail(SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
-        return salarySubsidyRecordMapper.getDetailById(salarySubsidyRecordIdParam.getId());
+        SalarySubsidyRecordVo salarySubsidyRecordVo = salarySubsidyRecordMapper.getDetailById(salarySubsidyRecordIdParam.getId());
+        return AesUtil.decryptGZ(salarySubsidyRecordVo);
     }
 
     @Override

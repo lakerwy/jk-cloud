@@ -34,6 +34,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
+import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
 import javax.annotation.Resource;
@@ -60,22 +61,22 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
             queryWrapper.eq("b.`YEAR_MONTH`", salaryAddPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getIdCardNumber())) {
-            queryWrapper.like("b.ID_CARD_NUMBER", salaryAddPageParam.getIdCardNumber());
+            queryWrapper.like("b.ID_CARD_NUMBER", AesUtil.encrypt(salaryAddPageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getUserName())) {
-            queryWrapper.like("b.USER_NAME", salaryAddPageParam.getUserName());
+            queryWrapper.like("b.USER_NAME", AesUtil.encrypt(salaryAddPageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getFirstOrgName())) {
-            queryWrapper.like("b.FIRST_ORG_NAME", salaryAddPageParam.getFirstOrgName());
+            queryWrapper.like("b.FIRST_ORG_NAME", AesUtil.encrypt(salaryAddPageParam.getFirstOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getOrgName())) {
-            queryWrapper.like("b.ORG_NAME", salaryAddPageParam.getOrgName());
+            queryWrapper.like("b.ORG_NAME", AesUtil.encrypt(salaryAddPageParam.getOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryAddPageParam.getSearchKey())){
-            queryWrapper.and(q->q.like("b.FIRST_ORG_NAME",salaryAddPageParam.getSearchKey())
-                    .or().like("b.ORG_NAME",salaryAddPageParam.getSearchKey())
-                    .or().like("b.USER_NAME",salaryAddPageParam.getSearchKey())
-                    .or().like("b.ID_CARD_NUMBER",salaryAddPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("b.FIRST_ORG_NAME",AesUtil.encrypt(salaryAddPageParam.getSearchKey()))
+                    .or().like("b.ORG_NAME",AesUtil.encrypt(salaryAddPageParam.getSearchKey()))
+                    .or().like("b.USER_NAME",AesUtil.encrypt(salaryAddPageParam.getSearchKey()))
+                    .or().like("b.ID_CARD_NUMBER",AesUtil.encrypt(salaryAddPageParam.getSearchKey())));
         }
         if(ObjectUtil.isAllNotEmpty(salaryAddPageParam.getSortField(), salaryAddPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryAddPageParam.getSortOrder());
@@ -84,7 +85,9 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
         } else {
             queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
         }
-        return salaryAddMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<SalaryAddVo> result = salaryAddMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -129,7 +132,8 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
 
     @Override
     public SalaryAddVo detail(SalaryAddIdParam salaryAddIdParam) {
-        return salaryAddMapper.getDetailById(salaryAddIdParam.getId());
+        SalaryAddVo salaryAddVo = salaryAddMapper.getDetailById(salaryAddIdParam.getId());
+        return AesUtil.decryptGZ(salaryAddVo);
     }
 
     @Override
