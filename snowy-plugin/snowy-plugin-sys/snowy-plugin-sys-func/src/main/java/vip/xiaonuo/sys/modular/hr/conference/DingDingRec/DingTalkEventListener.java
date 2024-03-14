@@ -55,7 +55,7 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
      * */
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        if(enable){
+        /*if(enable){
             try{ OpenDingTalkStreamClientBuilder.custom()
                         .credential(new AuthClientCredential(clientId, clientSecret))
                         .registerAllEventListener(new GenericEventListener() {//注册事件监听
@@ -79,7 +79,7 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
             }catch (Exception e){
                 log.error("获取OpenDingTalkStream失败！");
             }
-        }
+        }*/
     }
 
     private JSONObject getRecPart(JSONObject bizData){
