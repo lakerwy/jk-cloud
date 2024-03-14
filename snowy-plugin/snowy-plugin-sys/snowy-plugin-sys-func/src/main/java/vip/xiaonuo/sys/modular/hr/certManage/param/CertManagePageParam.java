@@ -16,8 +16,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
-
 /**
  * 人员资质管理查询参数
  *
@@ -76,9 +74,9 @@ public class CertManagePageParam {
     @ApiModelProperty(value = "学校专业")
     private String eduMajor;
 
-//    /** 混合搜索： 类别|等级|专业联动 */
-//    @ApiModelProperty(value = "混合搜索： 类别|等级|专业联动")
-//    private List<ThreeParam> threeParams;
+    /** 存管部门 */
+    @ApiModelProperty(value = "存管部门")
+    private String depositAddress;
 
     /** 发证日期开始 */
     @ApiModelProperty(value = "发证日期开始")
@@ -99,5 +97,21 @@ public class CertManagePageParam {
     /** （证书是否失效，总部|分公司人员离职即证书失效，外部人员证书是否失效由页面自行维护） 状态  0 :有效  1：失效 */
     @ApiModelProperty(value = "（证书是否失效，总部|分公司人员离职即证书失效，外部人员证书是否失效由页面自行维护） 状态  0 :有效  1：失效 ")
     private String userStatus;
+
+    /** 专业 */
+    @ApiModelProperty(value = "专业")
+    private String major;
+
+    /** 部门 */
+    @ApiModelProperty(value = "部门")
+    private String dept;
+
+    /** 证书类别：注册类别|证书名称*/
+    @ApiModelProperty(value = "证书类别：注册类别|证书名称")
+    private String certType;
+
+    /** 级别|类别/工种*/
+    @ApiModelProperty(value = "级别|类别/工种")
+    private String level;
 
 }

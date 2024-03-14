@@ -88,6 +88,21 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         }else{
             queryWrapper.eq("a.userStatus","0");
         }
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getDept())){
+            queryWrapper.like("a.DEPT",certManagePageParam.getDept());
+        }
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getCertType())){
+            queryWrapper.like("d1.DICT_LABEL",certManagePageParam.getCertType());
+        }
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getLevel())){
+            queryWrapper.like("d2.DICT_LABEL",certManagePageParam.getLevel());
+        }
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getMajor())){
+            queryWrapper.like("a.MAJOR",certManagePageParam.getMajor());
+        }
+        if(ObjectUtil.isNotEmpty(certManagePageParam.getDepositAddress())){
+            queryWrapper.like("a.DEPOSIT_ADDRESS",certManagePageParam.getDepositAddress());
+        }
         // 关键字搜索
         if (ObjectUtil.isNotEmpty(certManagePageParam.getSearchKey())) {
             queryWrapper.and(q -> q.like("a.CERT_NO", certManagePageParam.getSearchKey())
