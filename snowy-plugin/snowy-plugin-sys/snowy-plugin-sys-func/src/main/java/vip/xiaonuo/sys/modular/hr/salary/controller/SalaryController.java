@@ -26,6 +26,8 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
+import vip.xiaonuo.sys.modular.hr.salary.param.SalaryEditParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
@@ -153,6 +155,23 @@ public class SalaryController {
     @PostMapping("/sys/hr/salary/preSalarySure")
     public CommonResult<String> preSalarySure(@RequestBody @Valid PayParam param) {
         salaryService.preSalarySure(param);
+        return CommonResult.ok();
+    }
+
+
+
+    /**
+     * 【已确认-封存的工资数据】编辑工资系统-工资明细
+     *
+     * @author yong.ye
+     * @date  2024/03/26 09:28
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("【已确认-封存的工资数据】编辑工资系统-工资明细")
+    @CommonLog("【已确认-封存的工资数据】编辑工资系统-工资明细")
+    @PostMapping("/sys/hr/salary/edit")
+    public CommonResult<String> edit(@RequestBody @Valid SalaryEditParam salaryEditParam) {
+        salaryService.edit(salaryEditParam);
         return CommonResult.ok();
     }
 
