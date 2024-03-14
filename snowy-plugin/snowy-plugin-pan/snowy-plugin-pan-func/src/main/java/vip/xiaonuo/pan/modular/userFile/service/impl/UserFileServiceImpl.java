@@ -468,7 +468,7 @@ public class UserFileServiceImpl extends ServiceImpl<UserFileMapper, UserFile> i
                 throw  new CommonException("父目录文件不存在");
             }
         }
-        queryWrapper.lambda().like(UserFile::getFilePath,userFilePageParam.getFilePath());
+        queryWrapper.lambda().eq(UserFile::getFilePath,userFilePageParam.getFilePath());
         if(ObjectUtil.isNotEmpty(userFilePageParam.getFoldType())){
             queryWrapper.lambda().in(UserFile::getFoldType, userFilePageParam.getFoldType());
         }
