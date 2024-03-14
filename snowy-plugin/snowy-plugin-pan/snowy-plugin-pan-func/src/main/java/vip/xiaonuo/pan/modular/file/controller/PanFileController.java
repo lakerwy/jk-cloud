@@ -532,20 +532,22 @@ public class PanFileController {
 //        }catch (Exception e) {
 //            throw new CommonException(e.getMessage());
 //        }
-        log.info("测试是否执行IndexServlet 接口----------------");
+        log.error("测试是否执行IndexServlet 接口----------------");
         PrintWriter writer = response.getWriter();
         Scanner scanner = new Scanner(request.getInputStream()).useDelimiter("\\A");
         String body = scanner.hasNext() ? scanner.next() : "";
 
         JSONObject jsonObj = JSON.parseObject(body);
+        log.error("测试是否执行IndexServlet -JSONObject:"+jsonObj.toString());
         //log.info("===saveeditedfile:" + jsonObj.get("status")); ;
         String status = jsonObj != null ? jsonObj.get("status").toString() : "";
         if ("2".equals(status) || "6".equals(status)) {
             String type = request.getParameter("type");
             String downloadUri = (String) jsonObj.get("url");
-
+            log.error("测试是否执行IndexServlet -status:"+status);
             if("edit".equals(type)){ //修改报告
                 String userFileId = request.getParameter("userFileId");
+                log.error("测试是否执行IndexServlet -userFileId:"+userFileId);
                 UserFile userFile = userFileService.getById(userFileId);
                 PanFile fileBean = panFileService.getById(userFile.getFileId());
                 Long pointCount = userFileService.getFilePointCount(userFile.getFileId());
@@ -553,21 +555,22 @@ public class PanFileController {
                 if (pointCount > 1) {
                     fileUrl = fileDealComp.copyFile(fileBean, userFile);
                 }
-
+                log.error("测试是否执行IndexServlet -fileUrl:"+fileUrl);
                 URL url = new URL(downloadUri);
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
 
                 try {
+                    log.error("测试是否执行IndexServlet -InputStream");
                     InputStream stream = connection.getInputStream();
                     fileDealComp.saveFileInputStream(fileBean.getStorageType(), fileUrl, stream);
 
                 } catch (Exception e) {
-//                    log.error(e.getMessage());
+                    log.error("测试是否执行IndexServlet!  e:"+e.getMessage());
                 } finally {
 
                     int fileLength = connection.getContentLength();
 //                    log.info("当前修改文件大小为：" + (long) fileLength);
-
+                    log.error("测试是否执行IndexServlet -修改文件大小为:"+fileLength);
                     DownloadFile downloadFile = new DownloadFile();
                     downloadFile.setFileUrl(fileBean.getFileUrl());
                     InputStream inputStream = fileFactory.getDownloader(fileBean.getStorageType()).getInputStream(downloadFile);
@@ -582,10 +585,11 @@ public class PanFileController {
         if("3".equals(status)||"7".equals(status)) {//不强制手动保存时为6,"6".equals(status)
             // log.debug("====保存失败:");
             writer.write("{\"error\":1}");
+            log.error("测试是否执行 保存失败！status："+status);
         }else {
             //log.debug("状态为：0") ;
             writer.write("{\"error\":" + "0" + "}");
-
+            log.error("测试是否执行 保存成功！status："+status);
         }
     }
 
