@@ -1,8 +1,11 @@
 package vip.xiaonuo.sys.modular.hr.conference.rez.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import javax.validation.constraints.NotNull;
 import java.util.Date;
 
@@ -18,11 +21,15 @@ public class ConferenceWorkArrangeAdd {
     /** 任务时间 */
     @ApiModelProperty(value = "任务开始时间", position = 4)
     @NotNull(message = "任务开始时间不能为空")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date startTime;
 
     /** 完成时间 */
     @ApiModelProperty(value = "完成时间", position = 5)
     @NotNull(message = "完成时间不能为空")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date finishTime;
 
     /** 责任人ID */
