@@ -12,28 +12,22 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.controller;
 
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
-import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryImportTempService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 
 /**
  * 工资系统-相关数据导入临时表控制器
@@ -49,48 +43,6 @@ public class SalaryImportTempController {
 
     @Resource
     private SalaryImportTempService salaryImportTempService;
-
-    /**
-     * 获取工资系统-相关数据导入临时表分页
-     *
-     * @author yong.ye
-     * @date  2024/02/26 09:31
-     */
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("获取工资系统-相关数据导入临时表分页")
-    @GetMapping("/sys/hr/salary/import/page")
-    public CommonResult<Page<SalaryImportTemp>> page(SalaryImportTempPageParam salaryImportTempPageParam) {
-        return CommonResult.data(salaryImportTempService.page(salaryImportTempPageParam));
-    }
-
-    /**
-     * 删除工资系统-相关数据导入临时表
-     *
-     * @author yong.ye
-     * @date  2024/02/26 09:31
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("删除工资系统-相关数据导入临时表")
-    @CommonLog("删除工资系统-相关数据导入临时表")
-    @PostMapping("/sys/hr/salary/import/delete")
-    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<SalaryImportTempIdParam> salaryImportTempIdParamList) {
-        salaryImportTempService.delete(salaryImportTempIdParamList);
-        return CommonResult.ok();
-    }
-
-    /**
-     * 获取工资系统-相关数据导入临时表详情
-     *
-     * @author yong.ye
-     * @date  2024/02/26 09:31
-     */
-    @ApiOperationSupport(order = 3)
-    @ApiOperation("获取工资系统-相关数据导入临时表详情")
-    @GetMapping("/sys/hr/salary/import/detail")
-    public CommonResult<SalaryImportTemp> detail(@Valid SalaryImportTempIdParam salaryImportTempIdParam) {
-        return CommonResult.data(salaryImportTempService.detail(salaryImportTempIdParam));
-    }
 
 
     /**

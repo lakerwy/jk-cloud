@@ -296,9 +296,8 @@ public class ComputeUtil {
      * @return
      */
     public static Boolean isValidDate(String dateStr){
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd");
         try {
-            LocalDate.parse(dateStr, formatter);
+            DateUtil.parseDate(dateStr);
             return true;
         } catch (Exception e) {
             return false;
