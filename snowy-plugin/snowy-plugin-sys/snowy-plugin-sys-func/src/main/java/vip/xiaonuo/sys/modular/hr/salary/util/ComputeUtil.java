@@ -213,7 +213,7 @@ public class ComputeUtil {
                                  .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP));
         }
         BigDecimal noWorkAmount = salaryVo.getStandardAmount()
-                .multiply(BigDecimal.valueOf((attend.getUpMissNum()+attend.getDownMissNum())/2))
+                .multiply(BigDecimal.valueOf((attend.getUpMissNum()+attend.getDownMissNum())/FLOAT_2))
                 .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
         BigDecimal tmpTotalWorkAmount = workAmount.add(noWorkAmount);
         BigDecimal totalWorkAmount = tmpTotalWorkAmount.compareTo(salaryVo.getStandardAmount()) > 0 ? salaryVo.getStandardAmount() : tmpTotalWorkAmount;
