@@ -3,6 +3,6 @@
 <mapper namespace="vip.xiaonuo.dev.modular.userRelation.mapper.SystemUserRelationMapper">
 
     <select id="myServer" resultType="vip.xiaonuo.dev.modular.server.entity.SystemServer">
-        SELECT a.* FROM SYSTEM_SERVER a JOIN  SYSTEM_USER_RELATION b ON a.ID = b.SYSTEM_ID ${ew.customSqlSegment}
+        SELECT DISTINCT a.* FROM SYSTEM_SERVER a JOIN  SYSTEM_USER_RELATION b ON a.ID = b.SYSTEM_ID ${ew.customSqlSegment}
     </select>
 </mapper>
