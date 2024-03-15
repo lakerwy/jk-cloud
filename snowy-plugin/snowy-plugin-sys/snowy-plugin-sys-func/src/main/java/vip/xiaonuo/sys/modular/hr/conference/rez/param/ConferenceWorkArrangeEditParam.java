@@ -33,40 +33,12 @@ import java.util.List;
 @Setter
 public class ConferenceWorkArrangeEditParam {
 
-    /** ID */
-    @ApiModelProperty(value = "ID", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
-    private String id;
+    /** 会议ID */
+    @ApiModelProperty(value = "会议ID", required = true,position = 2)
+    @NotNull(message = "会议ID不能为空")
+    private String rezId;
 
-
-    /** 部署事项 */
-    @ApiModelProperty(value = "部署事项", position = 3)
-    @NotNull(message = "部署事项不能为空")
-    private String workArrange;
-
-    /** 任务时间 */
-    @ApiModelProperty(value = "任务开始时间", position = 4)
-    @NotNull(message = "任务开始时间不能为空")
-    private Date startTime;
-
-    /** 完成时间 */
-    @ApiModelProperty(value = "完成时间", position = 5)
-    @NotNull(message = "完成时间不能为空")
-    private Date finishTime;
-
-    /** 责任人ID */
-    @ApiModelProperty(value = "责任人ID", position = 6)
-    @NotNull(message = "责任人不能为空")
-    private String dutyUserId;
-
-    /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 9)
-    private String extJson;
-
-    /** 任务参与人 *//*
-    @ApiModelProperty(value = "任务参与人", position = 16)
-    private List<SysUser> joinUsers;*/
-    /** 责任部门ID */
-    @ApiModelProperty(value = "责任部门ID", position = 10)
-    private String dutyOrgId;
+    @ApiModelProperty(value = "工作部署修改", position = 2)
+    @NotNull(message = "工作部署修改")
+    private List<ConferenceWorkArrangeEdit> conferenceWorkArrangeEditList;
 }

@@ -48,6 +48,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Future;
+import java.util.stream.Collectors;
 
 import javax.annotation.Resource;
 
@@ -162,9 +163,50 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ConferenceWorkArrangeEditParam conferenceWorkArrangeEditParam) {
-        ConferenceWorkArrange conferenceWorkArrange = this.queryEntity(conferenceWorkArrangeEditParam.getId());
-        BeanUtil.copyProperties(conferenceWorkArrangeEditParam, conferenceWorkArrange);
-        this.updateById(conferenceWorkArrange);
+        List<ConferenceWorkArrange> conferenceWorkArrangeList = this.list(new LambdaQueryWrapper<ConferenceWorkArrange>()
+                .eq(ConferenceWorkArrange::getRezId,conferenceWorkArrangeEditParam.getRezId()));
+        Map<String,ConferenceWorkArrange> oldMap = new HashMap<>();
+        conferenceWorkArrangeList.forEach(work -> oldMap.put(work.getId(),work));
+
+        List<ConferenceWorkArrange> updateOrSaveWork = new ArrayList<>();
+        List<ConferenceWorkArrange> createScheduleList = new ArrayList<>();
+        conferenceWorkArrangeEditParam.getConferenceWorkArrangeEditList().forEach(param -> {
+            if(StringUtils.isEmpty(param.getId())){
+                ConferenceWorkArrange conferenceWorkArrange = BeanUtil.toBean(param, ConferenceWorkArrange.class);
+                updateOrSaveWork.add(conferenceWorkArrange);
+                createScheduleList.add(conferenceWorkArrange);
+            }else if(ObjectUtil.isNotEmpty(oldMap.get(param.getId()))){
+                ConferenceWorkArrange conferenceWorkArrange = oldMap.get(param.getId());
+                BeanUtil.copyProperties(param, conferenceWorkArrange);
+                updateOrSaveWork.add(conferenceWorkArrange);
+            }
+        });
+
+        Map<String,String> newMap = new HashMap<>();
+        conferenceWorkArrangeEditParam.getConferenceWorkArrangeEditList().forEach(param -> {
+            if(StringUtils.isEmpty(param.getId())){ newMap.put(param.getId(),param.getId());}
+        });
+        List<ConferenceWorkArrange> deleteWorkList = new ArrayList<>();
+        conferenceWorkArrangeList.forEach(work -> {
+            if(ObjectUtil.isEmpty(newMap.get(work.getId()))){deleteWorkList.add(work);}
+        });
+        this.saveOrUpdateBatch(updateOrSaveWork);
+        this.removeBatchByIds(deleteWorkList.stream().map(work -> work.getId()).collect(Collectors.toList()));
+
+        /**  新建日程 */
+        createScheduleList.forEach(schedule -> asyCreateSchedule(schedule));
+        /** 删除日程 */
+        deleteWorkList.forEach(delete -> {
+            if(StringUtils.isNotEmpty(delete.getScheduleId()) && StringUtils.isNotEmpty(delete.getDutyUserId())){
+                try{
+                    startDingDingScheduleCore.deleteScheduleForUserId( appKey, appSecret,delete.getDutyUserId(), delete.getScheduleId());
+                }catch (Exception e){
+                    log.error("删除日程失败！e:"+e.getMessage());
+                }
+            }else{
+                log.error("日程ID和责任人ID不能为空值！arrageId："+delete.getId());
+            }
+        });
     }
 
 
