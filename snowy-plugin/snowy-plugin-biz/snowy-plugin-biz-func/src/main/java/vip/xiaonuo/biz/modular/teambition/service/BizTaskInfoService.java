@@ -12,6 +12,8 @@
  */
 package vip.xiaonuo.biz.modular.teambition.service;
 
+import cn.hutool.json.JSONObject;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.teambition.ThirdParam.ThirdTaskPageParam;
@@ -88,5 +90,10 @@ public interface BizTaskInfoService extends IService<BizTaskInfo> {
      * @date  2023/12/18 11:40
      */
     void thirdAdd(BizTaskInfoAddParam bizTaskInfoAddParam);
+
+    Boolean addTaskInfo(String jsonObject);
+
+    /** 第三方分页查询数据*/
+    JSONArray thirdPage(String proId, String proType);
 
 }

@@ -49,4 +49,8 @@ public class ConferenceWorkArrangeAdd {
     @ApiModelProperty(value = "责任部门ID", position = 10)
     @NotNull(message = "责任人不能为空")
     private String dutyOrgId;
+
+    /** 任务优先级：0 最低，1较低，2普通，3较高，4 最高*/
+    @ApiModelProperty(value = "任务优先级(默认为最低 0)：0 最低，1 较低，2 普通，3 较高，4 最高", position = 11)
+    private String taskPriority;
 }

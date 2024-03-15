@@ -77,10 +77,6 @@ public class BizTaskInfoEditParam {
     @ApiModelProperty(value = "参与人集合，参与人ID，逗号隔开", position = 12)
     private String taskParticipants;
 
-    /** 任务模式(公开或私密,默认为公开 0)：0 公开，1 私密 */
-    @ApiModelProperty(value = "任务模式(公开或私密,默认为公开 0)：0 公开，1 私密", position = 13)
-    private String taskModel;
-
     /** 数据权限控制字段 */
     @ApiModelProperty(value = "数据权限控制字段", position = 14)
     private String dataScopeId;

@@ -21,7 +21,9 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -50,6 +52,7 @@ import vip.xiaonuo.biz.modular.teambition.service.BizTaskProjectService;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.BizTaskCommentService;
 import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
+import vip.xiaonuo.biz.modular.teambition.vo.BizWorkTaskInfoVo;
 import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
@@ -275,9 +278,6 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             BizUser bizUser = bizUserService.getById(bizTaskInfo.getBelonger());
             dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
             bizTaskInfo.setBelongerOrg(bizUser.getOrgId());
-        }
-        if(ObjectUtil.isEmpty(bizTaskInfo.getTaskModel())){//任务是否公开，默认公开
-            bizTaskInfo.setTaskModel(BizTaskGroupEnum.ZRROR.getValue());
         }
     }
     /** 任务名称：taskName
@@ -561,5 +561,34 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         this.save(bizTaskInfo);
         sendAddMsg(bizTaskInfo);
         putTaskComment(bizTaskInfo,infoStatus);
+    }
+
+    @Override
+    public Boolean addTaskInfo(String jsonObject){
+        List<BizTaskInfo> bizTaskInfoList = new ArrayList<>();
+        try{
+            JSONArray jsonArray = new JSONArray(jsonObject);
+            List<BizWorkTaskInfoVo> bizWorkTaskInfoVoList = jsonArray.toList(BizWorkTaskInfoVo.class);
+            bizWorkTaskInfoVoList.forEach(vo -> {
+                BizTaskInfo bizTaskInfo = BeanUtil.toBean(vo,BizTaskInfo.class);
+                bizTaskInfoList.add(bizTaskInfo);
+            });
+        }catch (Exception e){
+            log.error("新建任务失败！e:"+e.getMessage());
+            return false;
+        }
+        return this.saveBatch(bizTaskInfoList);
+    }
+
+    /** 第三方分页数据*/
+    @Override
+    public com.alibaba.fastjson.JSONArray thirdPage(String proId, String proType) {
+        if(StringUtils.isEmpty(proId) || StringUtils.isEmpty(proType)){
+            return new com.alibaba.fastjson.JSONArray();
+        }
+        List<BizTaskInfo> bizTaskInfoList = this.list(new LambdaQueryWrapper<BizTaskInfo>()
+                .eq(BizTaskInfo::getProId,proId).eq(BizTaskInfo::getProType,proType));
+        com.alibaba.fastjson.JSONArray jsonArray = (com.alibaba.fastjson.JSONArray) JSON.toJSON(bizTaskInfoList);
+        return jsonArray;
     }
 }
