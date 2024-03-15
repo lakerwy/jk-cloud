@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 
 import java.util.List;
@@ -78,4 +79,11 @@ public interface SalaryAttendService extends IService<SalaryAttend> {
      * @date  2024/02/26 09:26
      **/
     SalaryAttend queryEntity(String id);
+
+    /**
+     * 获取某人 某年|某月 考勤数据
+     * @param empParam
+     * @return
+     */
+    List<SalaryAttendVo> empAttend(EmpSalaryParam empParam);
 }

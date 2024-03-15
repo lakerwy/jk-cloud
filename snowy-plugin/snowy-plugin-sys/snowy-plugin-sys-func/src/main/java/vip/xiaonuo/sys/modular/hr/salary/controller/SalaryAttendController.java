@@ -30,12 +30,14 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAttendService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 工资系统-月度考勤表控制器
@@ -127,5 +129,19 @@ public class SalaryAttendController {
     @GetMapping("/sys/hr/salary/attend/detail")
     public CommonResult<SalaryAttendVo> detail(@Valid SalaryAttendIdParam salaryAttendIdParam) {
         return CommonResult.data(salaryAttendService.detail(salaryAttendIdParam));
+    }
+
+
+    /**
+     * 获取工资系统-月度考勤数据【个人】
+     *
+     * @author yong.ye
+     * @date  2024/02/26 09:26
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取工资系统-月度考勤数据【个人】")
+    @GetMapping("/sys/hr/salary/attend/empAttend")
+    public CommonResult<List<SalaryAttendVo>> empAttend(EmpSalaryParam empParam) {
+        return CommonResult.data(salaryAttendService.empAttend(empParam));
     }
 }

@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -31,6 +32,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAttendService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
@@ -135,6 +137,17 @@ public class SalaryAttendServiceImpl extends ServiceImpl<SalaryAttendMapper, Sal
             throw new CommonException("工资系统-月度考勤表不存在，id值为：{}", id);
         }
         return salaryAttend;
+    }
+
+    @Override
+    public List<SalaryAttendVo> empAttend(EmpSalaryParam empParam) {
+        if(ObjectUtil.isEmpty(empParam.getYear()) && ObjectUtil.isEmpty(empParam.getYearMonth())){
+            throw new CommonException("请输入所属年月");
+        }
+        String yearMonth = ObjectUtil.isNotEmpty(empParam.getYearMonth()) ? empParam.getYearMonth() : empParam.getYear();
+        String encryptUserId = AesUtil.encrypt(StpLoginUserUtil.getLoginUser().getId());
+        List<SalaryAttendVo> salaryAttendVos = salaryAttendMapper.getEmpAttendList(yearMonth,encryptUserId);
+        return AesUtil.decryptGZList(salaryAttendVos);
     }
 
 }

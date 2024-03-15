@@ -237,6 +237,7 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         result.setZbList(standardList.stream().filter(x-> UserTypeEnum.ZB.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setFgsList(standardList.stream().filter(x-> UserTypeEnum.FGS.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setWpList(standardList.stream().filter(x-> UserTypeEnum.WP.getValue().equals(x.getUserType())).collect(Collectors.toList()));
+        result.setLzList(standardList.stream().filter(x-> UserTypeEnum.LZ.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         return result;
     }
 }

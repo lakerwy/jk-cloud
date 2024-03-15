@@ -73,7 +73,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
     /**
      * 员工类别 范围
      */
-    private static final String[] USER_TYPE_LIST = {"总部","分公司","外聘人员"};
+    private static final String[] USER_TYPE_LIST = {"总部","分公司","外聘人员","离职人员"};
 
     /**
      * 员工类别 范围 - 总部|分公司 匹配校验

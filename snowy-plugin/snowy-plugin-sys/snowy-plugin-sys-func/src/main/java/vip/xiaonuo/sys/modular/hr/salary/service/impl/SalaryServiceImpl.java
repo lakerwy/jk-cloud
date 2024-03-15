@@ -152,7 +152,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
 
     @Override
     public List<Salary> empSalary(EmpSalaryParam empSalaryParam) {
-        if(ObjectUtil.isEmpty(empSalaryParam.getYear()) || ObjectUtil.isEmpty(empSalaryParam.getYearMonth())){
+        if(ObjectUtil.isEmpty(empSalaryParam.getYear()) && ObjectUtil.isEmpty(empSalaryParam.getYearMonth())){
             throw new CommonException("请输入所属年月");
         }
         QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
@@ -405,7 +405,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                 //考勤 ： 全勤奖|考勤扣款
                 SalaryAttend attend = attendData.stream().filter(x -> item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
                 if (ObjectUtil.isNotEmpty(attend)) {
-                    SumAttendData sumAttendData = ComputeUtil.computeAttendGZ(attend,item,insData,gjjData);
+                    SumAttendData sumAttendData = ComputeUtil.computeAttendGZ(attend,item);
                     //全勤奖
                     item.setFullAmount(ComputeUtil.setScale(sumAttendData.getFullAmount(),2));
                     item.setSickAmount(ComputeUtil.setScale(sumAttendData.getSickAmount(),2));
@@ -413,6 +413,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                     item.setLateAmount(ComputeUtil.setScale(sumAttendData.getLateAmount(),2));
                     item.setMinerAmount(ComputeUtil.setScale(sumAttendData.getMinerAmount(),2));
                     item.setMaterAmount(ComputeUtil.setScale(sumAttendData.getMaterAmount(),2));
+                    item.setInOutAmount(ComputeUtil.setScale(sumAttendData.getInOutAmount(),2));
                 }
 
                 //税前补发补扣|其他税后补发补扣
@@ -458,7 +459,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             item.setGrossPayAmount(item.getBasicAmount().add(item.getPostAmount()).add(item.getRealMeritAmount()).add(item.getRegisterAmount())
                     .add(item.getWorkAgeAmount()).add(item.getFullAmount()).add(item.getTeacherAmount()).add(item.getDutyAmount())
                     .subtract(item.getSickAmount()).subtract(item.getWorkAmount()).subtract(item.getLateAmount())
-                    .subtract(item.getMinerAmount()).subtract(item.getMaterAmount()).add(item.getAddAmount()).subtract(item.getMinusAmount()));
+                    .subtract(item.getMinerAmount()).subtract(item.getMaterAmount()).add(item.getAddAmount()).subtract(item.getMinusAmount()).subtract(item.getInOutAmount()));
 
             //【个人社保扣除|个人公积金扣款】 - 已生成 - 匹配 - 专项附加扣除
             SalaryTax tax = taxData.stream().filter(x -> item.getCompany().equals(x.getUnitName()) && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);

@@ -170,7 +170,7 @@ public class ComputeUtil {
      * 根据考勤数据，计算考勤工资
      * @return SumAttendData
      */
-    public static SumAttendData computeAttendGZ(SalaryAttend attend, SalaryVo salaryVo, List<SalaryIns> insData, List<SalaryGjj> gjjData){
+    public static SumAttendData computeAttendGZ(SalaryAttend attend, SalaryVo salaryVo){
         //考勤扣款
         SumAttendData attendData = new SumAttendData();
         //全勤奖
@@ -215,7 +215,9 @@ public class ComputeUtil {
         BigDecimal noWorkAmount = salaryVo.getStandardAmount()
                 .multiply(BigDecimal.valueOf((attend.getUpMissNum()+attend.getDownMissNum())/2))
                 .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
-        attendData.setWorkAmount(workAmount.add(noWorkAmount));
+        BigDecimal tmpTotalWorkAmount = workAmount.add(noWorkAmount);
+        BigDecimal totalWorkAmount = tmpTotalWorkAmount.compareTo(salaryVo.getStandardAmount()) > 0 ? salaryVo.getStandardAmount() : tmpTotalWorkAmount;
+        attendData.setWorkAmount(totalWorkAmount);
         /**
          * 迟到
          * A类迟到超2次：
@@ -260,24 +262,29 @@ public class ComputeUtil {
         attendData.setMinerAmount(minerAmount);
         /**
          * 产假
-         * 全月产假扣款=月工资标准-个人社保小计-个人公积金-公积金差额(合计额)
-         * 非全月产假=月工资标准/21.75*产假天数
-         * 产假天数=应出勤天数，则为全月产假扣款，否则为非全月产假扣款
+         * 产假扣款=月工资标准/21.75*实扣产假天数
+         *
+         * 特别说明：不用再区分全月和非全月
          */
-        BigDecimal materAmount = BIG_DECIMAL_0;
-        if(attend.getRealMaterDay() == attend.getRequiredDay()){
-            //获取 个人社保小计-个人公积金-公积金差额
-            SumInsGjjVo sumInsGjjVo = getSumInsGjj(attend.getStandardId(),insData,gjjData);
-            materAmount = salaryVo.getStandardAmount()
-                    .subtract(sumInsGjjVo.getInsPerAmount())
-                    .subtract(sumInsGjjVo.getGjjPerAmount())
-                    .subtract(sumInsGjjVo.getGjjChaAmount());
-        }else{
-            materAmount = salaryVo.getStandardAmount()
+        BigDecimal materAmount = salaryVo.getStandardAmount()
                     .multiply(BigDecimal.valueOf(attend.getRealMaterDay()))
                     .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
-        }
         attendData.setMaterAmount(materAmount);
+        /**
+         * 扣款=月工资标准-月工资标准/21.75*应计薪天数）
+         *
+         * 说明：
+         * 1、工资表新增当月入离职未满勤扣款。
+         * 2、应计薪天数在考勤报表中有数据
+         * 3、考勤报表中应出勤字段改为应计薪天数
+         */
+        BigDecimal inOutAmount = salaryVo.getStandardAmount()
+                .subtract(
+                        salaryVo.getStandardAmount()
+                                .multiply(BigDecimal.valueOf(attend.getRequiredDay()))
+                                .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP)
+                );
+        attendData.setInOutAmount(inOutAmount);
         return attendData;
     }
 

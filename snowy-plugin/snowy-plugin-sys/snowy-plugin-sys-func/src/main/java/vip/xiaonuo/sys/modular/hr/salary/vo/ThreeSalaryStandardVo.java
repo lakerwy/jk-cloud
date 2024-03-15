@@ -29,8 +29,12 @@ public class ThreeSalaryStandardVo {
     @ApiModelProperty(value = "分公司 - 人员月工资标准列表 ", position = 2)
     private List<SalaryStandard> fgsList;
 
-    /** 外聘 - 人员月工资标准列表 */
-    @ApiModelProperty(value = "外聘 - 人员月工资标准列表 ", position = 3)
+    /** 外聘人员 - 人员月工资标准列表 */
+    @ApiModelProperty(value = "外聘人员 - 人员月工资标准列表 ", position = 3)
     private List<SalaryStandard> wpList;
+
+    /** 离职人员 - 人员月工资标准列表 */
+    @ApiModelProperty(value = "离职人员 - 人员月工资标准列表 ", position = 4)
+    private List<SalaryStandard> lzList;
 
 }

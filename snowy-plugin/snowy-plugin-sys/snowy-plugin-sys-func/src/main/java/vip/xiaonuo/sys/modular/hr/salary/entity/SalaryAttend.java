@@ -91,8 +91,8 @@ public class SalaryAttend {
     @ApiModelProperty(value = "是否全勤", position = 15)
     private String isFull;
 
-    /** 应勤天数 */
-    @ApiModelProperty(value = "应勤天数", position = 16)
+    /** 应勤天数 -> 应计薪天数 */
+    @ApiModelProperty(value = "应勤天数 -> 应计薪天数", position = 16)
     private Float requiredDay;
 
     /** 实勤天数 */

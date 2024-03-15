@@ -28,7 +28,9 @@ public enum UserTypeEnum {
     /** 分公司 */
     FGS("分公司"),
     /** 外聘人员 */
-    WP("外聘人员");
+    WP("外聘人员"),
+    /** 离职人员 */
+    LZ("离职人员");
 
     private final String value;
 

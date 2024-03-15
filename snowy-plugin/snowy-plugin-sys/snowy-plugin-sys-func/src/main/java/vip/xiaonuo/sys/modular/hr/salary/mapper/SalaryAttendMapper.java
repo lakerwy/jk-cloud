@@ -20,6 +20,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 
+import java.util.List;
+
 /**
  * 工资系统-月度考勤表Mapper接口
  *
@@ -42,4 +44,10 @@ public interface SalaryAttendMapper extends BaseMapper<SalaryAttend> {
      * @return
      */
     SalaryAttendVo getDetailById(String id);
+
+    /**
+     * 月度考勤数据【个人】
+     * @return
+     */
+    List<SalaryAttendVo> getEmpAttendList(String yearMonth,String userId);
 }

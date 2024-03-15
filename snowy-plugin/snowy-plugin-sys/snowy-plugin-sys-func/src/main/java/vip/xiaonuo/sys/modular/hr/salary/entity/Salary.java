@@ -187,6 +187,10 @@ public class Salary {
     @ApiModelProperty(value = "考勤扣款-产假", position = 35)
     private BigDecimal materAmount;
 
+    /** 当月入离职未满勤扣款 */
+    @ApiModelProperty(value = "当月入离职未满勤扣款", position = 35)
+    private BigDecimal inOutAmount;
+
     /** 税前补发补扣-其他税前补发 */
     @ApiModelProperty(value = "税前补发补扣-其他税前补发", position = 36)
     private BigDecimal addAmount;
