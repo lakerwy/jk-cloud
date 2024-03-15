@@ -210,7 +210,6 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             salaryPayService.saveBatch(importData);
         }else if(SalaryTypeEnum.EMP_SALARY.getValue().equals(input.getType())){
             List<Salary> importData = BeanUtil.copyToList(importTempData,Salary.class);
-            importData.forEach(x->x.setType(SalaryTypeEnum.STANDARD.getValue())); //由于工数据由工资标准数据生成（类型默认未 月工资标准，导入时保持一致）
             salaryService.saveBatch(importData);
         }
         return true;
