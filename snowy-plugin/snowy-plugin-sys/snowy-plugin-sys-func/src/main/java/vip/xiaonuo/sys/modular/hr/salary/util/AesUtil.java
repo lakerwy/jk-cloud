@@ -19,7 +19,7 @@ public class AesUtil {
     /**
      * AES KEY
      */
-    private static final String AES_KEY = "@GZ*9@LJjianke66";
+    private static final String AES_KEY = "Jianke@2024*GZ#!";
 
     /**
      * 【工资模块】需要 加解密 的字段名 列表
@@ -33,6 +33,9 @@ public class AesUtil {
         AES_CRYPT_LIST.add("position");
         AES_CRYPT_LIST.add("userId");
         AES_CRYPT_LIST.add("personnelId");
+        AES_CRYPT_LIST.add("firstOrgId");
+        AES_CRYPT_LIST.add("orgId");
+        AES_CRYPT_LIST.add("positionId");
     }
 
     /**
@@ -68,7 +71,6 @@ public class AesUtil {
         }
         try {
             // 生成16字节密钥
-//            byte[] keyBytes = SecureUtil.generateKey(SymmetricAlgorithm.AES.getValue(), 16).getEncoded();
             byte[] keyBytes = AES_KEY.getBytes(StandardCharsets.UTF_8);
             // 创建AES对象，也可以直接使用密钥字符串
             AES aes = SecureUtil.aes(keyBytes);
