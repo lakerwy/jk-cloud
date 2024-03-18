@@ -90,7 +90,7 @@ public class ComputeUtil {
     /**
      * Float value = 2
      */
-    private static final Float FLOAT_2 = 2F;
+    private static final Float FLOAT_2 = 2.0F;
     /**
      * Int value = 2
      */
@@ -328,7 +328,7 @@ public class ComputeUtil {
      * @return
      */
     public static BigDecimal setScale(BigDecimal data,int scaleNum){
-        return data.setScale(2,RoundingMode.HALF_UP);
+        return data.setScale(scaleNum,RoundingMode.HALF_UP);
     }
 
 
