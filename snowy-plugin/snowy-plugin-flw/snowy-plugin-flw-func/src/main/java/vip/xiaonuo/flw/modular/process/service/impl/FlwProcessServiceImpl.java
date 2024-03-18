@@ -392,18 +392,34 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             }
         }
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
+        List<FlwProcessResult> flwProcessResultList = new ArrayList<>();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();
-        List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
+        long totalSize = 0;
+        while (totalSize < size) {
+            List<FlwProcessResult> tempList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
+            int tempSize = tempList.size();
+
+            // 将本次查询结果添加到总结果列表中
+            flwProcessResultList.addAll(tempList);
+            totalSize += tempSize;
+            current += tempSize;
+
+            // 如果本次查询结果为空或者数量小于pageSize，则退出循环
+            if (tempSize == 0 || tempSize < size) {
+                break;
+            }
+        }
+        //List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
         defaultPage.setTotal(historicProcessInstanceQuery.count());
         defaultPage.setRecords(flwProcessResultList);
         return defaultPage;
     }
 
     @NotNull
-    private List<FlwProcessResult> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, long current, long size) {
+    private List<FlwProcessResult> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, long current, long size,String stateCode) {
         return historicProcessInstanceQuery
-                .listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
+                .listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream().filter(historicProcessInstance->historicProcessInstance.getState().equals(stateCode))
                 .map(historicProcessInstance -> {
                     FlwProcessResult flwProcessResult = new FlwProcessResult();
                     flwProcessResult.setId(historicProcessInstance.getId());

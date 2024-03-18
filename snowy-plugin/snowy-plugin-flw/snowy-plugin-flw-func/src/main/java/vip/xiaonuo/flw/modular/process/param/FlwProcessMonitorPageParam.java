@@ -86,4 +86,8 @@ public class FlwProcessMonitorPageParam {
 
     private boolean closeDate; //关闭时间条件的标志
 
+    /** 状态码 */
+    @ApiModelProperty(value = "状态码", position = 21)
+    private String stateCode;
+
 }
