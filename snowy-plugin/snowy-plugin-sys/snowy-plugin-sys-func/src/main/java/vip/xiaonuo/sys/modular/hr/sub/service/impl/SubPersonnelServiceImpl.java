@@ -121,6 +121,9 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
         if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getInsUnit())) {
             queryWrapper.lambda().like(SubPersonnel::getInsUnit, subPersonnelPageParam.getInsUnit());
         }
+        if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getHighTitleProfession())){
+            queryWrapper.lambda().like(SubPersonnel::getHighTitleProfession,subPersonnelPageParam.getHighTitleProfession());
+        }
         if(ObjectUtil.isNotEmpty(subPersonnelPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(SubPersonnel::getName,subPersonnelPageParam.getSearchKey())
                     .or().like(SubPersonnel::getDept,subPersonnelPageParam.getSearchKey())

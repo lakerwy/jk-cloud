@@ -112,4 +112,7 @@ public class SubPersonnelPageParam {
     @ApiModelProperty(value = "社保单位")
     private String insUnit;
 
+    /** 最高职称专业 */
+    @ApiModelProperty(value = "最高职称专业")
+    private String highTitleProfession;
 }
