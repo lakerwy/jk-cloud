@@ -45,7 +45,6 @@ import java.util.List;
  * @date  2024/03/08 08:39
  **/
 @Service
-@DS("slave_1")
 public class AuthThirdUserServiceImpl extends ServiceImpl<AuthThirdUserMapper, AuthThirdUser> implements AuthThirdUserService {
 
     @Override

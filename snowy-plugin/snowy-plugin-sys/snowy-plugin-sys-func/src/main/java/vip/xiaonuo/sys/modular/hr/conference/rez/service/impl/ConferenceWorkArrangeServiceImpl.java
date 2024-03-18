@@ -144,7 +144,7 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
             try {
                 createSchedule(conferenceWorkArrange);
             } catch (Exception e) {
-                log.error("创建日程失败");
+                log.error("创建日程失败!e:"+e.getMessage());
             }
             return "异步创建日程";
         });
@@ -166,6 +166,7 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         dingDingScheduleVo.setSummary(conferenceWorkArrange.getWorkArrange());
         dingDingScheduleVo.setDescription(conferenceWorkArrange.getRezTheme());
         dingDingScheduleVo.setId(conferenceWorkArrange.getId());
+        dingDingScheduleVo.setCreateUser(conferenceWorkArrange.getCreateUser());
         String scheduleId = startDingDingScheduleCore.addDingDingSchedule(dingDingScheduleVo, appKey, appSecret);
         if(StringUtils.isNotEmpty(scheduleId)){
             conferenceWorkArrange.setScheduleId(scheduleId);

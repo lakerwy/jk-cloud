@@ -3,7 +3,6 @@ package vip.xiaonuo.dev.modular.dingDingSchedule.util;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
-import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
@@ -27,7 +26,6 @@ import java.util.stream.Collectors;
 
 @Component
 @Slf4j
-@DS("slave_1")
 public class StartDingDingScheduleCore {
 
     private static final String DD_CATEGORY = "DingDing";
@@ -75,6 +73,9 @@ public class StartDingDingScheduleCore {
                 unionCreateId = unionIds.get(0);//不存在，则默认第一个
             }
             dingDingScheduleVo.setUnionCreateId(unionCreateId);
+            dingDingScheduleVo.setUnionIds(unionIds);
+            dingDingScheduleVo.setXAcsDingtalkAccessToken(xAcsDingtalkAccessToken);
+            dingDingScheduleVo.setReminderMinutes(480);//暂定前一天五点提醒
             return dingDingScheduleService.putHttDingDingSchedule(dingDingScheduleVo);
         }catch (Exception e){
             throw new CommonException("新建日程失败！e:"+e.getMessage()+",id:"+dingDingScheduleVo.getId());
