@@ -29,9 +29,9 @@
                             WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                        ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
-                  left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1'
-                  left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1'
-                      where cert.DELETE_FLAG='NOT_DELETE') a
+                  left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1' and b.DELETE_FLAG='NOT_DELETE'
+                  left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1' and c.`STATUS` in ('0','1') and c.DELETE_FLAG='NOT_DELETE'
+              where cert.DELETE_FLAG='NOT_DELETE') a
               left join DEV_DICT d1 on a.CERT_TYPE_ID = d1.ID and d1.CATEGORY='BIZ'
               left join DEV_DICT d2 on a.LEVEL_ID = d2.ID and d2.CATEGORY='BIZ'
             ${ew.customSqlSegment}
@@ -46,8 +46,8 @@
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                           ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
-                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1'
-                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1'
+                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1' and b.DELETE_FLAG='NOT_DELETE'
+                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1' and c.`STATUS` in ('0','1') and c.DELETE_FLAG='NOT_DELETE'
               where cert.DELETE_FLAG='NOT_DELETE') a
             ${ew.customSqlSegment}
     </select>
@@ -62,8 +62,8 @@
                           WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
                           ELSE ''  END AS certStage
               from HR_CERT_MANAGE cert
-                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1'
-                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1'
+                       left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1' and b.DELETE_FLAG='NOT_DELETE'
+                       left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1' and c.`STATUS` in ('0','1') and c.DELETE_FLAG='NOT_DELETE'
               where cert.DELETE_FLAG='NOT_DELETE') a
                  left join DEV_DICT d1 on a.CERT_TYPE_ID = d1.ID and d1.CATEGORY='BIZ'
                  left join DEV_DICT d2 on a.LEVEL_ID = d2.ID and d2.CATEGORY='BIZ'
