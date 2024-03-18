@@ -24,8 +24,8 @@ import lombok.Getter;
 public enum ConferenceRezEnum {
 
     /** 测试 */
-    TEST("TEST");
-
+    TEST("TEST"),
+    PRO_TYPE("REZ_CONFERENCE");
     private final String value;
 
     ConferenceRezEnum(String value) {

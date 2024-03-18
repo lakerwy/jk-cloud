@@ -19,6 +19,8 @@ import cn.hutool.core.date.DatePattern;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import com.alibaba.fastjson.JSON;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -27,14 +29,19 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.BizTaskGroupFeignClient;
+import vip.xiaonuo.common.enums.CommonSnFormatEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonSnUtil;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dev.modular.dingDingSchedule.param.DingDingScheduleParam;
 import vip.xiaonuo.dev.modular.dingDingSchedule.util.StartDingDingScheduleCore;
 import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceWorkArrange;
+import vip.xiaonuo.sys.modular.hr.conference.rez.enums.ConferenceRezEnum;
 import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceWorkArrangeMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeAddParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeEditParam;
@@ -42,8 +49,11 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangeIdPa
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.ConferenceWorkArrangePageParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceWorkArrangeService;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceWorkArrangeAdd;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.WorkTaskInfoVo;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
+import com.alibaba.fastjson.JSONArray;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
@@ -72,30 +82,33 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
     ConferenceRezService conferenceRezService;
     @Resource
     SysUserService sysUserService;
+    @Resource
+    BizTaskGroupFeignClient bizTaskGroupFeignClient;
 
     @Override
     public Page<ConferenceWorkArrange> page(ConferenceWorkArrangePageParam conferenceWorkArrangePageParam) {
-        QueryWrapper<ConferenceWorkArrange> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getRezId())) {
-            queryWrapper.lambda().eq(ConferenceWorkArrange::getRezId, conferenceWorkArrangePageParam.getRezId());
+        List<ConferenceWorkArrange> conferenceWorkArrangeList = new ArrayList<>();
+        try{
+            JSONArray taskInfoListJson = bizTaskGroupFeignClient.getTaskInfoPage(conferenceWorkArrangePageParam.getRezId(),ConferenceRezEnum.PRO_TYPE.getValue());
+            cn.hutool.json.JSONArray jsonArray = new cn.hutool.json.JSONArray(taskInfoListJson);
+            List<WorkTaskInfoVo> bizWorkTaskInfoVoList = jsonArray.toList(WorkTaskInfoVo.class);
+            bizWorkTaskInfoVoList.forEach(vo -> {
+                ConferenceWorkArrange conferenceWorkArrange = new ConferenceWorkArrange();
+                conferenceWorkArrange.setId(vo.getId());
+                conferenceWorkArrange.setStartTime(vo.getTaskStartTime());
+                conferenceWorkArrange.setFinishTime(vo.getTaskEndTime());
+                conferenceWorkArrange.setWorkArrange(vo.getTaskName());
+                conferenceWorkArrange.setRezId(vo.getProId());
+                conferenceWorkArrange.setDutyUserId(vo.getBelonger());
+                conferenceWorkArrange.setDutyOrgId(vo.getBelongerOrg());
+                conferenceWorkArrangeList.add(conferenceWorkArrange);
+            });
+        }catch (Exception e){
+            log.error("查询任务数据失败！");
         }
-        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyOrgId())) {
-            queryWrapper.lambda().eq(ConferenceWorkArrange::getDutyOrgId, conferenceWorkArrangePageParam.getDutyOrgId());
-        }
-        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getDutyUserId())) {
-            queryWrapper.lambda().eq(ConferenceWorkArrange::getDutyUserId, conferenceWorkArrangePageParam.getDutyUserId());
-        }
-        if(ObjectUtil.isNotEmpty(conferenceWorkArrangePageParam.getWorkArrange())) {
-            queryWrapper.lambda().like(ConferenceWorkArrange::getWorkArrange, conferenceWorkArrangePageParam.getWorkArrange());
-        }
-        if(ObjectUtil.isAllNotEmpty(conferenceWorkArrangePageParam.getSortField(), conferenceWorkArrangePageParam.getSortOrder())) {
-            CommonSortOrderEnum.validate(conferenceWorkArrangePageParam.getSortOrder());
-            queryWrapper.orderBy(true, conferenceWorkArrangePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
-                    StrUtil.toUnderlineCase(conferenceWorkArrangePageParam.getSortField()));
-        } else {
-            queryWrapper.lambda().orderByAsc(ConferenceWorkArrange::getId);
-        }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<ConferenceWorkArrange> page = new Page<ConferenceWorkArrange>();
+        page.setRecords(conferenceWorkArrangeList);
+        return page;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -116,10 +129,11 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
             conferenceWorkArrange.setIsSchedule(0);//未建日程
             conferenceWorkArrangeList.add(conferenceWorkArrange);
         });
-        boolean isSaveTrue = false;
+        boolean isSaveTrue = true;
         if(CollectionUtil.isNotEmpty(conferenceWorkArrangeList)){
             isSaveTrue = this.saveBatch(conferenceWorkArrangeList);
         }
+        isSaveTrue = addTaskInfoForRez(conferenceWorkArrangeAddParam.getWorkArrangeAddList(),conferenceRez);
         if(isSaveTrue){
             conferenceWorkArrangeList.forEach(conferenceWorkArrange -> asyCreateSchedule(conferenceWorkArrange));
         }
@@ -209,7 +223,6 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         });
     }
 
-
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<ConferenceWorkArrangeIdParam> conferenceWorkArrangeIdParamList) {
@@ -240,5 +253,33 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
             throw new CommonException("会议模块-工作部署不存在，id值为：{}", id);
         }
         return conferenceWorkArrange;
+    }
+
+    private Boolean addTaskInfoForRez(List<ConferenceWorkArrangeAdd> workArrangeAddList,ConferenceRez conferenceRez){
+        List<WorkTaskInfoVo> workTaskInfoVoList = new ArrayList<>();
+        workArrangeAddList.forEach(work -> {
+            WorkTaskInfoVo workTaskInfoVo = new WorkTaskInfoVo();
+            workTaskInfoVo.setProId(conferenceRez.getId());//第三方ID
+            workTaskInfoVo.setProType(ConferenceRezEnum.PRO_TYPE.getValue());//第三方类别
+            workTaskInfoVo.setTaskRemark(conferenceRez.getTheme());//任务备注 - 会议主题
+            workTaskInfoVo.setTaskName(work.getWorkArrange());//任务名称 - 任务部署
+            workTaskInfoVo.setBelonger(work.getDutyUserId());//任务执行者
+            workTaskInfoVo.setBelongerOrg(work.getDutyOrgId());//任务执行部门
+            workTaskInfoVo.setLeadId(work.getDutyUserId()); //责任人
+            workTaskInfoVo.setLeadOrg(work.getDutyOrgId());//责任部门
+            workTaskInfoVo.setTaskStatus("1");//任务进行中
+            workTaskInfoVo.setTaskStartTime(work.getStartTime());
+            workTaskInfoVo.setTaskEndTime(work.getFinishTime());
+            String sn = CommonSnUtil.GenerateSn("RW", "", CommonSnFormatEnum.SNYYYYMM0001.getValue());
+            workTaskInfoVo.setSn(sn);
+            workTaskInfoVo.setTaskPriority(StringUtils.isNotEmpty(work.getTaskPriority()) ? work.getTaskPriority() : "0");//任务优先级(默认为最低 0)：0 最低，1 较低，2 普通，3 较高，4 最高
+            workTaskInfoVo.setTaskParticipants(work.getDutyUserId());//协办人员
+            workTaskInfoVoList.add(workTaskInfoVo);
+        });
+        if(CollectionUtil.isNotEmpty(workTaskInfoVoList)){
+            JSONArray jsonArray = (JSONArray) JSON.toJSON(workTaskInfoVoList);
+            return bizTaskGroupFeignClient.addTaskInfo(jsonArray.toString());
+        }
+        return false;
     }
 }
