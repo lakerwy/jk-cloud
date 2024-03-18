@@ -59,7 +59,7 @@ public class DefaultDocumentConfigurer implements DocumentConfigurer<DefaultDocu
         document.getInfo().setFavorite(wrapper.getFavorite());  // set the favorite parameter to the document config
 
         String key =  serviceConverter.  // get the document key
-                        generateRevisionId(userFile.getId() + userFile.getCreateTime());
+                generateRevisionId(userFile.getId() + userFile.getUpdateTime());  //根据修改时间生成key ,保证每次修改后，key 都不一样
 
         document.setKey(key);  // set the key to the document config
         document.setPermissions(permission);  // set the permission parameters to the document config

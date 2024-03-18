@@ -15,7 +15,8 @@ import java.io.InputStream;
 public class LocalStorageWriter extends Writer {
     @Override
     public void write(InputStream inputStream, WriteFile writeFile) {
-        try (FileOutputStream out = new FileOutputStream(FileCenterUtil.getStaticPath() + writeFile.getFileUrl())){
+ //       try (FileOutputStream out = new FileOutputStream(FileCenterUtil.getStaticPath() + writeFile.getFileUrl())){
+        try (FileOutputStream out = new FileOutputStream(writeFile.getFileUrl())) {
             int read;
             final byte[] bytes = new byte[1024];
             while ((read = inputStream.read(bytes)) != -1) {
