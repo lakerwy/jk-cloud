@@ -30,6 +30,7 @@ import vip.xiaonuo.auth.modular.login.param.AuthGetPhoneValidCodeParam;
 import vip.xiaonuo.auth.modular.login.param.AuthPhoneValidCodeLoginParam;
 import vip.xiaonuo.auth.modular.login.result.AuthPicValidCodeResult;
 import vip.xiaonuo.auth.modular.login.service.AuthService;
+import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
