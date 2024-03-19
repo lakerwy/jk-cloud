@@ -59,4 +59,9 @@ public class DevFeignProvider implements DevFeign {
     public void removeTenDataForCategoryId(@RequestParam("tenId") String tenId) {
         devApiProvider.removeTenDataForCategoryId(tenId);
     }
+    @Override
+    @RequestMapping("/feign/dev/addScheduleForWork")
+    public void addScheduleForWork(@RequestParam String id){
+        //BizTaskInfo bizTaskInfo = new BizTaskInfo();
+    }
 }

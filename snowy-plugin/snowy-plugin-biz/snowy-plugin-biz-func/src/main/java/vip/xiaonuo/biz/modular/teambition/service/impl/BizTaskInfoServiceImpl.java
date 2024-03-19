@@ -30,7 +30,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -64,6 +63,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.dev.feign.DevFeign;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -93,7 +93,8 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     BizTaskFileService bizTaskFileService;
     @Resource
     private CommonCacheOperator commonCacheOperator;
-
+    @Resource
+    DevFeign devFeign;
 
     @Override
     public Page<BizTaskInfo> page(BizTaskInfoPageParam bizTaskInfoPageParam) {
@@ -143,8 +144,6 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             queryWrapper.lambda().in(BizTaskInfo::getDataScopeId, loginUserDataScope);
-        } else {
-            queryWrapper.lambda().eq(BizTaskInfo::getCreateUser, StpUtil.getLoginIdAsString());
         }
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getSearchKey())) {
             queryWrapper.lambda().and(q -> q.like(BizTaskInfo::getTaskName, bizTaskInfoPageParam.getSearchKey()));
@@ -563,6 +562,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         putTaskComment(bizTaskInfo,infoStatus);
     }
 
+    /**  会议新增任务 - 特殊处理 */
     @Override
     public Boolean addTaskInfo(String jsonObject){
         List<BizTaskInfo> bizTaskInfoList = new ArrayList<>();
@@ -590,5 +590,11 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                 .eq(BizTaskInfo::getProId,proId).eq(BizTaskInfo::getProType,proType));
         com.alibaba.fastjson.JSONArray jsonArray = (com.alibaba.fastjson.JSONArray) JSON.toJSON(bizTaskInfoList);
         return jsonArray;
+    }
+
+
+    private void addDingDing(String id){
+
+        devFeign.addScheduleForWork(id);
     }
 }
