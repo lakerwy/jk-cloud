@@ -15,8 +15,13 @@ package vip.xiaonuo.dev.modular.log.util;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.exceptions.ExceptionUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
+import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.MDC;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.util.*;
 import vip.xiaonuo.dev.modular.log.entity.DevLog;
@@ -35,6 +40,7 @@ import java.util.List;
  * @author xuyuxiang
  * @date 2022/9/2 15:26
  */
+@Slf4j
 public class DevLogUtil {
 
     private static final DevLogService devLogService = SpringUtil.getBean(DevLogService.class);
@@ -46,7 +52,7 @@ public class DevLogUtil {
      * @author xuyuxiang
      * @date 2022/9/2 15:31
      */
-    public static void executeOperationLog(CommonLog commonLog, String userName, JoinPoint joinPoint, String resultJson) {
+    public static void executeOperationLog(CommonLog commonLog, String userName, JoinPoint joinPoint, String resultJson,long elapsedTime) {
         HttpServletRequest request = CommonServletUtil.getRequest();
         DevLog devLog = genBasOpLog();
         devLog.setTenantId(tenApi.getCurrentTenId());
@@ -62,6 +68,19 @@ public class DevLogUtil {
         devLog.setOpUser(userName);
         creatLogSignValue(devLog);
         devLogService.save(devLog);
+        // MDC 扩展logback字段，具体请看logback-spring.xml的自定义日志输出格式
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        String description = methodSignature.getMethod().getAnnotation(ApiOperation.class).value();
+        String date = DateTime.now().toString("yyyy-MM-dd");
+        MDC.put("elapsedTime", StrUtil.toString(elapsedTime));
+        MDC.put("description", description);
+        MDC.put("region", devLog.getOpAddress());
+        MDC.put("username", devLog.getOpUser());
+        MDC.put("date", date);
+        MDC.put("paramJson",devLog.getParamJson());
+        MDC.put("resultJson",resultJson);
+        MDC.put("clientIP", devLog.getOpIp());
+        log.info("{}操作日志---",description);
     }
 
     /**
@@ -70,7 +89,7 @@ public class DevLogUtil {
      * @author xuyuxiang
      * @date 2022/9/2 15:31
      */
-    public static void executeExceptionLog(CommonLog commonLog, String userName, JoinPoint joinPoint, Exception exception) {
+    public static void executeExceptionLog(CommonLog commonLog, String userName, JoinPoint joinPoint, Exception exception,long elapsedTime) {
         HttpServletRequest request = CommonServletUtil.getRequest();
         DevLog devLog = genBasOpLog();
         devLog.setTenantId(tenApi.getCurrentTenId());
@@ -87,6 +106,19 @@ public class DevLogUtil {
         devLog.setOpUser(userName);
         creatLogSignValue(devLog);
         devLogService.save(devLog);
+        // MDC 扩展logback字段，具体请看logback-spring.xml的自定义日志输出格式
+        MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
+        String description = methodSignature.getMethod().getAnnotation(ApiOperation.class).value();
+        String date = DateTime.now().toString("yyyy-MM-dd");
+        MDC.put("elapsedTime", StrUtil.toString(elapsedTime));
+        MDC.put("description", description);
+        MDC.put("region", devLog.getOpAddress());
+        MDC.put("username", devLog.getOpUser());
+        MDC.put("date", date);
+        MDC.put("paramJson",devLog.getParamJson());
+        MDC.put("exception",devLog.getExeMessage());
+        MDC.put("clientIP", devLog.getOpIp());
+        log.info("{}异常日志---",description);
     }
 
     /**

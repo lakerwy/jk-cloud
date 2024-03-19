@@ -13,13 +13,17 @@
 package vip.xiaonuo.dev.core.aop;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
+import io.swagger.annotations.ApiOperation;
+import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
 import org.aspectj.lang.annotation.AfterReturning;
 import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.aspectj.lang.reflect.MethodSignature;
+import org.slf4j.MDC;
 import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
@@ -28,6 +32,8 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.dev.modular.log.util.DevLogUtil;
 
 import java.lang.reflect.Method;
+import java.time.Duration;
+import java.time.LocalDateTime;
 
 /**
  * 业务日志aop切面
@@ -62,6 +68,7 @@ public class DevLogAop {
         Method method = methodSignature.getMethod();
         CommonLog commonLog = method.getAnnotation(CommonLog.class);
         String userName = "未知";
+        long startTime = System.currentTimeMillis();
         try {
             SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
             if(ObjectUtil.isNotNull(loginUser)) {
@@ -69,8 +76,10 @@ public class DevLogAop {
             }
         } catch (Exception ignored) {
         }
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
         // 异步记录日志
-        DevLogUtil.executeOperationLog(commonLog, userName, joinPoint, JSONUtil.toJsonStr(result));
+        DevLogUtil.executeOperationLog(commonLog, userName, joinPoint, JSONUtil.toJsonStr(result),elapsedTime);
     }
 
     /**
@@ -85,6 +94,7 @@ public class DevLogAop {
         Method method = methodSignature.getMethod();
         CommonLog commonLog = method.getAnnotation(CommonLog.class);
         String userName = "未知";
+        long startTime = System.currentTimeMillis();
         try {
             SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
             if(ObjectUtil.isNotNull(loginUser)) {
@@ -92,7 +102,9 @@ public class DevLogAop {
             }
         } catch (Exception ignored) {
         }
+        long endTime = System.currentTimeMillis();
+        long elapsedTime = endTime - startTime;
         //异步记录日志
-        DevLogUtil.executeExceptionLog(commonLog, userName, joinPoint, exception);
+        DevLogUtil.executeExceptionLog(commonLog, userName, joinPoint, exception,elapsedTime);
     }
 }

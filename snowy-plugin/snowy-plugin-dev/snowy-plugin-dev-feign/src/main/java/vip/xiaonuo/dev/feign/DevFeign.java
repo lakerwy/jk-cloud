@@ -44,4 +44,6 @@ public interface DevFeign {
     @RequestMapping("/feign/dev/removeTenDataForCategoryId")
     void removeTenDataForCategoryId(@RequestParam("tenId") String tenId);
 
+    @RequestMapping("/feign/dev/addScheduleForWork")
+    void addScheduleForWork(@RequestParam String id);
 }
