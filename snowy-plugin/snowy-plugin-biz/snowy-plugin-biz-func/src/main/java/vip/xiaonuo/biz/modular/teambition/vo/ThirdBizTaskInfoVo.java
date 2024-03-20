@@ -1,16 +1,10 @@
 package vip.xiaonuo.biz.modular.teambition.vo;
 
-import com.baomidou.mybatisplus.annotation.FieldFill;
-import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
-import vip.xiaonuo.biz.modular.teambition.entity.BizTaskProject;
-
 import java.util.Date;
 
 @Getter

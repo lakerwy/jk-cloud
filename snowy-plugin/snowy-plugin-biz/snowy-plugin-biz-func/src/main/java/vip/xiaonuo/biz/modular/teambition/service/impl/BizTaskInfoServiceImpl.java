@@ -118,6 +118,9 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getProType())){
             queryWrapper.lambda().eq(BizTaskInfo::getProType,bizTaskInfoPageParam.getProType());
         }
+        if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getProId())){
+            queryWrapper.lambda().eq(BizTaskInfo::getProId,bizTaskInfoPageParam.getProId());
+        }
         /**
          * 任务权限
          * 1.自己负责的任务

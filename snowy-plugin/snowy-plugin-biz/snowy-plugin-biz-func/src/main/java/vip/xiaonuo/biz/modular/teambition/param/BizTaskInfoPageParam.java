@@ -77,4 +77,8 @@ public class BizTaskInfoPageParam {
     /** 任务来源类别 */
     @ApiModelProperty(value = "任务来源类别")
     private String proType;
+
+    /** 任务来源Id */
+    @ApiModelProperty(value = "任务来源Id")
+    private String proId;
 }
