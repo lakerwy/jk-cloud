@@ -34,9 +34,9 @@ public class ConferenceWorkArrangeEdit {
     @ApiModelProperty(value = "责任人ID", position = 6)
     private String dutyUserId;
 
-    /** 工作进展：任务状态，0 已取消，1 进行中，2 已完成 */
+   /* *//** 工作进展：任务状态，0 已取消，1 进行中，2 已完成 *//*
     @ApiModelProperty(value = "工作进展：任务状态，0 已取消，1 进行中，2 已完成", position = 7)
-    private Integer workEvolve;
+    private Integer workEvolve;*/
 
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 9)
@@ -55,4 +55,8 @@ public class ConferenceWorkArrangeEdit {
     /** 责任部门ID */
     @ApiModelProperty(value = "责任部门ID", position = 18)
     private String dutyOrgId;
+
+    /** 任务状态 */
+    @ApiModelProperty(value = "任务状态，0 已取消，1 进行中，2 已完成", position = 10)
+    private String taskStatus;
 }

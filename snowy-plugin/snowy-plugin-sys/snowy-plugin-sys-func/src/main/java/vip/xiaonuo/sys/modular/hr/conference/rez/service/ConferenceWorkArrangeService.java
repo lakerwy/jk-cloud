@@ -44,7 +44,7 @@ public interface ConferenceWorkArrangeService extends IService<ConferenceWorkArr
      * @author ljy
      * @date  2023/12/07 17:43
      */
-    void add(ConferenceWorkArrangeAddParam conferenceWorkArrangeAddParam);
+    String add(ConferenceWorkArrangeAddParam conferenceWorkArrangeAddParam);
 
     /**
      * 编辑会议模块-工作部署
