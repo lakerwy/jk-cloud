@@ -34,6 +34,7 @@ import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleBillService;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleCostService;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleKpService;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceLjInfoVo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -389,5 +390,19 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
             queryWrapper.orderByDesc("b.SN").orderByDesc("a.FP_NO");
         }
         return invoiceSaleBillMapper.getSalePageList(CommonPageRequest.defaultPage(),queryWrapper);
+    }
+
+    @Override
+    public InvoiceLjInfoVo getTopLjInfo(String htContractNo) {
+        if(ObjectUtil.isEmpty(htContractNo)){
+            throw new CommonException("请传入销售合同编号");
+        }
+        QueryWrapper<InvoiceSale> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(InvoiceSale::getHtContractNo,htContractNo);
+        queryWrapper.lambda().in(InvoiceSale::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+        queryWrapper.lambda().orderByDesc(InvoiceSale::getCreateTime);
+        queryWrapper.lambda().last(" limit 1 ");
+        InvoiceSale invoiceSale = this.getOne(queryWrapper);
+        return BeanUtil.copyProperties(invoiceSale, InvoiceLjInfoVo.class);
     }
 }

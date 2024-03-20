@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceLjInfoVo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
 import vip.xiaonuo.common.annotation.CommonLog;
@@ -146,5 +147,19 @@ public class InvoiceSaleController {
     @GetMapping("/biz/invoice/sale/billPage")
     public CommonResult<Page<InvoiceSaleInfo>> billPage(InvoiceSalePageParam invoiceSalePageParam) {
         return CommonResult.data(invoiceSaleService.billPage(invoiceSalePageParam));
+    }
+
+
+    /**
+     * 获取财务系统-根据销售合同编号-获取上次审批单累计值（已审核通过）
+     *
+     * @author yong.ye
+     * @date  2024/03/19 10:17
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取财务系统-根据销售合同编号-获取上次审批单累计值（已审核通过）")
+    @GetMapping("/biz/invoice/sale/getTopLjInfo")
+    public CommonResult<InvoiceLjInfoVo> getTopLjInfo(String htContractNo) {
+        return CommonResult.data(invoiceSaleService.getTopLjInfo(htContractNo));
     }
 }

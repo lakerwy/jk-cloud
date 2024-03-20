@@ -203,13 +203,13 @@ public class InvoiceSale {
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal ysTaxDiff;
 
-    /** 本次预收税差 */
-    @ApiModelProperty(value = "本次预收税差", position = 33)
+    /** 本次实际收取税差 */
+    @ApiModelProperty(value = "本次实际收取税差", position = 33)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal perTaxDiff;
 
-    /** 累计预收税差 */
-    @ApiModelProperty(value = "累计预收税差", position = 34)
+    /** 累计实际收取税差 */
+    @ApiModelProperty(value = "累计实际收取税差", position = 34)
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private BigDecimal ljPerTaxDiff;
 

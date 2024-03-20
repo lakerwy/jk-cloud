@@ -21,6 +21,7 @@ import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleAddParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSalePageParam;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceLjInfoVo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
 
@@ -88,4 +89,11 @@ public interface InvoiceSaleService extends IService<InvoiceSale> {
      * @return
      */
     Page<InvoiceSaleInfo> billPage(InvoiceSalePageParam invoiceSalePageParam);
+
+    /**
+     * 根据合同编号，获取上次审核通过的累计金额
+     * @param htContractNo
+     * @return
+     */
+    InvoiceLjInfoVo getTopLjInfo(String htContractNo);
 }
