@@ -30,7 +30,9 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
+import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
@@ -51,8 +53,8 @@ import vip.xiaonuo.biz.modular.teambition.service.BizTaskProjectService;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.BizTaskCommentService;
 import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
-import vip.xiaonuo.biz.modular.teambition.vo.BizWorkTaskInfoVo;
 import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
+import vip.xiaonuo.biz.modular.teambition.vo.ThirdBizTaskInfoVo;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -67,6 +69,8 @@ import vip.xiaonuo.dev.feign.DevFeign;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -77,6 +81,7 @@ import java.util.stream.Collectors;
  **/
 @DS("slave_1")
 @Service
+@Configuration
 public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTaskInfo> implements BizTaskInfoService {
 
     @Resource
@@ -109,6 +114,12 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskStartTime()) && ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskEndTime())) {
             queryWrapper.lambda().gt(BizTaskInfo::getCreateTime, bizTaskInfoPageParam.getTaskStartTime());
             queryWrapper.lambda().lt(BizTaskInfo::getCreateTime, bizTaskInfoPageParam.getTaskEndTime());
+        }
+        if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getProType())){
+            queryWrapper.lambda().eq(BizTaskInfo::getProType,bizTaskInfoPageParam.getProType());
+        }
+        if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getProId())){
+            queryWrapper.lambda().eq(BizTaskInfo::getProId,bizTaskInfoPageParam.getProId());
         }
         /**
          * 任务权限
@@ -568,16 +579,12 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         List<BizTaskInfo> bizTaskInfoList = new ArrayList<>();
         try{
             JSONArray jsonArray = new JSONArray(jsonObject);
-            List<BizWorkTaskInfoVo> bizWorkTaskInfoVoList = jsonArray.toList(BizWorkTaskInfoVo.class);
-            bizWorkTaskInfoVoList.forEach(vo -> {
-                BizTaskInfo bizTaskInfo = BeanUtil.toBean(vo,BizTaskInfo.class);
-                bizTaskInfoList.add(bizTaskInfo);
-            });
+            bizTaskInfoList = jsonArray.toList(BizTaskInfo.class);
         }catch (Exception e){
             log.error("新建任务失败！e:"+e.getMessage());
             return false;
         }
-        return this.saveBatch(bizTaskInfoList);
+        return this.saveOrUpdateBatch(bizTaskInfoList);
     }
 
     /** 第三方分页数据*/
@@ -592,9 +599,82 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         return jsonArray;
     }
 
+    @Override
+    public String editThirdWorkCore(ThirdBizTaskInfoParam thirdBizTaskInfoParam){
+        List<BizTaskInfo> bizTaskInfoList = new ArrayList<>();
+        if(StringUtils.isNotEmpty(thirdBizTaskInfoParam.getProId()) && StringUtils.isNotEmpty(thirdBizTaskInfoParam.getProType())){
+            bizTaskInfoList = this.list(new LambdaQueryWrapper<BizTaskInfo>().eq(BizTaskInfo::getProId,thirdBizTaskInfoParam.getProId())
+                    .eq(BizTaskInfo::getProType,thirdBizTaskInfoParam.getProType()));
+        }
+        List<BizTaskInfo> updateWorkList = new ArrayList<>();//修改
+        List<BizTaskInfo> saveWorkList = new ArrayList<>();//新增
+        List<BizTaskInfo> deleteWorkList = new ArrayList<>();//删除
 
-    private void addDingDing(String id){
+        Map<String,String> map = new HashMap<>();
+        thirdBizTaskInfoParam.getThirdBizTaskInfoVoList().forEach(vo -> {
+            if(StringUtils.isEmpty(vo.getId())){
+                BizTaskInfo bizTaskInfo = BeanUtil.toBean(vo,BizTaskInfo.class);
+                bizTaskInfo.setProId(thirdBizTaskInfoParam.getProId());
+                bizTaskInfo.setProType(thirdBizTaskInfoParam.getProType());
+                saveWorkList.add(bizTaskInfo);
+            }
+            if(StringUtils.isNotEmpty(vo.getId())){
+                BizTaskInfo bizTaskInfo = BeanUtil.toBean(vo,BizTaskInfo.class);
+                updateWorkList.add(bizTaskInfo);
+                map.put(vo.getId(),vo.getId());
+            }
+        });
+        if(CollectionUtil.isNotEmpty(bizTaskInfoList)){
+            bizTaskInfoList.forEach(info -> {
+                if(ObjectUtil.isEmpty(map.get(info.getId()))){ deleteWorkList.add(info);}
+            });
+        }
+        /** 新增 */
+        if(CollectionUtil.isNotEmpty(saveWorkList)){
+            Boolean isSaveTrue = this.saveBatch(saveWorkList);
+            if(isSaveTrue){ saveWorkList.forEach(work -> asyCreateSchedule(work));}
+        }
+        /** 修改 */
+        if(CollectionUtil.isNotEmpty(updateWorkList)){ this.saveOrUpdateBatch(updateWorkList); }
 
-        devFeign.addScheduleForWork(id);
+        /** 删除 */
+        if(CollectionUtil.isNotEmpty(deleteWorkList)){
+            Boolean isdeleteTrue = this.removeBatchByIds(deleteWorkList);
+            if(isdeleteTrue){
+                deleteWorkList.forEach(del -> {
+                    boolean isTrue = StringUtils.isNotEmpty(del.getScheduleId()) && StringUtils.isNotEmpty(del.getBelonger());
+                    if(isTrue){ asyDeleteSchedule(del.getScheduleId(),del.getBelonger());}
+                });
+            }
+        }
+        return "修改成功！";
     }
+
+    /**  异步创建日程 */
+    private Future<String> asyCreateSchedule(BizTaskInfo bizTaskInfo) {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            try {
+                String scheduleId = devFeign.addScheduleForWork(bizTaskInfo.getId());
+                if(StringUtils.isNotEmpty(scheduleId)){ bizTaskInfo.setScheduleId(scheduleId); }
+                this.saveOrUpdate(bizTaskInfo);
+            } catch (Exception e) {
+                log.error("创建日程失败!e:"+e.getMessage());
+            }
+            return "异步创建日程";
+        });
+        return future;
+    }
+    /**  异步删除日程 */
+    private Future<String> asyDeleteSchedule(String scheduleId,String dutyUserId) {
+        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
+            try{
+                devFeign.deleteScheduleForWork(scheduleId,dutyUserId);
+            }catch (Exception e){
+                log.error("删除日程失败！e:"+e.getMessage());
+            }
+            return "异步删除日程";
+        });
+        return future;
+    }
+
 }

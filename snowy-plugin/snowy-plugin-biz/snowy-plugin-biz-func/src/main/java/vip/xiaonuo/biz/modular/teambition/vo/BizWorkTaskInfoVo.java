@@ -10,6 +10,10 @@ import java.util.Date;
 @Setter
 public class BizWorkTaskInfoVo {
 
+    /** 主键 */
+    @ApiModelProperty(value = "主键", position = 1)
+    private String id;
+
     /** 父任务ID */
     @ApiModelProperty(value = "父任务ID", position = 3)
     private String parentId;

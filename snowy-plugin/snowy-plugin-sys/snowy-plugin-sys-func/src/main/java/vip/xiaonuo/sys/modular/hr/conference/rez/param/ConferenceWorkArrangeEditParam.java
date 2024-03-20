@@ -15,12 +15,9 @@ package vip.xiaonuo.sys.modular.hr.conference.rez.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.hr.conference.rez.vo.ConferenceWorkArrangeAdd;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,5 +37,5 @@ public class ConferenceWorkArrangeEditParam {
 
     @ApiModelProperty(value = "工作部署修改", position = 2)
     @NotNull(message = "工作部署修改")
-    private List<ConferenceWorkArrangeEdit> conferenceWorkArrangeEditList;
+    private List<ConferenceWorkArrangeAdd> conferenceWorkArrangeEditList;
 }

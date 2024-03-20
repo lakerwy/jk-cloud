@@ -109,4 +109,9 @@ public class ConferenceWorkArrange {
     /** 责任部门ID */
     @ApiModelProperty(value = "责任部门ID", position = 18)
     private String dutyOrgId;
+
+    /** 任务状态 */
+    @ApiModelProperty(value = "任务状态，0 已取消，1 进行中，2 已完成", position = 19)
+    @TableField(exist = false)
+    private String taskStatus;
 }

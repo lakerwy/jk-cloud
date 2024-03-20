@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
@@ -101,6 +102,7 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
                 conferenceWorkArrange.setRezId(vo.getProId());
                 conferenceWorkArrange.setDutyUserId(vo.getBelonger());
                 conferenceWorkArrange.setDutyOrgId(vo.getBelongerOrg());
+                conferenceWorkArrange.setScheduleId(vo.getScheduleId());
                 conferenceWorkArrangeList.add(conferenceWorkArrange);
             });
         }catch (Exception e){
@@ -113,7 +115,7 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(ConferenceWorkArrangeAddParam conferenceWorkArrangeAddParam) {
+    public String add(ConferenceWorkArrangeAddParam conferenceWorkArrangeAddParam) {
         if(CollectionUtil.isEmpty(conferenceWorkArrangeAddParam.getWorkArrangeAddList())){
             throw new CommonException("任务数据不能为空");
         }
@@ -127,16 +129,19 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
             conferenceWorkArrange.setRezTheme(conferenceRez.getTheme());
             conferenceWorkArrange.setRezId(conferenceWorkArrangeAddParam.getRezId());
             conferenceWorkArrange.setIsSchedule(0);//未建日程
+            conferenceWorkArrange.setTaskStatus(workArrangeParam.getTaskStatus());
             conferenceWorkArrangeList.add(conferenceWorkArrange);
         });
         boolean isSaveTrue = true;
         if(CollectionUtil.isNotEmpty(conferenceWorkArrangeList)){
-            isSaveTrue = this.saveBatch(conferenceWorkArrangeList);
+            isSaveTrue = this.saveOrUpdateBatch(conferenceWorkArrangeList);
         }
-        isSaveTrue = addTaskInfoForRez(conferenceWorkArrangeAddParam.getWorkArrangeAddList(),conferenceRez);
         if(isSaveTrue){
-            conferenceWorkArrangeList.forEach(conferenceWorkArrange -> asyCreateSchedule(conferenceWorkArrange));
+            conferenceWorkArrangeList.forEach(conferenceWorkArrange ->  createSchedule(conferenceWorkArrange));
+            //conferenceWorkArrangeList.forEach(conferenceWorkArrange -> asyCreateSchedule(conferenceWorkArrange));
         }
+        addTaskInfoForRez(conferenceWorkArrangeList,conferenceRez);
+        return "保存成功";
     }
     /**  异步创建日程 */
     private Future<String> asyCreateSchedule(ConferenceWorkArrange conferenceWorkArrange) {
@@ -166,7 +171,7 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         dingDingScheduleVo.setSummary(conferenceWorkArrange.getWorkArrange());
         dingDingScheduleVo.setDescription(conferenceWorkArrange.getRezTheme());
         dingDingScheduleVo.setId(conferenceWorkArrange.getId());
-        dingDingScheduleVo.setCreateUser(conferenceWorkArrange.getCreateUser());
+        dingDingScheduleVo.setCreateUser(StpUtil.getLoginIdAsString());
         String scheduleId = startDingDingScheduleCore.addDingDingSchedule(dingDingScheduleVo, appKey, appSecret);
         if(StringUtils.isNotEmpty(scheduleId)){
             conferenceWorkArrange.setScheduleId(scheduleId);
@@ -256,10 +261,11 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
         return conferenceWorkArrange;
     }
 
-    private Boolean addTaskInfoForRez(List<ConferenceWorkArrangeAdd> workArrangeAddList,ConferenceRez conferenceRez){
+    private Boolean addTaskInfoForRez(List<ConferenceWorkArrange>conferenceWorkArrangeList,ConferenceRez conferenceRez){
         List<WorkTaskInfoVo> workTaskInfoVoList = new ArrayList<>();
-        workArrangeAddList.forEach(work -> {
+        conferenceWorkArrangeList.forEach(work -> {
             WorkTaskInfoVo workTaskInfoVo = new WorkTaskInfoVo();
+            workTaskInfoVo.setId(work.getId());
             workTaskInfoVo.setProId(conferenceRez.getId());//第三方ID
             workTaskInfoVo.setProType(ConferenceRezEnum.PRO_TYPE.getValue());//第三方类别
             workTaskInfoVo.setTaskRemark(conferenceRez.getTheme());//任务备注 - 会议主题
@@ -268,13 +274,14 @@ public class ConferenceWorkArrangeServiceImpl extends ServiceImpl<ConferenceWork
             workTaskInfoVo.setBelongerOrg(work.getDutyOrgId());//任务执行部门
             workTaskInfoVo.setLeadId(work.getDutyUserId()); //责任人
             workTaskInfoVo.setLeadOrg(work.getDutyOrgId());//责任部门
-            workTaskInfoVo.setTaskStatus("1");//任务进行中
+            workTaskInfoVo.setTaskStatus(StringUtils.isEmpty(work.getTaskStatus()) ? "1" : work.getTaskStatus());//任务进行中
             workTaskInfoVo.setTaskStartTime(work.getStartTime());
             workTaskInfoVo.setTaskEndTime(work.getFinishTime());
-            String sn = CommonSnUtil.GenerateSn("RW", "", CommonSnFormatEnum.SNYYYYMM0001.getValue());
+            String sn = DateUtil.format(new Date(),DatePattern.PURE_DATETIME_MS_PATTERN);
             workTaskInfoVo.setSn(sn);
-            workTaskInfoVo.setTaskPriority(StringUtils.isNotEmpty(work.getTaskPriority()) ? work.getTaskPriority() : "0");//任务优先级(默认为最低 0)：0 最低，1 较低，2 普通，3 较高，4 最高
+            workTaskInfoVo.setTaskPriority("2");//任务优先级(默认为最低 0)：0 最低，1 较低，2 普通，3 较高，4 最高
             workTaskInfoVo.setTaskParticipants(work.getDutyUserId());//协办人员
+            workTaskInfoVo.setScheduleId(work.getScheduleId());
             workTaskInfoVoList.add(workTaskInfoVo);
         });
         if(CollectionUtil.isNotEmpty(workTaskInfoVoList)){

@@ -59,12 +59,12 @@ public class BizTaskGroupController {
      * @author ljy
      * @date  2023/12/08 08:58
      */
-    @ApiOperationSupport(order = 1)
+    /*@ApiOperationSupport(order = 1)
     @ApiOperation("获取任务来源表分页")
     @GetMapping("/biz/taskGroup/page")
     public CommonResult<Page<BizTaskGroup>> page(BizTaskGroupPageParam bizTaskGroupPageParam) {
         return CommonResult.data(bizTaskGroupService.page(bizTaskGroupPageParam));
-    }
+    }*/
 
 
     /** 获取任务管理附件数据*/
@@ -228,13 +228,13 @@ public class BizTaskGroupController {
      * @author ljy
      * @date  2023/12/18 11:40
      */
-    @ApiOperationSupport(order = 27)
+    /*@ApiOperationSupport(order = 27)
     @ApiOperation("第三方源任务详情分页")
     @CommonLog("第三方源任务详情分页")
     @GetMapping("/biz/taskInfo/thirdPage")
     public CommonResult<Page<BizTaskInfo>> thirdPage(ThirdTaskPageParam thirdTaskPageParam) {
         return CommonResult.data(bizTaskInfoService.thirdPage(thirdTaskPageParam));
-    }
+    }*/
 
     /**
      * 第三方来源添加任务
@@ -242,12 +242,26 @@ public class BizTaskGroupController {
      * @author ljy
      * @date  2023/12/18 11:40
      */
-    @ApiOperationSupport(order = 28)
+    /*@ApiOperationSupport(order = 28)
     @ApiOperation("第三方来源添加任务")
     @CommonLog("第三方来源添加任务")
     @PostMapping("/biz/taskInfo/thirdAdd")
     public CommonResult<String> thirdAdd(@RequestBody @Valid BizTaskInfoAddParam bizTaskInfoAddParam) {
         bizTaskInfoService.thirdAdd(bizTaskInfoAddParam);
+        return CommonResult.ok();
+    }*/
+
+    /**
+     * 修改第三方来源任务
+     * @author ljy
+     * @date  2023/12/18 11:40
+     */
+    @ApiOperationSupport(order = 28)
+    @ApiOperation("修改第三方来源任务")
+    @CommonLog("修改第三方来源任务")
+    @PostMapping("/biz/taskInfo/editThirdWork")
+    public CommonResult<String> editThirdWorkCore(@RequestBody @Valid ThirdBizTaskInfoParam thirdBizTaskInfoParam) {
+        bizTaskInfoService.editThirdWorkCore(thirdBizTaskInfoParam);
         return CommonResult.ok();
     }
 }

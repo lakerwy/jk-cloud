@@ -13,6 +13,11 @@ import java.util.Date;
 @Getter
 public class ConferenceWorkArrangeAdd {
 
+    /** 主键 */
+    @ApiModelProperty(value = "主键", position = 1)
+    @NotNull(message = "部署任务修改时不能为空")
+    private String id;
+
     /** 部署事项 */
     @ApiModelProperty(value = "部署事项", position = 3)
     @NotNull(message = "部署事项不能为空")
@@ -50,7 +55,11 @@ public class ConferenceWorkArrangeAdd {
     @NotNull(message = "责任人不能为空")
     private String dutyOrgId;
 
-    /** 任务优先级：0 最低，1较低，2普通，3较高，4 最高*/
-    @ApiModelProperty(value = "任务优先级(默认为最低 0)：0 最低，1 较低，2 普通，3 较高，4 最高", position = 11)
-    private String taskPriority;
+    /** 任务状态 */
+    @ApiModelProperty(value = "任务状态，0 已取消，1 进行中，2 已完成", position = 10)
+    private String taskStatus;
+
+    /** 钉钉日程ID */
+    @ApiModelProperty(value = "钉钉日程ID", position = 12)
+    private String scheduleId;
 }

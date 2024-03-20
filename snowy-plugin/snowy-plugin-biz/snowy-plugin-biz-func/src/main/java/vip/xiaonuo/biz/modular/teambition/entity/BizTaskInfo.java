@@ -162,4 +162,8 @@ public class BizTaskInfo {
     /** 任务来源类别 */
     @ApiModelProperty(value = "任务来源类别", position = 30)
     private String proType;
+
+    /** 钉钉日程ID */
+    @ApiModelProperty(value = "钉钉日程ID", position = 31)
+    private String scheduleId;
 }
