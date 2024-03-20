@@ -62,6 +62,19 @@ public class RabbitMsg {
     @ApiModelProperty(value = "消息的唯一表示",position = 6)
     String uuid;
 
+    @Override
+    public String toString() {
+        return "RabbitMsg{" +
+                "forms=" + forms +
+                ", userSets=" + userSets +
+                ", title='" + title + '\'' +
+                ", url='" + url + '\'' +
+                ", pcUrl='" + pcUrl + '\'' +
+                ", userId='" + userId + '\'' +
+                ", uuid='" + uuid + '\'' +
+                '}';
+    }
+
     public RabbitMsg() {
     }
 

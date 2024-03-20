@@ -57,6 +57,7 @@ public class ConsumerCenter {
             boolean flag = commonCacheOperator.isValueInSet(RabbitConstant.RABBIT_MESSAGE_ID, rabbitMsg.getUuid());
             if(!flag){
                 log.info("------消息已被消费-----------"+rabbitMsg.getUuid()+rabbitMsg.getTitle());
+                commonCacheOperator.removeFromSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
             }else {
                 log.info("------接受到消息----- 开始发送-----------" + rabbitMsg.getTitle());
                 iDingDingService.commonSend(rabbitMsg);
@@ -69,8 +70,10 @@ public class ConsumerCenter {
         return message -> {
             RabbitDelayedMessage rabbitDelayedMessage = message.getPayload();
             boolean flag = commonCacheOperator.isValueInSet(RabbitConstant.RABBIT_MESSAGE_ID, rabbitDelayedMessage.getRabbitMsg().getUuid());
+            log.info("消息信息----"+rabbitDelayedMessage.getRabbitMsg().toString());
             if(!flag){
                 log.info("------消息已被消费-----------"+rabbitDelayedMessage.getRabbitMsg()+rabbitDelayedMessage.getRabbitMsg().getTitle());
+                commonCacheOperator.removeFromSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitDelayedMessage.getRabbitMsg().getUuid());
             }else {
                 log.info("接受到延迟队列的消息: " + message.getPayload().getTaskKey());
 
