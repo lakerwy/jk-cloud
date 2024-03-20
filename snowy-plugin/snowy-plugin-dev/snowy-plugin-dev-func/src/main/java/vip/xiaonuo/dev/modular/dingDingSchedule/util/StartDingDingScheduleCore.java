@@ -1,8 +1,10 @@
 package vip.xiaonuo.dev.modular.dingDingSchedule.util;
 
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
@@ -11,11 +13,14 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
+import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dev.api.IDingDingService;
+import vip.xiaonuo.dev.modular.dingDingSchedule.param.DingDingScheduleParam;
 import vip.xiaonuo.dev.modular.dingDingSchedule.service.DingDingScheduleService;
 import vip.xiaonuo.dev.modular.dingDingSchedule.vo.DingDingScheduleVo;
 import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.dev.modular.dingThirdData.service.AuthThirdUserService;
+import vip.xiaonuo.dev.modular.job.task.CommonHandleUtil;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -36,6 +41,48 @@ public class StartDingDingScheduleCore {
     AuthThirdUserService authThirdUserService;
     @Resource
     DingDingScheduleService dingDingScheduleService;
+
+    public String taskAddSchedule(String id,String appKey,String appSecret){
+        String scheduleId = "";
+        if(StringUtils.isEmpty(id)){return scheduleId;}
+        try{
+            String sql = "SELECT ID,TASK_NAME,TASK_REMARK,TASK_START_TIME,TASK_END_TIME,BELONGER,CREATE_USER,SN FROM BIZ_TASK_INFO " +
+                    " WHERE ID = '"+id+"'";
+            Map<String,Object> map= CommonHandleUtil.handleSqlQuery(sql, Boolean.FALSE);
+            if(ObjectUtil.isEmpty(map)){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("BELONGER"))){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("TASK_START_TIME"))){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("TASK_END_TIME"))){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("TASK_NAME"))){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("CREATE_USER"))){return scheduleId;}
+
+            List<DingDingScheduleParam> dingDingScheduleParamList = new ArrayList<>();
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            dbsApi.changeDataSource("master");
+            String sqlUser = "select  NAME,ACCOUNT from SYS_USER  WHERE ID = '"+map.get("BELONGER").toString()+"'";
+            Map<String,Object> userMap= CommonHandleUtil.handleSqlQuery(sqlUser, Boolean.TRUE);
+            //SysUser sysUser = sysUserService.getById(map.get("BELONGER").toString());
+            DingDingScheduleParam dingDingScheduleParam = new DingDingScheduleParam();
+            dingDingScheduleParam.setUserId(map.get("BELONGER").toString());
+            dingDingScheduleParam.setUserName(ObjectUtil.isNotEmpty(userMap.get("NAME")) ? userMap.get("NAME").toString() : "");
+            dingDingScheduleParam.setPhone(ObjectUtil.isNotEmpty(userMap.get("ACCOUNT")) ? userMap.get("ACCOUNT").toString() : "");
+            dingDingScheduleParamList.add(dingDingScheduleParam);
+            if(ObjectUtil.isEmpty(userMap.get("NAME")) || ObjectUtil.isEmpty(userMap.get("ACCOUNT"))){return scheduleId;}
+
+            DingDingScheduleVo dingDingScheduleVo = new DingDingScheduleVo();
+            dingDingScheduleVo.setDingDingScheduleParamList(dingDingScheduleParamList);
+            dingDingScheduleVo.setStartTime(map.get("TASK_START_TIME").toString());
+            dingDingScheduleVo.setEndTime(map.get("TASK_END_TIME").toString());
+            dingDingScheduleVo.setSummary(map.get("TASK_NAME").toString());
+            dingDingScheduleVo.setDescription(ObjectUtil.isNotEmpty(map.get("TASK_REMARK")) ? map.get("TASK_REMARK").toString() : "");
+            dingDingScheduleVo.setId(map.get("ID").toString());
+            dingDingScheduleVo.setCreateUser(StpUtil.getLoginIdAsString());
+            scheduleId =  addDingDingSchedule(dingDingScheduleVo, appKey, appSecret);
+        }catch (Exception e){
+            log.error("任务创建日程失败！e:"+e.getMessage());
+        }
+        return scheduleId;
+    }
 
     /**   钉钉日程   */
     public String addDingDingSchedule( DingDingScheduleVo dingDingScheduleVo,String appKey,String appSecret){

@@ -54,7 +54,6 @@ import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.BizTaskCommentService;
 import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
 import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
-import vip.xiaonuo.biz.modular.teambition.vo.ThirdBizTaskInfoVo;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -83,6 +82,11 @@ import java.util.stream.Collectors;
 @Service
 @Configuration
 public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTaskInfo> implements BizTaskInfoService {
+
+    @Value("${dingtalkstream.clientId}")
+    private String appKey;
+    @Value("${dingtalkstream.clientSecret}")
+    private String appSecret;
 
     @Resource
     BizTaskProjectService bizTaskProjectService;
@@ -651,24 +655,21 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     }
 
     /**  异步创建日程 */
-    private Future<String> asyCreateSchedule(BizTaskInfo bizTaskInfo) {
-        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-            try {
-                String scheduleId = devFeign.addScheduleForWork(bizTaskInfo.getId());
-                if(StringUtils.isNotEmpty(scheduleId)){ bizTaskInfo.setScheduleId(scheduleId); }
-                this.saveOrUpdate(bizTaskInfo);
-            } catch (Exception e) {
-                log.error("创建日程失败!e:"+e.getMessage());
-            }
-            return "异步创建日程";
-        });
-        return future;
+    private String asyCreateSchedule(BizTaskInfo bizTaskInfo) {
+        try {
+            String scheduleId = devFeign.addScheduleForWork(appKey,appSecret,bizTaskInfo.getId());
+            if(StringUtils.isNotEmpty(scheduleId)){ bizTaskInfo.setScheduleId(scheduleId); }
+            this.saveOrUpdate(bizTaskInfo);
+        } catch (Exception e) {
+            log.error("创建日程失败!e:"+e.getMessage());
+        }
+        return "异步创建日程";
     }
     /**  异步删除日程 */
     private Future<String> asyDeleteSchedule(String scheduleId,String dutyUserId) {
         CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
             try{
-                devFeign.deleteScheduleForWork(scheduleId,dutyUserId);
+                devFeign.deleteScheduleForWork(appKey,appSecret,scheduleId,dutyUserId);
             }catch (Exception e){
                 log.error("删除日程失败！e:"+e.getMessage());
             }
