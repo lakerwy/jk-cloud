@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMoveAddParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMoveEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMoveIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMovePageParam;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleMoveVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface InvoiceSaleMoveService extends IService<InvoiceSaleMove> {
      * @author yong.ye
      * @date  2024/03/19 10:21
      */
-    Page<InvoiceSaleMove> page(InvoiceSaleMovePageParam invoiceSaleMovePageParam);
+    Page<InvoiceSaleMoveVo> page(InvoiceSaleMovePageParam invoiceSaleMovePageParam);
 
     /**
      * 添加财务系统-销售发票-作废|红冲异动申请
@@ -68,7 +69,7 @@ public interface InvoiceSaleMoveService extends IService<InvoiceSaleMove> {
      * @author yong.ye
      * @date  2024/03/19 10:21
      */
-    InvoiceSaleMove detail(InvoiceSaleMoveIdParam invoiceSaleMoveIdParam);
+    InvoiceSaleMoveVo detail(InvoiceSaleMoveIdParam invoiceSaleMoveIdParam);
 
     /**
      * 获取财务系统-销售发票-作废|红冲异动申请详情

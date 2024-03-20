@@ -21,31 +21,6 @@ import java.util.List;
 @Setter
 public class InvoiceSaleVo extends InvoiceSale {
 
-    /** 合同名称（ProjectName） */
-    @ApiModelProperty(value = "合同名称（ProjectName）", position = 99)
-    private String htProjectName;
-
-    /** 合同金额 - 建科所占金额 (ContractAmount)*/
-    @ApiModelProperty(value = "合同金额 - 建科所占金额(ContractAmount) ", position = 99)
-    private BigDecimal htContractAmount;
-
-    /** 甲方（Counterparty） */
-    @ApiModelProperty(value = "甲方（Counterparty）", position = 99)
-    private String htCounterparty;
-
-    /** 责任单位（CompanyOrDepartment） */
-    @ApiModelProperty(value = "责任单位（CompanyOrDepartment）", position = 99)
-    private String htCompanyOrDepartment;
-
-    /** 责任人（Owner） */
-    @ApiModelProperty(value = "责任人（Owner）", position = 99)
-    private String htOwner;
-
-    /** 立项-项目类型(BIZ_PROJECT.TYPE) */
-    @ApiModelProperty(value = "立项-项目类型(BIZ_PROJECT.TYPE)", position = 99)
-    private String htProjectType;
-
-
     /** 【销售发票】开票信息-集合 */
     @ApiModelProperty(value = "【销售发票】开票信息-集合", position = 100)
     private List<InvoiceSaleKp> kpList;

@@ -32,8 +32,7 @@ import java.util.Date;
 public class InvoiceCostEditParam {
 
     /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
+    @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
     /** 申请人单位：总部|分公司|零星 */

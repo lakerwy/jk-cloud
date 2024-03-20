@@ -14,26 +14,41 @@ package vip.xiaonuo.biz.modular.invoice.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCostBill;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceCostAdd;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceCostEdit;
+import vip.xiaonuo.biz.modular.invoice.service.InvoiceCostBillService;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostVo;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCost;
 import vip.xiaonuo.biz.modular.invoice.mapper.InvoiceCostMapper;
-import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostAddParam;
-import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostPageParam;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceCostService;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
+import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 财务系统-成本发票申请Service接口实现类
@@ -45,8 +60,12 @@ import java.util.List;
 @DS("slave_1")
 public class InvoiceCostServiceImpl extends ServiceImpl<InvoiceCostMapper, InvoiceCost> implements InvoiceCostService {
 
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+    @Resource
+    private InvoiceCostBillService invoiceCostBillService;
     @Override
-    public Page<InvoiceCost> page(InvoiceCostPageParam invoiceCostPageParam) {
+    public Page<InvoiceCostVo> page(InvoiceCostPageParam invoiceCostPageParam) {
         QueryWrapper<InvoiceCost> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(invoiceCostPageParam.getApplyUnit())) {
             queryWrapper.lambda().eq(InvoiceCost::getApplyUnit, invoiceCostPageParam.getApplyUnit());
@@ -79,34 +98,116 @@ public class InvoiceCostServiceImpl extends ServiceImpl<InvoiceCostMapper, Invoi
         } else {
             queryWrapper.lambda().orderByAsc(InvoiceCost::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<InvoiceCost> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<InvoiceCostVo> invoiceCostVos = BeanUtil.copyToList(result.getRecords(),InvoiceCostVo.class);
+        invoiceCostVos.forEach(x->{
+            List<InvoiceCostBill> invoiceCostBills = invoiceCostBillService.list(new QueryWrapper<InvoiceCostBill>().lambda().eq(InvoiceCostBill::getInvoiceCostId,x.getId()));
+            x.setBillList(invoiceCostBills);
+        });
+        Page<InvoiceCostVo> newResult = new Page<>();
+        newResult.setRecords(invoiceCostVos);
+        newResult.setPages(result.getPages());
+        newResult.setSize(result.getSize());
+        newResult.setTotal(result.getTotal());
+        newResult.setCurrent(result.getCurrent());
+        return newResult;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(InvoiceCostAddParam invoiceCostAddParam) {
-        InvoiceCost invoiceCost = BeanUtil.toBean(invoiceCostAddParam, InvoiceCost.class);
+    public void add(InvoiceCostAdd invoiceCostAdd) {
+        InvoiceCost invoiceCost = BeanUtil.toBean(invoiceCostAdd, InvoiceCost.class);
+        //走审批流程
+        String processInstanceId = invoiceCostAdd.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            invoiceCost.setId(id);
+            invoiceCost.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            invoiceCost.setModelId(modelId);
+            invoiceCost.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_INVOICE_COST.getBizTable(),id,processInstanceId,dbName);
+        }else{
+            invoiceCost.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
         this.save(invoiceCost);
+        //开票信息|成本票信息|发票确认
+        if (CollUtil.isNotEmpty(invoiceCostAdd.getBillList())) {
+            List<InvoiceCostBill> tmpList = BeanUtil.copyToList(invoiceCostAdd.getBillList(), InvoiceCostBill.class);
+            tmpList.forEach(v -> {
+                v.setInvoiceCostId(invoiceCost.getId());
+            });
+            invoiceCostBillService.saveBatch(tmpList);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(InvoiceCostEditParam invoiceCostEditParam) {
-        InvoiceCost invoiceCost = this.queryEntity(invoiceCostEditParam.getId());
-        BeanUtil.copyProperties(invoiceCostEditParam, invoiceCost);
+    public void edit(InvoiceCostEdit invoiceCostEdit) {
+        String id = invoiceCostEdit.getId();
+        //判断是否走审批流程内的修改
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(invoiceCostEdit.getProcessInstanceId())){
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(invoiceCostEdit.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id = formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                invoiceCostEdit.setId(id);
+            }
+        }
+        InvoiceCost invoiceCost = this.queryEntity(invoiceCostEdit.getId());
+        BeanUtil.copyProperties(invoiceCostEdit, invoiceCost);
         this.updateById(invoiceCost);
+
+        //【开票信息】删除历史数据【全部删光的情况】，新增（避免流程重新发起）
+        if (CollUtil.isNotEmpty(invoiceCostEdit.getBillList())) {
+            //新增|修改|删除
+            List<InvoiceCostBill> oldList = invoiceCostBillService.list(new QueryWrapper<InvoiceCostBill>().lambda().eq(InvoiceCostBill::getInvoiceCostId, invoiceCost.getId()));
+            List<String> oldIds = oldList.stream().map(InvoiceCostBill::getId).collect(Collectors.toList());
+            //待更新的
+            List<InvoiceCostBill> updateList = invoiceCostEdit.getBillList().stream().filter(x -> oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待新增的
+            List<InvoiceCostBill> addList = invoiceCostEdit.getBillList().stream().filter(x -> !oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(InvoiceCostBill::getId).collect(Collectors.toList());
+            List<InvoiceCostBill> removeList = oldList.stream().filter(x -> !updateIds.contains(x.getId())).collect(Collectors.toList());
+            //更新数据库
+            if (CollUtil.isNotEmpty(addList)) {
+                invoiceCostBillService.saveBatch(addList);
+            }
+            if (CollUtil.isNotEmpty(updateList)) {
+                invoiceCostBillService.updateBatchById(updateList);
+            }
+            if (CollUtil.isNotEmpty(removeList)) {
+                invoiceCostBillService.removeByIds(removeList);
+            }
+        }else{
+            invoiceCostBillService.remove(new QueryWrapper<InvoiceCostBill>().lambda().eq(InvoiceCostBill::getInvoiceCostId, invoiceCost.getId()));
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<InvoiceCostIdParam> invoiceCostIdParamList) {
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(invoiceCostIdParamList, InvoiceCostIdParam::getId));
+        List<String> delIds = CollStreamUtil.toList(invoiceCostIdParamList, InvoiceCostIdParam::getId);
+        this.removeByIds(delIds);
+        if(CollUtil.isNotEmpty(delIds)){
+            invoiceCostBillService.remove(new QueryWrapper<InvoiceCostBill>().lambda().in(InvoiceCostBill::getInvoiceCostId,delIds));
+        }
     }
 
     @Override
-    public InvoiceCost detail(InvoiceCostIdParam invoiceCostIdParam) {
-        return this.queryEntity(invoiceCostIdParam.getId());
+    public InvoiceCostVo detail(InvoiceCostIdParam invoiceCostIdParam) {
+        InvoiceCost invoiceCost = this.queryEntity(invoiceCostIdParam.getId());
+        InvoiceCostVo invoiceCostVo = BeanUtil.copyProperties(invoiceCost,InvoiceCostVo.class);
+        List<InvoiceCostBill> invoiceCostBills = invoiceCostBillService.list(new QueryWrapper<InvoiceCostBill>().lambda().eq(InvoiceCostBill::getInvoiceCostId,invoiceCost.getId()));
+        invoiceCostVo.setBillList(invoiceCostBills);
+        return invoiceCostVo;
     }
 
     @Override

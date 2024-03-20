@@ -16,13 +16,21 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONObject;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleMoveVo;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleMove;
@@ -32,7 +40,10 @@ import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMoveEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMoveIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMovePageParam;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleMoveService;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -45,47 +56,80 @@ import java.util.List;
 @DS("slave_1")
 public class InvoiceSaleMoveServiceImpl extends ServiceImpl<InvoiceSaleMoveMapper, InvoiceSaleMove> implements InvoiceSaleMoveService {
 
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    private InvoiceSaleMoveMapper invoiceSaleMoveMapper;
+
     @Override
-    public Page<InvoiceSaleMove> page(InvoiceSaleMovePageParam invoiceSaleMovePageParam) {
+    public Page<InvoiceSaleMoveVo> page(InvoiceSaleMovePageParam invoiceSaleMovePageParam) {
         QueryWrapper<InvoiceSaleMove> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(invoiceSaleMovePageParam.getApplyUnit())) {
-            queryWrapper.lambda().eq(InvoiceSaleMove::getApplyUnit, invoiceSaleMovePageParam.getApplyUnit());
-        }
-        if(ObjectUtil.isNotEmpty(invoiceSaleMovePageParam.getApplyId())) {
-            queryWrapper.lambda().eq(InvoiceSaleMove::getApplyId, invoiceSaleMovePageParam.getApplyId());
+            queryWrapper.eq("a.APPLY_UNIT", invoiceSaleMovePageParam.getApplyUnit());
         }
         if(ObjectUtil.isNotEmpty(invoiceSaleMovePageParam.getApplyName())) {
-            queryWrapper.lambda().like(InvoiceSaleMove::getApplyName, invoiceSaleMovePageParam.getApplyName());
+            queryWrapper.like("a.APPLY_NAME", invoiceSaleMovePageParam.getApplyName());
         }
         if(ObjectUtil.isNotEmpty(invoiceSaleMovePageParam.getMoveType())) {
-            queryWrapper.lambda().eq(InvoiceSaleMove::getMoveType, invoiceSaleMovePageParam.getMoveType());
+            queryWrapper.eq("a.MOVE_TYPE", invoiceSaleMovePageParam.getMoveType());
         }
         if(ObjectUtil.isNotEmpty(invoiceSaleMovePageParam.getSn())) {
-            queryWrapper.lambda().like(InvoiceSaleMove::getSn, invoiceSaleMovePageParam.getSn());
+            queryWrapper.like("a.SN", invoiceSaleMovePageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(invoiceSaleMovePageParam.getStatus())) {
-            queryWrapper.lambda().eq(InvoiceSaleMove::getStatus, invoiceSaleMovePageParam.getStatus());
+            queryWrapper.eq("a.STATUS", invoiceSaleMovePageParam.getStatus());
         }
         if(ObjectUtil.isAllNotEmpty(invoiceSaleMovePageParam.getSortField(), invoiceSaleMovePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSaleMovePageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceSaleMovePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoiceSaleMovePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(InvoiceSaleMove::getId);
+            queryWrapper.orderByDesc("a.SN");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return invoiceSaleMoveMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(InvoiceSaleMoveAddParam invoiceSaleMoveAddParam) {
         InvoiceSaleMove invoiceSaleMove = BeanUtil.toBean(invoiceSaleMoveAddParam, InvoiceSaleMove.class);
+        //走审批流程
+        String processInstanceId = invoiceSaleMoveAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            invoiceSaleMove.setId(id);
+            invoiceSaleMove.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            invoiceSaleMove.setModelId(modelId);
+            invoiceSaleMove.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_INVOICE_SALE_MOVE.getBizTable(),id,processInstanceId,dbName);
+        }else{
+            invoiceSaleMove.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
+        }
         this.save(invoiceSaleMove);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(InvoiceSaleMoveEditParam invoiceSaleMoveEditParam) {
+        String id = invoiceSaleMoveEditParam.getId();
+        //判断是否走审批流程内的修改
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(invoiceSaleMoveEditParam.getProcessInstanceId())){
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(invoiceSaleMoveEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id = formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                invoiceSaleMoveEditParam.setId(id);
+            }
+        }
         InvoiceSaleMove invoiceSaleMove = this.queryEntity(invoiceSaleMoveEditParam.getId());
         BeanUtil.copyProperties(invoiceSaleMoveEditParam, invoiceSaleMove);
         this.updateById(invoiceSaleMove);
@@ -99,8 +143,8 @@ public class InvoiceSaleMoveServiceImpl extends ServiceImpl<InvoiceSaleMoveMappe
     }
 
     @Override
-    public InvoiceSaleMove detail(InvoiceSaleMoveIdParam invoiceSaleMoveIdParam) {
-        return this.queryEntity(invoiceSaleMoveIdParam.getId());
+    public InvoiceSaleMoveVo detail(InvoiceSaleMoveIdParam invoiceSaleMoveIdParam) {
+        return invoiceSaleMoveMapper.getDetailById(invoiceSaleMoveIdParam.getId());
     }
 
     @Override

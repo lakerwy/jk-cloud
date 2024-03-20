@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.invoice.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleMove;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleMoveVo;
 
 /**
  * 财务系统-销售发票-作废|红冲异动申请Mapper接口
@@ -22,4 +27,20 @@ import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleMove;
  * @date  2024/03/19 10:21
  **/
 public interface InvoiceSaleMoveMapper extends BaseMapper<InvoiceSaleMove> {
+
+    /**
+     * 分页查询
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<InvoiceSaleMoveVo> getPageList(Page<InvoiceSaleMoveVo> page, @Param(Constants.WRAPPER) Wrapper<InvoiceSaleMove> queryWrapper);
+
+    /**
+     * 根据主键Id,获取详情
+     * @param id
+     * @return
+     */
+    InvoiceSaleMoveVo getDetailById(String id);
+
 }

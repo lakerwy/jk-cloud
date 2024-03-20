@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleMoveVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -62,7 +63,7 @@ public class InvoiceSaleMoveController {
     @ApiOperation("获取财务系统-销售发票-作废|红冲异动申请分页")
 //    @SaCheckPermission("/biz/invoice/sale/move/page")
     @GetMapping("/biz/invoice/sale/move/page")
-    public CommonResult<Page<InvoiceSaleMove>> page(InvoiceSaleMovePageParam invoiceSaleMovePageParam) {
+    public CommonResult<Page<InvoiceSaleMoveVo>> page(InvoiceSaleMovePageParam invoiceSaleMovePageParam) {
         return CommonResult.data(invoiceSaleMoveService.page(invoiceSaleMovePageParam));
     }
 
@@ -125,7 +126,7 @@ public class InvoiceSaleMoveController {
     @ApiOperation("获取财务系统-销售发票-作废|红冲异动申请详情")
 //    @SaCheckPermission("/biz/invoice/sale/move/detail")
     @GetMapping("/biz/invoice/sale/move/detail")
-    public CommonResult<InvoiceSaleMove> detail(@Valid InvoiceSaleMoveIdParam invoiceSaleMoveIdParam) {
+    public CommonResult<InvoiceSaleMoveVo> detail(@Valid InvoiceSaleMoveIdParam invoiceSaleMoveIdParam) {
         return CommonResult.data(invoiceSaleMoveService.detail(invoiceSaleMoveIdParam));
     }
 }

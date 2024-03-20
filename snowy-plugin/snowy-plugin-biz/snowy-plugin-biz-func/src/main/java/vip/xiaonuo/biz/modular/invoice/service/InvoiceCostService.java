@@ -15,10 +15,13 @@ package vip.xiaonuo.biz.modular.invoice.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCost;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceCostAdd;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceCostEdit;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostAddParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostPageParam;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostVo;
 
 import java.util.List;
 
@@ -36,7 +39,7 @@ public interface InvoiceCostService extends IService<InvoiceCost> {
      * @author yong.ye
      * @date  2024/03/19 10:22
      */
-    Page<InvoiceCost> page(InvoiceCostPageParam invoiceCostPageParam);
+    Page<InvoiceCostVo> page(InvoiceCostPageParam invoiceCostPageParam);
 
     /**
      * 添加财务系统-成本发票申请
@@ -44,7 +47,7 @@ public interface InvoiceCostService extends IService<InvoiceCost> {
      * @author yong.ye
      * @date  2024/03/19 10:22
      */
-    void add(InvoiceCostAddParam invoiceCostAddParam);
+    void add(InvoiceCostAdd invoiceCostAdd);
 
     /**
      * 编辑财务系统-成本发票申请
@@ -52,7 +55,7 @@ public interface InvoiceCostService extends IService<InvoiceCost> {
      * @author yong.ye
      * @date  2024/03/19 10:22
      */
-    void edit(InvoiceCostEditParam invoiceCostEditParam);
+    void edit(InvoiceCostEdit invoiceCostEdit);
 
     /**
      * 删除财务系统-成本发票申请
@@ -68,7 +71,7 @@ public interface InvoiceCostService extends IService<InvoiceCost> {
      * @author yong.ye
      * @date  2024/03/19 10:22
      */
-    InvoiceCost detail(InvoiceCostIdParam invoiceCostIdParam);
+    InvoiceCostVo detail(InvoiceCostIdParam invoiceCostIdParam);
 
     /**
      * 获取财务系统-成本发票申请详情

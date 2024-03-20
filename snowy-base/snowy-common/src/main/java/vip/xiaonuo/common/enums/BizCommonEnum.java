@@ -34,8 +34,12 @@ public enum BizCommonEnum {
     HR_SUB_PERSONNEL("HR_SUB_PERSONNEL","HR_SUB_PERSONNEL","SubPersonnelServiceImpl"),  //分公司人事管理
     HR_SUB_SALARY("HR_SUB_SALARY","HR_SUB_SALARY","SubSalaryServiceImpl"),  //分公司人事管理-工资条
 
-    HR_SUB_TRANSFER("HR_SUB_TRANSFER","HR_SUB_TRANSFER","HrSubTransferServiceImpl");  //分公司人事管理-工资社保转入|转出总部
+    HR_SUB_TRANSFER("HR_SUB_TRANSFER","HR_SUB_TRANSFER","HrSubTransferServiceImpl"),  //分公司人事管理-工资社保转入|转出总部
 
+    BIZ_INVOICE_COST("BIZ_INVOICE_COST","BIZ_INVOICE_COST","InvoiceCostServiceImpl"),  //财务系统-成本发票-申请
+    BIZ_INVOICE_SALE("BIZ_INVOICE_SALE","BIZ_INVOICE_SALE","InvoiceSaleServiceImpl"),  //财务系统-销售发票-申请
+    BIZ_INVOICE_SALE_MOVE("BIZ_INVOICE_SALE_MOVE","BIZ_INVOICE_SALE_MOVE","InvoiceSaleMoveServiceImpl"),  //销售发票-作废|红冲-异动申请
+    BIZ_INVOICE_PRJ_REFUND("BIZ_INVOICE_PRJ_REFUND","BIZ_INVOICE_PRJ_REFUND","InvoicePrjRefundServiceImpl");  //财务系统-项目回款录入-申请
 
     String bizModel;
     String bizTable;

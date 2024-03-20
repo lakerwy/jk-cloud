@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceCostAdd;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceCostEdit;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -62,7 +65,7 @@ public class InvoiceCostController {
     @ApiOperation("获取财务系统-成本发票申请分页")
 //    @SaCheckPermission("/biz/invoice/cost/page")
     @GetMapping("/biz/invoice/cost/page")
-    public CommonResult<Page<InvoiceCost>> page(InvoiceCostPageParam invoiceCostPageParam) {
+    public CommonResult<Page<InvoiceCostVo>> page(InvoiceCostPageParam invoiceCostPageParam) {
         return CommonResult.data(invoiceCostService.page(invoiceCostPageParam));
     }
 
@@ -77,8 +80,8 @@ public class InvoiceCostController {
     @CommonLog("添加财务系统-成本发票申请")
 //    @SaCheckPermission("/biz/invoice/cost/add")
     @PostMapping("/biz/invoice/cost/add")
-    public CommonResult<String> add(@RequestBody @Valid InvoiceCostAddParam invoiceCostAddParam) {
-        invoiceCostService.add(invoiceCostAddParam);
+    public CommonResult<String> add(@RequestBody @Valid InvoiceCostAdd invoiceCostAdd) {
+        invoiceCostService.add(invoiceCostAdd);
         return CommonResult.ok();
     }
 
@@ -93,8 +96,8 @@ public class InvoiceCostController {
     @CommonLog("编辑财务系统-成本发票申请")
 //    @SaCheckPermission("/biz/invoice/cost/edit")
     @PostMapping("/biz/invoice/cost/edit")
-    public CommonResult<String> edit(@RequestBody @Valid InvoiceCostEditParam invoiceCostEditParam) {
-        invoiceCostService.edit(invoiceCostEditParam);
+    public CommonResult<String> edit(@RequestBody @Valid InvoiceCostEdit invoiceCostEdit) {
+        invoiceCostService.edit(invoiceCostEdit);
         return CommonResult.ok();
     }
 
@@ -125,7 +128,7 @@ public class InvoiceCostController {
     @ApiOperation("获取财务系统-成本发票申请详情")
 //    @SaCheckPermission("/biz/invoice/cost/detail")
     @GetMapping("/biz/invoice/cost/detail")
-    public CommonResult<InvoiceCost> detail(@Valid InvoiceCostIdParam invoiceCostIdParam) {
+    public CommonResult<InvoiceCostVo> detail(@Valid InvoiceCostIdParam invoiceCostIdParam) {
         return CommonResult.data(invoiceCostService.detail(invoiceCostIdParam));
     }
 }

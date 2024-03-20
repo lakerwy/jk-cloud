@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -62,7 +65,7 @@ public class InvoiceSaleController {
     @ApiOperation("获取财务系统-销售发票开具申请分页")
 //    @SaCheckPermission("/biz/invoice/sale/page")
     @GetMapping("/biz/invoice/sale/page")
-    public CommonResult<Page<InvoiceSale>> page(InvoiceSalePageParam invoiceSalePageParam) {
+    public CommonResult<Page<InvoiceSaleVo>> page(InvoiceSalePageParam invoiceSalePageParam) {
         return CommonResult.data(invoiceSaleService.page(invoiceSalePageParam));
     }
 
@@ -77,8 +80,8 @@ public class InvoiceSaleController {
     @CommonLog("添加财务系统-销售发票开具申请")
 //    @SaCheckPermission("/biz/invoice/sale/add")
     @PostMapping("/biz/invoice/sale/add")
-    public CommonResult<String> add(@RequestBody @Valid InvoiceSaleAddParam invoiceSaleAddParam) {
-        invoiceSaleService.add(invoiceSaleAddParam);
+    public CommonResult<String> add(@RequestBody @Valid InvoiceSaleAdd invoiceSaleAdd) {
+        invoiceSaleService.add(invoiceSaleAdd);
         return CommonResult.ok();
     }
 
@@ -93,8 +96,8 @@ public class InvoiceSaleController {
     @CommonLog("编辑财务系统-销售发票开具申请")
 //    @SaCheckPermission("/biz/invoice/sale/edit")
     @PostMapping("/biz/invoice/sale/edit")
-    public CommonResult<String> edit(@RequestBody @Valid InvoiceSaleEditParam invoiceSaleEditParam) {
-        invoiceSaleService.edit(invoiceSaleEditParam);
+    public CommonResult<String> edit(@RequestBody @Valid InvoiceSaleEdit invoiceSaleEdit) {
+        invoiceSaleService.edit(invoiceSaleEdit);
         return CommonResult.ok();
     }
 
@@ -125,7 +128,7 @@ public class InvoiceSaleController {
     @ApiOperation("获取财务系统-销售发票开具申请详情")
 //    @SaCheckPermission("/biz/invoice/sale/detail")
     @GetMapping("/biz/invoice/sale/detail")
-    public CommonResult<InvoiceSale> detail(@Valid InvoiceSaleIdParam invoiceSaleIdParam) {
+    public CommonResult<InvoiceSaleVo> detail(@Valid InvoiceSaleIdParam invoiceSaleIdParam) {
         return CommonResult.data(invoiceSaleService.detail(invoiceSaleIdParam));
     }
 }
