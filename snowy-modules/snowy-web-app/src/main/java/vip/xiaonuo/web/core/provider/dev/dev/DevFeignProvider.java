@@ -90,18 +90,19 @@ public class DevFeignProvider implements DevFeign {
 
     @Override
     @RequestMapping("/feign/dev/addScheduleForWork")
-    public void addScheduleForWork(@RequestParam String id){
-        if(StringUtils.isEmpty(id)){return;}
+    public String addScheduleForWork(@RequestParam String id){
+        String scheduleId = "";
+        if(StringUtils.isEmpty(id)){return scheduleId;}
         try{
             String sql = "SELECT ID,TASK_NAME,TASK_REMARK,TASK_START_TIME,TASK_END_TIME,BELONGER,CREATE_USER,SN FROM BIZ_TASK_INFO " +
                     " WHERE ID = '"+id+"'";
             Map<String,Object> map= CommonHandleUtil.handleSqlQuery(sql, Boolean.FALSE);
-            if(ObjectUtil.isEmpty(map)){return;}
-            if(ObjectUtil.isEmpty(map.get("BELONGER"))){return;}
-            if(ObjectUtil.isEmpty(map.get("TASK_START_TIME"))){return;}
-            if(ObjectUtil.isEmpty(map.get("TASK_END_TIME"))){return;}
-            if(ObjectUtil.isEmpty(map.get("TASK_NAME"))){return;}
-            if(ObjectUtil.isEmpty(map.get("CREATE_USER"))){return;}
+            if(ObjectUtil.isEmpty(map)){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("BELONGER"))){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("TASK_START_TIME"))){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("TASK_END_TIME"))){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("TASK_NAME"))){return scheduleId;}
+            if(ObjectUtil.isEmpty(map.get("CREATE_USER"))){return scheduleId;}
 
             List<DingDingScheduleParam> dingDingScheduleParamList = new ArrayList<>();
             SysUser sysUser = sysUserService.getById(map.get("BELONGER").toString());
@@ -119,10 +120,11 @@ public class DevFeignProvider implements DevFeign {
             dingDingScheduleVo.setDescription(ObjectUtil.isNotEmpty(map.get("TASK_REMARK")) ? map.get("TASK_REMARK").toString() : "");
             dingDingScheduleVo.setId(map.get("ID").toString());
             dingDingScheduleVo.setCreateUser(StpUtil.getLoginIdAsString());
-            startDingDingScheduleCore.addDingDingSchedule(dingDingScheduleVo, appKey, appSecret);
+            scheduleId =  startDingDingScheduleCore.addDingDingSchedule(dingDingScheduleVo, appKey, appSecret);
         }catch (Exception e){
             log.error("任务创建日程失败！e:"+e.getMessage());
         }
+        return scheduleId;
     }
 
     @Override

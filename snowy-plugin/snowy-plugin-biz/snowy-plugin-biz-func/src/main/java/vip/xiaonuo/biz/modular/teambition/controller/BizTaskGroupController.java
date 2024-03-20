@@ -59,12 +59,12 @@ public class BizTaskGroupController {
      * @author ljy
      * @date  2023/12/08 08:58
      */
-    @ApiOperationSupport(order = 1)
+    /*@ApiOperationSupport(order = 1)
     @ApiOperation("获取任务来源表分页")
     @GetMapping("/biz/taskGroup/page")
     public CommonResult<Page<BizTaskGroup>> page(BizTaskGroupPageParam bizTaskGroupPageParam) {
         return CommonResult.data(bizTaskGroupService.page(bizTaskGroupPageParam));
-    }
+    }*/
 
 
     /** 获取任务管理附件数据*/
@@ -228,13 +228,13 @@ public class BizTaskGroupController {
      * @author ljy
      * @date  2023/12/18 11:40
      */
-    @ApiOperationSupport(order = 27)
+    /*@ApiOperationSupport(order = 27)
     @ApiOperation("第三方源任务详情分页")
     @CommonLog("第三方源任务详情分页")
     @GetMapping("/biz/taskInfo/thirdPage")
     public CommonResult<Page<BizTaskInfo>> thirdPage(ThirdTaskPageParam thirdTaskPageParam) {
         return CommonResult.data(bizTaskInfoService.thirdPage(thirdTaskPageParam));
-    }
+    }*/
 
     /**
      * 第三方来源添加任务

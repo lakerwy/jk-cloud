@@ -632,7 +632,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         /** 新增 */
         if(CollectionUtil.isNotEmpty(saveWorkList)){
             Boolean isSaveTrue = this.saveBatch(saveWorkList);
-            if(isSaveTrue){ saveWorkList.forEach(work -> asyCreateSchedule(work.getId()));}
+            if(isSaveTrue){ saveWorkList.forEach(work -> asyCreateSchedule(work));}
         }
         /** 修改 */
         if(CollectionUtil.isNotEmpty(updateWorkList)){ this.saveOrUpdateBatch(updateWorkList); }
@@ -651,10 +651,12 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     }
 
     /**  异步创建日程 */
-    private Future<String> asyCreateSchedule(String id) {
+    private Future<String> asyCreateSchedule(BizTaskInfo bizTaskInfo) {
         CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
             try {
-                devFeign.addScheduleForWork(id);
+                String scheduleId = devFeign.addScheduleForWork(bizTaskInfo.getId());
+                if(StringUtils.isNotEmpty(scheduleId)){ bizTaskInfo.setScheduleId(scheduleId); }
+                this.saveOrUpdate(bizTaskInfo);
             } catch (Exception e) {
                 log.error("创建日程失败!e:"+e.getMessage());
             }
