@@ -17,7 +17,6 @@ import java.util.Date;
 @Setter
 public class ThirdBizTaskInfoVo {
     /** 主键 */
-    @TableId
     @ApiModelProperty(value = "主键", position = 1)
     private String id;
 
@@ -42,13 +41,13 @@ public class ThirdBizTaskInfoVo {
     private String proId;
 
     /** 任务开始时间 */
-    @ApiModelProperty(value = "任务开始时间", position = 7)
+    @ApiModelProperty(value = "任务开始时间：yyyy-MM-dd HH:mm:ss", position = 7)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date taskStartTime;
 
     /** 任务结束时间 */
-    @ApiModelProperty(value = "任务结束时间", position = 8)
+    @ApiModelProperty(value = "任务结束时间：yyyy-MM-dd HH:mm:ss", position = 8)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date taskEndTime;
@@ -77,32 +76,6 @@ public class ThirdBizTaskInfoVo {
     @ApiModelProperty(value = "扩展信息", position = 15)
     private String extJson;
 
-    /** 删除标识 */
-    @ApiModelProperty(value = "删除标识", position = 16)
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
-    private String deleteFlag;
-
-    /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 17)
-    @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
-
-    /** 创建人 */
-    @ApiModelProperty(value = "创建人", position = 18)
-    @TableField(fill = FieldFill.INSERT)
-    private String createUser;
-
-    /** 更新时间 */
-    @ApiModelProperty(value = "更新时间", position = 19)
-    @TableField(fill = FieldFill.UPDATE)
-    private Date updateTime;
-
-    /** 更新人 */
-    @ApiModelProperty(value = "更新人", position = 20)
-    @TableField(fill = FieldFill.UPDATE)
-    private String updateUser;
-
     /** 负责人ID */
     @ApiModelProperty(value = "负责人ID", position = 21)
     private String leadId;
@@ -110,11 +83,6 @@ public class ThirdBizTaskInfoVo {
     /** 负责人部门 */
     @ApiModelProperty(value = "负责人部门", position = 22)
     private String leadOrg;
-
-    /** 任务来源详情表 */
-    @ApiModelProperty(value = "任务来源详情表", position = 23)
-    @TableField(exist = false)
-    private BizTaskProject bizTaskProject;
 
     /** 任务执行者部门 */
     @ApiModelProperty(value = "任务执行者部门", position = 24)
