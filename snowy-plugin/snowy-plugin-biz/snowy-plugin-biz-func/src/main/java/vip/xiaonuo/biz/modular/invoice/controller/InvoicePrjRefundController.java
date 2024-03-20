@@ -23,6 +23,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.DoImport;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.ImportRefund;
+import vip.xiaonuo.biz.modular.invoice.vo.ImportResult;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -127,5 +130,33 @@ public class InvoicePrjRefundController {
     @GetMapping("/biz/invoice/prj/refund/detail")
     public CommonResult<InvoicePrjRefund> detail(@Valid InvoicePrjRefundIdParam invoicePrjRefundIdParam) {
         return CommonResult.data(invoicePrjRefundService.detail(invoicePrjRefundIdParam));
+    }
+
+    /**
+     * 财务系统-项目回款录入申请 - 导入校验
+     *
+     * @author yong.ye
+     * @date  2024/03/19 10:24
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("财务系统-项目回款录入申请 - 导入校验")
+    @CommonLog("财务系统-项目回款录入申请 - 导入校验")
+    @PostMapping("/biz/invoice/prj/refund/importRefund")
+    public CommonResult<ImportResult> importRefund(@RequestBody @Valid ImportRefund importRefund) {
+        return CommonResult.data(invoicePrjRefundService.importRefund(importRefund));
+    }
+
+    /**
+     * 财务系统-项目回款录入申请 - 【正式导入】
+     *
+     * @author yong.ye
+     * @date  2024/03/19 10:24
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("财务系统-项目回款录入申请 - 【正式导入】")
+    @CommonLog("财务系统-项目回款录入申请 - 【正式导入】")
+    @PostMapping("/biz/invoice/prj/refund/doImport")
+    public CommonResult<Boolean> doImport(@RequestBody @Valid DoImport input) {
+        return CommonResult.data(invoicePrjRefundService.doImport(input));
     }
 }

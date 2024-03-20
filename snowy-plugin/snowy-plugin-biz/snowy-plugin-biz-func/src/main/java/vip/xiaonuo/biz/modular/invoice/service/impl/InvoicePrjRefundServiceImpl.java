@@ -14,6 +14,8 @@ package vip.xiaonuo.biz.modular.invoice.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
@@ -24,6 +26,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
+import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.DoImport;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.ImportRefund;
+import vip.xiaonuo.biz.modular.invoice.util.InvoiceUtil;
+import vip.xiaonuo.biz.modular.invoice.vo.ImportResult;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoicePrjRefundVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -44,6 +53,7 @@ import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 财务系统-项目回款录入申请Service接口实现类
@@ -55,8 +65,15 @@ import java.util.List;
 @DS("slave_1")
 public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMapper, InvoicePrjRefund> implements InvoicePrjRefundService {
 
+    /**
+     * 员工类别 范围
+     */
+    private static final String[] APPLY_UNIT_LIST = {"总部","分公司","零星"};
+
     @Resource
     private CommonCacheOperator commonCacheOperator;
+    @Resource
+    private HetongService hetongService;
 
     @Override
     public Page<InvoicePrjRefund> page(InvoicePrjRefundPageParam invoicePrjRefundPageParam) {
@@ -161,5 +178,81 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
             throw new CommonException("财务系统-项目回款录入申请不存在，id值为：{}", id);
         }
         return invoicePrjRefund;
+    }
+
+    @Override
+    public ImportResult importRefund(ImportRefund importRefund) {
+        List<InvoicePrjRefundVo> importData = BeanUtil.copyToList(importRefund.getImportData(), InvoicePrjRefundVo.class);
+        checkData(importData);
+        ImportResult result = new ImportResult();
+        result.setTotal(importData.size());
+        List<InvoicePrjRefundVo> errList = importData.stream().filter(x->ObjectUtil.isNotEmpty(x.getErrorMsg())).collect(Collectors.toList());
+        result.setErrCount(errList.size());
+        result.setResultList(importData);
+        result.setSucCount(result.getTotal() - result.getErrCount());
+        return result;
+    }
+
+    @Override
+    public Boolean doImport(DoImport input) {
+        List<InvoicePrjRefundVo> importData = input.getImportData().stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
+        if(CollUtil.isEmpty(importData)){
+            throw new CommonException("无有效导入数据");
+        }
+        List<InvoicePrjRefund> invoicePrjRefunds = BeanUtil.copyToList(importData, InvoicePrjRefund.class);
+        this.saveBatch(invoicePrjRefunds);
+        return true;
+    }
+
+
+    /**
+     * 通用校验（必填|数据格式校验|匹配合同）
+     * @param importData
+     * @return
+     */
+    public void checkData(List<InvoicePrjRefundVo> importData){
+        //校验格式与必填
+        importData.forEach(item->{
+            String errMsg = "";
+            if(ObjectUtil.isEmpty(item.getApplyUnit())){
+                errMsg += "申请人单位必填；";
+            }
+            if(ObjectUtil.isEmpty(item.getHtContractNo())){
+                errMsg += "销售合同编号必填；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getApplyUnit()) && !CollectionUtil.newArrayList(APPLY_UNIT_LIST).contains(item.getApplyUnit())){
+                errMsg += "申请人单位必须为：" + StrUtil.join("、",APPLY_UNIT_LIST) +"；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getSkDate()) && !InvoiceUtil.isValidDate(item.getSkDate())){
+                errMsg += "收款日期格式不合法；";
+            }
+            item.setErrorMsg(errMsg);
+            if(ObjectUtil.isNotEmpty(item.getHtContractNo())){
+                item.setHtContractNo(item.getHtContractNo().trim());
+            }
+        });
+        //校验合同，并匹配合同数据
+        List<String> htContractNos = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getHtContractNo()).collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(htContractNos)){
+            QueryWrapper<Hetong> hetongQueryWrapper = new QueryWrapper<>();
+            hetongQueryWrapper.lambda().select(Hetong::getId,Hetong::getProjectName,Hetong::getContractAmount,Hetong::getCounterparty);
+            hetongQueryWrapper.lambda().in(Hetong::getContractNo,htContractNos);
+            hetongQueryWrapper.lambda().in(Hetong::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+            List<Hetong> hetongList = hetongService.list(hetongQueryWrapper);
+            importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
+                List<Hetong> tmpHtList = hetongList.stream().filter(obj->item.getHtContractNo().equals(obj.getContractNo())).collect(Collectors.toList());
+                if(tmpHtList.size() == 0){
+                    item.setErrorMsg("合同号不存在，请检查");
+                }else if(tmpHtList.size() == 1){
+                    Hetong tmpHt = tmpHtList.get(0);
+                    item.setHtId(tmpHt.getId());
+                    item.setHtProjectName(tmpHt.getProjectName());
+                    item.setHtContractAmount(tmpHt.getContractAmount());
+                    item.setHtCounterparty(tmpHt.getCounterparty());
+                }else{
+                    item.setErrorMsg("合同号未唯一匹配，请检查");
+                }
+            });
+        }
     }
 }

@@ -15,10 +15,13 @@ package vip.xiaonuo.biz.modular.invoice.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoicePrjRefund;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.DoImport;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.ImportRefund;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundAddParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundPageParam;
+import vip.xiaonuo.biz.modular.invoice.vo.ImportResult;
 
 import java.util.List;
 
@@ -77,4 +80,17 @@ public interface InvoicePrjRefundService extends IService<InvoicePrjRefund> {
      * @date  2024/03/19 10:24
      **/
     InvoicePrjRefund queryEntity(String id);
+
+    /**
+     * 导入项目回款信息
+     * @param importRefund
+     */
+    ImportResult importRefund(ImportRefund importRefund);
+
+    /**
+     * 正式导入
+     * @param input
+     * @return
+     */
+    Boolean doImport(DoImport input);
 }

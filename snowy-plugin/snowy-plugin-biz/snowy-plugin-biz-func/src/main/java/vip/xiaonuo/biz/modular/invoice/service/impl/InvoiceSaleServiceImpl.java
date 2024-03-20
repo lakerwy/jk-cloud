@@ -28,11 +28,13 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleBill;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleCost;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleKp;
+import vip.xiaonuo.biz.modular.invoice.mapper.InvoiceSaleBillMapper;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleBillService;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleCostService;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleKpService;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
@@ -72,6 +74,8 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
     private InvoiceSaleBillService invoiceSaleBillService;
     @Resource
     private CommonCacheOperator commonCacheOperator;
+    @Resource
+    private InvoiceSaleBillMapper invoiceSaleBillMapper;
 
     @Override
     public Page<InvoiceSaleVo> page(InvoiceSalePageParam invoiceSalePageParam) {
@@ -333,5 +337,57 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
             throw new CommonException("财务系统-销售发票开具申请不存在，id值为：{}", id);
         }
         return invoiceSale;
+    }
+
+    @Override
+    public Page<InvoiceSaleInfo> billPage(InvoiceSalePageParam invoiceSalePageParam) {
+        QueryWrapper<InvoiceSaleBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("b.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getFpNo())){
+            queryWrapper.like("a.FP_NO",invoiceSalePageParam.getFpNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getApplyUnit())) {
+            queryWrapper.eq("b.APPLY_UNIT", invoiceSalePageParam.getApplyUnit());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getApplyName())) {
+            queryWrapper.like("b.APPLY_NAME", invoiceSalePageParam.getApplyName());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getBillUnit())) {
+            queryWrapper.like("b.BILL_UNIT", invoiceSalePageParam.getBillUnit());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getHtProjectName())) {
+            queryWrapper.like("b.HT_PROJECT_NAME", invoiceSalePageParam.getHtProjectName());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getHtContractNo())) {
+            queryWrapper.eq("b.HT_CONTRACT_NO", invoiceSalePageParam.getHtContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getTaxpayerType())) {
+            queryWrapper.eq("b.TAXPAYER_TYPE", invoiceSalePageParam.getTaxpayerType());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getFpType())) {
+            queryWrapper.eq("b.FP_TYPE", invoiceSalePageParam.getFpType());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getTaxpayerNo())) {
+            queryWrapper.like("b.TAXPAYER_NO", invoiceSalePageParam.getTaxpayerNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getGatherType())) {
+            queryWrapper.eq("b.GATHER_TYPE", invoiceSalePageParam.getGatherType());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getSn())) {
+            queryWrapper.like("b.SN", invoiceSalePageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getStatus())) {
+            queryWrapper.eq("b.STATUS", invoiceSalePageParam.getStatus());
+        }
+        if(ObjectUtil.isAllNotEmpty(invoiceSalePageParam.getSortField(), invoiceSalePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(invoiceSalePageParam.getSortOrder());
+            queryWrapper.orderBy(true, invoiceSalePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(invoiceSalePageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("b.SN").orderByDesc("a.FP_NO");
+        }
+        return invoiceSaleBillMapper.getSalePageList(CommonPageRequest.defaultPage(),queryWrapper);
     }
 }

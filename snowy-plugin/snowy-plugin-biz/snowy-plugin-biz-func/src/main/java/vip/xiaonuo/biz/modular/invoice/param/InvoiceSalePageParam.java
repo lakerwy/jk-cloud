@@ -108,4 +108,8 @@ public class InvoiceSalePageParam {
     @ApiModelProperty(value = "流程状态")
     private String status;
 
+    /** 销售发票-发票号【发票号维度】 */
+    @ApiModelProperty(value = "销售发票-发票号【发票号维度】")
+    private String fpNo;
+
 }

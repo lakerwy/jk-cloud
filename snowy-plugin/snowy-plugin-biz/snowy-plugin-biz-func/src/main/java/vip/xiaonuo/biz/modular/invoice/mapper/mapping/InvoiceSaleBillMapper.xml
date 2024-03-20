@@ -2,4 +2,23 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.invoice.mapper.InvoiceSaleBillMapper">
 
+    <select id="getSalePageList" resultType="vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo">
+        select a.*,
+               b.ID as sId,b.APPLY_UNIT as sApplyUnit,b.APPLY_ID as sApplyId,b.APPLY_NAME as sApplyName,
+               b.BILL_ID as sBillId,b.BILL_UNIT as sBillUnit,b.HT_ID as sHtId,b.HT_PROJECT_NAME as sHtProjectName,
+               b.HT_CONTRACT_NO as sHtContractNo,b.HT_CONTRACT_AMOUNT as sHtContractAmount,b.HT_COUNTERPARTY as sHtCounterparty,
+               b.HT_COMPANY_OR_DEPARTMENT as sHtCompanyOrDepartment,b.HT_OWNER as sHtOwner,b.HT_PROJECT_TYPE as sHtProjectType,
+               b.LJ_KP_AMOUNT as sLjKpAmount,b.LJ_HK_AMOUNT as sLjHkAmount,b.JS_ATTACH as sJsAttach,b.PURCHASER as sPurchaser,
+               b.TAXPAYER_TYPE as sTaxpayerType,b.FP_TYPE as sFpType,b.TAXPAYER_NO as sTaxpayerNo,b.ADDRESS_INFO as sAddressInfo,
+               b.BANK_INFO as sBankInfo,b.FP_MEMO as sFpMemo,b.ADD_TAX as sAddTax,b.INCOME_TAX as sIncomeTax,b.PER_INCOME_TAX as sPerIncomeTax,
+               b.BUILD_TAX as sBuildTax,b.EDU_TAX as sEduTax,b.PLACE_EDU_TAX as sPlaceEduTax,b.STAMP_TAX as sStampTax,b.OTHER_TAX as sOtherTax,
+               b.PROOF_DATE as sProofDate,b.PRE_TAX_TOTAL as sPreTaxTotal,b.LJ_PRE_TAX as sLjPreTax,b.PF_ATTACH as sPfAttach,
+               b.KP_MEMO as sKpMemo,b.YS_TAX_DIFF as sYsTaxDiff,b.PER_TAX_DIFF as sPerTaxDiff,b.LJ_PER_TAX_DIFF as sLjPerTaxDiff,
+               b.GATHER_TYPE as sGatherType,b.TAX_DIFF_RATE as sTaxDiffRate,b.OTHER_MEMO as sOtherMemo,b.SN as sSn,
+               b.MODEL_ID as sModelId,b.PROCESS_INSTANCE_ID as sProcessInstanceId,b.STATUS as sStatus,b.MEMO as sMemo
+        from BIZ_INVOICE_SALE_BILL a
+                join BIZ_INVOICE_SALE b on b.INVOICE_SALE_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

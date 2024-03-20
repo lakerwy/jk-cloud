@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -56,13 +57,13 @@ public class InvoiceSaleController {
     private InvoiceSaleService invoiceSaleService;
 
     /**
-     * 获取财务系统-销售发票开具申请分页
+     * 获取财务系统-销售发票开具申请分页【申请单维度】
      *
      * @author yong.ye
      * @date  2024/03/19 10:17
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取财务系统-销售发票开具申请分页")
+    @ApiOperation("获取财务系统-销售发票开具申请分页【申请单维度】")
 //    @SaCheckPermission("/biz/invoice/sale/page")
     @GetMapping("/biz/invoice/sale/page")
     public CommonResult<Page<InvoiceSaleVo>> page(InvoiceSalePageParam invoiceSalePageParam) {
@@ -130,5 +131,20 @@ public class InvoiceSaleController {
     @GetMapping("/biz/invoice/sale/detail")
     public CommonResult<InvoiceSaleVo> detail(@Valid InvoiceSaleIdParam invoiceSaleIdParam) {
         return CommonResult.data(invoiceSaleService.detail(invoiceSaleIdParam));
+    }
+
+
+    /**
+     * 获取财务系统-销售发票-分页【发票号维度】
+     *
+     * @author yong.ye
+     * @date  2024/03/19 10:17
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取财务系统-销售发票-分页【发票号维度】")
+//    @SaCheckPermission("/biz/invoice/sale/page")
+    @GetMapping("/biz/invoice/sale/billPage")
+    public CommonResult<Page<InvoiceSaleInfo>> billPage(InvoiceSalePageParam invoiceSalePageParam) {
+        return CommonResult.data(invoiceSaleService.billPage(invoiceSalePageParam));
     }
 }

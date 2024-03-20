@@ -21,6 +21,7 @@ import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleAddParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSalePageParam;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
 
 import java.util.List;
@@ -80,4 +81,11 @@ public interface InvoiceSaleService extends IService<InvoiceSale> {
      * @date  2024/03/19 10:17
      **/
     InvoiceSale queryEntity(String id);
+
+    /**
+     * 发票号维度 - 分页
+     * @param invoiceSalePageParam
+     * @return
+     */
+    Page<InvoiceSaleInfo> billPage(InvoiceSalePageParam invoiceSalePageParam);
 }
