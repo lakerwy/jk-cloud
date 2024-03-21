@@ -19,11 +19,11 @@ public class ThirdBizTaskInfoParam {
     private String proId;
 
     /** 第三方类别 */
-    @ApiModelProperty(value = "第三方类别",position = 1)
+    @ApiModelProperty(value = "第三方类别",position = 2)
     @NotNull(message = "第三方类别")
     private String proType;
 
-    @ApiModelProperty(value = "任务批量修改列表", position = 2)
+    @ApiModelProperty(value = "任务批量修改列表", position = 3)
     @NotNull(message = "任务批量修改列表")
     private List<ThirdBizTaskInfoVo> thirdBizTaskInfoVoList;
 }

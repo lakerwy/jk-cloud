@@ -67,9 +67,8 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.feign.DevFeign;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.*;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
 /**
@@ -345,7 +344,8 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(ObjectUtil.isNotEmpty(o)){
             String taskNoKey = String.valueOf(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY));
             if(taskNoKey.startsWith(day)){
-                commonCacheOperator.put(TaskConfConstant.TASK_NO_KEY,Integer.parseInt(taskNoKey)+1);
+                BigDecimal bigDecimal = new BigDecimal(taskNoKey);
+                commonCacheOperator.put(TaskConfConstant.TASK_NO_KEY,bigDecimal.add(new BigDecimal(1)));
             }else{
                 commonCacheOperator.put(TaskConfConstant.TASK_NO_KEY,sn);
             }
@@ -606,7 +606,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     }
 
     @Override
-    public String editThirdWorkCore(ThirdBizTaskInfoParam thirdBizTaskInfoParam){
+    public void editThirdWorkCore(ThirdBizTaskInfoParam thirdBizTaskInfoParam){
         List<BizTaskInfo> bizTaskInfoList = new ArrayList<>();
         if(StringUtils.isNotEmpty(thirdBizTaskInfoParam.getProId()) && StringUtils.isNotEmpty(thirdBizTaskInfoParam.getProType())){
             bizTaskInfoList = this.list(new LambdaQueryWrapper<BizTaskInfo>().eq(BizTaskInfo::getProId,thirdBizTaskInfoParam.getProId())
@@ -643,7 +643,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         /** 新增 */
         if(CollectionUtil.isNotEmpty(saveWorkList)){
             Boolean isSaveTrue = this.saveBatch(saveWorkList);
-            if(isSaveTrue){ saveWorkList.forEach(work -> asyCreateSchedule(work));}
+            if(isSaveTrue){ saveWorkList.forEach(work -> asyCreateSchedule(work)); }
         }
         /** 修改 */
         if(CollectionUtil.isNotEmpty(updateWorkList)){ this.saveOrUpdateBatch(updateWorkList); }
@@ -651,26 +651,25 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         /** 删除 */
         if(CollectionUtil.isNotEmpty(deleteWorkList)){
             Boolean isdeleteTrue = this.removeBatchByIds(deleteWorkList);
-            if(isdeleteTrue){
-                deleteWorkList.forEach(del -> {
+            if(isdeleteTrue){ deleteWorkList.forEach(del -> {
                     boolean isTrue = StringUtils.isNotEmpty(del.getScheduleId()) && StringUtils.isNotEmpty(del.getBelonger());
                     if(isTrue){ asyDeleteSchedule(del.getScheduleId(),del.getBelonger());}
                 });
             }
         }
-        return "修改成功！";
     }
 
     /**  创建日程 */
-    private String asyCreateSchedule(BizTaskInfo bizTaskInfo) {
+    private void asyCreateSchedule(BizTaskInfo bizTaskInfo) {
         try {
             String scheduleId = devFeign.addScheduleForWork(appKey,appSecret,bizTaskInfo.getId());
-            if(StringUtils.isNotEmpty(scheduleId)){ bizTaskInfo.setScheduleId(scheduleId); }
-            this.saveOrUpdate(bizTaskInfo);
+            if(StringUtils.isNotEmpty(scheduleId)){
+                bizTaskInfo.setScheduleId(scheduleId);
+                this.saveOrUpdate(bizTaskInfo);
+            }
         } catch (Exception e) {
             log.error("创建日程失败!e:"+e.getMessage());
         }
-        return "异步创建日程";
     }
 
     /**  删除日程 */

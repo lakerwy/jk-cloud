@@ -75,7 +75,7 @@ public class DevFeignProvider implements DevFeign {
 
     @Override
     @RequestMapping("/feign/dev/deleteScheduleForWork")
-    public void deleteScheduleForWork(@RequestParam("appKey") String appKey,@RequestParam("appSecret") String appSecret,@RequestParam("scheduleId") String scheduleId,@RequestParam("dutyUserId") String dutyUserId){
+    public void deleteScheduleForWork(@RequestParam String appKey,@RequestParam String appSecret,@RequestParam String scheduleId,@RequestParam String dutyUserId){
         try{
             startDingDingScheduleCore.deleteScheduleForUserId(appKey,appSecret,scheduleId,dutyUserId);
         }catch (Exception e){

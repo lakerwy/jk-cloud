@@ -50,5 +50,5 @@ public interface DevFeign {
 
     /**  根据任务删除日程 */
     @RequestMapping("/feign/dev/deleteScheduleForWork")
-    void deleteScheduleForWork(@RequestParam("scheduleId") String appKey,@RequestParam("scheduleId") String appSecret,@RequestParam("scheduleId") String scheduleId,@RequestParam String dutyUserId);
+    void deleteScheduleForWork(@RequestParam String appKey,@RequestParam String appSecret,@RequestParam String scheduleId,@RequestParam String dutyUserId);
 }

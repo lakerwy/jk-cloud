@@ -97,5 +97,5 @@ public interface BizTaskInfoService extends IService<BizTaskInfo> {
     JSONArray thirdPage(String proId, String proType);
 
     /**  对任务进行修改 */
-    String editThirdWorkCore(ThirdBizTaskInfoParam thirdBizTaskInfoParam);
+    void editThirdWorkCore(ThirdBizTaskInfoParam thirdBizTaskInfoParam);
 }
