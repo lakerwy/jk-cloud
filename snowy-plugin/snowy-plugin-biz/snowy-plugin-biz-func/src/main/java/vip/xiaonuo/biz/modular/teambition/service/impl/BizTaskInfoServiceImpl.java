@@ -262,7 +262,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         bizTaskInfo.setSn(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY).toString());
         this.save(bizTaskInfo);
         sendAddMsg(bizTaskInfo);
-        putTaskComment(bizTaskInfo,infoStatus);
+        //putTaskComment(bizTaskInfo,infoStatus);
     }
     private void putTaskComment(BizTaskInfo bizTaskInfo,String infoStatus){
         BizTaskComment bizTaskComment = new BizTaskComment();
@@ -374,7 +374,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(ObjectUtil.isNotEmpty(bizTaskInfoEditParam.getProId())){
             editBizTaskProject(bizTaskInfoEditParam);
         }
-        putTaskComment(bizTaskInfo,infoStatus);
+        //putTaskComment(bizTaskInfo,infoStatus);
     }
     private void editBizTaskProject(BizTaskInfoEditParam bizTaskInfoEditParam){
         BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfoEditParam.getProId());
@@ -574,7 +574,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         initBizTaskInfo(bizTaskInfo);
         this.save(bizTaskInfo);
         sendAddMsg(bizTaskInfo);
-        putTaskComment(bizTaskInfo,infoStatus);
+        //putTaskComment(bizTaskInfo,infoStatus);
     }
 
     /**  会议新增任务 - 特殊处理 */
@@ -654,7 +654,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         return "修改成功！";
     }
 
-    /**  异步创建日程 */
+    /**  创建日程 */
     private String asyCreateSchedule(BizTaskInfo bizTaskInfo) {
         try {
             String scheduleId = devFeign.addScheduleForWork(appKey,appSecret,bizTaskInfo.getId());
@@ -665,17 +665,13 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         }
         return "异步创建日程";
     }
-    /**  异步删除日程 */
-    private Future<String> asyDeleteSchedule(String scheduleId,String dutyUserId) {
-        CompletableFuture<String> future = CompletableFuture.supplyAsync(() -> {
-            try{
-                devFeign.deleteScheduleForWork(appKey,appSecret,scheduleId,dutyUserId);
-            }catch (Exception e){
-                log.error("删除日程失败！e:"+e.getMessage());
-            }
-            return "异步删除日程";
-        });
-        return future;
-    }
 
+    /**  删除日程 */
+    private void asyDeleteSchedule(String scheduleId,String dutyUserId){
+        try{
+            devFeign.deleteScheduleForWork(appKey,appSecret,scheduleId,dutyUserId);
+        }catch (Exception e){
+            log.error("删除日程失败！e:"+e.getMessage());
+        }
+    }
 }
