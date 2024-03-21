@@ -87,7 +87,7 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
             queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalarySubsidyRecordVo> result = salarySubsidyRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalarySubsidyRecordVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName())).collect(Collectors.toList());
+        List<SalarySubsidyRecordVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
         result.setRecords(records);
         return result;
     }
