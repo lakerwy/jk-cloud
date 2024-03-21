@@ -94,7 +94,7 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
             queryWrapper.orderByDesc("c.`YEAR_MONTH`");
         }
         Page<SalaryAddRecordVo> result = salaryAddRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalaryAddRecordVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        List<SalaryAddRecordVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName())).collect(Collectors.toList());
         result.setRecords(records);
         return result;
     }

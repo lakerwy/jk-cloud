@@ -109,7 +109,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
         }
         Page<Salary> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        List<Salary> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        List<Salary> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName())).collect(Collectors.toList());
         result.setRecords(records);
         return result;
     }
@@ -208,7 +208,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         List<SalaryVo> salaryVoList = salaryMapper.getPrePageList(queryWrapper);
         //自动生成工资数据
         List<SalaryVo> result = computePreGZ(yearMonth,salaryVoList);
-        List<SalaryVo> newResult = AesUtil.decryptGZList(result).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        List<SalaryVo> newResult = AesUtil.decryptGZList(result).stream().sorted(Comparator.comparing(x->x.getOrgName())).collect(Collectors.toList());
         return newResult;
     }
 

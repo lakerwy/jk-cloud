@@ -165,6 +165,7 @@ public class InvoiceCostServiceImpl extends ServiceImpl<InvoiceCostMapper, Invoi
 
         //【开票信息】删除历史数据【全部删光的情况】，新增（避免流程重新发起）
         if (CollUtil.isNotEmpty(invoiceCostEdit.getBillList())) {
+            invoiceCostEdit.getBillList().forEach(x->x.setInvoiceCostId(invoiceCost.getId()));
             //新增|修改|删除
             List<InvoiceCostBill> oldList = invoiceCostBillService.list(new QueryWrapper<InvoiceCostBill>().lambda().eq(InvoiceCostBill::getInvoiceCostId, invoiceCost.getId()));
             List<String> oldIds = oldList.stream().map(InvoiceCostBill::getId).collect(Collectors.toList());

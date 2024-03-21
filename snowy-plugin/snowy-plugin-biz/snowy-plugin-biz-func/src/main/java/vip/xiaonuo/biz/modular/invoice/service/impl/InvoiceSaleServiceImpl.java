@@ -220,6 +220,7 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
 
         //【开票信息】删除历史数据【全部删光的情况】，新增（避免流程重新发起）
         if (CollUtil.isNotEmpty(invoiceSaleEdit.getKpList())) {
+            invoiceSaleEdit.getKpList().forEach(x->x.setInvoiceSaleId(invoiceSale.getId()));
             //新增|修改|删除
             List<InvoiceSaleKp> oldList = invoiceSaleKpService.list(new QueryWrapper<InvoiceSaleKp>().lambda().eq(InvoiceSaleKp::getInvoiceSaleId, invoiceSale.getId()));
             List<String> oldIds = oldList.stream().map(InvoiceSaleKp::getId).collect(Collectors.toList());
@@ -245,6 +246,7 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         }
         //【成本发票信息】删除历史数据【全部删光的情况】，新增（避免流程重新发起）
         if (CollUtil.isNotEmpty(invoiceSaleEdit.getCostList())) {
+            invoiceSaleEdit.getCostList().forEach(x->x.setInvoiceSaleId(invoiceSale.getId()));
             //新增|修改|删除
             List<InvoiceSaleCost> oldList = invoiceSaleCostService.list(new QueryWrapper<InvoiceSaleCost>().lambda().eq(InvoiceSaleCost::getInvoiceSaleId, invoiceSale.getId()));
             List<String> oldIds = oldList.stream().map(InvoiceSaleCost::getId).collect(Collectors.toList());
@@ -270,6 +272,7 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         }
         //【发票确认信息】删除历史数据【全部删光的情况】，新增（避免流程重新发起）
         if (CollUtil.isNotEmpty(invoiceSaleEdit.getBillList())) {
+            invoiceSaleEdit.getBillList().forEach(x->x.setInvoiceSaleId(invoiceSale.getId()));
             //新增|修改|删除
             List<InvoiceSaleBill> oldList = invoiceSaleBillService.list(new QueryWrapper<InvoiceSaleBill>().lambda().eq(InvoiceSaleBill::getInvoiceSaleId, invoiceSale.getId()));
             List<String> oldIds = oldList.stream().map(InvoiceSaleBill::getId).collect(Collectors.toList());

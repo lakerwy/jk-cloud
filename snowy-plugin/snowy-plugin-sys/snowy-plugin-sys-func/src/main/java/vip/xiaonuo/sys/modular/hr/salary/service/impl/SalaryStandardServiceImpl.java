@@ -90,7 +90,7 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth);
         }
         Page<SalaryStandard> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalaryStandard> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        List<SalaryStandard> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName())).collect(Collectors.toList());
         result.setRecords(records);
         return result;
     }
@@ -235,7 +235,7 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         }
         queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth);
         List<SalaryStandard> standardListTemp = AesUtil.decryptGZList(this.list(queryWrapper));
-        List<SalaryStandard> standardList = standardListTemp.stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        List<SalaryStandard> standardList = standardListTemp.stream().sorted(Comparator.comparing(x->x.getOrgName())).collect(Collectors.toList());
         result.setZbList(standardList.stream().filter(x-> UserTypeEnum.ZB.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setFgsList(standardList.stream().filter(x-> UserTypeEnum.FGS.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setWpList(standardList.stream().filter(x-> UserTypeEnum.WP.getValue().equals(x.getUserType())).collect(Collectors.toList()));
