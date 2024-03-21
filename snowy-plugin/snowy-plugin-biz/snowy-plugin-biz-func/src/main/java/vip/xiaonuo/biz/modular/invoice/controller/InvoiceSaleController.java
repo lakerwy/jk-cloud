@@ -143,7 +143,6 @@ public class InvoiceSaleController {
      */
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取财务系统-销售发票-分页【发票号维度】")
-//    @SaCheckPermission("/biz/invoice/sale/page")
     @GetMapping("/biz/invoice/sale/billPage")
     public CommonResult<Page<InvoiceSaleInfo>> billPage(InvoiceSalePageParam invoiceSalePageParam) {
         return CommonResult.data(invoiceSaleService.billPage(invoiceSalePageParam));

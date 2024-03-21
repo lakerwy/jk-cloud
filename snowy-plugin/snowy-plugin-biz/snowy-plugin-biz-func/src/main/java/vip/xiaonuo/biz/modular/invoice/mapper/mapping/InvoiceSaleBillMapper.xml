@@ -17,7 +17,7 @@
                b.GATHER_TYPE as sGatherType,b.TAX_DIFF_RATE as sTaxDiffRate,b.OTHER_MEMO as sOtherMemo,b.SN as sSn,
                b.MODEL_ID as sModelId,b.PROCESS_INSTANCE_ID as sProcessInstanceId,b.STATUS as sStatus,b.MEMO as sMemo
         from BIZ_INVOICE_SALE_BILL a
-                join BIZ_INVOICE_SALE b on b.INVOICE_SALE_ID = b.ID
+                join BIZ_INVOICE_SALE b on a.INVOICE_SALE_ID = b.ID
             ${ew.customSqlSegment}
     </select>
 
