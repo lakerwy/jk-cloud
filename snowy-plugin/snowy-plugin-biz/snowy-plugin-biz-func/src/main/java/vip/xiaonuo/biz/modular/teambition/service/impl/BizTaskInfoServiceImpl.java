@@ -105,6 +105,15 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     @Resource
     DevFeign devFeign;
 
+    /**
+     * infoType 任务权限
+     * 1.自己负责的任务
+     * 2.自己执行的任务
+     * 3.自己参与的
+     * 4.自己创建的
+     * 5.所属同一部门的其他人的任务(任务状态为非私有才可看)
+     * 6.若为部门领导，可以看所有部门子任务(任何状态)
+     * */
     @Override
     public Page<BizTaskInfo> page(BizTaskInfoPageParam bizTaskInfoPageParam) {
         SaBaseLoginUser saBaseLoginUser = StpLoginUserUtil.getLoginUser();
@@ -125,26 +134,19 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getProId())){
             queryWrapper.lambda().eq(BizTaskInfo::getProId,bizTaskInfoPageParam.getProId());
         }
-        /**
-         * 任务权限
-         * 1.自己负责的任务
-         * 2.自己执行的任务
-         * 3.自己参与的
-         * 4.自己创建的
-         * 5.所属同一部门的其他人的任务(任务状态为非私有才可看)
-         * 6.若为部门领导，可以看所有部门子任务(任何状态)
-         * */
         if(bizTaskInfoPageParam.getInfoType() == 0){
-            queryWrapper.lambda().eq(BizTaskInfo::getLeadId, saBaseLoginUser.getId())  //自己负责的任务
-                    .or().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId())   //自己执行的任务
-                    .or().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId())//自己参与的任务
-                    .or().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId())//自己创建的的任务
-                    .or().eq(BizTaskInfo::getLeadOrg,saBaseLoginUser.getOrgId());//同一部门的非私有任务
-            if(bizOrgService.count(new LambdaQueryWrapper<BizOrg>().eq(BizOrg::getDirectorId,saBaseLoginUser.getId())) > 0){
-                List<String> childrenOrgIds = bizOrgService.getChildren(saBaseLoginUser.getOrgId()).stream().map(org -> org.getId()).collect(Collectors.toList());
-                queryWrapper.lambda().or().in(BizTaskInfo::getLeadOrg,childrenOrgIds);//责任部门
-                queryWrapper.lambda().or().in(BizTaskInfo::getBelongerOrg,childrenOrgIds);//执行部门
-            }
+            queryWrapper.lambda().and(wrapper -> {
+                wrapper.eq(BizTaskInfo::getLeadId, saBaseLoginUser.getId())  //自己负责的任务
+                        .or().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId())   //自己执行的任务
+                        .or().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId())//自己参与的任务
+                        .or().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId())//自己创建的的任务
+                        .or().eq(BizTaskInfo::getLeadOrg,saBaseLoginUser.getOrgId());
+                if(bizOrgService.count(new LambdaQueryWrapper<BizOrg>().eq(BizOrg::getDirectorId,saBaseLoginUser.getId())) > 0){
+                    List<String> childrenOrgIds = bizOrgService.getChildren(saBaseLoginUser.getOrgId()).stream().map(org -> org.getId()).collect(Collectors.toList());
+                    wrapper.or().in(BizTaskInfo::getLeadOrg,childrenOrgIds);//责任部门
+                    wrapper.or().in(BizTaskInfo::getBelongerOrg,childrenOrgIds);//执行部门
+                }
+            });
         }else if(bizTaskInfoPageParam.getInfoType() == 1){
             queryWrapper.lambda().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId());  //自己负责的任务
         }else if(bizTaskInfoPageParam.getInfoType() == 2){
@@ -620,6 +622,11 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                 BizTaskInfo bizTaskInfo = BeanUtil.toBean(vo,BizTaskInfo.class);
                 bizTaskInfo.setProId(thirdBizTaskInfoParam.getProId());
                 bizTaskInfo.setProType(thirdBizTaskInfoParam.getProType());
+
+                generateNo();//系统编号
+                bizTaskInfo.setSn(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY).toString());
+                bizTaskInfo.setTaskStatus(StringUtils.isEmpty(vo.getTaskStatus()) ? "1" : vo.getTaskStatus());
+                bizTaskInfo.setTaskPriority(StringUtils.isEmpty(vo.getTaskPriority()) ? "2" : vo.getTaskPriority());
                 saveWorkList.add(bizTaskInfo);
             }
             if(StringUtils.isNotEmpty(vo.getId())){
