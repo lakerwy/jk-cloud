@@ -366,8 +366,8 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         preSalaryList.forEach(item->{
             //先处理各类特殊
             if(DataTypeEnum.SALARY.getValue().equals(item.getDataType())) {
-                //岗位工资（减去社保、公积金）
-                SumInsGjjVo sumInsGjjVo = ComputeUtil.getSumInsGjj(item.getStandardId(),insData,gjjData);
+                //岗位工资（若社保|公积金发放单位与工资不一致，减去社保、公积金）
+                SumInsGjjVo sumInsGjjVo = ComputeUtil.getSumInsGjj(item.getCompany(),item.getStandardId(),insData,gjjData);
                 BigDecimal postAmount = item.getPostAmount().subtract(sumInsGjjVo.getInsPerAmount()).subtract(sumInsGjjVo.getGjjPerAmount());
                 item.setPostAmount(ComputeUtil.setScale(postAmount,2));
 

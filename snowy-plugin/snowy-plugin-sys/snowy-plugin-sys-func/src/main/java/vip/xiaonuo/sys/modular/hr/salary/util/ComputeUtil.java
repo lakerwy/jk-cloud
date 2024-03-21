@@ -334,16 +334,21 @@ public class ComputeUtil {
 
     /**
      * 由于 一个人 可能 存在 多条 社保 公积金 数据，汇总统计
+     *
+     * company 不一致的 社保合计
+     * company 不一致的 公积金合计 | 公积金差额
+     *
+     * @param company 工资发放公司
      * @param standardId 工资人员Id
      * @param insData 社保数据集合
      * @param gjjData 公积金数据集合
      * @return 个人社保小计|个人公积金小计|个人公积金差额小计
      */
-    public static SumInsGjjVo getSumInsGjj(String standardId,List<SalaryIns> insData, List<SalaryGjj> gjjData){
+    public static SumInsGjjVo getSumInsGjj(String company,String standardId,List<SalaryIns> insData, List<SalaryGjj> gjjData){
         //获取 个人社保小计-个人公积金-公积金差额
         SumInsGjjVo sumInsGjjVo = new SumInsGjjVo();
-        List<SalaryIns> insList = insData.stream().filter(x->x.getStandardId().equals(standardId)).collect(Collectors.toList());
-        List<SalaryGjj> gjjList = gjjData.stream().filter(x->x.getStandardId().equals(standardId)).collect(Collectors.toList());
+        List<SalaryIns> insList = insData.stream().filter(x->x.getStandardId().equals(standardId) && !x.getUnitName().equals(company)).collect(Collectors.toList());
+        List<SalaryGjj> gjjList = gjjData.stream().filter(x->x.getStandardId().equals(standardId) && !x.getUnitName().equals(company)).collect(Collectors.toList());
         BigDecimal insPer = BIG_DECIMAL_0;
         BigDecimal gjjSysPer = BIG_DECIMAL_0;
         BigDecimal gjjCha = BIG_DECIMAL_0;
@@ -355,6 +360,7 @@ public class ComputeUtil {
             gjjCha = gjjCha.add(item.getAmount());
         }
         sumInsGjjVo.setStandardId(standardId);
+        sumInsGjjVo.setCompany(company);
         sumInsGjjVo.setInsPerAmount(insPer);
         sumInsGjjVo.setGjjPerAmount(gjjSysPer);
         sumInsGjjVo.setGjjChaAmount(gjjCha);
