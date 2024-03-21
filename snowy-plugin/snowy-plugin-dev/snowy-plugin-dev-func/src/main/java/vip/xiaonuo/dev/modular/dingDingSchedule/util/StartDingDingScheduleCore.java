@@ -169,7 +169,7 @@ public class StartDingDingScheduleCore {
         return false;
     }
 
-    public void  deleteScheduleForUserId(String appKey,String appSecret,String userId,String scheduleId) throws Exception{
+    public void  deleteScheduleForUserId(String appKey,String appSecret,String scheduleId,String userId) throws Exception{
         List<AuthThirdUser> authThirdUserList = authThirdUserService.list(new LambdaQueryWrapper<AuthThirdUser>()
                 .eq(AuthThirdUser::getCategory,DD_CATEGORY).eq(AuthThirdUser::getUserId,userId));
         String xAcsDingtalkAccessToken = iDingDingService.getDingToken(appKey,appSecret);//获取token

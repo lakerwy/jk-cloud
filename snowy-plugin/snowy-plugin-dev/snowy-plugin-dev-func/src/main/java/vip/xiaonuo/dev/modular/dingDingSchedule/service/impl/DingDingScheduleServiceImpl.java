@@ -1,8 +1,8 @@
 package vip.xiaonuo.dev.modular.dingDingSchedule.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
-import com.alibaba.fastjson2.JSONObject;
 import com.aliyun.dingtalkcalendar_1_0.models.CreateEventResponse;
+import com.aliyun.dingtalkcalendar_1_0.models.DeleteEventResponse;
 import com.aliyun.tea.TeaConverter;
 import com.aliyun.tea.TeaException;
 import com.aliyun.tea.TeaPair;
@@ -186,7 +186,8 @@ public class DingDingScheduleServiceImpl implements DingDingScheduleService {
         com.aliyun.dingtalkcalendar_1_0.models.DeleteEventHeaders deleteEventHeaders = new com.aliyun.dingtalkcalendar_1_0.models.DeleteEventHeaders();
         deleteEventHeaders.xAcsDingtalkAccessToken = token;
         try {
-            client.deleteEventWithOptions(unionId, "primary", scheduleId, deleteEventHeaders, new com.aliyun.teautil.models.RuntimeOptions());
+            DeleteEventResponse deleteEventResponse = client.deleteEventWithOptions(unionId, "primary", scheduleId, deleteEventHeaders, new com.aliyun.teautil.models.RuntimeOptions());
+            log.info("删除日程成功！deleteEventResponse："+deleteEventResponse.getStatusCode());
         } catch (TeaException err) {
             if (!com.aliyun.teautil.Common.empty(err.code) && !com.aliyun.teautil.Common.empty(err.message)) {
                 log.error("TeaException:删除钉钉日历失败，err-code:"+err.code+",err-message:"+err.message);
