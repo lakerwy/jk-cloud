@@ -200,6 +200,7 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
             throw new CommonException("无有效导入数据");
         }
         List<InvoicePrjRefund> invoicePrjRefunds = BeanUtil.copyToList(importData, InvoicePrjRefund.class);
+        invoicePrjRefunds.forEach(x->x.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue()));
         this.saveBatch(invoicePrjRefunds);
         return true;
     }
