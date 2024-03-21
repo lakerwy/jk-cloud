@@ -42,7 +42,9 @@ import javax.annotation.Resource;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 工资系统-工龄工资|生日福利Service接口实现类
@@ -92,10 +94,11 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
             queryWrapper.orderBy(true, salaryPayPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryPayPageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
+            queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalaryPayVo> result = salaryPayMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        List<SalaryPayVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        result.setRecords(records);
         return result;
     }
 

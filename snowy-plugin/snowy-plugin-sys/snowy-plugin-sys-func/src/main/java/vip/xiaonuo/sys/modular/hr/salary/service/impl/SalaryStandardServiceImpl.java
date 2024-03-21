@@ -42,6 +42,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.ThreeSalaryStandardVo;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -86,10 +87,11 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             queryWrapper.orderBy(true, salaryStandardPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryStandardPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth).orderByAsc(SalaryStandard::getIdCardNumber);
+            queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth);
         }
         Page<SalaryStandard> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        List<SalaryStandard> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        result.setRecords(records);
         return result;
     }
 
@@ -231,9 +233,9 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
                     .or().like(SalaryStandard::getOrgName,AesUtil.encrypt(threePageParam.getSearchKey()))
                     .or().like(SalaryStandard::getFirstOrgName,AesUtil.encrypt(threePageParam.getSearchKey())));
         }
-        queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth).orderByAsc(SalaryStandard::getIdCardNumber);
-        List<SalaryStandard> standardListTemp = this.list(queryWrapper);
-        List<SalaryStandard> standardList = AesUtil.decryptGZList(standardListTemp);
+        queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth);
+        List<SalaryStandard> standardListTemp = AesUtil.decryptGZList(this.list(queryWrapper));
+        List<SalaryStandard> standardList = standardListTemp.stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
         result.setZbList(standardList.stream().filter(x-> UserTypeEnum.ZB.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setFgsList(standardList.stream().filter(x-> UserTypeEnum.FGS.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setWpList(standardList.stream().filter(x-> UserTypeEnum.WP.getValue().equals(x.getUserType())).collect(Collectors.toList()));

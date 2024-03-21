@@ -36,7 +36,9 @@ import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryGjjVo;
 
 import javax.annotation.Resource;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 工资系统-公积金明细Service接口实现类
@@ -80,10 +82,11 @@ public class SalaryGjjServiceImpl extends ServiceImpl<SalaryGjjMapper, SalaryGjj
             queryWrapper.orderBy(true, salaryGjjPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryGjjPageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("b.`YEAR_MONTH`").orderByAsc("b.ID_CARD_NUMBER");
+            queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalaryGjjVo> result = salaryGjjMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        List<SalaryGjjVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        result.setRecords(records);
         return result;
     }
 

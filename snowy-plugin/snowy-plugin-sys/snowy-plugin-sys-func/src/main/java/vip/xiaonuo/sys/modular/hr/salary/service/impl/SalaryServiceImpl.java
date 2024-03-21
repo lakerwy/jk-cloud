@@ -106,10 +106,11 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.orderBy(true, salaryPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(Salary::getYearMonth).orderByAsc(Salary::getIdCardNumber);
+            queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
         }
         Page<Salary> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        List<Salary> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        result.setRecords(records);
         return result;
     }
 
@@ -204,11 +205,11 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
                     .or().like("a.ORG_NAME",AesUtil.encrypt(param.getSearchKey())));
         }
         queryWrapper.isNull("b.ID");
-        queryWrapper.orderByAsc("a.ID_CARD_NUMBER");
         List<SalaryVo> salaryVoList = salaryMapper.getPrePageList(queryWrapper);
         //自动生成工资数据
         List<SalaryVo> result = computePreGZ(yearMonth,salaryVoList);
-        return AesUtil.decryptGZList(result);
+        List<SalaryVo> newResult = AesUtil.decryptGZList(result).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        return newResult;
     }
 
     @Override
@@ -504,6 +505,6 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             //实发工资
             item.setRealPayAmount(item.getGrossPayAmount().subtract(item.getSysPer()).subtract(item.getPer()).add(item.getLastAddAmount()).subtract(item.getLastMinusAmount()).subtract(item.getMonthTaxAmount()));
         });
-        return preSalaryList.stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        return preSalaryList;
     }
 }

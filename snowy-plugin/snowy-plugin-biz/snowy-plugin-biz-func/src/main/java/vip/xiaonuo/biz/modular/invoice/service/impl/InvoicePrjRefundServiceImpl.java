@@ -235,7 +235,7 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
         List<String> htContractNos = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getHtContractNo()).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(htContractNos)){
             QueryWrapper<Hetong> hetongQueryWrapper = new QueryWrapper<>();
-            hetongQueryWrapper.lambda().select(Hetong::getId,Hetong::getProjectName,Hetong::getContractAmount,Hetong::getCounterparty);
+            hetongQueryWrapper.lambda().select(Hetong::getId,Hetong::getProjectName,Hetong::getContractAmount,Hetong::getCounterparty,Hetong::getContractNo);
             hetongQueryWrapper.lambda().in(Hetong::getContractNo,htContractNos);
             hetongQueryWrapper.lambda().in(Hetong::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
             List<Hetong> hetongList = hetongService.list(hetongQueryWrapper);

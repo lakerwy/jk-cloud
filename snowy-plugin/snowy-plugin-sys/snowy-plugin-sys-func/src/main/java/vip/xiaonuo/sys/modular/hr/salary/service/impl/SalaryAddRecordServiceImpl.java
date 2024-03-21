@@ -40,6 +40,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddTotal;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -90,10 +91,11 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
             queryWrapper.orderBy(true, salaryAddRecordPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryAddRecordPageParam.getSortField()));
         } else {
-            queryWrapper.orderByDesc("c.`YEAR_MONTH`").orderByAsc("c.ID_CARD_NUMBER");
+            queryWrapper.orderByDesc("c.`YEAR_MONTH`");
         }
         Page<SalaryAddRecordVo> result = salaryAddRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        result.setRecords(AesUtil.decryptGZList(result.getRecords()));
+        List<SalaryAddRecordVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getIdCardNumber())).collect(Collectors.toList());
+        result.setRecords(records);
         return result;
     }
 
