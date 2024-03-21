@@ -58,12 +58,12 @@ public class BizTaskInfoPageParam {
     @ApiModelProperty(value = "任务名称")
     private String taskName;
 
-    @ApiModelProperty(value = "开始时间", required = true,position = 9)
-    @NotNull(message = "开始时间不能为空")
+    @ApiModelProperty(value = "开始时间", position = 9)
+    //@NotNull(message = "开始时间不能为空")
     private String taskStartTime;
 
-    @ApiModelProperty(value = "结束时间", required = true,position = 10)
-    @NotNull(message = "结束时间不能为空")
+    @ApiModelProperty(value = "结束时间", position = 10)
+    //@NotNull(message = "结束时间不能为空")
     private String taskEndTime;
 
     @ApiModelProperty(value = "任务类型：0-返回所有能查看任务，1 - 我创建的，2 - 我执行的，3 - 我参与的",required = true)
