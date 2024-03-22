@@ -71,7 +71,7 @@ public class BizTaskInfoPageParam {
     private Integer infoType;
 
     /** 任务状态 */
-    @ApiModelProperty(value = "任务状态，0 已取消，1 进行中，2 已完成")
+    @ApiModelProperty(value = "任务状态，0 未确认，1 已确认，2 已取消，3 进行中，4 已完成")
     private String taskStatus;
 
     /** 任务来源类别 */

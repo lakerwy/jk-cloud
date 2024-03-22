@@ -625,7 +625,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
 
                 generateNo();//系统编号
                 bizTaskInfo.setSn(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY).toString());
-                bizTaskInfo.setTaskStatus(StringUtils.isEmpty(vo.getTaskStatus()) ? "1" : vo.getTaskStatus());
+                bizTaskInfo.setTaskStatus("0");//默认任务状态为未确认
                 bizTaskInfo.setTaskPriority(StringUtils.isEmpty(vo.getTaskPriority()) ? "2" : vo.getTaskPriority());
                 saveWorkList.add(bizTaskInfo);
             }
