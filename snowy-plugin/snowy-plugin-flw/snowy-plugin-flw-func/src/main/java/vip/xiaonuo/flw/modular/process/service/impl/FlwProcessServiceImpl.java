@@ -443,11 +443,24 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if(StrUtil.isNotEmpty(stateCode)){
             newSize = Integer.MAX_VALUE;
         }
+        String deleteReasonCode;
+        if(StrUtil.isNotEmpty(stateCode) && (stateCode.equals("END") || stateCode.equals("REVOKE") || stateCode.equals("REJECT"))){
+            stateCode = "EXTERNALLY_TERMINATED";
+            deleteReasonCode = stateCode;
+        } else {
+            deleteReasonCode = null;
+        }
+        String finalStateCode = stateCode;
         return historicProcessInstanceQuery
                 .listPage(Convert.toInt((current - 1) * size), Convert.toInt(newSize)).stream()
                 .filter(historicProcessInstance->{
-                    if (stateCode != null && !stateCode.isEmpty()) {
-                        return historicProcessInstance.getState().equals(stateCode);
+                    if (finalStateCode != null && !finalStateCode.isEmpty()) {
+                        return historicProcessInstance.getState().equals(finalStateCode);
+                    }
+                    return true;
+                }).filter(historicProcessInstance -> {
+                    if (StrUtil.isNotEmpty(deleteReasonCode)) {
+                        return historicProcessInstance.getDeleteReason().equals(finalStateCode);
                     }
                     return true;
                 })
