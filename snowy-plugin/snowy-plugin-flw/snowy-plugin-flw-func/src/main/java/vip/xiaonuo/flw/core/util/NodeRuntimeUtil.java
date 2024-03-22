@@ -962,9 +962,6 @@ public class NodeRuntimeUtil {
                         if (camundaProperty.getCamundaName().equals("configInfo")) {
                             JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
                             String userTaskMulApproveType = configInfo.getStr("userTaskMulApproveType");
-                            //
-                            String processAutoDistinctType = configInfo.getStr("processAutoDistinctType");
-                            log.error("-----------------------------processAutoDistinctType----------------------------:"+processAutoDistinctType+":----------------------");
                             if(userTaskMulApproveType.equals("SEQUENTIAL")){
                                 CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
                                 String value = (String) commonCacheOperator.get(FlwCacheConstant.FLW_TASK_USER + delegateTask.getTaskDefinitionKey() + delegateTask.getProcessInstanceId());
