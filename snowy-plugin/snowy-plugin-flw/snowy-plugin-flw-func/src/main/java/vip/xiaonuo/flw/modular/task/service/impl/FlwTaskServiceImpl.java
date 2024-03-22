@@ -263,6 +263,17 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiatorProcessTitle())) {
             historicTaskInstanceQuery.processVariableValueLike("initiatorProcessTitle", "%" + flwTaskPageDoneParam.getInitiatorProcessTitle() + "%");
         }
+        if(!flwTaskPageDoneParam.isCloseDate()){
+            if(ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getStartOptDate())){
+                historicTaskInstanceQuery.startedAfter(DateUtil.parseDate(flwTaskPageDoneParam.getStartOptDate()));
+            }else {
+                historicTaskInstanceQuery.startedAfter(DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime()));
+            }
+            if(ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getEndOptDate())){
+                historicTaskInstanceQuery.startedBefore(DateUtil.parseDate(flwTaskPageDoneParam.getEndOptDate()));
+            }
+        }
+
         Page<FlwDoneTaskResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();

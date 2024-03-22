@@ -53,4 +53,14 @@ public class FlwProcessMyPageParam {
     /** 摘要 */
     @ApiModelProperty(value = "标题")
     private String initiatorProcessTitle;
+
+    /** 受理时间开始 */
+    @ApiModelProperty(value = "开始时间")
+    private String startOptDate;
+
+    /** 受理时间结束 */
+    @ApiModelProperty(value = "结束时间")
+    private String endOptDate;
+
+    private boolean closeDate; //关闭时间条件的标志
 }
