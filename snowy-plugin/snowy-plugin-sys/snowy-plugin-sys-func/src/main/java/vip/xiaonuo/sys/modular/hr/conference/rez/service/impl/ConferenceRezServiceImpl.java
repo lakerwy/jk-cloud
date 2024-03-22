@@ -711,7 +711,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         switch(eventType){
             case BOOK_SUCCESS://预定会议
                 List<ConferenceRez> conferenceRezListTemp = this.list(new LambdaQueryWrapper<ConferenceRez>().eq(ConferenceRez::getEventId,bookId));
-                if(CollectionUtil.isEmpty(conferenceRezListTemp)){ break; }
+                if(CollectionUtil.isNotEmpty(conferenceRezListTemp)){ break; }
                 //theme 主题，beginTime-endTime开始和结束时间
                 ConferenceRez conferenceRez = new ConferenceRez();
                 conferenceRez.setExtJson(bizData.toString());

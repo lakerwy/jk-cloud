@@ -130,4 +130,6 @@ public interface InitConfConstant {
     public final String APPLICATION_prjName = "application.prjName";
 
     public final String EPC_CONFIG_ROLE_DATA = "EPC_CONFIG_ROLE_DATA";
+
+    public final String CONFERENCE_REZ_DING_TALK = "CONFERENCE_REZ_DING_TALK";
 }
