@@ -60,20 +60,31 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
                         .credential(new AuthClientCredential(clientId, clientSecret))
                         .registerAllEventListener(new GenericEventListener() {//注册事件监听
                             public EventAckStatus onEvent(GenericOpenDingTalkEvent event) {
-                                try {
+                                *//*try {
                                     String eventType = event.getEventType();//事件类型
                                     log.info("ding-eventType:"+eventType);
-                                    //log.error("GenericOpenDingTalkEvent-json："+event.getData().toString());
                                     if(MEETING_BOOK.equals(eventType)){
                                         JSONObject bizData = event.getData();//获取事件体
                                         bizData = getRecPart(bizData);
                                         conferenceRezService.process(bizData, ObjectUtil.isNotEmpty(bizData.get("bookId")) ? bizData.get("bookId").toString() : "");//处理事件
                                     }
-                                    return EventAckStatus.SUCCESS;//消费成功
                                 } catch (Exception e) {
                                     log.error("获取钉钉预约会议数据失败！e:"+e.getMessage());
                                     return EventAckStatus.LATER;//消费失败
+                                }*//*
+                                String eventType = event.getEventType();//事件类型
+                                log.info("ding-eventType:"+eventType);
+                                if(MEETING_BOOK.equals(eventType)){
+                                    JSONObject bizData = event.getData();//获取事件体
+                                    log.error("abc-bizData:"+bizData);
+                                    bizData = getRecPart(bizData);
+                                    try{
+                                        conferenceRezService.process(bizData, ObjectUtil.isNotEmpty(bizData.get("bookId")) ? bizData.get("bookId").toString() : "");//处理事件
+                                    }catch (Exception e){
+                                        log.error("获取钉钉预约会议数据失败！e:"+e.getMessage());
+                                    }
                                 }
+                                return EventAckStatus.SUCCESS;//消费成功
                             }
                         }).build().start();
             }catch (Exception e){
