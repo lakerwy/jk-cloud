@@ -67,6 +67,7 @@ public class InvoiceCostServiceImpl extends ServiceImpl<InvoiceCostMapper, Invoi
     @Override
     public Page<InvoiceCostVo> page(InvoiceCostPageParam invoiceCostPageParam) {
         QueryWrapper<InvoiceCost> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(InvoiceCost::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(invoiceCostPageParam.getApplyUnit())) {
             queryWrapper.lambda().eq(InvoiceCost::getApplyUnit, invoiceCostPageParam.getApplyUnit());
         }

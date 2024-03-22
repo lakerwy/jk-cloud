@@ -71,4 +71,16 @@ public class InvoiceSaleBillAddParam {
     @ApiModelProperty(value = "外键：BIZ_INVOICE_SALE.ID", position = 17)
     private String invoiceSaleId;
 
+    /** 发票状态：正常|作废|红冲 */
+    @ApiModelProperty(value = "发票状态：正常|作废|红冲", position = 18)
+    private String fpStatus;
+
+    /** 异动：作废流程实例Id */
+    @ApiModelProperty(value = "异动：作废流程实例Id", position = 19)
+    private String cancelProcessInstanceId;
+
+    /** 异动：红冲流程实例Id */
+    @ApiModelProperty(value = "异动：红冲流程实例Id", position = 20)
+    private String redProcessInstanceId;
+
 }

@@ -21,14 +21,18 @@ import lombok.Getter;
  * @date  2024/03/19 10:17
  **/
 @Getter
-public enum InvoiceSaleEnum {
+public enum SaleBillStatusEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 正常 */
+    NORMAL("正常"),
+    /** 作废 */
+    CANCEL("作废"),
+    /** 红冲 */
+    RED("红冲");
 
     private final String value;
 
-    InvoiceSaleEnum(String value) {
+    SaleBillStatusEnum(String value) {
         this.value = value;
     }
 }

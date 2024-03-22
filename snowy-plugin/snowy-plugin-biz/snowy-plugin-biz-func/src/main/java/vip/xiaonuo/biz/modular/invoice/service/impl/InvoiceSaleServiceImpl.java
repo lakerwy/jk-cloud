@@ -28,6 +28,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleBill;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleCost;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleKp;
+import vip.xiaonuo.biz.modular.invoice.enums.SaleBillStatusEnum;
 import vip.xiaonuo.biz.modular.invoice.mapper.InvoiceSaleBillMapper;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
@@ -195,6 +196,7 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
             List<InvoiceSaleBill> tmpList = BeanUtil.copyToList(invoiceSaleAdd.getBillList(), InvoiceSaleBill.class);
             tmpList.forEach(v -> {
                 v.setInvoiceSaleId(invoiceSale.getId());
+                v.setFpStatus(SaleBillStatusEnum.NORMAL.getValue());
             });
             invoiceSaleBillService.saveBatch(tmpList);
         }
@@ -272,7 +274,10 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         }
         //【发票确认信息】删除历史数据【全部删光的情况】，新增（避免流程重新发起）
         if (CollUtil.isNotEmpty(invoiceSaleEdit.getBillList())) {
-            invoiceSaleEdit.getBillList().forEach(x->x.setInvoiceSaleId(invoiceSale.getId()));
+            invoiceSaleEdit.getBillList().forEach(x->{
+                x.setInvoiceSaleId(invoiceSale.getId());
+                x.setFpStatus(SaleBillStatusEnum.NORMAL.getValue());
+            });
             //新增|修改|删除
             List<InvoiceSaleBill> oldList = invoiceSaleBillService.list(new QueryWrapper<InvoiceSaleBill>().lambda().eq(InvoiceSaleBill::getInvoiceSaleId, invoiceSale.getId()));
             List<String> oldIds = oldList.stream().map(InvoiceSaleBill::getId).collect(Collectors.toList());
@@ -351,6 +356,9 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         queryWrapper.in("b.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getFpNo())){
             queryWrapper.like("a.FP_NO",invoiceSalePageParam.getFpNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getFpStatus())){
+            queryWrapper.eq("a.FP_STATUS",invoiceSalePageParam.getFpStatus());
         }
         if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getApplyUnit())) {
             queryWrapper.eq("b.APPLY_UNIT", invoiceSalePageParam.getApplyUnit());

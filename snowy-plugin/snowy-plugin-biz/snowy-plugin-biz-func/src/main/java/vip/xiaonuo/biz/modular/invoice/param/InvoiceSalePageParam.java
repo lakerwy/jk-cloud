@@ -112,4 +112,8 @@ public class InvoiceSalePageParam {
     @ApiModelProperty(value = "销售发票-发票号【发票号维度】")
     private String fpNo;
 
+    /** 销售发票-发票状态【发票号维度】 */
+    @ApiModelProperty(value = "销售发票-发票状态【发票号维度】")
+    private String fpStatus;
+
 }

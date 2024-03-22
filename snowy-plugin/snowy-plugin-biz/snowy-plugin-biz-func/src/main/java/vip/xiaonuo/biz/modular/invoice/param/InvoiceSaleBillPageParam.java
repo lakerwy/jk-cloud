@@ -64,4 +64,8 @@ public class InvoiceSaleBillPageParam {
     @ApiModelProperty(value = "发票内容")
     private String content;
 
+    /** 发票状态：正常|作废|红冲 */
+    @ApiModelProperty(value = "发票状态：正常|作废|红冲")
+    private String fpStatus;
+
 }
