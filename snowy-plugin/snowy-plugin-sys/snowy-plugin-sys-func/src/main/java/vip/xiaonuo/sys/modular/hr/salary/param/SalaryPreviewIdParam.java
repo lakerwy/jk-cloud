@@ -19,14 +19,14 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 工资系统-相关数据导入临时表Id参数
+ * 工资系统-工资预览表Id参数
  *
  * @author yong.ye
- * @date  2024/02/26 09:31
+ * @date  2024/03/22 10:26
  **/
 @Getter
 @Setter
-public class SalaryImportTempIdParam {
+public class SalaryPreviewIdParam {
 
     /** 主键ID */
     @ApiModelProperty(value = "主键ID", required = true)

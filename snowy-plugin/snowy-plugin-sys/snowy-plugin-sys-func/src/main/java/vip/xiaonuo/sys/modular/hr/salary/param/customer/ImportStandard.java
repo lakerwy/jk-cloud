@@ -13,7 +13,7 @@ import java.util.List;
 @Getter
 @Setter
 public class ImportStandard {
-    /** 月工资标准 */
-    @ApiModelProperty(value = "月工资标准", position = 1)
+    /** 补贴数据 */
+    @ApiModelProperty(value = "补贴数据", position = 1)
     private List<SalaryImportStandardParam> importList;
 }

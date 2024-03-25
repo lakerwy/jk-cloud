@@ -65,9 +65,4 @@ public class SalaryTaxPageParam {
     /** 二级部门 */
     @ApiModelProperty(value = "二级部门")
     private String orgName;
-
-    /** 公司名称 */
-    @ApiModelProperty(value = "公司名称")
-    private String company;
-
 }

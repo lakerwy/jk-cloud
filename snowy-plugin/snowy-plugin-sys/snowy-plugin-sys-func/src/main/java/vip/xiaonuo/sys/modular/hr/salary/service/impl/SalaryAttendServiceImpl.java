@@ -32,7 +32,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAttendService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
@@ -143,11 +143,8 @@ public class SalaryAttendServiceImpl extends ServiceImpl<SalaryAttendMapper, Sal
     }
 
     @Override
-    public List<SalaryAttendVo> empAttend(EmpSalaryParam empParam) {
-        if(ObjectUtil.isEmpty(empParam.getYear()) && ObjectUtil.isEmpty(empParam.getYearMonth())){
-            throw new CommonException("请输入所属年月");
-        }
-        String yearMonth = ObjectUtil.isNotEmpty(empParam.getYearMonth()) ? empParam.getYearMonth() : empParam.getYear();
+    public List<SalaryAttendVo> empAttend(SearchParam param) {
+        String yearMonth = param.getYearMonth();
         String encryptUserId = AesUtil.encrypt(StpLoginUserUtil.getLoginUser().getId());
         List<SalaryAttendVo> salaryAttendVos = salaryAttendMapper.getEmpAttendList(yearMonth,encryptUserId);
         return AesUtil.decryptGZList(salaryAttendVos);

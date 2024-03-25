@@ -7,15 +7,19 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 根据 所属年月 重新生成 工龄工资|生日福利
+ * 根据 所属年月
  */
 
 @Getter
 @Setter
-public class PayParam {
+public class SearchParam {
 
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月",required = true)
     @NotBlank(message = "所属年月不能为空")
     private String yearMonth;
+
+//    /** 所属年 */
+//    @ApiModelProperty(value = "所属年")
+//    private String year;
 }

@@ -30,7 +30,7 @@ import vip.xiaonuo.sys.modular.hr.salary.enums.UserTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.StandardParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
@@ -183,12 +183,9 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
     }
 
     @Override
-    public List<SalaryStandardVo> listByYearMonth(StandardParam standardParam) {
-        if(ObjectUtil.isEmpty(standardParam.getYearMonth())){
-            throw new CommonException("所属年月必传参数");
-        }
+    public List<SalaryStandardVo> listByYearMonth(SearchParam param) {
         QueryWrapper<SalaryStandard> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(SalaryStandard::getYearMonth,standardParam.getYearMonth());
+        queryWrapper.lambda().eq(SalaryStandard::getYearMonth,param.getYearMonth());
         List<SalaryStandard> standardList = this.list(queryWrapper);
         List<SalaryStandardVo> result = BeanUtil.copyToList(standardList,SalaryStandardVo.class);
         return AesUtil.decryptGZList(result);
@@ -239,7 +236,6 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         result.setZbList(standardList.stream().filter(x-> UserTypeEnum.ZB.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setFgsList(standardList.stream().filter(x-> UserTypeEnum.FGS.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setWpList(standardList.stream().filter(x-> UserTypeEnum.WP.getValue().equals(x.getUserType())).collect(Collectors.toList()));
-        result.setLzList(standardList.stream().filter(x-> UserTypeEnum.LZ.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         return result;
     }
 }

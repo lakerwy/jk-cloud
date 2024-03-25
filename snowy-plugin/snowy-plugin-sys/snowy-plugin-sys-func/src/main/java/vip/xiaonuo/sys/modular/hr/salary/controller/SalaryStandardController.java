@@ -28,7 +28,7 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.StandardParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
@@ -167,8 +167,8 @@ public class SalaryStandardController {
     @ApiOperationSupport(order = 8)
     @ApiOperation("根据 所属年月 获取当前年月的工资标准名单（即：待发工资人员名单）")
     @GetMapping("/sys/hr/salary/standard/listByYearMonth")
-    public CommonResult<List<SalaryStandardVo>> listByYearMonth(StandardParam standardParam) {
-        return CommonResult.data(salaryStandardService.listByYearMonth(standardParam));
+    public CommonResult<List<SalaryStandardVo>> listByYearMonth(SearchParam param) {
+        return CommonResult.data(salaryStandardService.listByYearMonth(param));
     }
 
 

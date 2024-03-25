@@ -1,6 +1,6 @@
 package vip.xiaonuo.sys.modular.hr.salary.vo;
 
-import com.baomidou.mybatisplus.annotation.*;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -10,10 +10,12 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.math.BigDecimal;
 import java.util.Date;
 
-
+/**
+ * 工资预览数据 实体
+ */
 @Getter
 @Setter
-public class SalaryVo {
+public class SalaryPreviewVo {
 
     /** 主键ID */
     @TableId
@@ -283,4 +285,12 @@ public class SalaryVo {
     /** 数据类别：工资|社保|公积金 */
     @ApiModelProperty(value = "数据类别：工资|社保|公积金", position = 101)
     private String dataType;
+
+    /** 是否实习生 */
+    @ApiModelProperty(value = "是否实习生", position = 72)
+    private String isTry;
+
+    /** 是否缓发 */
+    @ApiModelProperty(value = "是否缓发", position = 73)
+    private String isSlow;
 }

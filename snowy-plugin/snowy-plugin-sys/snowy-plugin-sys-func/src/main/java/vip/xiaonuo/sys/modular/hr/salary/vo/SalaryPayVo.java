@@ -66,4 +66,8 @@ public class SalaryPayVo extends SalaryPay {
     @ApiModelProperty(value = "员工类别：总部|分公司|外部", position = 28)
     private String userType;
 
+    /** 所属公司 */
+    @ApiModelProperty(value = "所属公司", position = 1)
+    private String company;
+
 }

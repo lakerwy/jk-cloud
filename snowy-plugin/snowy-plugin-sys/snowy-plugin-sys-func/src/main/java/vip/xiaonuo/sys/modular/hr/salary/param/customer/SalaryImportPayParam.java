@@ -56,4 +56,11 @@ public class SalaryImportPayParam {
     @ApiModelProperty(value = "备注", position = 18)
     private String memo;
 
+    /** 发放单位 */
+    @ApiModelProperty(value = "发放单位", position = 19)
+    private String unitName;
+
+    /** 所属公司【月度工资标准-所属公司|工资发放公司，便于区分是那个人】 */
+    @ApiModelProperty(value = "所属公司【月度工资标准-所属公司|工资发放公司，便于区分是那个人】", position = 1)
+    private String company;
 }

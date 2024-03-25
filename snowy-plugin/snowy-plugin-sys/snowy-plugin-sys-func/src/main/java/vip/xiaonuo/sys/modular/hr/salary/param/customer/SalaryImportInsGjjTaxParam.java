@@ -44,8 +44,8 @@ public class SalaryImportInsGjjTaxParam {
     @ApiModelProperty(value = "姓名", position = 7)
     private String userName;
 
-    /** 发放公司 */
-    @ApiModelProperty(value = "发放公司", position = 10)
+    /** 缴纳单位 */
+    @ApiModelProperty(value = "缴纳单位", position = 10)
     private String unitName;
 
     /** 缴费基数 */
@@ -131,4 +131,8 @@ public class SalaryImportInsGjjTaxParam {
     /** 当月变动|备注 */
     @ApiModelProperty(value = "备注", position = 54)
     private String memo;
+
+    /** 所属公司【月度工资标准-所属公司|工资发放公司，便于区分是那个人】 */
+    @ApiModelProperty(value = "所属公司【月度工资标准-所属公司|工资发放公司，便于区分是那个人】", position = 1)
+    private String company;
 }

@@ -71,37 +71,29 @@ public class SalaryImportSalaryParam {
     @ApiModelProperty(value = "职位", position = 12)
     private String position;
 
-    /** 入职日期 */
-    @ApiModelProperty(value = "入职日期", position = 13)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date hireDate;
-
-    /** 离职日期 */
-    @ApiModelProperty(value = "离职日期", position = 14)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date leaveDate;
-
-    /** 转正日期 */
-    @ApiModelProperty(value = "转正日期", position = 15)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date positiveTime;
-
-    /** 生日 */
-    @ApiModelProperty(value = "生日", position = 16)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date birthDay;
-
-    /** 是否有生日福利 */
-    @ApiModelProperty(value = "是否有生日福利", position = 17)
-    private String haveBirthdayPay;
-
-    /** 是否有工龄工资 */
-    @ApiModelProperty(value = "是否有工龄工资", position = 18)
-    private String haveSeniorityPay;
+//    /** 入职日期 */
+//    @ApiModelProperty(value = "入职日期", position = 13)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+//    private Date hireDate;
+//
+//    /** 离职日期 */
+//    @ApiModelProperty(value = "离职日期", position = 14)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+//    private Date leaveDate;
+//
+//    /** 转正日期 */
+//    @ApiModelProperty(value = "转正日期", position = 15)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+//    private Date positiveTime;
+//
+//    /** 生日 */
+//    @ApiModelProperty(value = "生日", position = 16)
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+//    private Date birthDay;
 
     /** 月度标准工资 */
     @ApiModelProperty(value = "月度标准工资", position = 20)

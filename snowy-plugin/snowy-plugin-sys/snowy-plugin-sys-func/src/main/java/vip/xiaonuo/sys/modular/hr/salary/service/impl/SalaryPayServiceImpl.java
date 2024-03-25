@@ -30,7 +30,7 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryPay;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryPayMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPayService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
@@ -223,7 +223,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
     }
 
     @Override
-    public void reSeniorityGZ(PayParam payParam) {
+    public void reSeniorityGZ(SearchParam payParam) {
         //0. 获取年月 yyyyMM 涉及的 standardIds
         List<String> delIds = salaryPayMapper.getSeniorityDelIds(SalaryTypeEnum.SENIORITY.getValue(),payParam.getYearMonth());
         //1. 删除历史数据
@@ -235,7 +235,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
     }
 
     @Override
-    public void reBirthdayGZ(PayParam payParam) {
+    public void reBirthdayGZ(SearchParam payParam) {
         //0. 获取年月 yyyyMM 涉及的 standardIds
         List<String> delIds = salaryPayMapper.getBirthdayDelIds(SalaryTypeEnum.EMP_BONUS.getValue(), SalaryTypeEnum.BIRTHDAY.getValue(), payParam.getYearMonth());
         //1. 删除历史数据

@@ -33,4 +33,8 @@ public class SalaryGjjVo extends SalaryGjj {
     @ApiModelProperty(value = "二级部门", position = 106)
     private String orgName;
 
+    /** 所属公司 */
+    @ApiModelProperty(value = "所属公司", position = 1)
+    private String company;
+
 }

@@ -17,7 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.StandardParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
@@ -98,7 +98,7 @@ public interface SalaryStandardService extends IService<SalaryStandard> {
      * @param
      * @return
      */
-    List<SalaryStandardVo> listByYearMonth(StandardParam standardParam);
+    List<SalaryStandardVo> listByYearMonth(SearchParam param);
 
     /**
      * 获取 指定 type 的某几个年月的工资标准数据

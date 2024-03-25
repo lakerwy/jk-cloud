@@ -38,8 +38,8 @@ public class SalaryTaxEditParam {
     @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 3)
     private String standardId;
 
-    /** 发放公司 */
-    @ApiModelProperty(value = "发放公司", position = 10)
+    /** 缴纳单位 */
+    @ApiModelProperty(value = "缴纳单位", position = 10)
     private String unitName;
 
     /** 合计 */

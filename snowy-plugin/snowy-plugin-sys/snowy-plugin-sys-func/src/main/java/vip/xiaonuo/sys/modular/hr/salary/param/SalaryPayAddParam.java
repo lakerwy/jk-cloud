@@ -40,6 +40,10 @@ public class SalaryPayAddParam {
     @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 4)
     private String standardId;
 
+    /** 发放单位 */
+    @ApiModelProperty(value = "发放单位", position = 10)
+    private String unitName;
+
     /** 转正工龄 */
     @ApiModelProperty(value = "转正工龄", position = 15)
     private String positiveAge;

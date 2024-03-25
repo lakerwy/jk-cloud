@@ -15,16 +15,18 @@ package vip.xiaonuo.sys.modular.hr.salary.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
- * 工资系统-相关数据导入临时表查询参数
+ * 工资系统-工资预览表查询参数
  *
  * @author yong.ye
- * @date  2024/02/26 09:31
+ * @date  2024/03/22 10:26
  **/
 @Getter
 @Setter
-public class SalaryImportTempPageParam {
+public class SalaryPreviewPageParam {
 
     /** 当前页 */
     @ApiModelProperty(value = "当前页码")
@@ -46,17 +48,21 @@ public class SalaryImportTempPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 导入批次号 */
-    @ApiModelProperty(value = "导入批次号")
-    private String batchId;
-
-    /** 导入类别：员工月工资标准|值班补贴|讲师津贴|... */
-    @ApiModelProperty(value = "导入类别：员工月工资标准|值班补贴|讲师津贴|...")
+    /** 类别：工资|奖金 */
+    @ApiModelProperty(value = "类别：工资|奖金")
     private String type;
+
+    /** 工资发放公司 */
+    @ApiModelProperty(value = "工资发放公司")
+    private String company;
 
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月")
     private String yearMonth;
+
+    /** 员工类型：总部|分公司|外部 */
+    @ApiModelProperty(value = "员工类型：总部|分公司|外部")
+    private String userType;
 
     /** 身份证号 */
     @ApiModelProperty(value = "身份证号")
@@ -66,4 +72,23 @@ public class SalaryImportTempPageParam {
     @ApiModelProperty(value = "姓名")
     private String userName;
 
+    /** 一级部门 */
+    @ApiModelProperty(value = "一级部门")
+    private String firstOrgName;
+
+    /** 二级部门 */
+    @ApiModelProperty(value = "二级部门")
+    private String orgName;
+
+    /** 职位 */
+    @ApiModelProperty(value = "职位")
+    private String position;
+
+    /** 是否实习生 */
+    @ApiModelProperty(value = "是否实习生")
+    private String isTry;
+
+    /** 是否缓发 */
+    @ApiModelProperty(value = "是否缓发")
+    private String isSlow;
 }

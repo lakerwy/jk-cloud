@@ -59,10 +59,6 @@ public class SalaryAddParam {
     @ApiModelProperty(value = "建科云用户Id", position = 8)
     private String userId;
 
-    /** 花名册Id */
-    @ApiModelProperty(value = "花名册Id", position = 9)
-    private String personnelId;
-
     /** 一级部门 */
     @ApiModelProperty(value = "一级部门", position = 10)
     private String firstOrgName;
@@ -75,33 +71,9 @@ public class SalaryAddParam {
     @ApiModelProperty(value = "职位", position = 12)
     private String position;
 
-    /** 入职日期 */
-    @ApiModelProperty(value = "入职日期", position = 13)
-    private Date hireDate;
-
-    /** 离职日期 */
-    @ApiModelProperty(value = "离职日期", position = 14)
-    private Date leaveDate;
-
-    /** 转正日期 */
-    @ApiModelProperty(value = "转正日期", position = 15)
-    private Date positiveTime;
-
-    /** 生日 */
-    @ApiModelProperty(value = "生日", position = 16)
-    private Date birthDay;
-
-    /** 是否有生日福利 */
-    @ApiModelProperty(value = "是否有生日福利", position = 17)
-    private String haveBirthdayPay;
-
-    /** 是否有工龄工资 */
-    @ApiModelProperty(value = "是否有工龄工资", position = 18)
-    private String haveSeniorityPay;
-
-    /** 【外键】发放工资的员工Id：HR_SALARY_STANDARD.ID */
-    @ApiModelProperty(value = "【外键】发放工资的员工Id：HR_SALARY_STANDARD.ID", position = 19)
-    private String standardId;
+    /** 【外键】工资预览数据Id：HR_SALARY_PREVIEW.ID */
+    @ApiModelProperty(value = "【外键】工资预览数据Id：HR_SALARY_PREVIEW.ID", position = 19)
+    private String previewId;
 
     /** 月度标准工资 */
     @ApiModelProperty(value = "月度标准工资", position = 20)
@@ -283,4 +255,7 @@ public class SalaryAddParam {
     @ApiModelProperty(value = "留痕备注", position = 100)
     private String note;
 
+    /** 是否缓发 */
+    @ApiModelProperty(value = "是否缓发", position = 69)
+    private String isSlow;
 }

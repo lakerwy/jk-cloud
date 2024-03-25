@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -30,7 +29,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAttendService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 
@@ -141,7 +140,7 @@ public class SalaryAttendController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取工资系统-月度考勤数据【个人】")
     @GetMapping("/sys/hr/salary/attend/empAttend")
-    public CommonResult<List<SalaryAttendVo>> empAttend(EmpSalaryParam empParam) {
-        return CommonResult.data(salaryAttendService.empAttend(empParam));
+    public CommonResult<List<SalaryAttendVo>> empAttend(SearchParam param) {
+        return CommonResult.data(salaryAttendService.empAttend(param));
     }
 }

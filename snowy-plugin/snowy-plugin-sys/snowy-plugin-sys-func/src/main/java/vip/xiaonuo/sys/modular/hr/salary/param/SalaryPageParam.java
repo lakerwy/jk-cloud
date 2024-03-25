@@ -80,4 +80,7 @@ public class SalaryPageParam {
     @ApiModelProperty(value = "员工类别：总部|分公司|外部")
     private String userType;
 
+    /** 是否缓发 */
+    @ApiModelProperty(value = "是否缓发")
+    private String isSlow;
 }

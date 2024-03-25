@@ -16,7 +16,7 @@
                      SEX as sex,ID_NUMBER as idCardNumber,BIRTH as birthDay,PHONE as phone,HIRE_DATE as hireDate,POSITIVE_TIME as positiveTime,
                      null as userId,RESIGNATION_TIME as leaveDate
               from HR_SUB_PERSONNEL
-              where DELETE_FLAG = 'NOT_DELETE'and `STATUS` in ('0', '1')) a
+              where DELETE_FLAG = 'NOT_DELETE' and `STATUS` in ('0', '1')) a
                  LEFT JOIN SYS_ORG c ON a.orgId = c.ID
                  LEFT JOIN SYS_POSITION d ON a.positionId = d.ID
         where 1 = 1

@@ -51,8 +51,8 @@ public class SalaryStandard {
     @ApiModelProperty(value = "姓名", position = 5)
     private String userName;
 
-    /** 工资发放公司 */
-    @ApiModelProperty(value = "工资发放公司", position = 5)
+    /** 所属公司|工资发放公司 */
+    @ApiModelProperty(value = "所属公司|工资发放公司", position = 5)
     private String company;
 
     /** 建科云用户Id */
@@ -131,9 +131,13 @@ public class SalaryStandard {
     @ApiModelProperty(value = "月度标准工资", position = 18)
     private BigDecimal standardAmount;
 
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 20)
+    private String memo;
+
     /** 当月变动 */
     @ApiModelProperty(value = "当月变动", position = 20)
-    private String memo;
+    private String monthChange;
 
     /** 租户id */
     @ApiModelProperty(value = "租户id", position = 21)
@@ -189,4 +193,12 @@ public class SalaryStandard {
     /** 留痕备注 */
     @ApiModelProperty(value = "留痕备注", position = 100)
     private String note;
+
+    /** 是否重点关注 */
+    @ApiModelProperty(value = "是否重点关注", position = 32)
+    private String isSpec;
+
+    /** 是否实习生 */
+    @ApiModelProperty(value = "是否实习生", position = 33)
+    private String isTry;
 }

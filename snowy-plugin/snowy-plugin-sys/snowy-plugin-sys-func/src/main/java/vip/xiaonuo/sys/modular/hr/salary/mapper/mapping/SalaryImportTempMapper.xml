@@ -9,14 +9,14 @@
                      SEX as sex,ID_NUMBER as idCardNumber,BIRTH as birthDay,PHONE as phone,HIRE_DATE as hireDate,POSITIVE_TIME as positiveTime,
                      USER_ID  as userId,LEAVE_DATE as leaveDate
               from PERSONNEL
-              where DELETE_FLAG = 'NOT_DELETE'  and `STATUS` = '0'
+              where DELETE_FLAG = 'NOT_DELETE'
               union all
               select '分公司' as userType,
                      ID as id,`NAME` as userName,DEPT_ID as orgId,DUTY_ID as positionId,HR_STATUS  as status,DEPT as orgName,DUTY as `position`,
                      SEX as sex,ID_NUMBER as idCardNumber,BIRTH as birthDay,PHONE as phone,HIRE_DATE as hireDate,POSITIVE_TIME as positiveTime,
                      null as userId,RESIGNATION_TIME as leaveDate
               from HR_SUB_PERSONNEL
-              where DELETE_FLAG = 'NOT_DELETE'and `STATUS` in ('0', '1') and HR_STATUS = '0') a
+              where DELETE_FLAG = 'NOT_DELETE'and `STATUS` in ('0', '1')) a
                  LEFT JOIN SYS_ORG c ON a.orgId = c.ID
                  LEFT JOIN SYS_POSITION d ON a.positionId = d.ID
     </select>

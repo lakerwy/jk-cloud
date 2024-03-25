@@ -18,7 +18,7 @@ public class ImportSubsidy {
     @ApiModelProperty(value = "导入类别：值班补贴|讲师津贴|", position = 1)
     private String type;
 
-    /** 月工资标准 */
-    @ApiModelProperty(value = "月工资标准", position = 2)
+    /** 补贴数据 */
+    @ApiModelProperty(value = "补贴数据", position = 2)
     private List<SalaryImportSubsidyParam> importList;
 }

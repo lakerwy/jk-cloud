@@ -24,25 +24,18 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryEditParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjEditParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
- * 工资系统-工资表控制器
+ * 【封存】工资系统-工资表控制器
  *
  * @author yong.ye
  * @date  2024/03/01 16:50
@@ -57,121 +50,74 @@ public class SalaryController {
     private SalaryService salaryService;
 
     /**
-     * 【已确认-封存的工资数据】获取工资系统-工资表分页
+     * 【已封存的工资数据】获取工资系统-工资表分页
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("【已确认-封存的工资数据】获取工资系统-工资表分页")
+    @ApiOperation("【已封存的工资数据】获取工资系统-工资表分页")
     @GetMapping("/sys/hr/salary/page")
     public CommonResult<Page<Salary>> page(SalaryPageParam salaryPageParam) {
         return CommonResult.data(salaryService.page(salaryPageParam));
     }
 
 
-    /**
-     * 【已确认-封存的工资数据】删除工资系统-工资表
-     *
-     * @author yong.ye
-     * @date  2024/03/01 16:50
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("【已确认-封存的工资数据】删除工资系统-工资表")
-    @CommonLog("【已确认-封存的工资数据】删除工资系统-工资表")
-    @PostMapping("/sys/hr/salary/delete")
-    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<SalaryIdParam> salaryIdParamList) {
-        salaryService.delete(salaryIdParamList);
-        return CommonResult.ok();
-    }
+//    /**
+//     * 【封存的工资数据】删除工资系统-工资表
+//     *
+//     * @author yong.ye
+//     * @date  2024/03/01 16:50
+//     */
+//    @ApiOperationSupport(order = 2)
+//    @ApiOperation("【已封存的工资数据】删除工资系统-工资表")
+//    @CommonLog("【已封存的工资数据】删除工资系统-工资表")
+//    @PostMapping("/sys/hr/salary/delete")
+//    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+//                                                   CommonValidList<SalaryIdParam> salaryIdParamList) {
+//        salaryService.delete(salaryIdParamList);
+//        return CommonResult.ok();
+//    }
 
     /**
-     * 【已确认-封存的工资数据】获取工资系统-工资表详情
+     * 【已封存的工资数据】获取工资系统-工资表详情
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("【已确认-封存的工资数据】获取工资系统-工资表详情")
+    @ApiOperation("【已封存的工资数据】获取工资系统-工资表详情")
     @GetMapping("/sys/hr/salary/detail")
     public CommonResult<Salary> detail(@Valid SalaryIdParam salaryIdParam) {
         return CommonResult.data(salaryService.detail(salaryIdParam));
     }
 
     /**
-     *  【已确认-封存的工资数据】获取员工工资条
+     *  【已封存的工资数据】获取员工工资条
      *
      * @author yong.ye
      * @date  2024/03/05 09:36
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("【已确认-封存的工资数据】获取员工工资条")
+    @ApiOperation("【已封存的工资数据】获取员工工资条")
     @GetMapping("/sys/hr/salary/empSalary")
-    public CommonResult<List<Salary>> empSalary(EmpSalaryParam empSalaryParam) {
-        return CommonResult.data(salaryService.empSalary(empSalaryParam));
+    public CommonResult<List<Salary>> empSalary(SearchParam param) {
+        return CommonResult.data(salaryService.empSalary(param));
     }
 
 
     /**
-     * 【已确认-封存的工资数据】删除某年月的所有工资数据
+     * 【已封存的工资数据】删除某年月的所有工资数据
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("【已确认-封存的工资数据】删除某年月的所有工资数据")
-    @CommonLog("【已确认-封存的工资数据】删除某年月的所有工资数据")
+    @ApiOperation("【已封存的工资数据】删除某年月的所有工资数据")
+    @CommonLog("【已封存的工资数据】删除某年月的所有工资数据")
     @PostMapping("/sys/hr/salary/deleteByMonth")
-    public CommonResult<String> deleteByMonth(@RequestBody @Valid PayParam param) {
+    public CommonResult<String> deleteByMonth(@RequestBody @Valid SearchParam param) {
         salaryService.deleteByMonth(param);
-        return CommonResult.ok();
-    }
-
-
-    /**
-     * 获取工资系统-【工资预览列表】 - 未确认的工资数据
-     *
-     * @author yong.ye
-     * @date  2024/03/01 16:50
-     */
-    @ApiOperationSupport(order = 6)
-    @ApiOperation("获取工资系统-【工资预览列表】 - 未确认的工资数据")
-    @GetMapping("/sys/hr/salary/prePageList")
-    public CommonResult<List<SalaryVo>> prePageList(MySalaryParam param) {
-        return CommonResult.data(salaryService.prePageList(param));
-    }
-
-
-    /**
-     * 封存-【工资预览列表】 - 未确认的工资数据 - 确认封存
-     *
-     * @author yong.ye
-     * @date  2024/03/01 16:50
-     */
-    @ApiOperationSupport(order = 7)
-    @ApiOperation("封存-【工资预览列表】 - 未确认的工资数据 - 确认封存")
-    @CommonLog("封存-【工资预览列表】 - 未确认的工资数据 - 确认封存")
-    @PostMapping("/sys/hr/salary/preSalarySure")
-    public CommonResult<String> preSalarySure(@RequestBody @Valid PayParam param) {
-        salaryService.preSalarySure(param);
-        return CommonResult.ok();
-    }
-
-
-
-    /**
-     * 【已确认-封存的工资数据】编辑工资系统-工资明细
-     *
-     * @author yong.ye
-     * @date  2024/03/26 09:28
-     */
-    @ApiOperationSupport(order = 10)
-    @ApiOperation("【已确认-封存的工资数据】编辑工资系统-工资明细")
-    @CommonLog("【已确认-封存的工资数据】编辑工资系统-工资明细")
-    @PostMapping("/sys/hr/salary/edit")
-    public CommonResult<String> edit(@RequestBody @Valid SalaryEditParam salaryEditParam) {
-        salaryService.edit(salaryEditParam);
         return CommonResult.ok();
     }
 

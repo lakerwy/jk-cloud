@@ -43,6 +43,10 @@ public class SalaryPay {
     @ApiModelProperty(value = "福利小类：结婚|嘉奖|生日福利", position = 3)
     private String itemType;
 
+    /** 发放单位 */
+    @ApiModelProperty(value = "发放单位", position = 10)
+    private String unitName;
+
     /** 【外键】发放工资员工Id：HR_SALARY_STANDARD.ID */
     @ApiModelProperty(value = "【外键】发放工资员工Id：HR_SALARY_STANDARD.ID", position = 4)
     private String standardId;

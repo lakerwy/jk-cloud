@@ -66,14 +66,14 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
     @Resource
     private SalaryImportTempMapper salaryImportTempMapper;
     @Resource
-    private SalaryService salaryService;
+    private SalaryPreviewService salaryPreviewService;
     @Resource
     private SalaryPayService salaryPayService;
 
     /**
      * 员工类别 范围
      */
-    private static final String[] USER_TYPE_LIST = {"总部","分公司","外聘人员","离职人员"};
+    private static final String[] USER_TYPE_LIST = {"总部","分公司","其他人员"};
 
     /**
      * 员工类别 范围 - 总部|分公司 匹配校验
@@ -209,8 +209,8 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             List<SalaryPay> importData = BeanUtil.copyToList(importTempData,SalaryPay.class);
             salaryPayService.saveBatch(importData);
         }else if(SalaryTypeEnum.EMP_SALARY.getValue().equals(input.getType())){
-            List<Salary> importData = BeanUtil.copyToList(importTempData,Salary.class);
-            salaryService.saveBatch(importData);
+            List<SalaryPreview> importData = BeanUtil.copyToList(importTempData,SalaryPreview.class);
+            salaryPreviewService.saveBatch(importData);
         }
         return true;
     }
@@ -524,10 +524,10 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
             if(CollUtil.isNotEmpty(yearMonths)) {
                 //涉及到的年月，看是否已导入过
-                List<SalaryVo> oldList = salaryService.getSalaryAllList(type, yearMonths);  //密文
+                List<SalaryPreviewVo> oldList = salaryPreviewService.getPreviewAll(type, yearMonths);  //密文
                 if (CollUtil.isNotEmpty(oldList)) {
                     importData.stream().filter(x -> ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item -> {
-                        List<SalaryVo> tmpList = oldList.stream().filter(obj -> item.getYearMonth().equals(obj.getYearMonth()) && item.getIdCardNumber().equals(obj.getIdCardNumber()) && item.getCompany().equals(obj.getCompany())).collect(Collectors.toList());
+                        List<SalaryPreviewVo> tmpList = oldList.stream().filter(obj -> item.getYearMonth().equals(obj.getYearMonth()) && item.getIdCardNumber().equals(obj.getIdCardNumber()) && item.getCompany().equals(obj.getCompany())).collect(Collectors.toList());
                         if (CollUtil.isNotEmpty(tmpList)) {
                             item.setErrorMsg("员工已存在当月当前公司工资数据；");
                         }

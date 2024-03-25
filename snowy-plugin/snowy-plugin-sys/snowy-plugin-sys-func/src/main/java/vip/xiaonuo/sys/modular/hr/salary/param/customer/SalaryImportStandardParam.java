@@ -44,8 +44,8 @@ public class SalaryImportStandardParam {
     @ApiModelProperty(value = "姓名", position = 7)
     private String userName;
 
-    /** 公司 */
-    @ApiModelProperty(value = "公司", position = 5)
+    /** 所属公司|工资发放公司 */
+    @ApiModelProperty(value = "所属公司|工资发放公司", position = 5)
     private String company;
 
     /** 一级部门 */
@@ -92,9 +92,13 @@ public class SalaryImportStandardParam {
     @ApiModelProperty(value = "月度标准工资", position = 20)
     private BigDecimal standardAmount;
 
-    /** 当月变动|备注 */
-    @ApiModelProperty(value = "当月变动", position = 54)
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 22)
     private String memo;
+
+    /** 当月变动 */
+    @ApiModelProperty(value = "当月变动", position = 21)
+    private String monthChange;
 
     /** 员工类别：总部|分公司|外部 */
     @ApiModelProperty(value = "员工类别：总部|分公司|外部", position = 28)
@@ -111,4 +115,12 @@ public class SalaryImportStandardParam {
     /** 绩效系数 */
     @ApiModelProperty(value = "绩效系数", position = 31)
     private Float meritRate;
+
+    /** 是否重点关注 */
+    @ApiModelProperty(value = "是否重点关注", position = 32)
+    private String isSpec;
+
+    /** 是否实习生 */
+    @ApiModelProperty(value = "是否实习生", position = 33)
+    private String isTry;
 }

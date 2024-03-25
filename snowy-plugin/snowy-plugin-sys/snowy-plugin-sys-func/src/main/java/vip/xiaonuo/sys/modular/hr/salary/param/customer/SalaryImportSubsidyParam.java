@@ -103,4 +103,8 @@ public class SalaryImportSubsidyParam {
     /** 当月变动|备注 */
     @ApiModelProperty(value = "备注", position = 22)
     private String memo;
+
+    /** 所属公司【月度工资标准-所属公司|工资发放公司，便于区分是那个人】 */
+    @ApiModelProperty(value = "所属公司【月度工资标准-所属公司|工资发放公司，便于区分是那个人】", position = 1)
+    private String company;
 }

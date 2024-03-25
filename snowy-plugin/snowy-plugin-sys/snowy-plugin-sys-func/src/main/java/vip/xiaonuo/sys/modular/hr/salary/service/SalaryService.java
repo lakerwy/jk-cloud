@@ -16,10 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.EmpSalaryParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 
 import java.util.List;
 
@@ -38,22 +35,6 @@ public interface SalaryService extends IService<Salary> {
      * @date  2024/03/01 16:50
      */
     Page<Salary> page(SalaryPageParam salaryPageParam);
-
-    /**
-     * 添加工资系统-工资表
-     *
-     * @author yong.ye
-     * @date  2024/03/08 10:30
-     */
-    void add(SalaryAddParam salaryAddParam);
-
-    /**
-     * 编辑工资系统-工资表
-     *
-     * @author yong.ye
-     * @date  2024/03/08 10:30
-     */
-    void edit(SalaryEditParam salaryEditParam);
 
     /**
      * 删除工资系统-工资表
@@ -84,32 +65,12 @@ public interface SalaryService extends IService<Salary> {
      * @param empSalaryParam
      * @return
      */
-    List<Salary> empSalary(EmpSalaryParam empSalaryParam);
-
-    /**
-     * 月工资报表 - (未确认的)预览数据（自动生成）
-     * @param
-     * @return
-     */
-    List<SalaryVo> prePageList(MySalaryParam param);
-
-    /**
-     * 获取所涉及月份的工资数据
-     * @param type 工资类型
-     * @param yearMonths 月份
-     * @return
-     */
-    List<SalaryVo> getSalaryAllList(String type,List<String> yearMonths);
+    List<Salary> empSalary(SearchParam param);
 
     /**
      * 删除 工资表 已确认的数据 - 删除某年月数据
      * @param param
      */
-    void deleteByMonth(PayParam param);
+    void deleteByMonth(SearchParam param);
 
-    /**
-     * 预览工资数据 - 确认封存
-     * @param param
-     */
-    void preSalarySure(PayParam param);
 }

@@ -73,4 +73,13 @@ public class SalaryStandardPageParam {
     /** 员工类别：总部|分公司|外部 */
     @ApiModelProperty(value = "员工类别：总部|分公司|外部")
     private String userType;
+
+    /** 是否重点关注 */
+    @ApiModelProperty(value = "是否重点关注")
+    private String isSpec;
+
+    /** 是否实习生 */
+    @ApiModelProperty(value = "是否实习生")
+    private String isTry;
+
 }

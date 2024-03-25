@@ -7,10 +7,7 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryGjj;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryIns;
 import vip.xiaonuo.sys.modular.hr.salary.enums.FullStatusEnum;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SumAttendData;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SumInsGjjVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -170,7 +167,7 @@ public class ComputeUtil {
      * 根据考勤数据，计算考勤工资
      * @return SumAttendData
      */
-    public static SumAttendData computeAttendGZ(SalaryAttend attend, SalaryVo salaryVo){
+    public static SumAttendData computeAttendGZ(SalaryAttend attend, SalaryPreviewVo salaryVo){
         //考勤扣款
         SumAttendData attendData = new SumAttendData();
         //全勤奖
@@ -448,8 +445,8 @@ public class ComputeUtil {
      * 预览工资数据 - 默认 0
      * @param salaryList
      */
-    public static List<SalaryVo> initGZData(List<SalaryVo> salaryList){
-        List<SalaryVo> newSalaryList = new ArrayList<>();
+    public static List<SalaryPreviewVo> initGZData(List<SalaryPreviewVo> salaryList){
+        List<SalaryPreviewVo> newSalaryList = new ArrayList<>();
         salaryList.forEach(item->{
             newSalaryList.add(DefaultValueUtil.defaultValues(item));
         });

@@ -51,8 +51,8 @@ public class SalaryImportTemp {
     @ApiModelProperty(value = "序号", position = 5)
     private String no;
 
-    /** 工资发放公司 */
-    @ApiModelProperty(value = "工资发放公司", position = 6)
+    /** 所属公司|工资发放公司 */
+    @ApiModelProperty(value = "所属公司|工资发放公司", position = 6)
     private String company;
 
     /** 所属年月 */
@@ -468,9 +468,13 @@ public class SalaryImportTemp {
     @ApiModelProperty(value = "实发工资", position = 109)
     private BigDecimal realPayAmount;
 
-    /** 当月变动|备注 */
-    @ApiModelProperty(value = "当月变动|备注", position = 110)
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 110)
     private String memo;
+
+    /** 当月变动 */
+    @ApiModelProperty(value = "当月变动", position = 110)
+    private String monthChange;
 
     /** 基于工资发放员工表-匹配待发工资员工【外键】：HR_SALARY_STANDARD.ID */
     @ApiModelProperty(value = "基于工资发放员工表-匹配待发工资员工【外键】：HR_SALARY_STANDARD.ID", position = 111)
@@ -518,4 +522,13 @@ public class SalaryImportTemp {
     /** 留痕备注 */
     @ApiModelProperty(value = "留痕备注", position = 100)
     private String note;
+
+    /** 是否重点关注 */
+    @ApiModelProperty(value = "是否重点关注", position = 120)
+    private String isSpec;
+
+    /** 是否实习生 */
+    @ApiModelProperty(value = "是否实习生", position = 121)
+    private String isTry;
+
 }

@@ -26,7 +26,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.PayParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPayService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
 
@@ -137,7 +137,7 @@ public class SalaryPayController {
     @ApiOperation("重新生成 yyyyMM 月的工龄工资数据【旧数据会删除】")
     @CommonLog("重新生成 yyyyMM 月的工龄工资数据【旧数据会删除】")
     @PostMapping("/sys/hr/salary/pay/reSeniorityGZ")
-    public CommonResult<String> reSeniorityGZ(@RequestBody @Valid PayParam payParam) {
+    public CommonResult<String> reSeniorityGZ(@RequestBody @Valid SearchParam payParam) {
         salaryPayService.reSeniorityGZ(payParam);
         return CommonResult.ok();
     }
@@ -152,7 +152,7 @@ public class SalaryPayController {
     @ApiOperation("重新生成 yyyyMM 月的生日福利数据【旧数据会删除】")
     @CommonLog("重新生成 yyyyMM 月的生日福利数据【旧数据会删除】")
     @PostMapping("/sys/hr/salary/pay/reBirthdayGZ")
-    public CommonResult<String> reBirthdayGZ(@RequestBody @Valid PayParam payParam) {
+    public CommonResult<String> reBirthdayGZ(@RequestBody @Valid SearchParam payParam) {
         salaryPayService.reBirthdayGZ(payParam);
         return CommonResult.ok();
     }
