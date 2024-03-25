@@ -425,7 +425,13 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 //        defaultPage.setTotal(historicProcessInstanceQuery.count());
 //        defaultPage.setRecords(flwProcessResultList);
             defaultPage.setTotal(flwProcessResultList.size());
-            defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size)));
+            if(flwProcessResultList.size() > current * size){
+                defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size)));
+            }else if (flwProcessResultList.size()<current * size && flwProcessResultList.size()>(current - 1) * size){
+                defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),flwProcessResultList.size()));
+            }else {
+                defaultPage.setRecords(new ArrayList<>());
+            }
             return defaultPage;
         }else {
             List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
