@@ -348,14 +348,17 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSn())) {
             historicProcessInstanceQuery.variableValueLike("initiatorProcessSn","%" + flwProcessMonitorPageParam.getSn() + "%");
         }
-        if(!flwProcessMonitorPageParam.isCloseDate()){
-            if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate())){
-                historicProcessInstanceQuery.startedAfter(DateUtil.parseDate(flwProcessMonitorPageParam.getStartOptDate()));
-            }else {
-                historicProcessInstanceQuery.startedAfter(DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime()));
-            }
-            if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getEndOptDate())){
-                historicProcessInstanceQuery.startedBefore(DateUtil.parseDate(flwProcessMonitorPageParam.getEndOptDate()));
+        //如果增减了状态，那就强行拼接一个时间限制，获取最近6个月，优化查询效率
+        if (!flwProcessMonitorPageParam.isCloseDate() || StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())) {
+            Date startDate = ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate()) ?
+                    DateUtil.parseDate(flwProcessMonitorPageParam.getStartOptDate()) :
+                    DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime());
+
+            if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getEndOptDate())) {
+                historicProcessInstanceQuery.startedAfter(startDate)
+                        .startedBefore(DateUtil.parseDate(flwProcessMonitorPageParam.getEndOptDate()));
+            } else {
+                historicProcessInstanceQuery.startedAfter(startDate);
             }
         }
 
