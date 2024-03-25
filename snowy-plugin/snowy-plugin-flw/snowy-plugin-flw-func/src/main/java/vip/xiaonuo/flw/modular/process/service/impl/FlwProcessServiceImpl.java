@@ -348,14 +348,17 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSn())) {
             historicProcessInstanceQuery.variableValueLike("initiatorProcessSn","%" + flwProcessMonitorPageParam.getSn() + "%");
         }
-        if(!flwProcessMonitorPageParam.isCloseDate()){
-            if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate())){
-                historicProcessInstanceQuery.startedAfter(DateUtil.parseDate(flwProcessMonitorPageParam.getStartOptDate()));
-            }else {
-                historicProcessInstanceQuery.startedAfter(DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime()));
-            }
-            if(ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getEndOptDate())){
-                historicProcessInstanceQuery.startedBefore(DateUtil.parseDate(flwProcessMonitorPageParam.getEndOptDate()));
+        //如果增减了状态，那就强行拼接一个时间限制，获取最近6个月，优化查询效率
+        if (!flwProcessMonitorPageParam.isCloseDate() || StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())) {
+            Date startDate = ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate()) ?
+                    DateUtil.parseDate(flwProcessMonitorPageParam.getStartOptDate()) :
+                    DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime());
+
+            if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getEndOptDate())) {
+                historicProcessInstanceQuery.startedAfter(startDate)
+                        .startedBefore(DateUtil.parseDate(flwProcessMonitorPageParam.getEndOptDate()));
+            } else {
+                historicProcessInstanceQuery.startedAfter(startDate);
             }
         }
 
@@ -396,40 +399,80 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 //        long current = defaultPage.getCurrent();
 //        long size = defaultPage.getSize();
 //        long totalSize = 0;
-//        while (totalSize < size) {
-//            List<FlwProcessResult> tempList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
-//            int tempSize = tempList.size();
+//        int maxPages = 100; // 设定一个最大页数，避免无限循环
 //
+//        while (totalSize < size * maxPages) {
+//            List<FlwProcessResult> tempList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size, flwProcessMonitorPageParam.getStateCode());
+//            int tempSize = tempList.size();
+//            totalSize += tempSize;
+//            current += 1;
 //            // 将本次查询结果添加到总结果列表中
 //            flwProcessResultList.addAll(tempList);
-//            totalSize += tempSize;
-//            current += tempSize;
-//
-//            // 如果本次查询结果为空或者数量小于pageSize，则退出循环
-//            if (tempSize == 0 || tempSize < size) {
+//            // 如果本次查询结果数量小于pageSize，则退出循环
+//            if (totalSize > size) {
 //                break;
 //            }
 //        }
 //        //List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
 //        defaultPage.setTotal(historicProcessInstanceQuery.count());
-//        defaultPage.setRecords(flwProcessResultList);
+//        defaultPage.setRecords(flwProcessResultList.stream().limit(size).collect(Collectors.toList()));
 //        return defaultPage;
 
 
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();
-        List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
-        defaultPage.setTotal(historicProcessInstanceQuery.count());
-        defaultPage.setRecords(flwProcessResultList);
-        return defaultPage;
+        //暴力玩法，非常耗时，不想改源码
+        if(StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())){
+            List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
+//        defaultPage.setTotal(historicProcessInstanceQuery.count());
+//        defaultPage.setRecords(flwProcessResultList);
+            defaultPage.setTotal(flwProcessResultList.size());
+            if(flwProcessResultList.size() > current * size){
+                defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size)));
+            }else if (flwProcessResultList.size()<current * size && flwProcessResultList.size()>(current - 1) * size){
+                defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),flwProcessResultList.size()));
+            }else {
+                defaultPage.setRecords(new ArrayList<>());
+            }
+            return defaultPage;
+        }else {
+            List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
+            defaultPage.setTotal(historicProcessInstanceQuery.count());
+            defaultPage.setRecords(flwProcessResultList);
+//            defaultPage.setTotal(flwProcessResultList.size());
+//            defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size)));
+            return defaultPage;
+        }
     }
 
     @NotNull
-    private List<FlwProcessResult> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, long current, long size) {
+    private List<FlwProcessResult> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, long current, long size,String stateCode) {
+        long newSize = size;
+        if(StrUtil.isNotEmpty(stateCode)){
+            newSize = Integer.MAX_VALUE;
+        }
+        String deleteReasonCode;
+        if(StrUtil.isNotEmpty(stateCode) && (stateCode.equals("END") || stateCode.equals("REVOKE") || stateCode.equals("REJECT"))){
+            stateCode = "EXTERNALLY_TERMINATED";
+            deleteReasonCode = stateCode;
+        } else {
+            deleteReasonCode = null;
+        }
+        String finalStateCode = stateCode;
         return historicProcessInstanceQuery
-                .listPage(Convert.toInt((current - 1) * size), Convert.toInt(size)).stream()
-//                .filter(historicProcessInstance->historicProcessInstance.getState().equals(stateCode))
+                .listPage(Convert.toInt((current - 1) * size), Convert.toInt(newSize)).stream()
+                .filter(historicProcessInstance->{
+                    if (finalStateCode != null && !finalStateCode.isEmpty()) {
+                        return historicProcessInstance.getState().equals(finalStateCode);
+                    }
+                    return true;
+                }).filter(historicProcessInstance -> {
+                    if (StrUtil.isNotEmpty(deleteReasonCode)) {
+                        return historicProcessInstance.getDeleteReason().equals(finalStateCode);
+                    }
+                    return true;
+                })
                 .map(historicProcessInstance -> {
                     FlwProcessResult flwProcessResult = new FlwProcessResult();
                     flwProcessResult.setId(historicProcessInstance.getId());

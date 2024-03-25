@@ -735,7 +735,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             case BOOK_CANCEL://取消会议
                 List<ConferenceRez> conferenceRezList = this.list(new LambdaQueryWrapper<ConferenceRez>().eq(ConferenceRez::getEventId,bookId));
                 if(CollectionUtil.isEmpty(conferenceRezList)){
-                    log.error("未找到该会议数据！bookId+"+bookId);
+                    log.error("未找到该会议数据！bookId："+bookId);
                     break;
                 }
                 try{

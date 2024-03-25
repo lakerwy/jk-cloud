@@ -352,6 +352,9 @@ public class NodeRuntimeUtil {
                                                                     if(ObjectUtil.isNotEmpty(initiator)) {
                                                                         if (processAutoDistinctType.equals("SAMPLE")) {
                                                                             if (ObjectUtil.isNotEmpty(assignee) && assignee.equals(initiator)) {
+                                                                                CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+                                                                                commonCacheOperator.put("MULTIPLE-"+delegateTask.getId(), "MULTIPLE");
+
                                                                                 // 当审批人和发起人是同一个人，审批自动通过；
                                                                                 handleUserTaskCommentAndAttachment(delegateTask.getId(),
                                                                                         delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
@@ -1000,10 +1003,13 @@ public class NodeRuntimeUtil {
                     participateUserIdList = handleUserTaskMulApproveType(delegateTask);
 //                    participateUserIdList = Convert.toList(String.class, delegateTask
 //                            .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
-                    //List<String> assignee = Convert.toList(String.class, delegateTask.getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));//获取下一个审批人
-                    //String userId = StpLoginUserUtil.getLoginUser().getId();//当前办理人，当前操作人
+                    List<String> assignee = Convert.toList(String.class, delegateTask.getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));//获取下一个审批人
+                    String userId = StpLoginUserUtil.getLoginUser().getId();//当前办理人，当前操作人
                     if(CollUtil.isNotEmpty(participateUserIdList)){
-                        if(participateUserIdList.size() == 1 && participateUserIdList.get(0).equals("AUTO_COMPLETE") ){
+                        CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+                        boolean isTrue = ObjectUtil.isNotEmpty(commonCacheOperator.get("MULTIPLE-"+delegateTask.getId()))
+                                && commonCacheOperator.get("MULTIPLE-"+delegateTask.getId()).equals("null") ? true : false;
+                        if(participateUserIdList.size() == 1 && assignee.get(0).equals(userId) && !isTrue){
                             return;
                         }
                     }

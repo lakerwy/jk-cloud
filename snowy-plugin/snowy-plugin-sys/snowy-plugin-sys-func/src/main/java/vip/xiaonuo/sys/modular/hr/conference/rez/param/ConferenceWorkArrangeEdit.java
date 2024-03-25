@@ -57,6 +57,6 @@ public class ConferenceWorkArrangeEdit {
     private String dutyOrgId;
 
     /** 任务状态 */
-    @ApiModelProperty(value = "任务状态，0 已取消，1 进行中，2 已完成", position = 10)
+    @ApiModelProperty(value = "任务状态，0 未确认，1 已确认，2 已取消，3 进行中，4 已完成", position = 10)
     private String taskStatus;
 }
