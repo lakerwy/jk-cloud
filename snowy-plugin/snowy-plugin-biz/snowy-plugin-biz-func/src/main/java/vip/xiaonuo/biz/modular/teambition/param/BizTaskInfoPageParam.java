@@ -66,7 +66,8 @@ public class BizTaskInfoPageParam {
     //@NotNull(message = "结束时间不能为空")
     private String taskEndTime;
 
-    @ApiModelProperty(value = "任务类型：0-返回所有能查看任务，1 - 我创建的，2 - 我执行的，3 - 我参与的",required = true)
+    //@ApiModelProperty(value = "任务类型：0-返回所有能查看任务，1 - 我创建的，2 - 我执行的，3 - 我参与的",required = true)
+    @ApiModelProperty(value = "任务类型：0-分页返回所有任务，1 - 我创建的，2 - 我负责的，3 - 我执行的",required = true)
     @NotNull(message = "任务类型不能为空")
     private Integer infoType;
 

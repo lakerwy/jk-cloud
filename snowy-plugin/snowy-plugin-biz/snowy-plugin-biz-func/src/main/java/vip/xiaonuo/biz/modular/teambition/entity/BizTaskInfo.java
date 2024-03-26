@@ -17,6 +17,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
+import vip.xiaonuo.biz.modular.teambition.vo.ChildTaskInfoVo;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -139,9 +140,9 @@ public class BizTaskInfo {
     private List<BizTaskComment> bizTaskCommentList;
 
     /** 任务附件 */
-    @ApiModelProperty(value = "任务附件", position = 25)
+    /*@ApiModelProperty(value = "任务附件", position = 25)
     @TableField(exist = false)
-    private List<BizTaskFile> bizTaskFileList;
+    private List<BizTaskFile> bizTaskFileList;*/
 
     /** 汇报对象 -- 多人，逗号隔开 */
     @ApiModelProperty(value = "汇报对象 -- 多人，逗号隔开", position = 26)
@@ -166,4 +167,13 @@ public class BizTaskInfo {
     /** 钉钉日程ID */
     @ApiModelProperty(value = "钉钉日程ID", position = 31)
     private String scheduleId;
+
+    /** 文件Id */
+    @ApiModelProperty(value = "文件Id", position = 32)
+    private String fileId;
+
+    /** 子任务 */
+    @ApiModelProperty(value = "子任务", position = 33)
+    @TableField(exist = false)
+    private List<ChildTaskInfoVo> childList;
 }

@@ -53,6 +53,7 @@ import vip.xiaonuo.biz.modular.teambition.service.BizTaskProjectService;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.service.BizTaskCommentService;
 import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
+import vip.xiaonuo.biz.modular.teambition.vo.ChildTaskInfoVo;
 import vip.xiaonuo.biz.modular.teambition.vo.TaskInfoMsg;
 import vip.xiaonuo.biz.modular.user.entity.BizUser;
 import vip.xiaonuo.biz.modular.user.service.BizUserService;
@@ -133,7 +134,19 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getProId())){
             queryWrapper.lambda().eq(BizTaskInfo::getProId,bizTaskInfoPageParam.getProId());
         }
-        if(bizTaskInfoPageParam.getInfoType() == 0){
+
+        /**  0-分页返回所有任务，1 - 我创建的，2 - 我负责的，3 - 我执行的*/
+        if(bizTaskInfoPageParam.getInfoType() == 1){//我创建的
+            queryWrapper.lambda().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId());  //我创建的
+        }else if(bizTaskInfoPageParam.getInfoType() == 2){//我负责的
+            queryWrapper.lambda().eq(BizTaskInfo::getLeadId, saBaseLoginUser.getId());
+        }else if(bizTaskInfoPageParam.getInfoType() == 3){//我执行的
+            queryWrapper.lambda().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId());  //我执行的
+        }else if(bizTaskInfoPageParam.getInfoType() == 0){//返回所有主任务
+            queryWrapper.lambda().isNull(BizTaskInfo::getParentId);  //返回所有主任务
+        }
+
+        /*if(bizTaskInfoPageParam.getInfoType() == 0){
             queryWrapper.lambda().and(wrapper -> {
                 wrapper.eq(BizTaskInfo::getLeadId, saBaseLoginUser.getId())  //自己负责的任务
                         .or().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId())   //自己执行的任务
@@ -147,12 +160,13 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                 }
             });
         }else if(bizTaskInfoPageParam.getInfoType() == 1){
-            queryWrapper.lambda().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId());  //自己负责的任务
+            queryWrapper.lambda().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId());  //我创建的
         }else if(bizTaskInfoPageParam.getInfoType() == 2){
-            queryWrapper.lambda().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId());  //自己执行的任务
+            queryWrapper.lambda().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId());  //我执行的
         }else if(bizTaskInfoPageParam.getInfoType() == 3){
-            queryWrapper.lambda().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId());//自己参与的任务
-        }
+            queryWrapper.lambda().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId());//我负责的
+        }*/
+
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskStatus())){ //任务状态
             queryWrapper.lambda().eq(BizTaskInfo::getTaskStatus, bizTaskInfoPageParam.getTaskStatus());
         }
@@ -172,11 +186,28 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             queryWrapper.lambda().orderByAsc(BizTaskInfo::getId);
         }
         Page<BizTaskInfo> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        getTaskProject(page);
-        getTaskComment(page);
-        getTaskFile(page);
+        if(bizTaskInfoPageParam.getInfoType() == 0){ getChildrenData(page);}
+        //getTaskProject(page);
+        //getTaskComment(page);
+        //getTaskFile(page);
         return page;
     }
+    /**  获取主任务的子任务 */
+    private void getChildrenData(Page<BizTaskInfo> page){
+        if(CollectionUtil.isNotEmpty(page.getRecords())){
+            List<String> parentIds = page.getRecords().stream().map(info ->info.getId()).collect(Collectors.toList());
+            List<BizTaskInfo> taskInfoList = this.list(new LambdaQueryWrapper<BizTaskInfo>().in(BizTaskInfo::getParentId,parentIds));
+            if(CollectionUtil.isNotEmpty(taskInfoList)){
+                taskInfoList.forEach(task -> {
+                    List<ChildTaskInfoVo> list = CollectionUtil.isNotEmpty(task.getChildList()) ? task.getChildList() : new ArrayList<>();
+                    ChildTaskInfoVo childTaskInfoVo = BeanUtil.toBean(task,ChildTaskInfoVo.class);
+                    list.add(childTaskInfoVo);
+                    task.setChildList(list);
+                });
+            }
+        }
+    }
+
     /** 获取任务的来源详情*/
     private void getTaskProject(Page<BizTaskInfo> page){
         if(CollectionUtil.isNotEmpty(page.getRecords())){
@@ -206,12 +237,11 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                 List<BizTaskComment> commentList = commentMap.get(info.getId()) != null ? commentMap.get(info.getId()) : new ArrayList<>();
                 info.setBizTaskCommentList(CollectionUtil.isNotEmpty(setBizTaskCommentList(commentList)) ? setBizTaskCommentList(commentList) : new ArrayList<>());
                 //info.setBizTaskCommentList(commentMap.get(info.getId()));
-            }
-            );
+            });
         }
     }
     /** 任务附件 */
-    private void getTaskFile(Page<BizTaskInfo> page){
+    /*private void getTaskFile(Page<BizTaskInfo> page){
         if(CollectionUtil.isNotEmpty(page.getRecords())){
             List<String> taskInfoIds = page.getRecords().stream().map(info ->info.getId()).collect(Collectors.toList());
             List<BizTaskFile> bizTaskFileList = bizTaskFileService.list(new LambdaQueryWrapper<BizTaskFile>().in(BizTaskFile::getTaskInfoId,taskInfoIds));
@@ -225,7 +255,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             }
             page.getRecords().forEach(info ->info.setBizTaskFileList(CollectionUtil.isNotEmpty(fileMap.get(info.getId())) ? fileMap.get(info.getId()) : new ArrayList<>()));
         }
-    }
+    }*/
 
     /** 新增任务
      *  1.任务数据
@@ -359,7 +389,8 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     public void edit(BizTaskInfoEditParam bizTaskInfoEditParam) {
         String infoStatus = "";
         BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoEditParam.getId());
-        if(!bizTaskInfoEditParam.getTaskStatus().equals(bizTaskInfo.getTaskStatus())){//修改任务状态
+        /** 第四版  去掉评论功能*/
+        /*if(!bizTaskInfoEditParam.getTaskStatus().equals(bizTaskInfo.getTaskStatus())){//修改任务状态
             String startStatus = bizTaskInfo.getTaskStatus().equals(BizTaskGroupEnum.ZRROR.getValue()) ?
                     BizTaskGroupEnum.NOT_START.getValue() :bizTaskInfo.getTaskStatus().equals(BizTaskGroupEnum.ONE.getValue()) ?
                     BizTaskGroupEnum.END.getValue() : BizTaskGroupEnum.NOT_END.getValue();
@@ -370,12 +401,12 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             if(bizTaskInfoEditParam.getTaskStatus().equals("2")){
                 infoStatus = "任务完成";
             }
-        }
+        }*/
         BeanUtil.copyProperties(bizTaskInfoEditParam, bizTaskInfo);
         this.updateById(bizTaskInfo);
-        if(ObjectUtil.isNotEmpty(bizTaskInfoEditParam.getProId())){
+        /*if(ObjectUtil.isNotEmpty(bizTaskInfoEditParam.getProId())){
             editBizTaskProject(bizTaskInfoEditParam);
-        }
+        }*/
         //putTaskComment(bizTaskInfo,infoStatus);
     }
     private void editBizTaskProject(BizTaskInfoEditParam bizTaskInfoEditParam){
@@ -545,7 +576,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         Page<BizTaskInfo> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         getTaskProject(page);
         getTaskComment(page);
-        getTaskFile(page);
+        //getTaskFile(page);
         return page;
     }
 

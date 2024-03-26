@@ -92,4 +92,8 @@ public class BizTaskInfoEditParam {
     /** 任务执行者部门 */
     @ApiModelProperty(value = "任务执行者部门", position = 17)
     private String belongerOrg;
+
+    /** 文件Id */
+    @ApiModelProperty(value = "文件Id", position = 18)
+    private String fileId;
 }

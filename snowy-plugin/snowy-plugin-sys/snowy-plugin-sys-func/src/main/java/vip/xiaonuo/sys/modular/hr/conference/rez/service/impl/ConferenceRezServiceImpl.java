@@ -294,7 +294,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         ConferenceRez conferenceRez = this.queryEntity(conferenceRezEditParam.getId());
         BeanUtil.copyProperties(conferenceRezEditParam, conferenceRez);
         this.updateById(conferenceRez);
-        editJoinUser(conferenceRezEditParam,conferenceRez);
+        //editJoinUser(conferenceRezEditParam,conferenceRez);
     }
 
     private void editJoinUser(ConferenceRezEditParam conferenceRezEditParam,ConferenceRez conferenceRez){
