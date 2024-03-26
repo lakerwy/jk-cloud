@@ -30,8 +30,8 @@ public class ChildTaskInfoVo {
     @ApiModelProperty(value = "任务名称", position = 4)
     private String taskName;
 
-    /** 项目备注 */
-    @ApiModelProperty(value = "任务备注", position = 5)
+    /** 任务备注：任务来源 */
+    @ApiModelProperty(value = "任务备注：任务来源", position = 5)
     private String taskRemark;
 
     /** 任务来源详情ID */
