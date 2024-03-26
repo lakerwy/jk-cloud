@@ -5,12 +5,12 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 工资列表查询 - 自定义查询参数
+ * 系统自动生成工资数据 - 自定义查询参数
  */
 
 @Getter
 @Setter
-public class MySalaryParam {
+public class AutoParam {
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
