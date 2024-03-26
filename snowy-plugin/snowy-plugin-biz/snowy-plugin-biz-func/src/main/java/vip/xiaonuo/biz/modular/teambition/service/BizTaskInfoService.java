@@ -82,15 +82,6 @@ public interface BizTaskInfoService extends IService<BizTaskInfo> {
     /** 项目管理通知*/
     void sendMsg(Map<String,String> map,List<String> receiverIdList);
 
-    Page<BizTaskInfo> thirdPage(ThirdTaskPageParam thirdTaskPageParam);
-    /**
-     * 第三方来源添加任务
-     *
-     * @author ljy
-     * @date  2023/12/18 11:40
-     */
-    void thirdAdd(BizTaskInfoAddParam bizTaskInfoAddParam);
-
     Boolean addTaskInfo(String jsonObject);
 
     /** 第三方分页查询数据*/

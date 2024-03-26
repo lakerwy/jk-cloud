@@ -29,7 +29,8 @@ public enum BizTaskGroupEnum {
     ONE("1"),
     NOT_START("进行中"),
     END("已完成"),
-    NOT_END("已取消");
+    NOT_END("已取消"),
+    TIME_HOUR_MIN(" 23:59:59");
 
     private final String value;
 

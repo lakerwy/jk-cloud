@@ -63,6 +63,7 @@ import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonTimeFormatUtil;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.feign.DevFeign;
@@ -166,7 +167,6 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         }else if(bizTaskInfoPageParam.getInfoType() == 3){
             queryWrapper.lambda().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId());//我负责的
         }*/
-
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskStatus())){ //任务状态
             queryWrapper.lambda().eq(BizTaskInfo::getTaskStatus, bizTaskInfoPageParam.getTaskStatus());
         }
@@ -264,12 +264,28 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     //@Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizTaskInfoAddParam bizTaskInfoAddParam) {
+        BizTaskInfo bizTaskInfo = BeanUtil.toBean(bizTaskInfoAddParam, BizTaskInfo.class);
+        if(ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getTaskEndTime())){
+            String time = DateUtil.format(bizTaskInfoAddParam.getTaskEndTime(),DatePattern.NORM_DATE_PATTERN)+BizTaskGroupEnum.TIME_HOUR_MIN.getValue();
+            bizTaskInfoAddParam.setTaskEndTime(CommonTimeFormatUtil.strToDate(time,DatePattern.NORM_DATETIME_PATTERN));
+        }
+        initBizTaskInfo(bizTaskInfo);
+        generateNo();//系统编号
+        bizTaskInfo.setSn(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY).toString());
+        this.save(bizTaskInfo);
+        sendAddMsg(bizTaskInfo);
+    }
+
+    /** 不启用附件评论，重写逻辑，保留原代码*/
+    /*@Override
+    public void add(BizTaskInfoAddParam bizTaskInfoAddParam) {
         String proId = null;
         String infoStatus = null;
         if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && (ObjectUtil.isEmpty(bizTaskInfoAddParam.getBizTaskProjectVo())
                 || ObjectUtil.isEmpty(bizTaskInfoAddParam.getBizTaskProjectVo().getProName()))){
             throw new CommonException("非子任务需要填写任务来源");
         }
+
         if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getParentId()) && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo())
                 && ObjectUtil.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo().getProName())){
             BizTaskProjectVo  bizTaskProjectVo = bizTaskInfoAddParam.getBizTaskProjectVo();
@@ -293,8 +309,9 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         bizTaskInfo.setSn(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY).toString());
         this.save(bizTaskInfo);
         sendAddMsg(bizTaskInfo);
-        //putTaskComment(bizTaskInfo,infoStatus);
-    }
+        putTaskComment(bizTaskInfo,infoStatus);
+    }*/
+    /** 评论暂时不启用 */
     private void putTaskComment(BizTaskInfo bizTaskInfo,String infoStatus){
         BizTaskComment bizTaskComment = new BizTaskComment();
         DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
@@ -310,14 +327,14 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(ObjectUtil.isEmpty(bizTaskInfo.getTaskPriority())){
             bizTaskInfo.setTaskPriority(BizTaskGroupEnum.ZRROR.getValue());//任务优先级初始化：最低
         }
-        if(ObjectUtil.isNotEmpty(bizTaskInfo.getLeadId())){ //反查任务负责人的部门
+        if(ObjectUtil.isNotEmpty(bizTaskInfo.getLeadId()) && StringUtils.isEmpty(bizTaskInfo.getLeadOrg())){ //反查任务负责人的部门
             DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
             dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase());
             BizUser bizUser = bizUserService.getById(bizTaskInfo.getLeadId());
             dbsApi.changeDataSource(DbsConstant.SLAVE_1_DATASOURCE_NAME);
             bizTaskInfo.setLeadOrg(bizUser.getOrgId());
         }
-        if(ObjectUtil.isNotEmpty(bizTaskInfo.getBelonger())){ //反查任务执行者的部门
+        if(ObjectUtil.isNotEmpty(bizTaskInfo.getBelonger()) && StringUtils.isEmpty(bizTaskInfo.getBelongerOrg())){ //反查任务执行者的部门
             DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
             dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase());
             BizUser bizUser = bizUserService.getById(bizTaskInfo.getBelonger());
@@ -331,11 +348,10 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
      * 任务执行时间：taskTime
      * 任务参与人：taskParticipants*/
     private void sendAddMsg(BizTaskInfo bizTaskInfo){
-        List<String> userIds = new ArrayList<>();//执行人，创建人，参与人
-        userIds.add(bizTaskInfo.getCreateUser());
-        userIds.add(bizTaskInfo.getBelonger());
-        List<String> taskParticipants = Arrays.asList(bizTaskInfo.getTaskParticipants().split(","));
-        userIds.addAll(taskParticipants);
+        List<String> userIds = new ArrayList<>();
+        userIds.add(bizTaskInfo.getLeadId());//负责人
+        userIds.add(bizTaskInfo.getBelonger());//执行人
+        userIds.add(bizTaskInfo.getCreateUser());//创建人
 
         DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
         dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase());
@@ -345,21 +361,17 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         Map<String,BizUser> userMap = new HashMap<>();
         bizUserList.forEach(user -> userMap.put(user.getId(),user));
 
-        StringBuffer taskPartNames = new StringBuffer();
-        taskParticipants.forEach(part -> {
-            if(userMap.get(part) != null){ taskPartNames.append(userMap.get(part).getName()).append(",");}
-        });
         Map<String,String> map = new HashMap<>();
         map.put("taskName",bizTaskInfo.getTaskName());
-        map.put("createUser",userMap.get(bizTaskInfo.getCreateUser()) != null ? userMap.get(bizTaskInfo.getCreateUser()).getName() : "");
+        map.put("leadUser",userMap.get(bizTaskInfo.getLeadId()) != null ? userMap.get(bizTaskInfo.getLeadId()).getName() : "");//负责人
+        map.put("createUser",userMap.get(bizTaskInfo.getCreateUser()) != null ? userMap.get(bizTaskInfo.getCreateUser()).getName() : "");//创建人
         map.put("belongerUser", StringUtils.isNotEmpty(bizTaskInfo.getBelonger()) ? userMap.get(bizTaskInfo.getBelonger()) != null ?
-                userMap.get(bizTaskInfo.getBelonger()).getName() : "":"");
+                userMap.get(bizTaskInfo.getBelonger()).getName() : "":"");//执行人
         map.put("taskTime", "");
         if(ObjectUtil.isNotEmpty(bizTaskInfo.getTaskStartTime()) && ObjectUtil.isNotEmpty(bizTaskInfo.getTaskEndTime())){
             map.put("taskTime",DateUtil.format(bizTaskInfo.getTaskStartTime(), DatePattern.NORM_DATETIME_MINUTE_PATTERN) +"-"
                     +DateUtil.format(bizTaskInfo.getTaskEndTime(), DatePattern.NORM_DATETIME_MINUTE_PATTERN));
         }
-        map.put("taskParticipants",taskPartNames.toString());
         sendMsg(map,bizUserList.stream().map(user -> user.getId()).collect(Collectors.toList()));
     }
 
@@ -387,7 +399,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(BizTaskInfoEditParam bizTaskInfoEditParam) {
-        String infoStatus = "";
+        //String infoStatus = "";
         BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoEditParam.getId());
         /** 第四版  去掉评论功能*/
         /*if(!bizTaskInfoEditParam.getTaskStatus().equals(bizTaskInfo.getTaskStatus())){//修改任务状态
@@ -402,23 +414,16 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
                 infoStatus = "任务完成";
             }
         }*/
+        if(ObjectUtil.isNotEmpty(bizTaskInfoEditParam.getTaskEndTime()) && ObjectUtil.isNotEmpty(bizTaskInfo.getTaskEndTime())){
+            boolean isTrue = DateUtil.format(bizTaskInfoEditParam.getTaskEndTime(),DatePattern.NORM_DATE_PATTERN).equals(DateUtil.format(bizTaskInfoEditParam.getTaskEndTime(),DatePattern.NORM_DATE_PATTERN));
+            if(isTrue){
+                String time = DateUtil.format(bizTaskInfoEditParam.getTaskEndTime(),DatePattern.NORM_DATE_PATTERN)+BizTaskGroupEnum.TIME_HOUR_MIN.getValue();
+                bizTaskInfoEditParam.setTaskEndTime(CommonTimeFormatUtil.strToDate(time,DatePattern.NORM_DATETIME_PATTERN));
+            }
+        }
         BeanUtil.copyProperties(bizTaskInfoEditParam, bizTaskInfo);
         this.updateById(bizTaskInfo);
-        /*if(ObjectUtil.isNotEmpty(bizTaskInfoEditParam.getProId())){
-            editBizTaskProject(bizTaskInfoEditParam);
-        }*/
         //putTaskComment(bizTaskInfo,infoStatus);
-    }
-    private void editBizTaskProject(BizTaskInfoEditParam bizTaskInfoEditParam){
-        /*BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfoEditParam.getProId());
-        if(ObjectUtil.isNotEmpty(bizTaskProject)){
-            BizTaskProjectVo bizTaskProjectVo = bizTaskInfoEditParam.getBizTaskProjectVo();
-            bizTaskProject.setProName(bizTaskProjectVo.getProName());
-            bizTaskProject.setProDesc(bizTaskProjectVo.getProDesc());
-            bizTaskProjectService.saveOrUpdate(bizTaskProject);
-            return;
-        }*/
-        log.error("未找到任务来源详情学习！proId:"+bizTaskInfoEditParam.getProId());
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -476,6 +481,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         jsonObject.set("belongerUser",map.get("belongerUser"));
         jsonObject.set("taskTime",map.get("taskTime"));
         jsonObject.set("taskParticipants",map.get("taskParticipants"));
+        jsonObject.set("leadUser",map.get("leadUser"));
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         TaskInfoMsg taskInfoMsg = TaskInfoMsg.buildRabbitMsg(jsonObject);
         commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
@@ -497,118 +503,6 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
     }
 
-
-    @Override
-    public Page<BizTaskInfo> thirdPage(ThirdTaskPageParam thirdTaskPageParam) {
-        SaBaseLoginUser saBaseLoginUser = StpLoginUserUtil.getLoginUser();
-        QueryWrapper<BizTaskInfo> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(thirdTaskPageParam.getParentId())) {
-            queryWrapper.lambda().eq(BizTaskInfo::getParentId, thirdTaskPageParam.getParentId());
-        }
-        if(ObjectUtil.isNotEmpty(thirdTaskPageParam.getTaskName())) {
-            queryWrapper.lambda().like(BizTaskInfo::getTaskName, thirdTaskPageParam.getTaskName());
-        }
-        if(ObjectUtil.isNotEmpty(thirdTaskPageParam.getTaskStartTime()) && ObjectUtil.isNotEmpty(thirdTaskPageParam.getTaskEndTime())) {
-            queryWrapper.lambda().gt(BizTaskInfo::getCreateTime, thirdTaskPageParam.getTaskStartTime());
-            queryWrapper.lambda().lt(BizTaskInfo::getCreateTime, thirdTaskPageParam.getTaskEndTime());
-            /*queryWrapper.lambda().between(BizTaskInfo::getTaskStartTime, thirdTaskPageParam.getTaskStartTime(), thirdTaskPageParam.getTaskEndTime());
-            queryWrapper.lambda().between(BizTaskInfo::getTaskEndTime, thirdTaskPageParam.getTaskStartTime(), thirdTaskPageParam.getTaskEndTime());*/
-        }
-        /**
-         * 任务权限
-         * 1.自己负责的任务
-         * 2.自己执行的任务
-         * 3.自己参与的
-         * 4.自己创建的
-         * 5.所属同一部门的其他人的任务(任务状态为非私有才可看)
-         * 6.若为部门领导，可以看所有部门子任务(任何状态)
-         * */
-        if(thirdTaskPageParam.getInfoType() == 0){
-            queryWrapper.lambda().eq(BizTaskInfo::getLeadId, saBaseLoginUser.getId())  //自己负责的任务
-                    .or().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId())   //自己执行的任务
-                    .or().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId())//自己参与的任务
-                    .or().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId())//自己创建的的任务
-                    .or().eq(BizTaskInfo::getLeadOrg,saBaseLoginUser.getOrgId());//同一部门的非私有任务
-            if(bizOrgService.count(new LambdaQueryWrapper<BizOrg>().eq(BizOrg::getDirectorId,saBaseLoginUser.getId())) > 0){
-                List<String> childrenOrgIds = bizOrgService.getChildren(saBaseLoginUser.getOrgId()).stream().map(org -> org.getId()).collect(Collectors.toList());
-                queryWrapper.lambda().or().in(BizTaskInfo::getLeadOrg,childrenOrgIds);//责任部门
-                queryWrapper.lambda().or().in(BizTaskInfo::getBelongerOrg,childrenOrgIds);//执行部门
-            }
-        }else if(thirdTaskPageParam.getInfoType() == 1){
-            queryWrapper.lambda().eq(BizTaskInfo::getCreateUser,saBaseLoginUser.getId());  //自己负责的任务
-        }else if(thirdTaskPageParam.getInfoType() == 2){
-            queryWrapper.lambda().eq(BizTaskInfo::getBelonger, saBaseLoginUser.getId());  //自己执行的任务
-        }else if(thirdTaskPageParam.getInfoType() == 3){
-            queryWrapper.lambda().like(BizTaskInfo::getTaskParticipants,saBaseLoginUser.getId());//自己参与的任务
-        }
-        if(ObjectUtil.isNotEmpty(thirdTaskPageParam.getTaskStatus())){ //任务状态
-            queryWrapper.lambda().eq(BizTaskInfo::getTaskStatus, thirdTaskPageParam.getTaskStatus());
-        }
-        // 校验数据范围
-        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            queryWrapper.lambda().in(BizTaskInfo::getDataScopeId, loginUserDataScope);
-        } else {
-            queryWrapper.lambda().eq(BizTaskInfo::getCreateUser, StpUtil.getLoginIdAsString());
-        }
-        if(ObjectUtil.isNotEmpty(thirdTaskPageParam.getSearchKey())) {
-            queryWrapper.lambda().and(q -> q.like(BizTaskInfo::getTaskName, thirdTaskPageParam.getSearchKey()));
-        }
-        if(ObjectUtil.isAllNotEmpty(thirdTaskPageParam.getSortField(), thirdTaskPageParam.getSortOrder())) {
-            CommonSortOrderEnum.validate(thirdTaskPageParam.getSortOrder());
-            queryWrapper.orderBy(true, thirdTaskPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
-                    StrUtil.toUnderlineCase(thirdTaskPageParam.getSortField()));
-        } else {
-            queryWrapper.lambda().orderByAsc(BizTaskInfo::getId);
-        }
-        if(ObjectUtil.isNotEmpty(thirdTaskPageParam.getProSourceId())){//来源ID不为空
-            List<String> proIds = bizTaskProjectService.list(new LambdaQueryWrapper<BizTaskProject>()
-                    .eq(BizTaskProject::getThirdCode,thirdTaskPageParam.getThirdCode()).eq(BizTaskProject::getProSourceId,thirdTaskPageParam.getProSourceId()))
-                    .stream().map(project -> project.getId()).collect(Collectors.toList());
-            queryWrapper.lambda().in(BizTaskInfo::getProId,proIds);
-        }else{
-            List<String> proIds = bizTaskProjectService.list(new LambdaQueryWrapper<BizTaskProject>()
-                    .eq(BizTaskProject::getThirdCode,thirdTaskPageParam.getThirdCode())).stream().map(project -> project.getId()).collect(Collectors.toList());
-            if(CollectionUtil.isNotEmpty(proIds)){
-                queryWrapper.lambda().in(BizTaskInfo::getProId,proIds);
-            }
-        }
-        Page<BizTaskInfo> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        getTaskProject(page);
-        getTaskComment(page);
-        //getTaskFile(page);
-        return page;
-    }
-
-
-    /** 非新建任务来源任务*/
-    @Override
-    public void thirdAdd(BizTaskInfoAddParam bizTaskInfoAddParam){
-        String proId = null;
-        String infoStatus = null;
-        if(ObjectUtil.isEmpty(bizTaskInfoAddParam.getBizTaskProjectVo()) || StringUtils.isNotEmpty(bizTaskInfoAddParam.getBizTaskProjectVo().getProSourceId())){
-            throw new CommonException("第三方来源创建任务，必须有来源ID！");
-        }
-        if(!(bizTaskProjectService.count(new LambdaQueryWrapper<BizTaskProject>().eq(BizTaskProject::getProSourceId,bizTaskInfoAddParam.getBizTaskProjectVo().getProSourceId()))>0)){
-            //保存任务来源
-            BizTaskProjectVo  bizTaskProjectVo = bizTaskInfoAddParam.getBizTaskProjectVo();
-            BizTaskProject bizTaskProject = BeanUtil.toBean(bizTaskProjectVo, BizTaskProject.class);
-            bizTaskProjectService.save(bizTaskProject);
-            proId = bizTaskProject.getId();
-            infoStatus = "创建了任务";
-        }else{
-            List<BizTaskProject> projectList = bizTaskProjectService.list(new LambdaQueryWrapper<BizTaskProject>()
-                    .eq(BizTaskProject::getProSourceId,bizTaskInfoAddParam.getBizTaskProjectVo().getProSourceId()));
-            proId = projectList.get(0).getId();
-        }
-
-        BizTaskInfo bizTaskInfo = BeanUtil.toBean(bizTaskInfoAddParam, BizTaskInfo.class);
-        bizTaskInfo.setProId(proId);
-        initBizTaskInfo(bizTaskInfo);
-        this.save(bizTaskInfo);
-        sendAddMsg(bizTaskInfo);
-        //putTaskComment(bizTaskInfo,infoStatus);
-    }
 
     /**  会议新增任务 - 特殊处理 */
     @Override

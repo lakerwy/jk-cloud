@@ -81,8 +81,8 @@ public class BizTaskInfoAddParam {
     private String extJson;
 
     /** 任务来源信息详情 */
-    @ApiModelProperty(value = "任务来源信息详情：非子任务，需要有任务来源", position = 16)
-    private BizTaskProjectVo bizTaskProjectVo;
+    /*@ApiModelProperty(value = "任务来源信息详情：非子任务，需要有任务来源", position = 16)
+    private BizTaskProjectVo bizTaskProjectVo;*/
 
     /** 任务执行者部门 */
     @ApiModelProperty(value = "任务执行者部门", position = 17)

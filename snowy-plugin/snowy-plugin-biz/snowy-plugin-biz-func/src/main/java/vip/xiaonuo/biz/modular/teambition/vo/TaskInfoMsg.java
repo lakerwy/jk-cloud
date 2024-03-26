@@ -108,6 +108,13 @@ public class TaskInfoMsg {
             form.setValue(belongerUser);
             forms.add(form);
         }
+        String leadUser = jsonObject.getStr("leadUser");
+        if(StrUtil.isNotEmpty(belongerUser)){
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("任务负责人：");
+            form.setValue(leadUser);
+            forms.add(form);
+        }
         String taskTime = jsonObject.getStr("taskTime");
         if(StrUtil.isNotEmpty(taskTime)){
             form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
