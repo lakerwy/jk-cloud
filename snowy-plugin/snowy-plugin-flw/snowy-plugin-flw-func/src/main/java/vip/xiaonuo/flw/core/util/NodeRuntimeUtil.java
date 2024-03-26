@@ -1003,6 +1003,11 @@ public class NodeRuntimeUtil {
                     participateUserIdList = handleUserTaskMulApproveType(delegateTask);
 //                    participateUserIdList = Convert.toList(String.class, delegateTask
 //                            .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));
+                    /*if(CollUtil.isNotEmpty(participateUserIdList)){
+                        if(participateUserIdList.size() == 1 && participateUserIdList.get(0).equals("AUTO_COMPLETE") ){
+                            return;
+                        }
+                    }*/
                     List<String> assignee = Convert.toList(String.class, delegateTask.getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));//获取下一个审批人
                     String userId = StpLoginUserUtil.getLoginUser().getId();//当前办理人，当前操作人
                     if(CollUtil.isNotEmpty(participateUserIdList)){
@@ -1010,6 +1015,7 @@ public class NodeRuntimeUtil {
                         boolean isTrue = ObjectUtil.isNotEmpty(commonCacheOperator.get("MULTIPLE-"+delegateTask.getId()))
                                 && commonCacheOperator.get("MULTIPLE-"+delegateTask.getId()).equals("null") ? true : false;
                         if(participateUserIdList.size() == 1 && assignee.get(0).equals(userId) && !isTrue){
+                            commonCacheOperator.remove("MULTIPLE-"+delegateTask.getId());//删除已被用的key值
                             return;
                         }
                     }

@@ -115,4 +115,8 @@ public class ThirdBizTaskInfoVo {
     /** 钉钉日程ID */
     @ApiModelProperty(value = "钉钉日程ID", position = 31)
     private String scheduleId;
+
+    /** 文件Id */
+    @ApiModelProperty(value = "文件Id", position = 32)
+    private String fileId;
 }

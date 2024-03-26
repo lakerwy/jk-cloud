@@ -45,8 +45,8 @@ public class BizTaskInfoEditParam {
     @ApiModelProperty(value = "任务名称", position = 4)
     private String taskName;
 
-    /** 项目备注 */
-    @ApiModelProperty(value = "任务备注", position = 5)
+    /** 任务备注：任务来源 */
+    @ApiModelProperty(value = "任务备注：任务来源", position = 5)
     private String taskRemark;
 
     /** 项目ID */
@@ -74,7 +74,7 @@ public class BizTaskInfoEditParam {
     private String taskPriority;
 
     /** 参与人集合，参与人ID，逗号隔开 */
-    @ApiModelProperty(value = "参与人集合，参与人ID，逗号隔开", position = 12)
+    @ApiModelProperty(value = "参与人集合，参与人ID，逗号隔开 -- 暂时不启用", position = 12)
     private String taskParticipants;
 
     /** 数据权限控制字段 */
@@ -86,10 +86,22 @@ public class BizTaskInfoEditParam {
     private String extJson;
 
     /** 任务来源信息详情 */
-    @ApiModelProperty(value = "任务来源信息详情", position = 16)
-    private BizTaskProjectVo bizTaskProjectVo;
+    /*@ApiModelProperty(value = "任务来源信息详情", position = 16)
+    private BizTaskProjectVo bizTaskProjectVo;*/
 
     /** 任务执行者部门 */
     @ApiModelProperty(value = "任务执行者部门", position = 17)
     private String belongerOrg;
+
+    /** 文件Id */
+    @ApiModelProperty(value = "文件Id", position = 18)
+    private String fileId;
+
+    /** 负责人ID */
+    @ApiModelProperty(value = "负责人ID", position = 19)
+    private String leadId;
+
+    /** 负责人部门 */
+    @ApiModelProperty(value = "负责人部门", position = 20)
+    private String leadOrg;
 }

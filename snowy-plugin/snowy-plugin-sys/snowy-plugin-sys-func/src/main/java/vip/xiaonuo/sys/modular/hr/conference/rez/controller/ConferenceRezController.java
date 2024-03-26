@@ -201,4 +201,20 @@ public class ConferenceRezController {
         dingdingCalendarUtil.getCalendarPart(unionId,eventId,xAcsDingtalkAccessToken);
         return CommonResult.ok();
     }
+
+    /**
+     * 编辑会议模块-预约会议
+     *
+     * @author ljy
+     * @date  2023/12/01 23:35
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("编辑会议模块-预约会议")
+    @CommonLog("编辑会议模块-预约会议")
+    //@SaCheckPermission("/sys/rez/edit")
+    @PostMapping("/sys/rez/edit")
+    public CommonResult<String> edit(@RequestBody @Valid ConferenceRezEditParam conferenceRezEditParam) {
+        conferenceRezService.edit(conferenceRezEditParam);
+        return CommonResult.ok();
+    }
 }
