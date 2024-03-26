@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 
 import java.util.List;
 
@@ -62,7 +63,7 @@ public interface SalaryService extends IService<Salary> {
 
     /**
      * 根据 所属年 或 所属年月 获取员工工资条
-     * @param empSalaryParam
+     * @param
      * @return
      */
     List<Salary> empSalary(SearchParam param);
@@ -73,4 +74,9 @@ public interface SalaryService extends IService<Salary> {
      */
     void deleteByMonth(SearchParam param);
 
+    /**
+     * 更新 特定 字段
+     * @param fieldParam
+     */
+    void updateField(UpdateFieldParam fieldParam);
 }

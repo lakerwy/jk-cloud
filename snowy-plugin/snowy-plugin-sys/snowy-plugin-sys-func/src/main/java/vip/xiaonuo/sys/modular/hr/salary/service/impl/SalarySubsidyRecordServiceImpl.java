@@ -32,6 +32,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
 import javax.annotation.Resource;
@@ -87,7 +88,8 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
             queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalarySubsidyRecordVo> result = salarySubsidyRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalarySubsidyRecordVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<SalarySubsidyRecordVo> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalarySubsidyRecordVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }

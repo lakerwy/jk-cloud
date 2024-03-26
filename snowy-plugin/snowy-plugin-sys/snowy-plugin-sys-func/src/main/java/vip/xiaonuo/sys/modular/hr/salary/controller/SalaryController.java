@@ -28,6 +28,7 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
 
 import javax.annotation.Resource;
@@ -62,23 +63,6 @@ public class SalaryController {
         return CommonResult.data(salaryService.page(salaryPageParam));
     }
 
-
-//    /**
-//     * 【封存的工资数据】删除工资系统-工资表
-//     *
-//     * @author yong.ye
-//     * @date  2024/03/01 16:50
-//     */
-//    @ApiOperationSupport(order = 2)
-//    @ApiOperation("【已封存的工资数据】删除工资系统-工资表")
-//    @CommonLog("【已封存的工资数据】删除工资系统-工资表")
-//    @PostMapping("/sys/hr/salary/delete")
-//    public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-//                                                   CommonValidList<SalaryIdParam> salaryIdParamList) {
-//        salaryService.delete(salaryIdParamList);
-//        return CommonResult.ok();
-//    }
-
     /**
      * 【已封存的工资数据】获取工资系统-工资表详情
      *
@@ -93,13 +77,13 @@ public class SalaryController {
     }
 
     /**
-     *  【已封存的工资数据】获取员工工资条
+     *  【已封存的工资数据】获取员工工资条-缓发状态不可查
      *
      * @author yong.ye
      * @date  2024/03/05 09:36
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("【已封存的工资数据】获取员工工资条")
+    @ApiOperation("【已封存的工资数据】获取员工工资条-缓发状态不可查")
     @GetMapping("/sys/hr/salary/empSalary")
     public CommonResult<List<Salary>> empSalary(SearchParam param) {
         return CommonResult.data(salaryService.empSalary(param));
@@ -107,17 +91,17 @@ public class SalaryController {
 
 
     /**
-     * 【已封存的工资数据】删除某年月的所有工资数据
+     * 【已封存的工资数据】 - 修改是否缓发状态
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("【已封存的工资数据】删除某年月的所有工资数据")
-    @CommonLog("【已封存的工资数据】删除某年月的所有工资数据")
-    @PostMapping("/sys/hr/salary/deleteByMonth")
-    public CommonResult<String> deleteByMonth(@RequestBody @Valid SearchParam param) {
-        salaryService.deleteByMonth(param);
+    @ApiOperation("【已封存的工资数据】 - 修改是否缓发状态")
+    @CommonLog("【已封存的工资数据】 - 修改是否缓发状态")
+    @PostMapping("/sys/hr/salary/updateField")
+    public CommonResult<String> updateField(@RequestBody @Valid UpdateFieldParam fieldParam) {
+        salaryService.updateField(fieldParam);
         return CommonResult.ok();
     }
 

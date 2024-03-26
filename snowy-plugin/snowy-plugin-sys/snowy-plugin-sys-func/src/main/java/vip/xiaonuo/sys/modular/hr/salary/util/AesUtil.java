@@ -33,9 +33,6 @@ public class AesUtil {
         AES_CRYPT_LIST.add("position");
         AES_CRYPT_LIST.add("userId");
         AES_CRYPT_LIST.add("personnelId");
-        AES_CRYPT_LIST.add("firstOrgId");
-        AES_CRYPT_LIST.add("orgId");
-        AES_CRYPT_LIST.add("positionId");
     }
 
     /**

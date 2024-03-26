@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -29,22 +30,22 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.enums.UserTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
-import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.ThreeSalaryStandardVo;
+import vip.xiaonuo.sys.modular.hr.salary.util.EntityUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static vip.xiaonuo.sys.modular.hr.salary.util.CommConstant.*;
 
 /**
  * 工资系统-月度工资标准Service接口实现类
@@ -90,7 +91,8 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth);
         }
         Page<SalaryStandard> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalaryStandard> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<SalaryStandard> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalaryStandard::getFirstOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }
@@ -98,9 +100,10 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryStandardAddParam salaryStandardAddParam) {
-        //同一工资类别，同一年月，同一身份证，只存在一条记录
+        //同一公司，同一年月，同一身份证，只存在一条记录
         List<SalaryStandard> oldList = this.list(new QueryWrapper<SalaryStandard>().lambda()
                 .eq(SalaryStandard::getYearMonth,salaryStandardAddParam.getYearMonth())
+                .eq(SalaryStandard::getCompany,salaryStandardAddParam.getCompany())
                 .eq(SalaryStandard::getIdCardNumber,AesUtil.encrypt(salaryStandardAddParam.getIdCardNumber())));
         if(CollUtil.isNotEmpty(oldList)){
             throw new CommonException("{}年月{}已存在记录",salaryStandardAddParam.getYearMonth(),salaryStandardAddParam.getUserName());
@@ -115,6 +118,7 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         //同一工资类别，同一年月，同一身份证，只存在一条记录
         List<SalaryStandard> oldList = this.list(new QueryWrapper<SalaryStandard>().lambda()
                 .eq(SalaryStandard::getYearMonth,salaryStandardEditParam.getYearMonth())
+                .eq(SalaryStandard::getCompany,salaryStandardEditParam.getCompany())
                 .eq(SalaryStandard::getIdCardNumber,AesUtil.encrypt(salaryStandardEditParam.getIdCardNumber()))
                 .ne(SalaryStandard::getId,salaryStandardEditParam.getId()));
         if(CollUtil.isNotEmpty(oldList)){
@@ -231,11 +235,132 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
                     .or().like(SalaryStandard::getFirstOrgName,AesUtil.encrypt(threePageParam.getSearchKey())));
         }
         queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth);
-        List<SalaryStandard> standardListTemp = AesUtil.decryptGZList(this.list(queryWrapper));
-        List<SalaryStandard> standardList = standardListTemp.stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<SalaryStandard> standardList = AesUtil.decryptGZList(this.list(queryWrapper));
+        standardList.sort(Comparator.comparing(SalaryStandard::getFirstOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setZbList(standardList.stream().filter(x-> UserTypeEnum.ZB.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setFgsList(standardList.stream().filter(x-> UserTypeEnum.FGS.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setWpList(standardList.stream().filter(x-> UserTypeEnum.WP.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         return result;
+    }
+
+    @Override
+    public void updateField(UpdateFieldParam fieldParam) {
+        SalaryStandard salaryStandard = this.queryEntity(fieldParam.getId());
+        if("memo".equals(fieldParam.getFieldName())){
+            salaryStandard.setMemo(fieldParam.getFieldValue());
+        }
+        if("monthChange".equals(fieldParam.getFieldName())){
+            salaryStandard.setMemo(fieldParam.getFieldValue());
+        }
+        if("isSpec".equals(fieldParam.getFieldName())){
+            salaryStandard.setIsSpec(fieldParam.getFieldValue());
+        }
+        if("isTry".equals(fieldParam.getFieldName())){
+            salaryStandard.setIsTry(fieldParam.getFieldValue());
+        }
+        if("meritRate".equals(fieldParam.getFieldName())){
+            salaryStandard.setMeritRate(Float.valueOf(fieldParam.getFieldValue()));
+        }
+        this.updateById(salaryStandard);
+    }
+
+    @Override
+    public ImportResultT importUpdate(UpdateFieldBatch fieldBatch) {
+        if(CollUtil.isEmpty(fieldBatch.getFieldList())){
+            throw new CommonException("更新字段不可为空");
+        }
+        if(CollUtil.isEmpty(fieldBatch.getInfoList())){
+            throw new CommonException("更新信息不可为空");
+        }
+        String checkMsg = EntityUtil.checkFields(SalaryStandard.class,fieldBatch.getFieldList());
+        if(ObjectUtil.isNotEmpty(checkMsg)){
+            throw new CommonException("请检查字段名："+ checkMsg);
+        }
+        //数据校验
+        for (UpdateInfo item:fieldBatch.getInfoList()) {
+            String errMsg = "";
+            if(fieldBatch.getFieldList().contains("yearMonth") || fieldBatch.getFieldList().contains("idCardNumber")){
+                errMsg += "所属年月、身份证号不可更新；";
+            }
+            if(ObjectUtil.isEmpty(item.getYearMonth())){
+                errMsg += "所属年月必填；";
+            }
+            if(ObjectUtil.isEmpty(item.getIdCardNumber())){
+                errMsg += "身份证号必填；";
+            }
+            //格式校验
+            if(ObjectUtil.isNotEmpty(item.getUserType()) && !CollectionUtil.newArrayList(USER_TYPE_LIST).contains(item.getUserType().trim())){
+                errMsg += "员工类别必须为：" + StrUtil.join("、",USER_TYPE_LIST) +"；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getHaveBirthdayPay()) && !CollectionUtil.newArrayList(YES_OR_NO_LIST).contains(item.getHaveBirthdayPay().trim())){
+                errMsg += "是否有生日福利必须为：" + StrUtil.join("、",YES_OR_NO_LIST) +"；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getHaveSeniorityPay()) && !CollectionUtil.newArrayList(YES_OR_NO_LIST).contains(item.getHaveSeniorityPay().trim())){
+                errMsg += "是否有工龄工资必须为：" + StrUtil.join("、",YES_OR_NO_LIST) +"；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getIsTry()) && !CollectionUtil.newArrayList(YES_OR_NO_LIST).contains(item.getIsTry().trim())){
+                errMsg += "是否实习生必须为：" + StrUtil.join("、",YES_OR_NO_LIST) +"；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getBirthDay()) && !ComputeUtil.isValidDate(item.getBirthDay().trim())){
+                errMsg += "生日不是合法日期格式；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getHireDate()) && !ComputeUtil.isValidDate(item.getHireDate().trim())){
+                errMsg += "入职日期不是合法日期格式；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getPositiveTime()) && !ComputeUtil.isValidDate(item.getPositiveTime().trim())){
+                errMsg += "转正日期不是合法日期格式；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getLeaveDate()) && !ComputeUtil.isValidDate(item.getLeaveDate().trim())){
+                errMsg += "离职日期不是合法日期格式；";
+            }
+            item.setErrorMsg(errMsg);
+        }
+        //数据匹配
+        List<String> yearMonths = fieldBatch.getInfoList().stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
+        List<SalaryStandardVo> standardAllList = AesUtil.decryptGZList(getStandardAllList(yearMonths)); //密文->明文
+        fieldBatch.getInfoList().stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
+            List<SalaryStandardVo> tmpList = new ArrayList<>();
+            if(ObjectUtil.isNotEmpty(item.getCompany())){
+                tmpList = standardAllList.stream().filter(n->item.getYearMonth().equals(n.getYearMonth()) && item.getCompany().equals(n.getCompany()) && item.getIdCardNumber().equals(n.getIdCardNumber())).collect(Collectors.toList());
+            }else{
+                tmpList = standardAllList.stream().filter(n->item.getYearMonth().equals(n.getYearMonth()) && item.getIdCardNumber().equals(n.getIdCardNumber())).collect(Collectors.toList());
+            }
+            if(tmpList.size() == 1){
+                item.setId(tmpList.get(0).getId());
+            }else if(tmpList.size() == 0){
+                item.setErrorMsg("月工资标准中未能匹配到用户；");
+            }else{
+                item.setErrorMsg("月工资标准中未能唯一匹配用户；");
+            }
+        });
+        //导入数据 - 校验结果
+        ImportResultT result = new ImportResultT();
+        result.setTotal(fieldBatch.getInfoList().size());
+        List<UpdateInfo> errList = fieldBatch.getInfoList().stream().filter(x->ObjectUtil.isNotEmpty(x.getErrorMsg())).collect(Collectors.toList());
+        result.setErrCount(errList.size());
+        result.setResultList(fieldBatch.getInfoList());
+        result.setSucCount(result.getTotal() - result.getErrCount());
+        return result;
+    }
+
+    @Override
+    public void doUpdate(UpdateFieldBatch fieldBatch) {
+        List<UpdateInfo> tmpUpdateInfos = fieldBatch.getInfoList().stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
+        List<UpdateInfo> updateInfoList = AesUtil.encryptGZList(tmpUpdateInfos);
+        if(CollUtil.isEmpty(fieldBatch.getFieldList()) || CollUtil.isEmpty(updateInfoList)){
+            throw new CommonException("更新字段为空或有效更新数据为空");
+        }
+        //涉及到更新的历史数据
+        List<String> ids = updateInfoList.stream().map(x->x.getId()).collect(Collectors.toList());
+        List<SalaryStandard> oldList = this.listByIds(ids);
+        //更新需要忽略的字段集合
+        List<String> ignoreFields = EntityUtil.copyIgnoreFields(SalaryStandard.class,fieldBatch.getFieldList());
+        for (SalaryStandard item:oldList){
+            UpdateInfo tmpInfo = updateInfoList.stream().filter(x->x.getId().equals(item.getId())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(tmpInfo)) {
+                BeanUtil.copyProperties(tmpInfo, item, ignoreFields.toArray(new String[0]));
+            }
+        }
+        this.updateBatchById(oldList);
     }
 }

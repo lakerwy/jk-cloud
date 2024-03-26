@@ -82,7 +82,7 @@ public interface SalaryAttendService extends IService<SalaryAttend> {
 
     /**
      * 获取某人 某年|某月 考勤数据
-     * @param empParam
+     * @param
      * @return
      */
     List<SalaryAttendVo> empAttend(SearchParam param);

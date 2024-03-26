@@ -45,4 +45,8 @@ public class SumAttendData {
     /** 当月入离职未满勤扣款 */
     @ApiModelProperty(value = "当月入离职未满勤扣款", position = 7)
     private BigDecimal inOutAmount;
+
+    /** 实习生工资 */
+    @ApiModelProperty(value = "实习生工资", position = 8)
+    private BigDecimal tryAmount;
 }

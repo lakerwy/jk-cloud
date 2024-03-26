@@ -19,7 +19,4 @@ public class SearchParam {
     @NotBlank(message = "所属年月不能为空")
     private String yearMonth;
 
-//    /** 所属年 */
-//    @ApiModelProperty(value = "所属年")
-//    private String year;
 }

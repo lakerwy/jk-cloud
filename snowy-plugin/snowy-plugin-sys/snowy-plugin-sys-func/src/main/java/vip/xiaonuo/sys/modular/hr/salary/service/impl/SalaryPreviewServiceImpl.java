@@ -30,13 +30,15 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.*;
 import vip.xiaonuo.sys.modular.hr.salary.enums.DataTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
+import vip.xiaonuo.sys.modular.hr.salary.enums.YesOrNoEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryPreviewMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPreviewService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
@@ -47,7 +49,6 @@ import javax.annotation.Resource;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
@@ -73,49 +74,49 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
     private SalaryService salaryService;
 
     @Override
-    public Page<SalaryPreview> page(SalaryPreviewPageParam salaryPreviewPageParam) {
+    public Page<SalaryPreviewVo> page(SalaryPreviewPageParam salaryPreviewPageParam) {
         QueryWrapper<SalaryPreview> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getType())) {
-            queryWrapper.lambda().eq(SalaryPreview::getType, salaryPreviewPageParam.getType());
-        }
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getCompany())) {
-            queryWrapper.lambda().like(SalaryPreview::getCompany, salaryPreviewPageParam.getCompany());
+            queryWrapper.like("a.COMPANY", salaryPreviewPageParam.getCompany());
         }
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getYearMonth())) {
-            queryWrapper.lambda().eq(SalaryPreview::getYearMonth, salaryPreviewPageParam.getYearMonth());
+            queryWrapper.eq("a.`YEAR_MONTH`", salaryPreviewPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getUserType())) {
-            queryWrapper.lambda().eq(SalaryPreview::getUserType, salaryPreviewPageParam.getUserType());
+            queryWrapper.eq("a.USER_TYPE", salaryPreviewPageParam.getUserType());
         }
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(SalaryPreview::getIdCardNumber, salaryPreviewPageParam.getIdCardNumber());
+            queryWrapper.eq("a.ID_CARD_NUMBER", AesUtil.encrypt(salaryPreviewPageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getUserName())) {
-            queryWrapper.lambda().like(SalaryPreview::getUserName, salaryPreviewPageParam.getUserName());
+            queryWrapper.eq("a.USER_NAME", AesUtil.encrypt(salaryPreviewPageParam.getUserName()));
         }
-        if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getFirstOrgName())) {
-            queryWrapper.lambda().like(SalaryPreview::getFirstOrgName, salaryPreviewPageParam.getFirstOrgName());
+        if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getIsSlow())){
+            queryWrapper.eq("a.IS_SLOW",salaryPreviewPageParam.getIsSlow());
         }
-        if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getOrgName())) {
-            queryWrapper.lambda().like(SalaryPreview::getOrgName, salaryPreviewPageParam.getOrgName());
-        }
-        if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getPosition())) {
-            queryWrapper.lambda().like(SalaryPreview::getPosition, salaryPreviewPageParam.getPosition());
+        if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.ID_CARD_NUMBER",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey()))
+                    .or().like("a.USER_NAME",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey()))
+                    .or().like("a.ORG_NAME",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey())));
         }
         if(ObjectUtil.isAllNotEmpty(salaryPreviewPageParam.getSortField(), salaryPreviewPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryPreviewPageParam.getSortOrder());
             queryWrapper.orderBy(true, salaryPreviewPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryPreviewPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SalaryPreview::getId);
+            queryWrapper.orderByAsc("a.ID");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<SalaryPreviewVo> result = salaryPreviewMapper.getPreviewPage(CommonPageRequest.defaultPage(), queryWrapper);
+        List<SalaryPreviewVo> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalaryPreviewVo::getSortIndex).thenComparing(SalaryPreviewVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        result.setRecords(records);
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryPreviewAddParam salaryPreviewAddParam) {
-        SalaryPreview salaryPreview = BeanUtil.toBean(salaryPreviewAddParam, SalaryPreview.class);
+        SalaryPreview salaryPreview = BeanUtil.toBean(AesUtil.encryptGZ(salaryPreviewAddParam), SalaryPreview.class);
         this.save(salaryPreview);
     }
 
@@ -123,7 +124,7 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
     @Override
     public void edit(SalaryPreviewEditParam salaryPreviewEditParam) {
         SalaryPreview salaryPreview = this.queryEntity(salaryPreviewEditParam.getId());
-        BeanUtil.copyProperties(salaryPreviewEditParam, salaryPreview);
+        BeanUtil.copyProperties(AesUtil.encryptGZ(salaryPreviewEditParam), salaryPreview);
         this.updateById(salaryPreview);
     }
 
@@ -136,7 +137,8 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
 
     @Override
     public SalaryPreview detail(SalaryPreviewIdParam salaryPreviewIdParam) {
-        return this.queryEntity(salaryPreviewIdParam.getId());
+        SalaryPreview salaryPreview = this.queryEntity(salaryPreviewIdParam.getId());
+        return AesUtil.decryptGZ(salaryPreview);
     }
 
     @Override
@@ -156,7 +158,7 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
      * @return
      */
     @Override
-    public List<SalaryPreviewVo> prePage(MySalaryParam param) {
+    public List<SalaryPreviewVo> autoGZPage(AutoParam param) {
         String yearMonth = param.getYearMonth();
         if(ObjectUtil.isEmpty(yearMonth)){
             throw new CommonException("所属年月必传");
@@ -185,71 +187,60 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                     .or().like("a.ORG_NAME",AesUtil.encrypt(param.getSearchKey())));
         }
         queryWrapper.isNull("b.ID");
-        List<SalaryPreviewVo> salaryVoList = salaryPreviewMapper.getPreData(queryWrapper);
+        List<SalaryPreviewVo> salaryVoList = salaryPreviewMapper.getAutoGZData(queryWrapper);
         //自动生成工资数据
-        List<SalaryPreviewVo> result = computePreGZ(yearMonth,salaryVoList);
-        List<SalaryPreviewVo> newResult = AesUtil.decryptGZList(result).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
-        return newResult;
+        List<SalaryPreviewVo> result = AesUtil.decryptGZList(computePreGZ(yearMonth,salaryVoList));
+        result.sort(Comparator.comparing(SalaryPreviewVo::getSortIndex).thenComparing(SalaryPreviewVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        return result;
     }
 
     @Override
-    public List<SalaryPreviewVo> getPreviewAll(String type, List<String> yearMonths) {
-        if(CollUtil.isEmpty(yearMonths)){
-            return null;
-        }
-        QueryWrapper<SalaryPreview> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(type)) {
-            queryWrapper.lambda().eq(SalaryPreview::getType,type);
-        }
-        queryWrapper.lambda().in(SalaryPreview::getYearMonth,yearMonths);
-        return BeanUtil.copyToList(this.list(queryWrapper),SalaryPreviewVo.class);
-    }
-
-    @Override
-    public void deleteByMonth(SearchParam param) {
-        QueryWrapper<SalaryPreview> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().eq(SalaryPreview::getYearMonth,param.getYearMonth());
-        this.remove(queryWrapper);
-    }
-
-
-    @Override
-    public void preSure(SearchParam param) {
+    public void autoGZSure(SearchParam param) {
         //查询条件
         QueryWrapper<SalaryPreview> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.eq("a.`YEAR_MONTH`",param.getYearMonth());
         queryWrapper.isNull("b.ID");
-        List<SalaryPreviewVo> salaryVoList = salaryPreviewMapper.getPreData(queryWrapper);
+        List<SalaryPreviewVo> salaryVoList = salaryPreviewMapper.getAutoGZData(queryWrapper);
         //自动生成工资数据
         List<SalaryPreviewVo> sureData = computePreGZ(param.getYearMonth(),salaryVoList);
         List<SalaryPreview> saveSureData = BeanUtil.copyToList(sureData,SalaryPreview.class);
         saveSureData.forEach(x->{
             x.setId(null);
-            x.setType(SalaryTypeEnum.EMP_SALARY.getValue());
-            x.setNote("确认时间："+ DateUtil.formatDate(new Date())+"；操作人："+ StpLoginUserUtil.getLoginUser().getName());
+            x.setNote("确认时间："+ DateUtil.now().toString() +"；操作人："+ StpLoginUserUtil.getLoginUser().getName());
         });
         this.saveBatch(saveSureData);
     }
 
 
     @Override
-    public void preArchive(SearchParam param) {
-        if(ObjectUtil.isEmpty(param.getYearMonth())){
-            throw new CommonException("所属年月必填");
+    public void delByMonth(SearchParam param) {
+        List<String> delIds = salaryPreviewMapper.getDelIdByMonth(param.getYearMonth());
+        if(CollUtil.isNotEmpty(delIds)) {
+            this.removeByIds(delIds);
         }
-        //查询条件
-        QueryWrapper<SalaryPreview> queryWrapper = new QueryWrapper<>();
-        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.eq("a.`YEAR_MONTH`",param.getYearMonth());
-        queryWrapper.isNull("b.ID");
-        List<SalaryPreview> preArchiveData = salaryPreviewMapper.getPreArchive(queryWrapper);
+    }
+
+
+    @Override
+    public void archiveGZ(SearchParam param) {
+        List<SalaryPreview> preArchiveData = salaryPreviewMapper.getArchiveData(param.getYearMonth());
         List<Salary> saveSalary = BeanUtil.copyToList(preArchiveData,Salary.class);
         saveSalary.forEach(x->{
             x.setPreviewId(x.getId());
             x.setId(null);
+            x.setNote("封存时间："+ DateUtil.now().toString() +"；操作人："+ StpLoginUserUtil.getLoginUser().getName());
         });
         salaryService.saveBatch(saveSalary);
+    }
+
+    @Override
+    public void updateField(UpdateFieldParam fieldParam) {
+        SalaryPreview salaryPreview = this.queryEntity(fieldParam.getId());
+        if("isSlow".equals(fieldParam.getFieldName())){
+            salaryPreview.setIsSlow(fieldParam.getFieldValue());
+        }
+        this.updateById(salaryPreview);
     }
 
 
@@ -267,8 +258,10 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
         }
         //获取补贴数据(按type+standardId分组)
         List<SumTypeData> subsidyData = salaryPreviewMapper.getSubsidyData(standardIds);
-        //获取福利数据(按type+standardId分组)
-        List<SumTypeData> payData = salaryPreviewMapper.getPayData(standardIds);
+        //获取工龄工资数据(按type+standardId分组)
+        List<SumTypeData> seniorityData = salaryPreviewMapper.getSeniorityData(standardIds);
+        //获取员工福利（生日、其他福利）数据(按type+unitName+standardId分组)
+        List<SumEmpBonusData> empBonusData = salaryPreviewMapper.getEmpBonusData(standardIds);
         //获取考勤数据
         List<SalaryAttend> attendData = salaryPreviewMapper.getAttendData(standardIds);
         //获取社保数据
@@ -281,7 +274,7 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
         List<SalaryAdd> addData = salaryPreviewMapper.getAddData(standardIds);
         //获取上月累计应纳税所得额|累计税额等 【已封存】
         String previousYearMonth = ComputeUtil.getPreviousYM(yearMonth);
-        List<Salary> previousSalaryData = salaryService.list(new QueryWrapper<Salary>().lambda().eq(Salary::getType,SalaryTypeEnum.EMP_SALARY.getValue()).eq(Salary::getYearMonth,previousYearMonth));
+        List<Salary> previousSalaryData = salaryService.list(new QueryWrapper<Salary>().lambda().eq(Salary::getYearMonth,previousYearMonth));
 
         //1. 第一步，所有的 【工资】 数据copy
         List<SalaryPreviewVo> newSalaryVoList = BeanUtil.copyToList(salaryPreviewVoList,SalaryPreviewVo.class);
@@ -364,6 +357,7 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
         //3. 第三步，数据计算
         List<SalaryPreviewVo> preSalaryList = ComputeUtil.initGZData(newSalaryVoList);
         preSalaryList.forEach(item->{
+            SumAttendData sumAttendData = new SumAttendData();
             //先处理各类特殊
             if(DataTypeEnum.SALARY.getValue().equals(item.getDataType())) {
                 //岗位工资（若社保|公积金发放单位与工资不一致，减去社保、公积金）
@@ -383,7 +377,7 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                 }
 
                 //工龄工资
-                SumTypeData seniorityGZ = payData.stream().filter(x -> SalaryTypeEnum.SENIORITY.getValue().equals(x.getType())
+                SumTypeData seniorityGZ = seniorityData.stream().filter(x -> SalaryTypeEnum.SENIORITY.getValue().equals(x.getType())
                         && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(seniorityGZ)) {
                     item.setWorkAgeAmount(ComputeUtil.setScale(seniorityGZ.getSumAmount(), 2));
@@ -406,7 +400,7 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                 //考勤 ： 全勤奖|考勤扣款
                 SalaryAttend attend = attendData.stream().filter(x -> item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
                 if (ObjectUtil.isNotEmpty(attend)) {
-                    SumAttendData sumAttendData = ComputeUtil.computeAttendGZ(attend,item);
+                    sumAttendData = ComputeUtil.computeAttendGZ(attend,item);
                     //全勤奖
                     item.setFullAmount(ComputeUtil.setScale(sumAttendData.getFullAmount(),2));
                     item.setSickAmount(ComputeUtil.setScale(sumAttendData.getSickAmount(),2));
@@ -428,13 +422,6 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                     item.setLastMinusAmount(ComputeUtil.setScale(add.getLastMinusAmount(),2));
                 }
 
-                //员工福利扣税额
-                SumTypeData empBonusGZ = payData.stream().filter(x -> SalaryTypeEnum.EMP_BONUS.getValue().equals(x.getType())
-                        && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
-                if(ObjectUtil.isNotEmpty(empBonusGZ)) {
-                    item.setEmpWelfareAmount(ComputeUtil.setScale(empBonusGZ.getSumAmount(), 2));
-                }
-
                 //外业补贴扣税额
                 SumTypeData outerBT = subsidyData.stream().filter(x -> SalaryTypeEnum.OUTER_SUBSIDY.getValue().equals(x.getType())
                         && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
@@ -452,17 +439,27 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                 item.setMeritAmount(BigDecimal.ZERO);
                 item.setMeritRate(0.0F);
             }
-
             /**
              * 再计算公共部分 ： 应发工资|专项附加扣除|本月因纳税所得额|累计应纳税所得额|累计税额|已累计税额|本月应扣税额|实发工资
              */
             //应发工资
-            item.setGrossPayAmount(item.getBasicAmount().add(item.getPostAmount()).add(item.getRealMeritAmount()).add(item.getRegisterAmount())
-                    .add(item.getWorkAgeAmount()).add(item.getFullAmount()).add(item.getTeacherAmount()).add(item.getDutyAmount())
-                    .subtract(item.getSickAmount()).subtract(item.getWorkAmount()).subtract(item.getLateAmount())
-                    .subtract(item.getMinerAmount()).subtract(item.getMaterAmount()).add(item.getAddAmount()).subtract(item.getMinusAmount()).subtract(item.getInOutAmount()));
+            if(DataTypeEnum.SALARY.getValue().equals(item.getDataType()) && YesOrNoEnum.YES.getValue().equals(item.getIsTry())){
+                item.setGrossPayAmount(sumAttendData.getTryAmount());
+            }else {
+                item.setGrossPayAmount(item.getBasicAmount().add(item.getPostAmount()).add(item.getRealMeritAmount()).add(item.getRegisterAmount())
+                        .add(item.getWorkAgeAmount()).add(item.getFullAmount()).add(item.getTeacherAmount()).add(item.getDutyAmount())
+                        .subtract(item.getSickAmount()).subtract(item.getWorkAmount()).subtract(item.getLateAmount())
+                        .subtract(item.getMinerAmount()).subtract(item.getMaterAmount()).add(item.getAddAmount()).subtract(item.getMinusAmount()).subtract(item.getInOutAmount()));
+            }
 
-            //【个人社保扣除|个人公积金扣款】 - 已生成 - 匹配 - 专项附加扣除
+            //员工福利扣税额【发放公司匹配】
+            SumEmpBonusData empBonusGZ = empBonusData.stream().filter(x -> SalaryTypeEnum.EMP_BONUS.getValue().equals(x.getType()) && item.getCompany().equals(x.getUnitName())
+                    && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(empBonusGZ)) {
+                item.setEmpWelfareAmount(ComputeUtil.setScale(empBonusGZ.getSumAmount(), 2));
+            }
+
+            //【个人社保扣除|个人公积金扣款】 - 已生成 - 【缴纳单位匹配】 - 专项附加扣除
             SalaryTax tax = taxData.stream().filter(x -> item.getCompany().equals(x.getUnitName()) && item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
             if(ObjectUtil.isNotEmpty(tax)) {
                 item.setTaxSy(ComputeUtil.setScale(tax.getTaxSy(),2));
@@ -478,9 +475,9 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                     .subtract(item.getTaxSy()).subtract(item.getTaxZn()).subtract(item.getTaxFd()).subtract(item.getTaxZf()).subtract(item.getTaxJy()).subtract(item.getTaxZh())
                     .add(item.getEmpWelfareAmount()).add(item.getOuterAmount()).subtract(BIG_DECIMAL_5000));
 
-            //累计应纳税所得额(上月累计应纳税所得额【12月为0】 + 本月应纳税所得额 )
+            //累计应纳税所得额(上月累计应纳税所得额【12月为0】 + 本月应纳税所得额 )【发放公司匹配】
             Salary tempPreviousSalary = previousSalaryData.stream().filter(x->item.getCompany().equals(x.getCompany())
-                    && item.getIdCardNumber().equals(x.getIdCardNumber())).findFirst().orElse(null);
+                    && item.getIdCardNumber().equals(x.getIdCardNumber())).sorted(Comparator.comparing(Salary::getCreateTime).reversed()).findFirst().orElse(null);
             BigDecimal previousLjTaxIncomeAmount = BigDecimal.ZERO;
             if(!yearMonth.endsWith("12") && ObjectUtil.isNotEmpty(tempPreviousSalary)){
                 previousLjTaxIncomeAmount = tempPreviousSalary.getLjTaxIncomeAmount();

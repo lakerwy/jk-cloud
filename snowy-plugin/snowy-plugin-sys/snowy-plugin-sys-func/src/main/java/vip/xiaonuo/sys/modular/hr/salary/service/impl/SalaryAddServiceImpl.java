@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
 import javax.annotation.Resource;
@@ -88,7 +89,8 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
             queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalaryAddVo> result = salaryAddMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalaryAddVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<SalaryAddVo> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalaryAddVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }
@@ -109,7 +111,7 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(SalaryAddEditParam salaryAddEditParam) {
-        //同一用户，同一年度月份，只能存在一条有效记录（yearMonth+personnelId）
+        //同一用户，同一年度月份，只能存在一条有效记录
         List<SalaryAdd> oldList = this.list(new QueryWrapper<SalaryAdd>().lambda()
                 .eq(SalaryAdd::getStandardId,salaryAddEditParam.getStandardId())
                 .ne(SalaryAdd::getId,salaryAddEditParam.getId()));

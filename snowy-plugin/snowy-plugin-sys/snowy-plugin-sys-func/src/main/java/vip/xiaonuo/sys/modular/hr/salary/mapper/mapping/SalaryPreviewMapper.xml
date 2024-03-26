@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryPreviewMapper">
 
-    <select id="getPreData" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo">
-        select a.*,a.ID as standardId,'工资' as dataType
+    <select id="getAutoGZData" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo">
+        select a.*,a.ID as standardId,'工资' as dataType,IF(a.USER_TYPE='总部',1,IF(a.USER_TYPE='分公司',2,3)) as sortIndex
         from HR_SALARY_STANDARD a
                  left join HR_SALARY_PREVIEW b on a.ID = b.STANDARD_ID and b.DELETE_FLAG='NOT_DELETE'
             ${ew.customSqlSegment}
@@ -12,16 +12,6 @@
     <select id="getSubsidyData" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData">
         select TYPE,STANDARD_ID,SUM(AMOUNT) as sumAmount
         from HR_SALARY_SUBSIDY_RECORD
-        where DELETE_FLAG='NOT_DELETE' and STANDARD_ID in
-        <foreach collection="standardIds" item="item" open="(" close=")" separator="," >
-            #{item}
-        </foreach>
-        GROUP BY TYPE,STANDARD_ID
-    </select>
-
-    <select id="getPayData" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData">
-        select TYPE,STANDARD_ID,SUM(AMOUNT) as sumAmount
-        from HR_SALARY_PAY
         where DELETE_FLAG='NOT_DELETE' and STANDARD_ID in
         <foreach collection="standardIds" item="item" open="(" close=")" separator="," >
             #{item}
@@ -74,8 +64,46 @@
         </foreach>
     </select>
 
-    <select id="getPreArchive" resultType="vip.xiaonuo.sys.modular.hr.salary.entity.SalaryPreview">
+    <select id="getSeniorityData" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData">
+        select TYPE,STANDARD_ID,SUM(AMOUNT) as sumAmount
+        from HR_SALARY_PAY
+        where DELETE_FLAG='NOT_DELETE' and TYPE='工龄工资' and STANDARD_ID in
+        <foreach collection="standardIds" item="item" open="(" close=")" separator="," >
+            #{item}
+        </foreach>
+        GROUP BY TYPE,STANDARD_ID
+    </select>
+
+    <select id="getEmpBonusData" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SumEmpBonusData">
+        select TYPE,STANDARD_ID,SUM(AMOUNT) as sumAmount,UNIT_NAME
+        from HR_SALARY_PAY
+        where DELETE_FLAG='NOT_DELETE' and TYPE='员工福利' and STANDARD_ID in
+        <foreach collection="standardIds" item="item" open="(" close=")" separator="," >
+            #{item}
+        </foreach>
+        GROUP BY TYPE,STANDARD_ID,UNIT_NAME
+    </select>
+
+    <select id="getDelIdByMonth" resultType="java.lang.String">
+        select a.ID
+        from HR_SALARY_PREVIEW a
+                 left join HR_SALARY b on a.ID = b.PREVIEW_ID and b.DELETE_FLAG='NOT_DELETE'
+        where a.DELETE_FLAG='NOT_DELETE'
+          and a.`YEAR_MONTH` = #{yearMonth}
+          and b.ID is null
+    </select>
+
+    <select id="getArchiveData" resultType="vip.xiaonuo.sys.modular.hr.salary.entity.SalaryPreview">
         select a.*
+        from HR_SALARY_PREVIEW a
+                 left join HR_SALARY b on a.ID = b.PREVIEW_ID and b.DELETE_FLAG='NOT_DELETE'
+        where a.DELETE_FLAG='NOT_DELETE'
+              and a.`YEAR_MONTH` = #{yearMonth}
+              and b.ID is null
+    </select>
+
+    <select id="getPreviewPage" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo">
+        select a.*,IF(a.USER_TYPE='总部',1,IF(a.USER_TYPE='分公司',2,3)) as sortIndex
         from HR_SALARY_PREVIEW a
                  left join HR_SALARY b on a.ID = b.PREVIEW_ID and b.DELETE_FLAG='NOT_DELETE'
             ${ew.customSqlSegment}

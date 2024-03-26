@@ -16,9 +16,11 @@ package vip.xiaonuo.sys.modular.hr.salary.mapper;
 import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.*;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumEmpBonusData;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumTypeData;
 
 import java.util.List;
@@ -32,10 +34,10 @@ import java.util.List;
 public interface SalaryPreviewMapper extends BaseMapper<SalaryPreview> {
 
     /**
-     * 月工资报表 - (未确认)预览数据（自动生成）
+     * 系统自动生成某月工资数据 - 确认后进入 - 工资预览数据
      * @return
      */
-    List<SalaryPreviewVo> getPreData(@Param(Constants.WRAPPER) Wrapper<SalaryPreview> queryWrapper);
+    List<SalaryPreviewVo> getAutoGZData(@Param(Constants.WRAPPER) Wrapper<SalaryPreview> queryWrapper);
 
     /**
      * 对指定yyyyMM员工工资，分类统计各类补贴金额
@@ -45,11 +47,18 @@ public interface SalaryPreviewMapper extends BaseMapper<SalaryPreview> {
     List<SumTypeData> getSubsidyData(List<String> standardIds);
 
     /**
-     * 对指定yyyyMM员工工资，分类统计各类福利金额
+     * 工龄工资
      * @param standardIds
      * @return
      */
-    List<SumTypeData> getPayData(List<String> standardIds);
+    List<SumTypeData> getSeniorityData(List<String> standardIds);
+
+    /**
+     * 员工福利（生日福利、其他福利）--发放公司维度
+     * @param standardIds
+     * @return
+     */
+    List<SumEmpBonusData> getEmpBonusData(List<String> standardIds);
 
     /**
      * 对指定yyyyMM员工工资，获取考勤数据
@@ -86,10 +95,21 @@ public interface SalaryPreviewMapper extends BaseMapper<SalaryPreview> {
      */
     List<SalaryAdd> getAddData(List<String> standardIds);
 
-
     /**
-     * 月工资报表 - (未封存)预览数据
+     * 工资预览表 - 删除某月(未封存)预览数据
      * @return
      */
-    List<SalaryPreview> getPreArchive(@Param(Constants.WRAPPER) Wrapper<SalaryPreview> queryWrapper);
+    List<String> getDelIdByMonth(String yearMonth);
+
+    /**
+     * 根据年月获取待封存数据： (未封存)工资数据 - 封存后 进入工资表
+     * @return
+     */
+    List<SalaryPreview> getArchiveData(String yearMonth);
+
+    /**
+     * 工资预览表 - (未封存)工资数据 - 分页展示
+     * @return
+     */
+    Page<SalaryPreviewVo> getPreviewPage(Page<SalaryPreview> page, @Param(Constants.WRAPPER) Wrapper<SalaryPreview> queryWrapper);
 }

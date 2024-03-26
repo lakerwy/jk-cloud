@@ -37,10 +37,6 @@ public class SalaryPreviewEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 类别：工资|奖金 */
-    @ApiModelProperty(value = "类别：工资|奖金", position = 2)
-    private String type;
-
     /** 工资发放公司 */
     @ApiModelProperty(value = "工资发放公司", position = 3)
     private String company;

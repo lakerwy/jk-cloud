@@ -33,6 +33,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryTaxService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryTaxVo;
 
 import javax.annotation.Resource;
@@ -85,7 +86,8 @@ public class SalaryTaxServiceImpl extends ServiceImpl<SalaryTaxMapper, SalaryTax
             queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalaryTaxVo> result = salaryTaxMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalaryTaxVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<SalaryTaxVo> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalaryTaxVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }
@@ -93,7 +95,7 @@ public class SalaryTaxServiceImpl extends ServiceImpl<SalaryTaxMapper, SalaryTax
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryTaxAddParam salaryTaxAddParam) {
-        //同一年月，同一花名册Id，只存在一条记录
+        //同一年月，同一员工，同一缴纳单位，只存在一条记录
         List<SalaryTax> oldList = this.list(new QueryWrapper<SalaryTax>().lambda()
                         .eq(SalaryTax::getUnitName,salaryTaxAddParam.getUnitName())
                         .eq(SalaryTax::getStandardId,salaryTaxAddParam.getStandardId()));
@@ -107,7 +109,7 @@ public class SalaryTaxServiceImpl extends ServiceImpl<SalaryTaxMapper, SalaryTax
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(SalaryTaxEditParam salaryTaxEditParam) {
-        //同一年月，同一花名册Id，只存在一条记录
+        //同一年月，同一员工，同一缴纳单位，只存在一条记录
         List<SalaryTax> oldList = this.list(new QueryWrapper<SalaryTax>().lambda()
                 .eq(SalaryTax::getUnitName,salaryTaxEditParam.getUnitName())
                 .eq(SalaryTax::getStandardId,salaryTaxEditParam.getStandardId())

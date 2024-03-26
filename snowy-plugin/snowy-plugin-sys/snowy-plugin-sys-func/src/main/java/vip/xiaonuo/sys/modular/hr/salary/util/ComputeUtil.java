@@ -6,7 +6,8 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryGjj;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryImportTemp;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryIns;
-import vip.xiaonuo.sys.modular.hr.salary.enums.FullStatusEnum;
+import vip.xiaonuo.sys.modular.hr.salary.enums.YesOrNoEnum;
+import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
 import java.math.BigDecimal;
@@ -171,7 +172,7 @@ public class ComputeUtil {
         //考勤扣款
         SumAttendData attendData = new SumAttendData();
         //全勤奖
-        attendData.setFullAmount(FullStatusEnum.YES.getValue().equals(attend.getIsFull()) ? FULL_AMOUNT : BIG_DECIMAL_0);
+        attendData.setFullAmount(YesOrNoEnum.YES.getValue().equals(attend.getIsFull()) ? FULL_AMOUNT : BIG_DECIMAL_0);
         /**
          * 病假
          * 一个月以内的病假扣款=月工资标准/21.75*病假天数*50%
@@ -282,6 +283,15 @@ public class ComputeUtil {
                                 .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP)
                 );
         attendData.setInOutAmount(inOutAmount);
+
+        /**
+         * 实习生工资：基本工资*实际出勤天数
+         */
+        BigDecimal tryAmount = BIG_DECIMAL_0;
+        if(YesOrNoEnum.YES.getValue().equals(salaryVo.getIsTry())){
+            tryAmount = salaryVo.getBasicAmount().multiply(BigDecimal.valueOf(attend.getRealDay()));
+        }
+        attendData.setTryAmount(tryAmount);
         return attendData;
     }
 
@@ -426,14 +436,19 @@ public class ComputeUtil {
      * @param importTempData 导入确认时，无错误信息的数据
      * @return
      */
-    public static List<SalaryImportTemp> initImportData(List<SalaryImportTemp> importTempData){
+    public static List<SalaryImportTemp> initImportData(String type,List<SalaryImportTemp> importTempData){
         List<SalaryImportTemp> importData = new ArrayList<>();
         importTempData.forEach(item->{
-            if(ObjectUtil.isEmpty(item.getHaveBirthdayPay())){
-                item.setHaveBirthdayPay("是");
-            }
-            if(ObjectUtil.isEmpty(item.getHaveSeniorityPay())){
-                item.setHaveSeniorityPay("是");
+            if(SalaryTypeEnum.STANDARD.getValue().equals(type)) {
+                if (ObjectUtil.isEmpty(item.getHaveBirthdayPay())) {
+                    item.setHaveBirthdayPay("是");
+                }
+                if (ObjectUtil.isEmpty(item.getHaveSeniorityPay())) {
+                    item.setHaveSeniorityPay("是");
+                }
+                if (ObjectUtil.isEmpty(item.getIsTry())) {
+                    item.setIsTry("否");
+                }
             }
             importData.add(DefaultValueUtil.defaultValues(item));
         });

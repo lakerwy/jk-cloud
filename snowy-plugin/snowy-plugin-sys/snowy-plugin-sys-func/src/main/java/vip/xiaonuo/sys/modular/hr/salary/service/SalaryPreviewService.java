@@ -20,8 +20,9 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo;
 
 import java.util.List;
@@ -40,7 +41,7 @@ public interface SalaryPreviewService extends IService<SalaryPreview> {
      * @author yong.ye
      * @date  2024/03/22 10:26
      */
-    Page<SalaryPreview> page(SalaryPreviewPageParam salaryPreviewPageParam);
+    Page<SalaryPreviewVo> page(SalaryPreviewPageParam salaryPreviewPageParam);
 
     /**
      * 添加工资系统-工资预览表
@@ -83,35 +84,36 @@ public interface SalaryPreviewService extends IService<SalaryPreview> {
     SalaryPreview queryEntity(String id);
 
     /**
-     * 月工资报表 - (未确认的)预览数据（自动生成）
+     * 自动生成工资 - 数据预览
      * @param
      * @return
      */
-    List<SalaryPreviewVo> prePage(MySalaryParam param);
+    List<SalaryPreviewVo> autoGZPage(AutoParam param);
 
     /**
-     * 获取所涉及月份的工资数据
-     * @param type 工资类型
-     * @param yearMonths 月份
-     * @return
-     */
-    List<SalaryPreviewVo> getPreviewAll(String type,List<String> yearMonths);
-
-    /**
-     * 删除 工资表 已确认的数据 - 删除某年月数据
+     * 自动生成工资 - 确认生成
+     *
      * @param param
      */
-    void deleteByMonth(SearchParam param);
+    void autoGZSure(SearchParam param);
 
     /**
-     * 预览工资 - 确认
+     * 工资未封存数据 - 删除
+     *
+     * 删除 工资预览表 已确认但未封存 的数据- 删除某年月数据
      * @param param
      */
-    void preSure(SearchParam param);
+    void delByMonth(SearchParam param);
 
     /**
-     * 工资封存
+     * 预览未封存工资-封存
      * @param param
      */
-    void preArchive(SearchParam param);
+    void archiveGZ(SearchParam param);
+
+    /**
+     * 跟新指定字段
+     * @param fieldParam
+     */
+    void updateField(UpdateFieldParam fieldParam);
 }

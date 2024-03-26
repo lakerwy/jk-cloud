@@ -34,6 +34,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPayService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
@@ -97,7 +98,8 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
             queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalaryPayVo> result = salaryPayMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalaryPayVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<SalaryPayVo> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalaryPayVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }
@@ -105,7 +107,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryPayAddParam salaryPayAddParam) {
-        //同一年月，同一花名册Id，只存在一条记录(工龄工资|生日福利)
+        //同一年月，同一员工，只存在一条记录(工龄工资|生日福利)
         if(SalaryTypeEnum.BIRTHDAY.getValue().equals(salaryPayAddParam.getItemType())
                 || SalaryTypeEnum.SENIORITY.getValue().equals(salaryPayAddParam.getType())) {
             QueryWrapper<SalaryPay> queryWrapper = new QueryWrapper<>();
@@ -184,6 +186,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
                 SalaryPay addParam = new SalaryPay();
                 addParam.setType(payType);
                 addParam.setStandardId(item.getId());
+                addParam.setUnitName(item.getCompany());  //默认 工资发放公司
                 SalarySeniorityVo salarySeniorityVo = ComputeUtil.seniorityGZ(item.getPositiveTime());
                 addParam.setAmount(salarySeniorityVo.getAmount());
                 addParam.setPositiveAge(salarySeniorityVo.getPositiveAge());
@@ -214,6 +217,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
                 addParam.setType(payType);
                 addParam.setItemType(itemType);
                 addParam.setStandardId(item.getId());
+                addParam.setUnitName(item.getCompany());  //默认 工资发放公司
                 addParam.setAmount(ComputeUtil.birthdayGZ(item.getBirthDay()));
                 addParam.setMemo("记录生成时间："+DateUtil.now()+"，生日日期是："+DateUtil.formatDate(item.getBirthDay()));
                 addList.add(addParam);

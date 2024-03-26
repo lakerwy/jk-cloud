@@ -1,5 +1,6 @@
 package vip.xiaonuo.sys.modular.hr.salary.vo;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
@@ -293,4 +294,8 @@ public class SalaryPreviewVo {
     /** 是否缓发 */
     @ApiModelProperty(value = "是否缓发", position = 73)
     private String isSlow;
+
+    /** 排序字段 */
+    @ApiModelProperty(value = "排序字段", position = 80)
+    private Integer sortIndex;
 }

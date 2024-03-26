@@ -25,15 +25,17 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.*;
+import vip.xiaonuo.sys.modular.hr.salary.enums.UserTypeEnum;
+import vip.xiaonuo.sys.modular.hr.salary.enums.YesOrNoEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.*;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 工资系统-工资表Service接口实现类
@@ -49,9 +51,6 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
         if(ObjectUtil.isNotEmpty(salaryPageParam.getYearMonth())) {
             queryWrapper.lambda().eq(Salary::getYearMonth, salaryPageParam.getYearMonth());
-        }
-        if(ObjectUtil.isNotEmpty(salaryPageParam.getType())){
-            queryWrapper.lambda().eq(Salary::getType,salaryPageParam.getType());
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getUserType())){
             queryWrapper.lambda().eq(Salary::getUserType,salaryPageParam.getUserType());
@@ -71,6 +70,9 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         if(ObjectUtil.isNotEmpty(salaryPageParam.getPosition())) {
             queryWrapper.lambda().like(Salary::getPosition, AesUtil.encrypt(salaryPageParam.getPosition()));
         }
+        if(ObjectUtil.isNotEmpty(salaryPageParam.getIsSlow())){
+            queryWrapper.lambda().eq(Salary::getIsSlow,salaryPageParam.getIsSlow());
+        }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(Salary::getIdCardNumber,AesUtil.encrypt(salaryPageParam.getSearchKey()))
                     .or().like(Salary::getUserName,AesUtil.encrypt(salaryPageParam.getSearchKey()))
@@ -84,7 +86,9 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
         }
         Page<Salary> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        List<Salary> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<Salary> records = AesUtil.decryptGZList(result.getRecords());
+        records.forEach(x->x.setSortIndex(UserTypeEnum.ZB.getValue().equals(x.getUserType()) ? 1 : (UserTypeEnum.FGS.getValue().equals(x.getUserType()) ? 2 : 3)));
+        records.sort(Comparator.comparing(Salary::getSortIndex).thenComparing(Salary::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }
@@ -118,6 +122,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.lambda().eq(Salary::getYearMonth,param.getYearMonth());
         }
         queryWrapper.lambda().eq(Salary::getUserId, AesUtil.encrypt(StpLoginUserUtil.getLoginUser().getId()));
+        queryWrapper.lambda().ne(Salary::getIsSlow, YesOrNoEnum.YES.getValue());
         queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
         List<Salary> result = this.list(queryWrapper);
         return AesUtil.decryptGZList(result);
@@ -128,5 +133,14 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(Salary::getYearMonth,param.getYearMonth());
         this.remove(queryWrapper);
+    }
+
+    @Override
+    public void updateField(UpdateFieldParam fieldParam) {
+        Salary salary = this.queryEntity(fieldParam.getId());
+        if("isSlow".equals(fieldParam.getFieldName())){
+            salary.setIsSlow(fieldParam.getFieldValue());
+        }
+        this.updateById(salary);
     }
 }

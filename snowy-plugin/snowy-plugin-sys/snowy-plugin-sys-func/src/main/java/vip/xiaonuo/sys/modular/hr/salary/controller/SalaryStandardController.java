@@ -27,10 +27,9 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.ImportResultT;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.ThreeSalaryStandardVo;
@@ -179,11 +178,58 @@ public class SalaryStandardController {
      * @author yong.ye
      * @date  2024/03/06 09:36
      */
-    @ApiOperationSupport(order = 10)
+    @ApiOperationSupport(order = 9)
     @ApiOperation("获取工资系统-月度工资标准 - 【分为3个列表】")
     @GetMapping("/sys/hr/salary/standard/threePageList")
     public CommonResult<ThreeSalaryStandardVo> threePageList(ThreePageParam threePageParam) {
         return CommonResult.data(salaryStandardService.threePageList(threePageParam));
+    }
+
+
+    /**
+     * 标记-字段更新【支持字段：绩效系数|是否重点关注|是否实习生|备注|当月变动】
+     *
+     * @author yong.ye
+     * @date  2024/03/22 10:26
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("标记-字段更新")
+    @CommonLog("标记-字段更新")
+    @PostMapping("/sys/hr/salary/standard/updateField")
+    public CommonResult<String> updateField(@RequestBody @Valid UpdateFieldParam fieldParam) {
+        salaryStandardService.updateField(fieldParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 批量导入更新信息-信息校验
+     *
+     * @author yong.ye
+     * @date  2024/03/22 10:26
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("批量导入更新信息-信息校验")
+    @CommonLog("批量导入更新信息-信息校验")
+    @PostMapping("/sys/hr/salary/standard/importUpdate")
+    public CommonResult<ImportResultT> importUpdate(@RequestBody @Valid UpdateFieldBatch fieldBatch) {
+        return CommonResult.data(salaryStandardService.importUpdate(fieldBatch));
+    }
+
+
+    /**
+     * 批量导入更新信息- 确认更新
+     *
+     * @author yong.ye
+     * @date  2024/03/22 10:26
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("批量导入更新信息- 确认更新")
+    @CommonLog("批量导入更新信息- 确认更新")
+    @PostMapping("/sys/hr/salary/standard/doUpdate")
+    public CommonResult<String> doUpdate(@RequestBody @Valid UpdateFieldBatch fieldBatch) {
+        salaryStandardService.doUpdate(fieldBatch);
+        return CommonResult.ok();
     }
 
 }

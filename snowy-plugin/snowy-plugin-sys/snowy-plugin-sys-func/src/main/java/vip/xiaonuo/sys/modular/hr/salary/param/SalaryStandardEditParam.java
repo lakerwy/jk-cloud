@@ -67,25 +67,25 @@ public class SalaryStandardEditParam {
     @ApiModelProperty(value = "一级部门", position = 7)
     private String firstOrgName;
 
-    /** 一级部门Id */
-    @ApiModelProperty(value = "一级部门Id", position = 8)
-    private String firstOrgId;
+//    /** 一级部门Id */
+//    @ApiModelProperty(value = "一级部门Id", position = 8)
+//    private String firstOrgId;
 
     /** 二级部门 */
     @ApiModelProperty(value = "二级部门", position = 9)
     private String orgName;
 
-    /** 二级部门Id */
-    @ApiModelProperty(value = "二级部门Id", position = 10)
-    private String orgId;
+//    /** 二级部门Id */
+//    @ApiModelProperty(value = "二级部门Id", position = 10)
+//    private String orgId;
 
     /** 职位 */
     @ApiModelProperty(value = "职位", position = 11)
     private String position;
 
-    /** 职位Id */
-    @ApiModelProperty(value = "职位Id", position = 12)
-    private String positionId;
+//    /** 职位Id */
+//    @ApiModelProperty(value = "职位Id", position = 12)
+//    private String positionId;
 
     /** 入职日期 */
     @ApiModelProperty(value = "入职日期", position = 13)

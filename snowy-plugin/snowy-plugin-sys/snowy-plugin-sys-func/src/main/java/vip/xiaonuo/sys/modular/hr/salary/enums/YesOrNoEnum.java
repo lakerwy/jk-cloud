@@ -21,7 +21,7 @@ import lombok.Getter;
  * @date  2024/03/06 09:31
  **/
 @Getter
-public enum FullStatusEnum {
+public enum YesOrNoEnum {
 
     /** 是 */
     YES("是"),
@@ -30,7 +30,7 @@ public enum FullStatusEnum {
 
     private final String value;
 
-    FullStatusEnum(String value) {
+    YesOrNoEnum(String value) {
         this.value = value;
     }
 }

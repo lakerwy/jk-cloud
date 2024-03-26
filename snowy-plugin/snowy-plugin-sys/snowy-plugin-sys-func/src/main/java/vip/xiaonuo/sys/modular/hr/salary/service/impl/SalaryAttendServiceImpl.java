@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAttendService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 
 import javax.annotation.Resource;
@@ -87,7 +88,8 @@ public class SalaryAttendServiceImpl extends ServiceImpl<SalaryAttendMapper, Sal
             queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalaryAttendVo> result = salaryAttendMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalaryAttendVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<SalaryAttendVo> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalaryAttendVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }

@@ -16,9 +16,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ThreePageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
+import vip.xiaonuo.sys.modular.hr.salary.vo.ImportResultT;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.ThreeSalaryStandardVo;
@@ -113,4 +112,22 @@ public interface SalaryStandardService extends IService<SalaryStandard> {
      * @return
      */
     ThreeSalaryStandardVo threePageList(ThreePageParam threePageParam);
+
+    /**
+     * 更新指定字段
+     * @param fieldParam
+     */
+    void updateField(UpdateFieldParam fieldParam);
+
+    /**
+     * 批量导入跟新-校验
+     * @param fieldBatch
+     */
+    ImportResultT importUpdate(UpdateFieldBatch fieldBatch);
+
+    /**
+     * 确认批量更新
+     * @param fieldBatch
+     */
+    void doUpdate(UpdateFieldBatch fieldBatch);
 }

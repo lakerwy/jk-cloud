@@ -33,6 +33,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryGjjPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryGjjService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryGjjVo;
 
 import javax.annotation.Resource;
@@ -85,7 +86,8 @@ public class SalaryGjjServiceImpl extends ServiceImpl<SalaryGjjMapper, SalaryGjj
             queryWrapper.orderByDesc("b.`YEAR_MONTH`");
         }
         Page<SalaryGjjVo> result = salaryGjjMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<SalaryGjjVo> records = AesUtil.decryptGZList(result.getRecords()).stream().sorted(Comparator.comparing(x->x.getOrgName(),Comparator.nullsLast(Comparator.naturalOrder()))).collect(Collectors.toList());
+        List<SalaryGjjVo> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalaryGjjVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }
@@ -93,7 +95,7 @@ public class SalaryGjjServiceImpl extends ServiceImpl<SalaryGjjMapper, SalaryGjj
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SalaryGjjAddParam salaryGjjAddParam) {
-        //同一年月，同一员工，只存在一条记录
+        //同一年月，同一员工，同一缴纳单位，只存在一条记录
         List<SalaryGjj> oldList = this.list(new QueryWrapper<SalaryGjj>().lambda()
                         .eq(SalaryGjj::getUnitName,salaryGjjAddParam.getUnitName())
                         .eq(SalaryGjj::getStandardId,salaryGjjAddParam.getStandardId()));
@@ -107,7 +109,7 @@ public class SalaryGjjServiceImpl extends ServiceImpl<SalaryGjjMapper, SalaryGjj
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(SalaryGjjEditParam salaryGjjEditParam) {
-        //同一年月，同一花名册Id，只存在一条记录
+        //同一年月，同一员工，同一缴纳单位，只存在一条记录
         List<SalaryGjj> oldList = this.list(new QueryWrapper<SalaryGjj>().lambda()
                 .eq(SalaryGjj::getUnitName,salaryGjjEditParam.getUnitName())
                 .eq(SalaryGjj::getStandardId,salaryGjjEditParam.getStandardId())

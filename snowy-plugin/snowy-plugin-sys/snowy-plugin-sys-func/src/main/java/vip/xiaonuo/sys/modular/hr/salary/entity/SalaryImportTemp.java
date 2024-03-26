@@ -80,25 +80,25 @@ public class SalaryImportTemp {
     @ApiModelProperty(value = "一级部门", position = 12)
     private String firstOrgName;
 
-    /** 一级部门Id */
-    @ApiModelProperty(value = "一级部门Id", position = 13)
-    private String firstOrgId;
+//    /** 一级部门Id */
+//    @ApiModelProperty(value = "一级部门Id", position = 13)
+//    private String firstOrgId;
 
     /** 二级部门 */
     @ApiModelProperty(value = "二级部门", position = 14)
     private String orgName;
 
-    /** 二级部门Id */
-    @ApiModelProperty(value = "二级部门Id", position = 15)
-    private String orgId;
+//    /** 二级部门Id */
+//    @ApiModelProperty(value = "二级部门Id", position = 15)
+//    private String orgId;
 
     /** 职位|岗位 */
     @ApiModelProperty(value = "职位|岗位", position = 16)
     private String position;
 
-    /** 职位Id */
-    @ApiModelProperty(value = "职位Id", position = 17)
-    private String positionId;
+//    /** 职位Id */
+//    @ApiModelProperty(value = "职位Id", position = 17)
+//    private String positionId;
 
     /** 入职日期 */
     @ApiModelProperty(value = "入职日期", position = 18)

@@ -30,8 +30,9 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.MySalaryParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPreviewService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo;
 
@@ -56,16 +57,15 @@ public class SalaryPreviewController {
     private SalaryPreviewService salaryPreviewService;
 
     /**
-     * 获取工资系统-工资预览表分页
+     * 获取工资系统-【未封存的预览数据，已封存不展示】
      *
      * @author yong.ye
      * @date  2024/03/22 10:26
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取工资系统-工资预览表分页")
-//    @SaCheckPermission("/sys/hr/salary/preview/page")
+    @ApiOperation("获取工资系统-【未封存的预览数据，已封存不展示】")
     @GetMapping("/sys/hr/salary/preview/page")
-    public CommonResult<Page<SalaryPreview>> page(SalaryPreviewPageParam salaryPreviewPageParam) {
+    public CommonResult<Page<SalaryPreviewVo>> page(SalaryPreviewPageParam salaryPreviewPageParam) {
         return CommonResult.data(salaryPreviewService.page(salaryPreviewPageParam));
     }
 
@@ -78,7 +78,6 @@ public class SalaryPreviewController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加工资系统-工资预览表")
     @CommonLog("添加工资系统-工资预览表")
-//    @SaCheckPermission("/sys/hr/salary/preview/add")
     @PostMapping("/sys/hr/salary/preview/add")
     public CommonResult<String> add(@RequestBody @Valid SalaryPreviewAddParam salaryPreviewAddParam) {
         salaryPreviewService.add(salaryPreviewAddParam);
@@ -94,7 +93,6 @@ public class SalaryPreviewController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑工资系统-工资预览表")
     @CommonLog("编辑工资系统-工资预览表")
-//    @SaCheckPermission("/sys/hr/salary/preview/edit")
     @PostMapping("/sys/hr/salary/preview/edit")
     public CommonResult<String> edit(@RequestBody @Valid SalaryPreviewEditParam salaryPreviewEditParam) {
         salaryPreviewService.edit(salaryPreviewEditParam);
@@ -110,7 +108,6 @@ public class SalaryPreviewController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除工资系统-工资预览表")
     @CommonLog("删除工资系统-工资预览表")
-//    @SaCheckPermission("/sys/hr/salary/preview/delete")
     @PostMapping("/sys/hr/salary/preview/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                        CommonValidList<SalaryPreviewIdParam> salaryPreviewIdParamList) {
@@ -126,7 +123,6 @@ public class SalaryPreviewController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取工资系统-工资预览表详情")
-//    @SaCheckPermission("/sys/hr/salary/preview/detail")
     @GetMapping("/sys/hr/salary/preview/detail")
     public CommonResult<SalaryPreview> detail(@Valid SalaryPreviewIdParam salaryPreviewIdParam) {
         return CommonResult.data(salaryPreviewService.detail(salaryPreviewIdParam));
@@ -136,65 +132,80 @@ public class SalaryPreviewController {
 
 
     /**
-     * 【删除月数据】删除某年月的所有预览工资数据
-     *
+     * 【删除-未封存数据】删除某年月的所有预览工资数据
+     *  已封存的数据不可删除
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 11)
-    @ApiOperation("【删除月数据】删除某年月的所有预览工资数据")
-    @CommonLog("【删除月数据】删除某年月的所有预览工资数据")
-    @PostMapping("/sys/hr/salary/preview/deleteByMonth")
-    public CommonResult<String> deleteByMonth(@RequestBody @Valid SearchParam param) {
-        salaryPreviewService.deleteByMonth(param);
+    @ApiOperation("【删除-未封存数据】删除某年月的所有预览工资数据-已封存的数据不可删除")
+    @CommonLog("【删除-未封存数据】删除某年月的所有预览工资数据-已封存的数据不可删除")
+    @PostMapping("/sys/hr/salary/preview/delByMonth")
+    public CommonResult<String> delByMonth(@RequestBody @Valid SearchParam param) {
+        salaryPreviewService.delByMonth(param);
         return CommonResult.ok();
     }
 
     /**
-     * 【封存】工资系统-【某年月的所有预览工资数据】
+     * 【封存】工资系统-【某年月未封存预览工资数据】
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 22)
-    @ApiOperation("【封存】工资系统-【某年月的所有预览工资数据】")
-    @CommonLog("【封存】工资系统-【某年月的所有预览工资数据】")
-    @PostMapping("/sys/hr/salary/preview/preArchive")
-    public CommonResult<String> preArchive(@RequestBody @Valid SearchParam param) {
-        salaryPreviewService.preArchive(param);
+    @ApiOperation("【封存】工资系统-【某年月未封存预览工资数据】")
+    @CommonLog("【封存】工资系统-【某年月未封存预览工资数据】")
+    @PostMapping("/sys/hr/salary/preview/archiveGZ")
+    public CommonResult<String> archiveGZ(@RequestBody @Valid SearchParam param) {
+        salaryPreviewService.archiveGZ(param);
         return CommonResult.ok();
     }
 
 
 
 
-
     /**
-     * 【系统自动生成】获取工资系统- 【系统自动生成的工资预览数据】
+     * 【系统自动生成工资数据】- 系统自动生成的工资预览数据
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 21)
-    @ApiOperation("【系统自动生成】获取工资系统- 【系统自动生成的工资预览数据】")
-    @GetMapping("/sys/hr/salary/preview/prePage")
-    public CommonResult<List<SalaryPreviewVo>> prePage(MySalaryParam param) {
-        return CommonResult.data(salaryPreviewService.prePage(param));
+    @ApiOperation("【系统自动生成工资数据】- 系统自动生成的工资预览数据")
+    @GetMapping("/sys/hr/salary/preview/autoGZPage")
+    public CommonResult<List<SalaryPreviewVo>> autoGZPage(AutoParam param) {
+        return CommonResult.data(salaryPreviewService.autoGZPage(param));
     }
 
 
     /**
-     * 【确认】工资系统-【系统自动生成的工资预览数据】
+     * 【系统自动生成的工资数据 - 确认】
      *
      * @author yong.ye
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 22)
-    @ApiOperation("【确认】工资系统-【系统自动生成的工资预览数据】")
-    @CommonLog("【确认】工资系统-【系统自动生成的工资预览数据】")
-    @PostMapping("/sys/hr/salary/preview/preSure")
-    public CommonResult<String> preSure(@RequestBody @Valid SearchParam param) {
-        salaryPreviewService.preSure(param);
+    @ApiOperation("【确认生成】工资系统-【系统自动生成的工资预览数据】")
+    @CommonLog("【确认生成】工资系统-【系统自动生成的工资预览数据】")
+    @PostMapping("/sys/hr/salary/preview/autoGZSure")
+    public CommonResult<String> autoGZSure(@RequestBody @Valid SearchParam param) {
+        salaryPreviewService.autoGZSure(param);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 标记-字段更新
+     *
+     * @author yong.ye
+     * @date  2024/03/22 10:26
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("标记-字段更新")
+    @CommonLog("标记-字段更新")
+    @PostMapping("/sys/hr/salary/preview/updateField")
+    public CommonResult<String> updateField(@RequestBody @Valid UpdateFieldParam fieldParam) {
+        salaryPreviewService.updateField(fieldParam);
         return CommonResult.ok();
     }
 }

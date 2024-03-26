@@ -48,10 +48,6 @@ public class SalaryPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 类别：工资|奖金 */
-    @ApiModelProperty(value = "类别：工资|奖金")
-    private String type;
-
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月")
     private String yearMonth;
