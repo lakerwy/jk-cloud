@@ -57,12 +57,16 @@ public class InvoiceSaleBillServiceImpl extends ServiceImpl<InvoiceSaleBillMappe
         if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getContent())) {
             queryWrapper.lambda().like(InvoiceSaleBill::getContent, invoiceSaleBillPageParam.getContent());
         }
+        if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(InvoiceSaleBill::getFpNo,invoiceSaleBillPageParam.getSearchKey())
+                    .or().like(InvoiceSaleBill::getContent,invoiceSaleBillPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(invoiceSaleBillPageParam.getSortField(), invoiceSaleBillPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSaleBillPageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceSaleBillPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoiceSaleBillPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(InvoiceSaleBill::getId);
+            queryWrapper.lambda().orderByDesc(InvoiceSaleBill::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

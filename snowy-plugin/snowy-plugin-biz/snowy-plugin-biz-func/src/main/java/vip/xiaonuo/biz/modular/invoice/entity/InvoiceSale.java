@@ -284,4 +284,8 @@ public class InvoiceSale {
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 50)
     private String memo;
+
+    /** 税差收取附件 */
+    @ApiModelProperty(value = "税差收取附件", position = 51)
+    private String taxAttach;
 }

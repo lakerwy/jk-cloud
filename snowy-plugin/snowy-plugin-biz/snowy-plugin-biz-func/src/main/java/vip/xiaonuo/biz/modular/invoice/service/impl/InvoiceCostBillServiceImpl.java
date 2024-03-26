@@ -75,12 +75,19 @@ public class InvoiceCostBillServiceImpl extends ServiceImpl<InvoiceCostBillMappe
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getUnitName())) {
             queryWrapper.lambda().like(InvoiceCostBill::getUnitName, invoiceCostBillPageParam.getUnitName());
         }
+        if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(InvoiceCostBill::getFbContractNo,invoiceCostBillPageParam.getSearchKey())
+                    .or().like(InvoiceCostBill::getFpNo,invoiceCostBillPageParam.getSearchKey())
+                    .or().like(InvoiceCostBill::getUnitCode,invoiceCostBillPageParam.getSearchKey())
+                    .or().like(InvoiceCostBill::getUnitName,invoiceCostBillPageParam.getSearchKey())
+                    .or().like(InvoiceCostBill::getContent,invoiceCostBillPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(invoiceCostBillPageParam.getSortField(), invoiceCostBillPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceCostBillPageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceCostBillPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoiceCostBillPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(InvoiceCostBill::getId);
+            queryWrapper.lambda().orderByDesc(InvoiceCostBill::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

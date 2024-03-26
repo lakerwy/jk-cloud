@@ -121,4 +121,8 @@ public class InvoiceCost {
     /** 入参信息 */
     @ApiModelProperty(value = "入参信息", position = 21)
     private String extJson;
+
+    /** 是否施工项目 */
+    @ApiModelProperty(value = "是否施工项目", position = 22)
+    private String isConPrj;
 }

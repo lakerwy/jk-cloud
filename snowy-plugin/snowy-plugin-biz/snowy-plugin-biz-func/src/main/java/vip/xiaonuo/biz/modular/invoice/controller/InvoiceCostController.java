@@ -23,17 +23,15 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCostBill;
+import vip.xiaonuo.biz.modular.invoice.param.*;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceCostAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceCostEdit;
+import vip.xiaonuo.biz.modular.invoice.service.InvoiceCostBillService;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCost;
-import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostAddParam;
-import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostEditParam;
-import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostIdParam;
-import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostPageParam;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceCostService;
 
 import javax.annotation.Resource;
@@ -54,6 +52,9 @@ public class InvoiceCostController {
 
     @Resource
     private InvoiceCostService invoiceCostService;
+
+    @Resource
+    private InvoiceCostBillService invoiceCostBillService;
 
     /**
      * 获取财务系统-成本发票申请分页
@@ -130,5 +131,19 @@ public class InvoiceCostController {
     @GetMapping("/biz/invoice/cost/detail")
     public CommonResult<InvoiceCostVo> detail(@Valid InvoiceCostIdParam invoiceCostIdParam) {
         return CommonResult.data(invoiceCostService.detail(invoiceCostIdParam));
+    }
+
+
+    /**
+     * 获取财务系统-成本发票
+     *
+     * @author yong.ye
+     * @date  2024/03/19 10:22
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取财务系统-成本发票")
+    @GetMapping("/biz/invoice/cost/costBillPage")
+    public CommonResult<Page<InvoiceCostBill>> costBillPage(InvoiceCostBillPageParam invoiceCostBillPageParam) {
+        return CommonResult.data(invoiceCostBillService.page(invoiceCostBillPageParam));
     }
 }
