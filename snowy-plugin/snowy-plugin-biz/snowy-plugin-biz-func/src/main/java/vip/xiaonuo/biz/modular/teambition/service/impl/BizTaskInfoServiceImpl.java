@@ -410,14 +410,14 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         //putTaskComment(bizTaskInfo,infoStatus);
     }
     private void editBizTaskProject(BizTaskInfoEditParam bizTaskInfoEditParam){
-        BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfoEditParam.getProId());
+        /*BizTaskProject bizTaskProject = bizTaskProjectService.getById(bizTaskInfoEditParam.getProId());
         if(ObjectUtil.isNotEmpty(bizTaskProject)){
             BizTaskProjectVo bizTaskProjectVo = bizTaskInfoEditParam.getBizTaskProjectVo();
             bizTaskProject.setProName(bizTaskProjectVo.getProName());
             bizTaskProject.setProDesc(bizTaskProjectVo.getProDesc());
             bizTaskProjectService.saveOrUpdate(bizTaskProject);
             return;
-        }
+        }*/
         log.error("未找到任务来源详情学习！proId:"+bizTaskInfoEditParam.getProId());
     }
 
