@@ -68,14 +68,6 @@ public class InvoicePrjRefundPageParam {
     @ApiModelProperty(value = "收款日期结束")
     private String endSkDate;
 
-    /** 合同名称 */
-    @ApiModelProperty(value = "合同名称")
-    private String htProjectName;
-
-    /** 销售合同编号 */
-    @ApiModelProperty(value = "销售合同编号")
-    private String htContractNo;
-
     /** 收款单位 */
     @ApiModelProperty(value = "收款单位")
     private String unitName;
@@ -87,5 +79,9 @@ public class InvoicePrjRefundPageParam {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态")
     private String status;
+
+    /** 收款编号 */
+    @ApiModelProperty(value = "收款编号")
+    private String recordSn;
 
 }

@@ -26,10 +26,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.crm.hetong.entity.Hetong;
-import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
-import vip.xiaonuo.biz.modular.invoice.param.Customer.DoImport;
-import vip.xiaonuo.biz.modular.invoice.param.Customer.ImportRefund;
+import vip.xiaonuo.biz.modular.invoice.entity.InvoicePrjContract;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.*;
+import vip.xiaonuo.biz.modular.invoice.service.InvoicePrjContractService;
 import vip.xiaonuo.biz.modular.invoice.util.InvoiceUtil;
 import vip.xiaonuo.biz.modular.invoice.vo.ImportResult;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoicePrjRefundVo;
@@ -43,8 +42,6 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoicePrjRefund;
 import vip.xiaonuo.biz.modular.invoice.mapper.InvoicePrjRefundMapper;
-import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundAddParam;
-import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundPageParam;
 import vip.xiaonuo.biz.modular.invoice.service.InvoicePrjRefundService;
@@ -73,10 +70,10 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
     @Resource
     private CommonCacheOperator commonCacheOperator;
     @Resource
-    private HetongService hetongService;
+    private InvoicePrjContractService invoicePrjContractService;
 
     @Override
-    public Page<InvoicePrjRefund> page(InvoicePrjRefundPageParam invoicePrjRefundPageParam) {
+    public Page<InvoicePrjRefundVo> page(InvoicePrjRefundPageParam invoicePrjRefundPageParam) {
         QueryWrapper<InvoicePrjRefund> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().in(InvoicePrjRefund::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getApplyUnit())) {
@@ -91,12 +88,6 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getStartSkDate()) && ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getEndSkDate())) {
             queryWrapper.lambda().between(InvoicePrjRefund::getSkDate, invoicePrjRefundPageParam.getStartSkDate(), invoicePrjRefundPageParam.getEndSkDate());
         }
-        if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getHtContractNo())) {
-            queryWrapper.lambda().like(InvoicePrjRefund::getHtContractNo, invoicePrjRefundPageParam.getHtContractNo());
-        }
-        if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getHtProjectName())) {
-            queryWrapper.lambda().like(InvoicePrjRefund::getHtProjectName, invoicePrjRefundPageParam.getHtProjectName());
-        }
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getUnitName())) {
             queryWrapper.lambda().like(InvoicePrjRefund::getUnitName, invoicePrjRefundPageParam.getUnitName());
         }
@@ -106,22 +97,43 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getStatus())) {
             queryWrapper.lambda().eq(InvoicePrjRefund::getStatus, invoicePrjRefundPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getRecordSn())){
+            queryWrapper.lambda().eq(InvoicePrjRefund::getRecordSn,invoicePrjRefundPageParam.getRecordSn());
+        }
+        if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(InvoicePrjRefund::getApplyName,invoicePrjRefundPageParam.getSearchKey())
+                    .or().like(InvoicePrjRefund::getSn,invoicePrjRefundPageParam.getSearchKey())
+                    .or().like(InvoicePrjRefund::getRecordSn,invoicePrjRefundPageParam.getSearchKey())
+                    .or().like(InvoicePrjRefund::getUnitName,invoicePrjRefundPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(invoicePrjRefundPageParam.getSortField(), invoicePrjRefundPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoicePrjRefundPageParam.getSortOrder());
             queryWrapper.orderBy(true, invoicePrjRefundPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoicePrjRefundPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(InvoicePrjRefund::getId);
+            queryWrapper.lambda().orderByDesc(InvoicePrjRefund::getCreateTime);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<InvoicePrjRefund> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<InvoicePrjRefundVo> invoiceSaleVos = BeanUtil.copyToList(result.getRecords(),InvoicePrjRefundVo.class);
+        invoiceSaleVos.forEach(x->{
+            List<InvoicePrjContract> contractList = invoicePrjContractService.list(new QueryWrapper<InvoicePrjContract>().lambda().eq(InvoicePrjContract::getInvoicePrjRefundId,x.getId()));
+            x.setContractList(contractList);
+        });
+        Page<InvoicePrjRefundVo> newResult = new Page<>();
+        newResult.setRecords(invoiceSaleVos);
+        newResult.setPages(result.getPages());
+        newResult.setSize(result.getSize());
+        newResult.setTotal(result.getTotal());
+        newResult.setCurrent(result.getCurrent());
+        return newResult;
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void add(InvoicePrjRefundAddParam invoicePrjRefundAddParam) {
-        InvoicePrjRefund invoicePrjRefund = BeanUtil.toBean(invoicePrjRefundAddParam, InvoicePrjRefund.class);
+    public void add(InvoicePrjAdd invoicePrjAdd) {
+        InvoicePrjRefund invoicePrjRefund = BeanUtil.toBean(invoicePrjAdd, InvoicePrjRefund.class);
         //走审批流程
-        String processInstanceId = invoicePrjRefundAddParam.getProcessInstanceId();
+        String processInstanceId = invoicePrjAdd.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){
             String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
             String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
@@ -138,37 +150,81 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
             invoicePrjRefund.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
         this.save(invoicePrjRefund);
+        //销售合同
+        if (CollUtil.isNotEmpty(invoicePrjAdd.getContractList())) {
+            List<InvoicePrjContract> tmpList = BeanUtil.copyToList(invoicePrjAdd.getContractList(), InvoicePrjContract.class);
+            tmpList.forEach(v -> v.setInvoicePrjRefundId(invoicePrjRefund.getId()));
+            invoicePrjContractService.saveBatch(tmpList);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(InvoicePrjRefundEditParam invoicePrjRefundEditParam) {
-        String id = invoicePrjRefundEditParam.getId();
+    public void edit(InvoicePrjEdit invoicePrjEdit) {
+        String id = invoicePrjEdit.getId();
         //判断是否走审批流程内的修改
-        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(invoicePrjRefundEditParam.getProcessInstanceId())){
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(invoicePrjEdit.getProcessInstanceId())){
             FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
-            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(invoicePrjRefundEditParam.getProcessInstanceId());
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(invoicePrjEdit.getProcessInstanceId());
             if(ObjectUtil.isNotEmpty(formRelationTable)){
                 id = formRelationTable.getStr("id");
                 //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
-                invoicePrjRefundEditParam.setId(id);
+                invoicePrjEdit.setId(id);
             }
         }
-        InvoicePrjRefund invoicePrjRefund = this.queryEntity(invoicePrjRefundEditParam.getId());
-        BeanUtil.copyProperties(invoicePrjRefundEditParam, invoicePrjRefund);
+        InvoicePrjRefund invoicePrjRefund = this.queryEntity(invoicePrjEdit.getId());
+        BeanUtil.copyProperties(invoicePrjEdit, invoicePrjRefund);
         this.updateById(invoicePrjRefund);
+
+        //【销售合同】删除历史数据【全部删光的情况】，新增（避免流程重新发起）
+        if (CollUtil.isNotEmpty(invoicePrjEdit.getContractList())) {
+            invoicePrjEdit.getContractList().forEach(x->x.setInvoicePrjRefundId(invoicePrjRefund.getId()));
+            //新增|修改|删除
+            List<InvoicePrjContract> oldList = invoicePrjContractService.list(new QueryWrapper<InvoicePrjContract>().lambda().eq(InvoicePrjContract::getInvoicePrjRefundId, invoicePrjRefund.getId()));
+            List<String> oldIds = oldList.stream().map(InvoicePrjContract::getId).collect(Collectors.toList());
+            //待更新的
+            List<InvoicePrjContract> updateList = invoicePrjEdit.getContractList().stream().filter(x -> oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待新增的
+            List<InvoicePrjContract> addList = invoicePrjEdit.getContractList().stream().filter(x -> !oldIds.contains(x.getId())).collect(Collectors.toList());
+            //待删除的
+            List<String> updateIds = updateList.stream().map(InvoicePrjContract::getId).collect(Collectors.toList());
+            List<InvoicePrjContract> removeList = oldList.stream().filter(x -> !updateIds.contains(x.getId())).collect(Collectors.toList());
+            //更新数据库
+            if (CollUtil.isNotEmpty(addList)) {
+                invoicePrjContractService.saveBatch(addList);
+            }
+            if (CollUtil.isNotEmpty(updateList)) {
+                invoicePrjContractService.updateBatchById(updateList);
+            }
+            if (CollUtil.isNotEmpty(removeList)) {
+                invoicePrjContractService.removeByIds(removeList);
+            }
+        }else{
+            invoicePrjContractService.remove(new QueryWrapper<InvoicePrjContract>().lambda().eq(InvoicePrjContract::getInvoicePrjRefundId, invoicePrjRefund.getId()));
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<InvoicePrjRefundIdParam> invoicePrjRefundIdParamList) {
+        List<String> delIds = CollStreamUtil.toList(invoicePrjRefundIdParamList, InvoicePrjRefundIdParam::getId);
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(invoicePrjRefundIdParamList, InvoicePrjRefundIdParam::getId));
+        this.removeByIds(delIds);
+        if(CollUtil.isNotEmpty(delIds)){
+            //【销售合同】删除历史数据【全部删光的情况】
+            QueryWrapper<InvoicePrjContract> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().in(InvoicePrjContract::getInvoicePrjRefundId, delIds);
+            invoicePrjContractService.remove(queryWrapper);
+        }
     }
 
     @Override
-    public InvoicePrjRefund detail(InvoicePrjRefundIdParam invoicePrjRefundIdParam) {
-        return this.queryEntity(invoicePrjRefundIdParam.getId());
+    public InvoicePrjRefundVo detail(InvoicePrjRefundIdParam invoicePrjRefundIdParam) {
+        InvoicePrjRefund invoicePrjRefund = this.queryEntity(invoicePrjRefundIdParam.getId());
+        InvoicePrjRefundVo invoicePrjRefundVo = BeanUtil.copyProperties(invoicePrjRefund,InvoicePrjRefundVo.class);
+        List<InvoicePrjContract> contractList = invoicePrjContractService.list(new QueryWrapper<InvoicePrjContract>().lambda().eq(InvoicePrjContract::getInvoicePrjRefundId,invoicePrjRefund.getId()));
+        invoicePrjRefundVo.setContractList(contractList);
+        return invoicePrjRefundVo;
     }
 
     @Override
@@ -182,11 +238,11 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
 
     @Override
     public ImportResult importRefund(ImportRefund importRefund) {
-        List<InvoicePrjRefundVo> importData = BeanUtil.copyToList(importRefund.getImportData(), InvoicePrjRefundVo.class);
+        List<ImportRefundParam> importData = importRefund.getImportData();
         checkData(importData);
         ImportResult result = new ImportResult();
         result.setTotal(importData.size());
-        List<InvoicePrjRefundVo> errList = importData.stream().filter(x->ObjectUtil.isNotEmpty(x.getErrorMsg())).collect(Collectors.toList());
+        List<ImportRefundParam> errList = importData.stream().filter(x->ObjectUtil.isNotEmpty(x.getErrorMsg())).collect(Collectors.toList());
         result.setErrCount(errList.size());
         result.setResultList(importData);
         result.setSucCount(result.getTotal() - result.getErrCount());
@@ -195,7 +251,7 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
 
     @Override
     public Boolean doImport(DoImport input) {
-        List<InvoicePrjRefundVo> importData = input.getImportData().stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
+        List<ImportRefundParam> importData = input.getImportData().stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
         if(CollUtil.isEmpty(importData)){
             throw new CommonException("无有效导入数据");
         }
@@ -211,15 +267,15 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
      * @param importData
      * @return
      */
-    public void checkData(List<InvoicePrjRefundVo> importData){
+    public void checkData(List<ImportRefundParam> importData){
         //校验格式与必填
         importData.forEach(item->{
             String errMsg = "";
             if(ObjectUtil.isEmpty(item.getApplyUnit())){
                 errMsg += "申请人单位必填；";
             }
-            if(ObjectUtil.isEmpty(item.getHtContractNo())){
-                errMsg += "销售合同编号必填；";
+            if(ObjectUtil.isEmpty(item.getRecordSn())){
+                errMsg += "收款编号必填；";
             }
             if(ObjectUtil.isNotEmpty(item.getApplyUnit()) && !CollectionUtil.newArrayList(APPLY_UNIT_LIST).contains(item.getApplyUnit())){
                 errMsg += "申请人单位必须为：" + StrUtil.join("、",APPLY_UNIT_LIST) +"；";
@@ -228,32 +284,22 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
                 errMsg += "收款日期格式不合法；";
             }
             item.setErrorMsg(errMsg);
-            if(ObjectUtil.isNotEmpty(item.getHtContractNo())){
-                item.setHtContractNo(item.getHtContractNo().trim());
+        });
+        //校验收款编号是否重复
+        List<ImportRefundParam> checkRepeatData = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).collect(Collectors.toList());
+        importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
+            List<ImportRefundParam> tmpList = checkRepeatData.stream().filter(obj -> item.getRecordSn().equals(obj.getRecordSn())).collect(Collectors.toList());
+            if(tmpList.size() > 1){
+                item.setErrorMsg("导入数据中，收款编号存在重复；");
             }
         });
-        //校验合同，并匹配合同数据
-        List<String> htContractNos = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getHtContractNo()).collect(Collectors.toList());
-        if(CollUtil.isNotEmpty(htContractNos)){
-            QueryWrapper<Hetong> hetongQueryWrapper = new QueryWrapper<>();
-            hetongQueryWrapper.lambda().select(Hetong::getId,Hetong::getProjectName,Hetong::getContractAmount,Hetong::getCounterparty,Hetong::getContractNo);
-            hetongQueryWrapper.lambda().in(Hetong::getContractNo,htContractNos);
-            hetongQueryWrapper.lambda().in(Hetong::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
-            List<Hetong> hetongList = hetongService.list(hetongQueryWrapper);
-            importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
-                List<Hetong> tmpHtList = hetongList.stream().filter(obj->item.getHtContractNo().equals(obj.getContractNo())).collect(Collectors.toList());
-                if(tmpHtList.size() == 0){
-                    item.setErrorMsg("合同号不存在，请检查");
-                }else if(tmpHtList.size() == 1){
-                    Hetong tmpHt = tmpHtList.get(0);
-                    item.setHtId(tmpHt.getId());
-                    item.setHtProjectName(tmpHt.getProjectName());
-                    item.setHtContractAmount(tmpHt.getContractAmount());
-                    item.setHtCounterparty(tmpHt.getCounterparty());
-                }else{
-                    item.setErrorMsg("合同号未唯一匹配，请检查");
-                }
-            });
-        }
+        //校验收款编号是否已存在
+        List<InvoicePrjRefund> oldList = this.list();
+        importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).forEach(item->{
+            List<InvoicePrjRefund> tmpList = oldList.stream().filter(obj -> item.getRecordSn().equals(obj.getRecordSn())).collect(Collectors.toList());
+            if(tmpList.size() > 0){
+                item.setErrorMsg("收款编号已存在；");
+            }
+        });
     }
 }

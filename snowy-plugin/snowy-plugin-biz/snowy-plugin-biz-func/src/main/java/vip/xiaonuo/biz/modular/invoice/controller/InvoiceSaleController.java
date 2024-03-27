@@ -23,11 +23,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleBill;
 import vip.xiaonuo.biz.modular.invoice.param.*;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
-import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleBillService;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceLjInfoVo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
@@ -54,9 +52,6 @@ public class InvoiceSaleController {
 
     @Resource
     private InvoiceSaleService invoiceSaleService;
-
-    @Resource
-    private InvoiceSaleBillService invoiceSaleBillService;
 
     /**
      * 获取财务系统-销售发票开具申请分页【申请单维度】
@@ -161,19 +156,5 @@ public class InvoiceSaleController {
     @GetMapping("/biz/invoice/sale/getTopLjInfo")
     public CommonResult<InvoiceLjInfoVo> getTopLjInfo(String htContractNo) {
         return CommonResult.data(invoiceSaleService.getTopLjInfo(htContractNo));
-    }
-
-
-    /**
-     * 获取财务系统-销售发票-确认发票
-     *
-     * @author yong.ye
-     * @date  2024/03/19 10:17
-     */
-    @ApiOperationSupport(order = 8)
-    @ApiOperation("获取财务系统-销售发票-确认的发票发票列表")
-    @GetMapping("/biz/invoice/sale/saleBillPage")
-    public CommonResult<Page<InvoiceSaleBill>> saleBillPage(InvoiceSaleBillPageParam invoiceSaleBillPageParam) {
-        return CommonResult.data(invoiceSaleBillService.page(invoiceSaleBillPageParam));
     }
 }

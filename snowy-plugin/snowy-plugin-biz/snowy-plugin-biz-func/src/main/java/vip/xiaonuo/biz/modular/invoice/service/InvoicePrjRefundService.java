@@ -17,11 +17,12 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoicePrjRefund;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.DoImport;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.ImportRefund;
-import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundAddParam;
-import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundEditParam;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoicePrjAdd;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoicePrjEdit;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundPageParam;
 import vip.xiaonuo.biz.modular.invoice.vo.ImportResult;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoicePrjRefundVo;
 
 import java.util.List;
 
@@ -39,7 +40,7 @@ public interface InvoicePrjRefundService extends IService<InvoicePrjRefund> {
      * @author yong.ye
      * @date  2024/03/19 10:24
      */
-    Page<InvoicePrjRefund> page(InvoicePrjRefundPageParam invoicePrjRefundPageParam);
+    Page<InvoicePrjRefundVo> page(InvoicePrjRefundPageParam invoicePrjRefundPageParam);
 
     /**
      * 添加财务系统-项目回款录入申请
@@ -47,7 +48,7 @@ public interface InvoicePrjRefundService extends IService<InvoicePrjRefund> {
      * @author yong.ye
      * @date  2024/03/19 10:24
      */
-    void add(InvoicePrjRefundAddParam invoicePrjRefundAddParam);
+    void add(InvoicePrjAdd invoicePrjAdd);
 
     /**
      * 编辑财务系统-项目回款录入申请
@@ -55,7 +56,7 @@ public interface InvoicePrjRefundService extends IService<InvoicePrjRefund> {
      * @author yong.ye
      * @date  2024/03/19 10:24
      */
-    void edit(InvoicePrjRefundEditParam invoicePrjRefundEditParam);
+    void edit(InvoicePrjEdit invoicePrjEdit);
 
     /**
      * 删除财务系统-项目回款录入申请
@@ -71,7 +72,7 @@ public interface InvoicePrjRefundService extends IService<InvoicePrjRefund> {
      * @author yong.ye
      * @date  2024/03/19 10:24
      */
-    InvoicePrjRefund detail(InvoicePrjRefundIdParam invoicePrjRefundIdParam);
+    InvoicePrjRefundVo detail(InvoicePrjRefundIdParam invoicePrjRefundIdParam);
 
     /**
      * 获取财务系统-项目回款录入申请详情

@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleBillAddParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleBillEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleBillIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleBillPageParam;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface InvoiceSaleBillService extends IService<InvoiceSaleBill> {
      * @author yong.ye
      * @date  2024/03/19 10:19
      */
-    Page<InvoiceSaleBill> page(InvoiceSaleBillPageParam invoiceSaleBillPageParam);
+    Page<InvoiceSaleBillVo> page(InvoiceSaleBillPageParam invoiceSaleBillPageParam);
 
     /**
      * 添加财务系统-销售发票开具申请-开票确认【正式销售发票表】

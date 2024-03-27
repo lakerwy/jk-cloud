@@ -27,7 +27,6 @@ import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleMoveVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleMove;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMoveAddParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMoveEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleMoveIdParam;

@@ -25,13 +25,13 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.DoImport;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.ImportRefund;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoicePrjAdd;
+import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoicePrjEdit;
 import vip.xiaonuo.biz.modular.invoice.vo.ImportResult;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoicePrjRefundVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.biz.modular.invoice.entity.InvoicePrjRefund;
-import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundAddParam;
-import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoicePrjRefundPageParam;
 import vip.xiaonuo.biz.modular.invoice.service.InvoicePrjRefundService;
@@ -65,7 +65,7 @@ public class InvoicePrjRefundController {
     @ApiOperation("获取财务系统-项目回款录入申请分页")
 //    @SaCheckPermission("/biz/invoice/prj/refund/page")
     @GetMapping("/biz/invoice/prj/refund/page")
-    public CommonResult<Page<InvoicePrjRefund>> page(InvoicePrjRefundPageParam invoicePrjRefundPageParam) {
+    public CommonResult<Page<InvoicePrjRefundVo>> page(InvoicePrjRefundPageParam invoicePrjRefundPageParam) {
         return CommonResult.data(invoicePrjRefundService.page(invoicePrjRefundPageParam));
     }
 
@@ -80,8 +80,8 @@ public class InvoicePrjRefundController {
     @CommonLog("添加财务系统-项目回款录入申请")
 //    @SaCheckPermission("/biz/invoice/prj/refund/add")
     @PostMapping("/biz/invoice/prj/refund/add")
-    public CommonResult<String> add(@RequestBody @Valid InvoicePrjRefundAddParam invoicePrjRefundAddParam) {
-        invoicePrjRefundService.add(invoicePrjRefundAddParam);
+    public CommonResult<String> add(@RequestBody @Valid InvoicePrjAdd invoicePrjAdd) {
+        invoicePrjRefundService.add(invoicePrjAdd);
         return CommonResult.ok();
     }
 
@@ -96,8 +96,8 @@ public class InvoicePrjRefundController {
     @CommonLog("编辑财务系统-项目回款录入申请")
 //    @SaCheckPermission("/biz/invoice/prj/refund/edit")
     @PostMapping("/biz/invoice/prj/refund/edit")
-    public CommonResult<String> edit(@RequestBody @Valid InvoicePrjRefundEditParam invoicePrjRefundEditParam) {
-        invoicePrjRefundService.edit(invoicePrjRefundEditParam);
+    public CommonResult<String> edit(@RequestBody @Valid InvoicePrjEdit invoicePrjEdit) {
+        invoicePrjRefundService.edit(invoicePrjEdit);
         return CommonResult.ok();
     }
 
@@ -128,7 +128,7 @@ public class InvoicePrjRefundController {
     @ApiOperation("获取财务系统-项目回款录入申请详情")
 //    @SaCheckPermission("/biz/invoice/prj/refund/detail")
     @GetMapping("/biz/invoice/prj/refund/detail")
-    public CommonResult<InvoicePrjRefund> detail(@Valid InvoicePrjRefundIdParam invoicePrjRefundIdParam) {
+    public CommonResult<InvoicePrjRefundVo> detail(@Valid InvoicePrjRefundIdParam invoicePrjRefundIdParam) {
         return CommonResult.data(invoicePrjRefundService.detail(invoicePrjRefundIdParam));
     }
 

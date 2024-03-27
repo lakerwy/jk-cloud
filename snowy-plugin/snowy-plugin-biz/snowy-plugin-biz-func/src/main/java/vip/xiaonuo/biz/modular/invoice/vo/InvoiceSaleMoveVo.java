@@ -25,5 +25,4 @@ public class InvoiceSaleMoveVo extends InvoiceSaleMove {
     @ApiModelProperty(value = "销售发票-申请单-确认发票：发票号码", position = 83)
     private String fpNo;
 
-
 }

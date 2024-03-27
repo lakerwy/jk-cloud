@@ -2,4 +2,12 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.invoice.mapper.InvoiceCostBillMapper">
 
+    <select id="getCostBillPage" resultType="vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostBillVo">
+        select a.*,
+               b.SN as sn,b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,b.STATUS as status
+        from BIZ_INVOICE_COST_BILL a
+                 join BIZ_INVOICE_COST b on a.INVOICE_COST_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

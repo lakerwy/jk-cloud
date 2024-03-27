@@ -27,5 +27,5 @@ public class ImportResult {
 
     /** 导入-校验结果集 */
     @ApiModelProperty(value = "导入-校验结果集", position = 6)
-    private List<InvoicePrjRefundVo> resultList;
+    private List<?> resultList;
 }

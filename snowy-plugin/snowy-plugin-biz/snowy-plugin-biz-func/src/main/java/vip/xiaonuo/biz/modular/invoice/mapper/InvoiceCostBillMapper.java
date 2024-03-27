@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.invoice.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCostBill;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostBillVo;
 
 /**
  * 财务系统-成本发票申请【正式成本发票表】Mapper接口
@@ -22,4 +27,12 @@ import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCostBill;
  * @date  2024/03/19 10:23
  **/
 public interface InvoiceCostBillMapper extends BaseMapper<InvoiceCostBill> {
+
+    /**
+     * 分页查询 - 成本发票申请 - 成本发票
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<InvoiceCostBillVo> getCostBillPage(Page<InvoiceCostBillVo> page, @Param(Constants.WRAPPER) Wrapper<InvoiceCostBill> queryWrapper);
 }

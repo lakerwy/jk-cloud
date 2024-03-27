@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostBillAddParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostBillEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostBillIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostBillPageParam;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostBillVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface InvoiceCostBillService extends IService<InvoiceCostBill> {
      * @author yong.ye
      * @date  2024/03/19 10:23
      */
-    Page<InvoiceCostBill> page(InvoiceCostBillPageParam invoiceCostBillPageParam);
+    Page<InvoiceCostBillVo> page(InvoiceCostBillPageParam invoiceCostBillPageParam);
 
     /**
      * 添加财务系统-成本发票申请【正式成本发票表】

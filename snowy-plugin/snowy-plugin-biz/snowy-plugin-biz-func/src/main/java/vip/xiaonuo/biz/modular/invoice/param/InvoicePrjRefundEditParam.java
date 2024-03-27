@@ -55,32 +55,16 @@ public class InvoicePrjRefundEditParam {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date skDate;
 
-    /** 合同Id */
-    @ApiModelProperty(value = "合同Id", position = 6)
-    private String htId;
-
-    /** 合同名称 */
-    @ApiModelProperty(value = "合同名称", position = 7)
-    private String htProjectName;
-
-    /** 销售合同编号 */
-    @ApiModelProperty(value = "销售合同编号", position = 8)
-    private String htContractNo;
-
-    /** 合同金额 */
-    @ApiModelProperty(value = "合同金额", position = 9)
-    private BigDecimal htContractAmount;
-
-    /** 合同甲方 */
-    @ApiModelProperty(value = "合同甲方", position = 10)
-    private String htCounterparty;
+    /** 收款编号 */
+    @ApiModelProperty(value = "收款编号", position = 6)
+    private String recordSn;
 
     /** 收款单位 */
     @ApiModelProperty(value = "收款单位", position = 8)
     private String unitName;
 
-    /** 金额 */
-    @ApiModelProperty(value = "金额", position = 9)
+    /** 收款金额 */
+    @ApiModelProperty(value = "收款金额", position = 9)
     private BigDecimal amount;
 
     /** 备注 */

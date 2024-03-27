@@ -21,4 +21,13 @@
             ${ew.customSqlSegment}
     </select>
 
+
+    <select id="getSaleBillPage" resultType="vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillVo">
+        select a.*,
+               b.SN as sn,b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,b.STATUS as status
+        from BIZ_INVOICE_SALE_BILL a
+                 join BIZ_INVOICE_SALE b on a.INVOICE_SALE_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>

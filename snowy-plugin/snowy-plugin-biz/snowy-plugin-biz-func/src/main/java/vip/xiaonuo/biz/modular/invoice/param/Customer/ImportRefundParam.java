@@ -25,19 +25,23 @@ public class ImportRefundParam {
     @ApiModelProperty(value = "收款日期", position = 3)
     private String skDate;
 
-    /** 销售合同编号 */
-    @ApiModelProperty(value = "销售合同编号", position = 4)
-    private String htContractNo;
+    /** 收款编号 */
+    @ApiModelProperty(value = "收款编号", position = 6)
+    private String recordSn;
 
     /** 收款单位 */
     @ApiModelProperty(value = "收款单位", position = 5)
     private String unitName;
 
-    /** 金额 */
-    @ApiModelProperty(value = "金额", position = 6)
+    /** 收款金额 */
+    @ApiModelProperty(value = "收款金额", position = 6)
     private BigDecimal amount;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 7)
     private String memo;
+
+    /** 错误信息  */
+    @ApiModelProperty(value = "错误信息", position = 100)
+    private String errorMsg;
 }

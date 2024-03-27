@@ -22,7 +22,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleBill;
@@ -33,6 +35,7 @@ import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleBillIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleBillPageParam;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceSaleBillService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -45,30 +48,36 @@ import java.util.List;
 @DS("slave_1")
 public class InvoiceSaleBillServiceImpl extends ServiceImpl<InvoiceSaleBillMapper, InvoiceSaleBill> implements InvoiceSaleBillService {
 
+    @Resource
+    private InvoiceSaleBillMapper invoiceSaleBillMapper;
+
     @Override
-    public Page<InvoiceSaleBill> page(InvoiceSaleBillPageParam invoiceSaleBillPageParam) {
+    public Page<InvoiceSaleBillVo> page(InvoiceSaleBillPageParam invoiceSaleBillPageParam) {
         QueryWrapper<InvoiceSaleBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("b.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getFpNo())) {
-            queryWrapper.lambda().like(InvoiceSaleBill::getFpNo, invoiceSaleBillPageParam.getFpNo());
+            queryWrapper.like("a.FP_NO", invoiceSaleBillPageParam.getFpNo());
         }
         if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getStartKpDate()) && ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getEndKpDate())) {
-            queryWrapper.lambda().between(InvoiceSaleBill::getKpDate, invoiceSaleBillPageParam.getStartKpDate(), invoiceSaleBillPageParam.getEndKpDate());
+            queryWrapper.between("a.KP_DATE", invoiceSaleBillPageParam.getStartKpDate(), invoiceSaleBillPageParam.getEndKpDate());
         }
         if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getContent())) {
-            queryWrapper.lambda().like(InvoiceSaleBill::getContent, invoiceSaleBillPageParam.getContent());
+            queryWrapper.like("a.CONTENT", invoiceSaleBillPageParam.getContent());
         }
         if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(InvoiceSaleBill::getFpNo,invoiceSaleBillPageParam.getSearchKey())
-                    .or().like(InvoiceSaleBill::getContent,invoiceSaleBillPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("a.FP_NO",invoiceSaleBillPageParam.getSearchKey())
+                    .or().like("a.CONTENT",invoiceSaleBillPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(invoiceSaleBillPageParam.getSortField(), invoiceSaleBillPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSaleBillPageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceSaleBillPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoiceSaleBillPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(InvoiceSaleBill::getCreateTime);
+            queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return invoiceSaleBillMapper.getSaleBillPage(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

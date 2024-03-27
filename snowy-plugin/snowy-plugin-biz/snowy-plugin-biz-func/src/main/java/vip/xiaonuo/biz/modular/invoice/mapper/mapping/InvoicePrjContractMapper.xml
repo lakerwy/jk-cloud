@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.biz.modular.invoice.mapper.InvoicePrjContractMapper">
+
+    <select id="getPrjContractPage" resultType="vip.xiaonuo.biz.modular.invoice.vo.InvoicePrjContractVo">
+        select a.*,
+               b.APPLY_UNIT as applyUnit,b.APPLY_NAME as applyName,b.RECORD_SN as recordSn,
+               b.SK_DATE as skDate,b.UNIT_NAME as unitName,b.AMOUNT as amount,
+               b.SN as sn,b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,b.STATUS as status
+        from BIZ_INVOICE_PRJ_CONTRACT a
+                 join BIZ_INVOICE_PRJ_REFUND b on a.INVOICE_PRJ_REFUND_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+</mapper>

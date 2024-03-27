@@ -22,7 +22,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostBillVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCostBill;
@@ -33,6 +35,7 @@ import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostBillIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceCostBillPageParam;
 import vip.xiaonuo.biz.modular.invoice.service.InvoiceCostBillService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -45,51 +48,54 @@ import java.util.List;
 @DS("slave_1")
 public class InvoiceCostBillServiceImpl extends ServiceImpl<InvoiceCostBillMapper, InvoiceCostBill> implements InvoiceCostBillService {
 
+    @Resource
+    private InvoiceCostBillMapper invoiceCostBillMapper;
+
     @Override
-    public Page<InvoiceCostBill> page(InvoiceCostBillPageParam invoiceCostBillPageParam) {
+    public Page<InvoiceCostBillVo> page(InvoiceCostBillPageParam invoiceCostBillPageParam) {
         QueryWrapper<InvoiceCostBill> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("b.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getStartKpDate()) && ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getEndKpDate())) {
-            queryWrapper.lambda().between(InvoiceCostBill::getKpDate, invoiceCostBillPageParam.getStartKpDate(), invoiceCostBillPageParam.getEndKpDate());
+            queryWrapper.between("a.KP_DATE", invoiceCostBillPageParam.getStartKpDate(), invoiceCostBillPageParam.getEndKpDate());
         }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getFbContractNo())) {
-            queryWrapper.lambda().like(InvoiceCostBill::getFbContractNo, invoiceCostBillPageParam.getFbContractNo());
-        }
-        if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getFbHetongId())) {
-            queryWrapper.lambda().eq(InvoiceCostBill::getFbHetongId, invoiceCostBillPageParam.getFbHetongId());
+            queryWrapper.like("a.FB_CONTRACT_NO", invoiceCostBillPageParam.getFbContractNo());
         }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getPrvName())) {
-            queryWrapper.lambda().like(InvoiceCostBill::getPrvName, invoiceCostBillPageParam.getPrvName());
+            queryWrapper.like("a.PRV_NAME", invoiceCostBillPageParam.getPrvName());
         }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getFpType())) {
-            queryWrapper.lambda().eq(InvoiceCostBill::getFpType, invoiceCostBillPageParam.getFpType());
+            queryWrapper.eq("a.FP_TYPE", invoiceCostBillPageParam.getFpType());
         }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getFpNo())) {
-            queryWrapper.lambda().like(InvoiceCostBill::getFpNo, invoiceCostBillPageParam.getFpNo());
+            queryWrapper.like("a.FP_NO", invoiceCostBillPageParam.getFpNo());
         }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getContent())) {
-            queryWrapper.lambda().like(InvoiceCostBill::getContent, invoiceCostBillPageParam.getContent());
+            queryWrapper.like("a.CONTENT", invoiceCostBillPageParam.getContent());
         }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getUnitCode())) {
-            queryWrapper.lambda().like(InvoiceCostBill::getUnitCode, invoiceCostBillPageParam.getUnitCode());
+            queryWrapper.like("a.UNIT_CODE", invoiceCostBillPageParam.getUnitCode());
         }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getUnitName())) {
-            queryWrapper.lambda().like(InvoiceCostBill::getUnitName, invoiceCostBillPageParam.getUnitName());
+            queryWrapper.like("a.UNIT_NAME", invoiceCostBillPageParam.getUnitName());
         }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(InvoiceCostBill::getFbContractNo,invoiceCostBillPageParam.getSearchKey())
-                    .or().like(InvoiceCostBill::getFpNo,invoiceCostBillPageParam.getSearchKey())
-                    .or().like(InvoiceCostBill::getUnitCode,invoiceCostBillPageParam.getSearchKey())
-                    .or().like(InvoiceCostBill::getUnitName,invoiceCostBillPageParam.getSearchKey())
-                    .or().like(InvoiceCostBill::getContent,invoiceCostBillPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("a.FB_CONTRACT_NO",invoiceCostBillPageParam.getSearchKey())
+                    .or().like("a.FP_NO",invoiceCostBillPageParam.getSearchKey())
+                    .or().like("a.UNIT_CODE",invoiceCostBillPageParam.getSearchKey())
+                    .or().like("a.UNIT_NAME",invoiceCostBillPageParam.getSearchKey())
+                    .or().like("a.CONTENT",invoiceCostBillPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(invoiceCostBillPageParam.getSortField(), invoiceCostBillPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceCostBillPageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceCostBillPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(invoiceCostBillPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(InvoiceCostBill::getCreateTime);
+            queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return invoiceCostBillMapper.getCostBillPage(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

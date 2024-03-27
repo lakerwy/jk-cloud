@@ -17,5 +17,5 @@ public class DoImport {
 
     /** 正式导入数据-集合 */
     @ApiModelProperty(value = "正式导入数据-集合", position = 100)
-    private List<InvoicePrjRefundVo> importData;
+    private List<ImportRefundParam> importData;
 }

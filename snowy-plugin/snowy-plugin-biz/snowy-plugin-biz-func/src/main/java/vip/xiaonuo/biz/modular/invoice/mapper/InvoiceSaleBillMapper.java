@@ -18,6 +18,7 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleBill;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillVo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 
 /**
@@ -35,4 +36,13 @@ public interface InvoiceSaleBillMapper extends BaseMapper<InvoiceSaleBill> {
      * @return
      */
     Page<InvoiceSaleInfo> getSalePageList(Page<InvoiceSaleInfo> page, @Param(Constants.WRAPPER) Wrapper<InvoiceSaleBill> queryWrapper);
+
+
+    /**
+     * 分页查询 - 销售发票 - 确认发票
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<InvoiceSaleBillVo> getSaleBillPage(Page<InvoiceSaleBillVo> page, @Param(Constants.WRAPPER) Wrapper<InvoiceSaleBill> queryWrapper);
 }
