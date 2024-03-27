@@ -114,9 +114,9 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     @Override
     public void add(SystemServerAddParam systemServerAddParam) {
         SystemServer systemServer = BeanUtil.toBean(systemServerAddParam, SystemServer.class);
-        long count = this.count(new QueryWrapper<SystemServer>().lambda().eq(SystemServer::getSystemSourceId,systemServerAddParam.getSystemSourceId()));
+        long count = this.count(new QueryWrapper<SystemServer>().lambda().eq(SystemServer::getSystemSource,systemServerAddParam.getSystemName()));
         if(count>0){
-            throw new CommonException("{}服务已存在",systemServerAddParam.getSystemSourceId());
+            throw new CommonException("{}服务已存在",systemServerAddParam.getSystemSource());
         }
         systemServer.setSystemName(systemServer.getSystemSource());
         systemServer.setSystemStatus(0);
