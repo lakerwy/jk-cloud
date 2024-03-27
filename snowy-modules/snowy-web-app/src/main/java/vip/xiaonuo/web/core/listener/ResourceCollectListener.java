@@ -52,6 +52,7 @@ public class ResourceCollectListener implements CommandLineRunner {
     static {
         preUrl.add("/sys/hr");
         preUrl.add("/sys/person");
+        preUrl.add("/sys/dept");
     }
 
     @Resource
