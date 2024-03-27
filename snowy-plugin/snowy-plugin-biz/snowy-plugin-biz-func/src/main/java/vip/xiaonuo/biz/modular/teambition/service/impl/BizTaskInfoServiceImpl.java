@@ -197,14 +197,18 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(CollectionUtil.isNotEmpty(page.getRecords())){
             List<String> parentIds = page.getRecords().stream().map(info ->info.getId()).collect(Collectors.toList());
             List<BizTaskInfo> taskInfoList = this.list(new LambdaQueryWrapper<BizTaskInfo>().in(BizTaskInfo::getParentId,parentIds));
+            Map<String,List<ChildTaskInfoVo>> map = new HashMap<>();
             if(CollectionUtil.isNotEmpty(taskInfoList)){
                 taskInfoList.forEach(task -> {
-                    List<ChildTaskInfoVo> list = CollectionUtil.isNotEmpty(task.getChildList()) ? task.getChildList() : new ArrayList<>();
+                    List<ChildTaskInfoVo> list = CollectionUtil.isNotEmpty(map.get(task.getParentId())) ? map.get(task.getParentId()) : new ArrayList<>();
                     ChildTaskInfoVo childTaskInfoVo = BeanUtil.toBean(task,ChildTaskInfoVo.class);
                     list.add(childTaskInfoVo);
-                    task.setChildList(list);
+                    map.put(task.getParentId(),list);
                 });
             }
+            page.getRecords().forEach(task -> {
+                if(ObjectUtil.isNotEmpty(map.get(task.getId()))){task.setChildren(map.get(task.getId()));}
+            });
         }
     }
 

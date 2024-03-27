@@ -175,5 +175,5 @@ public class BizTaskInfo {
     /** 子任务 */
     @ApiModelProperty(value = "子任务", position = 33)
     @TableField(exist = false)
-    private List<ChildTaskInfoVo> childList;
+    private List<ChildTaskInfoVo> children;
 }
