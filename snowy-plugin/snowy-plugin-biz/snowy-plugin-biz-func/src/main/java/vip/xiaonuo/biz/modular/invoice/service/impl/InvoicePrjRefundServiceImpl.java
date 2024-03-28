@@ -89,7 +89,7 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
             queryWrapper.lambda().between(InvoicePrjRefund::getSkDate, invoicePrjRefundPageParam.getStartSkDate(), invoicePrjRefundPageParam.getEndSkDate());
         }
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getUnitName())) {
-            queryWrapper.lambda().like(InvoicePrjRefund::getUnitName, invoicePrjRefundPageParam.getUnitName());
+            queryWrapper.lambda().eq(InvoicePrjRefund::getUnitName, invoicePrjRefundPageParam.getUnitName());
         }
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getSn())) {
             queryWrapper.lambda().like(InvoicePrjRefund::getSn, invoicePrjRefundPageParam.getSn());
