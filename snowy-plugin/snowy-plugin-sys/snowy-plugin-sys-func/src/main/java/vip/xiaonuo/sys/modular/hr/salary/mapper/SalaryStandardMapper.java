@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
+import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelRegInfoVo;
 
 import java.util.List;
 
@@ -33,4 +34,6 @@ public interface SalaryStandardMapper extends BaseMapper<SalaryStandard> {
      * @return
      */
     List<PersonnelInfoVo> getPersonnelList(PersonnelParam personnelParam);
+
+    List<PersonnelRegInfoVo> getPersonnelRegList(PersonnelParam personnelParam);
 }
