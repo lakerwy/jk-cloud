@@ -31,4 +31,33 @@
         </if>
     </select>
 
+    <select id="getPersonnelRegList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelRegInfoVo" parameterType="vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam" >
+        select a.*,IF(c.ID is not null,c.`NAME`,a.orgName) as orgName, IF(d.ID is not null,d.`NAME`,a.position) as `position`
+        from (select '总部' as userType,
+                    ID as id,`NAME` as userName,DEPT_ID as orgId,DUTY_ID as positionId,`STATUS`  as status,DEPT as orgName,DUTY as `position`,
+                    SEX as sex,ID_NUMBER as idCardNumber,BIRTH as birthDay,PHONE as phone,HIRE_DATE as hireDate,POSITIVE_TIME as positiveTime,
+                    USER_ID  as userId,LEAVE_DATE as leaveDate,HIGHEST_EDUCATION as highestEducation,GRADUATE_SCHOOL as graduateSchool,MAJOR as major
+            from PERSONNEL
+            where DELETE_FLAG = 'NOT_DELETE'
+            union all
+            select '分公司' as userType,
+                    ID as id,`NAME` as userName,DEPT_ID as orgId,DUTY_ID as positionId,HR_STATUS  as status,DEPT as orgName,DUTY as `position`,
+                    SEX as sex,ID_NUMBER as idCardNumber,BIRTH as birthDay,PHONE as phone,HIRE_DATE as hireDate,POSITIVE_TIME as positiveTime,
+                    null as userId,RESIGNATION_TIME as leaveDate,HIGHEST_EDUCATION as highestEducation,GRADUATE_SCHOOL as graduateSchool,MAJOR as major
+            from HR_SUB_PERSONNEL
+            where DELETE_FLAG = 'NOT_DELETE' and `STATUS` in ('0', '1')) a
+                    LEFT JOIN SYS_ORG c ON a.orgId = c.ID
+                    LEFT JOIN SYS_POSITION d ON a.positionId = d.ID
+        where 1 = 1
+        <if test="name != null and name != ''">
+            and a.userName like CONCAT('%', #{name}, '%')
+        </if>
+        <if test="status != null and status != ''">
+            and a.status = #{status}
+        </if>
+        <if test="userType != null and userType != ''">
+            and a.userType = #{userType}
+        </if>
+    </select>
+
 </mapper>
