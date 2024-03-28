@@ -76,6 +76,7 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
     @Override
     public Page<SalaryPreviewVo> page(SalaryPreviewPageParam salaryPreviewPageParam) {
         QueryWrapper<SalaryPreview> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getCompany())) {
             queryWrapper.like("a.COMPANY", salaryPreviewPageParam.getCompany());
         }
