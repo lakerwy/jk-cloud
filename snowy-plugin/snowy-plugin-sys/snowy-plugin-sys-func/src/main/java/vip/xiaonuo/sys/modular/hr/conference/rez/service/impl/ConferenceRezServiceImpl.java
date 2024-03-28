@@ -142,7 +142,9 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getEndTime())) {
             queryWrapper.lambda().lt(ConferenceRez::getSn, conferenceRezPageParam.getSn());
         }
-
+        if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getSearchKey())){
+            queryWrapper.lambda().like(ConferenceRez::getTheme,conferenceRezPageParam.getSearchKey());
+        }
         if(ObjectUtil.isAllNotEmpty(conferenceRezPageParam.getSortField(), conferenceRezPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(conferenceRezPageParam.getSortOrder());
             queryWrapper.orderBy(true, conferenceRezPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -287,10 +289,11 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ConferenceRezEditParam conferenceRezEditParam) {
-        if(StringUtils.isNotEmpty(conferenceRezEditParam.getRezPeriodId())){
+        /**  周期会议数据依赖于钉钉，去掉该逻辑*/
+        /*if(StringUtils.isNotEmpty(conferenceRezEditParam.getRezPeriodId())){
             editPeriod(conferenceRezEditParam);
             return;
-        }
+        }*/
         ConferenceRez conferenceRez = this.queryEntity(conferenceRezEditParam.getId());
         BeanUtil.copyProperties(conferenceRezEditParam, conferenceRez);
         this.updateById(conferenceRez);
