@@ -27,8 +27,8 @@ public enum SaleBillStatusEnum {
     NORMAL("正常"),
     /** 作废 */
     CANCEL("作废"),
-    /** 红冲 */
-    RED("红冲");
+    /** 冲红 */
+    RED("冲红");
 
     private final String value;
 

@@ -49,4 +49,19 @@ public class SumAttendData {
     /** 实习生工资 */
     @ApiModelProperty(value = "实习生工资", position = 8)
     private BigDecimal tryAmount;
+
+    /**
+     * 构造函数，初始化
+     */
+    public SumAttendData(){
+        this.setFullAmount(BigDecimal.ZERO);
+        this.setSickAmount(BigDecimal.ZERO);
+        this.setWorkAmount(BigDecimal.ZERO);
+        this.setLateAmount(BigDecimal.ZERO);
+        this.setMinerAmount(BigDecimal.ZERO);
+        this.setMaterAmount(BigDecimal.ZERO);
+        this.setInOutAmount(BigDecimal.ZERO);
+        this.setTryAmount(BigDecimal.ZERO);
+    }
+
 }

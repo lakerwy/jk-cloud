@@ -28,9 +28,9 @@ public class FlwInvoiceExecutionListener implements ExecutionListener {
                     String sql = " UPDATE BIZ_INVOICE_SALE_BILL set FP_STATUS='作废',CANCEL_PROCESS_INSTANCE_ID='"+processInstanceId+"' where ID = '"+ invoiceSaleBillId +"'";
                     log.info("【销售发票异动-作废】执行更新："+sql);
                     CommonHandleUtil.handleSqlExecution(sql);
-                }else if("红冲".equals(moveType)){
-                    String sql = " UPDATE BIZ_INVOICE_SALE_BILL set FP_STATUS='红冲',RED_PROCESS_INSTANCE_ID='"+processInstanceId+"' where ID = '"+ invoiceSaleBillId +"'";
-                    log.info("【销售发票异动-红冲】执行更新："+sql);
+                }else if("冲红".equals(moveType)){
+                    String sql = " UPDATE BIZ_INVOICE_SALE_BILL set RED_PROCESS_INSTANCE_ID='"+processInstanceId+"' where ID = '"+ invoiceSaleBillId +"'";
+                    log.info("【销售发票异动-冲红】执行更新："+sql);
                     CommonHandleUtil.handleSqlExecution(sql);
                 }
             }
