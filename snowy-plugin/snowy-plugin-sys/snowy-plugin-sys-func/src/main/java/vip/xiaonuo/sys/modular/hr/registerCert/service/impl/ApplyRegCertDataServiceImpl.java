@@ -132,7 +132,7 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
     public void add(ApplyRegCertDataAddParam applyRegCertDataAddParam) {
         ApplyRegCertData applyRegCertData = BeanUtil.toBean(applyRegCertDataAddParam, ApplyRegCertData.class);
 
-        String processInstanceId = applyRegCertDataAddParam.getProcessInstanceId();
+        /*String processInstanceId = applyRegCertDataAddParam.getProcessInstanceId();
         String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
         String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
         applyRegCertData.setId(id);
@@ -140,9 +140,9 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
         applyRegCertData.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
         FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
         //将流程实例和业务表关联起来
-        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));/**  数据库名一定得是小写*/
+        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));*//**  数据库名一定得是小写*//*
         flwCommonApi.save(modelId, BizCommonEnum.APPLY_REG_CERT_DATA.getBizTable(),id,processInstanceId,dbName);
-        applyRegCertData.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
+        applyRegCertData.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中*/
 
         this.save(applyRegCertData);
     }
