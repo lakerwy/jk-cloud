@@ -66,14 +66,6 @@ public class ApplyRegCertData {
     @ApiModelProperty(value = "参与项目日期", position = 9)
     private Date joinPrjDate;
 
-    /** 流程状态 */
-    @ApiModelProperty(value = "流程状态", position = 10)
-    private String status;
-
-    /** 流程实例ID */
-    @ApiModelProperty(value = "流程实例ID", position = 11)
-    private String processInstanceId;
-
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 12)
     private String extJson;
@@ -104,11 +96,11 @@ public class ApplyRegCertData {
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    /** 模型ID */
-    @ApiModelProperty(value = "模型ID", position = 18)
-    private String modelId;
+    /** 身份证号 */
+    @ApiModelProperty(value = "身份证号", position = 18)
+    private String idCardNumber;
 
-    /** SN单号 */
-    @ApiModelProperty(value = "SN单号", position = 19)
-    private String sn;
+    /** 注册补贴-申请ID */
+    @ApiModelProperty(value = "注册补贴-申请ID", position = 19)
+    private String applyRegFlwId;
 }

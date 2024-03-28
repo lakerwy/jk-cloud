@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.registerCert.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -25,8 +26,9 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.registerCert.entity.ApplyRegCertData;
+import vip.xiaonuo.sys.modular.hr.registerCert.entity.ApplyRegCertDataFlow;
 import vip.xiaonuo.sys.modular.hr.registerCert.param.*;
+import vip.xiaonuo.sys.modular.hr.registerCert.service.ApplyRegCertDataFlowService;
 import vip.xiaonuo.sys.modular.hr.registerCert.service.ApplyRegCertDataService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelRegInfoVo;
 
@@ -36,90 +38,92 @@ import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
- * 注册补贴-申请基本信息控制器
+ * 注册补贴-申请FLW流程表信息控制器
  *
  * @author ljy
- * @date  2024/03/27 15:28
+ * @date  2024/03/28 15:48
  */
-@Api(tags = "注册补贴-申请基本信息控制器")
+@Api(tags = "注册补贴-申请FLW流程表信息控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
-public class ApplyRegCertDataController {
+public class ApplyRegCertDataFlowController {
 
     @Resource
-    private ApplyRegCertDataService applyRegCertDataService;
+    private ApplyRegCertDataFlowService applyRegCertDataFlowService;
+    @Resource
+    ApplyRegCertDataService applyRegCertDataService;
 
     /**
-     * 获取注册补贴-申请基本信息分页
+     * 获取注册补贴-申请FLW流程表信息分页
      *
      * @author ljy
-     * @date  2024/03/27 15:28
+     * @date  2024/03/28 15:48
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取注册补贴-申请基本信息分页")
-    @GetMapping("/sys/regCertData/page")
-    public CommonResult<Page<ApplyRegCertData>> page(ApplyRegCertDataPageParam applyRegCertDataPageParam) {
-        return CommonResult.data(applyRegCertDataService.page(applyRegCertDataPageParam));
+    @ApiOperation("获取注册补贴-申请FLW流程表信息分页")
+    @GetMapping("/sys/regDertDataFlow/page")
+    public CommonResult<Page<ApplyRegCertDataFlow>> page(ApplyRegCertDataFlowPageParam applyRegCertDataFlowPageParam) {
+        return CommonResult.data(applyRegCertDataFlowService.page(applyRegCertDataFlowPageParam));
     }
 
     /**
-     * 添加注册补贴-申请基本信息
+     * 添加注册补贴-申请FLW流程表信息
      *
      * @author ljy
-     * @date  2024/03/27 15:28
+     * @date  2024/03/28 15:48
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("发起注册补贴")
-    @CommonLog("发起注册补贴")
-    @PostMapping("/sys/regCertData/start")
-    public CommonResult<String> add(@RequestBody @Valid ApplyRegCertDataAddParam applyRegCertDataAddParam) {
-        applyRegCertDataService.add(applyRegCertDataAddParam);
+    @ApiOperation("添加注册补贴-申请FLW流程表信息")
+    @CommonLog("添加注册补贴-申请FLW流程表信息")
+    @PostMapping("/sys/regDertDataFlow/start")
+    public CommonResult<String> add(@RequestBody @Valid ApplyRegCertDataFlowAddParam applyRegCertDataFlowAddParam) {
+        applyRegCertDataFlowService.add(applyRegCertDataFlowAddParam);
         return CommonResult.ok();
     }
 
     /**
-     * 编辑注册补贴-申请基本信息
+     * 编辑注册补贴-申请FLW流程表信息
      *
      * @author ljy
-     * @date  2024/03/27 15:28
+     * @date  2024/03/28 15:48
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑注册补贴-申请基本信息")
-    @CommonLog("编辑注册补贴-申请基本信息")
-    @PostMapping("/sys/regCertData/edit")
-    public CommonResult<String> edit(@RequestBody @Valid ApplyRegCertDataEditParam applyRegCertDataEditParam) {
-        applyRegCertDataService.edit(applyRegCertDataEditParam);
+    @ApiOperation("编辑注册补贴-申请FLW流程表信息")
+    @CommonLog("编辑注册补贴-申请FLW流程表信息")
+    @PostMapping("/sys/regDertDataFlow/edit")
+    public CommonResult<String> edit(@RequestBody @Valid ApplyRegCertDataFlowEditParam applyRegCertDataFlowEditParam) {
+        applyRegCertDataFlowService.edit(applyRegCertDataFlowEditParam);
         return CommonResult.ok();
     }
 
     /**
-     * 删除注册补贴-申请基本信息
+     * 删除注册补贴-申请FLW流程表信息
      *
      * @author ljy
-     * @date  2024/03/27 15:28
+     * @date  2024/03/28 15:48
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("删除注册补贴-申请基本信息")
-    @CommonLog("删除注册补贴-申请基本信息")
-    @PostMapping("/sys/regCertData/delete")
+    @ApiOperation("删除注册补贴-申请FLW流程表信息")
+    @CommonLog("删除注册补贴-申请FLW流程表信息")
+    @PostMapping("/sys/regDertDataFlow/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
-                                                   CommonValidList<ApplyRegCertDataIdParam> applyRegCertDataIdParamList) {
-        applyRegCertDataService.delete(applyRegCertDataIdParamList);
+                                                   CommonValidList<ApplyRegCertDataFlowIdParam> applyRegCertDataFlowIdParamList) {
+        applyRegCertDataFlowService.delete(applyRegCertDataFlowIdParamList);
         return CommonResult.ok();
     }
 
     /**
-     * 获取注册补贴-申请基本信息详情
+     * 获取注册补贴-申请FLW流程表信息详情
      *
      * @author ljy
-     * @date  2024/03/27 15:28
+     * @date  2024/03/28 15:48
      */
     @ApiOperationSupport(order = 5)
-    @ApiOperation("获取注册补贴-申请基本信息详情")
-    @GetMapping("/sys/regCertData/detail")
-    public CommonResult<ApplyRegCertData> detail(@Valid ApplyRegCertDataIdParam applyRegCertDataIdParam) {
-        return CommonResult.data(applyRegCertDataService.detail(applyRegCertDataIdParam));
+    @ApiOperation("获取注册补贴-申请FLW流程表信息详情")
+    @GetMapping("/sys/regDertDataFlow/detail")
+    public CommonResult<ApplyRegCertDataFlow> detail(@Valid ApplyRegCertDataFlowIdParam applyRegCertDataFlowIdParam) {
+        return CommonResult.data(applyRegCertDataFlowService.detail(applyRegCertDataFlowIdParam));
     }
 
     /**
@@ -129,7 +133,7 @@ public class ApplyRegCertDataController {
      * @date  2024/03/27 15:28
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("注册补贴-前置接口-获取基本信息和已有证书数据")
+    @ApiOperation("获取注册补贴-前置接口-获取基本信息和已有证书数据")
     @GetMapping("/sys/regCertData/alwAndCertData")
     public CommonResult<List<PersonnelRegInfoVo>> alwAndCertData(@Valid AlwAndCertParam alwAndCertParam) {
         return CommonResult.data(applyRegCertDataService.alwAndCertData(alwAndCertParam));

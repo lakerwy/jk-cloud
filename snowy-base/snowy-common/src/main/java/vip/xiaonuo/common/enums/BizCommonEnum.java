@@ -26,6 +26,7 @@ public enum BizCommonEnum {
     HR_USER_APPLY_HOLIDAY("HR_USER_APPLY_HOLIDAY","HR_USER_APPLY_HOLIDAY","HrUserApplyHolidayServiceImpl"),//请假
     HR_APPLY_WORK_OT("HR_APPLY_WORK_OT","HR_APPLY_WORK_OT","HrApplyWorkOtServiceImpl"),//申请加班
     HR_USER_APPLY_GOOUT("HR_USER_APPLY_GOOUT","HR_USER_APPLY_GOOUT","HrUserApplyGooutServiceImpl"),//申请出差
+    APPLY_REG_CERT_DATA_FLOW("APPLY_REG_CERT_DATA_FLOW","APPLY_REG_CERT_DATA_FLOW","ApplyRegCertDataFlowServiceImpl"),//申请补贴
 
     BIZ_VISIT("BIZ_VISIT","BIZ_VISIT","BizVisitServiceImpl"),  //董事办-外访记录
 

@@ -46,8 +46,8 @@ public class RegCertStatusDataServiceImpl extends ServiceImpl<RegCertStatusDataM
     @Override
     public Page<RegCertStatusData> page(RegCertStatusDataPageParam regCertStatusDataPageParam) {
         QueryWrapper<RegCertStatusData> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(regCertStatusDataPageParam.getApplyRegCertdId())) {
-            queryWrapper.lambda().eq(RegCertStatusData::getApplyRegCertdId, regCertStatusDataPageParam.getApplyRegCertdId());
+        if(ObjectUtil.isNotEmpty(regCertStatusDataPageParam.getApplyRegFlwId())) {
+            queryWrapper.lambda().eq(RegCertStatusData::getApplyRegFlwId, regCertStatusDataPageParam.getApplyRegFlwId());
         }
         if(ObjectUtil.isNotEmpty(regCertStatusDataPageParam.getIsPass())) {
             queryWrapper.lambda().eq(RegCertStatusData::getIsPass, regCertStatusDataPageParam.getIsPass());

@@ -37,7 +37,7 @@ public class RegCertStatusData {
 
     /** 注册补贴-申请ID */
     @ApiModelProperty(value = "注册补贴-申请ID", position = 2)
-    private String applyRegCertdId;
+    private String applyRegFlwId;
 
     /** 证书等级 */
     @ApiModelProperty(value = "证书等级", position = 3)
@@ -72,7 +72,7 @@ public class RegCertStatusData {
     private String certMemo;
 
     /** 是否审核通过 */
-    @ApiModelProperty(value = "是否审核通过", position = 11)
+    @ApiModelProperty(value = "是否审核通过， 0 未通过，1 已通过", position = 11)
     private String isPass;
 
     /** 身份证号 */

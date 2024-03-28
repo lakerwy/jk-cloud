@@ -19,8 +19,8 @@ public class RegAlwUserVo {
     private String position;
 
     /** 身份证号 */
-    @ApiModelProperty(value = "身份证号", position = 4)
-    private String idCardNumber;
+    /*@ApiModelProperty(value = "身份证号", position = 4)
+    private String idCardNumber;*/
 
     /** 一级部门 */
     @ApiModelProperty(value = "一级部门", position = 5)

@@ -50,19 +50,4 @@ public class ApplyRegCertDataAddParam {
     @ApiModelProperty(value = "SN单号")
     private String sn;
 
-    @ApiModelProperty(value = "注册补贴-申请信息",required = true)
-    @NotNull(message = "注册补贴-申请信息不能为空")
-    List<ApplyRegCertAlwVo> applyRegCertAlwVoList;
-
-    @ApiModelProperty(value = "注册补贴-基本信息",required = true)
-    @NotNull(message = "注册补贴-基本信息不能为空")
-    private List<RegAlwUserVo> regAlwUserList;
-
-    @ApiModelProperty(value = "注册补贴-已有证书",required = true)
-    @NotNull(message = "注册补贴-已有证书不能为空")
-    private List<RegCertDataVo> regCertDataList;
-
-    @ApiModelProperty(value = "注册补贴-注册执业资格证书",required = true)
-    @NotNull(message = "注册补贴-注册执业资格证书不能为空")
-    private List<RegCertStatusDataVo> regCertStatusDataList;
 }

@@ -50,7 +50,7 @@ public class RegCertStatusDataPageParam {
 
     /** 注册补贴-申请ID */
     @ApiModelProperty(value = "注册补贴-申请ID")
-    private String applyRegCertdId;
+    private String applyRegFlwId;
 
     /** 是否审核通过 */
     @ApiModelProperty(value = "是否审核通过")

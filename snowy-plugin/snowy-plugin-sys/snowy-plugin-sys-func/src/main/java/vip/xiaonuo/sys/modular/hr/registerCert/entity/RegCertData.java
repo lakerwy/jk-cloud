@@ -80,4 +80,9 @@ public class RegCertData {
     @ApiModelProperty(value = "修改用户", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 注册补贴-申请ID */
+    @ApiModelProperty(value = "注册补贴-申请ID")
+    private String applyRegFlwId;
+
 }

@@ -65,9 +65,4 @@ public class ApplyRegCertAlwVo {
     /** 用户姓名 */
     @ApiModelProperty(value = "用户姓名")
     private String userName;
-
-    /** 身份证号 idNumber - idCardNumber */
-    @ApiModelProperty(value = "身份证号 idNumber - idCardNumber",required = true)
-    @NotNull(message = "身份证号不能为空")
-    private String idCardNumber;
 }

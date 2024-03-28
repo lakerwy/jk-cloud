@@ -38,7 +38,7 @@ public class RegCertStatusDataEditParam {
 
     /** 注册补贴-申请ID */
     @ApiModelProperty(value = "注册补贴-申请ID", position = 2)
-    private String applyRegCertdId;
+    private String applyRegFlwId;
 
     /** 证书等级 */
     @ApiModelProperty(value = "证书等级", position = 3)

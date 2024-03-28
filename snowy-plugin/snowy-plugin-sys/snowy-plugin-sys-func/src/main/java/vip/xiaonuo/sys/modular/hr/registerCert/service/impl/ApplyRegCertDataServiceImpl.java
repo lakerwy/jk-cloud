@@ -43,10 +43,12 @@ import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileTitle;
 import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileTitleService;
 import vip.xiaonuo.sys.modular.hr.registerCert.entity.ApplyRegCertData;
+import vip.xiaonuo.sys.modular.hr.registerCert.entity.ApplyRegCertDataFlow;
 import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegAlwUser;
 import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertData;
 import vip.xiaonuo.sys.modular.hr.registerCert.mapper.ApplyRegCertDataMapper;
 import vip.xiaonuo.sys.modular.hr.registerCert.param.*;
+import vip.xiaonuo.sys.modular.hr.registerCert.service.ApplyRegCertDataFlowService;
 import vip.xiaonuo.sys.modular.hr.registerCert.service.ApplyRegCertDataService;
 import vip.xiaonuo.sys.modular.hr.registerCert.service.RegAlwUserService;
 import vip.xiaonuo.sys.modular.hr.registerCert.service.RegCertDataService;
@@ -89,6 +91,8 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
     RegAlwUserService regAlwUserService;
     @Resource
     RegCertDataService regCertDataService;
+    @Resource
+    ApplyRegCertDataFlowService applyRegCertDataFlowService;
 
     @Override
     public Page<ApplyRegCertData> page(ApplyRegCertDataPageParam applyRegCertDataPageParam) {
@@ -121,46 +125,11 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
-
-    /**
-     * 注册补贴 - 基本信息  REG_ALW_USER
-     * 注册补贴 - 已有证书  REG_CERT_DATA
-     * 注册补贴 - 人力资源-注册执业资格证书  REG_CERT_STATUS_DATA
-     * */
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(ApplyRegCertDataAddParam applyRegCertDataAddParam) {
-        ApplyRegCertData applyRegCertData = BeanUtil.toBean(applyRegCertDataAddParam, ApplyRegCertData.class);
-
-        /*String processInstanceId = applyRegCertDataAddParam.getProcessInstanceId();
-        String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
-        String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
-        applyRegCertData.setId(id);
-        applyRegCertData.setModelId(modelId);
-        applyRegCertData.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
-        FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
-        //将流程实例和业务表关联起来
-        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));*//**  数据库名一定得是小写*//*
-        flwCommonApi.save(modelId, BizCommonEnum.APPLY_REG_CERT_DATA.getBizTable(),id,processInstanceId,dbName);
-        applyRegCertData.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中*/
-
+         ApplyRegCertData applyRegCertData = BeanUtil.toBean(applyRegCertDataAddParam, ApplyRegCertData.class);
         this.save(applyRegCertData);
-    }
-
-    private void getRegAlwAndCertData(List<RegAlwUserVo> alwVoList,List<RegCertDataVo> certVoList){
-         List<RegAlwUser> regAlwUserList = regAlwUserService.list(new LambdaQueryWrapper<RegAlwUser>().in(RegAlwUser::getIdCardNumber,
-                 alwVoList.stream().map(alw -> alw.getIdCardNumber()).collect(Collectors.toList())));
-         if(CollectionUtil.isNotEmpty(regAlwUserList)){
-             RegAlwUser regAlwUser = BeanUtil.toBean(regAlwUserList.get(0),RegAlwUser.class);
-             regAlwUserService.saveOrUpdate(regAlwUser);
-         }
-         List<RegCertData> regCertDataList = regCertDataService.list(new LambdaQueryWrapper<RegCertData>().in(RegCertData::getIdCardNumber,
-                 certVoList.stream().map(cert -> cert.getIdCardNumber()).collect(Collectors.toList())));
-         if(CollectionUtil.isNotEmpty(regCertDataList)){
-
-         }
-
-
     }
 
     @Transactional(rollbackFor = Exception.class)

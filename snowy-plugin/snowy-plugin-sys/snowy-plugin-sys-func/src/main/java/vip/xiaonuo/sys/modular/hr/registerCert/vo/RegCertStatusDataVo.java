@@ -41,6 +41,6 @@ public class RegCertStatusDataVo {
     private String certMemo;
 
     /** 身份证号 */
-    @ApiModelProperty(value = "身份证号", position = 12)
-    private String idCardNumber;
+    /*@ApiModelProperty(value = "身份证号", position = 12)
+    private String idCardNumber;*/
 }

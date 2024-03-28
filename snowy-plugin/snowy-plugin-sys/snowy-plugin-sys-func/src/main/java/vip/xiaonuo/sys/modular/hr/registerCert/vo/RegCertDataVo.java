@@ -22,8 +22,8 @@ public class RegCertDataVo {
     private String registerSubject;
 
     /** 身份证号 */
-    @ApiModelProperty(value = "身份证号", position = 5)
-    private String idCardNumber;
+    /*@ApiModelProperty(value = "身份证号", position = 5)
+    private String idCardNumber;*/
 
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 6)
