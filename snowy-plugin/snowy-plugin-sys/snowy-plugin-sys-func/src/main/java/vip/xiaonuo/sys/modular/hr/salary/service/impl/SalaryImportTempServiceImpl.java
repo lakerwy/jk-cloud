@@ -255,9 +255,6 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             }
             //特殊控制
             if(SalaryTypeEnum.STANDARD.getValue().equals(item.getType())){
-                if(ObjectUtil.isEmpty(item.getStandardAmount())) {
-                    errMsg += "月度标准工资必填；";
-                }
                 if(ObjectUtil.isEmpty(item.getCompany())) {
                     errMsg += "工资发放公司必填；";
                 }

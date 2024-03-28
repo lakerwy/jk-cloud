@@ -34,10 +34,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPayService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPayVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySeniorityVo;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryStandardVo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
 import javax.annotation.Resource;
 import java.time.YearMonth;
@@ -45,7 +42,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 工资系统-工龄工资|生日福利Service接口实现类
@@ -99,7 +95,8 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
         }
         Page<SalaryPayVo> result = salaryPayMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
         List<SalaryPayVo> records = AesUtil.decryptGZList(result.getRecords());
-        records.sort(Comparator.comparing(SalaryPayVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        records.sort(Comparator.comparing(SalaryPayVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalaryPayVo::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }

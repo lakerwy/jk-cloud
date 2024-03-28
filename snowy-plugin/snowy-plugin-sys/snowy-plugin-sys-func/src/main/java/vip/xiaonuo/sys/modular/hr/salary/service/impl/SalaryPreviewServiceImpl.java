@@ -114,7 +114,9 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
         }
         Page<SalaryPreviewVo> result = salaryPreviewMapper.getPreviewPage(CommonPageRequest.defaultPage(), queryWrapper);
         List<SalaryPreviewVo> records = AesUtil.decryptGZList(result.getRecords());
-        records.sort(Comparator.comparing(SalaryPreviewVo::getSortIndex).thenComparing(SalaryPreviewVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        records.sort(Comparator.comparing(SalaryPreviewVo::getSortIndex)
+                .thenComparing(SalaryPreviewVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalaryPreviewVo::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }
@@ -196,7 +198,9 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
         List<SalaryPreviewVo> salaryVoList = salaryPreviewMapper.getAutoGZData(queryWrapper);
         //自动生成工资数据
         List<SalaryPreviewVo> result = AesUtil.decryptGZList(computePreGZ(yearMonth,salaryVoList));
-        result.sort(Comparator.comparing(SalaryPreviewVo::getSortIndex).thenComparing(SalaryPreviewVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        result.sort(Comparator.comparing(SalaryPreviewVo::getSortIndex)
+                .thenComparing(SalaryPreviewVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalaryPreviewVo::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         return result;
     }
 

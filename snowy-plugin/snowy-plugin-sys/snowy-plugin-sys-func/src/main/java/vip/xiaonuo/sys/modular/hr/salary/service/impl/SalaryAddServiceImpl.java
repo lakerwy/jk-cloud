@@ -35,13 +35,11 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
 import javax.annotation.Resource;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 工资系统-其他费用扣加Service接口实现类
@@ -90,7 +88,8 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
         }
         Page<SalaryAddVo> result = salaryAddMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
         List<SalaryAddVo> records = AesUtil.decryptGZList(result.getRecords());
-        records.sort(Comparator.comparing(SalaryAddVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        records.sort(Comparator.comparing(SalaryAddVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalaryAddVo::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }

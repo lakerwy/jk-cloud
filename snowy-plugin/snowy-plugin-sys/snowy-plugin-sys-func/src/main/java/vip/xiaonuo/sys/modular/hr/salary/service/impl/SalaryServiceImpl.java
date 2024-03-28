@@ -92,7 +92,9 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         Page<Salary> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<Salary> records = AesUtil.decryptGZList(result.getRecords());
         records.forEach(x->x.setSortIndex(UserTypeEnum.ZB.getValue().equals(x.getUserType()) ? 1 : (UserTypeEnum.FGS.getValue().equals(x.getUserType()) ? 2 : 3)));
-        records.sort(Comparator.comparing(Salary::getSortIndex).thenComparing(Salary::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        records.sort(Comparator.comparing(Salary::getSortIndex)
+                .thenComparing(Salary::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Salary::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }

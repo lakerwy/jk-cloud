@@ -32,13 +32,11 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
 import javax.annotation.Resource;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 工资系统-各类补贴-明细记录Service接口实现类
@@ -89,7 +87,8 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
         }
         Page<SalarySubsidyRecordVo> result = salarySubsidyRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
         List<SalarySubsidyRecordVo> records = AesUtil.decryptGZList(result.getRecords());
-        records.sort(Comparator.comparing(SalarySubsidyRecordVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        records.sort(Comparator.comparing(SalarySubsidyRecordVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalarySubsidyRecordVo::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }

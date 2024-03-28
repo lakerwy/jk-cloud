@@ -95,7 +95,8 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
         }
         Page<SalaryAddRecordVo> result = salaryAddRecordMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
         List<SalaryAddRecordVo> records = AesUtil.decryptGZList(result.getRecords());
-        records.sort(Comparator.comparing(SalaryAddRecordVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        records.sort(Comparator.comparing(SalaryAddRecordVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalaryAddRecordVo::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }

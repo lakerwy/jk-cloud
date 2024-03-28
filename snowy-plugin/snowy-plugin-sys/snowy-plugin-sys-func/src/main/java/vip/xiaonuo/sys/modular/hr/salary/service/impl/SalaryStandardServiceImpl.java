@@ -242,7 +242,8 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         }
         queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth);
         List<SalaryStandard> standardList = AesUtil.decryptGZList(this.list(queryWrapper));
-        standardList.sort(Comparator.comparing(SalaryStandard::getFirstOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        standardList.sort(Comparator.comparing(SalaryStandard::getFirstOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalaryStandard::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setZbList(standardList.stream().filter(x-> UserTypeEnum.ZB.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setFgsList(standardList.stream().filter(x-> UserTypeEnum.FGS.getValue().equals(x.getUserType())).collect(Collectors.toList()));
         result.setWpList(standardList.stream().filter(x-> UserTypeEnum.WP.getValue().equals(x.getUserType())).collect(Collectors.toList()));

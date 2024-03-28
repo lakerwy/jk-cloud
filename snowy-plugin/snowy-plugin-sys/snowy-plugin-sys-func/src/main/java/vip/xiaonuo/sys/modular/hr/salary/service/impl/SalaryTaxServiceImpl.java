@@ -33,13 +33,11 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryTaxPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryTaxService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
-import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryTaxVo;
 
 import javax.annotation.Resource;
 import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 工资系统-专项扣除Service接口实现类
@@ -87,7 +85,8 @@ public class SalaryTaxServiceImpl extends ServiceImpl<SalaryTaxMapper, SalaryTax
         }
         Page<SalaryTaxVo> result = salaryTaxMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
         List<SalaryTaxVo> records = AesUtil.decryptGZList(result.getRecords());
-        records.sort(Comparator.comparing(SalaryTaxVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        records.sort(Comparator.comparing(SalaryTaxVo::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalaryTaxVo::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
         result.setRecords(records);
         return result;
     }
