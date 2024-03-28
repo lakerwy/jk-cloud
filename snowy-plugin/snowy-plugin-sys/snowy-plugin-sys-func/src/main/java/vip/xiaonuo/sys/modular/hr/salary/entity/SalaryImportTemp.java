@@ -276,8 +276,8 @@ public class SalaryImportTemp {
     @ApiModelProperty(value = "交通补贴小计", position = 63)
     private BigDecimal btStandard2Total;
 
-    /** 发放公司 */
-    @ApiModelProperty(value = "发放公司", position = 64)
+    /** 发放公司|缴纳单位 */
+    @ApiModelProperty(value = "发放公司|缴纳单位", position = 64)
     private String unitName;
 
     /** 缴费基数 */

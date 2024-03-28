@@ -443,9 +443,10 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
                     standardList = finalStandardAllList.stream().filter(n->item.getYearMonth().equals(n.getYearMonth()) && item.getIdCardNumber().equals(n.getIdCardNumber())).collect(Collectors.toList());
                 }
                 if(standardList.size() == 1){
-                    item.setStandardId(standardList.get(0).getId());
-                    if(ObjectUtil.isEmpty(item.getCompany())){
-                        item.setCompany(standardList.get(0).getCompany());
+                    SalaryStandardVo tmpVo = standardList.get(0);
+                    item.setStandardId(tmpVo.getId());
+                    if(SalaryTypeEnum.EMP_BONUS.getValue().equals(type) && ObjectUtil.isEmpty(item.getUnitName())){ //福利发放公司，默认为所属公司
+                        item.setUnitName(tmpVo.getCompany());
                     }
                 }else if(standardList.size() == 0){
                     item.setErrorMsg("月工资标准中未能匹配到用户");
@@ -472,7 +473,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         //明文 -> 密文
         importData = AesUtil.encryptGZList(importData);
         //校验
-        if(SalaryTypeEnum.STANDARD.getValue().equals(type)){
+        if(SalaryTypeEnum.STANDARD.getValue().equals(type)){ //工资发放公司一定有值
             List<String> yearMonths = importData.stream().filter(x->ObjectUtil.isEmpty(x.getErrorMsg())).map(x->x.getYearMonth()).distinct().collect(Collectors.toList());
             if(CollUtil.isNotEmpty(yearMonths)) {
                 //涉及到的年月，看是否已导入过
