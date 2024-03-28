@@ -30,10 +30,6 @@ public class ThreePageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 类别：工资|奖金 */
-    @ApiModelProperty(value = "类别：工资|奖金")
-    private String type;
-
     /** 所属年月 */
     @ApiModelProperty(value = "所属年月")
     private String yearMonth;
@@ -61,4 +57,12 @@ public class ThreePageParam {
     /** 员工类别：总部|分公司|外部 */
     @ApiModelProperty(value = "员工类别：总部|分公司|外部")
     private String userType;
+
+    /** 是否标记 */
+    @ApiModelProperty(value = "是否标记")
+    private String isSpec;
+
+    /** 是否实习 */
+    @ApiModelProperty(value = "是否实习")
+    private String isTry;
 }

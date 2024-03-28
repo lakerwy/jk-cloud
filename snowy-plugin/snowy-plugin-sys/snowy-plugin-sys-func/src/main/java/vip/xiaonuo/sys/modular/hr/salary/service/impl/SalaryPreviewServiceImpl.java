@@ -92,13 +92,18 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
             queryWrapper.eq("a.USER_NAME", AesUtil.encrypt(salaryPreviewPageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getIsSlow())){
-            queryWrapper.eq("a.IS_SLOW",salaryPreviewPageParam.getIsSlow());
+            if(YesOrNoEnum.YES.getValue().equals(salaryPreviewPageParam.getIsSlow())) {
+                queryWrapper.eq("a.IS_SLOW", salaryPreviewPageParam.getIsSlow());
+            }else{
+                queryWrapper.and(q->q.isNull("a.IS_SLOW").or().ne("a.IS_SLOW",YesOrNoEnum.YES.getValue()));
+            }
         }
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.ID_CARD_NUMBER",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey()))
                     .or().like("a.USER_NAME",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey()))
                     .or().like("a.ORG_NAME",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey())));
         }
+        queryWrapper.isNull("b.ID");
         if(ObjectUtil.isAllNotEmpty(salaryPreviewPageParam.getSortField(), salaryPreviewPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryPreviewPageParam.getSortOrder());
             queryWrapper.orderBy(true, salaryPreviewPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -207,7 +212,7 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
         List<SalaryPreview> saveSureData = BeanUtil.copyToList(sureData,SalaryPreview.class);
         saveSureData.forEach(x->{
             x.setId(null);
-            x.setNote("确认时间："+ DateUtil.now().toString() +"；操作人："+ StpLoginUserUtil.getLoginUser().getName());
+            x.setNote("生成时间："+ DateUtil.now().toString() +"；操作人："+ StpLoginUserUtil.getLoginUser().getName());
         });
         this.saveBatch(saveSureData);
     }

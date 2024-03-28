@@ -228,6 +228,12 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         if(ObjectUtil.isNotEmpty(threePageParam.getUserName())){
             queryWrapper.lambda().like(SalaryStandard::getUserName,AesUtil.encrypt(threePageParam.getUserName()));
         }
+        if(ObjectUtil.isNotEmpty(threePageParam.getIsSpec())){
+            queryWrapper.lambda().eq(SalaryStandard::getIsSpec,threePageParam.getIsSpec());
+        }
+        if(ObjectUtil.isNotEmpty(threePageParam.getIsTry())){
+            queryWrapper.lambda().eq(SalaryStandard::getIsTry,threePageParam.getIsTry());
+        }
         if(ObjectUtil.isNotEmpty(threePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(SalaryStandard::getUserName,AesUtil.encrypt(threePageParam.getSearchKey()))
                     .or().like(SalaryStandard::getIdCardNumber,AesUtil.encrypt(threePageParam.getSearchKey()))
@@ -300,6 +306,9 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             }
             if(ObjectUtil.isNotEmpty(item.getIsTry()) && !CollectionUtil.newArrayList(YES_OR_NO_LIST).contains(item.getIsTry().trim())){
                 errMsg += "是否实习生必须为：" + StrUtil.join("、",YES_OR_NO_LIST) +"；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getIsSpec()) && !CollectionUtil.newArrayList(YES_OR_NO_LIST).contains(item.getIsSpec().trim())){
+                errMsg += "是否标记必须为：" + StrUtil.join("、",YES_OR_NO_LIST) +"；";
             }
             if(ObjectUtil.isNotEmpty(item.getBirthDay()) && !ComputeUtil.isValidDate(item.getBirthDay().trim())){
                 errMsg += "生日不是合法日期格式；";

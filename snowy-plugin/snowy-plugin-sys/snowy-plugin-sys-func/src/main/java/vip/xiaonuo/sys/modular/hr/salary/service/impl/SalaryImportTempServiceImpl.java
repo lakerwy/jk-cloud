@@ -193,7 +193,7 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
         importData.forEach(x->{
             x.setBatchId(batchId);
             x.setType(type);
-            x.setNote("导入时间："+DateUtil.formatDate(new Date()) +"，导入批次号："+batchId+"，导入类型："+type);
+            x.setNote("导入时间："+DateUtil.now().toString() +"，导入批次号："+batchId+"，导入类型："+type);
             if(ObjectUtil.isNotEmpty(x.getYearMonth())){
                 x.setYearMonth(x.getYearMonth().trim());
             }
@@ -304,6 +304,9 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             }
             if(ObjectUtil.isNotEmpty(item.getIsTry()) && !CollectionUtil.newArrayList(YES_OR_NO_LIST).contains(item.getIsTry().trim())){
                 errMsg += "是否实习生必须为：" + StrUtil.join("、",YES_OR_NO_LIST) +"；";
+            }
+            if(ObjectUtil.isNotEmpty(item.getIsSpec()) && !CollectionUtil.newArrayList(YES_OR_NO_LIST).contains(item.getIsSpec().trim())){
+                errMsg += "是否标记必须为：" + StrUtil.join("、",YES_OR_NO_LIST) +"；";
             }
             if(ObjectUtil.isNotEmpty(item.getBirthDay()) && !ComputeUtil.isValidDate(item.getBirthDay().trim())){
                 errMsg += "生日不是合法日期格式；";

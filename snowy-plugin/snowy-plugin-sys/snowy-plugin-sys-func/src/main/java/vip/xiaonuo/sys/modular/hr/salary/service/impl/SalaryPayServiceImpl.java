@@ -190,7 +190,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
                 SalarySeniorityVo salarySeniorityVo = ComputeUtil.seniorityGZ(item.getPositiveTime());
                 addParam.setAmount(salarySeniorityVo.getAmount());
                 addParam.setPositiveAge(salarySeniorityVo.getPositiveAge());
-                addParam.setMemo("记录生成时间："+ DateUtil.now()+"，"+salarySeniorityVo.getMemo()+"，转正日期："+ DateUtil.formatDate(item.getPositiveTime()));
+                addParam.setMemo("记录生成时间："+ DateUtil.now().toString()+"，"+salarySeniorityVo.getMemo()+"，转正日期："+ DateUtil.formatDate(item.getPositiveTime()));
                 addList.add(addParam);
             });
             this.saveBatch(addList);
@@ -219,7 +219,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
                 addParam.setStandardId(item.getId());
                 addParam.setUnitName(item.getCompany());  //默认 工资发放公司
                 addParam.setAmount(ComputeUtil.birthdayGZ(item.getBirthDay()));
-                addParam.setMemo("记录生成时间："+DateUtil.now()+"，生日日期是："+DateUtil.formatDate(item.getBirthDay()));
+                addParam.setMemo("记录生成时间："+DateUtil.now().toString()+"，生日日期是："+DateUtil.formatDate(item.getBirthDay()));
                 addList.add(addParam);
             });
             this.saveBatch(addList);

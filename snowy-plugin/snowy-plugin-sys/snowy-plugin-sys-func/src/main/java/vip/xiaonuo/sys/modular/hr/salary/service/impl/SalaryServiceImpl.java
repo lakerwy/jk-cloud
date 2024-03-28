@@ -71,7 +71,11 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.lambda().like(Salary::getPosition, AesUtil.encrypt(salaryPageParam.getPosition()));
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getIsSlow())){
-            queryWrapper.lambda().eq(Salary::getIsSlow,salaryPageParam.getIsSlow());
+            if(YesOrNoEnum.YES.getValue().equals(salaryPageParam.getIsSlow())) {
+                queryWrapper.lambda().eq(Salary::getIsSlow, salaryPageParam.getIsSlow());
+            }else{
+                queryWrapper.lambda().and(q->q.isNull(Salary::getIsSlow).or().ne(Salary::getIsSlow,YesOrNoEnum.YES.getValue()));
+            }
         }
         if(ObjectUtil.isNotEmpty(salaryPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(Salary::getIdCardNumber,AesUtil.encrypt(salaryPageParam.getSearchKey()))
@@ -122,7 +126,7 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             queryWrapper.lambda().eq(Salary::getYearMonth,param.getYearMonth());
         }
         queryWrapper.lambda().eq(Salary::getUserId, AesUtil.encrypt(StpLoginUserUtil.getLoginUser().getId()));
-        queryWrapper.lambda().ne(Salary::getIsSlow, YesOrNoEnum.YES.getValue());
+        queryWrapper.lambda().and(q->q.ne(Salary::getIsSlow, YesOrNoEnum.YES.getValue()).or().isNull(Salary::getIsSlow));
         queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
         List<Salary> result = this.list(queryWrapper);
         return AesUtil.decryptGZList(result);

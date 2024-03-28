@@ -449,6 +449,14 @@ public class ComputeUtil {
                 if (ObjectUtil.isEmpty(item.getIsTry())) {
                     item.setIsTry("否");
                 }
+                if(ObjectUtil.isEmpty(item.getIsSpec())){
+                    item.setIsSpec("否");
+                }
+            }
+            if(SalaryTypeEnum.ATTEND.getValue().equals(type)){
+                if(ObjectUtil.isEmpty(item.getIsFull())){
+                    item.setIsFull("是");
+                }
             }
             importData.add(DefaultValueUtil.defaultValues(item));
         });
