@@ -30,8 +30,8 @@ import com.dingtalk.api.response.OapiGettokenResponse;
 import com.dingtalk.api.response.OapiMessageCorpconversationAsyncsendV2Response;
 import com.dingtalk.api.response.OapiV2UserGetbymobileResponse;
 import com.taobao.api.ApiException;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
@@ -48,7 +48,6 @@ import vip.xiaonuo.dbs.core.util.BizTableCommon;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
-import vip.xiaonuo.sys.modular.hr.conference.DingDingRec.DingdingCalendarUtil;
 import vip.xiaonuo.sys.modular.hr.conference.config.entity.ConferenceConfig;
 import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataParam;
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
@@ -82,6 +81,7 @@ import java.util.stream.Collectors;
  * @date  2023/12/01 23:35
  **/
 @Service
+@Slf4j
 public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, ConferenceRez> implements ConferenceRezService {
 
     private static final String BOOK_SUCCESS = "bookSuccess";
@@ -711,6 +711,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         String roomId = ObjectUtil.isNotEmpty(bizData.get("roomId")) ? bizData.get("roomId").toString() : "";
 
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        String theme = ObjectUtil.isNotEmpty(bizData.get("title")) ? bizData.get("title").toString() : "";
+        log.info("会议主题："+theme+",预约人："+bizData.get("userName")+",eventType:"+eventType);
         switch(eventType){
             case BOOK_SUCCESS://预定会议
                 List<ConferenceRez> conferenceRezListTemp = this.list(new LambdaQueryWrapper<ConferenceRez>().eq(ConferenceRez::getEventId,bookId));
