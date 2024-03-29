@@ -264,4 +264,19 @@ public class BizTaskGroupController {
         bizTaskInfoService.editThirdWorkCore(thirdBizTaskInfoParam);
         return CommonResult.ok();
     }
+
+
+    /**
+     * 确认任务接口
+     * @author ljy
+     * @date  2024/03/29 09:40
+     */
+    @ApiOperationSupport(order = 29)
+    @ApiOperation("任务详情 - 确认任务接口")
+    @CommonLog("任务详情 - 确认任务接口")
+    @GetMapping("/biz/taskInfo/confirm")
+    public CommonResult<String> confirmTask(BizTaskInfoIdParam bizTaskInfoIdParam) {
+        bizTaskInfoService.confirmTask(bizTaskInfoIdParam);
+        return CommonResult.ok();
+    }
 }
