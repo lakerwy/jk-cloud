@@ -49,6 +49,11 @@ public class ExpenseNoticeServiceImpl extends ServiceImpl<ExpenseNoticeMapper, E
     @Resource
     private SysOrgService sysOrgService;
 
+    /**
+     * 默认 董事长办公室 组织Id
+     */
+    private static final String DSZ_BGS_ORG_ID = "1666651360364900353";
+
     @Override
     public Page<ExpenseNotice> page(ExpenseNoticePageParam expenseNoticePageParam) {
         QueryWrapper<ExpenseNotice> queryWrapper = new QueryWrapper<>();
@@ -65,7 +70,6 @@ public class ExpenseNoticeServiceImpl extends ServiceImpl<ExpenseNoticeMapper, E
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            loginUserDataScope.add("-1");
             queryWrapper.lambda().in(ExpenseNotice::getDataScopeId, loginUserDataScope);
         } else {
             queryWrapper.lambda().eq(ExpenseNotice::getCreateUser, StpUtil.getLoginIdAsString());
@@ -85,7 +89,7 @@ public class ExpenseNoticeServiceImpl extends ServiceImpl<ExpenseNoticeMapper, E
     public void add(ExpenseNoticeAddParam expenseNoticeAddParam) {
         ExpenseNotice expenseNotice = BeanUtil.toBean(expenseNoticeAddParam, ExpenseNotice.class);
         if(ObjectUtil.isEmpty(expenseNotice.getDataScopeId())){
-            expenseNotice.setDataScopeId("-1");
+            expenseNotice.setDataScopeId(DSZ_BGS_ORG_ID);
         }
         this.save(expenseNotice);
     }
@@ -135,7 +139,7 @@ public class ExpenseNoticeServiceImpl extends ServiceImpl<ExpenseNoticeMapper, E
             if(ObjectUtil.isNotEmpty(tmpOrg)){
                 addParam.setDataScopeId(tmpOrg.getId());
             }else {
-                addParam.setDataScopeId("-1");
+                addParam.setDataScopeId(DSZ_BGS_ORG_ID);
                 addParam.setMemo("经营单位与组织架构不匹配");
             }
         }
