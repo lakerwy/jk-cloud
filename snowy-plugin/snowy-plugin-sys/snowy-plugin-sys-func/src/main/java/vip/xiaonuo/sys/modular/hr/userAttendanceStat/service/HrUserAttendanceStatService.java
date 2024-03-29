@@ -14,11 +14,11 @@ package vip.xiaonuo.sys.modular.hr.userAttendanceStat.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.sys.modular.hr.atdData.entity.OriginalAtdData;
-import vip.xiaonuo.sys.modular.hr.userAttendance.entity.HrUserAttendance;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendancePageParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceConfigEntity;
-import vip.xiaonuo.sys.modular.hr.userAttendance.vo.UserAttendanceCountEntity;
+import vip.xiaonuo.sys.modular.hr.jkAttendance.entity.HrUserAttendance;
+import vip.xiaonuo.sys.modular.hr.jkAttendance.entity.OriginalAtdData;
+import vip.xiaonuo.sys.modular.hr.jkAttendance.param.HrUserAttendancePageParam;
+import vip.xiaonuo.sys.modular.hr.jkAttendance.vo.UserAttendanceConfigEntity;
+import vip.xiaonuo.sys.modular.hr.jkAttendance.vo.UserAttendanceCountEntity;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.entity.HrUserAttendanceStat;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.param.*;
 import vip.xiaonuo.sys.modular.hr.userAttendanceStat.vo.*;

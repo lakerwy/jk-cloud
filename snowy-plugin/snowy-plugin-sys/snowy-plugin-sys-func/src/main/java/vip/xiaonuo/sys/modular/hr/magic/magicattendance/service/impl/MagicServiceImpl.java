@@ -26,6 +26,8 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.enums.DevFileEngineTypeEnum;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
+import vip.xiaonuo.sys.modular.hr.jkAttendance.param.HrUserAttendanceAddParam;
+import vip.xiaonuo.sys.modular.hr.jkAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.hr.magic.magicAttendanceCallback.entity.HrMagicAttendanceCallback;
 import vip.xiaonuo.sys.modular.hr.magic.magicAttendanceCallback.service.HrMagicAttendanceCallbackService;
 import vip.xiaonuo.sys.modular.hr.magic.magicConfig.entity.HrMagicConfig;
@@ -37,8 +39,6 @@ import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicCallback;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicMemberParam;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.param.MagicResult;
 import vip.xiaonuo.sys.modular.hr.magic.magicattendance.service.MagicService;
-import vip.xiaonuo.sys.modular.hr.userAttendance.param.HrUserAttendanceAddParam;
-import vip.xiaonuo.sys.modular.hr.userAttendance.service.HrUserAttendanceService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 

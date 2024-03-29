@@ -12,12 +12,10 @@ import vip.xiaonuo.sys.modular.hr.conference.rez.param.RuanLianParam;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.RuanLianApiService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.util.HttpUtil;
-import vip.xiaonuo.sys.modular.hr.userAttendance.vo.AttendanceTimeSlot;
 
 import javax.annotation.Resource;
 import java.io.IOException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;

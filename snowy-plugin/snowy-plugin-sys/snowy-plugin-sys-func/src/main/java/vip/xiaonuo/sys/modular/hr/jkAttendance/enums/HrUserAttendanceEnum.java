@@ -1,0 +1,46 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.sys.modular.hr.jkAttendance.enums;
+
+import lombok.Getter;
+
+/**
+ * 打卡记录表枚举
+ *
+ * @author ljy
+ * @date  2023/09/07 14:24
+ **/
+@Getter
+public enum HrUserAttendanceEnum {
+
+    ATTENDANCE_OFF_DUTY("OffDuty"),//下班
+    ATTENDANCE_ON_DUTY("OnDuty"),// 上班
+    ATTENDANCE_REST("REST"),// 休息
+    ATTENDANCE_ABNORMAL("-1"), //打卡异常
+    ATTENDANCE_NORMAL("1"), //正常
+    ATTENDANCE_LATE("2"), //迟到
+    ATTENDANCE_LEAVE_EARLY("3"),//早退
+    ATTENDANCE_DUTY_TYPE("dutyType"),
+    ATTENDANCE_TYPE_NAME("attendanceTypeName"),
+    ATTENDANCE_CHECK_TIME("checkTime"),
+    ATTENDANCE_BEGINMINTIME("beginMinTime"),
+    ATTENDANCE_ENDMINTIME("endMinTime"),
+    ORG_TYPE("1"),//部门
+    USER_TYPE("2");//人员
+
+    private final String value;
+
+    HrUserAttendanceEnum(String value) {
+        this.value = value;
+    }
+}
