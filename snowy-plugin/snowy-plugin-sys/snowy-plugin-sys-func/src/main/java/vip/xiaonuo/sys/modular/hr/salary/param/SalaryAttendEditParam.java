@@ -128,4 +128,11 @@ public class SalaryAttendEditParam {
     @ApiModelProperty(value = "留痕备注", position = 100)
     private String note;
 
+    /** 实扣-未打卡（上班） */
+    @ApiModelProperty(value = "实扣-未打卡（上班）", position = 122)
+    private Integer realUpMissNum;
+
+    /** 实扣-未打卡（下班） */
+    @ApiModelProperty(value = "实扣-未打卡（下班）", position = 123)
+    private Integer realDownMissNum;
 }

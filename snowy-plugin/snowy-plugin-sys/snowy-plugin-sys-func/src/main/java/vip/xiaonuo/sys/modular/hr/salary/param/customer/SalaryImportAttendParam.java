@@ -130,4 +130,11 @@ public class SalaryImportAttendParam {
     @ApiModelProperty(value = "所属公司【月度工资标准-所属公司|工资发放公司，便于区分是那个人】", position = 1)
     private String company;
 
+    /** 实扣-未打卡（上班） */
+    @ApiModelProperty(value = "实扣-未打卡（上班）", position = 122)
+    private Integer realUpMissNum;
+
+    /** 实扣-未打卡（下班） */
+    @ApiModelProperty(value = "实扣-未打卡（下班）", position = 123)
+    private Integer realDownMissNum;
 }

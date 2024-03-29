@@ -191,7 +191,7 @@ public class ComputeUtil {
          * 事假
          * 2天以内的事假扣款=月工资标准/21.75*事假天数
          * 超过2天的事假扣款=月工资标准/21.75*事假天数*2+月工资标准/21.75*（事假天数-2）*1.2
-         * 未打卡按事假扣款=月工资标准/21.75*（上班+下班未打卡次数）/2
+         * 未打卡按事假扣款=月工资标准/21.75*（实扣上班+实扣下班未打卡次数）/2
          * 扣款=事假扣款+未打卡事假扣款
          *
          */
@@ -211,7 +211,7 @@ public class ComputeUtil {
                                  .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP));
         }
         BigDecimal noWorkAmount = salaryVo.getStandardAmount()
-                .multiply(BigDecimal.valueOf((attend.getUpMissNum()+attend.getDownMissNum())/FLOAT_2))
+                .multiply(BigDecimal.valueOf((attend.getRealUpMissNum()+attend.getRealDownMissNum())/FLOAT_2))
                 .divide(BIG_DECIMAL_2175,6,RoundingMode.HALF_UP);
         BigDecimal tmpTotalWorkAmount = workAmount.add(noWorkAmount);
         BigDecimal totalWorkAmount = tmpTotalWorkAmount.compareTo(salaryVo.getStandardAmount()) > 0 ? salaryVo.getStandardAmount() : tmpTotalWorkAmount;
