@@ -84,6 +84,9 @@ public class ExpenseNoticeServiceImpl extends ServiceImpl<ExpenseNoticeMapper, E
     @Override
     public void add(ExpenseNoticeAddParam expenseNoticeAddParam) {
         ExpenseNotice expenseNotice = BeanUtil.toBean(expenseNoticeAddParam, ExpenseNotice.class);
+        if(ObjectUtil.isEmpty(expenseNotice.getDataScopeId())){
+            expenseNotice.setDataScopeId("-1");
+        }
         this.save(expenseNotice);
     }
 
