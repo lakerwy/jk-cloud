@@ -17,7 +17,6 @@ import org.springframework.context.ApplicationListener;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.config.service.DevConfigService;
-import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
@@ -40,6 +39,9 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
     @Value("${dingtalkstream.clientSecret}")
     private String clientSecret;
 
+    @Value("${dingtalkstream.enable}")
+    private Boolean enable;
+
     @Resource
     ConferenceRezService conferenceRezService;
     @Resource
@@ -55,33 +57,30 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
      * */
     @Override
     public void onApplicationEvent(ApplicationReadyEvent event) {
-        String dingTalkTrue = devConfigService.getValueByKey(InitConfConstant.CONFERENCE_REZ_DING_TALK);
-        Boolean enable = StringUtils.isNotEmpty(dingTalkTrue) && dingTalkTrue.equals("1") ? true : false;
-        try{
-            OpenDingTalkStreamClientBuilder.custom()
-                    .credential(new AuthClientCredential(clientId, clientSecret))
-                    .registerAllEventListener(new GenericEventListener() {//注册事件监听
-                        public EventAckStatus onEvent(GenericOpenDingTalkEvent event) {
-                            if(enable){
-                                try {
-                                    String eventType = event.getEventType();//事件类型
-                                    log.info("ding-eventType:"+eventType);
-                                    if(MEETING_BOOK.equals(eventType)){
-                                        JSONObject bizData = event.getData();//获取事件体
-                                        bizData = getRecPart(bizData);
-                                        conferenceRezService.process(bizData, ObjectUtil.isNotEmpty(bizData.get("bookId")) ? bizData.get("bookId").toString() : "");//处理事件
+        if(enable){
+            try{
+                OpenDingTalkStreamClientBuilder.custom()
+                        .credential(new AuthClientCredential(clientId, clientSecret))
+                        .registerAllEventListener(new GenericEventListener() {//注册事件监听
+                            public EventAckStatus onEvent(GenericOpenDingTalkEvent event) {
+                                    try {
+                                        String eventType = event.getEventType();//事件类型
+                                        log.info("ding-eventType:"+eventType);
+                                        if(MEETING_BOOK.equals(eventType)){
+                                            JSONObject bizData = event.getData();//获取事件体
+                                            bizData = getRecPart(bizData);
+                                            conferenceRezService.process(bizData, ObjectUtil.isNotEmpty(bizData.get("bookId")) ? bizData.get("bookId").toString() : "");//处理事件
+                                        }
+                                    } catch (Exception e) {
+                                        log.error("获取钉钉预约会议数据失败！e:"+e.getMessage());
+                                        return EventAckStatus.LATER;//消费失败
                                     }
-                                } catch (Exception e) {
-                                    log.error("获取钉钉预约会议数据失败！e:"+e.getMessage());
-                                    return EventAckStatus.LATER;//消费失败
-                                }
-                                return EventAckStatus.SUCCESS;//消费成功
+                                    return EventAckStatus.SUCCESS;//消费成功
                             }
-                            return EventAckStatus.LATER;//消费失败
-                        }
-                    }).build().start();
-        }catch (Exception e){
-            log.error("获取OpenDingTalkStream失败！");
+                        }).build().start();
+            }catch (Exception e){
+                log.error("获取OpenDingTalkStream失败！");
+            }
         }
     }
 
