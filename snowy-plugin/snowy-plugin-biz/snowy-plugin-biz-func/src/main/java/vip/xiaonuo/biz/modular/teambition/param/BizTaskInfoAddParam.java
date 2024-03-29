@@ -88,7 +88,11 @@ public class BizTaskInfoAddParam {
     @ApiModelProperty(value = "任务执行者部门", position = 17)
     private String belongerOrg;
 
-    /** 负责人ID */
-    @ApiModelProperty(value = "负责人ID", position = 18)
+    /** 责任人ID */
+    @ApiModelProperty(value = "责任人ID", position = 18)
     private String leadId;
+
+    /** 责任人部门 */
+    @ApiModelProperty(value = "责任部门", position = 19)
+    private String leadOrg;
 }
