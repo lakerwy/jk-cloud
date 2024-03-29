@@ -153,8 +153,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             queryWrapper.lambda().orderByAsc(ConferenceRez::getId);
         }
         Page<ConferenceRez> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        userSign(page);
-        outSideUserSign(page);
+        //userSign(page);
+        //outSideUserSign(page);
         return page;
     }
     //返回公司人员签到列表
