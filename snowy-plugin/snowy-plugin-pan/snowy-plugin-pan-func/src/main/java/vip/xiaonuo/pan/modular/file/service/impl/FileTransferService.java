@@ -301,11 +301,11 @@ public class FileTransferService implements IFileTransferService {
                     }
                 }
 
-
+                String stpUserId =  StpLoginUserUtil.getLoginUser().getId();
                 if (relativePath.contains("/")) {
                     CommonFile finalCommonFile = commonFile;
                     exec.execute(() -> {
-                        fileDealComp.restoreParentFilePath(finalCommonFile, StpLoginUserUtil.getLoginUser().getId());
+                        fileDealComp.restoreParentFilePath(finalCommonFile, /*StpLoginUserUtil.getLoginUser().getId()*/stpUserId);
                         //需要更新下 userFile 的parentId
                     });
 

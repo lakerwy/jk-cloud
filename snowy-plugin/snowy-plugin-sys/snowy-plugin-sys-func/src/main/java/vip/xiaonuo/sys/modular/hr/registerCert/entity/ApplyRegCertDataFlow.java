@@ -86,19 +86,19 @@ public class ApplyRegCertDataFlow {
     @ApiModelProperty(value = "身份证号", position = 12)
     private String idCardNumber;
 
-    @ApiModelProperty(value = "注册补贴-基本信息",required = true)
+    @ApiModelProperty(value = "注册补贴-基本信息")
     @TableField(exist = false)
     private RegAlwUser regAlwUser;
 
-    @ApiModelProperty(value = "注册补贴-申请信息",required = true)
+    @ApiModelProperty(value = "注册补贴-申请信息")
     @TableField(exist = false)
     private List<ApplyRegCertData> applyRegCertDataList;
 
-    @ApiModelProperty(value = "注册补贴-已有证书",required = true)
+    @ApiModelProperty(value = "注册补贴-已有证书")
     @TableField(exist = false)
     private List<RegCertData> regCertDataList;
 
-    @ApiModelProperty(value = "注册补贴-注册执业资格证书",required = true)
+    @ApiModelProperty(value = "注册补贴-注册执业资格证书")
     @TableField(exist = false)
     private List<RegCertStatusData> regCertStatusDataList;
 }
