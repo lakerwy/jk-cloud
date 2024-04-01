@@ -186,6 +186,15 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
                 queryWrapper.isNull("a.ID");
             }
         }
+        //若筛选（已评分|未评分）
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getIsScore())){
+            //筛选是否已评分
+            if("1".equals(bizEmpTaskFlwPageParam.getIsScore())){
+                queryWrapper.isNotNull("b.ID");
+            }else{
+                queryWrapper.isNull("b.ID");
+            }
+        }
         //若筛选流程审批状态
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getStatus())){
             queryWrapper.eq("a.STATUS",bizEmpTaskFlwPageParam.getStatus());

@@ -75,4 +75,8 @@ public class BizEmpTaskFlwPageParam {
     /**一级部门id*/
     @ApiModelProperty(value = "一级部门Id", position = 15)
     private String firstOrgId;
+
+    /** 是否已评分 1: 已评分  2：未评分 */
+    @ApiModelProperty(value = "是否已评分 1: 已评分  2：未评分", position = 8)
+    private String IsScore;
 }
