@@ -15,7 +15,7 @@
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo" >
         select a.*, c.`YEAR_MONTH` as yearMonth,c.ID_CARD_NUMBER as idCardNumber,c.USER_NAME as userName,
-               c.FIRST_ORG_NAME as firstOrgName,c.ORG_NAME as orgName,c.COMPANY as company
+               c.FIRST_ORG_NAME as firstOrgName,c.ORG_NAME as orgName,c.COMPANY as company,c.POSITION
         from HR_SALARY_ADD_RECORD a
                  left join HR_SALARY_ADD b on a.ADD_ID = b.ID
                  left join HR_SALARY_STANDARD c on b.STANDARD_ID = c.ID
@@ -24,7 +24,7 @@
 
     <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo" >
         select a.*, c.`YEAR_MONTH` as yearMonth,c.ID_CARD_NUMBER as idCardNumber,c.USER_NAME as userName,
-               c.FIRST_ORG_NAME as firstOrgName,c.ORG_NAME as orgName,c.COMPANY as company
+               c.FIRST_ORG_NAME as firstOrgName,c.ORG_NAME as orgName,c.COMPANY as company,c.POSITION
         from HR_SALARY_ADD_RECORD a
                  left join HR_SALARY_ADD b on a.ADD_ID = b.ID
                  left join HR_SALARY_STANDARD c on b.STANDARD_ID = c.ID

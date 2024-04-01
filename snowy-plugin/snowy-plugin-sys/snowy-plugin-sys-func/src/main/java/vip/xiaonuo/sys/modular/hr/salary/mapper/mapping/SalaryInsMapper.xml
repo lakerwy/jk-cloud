@@ -4,7 +4,7 @@
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryInsVo" >
         select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,
-               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.COMPANY as company
+               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.COMPANY as company,b.POSITION
         from HR_SALARY_INS a
                  left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
             ${ew.customSqlSegment}
@@ -12,7 +12,7 @@
 
     <select id="getDetailById" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryInsVo" >
         select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,
-               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.COMPANY as company
+               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.COMPANY as company,b.POSITION
         from HR_SALARY_INS a
                  left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
         where a.ID = #{id}

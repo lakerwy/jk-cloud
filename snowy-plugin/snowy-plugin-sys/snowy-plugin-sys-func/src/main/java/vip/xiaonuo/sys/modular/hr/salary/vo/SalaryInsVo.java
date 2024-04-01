@@ -36,4 +36,8 @@ public class SalaryInsVo extends SalaryIns {
     /** 所属公司 */
     @ApiModelProperty(value = "所属公司", position = 1)
     private String company;
+
+    /** 职位 */
+    @ApiModelProperty(value = "职位", position = 107)
+    private String position;
 }
