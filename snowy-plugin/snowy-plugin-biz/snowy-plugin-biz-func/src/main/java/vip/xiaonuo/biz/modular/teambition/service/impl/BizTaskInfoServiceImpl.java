@@ -277,6 +277,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         generateNo();//系统编号
         bizTaskInfo.setSn(commonCacheOperator.get(TaskConfConstant.TASK_NO_KEY).toString());
         this.save(bizTaskInfo);
+        asyCreateSchedule(bizTaskInfo);
         sendAddMsg(bizTaskInfo);
     }
 
