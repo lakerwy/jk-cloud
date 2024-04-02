@@ -140,7 +140,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             queryWrapper.lambda().gt(ConferenceRez::getBeginTime, conferenceRezPageParam.getBeginTime());
         }
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getEndTime())) {
-            queryWrapper.lambda().lt(ConferenceRez::getSn, conferenceRezPageParam.getSn());
+            queryWrapper.lambda().lt(ConferenceRez::getEndTime, conferenceRezPageParam.getEndTime());
         }
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getSearchKey())){
             queryWrapper.lambda().like(ConferenceRez::getTheme,conferenceRezPageParam.getSearchKey());
