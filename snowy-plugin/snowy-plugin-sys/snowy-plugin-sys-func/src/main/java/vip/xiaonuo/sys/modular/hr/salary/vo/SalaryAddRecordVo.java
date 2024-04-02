@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAddRecord;
 
-import java.math.BigDecimal;
 
 /**
  * 嘉奖扣除记录详情

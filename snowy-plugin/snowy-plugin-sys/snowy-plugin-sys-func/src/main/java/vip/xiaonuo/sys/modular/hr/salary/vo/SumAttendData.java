@@ -1,14 +1,10 @@
 package vip.xiaonuo.sys.modular.hr.salary.vo;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
 
 import java.math.BigDecimal;
-import java.util.Date;
 
 /**
  * 考勤 - 病假|全勤|迟到|矿工|产假|事假

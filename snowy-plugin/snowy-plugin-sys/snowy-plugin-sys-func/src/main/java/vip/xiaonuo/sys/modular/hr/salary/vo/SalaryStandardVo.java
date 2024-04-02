@@ -1,6 +1,5 @@
 package vip.xiaonuo.sys.modular.hr.salary.vo;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

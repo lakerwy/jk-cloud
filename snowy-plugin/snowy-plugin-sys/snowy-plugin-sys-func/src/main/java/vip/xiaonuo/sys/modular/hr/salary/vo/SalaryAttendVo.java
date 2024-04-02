@@ -7,7 +7,6 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
 
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
