@@ -24,7 +24,11 @@
 
     <select id="getSaleBillPage" resultType="vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillVo">
         select a.*,
-               b.SN as sn,b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,b.STATUS as status
+               b.SN as sn,b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,b.STATUS as status,
+               b.APPLY_UNIT as applyUnit,b.BILL_UNIT as billUnit,b.HT_PROJECT_NAME as htProjectName,b.FP_TYPE as fpType,
+               b.HT_CONTRACT_NO as htContractNo,b.HT_CONTRACT_AMOUNT as htContractAmount,b.HT_COUNTERPARTY as htCounterparty,
+               b.PURCHASER as purchaser,b.HT_COMPANY_OR_DEPARTMENT as htCompanyOrDepartment,b.APPLY_NAME as applyName,
+               b.GATHER_TYPE as gatherType,b.TAX_DIFF_RATE as taxDiffRate,b.YS_TAX_DIFF as ysTaxDiff,b.OTHER_MEMO as otherMemo
         from BIZ_INVOICE_SALE_BILL a
                  join BIZ_INVOICE_SALE b on a.INVOICE_SALE_ID = b.ID
             ${ew.customSqlSegment}

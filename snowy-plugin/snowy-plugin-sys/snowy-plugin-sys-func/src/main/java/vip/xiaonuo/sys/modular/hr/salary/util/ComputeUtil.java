@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -101,48 +100,55 @@ public class ComputeUtil {
 
 
     /**
-     * 根据 转正日期，计算工龄工资
+     * 根据 转正日期，计算yyyyMM的工龄工资(数据源获取的是转正日期在本月末之前)
      *
      * 从转正时间起算，每满一年增加50元工龄工资，500元封顶，工龄工资按月发放
      * 新增工龄在每月15日（含）前满工龄期的，当月增加50元工龄工资
      * 在16日(含）之后满工龄期的当月增加25元工龄工资，次月调整为50元
      *
+     * @param currentYearMonth 当前年月
      * @param positiveTime 转正日期
      * @return
      */
-    public static SalarySeniorityVo seniorityGZ(Date positiveTime){
+    public static SalarySeniorityVo seniorityGZ(String currentYearMonth,Date positiveTime){
         SalarySeniorityVo salarySeniorityVo = new SalarySeniorityVo();
         //工龄工资
         BigDecimal seniorityPay = BIG_DECIMAL_0;
-
-        // 获取当前日期
-        LocalDate currentDate = LocalDate.now();
-        // 设置月份保持不变，日为15号
-        LocalDate fifteenthOfMonth = currentDate.withDayOfMonth(INT_15);
-        // 获取当前月份的最后一天
-        LocalDate lastDayOfMonth = currentDate.with(TemporalAdjusters.lastDayOfMonth());
         // 转正日期
         LocalDate positiveDate = LocalDate.parse(DateUtil.formatDate(positiveTime));
+
+        // 创建格式器
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+        // 当前年月2024-01
+        YearMonth currentYM = YearMonth.parse(currentYearMonth,formatter);
+        // 获取当前月份15号
+        LocalDate fifteenthOfMonth = currentYM.atDay(INT_15);
+        // 获取当前月份的最后一天
+        LocalDate lastDayOfMonth = currentYM.atEndOfMonth();
 
         //计算时间差（转正日期|本月15号 与 转正日期|本月最后一天 计算）
         Period fifteenthPeriod = Period.between(positiveDate,fifteenthOfMonth);
         Period lastPeriod = Period.between(positiveDate,lastDayOfMonth);
-        // 本月15号来看，工龄满几年
-        int yearsOfFifteenthPeriod = fifteenthPeriod.getYears();
-        // 本月最后一天来看，工龄满几年
-        int yearsOfLastPeriod = lastPeriod.getYears();
 
-        // 计算满整年的情况(15号前满一年)
-        seniorityPay = seniorityPay.add(BIG_DECIMAL_50.multiply(BigDecimal.valueOf(yearsOfFifteenthPeriod)));
-        //两者年不相等，说明是在15号后满一年的，加25
-        if(yearsOfLastPeriod != yearsOfFifteenthPeriod){
-            seniorityPay = seniorityPay.add(BIG_DECIMAL_25);
+        /**
+         * 转正日期 在 fifteenthOfMonth 前才计算工龄工资【转正日期在当月，且在15号后，不用计算，为0】
+         */
+        if(fifteenthOfMonth.isAfter(positiveDate)) {
+            // 本月15号来看，工龄满几年
+            int yearsOfFifteenthPeriod = fifteenthPeriod.getYears();
+            // 本月最后一天来看，工龄满几年
+            int yearsOfLastPeriod = lastPeriod.getYears();
+            // 计算满整年的情况(15号前满一年)
+            seniorityPay = seniorityPay.add(BIG_DECIMAL_50.multiply(BigDecimal.valueOf(yearsOfFifteenthPeriod)));
+            //两者年不相等，说明是在15号后满一年的，加25
+            if (yearsOfLastPeriod != yearsOfFifteenthPeriod) {
+                seniorityPay = seniorityPay.add(BIG_DECIMAL_25);
+            }
+            // 考虑到500元封顶
+            if (seniorityPay.compareTo(BIG_DECIMAL_500) > 0) {
+                seniorityPay = BIG_DECIMAL_500;
+            }
         }
-        // 考虑到500元封顶
-        if(seniorityPay.compareTo(BIG_DECIMAL_500)>0){
-            seniorityPay = BIG_DECIMAL_500;
-        }
-
         salarySeniorityVo.setAmount(seniorityPay);
         salarySeniorityVo.setPositiveAge((lastPeriod.getYears() + "年" + lastPeriod.getMonths() + "月" + lastPeriod.getDays() + "日").replaceAll("-",""));
         salarySeniorityVo.setMemo("工龄：转正日期至本月末");
@@ -151,16 +157,27 @@ public class ComputeUtil {
 
 
     /**
-     * 根据 生日日期，计算生日福利(数据源获取的是生日为当前月)
+     * 根据 生日日期，计算生日福利(数据源获取的是生日为当前月，转正日期在本月末之前)
      *
-     * 转正员工享有，目前标准为200元/人，根据花名册自动生成月度生日福利表格，可导出
-     * 生日福利在工资发放公司（实发工资非零的公司）的下月工资表中合并计税
+     * 转正员工享有，目前标准为200元/人
      *
-     * @param birthday
+     * 1、当月生日，如还在试用期，则没有生日福利；
+     * 2、当月生日，当月转正的情形，转正日期在生日日期之前，则有生日福利，转正日期在生日日期之后，则没有。
+     *
+     * @param currentYearMonth 当前年月
+     * @param positiveTime 转正日期
+     * @param birthday 生日日期
      * @return
      */
-    public static BigDecimal birthdayGZ(Date birthday) {
-        return BIG_DECIMAL_200;
+    public static BigDecimal birthdayGZ(String currentYearMonth,Date positiveTime,Date birthday) {
+        // 生日福利
+        BigDecimal birthDayPay = BIG_DECIMAL_200;
+        // 转正日期是当前年月yyyyMM,则判断 转正日期的月日和生日月日
+        String positiveYM = DateUtil.format(positiveTime,DateTimeFormatter.ofPattern("yyyyMM"));
+        if(currentYearMonth.equals(positiveYM) && DateUtil.dayOfMonth(positiveTime) > DateUtil.dayOfMonth(birthday)){
+            birthDayPay = BIG_DECIMAL_0;
+        }
+        return birthDayPay;
     }
 
 
@@ -389,6 +406,22 @@ public class ComputeUtil {
         YearMonth previousYM = currentYM.minusMonths(1);
         String previousYearMonth = previousYM.format(formatter);
         return previousYearMonth;
+    }
+
+    /**
+     * 根据yyyyMM获取当前年月最后一天
+     *
+     * @param currentYearMonth 当前年月 yyyyMM 202401
+     * @return 2024-01-31
+     */
+    public static String getLastDayOfYM(String currentYearMonth){
+        // 创建格式器
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+        // 当前年月2024-01
+        YearMonth currentYM = YearMonth.parse(currentYearMonth,formatter);
+        // 当月最后一天
+        String lastDayOfYM = currentYM.atEndOfMonth().format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        return lastDayOfYM;
     }
 
 

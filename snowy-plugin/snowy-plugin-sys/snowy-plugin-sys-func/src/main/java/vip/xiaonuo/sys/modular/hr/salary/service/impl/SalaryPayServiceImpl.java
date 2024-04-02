@@ -175,8 +175,10 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
     public void computeSeniorityGZ(String yearMonth) {
         //获取当前年月  格式化当前日期的年月部分
         String payType = SalaryTypeEnum.SENIORITY.getValue();
+        //【转正日期 - 截止日为本月末】
+        String lastDayOfYM = ComputeUtil.getLastDayOfYM(yearMonth);
         //条件：(框定计算工龄工资的人员范围),且当月无记录
-        List<SalaryStandardVo> personnelList = salaryPayMapper.getSeniorityPersonnel(payType, yearMonth);
+        List<SalaryStandardVo> personnelList = salaryPayMapper.getSeniorityPersonnel(payType, yearMonth,lastDayOfYM);
         if(CollUtil.isNotEmpty(personnelList)){
             List<SalaryPay> addList = new ArrayList<>();
             personnelList.forEach(item->{
@@ -184,7 +186,7 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
                 addParam.setType(payType);
                 addParam.setStandardId(item.getId());
                 addParam.setUnitName(item.getCompany());  //默认 工资发放公司
-                SalarySeniorityVo salarySeniorityVo = ComputeUtil.seniorityGZ(item.getPositiveTime());
+                SalarySeniorityVo salarySeniorityVo = ComputeUtil.seniorityGZ(yearMonth,item.getPositiveTime());
                 addParam.setAmount(salarySeniorityVo.getAmount());
                 addParam.setPositiveAge(salarySeniorityVo.getPositiveAge());
                 addParam.setMemo("记录生成时间："+ DateUtil.now().toString()+"，"+salarySeniorityVo.getMemo()+"，转正日期："+ DateUtil.formatDate(item.getPositiveTime()));
@@ -205,8 +207,10 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
         String itemType = SalaryTypeEnum.BIRTHDAY.getValue();
         YearMonth tmpYM = YearMonth.parse(yearMonth, DateTimeFormatter.ofPattern("yyyyMM"));
         int month = tmpYM.getMonthValue();
+        //【转正日期 - 截止日为本月末】
+        String lastDayOfYM = ComputeUtil.getLastDayOfYM(yearMonth);
         //条件：出生日期为当前月(框定计算生日福利的人员范围),且当月无记录
-        List<SalaryStandardVo> personnelList = salaryPayMapper.getBirthdayPersonnel(payType,itemType, yearMonth, month);
+        List<SalaryStandardVo> personnelList = salaryPayMapper.getBirthdayPersonnel(payType,itemType, yearMonth, month,lastDayOfYM);
         if(CollUtil.isNotEmpty(personnelList)){
             List<SalaryPay> addList = new ArrayList<>();
             personnelList.forEach(item->{
@@ -215,8 +219,8 @@ public class SalaryPayServiceImpl extends ServiceImpl<SalaryPayMapper, SalaryPay
                 addParam.setItemType(itemType);
                 addParam.setStandardId(item.getId());
                 addParam.setUnitName(item.getCompany());  //默认 工资发放公司
-                addParam.setAmount(ComputeUtil.birthdayGZ(item.getBirthDay()));
-                addParam.setMemo("记录生成时间："+DateUtil.now().toString()+"，生日日期是："+DateUtil.formatDate(item.getBirthDay()));
+                addParam.setAmount(ComputeUtil.birthdayGZ(yearMonth,item.getPositiveTime(),item.getBirthDay()));
+                addParam.setMemo("记录生成时间："+DateUtil.now().toString()+"，生日日期是："+DateUtil.formatDate(item.getBirthDay())+"，转正日期是："+ DateUtil.formatDate(item.getPositiveTime()));
                 addList.add(addParam);
             });
             this.saveBatch(addList);

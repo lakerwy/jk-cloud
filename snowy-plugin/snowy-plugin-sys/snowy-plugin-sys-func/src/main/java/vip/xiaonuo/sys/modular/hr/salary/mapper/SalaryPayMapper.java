@@ -35,9 +35,10 @@ public interface SalaryPayMapper extends BaseMapper<SalaryPay> {
      * 根据 类别：工龄工资  年月 获取本次需要增加的工龄工资人员
      * @param payType 工龄工资
      * @param yearMonth 当前年月
+     * @param endDay 转正日期 截止点
      * @return
      */
-    List<SalaryStandardVo> getSeniorityPersonnel(String payType, String yearMonth);
+    List<SalaryStandardVo> getSeniorityPersonnel(String payType, String yearMonth,String endDay);
 
     /**
      * 根据 类别：生日福利  年月  月份 获取本月需要增加的生日福利人员
@@ -45,9 +46,10 @@ public interface SalaryPayMapper extends BaseMapper<SalaryPay> {
      * @param itemType 生日福利
      * @param yearMonth 当前年月
      * @param month 当前月份
+     * @param endDay 转正日期 截止点
      * @return
      */
-    List<SalaryStandardVo> getBirthdayPersonnel(String payType,String itemType,String yearMonth,Integer month);
+    List<SalaryStandardVo> getBirthdayPersonnel(String payType,String itemType,String yearMonth,Integer month,String endDay);
 
     /**
      * 分页查询

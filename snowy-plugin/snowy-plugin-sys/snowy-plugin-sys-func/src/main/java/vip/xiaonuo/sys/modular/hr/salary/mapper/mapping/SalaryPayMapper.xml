@@ -6,7 +6,7 @@
         select a.*
         from HR_SALARY_STANDARD a
              left join HR_SALARY_PAY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{payType}
-        where a.DELETE_FLAG = 'NOT_DELETE' and a.`YEAR_MONTH` = #{yearMonth} and a.HAVE_SENIORITY_PAY = '是' and a.POSITIVE_TIME is not null and a.POSITIVE_TIME &lt;= NOW()
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.`YEAR_MONTH` = #{yearMonth} and a.HAVE_SENIORITY_PAY = '是' and a.POSITIVE_TIME is not null and a.POSITIVE_TIME &lt;= #{endDay}
               and b.ID is null
     </select>
 
@@ -14,7 +14,7 @@
         select a.*
         from HR_SALARY_STANDARD a
                  left join HR_SALARY_PAY b on a.ID = b.STANDARD_ID and b.DELETE_FLAG = 'NOT_DELETE' and b.TYPE = #{payType} and b.ITEM_TYPE = #{itemType}
-        where a.DELETE_FLAG = 'NOT_DELETE' and a.`YEAR_MONTH` = #{yearMonth} and a.HAVE_BIRTHDAY_PAY = '是' and a.POSITIVE_TIME is not null and a.POSITIVE_TIME &lt;= NOW() and a.BIRTH_DAY is not null and MONTH(a.BIRTH_DAY) = #{month}
+        where a.DELETE_FLAG = 'NOT_DELETE' and a.`YEAR_MONTH` = #{yearMonth} and a.HAVE_BIRTHDAY_PAY = '是' and a.POSITIVE_TIME is not null and a.POSITIVE_TIME &lt;= #{endDay} and a.BIRTH_DAY is not null and MONTH(a.BIRTH_DAY) = #{month}
           and b.ID is null
     </select>
 

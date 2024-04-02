@@ -7,7 +7,7 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 /**
- * 工龄工资：计算结果实体类型
+ * 工龄工资|生日福利：计算结果实体类型
  */
 
 
