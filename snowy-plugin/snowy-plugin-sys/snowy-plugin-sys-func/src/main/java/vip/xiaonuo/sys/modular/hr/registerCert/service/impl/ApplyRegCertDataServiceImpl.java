@@ -176,6 +176,7 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
         if(StringUtils.isNotEmpty(alwAndCertParam.getStatus())){
             personnelParam.setStatus(alwAndCertParam.getStatus());
         }
+        /** 人事档案信息 */
         List<PersonnelRegInfoVo> personnelRegInfoList = salaryStandardMapper.getPersonnelRegList(personnelParam);
         if(CollectionUtil.isEmpty(personnelRegInfoList)){return personnelRegInfoList;}
 
