@@ -1656,7 +1656,8 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Override
     public List<Map<String,String>> getAllUsers() {
-        List<SysUser> userList = this.list();
+        //List<SysUser> userList = this.list();
+        List<SysUser> userList = this.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getUserStatus,"ENABLE"));
         Set<String> orgIds = userList.stream().map(SysUser::getOrgId).collect(Collectors.toSet());
         Map<String, Object>  postionMap = getPostionData();
         for (String orgId : orgIds) {

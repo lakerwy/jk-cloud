@@ -434,6 +434,16 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<BizTaskInfoIdParam> bizTaskInfoIdParamList) {
+        List<BizTaskInfo> bizTaskInfoList = this.list(new LambdaQueryWrapper<BizTaskInfo>().in(BizTaskInfo::getId,bizTaskInfoIdParamList.stream().map(task -> task.getId()).collect(Collectors.toList())));
+        bizTaskInfoList.forEach(task -> {
+            try{
+                if(StringUtils.isNotEmpty(task.getScheduleId()) && StringUtils.isNotEmpty(task.getBelonger())){
+                    asyDeleteSchedule(task.getScheduleId(),task.getBelonger());
+                }
+            }catch (Exception e){
+                log.error("删除日常失败！e:"+e.getMessage());
+            }
+        });
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(bizTaskInfoIdParamList, BizTaskInfoIdParam::getId));
     }
