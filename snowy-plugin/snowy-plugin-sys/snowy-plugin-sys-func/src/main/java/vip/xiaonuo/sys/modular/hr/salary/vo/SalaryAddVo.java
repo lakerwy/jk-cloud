@@ -38,4 +38,9 @@ public class SalaryAddVo extends SalaryAdd {
     /** 职位 */
     @ApiModelProperty(value = "职位", position = 107)
     private String position;
+
+
+    /** copy复制数据时专用 - 旧的主键Id */
+    @ApiModelProperty(value = "copy复制数据时专用 - 旧的主键Id", position = 120)
+    private String oldAddId;
 }

@@ -22,6 +22,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo;
 
@@ -116,4 +117,10 @@ public interface SalaryPreviewService extends IService<SalaryPreview> {
      * @param fieldParam
      */
     void updateField(UpdateFieldParam fieldParam);
+
+    /**
+     * 批量更新是否缓发
+     * @param updateBatch
+     */
+    void updateIsSlow(UpdateBatch updateBatch);
 }

@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -27,19 +28,27 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAdd;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAddRecord;
+import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryAddMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
+import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 工资系统-其他费用扣加Service接口实现类
@@ -50,6 +59,8 @@ import java.util.List;
 @Service
 public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd> implements SalaryAddService {
 
+    @Resource
+    private SalaryStandardService salaryStandardService;
     @Resource
     private SalaryAddMapper salaryAddMapper;
     @Resource
@@ -148,4 +159,82 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
         }
         return salaryAdd;
     }
+
+    @Override
+    public void copy(IdsParam idsParam) {
+        List<String> copyIds = idsParam.getIds();
+        // 当前年月
+        String currentYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+        String previousYearMonth = ComputeUtil.getPreviousYM(currentYearMonth);
+
+        // 1. 获取待复制的源数据【Copy源数据】
+        QueryWrapper<SalaryAdd> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("b.`YEAR_MONTH`",previousYearMonth);
+        if(CollUtil.isNotEmpty(copyIds)){
+            queryWrapper.in("a.ID",copyIds);
+        }
+        List<SalaryAddVo> copyAddData = salaryAddMapper.getAddList(queryWrapper);
+        if(CollUtil.isEmpty(copyAddData)){
+            throw new CommonException("不存在有效{}其他费用数据，无法复制，请检查！",previousYearMonth);
+        }
+        //根据copyAddData 获取扣减详情记录
+        List<String> addIds = copyAddData.stream().map(x->x.getId()).collect(Collectors.toList());
+        List<SalaryAddRecord> copyAddRecordData = salaryAddRecordService.list(new QueryWrapper<SalaryAddRecord>().lambda().in(SalaryAddRecord::getAddId,addIds));
+
+        // 2. 获取本月的工资标准数据【Copy目标月工资标准数据】
+        List<SalaryStandard> currentStandardList = salaryStandardService.list(new QueryWrapper<SalaryStandard>().lambda().eq(SalaryStandard::getYearMonth,currentYearMonth));
+        if(CollUtil.isEmpty(currentStandardList)){
+            throw new CommonException("不存在{}月工资标准数据，无法复制，请检查！",currentYearMonth);
+        }
+
+        // 3. copy数据匹配月工资标准，并校验【copy数据匹配校验】
+        List<SalaryAddVo> newCopyAddData = BeanUtil.copyToList(copyAddData,SalaryAddVo.class);
+        newCopyAddData.forEach(item->{
+            SalaryStandard standardTmp = currentStandardList.stream().filter(x->x.getIdCardNumber().equals(item.getIdCardNumber()) && x.getCompany().equals(item.getCompany())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(standardTmp)){
+                item.setId(IdWorker.getIdStr());         //新主键Id
+                item.setStandardId(standardTmp.getId()); //新关联外键Id
+                item.setCreateTime(null);
+                item.setCreateUser(null);
+                item.setUpdateUser(null);
+                item.setUpdateTime(null);
+            }else{
+                throw new CommonException("员工未匹配到{}月工资标准数据，无法复制，请检查！",currentYearMonth);
+            }
+        });
+
+        // 4. copy数据校验是否已存在【copy数据唯一性校验】
+        QueryWrapper<SalaryAdd> oldQueryWrapper = new QueryWrapper<>();
+        oldQueryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        oldQueryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+        oldQueryWrapper.eq("b.`YEAR_MONTH`",currentYearMonth);
+        List<SalaryAddVo> oldAddData = salaryAddMapper.getAddList(oldQueryWrapper);
+        newCopyAddData.forEach(item->{
+            SalaryAddVo oldAddTmp = oldAddData.stream().filter(x->x.getStandardId().equals(item.getStandardId())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(oldAddTmp)){
+                throw new CommonException("存在员工已有{}月其他费用数据，无法复制，请检查！",currentYearMonth);
+            }
+        });
+
+        // 校验通过，准备copy数据
+        copyAddRecordData.forEach(item->{
+            SalaryAddVo newAddTmp = newCopyAddData.stream().filter(x->x.getOldAddId().equals(item.getAddId())).findFirst().orElse(null);
+            item.setAddId(newAddTmp.getId());  //复制数据，赋予新外键Id
+            item.setId(null);
+            item.setCreateTime(null);
+            item.setCreateUser(null);
+            item.setUpdateUser(null);
+            item.setUpdateTime(null);
+        });
+        if(CollUtil.isNotEmpty(newCopyAddData)){
+            List<SalaryAdd> addList = BeanUtil.copyToList(newCopyAddData,SalaryAdd.class);
+            this.saveBatch(addList);
+        }
+        if(CollUtil.isNotEmpty(copyAddRecordData)){
+            salaryAddRecordService.saveBatch(copyAddRecordData);
+        }
+    }
 }
+

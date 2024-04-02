@@ -14,11 +14,13 @@ package vip.xiaonuo.sys.modular.hr.salary.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAdd;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
 import java.util.List;
@@ -78,4 +80,9 @@ public interface SalaryAddService extends IService<SalaryAdd> {
      * @date  2024/02/26 09:23
      **/
     SalaryAdd queryEntity(String id);
+
+    /**
+     * 复制上月
+     */
+    void copy(IdsParam idsParam);
 }

@@ -33,6 +33,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPreviewService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo;
 
@@ -200,12 +201,28 @@ public class SalaryPreviewController {
      * @author yong.ye
      * @date  2024/03/22 10:26
      */
-    @ApiOperationSupport(order = 3)
+    @ApiOperationSupport(order = 23)
     @ApiOperation("标记-字段更新")
     @CommonLog("标记-字段更新")
     @PostMapping("/sys/hr/salary/preview/updateField")
     public CommonResult<String> updateField(@RequestBody @Valid UpdateFieldParam fieldParam) {
         salaryPreviewService.updateField(fieldParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 批量更新-是否缓发
+     *
+     * @author yong.ye
+     * @date  2024/03/22 10:26
+     */
+    @ApiOperationSupport(order = 24)
+    @ApiOperation("批量更新-是否缓发")
+    @CommonLog("批量更新-是否缓发")
+    @PostMapping("/sys/hr/salary/preview/updateIsSlow")
+    public CommonResult<String> updateIsSlow(@RequestBody @Valid UpdateBatch updateBatch) {
+        salaryPreviewService.updateIsSlow(updateBatch);
         return CommonResult.ok();
     }
 }

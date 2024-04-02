@@ -28,6 +28,7 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
 
@@ -102,6 +103,22 @@ public class SalaryController {
     @PostMapping("/sys/hr/salary/updateField")
     public CommonResult<String> updateField(@RequestBody @Valid UpdateFieldParam fieldParam) {
         salaryService.updateField(fieldParam);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 批量更新-是否缓发
+     *
+     * @author yong.ye
+     * @date  2024/03/22 10:26
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("批量更新-是否缓发")
+    @CommonLog("批量更新-是否缓发")
+    @PostMapping("/sys/hr/salary/updateIsSlow")
+    public CommonResult<String> updateIsSlow(@RequestBody @Valid UpdateBatch updateBatch) {
+        salaryService.updateIsSlow(updateBatch);
         return CommonResult.ok();
     }
 

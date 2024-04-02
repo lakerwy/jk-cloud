@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 
 import java.util.List;
@@ -79,4 +80,10 @@ public interface SalaryService extends IService<Salary> {
      * @param fieldParam
      */
     void updateField(UpdateFieldParam fieldParam);
+
+    /**
+     * 批量更新是否缓发
+     * @param updateBatch
+     */
+    void updateIsSlow(UpdateBatch updateBatch);
 }

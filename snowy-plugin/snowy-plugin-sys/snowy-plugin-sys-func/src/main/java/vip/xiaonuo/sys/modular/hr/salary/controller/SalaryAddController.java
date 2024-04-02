@@ -30,6 +30,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
@@ -127,5 +128,21 @@ public class SalaryAddController {
     @GetMapping("/sys/hr/salary/deduct/detail")
     public CommonResult<SalaryAddVo> detail(@Valid SalaryAddIdParam salaryAddIdParam) {
         return CommonResult.data(salaryAddService.detail(salaryAddIdParam));
+    }
+
+
+    /**
+     * 获取工资系统-其他费用扣加 - 【复制上月（可指定复制）-为空，复制全部】
+     *
+     * @author yong.ye
+     * @date  2024/04/26 09:36
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取工资系统-其他费用扣加 - 【复制上月（可指定复制）-为空，复制全部】")
+    @CommonLog("获取工资系统-其他费用扣加 - 【复制上月（可指定复制）-为空，复制全部】")
+    @PostMapping("/sys/hr/salary/deduct/copy")
+    public CommonResult<String> copy(@RequestBody @Valid IdsParam idsParam) {
+        salaryAddService.copy(idsParam);
+        return CommonResult.ok();
     }
 }

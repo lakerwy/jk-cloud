@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -30,6 +31,7 @@ import vip.xiaonuo.sys.modular.hr.salary.enums.YesOrNoEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.*;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
@@ -148,5 +150,14 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             salary.setIsSlow(fieldParam.getFieldValue());
         }
         this.updateById(salary);
+    }
+
+    @Override
+    public void updateIsSlow(UpdateBatch updateBatch) {
+        if(CollUtil.isNotEmpty(updateBatch.getIds())){
+            List<Salary> salaryList = this.list(new QueryWrapper<Salary>().lambda().in(Salary::getId,updateBatch.getIds()));
+            salaryList.forEach(x->x.setIsSlow(updateBatch.getIsSlow()));
+            this.updateBatchById(salaryList);
+        }
     }
 }

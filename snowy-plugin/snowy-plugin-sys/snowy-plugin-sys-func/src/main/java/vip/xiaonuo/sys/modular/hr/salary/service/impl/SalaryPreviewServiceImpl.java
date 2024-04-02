@@ -38,6 +38,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPreviewService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
@@ -251,6 +252,15 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
             salaryPreview.setIsSlow(fieldParam.getFieldValue());
         }
         this.updateById(salaryPreview);
+    }
+
+    @Override
+    public void updateIsSlow(UpdateBatch updateBatch) {
+        if(CollUtil.isNotEmpty(updateBatch.getIds())){
+            List<SalaryPreview> salaryPreviewList = this.list(new QueryWrapper<SalaryPreview>().lambda().in(SalaryPreview::getId,updateBatch.getIds()));
+            salaryPreviewList.forEach(x->x.setIsSlow(updateBatch.getIsSlow()));
+            this.updateBatchById(salaryPreviewList);
+        }
     }
 
 

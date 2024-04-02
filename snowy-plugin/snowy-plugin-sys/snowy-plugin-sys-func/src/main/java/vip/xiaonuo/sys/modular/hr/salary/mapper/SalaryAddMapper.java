@@ -20,6 +20,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAdd;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
+import java.util.List;
+
 /**
  * 工资系统-其他费用扣加Mapper接口
  *
@@ -42,4 +44,11 @@ public interface SalaryAddMapper extends BaseMapper<SalaryAdd> {
      * @return
      */
     SalaryAddVo getDetailById(String id);
+
+    /**
+     * 获取 其他费用 源数据
+     * @param queryWrapper
+     * @return
+     */
+    List<SalaryAddVo> getAddList(@Param(Constants.WRAPPER) Wrapper<SalaryAdd> queryWrapper);
 }
