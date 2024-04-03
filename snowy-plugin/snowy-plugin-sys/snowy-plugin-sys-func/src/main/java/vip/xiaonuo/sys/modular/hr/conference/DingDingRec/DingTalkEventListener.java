@@ -22,6 +22,7 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Component
 @Slf4j
@@ -98,8 +99,9 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
             String[] calendarIds = calendarEventIdJson.split(";");
             if(calendarIds.length <=1){return bizData;}
             List<SysUser> sysUsers = dingdingCalendarUtil.getCalendarPart(SP_UNION_ID,calendarIds[1],xAcsDingtalkAccessToken);
-            StringBuilder joinUsers = new StringBuilder();
-            sysUsers.forEach(user -> joinUsers.append(user.getId()).append(","));
+            String joinUsers = sysUsers.stream().map(SysUser::getId).collect(Collectors.joining(","));
+            //StringBuilder joinUsers = new StringBuilder();
+            //sysUsers.forEach(user -> joinUsers.append(user.getId()).append(","));
             bizData.put("joinUser",joinUsers);
             bizData.put("joinSize",sysUsers.size());
         }catch (Exception e){
