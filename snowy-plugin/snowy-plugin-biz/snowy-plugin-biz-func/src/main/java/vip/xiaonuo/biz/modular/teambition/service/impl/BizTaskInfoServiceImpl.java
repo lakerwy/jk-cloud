@@ -582,6 +582,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         }
         /** 新增 */
         if(CollectionUtil.isNotEmpty(saveWorkList)){
+            saveWorkList.forEach(work -> {initBizTaskInfo(work);});
             Boolean isSaveTrue = this.saveBatch(saveWorkList);
             if(isSaveTrue){ saveWorkList.forEach(work -> asyCreateSchedule(work)); }
         }
@@ -598,6 +599,12 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             }
         }
     }
+
+    /*private void getOrgId(List<BizTaskInfo> bizTaskInfoList){
+        List<String> userIds = new ArrayList<>();
+        bizTaskInfoList.forEach(task -> {if(StringUtils.isNotEmpty(task.getBelonger())){userIds.add(task.getBelonger());}});
+
+    }*/
 
     /**  创建日程 */
     private void asyCreateSchedule(BizTaskInfo bizTaskInfo) {
