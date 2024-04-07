@@ -1014,7 +1014,7 @@ public class NodeRuntimeUtil {
                         CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
                         boolean isTrue = ObjectUtil.isNotEmpty(commonCacheOperator.get("MULTIPLE-"+delegateTask.getId()))
                                 && commonCacheOperator.get("MULTIPLE-"+delegateTask.getId()).equals("null") ? true : false;
-                        if(participateUserIdList.size() == 1 && assignee.get(0).equals(userId) && !isTrue){
+                        if(participateUserIdList.size() == 1 && assignee.get(0).equals(userId) && isTrue){
                             commonCacheOperator.remove("MULTIPLE-"+delegateTask.getId());//删除已被用的key值
                             return;
                         }
