@@ -126,8 +126,10 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             queryWrapper.lambda().like(BizTaskInfo::getTaskName, bizTaskInfoPageParam.getTaskName());
         }
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskStartTime()) && ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskEndTime())) {
-            queryWrapper.lambda().gt(BizTaskInfo::getCreateTime, bizTaskInfoPageParam.getTaskStartTime());
-            queryWrapper.lambda().lt(BizTaskInfo::getCreateTime, bizTaskInfoPageParam.getTaskEndTime());
+            queryWrapper.lambda().gt(BizTaskInfo::getTaskStartTime, bizTaskInfoPageParam.getTaskStartTime());
+        }
+        if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getTaskEndTime())){
+            queryWrapper.lambda().lt(BizTaskInfo::getTaskEndTime, bizTaskInfoPageParam.getTaskEndTime());
         }
         if(ObjectUtil.isNotEmpty(bizTaskInfoPageParam.getProType())){
             queryWrapper.lambda().eq(BizTaskInfo::getProType,bizTaskInfoPageParam.getProType());
