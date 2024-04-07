@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.teambition.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
@@ -59,11 +61,13 @@ public class BizTaskInfoPageParam {
     private String taskName;
 
     @ApiModelProperty(value = "开始时间", position = 9)
-    //@NotNull(message = "开始时间不能为空")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String taskStartTime;
 
     @ApiModelProperty(value = "结束时间", position = 10)
-    //@NotNull(message = "结束时间不能为空")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String taskEndTime;
 
     //@ApiModelProperty(value = "任务类型：0-返回所有能查看任务，1 - 我创建的，2 - 我执行的，3 - 我参与的",required = true)

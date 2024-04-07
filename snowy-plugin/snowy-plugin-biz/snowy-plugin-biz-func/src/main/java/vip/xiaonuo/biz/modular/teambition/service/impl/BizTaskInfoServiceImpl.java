@@ -630,14 +630,13 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
 
     /** 任务确认接口 */
     @Override
-    public  void confirmTask(BizTaskInfoIdParam bizTaskInfoIdParam){
-        BizTaskInfo bizTaskInfo = this.queryEntity(bizTaskInfoIdParam.getId());
-        if(StringUtils.isNotEmpty(bizTaskInfo.getTaskStatus()) && bizTaskInfo.getTaskStatus().equals(BizTaskGroupEnum.ZRROR.getValue())){
-            /*SaBaseLoginUser saBaseLoginUser = StpLoginUserUtil.getLoginUser();
-            bizTaskInfo.setBelonger(saBaseLoginUser.getId());
-            bizTaskInfo.setBelongerOrg(saBaseLoginUser.getOrgId());*/
-            bizTaskInfo.setTaskStatus(BizTaskGroupEnum.ONE.getValue());
-            this.saveOrUpdate(bizTaskInfo);
+    public  void confirmTask(TaskInfoConfirmParam taskInfoConfirmParam){
+        BizTaskInfo bizTaskInfo = this.queryEntity(taskInfoConfirmParam.getId());
+        if(bizTaskInfo.getTaskStatus().equals(taskInfoConfirmParam.getTaskStatus()) || (StringUtils.isEmpty(taskInfoConfirmParam.getTaskStatus()))){
+            return;
         }
+
+        bizTaskInfo.setTaskStatus(taskInfoConfirmParam.getTaskStatus());
+        this.saveOrUpdate(bizTaskInfo);
     }
 }

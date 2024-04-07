@@ -91,5 +91,5 @@ public interface BizTaskInfoService extends IService<BizTaskInfo> {
     void editThirdWorkCore(ThirdBizTaskInfoParam thirdBizTaskInfoParam);
 
     /** 确认任务接口*/
-    void confirmTask(BizTaskInfoIdParam bizTaskInfoIdParam);
+    void confirmTask(TaskInfoConfirmParam taskInfoConfirmParam);
 }

@@ -275,8 +275,8 @@ public class BizTaskGroupController {
     @ApiOperation("任务详情 - 确认任务接口")
     @CommonLog("任务详情 - 确认任务接口")
     @GetMapping("/biz/taskInfo/confirm")
-    public CommonResult<String> confirmTask(BizTaskInfoIdParam bizTaskInfoIdParam) {
-        bizTaskInfoService.confirmTask(bizTaskInfoIdParam);
+    public CommonResult<String> confirmTask(TaskInfoConfirmParam taskInfoConfirmParam) {
+        bizTaskInfoService.confirmTask(taskInfoConfirmParam);
         return CommonResult.ok();
     }
 }
