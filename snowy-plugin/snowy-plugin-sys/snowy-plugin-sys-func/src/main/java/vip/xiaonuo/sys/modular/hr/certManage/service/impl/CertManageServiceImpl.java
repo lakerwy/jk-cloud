@@ -17,9 +17,11 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -31,6 +33,8 @@ import vip.xiaonuo.sys.modular.hr.certManage.mapper.CertManageMapper;
 import vip.xiaonuo.sys.modular.hr.certManage.param.*;
 import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.*;
+import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertStatusData;
+import vip.xiaonuo.sys.modular.hr.registerCert.service.RegCertStatusDataService;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -48,6 +52,8 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
 
     @Resource
     private CertManageMapper certManageMapper;
+    @Resource
+    RegCertStatusDataService regCertStatusDataService;
 
     @Override
     public Page<CertManageVo> page(CertManagePageParam certManagePageParam) {
@@ -252,7 +258,17 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         searchDetailVo.setOtherCertList(list.stream().filter(x->CertTypeEnum.OTHER.getValue().equals(x.getType())).collect(Collectors.toList()));
         UserInfo userInfo = BeanUtil.copyProperties(certManage,UserInfo.class);
         searchDetailVo.setUserInfo(userInfo);
+        getRegData(userInfo,searchDetailVo);
         return searchDetailVo;
+    }
+
+    /**  获取注册补贴信息 */
+    private void getRegData(UserInfo userInfo,SearchDetailVo searchDetailVo){
+        if(StringUtils.isEmpty(userInfo.getIdNumber())){return;}
+        List<RegCertStatusData> regCertStatusDataList = new ArrayList<>();
+        regCertStatusDataList = regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>().eq(RegCertStatusData::getIdCardNumber,userInfo.getIdNumber()));
+        if(CollUtil.isEmpty(regCertStatusDataList)){return;}
+        searchDetailVo.setRegCertStatusDataList(regCertStatusDataList);
     }
 
     @Override

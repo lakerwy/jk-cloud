@@ -4,6 +4,7 @@ package vip.xiaonuo.sys.modular.hr.certManage.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertStatusData;
 
 import java.util.List;
 
@@ -38,4 +39,9 @@ public class SearchDetailVo {
     @ApiModelProperty(value = "花名册信息", position = 4)
     public UserInfo userInfo;
 
+    /**
+     *  注册补贴信息
+     * */
+    @ApiModelProperty(value = "注册补贴信息", position = 5)
+    public List<RegCertStatusData> regCertStatusDataList;
 }

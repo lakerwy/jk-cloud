@@ -17,7 +17,6 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.extra.spring.SpringUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -27,33 +26,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.common.cache.CommonCacheOperator;
-import vip.xiaonuo.common.consts.DbTypeCacheConstant;
-import vip.xiaonuo.common.consts.FlwCacheConstant;
-import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
-import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.dbs.core.consts.DbsConstant;
-import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
 import vip.xiaonuo.sys.modular.hr.certManage.enums.CertTypeEnum;
 import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileTitle;
 import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileTitleService;
 import vip.xiaonuo.sys.modular.hr.registerCert.entity.ApplyRegCertData;
-import vip.xiaonuo.sys.modular.hr.registerCert.entity.ApplyRegCertDataFlow;
-import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegAlwUser;
-import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertData;
 import vip.xiaonuo.sys.modular.hr.registerCert.mapper.ApplyRegCertDataMapper;
 import vip.xiaonuo.sys.modular.hr.registerCert.param.*;
-import vip.xiaonuo.sys.modular.hr.registerCert.service.ApplyRegCertDataFlowService;
 import vip.xiaonuo.sys.modular.hr.registerCert.service.ApplyRegCertDataService;
-import vip.xiaonuo.sys.modular.hr.registerCert.service.RegAlwUserService;
-import vip.xiaonuo.sys.modular.hr.registerCert.service.RegCertDataService;
-import vip.xiaonuo.sys.modular.hr.registerCert.vo.RegAlwUserVo;
-import vip.xiaonuo.sys.modular.hr.registerCert.vo.RegCertDataVo;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.PersonnelParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelRegInfoVo;
@@ -78,8 +62,6 @@ import java.util.stream.Collectors;
 public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMapper, ApplyRegCertData> implements ApplyRegCertDataService {
 
     @Resource
-    CommonCacheOperator commonCacheOperator;
-    @Resource
     CertManageService certManageService;
     @Resource
     SalaryStandardMapper salaryStandardMapper;
@@ -87,12 +69,6 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
     PersonnelFileTitleService personnelFileTitleService;
     @Resource
     SubPersonnelTitleService subPersonnelTitleService;
-    @Resource
-    RegAlwUserService regAlwUserService;
-    @Resource
-    RegCertDataService regCertDataService;
-    @Resource
-    ApplyRegCertDataFlowService applyRegCertDataFlowService;
 
     @Override
     public Page<ApplyRegCertData> page(ApplyRegCertDataPageParam applyRegCertDataPageParam) {
