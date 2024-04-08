@@ -43,4 +43,8 @@ public class RegCertStatusDataVo {
     /** 身份证号 */
     /*@ApiModelProperty(value = "身份证号", position = 12)
     private String idCardNumber;*/
+
+    /** 是否审核通过 */
+    @ApiModelProperty(value = "是否审核通过， 0 未通过，1 已通过", position = 11)
+    private String isPass;
 }
