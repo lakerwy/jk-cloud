@@ -352,9 +352,9 @@ public class NodeRuntimeUtil {
                                                                     if(ObjectUtil.isNotEmpty(initiator)) {
                                                                         if (processAutoDistinctType.equals("SAMPLE")) {
                                                                             if (ObjectUtil.isNotEmpty(assignee) && assignee.equals(initiator)) {
+                                                                                /** 当审批人和发起人是同一个人，审批自动通过 */
                                                                                 CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
-                                                                                commonCacheOperator.put("MULTIPLE-"+delegateTask.getId(), "MULTIPLE");
-
+                                                                                commonCacheOperator.put("MULTIPLE-SAMPLE-"+delegateTask.getId(), "SAMPLE",5*60L);
                                                                                 // 当审批人和发起人是同一个人，审批自动通过；
                                                                                 handleUserTaskCommentAndAttachment(delegateTask.getId(),
                                                                                         delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
@@ -367,6 +367,10 @@ public class NodeRuntimeUtil {
                                                                             if (ObjectUtil.isNotEmpty(previousNodeList) && previousNodeList.size() == 1) {
                                                                                 FlowNode flowNode = previousNodeList.get(0);
                                                                                 if (flowNode.getElementType().getTypeName().equals(BpmnModelConstants.BPMN_ELEMENT_USER_TASK)) {
+                                                                                    /** 当同一审批人在流程中连续多次出现时，自动去重 */
+                                                                                    CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
+                                                                                    commonCacheOperator.put("MULTIPLE-SAMPLE-"+delegateTask.getId(), "MULTIPLE",5*60L);
+
                                                                                     // 获取上一节点的审批参与人
                                                                                     AtomicReference<String> previousParticipateInfo = new AtomicReference<>();
                                                                                     ExtensionElements previousExtensionElements = flowNode.getExtensionElements();
@@ -1008,14 +1012,15 @@ public class NodeRuntimeUtil {
                             return;
                         }
                     }*/
-                    List<String> assignee = Convert.toList(String.class, delegateTask.getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));//获取下一个审批人
-                    String userId = StpLoginUserUtil.getLoginUser().getId();//当前办理人，当前操作人
+                    //List<String> assignee = Convert.toList(String.class, delegateTask.getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey()));//获取下一个审批人
+                    //String userId = StpLoginUserUtil.getLoginUser().getId();//当前办理人，当前操作人
                     if(CollUtil.isNotEmpty(participateUserIdList)){
                         CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
-                        boolean isTrue = ObjectUtil.isNotEmpty(commonCacheOperator.get("MULTIPLE-"+delegateTask.getId()))
-                                && commonCacheOperator.get("MULTIPLE-"+delegateTask.getId()).equals("null") ? true : false;
-                        if(participateUserIdList.size() == 1 && assignee.get(0).equals(userId) && isTrue){
-                            commonCacheOperator.remove("MULTIPLE-"+delegateTask.getId());//删除已被用的key值
+                        boolean isTrue = ObjectUtil.isNotEmpty(commonCacheOperator.get("MULTIPLE-SAMPLE-"+delegateTask.getId()))
+                                && !commonCacheOperator.get("MULTIPLE-SAMPLE-"+delegateTask.getId()).equals("null")  ? true : false;
+                        //log.error("MULTIPLE-SAMPLE-"+delegateTask.getId()+":"+commonCacheOperator.get("MULTIPLE-SAMPLE-"+delegateTask.getId()));
+                        if(participateUserIdList.size() == 1 && isTrue ){
+                            commonCacheOperator.remove("MULTIPLE-SAMPLE-"+delegateTask.getId());//删除已被用的key值
                             return;
                         }
                     }
