@@ -1,0 +1,81 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.biz.modular.assets.service;
+
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.biz.modular.assets.entity.AssetsApply;
+import vip.xiaonuo.biz.modular.assets.param.AssetsApplyAddParam;
+import vip.xiaonuo.biz.modular.assets.param.AssetsApplyEditParam;
+import vip.xiaonuo.biz.modular.assets.param.AssetsApplyIdParam;
+import vip.xiaonuo.biz.modular.assets.param.AssetsApplyPageParam;
+import vip.xiaonuo.biz.modular.assets.vo.AssetsApplyVo;
+
+import java.util.List;
+
+/**
+ * 固资申购 - 申请流程Service接口
+ *
+ * @author yong.ye
+ * @date  2024/04/08 16:17
+ **/
+public interface AssetsApplyService extends IService<AssetsApply> {
+
+    /**
+     * 获取固资申购 - 申请流程分页
+     *
+     * @author yong.ye
+     * @date  2024/04/08 16:17
+     */
+    Page<AssetsApplyVo> page(AssetsApplyPageParam assetsApplyPageParam);
+
+    /**
+     * 添加固资申购 - 申请流程
+     *
+     * @author yong.ye
+     * @date  2024/04/08 16:17
+     */
+    void add(AssetsApplyAddParam assetsApplyAddParam);
+
+    /**
+     * 编辑固资申购 - 申请流程
+     *
+     * @author yong.ye
+     * @date  2024/04/08 16:17
+     */
+    void edit(AssetsApplyEditParam assetsApplyEditParam);
+
+    /**
+     * 删除固资申购 - 申请流程
+     *
+     * @author yong.ye
+     * @date  2024/04/08 16:17
+     */
+    void delete(List<AssetsApplyIdParam> assetsApplyIdParamList);
+
+    /**
+     * 获取固资申购 - 申请流程详情
+     *
+     * @author yong.ye
+     * @date  2024/04/08 16:17
+     */
+    AssetsApplyVo detail(AssetsApplyIdParam assetsApplyIdParam);
+
+    /**
+     * 获取固资申购 - 申请流程详情
+     *
+     * @author yong.ye
+     * @date  2024/04/08 16:17
+     **/
+    AssetsApply queryEntity(String id);
+}
