@@ -352,7 +352,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (!flwProcessMonitorPageParam.isCloseDate() || StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())) {
             Date startDate = ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate()) ?
                     DateUtil.parseDate(flwProcessMonitorPageParam.getStartOptDate()) :
-                    DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime());
+                    DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -1).getTime());
 
             if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getEndOptDate())) {
                 historicProcessInstanceQuery.startedAfter(startDate)
@@ -454,8 +454,8 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         }
         String deleteReasonCode;
         if(StrUtil.isNotEmpty(stateCode) && (stateCode.equals("END") || stateCode.equals("REVOKE") || stateCode.equals("REJECT"))){
-            stateCode = "EXTERNALLY_TERMINATED";
             deleteReasonCode = stateCode;
+            stateCode = "EXTERNALLY_TERMINATED";
         } else {
             deleteReasonCode = null;
         }
@@ -469,7 +469,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     return true;
                 }).filter(historicProcessInstance -> {
                     if (StrUtil.isNotEmpty(deleteReasonCode)) {
-                        return historicProcessInstance.getDeleteReason().equals(finalStateCode);
+                        return historicProcessInstance.getDeleteReason().equals(deleteReasonCode);
                     }
                     return true;
                 })
