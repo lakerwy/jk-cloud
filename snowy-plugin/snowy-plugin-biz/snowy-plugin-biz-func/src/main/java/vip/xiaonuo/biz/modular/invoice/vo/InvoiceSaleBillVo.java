@@ -33,59 +33,63 @@ public class InvoiceSaleBillVo extends InvoiceSaleBill {
     private String status;
 
 
-    /** 申请人单位：总部|分公司|零星 */
-    @ApiModelProperty(value = "申请人单位：总部|分公司|零星", position = 2)
+    /** 销售发票申请 -申请人单位：总部|分公司|零星 */
+    @ApiModelProperty(value = "销售发票申请 -申请人单位：总部|分公司|零星", position = 2)
     private String applyUnit;
 
-    /** 开票单位 */
-    @ApiModelProperty(value = "开票单位", position = 6)
+    /** 销售发票申请 -开票单位 */
+    @ApiModelProperty(value = "销售发票申请 -开票单位", position = 6)
     private String billUnit;
 
     /** 合同金额 */
     @ApiModelProperty(value = "合同金额", position = 10)
     private BigDecimal htContractAmount;
 
-    /** 合同甲方 */
-    @ApiModelProperty(value = "合同甲方", position = 11)
+    /** 销售发票申请 -合同甲方 */
+    @ApiModelProperty(value = "销售发票申请 -合同甲方", position = 11)
     private String htCounterparty;
 
-    /** 发票类型 */
-    @ApiModelProperty(value = "发票类型", position = 14)
+    /** 销售发票申请 -发票类型 */
+    @ApiModelProperty(value = "销售发票申请 -发票类型", position = 14)
     private String fpType;
 
-    /** 合同名称 */
-    @ApiModelProperty(value = "合同名称", position = 8)
+    /** 销售发票申请 -合同名称 */
+    @ApiModelProperty(value = "销售发票申请 -合同名称", position = 8)
     private String htProjectName;
 
-    /** 销售合同编号 */
-    @ApiModelProperty(value = "销售合同编号", position = 9)
+    /** 销售发票申请 -销售合同编号 */
+    @ApiModelProperty(value = "销售发票申请 -销售合同编号", position = 9)
     private String htContractNo;
 
-    /** 购买方 */
-    @ApiModelProperty(value = "购买方", position = 12)
+    /** 销售发票申请 -购买方 */
+    @ApiModelProperty(value = "销售发票申请 -购买方", position = 12)
     private String purchaser;
 
-    /** 责任部门 */
-    @ApiModelProperty(value = "责任部门", position = 12)
+    /** 销售发票申请 -责任部门 */
+    @ApiModelProperty(value = "销售发票申请 -责任部门", position = 12)
     private String htCompanyOrDepartment;
 
-    /** 申请人姓名 */
-    @ApiModelProperty(value = "申请人姓名", position = 4)
+    /** 销售发票申请 -责任人 */
+    @ApiModelProperty(value = "销售发票申请 -责任人", position = 13)
+    private String htOwner;
+
+    /** 销售发票申请 -申请人姓名 */
+    @ApiModelProperty(value = "销售发票申请 -申请人姓名", position = 4)
     private String applyName;
 
-    /** 收取方式 */
-    @ApiModelProperty(value = "收取方式", position = 35)
+    /** 销售发票申请 -收取方式 */
+    @ApiModelProperty(value = "销售发票申请 -收取方式", position = 35)
     private String gatherType;
 
-    /** 税差税率 */
-    @ApiModelProperty(value = "税差税率", position = 36)
+    /** 销售发票申请 -税差税率 */
+    @ApiModelProperty(value = "销售发票申请 -税差税率", position = 36)
     private Float taxDiffRate;
 
-    /** 本次应收税差 */
-    @ApiModelProperty(value = "本次应收税差", position = 32)
+    /** 销售发票申请 -本次应收税差 */
+    @ApiModelProperty(value = "销售发票申请 -本次应收税差", position = 32)
     private BigDecimal ysTaxDiff;
 
-    /** 其他说明事项 */
-    @ApiModelProperty(value = "其他说明事项", position = 37)
+    /** 销售发票申请 -其他说明事项 */
+    @ApiModelProperty(value = "销售发票申请 -其他说明事项", position = 37)
     private String otherMemo;
 }

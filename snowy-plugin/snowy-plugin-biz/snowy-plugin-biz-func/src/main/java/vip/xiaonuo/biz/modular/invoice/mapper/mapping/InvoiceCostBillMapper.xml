@@ -6,9 +6,11 @@
         select a.*,
                b.SN as sn,b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,b.STATUS as status,
                b.APPLY_UNIT as applyUnit,b.APPLY_NAME as applyName,b.KP_SN as kpSn,b.HT_PROJECT_NAME as htProjectName,
-               b.HT_CONTRACT_NO as htContractNo
+               b.HT_CONTRACT_NO as htContractNo,
+               c.PURCHASER as purchaser,c.HT_COMPANY_OR_DEPARTMENT as htCompanyOrDepartment,c.HT_OWNER as htOwner
         from BIZ_INVOICE_COST_BILL a
                  join BIZ_INVOICE_COST b on a.INVOICE_COST_ID = b.ID
+                 left join BIZ_INVOICE_SALE c on b.KP_SN = c.SN and c.DELETE_FLAG='NOT_DELETE'
             ${ew.customSqlSegment}
     </select>
 
