@@ -22,17 +22,19 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.camunda.bpm.engine.ProcessEngineException;
 import org.camunda.bpm.engine.RepositoryService;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.camunda.bpm.engine.delegate.TaskListener;
+import org.camunda.bpm.engine.impl.cfg.IdGenerator;
+import org.camunda.bpm.engine.impl.db.DbIdGenerator;
 import org.camunda.bpm.engine.repository.Deployment;
 import org.camunda.bpm.engine.repository.DeploymentBuilder;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
@@ -107,6 +109,9 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
 
     @Resource
     private FlwModelMapper flwModelMapper;
+
+    @Resource
+    private IdGenerator idGenerator;
 
     private static ConcurrentHashMap<String,Boolean> flowModelMap = new ConcurrentHashMap<>();
     @Override
@@ -451,4 +456,27 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     public void rollback(String processInstanceId) {
         flwModelMapper.rollback(processInstanceId);
     }
+
+    @Override
+    public void copy(FlwModelIdParam flwModelIdParam) {
+        FlwModel flwModel = this.queryEntity(flwModelIdParam.getId());
+        flwModel.setId(null);
+        String name = flwModel.getName();
+        name+="(1)";
+        List<FlwModel> one = list(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getName, name));
+        if(CollectionUtil.isNotEmpty(one)){
+            name = one.get(0).getName()+"(1)";
+        }
+        flwModel.setName(name);
+        String processJson = flwModel.getProcessJson();
+//        IdGenerator idGenerator = new DbIdGenerator();
+//        idGenerator.getNextId();
+        processJson = JSONUtil.toJsonStr(JSONUtil.parseObj(processJson).set("id", "xn"+idGenerator.getNextId().substring(2)).set("title",name));
+        flwModel.setProcessJson(processJson);
+        flwModel.setCode(RandomUtil.randomString(10));
+        flwModel.setVersionCode("V1.0");
+        flwModel.setModelStatus(FlwModelStatusEnum.DISABLED.getValue());
+        this.save(flwModel);
+    }
+
 }

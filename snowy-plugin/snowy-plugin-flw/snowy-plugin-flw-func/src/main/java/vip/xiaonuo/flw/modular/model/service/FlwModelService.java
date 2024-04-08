@@ -225,4 +225,6 @@ public interface FlwModelService extends IService<FlwModel> {
      * @param processInstanceId 实例id
      */
     void rollback(String processInstanceId);
+
+    void copy(FlwModelIdParam flwModelIdParam);
 }

@@ -380,4 +380,20 @@ public class FlwModeController {
         flwListenerService.edit(flwListenerEditParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 添加模型
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:47
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("复制模型")
+    @CommonLog("复制模型")
+    @PostMapping("/flw/model/copy")
+    public CommonResult<String> copy(@RequestBody @Valid FlwModelIdParam flwModelIdParam) {
+        flwModelService.copy(flwModelIdParam);
+        return CommonResult.ok();
+    }
+
 }
