@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.registerCert.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -159,7 +160,7 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
         List<String> perIds = personnelRegInfoList.stream().map(person -> person.getId()).collect(Collectors.toList());
         getPersonnelTitle(perIds,personnelRegInfoList);
         getPersonnelCert(personnelRegInfoList);
-        return personnelRegInfoList;
+        return CollUtil.isEmpty(personnelRegInfoList) ? new ArrayList<>() : personnelRegInfoList;
     }
 
     /**  获取用户职称信息 */
@@ -183,7 +184,7 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
             map.put(person.getFileId(),voList);
         });
         personnelRegInfoList.forEach(reg -> {
-            if(ObjectUtil.isNotEmpty(map.get(reg.getId()))){reg.setPersonnelTitleVoList(map.get(reg.getId()));}
+            reg.setPersonnelTitleVoList(CollUtil.isNotEmpty(map.get(reg.getId())) ? map.get(reg.getId()) : new ArrayList<>());
         });
     }
 
@@ -203,7 +204,7 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
             map.put(cert.getIdNumber(),certManages);
         });
         personnelRegInfoList.forEach(reg -> {
-            if(ObjectUtil.isNotEmpty(map.get(reg.getIdCardNumber()))){reg.setCertManages(map.get(reg.getIdCardNumber()));}
+            reg.setCertManages(CollUtil.isNotEmpty(map.get(reg.getIdCardNumber())) ? map.get(reg.getIdCardNumber()) : new ArrayList<>());
         });
     }
 }
