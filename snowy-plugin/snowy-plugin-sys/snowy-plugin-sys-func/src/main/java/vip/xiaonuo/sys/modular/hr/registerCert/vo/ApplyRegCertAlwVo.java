@@ -1,8 +1,10 @@
 package vip.xiaonuo.sys.modular.hr.registerCert.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotNull;
 import java.util.Date;
@@ -32,6 +34,8 @@ public class ApplyRegCertAlwVo {
 
     /** 注册成功日期 */
     @ApiModelProperty(value = "注册成功日期", position = 7)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date registerSucDate;
 
     /** 参与项目名称 */
@@ -40,6 +44,8 @@ public class ApplyRegCertAlwVo {
 
     /** 参与项目日期 */
     @ApiModelProperty(value = "参与项目日期", position = 9)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date joinPrjDate;
 
     /** 流程状态 */

@@ -1,8 +1,10 @@
 package vip.xiaonuo.sys.modular.hr.registerCert.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 import java.util.Date;
 
@@ -32,6 +34,8 @@ public class RegAlwUserVo {
 
     /** 入职时间 */
     @ApiModelProperty(value = "入职时间", position = 7)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date hireDate;
 
     /** 学历 */
@@ -48,6 +52,8 @@ public class RegAlwUserVo {
 
     /** 毕业时间 */
     @ApiModelProperty(value = "毕业时间", position = 11)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date gradTime;
 
     /** 职称等级 */
