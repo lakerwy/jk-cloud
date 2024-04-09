@@ -12,6 +12,7 @@
             sum(BASIC_AMOUNT) as basicAmount,
             sum(POST_AMOUNT) as postAmount,
             sum(MERIT_AMOUNT) as meritAmount,
+            sum(MERIT_RATE) as meritRate,
             sum(REAL_MERIT_AMOUNT) as realMeritAmount,
             sum(REGISTER_AMOUNT) as registerAmount,
             sum(WORK_AGE_AMOUNT) as workAgeAmount,
