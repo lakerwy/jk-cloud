@@ -216,7 +216,10 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
 
         //根据tmpAddList获取扣减详情记录 tmpAddList 中旧主键id没变
         List<String> copyAddIds = tmpAddList.stream().map(x->x.getId()).collect(Collectors.toList());
-        List<SalaryAddRecord> copyAddRecordData = salaryAddRecordService.list(new QueryWrapper<SalaryAddRecord>().lambda().in(SalaryAddRecord::getAddId,copyAddIds));
+        List<SalaryAddRecord> copyAddRecordData = new ArrayList<>();
+        if(CollUtil.isNotEmpty(copyAddIds)){
+            copyAddRecordData = salaryAddRecordService.list(new QueryWrapper<SalaryAddRecord>().lambda().in(SalaryAddRecord::getAddId,copyAddIds));
+        }
 
         //赋值新的主键
         tmpAddList.forEach(item->{
