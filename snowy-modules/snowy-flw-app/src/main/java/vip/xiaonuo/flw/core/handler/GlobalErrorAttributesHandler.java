@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.http.HttpStatus;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.web.error.ErrorAttributeOptions;
 import org.springframework.boot.web.servlet.error.DefaultErrorAttributes;
 import org.springframework.stereotype.Component;
@@ -33,6 +34,7 @@ import java.util.Map;
  * @date 2021/10/9 15:24
  **/
 @Component
+@Slf4j
 public class GlobalErrorAttributesHandler extends DefaultErrorAttributes {
     @Override
     public Map<String, Object> getErrorAttributes(WebRequest webRequest, ErrorAttributeOptions attributeOptions) {
@@ -45,6 +47,7 @@ public class GlobalErrorAttributesHandler extends DefaultErrorAttributes {
             // 如果其为404，则处理
             if (HttpStatus.HTTP_NOT_FOUND == Convert.toInt(status)) {
                 Object path = defaultErrorAttributes.get("path");
+                log.error(">>> 请求路径错误:"+Convert.toStr(path));
                 if(ObjectUtil.isNotEmpty(path)) {
                     return BeanUtil.beanToMap(CommonResult.get(HttpStatus.HTTP_NOT_FOUND, "路径不存在，请求地址：" +
                             Convert.toStr(path), null));
@@ -60,6 +63,7 @@ public class GlobalErrorAttributesHandler extends DefaultErrorAttributes {
         // 如果返回的异常是CommonException，则按CommonException响应的内容进行返回
         Throwable throwable = this.getError(webRequest);
         if (ObjectUtil.isNotEmpty(throwable)) {
+            log.error("CommonException异常：",throwable);
             if (throwable instanceof CommonException) {
                 CommonException commonException = (CommonException) throwable;
                 return BeanUtil.beanToMap(CommonResult.error(commonException.getMsg()));

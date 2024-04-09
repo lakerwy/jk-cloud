@@ -118,6 +118,7 @@ public class DevLogUtil {
         MDC.put("paramJson",devLog.getParamJson());
         MDC.put("exception",devLog.getExeMessage());
         MDC.put("clientIP", devLog.getOpIp());
+        MDC.put("category",DevLogCategoryEnum.EXCEPTION.getValue());
         log.info("{}异常日志---",description);
     }
 

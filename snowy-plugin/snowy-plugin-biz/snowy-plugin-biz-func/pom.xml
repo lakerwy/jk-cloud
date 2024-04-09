@@ -68,5 +68,9 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-dev-feign</artifactId>
         </dependency>
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-ten-api</artifactId>
+        </dependency>
     </dependencies>
 </project>
