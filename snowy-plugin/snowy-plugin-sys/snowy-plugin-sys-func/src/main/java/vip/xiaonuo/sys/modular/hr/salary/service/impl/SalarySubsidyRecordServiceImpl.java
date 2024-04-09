@@ -43,6 +43,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 
@@ -140,6 +141,7 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
         return salarySubsidyRecord;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void copy(IdsParam idsParam) {
         List<String> copyIds = idsParam.getIds();
@@ -169,6 +171,7 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
 
         // 3. copy数据匹配月工资标准，并校验【copy数据匹配校验】
         List<SalarySubsidyRecordVo> newCopyAddData = BeanUtil.copyToList(copyAddData,SalarySubsidyRecordVo.class);
+        List<SalarySubsidyRecordVo> tmpAddList = new ArrayList<>();
         newCopyAddData.forEach(item->{
             SalaryStandard standardTmp = currentStandardList.stream().filter(x->x.getIdCardNumber().equals(item.getIdCardNumber()) && x.getCompany().equals(item.getCompany())).findFirst().orElse(null);
             if(ObjectUtil.isNotEmpty(standardTmp)){
@@ -178,14 +181,13 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
                 item.setCreateUser(null);
                 item.setUpdateUser(null);
                 item.setUpdateTime(null);
-            }else{
-                throw new CommonException("员工未匹配到{}月工资标准数据，无法复制，请检查！",currentYearMonth);
+                tmpAddList.add(item);
             }
         });
 
         // 4. copy数据
-        if(CollUtil.isNotEmpty(newCopyAddData)){
-            List<SalarySubsidyRecord> addList = BeanUtil.copyToList(newCopyAddData,SalarySubsidyRecord.class);
+        if(CollUtil.isNotEmpty(tmpAddList)){
+            List<SalarySubsidyRecord> addList = BeanUtil.copyToList(tmpAddList,SalarySubsidyRecord.class);
             this.saveBatch(addList);
         }
     }

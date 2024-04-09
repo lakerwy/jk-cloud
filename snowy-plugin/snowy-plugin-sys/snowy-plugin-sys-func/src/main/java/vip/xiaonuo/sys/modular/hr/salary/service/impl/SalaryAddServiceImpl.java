@@ -45,6 +45,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -159,6 +160,8 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
         return salaryAdd;
     }
 
+
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void copy(IdsParam idsParam) {
         List<String> copyIds = idsParam.getIds();
@@ -178,9 +181,6 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
         if(CollUtil.isEmpty(copyAddData)){
             throw new CommonException("不存在有效{}其他费用数据，无法复制，请检查！",previousYearMonth);
         }
-        //根据copyAddData 获取扣减详情记录
-        List<String> addIds = copyAddData.stream().map(x->x.getId()).collect(Collectors.toList());
-        List<SalaryAddRecord> copyAddRecordData = salaryAddRecordService.list(new QueryWrapper<SalaryAddRecord>().lambda().in(SalaryAddRecord::getAddId,addIds));
 
         // 2. 获取本月的工资标准数据【Copy目标月工资标准数据】
         List<SalaryStandard> currentStandardList = salaryStandardService.list(new QueryWrapper<SalaryStandard>().lambda().eq(SalaryStandard::getYearMonth,currentYearMonth));
@@ -193,14 +193,9 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
         newCopyAddData.forEach(item->{
             SalaryStandard standardTmp = currentStandardList.stream().filter(x->x.getIdCardNumber().equals(item.getIdCardNumber()) && x.getCompany().equals(item.getCompany())).findFirst().orElse(null);
             if(ObjectUtil.isNotEmpty(standardTmp)){
-                item.setId(IdWorker.getIdStr());         //新主键Id
                 item.setStandardId(standardTmp.getId()); //新关联外键Id
-                item.setCreateTime(null);
-                item.setCreateUser(null);
-                item.setUpdateUser(null);
-                item.setUpdateTime(null);
             }else{
-                throw new CommonException("员工未匹配到{}月工资标准数据，无法复制，请检查！",currentYearMonth);
+                item.setStandardId(null);  //没有匹配到
             }
         });
 
@@ -210,16 +205,31 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
         oldQueryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
         oldQueryWrapper.eq("b.`YEAR_MONTH`",currentYearMonth);
         List<SalaryAddVo> oldAddData = salaryAddMapper.getAddList(oldQueryWrapper);
-        newCopyAddData.forEach(item->{
+        //真正要添加的其他费用数据
+        List<SalaryAddVo> tmpAddList = new ArrayList<>();
+        newCopyAddData.stream().filter(x->ObjectUtil.isNotEmpty(x.getStandardId())).forEach(item->{
             SalaryAddVo oldAddTmp = oldAddData.stream().filter(x->x.getStandardId().equals(item.getStandardId())).findFirst().orElse(null);
-            if(ObjectUtil.isNotEmpty(oldAddTmp)){
-                throw new CommonException("存在员工已有{}月其他费用数据，无法复制，请检查！",currentYearMonth);
+            if(ObjectUtil.isEmpty(oldAddTmp)){
+                tmpAddList.add(item);
             }
         });
 
-        // 校验通过，准备copy数据
+        //根据tmpAddList获取扣减详情记录 tmpAddList 中旧主键id没变
+        List<String> copyAddIds = tmpAddList.stream().map(x->x.getId()).collect(Collectors.toList());
+        List<SalaryAddRecord> copyAddRecordData = salaryAddRecordService.list(new QueryWrapper<SalaryAddRecord>().lambda().in(SalaryAddRecord::getAddId,copyAddIds));
+
+        //赋值新的主键
+        tmpAddList.forEach(item->{
+            item.setId(IdWorker.getIdStr());         //新主键Id
+            item.setCreateTime(null);
+            item.setCreateUser(null);
+            item.setUpdateUser(null);
+            item.setUpdateTime(null);
+        });
+
+        //处理记录详情
         copyAddRecordData.forEach(item->{
-            SalaryAddVo newAddTmp = newCopyAddData.stream().filter(x->x.getOldAddId().equals(item.getAddId())).findFirst().orElse(null);
+            SalaryAddVo newAddTmp = tmpAddList.stream().filter(x->x.getOldAddId().equals(item.getAddId())).findFirst().orElse(null);
             item.setAddId(newAddTmp.getId());  //复制数据，赋予新外键Id
             item.setId(null);
             item.setCreateTime(null);
@@ -227,8 +237,9 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
             item.setUpdateUser(null);
             item.setUpdateTime(null);
         });
-        if(CollUtil.isNotEmpty(newCopyAddData)){
-            List<SalaryAdd> addList = BeanUtil.copyToList(newCopyAddData,SalaryAdd.class);
+
+        if(CollUtil.isNotEmpty(tmpAddList)){
+            List<SalaryAdd> addList = BeanUtil.copyToList(tmpAddList,SalaryAdd.class);
             this.saveBatch(addList);
         }
         if(CollUtil.isNotEmpty(copyAddRecordData)){
