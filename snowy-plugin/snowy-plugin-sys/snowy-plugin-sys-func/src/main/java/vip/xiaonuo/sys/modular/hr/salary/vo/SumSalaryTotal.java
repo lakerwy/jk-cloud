@@ -18,6 +18,14 @@ public class SumSalaryTotal {
     @ApiModelProperty(value = "所属年月", position = 4)
     private String yearMonth;
 
+    /** 工资结构-基本工资 */
+    @ApiModelProperty(value = "工资结构-基本工资", position = 21)
+    private BigDecimal basicAmount;
+
+    /** 工资结构-岗位工资 */
+    @ApiModelProperty(value = "工资结构-岗位工资", position = 22)
+    private BigDecimal postAmount;
+
     /** 工资结构-考核工资 */
     @ApiModelProperty(value = "工资结构-考核工资", position = 23)
     private BigDecimal meritAmount;

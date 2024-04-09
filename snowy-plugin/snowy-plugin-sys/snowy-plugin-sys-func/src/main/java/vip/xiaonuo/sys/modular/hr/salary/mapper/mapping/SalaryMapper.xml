@@ -59,6 +59,8 @@
 
     <select id="getSalaryTotal" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal">
         select  #{yearMonth} as yearMonth,
+            sum(BASIC_AMOUNT) as basicAmount,
+            sum(POST_AMOUNT) as postAmount,
             sum(MERIT_AMOUNT) as meritAmount,
             sum(REAL_MERIT_AMOUNT) as realMeritAmount,
             sum(REGISTER_AMOUNT) as registerAmount,
@@ -105,6 +107,8 @@
 
     <select id="getPreviewTotal" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal">
         select  #{yearMonth} as yearMonth,
+            sum(BASIC_AMOUNT) as basicAmount,
+            sum(POST_AMOUNT) as postAmount,
             sum(MERIT_AMOUNT) as meritAmount,
             sum(REAL_MERIT_AMOUNT) as realMeritAmount,
             sum(REGISTER_AMOUNT) as registerAmount,

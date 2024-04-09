@@ -183,7 +183,7 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
             }
         });
 
-        // 4. copy数据校验是否已存在【copy数据唯一性校验】
+        // 4. copy数据
         if(CollUtil.isNotEmpty(newCopyAddData)){
             List<SalarySubsidyRecord> addList = BeanUtil.copyToList(newCopyAddData,SalarySubsidyRecord.class);
             this.saveBatch(addList);
