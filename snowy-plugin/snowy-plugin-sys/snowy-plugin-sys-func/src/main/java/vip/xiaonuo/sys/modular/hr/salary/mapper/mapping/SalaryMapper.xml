@@ -3,7 +3,7 @@
 <mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper">
 
     <select id="getEmpSalary" resultType="vip.xiaonuo.sys.modular.hr.salary.entity.Salary">
-        select  #{yearMonth} as yearMonth,
+        select  max(`YEAR_MONTH`) as yearMonth,
             max(ID_CARD_NUMBER) as idCardNumber,
             max(USER_NAME) as userName,
             max(FIRST_ORG_NAME) as firstOrgName,
@@ -59,7 +59,7 @@
     </select>
 
     <select id="getSalaryTotal" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal">
-        select  #{yearMonth} as yearMonth,
+        select  max(`YEAR_MONTH`) as yearMonth,
             sum(BASIC_AMOUNT) as basicAmount,
             sum(POST_AMOUNT) as postAmount,
             sum(MERIT_AMOUNT) as meritAmount,
@@ -107,7 +107,7 @@
     </select>
 
     <select id="getPreviewTotal" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal">
-        select  #{yearMonth} as yearMonth,
+        select  max(`YEAR_MONTH`) as yearMonth,
             sum(BASIC_AMOUNT) as basicAmount,
             sum(POST_AMOUNT) as postAmount,
             sum(MERIT_AMOUNT) as meritAmount,
