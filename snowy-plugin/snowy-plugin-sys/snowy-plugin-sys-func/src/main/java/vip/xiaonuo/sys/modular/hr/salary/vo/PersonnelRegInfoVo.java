@@ -22,7 +22,7 @@ public class PersonnelRegInfoVo {
     private String userName;
 
     /** 部门ID - deptId - orgId */
-    @ApiModelProperty(value = "部门ID - deptId - orgId", position = 4)
+    @ApiModelProperty(value = "二级部门ID - deptId - orgId", position = 4)
     private String orgId;
 
     /** 职位ID - dutyId - positionId */

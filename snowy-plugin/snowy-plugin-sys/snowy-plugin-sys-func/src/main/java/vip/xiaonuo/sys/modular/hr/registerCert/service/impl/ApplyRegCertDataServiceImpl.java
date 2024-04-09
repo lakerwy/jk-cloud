@@ -45,6 +45,8 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelRegInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelTitleVo;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnelTitle;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubPersonnelTitleService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -70,6 +72,8 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
     PersonnelFileTitleService personnelFileTitleService;
     @Resource
     SubPersonnelTitleService subPersonnelTitleService;
+    @Resource
+    SysUserService sysUserService;
 
     @Override
     public Page<ApplyRegCertData> page(ApplyRegCertDataPageParam applyRegCertDataPageParam) {
@@ -156,7 +160,15 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
         /** 人事档案信息 */
         List<PersonnelRegInfoVo> personnelRegInfoList = salaryStandardMapper.getPersonnelRegList(personnelParam);
         if(CollectionUtil.isEmpty(personnelRegInfoList)){return personnelRegInfoList;}
-
+        /** 替换*/
+        if(StringUtils.isNotEmpty(personnelRegInfoList.get(0).getUserId())){
+            SysUser sysUser = sysUserService.getById(personnelRegInfoList.get(0).getUserId());
+            if(ObjectUtil.isNotEmpty(sysUser) && StringUtils.isNotEmpty(sysUser.getOrgId())){
+                PersonnelRegInfoVo  vo= personnelRegInfoList.get(0);
+                vo.setFirstOrgId(vo.getOrgId());
+                vo.setOrgId(sysUser.getOrgId());
+            }
+        }
         List<String> perIds = personnelRegInfoList.stream().map(person -> person.getId()).collect(Collectors.toList());
         getPersonnelTitle(perIds,personnelRegInfoList);
         getPersonnelCert(personnelRegInfoList);

@@ -20,10 +20,7 @@ import vip.xiaonuo.sys.modular.hr.registerCert.vo.RegAlwUserVo;
 import vip.xiaonuo.sys.modular.hr.registerCert.vo.RegCertDataVo;
 import vip.xiaonuo.sys.modular.hr.registerCert.vo.RegCertStatusDataVo;
 
-import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -61,20 +58,17 @@ public class ApplyRegCertDataFlowAddParam {
     @NotNull(message = "身份证号不能为空")
     private String idCardNumber;
 
-    @ApiModelProperty(value = "注册补贴-申请信息",required = true)
-    @NotNull(message = "注册补贴-申请信息不能为空")
+    @ApiModelProperty(value = "注册补贴-本次申请信息")
     List<ApplyRegCertAlwVo> applyRegCertAlwVoList;
 
-    @ApiModelProperty(value = "注册补贴-基本信息",required = true)
-    @NotNull(message = "注册补贴-基本信息不能为空")
+    @ApiModelProperty(value = "注册补贴-申请用户基本信息",required = true)
+    @NotNull(message = "注册补贴-申请用户基本信息")
     private RegAlwUserVo regAlwUserVo;
 
-    @ApiModelProperty(value = "注册补贴-已有证书",required = true)
-    @NotNull(message = "注册补贴-已有证书不能为空")
+    @ApiModelProperty(value = "注册补贴-已有证书")
     private List<RegCertDataVo> regCertDataList;
 
-    @ApiModelProperty(value = "注册补贴-注册执业资格证书",required = true)
-    @NotNull(message = "注册补贴-注册执业资格证书不能为空")
+    @ApiModelProperty(value = "注册补贴-注册执业资格证书")
     private List<RegCertStatusDataVo> regCertStatusDataList;
 
 }
