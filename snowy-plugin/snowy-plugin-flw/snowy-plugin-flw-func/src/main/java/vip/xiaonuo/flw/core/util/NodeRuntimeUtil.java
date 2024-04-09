@@ -1018,10 +1018,25 @@ public class NodeRuntimeUtil {
                         CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
                         boolean isTrue = ObjectUtil.isNotEmpty(commonCacheOperator.get("MULTIPLE-SAMPLE-"+delegateTask.getId()))
                                 && !commonCacheOperator.get("MULTIPLE-SAMPLE-"+delegateTask.getId()).equals("null")  ? true : false;
-                        //log.error("MULTIPLE-SAMPLE-"+delegateTask.getId()+":"+commonCacheOperator.get("MULTIPLE-SAMPLE-"+delegateTask.getId()));
-                        if(participateUserIdList.size() == 1 && isTrue ){
-                            commonCacheOperator.remove("MULTIPLE-SAMPLE-"+delegateTask.getId());//删除已被用的key值
-                            return;
+
+                        //判断是否初始节点
+                        boolean isProcessStart = ObjectUtil.isEmpty(delegateTask.getProcessEngineServices().getHistoryService()
+                                .createHistoricProcessInstanceQuery().processInstanceId(delegateTask.getProcessInstanceId()).singleResult());
+                        String type = isTrue ? commonCacheOperator.get("MULTIPLE-SAMPLE-"+delegateTask.getId()).toString() : "";
+
+                        if(participateUserIdList.size() == 1 && isTrue){
+                            if(type.equals("SAMPLE")){
+                                /** 当审批人和发起人是同一个人，审批自动通过 */
+                                commonCacheOperator.remove("MULTIPLE-SAMPLE-"+delegateTask.getId());//删除已被用的key值
+                                return;
+                            }
+                            if(type.equals("MULTIPLE")){
+                                if(!isProcessStart){//非开始流程
+                                    /** 当同一审批人在流程中连续多次出现时，自动去重 */
+                                    commonCacheOperator.remove("MULTIPLE-SAMPLE-"+delegateTask.getId());//删除已被用的key值
+                                    return;
+                                }
+                            }
                         }
                     }
                     processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateTask(delegateTask, processNoticeTemplate);

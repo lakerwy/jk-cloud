@@ -58,7 +58,7 @@ public class GlobalExceptionUtil {
     public static CommonResult<String> getCommonResult(Exception e) {
         CommonResult<String> commonResult;
         if (e instanceof HttpRequestMethodNotSupportedException) {
-
+            log.error(">>> 方法请求支持错误:",e);
             // 如果是请求方法异常 405
             String method = CommonServletUtil.getRequest().getMethod();
             if (HttpMethod.GET.toString().equals(method)) {
@@ -82,17 +82,17 @@ public class GlobalExceptionUtil {
             // 如果是JSON参数格式错误异常 415
             commonResult = CommonResult.get(HttpStatus.HTTP_UNSUPPORTED_TYPE, "参数格式错误", null);
         } else if (e instanceof MethodArgumentNotValidException) {
-
+            log.error(">>> 参数校验异常：", e);
             // 如果是参数校验异常（MethodArgumentNotValidException） 415
             MethodArgumentNotValidException methodArgumentNotValidException = (MethodArgumentNotValidException) e;
             commonResult = CommonResult.get(HttpStatus.HTTP_UNSUPPORTED_TYPE, getArgNotValidMessage(methodArgumentNotValidException.getBindingResult()), null);
         } else if (e instanceof BindException) {
-
+            log.error(">>> 参数校验异常：", e);
             // 如果是参数校验异常（BindException） 415
             BindException bindException = (BindException) e;
             commonResult = CommonResult.get(HttpStatus.HTTP_UNSUPPORTED_TYPE, getArgNotValidMessage(bindException.getBindingResult()), null);
         } else if (e instanceof ConstraintViolationException) {
-
+            log.error(">>> 参数校验异常：", e);
             // 如果是参数校验异常（ConstraintViolationException） 415
             ConstraintViolationException constraintViolationException = (ConstraintViolationException) e;
             commonResult = CommonResult.get(HttpStatus.HTTP_UNSUPPORTED_TYPE, getArgNotValidMessage(constraintViolationException.getConstraintViolations()), null);
@@ -132,7 +132,7 @@ public class GlobalExceptionUtil {
                 commonResult = CommonResult.error("数据操作异常");
             }
         } else if (e instanceof CommonException) {
-
+            log.error(">>> 业务操作数据异常：", e);
             // 通用业务异常，直接返回给前端
             CommonException commonException = (CommonException) e;
             commonResult = CommonResult.get(commonException.getCode(), commonException.getMsg(), null);

@@ -119,8 +119,8 @@ public class PersonnelRegInfoVo {
     private String highTitleProfession;*/
 
     @ApiModelProperty(value = "用户职称信息", position = 12)
-    List<PersonnelTitleVo> personnelTitleVoList;
+    private List<PersonnelTitleVo> personnelTitleVoList;
 
     @ApiModelProperty(value = "已注册证书", position = 13)
-    List<CertManage> certManages;
+    private List<CertManage> certManages;
 }

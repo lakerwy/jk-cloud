@@ -242,14 +242,15 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
     public void delete(List<FlwModelIdParam> flwModelIdParamList) {
         List<String> modelIdList = flwModelIdParamList.stream().map(FlwModelIdParam::getId).collect(Collectors.toList());
         if(ObjectUtil.isNotEmpty(modelIdList)) {
-            List<FlwModel> flwModelList = this.listByIds(modelIdList);
-            flwModelList.forEach(flwModel -> {
-                String processJson = flwModel.getProcessJson();
-                if(ObjectUtil.isNotEmpty(processJson)) {
-                    repositoryService.createProcessDefinitionQuery().processDefinitionKey(JSONUtil.parseObj(processJson).getStr("id"))
-                            .list().forEach(processDefinition -> repositoryService.deleteDeployment(processDefinition.getDeploymentId(), true));
-                }
-            });
+            //删除流程后不删除历史数据和发布的流程实例
+//            List<FlwModel> flwModelList = this.listByIds(modelIdList);
+//            flwModelList.forEach(flwModel -> {
+//                String processJson = flwModel.getProcessJson();
+//                if(ObjectUtil.isNotEmpty(processJson)) {
+//                    repositoryService.createProcessDefinitionQuery().processDefinitionKey(JSONUtil.parseObj(processJson).getStr("id"))
+//                            .list().forEach(processDefinition -> repositoryService.deleteDeployment(processDefinition.getDeploymentId(), true));
+//                }
+//            });
             this.removeBatchByIds(CollStreamUtil.toList(flwModelIdParamList, FlwModelIdParam::getId));
         }
     }
