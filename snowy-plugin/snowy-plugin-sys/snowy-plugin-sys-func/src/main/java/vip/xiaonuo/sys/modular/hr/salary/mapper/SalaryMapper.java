@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.salary.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.hr.salary.entity.*;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal;
 
 
 /**
@@ -23,5 +24,26 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.*;
  * @date  2024/03/01 16:50
  **/
 public interface SalaryMapper extends BaseMapper<Salary> {
+
+    /**
+     * 多条工资数据合计成一条
+     * @return
+     */
+    Salary getEmpSalary(String yearMonth,String userId);
+
+    /**
+     * 根据年月 统计数据【封存数据】
+     * @param yearMonth
+     * @return
+     */
+    SumSalaryTotal getSalaryTotal(String yearMonth);
+
+    /**
+     * 根据年月 统计数据【预览数据】
+     * @param yearMonth
+     * @return
+     */
+    SumSalaryTotal getPreviewTotal(String yearMonth);
+
 
 }

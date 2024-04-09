@@ -508,4 +508,18 @@ public class ComputeUtil {
         });
         return newSalaryList;
     }
+
+
+    /**
+     * 根据一个人，汇总所有公积金差额，（不区分缴纳公司）
+     */
+    public static BigDecimal getSumGjjCha(String standardId,List<SalaryGjj> gjjData){
+        //获取 个人社保小计-个人公积金-公积金差额
+        List<SalaryGjj> gjjList = gjjData.stream().filter(x->x.getStandardId().equals(standardId)).collect(Collectors.toList());
+        BigDecimal gjjCha = BIG_DECIMAL_0;
+        for (SalaryGjj item : gjjList){
+            gjjCha = gjjCha.add(item.getAmount());
+        }
+        return gjjCha;
+    }
 }

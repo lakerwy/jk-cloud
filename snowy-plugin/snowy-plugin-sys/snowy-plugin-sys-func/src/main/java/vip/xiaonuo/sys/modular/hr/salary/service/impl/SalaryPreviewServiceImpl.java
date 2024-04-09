@@ -338,9 +338,6 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                     if (item.getCompany().equals(gjj.getUnitName())) {
                         //直接更新
                         item.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
-                        //公积金里的 差额 ，记录到 税前补扣
-                        item.setMinusAmount(ComputeUtil.fillZero(gjj.getAmount()));
-                        item.setGjjDiffAmount(ComputeUtil.fillZero(gjj.getAmount()));
                     }else{
                         //公积金和社保匹配一下（当前员工）
                         AtomicReference<Boolean> isInsGjjFlag = new AtomicReference<>(false);
@@ -349,9 +346,6 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                                 if(objIns.getCompany().equals(gjj.getUnitName())){
                                     isInsGjjFlag.set(true);
                                     objIns.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
-                                    //公积金里的 差额 ，记录到 税前补扣
-                                    objIns.setMinusAmount(ComputeUtil.fillZero(gjj.getAmount()));
-                                    item.setGjjDiffAmount(ComputeUtil.fillZero(gjj.getAmount()));
                                 }
                             });
                         }
@@ -361,9 +355,6 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                             tempSalaryVo.setCompany(gjj.getUnitName());
                             tempSalaryVo.setDataType(DataTypeEnum.GJJ.getValue());
                             tempSalaryVo.setSysPer(ComputeUtil.fillZero(gjj.getSysPer()));
-                            //公积金里的 差额 ，记录到 税前补扣
-                            tempSalaryVo.setMinusAmount(ComputeUtil.fillZero(gjj.getAmount()));
-                            item.setGjjDiffAmount(ComputeUtil.fillZero(gjj.getAmount()));
                             addGjjSalaryVoList.add(tempSalaryVo);
                         }
                     }
@@ -430,6 +421,11 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
                     item.setMaterAmount(ComputeUtil.setScale(sumAttendData.getMaterAmount(),2));
                     item.setInOutAmount(ComputeUtil.setScale(sumAttendData.getInOutAmount(),2));
                 }
+
+                //公积金里的 差额 ，记录到 税前补扣|[公积金差额：调整为只 展示在 工资发放公司 名下，不按照缴纳单位分列]
+                BigDecimal gjjCha = ComputeUtil.setScale(ComputeUtil.getSumGjjCha(item.getStandardId(),gjjData),2);
+                item.setMinusAmount(gjjCha);
+                item.setGjjDiffAmount(gjjCha);
 
                 //税前补发补扣|其他税后补发补扣
                 SalaryAdd add = addData.stream().filter(x -> item.getStandardId().equals(x.getStandardId())).findFirst().orElse(null);
@@ -516,8 +512,9 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
             }
             item.setHaveLjTaxAmount(previousHaveLjTaxAmount.add(previousMonthTaxAmount));
 
-            //本月应扣税额
-            item.setMonthTaxAmount(item.getLjTaxAmount().subtract(item.getHaveLjTaxAmount()));
+            //本月应扣税额【本月应扣税额若小于0，则取值0】
+            BigDecimal monthTaxAmount = item.getLjTaxAmount().subtract(item.getHaveLjTaxAmount());
+            item.setMonthTaxAmount(monthTaxAmount.compareTo(BigDecimal.ZERO) >= 0 ? monthTaxAmount:BigDecimal.ZERO);
 
             //实发工资
             item.setRealPayAmount(item.getGrossPayAmount().subtract(item.getSysPer()).subtract(item.getPer()).add(item.getLastAddAmount()).subtract(item.getLastMinusAmount()).subtract(item.getMonthTaxAmount()));

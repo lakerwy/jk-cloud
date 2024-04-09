@@ -31,11 +31,14 @@ import vip.xiaonuo.sys.modular.hr.salary.enums.YesOrNoEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.TotalParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.*;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal;
 
+import javax.annotation.Resource;
 import java.util.Comparator;
 import java.util.List;
 
@@ -47,6 +50,9 @@ import java.util.List;
  **/
 @Service
 public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> implements SalaryService {
+
+    @Resource
+    private SalaryMapper salaryMapper;
 
     @Override
     public Page<Salary> page(SalaryPageParam salaryPageParam) {
@@ -124,16 +130,9 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
     }
 
     @Override
-    public List<Salary> empSalary(SearchParam param) {
-        QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(param.getYearMonth())) {
-            queryWrapper.lambda().eq(Salary::getYearMonth,param.getYearMonth());
-        }
-        queryWrapper.lambda().eq(Salary::getUserId, AesUtil.encrypt(StpLoginUserUtil.getLoginUser().getId()));
-        queryWrapper.lambda().and(q->q.ne(Salary::getIsSlow, YesOrNoEnum.YES.getValue()).or().isNull(Salary::getIsSlow));
-        queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
-        List<Salary> result = this.list(queryWrapper);
-        return AesUtil.decryptGZList(result);
+    public Salary empSalary(SearchParam param) {
+        Salary salary = salaryMapper.getEmpSalary(param.getYearMonth(),AesUtil.encrypt(StpLoginUserUtil.getLoginUser().getId()));
+        return AesUtil.decryptGZ(salary);
     }
 
     @Override
@@ -159,5 +158,17 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             salaryList.forEach(x->x.setIsSlow(updateBatch.getIsSlow()));
             this.updateBatchById(salaryList);
         }
+    }
+
+    @Override
+    public SumSalaryTotal total(TotalParam param) {
+        if("salaryPreview".equals(param.getType())){
+            //工资预览
+            return salaryMapper.getPreviewTotal(param.getYearMonth());
+        }else if("salary".equals(param.getType())){
+            //封存工资
+            return salaryMapper.getSalaryTotal(param.getYearMonth());
+        }
+        return null;
     }
 }

@@ -171,12 +171,12 @@ public class SalaryPreviewVo {
     @ApiModelProperty(value = "税前补发补扣-其他税前补发", position = 36)
     private BigDecimal addAmount;
 
-    /** 税前补发补扣-其他税前补扣 */
-    @ApiModelProperty(value = "税前补发补扣-其他税前补扣", position = 37)
+    /** 税前补发补扣-其他税前补扣 [（*）公积金差额：调整为只 展示在 工资发放公司 名下，不按照缴纳单位分列]*/
+    @ApiModelProperty(value = "税前补发补扣-其他税前补扣[公积金差额：调整为只 展示在 工资发放公司 名下，不按照缴纳单位分列]", position = 37)
     private BigDecimal minusAmount;
 
-    /** 公积金差额 */
-    @ApiModelProperty(value = "公积金差额", position = 38)
+    /** 公积金差额 [公积金差额：调整为只 展示在 工资发放公司 名下，不按照缴纳单位分列]*/
+    @ApiModelProperty(value = "公积金差额 [公积金差额：调整为只 展示在 工资发放公司 名下，不按照缴纳单位分列]", position = 38)
     private BigDecimal gjjDiffAmount;
 
     /** 应发工资 */

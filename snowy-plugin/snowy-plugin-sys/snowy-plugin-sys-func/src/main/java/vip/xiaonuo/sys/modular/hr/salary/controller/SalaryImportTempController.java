@@ -146,4 +146,18 @@ public class SalaryImportTempController {
         return CommonResult.data(salaryImportTempService.doImport(input));
     }
 
+//    /**
+//     * 【导入】- 其他费用明细 数据
+//     *
+//     * @author yong.ye
+//     * @date  2024/02/28 09:31
+//     */
+//    @ApiOperationSupport(order = 8)
+//    @ApiOperation("【导入】- 其他费用明细 数据 ")
+//    @CommonLog("【导入】- 其他费用明细 数据 ")
+//    @PostMapping("/sys/hr/salary/import/importAdd")
+//    public CommonResult<ImportResult> importAdd(@RequestBody @Valid ImportAdd input) {
+//        return CommonResult.data(salaryImportTempService.importAdd(input));
+//    }
+
 }

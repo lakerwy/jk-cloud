@@ -28,13 +28,14 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.TotalParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import java.util.List;
 
 /**
  * 【封存】工资系统-工资表控制器
@@ -86,7 +87,7 @@ public class SalaryController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("【已封存的工资数据】获取员工工资条-缓发状态不可查")
     @GetMapping("/sys/hr/salary/empSalary")
-    public CommonResult<List<Salary>> empSalary(SearchParam param) {
+    public CommonResult<Salary> empSalary(SearchParam param) {
         return CommonResult.data(salaryService.empSalary(param));
     }
 
@@ -120,6 +121,20 @@ public class SalaryController {
     public CommonResult<String> updateIsSlow(@RequestBody @Valid UpdateBatch updateBatch) {
         salaryService.updateIsSlow(updateBatch);
         return CommonResult.ok();
+    }
+
+
+    /**
+     *  【工资相关-统计值】根据类型，获取不同列表统计值（所有数值总额）
+     *
+     * @author yong.ye
+     * @date  2024/03/05 09:36
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("【工资相关-统计值】根据类型，获取不同列表统计值（所有数值总额）")
+    @GetMapping("/sys/hr/salary/total")
+    public CommonResult<SumSalaryTotal> total(TotalParam param) {
+        return CommonResult.data(salaryService.total(param));
     }
 
 }

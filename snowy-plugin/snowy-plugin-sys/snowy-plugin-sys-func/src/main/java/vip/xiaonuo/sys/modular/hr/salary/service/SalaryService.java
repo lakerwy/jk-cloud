@@ -17,8 +17,10 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.TotalParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
+import vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal;
 
 import java.util.List;
 
@@ -67,7 +69,7 @@ public interface SalaryService extends IService<Salary> {
      * @param
      * @return
      */
-    List<Salary> empSalary(SearchParam param);
+    Salary empSalary(SearchParam param);
 
     /**
      * 删除 工资表 已确认的数据 - 删除某年月数据
@@ -86,4 +88,11 @@ public interface SalaryService extends IService<Salary> {
      * @param updateBatch
      */
     void updateIsSlow(UpdateBatch updateBatch);
+
+    /**
+     * 【工资相关-统计值】根据类型，获取不同列表统计值（所有数值总额）
+     * @param param
+     * @return
+     */
+    SumSalaryTotal total(TotalParam param);
 }
