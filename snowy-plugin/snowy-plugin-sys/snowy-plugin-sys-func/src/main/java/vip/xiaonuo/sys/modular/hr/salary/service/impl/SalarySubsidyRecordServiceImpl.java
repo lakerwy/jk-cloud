@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -24,17 +25,24 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalarySubsidyRecord;
+import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalarySubsidyRecordMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
+import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
 import javax.annotation.Resource;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
 
@@ -49,6 +57,8 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
 
     @Resource
     private SalarySubsidyRecordMapper salarySubsidyRecordMapper;
+    @Resource
+    private SalaryStandardService salaryStandardService;
 
     @Override
     public Page<SalarySubsidyRecordVo> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam) {
@@ -128,5 +138,55 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
             throw new CommonException("工资系统-各类补贴-明细记录不存在，id值为：{}", id);
         }
         return salarySubsidyRecord;
+    }
+
+    @Override
+    public void copy(IdsParam idsParam) {
+        List<String> copyIds = idsParam.getIds();
+        // 当前年月
+        String currentYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+        String previousYearMonth = ComputeUtil.getPreviousYM(currentYearMonth);
+
+        // 1. 获取待复制的源数据【Copy源数据】
+        QueryWrapper<SalarySubsidyRecord> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("a.TYPE", SalaryTypeEnum.REGISTER_SUBSIDY.getValue());
+        queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("b.`YEAR_MONTH`",previousYearMonth);
+        if(CollUtil.isNotEmpty(copyIds)){
+            queryWrapper.in("a.ID",copyIds);
+        }
+        List<SalarySubsidyRecordVo> copyAddData = salarySubsidyRecordMapper.getCopyData(queryWrapper);
+        if(CollUtil.isEmpty(copyAddData)){
+            throw new CommonException("不存在有效{}注册补贴数据，无法复制，请检查！",previousYearMonth);
+        }
+
+        // 2. 获取本月的工资标准数据【Copy目标月工资标准数据】
+        List<SalaryStandard> currentStandardList = salaryStandardService.list(new QueryWrapper<SalaryStandard>().lambda().eq(SalaryStandard::getYearMonth,currentYearMonth));
+        if(CollUtil.isEmpty(currentStandardList)){
+            throw new CommonException("不存在{}月工资标准数据，无法复制，请检查！",currentYearMonth);
+        }
+
+        // 3. copy数据匹配月工资标准，并校验【copy数据匹配校验】
+        List<SalarySubsidyRecordVo> newCopyAddData = BeanUtil.copyToList(copyAddData,SalarySubsidyRecordVo.class);
+        newCopyAddData.forEach(item->{
+            SalaryStandard standardTmp = currentStandardList.stream().filter(x->x.getIdCardNumber().equals(item.getIdCardNumber()) && x.getCompany().equals(item.getCompany())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(standardTmp)){
+                item.setId(null);         //新主键Id
+                item.setStandardId(standardTmp.getId()); //新关联外键Id
+                item.setCreateTime(null);
+                item.setCreateUser(null);
+                item.setUpdateUser(null);
+                item.setUpdateTime(null);
+            }else{
+                throw new CommonException("员工未匹配到{}月工资标准数据，无法复制，请检查！",currentYearMonth);
+            }
+        });
+
+        // 4. copy数据校验是否已存在【copy数据唯一性校验】
+        if(CollUtil.isNotEmpty(newCopyAddData)){
+            List<SalarySubsidyRecord> addList = BeanUtil.copyToList(newCopyAddData,SalarySubsidyRecord.class);
+            this.saveBatch(addList);
+        }
     }
 }

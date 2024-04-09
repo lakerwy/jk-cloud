@@ -30,6 +30,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
@@ -127,6 +128,22 @@ public class SalarySubsidyRecordController {
     @GetMapping("/sys/hr/salary/subsidy/detail")
     public CommonResult<SalarySubsidyRecordVo> detail(@Valid SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
         return CommonResult.data(salarySubsidyRecordService.detail(salarySubsidyRecordIdParam));
+    }
+
+
+    /**
+     * 工资系统-注册补贴- 【复制上月（可指定复制）-为空，复制全部】
+     *
+     * @author yong.ye
+     * @date  2024/04/26 09:36
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("工资系统-注册补贴- 【复制上月（可指定复制）-为空，复制全部】")
+    @CommonLog("工资系统-注册补贴- 【复制上月（可指定复制）-为空，复制全部】")
+    @PostMapping("/sys/hr/salary/subsidy/copy")
+    public CommonResult<String> copy(@RequestBody @Valid IdsParam idsParam) {
+        salarySubsidyRecordService.copy(idsParam);
+        return CommonResult.ok();
     }
 
 }

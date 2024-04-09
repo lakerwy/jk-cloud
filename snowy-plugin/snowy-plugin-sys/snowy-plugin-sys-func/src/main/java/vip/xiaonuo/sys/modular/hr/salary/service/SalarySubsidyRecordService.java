@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
 import java.util.List;
@@ -79,4 +80,8 @@ public interface SalarySubsidyRecordService extends IService<SalarySubsidyRecord
      **/
     SalarySubsidyRecord queryEntity(String id);
 
+    /**
+     * 复制上月（注册补贴）
+     */
+    void copy(IdsParam idsParam);
 }

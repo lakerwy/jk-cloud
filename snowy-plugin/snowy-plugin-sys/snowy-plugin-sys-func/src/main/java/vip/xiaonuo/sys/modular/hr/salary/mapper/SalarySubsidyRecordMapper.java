@@ -20,6 +20,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalarySubsidyRecord;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
+import java.util.List;
+
 /**
  * 工资系统-各类补贴-明细记录Mapper接口
  *
@@ -42,4 +44,10 @@ public interface SalarySubsidyRecordMapper extends BaseMapper<SalarySubsidyRecor
      * @return
      */
     SalarySubsidyRecordVo getDetailById(String id);
+
+    /**
+     * 获取待复制的数据
+     * @return
+     */
+    List<SalarySubsidyRecordVo> getCopyData(@Param(Constants.WRAPPER) Wrapper<SalarySubsidyRecord> queryWrapper);
 }

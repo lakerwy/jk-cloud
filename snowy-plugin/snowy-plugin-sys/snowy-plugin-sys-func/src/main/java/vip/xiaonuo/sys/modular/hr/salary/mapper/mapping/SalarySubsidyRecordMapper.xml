@@ -18,4 +18,12 @@
         where a.ID = #{id}
     </select>
 
+    <select id="getCopyData" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo" >
+        select a.*, b.`YEAR_MONTH` as yearMonth,b.ID_CARD_NUMBER as idCardNumber,b.USER_NAME as userName,
+               b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.COMPANY as company,b.POSITION
+        from HR_SALARY_SUBSIDY_RECORD a
+              join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
 </mapper>
