@@ -10,7 +10,7 @@
                c.PURCHASER as purchaser,c.HT_COMPANY_OR_DEPARTMENT as htCompanyOrDepartment,c.HT_OWNER as htOwner
         from BIZ_INVOICE_COST_BILL a
                  join BIZ_INVOICE_COST b on a.INVOICE_COST_ID = b.ID
-                 left join BIZ_INVOICE_SALE c on b.KP_SN = c.SN and c.DELETE_FLAG='NOT_DELETE'
+                 left join BIZ_INVOICE_SALE c on b.KP_SN = c.SN and c.DELETE_FLAG='NOT_DELETE' and c.STATUS in ('0','1')
             ${ew.customSqlSegment}
     </select>
 
