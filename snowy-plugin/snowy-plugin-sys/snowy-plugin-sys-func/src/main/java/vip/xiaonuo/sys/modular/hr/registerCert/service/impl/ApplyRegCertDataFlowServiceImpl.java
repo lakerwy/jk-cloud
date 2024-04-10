@@ -44,6 +44,7 @@ import vip.xiaonuo.sys.modular.hr.registerCert.service.*;
 import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 注册补贴-申请FLW流程表信息Service接口实现类
@@ -156,7 +157,8 @@ public class ApplyRegCertDataFlowServiceImpl extends ServiceImpl<ApplyRegCertDat
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ApplyRegCertDataFlowEditParam applyRegCertDataFlowEditParam) {
-
+        List<RegCertStatusData> deletRegCertStatus = regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>().eq(RegCertStatusData::getApplyRegFlwId,applyRegCertDataFlowEditParam.getId()));
+        regCertStatusDataService.removeByIds(deletRegCertStatus.stream().map(reg -> reg.getId()).collect(Collectors.toList()));
         if(CollectionUtil.isNotEmpty(applyRegCertDataFlowEditParam.getRegCertStatusDataList())){
             List<RegCertStatusData> regCertStatusDataList = new ArrayList<>();
             applyRegCertDataFlowEditParam.getRegCertStatusDataList().forEach(status -> {

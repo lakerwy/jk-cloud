@@ -4,10 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
+import org.springframework.stereotype.Component;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;
 
 /**  申请补贴流程通过后监听，修改状态 */
 @Slf4j
+@Component
 public class ApplyRegCertDataFlowListener implements ExecutionListener {
 
     @Override
@@ -18,12 +20,14 @@ public class ApplyRegCertDataFlowListener implements ExecutionListener {
             /** 更新状态申请状态 */
             String sql1 = "UPDATE APPLY_REG_CERT_DATA_FLOW SET  STATUS = '1' WHERE PROCESS_INSTANCE_ID = '" + processInstanceId + "'";
             CommonHandleUtil.handleSqlExecution(sql1);
+            log.error("ApplyRegCertDataFlowListener:sql1:"+sql1);
 
             if(StringUtils.isEmpty(id)){
                 log.error("ApplyRegCertDataFlowListener:无法获取ID - processInstanceId："+processInstanceId);
             }
             if(StringUtils.isNotEmpty(id)){
-                String sql2 = "UPDATE REG_CERT_STATUS_DATA SET  IS_PASS = '1' WHERE ID = '" + id + "'";
+                String sql2 = "UPDATE REG_CERT_STATUS_DATA SET  IS_PASS = '1' WHERE APPLY_REG_FLW_ID = '" + id + "'";
+                log.error("ApplyRegCertDataFlowListener:sql2:"+sql2);
                 CommonHandleUtil.handleSqlExecution(sql2);
             }
         }catch (Exception e){
