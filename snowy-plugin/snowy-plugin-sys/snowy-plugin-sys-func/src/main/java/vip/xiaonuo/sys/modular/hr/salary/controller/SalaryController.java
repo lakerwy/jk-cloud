@@ -87,7 +87,7 @@ public class SalaryController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("【已封存的工资数据】获取员工工资条-缓发状态不可查")
     @GetMapping("/sys/hr/salary/empSalary")
-    public CommonResult<Salary> empSalary(SearchParam param) {
+    public CommonResult<Salary> empSalary(@Valid SearchParam param) {
         return CommonResult.data(salaryService.empSalary(param));
     }
 
@@ -133,7 +133,7 @@ public class SalaryController {
     @ApiOperationSupport(order = 10)
     @ApiOperation("【工资相关-统计值】根据类型，获取不同列表统计值（所有数值总额）")
     @GetMapping("/sys/hr/salary/total")
-    public CommonResult<SumSalaryTotal> total(TotalParam param) {
+    public CommonResult<SumSalaryTotal> total(@Valid TotalParam param) {
         return CommonResult.data(salaryService.total(param));
     }
 

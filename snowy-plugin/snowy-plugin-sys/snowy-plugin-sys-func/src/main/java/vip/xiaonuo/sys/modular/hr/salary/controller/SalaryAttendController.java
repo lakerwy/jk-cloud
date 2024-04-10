@@ -140,7 +140,7 @@ public class SalaryAttendController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("获取工资系统-月度考勤数据【个人】")
     @GetMapping("/sys/hr/salary/attend/empAttend")
-    public CommonResult<List<SalaryAttendVo>> empAttend(SearchParam param) {
+    public CommonResult<List<SalaryAttendVo>> empAttend(@Valid SearchParam param) {
         return CommonResult.data(salaryAttendService.empAttend(param));
     }
 }

@@ -166,7 +166,7 @@ public class SalaryStandardController {
     @ApiOperationSupport(order = 8)
     @ApiOperation("根据 所属年月 获取当前年月的工资标准名单（即：待发工资人员名单）")
     @GetMapping("/sys/hr/salary/standard/listByYearMonth")
-    public CommonResult<List<SalaryStandardVo>> listByYearMonth(SearchParam param) {
+    public CommonResult<List<SalaryStandardVo>> listByYearMonth(@Valid SearchParam param) {
         return CommonResult.data(salaryStandardService.listByYearMonth(param));
     }
 
