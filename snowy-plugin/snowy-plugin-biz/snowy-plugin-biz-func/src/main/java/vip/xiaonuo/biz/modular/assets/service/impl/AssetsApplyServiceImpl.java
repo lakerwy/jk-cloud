@@ -68,7 +68,7 @@ public class AssetsApplyServiceImpl extends ServiceImpl<AssetsApplyMapper, Asset
     @Override
     public Page<AssetsApplyVo> page(AssetsApplyPageParam assetsApplyPageParam) {
         QueryWrapper<AssetsApply> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().in(AssetsApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+//        queryWrapper.lambda().in(AssetsApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(assetsApplyPageParam.getOrgName())) {
             queryWrapper.lambda().like(AssetsApply::getOrgName, assetsApplyPageParam.getOrgName());
         }

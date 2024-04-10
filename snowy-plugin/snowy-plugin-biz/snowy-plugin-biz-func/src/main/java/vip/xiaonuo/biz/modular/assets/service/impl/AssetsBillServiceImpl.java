@@ -56,7 +56,7 @@ public class AssetsBillServiceImpl extends ServiceImpl<AssetsBillMapper, AssetsB
         QueryWrapper<AssetsBill> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.eq("b.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.in("b.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+//        queryWrapper.in("b.STATUS", FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(assetsBillPageParam.getName())) {
             queryWrapper.like("a.NAME", assetsBillPageParam.getName());
         }
