@@ -22,6 +22,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -99,16 +100,19 @@ public class JkAssetManageFlowServiceImpl extends ServiceImpl<JkAssetManageFlowM
     public void add(JkAssetManageFlowAddParam jkAssetManageFlowAddParam) {
         JkAssetManageFlow jkAssetManageFlow = BeanUtil.toBean(jkAssetManageFlowAddParam, JkAssetManageFlow.class);
         String processInstanceId = jkAssetManageFlowAddParam.getProcessInstanceId();
-        String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
-        String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
-        jkAssetManageFlow.setId(id);
-        jkAssetManageFlow.setModelId(modelId);
-        jkAssetManageFlow.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
-        FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
-        //将流程实例和业务表关联起来
-        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));/** 数据库名一定得是小写*/
-        flwCommonApi.save(modelId, BizCommonEnum.JK_ASSET_MANAGE_FLOW.getBizTable(),id,processInstanceId,dbName);
-        jkAssetManageFlow.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
+        /** processInstanceId区分是否为申请，还是手动修改 */
+        if(StringUtils.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            jkAssetManageFlow.setId(id);
+            jkAssetManageFlow.setModelId(modelId);
+            jkAssetManageFlow.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+            //将流程实例和业务表关联起来
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));/** 数据库名一定得是小写*/
+            flwCommonApi.save(modelId, BizCommonEnum.JK_ASSET_MANAGE_FLOW.getBizTable(),id,processInstanceId,dbName);
+            jkAssetManageFlow.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());//申请之后，状态修改为审批中
+        }
         this.save(jkAssetManageFlow);
     }
 

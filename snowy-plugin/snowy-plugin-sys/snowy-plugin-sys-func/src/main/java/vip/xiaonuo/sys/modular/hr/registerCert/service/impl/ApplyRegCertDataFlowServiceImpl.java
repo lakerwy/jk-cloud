@@ -99,8 +99,8 @@ public class ApplyRegCertDataFlowServiceImpl extends ServiceImpl<ApplyRegCertDat
     /**
      * 注册补贴 - 基本信息  REG_ALW_USER
      * 注册补贴 - 已有证书  REG_CERT_DATA
-     * 注册补贴 - 人力资源-注册执业资格证书  REG_CERT_STATUS_DATA
      * 注册补贴-申请基本信息 APPLY_REG_CERT_DATA
+     * 注册补贴 - 人力资源-注册执业资格证书  REG_CERT_STATUS_DATA
      * 注册补贴-申请表 APPLY_REG_CERT_DATA_FLOW
      * */
     /** 后面异步处理 */
@@ -113,6 +113,7 @@ public class ApplyRegCertDataFlowServiceImpl extends ServiceImpl<ApplyRegCertDat
                 regAlwUser = regAlwUserList.get(0);
             }
             BeanUtil.copyProperties(applyRegCertDataFlowAddParam.getRegAlwUserVo(), regAlwUser);
+            regAlwUser.setIdCardNumber(applyRegCertDataFlowAddParam.getIdCardNumber());
             regAlwUserService.saveOrUpdate(regAlwUser);
         }
         /** 注册补贴 - 已有证书  REG_CERT_DATA*/
@@ -121,6 +122,7 @@ public class ApplyRegCertDataFlowServiceImpl extends ServiceImpl<ApplyRegCertDat
             applyRegCertDataFlowAddParam.getRegCertDataList().forEach(cert -> {
                 RegCertData regCertData = BeanUtil.toBean(cert,RegCertData.class);
                 regCertData.setApplyRegFlwId(applyRegCertDataFlow.getId());
+                regCertData.setIdCardNumber(applyRegCertDataFlowAddParam.getIdCardNumber());
                 regCertDataList.add(regCertData);
             });
             regCertDataService.saveBatch(regCertDataList);
@@ -132,6 +134,7 @@ public class ApplyRegCertDataFlowServiceImpl extends ServiceImpl<ApplyRegCertDat
                 RegCertStatusData regCertStatusData = BeanUtil.toBean(status,RegCertStatusData.class);
                 regCertStatusData.setApplyRegFlwId(applyRegCertDataFlow.getId());
                 regCertStatusData.setIsPass("0");//0 原始状态为未通过
+                regCertStatusData.setIdCardNumber(applyRegCertDataFlowAddParam.getIdCardNumber());
                 regCertStatusDataList.add(regCertStatusData);
             });
             regCertStatusDataService.saveBatch(regCertStatusDataList);
@@ -143,6 +146,7 @@ public class ApplyRegCertDataFlowServiceImpl extends ServiceImpl<ApplyRegCertDat
             applyRegCertDataFlowAddParam.getApplyRegCertAlwVoList().forEach(applyData -> {
                 ApplyRegCertData applyRegCertData = BeanUtil.toBean(applyData,ApplyRegCertData.class);
                 applyRegCertData.setApplyRegFlwId(applyRegCertDataFlow.getId());
+                applyRegCertData.setIdCardNumber(applyRegCertDataFlowAddParam.getIdCardNumber());
                 applyRegCertDataList.add(applyRegCertData);
             });
             applyRegCertDataService.saveBatch(applyRegCertDataList);
@@ -152,6 +156,18 @@ public class ApplyRegCertDataFlowServiceImpl extends ServiceImpl<ApplyRegCertDat
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(ApplyRegCertDataFlowEditParam applyRegCertDataFlowEditParam) {
+
+        if(CollectionUtil.isNotEmpty(applyRegCertDataFlowEditParam.getRegCertStatusDataList())){
+            List<RegCertStatusData> regCertStatusDataList = new ArrayList<>();
+            applyRegCertDataFlowEditParam.getRegCertStatusDataList().forEach(status -> {
+                RegCertStatusData regCertStatusData = BeanUtil.toBean(status,RegCertStatusData.class);
+                regCertStatusData.setApplyRegFlwId(applyRegCertDataFlowEditParam.getId());
+                regCertStatusData.setIdCardNumber(applyRegCertDataFlowEditParam.getId());
+                regCertStatusDataList.add(regCertStatusData);
+            });
+            regCertStatusDataService.saveBatch(regCertStatusDataList);
+        }
+
         ApplyRegCertDataFlow applyRegCertDataFlow = this.queryEntity(applyRegCertDataFlowEditParam.getId());
         BeanUtil.copyProperties(applyRegCertDataFlowEditParam, applyRegCertDataFlow);
         this.updateById(applyRegCertDataFlow);
