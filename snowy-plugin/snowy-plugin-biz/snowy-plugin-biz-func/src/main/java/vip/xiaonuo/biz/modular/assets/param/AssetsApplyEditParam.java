@@ -34,6 +34,10 @@ public class AssetsApplyEditParam {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
+    /** 申请人姓名 */
+    @ApiModelProperty(value = "申请人姓名", position = 2)
+    private String optName;
+
     /** 申请部门 */
     @ApiModelProperty(value = "申请部门", position = 2)
     private String orgName;

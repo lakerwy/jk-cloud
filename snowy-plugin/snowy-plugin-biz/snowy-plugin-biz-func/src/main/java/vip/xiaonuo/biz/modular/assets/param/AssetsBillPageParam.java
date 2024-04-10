@@ -75,4 +75,8 @@ public class AssetsBillPageParam {
     /** 申购处理 */
     @ApiModelProperty(value = "申购处理")
     private String handle;
+
+    /** 申请人姓名 */
+    @ApiModelProperty(value = "申请人姓名")
+    private String optName;
 }

@@ -15,6 +15,10 @@ public class AssetsBillVo extends AssetsBill {
     @ApiModelProperty(value = "固资申购申请单-主键ID", position = 101)
     private String applyId;
 
+    /** 固资申购申请单-申请人 */
+    @ApiModelProperty(value = "固资申购申请单-申请人", position = 102)
+    private String optName;
+
     /** 固资申购申请单-申请部门 */
     @ApiModelProperty(value = "固资申购申请单-申请部门", position = 102)
     private String orgName;

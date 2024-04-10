@@ -93,6 +93,16 @@ public class AssetsApplyServiceImpl extends ServiceImpl<AssetsApplyMapper, Asset
         if(ObjectUtil.isNotEmpty(assetsApplyPageParam.getStatus())) {
             queryWrapper.lambda().eq(AssetsApply::getStatus, assetsApplyPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(assetsApplyPageParam.getOptName())){
+            queryWrapper.lambda().like(AssetsApply::getOptName,assetsApplyPageParam.getOptName());
+        }
+        if(ObjectUtil.isNotEmpty(assetsApplyPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(AssetsApply::getOptName,assetsApplyPageParam.getSearchKey())
+                    .or().like(AssetsApply::getSn,assetsApplyPageParam.getSearchKey())
+                    .or().like(AssetsApply::getItems,assetsApplyPageParam.getSearchKey())
+                    .or().like(AssetsApply::getOrgName,assetsApplyPageParam.getSearchKey())
+                    .or().like(AssetsApply::getUserName,assetsApplyPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(assetsApplyPageParam.getSortField(), assetsApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(assetsApplyPageParam.getSortOrder());
             queryWrapper.orderBy(true, assetsApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

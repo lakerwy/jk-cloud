@@ -61,7 +61,7 @@ public class AssetsBillController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取固资申购 - 申请单 - 申购详情列表分页")
-    @SaCheckPermission("/biz/assets/bill/page")
+//    @SaCheckPermission("/biz/assets/bill/page")
     @GetMapping("/biz/assets/bill/page")
     public CommonResult<Page<AssetsBillVo>> page(AssetsBillPageParam assetsBillPageParam) {
         return CommonResult.data(assetsBillService.page(assetsBillPageParam));
@@ -76,7 +76,7 @@ public class AssetsBillController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加固资申购 - 申请单 - 申购详情列表")
     @CommonLog("添加固资申购 - 申请单 - 申购详情列表")
-    @SaCheckPermission("/biz/assets/bill/add")
+//    @SaCheckPermission("/biz/assets/bill/add")
     @PostMapping("/biz/assets/bill/add")
     public CommonResult<String> add(@RequestBody @Valid AssetsBillAddParam assetsBillAddParam) {
         assetsBillService.add(assetsBillAddParam);
@@ -92,7 +92,7 @@ public class AssetsBillController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑固资申购 - 申请单 - 申购详情列表")
     @CommonLog("编辑固资申购 - 申请单 - 申购详情列表")
-    @SaCheckPermission("/biz/assets/bill/edit")
+//    @SaCheckPermission("/biz/assets/bill/edit")
     @PostMapping("/biz/assets/bill/edit")
     public CommonResult<String> edit(@RequestBody @Valid AssetsBillEditParam assetsBillEditParam) {
         assetsBillService.edit(assetsBillEditParam);
@@ -108,7 +108,7 @@ public class AssetsBillController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除固资申购 - 申请单 - 申购详情列表")
     @CommonLog("删除固资申购 - 申请单 - 申购详情列表")
-    @SaCheckPermission("/biz/assets/bill/delete")
+//    @SaCheckPermission("/biz/assets/bill/delete")
     @PostMapping("/biz/assets/bill/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<AssetsBillIdParam> assetsBillIdParamList) {
@@ -124,7 +124,7 @@ public class AssetsBillController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取固资申购 - 申请单 - 申购详情列表详情")
-    @SaCheckPermission("/biz/assets/bill/detail")
+//    @SaCheckPermission("/biz/assets/bill/detail")
     @GetMapping("/biz/assets/bill/detail")
     public CommonResult<AssetsBill> detail(@Valid AssetsBillIdParam assetsBillIdParam) {
         return CommonResult.data(assetsBillService.detail(assetsBillIdParam));

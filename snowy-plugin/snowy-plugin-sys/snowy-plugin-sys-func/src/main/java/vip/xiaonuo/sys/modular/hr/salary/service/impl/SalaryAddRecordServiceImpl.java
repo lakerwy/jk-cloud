@@ -39,6 +39,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddRecordVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddTotal;
 
 import javax.annotation.Resource;
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -111,10 +112,10 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
         if(ObjectUtil.isNotEmpty(addId)) {
             SalaryAddTotal salaryAddTotal = salaryAddRecordMapper.getTotalByAddId(addId);
             SalaryAdd salaryAdd = salaryAddService.queryEntity(addId);
-            salaryAdd.setAddAmount(salaryAddTotal.getAddAmount());
-            salaryAdd.setMinusAmount(salaryAddTotal.getMinusAmount());
-            salaryAdd.setLastAddAmount(salaryAddTotal.getLastAddAmount());
-            salaryAdd.setLastMinusAmount(salaryAddTotal.getLastMinusAmount());
+            salaryAdd.setAddAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ? salaryAddTotal.getAddAmount(): BigDecimal.ZERO);
+            salaryAdd.setMinusAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getMinusAmount(): BigDecimal.ZERO);
+            salaryAdd.setLastAddAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getLastAddAmount(): BigDecimal.ZERO);
+            salaryAdd.setLastMinusAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getLastMinusAmount(): BigDecimal.ZERO);
             salaryAddService.updateById(salaryAdd);
         }
     }
@@ -130,10 +131,10 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
         if(ObjectUtil.isNotEmpty(addId)) {
             SalaryAddTotal salaryAddTotal = salaryAddRecordMapper.getTotalByAddId(addId);
             SalaryAdd salaryAdd = salaryAddService.queryEntity(addId);
-            salaryAdd.setAddAmount(salaryAddTotal.getAddAmount());
-            salaryAdd.setMinusAmount(salaryAddTotal.getMinusAmount());
-            salaryAdd.setLastAddAmount(salaryAddTotal.getLastAddAmount());
-            salaryAdd.setLastMinusAmount(salaryAddTotal.getLastMinusAmount());
+            salaryAdd.setAddAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ? salaryAddTotal.getAddAmount(): BigDecimal.ZERO);
+            salaryAdd.setMinusAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getMinusAmount(): BigDecimal.ZERO);
+            salaryAdd.setLastAddAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getLastAddAmount(): BigDecimal.ZERO);
+            salaryAdd.setLastMinusAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getLastMinusAmount(): BigDecimal.ZERO);
             salaryAddService.updateById(salaryAdd);
         }
     }
@@ -153,10 +154,10 @@ public class SalaryAddRecordServiceImpl extends ServiceImpl<SalaryAddRecordMappe
             for (String addId:addIds) {
                 SalaryAddTotal salaryAddTotal = salaryAddRecordMapper.getTotalByAddId(addId);
                 SalaryAdd salaryAdd = salaryAddService.queryEntity(addId);
-                salaryAdd.setAddAmount(salaryAddTotal.getAddAmount());
-                salaryAdd.setMinusAmount(salaryAddTotal.getMinusAmount());
-                salaryAdd.setLastAddAmount(salaryAddTotal.getLastAddAmount());
-                salaryAdd.setLastMinusAmount(salaryAddTotal.getLastMinusAmount());
+                salaryAdd.setAddAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ? salaryAddTotal.getAddAmount(): BigDecimal.ZERO);
+                salaryAdd.setMinusAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getMinusAmount(): BigDecimal.ZERO);
+                salaryAdd.setLastAddAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getLastAddAmount(): BigDecimal.ZERO);
+                salaryAdd.setLastMinusAmount(ObjectUtil.isNotEmpty(salaryAddTotal) ?salaryAddTotal.getLastMinusAmount(): BigDecimal.ZERO);
                 salaryAddList.add(salaryAdd);
             }
             salaryAddService.updateBatchById(salaryAddList);

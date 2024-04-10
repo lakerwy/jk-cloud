@@ -78,11 +78,15 @@ public class AssetsBillServiceImpl extends ServiceImpl<AssetsBillMapper, AssetsB
         if(ObjectUtil.isNotEmpty(assetsBillPageParam.getUserName())){
             queryWrapper.like("b.USER_NAME",assetsBillPageParam.getUserName());
         }
+        if(ObjectUtil.isNotEmpty(assetsBillPageParam.getOptName())){
+            queryWrapper.like("b.OPT_NAME",assetsBillPageParam.getOptName());
+        }
         if(ObjectUtil.isNotEmpty(assetsBillPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("b.SN",assetsBillPageParam.getSearchKey())
                     .or().like("b.ORG_NAME",assetsBillPageParam.getSearchKey())
                     .or().like("b.USER_NAME",assetsBillPageParam.getSearchKey())
-                    .or().like("a.NAME",assetsBillPageParam.getSearchKey()));
+                    .or().like("a.NAME",assetsBillPageParam.getSearchKey())
+                    .or().like("b.OPT_NAME",assetsBillPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(assetsBillPageParam.getSortField(), assetsBillPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(assetsBillPageParam.getSortOrder());

@@ -80,4 +80,7 @@ public class AssetsApplyPageParam {
     @ApiModelProperty(value = "流程状态")
     private String status;
 
+    /** 申请人姓名 */
+    @ApiModelProperty(value = "申请人姓名")
+    private String optName;
 }

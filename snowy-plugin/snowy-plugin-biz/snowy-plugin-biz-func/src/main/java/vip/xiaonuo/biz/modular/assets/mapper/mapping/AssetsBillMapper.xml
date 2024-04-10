@@ -5,7 +5,7 @@
     <select id="getAssetsBillPage" resultType="vip.xiaonuo.biz.modular.assets.vo.AssetsBillVo">
         select a.*,
                b.ID as applyId,b.SN as sn,b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,b.STATUS as status,
-               b.ORG_NAME as orgName,b.USER_NAME as userName,b.TYPE as type,b.ITEMS as items,
+               b.OPT_NAME as optName,b.ORG_NAME as orgName,b.USER_NAME as userName,b.TYPE as type,b.ITEMS as items,
                b.HANDLE as handle,b.TOTAL_AMOUNT as totalAmount,b.MEMO as memo,b.ATTACH as attach
         from BIZ_ASSETS_BILL a
                  join BIZ_ASSETS_APPLY b on a.ASSETS_APPLY_ID = b.ID

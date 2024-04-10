@@ -60,7 +60,7 @@ public class AssetsApplyController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取固资申购 - 申请流程分页")
-    @SaCheckPermission("/biz/assets/page")
+//    @SaCheckPermission("/biz/assets/page")
     @GetMapping("/biz/assets/page")
     public CommonResult<Page<AssetsApplyVo>> page(AssetsApplyPageParam assetsApplyPageParam) {
         return CommonResult.data(assetsApplyService.page(assetsApplyPageParam));
@@ -75,7 +75,7 @@ public class AssetsApplyController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加固资申购 - 申请流程")
     @CommonLog("添加固资申购 - 申请流程")
-    @SaCheckPermission("/biz/assets/add")
+//    @SaCheckPermission("/biz/assets/add")
     @PostMapping("/biz/assets/add")
     public CommonResult<String> add(@RequestBody @Valid AssetsApplyAddParam assetsApplyAddParam) {
         assetsApplyService.add(assetsApplyAddParam);
@@ -91,7 +91,7 @@ public class AssetsApplyController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑固资申购 - 申请流程")
     @CommonLog("编辑固资申购 - 申请流程")
-    @SaCheckPermission("/biz/assets/edit")
+//    @SaCheckPermission("/biz/assets/edit")
     @PostMapping("/biz/assets/edit")
     public CommonResult<String> edit(@RequestBody @Valid AssetsApplyEditParam assetsApplyEditParam) {
         assetsApplyService.edit(assetsApplyEditParam);
@@ -107,7 +107,7 @@ public class AssetsApplyController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除固资申购 - 申请流程")
     @CommonLog("删除固资申购 - 申请流程")
-    @SaCheckPermission("/biz/assets/delete")
+//    @SaCheckPermission("/biz/assets/delete")
     @PostMapping("/biz/assets/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<AssetsApplyIdParam> assetsApplyIdParamList) {
@@ -123,7 +123,7 @@ public class AssetsApplyController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取固资申购 - 申请流程详情")
-    @SaCheckPermission("/biz/assets/detail")
+//    @SaCheckPermission("/biz/assets/detail")
     @GetMapping("/biz/assets/detail")
     public CommonResult<AssetsApplyVo> detail(@Valid AssetsApplyIdParam assetsApplyIdParam) {
         return CommonResult.data(assetsApplyService.detail(assetsApplyIdParam));
