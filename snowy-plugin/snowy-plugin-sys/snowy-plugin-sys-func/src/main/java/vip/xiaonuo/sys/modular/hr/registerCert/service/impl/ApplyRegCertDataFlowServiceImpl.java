@@ -164,7 +164,7 @@ public class ApplyRegCertDataFlowServiceImpl extends ServiceImpl<ApplyRegCertDat
             applyRegCertDataFlowEditParam.getRegCertStatusDataList().forEach(status -> {
                 RegCertStatusData regCertStatusData = BeanUtil.toBean(status,RegCertStatusData.class);
                 regCertStatusData.setApplyRegFlwId(applyRegCertDataFlowEditParam.getId());
-                regCertStatusData.setIdCardNumber(applyRegCertDataFlowEditParam.getId());
+                regCertStatusData.setIdCardNumber(applyRegCertDataFlowEditParam.getIdCardNumber());
                 regCertStatusDataList.add(regCertStatusData);
             });
             regCertStatusDataService.saveBatch(regCertStatusDataList);
