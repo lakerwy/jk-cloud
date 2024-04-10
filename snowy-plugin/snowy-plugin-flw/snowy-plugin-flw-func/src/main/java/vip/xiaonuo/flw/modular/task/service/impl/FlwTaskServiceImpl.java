@@ -325,45 +325,47 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         flwDoneTaskResult.setTenantId(historicTaskInstance.getTenantId());
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery()
                 .processInstanceId(flwDoneTaskResult.getProcessInstanceId()).singleResult();
-        String state = historicProcessInstance.getState();
-        switch (state) {
-            case "ACTIVE":
-                flwDoneTaskResult.setStateCode(state);
-                flwDoneTaskResult.setStateText("审批中");
-                break;
-            case "SUSPENDED":
-                flwDoneTaskResult.setStateCode(state);
-                flwDoneTaskResult.setStateText("已挂起");
-                break;
-            case "COMPLETED":
-                flwDoneTaskResult.setStateCode(state);
-                flwDoneTaskResult.setStateText("已完成");
-                break;
-            case "EXTERNALLY_TERMINATED":
-                String deleteReason = historicProcessInstance.getDeleteReason();
-                switch (deleteReason) {
-                    case "END":
-                        flwDoneTaskResult.setStateCode(deleteReason);
-                        flwDoneTaskResult.setStateText("已终止");
-                        break;
-                    case "REVOKE":
-                        flwDoneTaskResult.setStateCode(deleteReason);
-                        flwDoneTaskResult.setStateText("已撤回");
-                        break;
-                    case "REJECT":
-                        flwDoneTaskResult.setStateCode(deleteReason);
-                        flwDoneTaskResult.setStateText("已拒绝");
-                        break;
-                    default:
-                        throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
-                }
-                break;
-            case "INTERNALLY_TERMINATED":
-                flwDoneTaskResult.setStateCode(state);
-                flwDoneTaskResult.setStateText("内部终止");
-                break;
-            default:
-                throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
+        if(ObjectUtil.isNotEmpty(historicProcessInstance)){
+            String state = historicProcessInstance.getState();
+            switch (state) {
+                case "ACTIVE":
+                    flwDoneTaskResult.setStateCode(state);
+                    flwDoneTaskResult.setStateText("审批中");
+                    break;
+                case "SUSPENDED":
+                    flwDoneTaskResult.setStateCode(state);
+                    flwDoneTaskResult.setStateText("已挂起");
+                    break;
+                case "COMPLETED":
+                    flwDoneTaskResult.setStateCode(state);
+                    flwDoneTaskResult.setStateText("已完成");
+                    break;
+                case "EXTERNALLY_TERMINATED":
+                    String deleteReason = historicProcessInstance.getDeleteReason();
+                    switch (deleteReason) {
+                        case "END":
+                            flwDoneTaskResult.setStateCode(deleteReason);
+                            flwDoneTaskResult.setStateText("已终止");
+                            break;
+                        case "REVOKE":
+                            flwDoneTaskResult.setStateCode(deleteReason);
+                            flwDoneTaskResult.setStateText("已撤回");
+                            break;
+                        case "REJECT":
+                            flwDoneTaskResult.setStateCode(deleteReason);
+                            flwDoneTaskResult.setStateText("已拒绝");
+                            break;
+                        default:
+                            throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
+                    }
+                    break;
+                case "INTERNALLY_TERMINATED":
+                    flwDoneTaskResult.setStateCode(state);
+                    flwDoneTaskResult.setStateText("内部终止");
+                    break;
+                default:
+                    throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
+            }
         }
         return flwDoneTaskResult;
     }
