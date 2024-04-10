@@ -145,7 +145,7 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
     private void getRegData(SalarySubsidyRecordVo salarySubsidyRecordVo){
         if(StringUtils.isEmpty(salarySubsidyRecordVo.getIdCardNumber())){return;}
         List<RegCertStatusData> regCertStatusDataList = new ArrayList<>();
-        regCertStatusDataList = regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>().eq(RegCertStatusData::getIdCardNumber,salarySubsidyRecordVo.getIdCardNumber()));
+        regCertStatusDataList = regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>().eq(RegCertStatusData::getIdCardNumber,AesUtil.decrypt(salarySubsidyRecordVo.getIdCardNumber())));
         if(CollUtil.isEmpty(regCertStatusDataList)){return;}
         salarySubsidyRecordVo.setRegCertStatusDataList(regCertStatusDataList);
     }
