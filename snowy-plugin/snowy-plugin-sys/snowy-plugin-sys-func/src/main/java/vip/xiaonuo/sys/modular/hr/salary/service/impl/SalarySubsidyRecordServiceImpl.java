@@ -17,14 +17,20 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchDetailVo;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.UserInfo;
+import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertStatusData;
+import vip.xiaonuo.sys.modular.hr.registerCert.service.RegCertStatusDataService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalarySubsidyRecord;
 import vip.xiaonuo.sys.modular.hr.salary.enums.SalaryTypeEnum;
@@ -60,6 +66,9 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
     private SalarySubsidyRecordMapper salarySubsidyRecordMapper;
     @Resource
     private SalaryStandardService salaryStandardService;
+
+    @Resource
+    RegCertStatusDataService regCertStatusDataService;
 
     @Override
     public Page<SalarySubsidyRecordVo> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam) {
@@ -129,9 +138,17 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
     @Override
     public SalarySubsidyRecordVo detail(SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
         SalarySubsidyRecordVo salarySubsidyRecordVo = salarySubsidyRecordMapper.getDetailById(salarySubsidyRecordIdParam.getId());
+        getRegData(salarySubsidyRecordVo);
         return AesUtil.decryptGZ(salarySubsidyRecordVo);
     }
-
+    /**  获取注册补贴信息 */
+    private void getRegData(SalarySubsidyRecordVo salarySubsidyRecordVo){
+        if(StringUtils.isEmpty(salarySubsidyRecordVo.getIdCardNumber())){return;}
+        List<RegCertStatusData> regCertStatusDataList = new ArrayList<>();
+        regCertStatusDataList = regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>().eq(RegCertStatusData::getIdCardNumber,salarySubsidyRecordVo.getIdCardNumber()));
+        if(CollUtil.isEmpty(regCertStatusDataList)){return;}
+        salarySubsidyRecordVo.setRegCertStatusDataList(regCertStatusDataList);
+    }
     @Override
     public SalarySubsidyRecord queryEntity(String id) {
         SalarySubsidyRecord salarySubsidyRecord = this.getById(id);

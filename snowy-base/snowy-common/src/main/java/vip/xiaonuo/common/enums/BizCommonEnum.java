@@ -28,6 +28,8 @@ public enum BizCommonEnum {
     HR_USER_APPLY_GOOUT("HR_USER_APPLY_GOOUT","HR_USER_APPLY_GOOUT","HrUserApplyGooutServiceImpl"),//申请出差
     APPLY_REG_CERT_DATA_FLOW("APPLY_REG_CERT_DATA_FLOW","APPLY_REG_CERT_DATA_FLOW","ApplyRegCertDataFlowServiceImpl"),//申请补贴
 
+    JK_ASSET_MANAGE_FLOW("JK_ASSET_MANAGE_FLOW","JK_ASSET_MANAGE_FLOW","JkAssetManageFlowServiceImpl"),//建科资产管理申请
+
     BIZ_VISIT("BIZ_VISIT","BIZ_VISIT","BizVisitServiceImpl"),  //董事办-外访记录
 
     HR_USER_BUSINESS_TRIP_FLW("HR_USER_BUSINESS_TRIP_FLW","HR_USER_BUSINESS_TRIP_FLW","HrUserBusinessTripFlwServiceImpl"), //申请出差流程表

@@ -258,17 +258,7 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         searchDetailVo.setOtherCertList(list.stream().filter(x->CertTypeEnum.OTHER.getValue().equals(x.getType())).collect(Collectors.toList()));
         UserInfo userInfo = BeanUtil.copyProperties(certManage,UserInfo.class);
         searchDetailVo.setUserInfo(userInfo);
-        getRegData(userInfo,searchDetailVo);
         return searchDetailVo;
-    }
-
-    /**  获取注册补贴信息 */
-    private void getRegData(UserInfo userInfo,SearchDetailVo searchDetailVo){
-        if(StringUtils.isEmpty(userInfo.getIdNumber())){return;}
-        List<RegCertStatusData> regCertStatusDataList = new ArrayList<>();
-        regCertStatusDataList = regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>().eq(RegCertStatusData::getIdCardNumber,userInfo.getIdNumber()));
-        if(CollUtil.isEmpty(regCertStatusDataList)){return;}
-        searchDetailVo.setRegCertStatusDataList(regCertStatusDataList);
     }
 
     @Override
