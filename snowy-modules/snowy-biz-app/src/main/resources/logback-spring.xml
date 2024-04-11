@@ -137,6 +137,7 @@
                             "paramJson":"%X{paramJson}",
                             "resultJson":"%X{resultJson}",
                             "exception":"%X{exception}",
+                            "reqUrl":"%X{reqUrl}",
                             <!--                            "loginTime": "%date{\"yyyy-MM-dd HH:mm:ss\"}",-->
                             "description":"%X{description}"
                             }

@@ -137,7 +137,8 @@
                             "paramJson":"%X{paramJson}",
                             "resultJson":"%X{resultJson}",
                             "exception":"%X{exception}",
-                            "description":"%X{description}"
+                            "description":"%X{description}",
+                            "reqUrl":"%X{reqUrl}"
                             }
                         </pattern>
                     </pattern>

@@ -80,6 +80,7 @@ public class DevLogUtil {
         MDC.put("paramJson",devLog.getParamJson());
         MDC.put("resultJson",resultJson);
         MDC.put("clientIP", devLog.getOpIp());
+        MDC.put("reqUrl", devLog.getReqUrl());
         log.info("{}操作日志---",description);
     }
 
@@ -119,7 +120,8 @@ public class DevLogUtil {
         MDC.put("exception",devLog.getExeMessage());
         MDC.put("clientIP", devLog.getOpIp());
         MDC.put("category",DevLogCategoryEnum.EXCEPTION.getValue());
-        log.info("{}异常日志---",description);
+        MDC.put("reqUrl", devLog.getReqUrl());
+        log.error("{}异常日志---",description);
     }
 
     /**
