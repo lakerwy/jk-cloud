@@ -268,16 +268,20 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Override
     public Page<FlwProcessMyDraftResult> myDraftPage(FlwProcessMyDraftPageParam flwProcessMyDraftPageParam) {
-        LambdaQueryWrapper<FlwRelation> lambdaQueryWrapper = new LambdaQueryWrapper<>();
-        if(ObjectUtil.isNotEmpty(flwProcessMyDraftPageParam.getName())) {
-            lambdaQueryWrapper.like(FlwRelation::getExtJson, JSONUtil.toJsonStr(JSONUtil.createObj().set("title", flwProcessMyDraftPageParam.getName())));
+        QueryWrapper<FlwRelation> queryWrapper = new QueryWrapper<>();
+        if (ObjectUtil.isNotEmpty(flwProcessMyDraftPageParam.getName())) {
+            queryWrapper.like("EXT_JSON", JSONUtil.toJsonStr(JSONUtil.createObj().set("title", flwProcessMyDraftPageParam.getName())));
         }
-        lambdaQueryWrapper.eq(FlwRelation::getCategory, FlwRelationCategoryEnum.FLW_USER_TO_DRAFT.getValue())
-                .eq(FlwRelation::getObjectId,StpLoginUserUtil.getLoginUser().getId());
-//        lambdaQueryWrapper.orderByDesc(FlwRelation::getExtJson, entity -> JSONUtil.parseObj(entity.getExtJson()).get("createTime"));
-       if(StrUtil.isNotEmpty(flwProcessMyDraftPageParam.getModelId())){
-           lambdaQueryWrapper.eq(FlwRelation::getTargetId,flwProcessMyDraftPageParam.getModelId());
-       }
+        queryWrapper.eq("CATEGORY", FlwRelationCategoryEnum.FLW_USER_TO_DRAFT.getValue())
+                .eq("OBJECT_ID", StpLoginUserUtil.getLoginUser().getId());
+
+        queryWrapper.orderBy(true, false, "JSON_EXTRACT(EXT_JSON, '$.createTime') DESC");
+
+        if (StrUtil.isNotEmpty(flwProcessMyDraftPageParam.getModelId())) {
+            queryWrapper.eq("TARGET_ID", flwProcessMyDraftPageParam.getModelId());
+        }
+        // 转换为 LambdaQueryWrapper
+        LambdaQueryWrapper<FlwRelation> lambdaQueryWrapper = queryWrapper.lambda();
         Page<FlwRelation> page = flwRelationService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
         //page.setTotal(page.getTotal());
         return new Page<FlwProcessMyDraftResult>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(page.getRecords().stream().map(flwRelation -> {
