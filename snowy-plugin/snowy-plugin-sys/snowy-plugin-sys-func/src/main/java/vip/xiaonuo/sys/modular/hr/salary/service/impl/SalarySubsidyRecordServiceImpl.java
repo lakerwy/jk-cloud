@@ -138,17 +138,14 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
     @Override
     public SalarySubsidyRecordVo detail(SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
         SalarySubsidyRecordVo salarySubsidyRecordVo = salarySubsidyRecordMapper.getDetailById(salarySubsidyRecordIdParam.getId());
-        getRegData(salarySubsidyRecordVo);
-        return AesUtil.decryptGZ(salarySubsidyRecordVo);
+        AesUtil.decryptGZ(salarySubsidyRecordVo);
+        if(StringUtils.isNotEmpty(salarySubsidyRecordVo.getIdCardNumber())){ /**  获取注册补贴信息 */
+            salarySubsidyRecordVo.setRegCertStatusDataList(regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>()
+                    .eq(RegCertStatusData::getIdCardNumber,salarySubsidyRecordVo.getIdCardNumber())));
+        }
+        return salarySubsidyRecordVo;
     }
-    /**  获取注册补贴信息 */
-    private void getRegData(SalarySubsidyRecordVo salarySubsidyRecordVo){
-        if(StringUtils.isEmpty(salarySubsidyRecordVo.getIdCardNumber())){return;}
-        List<RegCertStatusData> regCertStatusDataList = new ArrayList<>();
-        regCertStatusDataList = regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>().eq(RegCertStatusData::getIdCardNumber,AesUtil.decrypt(salarySubsidyRecordVo.getIdCardNumber())));
-        if(CollUtil.isEmpty(regCertStatusDataList)){return;}
-        salarySubsidyRecordVo.setRegCertStatusDataList(regCertStatusDataList);
-    }
+
     @Override
     public SalarySubsidyRecord queryEntity(String id) {
         SalarySubsidyRecord salarySubsidyRecord = this.getById(id);
