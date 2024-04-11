@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.hr.assetManage.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -32,17 +33,16 @@ import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageFlow;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageRelation;
 import vip.xiaonuo.sys.modular.hr.assetManage.enums.JkAssetManageFlowEnum;
 import vip.xiaonuo.sys.modular.hr.assetManage.mapper.JkAssetManageMapper;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageAddParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageEditParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageIdParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManagePageParam;
+import vip.xiaonuo.sys.modular.hr.assetManage.param.*;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageFlowService;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageRelationService;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
 
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 建科资产管理表Service接口实现类
@@ -126,5 +126,17 @@ public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, J
                 .eq(JkAssetManageRelation::getAssetId,assetId));
         if(count <= 0){return false;}
         return true;
+    }
+
+    /** 申请资产查看流程，获取建科资产管理表详情*/
+    @Override
+    public List<JkAssetManage> detailManageFlow(JkAssetFlowManageIdParam jkAssetFlowManageIdParam){
+        List<JkAssetManage> jkAssetManageList = new ArrayList<>();
+        List<JkAssetManageRelation> jkAssetManageRelationList = jkAssetManageRelationService.list(new LambdaQueryWrapper<JkAssetManageRelation>().eq(JkAssetManageRelation::getFlowId,jkAssetFlowManageIdParam));
+        if(CollUtil.isNotEmpty(jkAssetManageRelationList)){
+            jkAssetManageList = this.list(new LambdaQueryWrapper<JkAssetManage>()
+                    .in(JkAssetManage::getId,jkAssetManageRelationList.stream().map(rela -> rela.getAssetId()).collect(Collectors.toList())));
+        }
+        return jkAssetManageList;
     }
 }

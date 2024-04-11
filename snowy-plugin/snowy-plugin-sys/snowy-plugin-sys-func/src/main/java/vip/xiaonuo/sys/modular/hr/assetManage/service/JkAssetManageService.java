@@ -15,10 +15,7 @@ package vip.xiaonuo.sys.modular.hr.assetManage.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageAddParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageEditParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageIdParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManagePageParam;
+import vip.xiaonuo.sys.modular.hr.assetManage.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,12 @@ public interface JkAssetManageService extends IService<JkAssetManage> {
      * @date  2024/04/10 08:47
      **/
     JkAssetManage queryEntity(String id);
+
+    /**
+     * 申请资产查看流程，获取建科资产管理表详情
+     *
+     * @author ljy
+     * @date  2024/04/10 08:47
+     **/
+    List<JkAssetManage> detailManageFlow(JkAssetFlowManageIdParam jkAssetFlowManageIdParam);
 }
