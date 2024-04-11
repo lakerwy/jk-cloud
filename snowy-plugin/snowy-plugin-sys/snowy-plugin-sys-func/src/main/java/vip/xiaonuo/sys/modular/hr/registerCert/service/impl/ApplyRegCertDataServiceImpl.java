@@ -45,6 +45,8 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelRegInfoVo;
 import vip.xiaonuo.sys.modular.hr.salary.vo.PersonnelTitleVo;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnelTitle;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubPersonnelTitleService;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
@@ -74,6 +76,8 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
     SubPersonnelTitleService subPersonnelTitleService;
     @Resource
     SysUserService sysUserService;
+    @Resource
+    SysOrgService sysOrgService;
 
     @Override
     public Page<ApplyRegCertData> page(ApplyRegCertDataPageParam applyRegCertDataPageParam) {
@@ -166,7 +170,13 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
             if(ObjectUtil.isNotEmpty(sysUser) && StringUtils.isNotEmpty(sysUser.getOrgId())){
                 PersonnelRegInfoVo  vo= personnelRegInfoList.get(0);
                 vo.setFirstOrgId(vo.getOrgId());
+                vo.setFirstOrgName(vo.getOrgName());
                 vo.setOrgId(sysUser.getOrgId());
+                vo.setOrgName(sysUser.getOrgName());
+                if(StringUtils.isNotEmpty(sysUser.getOrgId())){
+                    SysOrg sysOrg = sysOrgService.getById(sysUser.getOrgId());
+                    if(ObjectUtil.isNotEmpty(sysOrg)){vo.setOrgName(sysOrg.getName());}
+                }
             }
         }
         List<String> perIds = personnelRegInfoList.stream().map(person -> person.getId()).collect(Collectors.toList());
