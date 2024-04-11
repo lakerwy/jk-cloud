@@ -124,7 +124,7 @@ public class JkAssetManageFlowServiceImpl extends ServiceImpl<JkAssetManageFlowM
                 List<JkAssetManageRelation> jkAssetManageRelationList = new ArrayList<>();
                 jkAssetManageFlowAddParam.getJkAssetManageRelationList().forEach(relation -> {
                     JkAssetManageRelation jkAssetManageRelation = BeanUtil.toBean(relation,JkAssetManageRelation.class);
-                    jkAssetManageRelation.setFlowId(jkAssetManageFlow.getId());
+                    jkAssetManageRelation.setFlowId(processInstanceId);
                     jkAssetManageRelationList.add(jkAssetManageRelation);
                 });
                 jkAssetManageRelationService.saveBatch(jkAssetManageRelationList);
@@ -151,7 +151,7 @@ public class JkAssetManageFlowServiceImpl extends ServiceImpl<JkAssetManageFlowM
         BeanUtil.copyProperties(jkAssetManageFlowEditParam, jkAssetManageFlow);
         List<JkAssetManageRelation> jkAssetManageRelationList = jkAssetManageFlowEditParam.getJkAssetManageRelationList();
         jkAssetManageRelationList.forEach(relation -> {
-            relation.setFlowId(jkAssetManageFlow.getId());
+            relation.setFlowId(jkAssetManageFlow.getProcessInstanceId());
         });
         deleteHis(jkAssetManageFlowEditParam);
         jkAssetManageRelationService.saveBatch(jkAssetManageRelationList);
@@ -184,7 +184,7 @@ public class JkAssetManageFlowServiceImpl extends ServiceImpl<JkAssetManageFlowM
     }
     private void getJkAssetManage(JkAssetManageFlow jkAssetManageFlow){
         List<JkAssetManageRelation> jkAssetManageRelationList = jkAssetManageRelationService.list(new LambdaQueryWrapper<JkAssetManageRelation>()
-                .eq(JkAssetManageRelation::getFlowId,jkAssetManageFlow.getId()));
+                .eq(JkAssetManageRelation::getFlowId,jkAssetManageFlow.getProcessInstanceId()));
         if(CollUtil.isNotEmpty(jkAssetManageRelationList)){
             List<String> assetIds = jkAssetManageRelationList.stream().map(rela -> rela.getAssetId()).collect(Collectors.toList());
             jkAssetManageFlow.setJkAssetManageList(jkAssetManageService.list(new LambdaQueryWrapper<JkAssetManage>().in(JkAssetManage::getId,assetIds)));

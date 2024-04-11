@@ -136,7 +136,7 @@ public class JkAssetManageFlowController {
      * @author ljy
      * @date  2024/04/10 08:47
      */
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("获取建科资产管理表分页")
     @GetMapping("/sys/assetManage/pageAssetManage")
     public CommonResult<Page<JkAssetManage>> pageAssetManage(JkAssetManagePageParam jkAssetManagePageParam) {
@@ -149,7 +149,7 @@ public class JkAssetManageFlowController {
      * @author ljy
      * @date  2024/04/10 08:47
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("添加建科资产管理表")
     @CommonLog("添加建科资产管理表")
     @PostMapping("/sys/assetManage/addAssetManage")
@@ -164,7 +164,7 @@ public class JkAssetManageFlowController {
      * @author ljy
      * @date  2024/04/10 08:47
      */
-    @ApiOperationSupport(order = 3)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("编辑建科资产管理表")
     @CommonLog("编辑建科资产管理表")
     @PostMapping("/sys/assetManage/editAssetManage")
@@ -179,7 +179,7 @@ public class JkAssetManageFlowController {
      * @author ljy
      * @date  2024/04/10 08:47
      */
-    @ApiOperationSupport(order = 4)
+    @ApiOperationSupport(order = 9)
     @ApiOperation("删除建科资产管理表")
     @CommonLog("删除建科资产管理表")
     @PostMapping("/sys/assetManage/deleteAssetManage")
@@ -195,7 +195,7 @@ public class JkAssetManageFlowController {
      * @author ljy
      * @date  2024/04/10 08:47
      */
-    @ApiOperationSupport(order = 5)
+    @ApiOperationSupport(order = 10)
     @ApiOperation("获取建科资产管理表详情")
     @GetMapping("/sys/assetManage/detailAssetManage")
     public CommonResult<JkAssetManage> detailAssetManage(@Valid JkAssetManageIdParam jkAssetManageIdParam) {
