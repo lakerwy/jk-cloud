@@ -26,12 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageFlow;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowAddParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowEditParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowIdParam;
-import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowPageParam;
+import vip.xiaonuo.sys.modular.hr.assetManage.param.*;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageFlowService;
+import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -52,6 +51,10 @@ public class JkAssetManageFlowController {
     @Resource
     private JkAssetManageFlowService jkAssetManageFlowService;
 
+    @Resource
+    private JkAssetManageService jkAssetManageService;
+
+
     /**
      * 获取建科资产管理权限申请表分页
      *
@@ -60,7 +63,6 @@ public class JkAssetManageFlowController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取建科资产管理权限申请表分页")
-    @SaCheckPermission("/sys/assetManageFlow/page")
     @GetMapping("/sys/assetManageFlow/page")
     public CommonResult<Page<JkAssetManageFlow>> page(JkAssetManageFlowPageParam jkAssetManageFlowPageParam) {
         return CommonResult.data(jkAssetManageFlowService.page(jkAssetManageFlowPageParam));
@@ -75,7 +77,6 @@ public class JkAssetManageFlowController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加建科资产管理权限申请表")
     @CommonLog("添加建科资产管理权限申请表")
-    @SaCheckPermission("/sys/assetManageFlow/add")
     @PostMapping("/sys/assetManageFlow/add")
     public CommonResult<String> add(@RequestBody @Valid JkAssetManageFlowAddParam jkAssetManageFlowAddParam) {
         jkAssetManageFlowService.add(jkAssetManageFlowAddParam);
@@ -91,7 +92,6 @@ public class JkAssetManageFlowController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑建科资产管理权限申请表")
     @CommonLog("编辑建科资产管理权限申请表")
-    @SaCheckPermission("/sys/assetManageFlow/edit")
     @PostMapping("/sys/assetManageFlow/edit")
     public CommonResult<String> edit(@RequestBody @Valid JkAssetManageFlowEditParam jkAssetManageFlowEditParam) {
         jkAssetManageFlowService.edit(jkAssetManageFlowEditParam);
@@ -107,7 +107,6 @@ public class JkAssetManageFlowController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除建科资产管理权限申请表")
     @CommonLog("删除建科资产管理权限申请表")
-    @SaCheckPermission("/sys/assetManageFlow/delete")
     @PostMapping("/sys/assetManageFlow/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<JkAssetManageFlowIdParam> jkAssetManageFlowIdParamList) {
@@ -123,9 +122,83 @@ public class JkAssetManageFlowController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取建科资产管理权限申请表详情")
-    @SaCheckPermission("/sys/assetManageFlow/detail")
     @GetMapping("/sys/assetManageFlow/detail")
     public CommonResult<JkAssetManageFlow> detail(@Valid JkAssetManageFlowIdParam jkAssetManageFlowIdParam) {
         return CommonResult.data(jkAssetManageFlowService.detail(jkAssetManageFlowIdParam));
+    }
+
+
+    /**   建科资产管理接口   */
+
+    /**
+     * 获取建科资产管理表分页
+     *
+     * @author ljy
+     * @date  2024/04/10 08:47
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取建科资产管理表分页")
+    @GetMapping("/sys/assetManage/pageAssetManage")
+    public CommonResult<Page<JkAssetManage>> pageAssetManage(JkAssetManagePageParam jkAssetManagePageParam) {
+        return CommonResult.data(jkAssetManageService.page(jkAssetManagePageParam));
+    }
+
+    /**
+     * 添加建科资产管理表
+     *
+     * @author ljy
+     * @date  2024/04/10 08:47
+     */
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("添加建科资产管理表")
+    @CommonLog("添加建科资产管理表")
+    @PostMapping("/sys/assetManage/addAssetManage")
+    public CommonResult<String> addAssetManage(@RequestBody @Valid JkAssetManageAddParam jkAssetManageAddParam) {
+        jkAssetManageService.add(jkAssetManageAddParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑建科资产管理表
+     *
+     * @author ljy
+     * @date  2024/04/10 08:47
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("编辑建科资产管理表")
+    @CommonLog("编辑建科资产管理表")
+    @PostMapping("/sys/assetManage/editAssetManage")
+    public CommonResult<String> editAssetManage(@RequestBody @Valid JkAssetManageEditParam jkAssetManageEditParam) {
+        jkAssetManageService.edit(jkAssetManageEditParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 删除建科资产管理表
+     *
+     * @author ljy
+     * @date  2024/04/10 08:47
+     */
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("删除建科资产管理表")
+    @CommonLog("删除建科资产管理表")
+    @PostMapping("/sys/assetManage/deleteAssetManage")
+    public CommonResult<String> deleteAssetManage(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                       CommonValidList<JkAssetManageIdParam> jkAssetManageIdParamList) {
+        jkAssetManageService.delete(jkAssetManageIdParamList);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 获取建科资产管理表详情
+     *
+     * @author ljy
+     * @date  2024/04/10 08:47
+     */
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("获取建科资产管理表详情")
+    @GetMapping("/sys/assetManage/detailAssetManage")
+    public CommonResult<JkAssetManage> detailAssetManage(@Valid JkAssetManageIdParam jkAssetManageIdParam) {
+        return CommonResult.data(jkAssetManageService.detail(jkAssetManageIdParam));
     }
 }

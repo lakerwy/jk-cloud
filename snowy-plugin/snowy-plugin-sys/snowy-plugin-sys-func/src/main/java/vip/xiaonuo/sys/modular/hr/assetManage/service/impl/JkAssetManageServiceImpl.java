@@ -16,23 +16,32 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
+import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageFlow;
+import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageRelation;
+import vip.xiaonuo.sys.modular.hr.assetManage.enums.JkAssetManageFlowEnum;
 import vip.xiaonuo.sys.modular.hr.assetManage.mapper.JkAssetManageMapper;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageAddParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageEditParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageIdParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManagePageParam;
+import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageFlowService;
+import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageRelationService;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
 
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -44,6 +53,10 @@ import java.util.List;
 @Service
 public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, JkAssetManage> implements JkAssetManageService {
 
+    @Resource
+    JkAssetManageFlowService jkAssetManageFlowService;
+    @Resource
+    JkAssetManageRelationService jkAssetManageRelationService;
     @Override
     public Page<JkAssetManage> page(JkAssetManagePageParam jkAssetManagePageParam) {
         QueryWrapper<JkAssetManage> queryWrapper = new QueryWrapper<>();
@@ -89,7 +102,13 @@ public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, J
 
     @Override
     public JkAssetManage detail(JkAssetManageIdParam jkAssetManageIdParam) {
-        return this.queryEntity(jkAssetManageIdParam.getId());
+        JkAssetManage jkAssetManage = this.queryEntity(jkAssetManageIdParam.getId());
+        SaBaseLoginUser saBaseLoginUser = StpLoginUserUtil.getLoginUser();
+        jkAssetManage.setIsCheck(JkAssetManageFlowEnum.HAVE_CHECK.getValue());
+        if(!isVaild(saBaseLoginUser.getId(),jkAssetManageIdParam.getId())){
+            jkAssetManage.setIsCheck(JkAssetManageFlowEnum.NOT_CHECK.getValue());
+        }
+        return jkAssetManage;
     }
 
     @Override
@@ -99,5 +118,13 @@ public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, J
             throw new CommonException("建科资产管理表不存在，id值为：{}", id);
         }
         return jkAssetManage;
+    }
+
+    /** 查看是否有权限 */
+    private boolean isVaild(String userId,String assetId){
+        Long count = jkAssetManageRelationService.count(new LambdaQueryWrapper<JkAssetManageRelation>().eq(JkAssetManageRelation::getUserId,userId)
+                .eq(JkAssetManageRelation::getAssetId,assetId));
+        if(count <= 0){return false;}
+        return true;
     }
 }

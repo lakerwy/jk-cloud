@@ -15,11 +15,13 @@ package vip.xiaonuo.sys.modular.hr.assetManage.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.sys.modular.hr.assetManage.vo.JkAssetManageRelationVo;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 建科资产管理权限申请表添加参数
@@ -35,9 +37,10 @@ public class JkAssetManageFlowAddParam {
     @ApiModelProperty(value = "申请人ID", position = 2)
     private String userId;
 
-    /** 申请的资产ID */
-    @ApiModelProperty(value = "申请的资产ID", position = 3)
-    private String assetId;
+    /** 申请的资产 */
+    @ApiModelProperty(value = "申请的资产", position = 3,required = true)
+    @NotNull(message = "申请资产数据不能为空")
+    private List<JkAssetManageRelationVo> jkAssetManageRelationList;
 
     /** 模型ID */
     @ApiModelProperty(value = "模型ID", position = 4)
