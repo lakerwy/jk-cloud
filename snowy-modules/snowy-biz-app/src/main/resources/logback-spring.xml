@@ -129,7 +129,7 @@
                             "pid": "${PID:-}",
                             "thread": "%thread",
                             "class": "%logger{40}",
-                            "rest": "%message",
+<!--                            "rest": "%message",-->
                             "elapsedTime": "%X{elapsedTime}",
                             "username":"%X{username}",
                             "clientIP": "%X{clientIP}",
