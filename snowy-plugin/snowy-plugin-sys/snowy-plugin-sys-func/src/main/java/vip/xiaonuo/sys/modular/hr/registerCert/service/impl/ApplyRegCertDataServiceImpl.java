@@ -212,6 +212,9 @@ public class ApplyRegCertDataServiceImpl extends ServiceImpl<ApplyRegCertDataMap
         Map<String,List<CertManage>> map = new HashMap<>();
         certManageList.forEach(cert -> {
             List<CertManage> certManages = ObjectUtil.isNotEmpty(map.get(cert.getIdNumber())) ? map.get(cert.getIdNumber()) : new ArrayList<>();
+            if(ObjectUtil.isNotEmpty(cert.getGraduateDate())){
+                personnelRegInfoList.get(0).setGraduateDate(cert.getGraduateDate());
+            }
             certManages.add(cert);
             map.put(cert.getIdNumber(),certManages);
         });

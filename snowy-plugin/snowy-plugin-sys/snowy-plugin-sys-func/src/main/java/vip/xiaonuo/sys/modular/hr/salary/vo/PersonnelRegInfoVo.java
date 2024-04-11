@@ -123,4 +123,8 @@ public class PersonnelRegInfoVo {
 
     @ApiModelProperty(value = "已注册证书", position = 13)
     private List<CertManage> certManages;
+
+    /** 毕业时间 */
+    @ApiModelProperty(value = "毕业时间", position = 14)
+    private String graduateDate;
 }
