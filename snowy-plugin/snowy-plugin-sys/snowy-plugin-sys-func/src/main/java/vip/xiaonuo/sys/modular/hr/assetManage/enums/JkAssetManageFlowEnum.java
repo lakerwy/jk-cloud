@@ -24,7 +24,8 @@ import lombok.Getter;
 public enum JkAssetManageFlowEnum {
 
     /** 测试 */
-    TEST("TEST");
+    NOT_CHECK("0"),
+    HAVE_CHECK("1");
 
     private final String value;
 

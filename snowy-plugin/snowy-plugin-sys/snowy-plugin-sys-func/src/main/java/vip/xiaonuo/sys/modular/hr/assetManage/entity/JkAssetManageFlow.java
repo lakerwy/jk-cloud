@@ -18,6 +18,7 @@ import lombok.Getter;
 import lombok.Setter;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 建科资产管理权限申请表实体
@@ -41,7 +42,8 @@ public class JkAssetManageFlow {
 
     /** 申请的资产ID */
     @ApiModelProperty(value = "申请的资产ID", position = 3)
-    private String assetId;
+    @TableField(exist = false)
+    private List<JkAssetManage> jkAssetManageList;
 
     /** 模型ID */
     @ApiModelProperty(value = "模型ID", position = 4)
@@ -84,9 +86,4 @@ public class JkAssetManageFlow {
     @ApiModelProperty(value = "更新人", position = 12)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
-
-    /** 资产数据 */
-    @ApiModelProperty(value = "资产数据", position = 13)
-    @TableField(exist = false)
-    private JkAssetManage jkAssetManage;
 }

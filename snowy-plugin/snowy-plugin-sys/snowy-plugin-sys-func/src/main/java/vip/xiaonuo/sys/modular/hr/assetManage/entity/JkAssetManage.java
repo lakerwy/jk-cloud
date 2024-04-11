@@ -80,4 +80,9 @@ public class JkAssetManage {
     @ApiModelProperty(value = "更新人", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 是否存在权限 */
+    @ApiModelProperty(value = "是否存在权限：0 不存在，1 存在", position = 12)
+    @TableField(exist = false)
+    private String isCheck;
 }
