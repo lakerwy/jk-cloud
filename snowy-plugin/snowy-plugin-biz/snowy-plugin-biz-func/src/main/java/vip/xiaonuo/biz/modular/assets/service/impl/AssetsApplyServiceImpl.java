@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.assets.entity.AssetsBill;
 import vip.xiaonuo.biz.modular.assets.service.AssetsBillService;
 import vip.xiaonuo.biz.modular.assets.vo.AssetsApplyVo;
@@ -129,6 +130,7 @@ public class AssetsApplyServiceImpl extends ServiceImpl<AssetsApplyMapper, Asset
     @Override
     public void add(AssetsApplyAddParam assetsApplyAddParam) {
         AssetsApply assetsApply = BeanUtil.toBean(assetsApplyAddParam, AssetsApply.class);
+        assetsApply.setOptName(StpLoginUserUtil.getLoginUser().getName());
         //走审批流程
         String processInstanceId = assetsApplyAddParam.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){

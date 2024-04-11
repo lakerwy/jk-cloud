@@ -1,6 +1,5 @@
 package vip.xiaonuo.biz.modular.assets.vo;
 
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,7 +10,6 @@ import vip.xiaonuo.biz.modular.assets.entity.AssetsBill;
 public class AssetsBillVo extends AssetsBill {
 
     /** 固资申购申请单-主键ID */
-    @TableId
     @ApiModelProperty(value = "固资申购申请单-主键ID", position = 101)
     private String applyId;
 

@@ -33,9 +33,9 @@ import java.util.List;
 @Setter
 public class AssetsApplyAddParam {
 
-    /** 申请人姓名 */
-    @ApiModelProperty(value = "申请人姓名", position = 2)
-    private String optName;
+//    /** 申请人姓名 */
+//    @ApiModelProperty(value = "申请人姓名", position = 2)
+//    private String optName;
 
     /** 申请部门 */
     @ApiModelProperty(value = "申请部门", position = 2)
