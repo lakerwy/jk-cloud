@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 建科资产管理权限申请表控制器
@@ -200,5 +201,18 @@ public class JkAssetManageFlowController {
     @GetMapping("/sys/assetManage/detailAssetManage")
     public CommonResult<JkAssetManage> detailAssetManage(@Valid JkAssetManageIdParam jkAssetManageIdParam) {
         return CommonResult.data(jkAssetManageService.detail(jkAssetManageIdParam));
+    }
+
+    /**
+     * 申请资产查看流程，获取建科资产管理表详情
+     *
+     * @author ljy
+     * @date  2024/04/10 08:47
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("申请资产查看流程:获取建科资产管理表详情")
+    @GetMapping("/sys/assetManage/detailManageFlow")
+    public CommonResult<List<JkAssetManage>> detailManageFlow(@Valid JkAssetFlowManageIdParam jkAssetFlowManageIdParam) {
+        return CommonResult.data(jkAssetManageService.detailManageFlow(jkAssetFlowManageIdParam));
     }
 }
