@@ -15,9 +15,11 @@ package vip.xiaonuo.flw.modular.relation.service.impl;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.flw.modular.relation.entity.FlwRelation;
 import vip.xiaonuo.flw.modular.relation.mapper.FlwRelationMapper;
 import vip.xiaonuo.flw.modular.relation.service.FlwRelationService;
@@ -214,5 +216,10 @@ public class FlwRelationServiceImpl extends ServiceImpl<FlwRelationMapper, FlwRe
     public List<String> getRelationObjectIdListByTargetIdListAndCategory(List<String> targetIdList, String category) {
         return this.getRelationListByTargetIdListAndCategory(targetIdList, category).stream()
                 .map(FlwRelation::getObjectId).collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<FlwRelation> pageList(LambdaQueryWrapper<FlwRelation> lambdaQueryWrapper) {
+        return baseMapper.getPageList(CommonPageRequest.defaultPage(),lambdaQueryWrapper);
     }
 }

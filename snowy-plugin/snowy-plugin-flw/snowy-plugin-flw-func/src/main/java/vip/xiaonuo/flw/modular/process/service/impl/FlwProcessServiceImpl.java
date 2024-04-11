@@ -275,15 +275,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         queryWrapper.eq("CATEGORY", FlwRelationCategoryEnum.FLW_USER_TO_DRAFT.getValue())
                 .eq("OBJECT_ID", StpLoginUserUtil.getLoginUser().getId());
 
-        queryWrapper.orderBy(true, false, "JSON_EXTRACT(EXT_JSON, '$.createTime') DESC");
-
         if (StrUtil.isNotEmpty(flwProcessMyDraftPageParam.getModelId())) {
             queryWrapper.eq("TARGET_ID", flwProcessMyDraftPageParam.getModelId());
         }
         // 转换为 LambdaQueryWrapper
         LambdaQueryWrapper<FlwRelation> lambdaQueryWrapper = queryWrapper.lambda();
-        Page<FlwRelation> page = flwRelationService.page(CommonPageRequest.defaultPage(), lambdaQueryWrapper);
-        //page.setTotal(page.getTotal());
+        Page<FlwRelation> page = flwRelationService.pageList(lambdaQueryWrapper);
         return new Page<FlwProcessMyDraftResult>(page.getCurrent(), page.getSize(), page.getTotal()).setRecords(page.getRecords().stream().map(flwRelation -> {
             String extJson = flwRelation.getExtJson();
             JSONObject jsonObject = JSONUtil.parseObj(extJson);

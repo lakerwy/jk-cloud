@@ -12,7 +12,11 @@
  */
 package vip.xiaonuo.flw.modular.relation.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.flw.modular.relation.entity.FlwRelation;
 
 /**
@@ -22,4 +26,6 @@ import vip.xiaonuo.flw.modular.relation.entity.FlwRelation;
  * @date 2022/4/21 18:37
  **/
 public interface FlwRelationMapper extends BaseMapper<FlwRelation> {
+
+    Page<FlwRelation> getPageList(Page<FlwRelation> page, @Param(Constants.WRAPPER) Wrapper<FlwRelation> queryWrapper);
 }

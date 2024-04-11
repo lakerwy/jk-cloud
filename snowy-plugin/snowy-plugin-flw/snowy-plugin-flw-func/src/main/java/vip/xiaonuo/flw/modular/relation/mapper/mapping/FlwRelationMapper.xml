@@ -2,5 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.flw.modular.relation.mapper.FlwRelationMapper">
 
+    <select id="getPageList" resultType="vip.xiaonuo.flw.modular.relation.entity.FlwRelation">
+        select * from ACT_EXT_RELATION ${ew.customSqlSegment}
+        ORDER BY JSON_EXTRACT(EXT_JSON, '$.\"createTime\"') DESC
+    </select>
 
 </mapper>

@@ -12,6 +12,8 @@
  */
 package vip.xiaonuo.flw.modular.relation.service;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.flw.modular.relation.entity.FlwRelation;
 
@@ -216,4 +218,6 @@ public interface FlwRelationService extends IService<FlwRelation> {
      * @date 2022/4/27 22:08
      */
     List<String> getRelationObjectIdListByTargetIdListAndCategory(List<String> targetIdList, String category);
+
+    Page<FlwRelation> pageList(LambdaQueryWrapper<FlwRelation> lambdaQueryWrapper);
 }
