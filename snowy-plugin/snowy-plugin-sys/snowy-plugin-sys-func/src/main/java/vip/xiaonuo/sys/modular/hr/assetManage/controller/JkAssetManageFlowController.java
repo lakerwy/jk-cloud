@@ -33,6 +33,7 @@ import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageFlowService;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -211,8 +212,8 @@ public class JkAssetManageFlowController {
      */
     @ApiOperationSupport(order = 10)
     @ApiOperation("申请资产查看流程:获取建科资产管理表详情")
-    @GetMapping("/sys/assetManage/detailManageFlow")
-    public CommonResult<List<JkAssetManage>> detailManageFlow(@Valid JkAssetFlowManageIdParam jkAssetFlowManageIdParam) {
-        return CommonResult.data(jkAssetManageService.detailManageFlow(jkAssetFlowManageIdParam));
+    @GetMapping("/sys/assetManage/downloadAsset")
+    public void downloadAsset(@Valid JkAssetFlowManageIdParam jkAssetFlowManageIdParam, HttpServletResponse response) {
+        jkAssetManageService.downloadAsset(jkAssetFlowManageIdParam,response);
     }
 }

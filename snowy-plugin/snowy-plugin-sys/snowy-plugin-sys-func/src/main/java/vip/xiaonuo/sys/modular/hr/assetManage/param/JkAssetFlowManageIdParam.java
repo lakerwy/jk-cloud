@@ -29,7 +29,11 @@ import javax.validation.constraints.NotBlank;
 public class JkAssetFlowManageIdParam {
 
     /** 主键 */
-    @ApiModelProperty(value = "流程id", required = true)
+    @ApiModelProperty(value = "流程id", position = 1,required = true)
     @NotBlank(message = "processInstanceId不能为空")
     private String processInstanceId;
+
+    /** 申请的资产ID */
+    @ApiModelProperty(value = "申请的资产ID", position = 2,required = true)
+    private String assetId;
 }

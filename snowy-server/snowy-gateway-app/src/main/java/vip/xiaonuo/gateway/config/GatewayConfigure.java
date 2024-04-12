@@ -113,6 +113,7 @@ public class GatewayConfigure {
 
             /* 文件下载 */
             "/api/webapp/dev/file/download",
+            "/api/webapp/sys/assetManage/downloadAsset",
             /*文件免token上传*/
             "/api/webapp/dev/file/NoToken/uploadLocalReturnUrl",
             "/api/webapp/dev/attachment/info",

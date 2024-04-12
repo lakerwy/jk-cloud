@@ -30,14 +30,14 @@ public class FlwJkAssetManageListener implements ExecutionListener {
             String sql1 = "UPDATE JK_ASSET_MANAGE_FLOW SET  STATUS = '1' WHERE PROCESS_INSTANCE_ID = '" + processInstanceId + "'";
             handleSqlExecution(sql1);
             if(StringUtils.isEmpty(id)){
-                log.error("ApplyRegCertDataFlowListener:无法获取ID - processInstanceId："+processInstanceId);
+                log.error("FlwJkAssetManageListener:无法获取ID - processInstanceId："+processInstanceId);
             }
             /*if(StringUtils.isNotEmpty(id)){
                 String sql2 = "UPDATE JK_ASSET_MANAGE_RELATION SET  IS_PASS = '1' WHERE FLOW_ID = '" + id + "'" +" and DELETE_FLAG = 'NOT_DELETE'";
                 handleSqlExecution(sql2);
             }*/
         }catch (Exception e){
-            log.error("【申请补贴流程】"+ e.getMessage());
+            log.error("【申请资产管理查看流程】"+ e.getMessage());
         }
     }
     private void handleSqlExecution(String sql) {

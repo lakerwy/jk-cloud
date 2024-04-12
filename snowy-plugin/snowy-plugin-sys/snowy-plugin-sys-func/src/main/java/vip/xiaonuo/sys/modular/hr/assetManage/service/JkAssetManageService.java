@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -81,5 +82,5 @@ public interface JkAssetManageService extends IService<JkAssetManage> {
      * @author ljy
      * @date  2024/04/10 08:47
      **/
-    List<JkAssetManage> detailManageFlow(JkAssetFlowManageIdParam jkAssetFlowManageIdParam);
+   void downloadAsset(JkAssetFlowManageIdParam jkAssetFlowManageIdParam, HttpServletResponse response);
 }
