@@ -152,7 +152,7 @@ public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, J
         /** 查看当前人对于该资产是否有权限，无权限直接返回 */
         List<JkAssetManageRelation> jkAssetManageRelationList = jkAssetManageRelationService.list(new LambdaQueryWrapper<JkAssetManageRelation>()
                 .eq(JkAssetManageRelation::getIsPass,JkAssetManageFlowEnum.HAVE_CHECK.getValue()).eq(JkAssetManageRelation::getAssetId,jkAssetFlowManageIdParam.getAssetId())
-                .eq(JkAssetManageRelation::getUserId, StpLoginUserUtil.getLoginUser().getId()));
+                .eq(JkAssetManageRelation::getUserId, jkAssetFlowManageIdParam.getUserId()));
         if(CollUtil.isEmpty(jkAssetManageRelationList)){throw new CommonException("申请查看的该资产权限未通过，请重新申请！");}
 
         if(CollUtil.isNotEmpty(jkAssetManageRelationList)){
