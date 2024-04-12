@@ -85,4 +85,8 @@ public class JkAssetManage {
     @ApiModelProperty(value = "是否存在权限：0 不存在，1 存在", position = 12)
     @TableField(exist = false)
     private String isCheck;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 13)
+    private String remark;
 }

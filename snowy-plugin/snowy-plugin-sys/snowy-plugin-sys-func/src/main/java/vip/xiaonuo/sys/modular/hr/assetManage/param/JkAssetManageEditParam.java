@@ -56,4 +56,7 @@ public class JkAssetManageEditParam {
     @ApiModelProperty(value = "扩展信息", position = 6)
     private String extJson;
 
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 7)
+    private String remark;
 }
