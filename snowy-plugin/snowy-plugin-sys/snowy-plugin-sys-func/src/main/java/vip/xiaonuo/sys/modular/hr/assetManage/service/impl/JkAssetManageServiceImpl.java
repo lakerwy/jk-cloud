@@ -145,14 +145,14 @@ public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, J
         return true;
     }
 
-    /** 申请资产查看流程，获取建科资产管理表详情*/
+    /** 打包下载建科资产 */
     @Override
     public void downloadAsset(JkAssetFlowManageIdParam jkAssetFlowManageIdParam,HttpServletResponse response){
         List<JkAssetManage> jkAssetManageList = new ArrayList<>();
         /** 查看当前人对于该资产是否有权限，无权限直接返回 */
         List<JkAssetManageRelation> jkAssetManageRelationList = jkAssetManageRelationService.list(new LambdaQueryWrapper<JkAssetManageRelation>()
-                .eq(JkAssetManageRelation::getFlowId,jkAssetFlowManageIdParam.getProcessInstanceId()).eq(JkAssetManageRelation::getAssetId,jkAssetFlowManageIdParam.getAssetId())
-                .eq(JkAssetManageRelation::getUserId,StpLoginUserUtil.getLoginUser().getId()));
+                .eq(JkAssetManageRelation::getIsPass,JkAssetManageFlowEnum.HAVE_CHECK.getValue()).eq(JkAssetManageRelation::getAssetId,jkAssetFlowManageIdParam.getAssetId())
+                .eq(JkAssetManageRelation::getUserId, StpLoginUserUtil.getLoginUser().getId()));
         if(CollUtil.isEmpty(jkAssetManageRelationList)){throw new CommonException("申请查看的该资产权限未通过，请重新申请！");}
 
         if(CollUtil.isNotEmpty(jkAssetManageRelationList)){

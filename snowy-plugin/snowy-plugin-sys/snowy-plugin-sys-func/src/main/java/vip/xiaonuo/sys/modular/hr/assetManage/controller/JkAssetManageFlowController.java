@@ -205,13 +205,13 @@ public class JkAssetManageFlowController {
     }
 
     /**
-     * 申请资产查看流程，获取建科资产管理表详情
+     * 打包下载建科资产
      *
      * @author ljy
      * @date  2024/04/10 08:47
      */
     @ApiOperationSupport(order = 10)
-    @ApiOperation("申请资产查看流程:获取建科资产管理表详情")
+    @ApiOperation("打包下载建科资产")
     @GetMapping("/sys/assetManage/downloadAsset")
     public void downloadAsset(@Valid JkAssetFlowManageIdParam jkAssetFlowManageIdParam, HttpServletResponse response) {
         jkAssetManageService.downloadAsset(jkAssetFlowManageIdParam,response);

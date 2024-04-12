@@ -77,7 +77,7 @@ public interface JkAssetManageService extends IService<JkAssetManage> {
     JkAssetManage queryEntity(String id);
 
     /**
-     * 申请资产查看流程，获取建科资产管理表详情
+     * 打包下载建科资产
      *
      * @author ljy
      * @date  2024/04/10 08:47
