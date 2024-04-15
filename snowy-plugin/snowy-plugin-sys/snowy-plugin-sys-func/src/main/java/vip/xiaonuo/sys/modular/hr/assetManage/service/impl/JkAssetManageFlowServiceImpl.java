@@ -85,22 +85,8 @@ public class JkAssetManageFlowServiceImpl extends ServiceImpl<JkAssetManageFlowM
         } else {
             queryWrapper.lambda().orderByAsc(JkAssetManageFlow::getId);
         }
-        //Page<JkAssetManageFlow> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        //getJkManageData(page);
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
-
-    /*private void getJkManageData(Page<JkAssetManageFlow> page){
-        if(CollUtil.isNotEmpty(page.getRecords())){
-            List<String> assetIds = page.getRecords().stream().map(data -> data.getAssetId()).collect(Collectors.toList());
-            List<JkAssetManage> jkAssetManageList = jkAssetManageService.list(new LambdaQueryWrapper<JkAssetManage>().in(JkAssetManage::getId,assetIds));
-            Map<String,JkAssetManage> map = new HashMap<>();
-            jkAssetManageList.forEach(asset -> map.put(asset.getId(),asset));
-            page.getRecords().forEach(data -> {
-                if(ObjectUtil.isNotEmpty(map.get(data.getAssetId()))){data.setJkAssetManage(map.get(data.getAssetId()));}
-            });
-        }
-    }*/
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -161,7 +147,7 @@ public class JkAssetManageFlowServiceImpl extends ServiceImpl<JkAssetManageFlowM
             relation.setFlowId(jkAssetManageFlow.getProcessInstanceId());*/
             JkAssetManageRelation jkAssetManageRelation = new JkAssetManageRelation();
             jkAssetManageRelation.setAssetId(relation.getId());//资产管理ID
-            jkAssetManageRelation.setFlowId(relation.getFlowId());
+            jkAssetManageRelation.setFlowId(jkAssetManageFlowEditParam.getProcessInstanceId());
             jkAssetManageRelation.setUserId(relation.getUserId());
             if(StringUtils.isNotEmpty(relation.getIsPass())){jkAssetManageRelation.setIsPass(relation.getIsPass());}
             saves.add(jkAssetManageRelation);
