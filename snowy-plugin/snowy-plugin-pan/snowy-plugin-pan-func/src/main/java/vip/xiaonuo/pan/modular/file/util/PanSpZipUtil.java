@@ -171,11 +171,11 @@ public class PanSpZipUtil {
      *
      */
     public void iteraSaveFileNew(UserFile userFile,String unzipUrl, UnzipFileParam unzipFileParam){
-        //根据 解压类型的不同 获取最顶层父级userFile
+        //根据 解压类型的不同 获取父级userFile
         UserFile parentUserFile = new UserFile();
         if(0 == unzipFileParam.getUnzipMode()){
-            // 解压到 当前文件 的顶层父级
-            parentUserFile = userFile;
+            // 解压到 当前文件
+            parentUserFile = userFileService.getById(userFile.getParentId());
         } else if (1 == unzipFileParam.getUnzipMode()) {
             // a.zip 解压 到 A 文件夹下
             UserFile userFile1 = new UserFile();
@@ -191,8 +191,6 @@ public class PanSpZipUtil {
             // 解压 到 指定文件夹
             parentUserFile = userFileService.getParentIdByPath(unzipFileParam.getFilePath());
         }
-        //文件路径
-        unzipUrl = unzipUrl + FileUtil.FILE_SEPARATOR + userFile.getFileName();
         //需要批量保存的数据
         List<UserFile> userFileList = new ArrayList<>();
         List<PanFile> panFileList = new ArrayList<>();
@@ -219,7 +217,9 @@ public class PanSpZipUtil {
             Long fileSize = 0L;
 
             // 文件|文件夹构造
-            CommonFile commonFile = new CommonFile(parentUserFile.getFilePath(), tmpFile.getName(), tmpFile.isDirectory());
+            String tmpFilePath = (ObjectUtil.isEmpty(parentUserFile.getParentId()) || "0".equals(parentUserFile.getParentId()))
+                    ? parentUserFile.getFilePath()+parentUserFile.getFileName():parentUserFile.getFilePath()+FileUtil.FILE_SEPARATOR+parentUserFile.getFileName();
+            CommonFile commonFile = new CommonFile(tmpFilePath, tmpFile.getName(), tmpFile.isDirectory());
             assert commonFile != null;
             commonFile.setParentId(parentUserFile.getId());
 
