@@ -542,4 +542,53 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             throw new CommonException("解压失败--",e);
         }
     }
+
+
+
+
+    public void unzipFileNew(UnzipFileParam unzipFileParam) {
+        if(unzipFileParam.getUnzipMode() == 2){
+            if(StrUtil.isEmpty(unzipFileParam.getFilePath())){
+                throw new CommonException("解压目标目录不能为空");
+            }
+            String filePath = unzipFileParam.getFilePath();
+            UserFile parentIdByPath = userFileService.getParentIdByPath(filePath);
+            if(ObjectUtil.isNull(parentIdByPath)){
+                throw new CommonException("目标目录不存在");
+            }
+        }
+        UserFile userFile = userFileService.getById(unzipFileParam.getUserFileId());
+        if(ObjectUtil.isEmpty(userFile)){
+            throw new CommonException("文件不存在，id值为：{}", unzipFileParam.getUserFileId());
+        }
+        PanFile panFile = getById(userFile.getFileId());
+        File destFile = new File(FileCenterUtil.getStaticPath() + "temp" + File.separator + panFile.getFileUrl().replace(FileCenterUtil.getStaticPath(),""));
+
+        Downloader downloader = fileFactory.getDownloader(panFile.getStorageType());
+        DownloadFile downloadFile = new DownloadFile();
+        downloadFile.setFileUrl(panFile.getFileUrl());
+        InputStream inputStream = downloader.getInputStream(downloadFile);
+
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, destFile);
+        } catch (IOException e) {
+            throw new CommonException("文件转换失败--");
+        }
+
+        String extendName = userFile.getExtendName();
+
+        String unzipUrl = FileCenterUtil.getTempFile(panFile.getFileUrl()).getAbsolutePath().replace("." + extendName, "");
+
+        try {
+            ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
+        } catch (Exception e) {
+            log.error(e+"");
+            throw new CommonException("解压失败--",e);
+        }
+
+        if (destFile.exists()) {
+            boolean delete = destFile.delete();
+        }
+        panSpZipUtil.iteraSaveFileNew(userFile,unzipUrl,unzipFileParam);
+    }
 }
