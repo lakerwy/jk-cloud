@@ -88,4 +88,16 @@ public class InvoiceCostBillPageParam {
     @ApiModelProperty(value = "收款单位名称")
     private String unitName;
 
+    /** 开票申请编号(销售发票流程SN) */
+    @ApiModelProperty(value = "开票申请编号(销售发票流程SN)")
+    private String kpSn;
+
+    /** 销售合同编号 */
+    @ApiModelProperty(value = "销售合同编号")
+    private String htContractNo;
+
+    /** 销售合同名称 */
+    @ApiModelProperty(value = "销售合同名称")
+    private String htProjectName;
+
 }

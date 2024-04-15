@@ -81,12 +81,25 @@ public class InvoiceCostBillServiceImpl extends ServiceImpl<InvoiceCostBillMappe
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getUnitName())) {
             queryWrapper.like("a.UNIT_NAME", invoiceCostBillPageParam.getUnitName());
         }
+        if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getKpSn())){
+            queryWrapper.like("b.KP_SN",invoiceCostBillPageParam.getKpSn());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getHtContractNo())){
+            queryWrapper.like("b.HT_CONTRACT_NO",invoiceCostBillPageParam.getHtContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getHtProjectName())){
+            queryWrapper.like("b.HT_PROJECT_NAME",invoiceCostBillPageParam.getHtProjectName());
+        }
         if(ObjectUtil.isNotEmpty(invoiceCostBillPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.FB_CONTRACT_NO",invoiceCostBillPageParam.getSearchKey())
                     .or().like("a.FP_NO",invoiceCostBillPageParam.getSearchKey())
                     .or().like("a.UNIT_CODE",invoiceCostBillPageParam.getSearchKey())
                     .or().like("a.UNIT_NAME",invoiceCostBillPageParam.getSearchKey())
-                    .or().like("a.CONTENT",invoiceCostBillPageParam.getSearchKey()));
+                    .or().like("a.CONTENT",invoiceCostBillPageParam.getSearchKey())
+                    .or().like("a.PRV_NAME",invoiceCostBillPageParam.getSearchKey())
+                    .or().like("b.KP_SN",invoiceCostBillPageParam.getSearchKey())
+                    .or().like("b.HT_CONTRACT_NO",invoiceCostBillPageParam.getSearchKey())
+                    .or().like("b.HT_PROJECT_NAME",invoiceCostBillPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(invoiceCostBillPageParam.getSortField(), invoiceCostBillPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceCostBillPageParam.getSortOrder());
