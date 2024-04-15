@@ -185,6 +185,7 @@ public class PanSpZipUtil {
             userFile1.setIsDir(1);
             userFile1.setFoldType(userFile.getFoldType());
             userFile1.setOrgId(userFile.getOrgId());
+            userFile1.setUserId(userFile.getUserId());
             RepeatFileVo repeatFileVo = getRepeatFileNameNew(userFile1, userFile1.getFilePath());
             //已存在
             if(ObjectUtil.isNotEmpty(repeatFileVo.getOldUserFile())) {
