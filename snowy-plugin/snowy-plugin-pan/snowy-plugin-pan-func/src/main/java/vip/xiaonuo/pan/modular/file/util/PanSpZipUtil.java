@@ -185,8 +185,14 @@ public class PanSpZipUtil {
             userFile1.setIsDir(1);
             userFile1.setFoldType(userFile.getFoldType());
             userFile1.setOrgId(userFile.getOrgId());
-            userFileService.save(userFile1);
-            parentUserFile = userFile1;
+            RepeatFileVo repeatFileVo = getRepeatFileNameNew(userFile1, userFile1.getFilePath());
+            //已存在
+            if(ObjectUtil.isNotEmpty(repeatFileVo.getOldUserFile())) {
+                parentUserFile = repeatFileVo.getOldUserFile();
+            }else{
+                userFileService.save(userFile1);
+                parentUserFile = userFile1;
+            }
         } else if(2 == unzipFileParam.getUnzipMode()){
             // 解压 到 指定文件夹
             parentUserFile = userFileService.getParentIdByPath(unzipFileParam.getFilePath());
