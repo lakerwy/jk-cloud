@@ -59,6 +59,9 @@
 
         <!--sso单点插件-->
         <module>snowy-plugin-sso</module>
+
+        <!--bp招标采购插件-->
+        <module>snowy-plugin-bp</module>
     </modules>
 
 </project>
