@@ -247,7 +247,7 @@ public class PanSpZipUtil {
                 //父级
                 UserFile tmpParentUserFile = ObjectUtil.isNotEmpty(repeatFileVo.getOldUserFile())?repeatFileVo.getOldUserFile():saveUserFile;
                 //递归
-                saveUnzipFileSpNew(tmpParentUserFile,tmpFile.getPath(),userFileList,panFileList);
+                saveUnzipFileSpNew(tmpParentUserFile,tmpFile.getAbsolutePath(),userFileList,panFileList);
             }else{
                 //文件处理(panFile)
                 FileInputStream fis = null;
