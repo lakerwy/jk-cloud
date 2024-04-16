@@ -115,4 +115,7 @@ public class HetongVo {
     @ApiModelProperty(value = "用印审批-流程实例id，多个英文逗号分割", position = 64)
     private String sealProcessInstanceId;
 
+    /** 乙方 */
+    @ApiModelProperty(value = "乙方", position = 9)
+    private String secondparty;
 }

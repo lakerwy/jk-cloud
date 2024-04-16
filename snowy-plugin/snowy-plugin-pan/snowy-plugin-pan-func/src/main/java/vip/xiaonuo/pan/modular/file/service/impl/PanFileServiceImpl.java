@@ -157,79 +157,80 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
 
     @Override
     public void unzipFile(UnzipFileParam unzipFileParam) {
-        String parentId = null;
-        if(unzipFileParam.getUnzipMode() == 2){
-            if(StrUtil.isEmpty(unzipFileParam.getFilePath())){
-                throw new CommonException("解压目标目录不能为空");
-            }
-            String filePath = unzipFileParam.getFilePath();
-            UserFile parentIdByPath = userFileService.getParentIdByPath(filePath);
-            if(ObjectUtil.isNull(parentIdByPath)){
-                throw new CommonException("目标目录不存在");
-            }
-            parentId = parentIdByPath.getId();
-        }
-        UserFile userFile = userFileService.getById(unzipFileParam.getUserFileId());
-        if(ObjectUtil.isEmpty(userFile)){
-            throw new CommonException("文件不存在，id值为：{}", unzipFileParam.getUserFileId());
-        }
-        if(unzipFileParam.getUnzipMode() == 0){
-            parentId = userFile.getParentId();
-        }
-        PanFile panFile = getById(userFile.getFileId());
-        File destFile = new File(FileCenterUtil.getStaticPath() + "temp" + File.separator + panFile.getFileUrl().replace(FileCenterUtil.getStaticPath(),""));
-
-
-        Downloader downloader = fileFactory.getDownloader(panFile.getStorageType());
-        DownloadFile downloadFile = new DownloadFile();
-        downloadFile.setFileUrl(panFile.getFileUrl());
-        InputStream inputStream = downloader.getInputStream(downloadFile);
-
-        try {
-            FileUtils.copyInputStreamToFile(inputStream, destFile);
-        } catch (IOException e) {
-            throw new CommonException("文件转换失败--");
-        }
-
-
-        String extendName = userFile.getExtendName();
-
-        String unzipUrl = FileCenterUtil.getTempFile(panFile.getFileUrl()).getAbsolutePath().replace("." + extendName, "");
-
-        List<String> fileEntryNameList = new ArrayList<>();
-
-        try {
-//            fileEntryNameList = FileOperation.unzip(destFile, unzipUrl);
-            ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
-            fileEntryNameList =  Arrays.stream(FileUtil.ls(unzipUrl))
-                    .map(File::getName)
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            log.error(e+"");
-            throw new CommonException("解压失败--",e);
-        }
-
-        if (destFile.exists()) {
-            boolean delete = destFile.delete();
-        }
-
-        if (CollUtil.isNotEmpty(fileEntryNameList) && unzipFileParam.getUnzipMode() == 1) {
-            //新建文件夹
-            UserFile userFile1 = new UserFile();
-//            userFile1.setFileId(userFile.getUserId());
-            userFile1.setFileName(userFile.getFileName());
-            userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()));
-            userFile1.setParentId(userFile.getParentId());
-            userFile1.setIsDir(1);
-            userFile1.setFoldType(userFile.getFoldType());
-            userFile1.setOrgId(userFile1.getOrgId());
-            userFileService.save(userFile1);
-            parentId = userFile1.getId();
-        }
-        panSpZipUtil.iteraSaveFile(userFile, panFile, unzipFileParam.getUnzipMode(),fileEntryNameList, unzipFileParam.getFilePath(),parentId);
-       /* for (String entryName : fileEntryNameList) {
-            asyncTaskComp.saveUnzipFile(userFile, panFile, unzipFileParam.getUnzipMode(), entryName, unzipFileParam.getFilePath(),parentId);
-        }*/
+        unzipFileNew(unzipFileParam);
+//        String parentId = null;
+//        if(unzipFileParam.getUnzipMode() == 2){
+//            if(StrUtil.isEmpty(unzipFileParam.getFilePath())){
+//                throw new CommonException("解压目标目录不能为空");
+//            }
+//            String filePath = unzipFileParam.getFilePath();
+//            UserFile parentIdByPath = userFileService.getParentIdByPath(filePath);
+//            if(ObjectUtil.isNull(parentIdByPath)){
+//                throw new CommonException("目标目录不存在");
+//            }
+//            parentId = parentIdByPath.getId();
+//        }
+//        UserFile userFile = userFileService.getById(unzipFileParam.getUserFileId());
+//        if(ObjectUtil.isEmpty(userFile)){
+//            throw new CommonException("文件不存在，id值为：{}", unzipFileParam.getUserFileId());
+//        }
+//        if(unzipFileParam.getUnzipMode() == 0){
+//            parentId = userFile.getParentId();
+//        }
+//        PanFile panFile = getById(userFile.getFileId());
+//        File destFile = new File(FileCenterUtil.getStaticPath() + "temp" + File.separator + panFile.getFileUrl().replace(FileCenterUtil.getStaticPath(),""));
+//
+//
+//        Downloader downloader = fileFactory.getDownloader(panFile.getStorageType());
+//        DownloadFile downloadFile = new DownloadFile();
+//        downloadFile.setFileUrl(panFile.getFileUrl());
+//        InputStream inputStream = downloader.getInputStream(downloadFile);
+//
+//        try {
+//            FileUtils.copyInputStreamToFile(inputStream, destFile);
+//        } catch (IOException e) {
+//            throw new CommonException("文件转换失败--");
+//        }
+//
+//
+//        String extendName = userFile.getExtendName();
+//
+//        String unzipUrl = FileCenterUtil.getTempFile(panFile.getFileUrl()).getAbsolutePath().replace("." + extendName, "");
+//
+//        List<String> fileEntryNameList = new ArrayList<>();
+//
+//        try {
+////            fileEntryNameList = FileOperation.unzip(destFile, unzipUrl);
+//            ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
+//            fileEntryNameList =  Arrays.stream(FileUtil.ls(unzipUrl))
+//                    .map(File::getName)
+//                    .collect(Collectors.toList());
+//        } catch (Exception e) {
+//            log.error(e+"");
+//            throw new CommonException("解压失败--",e);
+//        }
+//
+//        if (destFile.exists()) {
+//            boolean delete = destFile.delete();
+//        }
+//
+//        if (CollUtil.isNotEmpty(fileEntryNameList) && unzipFileParam.getUnzipMode() == 1) {
+//            //新建文件夹
+//            UserFile userFile1 = new UserFile();
+////            userFile1.setFileId(userFile.getUserId());
+//            userFile1.setFileName(userFile.getFileName());
+//            userFile1.setFilePath(CommonFile.formatPath(userFile.getFilePath()));
+//            userFile1.setParentId(userFile.getParentId());
+//            userFile1.setIsDir(1);
+//            userFile1.setFoldType(userFile.getFoldType());
+//            userFile1.setOrgId(userFile1.getOrgId());
+//            userFileService.save(userFile1);
+//            parentId = userFile1.getId();
+//        }
+//        panSpZipUtil.iteraSaveFile(userFile, panFile, unzipFileParam.getUnzipMode(),fileEntryNameList, unzipFileParam.getFilePath(),parentId);
+//       /* for (String entryName : fileEntryNameList) {
+//            asyncTaskComp.saveUnzipFile(userFile, panFile, unzipFileParam.getUnzipMode(), entryName, unzipFileParam.getFilePath(),parentId);
+//        }*/
     }
 
     @Override
@@ -541,5 +542,54 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
             log.error(e+"");
             throw new CommonException("解压失败--",e);
         }
+    }
+
+
+
+
+    public void unzipFileNew(UnzipFileParam unzipFileParam) {
+        if(unzipFileParam.getUnzipMode() == 2){
+            if(StrUtil.isEmpty(unzipFileParam.getFilePath())){
+                throw new CommonException("解压目标目录不能为空");
+            }
+            String filePath = unzipFileParam.getFilePath();
+            UserFile parentIdByPath = userFileService.getParentIdByPath(filePath);
+            if(ObjectUtil.isNull(parentIdByPath)){
+                throw new CommonException("目标目录不存在");
+            }
+        }
+        UserFile userFile = userFileService.getById(unzipFileParam.getUserFileId());
+        if(ObjectUtil.isEmpty(userFile)){
+            throw new CommonException("文件不存在，id值为：{}", unzipFileParam.getUserFileId());
+        }
+        PanFile panFile = getById(userFile.getFileId());
+        File destFile = new File(FileCenterUtil.getStaticPath() + "temp" + File.separator + panFile.getFileUrl().replace(FileCenterUtil.getStaticPath(),""));
+
+        Downloader downloader = fileFactory.getDownloader(panFile.getStorageType());
+        DownloadFile downloadFile = new DownloadFile();
+        downloadFile.setFileUrl(panFile.getFileUrl());
+        InputStream inputStream = downloader.getInputStream(downloadFile);
+
+        try {
+            FileUtils.copyInputStreamToFile(inputStream, destFile);
+        } catch (IOException e) {
+            throw new CommonException("文件转换失败--");
+        }
+
+        String extendName = userFile.getExtendName();
+
+        String unzipUrl = FileCenterUtil.getTempFile(panFile.getFileUrl()).getAbsolutePath().replace("." + extendName, "");
+
+        try {
+            ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
+        } catch (Exception e) {
+            log.error(e+"");
+            throw new CommonException("解压失败--",e);
+        }
+
+        if (destFile.exists()) {
+            boolean delete = destFile.delete();
+        }
+        panSpZipUtil.iteraSaveFileNew(userFile,unzipUrl,unzipFileParam);
     }
 }

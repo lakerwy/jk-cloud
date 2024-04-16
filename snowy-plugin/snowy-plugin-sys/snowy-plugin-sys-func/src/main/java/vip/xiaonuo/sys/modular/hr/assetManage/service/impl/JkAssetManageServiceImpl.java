@@ -15,12 +15,17 @@ package vip.xiaonuo.sys.modular.hr.assetManage.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
@@ -28,6 +33,11 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonResponseUtil;
+import vip.xiaonuo.common.util.DownloadCompressedVo;
+import vip.xiaonuo.dev.modular.file.entity.DevFile;
+import vip.xiaonuo.dev.modular.file.service.DevFileService;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageFlow;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageRelation;
@@ -40,7 +50,11 @@ import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
 
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -57,6 +71,9 @@ public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, J
     JkAssetManageFlowService jkAssetManageFlowService;
     @Resource
     JkAssetManageRelationService jkAssetManageRelationService;
+    @Resource
+    DevFileService devFileService;
+
     @Override
     public Page<JkAssetManage> page(JkAssetManagePageParam jkAssetManagePageParam) {
         QueryWrapper<JkAssetManage> queryWrapper = new QueryWrapper<>();
@@ -128,15 +145,41 @@ public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, J
         return true;
     }
 
-    /** 申请资产查看流程，获取建科资产管理表详情*/
+    /** 打包下载建科资产 */
     @Override
-    public List<JkAssetManage> detailManageFlow(JkAssetFlowManageIdParam jkAssetFlowManageIdParam){
+    public void downloadAsset(JkAssetFlowManageIdParam jkAssetFlowManageIdParam,HttpServletResponse response){
         List<JkAssetManage> jkAssetManageList = new ArrayList<>();
-        List<JkAssetManageRelation> jkAssetManageRelationList = jkAssetManageRelationService.list(new LambdaQueryWrapper<JkAssetManageRelation>().eq(JkAssetManageRelation::getFlowId,jkAssetFlowManageIdParam));
+        /** 查看当前人对于该资产是否有权限，无权限直接返回 */
+        List<JkAssetManageRelation> jkAssetManageRelationList = jkAssetManageRelationService.list(new LambdaQueryWrapper<JkAssetManageRelation>()
+                .eq(JkAssetManageRelation::getIsPass,JkAssetManageFlowEnum.HAVE_CHECK.getValue()).eq(JkAssetManageRelation::getAssetId,jkAssetFlowManageIdParam.getAssetId())
+                .eq(JkAssetManageRelation::getUserId, jkAssetFlowManageIdParam.getUserId()));
+        if(CollUtil.isEmpty(jkAssetManageRelationList)){throw new CommonException("申请查看的该资产权限未通过，请重新申请！");}
+
         if(CollUtil.isNotEmpty(jkAssetManageRelationList)){
-            jkAssetManageList = this.list(new LambdaQueryWrapper<JkAssetManage>()
-                    .in(JkAssetManage::getId,jkAssetManageRelationList.stream().map(rela -> rela.getAssetId()).collect(Collectors.toList())));
+            jkAssetManageList = this.list(new LambdaQueryWrapper<JkAssetManage>().in(JkAssetManage::getId,jkAssetManageRelationList.stream().map(rela -> rela.getAssetId()).collect(Collectors.toList())));
         }
-        return jkAssetManageList;
+        if(CollUtil.isNotEmpty(jkAssetManageList)){
+            downloadFile(jkAssetManageList,response);
+        }
+    }
+    private void downloadFile(List<JkAssetManage> jkAssetManageList,HttpServletResponse response){
+        StringBuffer stringBuffer = new StringBuffer();
+        jkAssetManageList.forEach(asset -> stringBuffer.append(asset.getAssetFileIds()).append(";"));
+        if(ObjectUtil.isNotEmpty(stringBuffer)){
+            List<String> ids = Arrays.asList(stringBuffer.toString().split(";"));
+            List<DevFile> devFiles = devFileService.list(new LambdaQueryWrapper<DevFile>().in(DevFile::getId,ids));
+
+            List<DownloadCompressedVo> downloadCompressedVoList = new ArrayList<>();
+            devFiles.forEach(dev -> downloadCompressedVoList.add(new DownloadCompressedVo(dev.getName(),new File(dev.getStoragePath()))) );
+            try{
+                if(CollUtil.isNotEmpty(downloadCompressedVoList)){
+                    String zipName = DateUtil.format(new Date(), DatePattern.PURE_DATETIME_MS_PATTERN)+JkAssetManageFlowEnum.JK_ZIP_NAME.getValue();
+                    CommonDownloadUtil.zipFilesAndDownload(response,zipName,downloadCompressedVoList);
+                }
+            }catch (Exception e){
+                log.error("打包下载失败！e:"+e.getMessage());
+                throw new CommonException("打包下载失败！请联系管理员");
+            }
+        }
     }
 }

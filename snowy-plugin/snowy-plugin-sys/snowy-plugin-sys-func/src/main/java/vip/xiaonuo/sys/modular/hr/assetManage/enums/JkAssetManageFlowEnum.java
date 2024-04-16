@@ -25,7 +25,8 @@ public enum JkAssetManageFlowEnum {
 
     /** 测试 */
     NOT_CHECK("0"),
-    HAVE_CHECK("1");
+    HAVE_CHECK("1"),
+    JK_ZIP_NAME(".zip");
 
     private final String value;
 

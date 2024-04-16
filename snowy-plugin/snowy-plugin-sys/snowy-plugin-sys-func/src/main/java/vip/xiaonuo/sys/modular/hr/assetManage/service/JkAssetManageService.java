@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.*;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -76,10 +77,10 @@ public interface JkAssetManageService extends IService<JkAssetManage> {
     JkAssetManage queryEntity(String id);
 
     /**
-     * 申请资产查看流程，获取建科资产管理表详情
+     * 打包下载建科资产
      *
      * @author ljy
      * @date  2024/04/10 08:47
      **/
-    List<JkAssetManage> detailManageFlow(JkAssetFlowManageIdParam jkAssetFlowManageIdParam);
+   void downloadAsset(JkAssetFlowManageIdParam jkAssetFlowManageIdParam, HttpServletResponse response);
 }

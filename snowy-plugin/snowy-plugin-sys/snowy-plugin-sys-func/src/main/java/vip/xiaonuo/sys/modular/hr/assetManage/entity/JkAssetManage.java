@@ -40,7 +40,7 @@ public class JkAssetManage {
     private String assetTitle;
 
     /** 资产图片(多数据)，逗号隔开 */
-    @ApiModelProperty(value = "资产图片(多数据)，逗号隔开", position = 3)
+    @ApiModelProperty(value = "资产图片(多数据)，分号隔开", position = 3)
     private String assetFileIds;
 
     /** 资产类别：资质；荣誉奖项；房产资料；专利；著作权 */
@@ -85,4 +85,8 @@ public class JkAssetManage {
     @ApiModelProperty(value = "是否存在权限：0 不存在，1 存在", position = 12)
     @TableField(exist = false)
     private String isCheck;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 13)
+    private String remark;
 }

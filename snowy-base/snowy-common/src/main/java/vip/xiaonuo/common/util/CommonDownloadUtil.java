@@ -14,14 +14,26 @@ package vip.xiaonuo.common.util;
 
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.URLUtil;
+import cn.hutool.core.util.ZipUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.catalina.connector.ClientAbortException;
 
+import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
+import java.util.zip.Deflater;
+
+import org.apache.commons.compress.archivers.zip.ZipArchiveEntry;
+import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
-import java.io.File;
-import java.io.IOException;
+import java.util.List;
+
+
 
 /**
  * 文件下载工具类，使用本类前，对参数校验的异常使用CommonResponseUtil.renderError()方法进行渲染
@@ -74,5 +86,41 @@ public class CommonDownloadUtil {
                 }
             }
         }
+    }
+
+    /**
+     * 批量下载下载文件
+     *
+     * @author ljy
+     * @date 2024/4/11 16:57
+     */
+    public static void zipFilesAndDownload(HttpServletResponse response, String zipFileName,List<DownloadCompressedVo> downloadCompressedVoList) throws IOException {
+        response.setContentType("application/zip");
+        response.setHeader("Content-Disposition", "attachment; filename=\"" + encodeFileName(zipFileName) + "\"");
+
+        try (ZipArchiveOutputStream zipOut = new ZipArchiveOutputStream(response.getOutputStream())) {
+           for(DownloadCompressedVo vo : downloadCompressedVoList){
+               addFileToZip(vo,zipOut);
+           }
+        }
+    }
+    private static void addFileToZip(DownloadCompressedVo downloadCompressedVo, ZipArchiveOutputStream zipOut) throws IOException {
+        // 修改文件名
+        String newFileName = downloadCompressedVo.getFileName();
+
+        ZipArchiveEntry zipEntry = new ZipArchiveEntry(newFileName);
+        zipOut.putArchiveEntry(zipEntry);
+
+        try (FileInputStream fis = new FileInputStream(downloadCompressedVo.getFile())) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = fis.read(buffer)) > 0) {
+                zipOut.write(buffer, 0, length);
+            }
+        }
+        zipOut.closeArchiveEntry();
+    }
+    private static String encodeFileName(String fileName) throws UnsupportedEncodingException {
+        return URLEncoder.encode(fileName, "UTF-8");
     }
 }

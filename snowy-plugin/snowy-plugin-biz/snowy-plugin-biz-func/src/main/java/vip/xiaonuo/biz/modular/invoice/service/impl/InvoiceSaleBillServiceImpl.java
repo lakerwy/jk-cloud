@@ -66,9 +66,21 @@ public class InvoiceSaleBillServiceImpl extends ServiceImpl<InvoiceSaleBillMappe
         if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getContent())) {
             queryWrapper.like("a.CONTENT", invoiceSaleBillPageParam.getContent());
         }
+        if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getKpSn())){
+            queryWrapper.like("b.SN",invoiceSaleBillPageParam.getKpSn());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getHtContractNo())){
+            queryWrapper.like("b.HT_CONTRACT_NO",invoiceSaleBillPageParam.getHtContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getHtProjectName())){
+            queryWrapper.like("b.HT_PROJECT_NAME",invoiceSaleBillPageParam.getHtProjectName());
+        }
         if(ObjectUtil.isNotEmpty(invoiceSaleBillPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.FP_NO",invoiceSaleBillPageParam.getSearchKey())
-                    .or().like("a.CONTENT",invoiceSaleBillPageParam.getSearchKey()));
+                    .or().like("a.CONTENT",invoiceSaleBillPageParam.getSearchKey())
+                    .or().like("b.SN",invoiceSaleBillPageParam.getSearchKey())
+                    .or().like("b.HT_CONTRACT_NO",invoiceSaleBillPageParam.getSearchKey())
+                    .or().like("b.HT_PROJECT_NAME",invoiceSaleBillPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(invoiceSaleBillPageParam.getSortField(), invoiceSaleBillPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSaleBillPageParam.getSortOrder());
