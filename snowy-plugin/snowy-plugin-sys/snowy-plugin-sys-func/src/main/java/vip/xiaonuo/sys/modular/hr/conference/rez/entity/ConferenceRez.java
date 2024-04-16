@@ -238,4 +238,8 @@ public class ConferenceRez {
     /** 钉钉预约会议唯一ID*/
     @ApiModelProperty(value = "钉钉预约会议唯一ID", position = 49)
     private String eventId;
+
+    /** 数据权限控制字段 */
+    @ApiModelProperty(value = "数据权限控制字段", position = 50)
+    private String dataScopeId;
 }
