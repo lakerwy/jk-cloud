@@ -581,9 +581,12 @@ public class PanFileServiceImpl extends ServiceImpl<PanFileMapper, PanFile> impl
         String unzipUrl = FileCenterUtil.getTempFile(panFile.getFileUrl()).getAbsolutePath().replace("." + extendName, "");
 
         try {
-            //ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
-            // 支持 zip|rar|7z
-            unRarZip7Z.unRarZip7Z(destFile.getAbsolutePath(),unzipUrl);
+            if(destFile.getAbsolutePath().toLowerCase().endsWith(".zip")) {
+                ZipUtil.unzip(destFile, new File(unzipUrl), CharsetUtil.CHARSET_GBK);
+            }else {
+                // 支持 zip|rar|7z (zip格式解压有时会出问题)
+                unRarZip7Z.unRarZip7Z(destFile.getAbsolutePath(), unzipUrl);
+            }
         } catch (Exception e) {
             log.error(e+"");
             throw new CommonException("解压失败--",e);
