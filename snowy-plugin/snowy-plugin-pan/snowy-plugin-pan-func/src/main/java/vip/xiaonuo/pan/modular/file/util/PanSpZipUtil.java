@@ -271,6 +271,7 @@ public class PanSpZipUtil {
                         createFile.setExtendName(FilenameUtils.getExtension(tmpFile.getName()));
                         String saveFileUrl = fileFactory.getCopier().copy(fileInputStream, createFile);
                         PanFile tempFileBean = new PanFile(saveFileUrl, tmpFile.length(), FileFactory.storageType, md5Str, parentUserFile.getUserId());
+                        tempFileBean.setId(IdWorker.getIdStr());
                         panFileList.add(tempFileBean);
                         fileId = tempFileBean.getId();
                         fileSize = tempFileBean.getFileSize();
