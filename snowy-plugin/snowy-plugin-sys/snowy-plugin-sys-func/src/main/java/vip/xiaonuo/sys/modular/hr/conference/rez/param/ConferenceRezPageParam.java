@@ -87,4 +87,8 @@ public class ConferenceRezPageParam {
     /** 结束时间 */
     @ApiModelProperty(value = "结束时间")
     private String endTime;
+
+    /** 权限ID */
+    @ApiModelProperty(value = "权限ID")
+    private String limitUserId;
 }

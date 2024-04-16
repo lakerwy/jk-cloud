@@ -147,11 +147,14 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             queryWrapper.lambda().like(ConferenceRez::getTheme,conferenceRezPageParam.getSearchKey());
         }
         // 校验数据范围
-        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+       /* List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
             queryWrapper.lambda().in(ConferenceRez::getDataScopeId, loginUserDataScope);
         } else {
             queryWrapper.lambda().eq(ConferenceRez::getCreateUser, StpUtil.getLoginIdAsString());
+        }*/
+        if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getLimitUserId())){
+            queryWrapper.lambda().eq(ConferenceRez::getCreateUser,conferenceRezPageParam.getLimitUserId()).or().in(ConferenceRez::getJoinUser,conferenceRezPageParam.getLimitUserId());
         }
 
         if(ObjectUtil.isAllNotEmpty(conferenceRezPageParam.getSortField(), conferenceRezPageParam.getSortOrder())) {
