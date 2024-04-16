@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.sys.modular.hr.conference.rez.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DatePattern;
@@ -145,6 +146,17 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getSearchKey())){
             queryWrapper.lambda().like(ConferenceRez::getTheme,conferenceRezPageParam.getSearchKey());
         }
+        // 校验数据范围
+       /* List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(ConferenceRez::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(ConferenceRez::getCreateUser, StpUtil.getLoginIdAsString());
+        }*/
+        if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getLimitUserId())){
+            queryWrapper.lambda().eq(ConferenceRez::getCreateUser,conferenceRezPageParam.getLimitUserId()).or().in(ConferenceRez::getJoinUser,conferenceRezPageParam.getLimitUserId());
+        }
+
         if(ObjectUtil.isAllNotEmpty(conferenceRezPageParam.getSortField(), conferenceRezPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(conferenceRezPageParam.getSortOrder());
             queryWrapper.orderBy(true, conferenceRezPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
