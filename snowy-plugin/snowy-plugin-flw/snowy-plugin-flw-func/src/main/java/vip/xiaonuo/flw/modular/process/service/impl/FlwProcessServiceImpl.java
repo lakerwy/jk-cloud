@@ -353,7 +353,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         if (!flwProcessMonitorPageParam.isCloseDate() || StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())) {
             Date startDate = ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate()) ?
                     DateUtil.parseDate(flwProcessMonitorPageParam.getStartOptDate()) :
-                    DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -1).getTime());
+                    DateUtil.date(DateUtil.offsetMonth(DateUtil.date(System.currentTimeMillis()), -3).getTime());
 
             if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getEndOptDate())) {
                 historicProcessInstanceQuery.startedAfter(startDate)
