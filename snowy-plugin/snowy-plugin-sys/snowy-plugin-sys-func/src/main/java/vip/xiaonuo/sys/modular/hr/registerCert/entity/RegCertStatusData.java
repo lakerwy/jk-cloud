@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 注册补贴-人力资源-注册执业资格证书
+ * 注册补贴-人力资源-注册执业资格证书 【结果反馈】
  *
  * @author ljy
  * @date  2024/03/27 15:30

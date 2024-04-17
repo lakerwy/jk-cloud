@@ -19,7 +19,7 @@ import lombok.Setter;
 import java.util.Date;
 
 /**
- * 注册补贴-申请基本信息实体
+ * 注册补贴-申请基本信息实体 【本次申请】
  *
  * @author ljy
  * @date  2024/03/27 15:28

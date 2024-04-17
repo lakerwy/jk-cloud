@@ -2,4 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.registerCert.mapper.RegCertStatusDataMapper">
 
+    <select id="getRegCertByIdCardNumber" resultType="vip.xiaonuo.sys.modular.hr.registerCert.vo.RegCertStatusDataInfo">
+        select a.*,
+               b.MODEL_ID as modelId,b.PROCESS_INSTANCE_ID as processInstanceId,
+               b.SN as sn,b.STATUS as status
+        from REG_CERT_STATUS_DATA a
+        join APPLY_REG_CERT_DATA_FLOW b on a.APPLY_REG_FLW_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE' and b.DELETE_FLAG = 'NOT_DELETE'
+        and a.ID_CARD_NUMBER = #{idCardNumber} and b.STATUS in ('1')
+    </select>
 </mapper>

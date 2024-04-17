@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 注册补贴-申请FLW流程表信息实体
+ * 注册补贴-申请FLW流程表信息实体【申请流程】
  *
  * @author ljy
  * @date  2024/03/28 15:48

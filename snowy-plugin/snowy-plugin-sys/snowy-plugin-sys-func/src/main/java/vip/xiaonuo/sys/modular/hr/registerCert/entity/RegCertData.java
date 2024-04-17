@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 注册补贴-已有证书实体
+ * 注册补贴-已有证书实体 【申请流程时，已有证书】
  *
  * @author ljy
  * @date  2024/03/27 15:24
