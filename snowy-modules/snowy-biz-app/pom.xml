@@ -159,11 +159,11 @@
         </dependency>
 
         <!--招标采购插件-->
-<!--        <dependency>-->
-<!--            <groupId>vip.xiaonuo</groupId>-->
-<!--            <artifactId>snowy-plugin-bp-fun</artifactId>-->
-<!--            <version>${project.parent.version}</version>-->
-<!--        </dependency>-->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-bp-fun</artifactId>
+            <version>${project.parent.version}</version>
+        </dependency>
 
         <!-- 支付功能插件 -->
         <dependency>
