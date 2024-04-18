@@ -161,7 +161,7 @@
         <!--招标采购插件-->
         <dependency>
             <groupId>vip.xiaonuo</groupId>
-            <artifactId>snowy-plugin-bp-fun</artifactId>
+            <artifactId>snowy-plugin-bp-func</artifactId>
             <version>${project.parent.version}</version>
         </dependency>
 
