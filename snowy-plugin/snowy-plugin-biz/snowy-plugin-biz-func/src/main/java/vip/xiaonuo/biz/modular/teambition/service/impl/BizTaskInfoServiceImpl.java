@@ -429,6 +429,9 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
             }
         }
         BeanUtil.copyProperties(bizTaskInfoEditParam, bizTaskInfo);
+        if(bizTaskInfoEditParam.getTaskStatus().equals(BizTaskGroupEnum.END_STATUS.getValue())){
+            bizTaskInfo.setTaskEndTime(new Date());
+        }
         this.updateById(bizTaskInfo);
         //putTaskComment(bizTaskInfo,infoStatus);
     }
@@ -637,8 +640,12 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         if(bizTaskInfo.getTaskStatus().equals(taskInfoConfirmParam.getTaskStatus()) || (StringUtils.isEmpty(taskInfoConfirmParam.getTaskStatus()))){
             return;
         }
-
         bizTaskInfo.setTaskStatus(taskInfoConfirmParam.getTaskStatus());
+        if(taskInfoConfirmParam.getTaskStatus().equals(BizTaskGroupEnum.END_STATUS.getValue())){
+            bizTaskInfo.setTaskEndTime(new Date());
+        }else if(taskInfoConfirmParam.getTaskStatus().equals(BizTaskGroupEnum.START_STATUS.getValue())){
+            bizTaskInfo.setTaskStartTime(new Date());
+        }
         this.saveOrUpdate(bizTaskInfo);
     }
 }

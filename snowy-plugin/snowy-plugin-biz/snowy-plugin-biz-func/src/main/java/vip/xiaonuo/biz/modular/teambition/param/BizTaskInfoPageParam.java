@@ -60,12 +60,12 @@ public class BizTaskInfoPageParam {
     @ApiModelProperty(value = "任务名称")
     private String taskName;
 
-    @ApiModelProperty(value = "开始时间", position = 9)
+    @ApiModelProperty(value = "任务实际开始时间", position = 9)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String taskStartTime;
 
-    @ApiModelProperty(value = "结束时间", position = 10)
+    @ApiModelProperty(value = "任务实际结束时间", position = 10)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private String taskEndTime;
@@ -86,4 +86,15 @@ public class BizTaskInfoPageParam {
     /** 任务来源Id */
     @ApiModelProperty(value = "任务来源Id")
     private String proId;
+
+
+    @ApiModelProperty(value = "任务预期开始时间")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String expectStartTime;
+
+    @ApiModelProperty(value = "任务预期结束时间")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private String expectEndTime;
 }
