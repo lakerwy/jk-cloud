@@ -2,4 +2,13 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.hr.assetManage.mapper.JkAssetManageRelationMapper">
 
+    <select id="getAssetByFlowId" resultType="vip.xiaonuo.sys.modular.hr.assetManage.vo.JkAssetManageRelationInfo">
+        select a.*,
+               b.ASSET_TITLE,b.ASSET_FILE_IDS,b.ASSET_TYPE,b.ASSET_INTRODUCE,b.REMARK,b.EXT_JSON
+        from JK_ASSET_MANAGE_RELATION a join JK_ASSET_MANAGE b on a.ASSET_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE'
+          and b.DELETE_FLAG = 'NOT_DELETE'
+          and a.FLOW_ID = #{flowId}
+
+    </select>
 </mapper>

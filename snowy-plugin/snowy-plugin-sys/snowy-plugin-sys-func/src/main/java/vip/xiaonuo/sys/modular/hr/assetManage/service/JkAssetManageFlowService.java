@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowAddParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowEditParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowIdParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowPageParam;
+import vip.xiaonuo.sys.modular.hr.assetManage.vo.JkAssetManageFlowVo;
 
 import java.util.List;
 
@@ -68,7 +69,7 @@ public interface JkAssetManageFlowService extends IService<JkAssetManageFlow> {
      * @author ljy
      * @date  2024/04/10 08:56
      */
-    JkAssetManageFlow detail(JkAssetManageFlowIdParam jkAssetManageFlowIdParam);
+    JkAssetManageFlowVo detail(JkAssetManageFlowIdParam jkAssetManageFlowIdParam);
 
     /**
      * 获取建科资产管理权限申请表详情

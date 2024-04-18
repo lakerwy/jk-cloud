@@ -21,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 /**
- * 建科资产管理权限申请表实体
+ * 建科资产管理权限申请表实体【申请资产管理-图片-查看|下载-权限 - 流程】
  *
  * @author ljy
  * @date  2024/04/10 08:56

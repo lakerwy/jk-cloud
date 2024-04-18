@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.assetManage.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -31,12 +30,12 @@ import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageFlow;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.*;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageFlowService;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
+import vip.xiaonuo.sys.modular.hr.assetManage.vo.JkAssetManageFlowVo;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.util.List;
 
 /**
  * 建科资产管理权限申请表控制器
@@ -125,7 +124,7 @@ public class JkAssetManageFlowController {
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取建科资产管理权限申请表详情")
     @GetMapping("/sys/assetManageFlow/detail")
-    public CommonResult<JkAssetManageFlow> detail(@Valid JkAssetManageFlowIdParam jkAssetManageFlowIdParam) {
+    public CommonResult<JkAssetManageFlowVo> detail(@Valid JkAssetManageFlowIdParam jkAssetManageFlowIdParam) {
         return CommonResult.data(jkAssetManageFlowService.detail(jkAssetManageFlowIdParam));
     }
 

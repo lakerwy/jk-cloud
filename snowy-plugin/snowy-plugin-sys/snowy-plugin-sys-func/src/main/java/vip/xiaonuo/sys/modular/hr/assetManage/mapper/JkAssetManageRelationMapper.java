@@ -14,6 +14,9 @@ package vip.xiaonuo.sys.modular.hr.assetManage.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageRelation;
+import vip.xiaonuo.sys.modular.hr.assetManage.vo.JkAssetManageRelationInfo;
+
+import java.util.List;
 
 /**
  * 资产管理申请关联表Mapper接口
@@ -22,4 +25,10 @@ import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageRelation;
  * @date  2024/04/11 11:18
  **/
 public interface JkAssetManageRelationMapper extends BaseMapper<JkAssetManageRelation> {
+
+    /**
+     * FlowId实际存储的是 流程实例Id
+     * @return
+     */
+    List<JkAssetManageRelationInfo> getAssetByFlowId(String flowId);
 }

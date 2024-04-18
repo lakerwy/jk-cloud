@@ -40,6 +40,7 @@ import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageFlow;
 import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManageRelation;
 import vip.xiaonuo.sys.modular.hr.assetManage.mapper.JkAssetManageFlowMapper;
+import vip.xiaonuo.sys.modular.hr.assetManage.mapper.JkAssetManageRelationMapper;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowAddParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowEditParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowIdParam;
@@ -47,13 +48,11 @@ import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManageFlowPageParam;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageFlowService;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageRelationService;
 import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
-import vip.xiaonuo.sys.modular.hr.assetManage.vo.JkAssetManageRelationVo;
+import vip.xiaonuo.sys.modular.hr.assetManage.vo.JkAssetManageFlowVo;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 /**
@@ -71,6 +70,8 @@ public class JkAssetManageFlowServiceImpl extends ServiceImpl<JkAssetManageFlowM
     JkAssetManageService jkAssetManageService;
     @Resource
     JkAssetManageRelationService jkAssetManageRelationService;
+    @Resource
+    private JkAssetManageRelationMapper jkAssetManageRelationMapper;
 
     @Override
     public Page<JkAssetManageFlow> page(JkAssetManageFlowPageParam jkAssetManageFlowPageParam) {
@@ -176,10 +177,11 @@ public class JkAssetManageFlowServiceImpl extends ServiceImpl<JkAssetManageFlowM
     }
 
     @Override
-    public JkAssetManageFlow detail(JkAssetManageFlowIdParam jkAssetManageFlowIdParam) {
+    public JkAssetManageFlowVo detail(JkAssetManageFlowIdParam jkAssetManageFlowIdParam) {
         JkAssetManageFlow jkAssetManageFlow = this.queryEntity(jkAssetManageFlowIdParam.getId());
-        getJkAssetManage(jkAssetManageFlow);
-        return jkAssetManageFlow;
+        JkAssetManageFlowVo jkAssetManageFlowVo = BeanUtil.copyProperties(jkAssetManageFlow,JkAssetManageFlowVo.class);
+        jkAssetManageFlowVo.setJkAssetManageRelationList(jkAssetManageRelationMapper.getAssetByFlowId(jkAssetManageFlow.getProcessInstanceId()));
+        return jkAssetManageFlowVo;
     }
     private void getJkAssetManage(JkAssetManageFlow jkAssetManageFlow){
         List<JkAssetManageRelation> jkAssetManageRelationList = jkAssetManageRelationService.list(new LambdaQueryWrapper<JkAssetManageRelation>()
