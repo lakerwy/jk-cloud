@@ -21,6 +21,10 @@ public class ImportRefundParam {
     @ApiModelProperty(value = "申请人姓名", position = 2)
     private String applyName;
 
+    /** 申请人部门 */
+    @ApiModelProperty(value = "申请人部门", position = 4)
+    private String orgName;
+
     /** 收款日期 */
     @ApiModelProperty(value = "收款日期", position = 3)
     private String skDate;

@@ -100,11 +100,15 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getRecordSn())){
             queryWrapper.lambda().eq(InvoicePrjRefund::getRecordSn,invoicePrjRefundPageParam.getRecordSn());
         }
+        if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getOrgName())){
+            queryWrapper.lambda().like(InvoicePrjRefund::getOrgName,invoicePrjRefundPageParam.getOrgName());
+        }
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(InvoicePrjRefund::getApplyName,invoicePrjRefundPageParam.getSearchKey())
                     .or().like(InvoicePrjRefund::getSn,invoicePrjRefundPageParam.getSearchKey())
                     .or().like(InvoicePrjRefund::getRecordSn,invoicePrjRefundPageParam.getSearchKey())
-                    .or().like(InvoicePrjRefund::getUnitName,invoicePrjRefundPageParam.getSearchKey()));
+                    .or().like(InvoicePrjRefund::getUnitName,invoicePrjRefundPageParam.getSearchKey())
+                    .or().like(InvoicePrjRefund::getOrgName,invoicePrjRefundPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(invoicePrjRefundPageParam.getSortField(), invoicePrjRefundPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoicePrjRefundPageParam.getSortOrder());
