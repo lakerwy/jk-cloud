@@ -154,7 +154,8 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
             queryWrapper.lambda().eq(ConferenceRez::getCreateUser, StpUtil.getLoginIdAsString());
         }*/
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getLimitUserId())){
-            queryWrapper.lambda().eq(ConferenceRez::getCreateUser,conferenceRezPageParam.getLimitUserId()).or().in(ConferenceRez::getJoinUser,conferenceRezPageParam.getLimitUserId());
+            queryWrapper.lambda().and(q->q.eq(ConferenceRez::getCreateUser,conferenceRezPageParam.getLimitUserId())
+                    .or().likeRight(ConferenceRez::getJoinUser,conferenceRezPageParam.getLimitUserId()));
         }
 
         if(ObjectUtil.isAllNotEmpty(conferenceRezPageParam.getSortField(), conferenceRezPageParam.getSortOrder())) {

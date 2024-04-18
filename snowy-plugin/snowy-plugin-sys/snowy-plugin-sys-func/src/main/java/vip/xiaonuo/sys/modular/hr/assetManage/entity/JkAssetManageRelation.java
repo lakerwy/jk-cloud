@@ -73,7 +73,7 @@ public class JkAssetManageRelation {
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
-    /** 本次申请ID */
-    @ApiModelProperty(value = "本次申请ID", position = 10)
+    /** 本次申请ID  - 流程实例id - JK_ASSET_MANAGE_FLOW.processInstanceId*/
+    @ApiModelProperty(value = "本次申请ID  - 流程实例id - JK_ASSET_MANAGE_FLOW.processInstanceId", position = 10)
     private String flowId;
 }

@@ -27,9 +27,8 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchDetailVo;
-import vip.xiaonuo.sys.modular.hr.certManage.vo.UserInfo;
 import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertStatusData;
+import vip.xiaonuo.sys.modular.hr.registerCert.mapper.RegCertStatusDataMapper;
 import vip.xiaonuo.sys.modular.hr.registerCert.service.RegCertStatusDataService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalarySubsidyRecord;
@@ -68,7 +67,7 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
     private SalaryStandardService salaryStandardService;
 
     @Resource
-    RegCertStatusDataService regCertStatusDataService;
+    RegCertStatusDataMapper regCertStatusDataMapper;
 
     @Override
     public Page<SalarySubsidyRecordVo> page(SalarySubsidyRecordPageParam salarySubsidyRecordPageParam) {
@@ -139,9 +138,8 @@ public class SalarySubsidyRecordServiceImpl extends ServiceImpl<SalarySubsidyRec
     public SalarySubsidyRecordVo detail(SalarySubsidyRecordIdParam salarySubsidyRecordIdParam) {
         SalarySubsidyRecordVo salarySubsidyRecordVo = salarySubsidyRecordMapper.getDetailById(salarySubsidyRecordIdParam.getId());
         AesUtil.decryptGZ(salarySubsidyRecordVo);
-        if(StringUtils.isNotEmpty(salarySubsidyRecordVo.getIdCardNumber())){ /**  获取注册补贴信息 */
-            salarySubsidyRecordVo.setRegCertStatusDataList(regCertStatusDataService.list(new LambdaQueryWrapper<RegCertStatusData>()
-                    .eq(RegCertStatusData::getIdCardNumber,salarySubsidyRecordVo.getIdCardNumber())));
+        if(StringUtils.isNotEmpty(salarySubsidyRecordVo.getIdCardNumber())){ /**  获取注册补贴信息 - 已通过审核 */
+            salarySubsidyRecordVo.setRegCertStatusDataList(regCertStatusDataMapper.getRegCertByIdCardNumber(salarySubsidyRecordVo.getIdCardNumber()));
         }
         return salarySubsidyRecordVo;
     }

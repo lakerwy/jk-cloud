@@ -3,7 +3,7 @@ package vip.xiaonuo.sys.modular.hr.salary.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertStatusData;
+import vip.xiaonuo.sys.modular.hr.registerCert.vo.RegCertStatusDataInfo;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalarySubsidyRecord;
 
 import java.util.List;
@@ -45,5 +45,5 @@ public class SalarySubsidyRecordVo extends SalarySubsidyRecord {
     private String position;
 
     @ApiModelProperty(value = "注册补贴数据", position = 108)
-    private List<RegCertStatusData> regCertStatusDataList;
+    private List<RegCertStatusDataInfo> regCertStatusDataList;
 }

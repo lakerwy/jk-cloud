@@ -84,4 +84,7 @@ public class InvoicePrjRefundPageParam {
     @ApiModelProperty(value = "收款编号")
     private String recordSn;
 
+    /** 申请人部门 */
+    @ApiModelProperty(value = "申请人部门")
+    private String orgName;
 }

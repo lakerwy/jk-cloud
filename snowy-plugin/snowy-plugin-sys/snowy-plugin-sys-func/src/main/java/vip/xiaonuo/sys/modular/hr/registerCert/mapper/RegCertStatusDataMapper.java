@@ -14,6 +14,9 @@ package vip.xiaonuo.sys.modular.hr.registerCert.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertStatusData;
+import vip.xiaonuo.sys.modular.hr.registerCert.vo.RegCertStatusDataInfo;
+
+import java.util.List;
 
 /**
  * 注册补贴-人力资源中心证书Mapper接口
@@ -22,4 +25,11 @@ import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertStatusData;
  * @date  2024/03/27 15:30
  **/
 public interface RegCertStatusDataMapper extends BaseMapper<RegCertStatusData> {
+
+    /**
+     * 根据 身份证号 获取 审批流程已通过的 注册补贴数据
+     * @param idCardNumber
+     * @return
+     */
+    List<RegCertStatusDataInfo> getRegCertByIdCardNumber(String idCardNumber);
 }

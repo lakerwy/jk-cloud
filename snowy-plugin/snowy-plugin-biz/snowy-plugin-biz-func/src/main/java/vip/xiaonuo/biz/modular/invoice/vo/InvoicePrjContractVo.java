@@ -23,6 +23,10 @@ public class InvoicePrjContractVo extends InvoicePrjContract {
     @ApiModelProperty(value = "项目回款 - 申请人姓名", position = 61)
     private String applyName;
 
+    /** 项目回款 - 申请人部门 */
+    @ApiModelProperty(value = "项目回款 - 申请人部门", position = 61)
+    private String orgName;
+
     /** 项目回款 - 收款日期 */
     @ApiModelProperty(value = "项目回款 - 收款日期", position = 62)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
