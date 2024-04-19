@@ -36,4 +36,8 @@ public class SummaryParam {
     /** 文件ID */
     @ApiModelProperty(value = "文件ID", position = 36)
     private String fileId;
+
+    /** 外访人员 */
+    @ApiModelProperty(value = "外访人员", position = 4)
+    private String person;
 }
