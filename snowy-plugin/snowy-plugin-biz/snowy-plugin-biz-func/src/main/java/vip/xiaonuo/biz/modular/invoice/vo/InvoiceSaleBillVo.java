@@ -83,7 +83,7 @@ public class InvoiceSaleBillVo extends InvoiceSaleBill {
 
     /** 销售发票申请 -税差税率 */
     @ApiModelProperty(value = "销售发票申请 -税差税率", position = 36)
-    private Float taxDiffRate;
+    private String taxDiffRate;
 
     /** 销售发票申请 -本次应收税差 */
     @ApiModelProperty(value = "销售发票申请 -本次应收税差", position = 32)

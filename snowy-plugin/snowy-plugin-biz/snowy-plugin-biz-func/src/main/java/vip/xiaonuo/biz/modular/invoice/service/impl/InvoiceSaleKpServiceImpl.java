@@ -51,6 +51,9 @@ public class InvoiceSaleKpServiceImpl extends ServiceImpl<InvoiceSaleKpMapper, I
         if(ObjectUtil.isNotEmpty(invoiceSaleKpPageParam.getContent())) {
             queryWrapper.lambda().like(InvoiceSaleKp::getContent, invoiceSaleKpPageParam.getContent());
         }
+        if(ObjectUtil.isNotEmpty(invoiceSaleKpPageParam.getModel())){
+            queryWrapper.lambda().like(InvoiceSaleKp::getModel,invoiceSaleKpPageParam.getModel());
+        }
         if(ObjectUtil.isAllNotEmpty(invoiceSaleKpPageParam.getSortField(), invoiceSaleKpPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSaleKpPageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceSaleKpPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

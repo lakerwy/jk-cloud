@@ -219,8 +219,7 @@ public class InvoiceSale {
 
     /** 税差税率 */
     @ApiModelProperty(value = "税差税率", position = 36)
-    @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
-    private Float taxDiffRate;
+    private String taxDiffRate;
 
     /** 其他说明事项 */
     @ApiModelProperty(value = "其他说明事项", position = 37)

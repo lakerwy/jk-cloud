@@ -85,6 +85,10 @@ public class BizVisitServiceImpl extends ServiceImpl<BizVisitMapper, BizVisit> i
         if(ObjectUtil.isNotEmpty(bizVisitPageParam.getStatus())){
             queryWrapper.lambda().eq(BizVisit::getStatus,bizVisitPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizVisitPageParam.getLimitUserId())){
+            queryWrapper.lambda().and(q->q.eq(BizVisit::getCreateUser,bizVisitPageParam.getLimitUserId())
+                    .or().apply(" JSON_CONTAINS(PERSON, JSON_OBJECT('id',{0}))>0 ",bizVisitPageParam.getLimitUserId()));
+        }
         if (ObjectUtil.isNotEmpty(bizVisitPageParam.getSearchKey())) {
             queryWrapper.lambda().and(q->q.like(BizVisit::getPurpose, bizVisitPageParam.getSearchKey())
                     .or().like(BizVisit::getUnit,bizVisitPageParam.getSearchKey())
