@@ -54,6 +54,7 @@ import vip.xiaonuo.sys.modular.hr.conference.config.param.ConferenceTimeDataPara
 import vip.xiaonuo.sys.modular.hr.conference.config.service.ConferenceConfigService;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRez;
 import vip.xiaonuo.sys.modular.hr.conference.rez.entity.ConferenceRezPeriod;
+import vip.xiaonuo.sys.modular.hr.conference.rez.enums.ConferenceRezEnum;
 import vip.xiaonuo.sys.modular.hr.conference.rez.mapper.ConferenceRezMapper;
 import vip.xiaonuo.sys.modular.hr.conference.rez.param.*;
 import vip.xiaonuo.sys.modular.hr.conference.rez.service.ConferenceRezPeriodService;
@@ -246,6 +247,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         ConferenceRez conferenceRez = BeanUtil.toBean(conferenceRezAddParam, ConferenceRez.class);
         String sn = CommonUtils.getTableSn(BizTableCommon.BIZ_CHART_REVIEWS, DbsConstant.SLAVE_1_DATASOURCE_NAME);
         conferenceRez.setSn(sn);
+        conferenceRez.setIsSendMsg(ConferenceRezEnum.NO_SEND_MSG.getValue());
         this.save(conferenceRez);
         //异步推送消息
         pushMsgEvent(conferenceRez,conferenceRezAddParam);
@@ -625,7 +627,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
     private OapiMessageCorpconversationAsyncsendV2Request.OA buildOa(ConferenceMsgEvent conferenceMsgEvent,String title,Integer type){
         OapiMessageCorpconversationAsyncsendV2Request.OA oa = new OapiMessageCorpconversationAsyncsendV2Request.OA();
         OapiMessageCorpconversationAsyncsendV2Request.Head head = new OapiMessageCorpconversationAsyncsendV2Request.Head();
-        head.setText("会议通知");
+        head.setText("会议纪要抄送通知");
         head.setBgcolor("FFBBBBBB");
         oa.setHead(head);
 
@@ -641,23 +643,13 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
 
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("会议主题：");
+        form.setKey("会议名称：");
         form.setValue(theme);
         forms.add(form);
 
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("会议时间：");
+        form.setKey("处理时间：");
         form.setValue(confTime);
-        forms.add(form);
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("会议地点：");
-        form.setValue(location);
-        forms.add(form);
-
-        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("预约人：");
-        form.setValue(rezUser);
         forms.add(form);
 
         body.setForm(forms);
@@ -763,5 +755,24 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 }
                 break;
         }
+    }
+
+    @Override
+    public void sendJoinMsg(ConferenceRezIdParam conferenceRezIdParam) throws Exception{
+        ConferenceRez conferenceRez = this.detail(conferenceRezIdParam);
+        if(StringUtils.isNotEmpty(conferenceRez.getJoinUser())){
+            List<String> userIds = Arrays.asList(conferenceRez.getJoinUser().split(","));
+            List<SysUser> sysUserList = sysUserService.list(new LambdaQueryWrapper<SysUser>().in(SysUser::getId,userIds));
+            sysUserList.forEach(user -> {
+                ConferenceMsgEvent conferenceMsgEvent  = new ConferenceMsgEvent();
+                conferenceMsgEvent.setPhone(user.getAccount());
+                conferenceMsgEvent.setTheme(conferenceRez.getTheme());
+                String confTime = DateUtil.format(conferenceRez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN)+"-" +DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
+                conferenceMsgEvent.setConfTime(confTime);
+                sendConfMsg(conferenceMsgEvent, "【会议纪要抄送通知】",0);
+            });
+        }
+        conferenceRez.setIsSendMsg(ConferenceRezEnum.IS_SEND_MSG.getValue());
+        this.saveOrUpdate(conferenceRez);
     }
 }

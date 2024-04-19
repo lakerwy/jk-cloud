@@ -25,7 +25,9 @@ public enum ConferenceRezEnum {
 
     /** 测试 */
     TEST("TEST"),
-    PRO_TYPE("REZ_CONFERENCE");
+    PRO_TYPE("REZ_CONFERENCE"),
+    IS_SEND_MSG("1"),
+    NO_SEND_MSG("0");
     private final String value;
 
     ConferenceRezEnum(String value) {
