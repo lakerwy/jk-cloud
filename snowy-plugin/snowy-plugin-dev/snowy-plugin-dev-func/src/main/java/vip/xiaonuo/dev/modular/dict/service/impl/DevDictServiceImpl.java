@@ -22,6 +22,7 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.Wrappers;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.trans.service.impl.DictionaryTransService;
@@ -63,8 +64,13 @@ public class DevDictServiceImpl extends ServiceImpl<DevDictMapper, DevDict> impl
         queryWrapper.lambda().select(DevDict::getId, DevDict::getParentId, DevDict::getCategory, DevDict::getDictLabel,
                 DevDict::getDictValue, DevDict::getSortCode);
         if (ObjectUtil.isNotEmpty(devDictPageParam.getParentId())) {
-            queryWrapper.lambda().eq(DevDict::getParentId, devDictPageParam.getParentId())
-                    .or().eq(DevDict::getId, devDictPageParam.getParentId());
+//            queryWrapper.lambda().eq(DevDict::getParentId, devDictPageParam.getParentId())
+//                    .or().eq(DevDict::getId, devDictPageParam.getParentId());
+            queryWrapper.lambda().and(wrapper ->
+                    wrapper.eq(DevDict::getParentId, devDictPageParam.getParentId())
+                            .or()
+                            .eq(DevDict::getId, devDictPageParam.getParentId())
+            );
         }
         if (ObjectUtil.isNotEmpty(devDictPageParam.getCategory())) {
             queryWrapper.lambda().eq(DevDict::getCategory, devDictPageParam.getCategory());
@@ -77,7 +83,9 @@ public class DevDictServiceImpl extends ServiceImpl<DevDictMapper, DevDict> impl
             queryWrapper.orderBy(true, devDictPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(devDictPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(DevDict::getSortCode);
+            queryWrapper.lambda().apply("CASE WHEN parent_id = 0 THEN 0 ELSE 1 END").orderByAsc(DevDict::getCreateTime).orderByAsc(DevDict::getSortCode);
+            // 添加自定义 SQL 实现排序逻辑，将 parentId 为 0 的记录排在前面
+            //queryWrapper.apply("CASE WHEN parent_id = 0 THEN 0 ELSE 1 END, create_time ASC, sort_code ASC");
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

@@ -116,4 +116,7 @@ public interface ConferenceRezService extends IService<ConferenceRez> {
 
     /** 释放会议*/
     void process(JSONObject bizData, String bookId) throws Exception;
+
+    /**  发送参与人消息 */
+    void sendJoinMsg(ConferenceRezIdParam conferenceRezIdParam) throws Exception;
 }
