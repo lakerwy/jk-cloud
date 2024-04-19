@@ -648,8 +648,18 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         forms.add(form);
 
         form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-        form.setKey("处理时间：");
-        form.setValue(confTime);
+        form.setKey("会议纪要：");
+        form.setValue(conferenceMsgEvent.getRecord());
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("开始时间：");
+        form.setValue(conferenceMsgEvent.getBeginTime());
+        forms.add(form);
+
+        form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+        form.setKey("结束时间：");
+        form.setValue(conferenceMsgEvent.getEndTime());
         forms.add(form);
 
         body.setForm(forms);
@@ -767,8 +777,10 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
                 ConferenceMsgEvent conferenceMsgEvent  = new ConferenceMsgEvent();
                 conferenceMsgEvent.setPhone(user.getAccount());
                 conferenceMsgEvent.setTheme(conferenceRez.getTheme());
-                String confTime = DateUtil.format(conferenceRez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN)+"-" +DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
-                conferenceMsgEvent.setConfTime(confTime);
+                conferenceMsgEvent.setRecord(conferenceRez.getRecord());
+                //String confTime = DateUtil.format(conferenceRez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN)+"-" +DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN);
+                conferenceMsgEvent.setBeginTime(DateUtil.format(conferenceRez.getBeginTime(),DatePattern.NORM_DATETIME_PATTERN));
+                conferenceMsgEvent.setEndTime(DateUtil.format(conferenceRez.getEndTime(),DatePattern.NORM_DATETIME_PATTERN));
                 sendConfMsg(conferenceMsgEvent, "【会议纪要抄送通知】",0);
             });
         }

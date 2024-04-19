@@ -56,6 +56,15 @@ public class ConferenceMsgEvent {
     @ApiModelProperty(value = "外部人员", position = 13)
     private List<OutsideUser> outsideUsers;
 
+    /** 会议记录 + 会议纪要*/
+    @ApiModelProperty(value = "会议记录 + 会议纪要", position = 14)
+    private String record;
+
+    @ApiModelProperty(value = "开始时间", position = 15)
+    private String beginTime;
+
+    @ApiModelProperty(value = "结束时间", position = 16)
+    private String endTime;
 
     public ConferenceMsgEvent(){}
 
