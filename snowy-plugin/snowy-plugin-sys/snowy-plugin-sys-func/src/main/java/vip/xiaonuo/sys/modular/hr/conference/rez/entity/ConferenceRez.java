@@ -242,4 +242,8 @@ public class ConferenceRez {
     /** 数据权限控制字段 */
     @ApiModelProperty(value = "数据权限控制字段", position = 50)
     private String dataScopeId;
+
+    /** 数据权限控制字段 */
+    @ApiModelProperty(value = "是否发送会议纪要抄送通知：0 未发送，1 已发送", position = 51)
+    private String isSendMsg;
 }

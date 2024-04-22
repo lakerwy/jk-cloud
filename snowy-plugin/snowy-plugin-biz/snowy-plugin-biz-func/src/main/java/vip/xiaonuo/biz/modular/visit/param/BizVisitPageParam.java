@@ -55,4 +55,8 @@ public class BizVisitPageParam {
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态", position = 50)
     private String status;
+
+    /** 权限控制userId */
+    @ApiModelProperty(value = "权限控制userId", position = 50)
+    private String limitUserId;
 }

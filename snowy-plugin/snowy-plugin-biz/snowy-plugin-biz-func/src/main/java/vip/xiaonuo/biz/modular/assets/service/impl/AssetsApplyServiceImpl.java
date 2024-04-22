@@ -69,7 +69,7 @@ public class AssetsApplyServiceImpl extends ServiceImpl<AssetsApplyMapper, Asset
     @Override
     public Page<AssetsApplyVo> page(AssetsApplyPageParam assetsApplyPageParam) {
         QueryWrapper<AssetsApply> queryWrapper = new QueryWrapper<>();
-//        queryWrapper.lambda().in(AssetsApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().in(AssetsApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(assetsApplyPageParam.getOrgName())) {
             queryWrapper.lambda().like(AssetsApply::getOrgName, assetsApplyPageParam.getOrgName());
         }
@@ -102,14 +102,15 @@ public class AssetsApplyServiceImpl extends ServiceImpl<AssetsApplyMapper, Asset
                     .or().like(AssetsApply::getSn,assetsApplyPageParam.getSearchKey())
                     .or().like(AssetsApply::getItems,assetsApplyPageParam.getSearchKey())
                     .or().like(AssetsApply::getOrgName,assetsApplyPageParam.getSearchKey())
-                    .or().like(AssetsApply::getUserName,assetsApplyPageParam.getSearchKey()));
+                    .or().like(AssetsApply::getUserName,assetsApplyPageParam.getSearchKey())
+                    .or().like(AssetsApply::getType,assetsApplyPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(assetsApplyPageParam.getSortField(), assetsApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(assetsApplyPageParam.getSortOrder());
             queryWrapper.orderBy(true, assetsApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(assetsApplyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(AssetsApply::getCreateTime);
+            queryWrapper.lambda().orderByDesc(AssetsApply::getCreateTime);
         }
         Page<AssetsApply> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<AssetsApplyVo> assetsApplyVos = BeanUtil.copyToList(result.getRecords(), AssetsApplyVo.class);

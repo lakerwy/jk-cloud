@@ -217,4 +217,20 @@ public class ConferenceRezController {
         conferenceRezService.edit(conferenceRezEditParam);
         return CommonResult.ok();
     }
+
+    /**
+     * 参与人发送消息
+     *
+     * @author ljy
+     * @date  2024/4/19 09:35
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("参与人发送消息")
+    @CommonLog("参与人发送消息")
+    //@SaCheckPermission("/sys/rez/edit")
+    @PostMapping("/sys/rez/sendJoinMsg")
+    public CommonResult<String> sendJoinMsg(@Valid ConferenceRezIdParam conferenceRezIdParam) throws Exception{
+        conferenceRezService.sendJoinMsg(conferenceRezIdParam);
+        return CommonResult.ok();
+    }
 }

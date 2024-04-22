@@ -197,7 +197,7 @@ public class InvoiceSaleAddParam {
 
     /** 税差税率 */
     @ApiModelProperty(value = "税差税率", position = 36)
-    private Float taxDiffRate;
+    private String taxDiffRate;
 
     /** 其他说明事项 */
     @ApiModelProperty(value = "其他说明事项", position = 37)

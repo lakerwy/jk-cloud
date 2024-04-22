@@ -14,6 +14,9 @@ package vip.xiaonuo.biz.modular.invoice.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleCost;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillTotal;
+
+import java.util.List;
 
 /**
  * 财务系统-销售发票开具申请-成本票应收Mapper接口
@@ -22,4 +25,11 @@ import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleCost;
  * @date  2024/03/19 10:19
  **/
 public interface InvoiceSaleCostMapper extends BaseMapper<InvoiceSaleCost> {
+
+    /**
+     * 销售发票 - 成本票应收 - 统计
+     * @param invoiceSaleIdList
+     * @return
+     */
+    List<InvoiceSaleBillTotal> getCostTotal(List<String> invoiceSaleIdList);
 }

@@ -25,12 +25,14 @@ public enum BizTaskGroupEnum {
 
     /** 测试 */
     TEST("TEST"),
-    ZRROR("0"),
+    ZRROR("P0"),
     ONE("1"),
     NOT_START("进行中"),
     END("已完成"),
     NOT_END("已取消"),
-    TIME_HOUR_MIN(" 23:59:59");
+    TIME_HOUR_MIN(" 23:59:59"),
+    END_STATUS("4"),
+    START_STATUS("1");
 
     private final String value;
 

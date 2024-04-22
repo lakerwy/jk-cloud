@@ -14,4 +14,40 @@
             ${ew.customSqlSegment}
     </select>
 
+    <select id="getBillTotal" resultType="vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostBillTotal">
+        select a.KP_SN,
+               sum(IF(b.AMOUNT is null,0,b.AMOUNT)) as amountTotal,
+               sum(IF(b.TAX_AMOUNT is null,0,b.TAX_AMOUNT)) as taxAmountTotal
+        from BIZ_INVOICE_COST a
+            join BIZ_INVOICE_COST_BILL b on a.ID = b.INVOICE_COST_ID
+        where a.DELETE_FLAG = 'NOT_DELETE'
+          and b.DELETE_FLAG = 'NOT_DELETE'
+        <if test="kpSnList != null and kpSnList.size() > 0 ">
+            and a.KP_SN in
+            <foreach collection="kpSnList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        group by a.KP_SN
+    </select>
+
+
+    <select id="getPrvBillTotal" resultType="vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostPrvBillTotal">
+        select a.KP_SN,
+               b.PRV_NAME,
+               b.TAX_RATE,
+               sum(IF(b.AMOUNT is null,0,b.AMOUNT)) as amountTotal,
+               sum(IF(b.TAX_AMOUNT is null,0,b.TAX_AMOUNT)) as taxAmountTotal
+        from BIZ_INVOICE_COST a
+            join BIZ_INVOICE_COST_BILL b on a.ID = b.INVOICE_COST_ID
+        where a.DELETE_FLAG = 'NOT_DELETE'
+            and b.DELETE_FLAG = 'NOT_DELETE'
+        <if test="kpSnList != null and kpSnList.size() > 0 ">
+            and a.KP_SN in
+            <foreach collection="kpSnList" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+        group by a.KP_SN,b.PRV_NAME,b.TAX_RATE
+    </select>
 </mapper>

@@ -184,7 +184,7 @@ public class InvoiceSaleInfo extends InvoiceSaleBill {
 
     /** 销售发票申请 - 税差税率 */
     @ApiModelProperty(value = "销售发票申请 - 税差税率", position = 102)
-    private Float sTaxDiffRate;
+    private String sTaxDiffRate;
 
     /** 销售发票申请 - 其他说明事项 */
     @ApiModelProperty(value = "销售发票申请 - 其他说明事项", position = 103)

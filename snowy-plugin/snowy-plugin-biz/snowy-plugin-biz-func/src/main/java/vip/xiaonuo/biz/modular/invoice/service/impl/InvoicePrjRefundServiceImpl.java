@@ -89,7 +89,7 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
             queryWrapper.lambda().between(InvoicePrjRefund::getSkDate, invoicePrjRefundPageParam.getStartSkDate(), invoicePrjRefundPageParam.getEndSkDate());
         }
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getUnitName())) {
-            queryWrapper.lambda().eq(InvoicePrjRefund::getUnitName, invoicePrjRefundPageParam.getUnitName());
+            queryWrapper.lambda().like(InvoicePrjRefund::getUnitName, invoicePrjRefundPageParam.getUnitName());
         }
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getSn())) {
             queryWrapper.lambda().like(InvoicePrjRefund::getSn, invoicePrjRefundPageParam.getSn());
@@ -98,7 +98,7 @@ public class InvoicePrjRefundServiceImpl extends ServiceImpl<InvoicePrjRefundMap
             queryWrapper.lambda().eq(InvoicePrjRefund::getStatus, invoicePrjRefundPageParam.getStatus());
         }
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getRecordSn())){
-            queryWrapper.lambda().eq(InvoicePrjRefund::getRecordSn,invoicePrjRefundPageParam.getRecordSn());
+            queryWrapper.lambda().like(InvoicePrjRefund::getRecordSn,invoicePrjRefundPageParam.getRecordSn());
         }
         if(ObjectUtil.isNotEmpty(invoicePrjRefundPageParam.getOrgName())){
             queryWrapper.lambda().like(InvoicePrjRefund::getOrgName,invoicePrjRefundPageParam.getOrgName());

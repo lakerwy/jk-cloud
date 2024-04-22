@@ -95,4 +95,16 @@ public class InvoiceSaleKp {
     /** 外键：BIZ_INVOICE_SALE.ID */
     @ApiModelProperty(value = "外键：BIZ_INVOICE_SALE.ID", position = 14)
     private String invoiceSaleId;
+
+    /** 规格型号 */
+    @ApiModelProperty(value = "规格型号", position = 15)
+    private String model;
+
+    /** 数量 */
+    @ApiModelProperty(value = "数量", position = 16)
+    private String nums;
+
+    /** 单价 */
+    @ApiModelProperty(value = "单价", position = 17)
+    private String price;
 }

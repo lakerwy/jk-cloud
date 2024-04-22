@@ -26,6 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.invoice.param.*;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceLjInfoVo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
@@ -156,5 +157,18 @@ public class InvoiceSaleController {
     @GetMapping("/biz/invoice/sale/getTopLjInfo")
     public CommonResult<InvoiceLjInfoVo> getTopLjInfo(String htContractNo) {
         return CommonResult.data(invoiceSaleService.getTopLjInfo(htContractNo));
+    }
+
+    /**
+     * 根据 销售发票申请单号 - 维度 - 统计 销售发票基本信息|开票小计|成品应收小计|开票确认小计|成本票小计 供应商+税率 维度 小计
+     *
+     * @author yong.ye
+     * @date  2024/04/19 10:17
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("根据 销售发票申请单号 - 维度 - 统计 销售发票基本信息|开票小计|成品应收小计|开票确认小计|成本票小计 供应商+税率 维度 小计")
+    @GetMapping("/biz/invoice/sale/getTotal")
+    public CommonResult<Page<InvoiceInfo>> getTotal(InvoiceSalePageParam invoiceSalePageParam) {
+        return CommonResult.data(invoiceSaleService.getTotal(invoiceSalePageParam));
     }
 }

@@ -12,9 +12,11 @@
  */
 package vip.xiaonuo.biz.modular.teambition.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.biz.modular.teambition.vo.BizTaskProjectVo;
 
 import javax.validation.constraints.NotBlank;
@@ -104,4 +106,16 @@ public class BizTaskInfoEditParam {
     /** 负责人部门 */
     @ApiModelProperty(value = "负责人部门", position = 20)
     private String leadOrg;
+
+    /** 任务预期开始时间 */
+    @ApiModelProperty(value = "任务预期开始时间", position = 21)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date expectStartTime;
+
+    /** 任务预期结束时间 */
+    @ApiModelProperty(value = "任务预期结束时间", position = 22)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date expectEndTime;
 }

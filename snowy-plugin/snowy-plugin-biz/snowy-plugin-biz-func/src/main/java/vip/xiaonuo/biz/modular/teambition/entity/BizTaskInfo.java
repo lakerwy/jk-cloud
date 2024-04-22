@@ -13,9 +13,11 @@
 package vip.xiaonuo.biz.modular.teambition.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.biz.modular.teambition.taskInfoComment.entity.BizTaskComment;
 import vip.xiaonuo.biz.modular.teambition.vo.ChildTaskInfoVo;
 
@@ -59,12 +61,16 @@ public class BizTaskInfo {
     @ApiModelProperty(value = "任务来源详情ID", position = 6)
     private String proId;
 
-    /** 任务开始时间 */
-    @ApiModelProperty(value = "任务开始时间", position = 7)
+    /** 任务实际开始时间 */
+    @ApiModelProperty(value = "任务实际开始时间", position = 7)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date taskStartTime;
 
-    /** 任务结束时间 */
-    @ApiModelProperty(value = "任务结束时间", position = 8)
+    /** 任务实际结束时间 */
+    @ApiModelProperty(value = "任务实际结束时间", position = 8)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date taskEndTime;
 
     /** 任务执行者 */
@@ -76,7 +82,7 @@ public class BizTaskInfo {
     private String taskStatus;
 
     /** 任务优先级：0 最低，1较低，2普通，3较高，4 最高*/
-    @ApiModelProperty(value = "任务优先级(默认为最低 0)：0 最低，1 较低，2 普通，3 较高，4 最高", position = 11)
+    @ApiModelProperty(value = "任务优先级(默认为最低 0)：P0 最低，P1 较低，P2 普通，P3 较高，P4 最高", position = 11)
     private String taskPriority;
 
     /** 参与人集合，参与人ID，逗号隔开 --  协办人员 */
@@ -176,4 +182,16 @@ public class BizTaskInfo {
     @ApiModelProperty(value = "子任务", position = 33)
     @TableField(exist = false)
     private List<ChildTaskInfoVo> children;
+
+    /** 任务预期开始时间 */
+    @ApiModelProperty(value = "任务预期开始时间", position = 34)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date expectStartTime;
+
+    /** 任务预期结束时间 */
+    @ApiModelProperty(value = "任务预期结束时间", position = 35)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date expectEndTime;
 }

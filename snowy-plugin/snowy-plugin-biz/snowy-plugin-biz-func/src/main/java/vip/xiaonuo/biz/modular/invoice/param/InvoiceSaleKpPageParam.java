@@ -52,4 +52,7 @@ public class InvoiceSaleKpPageParam {
     @ApiModelProperty(value = "发票内容")
     private String content;
 
+    /** 规格型号 */
+    @ApiModelProperty(value = "规格型号")
+    private String model;
 }
