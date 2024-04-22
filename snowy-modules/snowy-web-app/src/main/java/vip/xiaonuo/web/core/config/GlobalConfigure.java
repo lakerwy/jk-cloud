@@ -242,7 +242,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
 //            "/sys/user/userSelector",
 
             "/dev/config/**",
-            "/dev/dict/**",
+//            "/dev/dict/**",
             "/dev/email/page",
             "/dev/email/delete",
             "/dev/email/detail",
