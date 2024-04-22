@@ -149,10 +149,6 @@ public class InvoiceInfo {
     @ApiModelProperty(value = "累计预缴税款金额", position = 29)
     private BigDecimal ljPreTax;
 
-    /** 完税凭证附件上传 */
-    @ApiModelProperty(value = "完税凭证附件上传", position = 30)
-    private String pfAttach;
-
     /** 开票备注 */
     @ApiModelProperty(value = "开票备注", position = 31)
     private String kpMemo;
@@ -197,37 +193,27 @@ public class InvoiceInfo {
     @ApiModelProperty(value = "流程状态", position = 48)
     private String status;
 
-    /** 入参信息 */
-    @ApiModelProperty(value = "入参信息", position = 49)
-    private String extJson;
-
-    /** 备注 */
-    @ApiModelProperty(value = "备注", position = 50)
-    private String memo;
-
-    /** 税差收取附件 */
-    @ApiModelProperty(value = "税差收取附件", position = 51)
-    private String taxAttach;
 
     /** 以上均来源于 BIZ_INVOICE_SALE 基本信息 **/
 
-    /** 销售发票申请 - 开票信息 - 开票金额 - 小计 */
-    @ApiModelProperty(value = "销售发票申请 - 开票信息 - 开票金额 - 小计", position = 80)
-    private BigDecimal kpTotal;
 
     /** 销售发票申请 - 成本票应收 - 含税金额 - 小计 */
     @ApiModelProperty(value = "销售发票申请 - 成本票应收 - 含税金额 - 小计", position = 81)
-    private BigDecimal costTotal;
+    private BigDecimal saleCostTotal;
 
     /** 销售发票申请 - 开票确认 - 价税合计 - 小计 */
     @ApiModelProperty(value = "销售发票申请 - 开票确认 - 价税合计 - 小计", position = 82)
-    private BigDecimal billTotal;
+    private BigDecimal saleBillTotal;
+
+    /** 销售发票申请 - 开票确认 - 税额 - 小计 */
+    @ApiModelProperty(value = "销售发票申请 - 开票确认 - 税额 - 小计", position = 83)
+    private BigDecimal saleBillTaxTotal;
 
     /** 成本发票申请 - 成本票确认 - 含税金额 - 小计 */
-    @ApiModelProperty(value = "成本发票申请 - 成本票确认 - 含税金额 - 小计", position = 83)
+    @ApiModelProperty(value = "成本发票申请 - 成本票确认 - 含税金额 - 小计", position = 84)
     private BigDecimal costBillTotal;
 
     /** (按 供应商+税率 统计)成本发票申请 - 成本票确认 - 含税金额 - 小计 */
-    @ApiModelProperty(value = "(按 供应商+税率 统计)成本发票申请 - 成本票确认 - 含税金额 - 小计", position = 84)
-    private List<InvoiceInfoCost> costList;
+    @ApiModelProperty(value = "(按 供应商+税率 统计)成本发票申请 - 成本票确认 - 含税金额 - 小计", position = 85)
+    private List<InvoiceCostPrvBillTotal> prvCostList;
 }

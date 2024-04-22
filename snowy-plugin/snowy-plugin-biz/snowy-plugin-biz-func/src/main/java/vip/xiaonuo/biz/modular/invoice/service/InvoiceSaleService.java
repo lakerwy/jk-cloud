@@ -17,10 +17,9 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSale;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
-import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleAddParam;
-import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleEditParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSaleIdParam;
 import vip.xiaonuo.biz.modular.invoice.param.InvoiceSalePageParam;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceLjInfoVo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
@@ -96,4 +95,11 @@ public interface InvoiceSaleService extends IService<InvoiceSale> {
      * @return
      */
     InvoiceLjInfoVo getTopLjInfo(String htContractNo);
+
+    /**
+     * 根据 销售发票申请单号 - 维度 - 统计 销售发票基本信息|开票小计|成品应收小计|开票确认小计|成本票小计 供应商+税率 维度 小计
+     * @param invoiceSalePageParam
+     * @return
+     */
+    Page<InvoiceInfo> getTotal(InvoiceSalePageParam invoiceSalePageParam);
 }

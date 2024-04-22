@@ -18,8 +18,11 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceSaleBill;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillTotal;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillVo;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
+
+import java.util.List;
 
 /**
  * 财务系统-销售发票开具申请-开票确认【正式销售发票表】Mapper接口
@@ -45,4 +48,11 @@ public interface InvoiceSaleBillMapper extends BaseMapper<InvoiceSaleBill> {
      * @return
      */
     Page<InvoiceSaleBillVo> getSaleBillPage(Page<InvoiceSaleBillVo> page, @Param(Constants.WRAPPER) Wrapper<InvoiceSaleBill> queryWrapper);
+
+    /**
+     * 销售发票 - 开票确认 - 统计
+     * @param invoiceSaleIdList
+     * @return
+     */
+    List<InvoiceSaleBillTotal> getBillTotal(List<String> invoiceSaleIdList);
 }

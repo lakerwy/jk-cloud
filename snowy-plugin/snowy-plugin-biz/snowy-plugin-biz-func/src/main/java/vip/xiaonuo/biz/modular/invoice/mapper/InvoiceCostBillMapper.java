@@ -18,7 +18,12 @@ import com.baomidou.mybatisplus.core.toolkit.Constants;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.invoice.entity.InvoiceCostBill;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostBillTotal;
 import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostBillVo;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceCostPrvBillTotal;
+import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillTotal;
+
+import java.util.List;
 
 /**
  * 财务系统-成本发票申请【正式成本发票表】Mapper接口
@@ -35,4 +40,18 @@ public interface InvoiceCostBillMapper extends BaseMapper<InvoiceCostBill> {
      * @return
      */
     Page<InvoiceCostBillVo> getCostBillPage(Page<InvoiceCostBillVo> page, @Param(Constants.WRAPPER) Wrapper<InvoiceCostBill> queryWrapper);
+
+    /**
+     * 成本发票 - 成本票确认 - 统计
+     * @param kpSnList
+     * @return
+     */
+    List<InvoiceCostBillTotal> getBillTotal(List<String> kpSnList);
+
+    /**
+     * 成本发票 - 供应商维度 - 统计
+     * @param kpSnList
+     * @return
+     */
+    List<InvoiceCostPrvBillTotal> getPrvBillTotal(List<String> kpSnList);
 }
