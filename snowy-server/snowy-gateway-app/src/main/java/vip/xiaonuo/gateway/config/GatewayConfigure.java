@@ -236,7 +236,7 @@ public class GatewayConfigure {
 //            "/api/webapp/sys/user/userSelector",
 
             "/api/webapp/dev/config/**",
-            "/api/webapp/dev/dict/**",
+//            "/api/webapp/dev/dict/**",
             "/api/webapp/dev/email/page",
             "/api/webapp/dev/email/delete",
             "/api/webapp/dev/email/detail",
