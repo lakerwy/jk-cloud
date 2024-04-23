@@ -35,17 +35,21 @@
     </select>
 
     <select id="getBillTotal" resultType="vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleBillTotal">
-        select INVOICE_SALE_ID,
-               sum(IF(AMOUNT is null,0,AMOUNT)) as amountTotal,
-               sum(IF(TAX_AMOUNT is null,0,TAX_AMOUNT)) as taxAmountTotal
-        from BIZ_INVOICE_SALE_BILL where DELETE_FLAG = 'NOT_DELETE'
+        select a.INVOICE_SALE_ID,
+               sum(IF(a.AMOUNT is null,0,a.AMOUNT)) as amountTotal,
+               sum(IF(a.TAX_AMOUNT is null,0,a.TAX_AMOUNT)) as taxAmountTotal
+        from BIZ_INVOICE_SALE_BILL a
+            join BIZ_INVOICE_SALE b on a.INVOICE_SALE_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE'
+          and b.DELETE_FLAG = 'NOT_DELETE'
+          and b.STATUS in ('1','0')
         <if test="invoiceSaleIdList != null and invoiceSaleIdList.size() > 0 ">
-            and INVOICE_SALE_ID in
+            and a.INVOICE_SALE_ID in
             <foreach collection="invoiceSaleIdList" item="item" open="(" close=")" separator=",">
                 #{item}
             </foreach>
         </if>
-        group by INVOICE_SALE_ID
+        group by a.INVOICE_SALE_ID
     </select>
 
 </mapper>
