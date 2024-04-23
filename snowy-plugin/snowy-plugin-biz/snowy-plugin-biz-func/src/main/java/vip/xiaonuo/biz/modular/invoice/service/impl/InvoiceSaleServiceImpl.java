@@ -622,6 +622,8 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
                             totalRecords.add(tmpItem);
                         }
                     }
+                }else{
+                    totalRecords.add(item);
                 }
             });
         }
