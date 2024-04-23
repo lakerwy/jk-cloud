@@ -133,6 +133,15 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getStatus())) {
             queryWrapper.lambda().eq(InvoiceSale::getStatus, invoiceSalePageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(InvoiceSale::getSn,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getApplyName,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtContractNo,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtProjectName,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getApplyUnit,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtCompanyOrDepartment,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtOwner,invoiceSalePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(invoiceSalePageParam.getSortField(), invoiceSalePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSalePageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceSalePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -398,6 +407,11 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getStatus())) {
             queryWrapper.eq("b.STATUS", invoiceSalePageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("b.SN",invoiceSalePageParam.getSearchKey())
+                    .or().like("b.HT_CONTRACT_NO",invoiceSalePageParam.getSearchKey())
+                    .or().like("b.HT_PROJECT_NAME",invoiceSalePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(invoiceSalePageParam.getSortField(), invoiceSalePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSalePageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceSalePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -464,6 +478,15 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         }
         if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getStatus())) {
             queryWrapper.lambda().eq(InvoiceSale::getStatus, invoiceSalePageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(InvoiceSale::getSn,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getApplyName,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtContractNo,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtProjectName,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getApplyUnit,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtCompanyOrDepartment,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtOwner,invoiceSalePageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(invoiceSalePageParam.getSortField(), invoiceSalePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSalePageParam.getSortOrder());
@@ -559,6 +582,15 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         }
         if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getStatus())) {
             queryWrapper.lambda().eq(InvoiceSale::getStatus, invoiceSalePageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(InvoiceSale::getSn,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getApplyName,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtContractNo,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtProjectName,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getApplyUnit,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtCompanyOrDepartment,invoiceSalePageParam.getSearchKey())
+                    .or().like(InvoiceSale::getHtOwner,invoiceSalePageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(invoiceSalePageParam.getSortField(), invoiceSalePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSalePageParam.getSortOrder());
