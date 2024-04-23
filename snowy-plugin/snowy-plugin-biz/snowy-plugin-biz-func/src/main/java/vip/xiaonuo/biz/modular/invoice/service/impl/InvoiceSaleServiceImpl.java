@@ -55,6 +55,7 @@ import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -509,6 +510,123 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
         }
         Page<InvoiceInfo> newResult = new Page<>();
         newResult.setRecords(invoiceInfos);
+        newResult.setPages(result.getPages());
+        newResult.setSize(result.getSize());
+        newResult.setTotal(result.getTotal());
+        newResult.setCurrent(result.getCurrent());
+        return newResult;
+    }
+
+    @Override
+    public Page<InvoiceInfoNew> getTotalNew(InvoiceSalePageParam invoiceSalePageParam) {
+        QueryWrapper<InvoiceSale> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(InvoiceSale::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getApplyUnit())) {
+            queryWrapper.lambda().eq(InvoiceSale::getApplyUnit, invoiceSalePageParam.getApplyUnit());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getApplyName())) {
+            queryWrapper.lambda().like(InvoiceSale::getApplyName, invoiceSalePageParam.getApplyName());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getBillUnit())) {
+            queryWrapper.lambda().like(InvoiceSale::getBillUnit, invoiceSalePageParam.getBillUnit());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getHtProjectName())) {
+            queryWrapper.lambda().like(InvoiceSale::getHtProjectName, invoiceSalePageParam.getHtProjectName());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getHtContractNo())) {
+            queryWrapper.lambda().like(InvoiceSale::getHtContractNo, invoiceSalePageParam.getHtContractNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getPurchaser())) {
+            queryWrapper.lambda().like(InvoiceSale::getPurchaser, invoiceSalePageParam.getPurchaser());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getTaxpayerType())) {
+            queryWrapper.lambda().eq(InvoiceSale::getTaxpayerType, invoiceSalePageParam.getTaxpayerType());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getFpType())) {
+            queryWrapper.lambda().eq(InvoiceSale::getFpType, invoiceSalePageParam.getFpType());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getTaxpayerNo())) {
+            queryWrapper.lambda().like(InvoiceSale::getTaxpayerNo, invoiceSalePageParam.getTaxpayerNo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getBankInfo())) {
+            queryWrapper.lambda().like(InvoiceSale::getBankInfo, invoiceSalePageParam.getBankInfo());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getGatherType())) {
+            queryWrapper.lambda().eq(InvoiceSale::getGatherType, invoiceSalePageParam.getGatherType());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getSn())) {
+            queryWrapper.lambda().like(InvoiceSale::getSn, invoiceSalePageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(invoiceSalePageParam.getStatus())) {
+            queryWrapper.lambda().eq(InvoiceSale::getStatus, invoiceSalePageParam.getStatus());
+        }
+        if(ObjectUtil.isAllNotEmpty(invoiceSalePageParam.getSortField(), invoiceSalePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(invoiceSalePageParam.getSortOrder());
+            queryWrapper.orderBy(true, invoiceSalePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(invoiceSalePageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(InvoiceSale::getSn);
+        }
+        Page<InvoiceSale> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        //转换数据，拼接参数
+        List<InvoiceInfoNew> invoiceInfos = BeanUtil.copyToList(result.getRecords(), InvoiceInfoNew.class);
+        //处理后的结果集
+        List<InvoiceInfoNew> totalRecords = new ArrayList<>();
+        if(CollUtil.isNotEmpty(invoiceInfos)){
+            //1. 获取涉及销售发票申请单号,id
+            List<String> invoiceSaleIdList = invoiceInfos.stream().map(x->x.getId()).collect(Collectors.toList());
+            List<String> kpSnList = invoiceInfos.stream().filter(x->ObjectUtil.isNotEmpty(x.getSn())).map(x->x.getSn()).collect(Collectors.toList());
+            //2. 获取销售发票 - 开票确认 - 统计值（按invoiceSaleIdList统计）
+            List<InvoiceSaleBillTotal> invoiceSaleBillTotals = invoiceSaleBillMapper.getBillTotal(invoiceSaleIdList);
+            //3. 获取销售发票 - 成本票应收 - 统计值（按invoiceSaleIdList统计）
+            List<InvoiceSaleBillTotal> invoiceSaleCostTotals = invoiceSaleCostMapper.getCostTotal(invoiceSaleIdList);
+            //4. 获取成本发票 - 成本确认 - 统计值（按kpSnList统计）
+            List<InvoiceCostBillTotal> invoiceCostBillTotals = invoiceCostBillMapper.getBillTotal(kpSnList);
+            //5. 获取成本发票 - 供应商维度 - 统计值（按kpSnList统计）
+            List<InvoiceCostPrvBillTotal> invoiceCostPrvBillTotals = invoiceCostBillMapper.getPrvBillTotal(kpSnList);
+            invoiceInfos.forEach(item->{
+                if(ObjectUtil.isEmpty(item.getSn())){
+                    item.setSn("");
+                }
+                InvoiceSaleBillTotal saleBillTotal = invoiceSaleBillTotals.stream().filter(x->item.getId().equals(x.getInvoiceSaleId())).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(saleBillTotal)){
+                    item.setSaleBillTotal(saleBillTotal.getAmountTotal());
+                    item.setSaleBillTaxTotal(saleBillTotal.getTaxAmountTotal());
+                }
+                InvoiceSaleBillTotal saleCostTotal = invoiceSaleCostTotals.stream().filter(x->item.getId().equals(x.getInvoiceSaleId())).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(saleCostTotal)){
+                    item.setSaleCostTotal(saleCostTotal.getAmountTotal());
+                }
+                InvoiceCostBillTotal costBillTotal = invoiceCostBillTotals.stream().filter(x->item.getSn().equals(x.getKpSn())).findFirst().orElse(null);
+                if(ObjectUtil.isNotEmpty(costBillTotal)){
+                    item.setCostBillTotal(costBillTotal.getAmountTotal());
+                }
+                //供应商+税率统计 - 数据
+                List<InvoiceCostPrvBillTotal> costPrvBillList = invoiceCostPrvBillTotals.stream().filter(x->item.getSn().equals(x.getKpSn())).collect(Collectors.toList());
+                if(CollUtil.isNotEmpty(costPrvBillList)) {
+                    for (int i = 0; i < costPrvBillList.size(); i++) {
+                        InvoiceCostPrvBillTotal tmpPrv = costPrvBillList.get(i);
+                        if (i == 0){
+                            item.setPrvName(tmpPrv.getPrvName());
+                            item.setTaxRate(tmpPrv.getTaxRate());
+                            item.setAmountTotal(tmpPrv.getAmountTotal());
+                            item.setTaxAmountTotal(tmpPrv.getTaxAmountTotal());
+                            totalRecords.add(item);
+                        }else{
+                            InvoiceInfoNew tmpItem = new InvoiceInfoNew();
+                            tmpItem.setId(item.getId());
+                            tmpItem.setPrvName(tmpPrv.getPrvName());
+                            tmpItem.setTaxRate(tmpPrv.getTaxRate());
+                            tmpItem.setAmountTotal(tmpPrv.getAmountTotal());
+                            tmpItem.setTaxAmountTotal(tmpPrv.getTaxAmountTotal());
+                            totalRecords.add(tmpItem);
+                        }
+                    }
+                }
+            });
+        }
+        Page<InvoiceInfoNew> newResult = new Page<>();
+        newResult.setRecords(totalRecords);
         newResult.setPages(result.getPages());
         newResult.setSize(result.getSize());
         newResult.setTotal(result.getTotal());
