@@ -17,7 +17,7 @@ public class InvoiceCostPrvBillTotal {
 
     /** 销售发票申请-流水号 = 成本发票申请-开票申请编号(销售发票流程SN) */
     @ApiModelProperty(value = "销售发票申请-流水号 = 成本发票申请-开票申请编号(销售发票流程SN)", position = 1)
-    private String KP_SN;
+    private String kpSn;
 
     /** 供应商名称 */
     @ApiModelProperty(value = "供应商名称", position = 2)

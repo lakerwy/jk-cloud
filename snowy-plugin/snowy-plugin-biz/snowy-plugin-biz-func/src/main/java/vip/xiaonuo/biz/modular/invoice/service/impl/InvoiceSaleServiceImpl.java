@@ -499,11 +499,11 @@ public class InvoiceSaleServiceImpl extends ServiceImpl<InvoiceSaleMapper, Invoi
                 if(ObjectUtil.isNotEmpty(saleCostTotal)){
                     item.setSaleCostTotal(saleCostTotal.getAmountTotal());
                 }
-                InvoiceCostBillTotal costBillTotal = invoiceCostBillTotals.stream().filter(x->item.getSn().equals(x.getKP_SN())).findFirst().orElse(null);
+                InvoiceCostBillTotal costBillTotal = invoiceCostBillTotals.stream().filter(x->item.getSn().equals(x.getKpSn())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(costBillTotal)){
                     item.setCostBillTotal(costBillTotal.getAmountTotal());
                 }
-                List<InvoiceCostPrvBillTotal> costPrvBillList = invoiceCostPrvBillTotals.stream().filter(x->item.getSn().equals(x.getKP_SN())).collect(Collectors.toList());
+                List<InvoiceCostPrvBillTotal> costPrvBillList = invoiceCostPrvBillTotals.stream().filter(x->item.getSn().equals(x.getKpSn())).collect(Collectors.toList());
                 item.setPrvCostList(costPrvBillList);
             });
         }
