@@ -125,6 +125,13 @@ public class ContractPlanServiceImpl extends ServiceImpl<ContractPlanMapper, Con
         if(ObjectUtil.isNotEmpty(contractPlanPageParam.getStatus())) {
             queryWrapper.lambda().eq(ContractPlan::getStatus, contractPlanPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(contractPlanPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(ContractPlan::getSn,contractPlanPageParam.getSearchKey())
+                    .or().like(ContractPlan::getBelongRegion,contractPlanPageParam.getSearchKey())
+                    .or().like(ContractPlan::getPrjName,contractPlanPageParam.getSearchKey())
+                    .or().like(ContractPlan::getPrjSubject,contractPlanPageParam.getSearchKey())
+                    .or().like(ContractPlan::getBiddUnit,contractPlanPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(contractPlanPageParam.getSortField(), contractPlanPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(contractPlanPageParam.getSortOrder());
             queryWrapper.orderBy(true, contractPlanPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
