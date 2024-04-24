@@ -72,16 +72,20 @@ public class DevLogUtil {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String description = methodSignature.getMethod().getAnnotation(ApiOperation.class).value();
         String date = DateTime.now().toString("yyyy-MM-dd");
-        MDC.put("elapsedTime", StrUtil.toString(elapsedTime));
-        MDC.put("description", description);
-        MDC.put("region", devLog.getOpAddress());
-        MDC.put("username", devLog.getOpUser());
-        MDC.put("date", date);
-        MDC.put("paramJson",devLog.getParamJson());
-        MDC.put("resultJson",resultJson);
-        MDC.put("clientIP", devLog.getOpIp());
-        MDC.put("reqUrl", devLog.getReqUrl());
-        log.info("{}操作日志---",description);
+        try {
+            MDC.put("elapsedTime", StrUtil.toString(elapsedTime));
+            MDC.put("description", description);
+            MDC.put("region", devLog.getOpAddress());
+            MDC.put("username", devLog.getOpUser());
+            MDC.put("date", date);
+            MDC.put("paramJson", devLog.getParamJson());
+            MDC.put("resultJson", resultJson);
+            MDC.put("clientIP", devLog.getOpIp());
+            MDC.put("reqUrl", devLog.getReqUrl());
+            log.info("{}操作日志---", description);
+        }finally {
+            MDC.clear();
+        }
     }
 
     /**
@@ -111,17 +115,21 @@ public class DevLogUtil {
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String description = methodSignature.getMethod().getAnnotation(ApiOperation.class).value();
         String date = DateTime.now().toString("yyyy-MM-dd");
-        MDC.put("elapsedTime", StrUtil.toString(elapsedTime));
-        MDC.put("description", description);
-        MDC.put("region", devLog.getOpAddress());
-        MDC.put("username", devLog.getOpUser());
-        MDC.put("date", date);
-        MDC.put("paramJson",devLog.getParamJson());
-        MDC.put("exception",devLog.getExeMessage());
-        MDC.put("clientIP", devLog.getOpIp());
-        MDC.put("category",DevLogCategoryEnum.EXCEPTION.getValue());
-        MDC.put("reqUrl", devLog.getReqUrl());
-        log.error("{}异常日志---",description);
+        try {
+            MDC.put("elapsedTime", StrUtil.toString(elapsedTime));
+            MDC.put("description", description);
+            MDC.put("region", devLog.getOpAddress());
+            MDC.put("username", devLog.getOpUser());
+            MDC.put("date", date);
+            MDC.put("paramJson", devLog.getParamJson());
+            MDC.put("exception", devLog.getExeMessage());
+            MDC.put("clientIP", devLog.getOpIp());
+            MDC.put("category", DevLogCategoryEnum.EXCEPTION.getValue());
+            MDC.put("reqUrl", devLog.getReqUrl());
+            log.error("{}异常日志---", description);
+        }finally {
+            MDC.clear();
+        }
     }
 
     /**
