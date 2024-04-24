@@ -82,6 +82,11 @@ public class InvoiceSaleMoveServiceImpl extends ServiceImpl<InvoiceSaleMoveMappe
         if(ObjectUtil.isNotEmpty(invoiceSaleMovePageParam.getStatus())) {
             queryWrapper.eq("a.STATUS", invoiceSaleMovePageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(invoiceSaleMovePageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.SN",invoiceSaleMovePageParam.getSearchKey())
+                    .or().like("a.APPLY_NAME",invoiceSaleMovePageParam.getSearchKey())
+                    .or().like("a.APPLY_UNIT",invoiceSaleMovePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(invoiceSaleMovePageParam.getSortField(), invoiceSaleMovePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceSaleMovePageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceSaleMovePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

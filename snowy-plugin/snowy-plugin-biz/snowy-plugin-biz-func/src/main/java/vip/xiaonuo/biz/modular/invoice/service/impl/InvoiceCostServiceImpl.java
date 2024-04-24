@@ -92,6 +92,13 @@ public class InvoiceCostServiceImpl extends ServiceImpl<InvoiceCostMapper, Invoi
         if(ObjectUtil.isNotEmpty(invoiceCostPageParam.getStatus())) {
             queryWrapper.lambda().eq(InvoiceCost::getStatus, invoiceCostPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(invoiceCostPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(InvoiceCost::getSn,invoiceCostPageParam.getSearchKey())
+                    .or().like(InvoiceCost::getApplyName,invoiceCostPageParam.getSearchKey())
+                    .or().like(InvoiceCost::getHtContractNo,invoiceCostPageParam.getSearchKey())
+                    .or().like(InvoiceCost::getHtProjectName,invoiceCostPageParam.getSearchKey())
+                    .or().like(InvoiceCost::getApplyUnit,invoiceCostPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(invoiceCostPageParam.getSortField(), invoiceCostPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(invoiceCostPageParam.getSortOrder());
             queryWrapper.orderBy(true, invoiceCostPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

@@ -1815,7 +1815,7 @@ public class NodeRuntimeUtil {
         return matcher.replaceAll(value);
     }
 
-    private static Map<String,Object> getMap(String processInstanceId){
+    public static Map<String,Object> getMap(String processInstanceId){
         HistoryService historyService = SpringUtil.getBean(HistoryService.class);
         HistoricVariableInstanceQuery historicVariableInstanceQuery = historyService
                 .createHistoricVariableInstanceQuery().processInstanceId(processInstanceId)

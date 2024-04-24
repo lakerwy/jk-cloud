@@ -26,10 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.invoice.param.*;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleAdd;
 import vip.xiaonuo.biz.modular.invoice.param.Customer.InvoiceSaleEdit;
-import vip.xiaonuo.biz.modular.invoice.vo.InvoiceInfo;
-import vip.xiaonuo.biz.modular.invoice.vo.InvoiceLjInfoVo;
-import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleInfo;
-import vip.xiaonuo.biz.modular.invoice.vo.InvoiceSaleVo;
+import vip.xiaonuo.biz.modular.invoice.vo.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -170,5 +167,19 @@ public class InvoiceSaleController {
     @GetMapping("/biz/invoice/sale/getTotal")
     public CommonResult<Page<InvoiceInfo>> getTotal(InvoiceSalePageParam invoiceSalePageParam) {
         return CommonResult.data(invoiceSaleService.getTotal(invoiceSalePageParam));
+    }
+
+
+    /**
+     * 【后端构造展示效果数据-公共部分行合并】根据 销售发票申请单号 - 维度 - 统计 销售发票基本信息|开票小计|成品应收小计|开票确认小计|成本票小计 供应商+税率 维度 小计
+     *
+     * @author yong.ye
+     * @date  2024/04/19 10:17
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("【后端构造展示效果数据-公共部分行合并】根据 销售发票申请单号 - 维度 - 统计 销售发票基本信息|开票小计|成品应收小计|开票确认小计|成本票小计 供应商+税率 维度 小计")
+    @GetMapping("/biz/invoice/sale/getTotalNew")
+    public CommonResult<Page<InvoiceInfoNew>> getTotalNew(InvoiceSalePageParam invoiceSalePageParam) {
+        return CommonResult.data(invoiceSaleService.getTotalNew(invoiceSalePageParam));
     }
 }

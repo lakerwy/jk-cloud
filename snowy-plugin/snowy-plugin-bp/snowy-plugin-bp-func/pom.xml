@@ -42,6 +42,12 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-dbs-api</artifactId>
         </dependency>
+
+        <!-- 引入多租户接口，用于获取租户信息 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-ten-api</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

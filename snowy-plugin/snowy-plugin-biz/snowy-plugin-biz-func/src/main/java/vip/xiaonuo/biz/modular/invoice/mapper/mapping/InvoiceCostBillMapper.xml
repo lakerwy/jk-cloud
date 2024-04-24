@@ -22,6 +22,7 @@
             join BIZ_INVOICE_COST_BILL b on a.ID = b.INVOICE_COST_ID
         where a.DELETE_FLAG = 'NOT_DELETE'
           and b.DELETE_FLAG = 'NOT_DELETE'
+          and a.STATUS in ('1','0')
         <if test="kpSnList != null and kpSnList.size() > 0 ">
             and a.KP_SN in
             <foreach collection="kpSnList" item="item" open="(" close=")" separator=",">
@@ -42,6 +43,7 @@
             join BIZ_INVOICE_COST_BILL b on a.ID = b.INVOICE_COST_ID
         where a.DELETE_FLAG = 'NOT_DELETE'
             and b.DELETE_FLAG = 'NOT_DELETE'
+            and a.STATUS in ('1','0')
         <if test="kpSnList != null and kpSnList.size() > 0 ">
             and a.KP_SN in
             <foreach collection="kpSnList" item="item" open="(" close=")" separator=",">
