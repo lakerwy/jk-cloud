@@ -144,7 +144,7 @@ public class GlobalExceptionUtil {
             // 未知异常返回服务器异常
             commonResult = CommonResult.error("服务器异常");
         }
-        log.error(">>> {}，请求地址：{}", commonResult.getMsg(), CommonServletUtil.getRequest().getRequestURL());
+//        log.error(">>> {}，请求地址：{}", commonResult.getMsg(), CommonServletUtil.getRequest().getRequestURL());
         return commonResult;
     }
 
