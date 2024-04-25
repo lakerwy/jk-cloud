@@ -96,6 +96,7 @@ public class BpSupplierAddParam {
 
     /** 住所省市区 */
     @ApiModelProperty(value = "住所省市区")
+    @NotBlank(message = "住所省市区不能为空")
     private String home;
 
     /** 住所详细地址 */
@@ -104,6 +105,7 @@ public class BpSupplierAddParam {
 
     /** 办公地址省市区 */
     @ApiModelProperty(value = "办公地址省市区")
+    @NotBlank(message = "办公地址省市区不能为空")
     private String officeAddress;
 
     /** 办公详细地址 */

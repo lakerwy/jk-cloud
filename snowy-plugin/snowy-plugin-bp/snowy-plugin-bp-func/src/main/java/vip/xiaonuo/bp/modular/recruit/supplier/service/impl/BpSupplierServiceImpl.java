@@ -42,7 +42,6 @@ import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpBlacklistEnum;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierEditParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
-import vip.xiaonuo.common.enums.CommonDeleteFlagEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
