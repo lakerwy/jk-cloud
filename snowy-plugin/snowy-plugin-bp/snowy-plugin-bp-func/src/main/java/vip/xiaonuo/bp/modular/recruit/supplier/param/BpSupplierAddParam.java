@@ -94,39 +94,17 @@ public class BpSupplierAddParam {
     @ApiModelProperty(value = "品牌")
     private String brand;
 
-    /** 住所省 */
-    @ApiModelProperty(value = "住所省")
-    @NotBlank(message = "住所省份不能为空")
-    private String homeDart;
-
-    /** 住所市 */
-    @ApiModelProperty(value = "住所市")
-    @NotBlank(message = "住所市不能为空")
-    private String homeCity;
-
-    /** 住所区 */
-    @ApiModelProperty(value = "住所区")
-    @NotBlank(message = "住所区不能为空")
-    private String homeDistrict;
+    /** 住所省市区 */
+    @ApiModelProperty(value = "住所省市区")
+    private String home;
 
     /** 住所详细地址 */
     @ApiModelProperty(value = "住所详细地址")
     private String homeAddress;
 
-    /** 办公地址省 */
-    @ApiModelProperty(value = "办公地址省")
-    @NotBlank(message = "办公地址省份不能为空")
-    private String workDart;
-
-    /** 办公地址市 */
-    @ApiModelProperty(value = "办公地址市")
-    @NotBlank(message = "办公地址市不能为空")
-    private String workCity;
-
-    /** 办公地址区 */
-    @ApiModelProperty(value = "办公地址区")
-    @NotBlank(message = "办公地址区不能为空")
-    private String workDistrict;
+    /** 办公地址省市区 */
+    @ApiModelProperty(value = "办公地址省市区")
+    private String officeAddress;
 
     /** 办公详细地址 */
     @ApiModelProperty(value = "办公详细地址")
@@ -139,6 +117,10 @@ public class BpSupplierAddParam {
     /** 服务地址市 */
     @ApiModelProperty(value = "服务地址市")
     private String serviceAreaCity;
+
+    /** 经营范围 */
+    @ApiModelProperty(value = "经营范围")
+    private String businessScope;
 
     /** 来源类型 */
     @ApiModelProperty(value = "来源类型")

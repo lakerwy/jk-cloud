@@ -55,147 +55,135 @@ public class BpSupplier {
     private String legalRepresentative;
 
     /** 法人身份证 */
-    @ApiModelProperty(value = "法人身份证")
+    @ApiModelProperty(value = "法人身份证", position = 6)
     private String idNumber;
 
     /** 注册资本(元) */
-    @ApiModelProperty(value = "注册资本(元)", position = 6)
+    @ApiModelProperty(value = "注册资本(元)", position = 7)
     private BigDecimal registeredCapital;
 
     /** 公司logo */
-    @ApiModelProperty(value = "公司logo", position = 7)
+    @ApiModelProperty(value = "公司logo", position = 8)
     private String companylogo;
 
     /** 成立日期 */
-    @ApiModelProperty(value = "成立日期", position = 8)
+    @ApiModelProperty(value = "成立日期", position = 9)
     private Date establishTime;
 
     /** 公司邮箱 */
-    @ApiModelProperty(value = "公司邮箱", position = 9)
+    @ApiModelProperty(value = "公司邮箱", position = 10)
     private String mailbox;
 
     /** 公司名称 */
-    @ApiModelProperty(value = "公司名称", position = 10)
+    @ApiModelProperty(value = "公司名称", position = 11)
     private String companyName;
 
     /** 企业组织形式 */
-    @ApiModelProperty(value = "企业组织形式", position = 11)
+    @ApiModelProperty(value = "企业组织形式", position = 12)
     private String companyType;
 
     /** 统一社会信用代码 */
-    @ApiModelProperty(value = "统一社会信用代码", position = 12)
+    @ApiModelProperty(value = "统一社会信用代码", position = 13)
     private String corpCode;
 
     /** 品牌 */
-    @ApiModelProperty(value = "品牌", position = 13)
+    @ApiModelProperty(value = "品牌", position = 14)
     private String brand;
 
-    /** 住所省 */
-    @ApiModelProperty(value = "住所省", position = 14)
-    private String homeDart;
-
-    /** 住所市 */
-    @ApiModelProperty(value = "住所市", position = 15)
-    private String homeCity;
-
-    /** 住所区 */
-    @ApiModelProperty(value = "住所区", position = 16)
-    private String homeDistrict;
+    /** 住所省市区 */
+    @ApiModelProperty(value = "住所省市区", position = 15)
+    private String home;
 
     /** 住所详细地址 */
-    @ApiModelProperty(value = "住所详细地址", position = 17)
+    @ApiModelProperty(value = "住所详细地址", position = 16)
     private String homeAddress;
 
-    /** 办公地址省 */
-    @ApiModelProperty(value = "办公地址省", position = 18)
-    private String workDart;
-
-    /** 办公地址市 */
-    @ApiModelProperty(value = "办公地址市", position = 19)
-    private String workCity;
-
-    /** 办公地址区 */
-    @ApiModelProperty(value = "办公地址区", position = 20)
-    private String workDistrict;
+    /** 办公地址省市区 */
+    @ApiModelProperty(value = "办公地址省市区", position = 17)
+    private String officeAddress;
 
     /** 办公详细地址 */
-    @ApiModelProperty(value = "办公详细地址", position = 21)
+    @ApiModelProperty(value = "办公详细地址", position = 18)
     private String workAddress;
 
     /** 服务地址省 */
-    @ApiModelProperty(value = "服务地址省", position = 22)
+    @ApiModelProperty(value = "服务地址省", position = 19)
     private String serviceAreaDart;
 
     /** 服务地址市 */
-    @ApiModelProperty(value = "服务地址市", position = 23)
+    @ApiModelProperty(value = "服务地址市", position = 20)
     private String serviceAreaCity;
 
+    /** 经营范围 */
+    @ApiModelProperty(value = "经营范围", position = 21)
+    private String businessScope;
+
     /** 来源类型 */
-    @ApiModelProperty(value = "来源类型", position = 24)
+    @ApiModelProperty(value = "来源类型", position = 22)
     private String source;
 
     /** 合作承诺函 */
-    @ApiModelProperty(value = "合作承诺函", position = 25)
+    @ApiModelProperty(value = "合作承诺函", position = 23)
     private String commitmentLetter;
 
     /** 宣读视频 */
-    @ApiModelProperty(value = "宣读视频", position = 26)
+    @ApiModelProperty(value = "宣读视频", position = 24)
     private String video;
 
     /** 审核状态 */
-    @ApiModelProperty(value = "审核状态", position = 27)
+    @ApiModelProperty(value = "审核状态", position = 25)
     private String status;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 28)
+    @ApiModelProperty(value = "备注", position = 26)
     private String memo;
 
     /** 黑名单标记 */
-    @ApiModelProperty(value = "黑名单标记", position = 29)
+    @ApiModelProperty(value = "黑名单标记", position = 27)
     private String isBlacklist;
 
     /** 黑名单原因 */
-    @ApiModelProperty(value = "黑名单原因", position = 30)
+    @ApiModelProperty(value = "黑名单原因", position = 28)
     private String blacklistReason;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 31)
+    @ApiModelProperty(value = "创建时间", position = 29)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建人 */
-    @ApiModelProperty(value = "创建人", position = 32)
+    @ApiModelProperty(value = "创建人", position = 30)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 更新时间 */
-    @ApiModelProperty(value = "更新时间", position = 33)
+    @ApiModelProperty(value = "更新时间", position = 31)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 更新人 */
-    @ApiModelProperty(value = "更新人", position = 34)
+    @ApiModelProperty(value = "更新人", position = 32)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 删除状态标记 */
-    @ApiModelProperty(value = "删除状态标记", position = 35)
+    @ApiModelProperty(value = "删除状态标记", position = 33)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 一级分类ID */
-    @ApiModelProperty(value = "一级分类ID", position = 36)
+    @ApiModelProperty(value = "一级分类ID", position = 34)
     @TableField(exist = false)
     private String stairclassifyId;
 
     /** 二级分类ID */
-    @ApiModelProperty(value = "二级分类ID", position = 37)
+    @ApiModelProperty(value = "二级分类ID", position = 35)
     @TableField(exist = false)
     private String accessclassifyId;
 
     /** 三级分类ID */
-    @ApiModelProperty(value = "三级分类ID", position = 38)
+    @ApiModelProperty(value = "三级分类ID", position = 36)
     @TableField(exist = false)
     private String reclassifyId;
 }
