@@ -177,6 +177,9 @@ public class BizEmpTaskFlwServiceImpl extends ServiceImpl<BizEmpTaskFlwMapper, B
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getFirstOrgId())){
             queryWrapper.eq("emp.FIRST_ORG_ID",bizEmpTaskFlwPageParam.getFirstOrgId());
         }
+        if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getEmpSeasonLevel())){
+            queryWrapper.eq("b.EMP_SEASON_LEVEL",bizEmpTaskFlwPageParam.getEmpSeasonLevel());
+        }
         //若筛选（已填报|未填报）
         if(ObjectUtil.isNotEmpty(bizEmpTaskFlwPageParam.getIsFill())){
             //筛选是否填报

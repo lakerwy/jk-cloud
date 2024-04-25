@@ -79,4 +79,8 @@ public class BizEmpTaskFlwPageParam {
     /** 是否已评分 1: 已评分  2：未评分 */
     @ApiModelProperty(value = "是否已评分 1: 已评分  2：未评分", position = 8)
     private String IsScore;
+
+    /** 员工季度-绩效等级 */
+    @ApiModelProperty(value = "员工季度-绩效等级", position = 17)
+    private String empSeasonLevel;
 }
