@@ -30,6 +30,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.entity.BpBankInformation;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.service.BpBankInformationService;
+import vip.xiaonuo.bp.modular.recruit.businessscope.param.BpBusinessScopeAddParam;
 import vip.xiaonuo.bp.modular.recruit.finance.param.BpFinanceAddParam;
 import vip.xiaonuo.bp.modular.recruit.finance.service.BpFinanceService;
 import vip.xiaonuo.bp.modular.recruit.businessscope.entity.BpBusinessScope;
@@ -118,13 +119,13 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         this.save(bpSupplier);
 
         // 新增经营范围分类
-        List<BpBankInformationAddParam> classifyList = bpSupplierAddParam.getClassifyList();
+        List<BpBusinessScopeAddParam> classifyList = bpSupplierAddParam.getClassifyList();
         if(CollectionUtil.isEmpty(classifyList)){
             throw new CommonException("经营范围数据不能为空!");
         }
-        for (BpBankInformationAddParam bpBankInformationAddParam : classifyList) {
-            bpBankInformationAddParam.setSupplierId(bpSupplier.getId());
-            bpBankInformationAddParam.setTenantId(tenApi.getCurrentTenId());
+        for (BpBusinessScopeAddParam bpBusinessScopeAddParam : classifyList) {
+            bpBusinessScopeAddParam.setSupplierId(bpSupplier.getId());
+            bpBusinessScopeAddParam.setTenantId(tenApi.getCurrentTenId());
         }
         List<BpBusinessScope> newCopyAdd = BeanUtil.copyToList(classifyList, BpBusinessScope.class);
         bpBusinessScopeService.saveBatch(newCopyAdd);
@@ -218,8 +219,8 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
         // 查询供应商经营范围分类
         List<BpBusinessScope> businessScopeList = bpBusinessScopeService.list(new LambdaQueryWrapper<BpBusinessScope>().eq(BpBusinessScope::getSupplierId,supplierId).eq(BpBusinessScope::getDeleteFlag, "NOT_DELETE"));
-        List<BpBankInformationAddParam> bpBankInformationAddParams = BeanUtil.copyToList(businessScopeList, BpBankInformationAddParam.class);
-        bpSupplierAddParam.setClassifyList(bpBankInformationAddParams);
+        List<BpBusinessScopeAddParam> bpBusinessScopeAddParams = BeanUtil.copyToList(businessScopeList, BpBusinessScopeAddParam.class);
+        bpSupplierAddParam.setClassifyList(bpBusinessScopeAddParams);
 
         // 查询供应商联系信息
         List<BpRelation> bpRelationList = bpRelationService.list(new LambdaQueryWrapper<BpRelation>().eq(BpRelation::getSupplierId,supplierId).eq(BpRelation::getDeleteFlag, "NOT_DELETE"));

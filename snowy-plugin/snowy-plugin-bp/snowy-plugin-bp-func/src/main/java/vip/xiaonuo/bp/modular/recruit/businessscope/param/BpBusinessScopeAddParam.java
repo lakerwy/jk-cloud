@@ -16,11 +16,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
-
 /**
  * 经营范围分类信息表添加参数
  *
@@ -58,5 +53,9 @@ public class BpBusinessScopeAddParam {
     /** 供应商ID */
     @ApiModelProperty(value = "供应商ID", position = 8)
     private String supplierId;
+
+    /** 租户ID */
+    @ApiModelProperty(value = "租户ID", position = 9)
+    private String tenantId;
 
 }

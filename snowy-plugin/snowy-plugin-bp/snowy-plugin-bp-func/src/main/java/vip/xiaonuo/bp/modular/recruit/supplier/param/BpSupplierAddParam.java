@@ -16,6 +16,7 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
+import vip.xiaonuo.bp.modular.recruit.businessscope.param.BpBusinessScopeAddParam;
 import vip.xiaonuo.bp.modular.recruit.finance.param.BpFinanceAddParam;
 import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationAddParam;
 
@@ -150,7 +151,7 @@ public class BpSupplierAddParam {
     private String blacklistReason;
 
     /** 营业范围集合 */
-    private List<BpBankInformationAddParam> classifyList;
+    private List<BpBusinessScopeAddParam> classifyList;
 
     /** 人员信息集合 */
     private List<BpRelationAddParam> relationAddParamList;

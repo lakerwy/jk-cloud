@@ -91,7 +91,7 @@ public class BpSupplierController {
     @ApiOperation("编辑供应商基本信息表")
     @CommonLog("编辑供应商基本信息表")
     //@SaCheckPermission("/bp/supplier/edit")
-    @PostMapping("/bp/supplier/edit")
+    @PostMapping("/bp/supplier/blackEdit")
     public CommonResult<String> edit(@RequestBody @Valid BpSupplierEditParam bpSupplierEditParam) {
         bpSupplierService.edit(bpSupplierEditParam);
         return CommonResult.ok();

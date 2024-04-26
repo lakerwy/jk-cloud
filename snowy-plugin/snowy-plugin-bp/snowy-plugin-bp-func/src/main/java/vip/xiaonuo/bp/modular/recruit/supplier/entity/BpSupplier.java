@@ -167,19 +167,4 @@ public class BpSupplier {
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
-
-    /** 一级分类ID */
-    @ApiModelProperty(value = "一级分类ID", position = 33)
-    @TableField(exist = false)
-    private String stairclassifyId;
-
-    /** 二级分类ID */
-    @ApiModelProperty(value = "二级分类ID", position = 34)
-    @TableField(exist = false)
-    private String accessclassifyId;
-
-    /** 三级分类ID */
-    @ApiModelProperty(value = "三级分类ID", position = 35)
-    @TableField(exist = false)
-    private String reclassifyId;
 }

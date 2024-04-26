@@ -57,7 +57,8 @@ public class BpSupplierVo {
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
-    /** 审核状态 */
-    @ApiModelProperty(value = "审核状态", position = 12)
-    private String status;
+    /** 黑名单原因 */
+    @ApiModelProperty(value = "黑名单原因", position = 12)
+    private String blacklistReason;
+
 }
