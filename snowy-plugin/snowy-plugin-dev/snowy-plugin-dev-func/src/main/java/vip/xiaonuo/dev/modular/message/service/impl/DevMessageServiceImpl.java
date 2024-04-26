@@ -27,10 +27,10 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.consts.RabbitConstant;
@@ -38,7 +38,6 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.pojo.RabbitMsg;
-import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.dev.modular.message.entity.DevMessage;
 import vip.xiaonuo.dev.modular.message.enums.DevMessageCategoryEnum;
 import vip.xiaonuo.dev.modular.message.mapper.DevMessageMapper;
@@ -151,6 +150,11 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
                     break;
                 case "URGE":
                     msgType = "催办通知";
+                    break;
+                case "CARBON":
+                    msgType = "分享通知";
+                    jsonObject.set(FlwCacheConstant.TITLE,"【流程分享通知单】");
+                    jsonObject.set(FlwCacheConstant.CARBON_NOTIFICATION_NAME,StpLoginUserUtil.getLoginUser().getName());
                     break;
                 default:
                     break;

@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
 
-import javax.validation.constraints.NotBlank;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -193,6 +192,16 @@ public class RabbitMsg {
         String title= jsonObject.getStr(FlwCacheConstant.TITLE);
         if(StrUtil.isNotEmpty(title)){
             builder.title(title);
+            if(title.contains("流程分享通知单")){
+                form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+                form.setKey("分享人：");
+                form.setValue(jsonObject.getStr(FlwCacheConstant.CARBON_NOTIFICATION_NAME));
+                builder.forms.add(form);
+                OapiMessageCorpconversationAsyncsendV2Request.Form request = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+                request.setKey("提示：");
+                request.setValue("请前往审批中心-抄送事宜(我收到的)查看");
+                builder.forms.add(request);
+            }
         }
         if(CollUtil.isNotEmpty(userSets)){
             builder.userSets(userSets);

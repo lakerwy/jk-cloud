@@ -51,6 +51,16 @@ public class FlwCacheConstant {
      */
     public static final String TITLE = "title";
 
+    /**
+     * 流程提示
+     */
+    public static final String TIPS = "tips";
+
+    /**
+     * 分享抄送通知人
+     */
+    public static final String CARBON_NOTIFICATION_NAME = "carbon_notification_name";
+
 
     public static final String FLW_STATUS= "flw_status";
 

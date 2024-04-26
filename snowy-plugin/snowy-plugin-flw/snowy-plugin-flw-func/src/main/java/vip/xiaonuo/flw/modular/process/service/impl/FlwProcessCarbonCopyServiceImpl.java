@@ -32,6 +32,7 @@ public class FlwProcessCarbonCopyServiceImpl implements FlwProcessCarbonCopyServ
         Map<String, Object> map = NodeRuntimeUtil.getMap(bizCarbonCopy.getProcessInstanceId());
         //map数据转换
         Map<String, String> taskMap = HandleCarbonUtil.convertMap(map);
+        taskMap.put("noticeType","CARBON");
         DevMessageApi devMessageApi = SpringUtil.getBean(DevMessageApi.class);
         try{
             // 发送抄送通知
