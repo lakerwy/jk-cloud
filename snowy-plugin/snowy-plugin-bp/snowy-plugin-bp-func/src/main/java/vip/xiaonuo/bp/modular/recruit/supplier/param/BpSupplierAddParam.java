@@ -90,10 +90,6 @@ public class BpSupplierAddParam {
     @NotBlank(message = "统一社会信用代码不能为空")
     private String corpCode;
 
-    /** 品牌 */
-    @ApiModelProperty(value = "品牌")
-    private String brand;
-
     /** 住所省市区 */
     @ApiModelProperty(value = "住所省市区")
     @NotBlank(message = "住所省市区不能为空")
