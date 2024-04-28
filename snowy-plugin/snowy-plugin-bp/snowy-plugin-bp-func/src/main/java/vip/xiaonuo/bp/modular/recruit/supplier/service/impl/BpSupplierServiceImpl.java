@@ -30,18 +30,24 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.entity.BpBankInformation;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.service.BpBankInformationService;
+import vip.xiaonuo.bp.modular.recruit.bankinformation.vo.BpBankInformationReturnVo;
+import vip.xiaonuo.bp.modular.recruit.businessscope.entity.BpBusinessScopeSearchParam;
 import vip.xiaonuo.bp.modular.recruit.businessscope.param.BpBusinessScopeAddParam;
+import vip.xiaonuo.bp.modular.recruit.businessscope.vo.BpBusinessScopeReturnVo;
 import vip.xiaonuo.bp.modular.recruit.finance.param.BpFinanceAddParam;
 import vip.xiaonuo.bp.modular.recruit.finance.service.BpFinanceService;
 import vip.xiaonuo.bp.modular.recruit.businessscope.entity.BpBusinessScope;
 import vip.xiaonuo.bp.modular.recruit.businessscope.service.BpBusinessScopeService;
 import vip.xiaonuo.bp.modular.recruit.finance.entity.BpFinance;
+import vip.xiaonuo.bp.modular.recruit.finance.vo.BpFinanceReturnVo;
 import vip.xiaonuo.bp.modular.recruit.relation.entity.BpRelation;
 import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationAddParam;
 import vip.xiaonuo.bp.modular.recruit.relation.service.BpRelationService;
+import vip.xiaonuo.bp.modular.recruit.relation.vo.BpRelationReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpBlacklistEnum;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierEditParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
+import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -54,6 +60,7 @@ import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
 import vip.xiaonuo.ten.api.TenApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -84,19 +91,30 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
     public Page<BpSupplierVo> page(BpSupplierPageParam bpSupplierPageParam) {
         QueryWrapper<BpSupplier> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("supplier.DELETE_FLAG","NOT_DELETE");
-        queryWrapper.eq("business.DELETE_FLAG","NOT_DELETE");
         queryWrapper.eq("relation.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getCompanyName())) {
             queryWrapper.like("supplier.COMPANY_NAME", bpSupplierPageParam.getCompanyName());
         }
-        if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getStairclassifyId())) {
-            queryWrapper.eq("business.STAIRCLASSIFY_ID", bpSupplierPageParam.getStairclassifyId());
+        List<String> listId = new ArrayList<>();
+
+        //查询供应商分类下的供应商id
+        if(CollUtil.isNotEmpty(bpSupplierPageParam.getClassifySearchParam())) {
+            bpSupplierPageParam.getClassifySearchParam().forEach(item -> {
+                List<BpBusinessScope> scopeList = bpBusinessScopeService.list(
+                        new LambdaQueryWrapper<BpBusinessScope>()
+                                .eq(!ObjectUtil.isEmpty(item.getStairclassifyId()), BpBusinessScope::getStairclassifyId, item.getStairclassifyId())
+                                .eq(!ObjectUtil.isEmpty(item.getAccessclassifyId()), BpBusinessScope::getAccessclassifyId, item.getAccessclassifyId())
+                                .eq(!ObjectUtil.isEmpty(item.getReclassifyId()), BpBusinessScope::getReclassifyId, item.getReclassifyId()));
+                if (CollUtil.isNotEmpty(scopeList)) {
+                    scopeList.forEach(bpBusinessScope -> listId.add(bpBusinessScope.getSupplierId()));
+                    queryWrapper.isNotNull("business.SUPPLIER_ID");
+                }
+            });
         }
-        if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getAccessclassifyId())) {
-            queryWrapper.eq("business.ACCESSCLASSIFY_ID", bpSupplierPageParam.getAccessclassifyId());
-        }
-        if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getReclassifyId())) {
-            queryWrapper.in("business.RECLASSIFY_ID", Arrays.stream(bpSupplierPageParam.getReclassifyId().split(",")).map(Integer::parseInt).collect(Collectors.toList()));
+
+        //查询供应商黑名单列表数据
+        if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getIsBlacklist())) {
+            queryWrapper.eq("supplier.IS_BLACKLIST", BpBlacklistEnum.NOT_BLACKLIST);
         }
         if(ObjectUtil.isAllNotEmpty(bpSupplierPageParam.getSortField(), bpSupplierPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bpSupplierPageParam.getSortOrder());
@@ -106,7 +124,7 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
             queryWrapper.orderByDesc("supplier.CREATE_TIME");
         }
 
-        return bpSupplierMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        return bpSupplierMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper, listId);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -204,38 +222,38 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
     }
 
     @Override
-    public BpSupplierAddParam detail(BpSupplierIdParam bpSupplierIdParam) {
+    public BpSupplierReturnVo detail(BpSupplierIdParam bpSupplierIdParam) {
         return this.queryEntity(bpSupplierIdParam.getId());
     }
 
     @Override
-    public BpSupplierAddParam queryEntity(String supplierId) {
+    public BpSupplierReturnVo queryEntity(String supplierId) {
         // 查询供应商主表基本信息
         BpSupplier bpSupplier = this.getById(supplierId);
         if(ObjectUtil.isEmpty(bpSupplier)) {
             throw new CommonException("供应商基本信息表不存在，id值为：{}", supplierId);
         }
-        BpSupplierAddParam bpSupplierAddParam = BeanUtil.copyProperties(bpSupplier, BpSupplierAddParam.class);
+        BpSupplierReturnVo bpSupplierReturnVo = BeanUtil.copyProperties(bpSupplier, BpSupplierReturnVo.class);
 
         // 查询供应商经营范围分类
         List<BpBusinessScope> businessScopeList = bpBusinessScopeService.list(new LambdaQueryWrapper<BpBusinessScope>().eq(BpBusinessScope::getSupplierId,supplierId).eq(BpBusinessScope::getDeleteFlag, "NOT_DELETE"));
-        List<BpBusinessScopeAddParam> bpBusinessScopeAddParams = BeanUtil.copyToList(businessScopeList, BpBusinessScopeAddParam.class);
-        bpSupplierAddParam.setClassifyList(bpBusinessScopeAddParams);
+        List<BpBusinessScopeReturnVo> bpSupplierReturnVos = BeanUtil.copyToList(businessScopeList, BpBusinessScopeReturnVo.class);
+        bpSupplierReturnVo.setClassifyList(bpSupplierReturnVos);
 
         // 查询供应商联系信息
         List<BpRelation> bpRelationList = bpRelationService.list(new LambdaQueryWrapper<BpRelation>().eq(BpRelation::getSupplierId,supplierId).eq(BpRelation::getDeleteFlag, "NOT_DELETE"));
-        List<BpRelationAddParam> bpBankInformationAddParam = BeanUtil.copyToList(bpRelationList, BpRelationAddParam.class);
-        bpSupplierAddParam.setRelationAddParamList(bpBankInformationAddParam);
+        List<BpRelationReturnVo> bpRelationReturnVos = BeanUtil.copyToList(bpRelationList, BpRelationReturnVo.class);
+        bpSupplierReturnVo.setRelationAddParamList(bpRelationReturnVos);
 
         // 查询供应商银行开户信息
         List<BpBankInformation> bpBankInformationList = bpBankInformationService.list(new LambdaQueryWrapper<BpBankInformation>().eq(BpBankInformation::getSupplierId,supplierId).eq(BpBankInformation::getDeleteFlag, "NOT_DELETE"));
-        List<BpBankInformationAddParam> bankInformationAddParams = BeanUtil.copyToList(bpBankInformationList, BpBankInformationAddParam.class);
-        bpSupplierAddParam.setBankInformationList(bankInformationAddParams);
+        List<BpBankInformationReturnVo> bpBankInformationReturnVos = BeanUtil.copyToList(bpBankInformationList, BpBankInformationReturnVo.class);
+        bpSupplierReturnVo.setBankInformationList(bpBankInformationReturnVos);
 
         // 查询供应商财务信息
         List<BpFinance> bpFinanceList = BpFinanceService.list(new LambdaQueryWrapper<BpFinance>().eq(BpFinance::getSupplierId,supplierId).eq(BpFinance::getDeleteFlag, "NOT_DELETE"));
-        List<BpFinanceAddParam> financeAddParam = BeanUtil.copyToList(bpFinanceList, BpFinanceAddParam.class);
-        bpSupplierAddParam.setBpFinanceList(financeAddParam);
-        return bpSupplierAddParam;
+        List<BpFinanceReturnVo> bpFinanceReturnVos = BeanUtil.copyToList(bpFinanceList, BpFinanceReturnVo.class);
+        bpSupplierReturnVo.setBpFinanceList(bpFinanceReturnVos);
+        return bpSupplierReturnVo;
     }
 }

@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierEditParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
+import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -60,7 +61,7 @@ public class BpSupplierController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取供应商基本信息表分页")
     //@SaCheckPermission("/bp/supplier/page")
-    @GetMapping("/bp/supplier/page")
+    @PostMapping("/bp/supplier/page")
     public CommonResult<Page<BpSupplierVo>> page(BpSupplierPageParam bpSupplierPageParam) {
         return CommonResult.data(bpSupplierService.page(bpSupplierPageParam));
     }
@@ -124,7 +125,7 @@ public class BpSupplierController {
     @ApiOperation("获取供应商基本信息表详情")
     //@SaCheckPermission("/bp/supplier/detail")
     @GetMapping("/bp/supplier/detail")
-    public CommonResult<BpSupplierAddParam> detail(@Valid BpSupplierIdParam bpSupplierIdParam) {
+    public CommonResult<BpSupplierReturnVo> detail(@Valid BpSupplierIdParam bpSupplierIdParam) {
         return CommonResult.data(bpSupplierService.detail(bpSupplierIdParam));
     }
 }

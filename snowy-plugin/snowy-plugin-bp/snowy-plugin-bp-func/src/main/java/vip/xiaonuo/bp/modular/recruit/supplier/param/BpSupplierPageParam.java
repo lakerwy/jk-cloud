@@ -15,6 +15,9 @@ package vip.xiaonuo.bp.modular.recruit.supplier.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.bp.modular.recruit.businessscope.entity.BpBusinessScopeSearchParam;
+
+import java.util.List;
 
 /**
  * 供应商基本信息表查询参数
@@ -46,19 +49,15 @@ public class BpSupplierPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 一级分类ID */
-    @ApiModelProperty(value = "一级分类ID")
-    private String stairclassifyId;
-
-    /** 二级分类ID */
-    @ApiModelProperty(value = "二级分类ID")
-    private String accessclassifyId;
-
-    /** 三级分类ID */
-    @ApiModelProperty(value = "三级分类ID")
-    private String reclassifyId;
+    /** 混合查询分类 */
+    @ApiModelProperty(value = "混合查询分类")
+    private List<BpBusinessScopeSearchParam> classifySearchParam;
 
     /** 公司名称 */
     @ApiModelProperty(value = "公司名称")
     private String companyName;
+
+    /** 黑名单标记 */
+    @ApiModelProperty(value = "黑名单标记")
+    private String isBlacklist;
 }

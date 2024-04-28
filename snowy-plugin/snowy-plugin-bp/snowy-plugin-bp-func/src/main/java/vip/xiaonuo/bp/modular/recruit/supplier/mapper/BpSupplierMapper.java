@@ -20,6 +20,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 
+import java.util.List;
+
 /**
  * 供应商基本信息表Mapper接口
  *
@@ -28,5 +30,5 @@ import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
  **/
 public interface BpSupplierMapper extends BaseMapper<BpSupplier> {
 
-    Page<BpSupplierVo> getPageList(Page<Object> defaultPage, @Param(Constants.WRAPPER) QueryWrapper<BpSupplier> queryWrapper);
+    Page<BpSupplierVo> getPageList(Page<Object> defaultPage, @Param(Constants.WRAPPER) QueryWrapper<BpSupplier> queryWrapper, List<String> listId);
 }

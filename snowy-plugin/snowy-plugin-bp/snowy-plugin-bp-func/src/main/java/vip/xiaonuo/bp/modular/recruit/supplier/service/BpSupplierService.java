@@ -19,6 +19,7 @@ import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierEditParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierIdParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 
 import java.util.List;
@@ -70,7 +71,7 @@ public interface BpSupplierService extends IService<BpSupplier> {
      * @author hxw
      * @date  2024/04/17 15:18
      */
-    BpSupplierAddParam detail(BpSupplierIdParam bpSupplierIdParam);
+    BpSupplierReturnVo detail(BpSupplierIdParam bpSupplierIdParam);
 
     /**
      * 获取供应商基本信息表详情
@@ -78,5 +79,5 @@ public interface BpSupplierService extends IService<BpSupplier> {
      * @author hxw
      * @date  2024/04/17 15:18
      **/
-    BpSupplierAddParam queryEntity(String id);
+    BpSupplierReturnVo queryEntity(String id);
 }

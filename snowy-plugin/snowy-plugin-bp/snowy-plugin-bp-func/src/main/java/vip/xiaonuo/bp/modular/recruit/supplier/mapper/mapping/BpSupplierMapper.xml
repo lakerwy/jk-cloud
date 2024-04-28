@@ -7,16 +7,18 @@
               supplier.SOURCE,
               supplier.CREATE_TIME,
               supplier.STATUS,
-              business.STAIRCLASSIFY_ID,
-              business.STAIRCLASSIFY_NAME,
-              business.ACCESSCLASSIFY_ID,
-              business.ACCESSCLASSIFY_NAME,
-              business.RECLASSIFY_ID,
-              business.RECLASSIFY_NAME,
+              supplier.BUSINESS_SCOPE,
               relation.BUSINESSADMIN_NAME,
               relation.BUSINESSADMIN_PHONE
         FROM BP_SUPPLIER supplier
-        right join  BP_BUSINESS_SCOPE business on supplier.id = business.SUPPLIER_ID
+        left join (select SUPPLIER_ID from BP_BUSINESS_SCOPE where DELETE_FLAG='NOT_DELETE'
+            <if test="listId != null and listId.size() > 0 ">
+                and SUPPLIER_ID in
+                <foreach collection="listId" item="item" open="(" close=")" separator=",">
+                    #{item}
+                </foreach>
+            </if>
+        ) business on supplier.id = business.SUPPLIER_ID
         left join BP_RELATION relation on relation.SUPPLIER_ID = supplier.id
         ${ew.customSqlSegment}
     </select>
