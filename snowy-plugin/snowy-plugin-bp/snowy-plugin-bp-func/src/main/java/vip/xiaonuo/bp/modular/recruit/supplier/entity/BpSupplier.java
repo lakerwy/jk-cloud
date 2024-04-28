@@ -130,40 +130,52 @@ public class BpSupplier {
     @ApiModelProperty(value = "审核状态", position = 24)
     private String status;
 
+    /** SN流水号 */
+    @ApiModelProperty(value = "SN流水号", position = 25)
+    private String sn;
+
+    /** 模型Id */
+    @ApiModelProperty(value = "模型Id", position = 26)
+    private String modelId;
+
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id", position = 27)
+    private String processInstanceId;
+
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 25)
+    @ApiModelProperty(value = "备注", position = 28)
     private String memo;
 
     /** 黑名单标记 */
-    @ApiModelProperty(value = "黑名单标记", position = 26)
+    @ApiModelProperty(value = "黑名单标记", position = 29)
     private String isBlacklist;
 
     /** 黑名单原因 */
-    @ApiModelProperty(value = "黑名单原因", position = 27)
+    @ApiModelProperty(value = "黑名单原因", position = 30)
     private String blacklistReason;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 28)
+    @ApiModelProperty(value = "创建时间", position = 31)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建人 */
-    @ApiModelProperty(value = "创建人", position = 29)
+    @ApiModelProperty(value = "创建人", position = 32)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 更新时间 */
-    @ApiModelProperty(value = "更新时间", position = 30)
+    @ApiModelProperty(value = "更新时间", position = 33)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 更新人 */
-    @ApiModelProperty(value = "更新人", position = 31)
+    @ApiModelProperty(value = "更新人", position = 34)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 删除状态标记 */
-    @ApiModelProperty(value = "删除状态标记", position = 32)
+    @ApiModelProperty(value = "删除状态标记", position = 35)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;

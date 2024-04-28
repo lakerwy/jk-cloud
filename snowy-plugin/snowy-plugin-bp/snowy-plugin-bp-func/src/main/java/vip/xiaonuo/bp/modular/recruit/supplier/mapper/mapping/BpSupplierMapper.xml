@@ -8,6 +8,7 @@
               supplier.CREATE_TIME,
               supplier.STATUS,
               supplier.BUSINESS_SCOPE,
+              supplier.IS_BLACKLIST,
               relation.BUSINESSADMIN_NAME,
               relation.BUSINESSADMIN_PHONE
         FROM BP_SUPPLIER supplier

@@ -62,7 +62,7 @@ public class BpSupplierController {
     @ApiOperation("获取供应商基本信息表分页")
     //@SaCheckPermission("/bp/supplier/page")
     @PostMapping("/bp/supplier/page")
-    public CommonResult<Page<BpSupplierVo>> page(BpSupplierPageParam bpSupplierPageParam) {
+    public CommonResult<Page<BpSupplierVo>> page(@RequestBody @Valid BpSupplierPageParam bpSupplierPageParam) {
         return CommonResult.data(bpSupplierService.page(bpSupplierPageParam));
     }
 

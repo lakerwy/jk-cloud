@@ -138,6 +138,18 @@ public class BpSupplierAddParam {
     @ApiModelProperty(value = "审核状态")
     private String status;
 
+    /** SN流水号 */
+    @ApiModelProperty(value = "SN流水号")
+    private String sn;
+
+    /** 模型Id */
+    @ApiModelProperty(value = "模型Id")
+    private String modelId;
+
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id")
+    private String processInstanceId;
+
     /** 备注 */
     @ApiModelProperty(value = "备注")
     private String memo;

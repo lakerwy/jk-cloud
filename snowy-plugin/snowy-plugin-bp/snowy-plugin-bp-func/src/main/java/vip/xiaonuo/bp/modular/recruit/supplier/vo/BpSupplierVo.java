@@ -50,4 +50,7 @@ public class BpSupplierVo {
     @ApiModelProperty(value = "黑名单原因", position = 9)
     private String blacklistReason;
 
+    /** 黑名单标记 */
+    @ApiModelProperty(value = "黑名单标记", position = 10)
+    private String isBlacklist;
 }

@@ -31,7 +31,6 @@ import vip.xiaonuo.bp.modular.recruit.bankinformation.entity.BpBankInformation;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.service.BpBankInformationService;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.vo.BpBankInformationReturnVo;
-import vip.xiaonuo.bp.modular.recruit.businessscope.entity.BpBusinessScopeSearchParam;
 import vip.xiaonuo.bp.modular.recruit.businessscope.param.BpBusinessScopeAddParam;
 import vip.xiaonuo.bp.modular.recruit.businessscope.vo.BpBusinessScopeReturnVo;
 import vip.xiaonuo.bp.modular.recruit.finance.param.BpFinanceAddParam;
@@ -41,7 +40,6 @@ import vip.xiaonuo.bp.modular.recruit.businessscope.service.BpBusinessScopeServi
 import vip.xiaonuo.bp.modular.recruit.finance.entity.BpFinance;
 import vip.xiaonuo.bp.modular.recruit.finance.vo.BpFinanceReturnVo;
 import vip.xiaonuo.bp.modular.recruit.relation.entity.BpRelation;
-import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationAddParam;
 import vip.xiaonuo.bp.modular.recruit.relation.service.BpRelationService;
 import vip.xiaonuo.bp.modular.recruit.relation.vo.BpRelationReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpBlacklistEnum;
@@ -49,7 +47,12 @@ import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierEditParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
@@ -57,13 +60,13 @@ import vip.xiaonuo.bp.modular.recruit.supplier.mapper.BpSupplierMapper;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierIdParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.ten.api.TenApi;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * 供应商基本信息表Service接口实现类
@@ -84,6 +87,8 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
     private BpBankInformationService bpBankInformationService;
     @Resource
     private BpFinanceService BpFinanceService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     private static final TenApi tenApi = SpringUtil.getBean(TenApi.class);
 
@@ -134,6 +139,20 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         BpSupplier bpSupplier = BeanUtil.toBean(bpSupplierAddParam, BpSupplier.class);
         bpSupplier.setIsBlacklist(EnumUtil.toString(BpBlacklistEnum.NOT_BLACKLIST));
         bpSupplier.setTenantId(tenApi.getCurrentTenId());
+        // 获取流程信息
+        String processInstanceId = bpSupplierAddParam.getProcessInstanceId();
+        String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+        String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+        bpSupplier.setId(id);
+        bpSupplier.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+        bpSupplier.setModelId(modelId);
+        bpSupplier.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+        FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
+        //将流程实例和业务表关联起来
+        //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+        flwCommonApi.save(modelId, BizCommonEnum.BIZ_ASSETS_APPLY.getBizTable(),id,processInstanceId,dbName);
+        //新增供应商信息
         this.save(bpSupplier);
 
         // 新增经营范围分类
