@@ -9,6 +9,7 @@
               supplier.STATUS,
               supplier.BUSINESS_SCOPE,
               supplier.IS_BLACKLIST,
+              supplier.BLACKLIST_REASON,
               supplier.SN,
               supplier.MODEL_ID,
               supplier.PROCESS_INSTANCE_ID,

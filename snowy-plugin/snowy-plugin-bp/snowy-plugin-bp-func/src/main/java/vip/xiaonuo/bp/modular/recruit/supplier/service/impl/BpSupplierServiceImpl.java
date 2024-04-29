@@ -40,6 +40,7 @@ import vip.xiaonuo.bp.modular.recruit.businessscope.service.BpBusinessScopeServi
 import vip.xiaonuo.bp.modular.recruit.finance.entity.BpFinance;
 import vip.xiaonuo.bp.modular.recruit.finance.vo.BpFinanceReturnVo;
 import vip.xiaonuo.bp.modular.recruit.relation.entity.BpRelation;
+import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationAddParam;
 import vip.xiaonuo.bp.modular.recruit.relation.service.BpRelationService;
 import vip.xiaonuo.bp.modular.recruit.relation.vo.BpRelationReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpBlacklistEnum;
@@ -174,10 +175,16 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         bpBusinessScopeService.saveBatch(newCopyAdd);
 
         // 新增供应商联系信息
-        BpRelation bpRelation = BeanUtil.toBean(bpSupplierAddParam, BpRelation.class);
-        bpRelation.setSupplierId(bpSupplier.getId());
-        bpRelation.setTenantId(tenApi.getCurrentTenId());
-        bpRelationService.save(bpRelation);
+        List<BpRelationAddParam> relationAddParamList = bpSupplierAddParam.getRelationAddParamList();
+        if(CollectionUtil.isEmpty(relationAddParamList)){
+            throw new CommonException("供应商人员信息不能为空!");
+        }
+        for (BpRelationAddParam bpRelationAddParam : relationAddParamList) {
+            bpRelationAddParam.setSupplierId(bpSupplier.getId());
+            bpRelationAddParam.setTenantId(tenApi.getCurrentTenId());
+        }
+        List<BpRelation> bpRelations = BeanUtil.copyToList(relationAddParamList, BpRelation.class);
+        bpRelationService.saveBatch(bpRelations);
 
         // 新增供应商银行开户信息
         List<BpBankInformationAddParam> bankInformationList = bpSupplierAddParam.getBankInformationList();

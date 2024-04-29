@@ -107,4 +107,7 @@ public class BpRelationAddParam {
     @ApiModelProperty(value = "业务负责人邮箱", position = 20)
     private String businessadminMailbox;
 
+    /** 租户ID */
+    @ApiModelProperty(value = "租户ID", position = 21)
+    private String tenantId;
 }
