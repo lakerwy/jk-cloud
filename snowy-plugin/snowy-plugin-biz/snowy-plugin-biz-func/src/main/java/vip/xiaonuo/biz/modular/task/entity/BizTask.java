@@ -165,4 +165,9 @@ public class BizTask {
     /** 董事长评分流程实例Id */
     @ApiModelProperty(value = "董事长评分流程实例Id", position = 31)
     private String bossProcessInstanceId;
+
+    /** 绩效评估流程实例Id - 绩效评估 BIZ_TASK_RATING.processInstanceId */
+    @ApiModelProperty(value = "绩效评估流程实例Id - 绩效评估 BIZ_TASK_RATING.processInstanceId", position = 100)
+    @TableField(exist = false)
+    private String taskRatingProcessInstanceId;
 }

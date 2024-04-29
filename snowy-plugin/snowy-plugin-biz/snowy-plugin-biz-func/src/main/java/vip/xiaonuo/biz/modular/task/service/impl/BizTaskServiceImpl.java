@@ -26,6 +26,8 @@ import com.fhs.common.utils.JsonUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.task.entity.BizTaskRating;
+import vip.xiaonuo.biz.modular.task.service.BizTaskRatingService;
 import vip.xiaonuo.biz.modular.task.service.SysOrgService;
 import vip.xiaonuo.biz.modular.task.vo.BizSysOrgVo;
 import vip.xiaonuo.biz.modular.task.vo.DeptAssReportVo;
@@ -74,6 +76,8 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
 
     @Resource
     private BizTaskMapper bizTaskMapper;
+    @Resource
+    private BizTaskRatingService bizTaskRatingService;
 
 
     @Override
@@ -106,6 +110,15 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
         if(CollUtil.isNotEmpty(result)) {
             List<BizSysOrgVo> orgList = sysOrgService.getOrgList();
             List<String> orgResult = result.stream().map(x -> x.getOrgId()).distinct().collect(Collectors.toList());
+
+            //获取评估信息
+            List<String> tmpTaskIds = result.stream().map(x->x.getId()).collect(Collectors.toList());
+            List<BizTaskRating> tmpTaskRatings = new ArrayList<>();
+            if(CollUtil.isNotEmpty(tmpTaskIds)){
+                tmpTaskRatings = bizTaskRatingService.list(new QueryWrapper<BizTaskRating>().lambda().in(BizTaskRating::getTaskId,tmpTaskIds)
+                        .in(BizTaskRating::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
+            }
+
             for (String orgId:orgResult) {
                 DeptTaskResult deptTaskResult = new DeptTaskResult();
                 deptTaskResult.setOrgId(orgId);
@@ -113,7 +126,14 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
                 String orgName = org.isPresent() ? org.get().getOrgName() : "";
                 deptTaskResult.setOrgName(orgName);
                 List<BizTask> listTask = result.stream().filter(x->x.getOrgId().equals(orgId)).collect(Collectors.toList());
-                listTask.forEach(x->x.setOrgName(orgName));
+                List<BizTaskRating> finalTmpTaskRatings = tmpTaskRatings;
+                listTask.forEach(x-> {
+                    x.setOrgName(orgName);
+                    BizTaskRating tmpTaskRating = finalTmpTaskRatings.stream().filter(obj->x.getId().equals(obj.getTaskId())).findFirst().orElse(null);
+                    if(ObjectUtil.isNotEmpty(tmpTaskRating)){
+                        x.setTaskRatingProcessInstanceId(tmpTaskRating.getProcessInstanceId());
+                    }
+                });
                 DeptTaskScore deptTaskScore = getDeptTotalScore(listTask);
                 deptTaskResult.setTaskList(deptTaskScore.getBizTaskList());
                 deptTaskResult.setTotalScore(deptTaskScore.getTotalScore());
@@ -247,8 +267,12 @@ public class BizTaskServiceImpl extends ServiceImpl<BizTaskMapper, BizTask> impl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<BizTaskIdParam> bizTaskIdParamList) {
+        List<String> delIds = CollStreamUtil.toList(bizTaskIdParamList, BizTaskIdParam::getId);
         // 执行删除
-        this.removeByIds(CollStreamUtil.toList(bizTaskIdParamList, BizTaskIdParam::getId));
+        this.removeByIds(delIds);
+        if(CollUtil.isNotEmpty(delIds)){
+            bizTaskRatingService.remove(new QueryWrapper<BizTaskRating>().lambda().in(BizTaskRating::getTaskId,delIds));
+        }
     }
 
     @Override
