@@ -71,7 +71,13 @@ public class ConsumerCenter {
     public Consumer<Message<RabbitDelayedMessage>> delayedMessage() {
         return message -> {
             RabbitDelayedMessage rabbitDelayedMessage = message.getPayload();
-            log.info("接受到延迟队列的消息: " + rabbitDelayedMessage.getTaskKey());
+            String strRabbitMsg = "";
+            try {
+                strRabbitMsg = rabbitDelayedMessage.getRabbitMsg().toString();
+            }catch (Exception e){
+                strRabbitMsg = e.getMessage();
+            }
+            log.info("接受到延迟队列的消息: " + rabbitDelayedMessage.getTaskKey() + " 【消息体】：" + strRabbitMsg);
 
             String taskKey = rabbitDelayedMessage.getTaskKey();
             Object o = commonCacheOperator.get(taskKey);
