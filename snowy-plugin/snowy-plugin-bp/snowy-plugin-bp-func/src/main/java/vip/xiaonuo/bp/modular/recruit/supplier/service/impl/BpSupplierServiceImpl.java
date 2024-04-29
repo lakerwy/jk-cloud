@@ -117,10 +117,16 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
             });
         }
 
+        //查询供应商库列表数据
+        if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getStatus())) {
+            queryWrapper.eq("supplier.STATUS", bpSupplierPageParam.getStatus());
+        }
+
         //查询供应商黑名单列表数据
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getIsBlacklist())) {
-            queryWrapper.eq("supplier.IS_BLACKLIST", BpBlacklistEnum.NOT_BLACKLIST);
+            queryWrapper.eq("supplier.IS_BLACKLIST", bpSupplierPageParam.getIsBlacklist());
         }
+
         if(ObjectUtil.isAllNotEmpty(bpSupplierPageParam.getSortField(), bpSupplierPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bpSupplierPageParam.getSortOrder());
             queryWrapper.orderBy(true, bpSupplierPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

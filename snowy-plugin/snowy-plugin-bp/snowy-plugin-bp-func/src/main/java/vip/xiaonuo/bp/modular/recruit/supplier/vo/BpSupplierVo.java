@@ -2,13 +2,15 @@ package vip.xiaonuo.bp.modular.recruit.supplier.vo;
 
 import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.TableField;
-import com.baomidou.mybatisplus.annotation.TableId;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import java.util.Date;
 
+/**
+ * 供应商查询列表返回参数
+ */
 @Getter
 @Setter
 public class BpSupplierVo {
@@ -65,4 +67,12 @@ public class BpSupplierVo {
     /** 流程实例Id */
     @ApiModelProperty(value = "流程实例Id", position = 13)
     private String processInstanceId;
+
+    /** 创建人 */
+    @ApiModelProperty(value = "创建人", position = 14)
+    private String createUser;
+
+    /** 备注 */
+    @ApiModelProperty(value = "备注", position = 15)
+    private String memo;
 }

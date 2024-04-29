@@ -57,6 +57,10 @@ public class BpSupplierPageParam {
     @ApiModelProperty(value = "公司名称")
     private String companyName;
 
+    /** 审核状态 */
+    @ApiModelProperty(value = "审核状态")
+    private String status;
+
     /** 黑名单标记 */
     @ApiModelProperty(value = "黑名单标记")
     private String isBlacklist;

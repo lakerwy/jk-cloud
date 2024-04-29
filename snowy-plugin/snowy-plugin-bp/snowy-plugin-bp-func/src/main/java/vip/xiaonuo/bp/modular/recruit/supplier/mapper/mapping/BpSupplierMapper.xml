@@ -12,6 +12,8 @@
               supplier.SN,
               supplier.MODEL_ID,
               supplier.PROCESS_INSTANCE_ID,
+              supplier.CREATE_USER,
+              supplier.MEMO,
               relation.BUSINESSADMIN_NAME,
               relation.BUSINESSADMIN_PHONE
         FROM BP_SUPPLIER supplier

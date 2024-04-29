@@ -15,18 +15,14 @@ package vip.xiaonuo.bp.modular.recruit.supplier.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.vo.BpBankInformationReturnVo;
-import vip.xiaonuo.bp.modular.recruit.businessscope.param.BpBusinessScopeAddParam;
 import vip.xiaonuo.bp.modular.recruit.businessscope.vo.BpBusinessScopeReturnVo;
-import vip.xiaonuo.bp.modular.recruit.finance.param.BpFinanceAddParam;
 import vip.xiaonuo.bp.modular.recruit.finance.vo.BpFinanceReturnVo;
-import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationAddParam;
 import vip.xiaonuo.bp.modular.recruit.relation.vo.BpRelationReturnVo;
-
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -153,6 +149,26 @@ public class BpSupplierReturnVo {
     /** 黑名单原因 */
     @ApiModelProperty(value = "黑名单原因")
     private String blacklistReason;
+
+    /** SN流水号 */
+    @ApiModelProperty(value = "SN流水号")
+    private String sn;
+
+    /** 模型Id */
+    @ApiModelProperty(value = "模型Id")
+    private String modelId;
+
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id")
+    private String processInstanceId;
+
+    /** 创建时间 */
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
+
+    /** 创建人 */
+    @ApiModelProperty(value = "创建人")
+    private String createUser;
 
     /** 营业范围集合 */
     private List<BpBusinessScopeReturnVo> classifyList;
