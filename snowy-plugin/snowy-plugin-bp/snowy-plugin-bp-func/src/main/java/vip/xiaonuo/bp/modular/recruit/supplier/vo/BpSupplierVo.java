@@ -53,4 +53,16 @@ public class BpSupplierVo {
     /** 黑名单标记 */
     @ApiModelProperty(value = "黑名单标记", position = 10)
     private String isBlacklist;
+
+    /** SN流水号 */
+    @ApiModelProperty(value = "SN流水号", position = 11)
+    private String sn;
+
+    /** 模型Id */
+    @ApiModelProperty(value = "模型Id", position = 12)
+    private String modelId;
+
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id", position = 13)
+    private String processInstanceId;
 }
