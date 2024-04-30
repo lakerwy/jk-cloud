@@ -50,17 +50,14 @@ public class BpSupplierAddParam {
 
     /** 法定代表人 */
     @ApiModelProperty(value = "法定代表人")
-    @NotBlank(message = "法定代表人不能为空")
     private String legalRepresentative;
 
     /** 法人身份证号 */
     @ApiModelProperty(value = "法人身份证")
-    @NotBlank(message = "法人身份证不能为空")
     private String idNumber;
 
     /** 注册资本(元) */
     @ApiModelProperty(value = "注册资本(元)")
-    @NotNull(message = "注册资本不能为空")
     private BigDecimal registeredCapital;
 
     /** 公司logo */
@@ -69,7 +66,6 @@ public class BpSupplierAddParam {
 
     /** 成立日期 */
     @ApiModelProperty(value = "成立日期")
-    @NotBlank(message = "成立日期不能为空")
     private String establishTime;
 
     /** 公司邮箱 */
@@ -83,17 +79,14 @@ public class BpSupplierAddParam {
 
     /** 企业组织形式 */
     @ApiModelProperty(value = "企业组织形式")
-    @NotBlank(message = "企业组织形式不能为空")
     private String companyType;
 
     /** 统一社会信用代码 */
     @ApiModelProperty(value = "统一社会信用代码")
-    @NotBlank(message = "统一社会信用代码不能为空")
     private String corpCode;
 
     /** 住所省市区 */
     @ApiModelProperty(value = "住所省市区")
-    @NotBlank(message = "住所省市区不能为空")
     private String home;
 
     /** 住所详细地址 */
@@ -102,7 +95,6 @@ public class BpSupplierAddParam {
 
     /** 办公地址省市区 */
     @ApiModelProperty(value = "办公地址省市区")
-    @NotBlank(message = "办公地址省市区不能为空")
     private String officeAddress;
 
     /** 办公详细地址 */
@@ -119,6 +111,7 @@ public class BpSupplierAddParam {
 
     /** 经营范围 */
     @ApiModelProperty(value = "经营范围")
+    @NotBlank(message = "经营范围")
     private String businessScope;
 
     /** 来源类型 自行申报=1,内部推荐为空 */
@@ -127,7 +120,6 @@ public class BpSupplierAddParam {
 
     /** 合作承诺函 */
     @ApiModelProperty(value = "合作承诺函")
-    @NotBlank(message = "合作承诺函不能为空")
     private String commitmentLetter;
 
     /** 宣读视频 */
