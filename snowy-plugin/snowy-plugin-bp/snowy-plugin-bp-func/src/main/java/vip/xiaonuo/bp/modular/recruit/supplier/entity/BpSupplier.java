@@ -114,7 +114,7 @@ public class BpSupplier {
     @ApiModelProperty(value = "经营范围", position = 20)
     private String businessScope;
 
-    /** 来源类型 */
+    /** 来源类型 自行申报=1,内部推荐为空 */
     @ApiModelProperty(value = "来源类型", position = 21)
     private String source;
 

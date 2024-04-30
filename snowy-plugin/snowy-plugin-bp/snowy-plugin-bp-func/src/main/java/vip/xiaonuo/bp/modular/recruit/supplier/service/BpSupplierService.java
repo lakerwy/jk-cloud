@@ -54,7 +54,7 @@ public interface BpSupplierService extends IService<BpSupplier> {
      * @author hxw
      * @date  2024/04/17 15:18
      */
-    void edit(BpSupplierEditParam bpSupplierEditParam);
+    void blackEdit(BpSupplierEditParam bpSupplierEditParam);
 
 
     /**

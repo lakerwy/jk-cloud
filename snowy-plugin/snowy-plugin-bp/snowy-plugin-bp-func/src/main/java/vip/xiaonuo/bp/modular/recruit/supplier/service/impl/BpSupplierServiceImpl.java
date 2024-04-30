@@ -106,9 +106,10 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getCompanyName())) {
             queryWrapper.like("supplier.COMPANY_NAME", bpSupplierPageParam.getCompanyName());
         }
-        //查询供应商库列表数据
+        //查询供应商入库审批（审核中）、供应商库（已办结）列表数据，并且不在黑名单中
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getStatus())) {
             queryWrapper.eq("supplier.STATUS", bpSupplierPageParam.getStatus());
+            queryWrapper.eq("supplier.IS_BLACKLIST", BpBlacklistEnum.NOT_BLACKLIST);
         }
         //查询供应商黑名单列表数据
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getIsBlacklist())) {
@@ -159,7 +160,7 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
         String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
         bpSupplier.setId(id);
-        bpSupplier.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+        bpSupplier.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY + processInstanceId)));
         bpSupplier.setModelId(modelId);
         bpSupplier.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
         FlwCommonApi flwCommonApi = SpringUtil.getBean(FlwCommonApi.class);
@@ -224,7 +225,7 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void edit(BpSupplierEditParam bpSupplierEditParam) {
+    public void blackEdit(BpSupplierEditParam bpSupplierEditParam) {
         BpSupplier bpSupplier = this.getById(bpSupplierEditParam.getId());
         if(ObjectUtil.isEmpty(bpSupplier)) {
             throw new CommonException("供应商基本信息表不存在，id值为：{}", bpSupplierEditParam.getId());

@@ -121,7 +121,7 @@ public class BpSupplierAddParam {
     @ApiModelProperty(value = "经营范围")
     private String businessScope;
 
-    /** 来源类型 */
+    /** 来源类型 自行申报=1,内部推荐为空 */
     @ApiModelProperty(value = "来源类型")
     private String source;
 

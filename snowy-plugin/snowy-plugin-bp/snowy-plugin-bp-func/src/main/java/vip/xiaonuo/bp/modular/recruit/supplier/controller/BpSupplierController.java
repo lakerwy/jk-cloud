@@ -89,12 +89,12 @@ public class BpSupplierController {
      * @date  2024/04/17 15:18
      */
     @ApiOperationSupport(order = 3)
-    @ApiOperation("编辑供应商基本信息表")
-    @CommonLog("编辑供应商基本信息表")
-    //@SaCheckPermission("/bp/supplier/edit")
+    @ApiOperation("编辑供应商黑名单信息")
+    @CommonLog("编辑供应商黑名单信息")
+    //@SaCheckPermission("/bp/supplier/blackEdit")
     @PostMapping("/bp/supplier/blackEdit")
-    public CommonResult<String> edit(@RequestBody @Valid BpSupplierEditParam bpSupplierEditParam) {
-        bpSupplierService.edit(bpSupplierEditParam);
+    public CommonResult<String> blackEdit(@RequestBody @Valid BpSupplierEditParam bpSupplierEditParam) {
+        bpSupplierService.blackEdit(bpSupplierEditParam);
         return CommonResult.ok();
     }
 
