@@ -207,17 +207,17 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         bpBankInformationService.saveBatch(newCopyBankAdd);
 
         // 新增供应商财务信息
-        List<BpFinanceAddParam> bpFinanceList = bpSupplierAddParam.getBpFinanceList();
+        /*List<BpFinanceAddParam> bpFinanceList = bpSupplierAddParam.getBpFinanceList();
         //目前需要去除财务数据维护 暂时去除
-        /*if(CollectionUtil.isEmpty(bpFinanceList)){
+        if(CollectionUtil.isEmpty(bpFinanceList)){
             throw new CommonException("财务信息不能为空!");
-        }*/
+        }
         for (BpFinanceAddParam bpFinance : bpFinanceList) {
             bpFinance.setSupplierId(bpSupplier.getId());
             bpFinance.setTenantId(tenApi.getCurrentTenId());
         }
         List<BpFinance> newCopyFinanceAdd = BeanUtil.copyToList(bpFinanceList, BpFinance.class);
-        BpFinanceService.saveBatch(newCopyFinanceAdd);
+        BpFinanceService.saveBatch(newCopyFinanceAdd);*/
     }
 
     @Transactional(rollbackFor = Exception.class)
