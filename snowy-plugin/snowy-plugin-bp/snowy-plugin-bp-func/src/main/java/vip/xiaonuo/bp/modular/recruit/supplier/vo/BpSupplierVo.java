@@ -76,15 +76,15 @@ public class BpSupplierVo {
     @ApiModelProperty(value = "备注", position = 15)
     private String memo;
 
-    /** 一级分类ID */
+    /** 一级分类ID 经营范围搜索 过滤分类时用 */
     @ApiModelProperty(value = "一级分类ID", position = 16)
     private String stairclassifyId;
 
-    /** 二级分类ID */
+    /** 二级分类ID 经营范围搜索 过滤分类时用 */
     @ApiModelProperty(value = "二级分类ID", position = 17)
     private String accessclassifyId;
 
-    /** 三级分类ID */
+    /** 三级分类ID 经营范围搜索 过滤分类时用 */
     @ApiModelProperty(value = "三级分类ID", position = 18)
     private String reclassifyId;
 
