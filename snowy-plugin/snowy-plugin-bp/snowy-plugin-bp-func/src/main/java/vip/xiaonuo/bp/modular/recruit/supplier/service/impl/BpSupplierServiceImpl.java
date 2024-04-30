@@ -31,6 +31,7 @@ import vip.xiaonuo.bp.modular.recruit.bankinformation.entity.BpBankInformation;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.service.BpBankInformationService;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.vo.BpBankInformationReturnVo;
+import vip.xiaonuo.bp.modular.recruit.businessscope.entity.BpBusinessScopeSearchParam;
 import vip.xiaonuo.bp.modular.recruit.businessscope.param.BpBusinessScopeAddParam;
 import vip.xiaonuo.bp.modular.recruit.businessscope.vo.BpBusinessScopeReturnVo;
 import vip.xiaonuo.bp.modular.recruit.finance.param.BpFinanceAddParam;
@@ -64,10 +65,13 @@ import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.ten.api.TenApi;
-
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * 供应商基本信息表Service接口实现类
@@ -98,36 +102,18 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         QueryWrapper<BpSupplier> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("supplier.DELETE_FLAG","NOT_DELETE");
         queryWrapper.eq("relation.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("business.DELETE_FLAG","NOT_DELETE");
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getCompanyName())) {
             queryWrapper.like("supplier.COMPANY_NAME", bpSupplierPageParam.getCompanyName());
         }
-        List<String> listId = new ArrayList<>();
-
-        //查询供应商分类下的供应商id
-        if(CollUtil.isNotEmpty(bpSupplierPageParam.getClassifySearchParam())) {
-            bpSupplierPageParam.getClassifySearchParam().forEach(item -> {
-                List<BpBusinessScope> scopeList = bpBusinessScopeService.list(
-                        new LambdaQueryWrapper<BpBusinessScope>()
-                                .eq(!ObjectUtil.isEmpty(item.getStairclassifyId()), BpBusinessScope::getStairclassifyId, item.getStairclassifyId())
-                                .eq(!ObjectUtil.isEmpty(item.getAccessclassifyId()), BpBusinessScope::getAccessclassifyId, item.getAccessclassifyId())
-                                .eq(!ObjectUtil.isEmpty(item.getReclassifyId()), BpBusinessScope::getReclassifyId, item.getReclassifyId()));
-                if (CollUtil.isNotEmpty(scopeList)) {
-                    scopeList.forEach(bpBusinessScope -> listId.add(bpBusinessScope.getSupplierId()));
-                    queryWrapper.isNotNull("business.SUPPLIER_ID");
-                }
-            });
-        }
-
         //查询供应商库列表数据
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getStatus())) {
             queryWrapper.eq("supplier.STATUS", bpSupplierPageParam.getStatus());
         }
-
         //查询供应商黑名单列表数据
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getIsBlacklist())) {
             queryWrapper.eq("supplier.IS_BLACKLIST", bpSupplierPageParam.getIsBlacklist());
         }
-
         if(ObjectUtil.isAllNotEmpty(bpSupplierPageParam.getSortField(), bpSupplierPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bpSupplierPageParam.getSortOrder());
             queryWrapper.orderBy(true, bpSupplierPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -136,7 +122,29 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
             queryWrapper.orderByDesc("supplier.CREATE_TIME");
         }
 
-        return bpSupplierMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper, listId);
+        //查询供应商数据
+        Page<BpSupplierVo> pageList = bpSupplierMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        //根据供应商ID过滤重复数据
+        List<BpSupplierVo> records = pageList.getRecords().stream().filter(distinctByKey(BpSupplierVo::getSupplierId)).collect(Collectors.toList());
+
+        //如果前台根据经营范围搜索，则从供应商数据（records）中通过anyMatch过滤分类数据  anyMatch:只要有一个条件满足即返回true
+        List<BpBusinessScopeSearchParam> classifySearchParam = bpSupplierPageParam.getClassifySearchParam();
+        if(CollUtil.isNotEmpty(classifySearchParam)){
+            records = records.stream().filter(re -> classifySearchParam.stream()
+                    .anyMatch(classify -> re.getStairclassifyId().contains(classify.getStairclassifyId()) &&
+                            re.getAccessclassifyId().contains(classify.getAccessclassifyId()) &&
+                            re.getReclassifyId().contains(classify.getReclassifyId())))
+                    .collect(Collectors.toList());
+        }
+
+        Page<BpSupplierVo> newResult = new Page<>();
+        newResult.setRecords(records);
+        newResult.setPages(pageList.getPages());
+        newResult.setSize(pageList.getSize());
+        newResult.setTotal(pageList.getTotal());
+        newResult.setCurrent(pageList.getCurrent());
+
+        return newResult;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -158,7 +166,7 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         //将流程实例和业务表关联起来
         //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
         String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-        flwCommonApi.save(modelId, BizCommonEnum.BIZ_ASSETS_APPLY.getBizTable(),id,processInstanceId,dbName);
+        flwCommonApi.save(modelId, BizCommonEnum.BP_SUPPLIER.getBizTable(),id,processInstanceId,dbName);
         //新增供应商信息
         this.save(bpSupplier);
 
@@ -200,9 +208,10 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
         // 新增供应商财务信息
         List<BpFinanceAddParam> bpFinanceList = bpSupplierAddParam.getBpFinanceList();
-        if(CollectionUtil.isEmpty(bpFinanceList)){
+        //目前需要去除财务数据维护 暂时去除
+        /*if(CollectionUtil.isEmpty(bpFinanceList)){
             throw new CommonException("财务信息不能为空!");
-        }
+        }*/
         for (BpFinanceAddParam bpFinance : bpFinanceList) {
             bpFinance.setSupplierId(bpSupplier.getId());
             bpFinance.setTenantId(tenApi.getCurrentTenId());
@@ -287,5 +296,10 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         List<BpFinanceReturnVo> bpFinanceReturnVos = BeanUtil.copyToList(bpFinanceList, BpFinanceReturnVo.class);
         bpSupplierReturnVo.setBpFinanceList(bpFinanceReturnVos);
         return bpSupplierReturnVo;
+    }
+
+    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
+        Set<Object> seen = ConcurrentHashMap.newKeySet();
+        return t -> seen.add(keyExtractor.apply(t));
     }
 }

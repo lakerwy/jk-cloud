@@ -75,4 +75,20 @@ public class BpSupplierVo {
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 15)
     private String memo;
+
+    /** 一级分类ID */
+    @ApiModelProperty(value = "一级分类ID", position = 16)
+    private String stairclassifyId;
+
+    /** 二级分类ID */
+    @ApiModelProperty(value = "二级分类ID", position = 17)
+    private String accessclassifyId;
+
+    /** 三级分类ID */
+    @ApiModelProperty(value = "三级分类ID", position = 18)
+    private String reclassifyId;
+
+    /** 供应商ID */
+    @ApiModelProperty(value = "供应商ID", position = 19)
+    private String supplierId;
 }

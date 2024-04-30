@@ -48,6 +48,8 @@ public enum BizCommonEnum {
 
     BIZ_TASK_RATING("BIZ_TASK_RATING","BIZ_TASK_RATING","BizTaskRatingServiceImpl"),  //部门绩效-任务绩效评估-申请
 
+    BP_SUPPLIER("BP_SUPPLIER","BP_SUPPLIER","BpSupplierServiceImpl"), //招采供应商流程-申请
+
     BIZ_CONTRACT_PLAN("BIZ_CONTRACT_PLAN","BIZ_CONTRACT_PLAN","ContractPlanServiceImpl");  //固资申购-申请
 
     String bizModel;

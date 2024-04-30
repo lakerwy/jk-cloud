@@ -15,17 +15,14 @@
               supplier.PROCESS_INSTANCE_ID,
               supplier.CREATE_USER,
               supplier.MEMO,
+              business.SUPPLIER_ID,
+              business.STAIRCLASSIFY_ID,
+              business.ACCESSCLASSIFY_ID,
+              business.RECLASSIFY_ID,
               relation.BUSINESSADMIN_NAME,
               relation.BUSINESSADMIN_PHONE
         FROM BP_SUPPLIER supplier
-        left join (select SUPPLIER_ID from BP_BUSINESS_SCOPE where DELETE_FLAG='NOT_DELETE'
-            <if test="listId != null and listId.size() > 0 ">
-                and SUPPLIER_ID in
-                <foreach collection="listId" item="item" open="(" close=")" separator=",">
-                    #{item}
-                </foreach>
-            </if>
-        ) business on supplier.id = business.SUPPLIER_ID
+        left join BP_BUSINESS_SCOPE business on supplier.id = business.SUPPLIER_ID
         left join BP_RELATION relation on relation.SUPPLIER_ID = supplier.id
         ${ew.customSqlSegment}
     </select>
