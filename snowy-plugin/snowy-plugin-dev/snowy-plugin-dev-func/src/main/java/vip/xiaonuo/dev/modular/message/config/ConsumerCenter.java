@@ -5,6 +5,7 @@ import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -73,7 +74,7 @@ public class ConsumerCenter {
             RabbitDelayedMessage rabbitDelayedMessage = message.getPayload();
             String strRabbitMsg = "";
             try {
-                strRabbitMsg = rabbitDelayedMessage.getRabbitMsg().toString();
+                strRabbitMsg = JSONUtil.toJsonStr(rabbitDelayedMessage.getRabbitMsg());
             }catch (Exception e){
                 strRabbitMsg = e.getMessage();
             }
