@@ -77,4 +77,9 @@ public class DevLogApiProvider implements DevLogApi {
         DevLogUtil.asynExecuteFileActionLog(userName,actionType,message,userFileIds);
     }
 
+    @Override
+    public void executeSaveLog(JSONObject jsonObject) {
+        devLogService.save(JSONUtil.toBean(jsonObject, DevLog.class));
+    }
+
 }

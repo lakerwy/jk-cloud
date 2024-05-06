@@ -16,6 +16,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import cn.hutool.json.JSONUtil;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -23,6 +24,7 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.MDC;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.util.*;
+import vip.xiaonuo.dev.api.DevLogApi;
 import vip.xiaonuo.ten.api.TenApi;
 
 import javax.servlet.http.HttpServletRequest;
@@ -37,6 +39,8 @@ import javax.servlet.http.HttpServletRequest;
 public class DevLogUtil {
 
     private static final TenApi tenApi = SpringUtil.getBean(TenApi.class);
+
+    private static final DevLogApi devLogService = SpringUtil.getBean(DevLogApi.class);
     /**
      * 记录操作日志
      *
@@ -59,7 +63,7 @@ public class DevLogUtil {
         devLog.setOpUser(userName);
         creatLogSignValue(devLog);
 //        DevLogApi devLogService = SpringUtil.getBean(DevLogApi.class);
-//        devLogService.executeSaveLog(JSONUtil.parseObj(devLog));
+        devLogService.executeSaveLog(JSONUtil.parseObj(devLog));
         // MDC 扩展logback字段，具体请看logback-spring.xml的自定义日志输出格式
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String description = methodSignature.getMethod().getAnnotation(ApiOperation.class).value();
@@ -102,8 +106,7 @@ public class DevLogUtil {
         devLog.setOpTime(DateTime.now());
         devLog.setOpUser(userName);
         creatLogSignValue(devLog);
-//        DevLogApi devLogService = SpringUtil.getBean(DevLogApi.class);
-//        devLogService.executeSaveLog(JSONUtil.parseObj(devLog));
+        devLogService.executeSaveLog(JSONUtil.parseObj(devLog));
         // MDC 扩展logback字段，具体请看logback-spring.xml的自定义日志输出格式
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String description = methodSignature.getMethod().getAnnotation(ApiOperation.class).value();

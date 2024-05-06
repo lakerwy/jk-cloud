@@ -71,4 +71,6 @@ public interface DevLogApi {
      * @date 2024/02/27 10:03
      */
     void asynExecuteFileActionLog(String userName, String actionType,String message, List<String> userFileIds);
+
+    void executeSaveLog(JSONObject jsonObject);
 }
