@@ -106,12 +106,11 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getCompanyName())) {
             queryWrapper.like("supplier.COMPANY_NAME", bpSupplierPageParam.getCompanyName());
         }
-        //查询供应商入库审批（审核中）、供应商库（已办结）列表数据，并且不在黑名单中
+        //查询供应商入库审批（审核中）数据
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getStatus())) {
             queryWrapper.eq("supplier.STATUS", bpSupplierPageParam.getStatus());
-            queryWrapper.eq("supplier.IS_BLACKLIST", BpBlacklistEnum.NOT_BLACKLIST);
         }
-        //查询供应商黑名单列表数据
+        //查询供应商黑名单列表数据、供应商库（已办结）列表数据，并且不在黑名单中
         if(ObjectUtil.isNotEmpty(bpSupplierPageParam.getIsBlacklist())) {
             queryWrapper.eq("supplier.IS_BLACKLIST", bpSupplierPageParam.getIsBlacklist());
         }
