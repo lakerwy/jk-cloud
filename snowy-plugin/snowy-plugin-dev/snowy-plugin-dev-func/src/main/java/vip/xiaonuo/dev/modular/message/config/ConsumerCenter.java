@@ -55,7 +55,7 @@ public class ConsumerCenter {
     @Bean
     public Consumer<RabbitMsg> sink(){
         return rabbitMsg -> {
-            boolean flag = commonCacheOperator.isValueInSet(RabbitConstant.RABBIT_MESSAGE_ID, rabbitMsg.getUuid());
+           // boolean flag = commonCacheOperator.isValueInSet(RabbitConstant.RABBIT_MESSAGE_ID, rabbitMsg.getUuid());
 //            if(!flag){
 //                log.info("------消息已被消费-----------"+rabbitMsg.getUuid()+rabbitMsg.getTitle());
 //                commonCacheOperator.removeFromSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
@@ -93,7 +93,7 @@ public class ConsumerCenter {
 
                 streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL, newMessage);
                 rabbitDelayedMessage.getRabbitMsg().setUuid(UUID.randomUUID(Boolean.FALSE).toString());
-                commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitDelayedMessage.getRabbitMsg().getUuid());
+               // commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitDelayedMessage.getRabbitMsg().getUuid());
                 iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());
             } else {
                 // 处理接收到的延迟消息

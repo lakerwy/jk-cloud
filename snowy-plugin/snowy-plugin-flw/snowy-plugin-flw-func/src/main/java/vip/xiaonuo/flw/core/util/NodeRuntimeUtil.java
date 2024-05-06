@@ -1675,7 +1675,7 @@ public class NodeRuntimeUtil {
 //                .copyHeaders(customHeaders)
 //                            .setHeader("x-delay", 2*60*1000)
                             .build();
-                    commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
+                    //commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
                     streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL,message);
                     commonCacheOperator.put(key,Boolean.FALSE);
                 }

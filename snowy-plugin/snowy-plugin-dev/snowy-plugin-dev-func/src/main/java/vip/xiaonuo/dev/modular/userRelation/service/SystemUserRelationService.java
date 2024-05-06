@@ -14,6 +14,7 @@ package vip.xiaonuo.dev.modular.userRelation.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.userRelation.entity.SystemUserRelation;
 import vip.xiaonuo.dev.modular.userRelation.param.*;
@@ -76,6 +77,9 @@ public interface SystemUserRelationService extends IService<SystemUserRelation> 
      * @date  2024/02/29 11:22
      **/
     SystemUserRelation queryEntity(String id);
+
+    @Transactional(rollbackFor = Exception.class)
+    void deleteBySystemIds(List<String> systemIds);
 
     void syncUser(SyncParam syncParam);
 

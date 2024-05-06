@@ -25,7 +25,6 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -110,6 +109,12 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
         return systemUserRelation;
     }
 
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void deleteBySystemIds(List<String> systemIds) {
+        this.remove(new LambdaQueryWrapper<SystemUserRelation>().in(SystemUserRelation::getSystemId,systemIds));
+    }
+
     @Override
     public void syncUser(SyncParam syncParam) {
         // 分两步：1、同步到关系表中 2、 同步到项目系统中
@@ -155,6 +160,7 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             saveOrUpdateBatch(collect);
             ExtMessage extMessage = new ExtMessage();
             extMessage.setId(IdWorker.getIdStr());
+            extMessage.setOperateType(3);
             extMessage.setData(JSONUtil.toJsonStr(collect));
             //系统项目创建完成以后，就通知项目系统去初始化项目信息
             streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);

@@ -188,7 +188,7 @@ public class PanFileController {
                 }
             }
             //校验权限
-            panFileRightService.checkFileRight(Arrays.asList(uploadFileParam.getParentId()), FileRight.UPLOAD, uploadFileParam.getRightType());
+            panFileRightService.checkFileRight(Collections.singletonList(uploadFileParam.getParentId()), FileRight.UPLOAD, uploadFileParam.getRightType());
 
             boolean isCheckSuccess = panFileStorageService.checkStorage(uploadFileParam.getTotalSize(), uploadFileParam.getType());
             if (!isCheckSuccess) {

@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -42,6 +43,7 @@ import vip.xiaonuo.dev.modular.server.mapper.SystemServerMapper;
 import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
+import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -61,6 +63,9 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     SystemConfExecService systemConfExecService;
     @Resource
     SysProjectService sysProjectService;
+
+    @Resource
+    SystemUserRelationService systemUserRelationService;
 
     @Resource
     private StreamBridge streamBridge;
@@ -123,6 +128,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         this.save(systemServer);
         ExtMessage extMessage = new ExtMessage();
         extMessage.setId(IdWorker.getIdStr());
+        extMessage.setOperateType(1);
         extMessage.setData(JSONUtil.toJsonStr(systemServer));
         //系统项目创建完成以后，就通知项目系统去初始化项目信息
         streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
@@ -155,6 +161,16 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     public void delete(List<SystemServerIdParam> systemServerIdParamList) {
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(systemServerIdParamList, SystemServerIdParam::getId));
+
+        ExtMessage extMessage = new ExtMessage();
+        extMessage.setId(IdWorker.getIdStr());
+        JSONObject data = new JSONObject();
+        data.set("systemIds",CollStreamUtil.toList(systemServerIdParamList, SystemServerIdParam::getId));
+        extMessage.setData(JSONUtil.toJsonStr(data));
+        extMessage.setOperateType(2);
+        //删除关联表中数据
+        systemUserRelationService.deleteBySystemIds(CollStreamUtil.toList(systemServerIdParamList, SystemServerIdParam::getId));
+        streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
 //        try{
 //            List<String> systemIds = systemServerIdParamList.stream().map(param -> param.getId()).collect(Collectors.toList());
 //            List<SystemConfExec> systemConfExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().in(SystemConfExec::getSystemId,systemIds));

@@ -504,7 +504,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         jsonObject.set("leadUser",map.get("leadUser"));
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         TaskInfoMsg taskInfoMsg = TaskInfoMsg.buildRabbitMsg(jsonObject);
-        commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
+       // commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
         streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
     }
 
@@ -519,7 +519,7 @@ public class BizTaskInfoServiceImpl extends ServiceImpl<BizTaskInfoMapper, BizTa
         jsonObject.set("taskChange",map.get("taskChange"));
         jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
         TaskInfoMsg taskInfoMsg = TaskInfoMsg.changeRabbitMsg(jsonObject);
-        commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
+       // commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,taskInfoMsg.getUuid());
         streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,taskInfoMsg);
     }
 
