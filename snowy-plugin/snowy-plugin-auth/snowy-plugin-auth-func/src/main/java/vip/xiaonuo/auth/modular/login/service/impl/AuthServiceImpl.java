@@ -47,6 +47,7 @@ import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.common.util.CommonEmailUtil;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
+import vip.xiaonuo.im.api.ImAppApi;
 import vip.xiaonuo.pan.api.DevFoldApi;
 import javax.annotation.Resource;
 import java.net.URLEncoder;
@@ -91,6 +92,9 @@ public class AuthServiceImpl implements AuthService {
 
     @Resource
     private DevFoldApi devFoldApi;
+
+    @Resource
+    private ImAppApi imAppApi;
 
     @Override
     public AuthPicValidCodeResult getPicCaptcha(String type) {
@@ -209,7 +213,7 @@ public class AuthServiceImpl implements AuthService {
     }
 
     @Override
-    public String doLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam, String type) {
+    public Object doLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam, String type) {
         // 获取账号
         String account = authAccountPasswordLoginParam.getAccount();
         AbstractMap.SimpleEntry<String, String> result = checkUser(authAccountPasswordLoginParam);
@@ -224,8 +228,12 @@ public class AuthServiceImpl implements AuthService {
             if (!saBaseLoginUser.getPassword().equals(passwordHash)) {
                 throw new CommonException(AuthExceptionEnum.PWD_ERROR.getValue());
             }
+            saBaseLoginUser.setClientId(authAccountPasswordLoginParam.getClientId());
+            saBaseLoginUser.setPlatform(authAccountPasswordLoginParam.getPlatform());
             // 执行B端登录
-            return execLoginB(saBaseLoginUser, device);
+            return execLoginBExtend(saBaseLoginUser, device);
+            // 执行B端登录
+            //return execLoginB(saBaseLoginUser, device);
         } else {
             SaBaseClientLoginUser saBaseClientLoginUser = clientLoginUserApi.getClientUserByAccount(account);
             if(ObjectUtil.isEmpty(saBaseClientLoginUser)) {
@@ -573,5 +581,26 @@ public class AuthServiceImpl implements AuthService {
 //        devFoldApi.createGroupFold();
         // 返回token
         return StpUtil.getTokenInfo().tokenValue;
+    }
+
+    public Object execLoginBExtend(SaBaseLoginUser saBaseLoginUser, String device){
+        String token = execLoginB(saBaseLoginUser, device);
+        if(ObjectUtil.isEmpty(saBaseLoginUser.getPlatform())){
+            return token;
+        }
+//        HashMap<String,Object> resultMap = new HashMap<>();
+//        resultMap.put("token",token);
+        JSONObject loginJson = new JSONObject();
+        loginJson.set("mobile",saBaseLoginUser.getAccount());
+        loginJson.set("clientId",ObjectUtil.isNotEmpty(saBaseLoginUser.getClientId())?saBaseLoginUser.getClientId():RandomUtil.randomString(16));
+        loginJson.set("platform",ObjectUtil.isNotEmpty(saBaseLoginUser.getPlatform())?saBaseLoginUser.getPlatform():2);
+        loginJson.set("displayName",saBaseLoginUser.getName());
+        JSONObject o = imAppApi.imLogin(loginJson);
+        if(!o.getBool("enable")){
+            return token;
+        }else {
+            o.set("token",token);
+            return o;
+        }
     }
 }

@@ -275,6 +275,12 @@ public abstract class SaBaseLoginUser {
     @ApiModelProperty(value = "maskClosable 是否点击空白出关闭弹窗", position = 60)
     private Boolean maskClosable;
 
+    @ApiModelProperty(value = "客户端ID")
+    private String clientId;
+
+    @ApiModelProperty(value = "IM登录所需字段")
+    private Integer platform;
+
     /**
      * 数据范围类
      *

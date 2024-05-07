@@ -49,4 +49,11 @@ public class AuthAccountPasswordLoginParam {
     /** 验证码请求号 */
     @ApiModelProperty(value = "验证码请求号", position = 5)
     private String validCodeReqNo;
+
+    @ApiModelProperty(value = "客户端ID", position = 6)
+    private String clientId;
+
+    @ApiModelProperty(value = "IM登录所需字段",position = 7)
+    private Integer platform;
+
 }

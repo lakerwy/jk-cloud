@@ -52,7 +52,7 @@ public interface AuthService {
      * @author xuyuxiang
      * @date 2021/12/28 14:46
      **/
-    String doLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam, String type);
+    Object doLogin(AuthAccountPasswordLoginParam authAccountPasswordLoginParam, String type);
 
     AbstractMap.SimpleEntry<String, String> checkUser(AuthAccountPasswordLoginParam authAccountPasswordLoginParam);
 

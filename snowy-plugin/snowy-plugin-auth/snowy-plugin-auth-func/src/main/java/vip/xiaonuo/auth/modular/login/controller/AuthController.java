@@ -87,7 +87,7 @@ public class AuthController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("B端账号密码登录")
     @PostMapping("/auth/b/doLogin")
-    public CommonResult<String> doLogin(@RequestBody @Valid AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
+    public CommonResult<Object> doLogin(@RequestBody @Valid AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
         return CommonResult.data(authService.doLogin(authAccountPasswordLoginParam, SaClientTypeEnum.B.getValue()));
     }
 

@@ -85,7 +85,7 @@ public class AuthClientController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("C端账号密码登录")
     @PostMapping("/auth/c/doLogin")
-    public CommonResult<String> doLogin(@RequestBody @Valid AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
+    public CommonResult<Object> doLogin(@RequestBody @Valid AuthAccountPasswordLoginParam authAccountPasswordLoginParam) {
         return CommonResult.data(authService.doLogin(authAccountPasswordLoginParam, SaClientTypeEnum.C.getValue()));
     }
 

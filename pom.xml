@@ -136,6 +136,8 @@
         <tls-sig-api.version>2.0</tls-sig-api.version>
 
         <xz.tukaani.version>1.9</xz.tukaani.version>
+
+        <wfc.sdk.version>1.2.2</wfc.sdk.version>
     </properties>
 
     <modules>
@@ -404,13 +406,34 @@
             <dependency>
                 <groupId>vip.xiaonuo</groupId>
                 <artifactId>snowy-plugin-bp-api</artifactId>
-                <version>2.0.0</version>
+                <version>${snowy.version}</version>
             </dependency>
 
             <!-- snowy-plugin-bp-func -->
             <dependency>
                 <groupId>vip.xiaonuo</groupId>
                 <artifactId>snowy-plugin-bp-func</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
+            <!-- snowy-plugin-bp-api -->
+            <dependency>
+                <groupId>vip.xiaonuo</groupId>
+                <artifactId>snowy-plugin-im-api</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
+            <!-- snowy-plugin-im-feign -->
+            <dependency>
+                <groupId>vip.xiaonuo</groupId>
+                <artifactId>snowy-plugin-im-feign</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
+            <!-- snowy-plugin-bp-func -->
+            <dependency>
+                <groupId>vip.xiaonuo</groupId>
+                <artifactId>snowy-plugin-im-func</artifactId>
                 <version>${snowy.version}</version>
             </dependency>
 

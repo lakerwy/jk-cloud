@@ -62,6 +62,9 @@
 
         <!--bp招标采购插件-->
         <module>snowy-plugin-bp</module>
+
+        <!--im及时通信插件-->
+        <module>snowy-plugin-im</module>
     </modules>
 
 </project>
