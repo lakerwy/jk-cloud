@@ -51,7 +51,7 @@ public class BpSupplierPageParam {
 
     /** 混合查询分类 */
     @ApiModelProperty(value = "混合查询分类")
-    private List<BpBusinessScopeSearchParam> classifySearchParam;
+    private List<String[]> classifySearchParam;
 
     /** 公司名称 */
     @ApiModelProperty(value = "公司名称")

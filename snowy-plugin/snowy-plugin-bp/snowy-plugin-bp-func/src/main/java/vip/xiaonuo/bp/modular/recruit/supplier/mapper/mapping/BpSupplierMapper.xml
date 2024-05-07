@@ -15,14 +15,9 @@
               supplier.PROCESS_INSTANCE_ID,
               supplier.CREATE_USER,
               supplier.MEMO,
-              business.SUPPLIER_ID,
-              business.STAIRCLASSIFY_ID,
-              business.ACCESSCLASSIFY_ID,
-              business.RECLASSIFY_ID,
               relation.BUSINESSADMIN_NAME,
               relation.BUSINESSADMIN_PHONE
         FROM BP_SUPPLIER supplier
-        left join BP_BUSINESS_SCOPE business on supplier.id = business.SUPPLIER_ID
         left join BP_RELATION relation on relation.SUPPLIER_ID = supplier.id
         ${ew.customSqlSegment}
     </select>
