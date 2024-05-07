@@ -122,29 +122,22 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
             queryWrapper.orderByDesc("supplier.CREATE_TIME");
         }
 
-        //查询供应商数据
-        Page<BpSupplierVo> pageList = bpSupplierMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
-        List<BpSupplierVo> records = pageList.getRecords();
-
+        //是否选择经营范围查询
         if (ObjectUtil.isNotEmpty(bpSupplierPageParam.getClassifySearchParam())) {
             //List<String[]>转List<String> 数据合成一条数据以双引号和逗号隔开
             List<String> listOfStrings = bpSupplierPageParam.getClassifySearchParam().stream()
                     .map(array -> String.join(",", Arrays.stream(array).map(s -> "\"" + s + "\"").toArray(String[]::new)))
                     .collect(Collectors.toList());
-            //前台根据经营范围搜索，则从供应商数据（records）中通过anyMatch过滤分类数据  anyMatch:只要有一个条件满足即返回true
-            records = records.stream().filter(re -> listOfStrings.stream()
-                    .anyMatch(listOfString -> re.getBusinessScope().contains(listOfString)))
-                    .collect(Collectors.toList());
+
+            // 循环比对查询条件
+            queryWrapper.and(qw-> {
+                listOfStrings.forEach(listOfString -> {
+                    qw.or().like("supplier.BUSINESS_SCOPE", listOfString);
+                });
+            });
         }
 
-        Page<BpSupplierVo> newResult = new Page<>();
-        newResult.setRecords(records);
-        newResult.setPages(pageList.getPages());
-        newResult.setSize(pageList.getSize());
-        newResult.setTotal(pageList.getTotal());
-        newResult.setCurrent(pageList.getCurrent());
-
-        return newResult;
+        return bpSupplierMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
