@@ -18,7 +18,7 @@
               relation.BUSINESSADMIN_NAME,
               relation.BUSINESSADMIN_PHONE
         FROM BP_SUPPLIER supplier
-        left join BP_RELATION relation on relation.SUPPLIER_ID = supplier.id
+        join BP_RELATION relation on relation.SUPPLIER_ID = supplier.id
         ${ew.customSqlSegment}
     </select>
 </mapper>

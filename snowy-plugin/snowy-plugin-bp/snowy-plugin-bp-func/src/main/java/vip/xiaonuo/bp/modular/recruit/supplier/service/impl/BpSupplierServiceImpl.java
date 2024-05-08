@@ -103,6 +103,7 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         QueryWrapper<BpSupplier> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("supplier.DELETE_FLAG", "NOT_DELETE");
         queryWrapper.eq("relation.DELETE_FLAG", "NOT_DELETE");
+        //是否选择供应商名称查询
         if (ObjectUtil.isNotEmpty(bpSupplierPageParam.getCompanyName())) {
             queryWrapper.like("supplier.COMPANY_NAME", bpSupplierPageParam.getCompanyName());
         }
@@ -114,27 +115,26 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         if (ObjectUtil.isNotEmpty(bpSupplierPageParam.getIsBlacklist())) {
             queryWrapper.eq("supplier.IS_BLACKLIST", bpSupplierPageParam.getIsBlacklist());
         }
-        if (ObjectUtil.isAllNotEmpty(bpSupplierPageParam.getSortField(), bpSupplierPageParam.getSortOrder())) {
-            CommonSortOrderEnum.validate(bpSupplierPageParam.getSortOrder());
-            queryWrapper.orderBy(true, bpSupplierPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
-                    StrUtil.toUnderlineCase(bpSupplierPageParam.getSortField()));
-        } else {
-            queryWrapper.orderByDesc("supplier.CREATE_TIME");
-        }
-
         //是否选择经营范围查询
         if (ObjectUtil.isNotEmpty(bpSupplierPageParam.getClassifySearchParam())) {
-            //List<String[]>转List<String> 数据合成一条数据以双引号和逗号隔开
+            //List<String[]>转List<String> 数据合成一条数据以双引号和逗号隔开 数据格式:["1780126057973739521","1780126194116653058","1780126710414503937"]
             List<String> listOfStrings = bpSupplierPageParam.getClassifySearchParam().stream()
-                    .map(array -> String.join(",", Arrays.stream(array).map(s -> "\"" + s + "\"").toArray(String[]::new)))
+                    .map(array -> "[" + String.join(",", Arrays.stream(array).map(value -> "\"" + value + "\"").toArray(String[]::new)) + "]")
                     .collect(Collectors.toList());
-
             // 循环比对查询条件
             queryWrapper.and(qw-> {
                 listOfStrings.forEach(listOfString -> {
                     qw.or().like("supplier.BUSINESS_SCOPE", listOfString);
                 });
             });
+        }
+
+        if (ObjectUtil.isAllNotEmpty(bpSupplierPageParam.getSortField(), bpSupplierPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(bpSupplierPageParam.getSortOrder());
+            queryWrapper.orderBy(true, bpSupplierPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(bpSupplierPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("supplier.CREATE_TIME");
         }
 
         return bpSupplierMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
@@ -291,10 +291,5 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         List<BpFinanceReturnVo> bpFinanceReturnVos = BeanUtil.copyToList(bpFinanceList, BpFinanceReturnVo.class);
         bpSupplierReturnVo.setBpFinanceList(bpFinanceReturnVos);
         return bpSupplierReturnVo;
-    }
-
-    private static <T> Predicate<T> distinctByKey(Function<? super T, ?> keyExtractor) {
-        Set<Object> seen = ConcurrentHashMap.newKeySet();
-        return t -> seen.add(keyExtractor.apply(t));
     }
 }
