@@ -110,7 +110,7 @@ public class ImServiceImpl implements ImService {
                         log.error(e.getMessage());
                     }
                     String url = devFileApi.storageFileWithReturnUrlLocal(multipartFile);
-                    user.setPortrait(str.substring(str.indexOf(",") + 1));
+                    user.setPortrait(url);
                 }
                 IMResult<OutputCreateUser> userIdResult = UserAdmin.createUser(user);
                 if (userIdResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS) {
