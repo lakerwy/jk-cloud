@@ -590,7 +590,7 @@ public class AuthServiceImpl implements AuthService {
         }
 //        HashMap<String,Object> resultMap = new HashMap<>();
 //        resultMap.put("token",token);
-        JSONObject loginJson = new JSONObject();
+        JSONObject loginJson = JSONUtil.parseObj(saBaseLoginUser);
         loginJson.set("mobile",saBaseLoginUser.getAccount());
         loginJson.set("clientId",ObjectUtil.isNotEmpty(saBaseLoginUser.getClientId())?saBaseLoginUser.getClientId():RandomUtil.randomString(16));
         loginJson.set("platform",ObjectUtil.isNotEmpty(saBaseLoginUser.getPlatform())?saBaseLoginUser.getPlatform():2);

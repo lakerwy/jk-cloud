@@ -86,6 +86,7 @@ public class ImServiceImpl implements ImService {
                     user.setDisplayName(mobile);
                 }
                 user.setMobile(mobile);
+                user.setPortrait(jsonObject.getStr("avatar"));
                 IMResult<OutputCreateUser> userIdResult = UserAdmin.createUser(user);
                 if (userIdResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS) {
                     user.setUserId(userIdResult.getResult().getUserId());
