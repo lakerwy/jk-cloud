@@ -17,10 +17,6 @@ public class ImProperties {
 
     private boolean enable;
 
-    private String url;
-
-    private String code;
-
     public String admin_url;
     public String admin_secret;
 

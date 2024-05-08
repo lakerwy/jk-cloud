@@ -13,6 +13,11 @@ spring:
         file-extension: yaml
         username: nacos
         password: nacos
+  config:
+    import:
+      - "classpath:push.yml"
+      - "classpath:im.yml"
+
 tencent:
   cloud:
     im:

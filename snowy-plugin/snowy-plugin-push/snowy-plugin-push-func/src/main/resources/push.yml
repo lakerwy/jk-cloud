@@ -1,0 +1,4 @@
+jpush:
+  appKey: b4ccd59feaadf08eb811ab7b
+  masterSecret: bd4a17c71f552b5cf7c87d39
+  apnsProduction: false   # 是否生成环境，true表示生成环境

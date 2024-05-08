@@ -1,5 +1,7 @@
 package vip.xiaonuo.im.modular.chat.service.impl;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.wildfirechat.common.ErrorCode;
@@ -9,15 +11,21 @@ import cn.wildfirechat.sdk.*;
 import cn.wildfirechat.sdk.model.IMResult;
 import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.dev.api.DevFileApi;
 import vip.xiaonuo.im.core.ImProperties;
 import vip.xiaonuo.im.modular.chat.pojo.LoginResponse;
 import vip.xiaonuo.im.modular.chat.service.ImService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
+import java.io.File;
+import java.io.FileInputStream;
 
 /**
  * @author mayike
@@ -33,6 +41,9 @@ public class ImServiceImpl implements ImService {
 
     @Resource
     ImProperties imProperties;
+
+    @Resource
+    DevFileApi devFileApi;
 
     @PostConstruct
     private void init() {
@@ -86,7 +97,21 @@ public class ImServiceImpl implements ImService {
                     user.setDisplayName(mobile);
                 }
                 user.setMobile(mobile);
-                user.setPortrait(jsonObject.getStr("avatar"));
+                //图片编码
+                String str = jsonObject.getStr("avatar");
+                if(StrUtil.isNotEmpty(str)){
+                    MultipartFile multipartFile = null;
+                    try {
+                        byte[] decode = Base64.decode(str);
+                        File tempFile = FileUtil.createTempFile();
+                        FileUtil.writeBytes(decode,tempFile);
+                        multipartFile = new MockMultipartFile(tempFile.getName(), tempFile.getName(), "image/jpeg", decode);
+                    }catch (Exception e){
+                        log.error(e.getMessage());
+                    }
+                    String url = devFileApi.storageFileWithReturnUrlLocal(multipartFile);
+                    user.setPortrait(str.substring(str.indexOf(",") + 1));
+                }
                 IMResult<OutputCreateUser> userIdResult = UserAdmin.createUser(user);
                 if (userIdResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS) {
                     user.setUserId(userIdResult.getResult().getUserId());

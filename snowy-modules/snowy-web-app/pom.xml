@@ -123,6 +123,11 @@
             <artifactId>snowy-plugin-im-func</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-push-func</artifactId>
+        </dependency>
+
         <!-- 功能案例插件 -->
 <!--        <dependency>-->
 <!--            <groupId>vip.xiaonuo</groupId>-->

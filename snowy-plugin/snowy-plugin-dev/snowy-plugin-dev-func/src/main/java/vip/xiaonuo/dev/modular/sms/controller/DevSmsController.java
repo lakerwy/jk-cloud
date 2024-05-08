@@ -28,7 +28,6 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.modular.sms.entity.DevSms;
 import vip.xiaonuo.dev.modular.sms.param.*;
 import vip.xiaonuo.dev.modular.sms.service.DevSmsService;
-import vip.xiaonuo.dev.modular.sms.service.JPushService;
 import vip.xiaonuo.dev.modular.sms.service.UniPushService;
 
 import javax.annotation.Resource;

@@ -65,6 +65,9 @@
 
         <!--im及时通信插件-->
         <module>snowy-plugin-im</module>
+
+        <!--消息推送插件-->
+        <module>snowy-plugin-push</module>
     </modules>
 
 </project>
