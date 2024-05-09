@@ -184,4 +184,10 @@ public class SysUserFeignProvider implements SysUserFeign {
     public String userSelector(@RequestParam(value = "orgId",required = false) String orgId, @RequestParam(value = "searchKey",required = false) String searchKey) {
         return JSONUtil.toJsonStr(sysUserApiProvider.userSelector(orgId, searchKey));
     }
+
+    @Override
+    @RequestMapping("/feign/sys/user/syncUserToIm")
+    public List<JSONObject> syncUserToIm() {
+        return null;
+    }
 }

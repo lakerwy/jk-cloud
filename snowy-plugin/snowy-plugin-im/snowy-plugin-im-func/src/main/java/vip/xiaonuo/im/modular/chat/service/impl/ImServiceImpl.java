@@ -9,13 +9,10 @@ import cn.wildfirechat.pojos.*;
 import cn.wildfirechat.proto.ProtoConstants;
 import cn.wildfirechat.sdk.*;
 import cn.wildfirechat.sdk.model.IMResult;
-import com.google.common.util.concurrent.RateLimiter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
-import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.multipart.commons.CommonsMultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.dev.api.DevFileApi;
 import vip.xiaonuo.im.core.ImProperties;
@@ -25,7 +22,7 @@ import vip.xiaonuo.im.modular.chat.service.ImService;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
-import java.io.FileInputStream;
+import java.util.List;
 
 /**
  * @author mayike
@@ -249,5 +246,72 @@ public class ImServiceImpl implements ImService {
         payload.setSearchableContent("[图片]");
 
         sendMessage(fromUser, conversation, payload);
+    }
+
+    @Override
+    public void syncUserToIm(List<JSONObject> jsonList) {
+        jsonList.forEach(jsonObject -> {
+            try {
+                String mobile = jsonObject.getStr("account");
+                String displayName = jsonObject.getStr("name");
+                IMResult<InputOutputUserInfo> userResult = UserAdmin.getUserByMobile(mobile);
+
+                //如果用户信息不存在，创建用户
+                InputOutputUserInfo user;
+                if (userResult.getErrorCode() == ErrorCode.ERROR_CODE_NOT_EXIST) {
+                    log.info("User not exist, try to create");
+                    //获取用户名。如果用的是shortUUID生成器，是有极小概率会重复的，所以需要去检查是否已经存在相同的userName。
+                    //ShortUUIDGenerator内的main函数有测试代码，可以观察一下碰撞的概率，这个重复是理论上的，作者测试了几千万次次都没有产生碰撞。
+                    //另外由于并发的问题，也有同时生成相同的id并同时去检查的并同时通过的情况，但这种情况概率极低，可以忽略不计。
+                    String userName;
+                    int tryCount = 0;
+                    do {
+                        tryCount++;
+                        userName = userNameGenerator.getUserName(mobile);
+                        if (tryCount > 10) {
+                            throw new CommonException();
+                        }
+                    } while (!isUsernameAvailable(userName));
+
+
+                    user = new InputOutputUserInfo();
+                    user.setName(userName);
+                    if (imProperties.isUse_random_name()) {
+                        if (StrUtil.isEmpty(displayName)) {
+                            displayName = "用户" + (int) (Math.random() * 10000);
+                        }
+                        user.setDisplayName(displayName);
+                    } else {
+                        user.setDisplayName(mobile);
+                    }
+                    user.setMobile(mobile);
+                    //图片编码
+                    String str = jsonObject.getStr("avatar");
+                    if (StrUtil.isNotEmpty(str)) {
+                        MultipartFile multipartFile = null;
+                        try {
+                            byte[] decode = Base64.decode(str);
+                            File tempFile = FileUtil.createTempFile();
+                            FileUtil.writeBytes(decode, tempFile);
+                            multipartFile = new MockMultipartFile(tempFile.getName(), tempFile.getName(), "image/jpeg", decode);
+                        } catch (Exception e) {
+                            log.error(e.getMessage());
+                        }
+                        String url = devFileApi.storageFileWithReturnUrlLocal(multipartFile);
+                        user.setPortrait(url);
+                    }
+                    IMResult<OutputCreateUser> userIdResult = UserAdmin.createUser(user);
+                    if (userIdResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS) {
+                        user.setUserId(userIdResult.getResult().getUserId());
+                    } else {
+                        log.info("Create user failure {}", userIdResult.code);
+                       // throw new CommonException();
+                    }
+                }
+            }catch (Exception e){
+                log.error("sync user fail----"+ e.getMessage());
+            }
+
+        });
     }
 }

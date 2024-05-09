@@ -23,6 +23,7 @@ import vip.xiaonuo.sys.api.SysUserApi;
 import vip.xiaonuo.sys.feign.SysUserFeign;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户Api上下文Bean
@@ -195,6 +196,11 @@ public class SysUserApiContextBean implements SysUserApi {
         String feignResp = sysUserFeign.userSelector(orgId, searchKey);
         Page<JSONObject> resp = (Page<JSONObject>) JSONUtil.toBean(feignResp,Page.class);
         return resp;
+    }
+
+    @Override
+    public List<Map<String, String>> syncUserToIm() {
+        return null;
     }
 
 }

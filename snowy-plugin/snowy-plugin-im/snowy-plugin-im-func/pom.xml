@@ -44,6 +44,11 @@
         </dependency>
 
         <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-sys-api</artifactId>
+        </dependency>
+
+        <dependency>
             <groupId>cn.wildfirechat</groupId>
             <artifactId>sdk</artifactId>
             <version>${wfc.sdk.version}</version>

@@ -16,6 +16,7 @@ import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户Api
@@ -112,4 +113,6 @@ public interface SysUserApi {
      * @date 2022/4/24 20:08
      */
     Page<JSONObject> userSelector(String orgId, String searchKey);
+
+    List<Map<String, String>> syncUserToIm();
 }

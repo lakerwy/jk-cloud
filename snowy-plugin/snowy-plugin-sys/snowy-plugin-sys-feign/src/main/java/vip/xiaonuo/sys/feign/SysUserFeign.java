@@ -128,4 +128,7 @@ public interface SysUserFeign {
     @RequestMapping("/feign/sys/user/userSelector")
     String userSelector(@RequestParam("orgId") String orgId, @RequestParam("searchKey") String searchKey);
 
+    @RequestMapping("/feign/sys/user/syncUserToIm")
+    List<JSONObject> syncUserToIm();
+
 }
