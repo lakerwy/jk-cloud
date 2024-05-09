@@ -10,13 +10,11 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.bp.modular.platform.param;
+package vip.xiaonuo.bp.modular.platform.param.user;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
@@ -24,40 +22,50 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 招采管理 - 通知公告编辑参数
+ * 招采平台 - 用户表编辑参数
  *
  * @author yong.ye
- * @date  2024/05/07 16:34
+ * @date  2024/05/09 08:41
  **/
 @Getter
 @Setter
-public class NoticeTzEditParam {
+public class BpUserEditParam {
 
     /** 主键ID */
     @ApiModelProperty(value = "主键ID", required = true, position = 1)
     @NotBlank(message = "id不能为空")
     private String id;
 
-    /** 标题 */
-    @ApiModelProperty(value = "标题", position = 2)
-    private String title;
+    /** 姓名 */
+    @ApiModelProperty(value = "姓名", position = 2)
+    private String name;
 
-    /** 正文内容 */
-    @ApiModelProperty(value = "正文内容", position = 3)
-    private String content;
+    /** 账号 */
+    @ApiModelProperty(value = "账号", position = 3)
+    private String account;
 
-    /** 附件 */
-    @ApiModelProperty(value = "附件", position = 4)
-    private String attach;
+    /** 密码 */
+    @ApiModelProperty(value = "密码", position = 4)
+    private String password;
+
+    /** 用户状态 */
+    @ApiModelProperty(value = "用户状态", position = 5)
+    private String userStatus;
+
+    /** 邮箱 */
+    @ApiModelProperty(value = "邮箱", position = 6)
+    private String email;
+
+    /** 手机 */
+    @ApiModelProperty(value = "手机", position = 7)
+    private String phone;
+
+    /** 当前用户所属供应商 */
+    @ApiModelProperty(value = "当前用户所属供应商", position = 7)
+    private String supplierId;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 5)
+    @ApiModelProperty(value = "备注", position = 8)
     private String memo;
-
-//    /** 发布时间 */
-//    @ApiModelProperty(value = "发布时间", position = 6)
-//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
-//    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-//    private Date publishTime;
 
 }

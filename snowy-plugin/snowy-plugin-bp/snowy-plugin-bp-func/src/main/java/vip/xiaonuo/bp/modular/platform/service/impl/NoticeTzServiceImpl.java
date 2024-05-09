@@ -27,10 +27,10 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.bp.modular.platform.entity.NoticeTz;
 import vip.xiaonuo.bp.modular.platform.mapper.NoticeTzMapper;
-import vip.xiaonuo.bp.modular.platform.param.NoticeTzAddParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticeTzEditParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticeTzIdParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticeTzPageParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzAddParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzEditParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzIdParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzPageParam;
 import vip.xiaonuo.bp.modular.platform.service.NoticeTzService;
 
 import java.util.Date;

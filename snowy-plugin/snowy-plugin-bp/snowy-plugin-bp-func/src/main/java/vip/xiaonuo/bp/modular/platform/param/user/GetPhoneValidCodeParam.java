@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.bp.modular.platform.param;
+package vip.xiaonuo.bp.modular.platform.param.user;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -19,17 +19,27 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 招采管理 - 竞价公告|询价公告|招标公告Id参数
+ * 获取手机验证码参数
  *
- * @author yong.ye
- * @date  2024/05/07 16:36
+ * @author xuyuxiang
+ * @date 2022/8/25 13:45
  **/
 @Getter
 @Setter
-public class NoticeIdParam {
+public class GetPhoneValidCodeParam {
 
-    /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true)
-    @NotBlank(message = "id不能为空")
-    private String id;
+    /** 手机号 */
+    @ApiModelProperty(value = "手机号", required = true, position = 1)
+    @NotBlank(message = "手机号不能为空")
+    private String phone;
+
+    /** 验证码 */
+    @ApiModelProperty(value = "验证码", required = true, position = 2)
+    @NotBlank(message = "验证码不能为空")
+    private String validCode;
+
+    /** 验证码请求号 */
+    @ApiModelProperty(value = "验证码请求号", required = true, position = 3)
+    @NotBlank(message = "验证码请求号不能为空")
+    private String validCodeReqNo;
 }

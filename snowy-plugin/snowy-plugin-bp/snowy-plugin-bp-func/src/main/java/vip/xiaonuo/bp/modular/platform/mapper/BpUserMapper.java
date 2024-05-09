@@ -10,26 +10,16 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.bp.modular.platform.param;
+package vip.xiaonuo.bp.modular.platform.mapper;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
-
-import javax.validation.constraints.NotBlank;
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import vip.xiaonuo.bp.modular.platform.entity.BpUser;
 
 /**
- * 招采管理 - 竞价澄清|询价澄清|招标澄清Id参数
+ * 招采平台 - 用户表Mapper接口
  *
  * @author yong.ye
- * @date  2024/05/07 16:37
+ * @date  2024/05/09 08:41
  **/
-@Getter
-@Setter
-public class ClarifyIdParam {
-
-    /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true)
-    @NotBlank(message = "id不能为空")
-    private String id;
+public interface BpUserMapper extends BaseMapper<BpUser> {
 }

@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.bp.modular.platform.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -27,11 +26,10 @@ import vip.xiaonuo.bp.modular.platform.vo.ClarifyVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.bp.modular.platform.entity.Clarify;
-import vip.xiaonuo.bp.modular.platform.param.ClarifyAddParam;
-import vip.xiaonuo.bp.modular.platform.param.ClarifyEditParam;
-import vip.xiaonuo.bp.modular.platform.param.ClarifyIdParam;
-import vip.xiaonuo.bp.modular.platform.param.ClarifyPageParam;
+import vip.xiaonuo.bp.modular.platform.param.clarify.ClarifyAddParam;
+import vip.xiaonuo.bp.modular.platform.param.clarify.ClarifyEditParam;
+import vip.xiaonuo.bp.modular.platform.param.clarify.ClarifyIdParam;
+import vip.xiaonuo.bp.modular.platform.param.clarify.ClarifyPageParam;
 import vip.xiaonuo.bp.modular.platform.service.ClarifyService;
 
 import javax.annotation.Resource;

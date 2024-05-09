@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.bp.modular.platform.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -28,10 +27,10 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.bp.modular.platform.entity.Notice;
-import vip.xiaonuo.bp.modular.platform.param.NoticeAddParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticeEditParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticeIdParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticePageParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeAddParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeEditParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
 import vip.xiaonuo.bp.modular.platform.service.NoticeService;
 
 import javax.annotation.Resource;

@@ -15,10 +15,10 @@ package vip.xiaonuo.bp.modular.platform.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.bp.modular.platform.entity.NoticeTz;
-import vip.xiaonuo.bp.modular.platform.param.NoticeTzAddParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticeTzEditParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticeTzIdParam;
-import vip.xiaonuo.bp.modular.platform.param.NoticeTzPageParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzAddParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzEditParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzIdParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzPageParam;
 
 import java.util.List;
 

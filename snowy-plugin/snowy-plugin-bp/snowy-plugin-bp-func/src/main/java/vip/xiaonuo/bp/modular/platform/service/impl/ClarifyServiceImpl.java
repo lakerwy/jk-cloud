@@ -28,10 +28,10 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.bp.modular.platform.entity.Clarify;
 import vip.xiaonuo.bp.modular.platform.mapper.ClarifyMapper;
-import vip.xiaonuo.bp.modular.platform.param.ClarifyAddParam;
-import vip.xiaonuo.bp.modular.platform.param.ClarifyEditParam;
-import vip.xiaonuo.bp.modular.platform.param.ClarifyIdParam;
-import vip.xiaonuo.bp.modular.platform.param.ClarifyPageParam;
+import vip.xiaonuo.bp.modular.platform.param.clarify.ClarifyAddParam;
+import vip.xiaonuo.bp.modular.platform.param.clarify.ClarifyEditParam;
+import vip.xiaonuo.bp.modular.platform.param.clarify.ClarifyIdParam;
+import vip.xiaonuo.bp.modular.platform.param.clarify.ClarifyPageParam;
 import vip.xiaonuo.bp.modular.platform.service.ClarifyService;
 
 import javax.annotation.Resource;

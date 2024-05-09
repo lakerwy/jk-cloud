@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.bp.modular.platform.param;
+package vip.xiaonuo.bp.modular.platform.param.user;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
@@ -19,14 +19,14 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 招采管理 - 通知公告Id参数
+ * 招采平台 - 用户表Id参数
  *
  * @author yong.ye
- * @date  2024/05/07 16:34
+ * @date  2024/05/09 08:41
  **/
 @Getter
 @Setter
-public class NoticeTzIdParam {
+public class BpUserIdParam {
 
     /** 主键ID */
     @ApiModelProperty(value = "主键ID", required = true)
