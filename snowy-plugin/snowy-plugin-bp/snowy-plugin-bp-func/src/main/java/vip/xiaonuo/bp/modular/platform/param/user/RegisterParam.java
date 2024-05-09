@@ -22,7 +22,7 @@ public class RegisterParam {
     /** 账号 - 手机号 */
     @ApiModelProperty(value = "账号 - 手机号", required = true, position = 3)
     @NotBlank(message = "手机号不能为空")
-    private String account;
+    private String phone;
 
     /** 密码（加密后） */
     @ApiModelProperty(value = "密码（加密后）",required = true, position = 4)

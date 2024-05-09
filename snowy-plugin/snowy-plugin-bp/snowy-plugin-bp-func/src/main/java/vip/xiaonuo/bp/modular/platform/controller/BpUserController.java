@@ -134,7 +134,7 @@ public class BpUserController {
      * @author yong.ye
      * @date  2024/05/09 08:41
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 21)
     @ApiOperation("招采平台 - 注册用户")
     @CommonLog("招采平台 - 注册用户")
     @PostMapping("/bp/platform/register")
@@ -150,7 +150,7 @@ public class BpUserController {
      * @author xuyuxiang
      * @date 2022/7/8 9:26
      **/
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 22)
     @ApiOperation("招采平台 - 注册|登录 获取图片验证码")
     @GetMapping("/bp/platform/getPicCaptcha")
     public CommonResult<PicValidCodeResult> getPicCaptcha() {
@@ -163,7 +163,7 @@ public class BpUserController {
      * @author xuyuxiang
      * @date 2022/7/8 9:26
      **/
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 23)
     @ApiOperation("招采平台 - 注册|登录 获取手机验证码")
     @GetMapping("/bp/platform/getPhoneValidCode")
     public CommonResult<String> getPhoneValidCode(@Valid GetPhoneValidCodeParam getPhoneValidCodeParam) {
@@ -176,7 +176,7 @@ public class BpUserController {
      * @author xuyuxiang
      * @date 2021/10/15 13:12
      **/
-    @ApiOperationSupport(order = 3)
+    @ApiOperationSupport(order = 24)
     @ApiOperation("招采平台 - 登录 账号密码登录")
     @PostMapping("/bp/platform/doLogin")
     public CommonResult<Object> doLogin(@RequestBody @Valid AccountPasswordLoginParam accountPasswordLoginParam) {
@@ -189,7 +189,7 @@ public class BpUserController {
      * @author xuyuxiang
      * @date 2021/10/15 13:12
      **/
-    @ApiOperationSupport(order = 4)
+    @ApiOperationSupport(order = 25)
     @ApiOperation("招采平台 - 登录 手机验证码登录")
     @PostMapping("/bp/platform/doLoginByPhone")
     public CommonResult<Object> doLoginByPhone(@RequestBody @Valid PhoneValidCodeLoginParam phoneValidCodeLoginParam) {

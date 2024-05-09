@@ -33,6 +33,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.enums.SaClientTypeEnum;
 import vip.xiaonuo.auth.core.pojo.SaBaseClientLoginUser;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
+import vip.xiaonuo.bp.modular.platform.enums.BpUserStatusEnum;
 import vip.xiaonuo.bp.modular.platform.param.user.*;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -71,8 +72,6 @@ public class BpUserServiceImpl extends ServiceImpl<BpUserMapper, BpUser> impleme
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
-    @Resource
-    private BpUserService bpUserService;
     @Resource
     private DevConfigApi devConfigApi;
 
@@ -152,11 +151,29 @@ public class BpUserServiceImpl extends ServiceImpl<BpUserMapper, BpUser> impleme
             throw new CommonException("密码与确认密码不一致！");
         }
         //2. 短信验证码是否一致
-//        validPhoneValidCodeParam(registerParam., phoneValidCodeLoginParam.getValidCode(), phoneValidCodeLoginParam.getValidCodeReqNo());
-
+        String phone = registerParam.getPhone();
+        validPhoneValidCodeParam(phone, registerParam.getValidCode(), registerParam.getValidCodeReqNo());
         //3. 判断用户是否存在
-
+        List<BpUser> bpUserList = this.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,phone));
+        if(CollUtil.isNotEmpty(bpUserList)){
+            throw new CommonException("账号已存在！");
+        }
         //4. 创建账号
+        BpUserAddParam bpUserAddParam = new BpUserAddParam();
+        bpUserAddParam.setAccount(phone);
+        bpUserAddParam.setName(registerParam.getName());
+        bpUserAddParam.setPhone(phone);
+        // SM2解密并获得前端传来的密码哈希值
+        String passwordHash;
+        try {
+            // 解密，并做哈希值
+            passwordHash = CommonCryptogramUtil.doHashValue(CommonCryptogramUtil.doSm2Decrypt(registerParam.getPassword()));
+        } catch (Exception e) {
+            throw new CommonException("密码解密失败");
+        }
+        bpUserAddParam.setPassword(passwordHash);
+        bpUserAddParam.setUserStatus(BpUserStatusEnum.ENABLE.getValue());
+        this.add(bpUserAddParam);
     }
 
 
@@ -240,7 +257,7 @@ public class BpUserServiceImpl extends ServiceImpl<BpUserMapper, BpUser> impleme
         String phone = phoneValidCodeLoginParam.getPhone();
         // 校验参数
         validPhoneValidCodeParam(phone, phoneValidCodeLoginParam.getValidCode(), phoneValidCodeLoginParam.getValidCodeReqNo());
-        // 根据手机号获取用户信息，根据B端或C端判断
+        // 根据手机号获取用户信息
         List<BpUser> bpUserList = this.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,phone));
         if(CollUtil.isEmpty(bpUserList)){
             throw new CommonException("账号不存在");
