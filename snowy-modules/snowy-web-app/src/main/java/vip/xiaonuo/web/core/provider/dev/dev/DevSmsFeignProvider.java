@@ -22,13 +22,13 @@ public class DevSmsFeignProvider implements DevSmsFeign {
     }
 
     @Override
-    @RequestMapping("/feign/dev/sms/sendSmsAliyun")
+    @RequestMapping("/feign/dev/sms/sendSmsTencent")
     public void sendSmsTencent(String sdkAppId, String phoneNumbers, String signName, String templateCode, String templateParam) {
         devSmsApiProvider.sendSmsTencent(sdkAppId,phoneNumbers,signName,templateCode,templateParam);
     }
 
     @Override
-    @RequestMapping("/feign/dev/sms/sendSmsAliyun")
+    @RequestMapping("/feign/dev/sms/sendSmsYunPian")
     public void sendSmsYunPian(String apiKey, String mobile, String tpl_id, String tpl_value) {
         devSmsApiProvider.sendSmsYunPian(apiKey,mobile,tpl_id,tpl_value);
     }
