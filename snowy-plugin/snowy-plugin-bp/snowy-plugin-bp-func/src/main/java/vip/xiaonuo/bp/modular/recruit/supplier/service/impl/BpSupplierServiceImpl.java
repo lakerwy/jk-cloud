@@ -25,14 +25,12 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.sun.org.apache.bcel.internal.generic.NEW;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.entity.BpBankInformation;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.service.BpBankInformationService;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.vo.BpBankInformationReturnVo;
-import vip.xiaonuo.bp.modular.recruit.businessscope.entity.BpBusinessScopeSearchParam;
 import vip.xiaonuo.bp.modular.recruit.businessscope.param.BpBusinessScopeAddParam;
 import vip.xiaonuo.bp.modular.recruit.businessscope.vo.BpBusinessScopeReturnVo;
 import vip.xiaonuo.bp.modular.recruit.finance.param.BpFinanceAddParam;
@@ -69,9 +67,6 @@ import vip.xiaonuo.ten.api.TenApi;
 
 import javax.annotation.Resource;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
