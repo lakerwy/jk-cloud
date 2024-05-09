@@ -1913,5 +1913,4 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         this.update(new LambdaUpdateWrapper<SysUser>().eq(SysUser::getId,
                 userId).set(SysUser::getExtJson, extJson));
     }
-
 }

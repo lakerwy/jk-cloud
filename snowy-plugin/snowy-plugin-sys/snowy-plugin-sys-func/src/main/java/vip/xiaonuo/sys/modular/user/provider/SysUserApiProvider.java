@@ -35,6 +35,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 import javax.annotation.Resource;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -237,6 +238,11 @@ public class SysUserApiProvider implements SysUserApi {
         sysUserSelectorUserParam.setOrgId(orgId);
         sysUserSelectorUserParam.setSearchKey(searchKey);
         return BeanUtil.toBean(sysUserService.userSelector(sysUserSelectorUserParam), Page.class);
+    }
+
+    @Override
+    public List<Map<String, String>> syncUserToIm(){
+        return sysUserService.getAllUsers();
     }
 
 }
