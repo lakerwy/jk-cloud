@@ -48,4 +48,7 @@ public class BpRelationPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 业务负责人手机号 */
+    @ApiModelProperty(value = "业务负责人手机号")
+    private String businessAdminPhone;
 }
