@@ -194,12 +194,7 @@ public class GatewayConfigure {
             "/api/webapp/sso/*",
 
             /* 招采平台 - 公告|澄清 */
-            "/api/bizapp/bp/platform/notice/page",
-            "/api/bizapp/bp/platform/notice/detail",
-            "/api/bizapp/bp/platform/noticeTz/page",
-            "/api/bizapp/bp/platform/noticeTz/detail",
-            "/api/bizapp/bp/platform/clarify/page",
-            "/api/bizapp/bp/platform/clarify/detail",
+            "/api/bizapp/bp/platform/frontend/*",
 
     };
 

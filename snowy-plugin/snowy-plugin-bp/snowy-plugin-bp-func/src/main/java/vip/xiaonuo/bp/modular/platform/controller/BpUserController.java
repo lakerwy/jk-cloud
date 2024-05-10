@@ -23,7 +23,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.bp.modular.platform.param.user.*;
-import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -40,7 +39,7 @@ import javax.validation.constraints.NotEmpty;
  * @author yong.ye
  * @date  2024/05/09 08:41
  */
-@Api(tags = "招采平台 - 用户表控制器")
+@Api(tags = "【后台】招采平台 - 用户表控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
@@ -124,76 +123,6 @@ public class BpUserController {
     @GetMapping("/bp/platform/user/detail")
     public CommonResult<BpUser> detail(@Valid BpUserIdParam bpUserIdParam) {
         return CommonResult.data(bpUserService.detail(bpUserIdParam));
-    }
-
-
-
-    /**
-     * 招采平台 - 注册用户
-     *
-     * @author yong.ye
-     * @date  2024/05/09 08:41
-     */
-    @ApiOperationSupport(order = 21)
-    @ApiOperation("招采平台 - 注册用户")
-    @CommonLog("招采平台 - 注册用户")
-    @PostMapping("/bp/platform/register")
-    public CommonResult<String> register(@RequestBody @Valid RegisterParam registerParam) {
-        bpUserService.register(registerParam);
-        return CommonResult.ok();
-    }
-
-
-    /**
-     * 招采平台 - 注册|登录 获取图片验证码
-     *
-     * @author xuyuxiang
-     * @date 2022/7/8 9:26
-     **/
-    @ApiOperationSupport(order = 22)
-    @ApiOperation("招采平台 - 注册|登录 获取图片验证码")
-    @GetMapping("/bp/platform/getPicCaptcha")
-    public CommonResult<PicValidCodeResult> getPicCaptcha() {
-        return CommonResult.data(bpUserService.getPicCaptcha());
-    }
-
-    /**
-     * 招采平台 - 注册|登录 获取手机验证码
-     *
-     * @author xuyuxiang
-     * @date 2022/7/8 9:26
-     **/
-    @ApiOperationSupport(order = 23)
-    @ApiOperation("招采平台 - 注册|登录 获取手机验证码")
-    @GetMapping("/bp/platform/getPhoneValidCode")
-    public CommonResult<String> getPhoneValidCode(@Valid GetPhoneValidCodeParam getPhoneValidCodeParam) {
-        return CommonResult.data(bpUserService.getPhoneValidCode(getPhoneValidCodeParam));
-    }
-
-    /**
-     * 招采平台 - 登录 账号密码登录
-     *
-     * @author xuyuxiang
-     * @date 2021/10/15 13:12
-     **/
-    @ApiOperationSupport(order = 24)
-    @ApiOperation("招采平台 - 登录 账号密码登录")
-    @PostMapping("/bp/platform/doLogin")
-    public CommonResult<Object> doLogin(@RequestBody @Valid AccountPasswordLoginParam accountPasswordLoginParam) {
-        return CommonResult.data(bpUserService.doLogin(accountPasswordLoginParam));
-    }
-
-    /**
-     * 招采平台 - 登录 手机验证码登录
-     *
-     * @author xuyuxiang
-     * @date 2021/10/15 13:12
-     **/
-    @ApiOperationSupport(order = 25)
-    @ApiOperation("招采平台 - 登录 手机验证码登录")
-    @PostMapping("/bp/platform/doLoginByPhone")
-    public CommonResult<Object> doLoginByPhone(@RequestBody @Valid PhoneValidCodeLoginParam phoneValidCodeLoginParam) {
-        return CommonResult.data(bpUserService.doLoginByPhone(phoneValidCodeLoginParam));
     }
 
 }

@@ -15,24 +15,23 @@ package vip.xiaonuo.bp.modular.platform.enums;
 import lombok.Getter;
 
 /**
- * 招采管理 - 竞价澄清|询价澄清|招标澄清枚举
+ * 招采平台 - 用户表枚举 - 用户状态
  *
  * @author yong.ye
- * @date  2024/05/07 16:37
+ * @date  2024/05/09 08:41
  **/
 @Getter
-public enum ClarifyEnum {
+public enum UserStatusEnum {
 
-    /** 竞价澄清 */
-    BID_PRICE("竞价澄清"),
-    /** 询价澄清 */
-    INQUIRY_PRICE("询价澄清"),
-    /** 招标澄清 */
-    CALL_BIDS("招标澄清");
+    /** 启用 */
+    ENABLE("ENABLE"),
+
+    /** 禁用 */
+    DISABLED("DISABLED");
 
     private final String value;
 
-    ClarifyEnum(String value) {
+    UserStatusEnum(String value) {
         this.value = value;
     }
 }

@@ -15,22 +15,22 @@ package vip.xiaonuo.bp.modular.platform.enums;
 import lombok.Getter;
 
 /**
- * 招采管理 - 竞价公告|询价公告|招标公告 是否含有澄清 枚举
+ * 招采平台 - 用户 - （招采项目）费用类型枚举
  *
  * @author yong.ye
- * @date  2024/05/07 16:36
+ * @date  2024/05/10 10:50
  **/
 @Getter
-public enum NoticeClarifyEnum {
+public enum PayTypeEnum {
 
-    /** 有 澄清 */
-    YES("Y"),
-    /** 无 澄清 */
-    NO("N");
+    /** 附件查看费 */
+    PAY_FOR_ATTACH("附件查看费"),
+    /** 保证金 */
+    PAY_FOR_BOND("保证金");
 
     private final String value;
 
-    NoticeClarifyEnum(String value) {
+    PayTypeEnum(String value) {
         this.value = value;
     }
 }

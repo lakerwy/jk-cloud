@@ -15,24 +15,22 @@ package vip.xiaonuo.bp.modular.platform.enums;
 import lombok.Getter;
 
 /**
- * 招采管理 - 竞价公告|询价公告|招标公告枚举
+ * 招采管理 - 竞价公告|询价公告|招标公告 是否含有澄清 枚举
  *
  * @author yong.ye
  * @date  2024/05/07 16:36
  **/
 @Getter
-public enum NoticeEnum {
+public enum YesOrNoEnum {
 
-    /** 竞价公告 */
-    BID_PRICE("竞价公告"),
-    /** 询价公告 */
-    INQUIRY_PRICE("询价公告"),
-    /** 招标公告 */
-    CALL_BIDS("招标公告");
+    /** 有 | 是 */
+    YES("Y"),
+    /** 无 | 否 */
+    NO("N");
 
     private final String value;
 
-    NoticeEnum(String value) {
+    YesOrNoEnum(String value) {
         this.value = value;
     }
 }

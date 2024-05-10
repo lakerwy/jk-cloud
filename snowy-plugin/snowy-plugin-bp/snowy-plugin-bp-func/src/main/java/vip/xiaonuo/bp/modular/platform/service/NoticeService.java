@@ -20,6 +20,7 @@ import vip.xiaonuo.bp.modular.platform.param.notice.NoticeEditParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
 import vip.xiaonuo.bp.modular.platform.vo.NoticeVo;
+import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 
 import java.util.List;
 
@@ -69,7 +70,7 @@ public interface NoticeService extends IService<Notice> {
      * @author yong.ye
      * @date  2024/05/07 16:36
      */
-    Notice detail(NoticeIdParam noticeIdParam);
+    NoticeVo detail(NoticeIdParam noticeIdParam);
 
     /**
      * 获取招采管理 - 竞价公告|询价公告|招标公告详情
@@ -78,4 +79,11 @@ public interface NoticeService extends IService<Notice> {
      * @date  2024/05/07 16:36
      **/
     Notice queryEntity(String id);
+
+    /**
+     * 前台 - 公告详情
+     * @param noticeIdParam
+     * @return
+     */
+    UserNoticeVo noticeDetail(NoticeIdParam noticeIdParam);
 }

@@ -17,7 +17,6 @@ import cn.hutool.captcha.CircleCaptcha;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.PhoneUtil;
@@ -30,10 +29,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.auth.core.enums.SaClientTypeEnum;
-import vip.xiaonuo.auth.core.pojo.SaBaseClientLoginUser;
-import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
-import vip.xiaonuo.bp.modular.platform.enums.BpUserStatusEnum;
+import vip.xiaonuo.bp.modular.platform.enums.UserStatusEnum;
 import vip.xiaonuo.bp.modular.platform.param.user.*;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -50,7 +46,6 @@ import vip.xiaonuo.dev.api.DevSmsApi;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
-import java.util.AbstractMap;
 import java.util.List;
 
 /**
@@ -62,9 +57,6 @@ import java.util.List;
 @Service
 @DS("slave_1")
 public class BpUserServiceImpl extends ServiceImpl<BpUserMapper, BpUser> implements BpUserService {
-
-    private static final String SNOWY_SYS_DEFAULT_CAPTCHA_OPEN_KEY = "SNOWY_SYS_DEFAULT_CAPTCHA_OPEN";
-
     private static final String BP_VALID_CODE_CACHE_KEY = "bp-validCode:";
 
     /* 云片短信：验证码短信模板 */
@@ -172,7 +164,7 @@ public class BpUserServiceImpl extends ServiceImpl<BpUserMapper, BpUser> impleme
             throw new CommonException("密码解密失败");
         }
         bpUserAddParam.setPassword(passwordHash);
-        bpUserAddParam.setUserStatus(BpUserStatusEnum.ENABLE.getValue());
+        bpUserAddParam.setUserStatus(UserStatusEnum.ENABLE.getValue());
         this.add(bpUserAddParam);
     }
 

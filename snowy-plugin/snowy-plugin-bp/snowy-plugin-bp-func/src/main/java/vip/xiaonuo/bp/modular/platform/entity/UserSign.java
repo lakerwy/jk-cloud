@@ -20,15 +20,15 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 招采平台 - 用户 - （招采项目）报名信息表实体
+ * 招采平台 - 用户 - （招采项目）报名记录表实体
  *
  * @author yong.ye
- * @date  2024/05/09 16:24
+ * @date  2024/05/10 10:49
  **/
 @Getter
 @Setter
-@TableName("BP_USER_NOTICE")
-public class BpUserNotice {
+@TableName("BP_USER_SIGN")
+public class UserSign {
 
     /** 主键ID */
     @TableId
@@ -47,42 +47,46 @@ public class BpUserNotice {
     @ApiModelProperty(value = "报名材料附件", position = 4)
     private String attach;
 
+    /** 报名状态 */
+    @ApiModelProperty(value = "报名状态", position = 5)
+    private String bmStatus;
+
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 5)
+    @ApiModelProperty(value = "备注", position = 6)
     private String memo;
 
     /** 租户id */
-    @ApiModelProperty(value = "租户id", position = 6)
+    @ApiModelProperty(value = "租户id", position = 7)
     private String tenantId;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 7)
+    @ApiModelProperty(value = "删除标志", position = 8)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 8)
+    @ApiModelProperty(value = "创建时间", position = 9)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 9)
+    @ApiModelProperty(value = "创建用户", position = 10)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 10)
+    @ApiModelProperty(value = "修改时间", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 11)
+    @ApiModelProperty(value = "修改用户", position = 12)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 12)
+    @ApiModelProperty(value = "数据权限控制字段", position = 13)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 }

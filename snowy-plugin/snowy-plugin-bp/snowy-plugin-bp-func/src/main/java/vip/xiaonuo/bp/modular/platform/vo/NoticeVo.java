@@ -21,12 +21,12 @@ public class NoticeVo extends Notice {
     @ApiModelProperty(value = "相关澄清 - 集合", position = 100)
     private List<Clarify> clarifyList;
 
-    /** 相关澄清 - Y | N */
-    @ApiModelProperty(value = "相关澄清 - Y | N", position = 100)
+    /** 相关澄清 - Y|N */
+    @ApiModelProperty(value = "相关澄清 - Y|N", position = 100)
     private String hasClarify;
 
-    /** 状态 - 报名中 | 报名已截止 */
-    @ApiModelProperty(value = "状态 - 报名中 | 报名已截止", position = 100)
+    /** 项目公告状态 - 报名中 | 报名已截止 */
+    @ApiModelProperty(value = "项目公告状态 - 报名中 | 报名已截止", position = 100)
     private String bmStatus;
 
 }

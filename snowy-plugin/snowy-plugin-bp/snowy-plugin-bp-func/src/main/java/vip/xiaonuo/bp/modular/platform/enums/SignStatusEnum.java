@@ -15,20 +15,24 @@ package vip.xiaonuo.bp.modular.platform.enums;
 import lombok.Getter;
 
 /**
- * 招采平台 - 用户 - （招采项目）报名信息表枚举
+ * 招采平台 - 报名状态
  *
  * @author yong.ye
- * @date  2024/05/09 16:24
+ * @date  2024/05/10 10:49
  **/
 @Getter
-public enum BpUserNoticeEnum {
+public enum SignStatusEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 报名中 */
+    SIGN_ING("报名中"),
+    /** 已报名 */
+    SIGN_UP("已报名"),
+    /** 报名已截止 */
+    SIGN_STOP("报名已截止");
 
     private final String value;
 
-    BpUserNoticeEnum(String value) {
+    SignStatusEnum(String value) {
         this.value = value;
     }
 }

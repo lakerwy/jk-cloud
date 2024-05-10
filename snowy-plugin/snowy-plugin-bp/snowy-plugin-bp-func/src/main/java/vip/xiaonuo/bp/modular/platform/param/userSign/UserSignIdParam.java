@@ -10,27 +10,26 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.bp.modular.platform.enums;
+package vip.xiaonuo.bp.modular.platform.param.userSign;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
 
 /**
- * 招采管理 - 竞价公告|询价公告|招标公告枚举
+ * 招采平台 - 用户 - （招采项目）报名记录表Id参数
  *
  * @author yong.ye
- * @date  2024/05/07 16:36
+ * @date  2024/05/10 10:49
  **/
 @Getter
-public enum BmStatusEnum {
+@Setter
+public class UserSignIdParam {
 
-    /** 报名中 */
-    ING("报名中"),
-    /** 报名已截止 */
-    STOP("报名已截止");
-
-    private final String value;
-
-    BmStatusEnum(String value) {
-        this.value = value;
-    }
+    /** 主键ID */
+    @ApiModelProperty(value = "主键ID", required = true)
+    @NotBlank(message = "id不能为空")
+    private String id;
 }

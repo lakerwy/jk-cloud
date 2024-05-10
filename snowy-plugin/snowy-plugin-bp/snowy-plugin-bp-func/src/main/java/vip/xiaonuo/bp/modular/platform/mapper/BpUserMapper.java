@@ -14,6 +14,7 @@ package vip.xiaonuo.bp.modular.platform.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.bp.modular.platform.entity.BpUser;
+import vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo;
 
 /**
  * 招采平台 - 用户表Mapper接口
@@ -22,4 +23,13 @@ import vip.xiaonuo.bp.modular.platform.entity.BpUser;
  * @date  2024/05/09 08:41
  **/
 public interface BpUserMapper extends BaseMapper<BpUser> {
+
+    /**
+     * 根据 用户id 获取供应商入库信息
+     * @param bpUserId
+     * @return
+     */
+    UserSupplierVo getBpUserSupplier(String bpUserId);
+
+
 }

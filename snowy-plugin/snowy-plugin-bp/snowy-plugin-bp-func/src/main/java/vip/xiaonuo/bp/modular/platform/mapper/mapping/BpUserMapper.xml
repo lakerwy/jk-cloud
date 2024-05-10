@@ -2,4 +2,11 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.bp.modular.platform.mapper.BpUserMapper">
 
+    <select id="getBpUserSupplier" resultType="vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo">
+        select a.*,b.ID as prvId,b.STATUS as prvStatus
+        from BP_USER a
+            left join BP_SUPPLIER b on a.SUPPLIER_ID = b.ID and b.DELETE_FLAG = 'NOT_DELETE' and b.STATUS in ('0','1')
+        where a.ID = #{bpUserId}
+    </select>
+
 </mapper>

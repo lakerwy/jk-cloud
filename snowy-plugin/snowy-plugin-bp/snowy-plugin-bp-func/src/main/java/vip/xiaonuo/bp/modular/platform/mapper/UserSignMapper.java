@@ -12,14 +12,27 @@
  */
 package vip.xiaonuo.bp.modular.platform.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import vip.xiaonuo.bp.modular.platform.entity.BpUserNotice;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.bp.modular.platform.entity.UserSign;
+import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
 
 /**
- * 招采平台 - 用户 - （招采项目）报名信息表Mapper接口
+ * 招采平台 - 用户 - （招采项目）报名记录表Mapper接口
  *
  * @author yong.ye
- * @date  2024/05/09 16:24
+ * @date  2024/05/10 10:49
  **/
-public interface BpUserNoticeMapper extends BaseMapper<BpUserNotice> {
+public interface UserSignMapper extends BaseMapper<UserSign> {
+
+    /**
+     * 根据用户id 获取我的报名
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<UserSignVo> getMySignList(Page<UserSignVo> page, @Param(Constants.WRAPPER) Wrapper<UserSign> queryWrapper);
 }

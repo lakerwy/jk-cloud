@@ -18,7 +18,6 @@ import vip.xiaonuo.bp.modular.platform.entity.BpUser;
 import vip.xiaonuo.bp.modular.platform.param.user.*;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 
-import java.util.AbstractMap;
 import java.util.List;
 
 /**

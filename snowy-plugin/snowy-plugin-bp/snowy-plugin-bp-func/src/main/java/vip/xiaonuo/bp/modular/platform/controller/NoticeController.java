@@ -26,7 +26,6 @@ import vip.xiaonuo.bp.modular.platform.vo.NoticeVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.bp.modular.platform.entity.Notice;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeAddParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeEditParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
@@ -43,7 +42,7 @@ import javax.validation.constraints.NotEmpty;
  * @author yong.ye
  * @date  2024/05/07 16:36
  */
-@Api(tags = "招采管理 - 竞价公告|询价公告|招标公告控制器")
+@Api(tags = "【后台】招采管理 - 竞价公告|询价公告|招标公告控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
@@ -125,7 +124,7 @@ public class NoticeController {
     @ApiOperation("获取招采管理 - 竞价公告|询价公告|招标公告详情")
 //    @SaCheckPermission("/bp/platform/notice/detail")
     @GetMapping("/bp/platform/notice/detail")
-    public CommonResult<Notice> detail(@Valid NoticeIdParam noticeIdParam) {
+    public CommonResult<NoticeVo> detail(@Valid NoticeIdParam noticeIdParam) {
         return CommonResult.data(noticeService.detail(noticeIdParam));
     }
 }

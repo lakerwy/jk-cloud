@@ -42,7 +42,7 @@ import javax.validation.constraints.NotEmpty;
  * @author yong.ye
  * @date  2024/05/07 16:34
  */
-@Api(tags = "招采管理 - 通知公告控制器")
+@Api(tags = "【后台】招采管理 - 通知公告控制器")
 @ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
