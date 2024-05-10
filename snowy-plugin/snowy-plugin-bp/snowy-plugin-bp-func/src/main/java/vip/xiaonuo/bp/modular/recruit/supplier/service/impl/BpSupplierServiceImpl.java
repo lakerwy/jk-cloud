@@ -27,6 +27,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.bp.modular.platform.entity.BpUser;
+import vip.xiaonuo.bp.modular.platform.service.BpUserService;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.entity.BpBankInformation;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.service.BpBankInformationService;
@@ -44,6 +46,7 @@ import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationAddParam;
 import vip.xiaonuo.bp.modular.recruit.relation.service.BpRelationService;
 import vip.xiaonuo.bp.modular.recruit.relation.vo.BpRelationReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpBlacklistEnum;
+import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpSourceEnum;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierEditParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
@@ -90,6 +93,8 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
     private BpFinanceService BpFinanceService;
     @Resource
     private CommonCacheOperator commonCacheOperator;
+    @Resource
+    private BpUserService bpUserService;
 
     private static final TenApi tenApi = SpringUtil.getBean(TenApi.class);
 
@@ -208,6 +213,12 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         }
         List<BpFinance> newCopyFinanceAdd = BeanUtil.copyToList(bpFinanceList, BpFinance.class);
         BpFinanceService.saveBatch(newCopyFinanceAdd);
+
+        //自行申报是没有供应商id，则需要填充
+        if(BpSourceEnum.VOLUNTARILY.equals(bpSupplierAddParam.getSource())){
+            BpUser bpUser = new BpUser();bpUser.setSupplierId(bpSupplierAddParam.getBpUserId());
+            bpUserService.updateById(bpUser);
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

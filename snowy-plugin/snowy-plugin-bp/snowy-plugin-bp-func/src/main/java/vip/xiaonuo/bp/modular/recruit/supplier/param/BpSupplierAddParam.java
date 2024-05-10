@@ -114,7 +114,7 @@ public class BpSupplierAddParam {
     @NotBlank(message = "经营范围")
     private String businessScope;
 
-    /** 来源类型 自行申报=1,内部推荐为空 */
+    /** 来源类型 自行申报=2,内部推荐=1 */
     @ApiModelProperty(value = "来源类型")
     private String source;
 
@@ -153,6 +153,10 @@ public class BpSupplierAddParam {
     /** 黑名单原因 */
     @ApiModelProperty(value = "黑名单原因")
     private String blacklistReason;
+
+    /** 招采用户id */
+    @ApiModelProperty(value = "招采用户id")
+    private String bpUserId;
 
     /** 营业范围集合 */
     private List<BpBusinessScopeAddParam> classifyList;

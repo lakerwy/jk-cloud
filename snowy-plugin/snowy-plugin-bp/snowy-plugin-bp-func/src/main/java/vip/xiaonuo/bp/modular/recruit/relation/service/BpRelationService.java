@@ -14,6 +14,7 @@ package vip.xiaonuo.bp.modular.recruit.relation.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.bp.modular.recruit.relation.entity.BpRelation;
+import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationPageParam;
 
 /**
  * 供应商人员信息表Service接口
@@ -23,4 +24,5 @@ import vip.xiaonuo.bp.modular.recruit.relation.entity.BpRelation;
  **/
 public interface BpRelationService extends IService<BpRelation> {
 
+    Boolean getBusinessAdminPhone(BpRelationPageParam bpRelationPageParam);
 }
