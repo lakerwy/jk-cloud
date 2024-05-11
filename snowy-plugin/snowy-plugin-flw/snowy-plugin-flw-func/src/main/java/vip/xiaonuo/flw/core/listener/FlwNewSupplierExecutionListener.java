@@ -100,6 +100,8 @@ public class FlwNewSupplierExecutionListener implements ExecutionListener {
                         sqlValue.append("'").append(supplierId).append("' ,");
                         sqlkey.append("`TENANT_ID` ,");
                         sqlValue.append("'").append(tenApi.getCurrentTenId()).append("' ,");
+                        sqlkey.append("`MEMO` ,");
+                        sqlValue.append("'").append("创建时间：" + DateUtil.dateNew(new Date()) + ",账号为：" + businessadminPhone +",供应商入库审批完成时创建").append("' ,");
                         sqlkey.append("`DELETE_FLAG` ,");
                         sqlValue.append(" 'NOT_DELETE' ,");
                         sqlkey.append("`create_time` ,");
