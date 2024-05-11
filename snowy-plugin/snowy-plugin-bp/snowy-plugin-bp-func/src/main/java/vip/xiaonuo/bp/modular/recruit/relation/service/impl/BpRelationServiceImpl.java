@@ -34,10 +34,10 @@ import vip.xiaonuo.common.exception.CommonException;
 public class BpRelationServiceImpl extends ServiceImpl<BpRelationMapper, BpRelation> implements BpRelationService {
 
     @Override
-    public Boolean getBusinessAdminPhone(BpRelationPageParam bpRelationPageParam) {
-        if (ObjectUtil.isEmpty(bpRelationPageParam.getBusinessAdminPhone())) {
+    public Boolean getBusinessAdminPhone(String businessAdminPhone) {
+        if (ObjectUtil.isEmpty(businessAdminPhone)) {
             throw new CommonException("供应商负责人手机号不能为空!");
         }
-        return this.list(new QueryWrapper<BpRelation>().lambda().eq(BpRelation::getBusinessadminPhone,bpRelationPageParam.getBusinessAdminPhone())).size() > 0;
+        return this.list(new QueryWrapper<BpRelation>().lambda().eq(BpRelation::getBusinessadminPhone,businessAdminPhone)).size() > 0;
     }
 }

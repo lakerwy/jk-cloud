@@ -128,4 +128,16 @@ public class BpSupplierController {
     public CommonResult<BpSupplierReturnVo> detail(@Valid BpSupplierIdParam bpSupplierIdParam) {
         return CommonResult.data(bpSupplierService.detail(bpSupplierIdParam));
     }
+
+    /**
+     * 获取供应商手机号
+     * @author hxw
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取供应商公司名称")
+    //@SaCheckPermission("/bp/supplier/getCompanyName")
+    @PostMapping("/bp/supplier/getCompanyName")
+    public CommonResult<Boolean> getCompanyName(@RequestBody @Valid BpSupplierPageParam bpSupplierPageParam) {
+        return CommonResult.data(bpSupplierService.getCompanyName(bpSupplierPageParam.getCompanyName()));
+    }
 }

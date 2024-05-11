@@ -91,13 +91,17 @@ public class FlwNewSupplierExecutionListener implements ExecutionListener {
                         sqlkey.append("`PASSWORD` ,");
                         sqlValue.append("'").append(CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY))).append("' ,"); //生成加密密码(123456)
                         sqlkey.append("`ACCOUNT` ,");
-                        sqlValue.append("'").append(businessadminPhone).append("' ,");
+                        sqlValue.append("'").append(businessadminPhone).append("' ,"); //用户账号
+                        sqlkey.append("`PHONE` ,");
+                        sqlValue.append("'").append(businessadminPhone).append("' ,"); //用户手机号
                         sqlkey.append("`USER_STATUS` ,");
                         sqlValue.append(" 'ENABLE' ,");
                         sqlkey.append("`SUPPLIER_ID` ,");
                         sqlValue.append("'").append(supplierId).append("' ,");
                         sqlkey.append("`TENANT_ID` ,");
                         sqlValue.append("'").append(tenApi.getCurrentTenId()).append("' ,");
+                        sqlkey.append("`MEMO` ,");
+                        sqlValue.append("'").append("创建时间：" + DateUtil.dateNew(new Date()) + ",账号为：" + businessadminPhone +",供应商入库审批完成时创建").append("' ,");
                         sqlkey.append("`DELETE_FLAG` ,");
                         sqlValue.append(" 'NOT_DELETE' ,");
                         sqlkey.append("`create_time` ,");

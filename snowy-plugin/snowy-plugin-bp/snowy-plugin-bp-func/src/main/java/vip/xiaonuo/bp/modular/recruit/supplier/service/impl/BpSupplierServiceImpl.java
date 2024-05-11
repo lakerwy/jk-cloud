@@ -143,6 +143,11 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BpSupplierAddParam bpSupplierAddParam) {
+        //验证公司名称是否重复
+        Boolean isBoolean = getCompanyName(bpSupplierAddParam.getCompanyName());
+        if(isBoolean){
+            throw new CommonException("公司名称重复!");
+        }
         // 新增供应商基本信息
         BpSupplier bpSupplier = BeanUtil.toBean(bpSupplierAddParam, BpSupplier.class);
         bpSupplier.setIsBlacklist(EnumUtil.toString(BpBlacklistEnum.NOT_BLACKLIST));
@@ -181,6 +186,10 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
             throw new CommonException("供应商人员信息不能为空!");
         }
         for (BpRelationAddParam bpRelationAddParam : relationAddParamList) {
+            Boolean isBooleanPhone = bpRelationService.getBusinessAdminPhone(bpRelationAddParam.getBusinessadminPhone());
+            if(isBooleanPhone){
+                throw new CommonException("供应商负责人手机号重复!");
+            }
             bpRelationAddParam.setSupplierId(bpSupplier.getId());
             bpRelationAddParam.setTenantId(tenApi.getCurrentTenId());
         }
@@ -297,5 +306,13 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         List<BpFinanceReturnVo> bpFinanceReturnVos = BeanUtil.copyToList(bpFinanceList, BpFinanceReturnVo.class);
         bpSupplierReturnVo.setBpFinanceList(bpFinanceReturnVos);
         return bpSupplierReturnVo;
+    }
+
+    @Override
+    public Boolean getCompanyName(String companyName) {
+        if(ObjectUtil.isEmpty(companyName)){
+            throw new CommonException("供应商公司名称不能为空!");
+        }
+        return this.list(new QueryWrapper<BpSupplier>().lambda().eq(BpSupplier::getCompanyName,companyName)).size() > 0;
     }
 }

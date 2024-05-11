@@ -17,7 +17,7 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationPageParam;
@@ -43,15 +43,15 @@ public class BpRelationController {
     private BpRelationService bpRelationService;
 
     /**
-     *
+     * 获取供应商人员业务负责人手机号
      * @author hxw
      * @date  2024/05/09 16:17
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取供应商人员业务负责人手机号")
     //@SaCheckPermission("/bp/relation/getBusinessAdminPhone")
-    @GetMapping("/bp/relation/getBusinessAdminPhone")
+    @PostMapping("/bp/relation/getBusinessAdminPhone")
     public CommonResult<Boolean> getBusinessAdminPhone(@RequestBody @Valid BpRelationPageParam bpRelationPageParam) {
-        return CommonResult.data(bpRelationService.getBusinessAdminPhone(bpRelationPageParam));
+        return CommonResult.data(bpRelationService.getBusinessAdminPhone(bpRelationPageParam.getBusinessAdminPhone()));
     }
 }
