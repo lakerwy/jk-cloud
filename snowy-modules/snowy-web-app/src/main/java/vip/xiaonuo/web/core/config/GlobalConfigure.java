@@ -197,7 +197,10 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/sys/server/downloadImportUserTemplate",
             "/rural/Tbcorpperformance/downloadImportUserTemplate",
             "/ssoUser/userExtend/sync",
-            "/sso/*"
+            "/sso/*",
+
+            /* 远程调用免token */
+            "/feign/dev/sms/sendSmsYunPian",
     };
 
     /**

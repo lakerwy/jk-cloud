@@ -12,6 +12,8 @@
  */
 package vip.xiaonuo.bp.modular.platform.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
+import cn.dev33.satoken.stp.StpUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.bp.modular.platform.entity.BpUser;
 import vip.xiaonuo.bp.modular.platform.entity.NoticeTz;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
@@ -56,15 +59,12 @@ import javax.validation.Valid;
 public class BpPlatformController {
 
     @Resource
-    private BpUserService bpUserService;
+    private BpPlatformService bpPlatformService;
     @Resource
     private NoticeTzService noticeTzService;
     @Resource
     private NoticeService noticeService;
-    @Resource
-    private UserSignService userSignService;
-    @Resource
-    private UserPayService userPayService;
+
 
     /**
      * 【前台】招采平台 - 注册用户
@@ -75,9 +75,9 @@ public class BpPlatformController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("【前台】招采平台 - 注册用户")
     @CommonLog("【前台】招采平台 - 注册用户")
-    @PostMapping("/bp/platform/frontend/register")
+    @PostMapping("/bp/platform/frontend/public/register")
     public CommonResult<String> register(@RequestBody @Valid RegisterParam registerParam) {
-        bpUserService.register(registerParam);
+        bpPlatformService.register(registerParam);
         return CommonResult.ok();
     }
 
@@ -90,9 +90,9 @@ public class BpPlatformController {
      **/
     @ApiOperationSupport(order = 2)
     @ApiOperation("【前台】招采平台 - 注册|登录 获取图片验证码")
-    @GetMapping("/bp/platform/frontend/getPicCaptcha")
+    @GetMapping("/bp/platform/frontend/public/getPicCaptcha")
     public CommonResult<PicValidCodeResult> getPicCaptcha() {
-        return CommonResult.data(bpUserService.getPicCaptcha());
+        return CommonResult.data(bpPlatformService.getPicCaptcha());
     }
 
     /**
@@ -103,9 +103,9 @@ public class BpPlatformController {
      **/
     @ApiOperationSupport(order = 3)
     @ApiOperation("【前台】招采平台 - 注册|登录 获取手机验证码")
-    @GetMapping("/bp/platform/frontend/getPhoneValidCode")
+    @GetMapping("/bp/platform/frontend/public/getPhoneValidCode")
     public CommonResult<String> getPhoneValidCode(@Valid GetPhoneValidCodeParam getPhoneValidCodeParam) {
-        return CommonResult.data(bpUserService.getPhoneValidCode(getPhoneValidCodeParam));
+        return CommonResult.data(bpPlatformService.getPhoneValidCode(getPhoneValidCodeParam));
     }
 
     /**
@@ -117,9 +117,9 @@ public class BpPlatformController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("【前台】招采平台 - 登录 账号密码登录")
     @CommonLog("【前台】招采平台 - 登录 账号密码登录")
-    @PostMapping("/bp/platform/frontend/doLogin")
-    public CommonResult<Object> doLogin(@RequestBody @Valid AccountPasswordLoginParam accountPasswordLoginParam) {
-        return CommonResult.data(bpUserService.doLogin(accountPasswordLoginParam));
+    @PostMapping("/bp/platform/frontend/public/doLogin")
+    public CommonResult<String> doLogin(@RequestBody @Valid AccountPasswordLoginParam accountPasswordLoginParam) {
+        return CommonResult.data(bpPlatformService.doLogin(accountPasswordLoginParam));
     }
 
     /**
@@ -131,14 +131,37 @@ public class BpPlatformController {
     @ApiOperationSupport(order = 5)
     @ApiOperation("【前台】招采平台 - 登录 手机验证码登录")
     @CommonLog("【前台】招采平台 - 登录 手机验证码登录")
-    @PostMapping("/bp/platform/frontend/doLoginByPhone")
-    public CommonResult<Object> doLoginByPhone(@RequestBody @Valid PhoneValidCodeLoginParam phoneValidCodeLoginParam) {
-        return CommonResult.data(bpUserService.doLoginByPhone(phoneValidCodeLoginParam));
+    @PostMapping("/bp/platform/frontend/public/doLoginByPhone")
+    public CommonResult<String> doLoginByPhone(@RequestBody @Valid PhoneValidCodeLoginParam phoneValidCodeLoginParam) {
+        return CommonResult.data(bpPlatformService.doLoginByPhone(phoneValidCodeLoginParam));
     }
 
 
+    /**
+     * 【前台】获取招采平台-前台用户登录信息
+     *
+     **/
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("【前台】获取招采平台-前台用户登录信息")
+    @SaCheckLogin
+    @GetMapping("/bp/platform/frontend/self/getLoginUser")
+    public CommonResult<BpUser> getLoginUser() {
+        return CommonResult.data(bpPlatformService.getLoginUser());
+    }
 
 
+    /**
+     * 【前台】招采平台-前台用户登录退出
+     *
+     **/
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("【前台】招采平台-前台用户登录退出")
+    @SaCheckLogin
+    @GetMapping("/bp/platform/frontend/self/doLogout")
+    public CommonResult<String> doLogout() {
+        StpUtil.logout();
+        return CommonResult.ok();
+    }
 
 
 
@@ -151,7 +174,7 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 11)
     @ApiOperation("【前台】获取招采管理 - 通知公告分页")
-    @GetMapping("/bp/platform/frontend/noticeTz/page")
+    @GetMapping("/bp/platform/frontend/public/noticeTzPage")
     public CommonResult<Page<NoticeTz>> noticeTzPage(NoticeTzPageParam noticeTzPageParam) {
         return CommonResult.data(noticeTzService.page(noticeTzPageParam));
     }
@@ -164,7 +187,7 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 12)
     @ApiOperation("【前台】获取招采管理 - 通知公告详情")
-    @GetMapping("/bp/platform/frontend/noticeTz/detail")
+    @GetMapping("/bp/platform/frontend/public/noticeTzDetail")
     public CommonResult<NoticeTz> noticeTzDetail(@Valid NoticeTzIdParam noticeTzIdParam) {
         return CommonResult.data(noticeTzService.detail(noticeTzIdParam));
     }
@@ -177,7 +200,7 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 13)
     @ApiOperation("【前台】获取招采管理 - 竞价公告|询价公告|招标公告分页")
-    @GetMapping("/bp/platform/frontend/notice/page")
+    @GetMapping("/bp/platform/frontend/public/noticePage")
     public CommonResult<Page<NoticeVo>> noticePage(NoticePageParam noticePageParam) {
         return CommonResult.data(noticeService.page(noticePageParam));
     }
@@ -190,14 +213,10 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 14)
     @ApiOperation("【前台】获取招采管理 - 竞价公告|询价公告|招标公告详情")
-    @GetMapping("/bp/platform/frontend/notice/detail")
+    @GetMapping("/bp/platform/frontend/public/noticeDetail")
     public CommonResult<UserNoticeVo> noticeDetail(@Valid NoticeIdParam noticeIdParam) {
-        return CommonResult.data(noticeService.noticeDetail(noticeIdParam));
+        return CommonResult.data(bpPlatformService.noticeDetail(noticeIdParam));
     }
-
-
-
-
 
 
     /**
@@ -213,9 +232,9 @@ public class BpPlatformController {
     @ApiOperationSupport(order = 15)
     @ApiOperation("【前台】招采 - 竞价公告|询价公告|招标公告 - 报名")
     @CommonLog("【前台】招采 - 竞价公告|询价公告|招标公告 - 报名")
-    @PostMapping("/bp/platform/frontend/userSign/sign")
+    @PostMapping("/bp/platform/frontend/self/sign")
     public CommonResult<String> sign(@RequestBody @Valid SignParam signParam) {
-        userSignService.sign(signParam);
+        bpPlatformService.sign(signParam);
         return CommonResult.ok();
     }
 
@@ -231,9 +250,9 @@ public class BpPlatformController {
     @ApiOperationSupport(order = 16)
     @ApiOperation("【前台】招采 - 用户报名 - 缴费")
     @CommonLog("【前台】招采 - 用户报名 - 缴费")
-    @PostMapping("/bp/platform/frontend/userSign/pay")
-    public CommonResult<String> pay(@RequestBody @Valid PayParam payParam) {
-        userPayService.pay(payParam);
+    @PostMapping("/bp/platform/frontend/self/signPay")
+    public CommonResult<String> signPay(@RequestBody @Valid PayParam payParam) {
+        bpPlatformService.signPay(payParam);
         return CommonResult.ok();
     }
 
@@ -247,12 +266,11 @@ public class BpPlatformController {
     @ApiOperationSupport(order = 17)
     @ApiOperation("【前台】招采 - 用户报名 - 上传报名文件")
     @CommonLog("【前台】招采 - 用户报名 - 上传报名文件")
-    @PostMapping("/bp/platform/frontend/userSign/upload")
-    public CommonResult<String> upload(@RequestBody @Valid UploadParam uploadParam) {
-        userSignService.upload(uploadParam);
+    @PostMapping("/bp/platform/frontend/self/signUpload")
+    public CommonResult<String> signUpload(@RequestBody @Valid UploadParam uploadParam) {
+        bpPlatformService.signUpload(uploadParam);
         return CommonResult.ok();
     }
-
 
 
     /**
@@ -263,9 +281,9 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 18)
     @ApiOperation("【前台】招采 - 我的报名")
-    @GetMapping("/bp/platform/frontend/userSign/mySignList")
+    @GetMapping("/bp/platform/frontend/self/mySignList")
     public CommonResult<Page<UserSignVo>> mySignList(@Valid UserSignPageParam userSignPageParam) {
-        return CommonResult.data(userSignService.mySignList(userSignPageParam));
+        return CommonResult.data(bpPlatformService.mySignList(userSignPageParam));
     }
 
 }

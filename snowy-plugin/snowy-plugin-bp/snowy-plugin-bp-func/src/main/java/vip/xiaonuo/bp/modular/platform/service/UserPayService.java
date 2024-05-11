@@ -74,10 +74,4 @@ public interface UserPayService extends IService<UserPay> {
      * @date  2024/05/10 10:50
      **/
     UserPay queryEntity(String id);
-
-    /**
-     * 供应商 - 报名 - 缴费
-     * @param payParam
-     */
-    void pay(PayParam payParam);
 }

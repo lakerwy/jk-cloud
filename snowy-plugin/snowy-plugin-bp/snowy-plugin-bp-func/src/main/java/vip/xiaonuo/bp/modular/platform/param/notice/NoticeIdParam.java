@@ -32,8 +32,4 @@ public class NoticeIdParam {
     @ApiModelProperty(value = "主键ID", required = true)
     @NotBlank(message = "id不能为空")
     private String id;
-
-    /** 平台 - 招采用户Id (BP_USER.ID) */
-    @ApiModelProperty(value = "平台 - 招采用户Id (BP_USER.ID)", position = 2)
-    private String bpUserId;
 }

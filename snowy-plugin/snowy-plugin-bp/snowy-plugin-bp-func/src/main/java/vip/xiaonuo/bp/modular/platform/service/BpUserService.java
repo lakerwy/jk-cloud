@@ -15,8 +15,7 @@ package vip.xiaonuo.bp.modular.platform.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.bp.modular.platform.entity.BpUser;
-import vip.xiaonuo.bp.modular.platform.param.user.*;
-import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
+import vip.xiaonuo.bp.modular.platform.param.user.*;;
 
 import java.util.List;
 
@@ -75,37 +74,4 @@ public interface BpUserService extends IService<BpUser> {
      * @date  2024/05/09 08:41
      **/
     BpUser queryEntity(String id);
-
-    /**
-     * 招采平台 - 用户注册
-     * @param registerParam
-     */
-    void register(RegisterParam registerParam);
-
-    /**
-     * 获取图片验证码
-     * @return
-     */
-    PicValidCodeResult getPicCaptcha();
-
-    /**
-     * 获取手机验证码
-     * @param getPhoneValidCodeParam
-     * @return
-     */
-    String getPhoneValidCode(GetPhoneValidCodeParam getPhoneValidCodeParam);
-
-    /**
-     * 账号密码登录
-     * @param accountPasswordLoginParam
-     * @return
-     */
-    Object doLogin(AccountPasswordLoginParam accountPasswordLoginParam);
-
-    /**
-     * 手机验证码登录
-     * @param phoneValidCodeLoginParam
-     * @return
-     */
-    Object doLoginByPhone(PhoneValidCodeLoginParam phoneValidCodeLoginParam);
 }

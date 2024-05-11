@@ -14,8 +14,6 @@ package vip.xiaonuo.bp.modular.platform.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -94,25 +92,5 @@ public class UserPayServiceImpl extends ServiceImpl<UserPayMapper, UserPay> impl
             throw new CommonException("招采平台 - 用户 - （招采项目）费用缴纳信息表不存在，id值为：{}", id);
         }
         return userPay;
-    }
-
-    @Override
-    public void pay(PayParam payParam) {
-        //1. 判断是否已缴纳
-        List<UserPay> userPayList = this.list(new QueryWrapper<UserPay>().lambda()
-                .eq(UserPay::getBpUserId,payParam.getBpUserId())
-                .eq(UserPay::getNoticeId,payParam.getNoticeId())
-                .eq(UserPay::getType,payParam.getType()));
-        if(CollUtil.isNotEmpty(userPayList)){
-            throw new CommonException("1006","请勿重复缴费");
-        }
-        //2. 新增缴费记录
-        UserPayAddParam userPayAddParam = new UserPayAddParam();
-        userPayAddParam.setBpUserId(payParam.getBpUserId());
-        userPayAddParam.setNoticeId(payParam.getNoticeId());
-        userPayAddParam.setType(payParam.getType());
-        userPayAddParam.setAmount(payParam.getAmount());
-        userPayAddParam.setMemo(DateUtil.now()+" : 缴纳 【"+payParam.getType()+"】 "+payParam.getAmount() +"；");
-        this.add(userPayAddParam);
     }
 }

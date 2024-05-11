@@ -16,7 +16,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.bp.modular.platform.entity.UserSign;
 import vip.xiaonuo.bp.modular.platform.param.userSign.*;
-import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
 
 import java.util.List;
 
@@ -75,24 +74,4 @@ public interface UserSignService extends IService<UserSign> {
      * @date  2024/05/10 10:49
      **/
     UserSign queryEntity(String id);
-
-    /**
-     * 报名
-     * @param signParam
-     * @return
-     */
-    void sign(SignParam signParam);
-
-    /**
-     * 上传报名文件
-     * @param uploadParam
-     */
-    void upload(UploadParam uploadParam);
-
-    /**
-     * 我的报名
-     * @param userSignPageParam
-     * @return
-     */
-    Page<UserSignVo> mySignList(UserSignPageParam userSignPageParam);
 }

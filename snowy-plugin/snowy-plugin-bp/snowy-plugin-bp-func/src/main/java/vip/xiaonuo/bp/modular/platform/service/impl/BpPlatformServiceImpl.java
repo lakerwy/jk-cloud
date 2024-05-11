@@ -1,0 +1,449 @@
+package vip.xiaonuo.bp.modular.platform.service.impl;
+
+import cn.dev33.satoken.stp.SaLoginModel;
+import cn.dev33.satoken.stp.StpUtil;
+import cn.hutool.captcha.CaptchaUtil;
+import cn.hutool.captcha.CircleCaptcha;
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.convert.Convert;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.PhoneUtil;
+import cn.hutool.core.util.RandomUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import vip.xiaonuo.auth.core.util.StpClientUtil;
+import vip.xiaonuo.bp.modular.platform.entity.*;
+import vip.xiaonuo.bp.modular.platform.enums.PayTypeEnum;
+import vip.xiaonuo.bp.modular.platform.enums.SignStatusEnum;
+import vip.xiaonuo.bp.modular.platform.enums.UserStatusEnum;
+import vip.xiaonuo.bp.modular.platform.enums.YesOrNoEnum;
+import vip.xiaonuo.bp.modular.platform.mapper.BpUserMapper;
+import vip.xiaonuo.bp.modular.platform.mapper.UserSignMapper;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
+import vip.xiaonuo.bp.modular.platform.param.user.*;
+import vip.xiaonuo.bp.modular.platform.param.userSign.*;
+import vip.xiaonuo.bp.modular.platform.service.*;
+import vip.xiaonuo.bp.modular.platform.util.LoginBpUserUtil;
+import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
+import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
+import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
+import vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
+import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonCryptogramUtil;
+import vip.xiaonuo.common.util.CommonEmailUtil;
+import vip.xiaonuo.dev.api.DevSmsApi;
+
+import javax.annotation.Resource;
+import java.net.URLEncoder;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.List;
+
+@Service
+@Slf4j
+public class BpPlatformServiceImpl implements BpPlatformService {
+
+    private static final String BP_VALID_CODE_CACHE_KEY = "bp-validCode:";
+
+    /* 云片短信：验证码短信模板 */
+    private static final String SMS_YUNPIAN_TPL_CODE_ID = "5620650";
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+    @Resource
+    private DevSmsApi devSmsApi;
+    @Resource
+    private BpUserService bpUserService;
+    @Resource
+    private BpUserMapper bpUserMapper;
+    @Resource
+    private UserPayService userPayService;
+    @Resource
+    private UserSignService userSignService;
+    @Resource
+    private UserSignMapper userSignMapper;
+    @Resource
+    private NoticeService noticeService;
+    @Resource
+    private ClarifyService clarifyService;
+
+
+    @Override
+    public void register(RegisterParam registerParam) {
+        //获取密码
+        String password = "";
+        String passwordSure = "";
+        try{
+            password = CommonCryptogramUtil.doSm2Decrypt(registerParam.getPassword());
+            passwordSure = CommonCryptogramUtil.doSm2Decrypt(registerParam.getPasswordSure());
+        }catch (Exception e){
+            throw new CommonException("密码解密失败");
+        }
+        //1. 密码 - 确认密码一致
+        if(!password.equals(passwordSure)){
+            throw new CommonException("密码与确认密码不一致！");
+        }
+        //2. 短信验证码是否一致
+        String phone = registerParam.getPhone();
+        validPhoneValidCodeParam(phone, registerParam.getValidCode(), registerParam.getValidCodeReqNo());
+        //3. 判断用户是否存在
+        List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,phone));
+        if(CollUtil.isNotEmpty(bpUserList)){
+            throw new CommonException("账号已存在！");
+        }
+        //4. 创建账号
+        BpUserAddParam bpUserAddParam = new BpUserAddParam();
+        bpUserAddParam.setAccount(phone);
+        bpUserAddParam.setName(registerParam.getName());
+        bpUserAddParam.setPhone(phone);
+        // SM2解密后，获得前端传来的密码哈希值
+        String passwordHash = CommonCryptogramUtil.doHashValue(password);
+        bpUserAddParam.setPassword(passwordHash);
+        bpUserAddParam.setUserStatus(UserStatusEnum.ENABLE.getValue());
+        bpUserService.add(bpUserAddParam);
+    }
+
+
+    @Override
+    public PicValidCodeResult getPicCaptcha() {
+        // 生成验证码，随机4位字符
+        CircleCaptcha circleCaptcha = CaptchaUtil.createCircleCaptcha(100, 38, 4, 10);
+        // 定义返回结果
+        PicValidCodeResult picValidCodeResult = new PicValidCodeResult();
+        // 获取验证码的值
+        String validCode = circleCaptcha.getCode();
+        // 获取验证码的base64
+        String validCodeBase64 = circleCaptcha.getImageBase64Data();
+        // 生成请求号
+        String validCodeReqNo = IdWorker.getIdStr();
+        // 将base64返回前端
+        picValidCodeResult.setValidCodeBase64(validCodeBase64);
+        // 将请求号返回前端
+        picValidCodeResult.setValidCodeReqNo(validCodeReqNo);
+        // 将请求号作为key，验证码的值作为value放到redis，用于校验，5分钟有效
+        commonCacheOperator.put(BP_VALID_CODE_CACHE_KEY + validCodeReqNo, validCode, 5 * 60L);
+        return picValidCodeResult;
+
+    }
+
+    @Override
+    public String getPhoneValidCode(GetPhoneValidCodeParam getPhoneValidCodeParam) {
+        // 手机号
+        String phone = getPhoneValidCodeParam.getPhone();
+        // 验证码
+        String validCode = getPhoneValidCodeParam.getValidCode();
+        // 验证码请求号
+        String validCodeReqNo = getPhoneValidCodeParam.getValidCodeReqNo();
+        // 校验参数
+        validPhoneValidCodeParam(null, validCode, validCodeReqNo);
+        // 生成手机验证码的值，随机6为数字
+        String phoneValidCode = RandomUtil.randomNumbers(6);
+        // 生成手机验证码的请求号
+        String phoneValidCodeReqNo = IdWorker.getIdStr();
+
+        // TODO 使用云片执行发送验证码，将验证码作为短信内容的参数变量放入，
+        String tpl_Id = SMS_YUNPIAN_TPL_CODE_ID;
+        String tpl_Value = URLEncoder.encode("#code#") + "="  + URLEncoder.encode(phoneValidCode);
+        devSmsApi.sendSmsYunPian("", phone, tpl_Id, tpl_Value);
+
+        // 将请求号作为key，验证码的值作为value放到redis，用于校验，10分钟有效
+        commonCacheOperator.put(BP_VALID_CODE_CACHE_KEY + phone + StrUtil.UNDERLINE + phoneValidCodeReqNo, phoneValidCode, 10 * 60L);
+        // 返回请求号
+        return phoneValidCodeReqNo;
+    }
+
+    @Override
+    public String doLogin(AccountPasswordLoginParam accountPasswordLoginParam) {
+        // 获取账号
+        String account = accountPasswordLoginParam.getAccount();
+        // SM2解密并获得前端传来的密码哈希值
+        String passwordHash;
+        try {
+            // 解密，并做哈希值
+            String pwd = CommonCryptogramUtil.doSm2Decrypt(accountPasswordLoginParam.getPassword());
+            passwordHash = CommonCryptogramUtil.doHashValue(pwd);
+        } catch (Exception e) {
+            throw new CommonException("密码解密失败");
+        }
+        List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,account));
+        if(CollUtil.isEmpty(bpUserList)){
+            throw new CommonException("账号不存在");
+        }else if(bpUserList.size() > 1){
+            throw new CommonException("账号异常，请联系管理员");
+        }else{
+            BpUser bpUser = bpUserList.get(0);
+            if(!passwordHash.equals(bpUser.getPassword())){
+                throw new CommonException("密码错误");
+            }
+            //执行登录
+            return execLogin(bpUser,"PC");
+        }
+    }
+
+    @Override
+    public String doLoginByPhone(PhoneValidCodeLoginParam phoneValidCodeLoginParam) {
+        // 手机号
+        String phone = phoneValidCodeLoginParam.getPhone();
+        // 校验参数
+        validPhoneValidCodeParam(phone, phoneValidCodeLoginParam.getValidCode(), phoneValidCodeLoginParam.getValidCodeReqNo());
+        // 根据手机号获取用户信息
+        List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,phone));
+        if(CollUtil.isEmpty(bpUserList)){
+            throw new CommonException("账号不存在");
+        }else if(bpUserList.size() > 1){
+            throw new CommonException("账号异常，请联系管理员");
+        }else {
+            BpUser bpUser = bpUserList.get(0);
+            //执行登录
+            return execLogin(bpUser,"PC");
+        }
+    }
+
+    @Override
+    public BpUser getLoginUser() {
+        BpUser bpUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpUser)){
+            throw new CommonException("token 异常");
+        }
+        bpUser.setPassword(null);
+        return bpUser;
+    }
+
+
+    /**
+     * 校验手机号与验证码等参数
+     *
+     **/
+    private void validPhoneValidCodeParam(String phoneOrEmail, String validCode, String validCodeReqNo) {
+        // 验证码正确则校验手机号格式
+        if(ObjectUtil.isEmpty(phoneOrEmail)) {
+            // 执行校验验证码
+            validValidCode(null, validCode, validCodeReqNo);
+        } else {
+            if(!PhoneUtil.isMobile(phoneOrEmail) && !CommonEmailUtil.isEmail(phoneOrEmail)) {
+                throw new CommonException("手机号格式错误");
+            }
+            // 执行校验验证码
+            validValidCode(phoneOrEmail, validCode, validCodeReqNo);
+        }
+    }
+
+
+    /**
+     * 校验验证码方法
+     *
+     **/
+    private void validValidCode(String phoneOrEmail, String validCode, String validCodeReqNo) {
+        // 依据请求号，取出缓存中的验证码进行校验
+        Object existValidCode;
+        if(ObjectUtil.isEmpty(phoneOrEmail)) {
+            existValidCode = commonCacheOperator.get(BP_VALID_CODE_CACHE_KEY + validCodeReqNo);
+        } else {
+            existValidCode = commonCacheOperator.get(BP_VALID_CODE_CACHE_KEY + phoneOrEmail + StrUtil.UNDERLINE + validCodeReqNo);
+        }
+        // 为空则直接验证码错误
+        if(ObjectUtil.isEmpty(existValidCode)) {
+            throw new CommonException("验证码错误");
+        }
+        // 移除该验证码
+        if(ObjectUtil.isEmpty(phoneOrEmail)) {
+            commonCacheOperator.remove(BP_VALID_CODE_CACHE_KEY + validCodeReqNo);
+        } else {
+            commonCacheOperator.remove(BP_VALID_CODE_CACHE_KEY + phoneOrEmail + StrUtil.UNDERLINE + validCodeReqNo);
+        }
+        // 不一致则直接验证码错误
+        if (!validCode.equals(Convert.toStr(existValidCode).toLowerCase())) {
+            throw new CommonException("验证码错误");
+        }
+    }
+
+
+
+    /**
+     * 执行 招采平台-前台 端登录
+     *
+     **/
+    private String execLogin(BpUser bpUser,String device) {
+        // 校验状态
+        if(!UserStatusEnum.ENABLE.getValue().equals(bpUser.getUserStatus())) {
+            throw new CommonException(1000,"账号不可用");
+        }
+        // 执行登录
+        StpUtil.login(bpUser.getId(), new SaLoginModel().setDevice(device).setExtra("name", bpUser.getName()));
+        // 缓存用户信息，此处使用TokenSession为了指定时间内无操作则自动下线
+        StpUtil.getTokenSession().set("bpLoginUser", bpUser);
+        // 返回token
+        return StpClientUtil.getTokenInfo().tokenValue;
+    }
+
+
+    @Override
+    public void sign(SignParam signParam) {
+        //当前用户信息
+        BpUser bpUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpUser)){
+            throw new CommonException("token 异常");
+        }
+        //1. 校验是否供应商入库 -> 校验供应商入库审批是否通过
+        UserSupplierVo userSupplierVo = bpUserMapper.getBpUserSupplier(bpUser.getId());
+        if(ObjectUtil.isEmpty(userSupplierVo)){
+            throw new CommonException(1001,"用户异常");
+        }
+        if(ObjectUtil.isEmpty(userSupplierVo.getPrvId())){
+            throw new CommonException(1002,"请先操作供应商入库");
+        }
+        if(FlwStatusEnum.ACTIVE_STATUS.getValue().equals(userSupplierVo.getPrvStatus())){
+            throw new CommonException(1003,"供应商入库审批中");
+        }
+        //2. 校验是否已缴纳附件查看费用
+        List<UserPay> userPayList = userPayService.list(new QueryWrapper<UserPay>().lambda()
+                .eq(UserPay::getBpUserId,bpUser.getId())
+                .eq(UserPay::getNoticeId,signParam.getNoticeId())
+                .eq(UserPay::getType, PayTypeEnum.PAY_FOR_ATTACH.getValue()));
+        if(CollUtil.isEmpty(userPayList)){
+            throw new CommonException(1004,"请支付附件查看费用");
+        }
+        //3. 校验是否已报名
+        List<UserSign> userSignList = userSignService.list(new QueryWrapper<UserSign>().lambda().eq(UserSign::getBpUserId,bpUser.getId()).eq(UserSign::getNoticeId,signParam.getNoticeId()));
+        if(CollUtil.isNotEmpty(userSignList)){
+            throw new CommonException(1005,"请勿重复报名");
+        }
+        //4. 报名记录
+        UserSignAddParam userSignAddParam = new UserSignAddParam();
+        userSignAddParam.setBpUserId(bpUser.getId());
+        userSignAddParam.setNoticeId(signParam.getNoticeId());
+        userSignAddParam.setBmStatus(SignStatusEnum.SIGN_ING.getValue());
+        String memo =  DateUtil.now() + " : 报名；";
+        userSignAddParam.setMemo(memo);
+        userSignService.add(userSignAddParam);
+    }
+
+
+    @Override
+    public void signPay(PayParam payParam) {
+        //当前用户信息
+        BpUser bpUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpUser)){
+            throw new CommonException("token 异常，获取用户信息失败");
+        }
+        //1. 判断是否已缴纳
+        List<UserPay> userPayList = userPayService.list(new QueryWrapper<UserPay>().lambda()
+                .eq(UserPay::getBpUserId,bpUser.getId())
+                .eq(UserPay::getNoticeId,payParam.getNoticeId())
+                .eq(UserPay::getType,payParam.getType()));
+        if(CollUtil.isNotEmpty(userPayList)){
+            throw new CommonException(1006,"请勿重复缴费");
+        }
+        //2. 新增缴费记录
+        UserPayAddParam userPayAddParam = new UserPayAddParam();
+        userPayAddParam.setBpUserId(bpUser.getId());
+        userPayAddParam.setNoticeId(payParam.getNoticeId());
+        userPayAddParam.setType(payParam.getType());
+        userPayAddParam.setAmount(payParam.getAmount());
+        userPayAddParam.setMemo(DateUtil.now()+" : 缴纳 【"+payParam.getType()+"】 "+payParam.getAmount() +"；");
+        userPayService.add(userPayAddParam);
+    }
+
+    @Override
+    public void signUpload(UploadParam uploadParam) {
+        UserSign userSign = userSignService.queryEntity(uploadParam.getId());
+        userSign.setAttach(uploadParam.getAttach());
+        userSign.setBmStatus(SignStatusEnum.SIGN_UP.getValue());
+        String memo = userSign.getMemo() + DateUtil.now()+ " : 上传报名文件；";
+        userSign.setMemo(memo);
+        userSignService.updateById(userSign);
+    }
+
+    @Override
+    public Page<UserSignVo> mySignList(UserSignPageParam userSignPageParam) {
+        //当前用户信息
+        BpUser bpUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpUser)){
+            throw new CommonException("token 异常");
+        }
+        QueryWrapper<UserSign> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        if(ObjectUtil.isNotEmpty(userSignPageParam.getBmStatus())) {
+            queryWrapper.eq("a.BM_STATUS", userSignPageParam.getBmStatus());
+        }
+        if(ObjectUtil.isNotEmpty(userSignPageParam.getType())){
+            queryWrapper.eq("b.TYPE",userSignPageParam.getType());
+        }
+        queryWrapper.eq("a.BP_USER_ID",bpUser.getId());
+
+        if(ObjectUtil.isAllNotEmpty(userSignPageParam.getSortField(), userSignPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(userSignPageParam.getSortOrder());
+            queryWrapper.orderBy(true, userSignPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(userSignPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("a.CREATE_TIME");
+        }
+        Page<UserSignVo> result = userSignMapper.getMySignList(CommonPageRequest.defaultPage(), queryWrapper);
+        if(CollUtil.isNotEmpty(result.getRecords())){
+            result.getRecords().forEach(item->{
+                item.setNoticeInfo(noticeService.getById(item.getNoticeId()));
+                item.setClarifyList(clarifyService.list(new QueryWrapper<Clarify>().lambda().eq(Clarify::getNoticeId,item.getNoticeId())));
+                UserPay userPay = userPayService.getOne(new QueryWrapper<UserPay>().lambda()
+                        .eq(UserPay::getNoticeId,item.getNoticeId())
+                        .eq(UserPay::getBpUserId,item.getBpUserId())
+                        .eq(UserPay::getType,PayTypeEnum.PAY_FOR_BOND.getValue()));
+                item.setUserPayInfo(userPay);
+                item.setIsPayForBond(ObjectUtil.isNotEmpty(userPay) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
+                LocalDateTime bondEndTime = DateUtil.toLocalDateTime(item.getCreateTime()).plusDays(Long.getLong(item.getNoticeBidDeadline()));
+                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                item.setNoticeBondEndTime(bondEndTime.format(dateTimeFormatter));
+            });
+        }
+        return result;
+    }
+
+
+    @Override
+    public UserNoticeVo noticeDetail(NoticeIdParam noticeIdParam) {
+        Notice notice = noticeService.queryEntity(noticeIdParam.getId());
+        UserNoticeVo noticeVo = BeanUtil.copyProperties(notice,UserNoticeVo.class);
+        List<Clarify> clarifyList = clarifyService.list(new QueryWrapper<Clarify>().lambda().eq(Clarify::getNoticeId,noticeVo.getId()));
+        noticeVo.setHasClarify(CollUtil.isNotEmpty(clarifyList) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
+        noticeVo.setClarifyList(clarifyList);
+        if(ObjectUtil.isNotEmpty(noticeVo.getStartTime()) && ObjectUtil.isNotEmpty(noticeVo.getEndTime())){
+            DateTime now = DateTime.now();
+            if(now.isAfter(noticeVo.getStartTime()) && now.isBefore(noticeVo.getEndTime())){
+                noticeVo.setBmStatus(SignStatusEnum.SIGN_ING.getValue());
+            }else if(now.isAfter(noticeVo.getEndTime())){
+                noticeVo.setBmStatus(SignStatusEnum.SIGN_STOP.getValue());
+            }
+        }
+        /**
+         * 尝试获取 当前登录用户信息|若没有登录，则不携带个人相关信息
+         */
+        try {
+            //当前用户信息
+            BpUser bpUser = LoginBpUserUtil.getLoginUser();
+            //用户已登录
+            if (ObjectUtil.isNotEmpty(bpUser)) {
+                //已登录用户 - 是否已报名
+                List<UserSign> userSignList = userSignService.list(new QueryWrapper<UserSign>().lambda().eq(UserSign::getBpUserId, bpUser.getId()).eq(UserSign::getNoticeId, noticeIdParam.getId()));
+                noticeVo.setIsSign(CollUtil.isNotEmpty(userSignList) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
+                //已登录用户 - 是否已缴纳查看附件费用
+                List<UserPay> userPayList = userPayService.list(new QueryWrapper<UserPay>().lambda()
+                        .eq(UserPay::getBpUserId, bpUser.getId())
+                        .eq(UserPay::getNoticeId, noticeIdParam.getId())
+                        .eq(UserPay::getType, PayTypeEnum.PAY_FOR_ATTACH.getValue()));
+                noticeVo.setIsPayForAttach(CollUtil.isNotEmpty(userPayList) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
+            }
+        }catch (Exception e){
+        }
+        return noticeVo;
+    }
+}

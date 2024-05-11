@@ -193,8 +193,11 @@ public class GatewayConfigure {
             "/api/webapp/ssoUser/userExtend/sync",
             "/api/webapp/sso/*",
 
-            /* 招采平台 - 公告|澄清 */
-            "/api/bizapp/bp/platform/frontend/**",
+            /* 招采平台 - 登录|注册|退出|公告|澄清 */
+            "/api/bizapp/bp/platform/frontend/public/**",
+
+            /* 远程调用免token */
+            "/api/webapp/feign/dev/sms/sendSmsYunPian",
 
     };
 

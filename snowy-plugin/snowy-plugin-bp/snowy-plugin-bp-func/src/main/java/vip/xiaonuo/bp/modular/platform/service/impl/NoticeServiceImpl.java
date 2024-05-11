@@ -26,16 +26,12 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.bp.modular.platform.entity.Clarify;
-import vip.xiaonuo.bp.modular.platform.entity.UserPay;
-import vip.xiaonuo.bp.modular.platform.entity.UserSign;
-import vip.xiaonuo.bp.modular.platform.enums.PayTypeEnum;
 import vip.xiaonuo.bp.modular.platform.enums.SignStatusEnum;
 import vip.xiaonuo.bp.modular.platform.enums.YesOrNoEnum;
 import vip.xiaonuo.bp.modular.platform.service.ClarifyService;
 import vip.xiaonuo.bp.modular.platform.service.UserPayService;
 import vip.xiaonuo.bp.modular.platform.service.UserSignService;
 import vip.xiaonuo.bp.modular.platform.vo.NoticeVo;
-import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -63,10 +59,6 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
 
     @Resource
     private ClarifyService clarifyService;
-    @Resource
-    private UserSignService userSignService;
-    @Resource
-    private UserPayService userPayService;
 
     @Override
     public Page<NoticeVo> page(NoticePageParam noticePageParam) {
@@ -197,35 +189,5 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
             throw new CommonException("招采管理 - 竞价公告|询价公告|招标公告不存在，id值为：{}", id);
         }
         return notice;
-    }
-
-    @Override
-    public UserNoticeVo noticeDetail(NoticeIdParam noticeIdParam) {
-        Notice notice = this.queryEntity(noticeIdParam.getId());
-        UserNoticeVo noticeVo = BeanUtil.copyProperties(notice,UserNoticeVo.class);
-        List<Clarify> clarifyList = clarifyService.list(new QueryWrapper<Clarify>().lambda().eq(Clarify::getNoticeId,noticeVo.getId()));
-        noticeVo.setHasClarify(CollUtil.isNotEmpty(clarifyList) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
-        noticeVo.setClarifyList(clarifyList);
-        if(ObjectUtil.isNotEmpty(noticeVo.getStartTime()) && ObjectUtil.isNotEmpty(noticeVo.getEndTime())){
-            DateTime now = DateTime.now();
-            if(now.isAfter(noticeVo.getStartTime()) && now.isBefore(noticeVo.getEndTime())){
-                noticeVo.setBmStatus(SignStatusEnum.SIGN_ING.getValue());
-            }else if(now.isAfter(noticeVo.getEndTime())){
-                noticeVo.setBmStatus(SignStatusEnum.SIGN_STOP.getValue());
-            }
-        }
-        //用户已登录
-        if(ObjectUtil.isNotEmpty(noticeIdParam.getBpUserId())) {
-            //已登录用户 - 是否已报名
-            List<UserSign> userSignList = userSignService.list(new QueryWrapper<UserSign>().lambda().eq(UserSign::getBpUserId,noticeIdParam.getBpUserId()).eq(UserSign::getNoticeId,noticeIdParam.getId()));
-            noticeVo.setIsSign(CollUtil.isNotEmpty(userSignList) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
-            //已登录用户 - 是否已缴纳查看附件费用
-            List<UserPay> userPayList = userPayService.list(new QueryWrapper<UserPay>().lambda()
-                    .eq(UserPay::getBpUserId,noticeIdParam.getBpUserId())
-                    .eq(UserPay::getNoticeId,noticeIdParam.getId())
-                    .eq(UserPay::getType, PayTypeEnum.PAY_FOR_ATTACH.getValue()));
-            noticeVo.setIsPayForAttach(CollUtil.isNotEmpty(userPayList) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
-        }
-        return noticeVo;
     }
 }

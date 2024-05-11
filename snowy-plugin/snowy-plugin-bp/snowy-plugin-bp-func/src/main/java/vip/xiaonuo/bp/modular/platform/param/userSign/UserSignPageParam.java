@@ -50,10 +50,6 @@ public class UserSignPageParam {
     @ApiModelProperty(value = "报名状态")
     private String bmStatus;
 
-    /** 招采用户Id (BP_USER.ID) */
-    @ApiModelProperty(value = "招采用户Id (BP_USER.ID)")
-    private String bpUserId;
-
     /** 公告项目类型  */
     @ApiModelProperty(value = "公告项目类型")
     private String type;
