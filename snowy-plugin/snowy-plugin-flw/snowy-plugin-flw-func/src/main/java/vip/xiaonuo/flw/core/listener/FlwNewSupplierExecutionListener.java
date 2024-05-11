@@ -91,7 +91,9 @@ public class FlwNewSupplierExecutionListener implements ExecutionListener {
                         sqlkey.append("`PASSWORD` ,");
                         sqlValue.append("'").append(CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY))).append("' ,"); //生成加密密码(123456)
                         sqlkey.append("`ACCOUNT` ,");
-                        sqlValue.append("'").append(businessadminPhone).append("' ,");
+                        sqlValue.append("'").append(businessadminPhone).append("' ,"); //用户账号
+                        sqlkey.append("`PHONE` ,");
+                        sqlValue.append("'").append(businessadminPhone).append("' ,"); //用户手机号
                         sqlkey.append("`USER_STATUS` ,");
                         sqlValue.append(" 'ENABLE' ,");
                         sqlkey.append("`SUPPLIER_ID` ,");
