@@ -80,4 +80,11 @@ public interface BpSupplierService extends IService<BpSupplier> {
      * @date  2024/04/17 15:18
      **/
     BpSupplierReturnVo queryEntity(String id);
+
+    /**
+     * 获取供应商手机号
+     * @author hxw
+     * @return
+     */
+    Boolean getCompanyName(String companyName);
 }
