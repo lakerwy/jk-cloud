@@ -191,4 +191,6 @@ public interface SysRoleService extends IService<SysRole> {
      * @date 2022/8/22 13:39
      **/
     Page<SysUser> userSelector(SysRoleSelectorUserParam sysRoleSelectorUserParam);
+
+    Page<SysRoleRightResult> roleRightPage(SysRolePageParam sysRolePageParam);
 }

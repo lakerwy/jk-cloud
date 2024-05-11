@@ -328,4 +328,11 @@ public class SysRoleController {
     public CommonResult<Page<SysUser>> userSelectorEx(SysRoleSelectorUserParam sysRoleSelectorUserParam) {
         return CommonResult.data(sysRoleService.userSelector(sysRoleSelectorUserParam));
     }
+
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("角色权限列表分页")
+    @GetMapping("/sys/role/roleRightPage")
+    public CommonResult<Page<SysRoleRightResult>> roleRightPage(SysRolePageParam sysRolePageParam) {
+        return CommonResult.data(sysRoleService.roleRightPage(sysRolePageParam));
+    }
 }
