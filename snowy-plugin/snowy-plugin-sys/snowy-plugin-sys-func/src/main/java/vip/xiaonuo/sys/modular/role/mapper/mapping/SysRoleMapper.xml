@@ -11,7 +11,7 @@
     </select>
 
     <select id="getRoleMenus" resultType="vip.xiaonuo.sys.modular.resource.entity.SysMenu">
-        SELECT su.ID,su.  FROM SYS_RELATION sr JOIN SYS_RESOURCE  su ON  sr.TARGET_ID = su.ID  AND sr.OBJECT_ID = '${objectId}' AND sr.CATEGORY = 'SYS_ROLE_HAS_RESOURCE' AND su.DELETE_FLAG = 'NOT_DELETE'
+        SELECT su.* FROM SYS_RELATION sr JOIN SYS_RESOURCE  su ON  sr.TARGET_ID = su.ID  AND sr.OBJECT_ID = '${objectId}' AND sr.CATEGORY = 'SYS_ROLE_HAS_RESOURCE' AND su.DELETE_FLAG = 'NOT_DELETE' LIMIT 10
     </select>
 
 </mapper>
