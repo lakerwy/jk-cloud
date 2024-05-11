@@ -111,6 +111,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         String passwordHash = CommonCryptogramUtil.doHashValue(password);
         bpUserAddParam.setPassword(passwordHash);
         bpUserAddParam.setUserStatus(UserStatusEnum.ENABLE.getValue());
+        bpUserAddParam.setMemo(DateUtil.now()+" : 招采平台-注册；");
         bpUserService.add(bpUserAddParam);
     }
 
