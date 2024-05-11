@@ -194,7 +194,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/biz/cad/plugin/**",
 
             /* 招采平台 - 公告|澄清 */
-            "/bp/platform/frontend/*",
+            "/bp/platform/frontend/**",
     };
 
     /**
