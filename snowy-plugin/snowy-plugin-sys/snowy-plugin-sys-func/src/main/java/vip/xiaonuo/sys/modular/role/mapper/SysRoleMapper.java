@@ -13,7 +13,12 @@
 package vip.xiaonuo.sys.modular.role.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import org.apache.ibatis.annotations.Param;
+import vip.xiaonuo.sys.modular.resource.entity.SysMenu;
 import vip.xiaonuo.sys.modular.role.entity.SysRole;
+import vip.xiaonuo.sys.modular.user.vo.SysSimpleUser;
+
+import java.util.List;
 
 /**
  * 角色Mapper接口
@@ -22,4 +27,8 @@ import vip.xiaonuo.sys.modular.role.entity.SysRole;
  * @date 2022/4/21 18:37
  **/
 public interface SysRoleMapper extends BaseMapper<SysRole> {
+
+    List<SysSimpleUser> getRoleUsers(@Param(value = "targetId") String targetId);
+
+    List<SysMenu> getRoleMenus(@Param(value = "objectId") String objectId);
 }

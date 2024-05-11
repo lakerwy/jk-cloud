@@ -59,6 +59,7 @@ import vip.xiaonuo.sys.modular.role.result.*;
 import vip.xiaonuo.sys.modular.role.service.SysRoleService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
+import vip.xiaonuo.sys.modular.user.vo.SysSimpleUser;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -486,6 +487,31 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             });
             return result;
         }
+    }
+
+    @Override
+    public Page<SysRoleRightResult> roleRightPage(SysRolePageParam sysRolePageParam) {
+        Page<SysRole> page = this.page(sysRolePageParam);
+        List<SysRole> records = page.getRecords();
+        List<SysRoleRightResult> sysRoleRightResults = new ArrayList<>();
+        if(CollectionUtil.isNotEmpty(records)){
+            sysRoleRightResults = BeanUtil.copyToList(records, SysRoleRightResult.class);
+            sysRoleRightResults.forEach(sysRoleRightResult -> {
+                List<SysSimpleUser> roleUsers = baseMapper.getRoleUsers(sysRoleRightResult.getId());
+                if(CollectionUtil.isNotEmpty(roleUsers)){
+                    sysRoleRightResult.setSysSimpleUsers(roleUsers);
+                }
+                List<SysMenu> roleMenus = baseMapper.getRoleMenus(sysRoleRightResult.getId());
+                if(CollectionUtil.isNotEmpty(roleMenus)){
+                    sysRoleRightResult.setSysMenus(roleMenus);
+                }
+
+            });
+        }
+        Page<SysRoleRightResult> resultPage = new Page<>();
+        BeanUtil.copyProperties(page,resultPage);
+        resultPage.setRecords(sysRoleRightResults);
+        return resultPage;
     }
 
     /* ====以下为各种递归方法==== */
