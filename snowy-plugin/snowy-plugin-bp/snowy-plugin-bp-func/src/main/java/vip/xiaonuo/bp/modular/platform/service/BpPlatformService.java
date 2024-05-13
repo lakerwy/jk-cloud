@@ -13,18 +13,19 @@
 package vip.xiaonuo.bp.modular.platform.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.bp.modular.platform.entity.BpUser;
-import vip.xiaonuo.bp.modular.platform.entity.UserSign;
+import vip.xiaonuo.bp.modular.platform.entity.NoticeTz;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzIdParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzPageParam;
 import vip.xiaonuo.bp.modular.platform.param.user.AccountPasswordLoginParam;
 import vip.xiaonuo.bp.modular.platform.param.user.GetPhoneValidCodeParam;
 import vip.xiaonuo.bp.modular.platform.param.user.PhoneValidCodeLoginParam;
 import vip.xiaonuo.bp.modular.platform.param.user.RegisterParam;
 import vip.xiaonuo.bp.modular.platform.param.userSign.*;
-import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
-import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
-import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
+import vip.xiaonuo.bp.modular.platform.vo.*;
+import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
+
 
 /**
  * 招采平台 - 用户 - （招采项目）报名记录表Service接口
@@ -70,7 +71,7 @@ public interface BpPlatformService{
      * 获取登录信息
      * @return
      */
-    BpUser getLoginUser();
+    BpLoginUser getLoginUser();
 
 
     /**
@@ -105,4 +106,31 @@ public interface BpPlatformService{
      * @return
      */
     UserNoticeVo noticeDetail(NoticeIdParam noticeIdParam);
+
+    /**
+     * 招采前台 - 根据当前登录用户，获取供应商入库信息【审核中、审核通过】
+     * @return
+     */
+    BpSupplier getSupplierInfo();
+
+    /**
+     * 招采前台 - 获取首页公告
+     * @param noticeTzPageParam
+     * @return
+     */
+    Page<NoticeTz> noticeTzPage(NoticeTzPageParam noticeTzPageParam);
+
+    /**
+     * 招采前台 - 获取首页公告详情
+     * @param noticeTzIdParam
+     * @return
+     */
+    NoticeTz noticeTzDetail(NoticeTzIdParam noticeTzIdParam);
+
+    /**
+     * 招采前台 - 获取竞价|询价|招标公告
+     * @param noticePageParam
+     * @return
+     */
+    Page<NoticeVo> noticePage(NoticePageParam noticePageParam);
 }
