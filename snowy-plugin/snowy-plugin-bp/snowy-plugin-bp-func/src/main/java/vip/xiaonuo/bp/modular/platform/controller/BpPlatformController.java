@@ -24,7 +24,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.bp.modular.platform.entity.BpUser;
 import vip.xiaonuo.bp.modular.platform.entity.NoticeTz;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
@@ -36,6 +35,8 @@ import vip.xiaonuo.bp.modular.platform.param.userSign.SignParam;
 import vip.xiaonuo.bp.modular.platform.param.userSign.UploadParam;
 import vip.xiaonuo.bp.modular.platform.param.userSign.UserSignPageParam;
 import vip.xiaonuo.bp.modular.platform.service.*;
+import vip.xiaonuo.bp.modular.platform.vo.*;
+import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
 import vip.xiaonuo.bp.modular.platform.vo.NoticeVo;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
@@ -61,11 +62,6 @@ public class BpPlatformController {
 
     @Resource
     private BpPlatformService bpPlatformService;
-    @Resource
-    private NoticeTzService noticeTzService;
-    @Resource
-    private NoticeService noticeService;
-
 
     /**
      * 【前台】招采平台 - 注册用户
@@ -146,7 +142,7 @@ public class BpPlatformController {
     @ApiOperation("【前台】获取招采平台-前台用户登录信息")
     @SaCheckLogin
     @GetMapping("/bp/platform/frontend/self/getLoginUser")
-    public CommonResult<BpUser> getLoginUser() {
+    public CommonResult<BpLoginUser> getLoginUser() {
         return CommonResult.data(bpPlatformService.getLoginUser());
     }
 
@@ -165,6 +161,18 @@ public class BpPlatformController {
     }
 
 
+    /**
+     * 【前台】招采平台 - 登录用户，获取对应供应商入库信息【审核中、审核通过】
+     *
+     **/
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("【前台】招采平台 - 登录用户，获取对应供应商入库信息【审核中、审核通过】")
+    @GetMapping("/bp/platform/frontend/self/getSupplierInfo")
+    public CommonResult<BpSupplier> getSupplierInfo() {
+        return CommonResult.data(bpPlatformService.getSupplierInfo());
+    }
+
+
 
 
     /**
@@ -177,7 +185,7 @@ public class BpPlatformController {
     @ApiOperation("【前台】获取招采管理 - 通知公告分页")
     @GetMapping("/bp/platform/frontend/public/noticeTzPage")
     public CommonResult<Page<NoticeTz>> noticeTzPage(NoticeTzPageParam noticeTzPageParam) {
-        return CommonResult.data(noticeTzService.page(noticeTzPageParam));
+        return CommonResult.data(bpPlatformService.noticeTzPage(noticeTzPageParam));
     }
 
     /**
@@ -190,7 +198,7 @@ public class BpPlatformController {
     @ApiOperation("【前台】获取招采管理 - 通知公告详情")
     @GetMapping("/bp/platform/frontend/public/noticeTzDetail")
     public CommonResult<NoticeTz> noticeTzDetail(@Valid NoticeTzIdParam noticeTzIdParam) {
-        return CommonResult.data(noticeTzService.detail(noticeTzIdParam));
+        return CommonResult.data(bpPlatformService.noticeTzDetail(noticeTzIdParam));
     }
 
     /**
@@ -203,7 +211,7 @@ public class BpPlatformController {
     @ApiOperation("【前台】获取招采管理 - 竞价公告|询价公告|招标公告分页")
     @GetMapping("/bp/platform/frontend/public/noticePage")
     public CommonResult<Page<NoticeVo>> noticePage(NoticePageParam noticePageParam) {
-        return CommonResult.data(noticeService.page(noticePageParam));
+        return CommonResult.data(bpPlatformService.noticePage(noticePageParam));
     }
 
     /**

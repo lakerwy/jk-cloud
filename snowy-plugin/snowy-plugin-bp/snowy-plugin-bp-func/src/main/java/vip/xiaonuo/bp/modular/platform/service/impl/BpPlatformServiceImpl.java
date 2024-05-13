@@ -27,16 +27,21 @@ import vip.xiaonuo.bp.modular.platform.enums.YesOrNoEnum;
 import vip.xiaonuo.bp.modular.platform.mapper.BpUserMapper;
 import vip.xiaonuo.bp.modular.platform.mapper.UserSignMapper;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzIdParam;
+import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzPageParam;
 import vip.xiaonuo.bp.modular.platform.param.user.*;
 import vip.xiaonuo.bp.modular.platform.param.userSign.*;
 import vip.xiaonuo.bp.modular.platform.service.*;
 import vip.xiaonuo.bp.modular.platform.util.LoginBpUserUtil;
+import vip.xiaonuo.bp.modular.platform.vo.*;
+import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
+import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
-import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -61,6 +66,9 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     /* 云片短信：验证码短信模板 */
     private static final String SMS_YUNPIAN_TPL_CODE_ID = "5620650";
 
+    /* 设备类型：PC */
+    private static final String SA_TOKEN_DEVICE = "PC";
+
     @Resource
     private CommonCacheOperator commonCacheOperator;
     @Resource
@@ -80,7 +88,10 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Resource
     private ClarifyService clarifyService;
     @Resource
+    private NoticeTzService noticeTzService;
+    @Resource
     private BpSupplierService bpSupplierService;
+
 
     @Override
     public void register(RegisterParam registerParam) {
@@ -186,12 +197,12 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         }else if(bpUserList.size() > 1){
             throw new CommonException("账号异常，请联系管理员");
         }else{
-            BpUser bpUser = bpUserList.get(0);
-            if(!passwordHash.equals(bpUser.getPassword())){
+            BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUserList.get(0), BpLoginUser.class);
+            if(!passwordHash.equals(bpLoginUser.getPassword())){
                 throw new CommonException("密码错误");
             }
             //执行登录
-            return execLogin(bpUser,"PC");
+            return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
         }
     }
 
@@ -208,20 +219,20 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         }else if(bpUserList.size() > 1){
             throw new CommonException("账号异常，请联系管理员");
         }else {
-            BpUser bpUser = bpUserList.get(0);
+            BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUserList.get(0), BpLoginUser.class);
             //执行登录
-            return execLogin(bpUser,"PC");
+            return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
         }
     }
 
     @Override
-    public BpUser getLoginUser() {
-        BpUser bpUser = LoginBpUserUtil.getLoginUser();
-        if(ObjectUtil.isEmpty(bpUser)){
-            throw new CommonException("token 异常");
+    public BpLoginUser getLoginUser() {
+        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpLoginUser)){
+            throw new CommonException("token 异常，获取用户信息失败");
         }
-        bpUser.setPassword(null);
-        return bpUser;
+        bpLoginUser.setPassword(null);
+        return bpLoginUser;
     }
 
 
@@ -278,15 +289,15 @@ public class BpPlatformServiceImpl implements BpPlatformService {
      * 执行 招采平台-前台 端登录
      *
      **/
-    private String execLogin(BpUser bpUser,String device) {
+    private String execLogin(BpLoginUser bpLoginUser, String device) {
         // 校验状态
-        if(!UserStatusEnum.ENABLE.getValue().equals(bpUser.getUserStatus())) {
+        if(!UserStatusEnum.ENABLE.getValue().equals(bpLoginUser.getUserStatus())) {
             throw new CommonException(1000,"账号不可用");
         }
         // 执行登录
-        StpUtil.login(bpUser.getId(), new SaLoginModel().setDevice(device).setExtra("name", bpUser.getName()));
+        StpUtil.login(bpLoginUser.getId(), new SaLoginModel().setDevice(device).setExtra("name", bpLoginUser.getName()));
         // 缓存用户信息，此处使用TokenSession为了指定时间内无操作则自动下线
-        StpUtil.getTokenSession().set("bpLoginUser", bpUser);
+        StpUtil.getTokenSession().set("bpLoginUser", bpLoginUser);
         // 返回token
         return StpClientUtil.getTokenInfo().tokenValue;
     }
@@ -295,12 +306,12 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Override
     public void sign(SignParam signParam) {
         //当前用户信息
-        BpUser bpUser = LoginBpUserUtil.getLoginUser();
-        if(ObjectUtil.isEmpty(bpUser)){
-            throw new CommonException("token 异常");
+        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpLoginUser)){
+            throw new CommonException("token 异常，获取用户信息失败");
         }
         //1. 校验是否供应商入库 -> 校验供应商入库审批是否通过
-        UserSupplierVo userSupplierVo = bpUserMapper.getBpUserSupplier(bpUser.getId());
+        UserSupplierVo userSupplierVo = bpUserMapper.getBpUserSupplier(bpLoginUser.getId());
         if(ObjectUtil.isEmpty(userSupplierVo)){
             throw new CommonException(1001,"用户异常");
         }
@@ -312,20 +323,20 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         }
         //2. 校验是否已缴纳附件查看费用
         List<UserPay> userPayList = userPayService.list(new QueryWrapper<UserPay>().lambda()
-                .eq(UserPay::getBpUserId,bpUser.getId())
+                .eq(UserPay::getBpUserId,bpLoginUser.getId())
                 .eq(UserPay::getNoticeId,signParam.getNoticeId())
                 .eq(UserPay::getType, PayTypeEnum.PAY_FOR_ATTACH.getValue()));
         if(CollUtil.isEmpty(userPayList)){
             throw new CommonException(1004,"请支付附件查看费用");
         }
         //3. 校验是否已报名
-        List<UserSign> userSignList = userSignService.list(new QueryWrapper<UserSign>().lambda().eq(UserSign::getBpUserId,bpUser.getId()).eq(UserSign::getNoticeId,signParam.getNoticeId()));
+        List<UserSign> userSignList = userSignService.list(new QueryWrapper<UserSign>().lambda().eq(UserSign::getBpUserId,bpLoginUser.getId()).eq(UserSign::getNoticeId,signParam.getNoticeId()));
         if(CollUtil.isNotEmpty(userSignList)){
             throw new CommonException(1005,"请勿重复报名");
         }
         //4. 报名记录
         UserSignAddParam userSignAddParam = new UserSignAddParam();
-        userSignAddParam.setBpUserId(bpUser.getId());
+        userSignAddParam.setBpUserId(bpLoginUser.getId());
         userSignAddParam.setNoticeId(signParam.getNoticeId());
         userSignAddParam.setBmStatus(SignStatusEnum.SIGN_ING.getValue());
         String memo =  DateUtil.now() + " : 报名；";
@@ -337,13 +348,13 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Override
     public void signPay(PayParam payParam) {
         //当前用户信息
-        BpUser bpUser = LoginBpUserUtil.getLoginUser();
-        if(ObjectUtil.isEmpty(bpUser)){
+        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpLoginUser)){
             throw new CommonException("token 异常，获取用户信息失败");
         }
         //1. 判断是否已缴纳
         List<UserPay> userPayList = userPayService.list(new QueryWrapper<UserPay>().lambda()
-                .eq(UserPay::getBpUserId,bpUser.getId())
+                .eq(UserPay::getBpUserId,bpLoginUser.getId())
                 .eq(UserPay::getNoticeId,payParam.getNoticeId())
                 .eq(UserPay::getType,payParam.getType()));
         if(CollUtil.isNotEmpty(userPayList)){
@@ -351,7 +362,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         }
         //2. 新增缴费记录
         UserPayAddParam userPayAddParam = new UserPayAddParam();
-        userPayAddParam.setBpUserId(bpUser.getId());
+        userPayAddParam.setBpUserId(bpLoginUser.getId());
         userPayAddParam.setNoticeId(payParam.getNoticeId());
         userPayAddParam.setType(payParam.getType());
         userPayAddParam.setAmount(payParam.getAmount());
@@ -372,9 +383,9 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Override
     public Page<UserSignVo> mySignList(UserSignPageParam userSignPageParam) {
         //当前用户信息
-        BpUser bpUser = LoginBpUserUtil.getLoginUser();
-        if(ObjectUtil.isEmpty(bpUser)){
-            throw new CommonException("token 异常");
+        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpLoginUser)){
+            throw new CommonException("token 异常，获取用户信息失败");
         }
         QueryWrapper<UserSign> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
@@ -384,7 +395,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         if(ObjectUtil.isNotEmpty(userSignPageParam.getType())){
             queryWrapper.eq("b.TYPE",userSignPageParam.getType());
         }
-        queryWrapper.eq("a.BP_USER_ID",bpUser.getId());
+        queryWrapper.eq("a.BP_USER_ID",bpLoginUser.getId());
 
         if(ObjectUtil.isAllNotEmpty(userSignPageParam.getSortField(), userSignPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(userSignPageParam.getSortOrder());
@@ -433,15 +444,15 @@ public class BpPlatformServiceImpl implements BpPlatformService {
          */
         try {
             //当前用户信息
-            BpUser bpUser = LoginBpUserUtil.getLoginUser();
+            BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
             //用户已登录
-            if (ObjectUtil.isNotEmpty(bpUser)) {
+            if (ObjectUtil.isNotEmpty(bpLoginUser)) {
                 //已登录用户 - 是否已报名
-                List<UserSign> userSignList = userSignService.list(new QueryWrapper<UserSign>().lambda().eq(UserSign::getBpUserId, bpUser.getId()).eq(UserSign::getNoticeId, noticeIdParam.getId()));
+                List<UserSign> userSignList = userSignService.list(new QueryWrapper<UserSign>().lambda().eq(UserSign::getBpUserId, bpLoginUser.getId()).eq(UserSign::getNoticeId, noticeIdParam.getId()));
                 noticeVo.setIsSign(CollUtil.isNotEmpty(userSignList) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
                 //已登录用户 - 是否已缴纳查看附件费用
                 List<UserPay> userPayList = userPayService.list(new QueryWrapper<UserPay>().lambda()
-                        .eq(UserPay::getBpUserId, bpUser.getId())
+                        .eq(UserPay::getBpUserId, bpLoginUser.getId())
                         .eq(UserPay::getNoticeId, noticeIdParam.getId())
                         .eq(UserPay::getType, PayTypeEnum.PAY_FOR_ATTACH.getValue()));
                 noticeVo.setIsPayForAttach(CollUtil.isNotEmpty(userPayList) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
@@ -452,15 +463,48 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     }
 
     @Override
+    public BpSupplier getSupplierInfo() {
+        //当前用户信息
+        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpLoginUser)){
+            throw new CommonException("token 异常，获取用户信息失败");
+        }
+        //获取供应商入库信息
+        BpUser bpUser = bpUserService.queryEntity(bpLoginUser.getId());
+        if(ObjectUtil.isNotEmpty(bpUser) && ObjectUtil.isNotEmpty(bpUser.getSupplierId())){
+            BpSupplier bpSupplier = bpSupplierService.getOne(new QueryWrapper<BpSupplier>().lambda()
+                    .eq(BpSupplier::getId,bpUser.getSupplierId())
+                    .in(BpSupplier::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
+            return bpSupplier;
+        }
+        return null;
+    }
+
+    @Override
+    public Page<NoticeTz> noticeTzPage(NoticeTzPageParam noticeTzPageParam) {
+        return noticeTzService.page(noticeTzPageParam);
+    }
+
+    @Override
+    public NoticeTz noticeTzDetail(NoticeTzIdParam noticeTzIdParam) {
+        return noticeTzService.detail(noticeTzIdParam);
+    }
+
+    @Override
+    public Page<NoticeVo> noticePage(NoticePageParam noticePageParam) {
+        return noticeService.page(noticePageParam);
+    }
+
+    @Override
     public void addSupplier(BpSupplierAddParam bpSupplierAddParam) {
         //当前用户信息
-        BpUser bpUser = LoginBpUserUtil.getLoginUser();
-        if(ObjectUtil.isEmpty(bpUser)){
-            throw new CommonException("token 异常");
+        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpLoginUser)){
+            throw new CommonException("token 异常，获取用户信息失败");
         }
 
         //调用供应商入库审批
-        bpSupplierAddParam.setBpUserId(bpUser.getId());
+        bpSupplierAddParam.setBpUserId(bpLoginUser.getId());
         bpSupplierService.add(bpSupplierAddParam);
     }
 }
