@@ -516,7 +516,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getOrgId, department.getId()));
 //            list.stream(sysUser -> new ExtendTree<>.SyncUser(sysUser.getAccount(),sysUser.getName(),sysUser.getId()));
             List<ExtendTree.SyncUser> collect = list.stream()
-                    .map(sysUser -> new ExtendTree.SyncUser(sysUser.getAccount(), sysUser.getName(), sysUser.getId()))
+                    .map(sysUser -> new ExtendTree.SyncUser(sysUser.getAccount(), sysUser.getName(), sysUser.getId(),sysUser.getAvatar()))
                     .collect(Collectors.toList());
             ExtendTree<String> node = new ExtendTree<>(department.getId(), department.getParentId(), department.getName(), department.getSortCode(), new HashMap<>(),new ArrayList<>(),collect);
             idToNodeMap.put(department.getId(), node);

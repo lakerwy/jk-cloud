@@ -79,6 +79,8 @@ public class ExtendTree<T> implements Serializable {
         String name;
 
         String oldId; //对应ID
+
+        private String avatar;
     }
 
 }
