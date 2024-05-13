@@ -143,7 +143,7 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BpSupplierAddParam bpSupplierAddParam) {
-        //验证公司名称是否重复
+        //验证公司名称是否重复 验证审核中，审核完成数据
         Boolean isBoolean = getCompanyName(bpSupplierAddParam.getCompanyName());
         if(isBoolean){
             throw new CommonException("公司名称重复!");
@@ -313,6 +313,6 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         if(ObjectUtil.isEmpty(companyName)){
             throw new CommonException("供应商公司名称不能为空!");
         }
-        return this.list(new QueryWrapper<BpSupplier>().lambda().eq(BpSupplier::getCompanyName,companyName)).size() > 0;
+        return this.list(new QueryWrapper<BpSupplier>().lambda().eq(BpSupplier::getCompanyName,companyName).in(BpSupplier::getStatus,'0','1')).size() > 0;
     }
 }

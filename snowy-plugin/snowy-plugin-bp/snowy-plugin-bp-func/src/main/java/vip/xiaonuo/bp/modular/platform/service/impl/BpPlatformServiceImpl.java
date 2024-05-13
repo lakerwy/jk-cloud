@@ -35,6 +35,8 @@ import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo;
+import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -77,7 +79,8 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     private NoticeService noticeService;
     @Resource
     private ClarifyService clarifyService;
-
+    @Resource
+    private BpSupplierService bpSupplierService;
 
     @Override
     public void register(RegisterParam registerParam) {
@@ -446,5 +449,18 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         }catch (Exception e){
         }
         return noticeVo;
+    }
+
+    @Override
+    public void addSupplier(BpSupplierAddParam bpSupplierAddParam) {
+        //当前用户信息
+        BpUser bpUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpUser)){
+            throw new CommonException("token 异常");
+        }
+
+        //调用供应商入库审批
+        bpSupplierAddParam.setBpUserId(bpUser.getId());
+        bpSupplierService.add(bpSupplierAddParam);
     }
 }

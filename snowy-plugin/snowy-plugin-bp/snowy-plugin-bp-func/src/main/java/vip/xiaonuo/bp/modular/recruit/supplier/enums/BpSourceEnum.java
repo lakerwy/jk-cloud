@@ -15,7 +15,7 @@ package vip.xiaonuo.bp.modular.recruit.supplier.enums;
 import lombok.Getter;
 
 /**
- * 招采管理 - 来源类型 来源类型 自行申报=2,内部推荐=1 枚举
+ * 招采管理 - 来源类型 自行申报=2,内部推荐=1 枚举
  *
  * @author yong.ye
  * @date  2024/05/07 16:36
