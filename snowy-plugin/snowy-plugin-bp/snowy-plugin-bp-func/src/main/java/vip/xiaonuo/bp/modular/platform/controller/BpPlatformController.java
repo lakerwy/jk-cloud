@@ -37,6 +37,11 @@ import vip.xiaonuo.bp.modular.platform.param.userSign.UserSignPageParam;
 import vip.xiaonuo.bp.modular.platform.service.*;
 import vip.xiaonuo.bp.modular.platform.vo.*;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
+import vip.xiaonuo.bp.modular.platform.vo.NoticeVo;
+import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
+import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
+import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
+import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 
@@ -290,4 +295,17 @@ public class BpPlatformController {
         return CommonResult.data(bpPlatformService.mySignList(userSignPageParam));
     }
 
+    /**
+     * 【前台】招采 - 供应商入库
+     *
+     * @author yong.ye
+     * @date  2024/05/10 16:36
+     */
+    @ApiOperationSupport(order = 19)
+    @ApiOperation("【前台】招采 - 供应商入库")
+    @PostMapping("/bp/platform/frontend/self/addSupplier")
+    public CommonResult<String> addSupplier(@RequestBody @Valid BpSupplierAddParam bpSupplierAddParam) {
+        bpPlatformService.addSupplier(bpSupplierAddParam);
+        return CommonResult.ok();
+    }
 }

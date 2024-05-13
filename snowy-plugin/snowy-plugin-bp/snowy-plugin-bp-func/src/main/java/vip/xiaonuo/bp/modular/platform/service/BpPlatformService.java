@@ -26,6 +26,10 @@ import vip.xiaonuo.bp.modular.platform.param.userSign.*;
 import vip.xiaonuo.bp.modular.platform.vo.*;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
 
+import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
+import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
+import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
+import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
 
 /**
  * 招采平台 - 用户 - （招采项目）报名记录表Service接口
@@ -133,4 +137,10 @@ public interface BpPlatformService{
      * @return
      */
     Page<NoticeVo> noticePage(NoticePageParam noticePageParam);
+
+    /**
+     * 招采 - 供应商审批
+     * @return
+     */
+    void addSupplier(BpSupplierAddParam bpSupplierAddParam);
 }

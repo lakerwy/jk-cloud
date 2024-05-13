@@ -37,6 +37,12 @@ import vip.xiaonuo.bp.modular.platform.util.LoginBpUserUtil;
 import vip.xiaonuo.bp.modular.platform.vo.*;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
+import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
+import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
+import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
+import vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo;
+import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -87,6 +93,8 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Resource
     private BpSupplierService bpSupplierService;
 
+    @Resource
+    private BpSupplierService bpSupplierService;
 
     @Override
     public void register(RegisterParam registerParam) {
@@ -488,5 +496,18 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Override
     public Page<NoticeVo> noticePage(NoticePageParam noticePageParam) {
         return noticeService.page(noticePageParam);
+    }
+
+    @Override
+    public void addSupplier(BpSupplierAddParam bpSupplierAddParam) {
+        //当前用户信息
+        BpUser bpUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpUser)){
+            throw new CommonException("token 异常");
+        }
+
+        //调用供应商入库审批
+        bpSupplierAddParam.setBpUserId(bpUser.getId());
+        bpSupplierService.add(bpSupplierAddParam);
     }
 }
