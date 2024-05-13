@@ -13,6 +13,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -59,6 +60,7 @@ import java.util.List;
 
 @Service
 @Slf4j
+@DS("slave_1")
 public class BpPlatformServiceImpl implements BpPlatformService {
 
     private static final String BP_VALID_CODE_CACHE_KEY = "bp-validCode:";

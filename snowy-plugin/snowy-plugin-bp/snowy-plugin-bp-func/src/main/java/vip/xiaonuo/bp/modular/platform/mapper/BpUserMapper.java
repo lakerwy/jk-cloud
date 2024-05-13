@@ -31,5 +31,4 @@ public interface BpUserMapper extends BaseMapper<BpUser> {
      */
     UserSupplierVo getBpUserSupplier(String bpUserId);
 
-
 }
