@@ -15,6 +15,7 @@ package vip.xiaonuo.sys.modular.org.service;
 import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.sys.modular.org.entity.ExtendTree;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.param.*;
 import vip.xiaonuo.sys.modular.org.vo.NodeVo;
@@ -188,4 +189,6 @@ public interface SysOrgService extends IService<SysOrg> {
     List<SysUser> getChildrenUser(SysOrgIdParam sysOrgIdParam);
 
     Page<NodeVo> getOrgOrUser(SysOrgPageParam sysOrgPageParam);
+
+    List<ExtendTree<String>> convertToTree();
 }

@@ -36,6 +36,7 @@ import vip.xiaonuo.common.enums.SysDataTypeEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.listener.CommonDataChangeEventCenter;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.org.entity.ExtendTree;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
 import vip.xiaonuo.sys.modular.org.mapper.SysOrgMapper;
@@ -50,10 +51,7 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
@@ -500,5 +498,43 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             parentId = "0";
         }
         return sysOrgMapper.getOrgOrUser(CommonPageRequest.defaultPage(),parentId,sysOrgPageParam.getSearchKey());
+    }
+
+    @Override
+    public List<ExtendTree<String>> convertToTree() {
+        List<SysOrg> sysOrgList = this.getAllOrgList();
+        return buildTree(sysOrgList);
+    }
+
+    // 构建组织结构树的方法
+    public List<ExtendTree<String>> buildTree(List<SysOrg> departmentList) {
+        Map<String, ExtendTree<String>> idToNodeMap = new HashMap<>();
+        List<ExtendTree<String>> roots = new ArrayList<>();
+
+        // 第一次遍历，将部门信息转换为节点对象，并存储到映射中
+        for (SysOrg department : departmentList) {
+            List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getOrgId, department.getId()));
+//            list.stream(sysUser -> new ExtendTree<>.SyncUser(sysUser.getAccount(),sysUser.getName(),sysUser.getId()));
+            List<ExtendTree.SyncUser> collect = list.stream()
+                    .map(sysUser -> new ExtendTree.SyncUser(sysUser.getAccount(), sysUser.getName(), sysUser.getId()))
+                    .collect(Collectors.toList());
+            ExtendTree<String> node = new ExtendTree<>(department.getId(), department.getParentId(), department.getName(), department.getSortCode(), new HashMap<>(),new ArrayList<>(),collect);
+            idToNodeMap.put(department.getId(), node);
+            // 如果部门的父ID为null或者"0"，则将其作为根节点添加到roots列表中
+            if (department.getParentId() == null || department.getParentId().equals("0")) {
+                roots.add(node);
+            }
+        }
+
+        // 第二次遍历，构建树结构
+        for (SysOrg department : departmentList) {
+            ExtendTree<String> node = idToNodeMap.get(department.getId());
+            ExtendTree<String> parent = idToNodeMap.get(department.getParentId());
+            if (parent != null && !parent.equals(node)) {
+                parent.getNodes().add(node);
+            }
+        }
+
+        return roots;
     }
 }
