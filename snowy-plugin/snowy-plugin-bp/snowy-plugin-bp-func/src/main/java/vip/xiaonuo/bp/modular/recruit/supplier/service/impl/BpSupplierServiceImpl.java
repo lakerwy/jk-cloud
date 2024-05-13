@@ -225,7 +225,7 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
         //自行申报是没有供应商id，则需要填充
         if(BpSourceEnum.VOLUNTARILY.equals(bpSupplierAddParam.getSource())){
-            BpUser bpUser = new BpUser();bpUser.setSupplierId(bpSupplierAddParam.getBpUserId());
+            BpUser bpUser = new BpUser();bpUser.setSupplierId(bpSupplier.getId());
             bpUserService.updateById(bpUser);
         }
     }
