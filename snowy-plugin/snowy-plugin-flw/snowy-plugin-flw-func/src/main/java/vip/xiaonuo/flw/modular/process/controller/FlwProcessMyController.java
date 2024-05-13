@@ -308,4 +308,18 @@ public class FlwProcessMyController {
         return CommonResult.data(flwProcessService.getInstance(processInstanceId));
     }
 
+    /**
+     * 供应商采购计划-发起流程 无token
+     *
+     * @author hxw
+     * @date 2024/5/13 09:50
+     */
+
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("供应商采购计划-发起流程")
+    @CommonLog("供应商采购计划-发起流程")
+    @PostMapping("/flw/process/purchasePlanStart")
+    public CommonResult<String> purchasePlanStart(@RequestBody @Valid FlwProcessStartParam flwProcessStartParam) {
+        return CommonResult.data(flwProcessService.purchasePlanStart(flwProcessStartParam));
+    }
 }

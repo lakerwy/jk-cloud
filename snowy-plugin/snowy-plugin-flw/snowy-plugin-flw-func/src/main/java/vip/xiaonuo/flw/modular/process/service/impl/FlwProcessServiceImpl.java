@@ -1444,4 +1444,87 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         return flwCommonMapper.getNameList(name);
     }
 
+    @Override
+    @DSTransactional
+    public String purchasePlanStart(FlwProcessStartParam flwProcessStartParam) {
+        try {
+            NodeRuntimeUtil.handleTenAuth();
+            String modelId = flwProcessStartParam.getModelId();
+            FlwModel flwModel = flwModelService.queryEntity(modelId);
+            if (flwModel.getModelStatus().equals(FlwModelStatusEnum.DISABLED.getValue())) {
+                throw new CommonException("模型未启用，名称为：{}", flwModel.getName());
+            }
+            JSONObject jsonObject = JSONUtil.createObj();
+            jsonObject.set("initiator", flwProcessStartParam.getInitiator());
+            jsonObject.set("initiatorName", flwProcessStartParam.getInitiatorName());
+            jsonObject.set("initiatorOrgId", flwProcessStartParam.getInitiatorOrgId());
+            jsonObject.set("initiatorOrgName", flwProcessStartParam.getInitiatorOrgName());
+            jsonObject.set("initiatorPositionId", flwProcessStartParam.getInitiatorPositionId());
+            jsonObject.set("initiatorPositionName", ObjectUtil.isEmpty(flwProcessStartParam.getInitiatorPositionName()) ?
+                    sysPositionApi.getNameById(jsonObject.getStr("initiatorPositionId")) : flwProcessStartParam.getInitiatorPositionName());
+            jsonObject.set("initiatorTime", DateUtil.now());
+            jsonObject.set("initiatorModelInfo", JSONUtil.createObj().set("initiatorModelId", flwModel.getId())
+                    .set("initiatorModelJson", flwModel.getProcessJson()).set("initiatorFormJson", flwModel.getFormJson())
+                    .set("initiatorFormType", flwModel.getFormType()));
+            ProcessInstance processInstance = null;
+            //FlwModel flwModel = flwModelService.getById(modelId);
+            String sn = getSn(flwModel);
+            String parentTablePrimaryId = IdWorker.getIdStr();
+            if(flwModel.getFormType().equals(FlwModelFormTypeEnum.DESIGN.getValue())) {
+                if(ObjectUtil.isEmpty(flwModel.getTableJson())) {
+                    throw new CommonException("模型错误，设计表单类型的模型数据库表JSON不能为空");
+                }
+                if(ObjectUtil.isNotEmpty(flwProcessStartParam.getDataJson())) {
+                    //String parentTablePrimaryId = IdWorker.getIdStr();
+                    JSONObject resultDataObj = NodeRuntimeUtil.handleInitiatorDataJson(flwModel.getTableJson(),
+                            flwProcessStartParam.getDataJson(), parentTablePrimaryId);
+                    String initiatorSql = resultDataObj.getStr("sql");
+                    String initiatorDataJson = resultDataObj.getStr("data");
+                    jsonObject.set("initiatorSql", initiatorSql);
+                    jsonObject.set("initiatorTableJson", flwModel.getTableJson());
+                    jsonObject.set("initiatorDataJson", JSONUtil.parse(initiatorDataJson).toString());
+                    //设置sn
+                    jsonObject.set("initiatorProcessSn",sn);
+                    runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId, jsonObject);
+                    NodeRuntimeUtil.handleSqlExecution(initiatorSql);
+                } else {
+                    processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), jsonObject);
+                }
+            } else {
+                if(ObjectUtil.isNotEmpty(flwProcessStartParam.getDataJson())) {
+                    if(!JSONUtil.isTypeJSONObject(flwProcessStartParam.getDataJson())) {
+                        throw new CommonException("填写的数据请使用JSON格式");
+                    }
+                    String dataJson = flwProcessStartParam.getDataJson();
+                    JSONObject entries = JSONUtil.parseObj(dataJson);
+                    entries.set("businessKey",parentTablePrimaryId);
+                    entries.set("id", parentTablePrimaryId);
+//                if(!modelId.equals("1674588959370481665")) {
+//                    entries.set("id", parentTablePrimaryId);
+//                }
+                    entries.set("sn", sn);
+                    entries.set("applyUserId",flwProcessStartParam.getInitiator());
+                    entries.set("applyUser",flwProcessStartParam.getInitiatorName());
+                    entries.set("applyTime",DateUtil.now());
+                    flwProcessStartParam.setDataJson(JSONUtil.toJsonStr(entries));
+                    jsonObject.set("initiatorDataJson", JSONUtil.toJsonStr(entries));
+                    //设置sn
+                    jsonObject.set("initiatorProcessSn",sn);
+                }
+                processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
+            }
+            if(ObjectUtil.isNotEmpty(processInstance)){
+                String processInstanceId = processInstance.getProcessInstanceId();
+                //将id 和sn 存入缓存中，保证每个模块的业务都可以获取到，获取完成之后清空缓存，避免占用内存
+                commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_ID_KEY+processInstanceId,parentTablePrimaryId);
+                commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId,sn);
+                commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY+processInstanceId,modelId);
+                return processInstanceId;
+            }
+        }catch (Exception e){
+            throw new CommonException("流程启动失败",e);
+        }
+        return null;
+    }
+
 }

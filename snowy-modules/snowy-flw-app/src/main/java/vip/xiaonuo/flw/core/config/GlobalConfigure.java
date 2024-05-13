@@ -155,6 +155,9 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/actuator",
             "/actuator/**",
             "/flw/process/getInstance",
+
+            /* 招采管理 - 采购计划*/
+            "/flw/process/start",
     };
 
     /**

@@ -351,4 +351,11 @@ public interface FlwProcessService {
     Map<String,String> getInstance(String processInstanceId);
 
     List<String> getNameList(String name);
+
+    /**
+     * 供应商采购计划-发起流程 无token
+     * @Author hxw
+     * @Date ${DATE} ${TIME}
+     */
+    String purchasePlanStart(FlwProcessStartParam flwProcessStartParam);
 }
