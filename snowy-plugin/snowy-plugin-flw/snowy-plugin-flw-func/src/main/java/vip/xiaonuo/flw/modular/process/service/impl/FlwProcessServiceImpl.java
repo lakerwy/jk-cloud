@@ -1460,8 +1460,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             jsonObject.set("initiatorOrgId", flwProcessStartParam.getInitiatorOrgId());
             jsonObject.set("initiatorOrgName", flwProcessStartParam.getInitiatorOrgName());
             jsonObject.set("initiatorPositionId", flwProcessStartParam.getInitiatorPositionId());
-            jsonObject.set("initiatorPositionName", ObjectUtil.isEmpty(flwProcessStartParam.getInitiatorPositionName()) ?
-                    sysPositionApi.getNameById(jsonObject.getStr("initiatorPositionId")) : flwProcessStartParam.getInitiatorPositionName());
+            jsonObject.set("initiatorPositionName", flwProcessStartParam.getInitiatorPositionName());
             jsonObject.set("initiatorTime", DateUtil.now());
             jsonObject.set("initiatorModelInfo", JSONUtil.createObj().set("initiatorModelId", flwModel.getId())
                     .set("initiatorModelJson", flwModel.getProcessJson()).set("initiatorFormJson", flwModel.getFormJson())

@@ -157,7 +157,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/flw/process/getInstance",
 
             /* 招采管理 - 采购计划*/
-            "/flw/process/start",
+            "/flw/process/purchasePlanStart",
     };
 
     /**

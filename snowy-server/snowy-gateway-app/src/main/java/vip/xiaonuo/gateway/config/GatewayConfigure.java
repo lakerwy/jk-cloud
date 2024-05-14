@@ -200,7 +200,7 @@ public class GatewayConfigure {
             "/api/webapp/feign/dev/sms/sendSmsYunPian",
 
             /* 招采管理 - 采购计划*/
-            "/api/flwapp/flw/process/start",
+            "/api/flwapp/flw/process/purchasePlanStart",
 
     };
 

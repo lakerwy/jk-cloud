@@ -1464,9 +1464,9 @@ public class NodeRuntimeUtil {
         NodeRuntimeUtil.handleTenAuth();
         TaskService taskService = SpringUtil.getBean(TaskService.class);
         JSONObject jsonObject = JSONUtil.createObj();
-        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        jsonObject.set("USER_ID", loginUser.getId());
-        jsonObject.set("USER_NAME", loginUser.getName());
+        //SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        jsonObject.set("USER_ID", ObjectUtil.isEmpty(StpLoginUserUtil.getLoginUser()) ? null : StpLoginUserUtil.getLoginUser().getId());
+        jsonObject.set("USER_NAME", ObjectUtil.isEmpty(StpLoginUserUtil.getLoginUser()) ? null : StpLoginUserUtil.getLoginUser().getName());
         jsonObject.set("OPERATE_TYPE", operateType);
         jsonObject.set("OPERATE_TEXT", operateText);
         jsonObject.set("COMMENT", comment);
@@ -1529,7 +1529,7 @@ public class NodeRuntimeUtil {
             identityService.setAuthentication(StpUtil.getLoginIdAsString(), null,
                     CollectionUtil.newArrayList(tenApi.getCurrentTenId()));
         } else {
-            identityService.setAuthenticatedUserId(StpUtil.getLoginIdAsString());
+            identityService.setAuthenticatedUserId(ObjectUtil.isEmpty(StpUtil.getLoginIdAsString()) ? null : StpUtil.getLoginIdAsString());
         }
     }
 

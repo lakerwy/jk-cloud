@@ -761,7 +761,7 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
         formRelationTable.setId(businessKey);
         formRelationTable.setProcessInstanceId(processInstanceId);
         formRelationTable.setCreateTime(DateUtil.date());
-        formRelationTable.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
+        formRelationTable.setCreateUser(ObjectUtil.isEmpty(StpLoginUserUtil.getLoginUser()) ? null :StpLoginUserUtil.getLoginUser().getId());
         this.save(formRelationTable);
     }
 

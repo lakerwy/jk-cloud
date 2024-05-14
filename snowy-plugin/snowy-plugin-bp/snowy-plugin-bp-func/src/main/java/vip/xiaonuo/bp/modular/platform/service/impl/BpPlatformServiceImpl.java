@@ -37,12 +37,14 @@ import vip.xiaonuo.bp.modular.platform.service.*;
 import vip.xiaonuo.bp.modular.platform.util.LoginBpUserUtil;
 import vip.xiaonuo.bp.modular.platform.vo.*;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
+import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
@@ -508,5 +510,17 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         //调用供应商入库审批
         bpSupplierAddParam.setBpUserId(bpLoginUser.getId());
         bpSupplierService.add(bpSupplierAddParam);
+    }
+
+    @Override
+    public Page<BpSupplierVo> getBpSupplierPageList(BpSupplierPageParam bpSupplierPageParam) {
+        //当前用户信息
+        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
+        if(ObjectUtil.isEmpty(bpLoginUser)){
+            throw new CommonException("token 异常，获取用户信息失败");
+        }
+
+        //调用供应商查询
+        return bpSupplierService.page(bpSupplierPageParam);
     }
 }
