@@ -305,6 +305,7 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 19)
     @ApiOperation("【前台】招采 - 供应商入库")
+    @CommonLog("【前台】招采 - 供应商入库")
     @PostMapping("/bp/platform/frontend/self/addSupplier")
     public CommonResult<String> addSupplier(@RequestBody @Valid BpSupplierAddParam bpSupplierAddParam) {
         bpPlatformService.addSupplier(bpSupplierAddParam);
@@ -317,11 +318,10 @@ public class BpPlatformController {
      * @author hxw
      * @date 2024/5/14 11:10
      */
-
     @ApiOperationSupport(order = 3)
-    @ApiOperation("前台】招采 -供应商审批入库查询")
-    @CommonLog("前台】招采 -供应商审批入库查询")
-    @PostMapping("/bp/platform/frontend/self/getBpSupplierPageList")
+    @ApiOperation("【前台】招采 -供应商审批入库查询")
+    @CommonLog("【前台】招采 -供应商审批入库查询")
+    @GetMapping("/bp/platform/frontend/self/getBpSupplierPageList")
     public CommonResult<Page<BpSupplierVo>> getBpSupplierPageList(@Valid BpSupplierPageParam bpSupplierPageParam) {
         return CommonResult.data(bpPlatformService.getBpSupplierPageList(bpSupplierPageParam));
     }
