@@ -90,6 +90,8 @@ import vip.xiaonuo.dev.api.DevSmsApi;
 import vip.xiaonuo.dev.modular.job.task.CommonHandleUtil;
 import vip.xiaonuo.mobile.vip.MobileButtonApi;
 import vip.xiaonuo.mobile.vip.MobileMenuApi;
+import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelSimpleParam;
+import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.info.entity.PartnerInfo;
 import vip.xiaonuo.sys.modular.info.service.PartnerInfoService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
@@ -198,6 +200,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Resource
     private PartnerInfoService partnerInfoService;
+
+    @Resource
+    private PersonnelService personnelService;
 
     @Override
     public SysLoginUser getUserById(String id) {
@@ -1912,5 +1917,40 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public void updateExtJson(String userId, String extJson) {
         this.update(new LambdaUpdateWrapper<SysUser>().eq(SysUser::getId,
                 userId).set(SysUser::getExtJson, extJson));
+    }
+
+    @Override
+    public void syncResource(String orgId) {
+
+        List<SysUser> list =  new ArrayList<>();
+        SysOrg sysOrg = sysOrgService.getById(orgId);
+        if(ObjectUtil.isEmpty(sysOrg)){
+            throw new CommonException("部门不存在---");
+        }
+
+        list = list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getOrgId,orgId)
+                .eq(SysUser::getDeleteFlag,"NOT_DELETE")
+                .eq(SysUser::getUserStatus,"ENABLE"));
+//        if(orgId.equals("all")){
+//            //同步所有用户
+//            list = list(new LambdaQueryWrapper<SysUser>()
+//                    .eq(SysUser::getDeleteFlag,"NOT_DELETE")
+//                    .eq(SysUser::getUserStatus,"ENABLE"));
+//        }else {
+//
+//
+//        }
+        list.forEach(sysUser -> {
+            PersonnelSimpleParam personnelSimpleParam = new PersonnelSimpleParam();
+            personnelSimpleParam.setUserId(sysUser.getId());
+            personnelSimpleParam.setDeptId(sysUser.getOrgId());
+            personnelSimpleParam.setDept(sysOrg.getName());
+            personnelSimpleParam.setDutyId(sysUser.getPositionId());
+            SysPosition sysPosition = sysPositionService.getById(sysUser.getPositionId());
+            if(ObjectUtil.isNotEmpty(sysPosition)){
+                personnelSimpleParam.setDuty(sysPosition.getName());
+            }
+            personnelService.syncResource(personnelSimpleParam);
+        });
     }
 }

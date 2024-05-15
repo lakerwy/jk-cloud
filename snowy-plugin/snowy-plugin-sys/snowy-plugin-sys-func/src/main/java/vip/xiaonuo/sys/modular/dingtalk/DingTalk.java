@@ -21,5 +21,7 @@ public class DingTalk {
         public static final String ORG_UPDATE = "org_dept_modify";  //通讯录企业部门修改
 
         public static final String ORG_REMOVE = "org_dept_remove";  //通讯录企业部门修改
+
+        public static final String MEETING_BOOK = "meetingroom_book"; //钉钉日程
     }
 }

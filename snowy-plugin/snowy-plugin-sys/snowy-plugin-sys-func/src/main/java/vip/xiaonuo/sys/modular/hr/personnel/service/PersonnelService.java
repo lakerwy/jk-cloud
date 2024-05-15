@@ -97,4 +97,6 @@ public interface PersonnelService extends IService<Personnel> {
      * @return
      */
     List<PersonnelInfo> infoList(PersonnelParam personnelParam);
+
+    void syncResource(PersonnelSimpleParam personnelSimpleParam);
 }

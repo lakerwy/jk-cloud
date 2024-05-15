@@ -20,6 +20,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
@@ -232,7 +233,7 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
 
         //编辑数据与源数据对比，判断职位是否需要新增 - 新增岗位
         String dutyId = personnel.getDutyId();
-        if(personnel.getDeptId()!=personnelEditParam.getDeptId() || personnel.getDuty()!=personnelEditParam.getDuty()){
+        if(!Objects.equals(personnel.getDeptId(), personnelEditParam.getDeptId()) || !Objects.equals(personnel.getDuty(), personnelEditParam.getDuty())){
             SysPositionAddParam positionAddParam = new SysPositionAddParam();
             positionAddParam.setName(personnelEditParam.getDuty());
             positionAddParam.setOrgId(personnelEditParam.getDeptId());
@@ -275,6 +276,9 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if(ObjectUtil.isNotEmpty(user)){
             if(ObjectUtil.isNotEmpty(personnel.getHireDate())){
                 user.setEntryDate(DateUtil.formatDate(personnel.getHireDate()));
+            }
+            if(ObjectUtil.isNotEmpty(personnel.getDeptId())){
+                user.setOrgId(personnel.getDeptId());
             }
             if(ObjectUtil.isNotEmpty(personnel.getDutyId())) {
                 user.setPositionId(personnel.getDutyId());
@@ -583,5 +587,11 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
             x.setFirstOrgName(ComputeUtil.objToString(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgName" + x.getDeptId())));
         });
         return infoList;
+    }
+
+    @Override
+    public void syncResource(PersonnelSimpleParam personnelSimpleParam) {
+        Personnel bean = BeanUtil.toBean(personnelSimpleParam, Personnel.class);
+        update(bean,new UpdateWrapper<Personnel>().eq("USER_ID",personnelSimpleParam.getUserId()));
     }
 }

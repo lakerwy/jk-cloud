@@ -13,6 +13,7 @@
 package vip.xiaonuo.sys.modular.user.controller;
 
 import cn.hutool.core.lang.tree.Tree;
+import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
@@ -411,6 +412,18 @@ public class SysUserController {
     @PostMapping("/sys/center/user/syncToUserAdd")
     public CommonResult<String> syncToUserAdd(@RequestBody @Valid SyncToUserAddParam syncToUserAddParam) {
         sysUserService.syncToUserAdd(syncToUserAddParam);
+        return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 26)
+    @ApiOperation("同步用户信息到花名册")
+    @CommonLog("同步用户信息到花名册")
+    @GetMapping("/sys/user/syncResource")
+    public CommonResult<String> syncResource(@RequestParam(value = "orgId") String orgId) {
+//        if(StrUtil.isEmpty(orgId)){
+//            orgId = "all";
+//        }
+        sysUserService.syncResource(orgId);
         return CommonResult.ok();
     }
 }
