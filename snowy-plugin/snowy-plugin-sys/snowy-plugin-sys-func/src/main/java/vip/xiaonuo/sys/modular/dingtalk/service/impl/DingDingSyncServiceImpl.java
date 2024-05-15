@@ -1,7 +1,7 @@
-package vip.xiaonuo.sys.modular.user.service.impl;
+package vip.xiaonuo.sys.modular.dingtalk.service.impl;
 
 import org.springframework.stereotype.Service;
-import vip.xiaonuo.sys.modular.user.service.DingDingSyncService;
+import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
 
 /**
  * 钉钉 - 数据 - 同步  服务实现类

@@ -1,4 +1,4 @@
-package vip.xiaonuo.sys.modular.user.service;
+package vip.xiaonuo.sys.modular.dingtalk.service;
 
 /**
  * 钉钉 - 数据 - 同步  服务

@@ -1,4 +1,4 @@
-package vip.xiaonuo.sys.modular.user.controller;
+package vip.xiaonuo.sys.modular.dingtalk.controller;
 
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.sys.modular.user.service.DingDingSyncService;
+import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
 
 import javax.annotation.Resource;
 
@@ -36,7 +36,7 @@ public class DingDingSyncController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("同步 - 钉钉 - 组织架构")
     @CommonLog("同步 - 钉钉 - 组织架构")
-    @PostMapping("/sys/user/ding/sync")
+    @PostMapping("/sys/dingTalk/sync")
     public CommonResult<String> sync() {
         dingDingSyncService.sync();
         return CommonResult.ok();
