@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import vip.xiaonuo.im.modular.chat.service.ImService;
 import vip.xiaonuo.sys.api.SysUserApi;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.Map;
@@ -28,6 +29,11 @@ public class SyncUserListener {
 
     @Resource
     ImService imService;
+
+    @PostConstruct
+    public void init() {
+        syncUserToIm();
+    }
 
     @Scheduled(cron = "0 0 1 * * ?")
     public void syncUserToIm(){

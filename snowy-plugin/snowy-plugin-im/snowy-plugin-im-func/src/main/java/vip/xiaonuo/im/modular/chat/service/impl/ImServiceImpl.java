@@ -2,7 +2,11 @@ package vip.xiaonuo.im.modular.chat.service.impl;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.db.DbUtil;
+import cn.hutool.db.sql.SqlExecutor;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import cn.wildfirechat.common.ErrorCode;
 import cn.wildfirechat.pojos.*;
@@ -14,6 +18,8 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.dbs.api.DbsApi;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.api.DevFileApi;
 import vip.xiaonuo.im.core.ImProperties;
 import vip.xiaonuo.im.modular.chat.pojo.LoginResponse;
@@ -23,6 +29,9 @@ import vip.xiaonuo.sys.api.SysUserApi;
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.io.File;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 import java.util.List;
 
 /**
@@ -252,6 +261,10 @@ public class ImServiceImpl implements ImService {
         sendMessage(fromUser, conversation, payload);
     }
 
+    /**
+     * 暂时只新增用户，删除和修改用户没有处理
+     * @param jsonList
+     */
     @Override
     public void syncUserToIm(List<JSONObject> jsonList) {
         jsonList.forEach(jsonObject -> {
@@ -294,7 +307,8 @@ public class ImServiceImpl implements ImService {
                     if (StrUtil.isNotEmpty(str)) {
                         MultipartFile multipartFile = null;
                         try {
-                            byte[] decode = Base64.decode(str);
+                            String imageData = str.substring(str.indexOf(",") + 1);
+                            byte[] decode = Base64.decode(imageData);
                             File tempFile = FileUtil.createTempFile();
                             FileUtil.writeBytes(decode, tempFile);
                             multipartFile = new MockMultipartFile(tempFile.getName(), tempFile.getName(), "image/jpeg", decode);
@@ -307,6 +321,7 @@ public class ImServiceImpl implements ImService {
                     IMResult<OutputCreateUser> userIdResult = UserAdmin.createUser(user);
                     if (userIdResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS) {
                         user.setUserId(userIdResult.getResult().getUserId());
+                        handleSqlExecution(user.getUserId(),jsonObject.getStr("id"));
                     } else {
                         log.info("Create user failure {}", userIdResult.code);
                        // throw new CommonException();
@@ -318,4 +333,29 @@ public class ImServiceImpl implements ImService {
 
         });
     }
+
+
+
+    public static void handleSqlExecution(String imUserId, String userId) {
+        if (StrUtil.isBlank(imUserId) || StrUtil.isBlank(userId)) {
+            return;
+        }
+
+        String sql = "UPDATE SYS_USER SET EXT_JSON = JSON_SET(IFNULL(EXT_JSON, '{}'), '$.imUserId', ?) WHERE ID = ?";
+
+        DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+        try (Connection conn = dbsApi.getCurrentDataSource().getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            conn.setAutoCommit(false);
+
+            stmt.setString(1, imUserId);
+            stmt.setString(2, userId);
+
+            stmt.executeUpdate();
+            conn.commit();
+        } catch (SQLException e) {
+            throw new CommonException("Failed to execute SQL: " + e.getMessage());
+        }
+    }
+
 }
