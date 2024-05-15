@@ -419,9 +419,11 @@ public class BpPlatformServiceImpl implements BpPlatformService {
                         .eq(UserPay::getType,PayTypeEnum.PAY_FOR_BOND.getValue()));
                 item.setUserPayInfo(userPay);
                 item.setIsPayForBond(ObjectUtil.isNotEmpty(userPay) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
-                LocalDateTime bondEndTime = DateUtil.toLocalDateTime(item.getCreateTime()).plusDays(Long.getLong(item.getNoticeBidDeadline()));
-                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                item.setNoticeBondEndTime(bondEndTime.format(dateTimeFormatter));
+                if(ObjectUtil.isNotEmpty(item.getNoticeBidDeadline())) {
+                    LocalDateTime bondEndTime = DateUtil.toLocalDateTime(item.getCreateTime()).plusDays(Long.getLong(item.getNoticeBidDeadline()));
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    item.setNoticeBondEndTime(bondEndTime.format(dateTimeFormatter));
+                }
             });
         }
         return result;
