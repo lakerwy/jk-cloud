@@ -502,7 +502,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
 
     @Override
     public List<ExtendTree<String>> convertToTree() {
-        List<SysOrg> sysOrgList = this.getAllOrgList();
+        List<SysOrg> sysOrgList = this.list(new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getDeleteFlag,"NOT_DELETE").orderByAsc(SysOrg::getSortCode));
         return buildTree(sysOrgList);
     }
 
@@ -513,7 +513,9 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
 
         // 第一次遍历，将部门信息转换为节点对象，并存储到映射中
         for (SysOrg department : departmentList) {
-            List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getOrgId, department.getId()));
+            List<SysUser> list = sysUserService.list(new LambdaQueryWrapper<SysUser>().eq(SysUser::getOrgId, department.getId())
+                    .eq(SysUser::getDeleteFlag,"NOT_DELETE")
+                    .eq(SysUser::getUserStatus,"ENABLE"));
 //            list.stream(sysUser -> new ExtendTree<>.SyncUser(sysUser.getAccount(),sysUser.getName(),sysUser.getId()));
             List<ExtendTree.SyncUser> collect = list.stream()
                     .map(sysUser -> new ExtendTree.SyncUser(sysUser.getAccount(), sysUser.getName(), sysUser.getId(),sysUser.getAvatar()))

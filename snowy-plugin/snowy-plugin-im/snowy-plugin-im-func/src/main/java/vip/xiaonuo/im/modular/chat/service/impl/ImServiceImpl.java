@@ -18,6 +18,7 @@ import vip.xiaonuo.dev.api.DevFileApi;
 import vip.xiaonuo.im.core.ImProperties;
 import vip.xiaonuo.im.modular.chat.pojo.LoginResponse;
 import vip.xiaonuo.im.modular.chat.service.ImService;
+import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -41,6 +42,9 @@ public class ImServiceImpl implements ImService {
 
     @Resource
     DevFileApi devFileApi;
+
+    @Resource
+    SysUserApi sysUserApi;
 
     @PostConstruct
     private void init() {
