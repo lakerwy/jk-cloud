@@ -174,7 +174,7 @@ public class CommonDingDingUtil {
      * @param deptId
      * @return
      */
-    public OapiV2DepartmentListsubidResponse getListSubId(String access_token, Long deptId){
+    public static OapiV2DepartmentListsubidResponse getListSubId(String access_token, Long deptId){
         DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/department/listsubid");
         OapiV2DepartmentListsubidRequest req = new OapiV2DepartmentListsubidRequest();
         req.setDeptId(deptId);
@@ -196,7 +196,7 @@ public class CommonDingDingUtil {
      * @param size   分页大小
      * @return
      */
-    public OapiV2UserListResponse getList(String access_token, Long deptId,Long cursor,Long size){
+    public static OapiV2UserListResponse getListUser(String access_token, Long deptId,Long cursor,Long size){
         DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/list");
         OapiV2UserListRequest req = new OapiV2UserListRequest();
         req.setDeptId(deptId);
