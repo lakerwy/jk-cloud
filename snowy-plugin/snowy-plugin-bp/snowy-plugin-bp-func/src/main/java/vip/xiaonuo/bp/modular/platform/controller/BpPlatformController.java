@@ -321,7 +321,7 @@ public class BpPlatformController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("【前台】招采 -供应商审批入库查询")
     @CommonLog("【前台】招采 -供应商审批入库查询")
-    @GetMapping("/bp/platform/frontend/self/getBpSupplierPageList")
+    @GetMapping("/bp/platform/frontend/public/getBpSupplierPageList")
     public CommonResult<Page<BpSupplierVo>> getBpSupplierPageList(@Valid BpSupplierPageParam bpSupplierPageParam) {
         return CommonResult.data(bpPlatformService.getBpSupplierPageList(bpSupplierPageParam));
     }

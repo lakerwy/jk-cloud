@@ -514,12 +514,6 @@ public class BpPlatformServiceImpl implements BpPlatformService {
 
     @Override
     public Page<BpSupplierVo> getBpSupplierPageList(BpSupplierPageParam bpSupplierPageParam) {
-        //当前用户信息
-        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
-        if(ObjectUtil.isEmpty(bpLoginUser)){
-            throw new CommonException("token 异常，获取用户信息失败");
-        }
-
         //调用供应商查询
         return bpSupplierService.page(bpSupplierPageParam);
     }
