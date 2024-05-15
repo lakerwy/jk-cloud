@@ -3,12 +3,8 @@ package vip.xiaonuo.common.util;
 import com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenResponse;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
-import com.dingtalk.api.request.OapiGettokenRequest;
-import com.dingtalk.api.request.OapiV2UserGetRequest;
-import com.dingtalk.api.request.OapiV2UserGetuserinfoRequest;
-import com.dingtalk.api.response.OapiGettokenResponse;
-import com.dingtalk.api.response.OapiV2UserGetResponse;
-import com.dingtalk.api.response.OapiV2UserGetuserinfoResponse;
+import com.dingtalk.api.request.*;
+import com.dingtalk.api.response.*;
 import com.taobao.api.ApiException;
 
 /**
@@ -142,4 +138,78 @@ public class CommonDingDingUtil {
         return null;
     }
 
+
+    /**
+     * -获取部门列表 【调用服务端API-获取部门列表接口，入参部门字段传1，获取企业通讯录根部门下的一级子部门信息。】
+     *
+     * 说明：本接口只支持获取当前部门的下一级部门基础信息，不支持获取当前部门下所有层级子部门
+     *
+     * @param access_token
+     * @param deptId
+     * @return
+     */
+    public static OapiV2DepartmentListsubResponse getListSub(String access_token, Long deptId){
+        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/department/listsub");
+        OapiV2DepartmentListsubRequest req = new OapiV2DepartmentListsubRequest();
+        req.setDeptId(deptId);
+        req.setLanguage("zh_CN");
+        OapiV2DepartmentListsubResponse rsp = null;
+        try {
+            rsp = client.execute(req, access_token);
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+        return rsp;
+    }
+
+
+    /**
+     * 获取子部门ID列表接口，逐级遍历获取该企业下所有部门的ID 【调用本接口，获取下一级部门基础信息。】
+     *
+     * 说明
+     *     本接口不受授权范围限制。
+     *     本接口只支持获取下一级所有部门ID列表。
+     *
+     * @param access_token
+     * @param deptId
+     * @return
+     */
+    public OapiV2DepartmentListsubidResponse getListSubId(String access_token, Long deptId){
+        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/department/listsubid");
+        OapiV2DepartmentListsubidRequest req = new OapiV2DepartmentListsubidRequest();
+        req.setDeptId(deptId);
+        OapiV2DepartmentListsubidResponse rsp = null;
+        try {
+            rsp = client.execute(req, access_token);
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+        return rsp;
+    }
+
+
+    /**
+     * 根据各个部门ID，分别调用服务端API-获取部门用户详情接口，分别获取每个部门下的员工详情信息
+     * @param access_token token
+     * @param deptId 部门Id
+     * @param cursor 分页查询游标
+     * @param size   分页大小
+     * @return
+     */
+    public OapiV2UserListResponse getList(String access_token, Long deptId,Long cursor,Long size){
+        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/list");
+        OapiV2UserListRequest req = new OapiV2UserListRequest();
+        req.setDeptId(deptId);
+        req.setCursor(cursor);
+        req.setSize(size);
+        req.setContainAccessLimit(false);
+        req.setLanguage("zh_CN");
+        OapiV2UserListResponse rsp = null;
+        try {
+            rsp = client.execute(req, access_token);
+        } catch (ApiException e) {
+            throw new RuntimeException(e);
+        }
+        return rsp;
+    }
 }
