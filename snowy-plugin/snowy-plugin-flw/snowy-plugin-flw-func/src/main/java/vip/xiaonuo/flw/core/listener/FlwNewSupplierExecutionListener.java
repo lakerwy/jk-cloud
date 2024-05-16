@@ -20,9 +20,6 @@ import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.bp.modular.platform.service.BpUserService;
-import vip.xiaonuo.bp.modular.recruit.relation.service.BpRelationService;
-import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpSourceEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.dev.api.DevConfigApi;
@@ -43,11 +40,6 @@ import java.util.Map;
 @Slf4j
 @Component
 public class FlwNewSupplierExecutionListener implements ExecutionListener {
-    @Resource
-    private BpRelationService bpRelationService;
-
-    @Resource
-    private BpUserService bpUserService;
 
     @Resource
     private DevConfigApi devConfigApi;
@@ -64,7 +56,7 @@ public class FlwNewSupplierExecutionListener implements ExecutionListener {
             log.info("shen>>> 执行监听器：{}事件触发，流程id为：{}，当前活动节点为：{}",
                     execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
             //内部推荐时新增注册用户
-             if(BpSourceEnum.INNER.equals(String.valueOf(execution.getVariable("source")))){
+             if("1".equals(String.valueOf(execution.getVariable("source")))){
                  //获取流程实例关联的业务信息
                  String supplierId = String.valueOf(execution.getVariable("id"));
                  if(ObjectUtil.isNotEmpty(supplierId)){

@@ -61,9 +61,9 @@
             <artifactId>spring-cloud-stream-binder-rabbit</artifactId>
         </dependency>
 
-        <dependency>
-            <groupId>vip.xiaonuo</groupId>
-            <artifactId>snowy-plugin-bp-func</artifactId>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>vip.xiaonuo</groupId>-->
+<!--            <artifactId>snowy-plugin-bp-func</artifactId>-->
+<!--        </dependency>-->
     </dependencies>
 </project>
