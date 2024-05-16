@@ -113,22 +113,36 @@
         <dependency>
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-auth-api</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
+        <!-- 系统功能插件Feign接口 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-sys-feign</artifactId>
+        </dependency>
 
         <!-- 开发工具插件Feign接口 -->
         <dependency>
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-dev-feign</artifactId>
-            <version>${project.parent.version}</version>
         </dependency>
 
-                <!--招标采购插件-->
+        <!-- 多数据源插件 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-dbs-func</artifactId>
+        </dependency>
+
+        <!--招标采购插件-->
         <dependency>
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-bp-func</artifactId>
-            <version>${project.parent.version}</version>
+        </dependency>
+
+        <!-- 动态租户插件 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-ten-func</artifactId>
         </dependency>
 
         <!-- bootstrap 配置加载 -->
@@ -191,10 +205,6 @@
             <groupId>net.logstash.logback</groupId>
             <artifactId>logstash-logback-encoder</artifactId>
             <!--            <version>6.6</version>-->
-        </dependency>
-        <dependency>
-            <groupId>vip.xiaonuo</groupId>
-            <artifactId>snowy-plugin-sys-feign</artifactId>
         </dependency>
 
     </dependencies>
