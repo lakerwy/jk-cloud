@@ -326,6 +326,8 @@ public class ImServiceImpl implements ImService {
                         log.info("Create user failure {}", userIdResult.code);
                        // throw new CommonException();
                     }
+                }else {
+                    handleSqlExecution(userResult.getResult().getUserId(),jsonObject.getStr("id"));
                 }
             }catch (Exception e){
                 log.error("sync user fail----"+ e.getMessage());
