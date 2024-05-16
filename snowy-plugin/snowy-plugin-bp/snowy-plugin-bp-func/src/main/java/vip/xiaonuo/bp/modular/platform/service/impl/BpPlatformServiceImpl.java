@@ -419,9 +419,11 @@ public class BpPlatformServiceImpl implements BpPlatformService {
                         .eq(UserPay::getType,PayTypeEnum.PAY_FOR_BOND.getValue()));
                 item.setUserPayInfo(userPay);
                 item.setIsPayForBond(ObjectUtil.isNotEmpty(userPay) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
-                LocalDateTime bondEndTime = DateUtil.toLocalDateTime(item.getCreateTime()).plusDays(Long.getLong(item.getNoticeBidDeadline()));
-                DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-                item.setNoticeBondEndTime(bondEndTime.format(dateTimeFormatter));
+                if(ObjectUtil.isNotEmpty(item.getNoticeBidDeadline())) {
+                    LocalDateTime bondEndTime = DateUtil.toLocalDateTime(item.getCreateTime()).plusDays(Long.getLong(item.getNoticeBidDeadline()));
+                    DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    item.setNoticeBondEndTime(bondEndTime.format(dateTimeFormatter));
+                }
             });
         }
         return result;
@@ -514,12 +516,6 @@ public class BpPlatformServiceImpl implements BpPlatformService {
 
     @Override
     public Page<BpSupplierVo> getBpSupplierPageList(BpSupplierPageParam bpSupplierPageParam) {
-        //当前用户信息
-        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
-        if(ObjectUtil.isEmpty(bpLoginUser)){
-            throw new CommonException("token 异常，获取用户信息失败");
-        }
-
         //调用供应商查询
         return bpSupplierService.page(bpSupplierPageParam);
     }
