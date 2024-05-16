@@ -158,12 +158,12 @@
             <version>${project.parent.version}</version>
         </dependency>
 
-        <!--招标采购插件-->
-        <dependency>
-            <groupId>vip.xiaonuo</groupId>
-            <artifactId>snowy-plugin-bp-func</artifactId>
-            <version>${project.parent.version}</version>
-        </dependency>
+<!--        &lt;!&ndash;招标采购插件&ndash;&gt;-->
+<!--        <dependency>-->
+<!--            <groupId>vip.xiaonuo</groupId>-->
+<!--            <artifactId>snowy-plugin-bp-func</artifactId>-->
+<!--            <version>${project.parent.version}</version>-->
+<!--        </dependency>-->
 
         <!-- 支付功能插件 -->
         <dependency>

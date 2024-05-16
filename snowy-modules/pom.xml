@@ -30,6 +30,8 @@
 
         <!-- 主应用启动组件 -->
         <module>snowy-web-app</module>
+
+        <module>snowy-procure-app</module>
     </modules>
 
 </project>

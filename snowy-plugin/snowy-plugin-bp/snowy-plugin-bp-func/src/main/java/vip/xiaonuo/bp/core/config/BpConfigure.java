@@ -60,7 +60,7 @@ public class BpConfigure {
                 .groupName("招采业务功能")
                 .select()
                 .apis(RequestHandlerSelectors.withMethodAnnotation(ApiOperation.class))
-                .apis(RequestHandlerSelectors.basePackage("vip.xiaonuo.biz"))
+                .apis(RequestHandlerSelectors.basePackage("vip.xiaonuo.bp"))
                 .paths(PathSelectors.any())
                 .build().extensions(openApiExtensionResolver.buildExtensions("招采业务功能"));
     }

@@ -20,4 +20,7 @@ public final class FeignConstant {
     /** FLW_APP **/
     public static final String FLW_APP = "snowy-flw-app";
 
+    /** PROCURE_APP **/
+    public static final String PROCURE_APP = "snowy-procure-app";
+
 }
