@@ -88,7 +88,7 @@ public class GatewayConfigure {
             "/api/bizapp/v2/api-docs",
             "/api/tenapp/v2/api-docs",
             "/api/flwapp/v2/api-docs",
-            "/api/procure/v2/api-docs",
+            "/api/procureapp/v2/api-docs",
 
             /* 认证相关 */
             "/api/webapp/auth/c/getPicCaptcha",
@@ -195,7 +195,7 @@ public class GatewayConfigure {
             "/api/webapp/sso/*",
 
             /* 招采平台 - 登录|注册|退出|公告|澄清 */
-            "/api/bizapp/bp/platform/frontend/public/**",
+            "/api/procureapp/bp/platform/frontend/public/**",
 
             /* 远程调用免token */
             "/api/webapp/feign/dev/sms/sendSmsYunPian",
