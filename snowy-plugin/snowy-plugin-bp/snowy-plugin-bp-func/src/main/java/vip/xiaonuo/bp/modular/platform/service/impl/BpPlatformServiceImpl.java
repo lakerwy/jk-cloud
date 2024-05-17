@@ -19,7 +19,6 @@ import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import vip.xiaonuo.auth.core.util.StpClientUtil;
 import vip.xiaonuo.bp.modular.platform.entity.*;
 import vip.xiaonuo.bp.modular.platform.enums.PayTypeEnum;
 import vip.xiaonuo.bp.modular.platform.enums.SignStatusEnum;
@@ -303,7 +302,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         // 缓存用户信息，此处使用TokenSession为了指定时间内无操作则自动下线
         StpUtil.getTokenSession().set("bpLoginUser", bpLoginUser);
         // 返回token
-        return StpClientUtil.getTokenInfo().tokenValue;
+        return StpUtil.getTokenInfo().tokenValue;
     }
 
 
