@@ -232,22 +232,22 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             if(StrUtil.isBlank(bucketName)){
                 bucketName = "jk";
             }
-            storageUrl = DevFileLocalUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+            storageUrl = DevFileLocalUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file,false), file);
         } else if(engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
 
             // 使用阿里云默认配置的bucketName
             bucketName = DevFileAliyunUtil.getDefaultBucketName();
-            storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+            storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file,false), file);
         } else if(engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
 
             // 使用腾讯云默认配置的bucketName
             bucketName = DevFileTencentUtil.getDefaultBucketName();
-            storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+            storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file,false), file);
         } else if(engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
 
             // 使用MINIO默认配置的bucketName
             bucketName = DevFileMinIoUtil.getDefaultBucketName();
-            storageUrl = DevFileMinIoUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+            storageUrl = DevFileMinIoUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file,true), file);
         } else {
             throw new CommonException("不支持的文件引擎：{}", engine);
         }
@@ -433,22 +433,22 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
                 // 使用固定名称defaultBucketName
                 bucketName = "jk";
             }
-            storageUrl = DevFileLocalUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+            storageUrl = DevFileLocalUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file,false), file);
         } else if(engine.equals(DevFileEngineTypeEnum.ALIYUN.getValue())) {
 
             // 使用阿里云默认配置的bucketName
             bucketName = DevFileAliyunUtil.getDefaultBucketName();
-            storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+            storageUrl = DevFileAliyunUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file,false), file);
         } else if(engine.equals(DevFileEngineTypeEnum.TENCENT.getValue())) {
 
             // 使用腾讯云默认配置的bucketName
             bucketName = DevFileTencentUtil.getDefaultBucketName();
-            storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+            storageUrl = DevFileTencentUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file,false), file);
         } else if(engine.equals(DevFileEngineTypeEnum.MINIO.getValue())) {
 
             // 使用MINIO默认配置的bucketName
             bucketName = DevFileMinIoUtil.getDefaultBucketName();
-            storageUrl = DevFileMinIoUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file), file);
+            storageUrl = DevFileMinIoUtil.storageFileWithReturnUrl(bucketName, genNewFileKey(fileName, file,true), file);
         } else {
             throw new CommonException("不支持的文件引擎：{}", engine);
         }
@@ -520,13 +520,13 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
 //        }
     }
 
-    public String genNewFileKey(String fileName, MultipartFile file) {
+    public String genNewFileKey(String fileName, MultipartFile file, boolean isSuffix) {
 
         // 获取文件原始名称
-        //String originalFileName = file.getOriginalFilename();
+        String originalFileName = file.getOriginalFilename();
 
         // 获取文件后缀
-        //String fileSuffix = FileUtil.getSuffix(originalFileName);
+        String fileSuffix = FileUtil.getSuffix(originalFileName);
         //        String fileObjectName =fileId;
 //        if(StrUtil.isNotBlank(fileSuffix)){
 //            // 生成文件的对象名称，格式如:1377109572375810050.docx
@@ -540,7 +540,7 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         String dateFolderPath = format.format(date)+StrUtil.SLASH;
 
         // 返回
-        return dateFolderPath + fileName;
+        return dateFolderPath + fileName + (isSuffix?StrUtil.DOT+fileSuffix:"");
     }
 
     private  String getFileIdPre(){

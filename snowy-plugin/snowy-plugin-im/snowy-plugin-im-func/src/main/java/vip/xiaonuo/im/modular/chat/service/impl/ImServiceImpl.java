@@ -18,13 +18,12 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.util.CommonAvatarUtil;
 import vip.xiaonuo.dbs.api.DbsApi;
-import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.api.DevFileApi;
 import vip.xiaonuo.im.core.ImProperties;
 import vip.xiaonuo.im.modular.chat.pojo.LoginResponse;
 import vip.xiaonuo.im.modular.chat.service.ImService;
-import vip.xiaonuo.sys.api.SysUserApi;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -51,9 +50,6 @@ public class ImServiceImpl implements ImService {
 
     @Resource
     DevFileApi devFileApi;
-
-    @Resource
-    SysUserApi sysUserApi;
 
     @PostConstruct
     private void init() {
@@ -304,20 +300,22 @@ public class ImServiceImpl implements ImService {
                     user.setMobile(mobile);
                     //图片编码
                     String str = jsonObject.getStr("avatar");
-                    if (StrUtil.isNotEmpty(str)) {
-                        MultipartFile multipartFile = null;
-                        try {
-                            String imageData = str.substring(str.indexOf(",") + 1);
-                            byte[] decode = Base64.decode(imageData);
-                            File tempFile = FileUtil.createTempFile();
-                            FileUtil.writeBytes(decode, tempFile);
-                            multipartFile = new MockMultipartFile(tempFile.getName(), tempFile.getName(), "image/jpeg", decode);
-                        } catch (Exception e) {
-                            log.error(e.getMessage());
-                        }
-                        String url = devFileApi.storageFileWithReturnUrlLocal(multipartFile);
-                        user.setPortrait(url);
+                    if (StrUtil.isEmpty(str)) {
+                        str = CommonAvatarUtil.generateImg(displayName);
                     }
+                    MultipartFile multipartFile = null;
+                    try {
+                        String imageData = str.substring(str.indexOf(",") + 1);
+                        byte[] decode = Base64.decode(imageData);
+                        File tempFile = FileUtil.createTempFile("avatar",".jpeg",true);
+                        FileUtil.writeBytes(decode, tempFile);
+                        multipartFile = new MockMultipartFile(tempFile.getName(), tempFile.getName(), "image/jpeg", decode);
+                    } catch (Exception e) {
+                        log.error(e.getMessage());
+                    }
+                    String url = devFileApi.storageFileWithReturnUrlMinio(multipartFile);
+//                    String backendUrl = commonProperties.getBackendUrl();
+                    user.setPortrait(url);
                     IMResult<OutputCreateUser> userIdResult = UserAdmin.createUser(user);
                     if (userIdResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS) {
                         user.setUserId(userIdResult.getResult().getUserId());
