@@ -25,6 +25,7 @@ import vip.xiaonuo.bp.modular.platform.enums.SignStatusEnum;
 import vip.xiaonuo.bp.modular.platform.enums.UserStatusEnum;
 import vip.xiaonuo.bp.modular.platform.enums.YesOrNoEnum;
 import vip.xiaonuo.bp.modular.platform.mapper.BpUserMapper;
+import vip.xiaonuo.bp.modular.platform.mapper.ClarifyMapper;
 import vip.xiaonuo.bp.modular.platform.mapper.UserSignMapper;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
@@ -94,6 +95,8 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     private NoticeTzService noticeTzService;
     @Resource
     private BpSupplierService bpSupplierService;
+    @Resource
+    private ClarifyMapper clarifyMapper;
 
 
     @Override
@@ -517,5 +520,10 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     public Page<BpSupplierVo> getBpSupplierPageList(BpSupplierPageParam bpSupplierPageParam) {
         //调用供应商查询
         return bpSupplierService.page(bpSupplierPageParam);
+    }
+
+    @Override
+    public ClarifyVo clarifyDetail(String clarifyId) {
+        return clarifyMapper.getDetail(clarifyId);
     }
 }

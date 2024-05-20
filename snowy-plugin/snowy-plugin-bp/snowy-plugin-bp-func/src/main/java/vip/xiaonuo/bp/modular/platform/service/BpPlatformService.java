@@ -153,4 +153,11 @@ public interface BpPlatformService{
      * @return
      */
     Page<BpSupplierVo> getBpSupplierPageList(BpSupplierPageParam bpSupplierPageParam);
+
+    /**
+     * 【前台】获取招采管理 - 澄清公告详情
+     * @param clarifyId
+     * @return
+     */
+    ClarifyVo clarifyDetail(String clarifyId);
 }
