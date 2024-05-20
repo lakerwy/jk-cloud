@@ -18,4 +18,14 @@
             where a.ID = #{id}
     </select>
 
+
+    <select id="getClarifyByNoticeId" resultType="vip.xiaonuo.bp.modular.platform.vo.ClarifyVo">
+        select a.*,
+               b.TITLE as noticeTitle,b.OBJ_NAME as noticeObjName,b.PUBLISH_TIME as noticePublishTime,b.ATTACH as noticeAttach
+        from BP_CLARIFY a
+                 join BP_NOTICE b on a.NOTICE_ID = b.ID
+        where a.NOTICE_ID = #{noticeId}
+              and a.DELETE_FLAG = 'NOT_DELETE'
+    </select>
+
 </mapper>

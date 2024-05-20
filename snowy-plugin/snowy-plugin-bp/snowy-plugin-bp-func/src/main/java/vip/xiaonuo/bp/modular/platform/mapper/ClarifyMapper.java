@@ -20,6 +20,8 @@ import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.bp.modular.platform.entity.Clarify;
 import vip.xiaonuo.bp.modular.platform.vo.ClarifyVo;
 
+import java.util.List;
+
 /**
  * 招采管理 - 竞价澄清|询价澄清|招标澄清Mapper接口
  *
@@ -42,4 +44,12 @@ public interface ClarifyMapper extends BaseMapper<Clarify> {
      * @return
      */
     ClarifyVo getDetail(String id);
+
+
+    /**
+     * 根据公告id，获取相关澄清
+     * @param noticeId
+     * @return
+     */
+    List<ClarifyVo> getClarifyByNoticeId(String noticeId);
 }

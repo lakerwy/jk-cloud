@@ -33,6 +33,8 @@ import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 
+import java.util.List;
+
 /**
  * 招采平台 - 用户 - （招采项目）报名记录表Service接口
  *
@@ -155,9 +157,9 @@ public interface BpPlatformService{
     Page<BpSupplierVo> getBpSupplierPageList(BpSupplierPageParam bpSupplierPageParam);
 
     /**
-     * 【前台】获取招采管理 - 澄清公告详情
-     * @param clarifyId
+     * 【前台】获取招采管理 - 公告澄清相关
+     * @param noticeId
      * @return
      */
-    ClarifyVo clarifyDetail(String clarifyId);
+    List<ClarifyVo> noticeClarify(String noticeId);
 }

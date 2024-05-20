@@ -49,6 +49,7 @@ import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 招采平台 - 对外接口
@@ -335,8 +336,8 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 21)
     @ApiOperation("【前台】获取招采管理 - 澄清公告详情(id)")
-    @GetMapping("/bp/platform/frontend/public/clarifyDetail")
-    public CommonResult<ClarifyVo> clarifyDetail(String clarifyId) {
-        return CommonResult.data(bpPlatformService.clarifyDetail(clarifyId));
+    @GetMapping("/bp/platform/frontend/public/noticeClarify")
+    public CommonResult<List<ClarifyVo>> noticeClarify(String noticeId) {
+        return CommonResult.data(bpPlatformService.noticeClarify(noticeId));
     }
 }

@@ -523,7 +523,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     }
 
     @Override
-    public ClarifyVo clarifyDetail(String clarifyId) {
-        return clarifyMapper.getDetail(clarifyId);
+    public List<ClarifyVo> noticeClarify(String noticeId) {
+        return clarifyMapper.getClarifyByNoticeId(noticeId);
     }
 }
