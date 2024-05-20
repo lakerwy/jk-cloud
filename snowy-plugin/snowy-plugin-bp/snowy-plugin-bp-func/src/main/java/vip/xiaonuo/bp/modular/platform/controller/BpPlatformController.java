@@ -212,7 +212,7 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 13)
     @ApiOperation("【前台】获取招采管理 - 竞价公告|询价公告|招标公告分页")
-    @GetMapping("/bp/platform/frontend/public/noticePage")
+    @PostMapping("/bp/platform/frontend/public/noticePage")
     public CommonResult<Page<NoticeVo>> noticePage(NoticePageParam noticePageParam) {
         return CommonResult.data(bpPlatformService.noticePage(noticePageParam));
     }
