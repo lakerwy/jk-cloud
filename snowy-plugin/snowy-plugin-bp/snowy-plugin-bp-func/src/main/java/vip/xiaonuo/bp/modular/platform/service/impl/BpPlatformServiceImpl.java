@@ -445,6 +445,8 @@ public class BpPlatformServiceImpl implements BpPlatformService {
                 noticeVo.setBmStatus(SignStatusEnum.SIGN_ING.getValue());
             }else if(now.isAfter(noticeVo.getEndTime())){
                 noticeVo.setBmStatus(SignStatusEnum.SIGN_STOP.getValue());
+            }else{
+                noticeVo.setBmStatus(SignStatusEnum.SIGN_NO.getValue());
             }
         }
         /**
