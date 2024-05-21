@@ -18,8 +18,8 @@ import java.util.List;
 @Setter
 public class UserSignVo extends UserSign {
 
-    /** 项目公告 - 集合 */
-    @ApiModelProperty(value = "项目公告 - 集合", position = 100)
+    /** 项目公告 - 详情 */
+    @ApiModelProperty(value = "项目公告 - 详情", position = 100)
     private Notice noticeInfo;
 
     /** 澄清公告 - 集合 */

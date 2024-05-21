@@ -49,6 +49,7 @@ import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
+import java.util.List;
 
 /**
  * 招采平台 - 对外接口
@@ -211,8 +212,8 @@ public class BpPlatformController {
      */
     @ApiOperationSupport(order = 13)
     @ApiOperation("【前台】获取招采管理 - 竞价公告|询价公告|招标公告分页")
-    @GetMapping("/bp/platform/frontend/public/noticePage")
-    public CommonResult<Page<NoticeVo>> noticePage(NoticePageParam noticePageParam) {
+    @PostMapping("/bp/platform/frontend/public/noticePage")
+    public CommonResult<Page<NoticeVo>> noticePage(@RequestBody @Valid NoticePageParam noticePageParam) {
         return CommonResult.data(bpPlatformService.noticePage(noticePageParam));
     }
 
@@ -318,11 +319,25 @@ public class BpPlatformController {
      * @author hxw
      * @date 2024/5/14 11:10
      */
-    @ApiOperationSupport(order = 3)
+    @ApiOperationSupport(order = 20)
     @ApiOperation("【前台】招采 -供应商审批入库查询")
     @CommonLog("【前台】招采 -供应商审批入库查询")
     @GetMapping("/bp/platform/frontend/public/getBpSupplierPageList")
     public CommonResult<Page<BpSupplierVo>> getBpSupplierPageList(@Valid BpSupplierPageParam bpSupplierPageParam) {
         return CommonResult.data(bpPlatformService.getBpSupplierPageList(bpSupplierPageParam));
+    }
+
+
+    /**
+     * 【前台】获取招采管理 - 澄清公告详情(id)
+     *
+     * @author yong.ye
+     * @date  2024/05/20 16:36
+     */
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("【前台】获取招采管理 - 澄清公告详情(id)")
+    @GetMapping("/bp/platform/frontend/public/noticeClarify")
+    public CommonResult<List<ClarifyVo>> noticeClarify(String noticeId) {
+        return CommonResult.data(bpPlatformService.noticeClarify(noticeId));
     }
 }
