@@ -17,8 +17,6 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -101,6 +99,6 @@ public class SealMessageAddParam {
 
     /** 入参信息 */
     @ApiModelProperty(value = "入参信息", position = 24)
+    @NotBlank(message = "入参信息不能为空")
     private String extJson;
-
 }

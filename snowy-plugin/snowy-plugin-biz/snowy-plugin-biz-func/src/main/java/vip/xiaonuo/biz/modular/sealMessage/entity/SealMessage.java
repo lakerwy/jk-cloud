@@ -34,101 +34,105 @@ public class SealMessage {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
+    /** 用印标题 */
+    @ApiModelProperty(value = "用印标题", position = 2)
+    private String title;
+
     /** 用印部门 */
-    @ApiModelProperty(value = "用印部门", position = 2)
+    @ApiModelProperty(value = "用印部门", position = 3)
     private String sealDept;
 
     /** 用印人 */
-    @ApiModelProperty(value = "用印人", position = 3)
+    @ApiModelProperty(value = "用印人", position = 4)
     private String sealPerson;
 
     /** 用印日期 */
-    @ApiModelProperty(value = "用印日期", position = 4)
+    @ApiModelProperty(value = "用印日期", position = 5)
     private Date sealTime;
 
     /** 用印名称 */
-    @ApiModelProperty(value = "用印名称", position = 5)
+    @ApiModelProperty(value = "用印名称", position = 6)
     private String sealName;
 
     /** 用印份数 */
-    @ApiModelProperty(value = "用印份数", position = 6)
+    @ApiModelProperty(value = "用印份数", position = 7)
     private String sealPage;
 
     /** 用印主体 */
-    @ApiModelProperty(value = "用印主体", position = 7)
+    @ApiModelProperty(value = "用印主体", position = 8)
     private String sealObj;
 
     /** 用印事项 */
-    @ApiModelProperty(value = "用印事项", position = 8)
+    @ApiModelProperty(value = "用印事项", position = 9)
     private String sealItem;
 
     /** 内容摘要 */
-    @ApiModelProperty(value = "内容摘要", position = 9)
+    @ApiModelProperty(value = "内容摘要", position = 10)
     private String content;
 
     /** 用印要求 */
-    @ApiModelProperty(value = "用印要求", position = 10)
+    @ApiModelProperty(value = "用印要求", position = 11)
     private String demand;
 
     /** 附件 */
-    @ApiModelProperty(value = "附件", position = 11)
+    @ApiModelProperty(value = "附件", position = 12)
     private String attach;
 
     /** 备注 */
-    @ApiModelProperty(value = "备注", position = 12)
+    @ApiModelProperty(value = "备注", position = 13)
     private String memo;
 
     /** 租户id */
-    @ApiModelProperty(value = "租户id", position = 13)
+    @ApiModelProperty(value = "租户id", position = 14)
     private String tenantId;
 
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 14)
+    @ApiModelProperty(value = "删除标志", position = 15)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 15)
+    @ApiModelProperty(value = "创建时间", position = 16)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 16)
+    @ApiModelProperty(value = "创建用户", position = 17)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 17)
+    @ApiModelProperty(value = "修改时间", position = 18)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 18)
+    @ApiModelProperty(value = "修改用户", position = 19)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 19)
+    @ApiModelProperty(value = "数据权限控制字段", position = 20)
     private String dataScopeId;
 
     /** SN流水号 */
-    @ApiModelProperty(value = "SN流水号", position = 20)
+    @ApiModelProperty(value = "SN流水号", position = 21)
     private String sn;
 
     /** 模型Id */
-    @ApiModelProperty(value = "模型Id", position = 21)
+    @ApiModelProperty(value = "模型Id", position = 22)
     private String modelId;
 
     /** 流程实例Id */
-    @ApiModelProperty(value = "流程实例Id", position = 22)
+    @ApiModelProperty(value = "流程实例Id", position = 23)
     private String processInstanceId;
 
     /** 流程状态 */
-    @ApiModelProperty(value = "流程状态", position = 23)
+    @ApiModelProperty(value = "流程状态", position = 24)
     private String status;
 
     /** 入参信息 */
-    @ApiModelProperty(value = "入参信息", position = 24)
+    @ApiModelProperty(value = "入参信息", position = 25)
     private String extJson;
 }

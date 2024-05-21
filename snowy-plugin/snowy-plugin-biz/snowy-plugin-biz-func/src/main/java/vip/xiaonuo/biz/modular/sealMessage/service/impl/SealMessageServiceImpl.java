@@ -15,13 +15,10 @@ package vip.xiaonuo.biz.modular.sealMessage.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.sealMessage.enums.SealMessageEnum;
-import vip.xiaonuo.biz.modular.sealMessage.param.UsedSealParam;
-import vip.xiaonuo.biz.modular.sealMessage.param.WorkflowApplyParam;
 import vip.xiaonuo.biz.modular.sealMessage.util.HttpUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
@@ -46,13 +43,6 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
 
    @Resource
    private CommonCacheOperator commonCacheOperator;
-
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void add(SealMessageAddParam sealMessageAddParam) {
-        SealMessage sealMessage = BeanUtil.toBean(sealMessageAddParam, SealMessage.class);
-        this.save(sealMessage);
-    }
 
     @Override
     public List<sealBaseVo> queryAllSealBase() {
@@ -83,43 +73,13 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
         return sealBaseVos;
     }
 
+    @Transactional(rollbackFor = Exception.class)
     @Override
-    public String getToken() {
-        String token = null;
-        try{
-            //请求url
-            String url = SealMessageEnum.GETTOKENIPPOST.getValue();
-            Map<String, String> map = new HashMap<String, String>();
-            //请求参数-- 账号/密码
-            map.put(SealMessageEnum.GETTOKENACCOUNTKEY.getValue(), SealMessageEnum.GETTOKENACCOUNTVALUE.getValue());
-            map.put(SealMessageEnum.GETTOKENPASSWORDKEY.getValue(),SealMessageEnum.GETTOKENPASSWORDVALUE.getValue());
-            String contentType = "application/x-www-form-urlencoded";
-            JSONObject jsonObject = HttpUtil.sendPost(url,map,null,contentType);
-            if(ObjectUtil.isNotEmpty(jsonObject.getJSONObject("data"))){
-               token = jsonObject.getJSONObject("data").getStr("token");
-            }
-        }catch (Exception e){
-            log.error("获取群杰token失败！e:"+e.getMessage());
-            throw new CommonException("获取群杰token失败！");
-        }
-        //token存入缓存
-        commonCacheOperator.put(SealMessageEnum.SEALMESSAGETOKENKEY.getValue(),token);
-        return token;
-    }
+    public JSONObject sealAuthorize(SealMessageAddParam sealMessageAddParam){
+        //新增印章信息
+        SealMessage sealMessage = BeanUtil.toBean(sealMessageAddParam, SealMessage.class);
+        this.save(sealMessage);
 
-    @Override
-    public JSONObject sealAuthorize(){
-        WorkflowApplyParam workflowApplyParam = new WorkflowApplyParam();
-        workflowApplyParam.setTitle("测试");
-        UsedSealParam usedSealParam = new UsedSealParam();
-        usedSealParam.setSealerUserName("admin");
-        usedSealParam.setSealId("23af88e3-8d44-4512-ae1e-92cd86b40b2c");
-        usedSealParam.setApplyCount("7");
-        workflowApplyParam.setApplyerUserName("admin");
-        workflowApplyParam.setCallBackUrl("www.baidu.com");
-        List<UsedSealParam> objects = new ArrayList<>();
-        objects.add(usedSealParam);
-        workflowApplyParam.setUsedSealParamList(objects);
         JSONObject entries = new JSONObject();
         String token = null;
         try {
@@ -135,12 +95,35 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
             //请求url
             String url = SealMessageEnum.SEALAUTHORIZEIPPOST.getValue();
             Map<String, Object> map = new HashMap<>();
-            map.put("workflowApplyParam", JSONUtil.toJsonStr(workflowApplyParam));
+            map.put("workflowApplyParam", sealMessageAddParam.getExtJson());
             entries = HttpUtil.sendPostRequest(url, map, token);
         }catch (Exception e){
             log.error("创建申请并授权失败！e:"+e.getMessage());
             throw new CommonException("创建申请并授权失败！");
         }
         return entries;
+    }
+
+    public String getToken() {
+        String token = null;
+        try{
+            //请求url
+            String url = SealMessageEnum.GETTOKENIPPOST.getValue();
+            Map<String, String> map = new HashMap<String, String>();
+            //请求参数-- 账号/密码
+            map.put(SealMessageEnum.GETTOKENACCOUNTKEY.getValue(), SealMessageEnum.GETTOKENACCOUNTVALUE.getValue());
+            map.put(SealMessageEnum.GETTOKENPASSWORDKEY.getValue(),SealMessageEnum.GETTOKENPASSWORDVALUE.getValue());
+            String contentType = "application/x-www-form-urlencoded";
+            JSONObject jsonObject = HttpUtil.sendPost(url,map,null,contentType);
+            if(ObjectUtil.isNotEmpty(jsonObject.getJSONObject("data"))){
+                token = jsonObject.getJSONObject("data").getStr("token");
+            }
+        }catch (Exception e){
+            log.error("获取群杰token失败！e:"+e.getMessage());
+            throw new CommonException("获取群杰token失败！");
+        }
+        //token存入缓存
+        commonCacheOperator.put(SealMessageEnum.SEALMESSAGETOKENKEY.getValue(),token);
+        return token;
     }
 }

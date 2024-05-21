@@ -48,22 +48,6 @@ public class SealMessageController {
     private SealMessageService sealMessageService;
 
     /**
-     * 添加印章基础信息表
-     *
-     * @author hxw
-     * @date  2024/05/17 08:55
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("添加印章基础信息表")
-    @CommonLog("添加印章基础信息表")
-    //@SaCheckPermission("/biz/sealMessage/add")
-    @PostMapping("/biz/seal/add")
-    public CommonResult<String> add(@RequestBody @Valid SealMessageAddParam sealMessageAddParam) {
-        sealMessageService.add(sealMessageAddParam);
-        return CommonResult.ok();
-    }
-
-    /**
      * 创建申请群杰并授权印章
      *
      * @author hxw
@@ -74,8 +58,8 @@ public class SealMessageController {
     @CommonLog("创建申请群杰并授权印章")
     //@SaCheckPermission("/api/item/sealAuthorize")
     @PostMapping("/biz/seal/sealAuthorize")
-    public CommonResult<JSONObject> sealAuthorize() {
-        return CommonResult.data(sealMessageService.sealAuthorize());
+    public CommonResult<JSONObject> sealAuthorize(@RequestBody @Valid SealMessageAddParam sealMessageAddParam) {
+        return CommonResult.data(sealMessageService.sealAuthorize(sealMessageAddParam));
     }
 
     /**
@@ -91,19 +75,5 @@ public class SealMessageController {
     @GetMapping("/biz/seal/queryAllSealBase")
     public CommonResult<List<sealBaseVo>> queryAllSealBase() {
         return CommonResult.data(sealMessageService.queryAllSealBase());
-    }
-
-    /**
-     * 获取token
-     *
-     * @author hxw
-     * @date  2024/05/17 09:45
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("获取群杰所有的印章信息")
-    @CommonLog("获取群杰所有的印章信息")
-    @GetMapping("/biz/seal/getToken")
-    public CommonResult<String> getToken() {
-        return CommonResult.data(sealMessageService.getToken());
     }
 }
