@@ -135,7 +135,7 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
     @Override
     public void sync(BizJzscMohurdSyncParam bizJzscMohurdSyncParam) {
         String valueByKey = devConfigApi.getValueByKey(WHITE_KEY);
-        if(StrUtil.isNotEmpty(valueByKey)){
+        if(StrUtil.isEmpty(valueByKey)){
             throw  new CommonException("未配置资质白名单");
         }
         JSONArray jsonArray = new JSONArray(valueByKey);
