@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.jzscmohurd.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.jzscmohurd.entity.BizJzscMohurd;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdAddParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdEditParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdIdParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdPageParam;
+import vip.xiaonuo.biz.modular.jzscmohurd.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,6 @@ public interface BizJzscMohurdService extends IService<BizJzscMohurd> {
      * @date  2024/05/20 17:18
      **/
     BizJzscMohurd queryEntity(String id);
+
+    void sync(BizJzscMohurdSyncParam bizJzscMohurdSyncParam);
 }

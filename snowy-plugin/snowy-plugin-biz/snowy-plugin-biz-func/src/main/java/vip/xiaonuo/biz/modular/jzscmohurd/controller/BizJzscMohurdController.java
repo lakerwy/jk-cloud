@@ -23,14 +23,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.jzscmohurd.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.jzscmohurd.entity.BizJzscMohurd;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdAddParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdEditParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdIdParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdPageParam;
 import vip.xiaonuo.biz.modular.jzscmohurd.service.BizJzscMohurdService;
 
 import javax.annotation.Resource;
@@ -127,5 +124,14 @@ public class BizJzscMohurdController {
     @GetMapping("/biz/jzscmohurd/detail")
     public CommonResult<BizJzscMohurd> detail(@Valid BizJzscMohurdIdParam bizJzscMohurdIdParam) {
         return CommonResult.data(bizJzscMohurdService.detail(bizJzscMohurdIdParam));
+    }
+
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("资质同步")
+//    @SaCheckPermission("/biz/jzscmohurd/detail")
+    @PostMapping("/biz/jzscmohurd/sync")
+    public CommonResult<String> sync(@RequestBody @Valid BizJzscMohurdSyncParam bizJzscMohurdSyncParam) {
+        bizJzscMohurdService.sync(bizJzscMohurdSyncParam);
+        return CommonResult.ok();
     }
 }

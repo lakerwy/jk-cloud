@@ -14,25 +14,35 @@ package vip.xiaonuo.biz.modular.jzscmohurd.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.jzscmohurd.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.jzscmohurd.entity.BizJzscMohurd;
 import vip.xiaonuo.biz.modular.jzscmohurd.mapper.BizJzscMohurdMapper;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdAddParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdEditParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdIdParam;
-import vip.xiaonuo.biz.modular.jzscmohurd.param.BizJzscMohurdPageParam;
 import vip.xiaonuo.biz.modular.jzscmohurd.service.BizJzscMohurdService;
+import vip.xiaonuo.dev.api.DevConfigApi;
+import vip.xiaonuo.sys.api.SysUserApi;
 
+import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * BIZ_JZSC_MOHURDService接口实现类
@@ -41,7 +51,19 @@ import java.util.List;
  * @date  2024/05/20 17:18
  **/
 @Service
+@Slf4j
 public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, BizJzscMohurd> implements BizJzscMohurdService {
+
+    @Value("${pythonService.url}")
+    private  String pythonServiceUrl;
+
+    @Resource
+    private SysUserApi sysUserApi;
+
+    @Resource
+    private DevConfigApi devConfigApi;
+
+    private static final String WHITE_KEY = "ZZ_WHITE";
 
     @Override
     public Page<BizJzscMohurd> page(BizJzscMohurdPageParam bizJzscMohurdPageParam) {
@@ -108,5 +130,40 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
             throw new CommonException("BIZ_JZSC_MOHURD不存在，id值为：{}", id);
         }
         return bizJzscMohurd;
+    }
+
+    @Override
+    public void sync(BizJzscMohurdSyncParam bizJzscMohurdSyncParam) {
+        String valueByKey = devConfigApi.getValueByKey(WHITE_KEY);
+        if(StrUtil.isNotEmpty(valueByKey)){
+            throw  new CommonException("未配置资质白名单");
+        }
+        JSONArray jsonArray = new JSONArray(valueByKey);
+        // 转换为 List
+        List<String> whiteList = new ArrayList<>();
+        for (Object o : jsonArray) {
+            whiteList.add(String.valueOf(o));
+        }
+        bizJzscMohurdSyncParam.setWhiteList(whiteList);
+        if(0==bizJzscMohurdSyncParam.getType()){
+            List<Map<String, String>> maps = sysUserApi.syncUserToIm();
+            List<BizJzscMohurdSyncParam.JzUser> users = new ArrayList<>();
+            BizJzscMohurdSyncParam.JzUser jzUser = null;
+            for (Map<String, String> map : maps) {
+                    jzUser = new BizJzscMohurdSyncParam.JzUser();
+                    jzUser.setName(map.get("name"));
+                    jzUser.setIdNumber(map.get("idNumber"));
+                    users.add(jzUser);
+            }
+            bizJzscMohurdSyncParam.setUsers(users);
+        }else {
+            List<BizJzscMohurdSyncParam.JzUser> users = bizJzscMohurdSyncParam.getUsers();
+            if(CollUtil.isEmpty(users)){
+                throw new CommonException("用户信息列表不能为空");
+            }
+        }
+        String json = JSONUtil.toJsonStr(bizJzscMohurdSyncParam);
+        HttpResponse execute = HttpUtil.createPost(pythonServiceUrl+"/webApi/dataservice/query").body(json).execute(true);
+        log.info("资质校验查询结果{}",execute.getStatus());
     }
 }
