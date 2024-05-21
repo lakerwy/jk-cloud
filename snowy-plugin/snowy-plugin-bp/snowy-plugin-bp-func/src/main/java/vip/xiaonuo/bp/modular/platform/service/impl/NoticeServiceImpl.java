@@ -114,6 +114,8 @@ public class NoticeServiceImpl extends ServiceImpl<NoticeMapper, Notice> impleme
                         item.setBmStatus(SignStatusEnum.SIGN_ING.getValue());
                     }else if(now.isAfter(item.getEndTime())){
                         item.setBmStatus(SignStatusEnum.SIGN_STOP.getValue());
+                    }else{
+                        item.setBmStatus(SignStatusEnum.SIGN_NO.getValue());
                     }
                 }
             });

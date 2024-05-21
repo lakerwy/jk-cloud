@@ -68,4 +68,12 @@ public interface IDingDingService {
      * @param dingUserIds 钉钉用户id
      */
     void sendCarMsg(String agentId, String appKey, String appSecret,JSONObject jsonObject, String title, String linkUrl, String dingUserIds );
+
+
+    /**
+     * 根据 建科云 userId，删除钉钉用户
+     * @param userId
+     */
+    void delDingUser(String userId);
+
 }

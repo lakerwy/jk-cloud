@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.springframework.stereotype.Component;
+import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.flw.core.util.CommonHandleUtil;
 import vip.xiaonuo.flw.core.util.NodeRuntimeUtil;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
@@ -22,6 +23,9 @@ public class FlwTurnPositiveTaskListener implements ExecutionListener {
 
     @Resource
     FormRelationTableService formRelationTableService;
+    @Resource
+    IDingDingService iDingDingService;
+
     @Override
     public void notify(DelegateExecution execution) throws Exception {
         try{
@@ -53,6 +57,11 @@ public class FlwTurnPositiveTaskListener implements ExecutionListener {
                             if (ObjectUtil.isNotEmpty(map) && ObjectUtil.isNotEmpty(map.get("USER_ID"))) {
                                 sql = "UPDATE SYS_USER SET USER_STATUS = 'DISABLED' WHERE `ID` = '" + map.get("USER_ID") + "'";
                                 NodeRuntimeUtil.handleSqlExecution(sql);
+//                                /*
+//                                * 调用钉钉接口，删除钉钉用户 【暂时注释掉】
+//                                * */
+//                                String userId = map.get("USER_ID").toString();
+//                                iDingDingService.delDingUser(userId);
                             }
                         }
                     } else {

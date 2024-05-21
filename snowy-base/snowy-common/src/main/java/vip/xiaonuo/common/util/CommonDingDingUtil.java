@@ -212,4 +212,24 @@ public class CommonDingDingUtil {
         }
         return rsp;
     }
+
+
+    /**
+     * 删除钉钉用户【慎用-做好开关】
+     * @param access_token
+     * @param dingUserId
+     * @return
+     */
+    public static OapiV2UserDeleteResponse delDingUser(String access_token,String dingUserId){
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/delete");
+            OapiV2UserDeleteRequest req = new OapiV2UserDeleteRequest();
+            req.setUserid(dingUserId);
+            OapiV2UserDeleteResponse rsp = client.execute(req, access_token);
+            return rsp;
+        }catch (Exception e){
+            throw new RuntimeException(e);
+        }
+    }
+
 }

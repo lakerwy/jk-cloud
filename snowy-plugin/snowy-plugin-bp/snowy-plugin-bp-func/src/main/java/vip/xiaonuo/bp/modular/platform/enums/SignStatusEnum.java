@@ -23,6 +23,9 @@ import lombok.Getter;
 @Getter
 public enum SignStatusEnum {
 
+    /** 报名未开始 */
+    SIGN_NO("报名未开始"),
+
     /** 报名中 */
     SIGN_ING("报名中"),
     /** 已报名 */

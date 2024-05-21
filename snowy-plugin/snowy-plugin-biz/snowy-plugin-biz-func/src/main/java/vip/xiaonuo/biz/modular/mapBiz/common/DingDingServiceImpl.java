@@ -342,4 +342,9 @@ public class DingDingServiceImpl implements IDingDingService {
             e.printStackTrace();
         }
     }
+
+    @Override
+    public void delDingUser(String userId) {
+
+    }
 }

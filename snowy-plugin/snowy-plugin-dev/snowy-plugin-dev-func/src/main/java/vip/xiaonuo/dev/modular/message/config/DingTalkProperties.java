@@ -37,4 +37,9 @@ public class DingTalkProperties {
 
     private String h5webUrl;
 
+    /**
+     * 用户离职审批通过时，是否同步删除钉钉用户
+     */
+    private Boolean isDelDingUser;
+
 }
