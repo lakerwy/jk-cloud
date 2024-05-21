@@ -334,6 +334,19 @@ public class ImServiceImpl implements ImService {
         });
     }
 
+    @Override
+    public OutputGetUserList getAllUsers(int count, int offset) {
+        try {
+            IMResult<OutputGetUserList> allUsers = UserAdmin.getAllUsers(offset, count);
+            if(allUsers.code == ErrorCode.ERROR_CODE_SUCCESS.code){
+                return allUsers.getResult();
+            }
+        }catch (Exception e){
+            throw new CommonException("获取IM 用户失败");
+        }
+
+        return null;
+    }
 
 
     public static void handleSqlExecution(String imUserId, String userId) {
