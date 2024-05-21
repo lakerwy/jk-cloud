@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import vip.xiaonuo.common.consts.FeignConstant;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户Feign
@@ -129,6 +130,6 @@ public interface SysUserFeign {
     String userSelector(@RequestParam("orgId") String orgId, @RequestParam("searchKey") String searchKey);
 
     @RequestMapping("/feign/sys/user/syncUserToIm")
-    List<JSONObject> syncUserToIm();
+    List<Map<String, String>> syncUserToIm();
 
 }

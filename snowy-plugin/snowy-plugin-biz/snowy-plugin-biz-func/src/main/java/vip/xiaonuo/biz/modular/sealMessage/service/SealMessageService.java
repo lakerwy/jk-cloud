@@ -14,12 +14,9 @@ package vip.xiaonuo.biz.modular.sealMessage.service;
 
 
 import cn.hutool.json.JSONObject;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.sealMessage.entity.SealMessage;
-import vip.xiaonuo.biz.modular.sealMessage.entity.WorkflowApply;
 import vip.xiaonuo.biz.modular.sealMessage.param.SealMessageAddParam;
-import vip.xiaonuo.biz.modular.sealMessage.param.SealMessagePageParam;
 import vip.xiaonuo.biz.modular.sealMessage.vo.sealBaseVo;
 
 import java.util.List;
@@ -33,28 +30,14 @@ import java.util.List;
 public interface SealMessageService extends IService<SealMessage> {
 
     /**
-     * 添加印章基础信息表
-     *
-     * @author hxw
-     * @date  2024/05/17 08:55
-     */
-    void add(SealMessageAddParam sealMessageAddParam);
-
-    /**
      * 获取群杰所有的印章信息
      * @return
      */
     List<sealBaseVo> queryAllSealBase();
 
     /**
-     * 获取token
-     * @return
-     */
-    String getToken();
-
-    /**
      * 创建申请群杰并授权印章
      * @return
      */
-    JSONObject sealAuthorize();
+    JSONObject sealAuthorize(SealMessageAddParam sealMessageAddParam);
 }

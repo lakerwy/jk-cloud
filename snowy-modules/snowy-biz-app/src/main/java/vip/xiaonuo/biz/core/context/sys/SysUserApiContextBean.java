@@ -200,6 +200,6 @@ public class SysUserApiContextBean implements SysUserApi {
 
     @Override
     public List<Map<String, String>> syncUserToIm() {
-        return null;
+        return sysUserFeign.syncUserToIm();
     }
 }

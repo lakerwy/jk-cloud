@@ -22,7 +22,9 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.sys.feign.SysUserFeign;
 import vip.xiaonuo.sys.modular.user.provider.SysUserApiProvider;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 用户Feign提供者
@@ -187,7 +189,7 @@ public class SysUserFeignProvider implements SysUserFeign {
 
     @Override
     @RequestMapping("/feign/sys/user/syncUserToIm")
-    public List<JSONObject> syncUserToIm() {
-        return null;
+    public List<Map<String, String>> syncUserToIm() {
+        return sysUserApiProvider.syncUserToIm();
     }
 }
