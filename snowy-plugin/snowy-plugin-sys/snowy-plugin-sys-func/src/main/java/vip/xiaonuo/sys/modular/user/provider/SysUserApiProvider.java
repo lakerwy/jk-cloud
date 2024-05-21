@@ -78,7 +78,8 @@ public class SysUserApiProvider implements SysUserApi {
         HashSet<String> userIdSet = CollectionUtil.newHashSet(userIdList);
         List<SysUser> sysUserList = sysUserService.listByIds(userIdSet);
         if(sysUserList.size() != userIdSet.size()) {
-            throw new CommonException("某用户不存在，id值集合为：{}", userIdSet);
+            return null;
+//            throw new CommonException("某用户不存在，id值集合为：{}", userIdSet);
         }
         return sysUserList.stream().map(JSONUtil::parseObj).collect(Collectors.toList());
     }
