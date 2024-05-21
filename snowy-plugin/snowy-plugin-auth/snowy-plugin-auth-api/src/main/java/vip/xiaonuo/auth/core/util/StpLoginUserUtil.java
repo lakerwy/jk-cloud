@@ -35,7 +35,12 @@ public class StpLoginUserUtil {
      * @date 2022/7/8 10:41
      **/
     public static SaBaseLoginUser getLoginUser() {
-        return (SaBaseLoginUser) StpUtil.getTokenSession().get("loginUser");
+        try{
+            return (SaBaseLoginUser) StpUtil.getTokenSession().get("loginUser");
+        }catch (Exception e){
+            return null;
+        }
+
     }
 
     /**
