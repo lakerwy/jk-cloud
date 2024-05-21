@@ -1,12 +1,16 @@
 package vip.xiaonuo.biz.modular.sealMessage.util;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.http.Header;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.Map;
 
 public class HttpUtil {
@@ -46,9 +50,8 @@ public class HttpUtil {
             conn.setRequestProperty("Content-Type",contentType);
             conn.setRequestProperty("accept", "*/*");
             conn.setRequestProperty("connection", "Keep-Alive");
-            conn.setRequestProperty("user-agent", "Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.1;SV1)");
             if(ObjectUtil.isNotEmpty(token)){
-                conn.setRequestProperty("Authorization","Bearer " + token);
+                conn.setRequestProperty("Authorization", "Bearer " + token);
             }
             if(method.toUpperCase().equals("POST")){
                 conn.setDoOutput(true);
@@ -77,7 +80,7 @@ public class HttpUtil {
         return json;
     }
 
-    public static JSONObject sendPostRequest(String url, String postParams, String token, String contentType) throws Exception {
+    /*public static JSONObject sendPostRequest(String url, String postParams, String token, String contentType) throws Exception {
         URL obj = new URL(url);
         HttpURLConnection con = (HttpURLConnection) obj.openConnection();
 
@@ -113,5 +116,29 @@ public class HttpUtil {
         in.close();
 
         return json;
+    }*/
+
+    public static JSONObject sendPostRequest(String url, Map<String,Object> paramMap, String token) {
+
+        // 设置请求头，包括Token
+        Map<String, String> headers = new HashMap<>();
+
+        headers.put(Header.CONTENT_TYPE.getValue(), "multipart/form-data");
+        headers.put("Authorization", "Bearer "+token); // 这里放入你的Token
+
+        // 使用Hutool的HttpRequest构建POST请求，并设置参数和请求头
+        HttpResponse response = HttpRequest.post(url)
+                .form(paramMap) // 设置请求参数
+                .addHeaders(headers) // 添加请求头
+                .execute(); // 执行请求
+
+        // 检查响应状态码
+        if (response.isOk()) {
+            System.out.println("请求成功，响应内容：" + response.body());
+        } else {
+            System.out.println("请求失败，状态码：" + response.getStatus());
+            System.out.println("响应内容：" + response.body());
+        }
+        return JSONUtil.parseObj(response.body());
     }
 }

@@ -71,9 +71,9 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
             //请求url
             String url = SealMessageEnum.SEALBASEIPPOST.getValue();
             String contentType = "application/json";
-            JSONObject jsonObject = HttpUtil.sendPostRequest(url, null, token, contentType);
-            if(ObjectUtil.isNotEmpty(jsonObject.getJSONObject("ResultEntity"))){
-                Object obj = jsonObject.getJSONObject("ResultEntity").get("data");
+            JSONObject jsonObject = HttpUtil.sendPost(url, null, token, contentType);
+            if(ObjectUtil.isNotEmpty(jsonObject.get("data"))){
+                Object obj = jsonObject.get("data");
                 sealBaseVos = BeanUtil.copyToList((Collection<?>) obj, sealBaseVo.class);
             }
         }catch (Exception e){
@@ -109,7 +109,6 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
 
     @Override
     public JSONObject sealAuthorize(){
-
         WorkflowApplyParam workflowApplyParam = new WorkflowApplyParam();
         workflowApplyParam.setTitle("测试");
         UsedSealParam usedSealParam = new UsedSealParam();
@@ -135,10 +134,9 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
             }
             //请求url
             String url = SealMessageEnum.SEALAUTHORIZEIPPOST.getValue();
-            String contentType = "multipart/form-data; boundary=<calculated when request is sent>";
-            Map<String, String> map = new HashMap<String, String>();
-            map.put("workﬂowApplyParam", JSONUtil.toJsonStr(workflowApplyParam));
-            entries = HttpUtil.sendPost(url, map, token, contentType);
+            Map<String, Object> map = new HashMap<>();
+            map.put("workflowApplyParam", JSONUtil.toJsonStr(workflowApplyParam));
+            entries = HttpUtil.sendPostRequest(url, map, token);
         }catch (Exception e){
             log.error("创建申请并授权失败！e:"+e.getMessage());
             throw new CommonException("创建申请并授权失败！");

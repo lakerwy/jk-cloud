@@ -40,9 +40,21 @@ public interface SealMessageService extends IService<SealMessage> {
      */
     void add(SealMessageAddParam sealMessageAddParam);
 
+    /**
+     * 获取群杰所有的印章信息
+     * @return
+     */
     List<sealBaseVo> queryAllSealBase();
 
+    /**
+     * 获取token
+     * @return
+     */
     String getToken();
 
+    /**
+     * 创建申请群杰并授权印章
+     * @return
+     */
     JSONObject sealAuthorize();
 }

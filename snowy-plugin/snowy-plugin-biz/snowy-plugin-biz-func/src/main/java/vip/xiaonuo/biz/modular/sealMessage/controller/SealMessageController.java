@@ -77,8 +77,7 @@ public class SealMessageController {
     //@SaCheckPermission("/api/item/sealAuthorize")
     @PostMapping("/api/item/sealAuthorize")
     public CommonResult<JSONObject> sealAuthorize() {
-        sealMessageService.sealAuthorize();
-        return CommonResult.ok();
+        return CommonResult.data(sealMessageService.sealAuthorize());
     }
 
     /**
