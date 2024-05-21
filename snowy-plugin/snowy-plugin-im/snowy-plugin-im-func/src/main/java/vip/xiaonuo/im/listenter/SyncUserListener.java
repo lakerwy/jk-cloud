@@ -30,10 +30,10 @@ public class SyncUserListener {
     @Resource
     ImService imService;
 
-    @PostConstruct
-    public void init() {
-        syncUserToIm();
-    }
+//    @PostConstruct
+//    public void init() {
+//        syncUserToIm();
+//    }
 
     @Scheduled(cron = "0 0 1 * * ?")
     public void syncUserToIm(){
