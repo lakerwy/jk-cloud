@@ -41,10 +41,11 @@ public enum SealMessageEnum {
     /** 授权-ip+端口 */
     SEALAUTHORIZEIPPOST("http://10.0.33.81:10006/api/item/sealAuthorize"),
 
-    /** 获取印章信息--ip+端口 */
+    /** 印章信息--ip+端口 */
     SEALBASEIPPOST("http://10.0.33.81:10006/api/seal/queryAllSealBase"),
 
-    SEALMESSAGETOKENKEY("SEALMESSAGE_");
+    /** token */
+    SEALMESSAGETOKENKEY("SEALMESSAGETOKEN_");
 
     private final String value;
 
