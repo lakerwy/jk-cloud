@@ -45,7 +45,7 @@ public class BizJzscMohurdSyncParam {
         private String name;
 
         @ApiModelProperty(value = "身份证号")
-        private String IdNumber;
+        private String idNumber;
     }
 
 }
