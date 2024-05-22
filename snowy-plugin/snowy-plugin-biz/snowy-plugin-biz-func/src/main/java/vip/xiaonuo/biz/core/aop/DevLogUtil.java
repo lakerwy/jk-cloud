@@ -40,7 +40,7 @@ public class DevLogUtil {
 
     private static final TenApi tenApi = SpringUtil.getBean(TenApi.class);
 
-//    private static final DevLogApi devLogService = SpringUtil.getBean(DevLogApi.class);
+    private static final DevLogApi devLogService = SpringUtil.getBean(DevLogApi.class);
     /**
      * 记录操作日志
      *
@@ -63,7 +63,7 @@ public class DevLogUtil {
         devLog.setOpUser(userName);
         creatLogSignValue(devLog);
 //        DevLogApi devLogService = SpringUtil.getBean(DevLogApi.class);
-//        devLogService.executeSaveLog(JSONUtil.parseObj(devLog));
+        devLogService.executeSaveLog(JSONUtil.parseObj(devLog));
         // MDC 扩展logback字段，具体请看logback-spring.xml的自定义日志输出格式
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String description = methodSignature.getMethod().getAnnotation(ApiOperation.class).value();
@@ -106,7 +106,7 @@ public class DevLogUtil {
         devLog.setOpTime(DateTime.now());
         devLog.setOpUser(userName);
         creatLogSignValue(devLog);
-//        devLogService.executeSaveLog(JSONUtil.parseObj(devLog));
+        devLogService.executeSaveLog(JSONUtil.parseObj(devLog));
         // MDC 扩展logback字段，具体请看logback-spring.xml的自定义日志输出格式
         MethodSignature methodSignature = (MethodSignature) joinPoint.getSignature();
         String description = methodSignature.getMethod().getAnnotation(ApiOperation.class).value();
