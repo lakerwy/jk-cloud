@@ -1,4 +1,4 @@
-package vip.xiaonuo.biz.modular.sealMessage.vo;
+package vip.xiaonuo.dev.modular.sealMessage.vo;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;

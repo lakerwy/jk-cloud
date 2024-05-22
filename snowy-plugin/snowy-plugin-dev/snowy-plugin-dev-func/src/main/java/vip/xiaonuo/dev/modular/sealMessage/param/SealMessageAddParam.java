@@ -10,31 +10,29 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.biz.modular.sealMessage.param;
+package vip.xiaonuo.dev.modular.sealMessage.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
- * 印章基础信息表编辑参数
+ * 印章基础信息表添加参数
  *
  * @author hxw
  * @date  2024/05/17 08:55
  **/
 @Getter
 @Setter
-public class SealMessageEditParam {
+public class SealMessageAddParam {
 
-    /** 主键ID */
-    @ApiModelProperty(value = "主键ID", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
-    private String id;
+    /** 用印标题 */
+    @ApiModelProperty(value = "用印标题", position = 2)
+    private String title;
 
     /** 用印部门 */
     @ApiModelProperty(value = "用印部门", position = 2)
@@ -102,6 +100,18 @@ public class SealMessageEditParam {
 
     /** 入参信息 */
     @ApiModelProperty(value = "入参信息", position = 24)
+    @NotBlank(message = "入参信息不能为空")
     private String extJson;
 
+    /** 印章用户名称 */
+    @ApiModelProperty(value = "印章用户名称", position = 25)
+    private String applyerUserName;
+
+    /** 回调url路径 */
+    @ApiModelProperty(value = "印章用户名称", position = 26)
+    private String callBackUrl;
+
+    /** 申请明细信息 */
+    @ApiModelProperty(value = "申请明细信息", position = 27)
+    private List usedSealParamList;
 }

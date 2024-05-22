@@ -10,13 +10,13 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.biz.modular.sealMessage.service;
+package vip.xiaonuo.dev.modular.sealMessage.service;
 
 
 import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.biz.modular.sealMessage.entity.SealMessage;
-import vip.xiaonuo.biz.modular.sealMessage.param.SealMessageAddParam;
-import vip.xiaonuo.biz.modular.sealMessage.vo.UserSealBaseVo;
+import vip.xiaonuo.dev.modular.sealMessage.entity.SealMessage;
+import vip.xiaonuo.dev.modular.sealMessage.param.SealMessageAddParam;
+import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 
 import java.util.List;
 
@@ -29,7 +29,7 @@ import java.util.List;
 public interface SealMessageService extends IService<SealMessage> {
 
     /**
-     * 获取群杰所有的印章信息
+     * 获取群杰所有的印章信息同步到redis
      * @return
      */
     List<UserSealBaseVo> queryAllSealBase();

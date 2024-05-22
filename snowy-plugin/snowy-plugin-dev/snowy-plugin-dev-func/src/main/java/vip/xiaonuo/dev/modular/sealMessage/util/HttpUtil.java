@@ -1,4 +1,4 @@
-package vip.xiaonuo.biz.modular.sealMessage.util;
+package vip.xiaonuo.dev.modular.sealMessage.util;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.http.Header;

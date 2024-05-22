@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.biz.modular.sealMessage.service.impl;
+package vip.xiaonuo.dev.modular.sealMessage.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -19,15 +19,15 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import vip.xiaonuo.biz.modular.sealMessage.enums.SealMessageEnum;
-import vip.xiaonuo.biz.modular.sealMessage.util.HttpUtil;
+import vip.xiaonuo.dev.modular.sealMessage.enums.SealMessageEnum;
+import vip.xiaonuo.dev.modular.sealMessage.util.HttpUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.biz.modular.sealMessage.entity.SealMessage;
-import vip.xiaonuo.biz.modular.sealMessage.mapper.SealMessageMapper;
-import vip.xiaonuo.biz.modular.sealMessage.param.SealMessageAddParam;
-import vip.xiaonuo.biz.modular.sealMessage.service.SealMessageService;
-import vip.xiaonuo.biz.modular.sealMessage.vo.UserSealBaseVo;
+import vip.xiaonuo.dev.modular.sealMessage.entity.SealMessage;
+import vip.xiaonuo.dev.modular.sealMessage.mapper.SealMessageMapper;
+import vip.xiaonuo.dev.modular.sealMessage.param.SealMessageAddParam;
+import vip.xiaonuo.dev.modular.sealMessage.service.SealMessageService;
+import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -106,8 +106,8 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
     public List<UserSealBaseVo> getSealBaseList() {
         List<UserSealBaseVo> userSealBaseVos = null;
         //获取redis群杰用户信息
-        Object o = commonCacheOperator.get(SealMessageEnum.SEALMESSAGELISTKEY.getValue());
-        userSealBaseVos = BeanUtil.copyToList((Collection<?>) o, UserSealBaseVo.class);
+        Object sealObject = commonCacheOperator.get(SealMessageEnum.SEALMESSAGELISTKEY.getValue());
+        userSealBaseVos = BeanUtil.copyToList((Collection<?>) sealObject, UserSealBaseVo.class);
         //如果redis缓存数据为空，则调用群杰接口获取
         if(CollUtil.isEmpty(userSealBaseVos)){
            userSealBaseVos = queryAllSealBase();
