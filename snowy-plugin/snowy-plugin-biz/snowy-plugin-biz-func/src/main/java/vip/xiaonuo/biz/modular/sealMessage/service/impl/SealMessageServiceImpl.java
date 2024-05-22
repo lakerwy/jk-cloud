@@ -13,6 +13,7 @@
 package vip.xiaonuo.biz.modular.sealMessage.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -65,6 +66,8 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
             if(ObjectUtil.isNotEmpty(jsonObject.get("data"))){
                 Object obj = jsonObject.get("data");
                 sealBaseVos = BeanUtil.copyToList((Collection<?>) obj, UserSealBaseVo.class);
+                //将群杰用户信息存入redis缓存
+                commonCacheOperator.put(SealMessageEnum.SEALMESSAGELISTKEY.getValue(),sealBaseVos);
             }
         }catch (Exception e){
             log.error("获取群杰所有的印章信息失败！e:"+e.getMessage());
@@ -97,6 +100,19 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
             throw new CommonException("创建申请并授权失败！");
         }
         return entries.toString();
+    }
+
+    @Override
+    public List<UserSealBaseVo> getSealBaseList() {
+        List<UserSealBaseVo> userSealBaseVos = null;
+        //获取redis群杰用户信息
+        Object o = commonCacheOperator.get(SealMessageEnum.SEALMESSAGELISTKEY.getValue());
+        userSealBaseVos = BeanUtil.copyToList((Collection<?>) o, UserSealBaseVo.class);
+        //如果redis缓存数据为空，则调用群杰接口获取
+        if(CollUtil.isEmpty(userSealBaseVos)){
+           userSealBaseVos = queryAllSealBase();
+        }
+        return userSealBaseVos;
     }
 
     public String getToken() {

@@ -62,17 +62,17 @@ public class SealMessageController {
     }
 
     /**
-     * 获取群杰所有的印章信息
+     * 获取群杰所有印章信息
      *
      * @author hxw
      * @date  2024/05/17 08:55
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("获取群杰所有的印章信息")
-    @CommonLog("获取群杰所有的印章信息")
+    @ApiOperation("获取redis群杰所有印章信息")
+    @CommonLog("获取redis群杰所有印章信息")
     //@SaCheckPermission("/api/seal/queryAllSealBase")
-    @GetMapping("/biz/seal/queryAllSealBase")
-    public CommonResult<List<UserSealBaseVo>> queryAllSealBase() {
-        return CommonResult.data(sealMessageService.queryAllSealBase());
+    @GetMapping("/biz/seal/getSealBaseList")
+    public CommonResult<List<UserSealBaseVo>> getSealBaseList() {
+        return CommonResult.data(sealMessageService.getSealBaseList());
     }
 }

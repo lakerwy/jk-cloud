@@ -39,4 +39,10 @@ public interface SealMessageService extends IService<SealMessage> {
      * @return
      */
     String sealAuthorize(SealMessageAddParam sealMessageAddParam);
+
+    /**
+     * 获取redis群杰用户信息
+     * @return
+     */
+    List<UserSealBaseVo> getSealBaseList();
 }
