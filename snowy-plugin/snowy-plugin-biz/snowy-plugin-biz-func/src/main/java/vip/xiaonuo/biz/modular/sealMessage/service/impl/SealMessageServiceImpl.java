@@ -13,11 +13,12 @@
 package vip.xiaonuo.biz.modular.sealMessage.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.sealMessage.enums.SealMessageEnum;
 import vip.xiaonuo.biz.modular.sealMessage.util.HttpUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -26,7 +27,7 @@ import vip.xiaonuo.biz.modular.sealMessage.entity.SealMessage;
 import vip.xiaonuo.biz.modular.sealMessage.mapper.SealMessageMapper;
 import vip.xiaonuo.biz.modular.sealMessage.param.SealMessageAddParam;
 import vip.xiaonuo.biz.modular.sealMessage.service.SealMessageService;
-import vip.xiaonuo.biz.modular.sealMessage.vo.sealBaseVo;
+import vip.xiaonuo.biz.modular.sealMessage.vo.UserSealBaseVo;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -45,12 +46,12 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
    private CommonCacheOperator commonCacheOperator;
 
     @Override
-    public List<sealBaseVo> queryAllSealBase() {
-        List<sealBaseVo> sealBaseVos = null;
+    public List<UserSealBaseVo> queryAllSealBase() {
+        List<UserSealBaseVo> sealBaseVos = null;
         String token = null;
         try{
             //获取缓存的token
-            token = String.valueOf(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue()));
+            token = ObjectUtil.isEmpty(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue())) ? "" : String.valueOf(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue()));
             //如果没有取到缓存的token，则区接口获取
             if(ObjectUtil.isEmpty(token)){
                 token = getToken();
@@ -64,7 +65,9 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
             JSONObject jsonObject = HttpUtil.sendPost(url, null, token, contentType);
             if(ObjectUtil.isNotEmpty(jsonObject.get("data"))){
                 Object obj = jsonObject.get("data");
-                sealBaseVos = BeanUtil.copyToList((Collection<?>) obj, sealBaseVo.class);
+                sealBaseVos = BeanUtil.copyToList((Collection<?>) obj, UserSealBaseVo.class);
+                //将群杰用户信息存入redis缓存
+                commonCacheOperator.put(SealMessageEnum.SEALMESSAGELISTKEY.getValue(),sealBaseVos);
             }
         }catch (Exception e){
             log.error("获取群杰所有的印章信息失败！e:"+e.getMessage());
@@ -73,19 +76,14 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
         return sealBaseVos;
     }
 
-    @Transactional(rollbackFor = Exception.class)
     @Override
-    public JSONObject sealAuthorize(SealMessageAddParam sealMessageAddParam){
-        //新增印章信息
-        SealMessage sealMessage = BeanUtil.toBean(sealMessageAddParam, SealMessage.class);
-        this.save(sealMessage);
-
+    public String sealAuthorize(SealMessageAddParam sealMessageAddParam){
         JSONObject entries = new JSONObject();
         String token = null;
         try {
             //获取缓存的token
             token = String.valueOf(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue()));
-            //如果没有取到缓存的token，则区接口获取
+            //如果没有取到缓存的token，则接口获取
             if(ObjectUtil.isEmpty(token)){
                 token = getToken();
                 if(ObjectUtil.isEmpty(token)) {
@@ -95,13 +93,26 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
             //请求url
             String url = SealMessageEnum.SEALAUTHORIZEIPPOST.getValue();
             Map<String, Object> map = new HashMap<>();
-            map.put("workflowApplyParam", sealMessageAddParam.getExtJson());
+            map.put("workflowApplyParam", JSONUtil.toJsonStr(sealMessageAddParam.getExtJson()));
             entries = HttpUtil.sendPostRequest(url, map, token);
         }catch (Exception e){
             log.error("创建申请并授权失败！e:"+e.getMessage());
             throw new CommonException("创建申请并授权失败！");
         }
-        return entries;
+        return entries.toString();
+    }
+
+    @Override
+    public List<UserSealBaseVo> getSealBaseList() {
+        List<UserSealBaseVo> userSealBaseVos = null;
+        //获取redis群杰用户信息
+        Object o = commonCacheOperator.get(SealMessageEnum.SEALMESSAGELISTKEY.getValue());
+        userSealBaseVos = BeanUtil.copyToList((Collection<?>) o, UserSealBaseVo.class);
+        //如果redis缓存数据为空，则调用群杰接口获取
+        if(CollUtil.isEmpty(userSealBaseVos)){
+           userSealBaseVos = queryAllSealBase();
+        }
+        return userSealBaseVos;
     }
 
     public String getToken() {
@@ -122,8 +133,9 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
             log.error("获取群杰token失败！e:"+e.getMessage());
             throw new CommonException("获取群杰token失败！");
         }
-        //token存入缓存
-        commonCacheOperator.put(SealMessageEnum.SEALMESSAGETOKENKEY.getValue(),token);
+        //token存入缓存 2小时过期
+        commonCacheOperator.put(SealMessageEnum.SEALMESSAGETOKENKEY.getValue(),token,7200);
         return token;
     }
+
 }

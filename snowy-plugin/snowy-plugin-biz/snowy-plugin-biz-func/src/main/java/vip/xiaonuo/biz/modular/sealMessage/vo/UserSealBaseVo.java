@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Getter
 @Setter
-public class sealBaseVo {
+public class UserSealBaseVo {
     /** 印章id */
     @ApiModelProperty(value = "印章id")
     private String id;
@@ -117,4 +117,8 @@ public class sealBaseVo {
     /** 用印主体 */
     @ApiModelProperty(value = "用印主体")
     private String useSealSubject;
+
+    /** 用印用户信息 */
+    @ApiModelProperty(value = "用印用户信息")
+    private String sealManager;
 }

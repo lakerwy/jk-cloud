@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.biz.modular.sealMessage.controller;
 
-import cn.hutool.json.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -24,7 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.sealMessage.param.SealMessageAddParam;
 import vip.xiaonuo.biz.modular.sealMessage.service.SealMessageService;
-import vip.xiaonuo.biz.modular.sealMessage.vo.sealBaseVo;
+import vip.xiaonuo.biz.modular.sealMessage.vo.UserSealBaseVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 
@@ -58,22 +57,22 @@ public class SealMessageController {
     @CommonLog("创建申请群杰并授权印章")
     //@SaCheckPermission("/api/item/sealAuthorize")
     @PostMapping("/biz/seal/sealAuthorize")
-    public CommonResult<JSONObject> sealAuthorize(@RequestBody @Valid SealMessageAddParam sealMessageAddParam) {
+    public CommonResult<String> sealAuthorize(@RequestBody @Valid SealMessageAddParam sealMessageAddParam) {
         return CommonResult.data(sealMessageService.sealAuthorize(sealMessageAddParam));
     }
 
     /**
-     * 获取群杰所有的印章信息
+     * 获取群杰所有印章信息
      *
      * @author hxw
      * @date  2024/05/17 08:55
      */
     @ApiOperationSupport(order = 2)
-    @ApiOperation("获取群杰所有的印章信息")
-    @CommonLog("获取群杰所有的印章信息")
+    @ApiOperation("获取redis群杰所有印章信息")
+    @CommonLog("获取redis群杰所有印章信息")
     //@SaCheckPermission("/api/seal/queryAllSealBase")
-    @GetMapping("/biz/seal/queryAllSealBase")
-    public CommonResult<List<sealBaseVo>> queryAllSealBase() {
-        return CommonResult.data(sealMessageService.queryAllSealBase());
+    @GetMapping("/biz/seal/getSealBaseList")
+    public CommonResult<List<UserSealBaseVo>> getSealBaseList() {
+        return CommonResult.data(sealMessageService.getSealBaseList());
     }
 }

@@ -18,6 +18,7 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 印章基础信息表添加参数
@@ -101,4 +102,16 @@ public class SealMessageAddParam {
     @ApiModelProperty(value = "入参信息", position = 24)
     @NotBlank(message = "入参信息不能为空")
     private String extJson;
+
+    /** 印章用户名称 */
+    @ApiModelProperty(value = "印章用户名称", position = 25)
+    private String applyerUserName;
+
+    /** 回调url路径 */
+    @ApiModelProperty(value = "印章用户名称", position = 26)
+    private String callBackUrl;
+
+    /** 申请明细信息 */
+    @ApiModelProperty(value = "申请明细信息", position = 27)
+    private List usedSealParamList;
 }

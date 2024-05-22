@@ -13,11 +13,10 @@
 package vip.xiaonuo.biz.modular.sealMessage.service;
 
 
-import cn.hutool.json.JSONObject;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.sealMessage.entity.SealMessage;
 import vip.xiaonuo.biz.modular.sealMessage.param.SealMessageAddParam;
-import vip.xiaonuo.biz.modular.sealMessage.vo.sealBaseVo;
+import vip.xiaonuo.biz.modular.sealMessage.vo.UserSealBaseVo;
 
 import java.util.List;
 
@@ -33,11 +32,17 @@ public interface SealMessageService extends IService<SealMessage> {
      * 获取群杰所有的印章信息
      * @return
      */
-    List<sealBaseVo> queryAllSealBase();
+    List<UserSealBaseVo> queryAllSealBase();
 
     /**
      * 创建申请群杰并授权印章
      * @return
      */
-    JSONObject sealAuthorize(SealMessageAddParam sealMessageAddParam);
+    String sealAuthorize(SealMessageAddParam sealMessageAddParam);
+
+    /**
+     * 获取redis群杰用户信息
+     * @return
+     */
+    List<UserSealBaseVo> getSealBaseList();
 }
