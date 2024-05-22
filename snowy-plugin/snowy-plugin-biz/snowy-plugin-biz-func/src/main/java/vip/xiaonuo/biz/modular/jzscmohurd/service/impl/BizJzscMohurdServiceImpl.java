@@ -150,10 +150,14 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
             List<BizJzscMohurdSyncParam.JzUser> users = new ArrayList<>();
             BizJzscMohurdSyncParam.JzUser jzUser = null;
             for (Map<String, String> map : maps) {
-                    jzUser = new BizJzscMohurdSyncParam.JzUser();
-                    jzUser.setName(map.get("name"));
-                    jzUser.setIdNumber(map.get("idNumber"));
-                    users.add(jzUser);
+                String idNumber = map.get("idNumber");
+                if(StrUtil.isEmpty(idNumber)){
+                    continue;
+                }
+                jzUser = new BizJzscMohurdSyncParam.JzUser();
+                jzUser.setName(map.get("name"));
+                jzUser.setIdNumber(map.get("idNumber"));
+                users.add(jzUser);
             }
             bizJzscMohurdSyncParam.setUsers(users);
         }else {
