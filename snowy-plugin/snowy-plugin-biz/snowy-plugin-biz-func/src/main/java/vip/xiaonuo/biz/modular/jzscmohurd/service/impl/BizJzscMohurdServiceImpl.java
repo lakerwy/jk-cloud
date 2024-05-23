@@ -20,7 +20,6 @@ import cn.hutool.core.util.StrUtil;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -43,6 +42,9 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * BIZ_JZSC_MOHURDService接口实现类
@@ -64,6 +66,11 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
     private DevConfigApi devConfigApi;
 
     private static final String WHITE_KEY = "ZZ_WHITE";
+
+    private  static final ExecutorService executor = Executors.newFixedThreadPool(5);
+    private static final AtomicInteger activeTaskCount = new AtomicInteger(0);
+
+    private static final AtomicReference<Future<HttpResponse>> lastTask = new AtomicReference<>(null);
 
     @Override
     public Page<BizJzscMohurd> page(BizJzscMohurdPageParam bizJzscMohurdPageParam) {
@@ -131,9 +138,11 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
         }
         return bizJzscMohurd;
     }
-
     @Override
     public void sync(BizJzscMohurdSyncParam bizJzscMohurdSyncParam) {
+        if(activeTaskCount.get()>1){
+            throw new CommonException("上次同步暂未结束，请稍后再试");
+        }
         String valueByKey = devConfigApi.getValueByKey(WHITE_KEY);
         if(StrUtil.isEmpty(valueByKey)){
             throw  new CommonException("未配置资质白名单");
@@ -166,8 +175,22 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
                 throw new CommonException("用户信息列表不能为空");
             }
         }
-        String json = JSONUtil.toJsonStr(bizJzscMohurdSyncParam);
-        HttpResponse execute = HttpUtil.createPost(pythonServiceUrl+"/webApi/dataservice/query").body(json).execute(true);
-        log.info("资质校验查询结果{}",execute.getStatus());
+
+        Future<HttpResponse> future = executor.submit(()->{
+            activeTaskCount.incrementAndGet();
+            try {
+                String json = JSONUtil.toJsonStr(bizJzscMohurdSyncParam);
+                return HttpUtil.createPost(pythonServiceUrl + "/webApi/dataservice/query").body(json).execute(true);
+            }finally {
+                activeTaskCount.decrementAndGet();
+            }
+        });
+        lastTask.set(future);
+        try {
+            HttpResponse response = future.get();
+            log.info("资质校验查询结果: {}", response.getStatus());
+        } catch (InterruptedException | ExecutionException e) {
+            throw new CommonException("异步任务执行失败", e);
+        }
     }
 }
