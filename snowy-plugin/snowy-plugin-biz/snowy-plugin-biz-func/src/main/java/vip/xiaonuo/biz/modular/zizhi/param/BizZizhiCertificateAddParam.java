@@ -35,10 +35,6 @@ import java.util.Date;
 @Setter
 public class BizZizhiCertificateAddParam {
 
-    /** 流水号 */
-//    @ApiModelProperty(value = "流水号", position = 2)
-//    private Integer sn;
-
     /** 公司名称 */
     @ApiModelProperty(value = "公司名称", position = 3)
     private String company;
@@ -72,4 +68,12 @@ public class BizZizhiCertificateAddParam {
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date validity;
+
+    /** 存管单位 */
+    @ApiModelProperty(value = "存管单位", position = 16)
+    private String unit;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 17)
+    private String attachment;
 }

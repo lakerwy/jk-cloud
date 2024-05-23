@@ -54,9 +54,6 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
     public Page<BizZizhiCertificateVo> page(BizZizhiCertificatePageParam bizZizhiCertificatePageParam) {
         QueryWrapper<BizZizhiCertificate> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
-        if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getSn())) {
-            queryWrapper.eq("a.SN", bizZizhiCertificatePageParam.getSn());
-        }
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getCompany())) {
             queryWrapper.like("a.COMPANY", bizZizhiCertificatePageParam.getCompany());
         }
@@ -72,12 +69,16 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getCertNo())){
             queryWrapper.like("a.CERT_NO",bizZizhiCertificatePageParam.getCertNo());
         }
+        if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getUnit())){
+            queryWrapper.like("a.UNIT",bizZizhiCertificatePageParam.getUnit());
+        }
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.COMPANY",bizZizhiCertificatePageParam.getSearchKey())
                     .or().like("a.ISSUE_ORG",bizZizhiCertificatePageParam.getSearchKey())
                     .or().like("a.TYPE",bizZizhiCertificatePageParam.getSearchKey())
                     .or().like("a.ZI_ZHI_NAME",bizZizhiCertificatePageParam.getSearchKey())
-                    .or().like("a.CERT_NO",bizZizhiCertificatePageParam.getSearchKey()));
+                    .or().like("a.CERT_NO",bizZizhiCertificatePageParam.getSearchKey())
+                    .or().like("a.UNIT",bizZizhiCertificatePageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(bizZizhiCertificatePageParam.getCertStage())){
             queryWrapper.eq("a.certStage",bizZizhiCertificatePageParam.getCertStage());
@@ -87,7 +88,7 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
             queryWrapper.orderBy(true, bizZizhiCertificatePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizZizhiCertificatePageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.COMPANY").orderByAsc("a.TYPE").orderByAsc("a.ZI_ZHI_NAME");
+            queryWrapper.orderByAsc("a.sortIndex").orderByAsc("a.COMPANY").orderByAsc("a.TYPE").orderByAsc("a.ZI_ZHI_NAME");
         }
         return bizZizhiCertificateMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -96,8 +97,6 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
     @Override
     public void add(BizZizhiCertificateAddParam bizZizhiCertificateAddParam) {
         BizZizhiCertificate bizZizhiCertificate = BeanUtil.toBean(bizZizhiCertificateAddParam, BizZizhiCertificate.class);
-        Integer sn = this.list().stream().filter(x->x.getSn()!=null).map(x->x.getSn()).max(Integer::compareTo).orElse(0)+1;
-        bizZizhiCertificate.setSn(sn);
         this.save(bizZizhiCertificate);
     }
 
