@@ -68,6 +68,9 @@
 
         <!--消息推送插件-->
         <module>snowy-plugin-push</module>
+
+        <!--通用工具插件-->
+        <module>snowy-plugin-util</module>
     </modules>
 
 </project>

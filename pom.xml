@@ -460,6 +460,26 @@
                 <version>${snowy.version}</version>
             </dependency>
 
+            <dependency>
+                <groupId>vip.xiaonuo</groupId>
+                <artifactId>snowy-plugin-util-api</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>vip.xiaonuo</groupId>
+                <artifactId>snowy-plugin-util-func</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
+
+<!--            <dependency>-->
+<!--                <groupId>vip.xiaonuo</groupId>-->
+<!--                <artifactId>snowy-plugin-util-feign</artifactId>-->
+<!--                <version>${snowy.version}</version>-->
+<!--            </dependency>-->
+
+
 
             <!-- snowy-cloud-inner-end -->
 
