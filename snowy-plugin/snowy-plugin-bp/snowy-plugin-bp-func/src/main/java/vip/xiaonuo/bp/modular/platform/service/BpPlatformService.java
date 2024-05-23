@@ -73,7 +73,7 @@ public interface BpPlatformService{
      * 招采平台 - 用户注册
      * @param registerParam
      */
-    void register(RegisterParam registerParam);
+    String register(RegisterParam registerParam);
 
     /**
      * 获取登录信息

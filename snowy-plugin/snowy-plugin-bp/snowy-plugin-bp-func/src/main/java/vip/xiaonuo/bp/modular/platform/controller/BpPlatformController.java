@@ -77,8 +77,7 @@ public class BpPlatformController {
     @CommonLog("【前台】招采平台 - 注册用户")
     @PostMapping("/bp/platform/frontend/public/register")
     public CommonResult<String> register(@RequestBody @Valid RegisterParam registerParam) {
-        bpPlatformService.register(registerParam);
-        return CommonResult.ok();
+        return CommonResult.data(bpPlatformService.register(registerParam));
     }
 
 

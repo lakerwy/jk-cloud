@@ -100,7 +100,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
 
 
     @Override
-    public void register(RegisterParam registerParam) {
+    public String register(RegisterParam registerParam) {
         //获取密码
         String password = "";
         String passwordSure = "";
@@ -123,16 +123,19 @@ public class BpPlatformServiceImpl implements BpPlatformService {
             throw new CommonException("账号已存在！");
         }
         //4. 创建账号
-        BpUserAddParam bpUserAddParam = new BpUserAddParam();
-        bpUserAddParam.setAccount(phone);
-        bpUserAddParam.setName(registerParam.getName());
-        bpUserAddParam.setPhone(phone);
+        BpUser bpUser = new BpUser();
+        bpUser.setAccount(phone);
+        bpUser.setName(registerParam.getName());
+        bpUser.setPhone(phone);
         // SM2解密后，获得前端传来的密码哈希值
         String passwordHash = CommonCryptogramUtil.doHashValue(password);
-        bpUserAddParam.setPassword(passwordHash);
-        bpUserAddParam.setUserStatus(UserStatusEnum.ENABLE.getValue());
-        bpUserAddParam.setMemo(DateUtil.now()+" : 招采平台-注册；");
-        bpUserService.add(bpUserAddParam);
+        bpUser.setPassword(passwordHash);
+        bpUser.setUserStatus(UserStatusEnum.ENABLE.getValue());
+        bpUser.setMemo(DateUtil.now()+" : 招采平台-注册；");
+        bpUserService.save(bpUser);
+        //5. 执行登录
+        BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUser,BpLoginUser.class);
+        return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
     }
 
 
