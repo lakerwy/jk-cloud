@@ -53,6 +53,12 @@
             <artifactId>snowy-plugin-dbs-api</artifactId>
         </dependency>
 
+        <!-- 引入工具类模块 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-util-func</artifactId>
+        </dependency>
+
         <dependency>
             <groupId>com.gexin.platform</groupId>
             <artifactId>gexin-rp-sdk-http</artifactId>

@@ -72,5 +72,10 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-ten-api</artifactId>
         </dependency>
+        <!-- 引入工具类模块 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-util-func</artifactId>
+        </dependency>
     </dependencies>
 </project>

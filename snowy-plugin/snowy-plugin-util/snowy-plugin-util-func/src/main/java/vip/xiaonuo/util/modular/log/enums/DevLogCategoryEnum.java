@@ -10,16 +10,37 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.log.mapper;
+package vip.xiaonuo.util.modular.log.enums;
 
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import vip.xiaonuo.dev.modular.log.entity.DevLog;
+import lombok.Getter;
 
 /**
- * 日志Mapper接口
+ * 日志分类枚举
  *
  * @author xuyuxiang
- * @date 2022/2/23 18:40
+ * @date 2022/6/16 16:14
  **/
-public interface DevLogMapper extends BaseMapper<DevLog> {
+@Getter
+public enum DevLogCategoryEnum {
+
+    /** 操作日志 */
+    OPERATE("OPERATE"),
+
+    /** 异常日志 */
+    EXCEPTION("EXCEPTION"),
+
+    /** 登录日志 */
+    LOGIN("LOGIN"),
+
+    /** 登出日志 */
+    LOGOUT("LOGOUT"),
+
+    /** 文件操作日志 */
+    FILE_ACTION("FILE_ACTION");
+
+    private final String value;
+
+    DevLogCategoryEnum(String value) {
+        this.value = value;
+    }
 }

@@ -10,31 +10,17 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.log.result;
+package vip.xiaonuo.util.modular.log.mapper;
 
-import io.swagger.annotations.ApiModelProperty;
-import lombok.Getter;
-import lombok.Setter;
+
+import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import vip.xiaonuo.util.modular.log.entity.DevLog;
 
 /**
- * 访问日志折线图数据结果
+ * 日志Mapper接口
  *
  * @author xuyuxiang
- * @date 2022/9/4 21:14
- */
-@Getter
-@Setter
-public class DevLogVisLineChartDataResult {
-
-    /** 日期 */
-    @ApiModelProperty(value = "日期", position = 1)
-    private String date;
-
-    /** 登录数量 */
-    @ApiModelProperty(value = "登录数量", position = 2)
-    private Long loginCount;
-
-    /** 登出数量 */
-    @ApiModelProperty(value = "登出数量", position = 3)
-    private Long logoutCount;
+ * @date 2022/2/23 18:40
+ **/
+public interface DevLogMapper extends BaseMapper<DevLog> {
 }

@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.log.service.impl;
+package vip.xiaonuo.util.modular.log.service.impl;
 
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
@@ -29,16 +29,16 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.dev.modular.log.entity.DevLog;
-import vip.xiaonuo.dev.modular.log.enums.DevLogCategoryEnum;
-import vip.xiaonuo.dev.modular.log.mapper.DevLogMapper;
-import vip.xiaonuo.dev.modular.log.param.DevLogDeleteParam;
-import vip.xiaonuo.dev.modular.log.param.DevLogPageParam;
-import vip.xiaonuo.dev.modular.log.result.DevLogOpBarChartDataResult;
-import vip.xiaonuo.dev.modular.log.result.DevLogOpPieChartDataResult;
-import vip.xiaonuo.dev.modular.log.result.DevLogVisLineChartDataResult;
-import vip.xiaonuo.dev.modular.log.result.DevLogVisPieChartDataResult;
-import vip.xiaonuo.dev.modular.log.service.DevLogService;
+import vip.xiaonuo.util.modular.log.entity.DevLog;
+import vip.xiaonuo.util.modular.log.enums.DevLogCategoryEnum;
+import vip.xiaonuo.util.modular.log.mapper.DevLogMapper;
+import vip.xiaonuo.util.modular.log.param.DevLogDeleteParam;
+import vip.xiaonuo.util.modular.log.param.DevLogPageParam;
+import vip.xiaonuo.util.modular.log.result.DevLogOpBarChartDataResult;
+import vip.xiaonuo.util.modular.log.result.DevLogOpPieChartDataResult;
+import vip.xiaonuo.util.modular.log.result.DevLogVisLineChartDataResult;
+import vip.xiaonuo.util.modular.log.result.DevLogVisPieChartDataResult;
+import vip.xiaonuo.util.modular.log.service.DevLogService;
 
 import java.util.List;
 import java.util.Map;
@@ -52,7 +52,7 @@ import java.util.stream.Collectors;
  */
 @Master
 @Service
-public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> implements DevLogService {
+public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> implements DevLogService{
 
     @Override
     public Page<DevLog> page(DevLogPageParam devLogPageParam) {

@@ -39,7 +39,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.api.DevConfigApi;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.service.DevFileService;
-import vip.xiaonuo.dev.modular.log.util.DevLogUtil;
+import vip.xiaonuo.util.modular.log.util.DevLogUtil;
 import vip.xiaonuo.pan.modular.file.constant.FoldNameConstant;
 import vip.xiaonuo.pan.modular.file.entity.PanFile;
 import vip.xiaonuo.pan.modular.file.param.MultipartFileParam;

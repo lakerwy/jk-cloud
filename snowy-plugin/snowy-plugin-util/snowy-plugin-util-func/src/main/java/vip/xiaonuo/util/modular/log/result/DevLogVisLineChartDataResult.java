@@ -10,47 +10,31 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.log.param;
+package vip.xiaonuo.util.modular.log.result;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 日志查询参数
+ * 访问日志折线图数据结果
  *
  * @author xuyuxiang
- * @date 2022/9/2 15:04
+ * @date 2022/9/4 21:14
  */
 @Getter
 @Setter
-public class DevLogPageParam {
+public class DevLogVisLineChartDataResult {
 
-    /** 当前页 */
-    @ApiModelProperty(value = "当前页码")
-    private Integer current;
+    /** 日期 */
+    @ApiModelProperty(value = "日期", position = 1)
+    private String date;
 
-    /** 每页条数 */
-    @ApiModelProperty(value = "每页条数")
-    private Integer size;
+    /** 登录数量 */
+    @ApiModelProperty(value = "登录数量", position = 2)
+    private Long loginCount;
 
-    /** 排序字段 */
-    @ApiModelProperty(value = "排序字段，字段驼峰名称，如：userName")
-    private String sortField;
-
-    /** 排序方式 */
-    @ApiModelProperty(value = "排序方式，升序：ASCEND；降序：DESCEND")
-    private String sortOrder;
-
-    /** 日志分类 */
-    @ApiModelProperty(value = "日志分类")
-    private String category;
-
-    /** 日志名称关键词 */
-    @ApiModelProperty(value = "日志名称关键词")
-    private String searchKey;
-
-    /** 文件Id */
-    @ApiModelProperty(value = "文件Id")
-    private String fileId;
+    /** 登出数量 */
+    @ApiModelProperty(value = "登出数量", position = 3)
+    private Long logoutCount;
 }

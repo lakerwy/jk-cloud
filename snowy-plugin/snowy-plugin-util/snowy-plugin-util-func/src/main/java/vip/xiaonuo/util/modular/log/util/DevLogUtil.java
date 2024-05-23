@@ -10,7 +10,7 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.dev.modular.log.util;
+package vip.xiaonuo.util.modular.log.util;
 
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
@@ -24,11 +24,11 @@ import org.aspectj.lang.reflect.MethodSignature;
 import org.slf4j.MDC;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.util.*;
-import vip.xiaonuo.dev.modular.log.entity.DevLog;
-import vip.xiaonuo.dev.modular.log.enums.DevLogCategoryEnum;
-import vip.xiaonuo.dev.modular.log.enums.DevLogExeStatusEnum;
-import vip.xiaonuo.dev.modular.log.service.DevLogService;
 import vip.xiaonuo.ten.api.TenApi;
+import vip.xiaonuo.util.modular.log.entity.DevLog;
+import vip.xiaonuo.util.modular.log.enums.DevLogCategoryEnum;
+import vip.xiaonuo.util.modular.log.enums.DevLogExeStatusEnum;
+import vip.xiaonuo.util.modular.log.service.DevLogService;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;

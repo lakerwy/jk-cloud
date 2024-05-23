@@ -52,6 +52,12 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-flw-api</artifactId>
         </dependency>
+
+        <!-- 引入工具类模块 -->
+        <dependency>
+            <groupId>vip.xiaonuo</groupId>
+            <artifactId>snowy-plugin-util-func</artifactId>
+        </dependency>
     </dependencies>
 
 </project>

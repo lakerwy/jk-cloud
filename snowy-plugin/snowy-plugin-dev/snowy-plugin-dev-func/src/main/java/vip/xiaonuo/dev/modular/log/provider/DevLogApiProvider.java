@@ -19,10 +19,10 @@ import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.api.DevLogApi;
-import vip.xiaonuo.dev.modular.log.entity.DevLog;
-import vip.xiaonuo.dev.modular.log.enums.DevLogCategoryEnum;
-import vip.xiaonuo.dev.modular.log.service.DevLogService;
-import vip.xiaonuo.dev.modular.log.util.DevLogUtil;
+import vip.xiaonuo.util.modular.log.entity.DevLog;
+import vip.xiaonuo.util.modular.log.enums.DevLogCategoryEnum;
+import vip.xiaonuo.util.modular.log.service.DevLogService;
+import vip.xiaonuo.util.modular.log.util.DevLogUtil;
 
 import javax.annotation.Resource;
 import java.util.List;
