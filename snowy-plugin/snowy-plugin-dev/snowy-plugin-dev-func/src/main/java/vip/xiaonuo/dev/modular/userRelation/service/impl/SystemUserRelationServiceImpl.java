@@ -128,6 +128,7 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             params.put(syncUser.getAccount()+syncUser.getRoleId(),syncUser);
         }
 
+        List<SyncParam.SyncUser> remove = new ArrayList<>();
         //原关系人员
         List<SystemUserRelation> list = list(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId, syncParam.getId()).eq(SystemUserRelation::getUserType,1));
         //获取需要修改的，新增的，删除的
@@ -138,6 +139,7 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
                 SyncParam.SyncUser syncUser = params.get(userRelation.getUserAccount() + userRelation.getRoleKey());
                 if(null!=syncUser){
                     //原来的从新的里面可以获取的到，说明存在，从新的params 移除，就剩下新增的了
+                    remove.add(syncUser);
                     params.remove(userRelation.getUserAccount() + userRelation.getRoleKey());
                 }else {
                     deletes.add(userRelation);
@@ -158,12 +160,12 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
         }).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(collect)){
             saveOrUpdateBatch(collect);
-            ExtMessage extMessage = new ExtMessage();
-            extMessage.setId(IdWorker.getIdStr());
-            extMessage.setOperateType(3);
-            extMessage.setData(JSONUtil.toJsonStr(collect));
-            //系统项目创建完成以后，就通知项目系统去初始化项目信息
-            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
+//            ExtMessage extMessage = new ExtMessage();
+//            extMessage.setId(IdWorker.getIdStr());
+//            extMessage.setOperateType(3);
+//            extMessage.setData(JSONUtil.toJsonStr(collect));
+//            //系统项目创建完成以后，就通知项目系统去初始化项目信息
+//            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
 //            String valueUrl = devConfigService.getValueByKey("EPC_SYSUSER");
 //            if(StrUtil.isNotEmpty(valueUrl)){
 //                String json = JSONUtil.parseArray(collect).toString();
@@ -174,6 +176,25 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
         if(CollUtil.isNotEmpty(deletes)){
             List<String> ids = deletes.stream().map(SystemUserRelation::getId).collect(Collectors.toList());
             removeByIds(ids);
+        }
+        List<SystemUserRelation> collect1 = remove.stream().map(syncUser -> {
+            SystemUserRelation systemUserRelation = new SystemUserRelation();
+            systemUserRelation.setSystemId(syncParam.getId());
+            systemUserRelation.setUserAccount(syncUser.getAccount());
+            systemUserRelation.setUserId(syncUser.getUserId());
+            systemUserRelation.setRoleKey(syncUser.getRoleId());
+            systemUserRelation.setUserName(syncUser.getUserName());
+            systemUserRelation.setUserType(1);
+            return systemUserRelation;
+        }).collect(Collectors.toList());
+        collect.addAll(collect1);
+        if(CollUtil.isNotEmpty(collect)){
+            ExtMessage extMessage = new ExtMessage();
+            extMessage.setId(IdWorker.getIdStr());
+            extMessage.setOperateType(3);
+            extMessage.setData(JSONUtil.toJsonStr(collect));
+            //系统项目创建完成以后，就通知项目系统去初始化项目信息
+            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
         }
 
     }
