@@ -127,4 +127,8 @@ public class DevLog {
     @ApiModelProperty(value = "更新人", position = 23)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 日志模块-Tag */
+    @ApiModelProperty(value = "日志模块-Tag", position = 24)
+    private String modelTag;
 }

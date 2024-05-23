@@ -53,4 +53,8 @@ public class DevLogPageParam {
     /** 文件Id */
     @ApiModelProperty(value = "文件Id")
     private String fileId;
+
+    /** 日志模块-Tag */
+    @ApiModelProperty(value = "日志模块-Tag", position = 24)
+    private String modelTag;
 }

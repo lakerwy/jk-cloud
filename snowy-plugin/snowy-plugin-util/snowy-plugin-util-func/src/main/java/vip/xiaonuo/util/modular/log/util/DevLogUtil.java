@@ -17,6 +17,7 @@ import cn.hutool.core.date.DateTime;
 import cn.hutool.core.exceptions.ExceptionUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
+import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.JoinPoint;
@@ -66,6 +67,9 @@ public class DevLogUtil {
         devLog.setResultJson(resultJson);
         devLog.setOpTime(DateTime.now());
         devLog.setOpUser(userName);
+        String[] tags = joinPoint.getTarget().getClass().getAnnotation(Api.class).tags();
+        String tagsValue = StrUtil.join("，",tags);
+        devLog.setModelTag(tagsValue);
         creatLogSignValue(devLog);
         devLogService.save(devLog);
         // MDC 扩展logback字段，具体请看logback-spring.xml的自定义日志输出格式
@@ -109,6 +113,9 @@ public class DevLogUtil {
         devLog.setParamJson(CommonJoinPointUtil.getArgsJsonString(joinPoint));
         devLog.setOpTime(DateTime.now());
         devLog.setOpUser(userName);
+        String[] tags = joinPoint.getTarget().getClass().getAnnotation(Api.class).tags();
+        String tagsValue = StrUtil.join("，",tags);
+        devLog.setModelTag(tagsValue);
         creatLogSignValue(devLog);
         devLogService.save(devLog);
         // MDC 扩展logback字段，具体请看logback-spring.xml的自定义日志输出格式
