@@ -34,7 +34,10 @@
         SELECT * FROM (
         SELECT 'department' AS type, so.ID AS id, so.`NAME` AS `name`, so.TENANT_ID AS tenantId, so.PARENT_ID AS parentId, so.CATEGORY AS category, so.SORT_CODE AS sortCode
         FROM SYS_ORG so
-        WHERE so.DELETE_FLAG = 'NOT_DELETE' AND so.PARENT_ID = #{id}
+        WHERE so.DELETE_FLAG = 'NOT_DELETE'
+        <if test="id != null and id != ''">
+            AND so.PARENT_ID = #{id}
+        </if>
         <if test="searchKey != null and searchKey != ''">
             AND so.NAME LIKE CONCAT('%', #{searchKey}, '%')
         </if>
@@ -43,7 +46,10 @@
 
         SELECT 'user' AS type, su.ID AS id, su.`NAME` AS `name`, su.TENANT_ID AS tenantId, su.ORG_ID AS parentId, "USER" AS category, su.SORT_CODE AS sortCode
         FROM SYS_USER su
-        WHERE su.USER_STATUS = 'ENABLE' AND su.DELETE_FLAG = 'NOT_DELETE'  AND su.ORG_ID = #{id}
+        WHERE su.USER_STATUS = 'ENABLE' AND su.DELETE_FLAG = 'NOT_DELETE'
+        <if test="id != null and id != ''">
+            AND su.ORG_ID = #{id}
+        </if>
         <if test="searchKey != null and searchKey != ''">
             AND su.NAME LIKE CONCAT('%', #{searchKey}, '%')
         </if>

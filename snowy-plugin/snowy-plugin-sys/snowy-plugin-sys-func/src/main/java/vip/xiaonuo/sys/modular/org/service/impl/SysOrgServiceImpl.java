@@ -493,11 +493,11 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
 
     @Override
     public Page<NodeVo> getOrgOrUser(SysOrgPageParam sysOrgPageParam) {
-        String parentId = sysOrgPageParam.getParentId();
-        if(StrUtil.isEmpty(parentId)){
-            parentId = "0";
-        }
-        return sysOrgMapper.getOrgOrUser(CommonPageRequest.defaultPage(),parentId,sysOrgPageParam.getSearchKey());
+//        String parentId = sysOrgPageParam.getParentId();
+//        if(StrUtil.isEmpty(parentId)){
+//            parentId = "0";
+//        }
+        return sysOrgMapper.getOrgOrUser(CommonPageRequest.defaultPage(),sysOrgPageParam.getParentId(),sysOrgPageParam.getSearchKey());
     }
 
     @Override
