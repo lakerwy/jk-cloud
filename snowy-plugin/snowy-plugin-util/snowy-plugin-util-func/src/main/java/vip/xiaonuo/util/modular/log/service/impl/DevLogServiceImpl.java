@@ -63,6 +63,12 @@ public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> impleme
         if(ObjectUtil.isNotEmpty(devLogPageParam.getModelTag())){
             queryWrapper.lambda().like(DevLog::getModelTag,devLogPageParam.getModelTag());
         }
+        if(ObjectUtil.isNotEmpty(devLogPageParam.getName())){
+            queryWrapper.lambda().like(DevLog::getName,devLogPageParam.getName());
+        }
+        if(ObjectUtil.isNotEmpty(devLogPageParam.getStartTime()) && ObjectUtil.isNotEmpty(devLogPageParam.getEndTime())) {
+            queryWrapper.lambda().between(DevLog::getCreateTime,devLogPageParam.getStartTime(), devLogPageParam.getEndTime());
+        }
         if(ObjectUtil.isNotEmpty(devLogPageParam.getSearchKey())) {
             queryWrapper.lambda().and(q->q.like(DevLog::getName, devLogPageParam.getSearchKey())
                     .or().like(DevLog::getModelTag,devLogPageParam.getSearchKey()));
