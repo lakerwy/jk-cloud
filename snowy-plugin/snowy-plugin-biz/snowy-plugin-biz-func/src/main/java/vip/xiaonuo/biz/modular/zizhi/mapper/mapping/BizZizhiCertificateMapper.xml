@@ -7,7 +7,10 @@
         from (select cert.*,
                   CASE WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt; DATE(NOW()) then '已过期'
                        WHEN cert.VALIDITY IS NOT NULL AND  cert.VALIDITY &lt;= DATE_ADD(NOW(), INTERVAL 6 MONTH) then '临近六个月'
-                  ELSE ''  END AS certStage
+                  ELSE ''  END AS certStage,
+                  CASE WHEN cert.COMPANY like '%建科国际%' then 1
+                  WHEN cert.COMPANY like '%建科工程技术%' then 2
+                  ELSE 3  END AS sortIndex
               from BIZ_ZIZHI_CERTIFICATE cert where cert.DELETE_FLAG='NOT_DELETE') a
             ${ew.customSqlSegment}
     </select>

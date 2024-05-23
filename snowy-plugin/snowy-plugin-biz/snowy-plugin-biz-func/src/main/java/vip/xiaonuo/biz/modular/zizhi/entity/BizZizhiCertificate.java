@@ -40,7 +40,7 @@ public class BizZizhiCertificate {
 
     /** 流水号 */
     @ApiModelProperty(value = "流水号", position = 2)
-    private Integer sn;
+    private String sn;
 
     /** 公司名称 */
     @ApiModelProperty(value = "公司名称", position = 3)
@@ -102,4 +102,12 @@ public class BizZizhiCertificate {
     @DateTimeFormat(pattern = "yyyy-MM-dd")
     @TableField(insertStrategy = FieldStrategy.IGNORED, updateStrategy = FieldStrategy.IGNORED)
     private Date validity;
+
+    /** 存管单位 */
+    @ApiModelProperty(value = "存管单位", position = 16)
+    private String unit;
+
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 17)
+    private String attachment;
 }

@@ -51,10 +51,6 @@ public class BizZizhiCertificatePageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
-    /** 流水号 */
-    @ApiModelProperty(value = "流水号")
-    private Integer sn;
-
     /** 公司名称 */
     @ApiModelProperty(value = "公司名称")
     private String company;
@@ -76,7 +72,11 @@ public class BizZizhiCertificatePageParam {
     private String certNo;
 
     /** 证书有效期标识（已过期|临近六个月） */
-    @ApiModelProperty(value = "证书有效期标识（已过期|临近六个月）", position = 20)
+    @ApiModelProperty(value = "证书有效期标识（已过期|临近六个月）")
     private String certStage;
+
+    /** 存管单位 */
+    @ApiModelProperty(value = "存管单位")
+    private String unit;
 
 }
