@@ -16,22 +16,17 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.dev.modular.sealMessage.enums.SealMessageEnum;
 import vip.xiaonuo.dev.modular.sealMessage.util.HttpUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
-import vip.xiaonuo.dev.modular.sealMessage.entity.SealMessage;
-import vip.xiaonuo.dev.modular.sealMessage.mapper.SealMessageMapper;
-import vip.xiaonuo.dev.modular.sealMessage.param.SealMessageAddParam;
 import vip.xiaonuo.dev.modular.sealMessage.service.SealMessageService;
 import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 
 import javax.annotation.Resource;
 import java.util.*;
-
 
 /**
  * 印章基础信息表Service接口实现类
@@ -39,26 +34,24 @@ import java.util.*;
  * @author hxw
  * @date  2024/05/17 08:55
  **/
+@Slf4j
 @Service
-public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealMessage> implements SealMessageService {
+public class SealMessageServiceImpl implements SealMessageService {
 
    @Resource
    private CommonCacheOperator commonCacheOperator;
 
+    /**
+     * 获取群杰所有的印章信息同步到redis
+     * @return
+     */
     @Override
     public List<UserSealBaseVo> queryAllSealBase() {
         List<UserSealBaseVo> sealBaseVos = null;
         String token = null;
         try{
             //获取缓存的token
-            token = ObjectUtil.isEmpty(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue())) ? "" : String.valueOf(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue()));
-            //如果没有取到缓存的token，则区接口获取
-            if(ObjectUtil.isEmpty(token)){
-                token = getToken();
-                if(ObjectUtil.isEmpty(token)) {
-                    throw new CommonException("token 异常");
-                }
-            }
+            token = getNewToken();
             //请求url
             String url = SealMessageEnum.SEALBASEIPPOST.getValue();
             String contentType = "application/json";
@@ -77,29 +70,20 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
     }
 
     @Override
-    public String sealAuthorize(SealMessageAddParam sealMessageAddParam){
-        JSONObject entries = new JSONObject();
+    public String sealAuthorize(String extJson){
         String token = null;
-        try {
-            //获取缓存的token
-            token = String.valueOf(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue()));
-            //如果没有取到缓存的token，则接口获取
-            if(ObjectUtil.isEmpty(token)){
-                token = getToken();
-                if(ObjectUtil.isEmpty(token)) {
-                    throw new CommonException("token 异常");
-                }
-            }
-            //请求url
-            String url = SealMessageEnum.SEALAUTHORIZEIPPOST.getValue();
-            Map<String, Object> map = new HashMap<>();
-            map.put("workflowApplyParam", JSONUtil.toJsonStr(sealMessageAddParam.getExtJson()));
-            entries = HttpUtil.sendPostRequest(url, map, token);
-        }catch (Exception e){
-            log.error("创建申请并授权失败！e:"+e.getMessage());
+        //获取缓存的token
+        token = getNewToken();
+        //请求url
+        String url = SealMessageEnum.SEALAUTHORIZEIPPOST.getValue();
+        Map<String, Object> map = new HashMap<>();
+        map.put("workflowApplyParam", extJson);
+        JSONObject jsonObject = HttpUtil.sendPostRequest(url, map, token);
+        if(Integer.parseInt(jsonObject.get("status").toString()) != 0){
+            log.error("创建申请并授权失败！e:"+ jsonObject.get("message"));
             throw new CommonException("创建申请并授权失败！");
         }
-        return entries.toString();
+        return jsonObject.toString();
     }
 
     @Override
@@ -138,4 +122,16 @@ public class SealMessageServiceImpl extends ServiceImpl<SealMessageMapper, SealM
         return token;
     }
 
+    public String getNewToken(){
+        String newToken = null;
+        newToken =  ObjectUtil.isEmpty(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue())) ? "" : String.valueOf(commonCacheOperator.get(SealMessageEnum.SEALMESSAGETOKENKEY.getValue()));
+        //如果没有取到缓存的token，则接口获取
+        if(ObjectUtil.isEmpty(newToken)){
+            newToken = getToken();
+            if(ObjectUtil.isEmpty(newToken)) {
+                throw new CommonException("token 异常");
+            }
+        }
+        return newToken;
+    }
 }

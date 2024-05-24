@@ -12,10 +12,6 @@
  */
 package vip.xiaonuo.dev.modular.sealMessage.service;
 
-
-import com.baomidou.mybatisplus.extension.service.IService;
-import vip.xiaonuo.dev.modular.sealMessage.entity.SealMessage;
-import vip.xiaonuo.dev.modular.sealMessage.param.SealMessageAddParam;
 import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 
 import java.util.List;
@@ -26,7 +22,7 @@ import java.util.List;
  * @author hxw
  * @date  2024/05/17 08:55
  **/
-public interface SealMessageService extends IService<SealMessage> {
+public interface SealMessageService {
 
     /**
      * 获取群杰所有的印章信息同步到redis
@@ -38,7 +34,7 @@ public interface SealMessageService extends IService<SealMessage> {
      * 创建申请群杰并授权印章
      * @return
      */
-    String sealAuthorize(SealMessageAddParam sealMessageAddParam);
+    String sealAuthorize(String extJson);
 
     /**
      * 获取redis群杰用户信息
