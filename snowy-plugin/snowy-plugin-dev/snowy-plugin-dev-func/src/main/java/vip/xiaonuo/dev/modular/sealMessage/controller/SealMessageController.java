@@ -18,17 +18,13 @@ import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.dev.modular.sealMessage.param.SealMessageAddParam;
 import vip.xiaonuo.dev.modular.sealMessage.service.SealMessageService;
 import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
-import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -45,21 +41,6 @@ public class SealMessageController {
 
     @Resource
     private SealMessageService sealMessageService;
-
-    /**
-     * 创建申请群杰并授权印章
-     *
-     * @author hxw
-     * @date  2024/05/17 08:55
-     */
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("创建申请群杰并授权印章")
-    @CommonLog("创建申请群杰并授权印章")
-    //@SaCheckPermission("/api/item/sealAuthorize")
-    @PostMapping("/biz/seal/sealAuthorize")
-    public CommonResult<String> sealAuthorize(@RequestBody @Valid SealMessageAddParam sealMessageAddParam) {
-        return CommonResult.data(sealMessageService.sealAuthorize(sealMessageAddParam));
-    }
 
     /**
      * 获取群杰所有印章信息
