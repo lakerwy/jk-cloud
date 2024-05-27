@@ -45,11 +45,13 @@ public class FlwYxSealMessageExecutionListener implements ExecutionListener {
                     execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
             //获取流程表单数据
             Object dataJson = execution.getVariable("initiatorDataJson");
-            //获取程数据--合同份数
-            String contractCopiesNum = String.valueOf(JSONUtil.parseObj(dataJson).get("contractCopiesNum"));
+            //获取程数据--流程id
+            String id = String.valueOf(JSONUtil.parseObj(dataJson).get("id"));
+            //获取程数据--设备标识
+            String uuid = String.valueOf(JSONUtil.parseObj(dataJson).get("sealId"));
             //获取流程数据--每份用印次数
-            String contractCopiesCount = String.valueOf(JSONUtil.parseObj(dataJson).get("contractCopiesCount"));
-            JSONObject jsonObject = devSealApplyApi.getSealApplyFieldList(contractCopiesNum, contractCopiesCount);
+            String contractCopiesCount = String.valueOf(JSONUtil.parseObj(dataJson).get("applyCount"));
+            JSONObject jsonObject = devSealApplyApi.getSealApplyFieldList(id, uuid, contractCopiesCount);
             Object obj = jsonObject.get("data");
             //得到授权码
             SealApplyVo sealApplyVo = BeanUtil.toBean(obj, SealApplyVo.class);

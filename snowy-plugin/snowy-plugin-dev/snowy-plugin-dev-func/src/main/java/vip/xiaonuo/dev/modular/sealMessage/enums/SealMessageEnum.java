@@ -62,7 +62,7 @@ public enum SealMessageEnum {
 
     TENANT("jkgs"),
 
-    UUIDKEY("0X1121SPK232201V00000001"),
+    //UUIDKEY("0X1121SPK232201V00000001"),
 
     APIKEY("YXYG03_04"),
 

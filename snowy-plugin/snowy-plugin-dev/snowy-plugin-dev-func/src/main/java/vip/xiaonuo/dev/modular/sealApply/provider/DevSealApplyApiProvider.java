@@ -32,7 +32,7 @@ public class DevSealApplyApiProvider implements DevSealApplyApi {
     private SealApplyService sealApplyService;
 
     @Override
-    public JSONObject getSealApplyFieldList(String contractCopiesNum, String contractCopiesCount) {
-        return sealApplyService.getSealApplyFieldList(contractCopiesNum, contractCopiesCount);
+    public JSONObject getSealApplyFieldList(String id, String uuid, String contractCopiesCount) {
+        return sealApplyService.getSealApplyFieldList(id, uuid, contractCopiesCount);
     }
 }
