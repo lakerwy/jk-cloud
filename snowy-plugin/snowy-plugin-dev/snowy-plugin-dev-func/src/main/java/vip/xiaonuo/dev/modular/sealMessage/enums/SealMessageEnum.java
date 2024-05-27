@@ -22,7 +22,7 @@ import lombok.Getter;
  **/
 @Getter
 public enum SealMessageEnum {
-
+    //群杰
     /** 获取token--ip+端口 */
     GETTOKENIPPOST("http://10.0.33.81:10006/api/token/getToken"),
 
@@ -48,7 +48,29 @@ public enum SealMessageEnum {
     SEALMESSAGETOKENKEY("SEALMESSAGETOKEN_"),
 
     /** 群杰用户信息 */
-    SEALMESSAGELISTKEY("SEALMESSAGELIST_");
+    SEALMESSAGELISTKEY("SEALMESSAGELIST_"),
+
+
+    //云玺
+    /** 访问-ip+端口 */
+    YXSEALIPPOST("https://test.qstamper.com:8036/stamper/apis/business/docking/execute"),
+
+    APPKEY("jkgsDockApp"),
+
+    /** 授权标识 */
+    APIKEYAPPLY("YXYG03_07"),
+
+    TENANT("jkgs"),
+
+    UUIDKEY("0X1121SPK232201V00000001"),
+
+    APIKEY("YXYG03_04"),
+
+    /** redis设备信息 */
+    SEALAPPLYLISTKEY("SEALAPPLYLISTKEY_"),
+
+    /** 印章设备标识 */
+    APIKEYDEVICE("YXYG04_01");
 
     private final String value;
 
