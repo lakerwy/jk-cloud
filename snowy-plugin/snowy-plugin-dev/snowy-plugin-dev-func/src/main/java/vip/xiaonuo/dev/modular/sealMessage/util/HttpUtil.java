@@ -6,6 +6,8 @@ import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+
+import javax.net.ssl.HttpsURLConnection;
 import java.io.*;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -80,44 +82,6 @@ public class HttpUtil {
         return json;
     }
 
-    /*public static JSONObject sendPostRequest(String url, String postParams, String token, String contentType) throws Exception {
-        URL obj = new URL(url);
-        HttpURLConnection con = (HttpURLConnection) obj.openConnection();
-
-        // 设置请求方法为POST
-        con.setRequestMethod("POST");
-        con.setRequestProperty("Content-Type", contentType);
-        con.setDoOutput(true);
-        con.setRequestProperty("Authorization","Bearer " + token);
-
-        try (OutputStream os = con.getOutputStream()) {
-            if(ObjectUtil.isNotEmpty(postParams)){
-                byte[] input = postParams.getBytes("utf-8");
-                os.write(input, 0, input.length);
-            }
-        }
-
-        int responseCode = con.getResponseCode();
-        if (responseCode != HttpURLConnection.HTTP_OK) {
-            throw new RuntimeException("Failed : HTTP error code : " + responseCode);
-        }
-
-        BufferedReader in = new BufferedReader(
-                new InputStreamReader(con.getInputStream()));
-        // 请求结果
-        JSONObject json = new JSONObject();
-        String inputLine;
-        String result = "";
-
-        while ((inputLine = in.readLine()) != null) {
-            result += inputLine;
-        }
-        json = JSONUtil.parseObj(result);
-        in.close();
-
-        return json;
-    }*/
-
     public static JSONObject sendPostRequest(String url, Map<String,Object> paramMap, String token) {
 
         // 设置请求头，包括Token
@@ -140,5 +104,37 @@ public class HttpUtil {
             System.out.println("响应内容：" + response.body());
         }
         return JSONUtil.parseObj(response.body());
+    }
+
+    public static JSONObject sendPostRequest(String url, String postParams) throws Exception {
+        URL obj = new URL(url);
+        HttpsURLConnection con = (HttpsURLConnection) obj.openConnection();
+
+        // 设置请求方法为POST
+        con.setRequestMethod("POST");
+        con.setRequestProperty("Content-Type", "application/json; charset=UTF-8");
+        con.setDoOutput(true);
+
+        try (OutputStream os = con.getOutputStream()) {
+            byte[] input = postParams.getBytes("utf-8");
+            os.write(input, 0, input.length);
+        }
+
+        int responseCode = con.getResponseCode();
+        if (responseCode != HttpURLConnection.HTTP_OK) {
+            throw new RuntimeException("Failed : HTTP error code : " + responseCode);
+        }
+
+        BufferedReader in = new BufferedReader(
+                new InputStreamReader(con.getInputStream()));
+        String inputLine;
+        StringBuilder content = new StringBuilder();
+
+        while ((inputLine = in.readLine()) != null) {
+            content.append(inputLine);
+        }
+        in.close();
+
+        return JSONUtil.parseObj(content.toString());
     }
 }
