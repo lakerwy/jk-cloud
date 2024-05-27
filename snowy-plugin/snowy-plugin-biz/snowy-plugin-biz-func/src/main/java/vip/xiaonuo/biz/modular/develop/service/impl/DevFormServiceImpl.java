@@ -69,7 +69,7 @@ public class DevFormServiceImpl extends ServiceImpl<DevFormMapper, DevForm> impl
     @Override
     public Page<DevFormVo> page(DevFormPageParam devFormPageParam) {
         QueryWrapper<DevForm> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().in(DevForm::getDeleteFlag,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().in(DevForm::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(devFormPageParam.getSn())){
             queryWrapper.lambda().like(DevForm::getSn,devFormPageParam.getSn());
         }

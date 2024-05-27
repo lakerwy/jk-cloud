@@ -61,7 +61,7 @@ public class DevConfirmServiceImpl extends ServiceImpl<DevConfirmMapper, DevConf
     @Override
     public Page<DevConfirm> page(DevConfirmPageParam devConfirmPageParam) {
         QueryWrapper<DevConfirm> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().in(DevConfirm::getDeleteFlag,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.lambda().in(DevConfirm::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(devConfirmPageParam.getRelatedName())) {
             queryWrapper.lambda().like(DevConfirm::getRelatedName, devConfirmPageParam.getRelatedName());
         }
