@@ -50,7 +50,11 @@ public enum BizCommonEnum {
 
     BP_SUPPLIER("BP_SUPPLIER","BP_SUPPLIER","BpSupplierServiceImpl"), //招采供应商流程-申请
 
-    BIZ_CONTRACT_PLAN("BIZ_CONTRACT_PLAN","BIZ_CONTRACT_PLAN","ContractPlanServiceImpl");  //固资申购-申请
+    BIZ_CONTRACT_PLAN("BIZ_CONTRACT_PLAN","BIZ_CONTRACT_PLAN","ContractPlanServiceImpl"),  //固资申购-申请
+
+    BIZ_DEV_FORM("BIZ_DEV_FORM","BIZ_DEV_FORM","DevFormServiceImpl"),  //需求单 - 发起
+
+    BIZ_DEV_CONFIRM("BIZ_DEV_CONFIRM","BIZ_DEV_CONFIRM","DevConfirmServiceImpl");  //需求单 - 确认
 
     String bizModel;
     String bizTable;
