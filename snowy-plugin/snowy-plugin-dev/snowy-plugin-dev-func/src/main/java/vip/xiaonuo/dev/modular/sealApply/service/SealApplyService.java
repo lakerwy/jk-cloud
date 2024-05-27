@@ -29,7 +29,7 @@ public interface SealApplyService {
     /**
      * 创建申请单和授权
      */
-    JSONObject getSealApplyFieldList(String contractCopiesNum, String contractCopiesCount);
+    JSONObject getSealApplyFieldList(String id, String uuid, String contractCopiesCount);
 
     /**
      * 获取云玺所有印章信息

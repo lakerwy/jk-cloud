@@ -26,6 +26,6 @@ public interface DevSealApplyApi {
      *
      * @date 2024/5/24 14:45
      **/
-    JSONObject getSealApplyFieldList(String contractCopiesNum, String contractCopiesCount);
+    JSONObject getSealApplyFieldList(String id, String uuid, String contractCopiesCount);
 }
 

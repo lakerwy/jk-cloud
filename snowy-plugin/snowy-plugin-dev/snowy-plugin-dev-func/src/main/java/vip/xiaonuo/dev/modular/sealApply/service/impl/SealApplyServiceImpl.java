@@ -54,7 +54,7 @@ public class SealApplyServiceImpl implements SealApplyService {
      * 创建申请单和授权
      */
     @Override
-    public JSONObject getSealApplyFieldList(String contractCopiesNum, String contractCopiesCount) {
+    public JSONObject getSealApplyFieldList(String id, String uuid, String contractCopiesCount) {
 
         //请求url
         String url = SealMessageEnum.YXSEALIPPOST.getValue();
@@ -68,12 +68,11 @@ public class SealApplyServiceImpl implements SealApplyService {
 
         //调用创建申请单需要的参数
         SealApplyParam  sealApplyParam = new SealApplyParam();
-        String idStr = IdWorker.getIdStr();
-        sealApplyParam.setId(idStr);
+        sealApplyParam.setId(id);//保证流程id和云玺申请单id是一个id值
         sealApplyParam.setTitle("创建申请单");
-        sealApplyParam.setUuid(SealMessageEnum.UUIDKEY.getValue());
-        sealApplyParam.setContractCopiesNum(5);
-        sealApplyParam.setContractCopiesCount(10);
+        sealApplyParam.setUuid(uuid);
+        sealApplyParam.setContractCopiesNum(1);
+        sealApplyParam.setContractCopiesCount(Integer.valueOf(contractCopiesCount));
         sealApplyParam.setApplicantId("2522642");
         sealApplyParam.setUsePeopleId("2522642");
         //组装数据 云玺需要的数据格式
@@ -91,8 +90,8 @@ public class SealApplyServiceImpl implements SealApplyService {
             //创建授权需要的参数
             sealApply.setApiKey(SealMessageEnum.APIKEY.getValue());
             SealImpower sealImpower = new SealImpower();
-            sealImpower.setApplicationId(idStr);
-            sealImpower.setUuid(SealMessageEnum.UUIDKEY.getValue());
+            sealImpower.setApplicationId(id);
+            sealImpower.setUuid(uuid);
             sealImpower.setExpireTime(Long.valueOf("3600"));
             sealApply.setParams(JSONUtil.toJsonStr(sealImpower));
             parseObj = HttpUtil.sendPostRequest(url, JSONUtil.toJsonStr(sealApply));
