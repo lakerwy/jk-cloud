@@ -56,6 +56,7 @@ import vip.xiaonuo.dev.api.DevSmsApi;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -425,8 +426,10 @@ public class BpPlatformServiceImpl implements BpPlatformService {
                 item.setUserPayInfo(userPay);
                 item.setIsPayForBond(ObjectUtil.isNotEmpty(userPay) ? YesOrNoEnum.YES.getValue() : YesOrNoEnum.NO.getValue());
                 if(ObjectUtil.isNotEmpty(item.getNoticeBidDeadline())) {
-                    LocalDateTime bondEndTime = DateUtil.toLocalDateTime(item.getCreateTime()).plusDays(Long.getLong(item.getNoticeBidDeadline()));
                     DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+                    String tmpCreateTime = DateUtil.format(item.getCreateTime(),dateTimeFormatter);
+                    LocalDateTime tmpTime = LocalDateTime.parse(tmpCreateTime,dateTimeFormatter);
+                    LocalDateTime bondEndTime = tmpTime.plusDays(Long.parseLong(item.getNoticeBidDeadline()));
                     item.setNoticeBondEndTime(bondEndTime.format(dateTimeFormatter));
                 }
             });
