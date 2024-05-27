@@ -202,6 +202,7 @@ public class GatewayConfigure {
 
             /* 招采管理 - 采购计划*/
             "/api/flwapp/flw/process/purchasePlanStart",
+            "/api/webapp/push/sendMsg",
 
     };
 
