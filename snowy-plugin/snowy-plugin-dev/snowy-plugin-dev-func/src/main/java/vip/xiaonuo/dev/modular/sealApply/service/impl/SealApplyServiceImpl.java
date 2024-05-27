@@ -30,7 +30,6 @@ import vip.xiaonuo.dev.modular.sealApply.service.SealApplyService;
 import vip.xiaonuo.dev.modular.sealApply.vo.UserSealApplyVo;
 import vip.xiaonuo.dev.modular.sealMessage.enums.SealMessageEnum;
 import vip.xiaonuo.dev.modular.sealMessage.util.HttpUtil;
-import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 
 import javax.annotation.Resource;
 import java.util.Collection;
@@ -51,9 +50,11 @@ public class SealApplyServiceImpl implements SealApplyService {
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
+    /**
+     * 创建申请单和授权
+     */
     @Override
     public JSONObject getSealApplyFieldList(String contractCopiesNum, String contractCopiesCount) {
-        getSealApplyList();
 
         //请求url
         String url = SealMessageEnum.YXSEALIPPOST.getValue();
@@ -103,6 +104,9 @@ public class SealApplyServiceImpl implements SealApplyService {
         return parseObj;
     }
 
+    /**
+     * 获取云玺所有印章信息
+     */
     @Override
     public List<UserSealApplyVo> getSealApplyList() {
         List<UserSealApplyVo> userSealApplyVo = null;
@@ -111,17 +115,16 @@ public class SealApplyServiceImpl implements SealApplyService {
         userSealApplyVo = BeanUtil.copyToList((Collection<?>) sealObject, UserSealApplyVo.class);
         //如果redis缓存数据为空，则调用云玺接口获取
         if(CollUtil.isEmpty(userSealApplyVo)){
-            userSealApplyVo = queryAllSealBase();
+            userSealApplyVo = queryAllSealApply();
         }
         return userSealApplyVo;
     }
-
 
     /**
      * 获取云玺所有的印章设备信息同步到redis
      * @return
      */
-    public List<UserSealApplyVo> queryAllSealBase() {
+    public List<UserSealApplyVo> queryAllSealApply() {
         List<UserSealApplyVo> sealApplyVos = null;
         try{
             //请求url

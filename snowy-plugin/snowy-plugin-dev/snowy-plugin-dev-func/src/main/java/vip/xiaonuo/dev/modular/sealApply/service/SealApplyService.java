@@ -14,6 +14,7 @@ package vip.xiaonuo.dev.modular.sealApply.service;
 
 import cn.hutool.json.JSONObject;
 import vip.xiaonuo.dev.modular.sealApply.vo.UserSealApplyVo;
+import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 
 import java.util.List;
 
@@ -25,7 +26,18 @@ import java.util.List;
  **/
 public interface SealApplyService {
 
+    /**
+     * 创建申请单和授权
+     */
     JSONObject getSealApplyFieldList(String contractCopiesNum, String contractCopiesCount);
 
+    /**
+     * 获取云玺所有印章信息
+     */
     List<UserSealApplyVo> getSealApplyList();
+
+    /**
+     * 获取云玺所有的印章信息同步到redis
+     */
+    List<UserSealApplyVo> queryAllSealApply();
 }

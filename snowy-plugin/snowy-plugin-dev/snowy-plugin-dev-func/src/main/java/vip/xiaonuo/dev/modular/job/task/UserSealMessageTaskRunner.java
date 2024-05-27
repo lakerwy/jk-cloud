@@ -21,7 +21,7 @@ public class UserSealMessageTaskRunner implements CommonTimerTaskRunner {
     @Override
     public void action() {
         try {
-            //每天凌晨一点同步群杰印章用户信息redis
+            //每天凌晨一点同步群杰印章用户信息到redis
             sealMessageService.queryAllSealBase();
             log.info("同步群杰印章用户信息成功");
         }catch (Exception e){
