@@ -13,6 +13,7 @@
 package vip.xiaonuo.flw.core.listener;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -45,18 +46,25 @@ public class FlwYxSealMessageExecutionListener implements ExecutionListener {
                     execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
             //获取流程表单数据
             Object dataJson = execution.getVariable("initiatorDataJson");
-            //获取程数据--流程id
-            String id = String.valueOf(JSONUtil.parseObj(dataJson).get("id"));
-            //获取程数据--设备标识
-            String uuid = String.valueOf(JSONUtil.parseObj(dataJson).get("sealId"));
-            //获取流程数据--每份用印次数
-            String contractCopiesCount = String.valueOf(JSONUtil.parseObj(dataJson).get("applyCount"));
-            JSONObject jsonObject = devSealApplyApi.getSealApplyFieldList(id, uuid, contractCopiesCount);
-            Object obj = jsonObject.get("data");
-            //得到授权码
-            SealApplyVo sealApplyVo = BeanUtil.toBean(obj, SealApplyVo.class);
-            //将授权码赋值到流程initiatorDataJson中
-            execution.setVariable("initiatorDataJson",JSONUtil.parseObj(execution.getVariable("initiatorDataJson")).set("safeCode", sealApplyVo.getAuthorizationCode()));
+            //获取程数据--印章名称
+            String sealName = String.valueOf(JSONUtil.parseObj(dataJson).get("sealName"));
+            if(ObjectUtil.isNotEmpty(sealName)){
+                //获取程数据--流程id
+                String id = String.valueOf(JSONUtil.parseObj(dataJson).get("id"));
+                //获取程数据--设备标识
+                String uuid = String.valueOf(JSONUtil.parseObj(dataJson).get("sealId"));
+                //获取流程数据--每份用印次数  页面用印次数字段不一样 兼容两个值  如果都没有拿到值，则默认5份
+                Object contractCopiesCount = ObjectUtil.isEmpty(JSONUtil.parseObj(dataJson).get("applyCount")) ? JSONUtil.parseObj(dataJson).get("printNum") : JSONUtil.parseObj(dataJson).get("applyCount");
+                if (ObjectUtil.isEmpty(contractCopiesCount)){
+                    contractCopiesCount = 5;
+                }
+                JSONObject jsonObject = devSealApplyApi.getSealApplyFieldList(id, uuid, String.valueOf(contractCopiesCount));
+                Object obj = jsonObject.get("data");
+                //得到授权码
+                SealApplyVo sealApplyVo = BeanUtil.toBean(obj, SealApplyVo.class);
+                //将授权码赋值到流程initiatorDataJson中
+                execution.setVariable("initiatorDataJson",JSONUtil.parseObj(execution.getVariable("initiatorDataJson")).set("safeCode", sealApplyVo.getAuthorizationCode()));
+            }
         } catch (Exception e) {
             throw new CommonException("执行监听器{}出现异常：{}", FlwNewSealMessageExecutionListener.class.getName(), e.getMessage());
         }

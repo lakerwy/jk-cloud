@@ -57,13 +57,14 @@ public enum SealMessageEnum {
 
     APPKEY("jkgsDockApp"),
 
-    /** 授权标识 */
+    /** 创建申请单标识 */
     APIKEYAPPLY("YXYG03_07"),
 
     TENANT("jkgs"),
 
     //UUIDKEY("0X1121SPK232201V00000001"),
 
+    /** 授权标识 */
     APIKEY("YXYG03_04"),
 
     /** redis设备信息 */
