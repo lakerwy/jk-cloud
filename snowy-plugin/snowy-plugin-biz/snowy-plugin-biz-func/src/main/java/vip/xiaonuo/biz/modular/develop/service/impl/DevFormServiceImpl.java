@@ -66,59 +66,56 @@ public class DevFormServiceImpl extends ServiceImpl<DevFormMapper, DevForm> impl
     @Resource
     private DevFormItemService devFormItemService;
 
+    @Resource
+    private DevFormMapper devFormMapper;
+
     @Override
     public Page<DevFormVo> page(DevFormPageParam devFormPageParam) {
         QueryWrapper<DevForm> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().in(DevForm::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(devFormPageParam.getSn())){
-            queryWrapper.lambda().like(DevForm::getSn,devFormPageParam.getSn());
+            queryWrapper.like("a.SN",devFormPageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(devFormPageParam.getStatus())){
-            queryWrapper.lambda().eq(DevForm::getStatus,devFormPageParam.getStatus());
+            queryWrapper.eq("a.STATUS",devFormPageParam.getStatus());
         }
         if(ObjectUtil.isNotEmpty(devFormPageParam.getApplyUnit())) {
-            queryWrapper.lambda().eq(DevForm::getApplyUnit, devFormPageParam.getApplyUnit());
+            queryWrapper.eq("a.APPLY_UNIT", devFormPageParam.getApplyUnit());
         }
         if(ObjectUtil.isNotEmpty(devFormPageParam.getApplyDept())) {
-            queryWrapper.lambda().like(DevForm::getApplyDept, devFormPageParam.getApplyDept());
+            queryWrapper.like("a.APPLY_DEPT", devFormPageParam.getApplyDept());
         }
         if(ObjectUtil.isNotEmpty(devFormPageParam.getActionUser())) {
-            queryWrapper.lambda().like(DevForm::getActionUser, devFormPageParam.getActionUser());
+            queryWrapper.like("a.ACTION_USER", devFormPageParam.getActionUser());
         }
         if(ObjectUtil.isNotEmpty(devFormPageParam.getApplyName())) {
-            queryWrapper.lambda().like(DevForm::getApplyName, devFormPageParam.getApplyName());
+            queryWrapper.like("a.APPLY_NAME", devFormPageParam.getApplyName());
         }
         if(ObjectUtil.isNotEmpty(devFormPageParam.getStartEstimatedStartTime()) && ObjectUtil.isNotEmpty(devFormPageParam.getEndEstimatedStartTime())) {
-            queryWrapper.lambda().between(DevForm::getEstimatedStartTime, devFormPageParam.getStartEstimatedStartTime(), devFormPageParam.getEndEstimatedStartTime());
+            queryWrapper.between("a.ESTIMATED_START_TIME", devFormPageParam.getStartEstimatedStartTime(), devFormPageParam.getEndEstimatedStartTime());
         }
         if(ObjectUtil.isNotEmpty(devFormPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(DevForm::getApplyDept,devFormPageParam.getSearchKey())
-                    .or().like(DevForm::getApplyName,devFormPageParam.getSearchKey())
-                    .or().like(DevForm::getApplyDesc,devFormPageParam.getSearchKey())
-                    .or().like(DevForm::getSn,devFormPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("a.APPLY_DEPT",devFormPageParam.getSearchKey())
+                    .or().like("a.APPLY_NAME",devFormPageParam.getSearchKey())
+                    .or().like("a.APPLY_DESC",devFormPageParam.getSearchKey())
+                    .or().like("a.SN",devFormPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(devFormPageParam.getSortField(), devFormPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(devFormPageParam.getSortOrder());
             queryWrapper.orderBy(true, devFormPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(devFormPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(DevForm::getCreateTime);
+            queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        Page<DevForm> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-        List<DevFormVo> records = BeanUtil.copyToList(result.getRecords(), DevFormVo.class);
-        if(CollUtil.isNotEmpty(records)){
-            records.forEach(x->{
+        Page<DevFormVo> result = devFormMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        if(CollUtil.isNotEmpty(result.getRecords())){
+            result.getRecords().forEach(x->{
                 List<DevFormItem> devFormItems = devFormItemService.list(new QueryWrapper<DevFormItem>().lambda().eq(DevFormItem::getBizDevFormId,x.getId()));
                 x.setFormItemList(devFormItems);
             });
         }
-        Page<DevFormVo> newResult = new Page<>();
-        newResult.setRecords(records);
-        newResult.setPages(result.getPages());
-        newResult.setSize(result.getSize());
-        newResult.setTotal(result.getTotal());
-        newResult.setCurrent(result.getCurrent());
-        return newResult;
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)

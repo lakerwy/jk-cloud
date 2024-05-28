@@ -42,6 +42,10 @@ public class DevForm {
     @ApiModelProperty(value = "申请人单位：集团内部|分公司|外部", position = 2)
     private String applyUnit;
 
+    /** 申请人部门ID */
+    @ApiModelProperty(value = "申请人部门ID", position = 3)
+    private String applyDeptId;
+
     /** 申请人部门 */
     @ApiModelProperty(value = "申请人部门", position = 3)
     private String applyDept;

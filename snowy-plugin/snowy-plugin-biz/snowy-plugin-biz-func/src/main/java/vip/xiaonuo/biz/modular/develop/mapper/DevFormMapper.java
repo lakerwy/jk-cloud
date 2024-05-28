@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.biz.modular.develop.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.develop.entity.DevForm;
+import vip.xiaonuo.biz.modular.develop.vo.DevFormVo;
 
 /**
  * 需求单 - 发起流程Mapper接口
@@ -22,4 +27,12 @@ import vip.xiaonuo.biz.modular.develop.entity.DevForm;
  * @date  2024/05/27 16:08
  **/
 public interface DevFormMapper extends BaseMapper<DevForm> {
+
+    /**
+     * 列表分页
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<DevFormVo> getPageList(Page<DevFormVo> page, @Param(Constants.WRAPPER) Wrapper<DevForm> queryWrapper);
 }
