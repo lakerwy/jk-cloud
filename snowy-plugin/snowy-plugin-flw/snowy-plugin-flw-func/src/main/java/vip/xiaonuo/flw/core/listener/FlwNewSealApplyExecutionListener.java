@@ -47,7 +47,7 @@ public class FlwNewSealApplyExecutionListener implements ExecutionListener {
             //获取流程表单数据
             Object dataJson = execution.getVariable("initiatorDataJson");
             //获取程数据--印章名称
-            String sealName = String.valueOf(JSONUtil.parseObj(dataJson).get("sealName"));
+            Object sealName = JSONUtil.parseObj(dataJson).get("sealName");
             if(ObjectUtil.isNotEmpty(sealName)){
                 //获取程数据--流程id
                 String id = String.valueOf(JSONUtil.parseObj(dataJson).get("id"));

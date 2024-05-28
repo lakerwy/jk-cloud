@@ -45,13 +45,13 @@ public class FlwNewSealMessageExecutionListener implements ExecutionListener {
 
     @Override
     public void notify(DelegateExecution execution) {
-        try {
+       /* try {
             log.info("shen>>> 执行监听器：{}事件触发，流程id为：{}，当前活动节点为：{}",
                     execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
             //获取流程表单数据
             Object dataJson = execution.getVariable("initiatorDataJson");
             //获取程数据--印章名称
-            String sealName = String.valueOf(JSONUtil.parseObj(dataJson).get("sealName"));
+            Object sealName = JSONUtil.parseObj(dataJson).get("sealName");
             if(ObjectUtil.isNotEmpty(sealName)) {
                 //组装数据 群杰需要的数据格式
                 SealParam sealParam = new SealParam();
@@ -80,6 +80,6 @@ public class FlwNewSealMessageExecutionListener implements ExecutionListener {
             }
         } catch (Exception e) {
             throw new CommonException("执行监听器{}出现异常：{}", FlwNewSealMessageExecutionListener.class.getName(), e.getMessage());
-        }
+        }*/
     }
 }
