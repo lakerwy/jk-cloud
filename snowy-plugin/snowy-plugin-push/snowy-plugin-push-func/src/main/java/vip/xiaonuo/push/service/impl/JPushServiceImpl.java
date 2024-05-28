@@ -22,7 +22,9 @@ import vip.xiaonuo.push.service.Utility;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.SynchronousQueue;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -121,7 +123,7 @@ public class JPushServiceImpl implements JPushService {
     }
 
     private PushResult sendPush(PushPayload pushPayload) {
-        log.info("pushPayload={}", pushPayload);
+        log.info("pushPayload={}", pushPayload.toString());
         PushResult pushResult = null;
         try {
             pushResult = jPushClient.sendPush(pushPayload);
@@ -479,7 +481,7 @@ public class JPushServiceImpl implements JPushService {
         String title = arr[0];
         String body = arr[1];
         List<String> tagsList = new ArrayList<>();
-        tagsList.add(pushMessage.getDeviceToken());
-        sendToAliasList(tagsList,title,title,body,null,false);
+        tagsList.add(pushMessage.getTargetPhoneNumber());
+        sendToAliasList(tagsList,title,title,body,"",true);
     }
 }
