@@ -34,7 +34,7 @@ import javax.annotation.Resource;
  */
 @Slf4j
 @Component
-public class FlwYxSealMessageExecutionListener implements ExecutionListener {
+public class FlwNewSealApplyExecutionListener implements ExecutionListener {
 
     @Resource
     private DevSealApplyApi devSealApplyApi;
