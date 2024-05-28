@@ -1,5 +1,8 @@
 package vip.xiaonuo.push.controller;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -36,7 +39,9 @@ public class PushController {
     @ApiOperation("发送推送消息")
     @CommonLog("发送推送消息")
     @PostMapping("/push/sendMsg")
-    public CommonResult<String> sendMsg(@RequestBody @Valid PushMessage pushMessage) {
+    public CommonResult<String> sendMsg(@RequestBody @Valid Object object) {
+        JSONObject jsonObject = JSONUtil.parseObj(object);
+        PushMessage pushMessage = BeanUtil.toBean(jsonObject, PushMessage.class);
         return CommonResult.ok(jPushService.sendMsg(pushMessage));
     }
 

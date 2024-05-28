@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Setter
 @Getter
@@ -20,7 +21,7 @@ public class PushMessage {
     public String senderName;
 
     @ApiModelProperty(value = "会话类型", required = true)
-    @NotBlank(message = "会话类型")
+    @NotNull(message = "会话类型")
     public int convType;
 
     @ApiModelProperty(value = "接收用户ID", required = true)
@@ -34,26 +35,26 @@ public class PushMessage {
     public String userId;
 
     @ApiModelProperty(value = "会话线路，缺省为0")
-    @NotBlank(message = "会话线路，缺省为0")
-    public int line;
-    public int cntType;
+    @NotNull(message = "会话线路，缺省为0")
+    public Integer line;
+    public Integer cntType;
 
     @ApiModelProperty(value = "消息时间", required = true)
-    @NotBlank(message = "消息时间")
-    public long serverTime;
+    @NotNull(message = "消息时间")
+    public Long serverTime;
 
     //消息的类型，普通消息通知栏；voip要透传。 0 普通消息；1 voip消息。在支持透传的系统上，voip消息用透传
     @ApiModelProperty(value = "消息的类型", required = true)
-    @NotBlank(message = "消息的类型")
-    public int pushMessageType;
+    @NotNull(message = "消息的类型")
+    public Integer pushMessageType;
     /**
      * 推送类型
      * Android 推送分为小米/华为/魅族等
      * iOS 分别为开发和发布， 推送类型，android推送分为小米/华为/魅族等。ios分别为开发和发布。
      */
     @ApiModelProperty(value = "推送类型", required = true)
-    @NotBlank(message = "推送类型")
-    public int pushType;
+    @NotNull(message = "推送类型")
+    public Integer pushType;
 
     @ApiModelProperty(value = "消息推送内容", required = true)
     @NotBlank(message = "消息推送内容")
@@ -64,20 +65,20 @@ public class PushMessage {
     public String pushData;
 
     @ApiModelProperty(value = "服务器端没有接收下来的消息数（只计算计数消息）", required = true)
-    @NotBlank(message = "服务器端没有接收下来的消息数")
-    public int unReceivedMsg;
+    @NotNull(message = "服务器端没有接收下来的消息数")
+    public Integer unReceivedMsg;
 
     //消息提醒类型，0，没提醒；1，提醒了当前用户；2，提醒了所有人
     @ApiModelProperty(value = "消息提醒类型", required = false)
-    @NotBlank(message = "消息提醒类型")
-    public int mentionedType;
+    @NotNull(message = "消息提醒类型")
+    public Integer mentionedType;
 
     @ApiModelProperty(value = "应用包名", required = false)
     @NotBlank(message = "应用包名")
     public String packageName;
 
     @ApiModelProperty(value = "设备token",required = true)
-    @NotBlank(message = "设备token")
+//    @NotBlank(message = "设备token")
     public String deviceToken;
 
     @ApiModelProperty(value = "voipDeviceToken")
@@ -85,12 +86,22 @@ public class PushMessage {
     public String voipDeviceToken;
 
     @ApiModelProperty(value = "是否要隐藏推送详情")
-    @NotBlank(message = "是否要隐藏推送详情")
-    public boolean isHiddenDetail;
+    @NotNull(message = "是否要隐藏推送详情")
+    public Boolean isHiddenDetail;
 
     @ApiModelProperty(value = "接收者的手机语言")
     @NotBlank(message = "接收者的手机语言")
     public String language;
 
-    public long messageId;
+    public Long messageId;
+
+    //发送者手机号
+    @ApiModelProperty(value = "senderPhoneNumber")
+    @NotBlank(message = "senderPhoneNumber")
+    public String senderPhoneNumber;
+
+    //接受人手机号
+    @ApiModelProperty(value = "targetPhoneNumber")
+    @NotBlank(message = "targetPhoneNumber")
+    public String targetPhoneNumber;
 }
