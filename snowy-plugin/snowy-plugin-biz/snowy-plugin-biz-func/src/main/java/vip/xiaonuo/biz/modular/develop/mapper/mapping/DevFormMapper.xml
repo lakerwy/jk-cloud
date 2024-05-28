@@ -2,7 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.biz.modular.develop.mapper.DevFormMapper">
 
-    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.develop.vo.DevFormVo">
+    <select id="getPage" resultType="vip.xiaonuo.biz.modular.develop.vo.DevFormVo">
         select a.*,
                b.ACTUAL_COST as actualCost,
                b.SETTLEMENT_TYPE as settlementType,
@@ -15,7 +15,25 @@
                b.STATUS as confirmStatus
         from BIZ_DEV_FORM a
             left join BIZ_DEV_CONFIRM b on a.ID = b.BIZ_DEV_FORM_ID
-                and b.DELETE_FLAG='NOT_DELETE' and b.STATUS in ('0','1')
+                and b.DELETE_FLAG='NOT_DELETE' and b.STATUS in ('1')
+            ${ew.customSqlSegment}
+    </select>
+
+
+    <select id="getPageList" resultType="vip.xiaonuo.biz.modular.develop.vo.DevFormVo">
+        select a.*,
+               b.ACTUAL_COST as actualCost,
+               b.SETTLEMENT_TYPE as settlementType,
+               b.SITUATION_DESC as situationDesc,
+               b.READJUST_REASON as readjustReason,
+               b.PROOF_ATTACH as proofAttach,
+               b.SN as confirmSn,
+               b.MODEL_ID as confirmModelId,
+               b.PROCESS_INSTANCE_ID as confirmProcessInstanceId,
+               b.STATUS as confirmStatus
+        from BIZ_DEV_FORM a
+                 left join BIZ_DEV_CONFIRM b on a.ID = b.BIZ_DEV_FORM_ID
+            and b.DELETE_FLAG='NOT_DELETE' and b.STATUS in ('0','1')
             ${ew.customSqlSegment}
     </select>
 

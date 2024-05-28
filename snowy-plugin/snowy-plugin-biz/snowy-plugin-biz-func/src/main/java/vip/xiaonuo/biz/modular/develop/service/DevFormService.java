@@ -78,4 +78,12 @@ public interface DevFormService extends IService<DevForm> {
      * @date  2024/05/27 16:08
      **/
     DevForm queryEntity(String id);
+
+
+    /**
+     * 获取需求单分页 - 【审核通过，且未发起过确认单流程】
+     * @param devFormPageParam
+     * @return
+     */
+    Page<DevFormVo> listPage(DevFormPageParam devFormPageParam);
 }

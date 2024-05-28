@@ -29,7 +29,15 @@ import vip.xiaonuo.biz.modular.develop.vo.DevFormVo;
 public interface DevFormMapper extends BaseMapper<DevForm> {
 
     /**
-     * 列表分页
+     * 列表分页 【需求单（审核中|审核通过），并携带审核通过确认单信息】
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<DevFormVo> getPage(Page<DevFormVo> page, @Param(Constants.WRAPPER) Wrapper<DevForm> queryWrapper);
+
+    /**
+     * 列表分页【审核通过，且未发起过确认单流程】
      * @param page
      * @param queryWrapper
      * @return

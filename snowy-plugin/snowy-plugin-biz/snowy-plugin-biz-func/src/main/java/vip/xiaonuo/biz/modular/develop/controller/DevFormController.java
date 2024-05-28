@@ -53,13 +53,13 @@ public class DevFormController {
     private DevFormService devFormService;
 
     /**
-     * 获取需求单 - 发起流程分页
+     * 获取需求单 - 发起流程分页【携带审核通过确认单信息】
      *
      * @author yong.ye
      * @date  2024/05/27 16:08
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取需求单 - 发起流程分页")
+    @ApiOperation("获取需求单 - 发起流程分页 【携带审核通过确认单信息】")
 //    @SaCheckPermission("/biz/develop/form/page")
     @GetMapping("/biz/develop/form/page")
     public CommonResult<Page<DevFormVo>> page(DevFormPageParam devFormPageParam) {
@@ -127,5 +127,19 @@ public class DevFormController {
     @GetMapping("/biz/develop/form/detail")
     public CommonResult<DevFormVo> detail(@Valid DevFormIdParam devFormIdParam) {
         return CommonResult.data(devFormService.detail(devFormIdParam));
+    }
+
+
+    /**
+     * 获取需求单分页 - 【审核通过，且未发起过确认单流程】
+     *
+     * @author yong.ye
+     * @date  2024/05/27 16:08
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("获取需求单分页 - 【审核通过，且未发起过确认单流程】")
+    @GetMapping("/biz/develop/form/listPage")
+    public CommonResult<Page<DevFormVo>> listPage(DevFormPageParam devFormPageParam) {
+        return CommonResult.data(devFormService.listPage(devFormPageParam));
     }
 }

@@ -108,7 +108,7 @@ public class DevFormServiceImpl extends ServiceImpl<DevFormMapper, DevForm> impl
         } else {
             queryWrapper.orderByDesc("a.CREATE_TIME");
         }
-        Page<DevFormVo> result = devFormMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<DevFormVo> result = devFormMapper.getPage(CommonPageRequest.defaultPage(), queryWrapper);
         if(CollUtil.isNotEmpty(result.getRecords())){
             result.getRecords().forEach(x->{
                 List<DevFormItem> devFormItems = devFormItemService.list(new QueryWrapper<DevFormItem>().lambda().eq(DevFormItem::getBizDevFormId,x.getId()));
@@ -223,5 +223,50 @@ public class DevFormServiceImpl extends ServiceImpl<DevFormMapper, DevForm> impl
             throw new CommonException("需求单 - 发起流程不存在，id值为：{}", id);
         }
         return devForm;
+    }
+
+    @Override
+    public Page<DevFormVo> listPage(DevFormPageParam devFormPageParam) {
+        QueryWrapper<DevForm> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(devFormPageParam.getSn())){
+            queryWrapper.like("a.SN",devFormPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(devFormPageParam.getApplyUnit())) {
+            queryWrapper.eq("a.APPLY_UNIT", devFormPageParam.getApplyUnit());
+        }
+        if(ObjectUtil.isNotEmpty(devFormPageParam.getApplyDept())) {
+            queryWrapper.like("a.APPLY_DEPT", devFormPageParam.getApplyDept());
+        }
+        if(ObjectUtil.isNotEmpty(devFormPageParam.getActionUser())) {
+            queryWrapper.like("a.ACTION_USER", devFormPageParam.getActionUser());
+        }
+        if(ObjectUtil.isNotEmpty(devFormPageParam.getApplyName())) {
+            queryWrapper.like("a.APPLY_NAME", devFormPageParam.getApplyName());
+        }
+        if(ObjectUtil.isNotEmpty(devFormPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.APPLY_DEPT",devFormPageParam.getSearchKey())
+                    .or().like("a.APPLY_NAME",devFormPageParam.getSearchKey())
+                    .or().like("a.SN",devFormPageParam.getSearchKey()));
+        }
+        //未发起过确认单
+        queryWrapper.isNull("b.ID");
+        if(ObjectUtil.isAllNotEmpty(devFormPageParam.getSortField(), devFormPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(devFormPageParam.getSortOrder());
+            queryWrapper.orderBy(true, devFormPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(devFormPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("a.CREATE_TIME");
+        }
+        Page<DevFormVo> result = devFormMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        if(CollUtil.isNotEmpty(result.getRecords())){
+            result.getRecords().forEach(x->{
+                List<DevFormItem> devFormItems = devFormItemService.list(new QueryWrapper<DevFormItem>().lambda().eq(DevFormItem::getBizDevFormId,x.getId()));
+                x.setFormItemList(devFormItems);
+            });
+        }
+        return result;
+
     }
 }
