@@ -162,4 +162,18 @@ public interface BpPlatformService{
      * @return
      */
     List<ClarifyVo> noticeClarify(String noticeId);
+
+    /**
+     * 【前台】招采平台 - 供应商注册【供应商入库+审批通过自动创建账号】
+     * @param bpSupplierAddParam
+     * @return
+     */
+    String supplierRegister(BpSupplierAddParam bpSupplierAddParam);
+
+    /**
+     * 【前台】招采平台 - 供应商注册【前置校验】
+     * @param bpSupplierAddParam
+     * @return
+     */
+    Boolean check(BpSupplierAddParam bpSupplierAddParam);
 }

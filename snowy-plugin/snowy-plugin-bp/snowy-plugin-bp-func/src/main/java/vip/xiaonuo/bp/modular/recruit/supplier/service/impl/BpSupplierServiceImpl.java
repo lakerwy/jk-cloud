@@ -222,17 +222,6 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
         }
         List<BpFinance> newCopyFinanceAdd = BeanUtil.copyToList(bpFinanceList, BpFinance.class);
         BpFinanceService.saveBatch(newCopyFinanceAdd);
-
-        //自行申报是没有供应商id，则需要填充
-        if(BpSourceEnum.VOLUNTARILY.getValue().equals(bpSupplierAddParam.getSource())){
-            //通过招采用户id查询供应商对应数据
-            BpUser bpUser = bpUserService.getById(bpSupplierAddParam.getBpUserId());
-            if(ObjectUtil.isNotEmpty(bpUser)){
-                //填充对应用户的供应商id
-                bpUser.setSupplierId(bpSupplier.getId());
-                bpUserService.updateById(bpUser);
-            }
-        }
     }
 
     @Transactional(rollbackFor = Exception.class)

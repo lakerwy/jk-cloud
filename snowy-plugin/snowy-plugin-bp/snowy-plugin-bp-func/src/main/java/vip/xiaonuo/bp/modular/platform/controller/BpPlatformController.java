@@ -67,14 +67,14 @@ public class BpPlatformController {
     private BpPlatformService bpPlatformService;
 
     /**
-     * 【前台】招采平台 - 注册用户
+     * 【前台】招采平台 - 注册用户 【纯粹注册用户】
      *
      * @author yong.ye
      * @date  2024/05/09 08:41
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("【前台】招采平台 - 注册用户")
-    @CommonLog("【前台】招采平台 - 注册用户")
+    @ApiOperation("【前台】招采平台 - 注册用户【纯粹注册用户】")
+    @CommonLog("【前台】招采平台 - 注册用户【纯粹注册用户】")
     @PostMapping("/bp/platform/frontend/public/register")
     public CommonResult<String> register(@RequestBody @Valid RegisterParam registerParam) {
         return CommonResult.data(bpPlatformService.register(registerParam));
@@ -338,5 +338,34 @@ public class BpPlatformController {
     @GetMapping("/bp/platform/frontend/public/noticeClarify")
     public CommonResult<List<ClarifyVo>> noticeClarify(String noticeId) {
         return CommonResult.data(bpPlatformService.noticeClarify(noticeId));
+    }
+
+
+    /**
+     * 【前台】招采平台 - 供应商注册【供应商入库+审批通过自动创建账号】
+     *
+     * @author yong.ye
+     * @date  2024/05/09 08:41
+     */
+    @ApiOperationSupport(order = 60)
+    @ApiOperation("【前台】招采平台 - 供应商注册【供应商入库+审批通过自动创建账号】")
+    @CommonLog("【前台】招采平台 - 供应商注册【供应商入库+审批通过自动创建账号】")
+    @PostMapping("/bp/platform/frontend/public/supplierRegister")
+    public CommonResult<String> supplierRegister(@RequestBody @Valid BpSupplierAddParam bpSupplierAddParam) {
+        return CommonResult.data(bpPlatformService.supplierRegister(bpSupplierAddParam));
+    }
+
+    /**
+     * 【前台】招采平台 - 供应商注册【前置校验】
+     *
+     * @author yong.ye
+     * @date  2024/05/09 08:41
+     */
+    @ApiOperationSupport(order = 60)
+    @ApiOperation("【前台】招采平台 - 供应商注册【前置校验】")
+    @CommonLog("【前台】招采平台 - 供应商注册【前置校验】")
+    @PostMapping("/bp/platform/frontend/public/check")
+    public CommonResult<Boolean> check(@RequestBody @Valid BpSupplierAddParam bpSupplierAddParam) {
+        return CommonResult.data(bpPlatformService.check(bpSupplierAddParam));
     }
 }

@@ -37,6 +37,7 @@ import vip.xiaonuo.bp.modular.platform.service.*;
 import vip.xiaonuo.bp.modular.platform.util.LoginBpUserUtil;
 import vip.xiaonuo.bp.modular.platform.vo.*;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
+import vip.xiaonuo.bp.modular.recruit.supplier.mapper.BpSupplierMapper;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
@@ -56,7 +57,6 @@ import vip.xiaonuo.dev.api.DevSmsApi;
 
 import javax.annotation.Resource;
 import java.net.URLEncoder;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -98,6 +98,8 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     private BpSupplierService bpSupplierService;
     @Resource
     private ClarifyMapper clarifyMapper;
+    @Resource
+    private BpSupplierMapper bpSupplierMapper;
 
 
     @Override
@@ -522,6 +524,14 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         //调用供应商入库审批
         bpSupplierAddParam.setBpUserId(bpLoginUser.getId());
         bpSupplierService.add(bpSupplierAddParam);
+
+        //通过招采用户id查询供应商对应数据
+        BpUser bpUser = bpUserService.getById(bpSupplierAddParam.getBpUserId());
+        if(ObjectUtil.isNotEmpty(bpUser)){
+            //填充对应用户的供应商id
+            bpUser.setSupplierId(bpSupplierAddParam.getId());
+            bpUserService.updateById(bpUser);
+        }
     }
 
     @Override
@@ -533,5 +543,48 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Override
     public List<ClarifyVo> noticeClarify(String noticeId) {
         return clarifyMapper.getClarifyByNoticeId(noticeId);
+    }
+
+    @Override
+    public String supplierRegister(BpSupplierAddParam bpSupplierAddParam) {
+        String account = "";
+        //1. 获取作为账号的信息
+        if(CollUtil.isNotEmpty(bpSupplierAddParam.getRelationAddParamList())){
+            account = bpSupplierAddParam.getRelationAddParamList().get(0).getBusinessadminPhone();
+        }
+        //2. 账号不为空
+        if(ObjectUtil.isNotEmpty(account)){
+            //判断用户是否存在
+            List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,account));
+            if(CollUtil.isNotEmpty(bpUserList)){
+                throw new CommonException("账号{}已存在！",account);
+            }
+        }
+        //3. 新增供应商信息
+        bpSupplierService.add(bpSupplierAddParam);
+        return "供应商注册成功";
+    }
+
+    @Override
+    public Boolean check(BpSupplierAddParam bpSupplierAddParam) {
+        String account = "";
+        //1. 获取作为账号的信息
+        if(CollUtil.isNotEmpty(bpSupplierAddParam.getRelationAddParamList())){
+            account = bpSupplierAddParam.getRelationAddParamList().get(0).getBusinessadminPhone();
+        }
+        //2. 账号不为空
+        if(ObjectUtil.isNotEmpty(account)){
+            //判断用户是否存在
+            List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,account));
+            if(CollUtil.isNotEmpty(bpUserList)){
+                throw new CommonException("账号{}已存在！",account);
+            }
+            //供应商是否提交过注册信息
+            List<BpSupplier> bpSuppliers = bpSupplierMapper.getSupplierByPhone(account);
+            if(CollUtil.isNotEmpty(bpSuppliers)){
+                throw new CommonException("账号{}已存在供应商注册信息，请勿重复提交");
+            }
+        }
+        return true;
     }
 }

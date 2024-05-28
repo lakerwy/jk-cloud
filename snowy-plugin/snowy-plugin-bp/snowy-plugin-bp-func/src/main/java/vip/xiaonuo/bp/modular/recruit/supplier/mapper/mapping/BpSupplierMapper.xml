@@ -21,4 +21,15 @@
         join BP_RELATION relation on relation.SUPPLIER_ID = supplier.id
         ${ew.customSqlSegment}
     </select>
+
+
+    <select id="getSupplierByPhone" resultType="vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier">
+        SELECT supplier.*
+        FROM BP_SUPPLIER supplier
+                 join BP_RELATION relation on relation.SUPPLIER_ID = supplier.id
+        where supplier.DELETE_FLAG = 'NOT_DELETE'
+              and supplier.STATUS in ('0','1')
+              and relation.DELETE_FLAG = 'NOT_DELETE'
+              and relation.BUSINESSADMIN_PHONE = #{phone}
+    </select>
 </mapper>
