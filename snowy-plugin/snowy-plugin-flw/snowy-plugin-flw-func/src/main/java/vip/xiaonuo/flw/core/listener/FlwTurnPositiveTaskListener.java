@@ -57,11 +57,11 @@ public class FlwTurnPositiveTaskListener implements ExecutionListener {
                             if (ObjectUtil.isNotEmpty(map) && ObjectUtil.isNotEmpty(map.get("USER_ID"))) {
                                 sql = "UPDATE SYS_USER SET USER_STATUS = 'DISABLED' WHERE `ID` = '" + map.get("USER_ID") + "'";
                                 NodeRuntimeUtil.handleSqlExecution(sql);
-//                                /*
-//                                * 调用钉钉接口，删除钉钉用户 【暂时注释掉】
-//                                * */
-//                                String userId = map.get("USER_ID").toString();
-//                                iDingDingService.delDingUser(userId);
+                                /*
+                                * 调用钉钉接口，删除钉钉用户 【暂时注释掉】
+                                * */
+                                String userId = map.get("USER_ID").toString();
+                                iDingDingService.delDingUser(userId);
                             }
                         }
                     } else {
