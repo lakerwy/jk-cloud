@@ -609,6 +609,7 @@ public class DingDingServiceImpl implements IDingDingService {
      */
     @Override
     public void delDingUser(String userId) {
+        log.info("用户Id : " +userId +" ，是否删除钉钉用户标记 ："+ dingTalkProperties.getIsDelDingUser());
         //是否删除钉钉用户，配置
         if(dingTalkProperties.getIsDelDingUser()) {
             // 1. 根据建科云userId，获取钉钉userId
