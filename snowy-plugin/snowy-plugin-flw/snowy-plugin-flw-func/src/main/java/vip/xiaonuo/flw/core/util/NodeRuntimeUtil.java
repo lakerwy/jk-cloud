@@ -1525,11 +1525,17 @@ public class NodeRuntimeUtil {
     public static void handleTenAuth() {
         TenApi tenApi = SpringUtil.getBean(TenApi.class);
         IdentityService identityService = SpringUtil.getBean(IdentityService.class);
+        String loginIdAsString = null;
+        try{
+            loginIdAsString = StpUtil.getLoginIdAsString();
+        }catch (Exception e){
+
+        }
         if(tenApi.getTenEnabled()) {
-            identityService.setAuthentication(StpUtil.getLoginIdAsString(), null,
+            identityService.setAuthentication(loginIdAsString, null,
                     CollectionUtil.newArrayList(tenApi.getCurrentTenId()));
         } else {
-            identityService.setAuthenticatedUserId(ObjectUtil.isEmpty(StpUtil.getLoginIdAsString()) ? null : StpUtil.getLoginIdAsString());
+            identityService.setAuthenticatedUserId(loginIdAsString);
         }
     }
 
