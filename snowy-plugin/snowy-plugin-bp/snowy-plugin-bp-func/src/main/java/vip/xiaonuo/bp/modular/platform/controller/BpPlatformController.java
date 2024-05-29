@@ -24,11 +24,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.bp.modular.platform.entity.BpPoint;
 import vip.xiaonuo.bp.modular.platform.entity.NoticeTz;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzPageParam;
+import vip.xiaonuo.bp.modular.platform.param.point.BpPointIdParam;
+import vip.xiaonuo.bp.modular.platform.param.point.BpPointPageParam;
 import vip.xiaonuo.bp.modular.platform.param.user.*;
 import vip.xiaonuo.bp.modular.platform.param.userSign.PayParam;
 import vip.xiaonuo.bp.modular.platform.param.userSign.SignParam;
@@ -341,6 +344,36 @@ public class BpPlatformController {
     }
 
 
+
+    /**
+     * 【前台】获取招采管理 - 操作指引分页
+     *
+     * @author yong.ye
+     * @date  2024/05/07 16:34
+     */
+    @ApiOperationSupport(order = 22)
+    @ApiOperation("【前台】获取招采管理 - 操作指引分页")
+    @GetMapping("/bp/platform/frontend/public/pointPage")
+    public CommonResult<Page<BpPoint>> pointPage(BpPointPageParam bpPointPageParam) {
+        return CommonResult.data(bpPlatformService.pointPage(bpPointPageParam));
+    }
+
+    /**
+     * 【前台】获取招采管理 - 操作指引详情
+     *
+     * @author yong.ye
+     * @date  2024/05/07 16:34
+     */
+    @ApiOperationSupport(order = 23)
+    @ApiOperation("【前台】获取招采管理 - 操作指引详情")
+    @GetMapping("/bp/platform/frontend/public/pointDetail")
+    public CommonResult<BpPoint> pointDetail(@Valid BpPointIdParam bpPointIdParam) {
+        return CommonResult.data(bpPlatformService.pointDetail(bpPointIdParam));
+    }
+
+
+
+
     /**
      * 【前台】招采平台 - 供应商注册【供应商入库+审批通过自动创建账号】
      *
@@ -361,11 +394,13 @@ public class BpPlatformController {
      * @author yong.ye
      * @date  2024/05/09 08:41
      */
-    @ApiOperationSupport(order = 60)
+    @ApiOperationSupport(order = 61)
     @ApiOperation("【前台】招采平台 - 供应商注册【前置校验】")
     @CommonLog("【前台】招采平台 - 供应商注册【前置校验】")
     @PostMapping("/bp/platform/frontend/public/check")
     public CommonResult<Boolean> check(@RequestBody @Valid BpSupplierAddParam bpSupplierAddParam) {
         return CommonResult.data(bpPlatformService.check(bpSupplierAddParam));
     }
+
+
 }

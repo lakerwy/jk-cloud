@@ -13,11 +13,14 @@
 package vip.xiaonuo.bp.modular.platform.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import vip.xiaonuo.bp.modular.platform.entity.BpPoint;
 import vip.xiaonuo.bp.modular.platform.entity.NoticeTz;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzPageParam;
+import vip.xiaonuo.bp.modular.platform.param.point.BpPointIdParam;
+import vip.xiaonuo.bp.modular.platform.param.point.BpPointPageParam;
 import vip.xiaonuo.bp.modular.platform.param.user.AccountPasswordLoginParam;
 import vip.xiaonuo.bp.modular.platform.param.user.GetPhoneValidCodeParam;
 import vip.xiaonuo.bp.modular.platform.param.user.PhoneValidCodeLoginParam;
@@ -176,4 +179,18 @@ public interface BpPlatformService{
      * @return
      */
     Boolean check(BpSupplierAddParam bpSupplierAddParam);
+
+    /**
+     * 【前台】获取招采管理 - 操作指引分页
+     * @param bpPointPageParam
+     * @return
+     */
+    Page<BpPoint> pointPage(BpPointPageParam bpPointPageParam);
+
+    /**
+     * 【前台】获取招采管理 - 操作指引详情
+     * @param bpPointIdParam
+     * @return
+     */
+    BpPoint pointDetail(BpPointIdParam bpPointIdParam);
 }

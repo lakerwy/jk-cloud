@@ -31,6 +31,8 @@ import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticePageParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzIdParam;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeTzPageParam;
+import vip.xiaonuo.bp.modular.platform.param.point.BpPointIdParam;
+import vip.xiaonuo.bp.modular.platform.param.point.BpPointPageParam;
 import vip.xiaonuo.bp.modular.platform.param.user.*;
 import vip.xiaonuo.bp.modular.platform.param.userSign.*;
 import vip.xiaonuo.bp.modular.platform.service.*;
@@ -100,6 +102,8 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     private ClarifyMapper clarifyMapper;
     @Resource
     private BpSupplierMapper bpSupplierMapper;
+    @Resource
+    private BpPointService bpPointService;
 
 
     @Override
@@ -586,5 +590,15 @@ public class BpPlatformServiceImpl implements BpPlatformService {
             }
         }
         return true;
+    }
+
+    @Override
+    public Page<BpPoint> pointPage(BpPointPageParam bpPointPageParam) {
+        return bpPointService.page(bpPointPageParam);
+    }
+
+    @Override
+    public BpPoint pointDetail(BpPointIdParam bpPointIdParam) {
+        return bpPointService.detail(bpPointIdParam);
     }
 }
