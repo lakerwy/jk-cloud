@@ -92,7 +92,7 @@ public class SealApplyServiceImpl implements SealApplyService {
             SealImpower sealImpower = new SealImpower();
             sealImpower.setApplicationId(id);
             sealImpower.setUuid(uuid);
-            sealImpower.setExpireTime(Long.valueOf("3600"));
+            sealImpower.setExpireTime(Long.valueOf("31536000")); //一年有效期
             sealApply.setParams(JSONUtil.toJsonStr(sealImpower));
             parseObj = HttpUtil.sendPostRequest(url, JSONUtil.toJsonStr(sealApply));
         } catch (Exception e){
