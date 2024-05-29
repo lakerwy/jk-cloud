@@ -158,6 +158,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
 
             /* 招采管理 - 采购计划*/
             "/flw/process/purchasePlanStart",
+            "/feign/flw/flwCommonFeign/save",
     };
 
     /**
