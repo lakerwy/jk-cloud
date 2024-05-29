@@ -12,16 +12,20 @@
  */
 package vip.xiaonuo.bp.modular.recruit.relation.service.impl;
 
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.bp.modular.recruit.relation.entity.BpRelation;
 import vip.xiaonuo.bp.modular.recruit.relation.mapper.BpRelationMapper;
-import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationPageParam;
 import vip.xiaonuo.bp.modular.recruit.relation.service.BpRelationService;
+import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
+import vip.xiaonuo.bp.modular.recruit.supplier.mapper.BpSupplierMapper;
 import vip.xiaonuo.common.exception.CommonException;
+
+import javax.annotation.Resource;
+import java.util.List;
 
 /**
  * 供应商人员信息表Service接口实现类
@@ -33,11 +37,19 @@ import vip.xiaonuo.common.exception.CommonException;
 @DS("slave_1")
 public class BpRelationServiceImpl extends ServiceImpl<BpRelationMapper, BpRelation> implements BpRelationService {
 
+    @Resource
+    private BpSupplierMapper bpSupplierMapper;
+
     @Override
     public Boolean getBusinessAdminPhone(String businessAdminPhone) {
         if (ObjectUtil.isEmpty(businessAdminPhone)) {
             throw new CommonException("供应商负责人手机号不能为空!");
         }
-        return this.list(new QueryWrapper<BpRelation>().lambda().eq(BpRelation::getBusinessadminPhone,businessAdminPhone)).size() > 0;
+        //供应商是否提交过注册信息
+        List<BpSupplier> supplierByPhone = bpSupplierMapper.getSupplierByPhone(businessAdminPhone);
+        if(CollUtil.isNotEmpty(supplierByPhone)){
+            return true;
+        }
+        return false;
     }
 }

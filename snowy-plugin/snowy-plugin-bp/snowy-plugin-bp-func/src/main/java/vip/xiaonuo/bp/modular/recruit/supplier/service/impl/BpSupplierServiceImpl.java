@@ -186,9 +186,10 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
             throw new CommonException("供应商人员信息不能为空!");
         }
         for (BpRelationAddParam bpRelationAddParam : relationAddParamList) {
-            Boolean isBooleanPhone = bpRelationService.getBusinessAdminPhone(bpRelationAddParam.getBusinessadminPhone());
-            if(isBooleanPhone){
-                throw new CommonException("供应商负责人手机号重复!");
+            //验证供应商下业务负责人手机号是否已注册
+            Boolean boIphone = bpRelationService.getBusinessAdminPhone(bpRelationAddParam.getBusinessadminPhone());
+            if(boIphone){
+                throw new CommonException("账号{}已存在供应商注册信息，请勿重复提交!");
             }
             bpRelationAddParam.setSupplierId(bpSupplier.getId());
             bpRelationAddParam.setTenantId(tenApi.getCurrentTenId());
