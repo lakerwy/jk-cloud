@@ -609,26 +609,19 @@ public class DingDingServiceImpl implements IDingDingService {
      */
     @Override
     public void delDingUser(String userId) {
-        log.info("用户Id : " +userId +" ，是否删除钉钉用户标记 ："+ dingTalkProperties.getIsDelDingUser());
+        log.info("用户Id : " + userId +" ，是否删除钉钉用户标记 ："+ dingTalkProperties.getIsDelDingUser());
         //是否删除钉钉用户，配置
         if(dingTalkProperties.getIsDelDingUser()) {
-            // 1. 根据建科云userId，获取钉钉userId
-            AuthThirdApi authThirdApi = SpringUtil.getBean(AuthThirdApi.class);
-            String thirdId = authThirdApi.getThirdIdByUserId(userId,"DingDing");
-            log.info("【删除钉钉用户】三方用户钉钉用户Id，thirdId = "+ thirdId);
-            // 2. 若三方用户表无记录
-            if(StrUtil.isEmpty(thirdId)){
-                thirdId = getUserId(userId);
-                log.info("【删除钉钉用户】根据系统用户Id，获取账号Account（手机号），再获取钉钉用户Id，thirdId = "+ thirdId);
-            }
-            // 3. 钉钉用户id（钉钉平台-userId，删除钉钉用户）
-            if(ObjectUtil.isNotEmpty(thirdId)){
+            // 1. 通过接口，获取钉钉用户Id
+            String dingUserId = getUserId(userId);
+            log.info("【删除钉钉用户】根据系统用户Id，获取账号Account（手机号），再获取钉钉用户Id，dingUserId = "+ dingUserId);
+            // 2. 钉钉用户id（钉钉平台-userId，删除钉钉用户）
+            if(ObjectUtil.isNotEmpty(dingUserId)){
                 //获取token
                 String access_token = getDingToken(dingTalkProperties.getAppKey(),dingTalkProperties.getAppSecret());
-                OapiV2UserDeleteResponse oapiV2UserDeleteResponse = CommonDingDingUtil.delDingUser(access_token, thirdId);
+                OapiV2UserDeleteResponse oapiV2UserDeleteResponse = CommonDingDingUtil.delDingUser(access_token, dingUserId);
                 log.info("【删除钉钉用户】调用钉钉接口，返回结果："+ JSONUtil.parseObj(oapiV2UserDeleteResponse));
             }
         }
-
     }
 }
