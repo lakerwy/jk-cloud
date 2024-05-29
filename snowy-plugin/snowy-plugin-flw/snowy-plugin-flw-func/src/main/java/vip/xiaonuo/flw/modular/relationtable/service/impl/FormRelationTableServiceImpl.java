@@ -63,6 +63,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -761,7 +762,13 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
         formRelationTable.setId(businessKey);
         formRelationTable.setProcessInstanceId(processInstanceId);
         formRelationTable.setCreateTime(DateUtil.date());
-        formRelationTable.setCreateUser(ObjectUtil.isEmpty(StpLoginUserUtil.getLoginUser()) ? null :StpLoginUserUtil.getLoginUser().getId());
+        String loginUserId = null;
+        try{
+            loginUserId = StpLoginUserUtil.getLoginUser().getId();
+        }catch (Exception e){
+
+        }
+        formRelationTable.setCreateUser(loginUserId);
         this.save(formRelationTable);
     }
 
