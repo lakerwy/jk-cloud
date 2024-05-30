@@ -60,10 +60,8 @@ public class FlwNewSealMessageExecutionListener implements ExecutionListener {
                 usedSealParam.setSealerUserName("admin");//目前没有同步群杰组织架构,默认admin账号
                 usedSealParam.setSealId(String.valueOf(JSONUtil.parseObj(dataJson).get("sealId")));
                 //获取流程数据--每份用印次数  页面用印次数字段不一样 兼容两个值  如果都没有拿到值，则默认5份
-                Object contractCopiesCount = ObjectUtil.isEmpty(JSONUtil.parseObj(dataJson).get("applyCount")) ? JSONUtil.parseObj(dataJson).get("printNum") : JSONUtil.parseObj(dataJson).get("applyCount");
-                if (ObjectUtil.isEmpty(contractCopiesCount)){
-                    contractCopiesCount = 5;
-                }
+                Object contractCopiesCount = ObjectUtil.isEmpty(JSONUtil.parseObj(dataJson).get("sealCount")) ? 5 : JSONUtil.parseObj(dataJson).get("sealCount");
+
                 usedSealParam.setApplyCount(String.valueOf(contractCopiesCount));
                 sealParam.setApplyerUserName("admin");//目前没有同步群杰组织架构,默认admin账号
                 //sealParam.setCallBackUrl("www.baidu.com");
