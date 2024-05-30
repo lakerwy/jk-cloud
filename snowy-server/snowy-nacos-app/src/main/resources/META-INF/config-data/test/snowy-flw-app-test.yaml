@@ -281,3 +281,9 @@ snowy:
       ignore-table-names:
       ten-id-column-name: TENANT_ID
       default-ten-id: -1
+
+tencent:
+  cloud:
+    deploy:
+      prefixUrl: http://10.0.22.15:82/api/
+

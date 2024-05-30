@@ -14,7 +14,6 @@ package vip.xiaonuo.dev.modular.sealApply.service;
 
 import cn.hutool.json.JSONObject;
 import vip.xiaonuo.dev.modular.sealApply.vo.UserSealApplyVo;
-import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 
 import java.util.List;
 
