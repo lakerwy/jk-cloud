@@ -5,4 +5,7 @@
     <select id="myServer" resultType="vip.xiaonuo.dev.modular.server.entity.SystemServer">
         SELECT DISTINCT a.* FROM SYSTEM_SERVER a JOIN  SYSTEM_USER_RELATION b ON a.ID = b.SYSTEM_ID ${ew.customSqlSegment}
     </select>
+    <delete id="deleteBySystemId" parameterType="string" >
+        DELETE FROM SYSTEM_USER_RELATION WHERE SYSTEM_ID = #{systemId} and USER_TYPE = '1'
+    </delete>
 </mapper>

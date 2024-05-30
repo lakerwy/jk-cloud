@@ -29,4 +29,6 @@ import vip.xiaonuo.dev.modular.userRelation.entity.SystemUserRelation;
 public interface SystemUserRelationMapper extends BaseMapper<SystemUserRelation> {
 
     Page<SystemServer> myServer(Page<SystemServer> page, @Param(Constants.WRAPPER) Wrapper<SystemServer> queryWrapper);
+
+    void deleteBySystemId(@Param(value = "systemId") String systemId);
 }

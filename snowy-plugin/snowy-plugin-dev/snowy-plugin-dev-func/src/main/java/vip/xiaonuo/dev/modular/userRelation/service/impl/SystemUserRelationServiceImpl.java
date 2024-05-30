@@ -123,8 +123,8 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             throw new CommonException("同步人员列表为空");
         }
 
-        baseMapper.delete(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId,syncParam.getId()).eq(SystemUserRelation::getUserType,"1"));
-
+       // baseMapper.delete(new LambdaQueryWrapper<SystemUserRelation>().eq(SystemUserRelation::getSystemId,syncParam.getId()).eq(SystemUserRelation::getUserType,"1"));
+        baseMapper.deleteBySystemId(syncParam.getId());
         List<SystemUserRelation> collect = syncUsers.stream().map(syncUser -> {
             SystemUserRelation systemUserRelation = new SystemUserRelation();
             systemUserRelation.setSystemId(syncParam.getId());
