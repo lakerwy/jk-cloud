@@ -52,4 +52,8 @@ public class BpPointPageParam {
     @ApiModelProperty(value = "标题")
     private String title;
 
+    /** 类型：操作指引|资料下载 */
+    @ApiModelProperty(value = "类型：操作指引|资料下载")
+    private String type;
+
 }

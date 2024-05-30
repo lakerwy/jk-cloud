@@ -31,6 +31,10 @@ import java.util.Date;
 @Setter
 public class BpPointAddParam {
 
+    /** 类型：操作指引|资料下载 */
+    @ApiModelProperty(value = "类型：操作指引|资料下载", position = 2)
+    private String type;
+
     /** 标题 */
     @ApiModelProperty(value = "标题", position = 2)
     private String title;

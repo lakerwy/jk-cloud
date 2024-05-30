@@ -48,6 +48,9 @@ public class BpPointServiceImpl extends ServiceImpl<BpPointMapper, BpPoint> impl
     @Override
     public Page<BpPoint> page(BpPointPageParam bpPointPageParam) {
         QueryWrapper<BpPoint> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(bpPointPageParam.getType())){
+            queryWrapper.lambda().eq(BpPoint::getType,bpPointPageParam.getType());
+        }
         if(ObjectUtil.isNotEmpty(bpPointPageParam.getTitle())) {
             queryWrapper.lambda().like(BpPoint::getTitle, bpPointPageParam.getTitle());
         }

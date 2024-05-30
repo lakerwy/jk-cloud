@@ -35,6 +35,10 @@ public class BpPoint {
     @ApiModelProperty(value = "主键ID", position = 1)
     private String id;
 
+    /** 类型：操作指引|资料下载 */
+    @ApiModelProperty(value = "类型：操作指引|资料下载", position = 2)
+    private String type;
+
     /** 标题 */
     @ApiModelProperty(value = "标题", position = 2)
     private String title;
