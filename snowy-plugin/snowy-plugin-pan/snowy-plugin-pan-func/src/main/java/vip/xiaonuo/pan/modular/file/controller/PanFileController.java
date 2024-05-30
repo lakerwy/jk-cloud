@@ -439,11 +439,15 @@ public class PanFileController {
                 userFile = userFileService.getById(previewOfficeFileParam.getUserFileId()) ;
             }
 
-            SaBaseLoginUser userBean = StpLoginUserUtil.getLoginUser();
-
             User user = new User();
-            user.setId(userBean.getId());
-            user.setName(userBean.getAccount());
+            try {
+                SaBaseLoginUser userBean = StpLoginUserUtil.getLoginUser();
+                user.setId(userBean.getId());
+                user.setName(userBean.getAccount());
+            }catch (Exception e){
+                user.setId("-99");
+                user.setName("未知");
+            }
 
             Action action = Action.view;
             Type type = Type.desktop;
