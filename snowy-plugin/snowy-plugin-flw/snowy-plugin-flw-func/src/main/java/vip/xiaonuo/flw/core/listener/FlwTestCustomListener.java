@@ -28,7 +28,7 @@ import vip.xiaonuo.common.exception.CommonException;
 public class FlwTestCustomListener implements FlwGlobalCustomEventListener {
 
     @Override
-    public void publishRejectEvent(HistoricProcessInstance historicProcessInstance) {
+    public void publishRejectEvent(HistoricProcessInstance historicProcessInstance,String taskId) {
         try {
             log.info(">>> 自定义事件执行监听器：拒绝事件触发，流程id为：{}", historicProcessInstance.getId());
         } catch (Exception e) {

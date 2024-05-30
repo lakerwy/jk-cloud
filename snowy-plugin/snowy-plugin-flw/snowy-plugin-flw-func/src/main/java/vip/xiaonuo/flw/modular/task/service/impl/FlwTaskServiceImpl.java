@@ -431,7 +431,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         handleDataJson(task.getProcessInstanceId(), flwTaskRejectParam.getDataJson());
 
         // 发布拒绝事件
-        FlwGlobalCustomEventCenter.publishRejectEvent(processInstanceId);
+        FlwGlobalCustomEventCenter.publishRejectEvent(processInstanceId,taskId);
 
         // 执行拒绝
         runtimeService.deleteProcessInstancesIfExists(CollectionUtil.newArrayList(processInstanceId), "REJECT",
@@ -506,7 +506,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.BACK.getValue(), "退回结束",
                     flwTaskBackParam.getComment(), flwTaskBackParam.getAttachmentList());
             // 发布拒绝事件
-            FlwGlobalCustomEventCenter.publishRejectEvent(processInstanceId);
+            FlwGlobalCustomEventCenter.publishRejectEvent(processInstanceId,taskId);
 
             runtimeService.deleteProcessInstancesIfExists(CollectionUtil.newArrayList(processInstanceId), "REJECT",
                     true, true, true);

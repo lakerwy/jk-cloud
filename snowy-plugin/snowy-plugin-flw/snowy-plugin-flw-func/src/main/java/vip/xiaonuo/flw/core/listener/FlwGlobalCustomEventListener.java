@@ -28,7 +28,7 @@ public interface FlwGlobalCustomEventListener {
     * @author xuyuxiang
     * @date 2023/8/18 1:07
     */
-   void publishRejectEvent(HistoricProcessInstance historicProcessInstance);
+   void publishRejectEvent(HistoricProcessInstance historicProcessInstance,String taskId);
 
    /**
     * 执行发布流程终止事件

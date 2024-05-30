@@ -94,11 +94,11 @@ public class FlwGlobalCustomEventCenter {
      * @author xuyuxiang
      * @date 2023/3/3 10:22
      **/
-    public static void publishRejectEvent(String processInstanceId) {
+    public static void publishRejectEvent(String processInstanceId,String taskId) {
         HistoricProcessInstance historicProcessInstance = getHistoricProcessInstance(processInstanceId);
         if(ObjectUtil.isNotEmpty(historicProcessInstance)) {
             getCustomEventListenerList(historicProcessInstance, NodeExecutionListenerKeyEnum.REJECT.getValue()).forEach(flwGlobalCustomEventListener -> flwGlobalCustomEventListener
-                    .publishRejectEvent(historicProcessInstance));
+                    .publishRejectEvent(historicProcessInstance,taskId));
         }
     }
 

@@ -429,7 +429,7 @@ public class NodeRuntimeUtil {
                                             throw new RuntimeException(e);
                                         }
                                         // 发布拒绝事件
-                                        FlwGlobalCustomEventCenter.publishRejectEvent(delegateTask.getProcessInstanceId());
+                                        FlwGlobalCustomEventCenter.publishRejectEvent(delegateTask.getProcessInstanceId(),delegateTask.getId());
                                         // 执行拒绝
                                         delegateTask.getProcessEngineServices().getRuntimeService()
                                                 .deleteProcessInstancesIfExists(CollectionUtil.newArrayList(delegateTask.getProcessInstanceId()), "REJECT",

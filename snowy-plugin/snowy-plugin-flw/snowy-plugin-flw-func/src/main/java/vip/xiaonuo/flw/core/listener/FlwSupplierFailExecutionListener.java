@@ -77,7 +77,7 @@ public class FlwSupplierFailExecutionListener implements FlwGlobalCustomEventLis
     }
 
     @Override
-    public void publishRejectEvent(HistoricProcessInstance historicProcessInstance) {
+    public void publishRejectEvent(HistoricProcessInstance historicProcessInstance,String taskId) {
 //        String processInstanceId = historicProcessInstance.getId();
         String supplierId = historicProcessInstance.getBusinessKey();
         String reason = "审批不通过";
