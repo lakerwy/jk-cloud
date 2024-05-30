@@ -1,4 +1,4 @@
 jpush:
-  appKey: 90ba9a0d851668590ef1ec06
-  masterSecret: 36f5ac4d064e5d839c9fe876
+  appKey: 2d800e70762148bde9fbe36b
+  masterSecret: e3d000f6304d06a3a7ab59c2
   apnsProduction: false   # 是否生成环境，true表示生成环境
