@@ -40,6 +40,7 @@ import vip.xiaonuo.bp.modular.platform.util.LoginBpUserUtil;
 import vip.xiaonuo.bp.modular.platform.vo.*;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
 import vip.xiaonuo.bp.modular.recruit.supplier.mapper.BpSupplierMapper;
+import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierIdParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
@@ -47,6 +48,7 @@ import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -589,6 +591,11 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Override
     public BpPoint pointDetail(BpPointIdParam bpPointIdParam) {
         return bpPointService.detail(bpPointIdParam);
+    }
+
+    @Override
+    public BpSupplierReturnVo getBpSupplierDetail(BpSupplierIdParam bpSupplierIdParam) {
+        return bpSupplierService.detail(bpSupplierIdParam);
     }
 
     /**

@@ -45,7 +45,9 @@ import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierIdParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -329,7 +331,6 @@ public class BpPlatformController {
         return CommonResult.data(bpPlatformService.getBpSupplierPageList(bpSupplierPageParam));
     }
 
-
     /**
      * 【前台】获取招采管理 - 澄清公告详情(id)
      *
@@ -371,8 +372,19 @@ public class BpPlatformController {
         return CommonResult.data(bpPlatformService.pointDetail(bpPointIdParam));
     }
 
-
-
+    /**
+     * 【前台】招采 -供应商审批详情
+     *
+     * @author hxw
+     * @date 2024/5/14 11:10
+     */
+    @ApiOperationSupport(order = 20)
+    @ApiOperation("【前台】招采 -供应商审批详情")
+    @CommonLog("【前台】招采 -供应商审批详情")
+    @GetMapping("/bp/platform/frontend/public/getBpSupplierDetail")
+    public CommonResult<BpSupplierReturnVo> getBpSupplierDetail(@Valid BpSupplierIdParam bpSupplierIdParam) {
+        return CommonResult.data(bpPlatformService.getBpSupplierDetail(bpSupplierIdParam));
+    }
 
     /**
      * 【前台】招采平台 - 供应商注册【供应商入库+审批通过自动创建账号】

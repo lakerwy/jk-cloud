@@ -33,7 +33,9 @@ import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierIdParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
+import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
 
 import java.util.List;
@@ -193,4 +195,9 @@ public interface BpPlatformService{
      * @return
      */
     BpPoint pointDetail(BpPointIdParam bpPointIdParam);
+
+    /**
+     * 【前台】招采 -供应商审批详情
+     */
+    BpSupplierReturnVo getBpSupplierDetail(BpSupplierIdParam bpSupplierPageParam);
 }
