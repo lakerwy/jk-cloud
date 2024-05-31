@@ -172,6 +172,8 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     public String getPhoneValidCode(GetPhoneValidCodeParam getPhoneValidCodeParam) {
         // 手机号
         String phone = getPhoneValidCodeParam.getPhone();
+        // 账号校验
+        checkAccount(phone);
         // 验证码
         String validCode = getPhoneValidCodeParam.getValidCode();
         // 验证码请求号
@@ -207,19 +209,13 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         } catch (Exception e) {
             throw new CommonException("密码解密失败");
         }
-        List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,account));
-        if(CollUtil.isEmpty(bpUserList)){
-            throw new CommonException("账号不存在");
-        }else if(bpUserList.size() > 1){
-            throw new CommonException("账号异常，请联系管理员");
-        }else{
-            BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUserList.get(0), BpLoginUser.class);
-            if(!passwordHash.equals(bpLoginUser.getPassword())){
-                throw new CommonException("密码错误");
-            }
-            //执行登录
-            return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
+        // 账号校验
+        BpLoginUser bpLoginUser = checkAccount(account);
+        if(!passwordHash.equals(bpLoginUser.getPassword())){
+            throw new CommonException("密码错误");
         }
+        //执行登录
+        return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
     }
 
     @Override
@@ -228,17 +224,10 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         String phone = phoneValidCodeLoginParam.getPhone();
         // 校验参数
         validPhoneValidCodeParam(phone, phoneValidCodeLoginParam.getValidCode(), phoneValidCodeLoginParam.getValidCodeReqNo());
-        // 根据手机号获取用户信息
-        List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,phone));
-        if(CollUtil.isEmpty(bpUserList)){
-            throw new CommonException("账号不存在");
-        }else if(bpUserList.size() > 1){
-            throw new CommonException("账号异常，请联系管理员");
-        }else {
-            BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUserList.get(0), BpLoginUser.class);
-            //执行登录
-            return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
-        }
+        // 根据手机号(账号)校验
+        BpLoginUser bpLoginUser = checkAccount(phone);
+        //执行登录
+        return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
     }
 
     @Override
@@ -586,7 +575,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
             //供应商是否提交过注册信息
             List<BpSupplier> bpSuppliers = bpSupplierMapper.getSupplierByPhone(account);
             if(CollUtil.isNotEmpty(bpSuppliers)){
-                throw new CommonException("账号{}已存在供应商注册信息，请勿重复提交");
+                throw new CommonException("账号{}已存在供应商注册信息，请勿重复提交",account);
             }
         }
         return true;
@@ -601,4 +590,23 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     public BpPoint pointDetail(BpPointIdParam bpPointIdParam) {
         return bpPointService.detail(bpPointIdParam);
     }
+
+    /**
+     * 系统以手机号作为账号，需要判断是否存在
+     *   若异常，则报错
+     *   若无误，返回用户信息
+     * @param account
+     * @return
+     */
+    public BpLoginUser checkAccount(String account){
+        List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,account));
+        if(CollUtil.isEmpty(bpUserList)){
+            throw new CommonException("账号不存在");
+        }else if(bpUserList.size() > 1){
+            throw new CommonException("账号异常，请联系管理员");
+        }
+        BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUserList.get(0), BpLoginUser.class);
+        return bpLoginUser;
+    }
+
 }
