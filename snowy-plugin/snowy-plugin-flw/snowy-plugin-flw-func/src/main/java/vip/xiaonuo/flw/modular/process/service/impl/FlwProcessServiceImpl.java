@@ -84,6 +84,8 @@ import vip.xiaonuo.flw.modular.relation.enums.FlwRelationCategoryEnum;
 import vip.xiaonuo.flw.modular.relation.service.FlwRelationService;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
+import vip.xiaonuo.flw.modular.system.entity.ExtSystem;
+import vip.xiaonuo.flw.modular.system.service.ExtSystemService;
 import vip.xiaonuo.flw.modular.task.param.FlwTaskTurnParam;
 import vip.xiaonuo.flw.modular.task.result.FlwTaskAttachmentResult;
 import vip.xiaonuo.flw.modular.task.result.FlwTaskDetailResult;
@@ -150,6 +152,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Resource
     FlwCommonMapper flwCommonMapper;
+
+    @Resource
+    private ExtSystemService extSystemService;
 
     @Override
     public void saveDraft(FlwProcessSaveDraftParam flwProcessSaveDraftParam) {
@@ -1512,6 +1517,16 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 }
                 processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
             }
+
+            if(ObjectUtil.isNotEmpty(flwProcessStartParam.getDataJson())) {
+                //存入系统表
+                ExtSystem extSystem = new ExtSystem();
+                extSystem.setFromId(String.valueOf(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).get("planId")));
+                extSystem.setFromExtJson(flwProcessStartParam.getDataJson());
+                extSystem.setSystemName("EPC系统采购计划发起");
+                extSystemService.save(extSystem);
+            }
+
             if(ObjectUtil.isNotEmpty(processInstance)){
                 String processInstanceId = processInstance.getProcessInstanceId();
                 //将id 和sn 存入缓存中，保证每个模块的业务都可以获取到，获取完成之后清空缓存，避免占用内存

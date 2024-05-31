@@ -54,10 +54,7 @@ public class FlwNewSealApplyExecutionListener implements ExecutionListener {
                 //获取程数据--设备标识
                 String uuid = String.valueOf(JSONUtil.parseObj(dataJson).get("sealId"));
                 //获取流程数据--每份用印次数  页面用印次数字段不一样 兼容两个值  如果都没有拿到值，则默认5份
-                Object contractCopiesCount = ObjectUtil.isEmpty(JSONUtil.parseObj(dataJson).get("applyCount")) ? JSONUtil.parseObj(dataJson).get("printNum") : JSONUtil.parseObj(dataJson).get("applyCount");
-                if (ObjectUtil.isEmpty(contractCopiesCount)){
-                    contractCopiesCount = 5;
-                }
+                Object contractCopiesCount = ObjectUtil.isEmpty(JSONUtil.parseObj(dataJson).get("sealCount")) ? 5 : JSONUtil.parseObj(dataJson).get("sealCount");
                 JSONObject jsonObject = devSealApplyApi.getSealApplyFieldList(id, uuid, String.valueOf(contractCopiesCount));
                 Object obj = jsonObject.get("data");
                 //得到授权码

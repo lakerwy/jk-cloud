@@ -10,6 +10,7 @@ import cn.jpush.api.push.model.Platform;
 import cn.jpush.api.push.model.PushPayload;
 import cn.jpush.api.push.model.audience.Audience;
 import cn.jpush.api.push.model.notification.AndroidNotification;
+import cn.jpush.api.push.model.notification.IosAlert;
 import cn.jpush.api.push.model.notification.IosNotification;
 import cn.jpush.api.push.model.notification.Notification;
 import com.google.gson.Gson;
@@ -222,6 +223,8 @@ public class JPushServiceImpl implements JPushService {
         }else {
             audience = Audience.alias(aliasList);
         }
+        // 创建一个 IosAlert 对象，指定 iOS 的 alert、title、subtitle 等字段
+        IosAlert iosAlert = IosAlert.newBuilder().setTitleAndBody(notificationTitle,null,msgContent).build();
         return PushPayload.newBuilder()
                 // 指定要推送的平台，all代表当前应用配置了的所有平台，也可以传android等具体平台
                 .setPlatform(Platform.all())
@@ -240,7 +243,7 @@ public class JPushServiceImpl implements JPushService {
                         // 指定当前推送的iOS通知
                         .addPlatformNotification(IosNotification.newBuilder()
                                 // 传一个IosAlert对象，指定apns title、title、subtitle等
-                                .setAlert(notificationTitle)  //通知内容
+                                .setAlert(iosAlert)  //通知内容
                                 // 直接传alert
                                 // 此项是指定此推送的badge自动加1
                                 .incrBadge(1)
