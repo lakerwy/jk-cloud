@@ -276,15 +276,15 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         if(ObjectUtil.isEmpty(existValidCode)) {
             throw new CommonException("验证码错误");
         }
+        // 不一致则直接验证码错误
+        if (!validCode.equals(Convert.toStr(existValidCode).toLowerCase())) {
+            throw new CommonException("验证码错误");
+        }
         // 移除该验证码
         if(ObjectUtil.isEmpty(phoneOrEmail)) {
             commonCacheOperator.remove(BP_VALID_CODE_CACHE_KEY + validCodeReqNo);
         } else {
             commonCacheOperator.remove(BP_VALID_CODE_CACHE_KEY + phoneOrEmail + StrUtil.UNDERLINE + validCodeReqNo);
-        }
-        // 不一致则直接验证码错误
-        if (!validCode.equals(Convert.toStr(existValidCode).toLowerCase())) {
-            throw new CommonException("验证码错误");
         }
     }
 
