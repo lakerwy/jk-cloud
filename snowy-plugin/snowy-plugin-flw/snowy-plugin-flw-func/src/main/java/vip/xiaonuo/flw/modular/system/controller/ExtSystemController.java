@@ -26,6 +26,7 @@ import vip.xiaonuo.flw.modular.system.entity.ExtSystem;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemIdParam;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemPageParam;
 import vip.xiaonuo.flw.modular.system.service.ExtSystemService;
+import vip.xiaonuo.flw.modular.system.vo.ExtSystemVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -69,7 +70,7 @@ public class ExtSystemController {
     @ApiOperation("获取各系统扩展数据表详情")
     //@SaCheckPermission("/flw/system/detail")
     @GetMapping("/flw/system/detail")
-    public CommonResult<ExtSystem> detail(@Valid ExtSystemIdParam extSystemIdParam) {
+    public CommonResult<ExtSystemVo> detail(@Valid ExtSystemIdParam extSystemIdParam) {
         return CommonResult.data(extSystemService.detail(extSystemIdParam));
     }
 }

@@ -14,6 +14,8 @@ package vip.xiaonuo.flw.modular.system.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,6 +28,7 @@ import vip.xiaonuo.flw.modular.system.mapper.ExtSystemMapper;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemIdParam;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemPageParam;
 import vip.xiaonuo.flw.modular.system.service.ExtSystemService;
+import vip.xiaonuo.flw.modular.system.vo.ExtSystemVo;
 
 /**
  * 各系统扩展数据表Service接口实现类
@@ -62,16 +65,27 @@ public class ExtSystemServiceImpl extends ServiceImpl<ExtSystemMapper, ExtSystem
     }
 
     @Override
-    public ExtSystem detail(ExtSystemIdParam extSystemIdParam) {
+    public ExtSystemVo detail(ExtSystemIdParam extSystemIdParam) {
         return this.queryEntity(extSystemIdParam.getId());
     }
 
     @Override
-    public ExtSystem queryEntity(String id) {
+    public ExtSystemVo queryEntity(String id) {
         ExtSystem extSystem = this.getOne(new QueryWrapper<ExtSystem>().lambda().apply("JSON_EXTRACT(FROM_EXT_JSON, '$.planId') =" + "'" + id + "'"));
         if(ObjectUtil.isEmpty(extSystem)) {
             throw new CommonException("各系统扩展数据表不存在，id值为：{}", id);
         }
-        return extSystem;
+        ExtSystemVo extSystemVo = new ExtSystemVo();
+        if(ObjectUtil.isNotEmpty(extSystem.getFromExtJson())){
+            JSONObject jsonObject = JSONUtil.parseObj(extSystem.getFromExtJson());
+            extSystemVo.setProjectName(jsonObject.getStr("projectName"));
+            extSystemVo.setPlanName(jsonObject.getStr("planName"));
+            extSystemVo.setUnit(jsonObject.getStr("unit"));
+            extSystemVo.setAttachment(jsonObject.getStr("attachment"));
+            extSystemVo.setSn(jsonObject.getStr("sn"));
+            extSystemVo.setCreateTime(jsonObject.getStr("applyTime"));
+            extSystemVo.setCreateUser(jsonObject.getStr("applyUser"));
+        }
+        return extSystemVo;
     }
 }
