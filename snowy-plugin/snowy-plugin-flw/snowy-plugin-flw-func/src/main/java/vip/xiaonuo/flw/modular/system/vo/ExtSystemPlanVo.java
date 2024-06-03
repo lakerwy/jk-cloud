@@ -17,14 +17,14 @@ import lombok.Getter;
 import lombok.Setter;
 
 /**
- * 各系统扩展数据表返回实体
+ * 各系统扩展数据表招采计划返回实体
  *
  * @author hxw
  * @date  2024/05/31 08:20
  **/
 @Getter
 @Setter
-public class ExtSystemVo {
+public class ExtSystemPlanVo {
 
     /** 项目名称 */
     @ApiModelProperty(value = "项目名称")
@@ -48,9 +48,9 @@ public class ExtSystemVo {
 
     /** 创建时间 */
     @ApiModelProperty(value = "创建时间")
-    private String createTime;
+    private String applyTime;
 
     /** 创建用户 */
     @ApiModelProperty(value = "创建用户")
-    private String createUser;
+    private String applyUser;
 }

@@ -21,6 +21,8 @@ import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.core.deploy.DeployProperties;
+import vip.xiaonuo.flw.modular.system.entity.ExtSystem;
+import vip.xiaonuo.flw.modular.system.service.ExtSystemService;
 
 import javax.annotation.Resource;
 
@@ -36,7 +38,11 @@ public class FlwPurchasePlanExecutionListener implements ExecutionListener {
 
     @Resource
     private DeployProperties deployProperties;
-    /** 流程拒绝标志 */
+
+    @Resource
+    private ExtSystemService extSystemService;
+
+    /** 流程审核通过标志 */
     private static final String STATUS_FLAG = "1";
     private static final String URL_FLAG = "epc/purchasePlan/edit";
 
@@ -47,6 +53,7 @@ public class FlwPurchasePlanExecutionListener implements ExecutionListener {
                     execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
             //获取流程表单数据
             Object dataJson = execution.getVariable("initiatorDataJson");
+
             //请求路径
             String url = deployProperties.getPrefixUrl() + URL_FLAG;
             JSONObject jsonObject = new JSONObject();
@@ -57,7 +64,17 @@ public class FlwPurchasePlanExecutionListener implements ExecutionListener {
             jsonObject.set("processInstanceId", String.valueOf(JSONUtil.parseObj(dataJson).get("processInstanceId"))); //流程数据--流程实例id
 
             //调用epc系统 回写当前数据状态值
-            HttpUtil.post(url, jsonObject.toString());
+            String post = HttpUtil.post(url, jsonObject.toString());
+
+            //返回成功则去记录系统表
+            if("200".equals(String.valueOf(JSONUtil.parseObj(post).get("code")))){
+                //存入系统表
+                ExtSystem extSystem = new ExtSystem();
+                extSystem.setFromId(String.valueOf(JSONUtil.parseObj(dataJson).get("planId")));
+                extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG)));
+                extSystem.setSystemName("EPC系统采购计划审批通过");
+                extSystemService.save(extSystem);
+            }
         } catch (Exception e) {
             throw new CommonException("执行监听器{}出现异常：{}", FlwNewSealMessageExecutionListener.class.getName(), e.getMessage());
         }

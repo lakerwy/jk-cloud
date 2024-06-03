@@ -17,7 +17,8 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.flw.modular.system.entity.ExtSystem;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemIdParam;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemPageParam;
-import vip.xiaonuo.flw.modular.system.vo.ExtSystemVo;
+import vip.xiaonuo.flw.modular.system.vo.ExtSystemApplyVo;
+import vip.xiaonuo.flw.modular.system.vo.ExtSystemPlanVo;
 
 /**
  * 各系统扩展数据表Service接口
@@ -41,7 +42,7 @@ public interface ExtSystemService extends IService<ExtSystem> {
      * @author hxw
      * @date  2024/05/30 16:01
      */
-    ExtSystemVo detail(ExtSystemIdParam extSystemIdParam);
+    ExtSystemPlanVo planDetail(ExtSystemIdParam extSystemIdParam);
 
     /**
      * 获取各系统扩展数据表详情
@@ -49,5 +50,13 @@ public interface ExtSystemService extends IService<ExtSystem> {
      * @author hxw
      * @date  2024/05/30 16:01
      **/
-    ExtSystemVo queryEntity(String id);
+    ExtSystemPlanVo queryEntity(String id);
+
+    /**
+     * 获取各系统扩展数据表详情 -- 已审批招采申请
+     *
+     * @author hxw
+     * @date  2024/05/30 16:01
+     */
+    ExtSystemApplyVo applyDetail(ExtSystemIdParam extSystemIdParam);
 }
