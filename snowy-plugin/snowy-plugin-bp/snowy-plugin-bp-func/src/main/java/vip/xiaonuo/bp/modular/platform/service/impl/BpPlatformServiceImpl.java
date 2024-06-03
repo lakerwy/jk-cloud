@@ -9,10 +9,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.PhoneUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
+import cn.hutool.core.util.*;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
@@ -24,7 +21,6 @@ import vip.xiaonuo.bp.modular.platform.enums.PayTypeEnum;
 import vip.xiaonuo.bp.modular.platform.enums.SignStatusEnum;
 import vip.xiaonuo.bp.modular.platform.enums.UserStatusEnum;
 import vip.xiaonuo.bp.modular.platform.enums.YesOrNoEnum;
-import vip.xiaonuo.bp.modular.platform.mapper.BpUserMapper;
 import vip.xiaonuo.bp.modular.platform.mapper.ClarifyMapper;
 import vip.xiaonuo.bp.modular.platform.mapper.UserSignMapper;
 import vip.xiaonuo.bp.modular.platform.param.notice.NoticeIdParam;
@@ -39,6 +35,7 @@ import vip.xiaonuo.bp.modular.platform.service.*;
 import vip.xiaonuo.bp.modular.platform.util.LoginBpUserUtil;
 import vip.xiaonuo.bp.modular.platform.vo.*;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
+import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpBlacklistEnum;
 import vip.xiaonuo.bp.modular.recruit.supplier.mapper.BpSupplierMapper;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierIdParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierPageParam;
@@ -46,7 +43,6 @@ import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.platform.vo.PicValidCodeResult;
 import vip.xiaonuo.bp.modular.platform.vo.UserNoticeVo;
 import vip.xiaonuo.bp.modular.platform.vo.UserSignVo;
-import vip.xiaonuo.bp.modular.platform.vo.UserSupplierVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierAddParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierVo;
@@ -85,8 +81,6 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     @Resource
     private BpUserService bpUserService;
     @Resource
-    private BpUserMapper bpUserMapper;
-    @Resource
     private UserPayService userPayService;
     @Resource
     private UserSignService userSignService;
@@ -108,44 +102,44 @@ public class BpPlatformServiceImpl implements BpPlatformService {
     private BpPointService bpPointService;
 
 
-    @Override
-    public String register(RegisterParam registerParam) {
-        //获取密码
-        String password = "";
-        String passwordSure = "";
-        try{
-            password = CommonCryptogramUtil.doSm2Decrypt(registerParam.getPassword());
-            passwordSure = CommonCryptogramUtil.doSm2Decrypt(registerParam.getPasswordSure());
-        }catch (Exception e){
-            throw new CommonException("密码解密失败");
-        }
-        //1. 密码 - 确认密码一致
-        if(!password.equals(passwordSure)){
-            throw new CommonException("密码与确认密码不一致！");
-        }
-        //2. 短信验证码是否一致
-        String phone = registerParam.getPhone();
-        validPhoneValidCodeParam(phone, registerParam.getValidCode(), registerParam.getValidCodeReqNo());
-        //3. 判断用户是否存在
-        List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,phone));
-        if(CollUtil.isNotEmpty(bpUserList)){
-            throw new CommonException("账号已存在！");
-        }
-        //4. 创建账号
-        BpUser bpUser = new BpUser();
-        bpUser.setAccount(phone);
-        bpUser.setName(registerParam.getName());
-        bpUser.setPhone(phone);
-        // SM2解密后，获得前端传来的密码哈希值
-        String passwordHash = CommonCryptogramUtil.doHashValue(password);
-        bpUser.setPassword(passwordHash);
-        bpUser.setUserStatus(UserStatusEnum.ENABLE.getValue());
-        bpUser.setMemo(DateUtil.now()+" : 招采平台-注册；");
-        bpUserService.save(bpUser);
-        //5. 执行登录
-        BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUser,BpLoginUser.class);
-        return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
-    }
+//    @Override
+//    public String register(RegisterParam registerParam) {
+//        //获取密码
+//        String password = "";
+//        String passwordSure = "";
+//        try{
+//            password = CommonCryptogramUtil.doSm2Decrypt(registerParam.getPassword());
+//            passwordSure = CommonCryptogramUtil.doSm2Decrypt(registerParam.getPasswordSure());
+//        }catch (Exception e){
+//            throw new CommonException("密码解密失败");
+//        }
+//        //1. 密码 - 确认密码一致
+//        if(!password.equals(passwordSure)){
+//            throw new CommonException("密码与确认密码不一致！");
+//        }
+//        //2. 短信验证码是否一致
+//        String phone = registerParam.getPhone();
+//        validPhoneValidCodeParam(phone, registerParam.getValidCode(), registerParam.getValidCodeReqNo());
+//        //3. 判断用户是否存在
+//        List<BpUser> bpUserList = bpUserService.list(new QueryWrapper<BpUser>().lambda().eq(BpUser::getAccount,phone));
+//        if(CollUtil.isNotEmpty(bpUserList)){
+//            throw new CommonException("账号已存在！");
+//        }
+//        //4. 创建账号
+//        BpUser bpUser = new BpUser();
+//        bpUser.setAccount(phone);
+//        bpUser.setName(registerParam.getName());
+//        bpUser.setPhone(phone);
+//        // SM2解密后，获得前端传来的密码哈希值
+//        String passwordHash = CommonCryptogramUtil.doHashValue(password);
+//        bpUser.setPassword(passwordHash);
+//        bpUser.setUserStatus(UserStatusEnum.ENABLE.getValue());
+//        bpUser.setMemo(DateUtil.now()+" : 招采平台-注册；");
+//        bpUserService.save(bpUser);
+//        //5. 执行登录
+//        BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUser,BpLoginUser.class);
+//        return execLogin(bpLoginUser,SA_TOKEN_DEVICE);
+//    }
 
 
     @Override
@@ -239,6 +233,10 @@ public class BpPlatformServiceImpl implements BpPlatformService {
             throw new CommonException("token 异常，获取用户信息失败");
         }
         bpLoginUser.setPassword(null);
+        /**
+         * 获取用户信息-携带供应商信息
+         */
+        bpLoginUser.setSupplierVo(bpSupplierService.queryEntity(bpLoginUser.getSupplierId()));
         return bpLoginUser;
     }
 
@@ -297,10 +295,6 @@ public class BpPlatformServiceImpl implements BpPlatformService {
      *
      **/
     private String execLogin(BpLoginUser bpLoginUser, String device) {
-        // 校验状态
-        if(!UserStatusEnum.ENABLE.getValue().equals(bpLoginUser.getUserStatus())) {
-            throw new CommonException(1000,"账号不可用");
-        }
         // 执行登录
         StpUtil.login(bpLoginUser.getId(), new SaLoginModel().setDevice(device).setExtra("name", bpLoginUser.getName()));
         // 缓存用户信息，此处使用TokenSession为了指定时间内无操作则自动下线
@@ -318,15 +312,12 @@ public class BpPlatformServiceImpl implements BpPlatformService {
             throw new CommonException("token 异常，获取用户信息失败");
         }
         //1. 校验是否供应商入库 -> 校验供应商入库审批是否通过
-        UserSupplierVo userSupplierVo = bpUserMapper.getBpUserSupplier(bpLoginUser.getId());
-        if(ObjectUtil.isEmpty(userSupplierVo)){
-            throw new CommonException(1001,"用户异常");
+        BpSupplier bpSupplier = bpSupplierService.getById(bpLoginUser.getSupplierId());
+        if(ObjectUtil.isEmpty(bpSupplier)){
+            throw new CommonException("供应商信息缺失");
         }
-        if(ObjectUtil.isEmpty(userSupplierVo.getPrvId())){
-            throw new CommonException(1002,"请先操作供应商入库");
-        }
-        if(FlwStatusEnum.ACTIVE_STATUS.getValue().equals(userSupplierVo.getPrvStatus())){
-            throw new CommonException(1003,"供应商入库审批中");
+        if(!FlwStatusEnum.COMPLETED_STATUS.getValue().equals(bpSupplier.getStatus())){
+            throw new CommonException("供应商状态异常");
         }
         //2. 校验是否已缴纳附件查看费用
         List<UserPay> userPayList = userPayService.list(new QueryWrapper<UserPay>().lambda()
@@ -334,12 +325,12 @@ public class BpPlatformServiceImpl implements BpPlatformService {
                 .eq(UserPay::getNoticeId,signParam.getNoticeId())
                 .eq(UserPay::getType, PayTypeEnum.PAY_FOR_ATTACH.getValue()));
         if(CollUtil.isEmpty(userPayList)){
-            throw new CommonException(1004,"请支付附件查看费用");
+            throw new CommonException("请支付附件查看费用");
         }
         //3. 校验是否已报名
         List<UserSign> userSignList = userSignService.list(new QueryWrapper<UserSign>().lambda().eq(UserSign::getBpUserId,bpLoginUser.getId()).eq(UserSign::getNoticeId,signParam.getNoticeId()));
         if(CollUtil.isNotEmpty(userSignList)){
-            throw new CommonException(1005,"请勿重复报名");
+            throw new CommonException("请勿重复报名");
         }
         //4. 报名记录
         UserSignAddParam userSignAddParam = new UserSignAddParam();
@@ -365,7 +356,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
                 .eq(UserPay::getNoticeId,payParam.getNoticeId())
                 .eq(UserPay::getType,payParam.getType()));
         if(CollUtil.isNotEmpty(userPayList)){
-            throw new CommonException(1006,"请勿重复缴费");
+            throw new CommonException("请勿重复缴费");
         }
         //2. 新增缴费记录
         UserPayAddParam userPayAddParam = new UserPayAddParam();
@@ -483,14 +474,7 @@ public class BpPlatformServiceImpl implements BpPlatformService {
             throw new CommonException("token 异常，获取用户信息失败");
         }
         //获取供应商入库信息
-        BpUser bpUser = bpUserService.queryEntity(bpLoginUser.getId());
-        if(ObjectUtil.isNotEmpty(bpUser) && ObjectUtil.isNotEmpty(bpUser.getSupplierId())){
-            BpSupplier bpSupplier = bpSupplierService.getOne(new QueryWrapper<BpSupplier>().lambda()
-                    .eq(BpSupplier::getId,bpUser.getSupplierId())
-                    .in(BpSupplier::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue()));
-            return bpSupplier;
-        }
-        return null;
+        return bpSupplierService.getById(bpLoginUser.getSupplierId());
     }
 
     @Override
@@ -508,26 +492,26 @@ public class BpPlatformServiceImpl implements BpPlatformService {
         return noticeService.page(noticePageParam);
     }
 
-    @Override
-    public void addSupplier(BpSupplierAddParam bpSupplierAddParam) {
-        //当前用户信息
-        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
-        if(ObjectUtil.isEmpty(bpLoginUser)){
-            throw new CommonException("token 异常，获取用户信息失败");
-        }
-
-        //调用供应商入库审批
-        bpSupplierAddParam.setBpUserId(bpLoginUser.getId());
-        bpSupplierService.add(bpSupplierAddParam);
-
-        //通过招采用户id查询供应商对应数据
-        BpUser bpUser = bpUserService.getById(bpSupplierAddParam.getBpUserId());
-        if(ObjectUtil.isNotEmpty(bpUser)){
-            //填充对应用户的供应商id
-            bpUser.setSupplierId(bpSupplierAddParam.getId());
-            bpUserService.updateById(bpUser);
-        }
-    }
+//    @Override
+//    public void addSupplier(BpSupplierAddParam bpSupplierAddParam) {
+//        //当前用户信息
+//        BpLoginUser bpLoginUser = LoginBpUserUtil.getLoginUser();
+//        if(ObjectUtil.isEmpty(bpLoginUser)){
+//            throw new CommonException("token 异常，获取用户信息失败");
+//        }
+//
+//        //调用供应商入库审批
+//        bpSupplierAddParam.setBpUserId(bpLoginUser.getId());
+//        bpSupplierService.add(bpSupplierAddParam);
+//
+//        //通过招采用户id查询供应商对应数据
+//        BpUser bpUser = bpUserService.getById(bpSupplierAddParam.getBpUserId());
+//        if(ObjectUtil.isNotEmpty(bpUser)){
+//            //填充对应用户的供应商id
+//            bpUser.setSupplierId(bpSupplierAddParam.getId());
+//            bpUserService.updateById(bpUser);
+//        }
+//    }
 
     @Override
     public Page<BpSupplierVo> getBpSupplierPageList(BpSupplierPageParam bpSupplierPageParam) {
@@ -613,7 +597,15 @@ public class BpPlatformServiceImpl implements BpPlatformService {
             throw new CommonException("账号异常，请联系管理员");
         }
         BpLoginUser bpLoginUser = BeanUtil.copyProperties(bpUserList.get(0), BpLoginUser.class);
+        // 校验状态
+        if(!UserStatusEnum.ENABLE.getValue().equals(bpLoginUser.getUserStatus())) {
+            throw new CommonException("账号不可用");
+        }
+        // 校验账号所属供应商
+        BpSupplier bpSupplier = bpSupplierService.getById(bpLoginUser.getSupplierId());
+        if(EnumUtil.toString(BpBlacklistEnum.BLACKLIST).equals(bpSupplier.getIsBlacklist())){
+            throw new CommonException("供应商已入黑名单");
+        }
         return bpLoginUser;
     }
-
 }

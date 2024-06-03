@@ -24,7 +24,6 @@ import vip.xiaonuo.bp.modular.platform.param.point.BpPointPageParam;
 import vip.xiaonuo.bp.modular.platform.param.user.AccountPasswordLoginParam;
 import vip.xiaonuo.bp.modular.platform.param.user.GetPhoneValidCodeParam;
 import vip.xiaonuo.bp.modular.platform.param.user.PhoneValidCodeLoginParam;
-import vip.xiaonuo.bp.modular.platform.param.user.RegisterParam;
 import vip.xiaonuo.bp.modular.platform.param.userSign.*;
 import vip.xiaonuo.bp.modular.platform.vo.*;
 import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
@@ -78,7 +77,7 @@ public interface BpPlatformService{
      * 招采平台 - 用户注册
      * @param registerParam
      */
-    String register(RegisterParam registerParam);
+//    String register(RegisterParam registerParam);
 
     /**
      * 获取登录信息
@@ -152,7 +151,7 @@ public interface BpPlatformService{
      * @param bpSupplierAddParam
      * @return
      */
-    void addSupplier(BpSupplierAddParam bpSupplierAddParam);
+//    void addSupplier(BpSupplierAddParam bpSupplierAddParam);
 
     /**
      * 招采前台 - 供应商审批入库查询

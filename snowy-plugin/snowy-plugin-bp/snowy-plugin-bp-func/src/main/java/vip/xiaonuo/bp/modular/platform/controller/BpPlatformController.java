@@ -71,19 +71,19 @@ public class BpPlatformController {
     @Resource
     private BpPlatformService bpPlatformService;
 
-    /**
-     * 【前台】招采平台 - 注册用户 【纯粹注册用户】
-     *
-     * @author yong.ye
-     * @date  2024/05/09 08:41
-     */
-    @ApiOperationSupport(order = 1)
-    @ApiOperation("【前台】招采平台 - 注册用户【纯粹注册用户】")
-    @CommonLog("【前台】招采平台 - 注册用户【纯粹注册用户】")
-    @PostMapping("/bp/platform/frontend/public/register")
-    public CommonResult<String> register(@RequestBody @Valid RegisterParam registerParam) {
-        return CommonResult.data(bpPlatformService.register(registerParam));
-    }
+//    /**
+//     * 【前台】招采平台 - 注册用户 【纯粹注册用户】
+//     *
+//     * @author yong.ye
+//     * @date  2024/05/09 08:41
+//     */
+//    @ApiOperationSupport(order = 1)
+//    @ApiOperation("【前台】招采平台 - 注册用户【纯粹注册用户】")
+//    @CommonLog("【前台】招采平台 - 注册用户【纯粹注册用户】")
+//    @PostMapping("/bp/platform/frontend/public/register")
+//    public CommonResult<String> register(@RequestBody @Valid RegisterParam registerParam) {
+//        return CommonResult.data(bpPlatformService.register(registerParam));
+//    }
 
 
     /**
@@ -302,20 +302,20 @@ public class BpPlatformController {
         return CommonResult.data(bpPlatformService.mySignList(userSignPageParam));
     }
 
-    /**
-     * 【前台】招采 - 供应商入库
-     *
-     * @author yong.ye
-     * @date  2024/05/10 16:36
-     */
-    @ApiOperationSupport(order = 19)
-    @ApiOperation("【前台】招采 - 供应商入库")
-    @CommonLog("【前台】招采 - 供应商入库")
-    @PostMapping("/bp/platform/frontend/self/addSupplier")
-    public CommonResult<String> addSupplier(@RequestBody @Valid BpSupplierAddParam bpSupplierAddParam) {
-        bpPlatformService.addSupplier(bpSupplierAddParam);
-        return CommonResult.ok();
-    }
+//    /**
+//     * 【前台】招采 - 供应商入库
+//     *
+//     * @author yong.ye
+//     * @date  2024/05/10 16:36
+//     */
+//    @ApiOperationSupport(order = 19)
+//    @ApiOperation("【前台】招采 - 供应商入库")
+//    @CommonLog("【前台】招采 - 供应商入库")
+//    @PostMapping("/bp/platform/frontend/self/addSupplier")
+//    public CommonResult<String> addSupplier(@RequestBody @Valid BpSupplierAddParam bpSupplierAddParam) {
+//        bpPlatformService.addSupplier(bpSupplierAddParam);
+//        return CommonResult.ok();
+//    }
 
     /**
      * 【前台】招采 -供应商审批入库查询
@@ -378,7 +378,7 @@ public class BpPlatformController {
      * @author hxw
      * @date 2024/5/14 11:10
      */
-    @ApiOperationSupport(order = 20)
+    @ApiOperationSupport(order = 24)
     @ApiOperation("【前台】招采 -供应商审批详情")
     @CommonLog("【前台】招采 -供应商审批详情")
     @GetMapping("/bp/platform/frontend/public/getBpSupplierDetail")
@@ -392,7 +392,7 @@ public class BpPlatformController {
      * @author yong.ye
      * @date  2024/05/09 08:41
      */
-    @ApiOperationSupport(order = 60)
+    @ApiOperationSupport(order = 25)
     @ApiOperation("【前台】招采平台 - 供应商注册【供应商入库+审批通过自动创建账号】")
     @CommonLog("【前台】招采平台 - 供应商注册【供应商入库+审批通过自动创建账号】")
     @PostMapping("/bp/platform/frontend/public/supplierRegister")
@@ -406,7 +406,7 @@ public class BpPlatformController {
      * @author yong.ye
      * @date  2024/05/09 08:41
      */
-    @ApiOperationSupport(order = 61)
+    @ApiOperationSupport(order = 26)
     @ApiOperation("【前台】招采平台 - 供应商注册【前置校验】")
     @CommonLog("【前台】招采平台 - 供应商注册【前置校验】")
     @PostMapping("/bp/platform/frontend/public/check")

@@ -3,6 +3,8 @@ package vip.xiaonuo.bp.modular.platform.vo;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.bp.modular.recruit.supplier.entity.BpSupplier;
+import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
 
 /**
  * 招采平台-用户登录信息实体
@@ -40,9 +42,9 @@ public class BpLoginUser {
     @ApiModelProperty(value = "手机", position = 7)
     private String phone;
 
-//    /** 当前用户所属供应商 */
-//    @ApiModelProperty(value = "当前用户所属供应商", position = 7)
-//    private String supplierId;
+    /** 当前用户所属供应商 */
+    @ApiModelProperty(value = "当前用户所属供应商", position = 7)
+    private String supplierId;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 8)
@@ -51,5 +53,9 @@ public class BpLoginUser {
     /** 租户id */
     @ApiModelProperty(value = "租户id", position = 9)
     private String tenantId;
+
+    /** 当前用户所属供应商信息 */
+    @ApiModelProperty(value = "当前用户所属供应商信息", position = 10)
+    private BpSupplierReturnVo supplierVo;
 
 }

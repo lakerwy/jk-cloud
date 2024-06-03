@@ -169,15 +169,15 @@ public class AuthServiceImpl implements AuthService {
         if(ObjectUtil.isEmpty(existValidCode)) {
             throw new CommonException(AuthExceptionEnum.VALID_CODE_ERROR.getValue());
         }
+        // 不一致则直接验证码错误
+        if (!validCode.equals(Convert.toStr(existValidCode).toLowerCase())) {
+            throw new CommonException("验证码错误");
+        }
         // 移除该验证码
         if(ObjectUtil.isEmpty(phoneOrEmail)) {
             commonCacheOperator.remove(AUTH_VALID_CODE_CACHE_KEY + validCodeReqNo);
         } else {
             commonCacheOperator.remove(AUTH_VALID_CODE_CACHE_KEY + phoneOrEmail + StrUtil.UNDERLINE + validCodeReqNo);
-        }
-        // 不一致则直接验证码错误
-        if (!validCode.equals(Convert.toStr(existValidCode).toLowerCase())) {
-            throw new CommonException("验证码错误");
         }
     }
 
