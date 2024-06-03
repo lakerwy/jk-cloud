@@ -63,7 +63,7 @@ public class FlwNewSealApplyExecutionListener implements ExecutionListener {
                 execution.setVariable("initiatorDataJson",JSONUtil.parseObj(execution.getVariable("initiatorDataJson")).set("safeCode", sealApplyVo.getAuthorizationCode()));
             }
         } catch (Exception e) {
-            throw new CommonException("执行监听器{}出现异常：{}", FlwNewSealMessageExecutionListener.class.getName(), e.getMessage());
+            throw new CommonException("执行监听器{}出现异常：{}", FlwNewSealApplyExecutionListener.class.getName(), e.getMessage());
         }
     }
 }

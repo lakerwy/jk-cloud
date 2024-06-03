@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.flw.modular.system.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
@@ -28,7 +29,8 @@ import vip.xiaonuo.flw.modular.system.mapper.ExtSystemMapper;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemIdParam;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemPageParam;
 import vip.xiaonuo.flw.modular.system.service.ExtSystemService;
-import vip.xiaonuo.flw.modular.system.vo.ExtSystemVo;
+import vip.xiaonuo.flw.modular.system.vo.ExtSystemApplyVo;
+import vip.xiaonuo.flw.modular.system.vo.ExtSystemPlanVo;
 
 /**
  * 各系统扩展数据表Service接口实现类
@@ -50,6 +52,9 @@ public class ExtSystemServiceImpl extends ServiceImpl<ExtSystemMapper, ExtSystem
             queryWrapper.lambda().orderByAsc(ExtSystem::getId);
         }
 
+        //默认查询已审核
+        queryWrapper.apply("JSON_EXTRACT(FROM_EXT_JSON, '$.status') = '1'");
+
         if(ObjectUtil.isNotEmpty(extSystemPageParam.getStartTime())){
             queryWrapper.lambda().ge(ExtSystem::getCreateTime,extSystemPageParam.getStartTime());
         }
@@ -65,27 +70,36 @@ public class ExtSystemServiceImpl extends ServiceImpl<ExtSystemMapper, ExtSystem
     }
 
     @Override
-    public ExtSystemVo detail(ExtSystemIdParam extSystemIdParam) {
+    public ExtSystemPlanVo planDetail(ExtSystemIdParam extSystemIdParam) {
         return this.queryEntity(extSystemIdParam.getId());
     }
 
     @Override
-    public ExtSystemVo queryEntity(String id) {
+    public ExtSystemPlanVo queryEntity(String id) {
         ExtSystem extSystem = this.getOne(new QueryWrapper<ExtSystem>().lambda().apply("JSON_EXTRACT(FROM_EXT_JSON, '$.planId') =" + "'" + id + "'"));
         if(ObjectUtil.isEmpty(extSystem)) {
             throw new CommonException("各系统扩展数据表不存在，id值为：{}", id);
         }
-        ExtSystemVo extSystemVo = new ExtSystemVo();
+        ExtSystemPlanVo extSystemPlanVo = new ExtSystemPlanVo();
         if(ObjectUtil.isNotEmpty(extSystem.getFromExtJson())){
             JSONObject jsonObject = JSONUtil.parseObj(extSystem.getFromExtJson());
-            extSystemVo.setProjectName(jsonObject.getStr("projectName"));
-            extSystemVo.setPlanName(jsonObject.getStr("planName"));
-            extSystemVo.setUnit(jsonObject.getStr("unit"));
-            extSystemVo.setAttachment(jsonObject.getStr("attachment"));
-            extSystemVo.setSn(jsonObject.getStr("sn"));
-            extSystemVo.setCreateTime(jsonObject.getStr("applyTime"));
-            extSystemVo.setCreateUser(jsonObject.getStr("applyUser"));
+            BeanUtil.copyProperties(jsonObject, extSystemPlanVo);
         }
-        return extSystemVo;
+        return extSystemPlanVo;
     }
+
+    @Override
+    public ExtSystemApplyVo applyDetail(ExtSystemIdParam extSystemIdParam) {
+        ExtSystem extSystem = this.getOne(new QueryWrapper<ExtSystem>().lambda().apply("JSON_EXTRACT(FROM_EXT_JSON, '$.planId') =" + "'" + extSystemIdParam.getId() + "'"));
+        if(ObjectUtil.isEmpty(extSystem)) {
+            throw new CommonException("各系统扩展数据表不存在，id值为：{}", extSystemIdParam.getId());
+        }
+        ExtSystemApplyVo extSystemApplyVo = new ExtSystemApplyVo();
+        if(ObjectUtil.isNotEmpty(extSystem.getFromExtJson())){
+            JSONObject jsonObject = JSONUtil.parseObj(extSystem.getFromExtJson());
+            BeanUtil.copyProperties(jsonObject, extSystemApplyVo);
+        }
+        return extSystemApplyVo;
+    }
+
 }

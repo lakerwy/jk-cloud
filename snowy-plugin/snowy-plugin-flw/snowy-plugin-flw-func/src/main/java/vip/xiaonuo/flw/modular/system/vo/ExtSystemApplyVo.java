@@ -1,0 +1,84 @@
+/*
+ * Copyright [2022] [https://www.xiaonuo.vip]
+ *
+ * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
+ *
+ * 1.请不要删除和修改根目录下的LICENSE文件。
+ * 2.请不要删除和修改Snowy源码头部的版权声明。
+ * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
+ * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
+ * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
+ * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
+ */
+package vip.xiaonuo.flw.modular.system.vo;
+
+import io.swagger.annotations.ApiModelProperty;
+import lombok.Getter;
+import lombok.Setter;
+
+/**
+ * 各系统扩展数据表招采申请返回实体
+ *
+ * @author hxw
+ * @date  2024/05/31 08:20
+ **/
+@Getter
+@Setter
+public class ExtSystemApplyVo {
+
+    /** 采购计划ID */
+    @ApiModelProperty(value = "采购计划ID")
+    private String planId;
+
+    /** 采购计划名称 */
+    @ApiModelProperty(value = "采购计划名称")
+    private String planName;
+
+    /** 采购主体 */
+    @ApiModelProperty(value = "采购主体")
+    private String purchaseSubject;
+
+    /** 采购方式 */
+    @ApiModelProperty(value = "采购方式")
+    private String purchaseWay;
+
+    /** 定价方式 */
+    @ApiModelProperty(value = "定价方式")
+    private String pricingWay;
+
+    /** 采购日期 */
+    @ApiModelProperty(value = "采购日期")
+    private String purchaseTime;
+
+    /** 采购预算总额 */
+    @ApiModelProperty(value = "采购预算总额")
+    private String purchaseMoney;
+
+    /** 推荐物资供方及联系方式 */
+    @ApiModelProperty(value = "推荐物资供方及联系方式")
+    private String phone;
+
+    /** 招采计划附件 */
+    @ApiModelProperty(value = "招采计划附件")
+    private String attachment;
+
+    /** 招标文件 */
+    @ApiModelProperty(value = "招标文件")
+    private String biddingDocument;
+
+    /** 合同文本 */
+    @ApiModelProperty(value = "合同文本")
+    private String contractText;
+
+    /** SN流水号 */
+    @ApiModelProperty(value = "SN流水号")
+    private String sn;
+
+    /** 创建时间 */
+    @ApiModelProperty(value = "创建时间")
+    private String applyTime;
+
+    /** 创建用户 */
+    @ApiModelProperty(value = "创建用户")
+    private String applyUser;
+}

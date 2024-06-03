@@ -16,13 +16,14 @@ import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import io.swagger.annotations.ApiModelProperty;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.core.deploy.DeployProperties;
+import vip.xiaonuo.flw.modular.system.entity.ExtSystem;
+import vip.xiaonuo.flw.modular.system.service.ExtSystemService;
 
 import javax.annotation.Resource;
 
@@ -38,6 +39,10 @@ public class FlwPurchasePlanFailExecutionListener implements FlwGlobalCustomEven
 
     @Resource
     private DeployProperties deployProperties;
+
+    @Resource
+    private ExtSystemService extSystemService;
+
     /** 流程拒绝标志 */
     private static final String STATUS_FLAG = "3";
     private static final String URL_FLAG = "epc/purchasePlan/edit";
@@ -59,6 +64,13 @@ public class FlwPurchasePlanFailExecutionListener implements FlwGlobalCustomEven
 
             //调用epc系统 回写当前数据状态值
             HttpUtil.post(url, jsonObject.toString());
+
+            //存入系统表
+            ExtSystem extSystem = new ExtSystem();
+            extSystem.setFromId(String.valueOf(JSONUtil.parseObj(dataJson).get("planId")));
+            extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG)));
+            extSystem.setSystemName("EPC系统采购计划审批拒绝");
+            extSystemService.save(extSystem);
         } catch (Exception e) {
             throw new CommonException("自定义事件执行监听器{}出现异常：{}", FlwTestCustomListener.class.getName(), e.getMessage());
         }

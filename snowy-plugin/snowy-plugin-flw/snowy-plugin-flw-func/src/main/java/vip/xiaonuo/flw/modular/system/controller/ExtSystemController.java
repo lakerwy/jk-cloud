@@ -12,7 +12,6 @@
  */
 package vip.xiaonuo.flw.modular.system.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -26,7 +25,8 @@ import vip.xiaonuo.flw.modular.system.entity.ExtSystem;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemIdParam;
 import vip.xiaonuo.flw.modular.system.param.ExtSystemPageParam;
 import vip.xiaonuo.flw.modular.system.service.ExtSystemService;
-import vip.xiaonuo.flw.modular.system.vo.ExtSystemVo;
+import vip.xiaonuo.flw.modular.system.vo.ExtSystemApplyVo;
+import vip.xiaonuo.flw.modular.system.vo.ExtSystemPlanVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -47,13 +47,13 @@ public class ExtSystemController {
     private ExtSystemService extSystemService;
 
     /**
-     * 获取各系统扩展数据表分页
+     * 获取各系统扩展数据表分页 -- 已审批招采计划,已审批招采申请
      *
      * @author hxw
      * @date  2024/05/30 16:01
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取各系统扩展数据表分页")
+    @ApiOperation("获取各系统扩展数据表分页 -- 已审批招采计划,已审批招采申请")
     //@SaCheckPermission("/flw/system/page")
     @GetMapping("/flw/system/page")
     public CommonResult<Page<ExtSystem>> page(ExtSystemPageParam extSystemPageParam) {
@@ -61,16 +61,30 @@ public class ExtSystemController {
     }
 
     /**
-     * 获取各系统扩展数据表详情
+     * 获取各系统扩展数据表详情 -- 已审批招采计划
      *
      * @author hxw
      * @date  2024/05/30 16:01
      */
-    @ApiOperationSupport(order = 5)
-    @ApiOperation("获取各系统扩展数据表详情")
-    //@SaCheckPermission("/flw/system/detail")
-    @GetMapping("/flw/system/detail")
-    public CommonResult<ExtSystemVo> detail(@Valid ExtSystemIdParam extSystemIdParam) {
-        return CommonResult.data(extSystemService.detail(extSystemIdParam));
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("获取各系统扩展数据表详情 -- 已审批招采计划")
+    //@SaCheckPermission("/flw/system/planDetail")
+    @GetMapping("/flw/system/planDetail")
+    public CommonResult<ExtSystemPlanVo> planDetail(@Valid ExtSystemIdParam extSystemIdParam) {
+        return CommonResult.data(extSystemService.planDetail(extSystemIdParam));
+    }
+
+    /**
+     * 获取各系统扩展数据表详情 -- 已审批招采申请
+     *
+     * @author hxw
+     * @date  2024/05/30 16:01
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("获取各系统扩展数据表详情 -- 已审批招采申请")
+    //@SaCheckPermission("/flw/system/applyDetail")
+    @GetMapping("/flw/system/applyDetail")
+    public CommonResult<ExtSystemApplyVo> applyDetail(@Valid ExtSystemIdParam extSystemIdParam) {
+        return CommonResult.data(extSystemService.applyDetail(extSystemIdParam));
     }
 }
