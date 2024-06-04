@@ -22,6 +22,7 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.annotation.CommonNoRepeat;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.flw.modular.model.dto.FlwModelDTO;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
@@ -109,6 +110,7 @@ public class FlwTaskController {
     @ApiOperation("审批同意")
     @CommonLog("审批同意")
     @PostMapping("/flw/task/pass")
+    @CommonNoRepeat(interval = 10000)
     public CommonResult<String> pass(@RequestBody @Valid FlwTaskPassParam flwTaskPassParam) {
         flwTaskService.pass(flwTaskPassParam);
         return CommonResult.ok();

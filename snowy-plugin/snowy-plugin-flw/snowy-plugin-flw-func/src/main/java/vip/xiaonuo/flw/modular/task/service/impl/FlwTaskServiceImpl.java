@@ -394,15 +394,19 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         Task task = validTask(flwTaskPassParam.getId(), flwTaskPassParam.getComment());
         String taskId = task.getId();
         String processInstanceId = task.getProcessInstanceId();
+        //时间
+        long start = System.currentTimeMillis();
         NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.PASS.getValue(), "同意申请",
                 flwTaskPassParam.getComment(), flwTaskPassParam.getAttachmentList());
+        long end1 = System.currentTimeMillis();
         // 更新sql
         handleDataJson(task.getProcessInstanceId(), flwTaskPassParam.getDataJson());
-
+        long end2 = System.currentTimeMillis();
         // 执行通过
         taskService.complete(task.getId());
+        long end3 = System.currentTimeMillis();
+        log.info("【处理任务意见耗时(ms)】"+(end1-start)+" 【处理审批时表单数据耗时(ms)】"+(end2-end1)+" 【执行通过耗时(ms)】"+(end3-end2));
         commonCacheOperator.remove(RabbitConstant.RABBIT_KEY +processInstanceId+ taskId);
-
     }
 
     @Override
