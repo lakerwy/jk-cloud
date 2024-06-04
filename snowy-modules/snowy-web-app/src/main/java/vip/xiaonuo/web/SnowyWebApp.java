@@ -18,6 +18,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
 import org.springframework.context.annotation.Bean;
+import org.springframework.data.elasticsearch.repository.config.EnableElasticsearchRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -37,6 +38,7 @@ import vip.xiaonuo.common.runner.AppStartupListener;
 @EnableFeignClients(basePackages = "vip.xiaonuo")
 @SpringBootApplication(scanBasePackages = {"vip.xiaonuo"})
 @EnableScheduling
+@EnableElasticsearchRepositories(basePackages = "vip.xiaonuo")
 public class SnowyWebApp {
 
     /* 解决druid 日志报错：discard long time none received connection:xxx */

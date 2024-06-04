@@ -20,24 +20,20 @@ import cn.hutool.core.img.ImgUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.*;
-import com.alibaba.fastjson.JSONArray;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
-import com.baomidou.mybatisplus.core.toolkit.StringUtils;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Base64Utils;
 import org.springframework.web.multipart.MultipartFile;
-import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.prop.CommonProperties;
 import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.common.util.CommonResponseUtil;
-import vip.xiaonuo.dev.modular.config.entity.DevConfig;
-import vip.xiaonuo.dev.modular.config.service.DevConfigService;
+import vip.xiaonuo.dev.modular.es.entity.FileData;
+import vip.xiaonuo.dev.modular.es.publisher.FileDataEventPublisher;
 import vip.xiaonuo.dev.modular.file.entity.DevFile;
 import vip.xiaonuo.dev.modular.file.entity.DevFileUnzip;
 import vip.xiaonuo.dev.modular.file.enums.DevFileEngineTypeEnum;
@@ -52,16 +48,12 @@ import vip.xiaonuo.dev.modular.file.util.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.stream.Collectors;
 
 /**
  * 文件Service接口实现类
@@ -81,19 +73,16 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     @Resource
     private DevFileUnzipService devFileUnzipService;
 
-    @Resource
-    private UnRarZip7Z unRarZip7Z;
-
-    @Resource
-    DevConfigService devConfigService;
-
-    @Resource
-    CommonCacheOperator commonCacheOperator;
-
     private final static String DOWNLOADURL = "/dev/file/download?id=";
     private final static String GATEWAYDOWNLOADURL = "/api/webapp/dev/file/download?id=";
     private final static String PREFIX_UNZIP_PATH = "PREFIX_UNZIP_PATH";
     private final static String PREFIX_UNZIP_TEMP_PATH = "temp";
+
+    // 支持的文件后缀名列表
+    private static final List<String> SUPPORTED_FILE_EXTENSIONS = Arrays.asList("pdf", "doc", "docx", "xls", "xlsx", "ppt", "pptx", "txt", "md", "html", "xml", "rtf");
+
+    @Resource
+    private FileDataEventPublisher fileDataEventPublisher;
 
     @Override
     public String uploadReturnId(String engine, MultipartFile file) {
@@ -301,6 +290,17 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
 
         this.save(devFile);
+        if(SUPPORTED_FILE_EXTENSIONS.contains(devFile.getSuffix())){
+            try {
+                FileData fileData = BeanUtil.toBean(devFile, FileData.class);
+                byte[] bytes = file.getBytes();
+                fileData.setData(Base64Utils.encodeToString(bytes));
+                fileDataEventPublisher.publishEvent(fileData);
+            }catch (Exception e){
+                log.error("文件流转成字符失败");
+            }
+        }
+
 
         return  devFile;
 //        // 如果是返回id则返回文件id
@@ -504,6 +504,18 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
         }
 
         this.save(devFile);
+
+        if(SUPPORTED_FILE_EXTENSIONS.contains(devFile.getSuffix())){
+            try {
+                FileData fileData = BeanUtil.toBean(devFile, FileData.class);
+                byte[] bytes = file.getBytes();
+                fileData.setData(Base64Utils.encodeToString(bytes));
+                fileDataEventPublisher.publishEvent(fileData);
+            }catch (Exception e){
+                log.error("文件流转成字符失败");
+            }
+        }
+
         //保存附件
         Map<String, Object> map = new HashMap<>();
         map.put("url",downloadUrl);

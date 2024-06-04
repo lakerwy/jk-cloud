@@ -71,6 +71,9 @@
 
         <!--通用工具插件-->
         <module>snowy-plugin-util</module>
+
+        <!--oa工具插件-->
+        <module>snowy-plugin-oa</module>
     </modules>
 
 </project>

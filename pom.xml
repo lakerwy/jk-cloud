@@ -140,6 +140,8 @@
         <wfc.sdk.version>1.2.2</wfc.sdk.version>
 
         <app.stratm.version>1.3.0</app.stratm.version>
+
+        <es.version>8.5.0</es.version>
     </properties>
 
     <modules>
@@ -479,6 +481,24 @@
 <!--                <version>${snowy.version}</version>-->
 <!--            </dependency>-->
 
+            <dependency>
+                <groupId>vip.xiaonuo</groupId>
+                <artifactId>snowy-plugin-oa-api</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
+            <dependency>
+                <groupId>vip.xiaonuo</groupId>
+                <artifactId>snowy-plugin-oa-func</artifactId>
+                <version>${snowy.version}</version>
+            </dependency>
+
+
+            <!--            <dependency>-->
+            <!--                <groupId>vip.xiaonuo</groupId>-->
+            <!--                <artifactId>snowy-plugin-oa-feign</artifactId>-->
+            <!--                <version>${snowy.version}</version>-->
+            <!--            </dependency>-->
 
 
             <!-- snowy-cloud-inner-end -->
@@ -1152,6 +1172,11 @@
                 <version>${app.stratm.version}</version>
             </dependency>
 
+<!--            <dependency>-->
+<!--                <groupId>co.elastic.clients</groupId>-->
+<!--                <artifactId>elasticsearch-java</artifactId>-->
+<!--                <version>${es.version}</version>-->
+<!--            </dependency>-->
         </dependencies>
     </dependencyManagement>
 
