@@ -48,6 +48,10 @@ public class ExtSystemPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 系统名称/操作内容 */
+    @ApiModelProperty(value = "系统名称/操作内容")
+    private String systemName;
+
     /** 开始日期 */
     @ApiModelProperty(value = "开始日期")
     private String startTime;

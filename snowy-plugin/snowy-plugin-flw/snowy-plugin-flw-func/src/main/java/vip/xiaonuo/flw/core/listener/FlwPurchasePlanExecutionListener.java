@@ -72,7 +72,7 @@ public class FlwPurchasePlanExecutionListener implements ExecutionListener {
                 ExtSystem extSystem = new ExtSystem();
                 extSystem.setFromId(String.valueOf(JSONUtil.parseObj(dataJson).get("planId")));
                 extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG)));
-                extSystem.setSystemName("EPC系统采购计划审批通过");
+                extSystem.setSystemName("EPC系统招采计划审批通过");
                 extSystemService.save(extSystem);
             }
         } catch (Exception e) {

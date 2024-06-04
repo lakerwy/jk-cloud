@@ -52,6 +52,10 @@ public class ExtSystemServiceImpl extends ServiceImpl<ExtSystemMapper, ExtSystem
             queryWrapper.lambda().orderByAsc(ExtSystem::getId);
         }
 
+        //区分系统与接口
+        if(ObjectUtil.isNotEmpty(extSystemPageParam.getSystemName())) {
+            queryWrapper.lambda().eq(ExtSystem::getSystemName,extSystemPageParam.getSystemName());
+        }
         //默认查询已审核
         queryWrapper.apply("JSON_EXTRACT(FROM_EXT_JSON, '$.status') = '1'");
 
