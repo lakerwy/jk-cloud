@@ -198,6 +198,9 @@ public class BizChartReviewsServiceImpl extends ServiceImpl<BizChartReviewsMappe
         if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getCompanyOrDepartment())){
             queryWrapper.like("a.COMPANY_OR_DEPARTMENT",bizChartReviewsPageParam.getCompanyOrDepartment());
         }
+        if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getNote())){
+            queryWrapper.like("a.NOTE",bizChartReviewsPageParam.getNote());
+        }
         if(ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getStartOptDate()) && ObjectUtil.isNotEmpty(bizChartReviewsPageParam.getEndOptDate())) {
             queryWrapper.between("a.OPT_DATE", bizChartReviewsPageParam.getStartOptDate(), bizChartReviewsPageParam.getEndOptDate());
         }

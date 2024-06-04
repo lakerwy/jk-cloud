@@ -80,4 +80,7 @@ public class BizChartReviewsPageParam {
     @ApiModelProperty(value = "工程类别")
     private String secondLevel;
 
+    /** 备注 */
+    @ApiModelProperty(value = "备注")
+    private String note;
 }
