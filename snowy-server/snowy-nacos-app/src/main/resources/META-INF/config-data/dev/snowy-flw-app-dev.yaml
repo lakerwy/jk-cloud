@@ -281,3 +281,17 @@ snowy:
       ignore-table-names:
       ten-id-column-name: TENANT_ID
       default-ten-id: -1
+
+tencent:
+  cloud:
+    deploy:
+      prefixUrl: http://10.0.33.81:9830/api/   #epc请求前缀：ip和端口
+
+seal:
+  apply:
+    postUrl: https://test.qstamper.com:8036/stamper/apis/business/docking/execute    #云玺 --访问-ip+端口+接口请求
+    appKey: jkgsDockApp    #云玺 --应用标识
+    tenant: jkgs      #云玺 --租户标识
+    time: 86400    #云玺 --授权码有效期
+  message:
+    requestUrl: http://10.0.33.81:10006/api/   #群杰前缀 --访问-ip+端口

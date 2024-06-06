@@ -1518,12 +1518,14 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 processInstance = runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId ,jsonObject);
             }
 
-            if(ObjectUtil.isNotEmpty(flwProcessStartParam.getDataJson())) {
+            //EPC系统采购计划和申请才记录
+            if(ObjectUtil.isNotEmpty(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).get("purchasingCode"))) {
                 //存入系统表
                 ExtSystem extSystem = new ExtSystem();
                 extSystem.setFromId(String.valueOf(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).get("planId")));
-                extSystem.setFromExtJson(flwProcessStartParam.getDataJson());
-                extSystem.setSystemName("EPC系统采购计划发起");
+                JSONObject job = JSONUtil.parseObj(flwProcessStartParam.getDataJson()).set("processInstanceId", ObjectUtil.isNotEmpty(processInstance) ? processInstance.getProcessInstanceId() : null);
+                extSystem.setFromExtJson(JSONUtil.toJsonStr(job));
+                extSystem.setSystemName(String.valueOf(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).get("purchasingCode")));
                 extSystemService.save(extSystem);
             }
 

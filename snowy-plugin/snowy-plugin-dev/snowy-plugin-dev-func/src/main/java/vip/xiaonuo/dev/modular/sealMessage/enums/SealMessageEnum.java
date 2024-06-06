@@ -23,8 +23,8 @@ import lombok.Getter;
 @Getter
 public enum SealMessageEnum {
     //群杰
-    /** 获取token--ip+端口 */
-    GETTOKENIPPOST("http://10.0.33.81:10006/api/token/getToken"),
+    /** 获取token--接口 */
+    GETTOKENIPPOST("token/getToken"),
 
     /** 账号key */
     GETTOKENACCOUNTKEY("restname"),
@@ -38,31 +38,31 @@ public enum SealMessageEnum {
     /** 取消部门推荐 */
     GETTOKENPASSWORDVALUE("qunje@123"),
 
-    /** 授权-ip+端口 */
-    SEALAUTHORIZEIPPOST("http://10.0.33.81:10006/api/item/sealAuthorize"),
+    /** 授权-接口 */
+    SEALAUTHORIZEIPPOST("item/sealAuthorize"),
 
-    /** 印章信息--ip+端口 */
-    SEALBASEIPPOST("http://10.0.33.81:10006/api/seal/queryAllSealBase"),
+    /** 印章信息--接口 */
+    SEALBASEIPPOST("seal/queryAllSealBase"),
 
-    /** 群杰系统登录token */
+    /** 群杰系统登录token redis缓存 */
     SEALMESSAGETOKENKEY("SEALMESSAGETOKEN_"),
 
-    /** 群杰用户信息 */
+    /** 群杰用户信息 redis缓存 */
     SEALMESSAGELISTKEY("SEALMESSAGELIST_"),
 
 
     //云玺
-    /** 访问-ip+端口 */
-    YXSEALIPPOST("https://test.qstamper.com:8036/stamper/apis/business/docking/execute"),
-
-    APPKEY("jkgsDockApp"),
+    //APPKEY("jkgsDockApp"),
 
     /** 创建申请单标识 */
     APIKEYAPPLY("YXYG03_07"),
 
-    TENANT("jkgs"),
+    //TENANT("jkgs"),
 
     //UUIDKEY("0X1121SPK232201V00000001"),
+
+    //申请人id
+    APPLICANTID("2522642"),
 
     /** 授权标识 */
     APIKEY("YXYG03_04"),

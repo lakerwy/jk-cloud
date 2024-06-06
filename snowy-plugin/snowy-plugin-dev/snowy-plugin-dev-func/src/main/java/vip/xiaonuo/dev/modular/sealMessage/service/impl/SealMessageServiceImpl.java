@@ -18,6 +18,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.dev.core.config.SealMessageProperties;
 import vip.xiaonuo.dev.modular.sealMessage.enums.SealMessageEnum;
 import vip.xiaonuo.dev.modular.sealMessage.util.HttpUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -27,6 +28,10 @@ import vip.xiaonuo.dev.modular.sealMessage.vo.UserSealBaseVo;
 
 import javax.annotation.Resource;
 import java.util.*;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 /**
  * 印章基础信息表Service接口实现类
@@ -41,6 +46,11 @@ public class SealMessageServiceImpl implements SealMessageService {
    @Resource
    private CommonCacheOperator commonCacheOperator;
 
+   @Resource
+   private SealMessageProperties sealMessageProperties;
+
+   private  static final ExecutorService executor = Executors.newFixedThreadPool(10);
+
     /**
      * 获取群杰所有的印章信息同步到redis
      * @return
@@ -48,12 +58,11 @@ public class SealMessageServiceImpl implements SealMessageService {
     @Override
     public List<UserSealBaseVo> queryAllSealBase() {
         List<UserSealBaseVo> sealBaseVos = null;
-        String token = null;
         try{
             //获取缓存的token
-            token = getNewToken();
+            String token = getNewToken();
             //请求url
-            String url = SealMessageEnum.SEALBASEIPPOST.getValue();
+            String url = sealMessageProperties.getRequestUrl() + SealMessageEnum.SEALBASEIPPOST.getValue();
             String contentType = "application/json";
             JSONObject jsonObject = HttpUtil.sendPost(url, null, token, contentType);
             if(ObjectUtil.isNotEmpty(jsonObject.get("data"))){
@@ -71,19 +80,29 @@ public class SealMessageServiceImpl implements SealMessageService {
 
     @Override
     public String sealAuthorize(String extJson){
-        String token = null;
+        JSONObject toObj = null;
         //获取缓存的token
-        token = getNewToken();
+        String token = getNewToken();
         //请求url
-        String url = SealMessageEnum.SEALAUTHORIZEIPPOST.getValue();
+        String url = sealMessageProperties.getRequestUrl() + SealMessageEnum.SEALAUTHORIZEIPPOST.getValue();
         Map<String, Object> map = new HashMap<>();
         map.put("workflowApplyParam", extJson);
-        JSONObject jsonObject = HttpUtil.sendPostRequest(url, map, token);
-        if(Integer.parseInt(jsonObject.get("status").toString()) != 0){
-            log.error("创建申请并授权失败！e:"+ jsonObject.get("message"));
-            throw new CommonException("创建申请并授权失败！");
+
+        //异步调用群杰授权
+        Future<JSONObject> future = executor.submit(() ->
+                HttpUtil.sendPostRequest(url, map, token));
+        try {
+            //等待返回接口--获取异步调用结果
+            toObj = future.get();
+            log.info("查询结果: {}", toObj);
+            if(Integer.parseInt(toObj.get("status").toString()) != 0){
+                log.error("创建申请并授权失败！e:"+ toObj.get("message"));
+                throw new CommonException("创建申请并授权失败！");
+            }
+        } catch (InterruptedException | ExecutionException e) {
+            throw new CommonException("群杰异步任务执行失败", e);
         }
-        return jsonObject.toString();
+        return toObj.toString();
     }
 
     @Override
@@ -103,7 +122,7 @@ public class SealMessageServiceImpl implements SealMessageService {
         String token = null;
         try{
             //请求url
-            String url = SealMessageEnum.GETTOKENIPPOST.getValue();
+            String url = sealMessageProperties.getRequestUrl() + SealMessageEnum.GETTOKENIPPOST.getValue();
             Map<String, String> map = new HashMap<String, String>();
             //请求参数-- 账号/密码
             map.put(SealMessageEnum.GETTOKENACCOUNTKEY.getValue(), SealMessageEnum.GETTOKENACCOUNTVALUE.getValue());

@@ -60,7 +60,7 @@ public class FlwPurchasePlanFailExecutionListener implements FlwGlobalCustomEven
             jsonObject.set("sn", String.valueOf(JSONUtil.parseObj(dataJson).get("sn")));//流程数据--流水号
             jsonObject.set("status", STATUS_FLAG); //已拒绝
             jsonObject.set("modelId", String.valueOf(JSONUtil.parseObj(dataJson).get("modelId"))); //流程数据--模型Id
-            jsonObject.set("processInstanceId", String.valueOf(JSONUtil.parseObj(dataJson).get("processInstanceId"))); //流程数据--流程实例id
+            jsonObject.set("processInstanceId", historicProcessInstance.getId()); //流程数据--流程实例id
 
             //调用epc系统 回写当前数据状态值
             String post = HttpUtil.post(url, jsonObject.toString());
