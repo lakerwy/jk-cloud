@@ -156,7 +156,7 @@ public class ConferenceRezServiceImpl extends ServiceImpl<ConferenceRezMapper, C
         }*/
         if(ObjectUtil.isNotEmpty(conferenceRezPageParam.getLimitUserId())){
             queryWrapper.lambda().and(q->q.eq(ConferenceRez::getCreateUser,conferenceRezPageParam.getLimitUserId())
-                    .or().likeRight(ConferenceRez::getJoinUser,conferenceRezPageParam.getLimitUserId()));
+                    .or().apply(" FIND_IN_SET({0},JOIN_USER)>0 ",conferenceRezPageParam.getLimitUserId()));
         }
 
         if(ObjectUtil.isAllNotEmpty(conferenceRezPageParam.getSortField(), conferenceRezPageParam.getSortOrder())) {
