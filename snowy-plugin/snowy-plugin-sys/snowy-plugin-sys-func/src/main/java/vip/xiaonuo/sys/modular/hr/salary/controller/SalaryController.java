@@ -137,4 +137,20 @@ public class SalaryController {
         return CommonResult.data(salaryService.total(param));
     }
 
+
+    /**
+     * 按照 工资所属年月 导出工资报表
+     *
+     * @author yong.ye
+     * @date  2024/06/06 10:26
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("按照 工资所属年月 导出工资报表")
+    @CommonLog("按照 工资所属年月 导出工资报表")
+    @PostMapping("/sys/hr/salary/gzExport")
+    public CommonResult<String> gzExport(@RequestBody @Valid SearchParam searchParam) {
+        salaryService.gzExport(searchParam);
+        return CommonResult.ok();
+    }
+
 }

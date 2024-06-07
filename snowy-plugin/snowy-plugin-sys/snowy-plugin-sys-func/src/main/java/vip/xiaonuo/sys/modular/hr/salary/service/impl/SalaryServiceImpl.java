@@ -12,10 +12,16 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.metadata.fill.FillWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -36,11 +42,16 @@ import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.*;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
+import vip.xiaonuo.sys.modular.hr.salary.util.ExportUtil;
+import vip.xiaonuo.sys.modular.hr.salary.vo.GzExportInfo;
+import vip.xiaonuo.sys.modular.hr.salary.vo.GzExportResult;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal;
 
 import javax.annotation.Resource;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 工资系统-工资表Service接口实现类
@@ -170,5 +181,36 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             return salaryMapper.getSalaryTotal(param.getYearMonth());
         }
         return null;
+    }
+
+    @Override
+    public void gzExport(SearchParam searchParam) {
+        //0. 获取导出数据
+        List<Salary> salaryList = this.list(new QueryWrapper<Salary>().lambda().eq(Salary::getYearMonth,searchParam.getYearMonth()));
+        if(CollUtil.isEmpty(salaryList)){
+            throw new CommonException("无有效数据需要导出");
+        }
+        try{
+            //1. 获取excel模板
+            String templateFileName = getClass().getResource("/GZTemplate1.xlsx").getPath();
+            GzExportInfo gzExportInfo = new GzExportInfo("建科","2024","4",templateFileName);
+            List<GzExportResult> data = BeanUtil.copyToList(AesUtil.decryptGZList(salaryList),GzExportResult.class);
+            ExportUtil.genGzExcel2(data,30,gzExportInfo);
+//            String exportFileName = FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR +"模板填充导出测试.xlsx";
+//            ExcelWriter excelWriter = EasyExcel.write(exportFileName).withTemplate(templateFileName).build();
+//            WriteSheet writeSheet = EasyExcel.writerSheet().build();
+//            // 如果有多个list 模板上必须有{前缀.} 这里的前缀就是 data1，然后多个list必须用 FillWrapper包裹
+//            List<GzExportResult> gzData = BeanUtil.copyToList(salaryList,GzExportResult.class);
+//            excelWriter.fill(new FillWrapper("data", gzData.subList(0,30)), writeSheet);
+//            Map<String, Object> map = new HashMap<String, Object>();
+//            map.put("company", searchParam.getYearMonth());
+//            excelWriter.fill(map, writeSheet);
+//            excelWriter.finish();
+        }catch (Exception e){
+
+        }
+
+
+
     }
 }

@@ -95,4 +95,10 @@ public interface SalaryService extends IService<Salary> {
      * @return
      */
     SumSalaryTotal total(TotalParam param);
+
+    /**
+     * 工资报表导出
+     * @param searchParam
+     */
+    void gzExport(SearchParam searchParam);
 }
