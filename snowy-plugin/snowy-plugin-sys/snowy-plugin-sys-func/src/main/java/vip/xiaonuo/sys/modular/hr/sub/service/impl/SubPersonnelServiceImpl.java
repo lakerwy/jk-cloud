@@ -43,14 +43,15 @@ import vip.xiaonuo.sys.modular.hr.sub.mapper.SubPersonnelMapper;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.*;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubPersonnelVo;
+import vip.xiaonuo.sys.modular.hr.sub.vo.TitleTotalVo;
 import vip.xiaonuo.sys.modular.position.param.SysPositionAddParam;
 import vip.xiaonuo.sys.modular.position.service.SysPositionService;
 
 import javax.annotation.Resource;
 import java.time.LocalDate;
 import java.time.Period;
-import java.util.Date;
-import java.util.List;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * HR-分公司-人事档案Service接口实现类
@@ -321,6 +322,49 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
             throw new CommonException("HR-分公司-人事档案不存在，id值为：{}", id);
         }
         return subPersonnel;
+    }
+
+    @Override
+    public List<TitleTotalVo> titleTotal(String deptId) {
+        List<TitleTotalVo> result = new ArrayList<>();
+        //若没有传入部门Id,则统计全部
+        QueryWrapper<SubPersonnel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(SubPersonnel::getDeleteFlag,"NOT_DELETE");
+        queryWrapper.lambda().eq(SubPersonnel::getHrStatus,"0");
+        //职称等级不为空
+        queryWrapper.lambda().isNotNull(SubPersonnel::getHighTitleLever);
+        queryWrapper.lambda().ne(SubPersonnel::getHighTitleLever,"");
+        //分公司
+        if(ObjectUtil.isNotEmpty(deptId)) {
+            queryWrapper.lambda().eq(SubPersonnel::getDeptId, deptId);
+        }
+        queryWrapper.lambda().orderByAsc(SubPersonnel::getHighTitleLever);
+        List<SubPersonnel> subPersonnelList = this.list(queryWrapper);
+        //所有
+        Map<String,List<SubPersonnel>> levelGroup = subPersonnelList.stream().collect(Collectors.groupingBy(x->x.getHighTitleLever()));
+        if(CollUtil.isNotEmpty(levelGroup)) {
+            TitleTotalVo tmpTotal = new TitleTotalVo();
+            tmpTotal.setType("全部");
+            Map<String,Integer> total = new HashMap<>();
+            for (Map.Entry<String, List<SubPersonnel>> entry : levelGroup.entrySet()) {
+                total.put(entry.getKey(),entry.getValue().size());
+            }
+            tmpTotal.setTotal(total);
+            result.add(tmpTotal);
+        }
+        //已缴纳社保
+        Map<String,List<SubPersonnel>> insLevelGroup = subPersonnelList.stream().filter(x->ObjectUtil.isNotEmpty(x.getInsUnit())).collect(Collectors.toList()).stream().collect(Collectors.groupingBy(x->x.getHighTitleLever()));
+        if(CollUtil.isNotEmpty(insLevelGroup)) {
+            TitleTotalVo tmpTotal = new TitleTotalVo();
+            tmpTotal.setType("已缴社保");
+            Map<String,Integer> total = new HashMap<>();
+            for (Map.Entry<String, List<SubPersonnel>> entry : levelGroup.entrySet()) {
+                total.put(entry.getKey(),entry.getValue().size());
+            }
+            tmpTotal.setTotal(total);
+            result.add(tmpTotal);
+        }
+        return result;
     }
 
     private static String dayComparePrecise(Date date1, Date date2) {

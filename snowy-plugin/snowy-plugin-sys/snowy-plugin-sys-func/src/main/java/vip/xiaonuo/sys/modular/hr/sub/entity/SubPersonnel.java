@@ -273,7 +273,7 @@ public class SubPersonnel {
     @ApiModelProperty(value = "最高职称专业", position = 55)
     private String highTitleProfession;
     /** 最高职称等级 */
-    @ApiModelProperty(value = "流程实例Id", position = 55)
+    @ApiModelProperty(value = "最高职称等级", position = 55)
     private String highTitleLever;
     /** 最高职称资格证 */
     @ApiModelProperty(value = "最高职称资格证", position = 55)

@@ -30,10 +30,13 @@ import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnel;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.service.SubPersonnelService;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubPersonnelVo;
+import vip.xiaonuo.sys.modular.hr.sub.vo.TitleTotalVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
+import java.util.Map;
 
 /**
  * HR-分公司-人事档案控制器
@@ -125,5 +128,20 @@ public class SubPersonnelController {
     @GetMapping("/sys/hr/sub/personnel/detail")
     public CommonResult<SubPersonnelVo> detail(@Valid SubPersonnelIdParam subPersonnelIdParam) {
         return CommonResult.data(subPersonnelService.detail(subPersonnelIdParam));
+    }
+
+    /**
+     * 获取HR-分公司-职称统计
+     *
+     * 可视化统计各职称级别的人数（统计已缴纳社保人员和所有人员两种类型）
+     *
+     * @author yong.ye
+     * @date  2023/11/21 11:14
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取HR-分公司-职称统计")
+    @GetMapping("/sys/hr/sub/personnel/titleTotal")
+    public CommonResult<List<TitleTotalVo>> titleTotal(String deptId) {
+        return CommonResult.data(subPersonnelService.titleTotal(deptId));
     }
 }

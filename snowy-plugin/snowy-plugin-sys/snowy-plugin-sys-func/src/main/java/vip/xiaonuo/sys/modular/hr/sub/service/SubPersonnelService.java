@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.sub.entity.SubPersonnel;
 import vip.xiaonuo.sys.modular.hr.sub.param.*;
 import vip.xiaonuo.sys.modular.hr.sub.vo.SubPersonnelVo;
+import vip.xiaonuo.sys.modular.hr.sub.vo.TitleTotalVo;
 
 import java.util.List;
 
@@ -75,4 +76,11 @@ public interface SubPersonnelService extends IService<SubPersonnel> {
      * @date  2023/11/21 11:14
      **/
     SubPersonnel queryEntity(String id);
+
+    /**
+     * 可视化统计各职称级别的人数（统计已缴纳社保人员和所有人员两种类型）
+     * @param deptId
+     * @return
+     */
+    List<TitleTotalVo> titleTotal(String deptId);
 }
