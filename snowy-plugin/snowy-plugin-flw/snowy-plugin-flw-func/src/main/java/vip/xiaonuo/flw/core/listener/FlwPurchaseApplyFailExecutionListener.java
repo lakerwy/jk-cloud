@@ -70,7 +70,7 @@ public class FlwPurchaseApplyFailExecutionListener implements FlwGlobalCustomEve
                 //存入系统表
                 ExtSystem extSystem = new ExtSystem();
                 extSystem.setFromId(String.valueOf(JSONUtil.parseObj(dataJson).get("planId")));
-                extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG)));
+                extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG).set("processInstanceId", historicProcessInstance.getId())));
                 extSystem.setSystemName("EPC系统招采申请审批拒绝");
                 extSystemService.save(extSystem);
             }
