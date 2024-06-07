@@ -21,6 +21,7 @@ import vip.xiaonuo.bp.modular.recruit.finance.param.BpFinanceAddParam;
 import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationAddParam;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -158,12 +159,15 @@ public class BpSupplierAddParam {
     private String bpUserId;
 
     /** 营业范围集合 */
+    @NotEmpty(message = "经营范围数据不能为空")
     private List<BpBusinessScopeAddParam> classifyList;
 
     /** 人员信息集合 */
+    @NotEmpty(message = "供应商人员信息不能为空")
     private List<BpRelationAddParam> relationAddParamList;
 
     /** 供应商银行开户集合 */
+    @NotEmpty(message = "银行开户信息不能为空")
     private List<BpBankInformationAddParam> bankInformationList;
 
     /** 供应商财务信息集合 */

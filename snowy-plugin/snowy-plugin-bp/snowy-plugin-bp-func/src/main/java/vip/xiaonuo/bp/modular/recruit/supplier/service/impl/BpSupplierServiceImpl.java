@@ -27,8 +27,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.bp.modular.platform.entity.BpUser;
-import vip.xiaonuo.bp.modular.platform.service.BpUserService;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.entity.BpBankInformation;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.param.BpBankInformationAddParam;
 import vip.xiaonuo.bp.modular.recruit.bankinformation.service.BpBankInformationService;
@@ -46,7 +44,6 @@ import vip.xiaonuo.bp.modular.recruit.relation.param.BpRelationAddParam;
 import vip.xiaonuo.bp.modular.recruit.relation.service.BpRelationService;
 import vip.xiaonuo.bp.modular.recruit.relation.vo.BpRelationReturnVo;
 import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpBlacklistEnum;
-import vip.xiaonuo.bp.modular.recruit.supplier.enums.BpSourceEnum;
 import vip.xiaonuo.bp.modular.recruit.supplier.param.BpSupplierEditParam;
 import vip.xiaonuo.bp.modular.recruit.supplier.service.BpSupplierService;
 import vip.xiaonuo.bp.modular.recruit.supplier.vo.BpSupplierReturnVo;
@@ -93,8 +90,6 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
     private BpFinanceService BpFinanceService;
     @Resource
     private CommonCacheOperator commonCacheOperator;
-    @Resource
-    private BpUserService bpUserService;
 
     private static final TenApi tenApi = SpringUtil.getBean(TenApi.class);
 
@@ -170,9 +165,6 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
         // 新增经营范围分类
         List<BpBusinessScopeAddParam> classifyList = bpSupplierAddParam.getClassifyList();
-        if (CollectionUtil.isEmpty(classifyList)) {
-            throw new CommonException("经营范围数据不能为空!");
-        }
         for (BpBusinessScopeAddParam bpBusinessScopeAddParam : classifyList) {
             bpBusinessScopeAddParam.setSupplierId(bpSupplier.getId());
             bpBusinessScopeAddParam.setTenantId(tenApi.getCurrentTenId());
@@ -182,9 +174,6 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
         // 新增供应商联系信息
         List<BpRelationAddParam> relationAddParamList = bpSupplierAddParam.getRelationAddParamList();
-        if (CollectionUtil.isEmpty(relationAddParamList)) {
-            throw new CommonException("供应商人员信息不能为空!");
-        }
         for (BpRelationAddParam bpRelationAddParam : relationAddParamList) {
             //验证供应商下业务负责人手机号是否已注册
             Boolean boIphone = bpRelationService.getBusinessAdminPhone(bpRelationAddParam.getBusinessadminPhone());
@@ -199,9 +188,6 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
         // 新增供应商银行开户信息
         List<BpBankInformationAddParam> bankInformationList = bpSupplierAddParam.getBankInformationList();
-        if (CollectionUtil.isEmpty(bankInformationList)) {
-            throw new CommonException("银行开户信息不能为空!");
-        }
         for (BpBankInformationAddParam bpBankInformationAddParam : bankInformationList) {
             bpBankInformationAddParam.setSupplierId(bpSupplier.getId());
             bpBankInformationAddParam.setTenantId(tenApi.getCurrentTenId());
@@ -211,10 +197,6 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
         // 新增供应商财务信息
         List<BpFinanceAddParam> bpFinanceList = bpSupplierAddParam.getBpFinanceList();
-        //目前需要去除财务数据维护 暂时去除
-        /*if(CollectionUtil.isEmpty(bpFinanceList)){
-            throw new CommonException("财务信息不能为空!");
-        }*/
         if (CollectionUtil.isNotEmpty(bpFinanceList)) {
             for (BpFinanceAddParam bpFinance : bpFinanceList) {
                 bpFinance.setSupplierId(bpSupplier.getId());
@@ -305,9 +287,7 @@ public class BpSupplierServiceImpl extends ServiceImpl<BpSupplierMapper, BpSuppl
 
     @Override
     public Boolean getCompanyName(String companyName) {
-        if(ObjectUtil.isEmpty(companyName)){
-            throw new CommonException("供应商公司名称不能为空!");
-        }
+        //通过公司名称查询 审核中，审核完成数据
         return this.list(new QueryWrapper<BpSupplier>().lambda().eq(BpSupplier::getCompanyName,companyName).in(BpSupplier::getStatus,'0','1')).size() > 0;
     }
 }

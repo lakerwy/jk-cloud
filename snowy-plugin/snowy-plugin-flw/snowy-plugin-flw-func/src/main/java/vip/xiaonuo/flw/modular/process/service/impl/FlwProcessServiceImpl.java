@@ -94,6 +94,7 @@ import vip.xiaonuo.flw.modular.template.service.FlwTemplateSnService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysPositionApi;
 import vip.xiaonuo.sys.api.SysUserApi;
+import vip.xiaonuo.ten.api.TenApi;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -155,6 +156,9 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
     @Resource
     private ExtSystemService extSystemService;
+
+    @Resource
+    private TenApi tenApi;
 
     @Override
     public void saveDraft(FlwProcessSaveDraftParam flwProcessSaveDraftParam) {
@@ -1522,6 +1526,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             if(ObjectUtil.isNotEmpty(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).get("purchasingCode"))) {
                 //存入系统表
                 ExtSystem extSystem = new ExtSystem();
+                extSystem.setTenantId(tenApi.getCurrentTenId());
                 extSystem.setFromId(String.valueOf(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).get("planId")));
                 JSONObject job = JSONUtil.parseObj(flwProcessStartParam.getDataJson()).set("processInstanceId", ObjectUtil.isNotEmpty(processInstance) ? processInstance.getProcessInstanceId() : null);
                 extSystem.setFromExtJson(JSONUtil.toJsonStr(job));

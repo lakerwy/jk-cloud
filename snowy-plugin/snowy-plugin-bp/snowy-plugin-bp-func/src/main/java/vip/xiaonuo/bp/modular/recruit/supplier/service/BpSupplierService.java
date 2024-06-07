@@ -82,7 +82,7 @@ public interface BpSupplierService extends IService<BpSupplier> {
     BpSupplierReturnVo queryEntity(String id);
 
     /**
-     * 获取供应商手机号
+     * 获取供应商公司名称
      * @author hxw
      * @return
      */

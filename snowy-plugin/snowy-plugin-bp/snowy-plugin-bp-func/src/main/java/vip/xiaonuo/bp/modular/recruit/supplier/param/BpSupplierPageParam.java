@@ -15,7 +15,6 @@ package vip.xiaonuo.bp.modular.recruit.supplier.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.bp.modular.recruit.businessscope.entity.BpBusinessScopeSearchParam;
 
 import java.util.List;
 

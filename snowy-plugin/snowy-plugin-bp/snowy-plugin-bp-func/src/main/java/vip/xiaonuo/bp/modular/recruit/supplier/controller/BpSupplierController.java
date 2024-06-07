@@ -130,7 +130,7 @@ public class BpSupplierController {
     }
 
     /**
-     * 获取供应商手机号
+     * 获取供应商公司名称
      * @author hxw
      */
     @ApiOperationSupport(order = 6)
