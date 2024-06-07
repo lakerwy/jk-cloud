@@ -60,7 +60,7 @@ public class FlwPurchasePlanFailExecutionListener implements FlwGlobalCustomEven
             jsonObject.set("sn", String.valueOf(JSONUtil.parseObj(dataJson).get("sn")));//流程数据--流水号
             jsonObject.set("status", STATUS_FLAG); //已拒绝
             jsonObject.set("modelId", String.valueOf(JSONUtil.parseObj(dataJson).get("modelId"))); //流程数据--模型Id
-            jsonObject.set("processInstanceId", String.valueOf(JSONUtil.parseObj(dataJson).get("processInstanceId"))); //流程数据--流程实例id
+            jsonObject.set("processInstanceId", historicProcessInstance.getId()); //流程数据--流程实例id
 
             //调用epc系统 回写当前数据状态值
             String post = HttpUtil.post(url, jsonObject.toString());
@@ -70,7 +70,7 @@ public class FlwPurchasePlanFailExecutionListener implements FlwGlobalCustomEven
                 //存入系统表
                 ExtSystem extSystem = new ExtSystem();
                 extSystem.setFromId(String.valueOf(JSONUtil.parseObj(dataJson).get("planId")));
-                extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG)));
+                extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG).set("processInstanceId", historicProcessInstance.getId())));
                 extSystem.setSystemName("EPC系统招采计划审批拒绝");
                 extSystemService.save(extSystem);
             }

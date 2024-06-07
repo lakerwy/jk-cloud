@@ -17,11 +17,11 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.dev.core.config.SealApplyProperties;
 import vip.xiaonuo.dev.modular.sealApply.entity.SealApply;
 import vip.xiaonuo.dev.modular.sealApply.entity.SealApplyParam;
 import vip.xiaonuo.dev.modular.sealApply.entity.SealDevice;
@@ -36,6 +36,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 import java.util.UUID;
+import java.util.concurrent.*;
 
 /**
  * 印章基础信息表Service接口实现类
@@ -50,21 +51,24 @@ public class SealApplyServiceImpl implements SealApplyService {
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
+    @Resource
+    private SealApplyProperties sealApplyProperties;
+
+    private static final ExecutorService executor = Executors.newFixedThreadPool(10);
+
     /**
      * 创建申请单和授权
      */
     @Override
     public JSONObject getSealApplyFieldList(String id, String uuid, String contractCopiesCount) {
 
-        //请求url
-        String url = SealMessageEnum.YXSEALIPPOST.getValue();
         //请求固定参数
         SealApply sealApply = new SealApply();
-        sealApply.setAppKey(SealMessageEnum.APPKEY.getValue());
+        sealApply.setAppKey(sealApplyProperties.getAppKey());
         sealApply.setApiKey(SealMessageEnum.APIKEYAPPLY.getValue());
         sealApply.setTimestamp(new Date().getTime());
         sealApply.setBizId(UUID.randomUUID().toString());
-        sealApply.setTenant(SealMessageEnum.TENANT.getValue());
+        sealApply.setTenant(sealApplyProperties.getTenant());
 
         //调用创建申请单需要的参数
         SealApplyParam  sealApplyParam = new SealApplyParam();
@@ -73,34 +77,42 @@ public class SealApplyServiceImpl implements SealApplyService {
         sealApplyParam.setUuid(uuid);
         sealApplyParam.setContractCopiesNum(1);
         sealApplyParam.setContractCopiesCount(Integer.valueOf(contractCopiesCount));
-        sealApplyParam.setApplicantId("2522642");
-        sealApplyParam.setUsePeopleId("2522642");
+        sealApplyParam.setApplicantId(SealMessageEnum.APPLICANTID.getValue()); //申请人id  目前默认admin
+        sealApplyParam.setUsePeopleId(SealMessageEnum.APPLICANTID.getValue());
         //组装数据 云玺需要的数据格式
         sealApply.setParams(JSONUtil.toJsonStr(sealApplyParam));
 
-        JSONObject parseObj =null;
-        try {
-            //创建申请单
-            JSONObject jSONObject = HttpUtil.sendPostRequest(url, JSONUtil.toJsonStr(sealApply));
-            if(Integer.parseInt(jSONObject.get("code").toString()) != 0) {
-                log.error("创建申请单失败！e:" + jSONObject.get("message"));
-                throw new CommonException("创建申请单失败！");
-            }
+        JSONObject job = new JSONObject();
+        //异步执行云玺创建申请单和授权接口
+        Future<JSONObject> future = executor.submit(() -> {
+                JSONObject jSONObject = HttpUtil.sendPostRequest(sealApplyProperties.getPostUrl(), JSONUtil.toJsonStr(sealApply));
+                if (Integer.parseInt(jSONObject.get("code").toString()) != 0) {
+                    log.error("创建申请单失败！e:" + jSONObject.get("message"));
+                    throw new CommonException("创建申请单失败！");
+                }
+                //创建授权需要的参数
+                sealApply.setApiKey(SealMessageEnum.APIKEY.getValue());
+                SealImpower sealImpower = new SealImpower();
+                sealImpower.setApplicationId(id);
+                sealImpower.setUuid(uuid);
+                sealImpower.setExpireTime(Long.valueOf(sealApplyProperties.getTime())); //设置授权码24小时有效期
+                sealApply.setParams(JSONUtil.toJsonStr(sealImpower));
+                return HttpUtil.sendPostRequest(sealApplyProperties.getPostUrl(), JSONUtil.toJsonStr(sealApply));
+        });
 
-            //创建授权需要的参数
-            sealApply.setApiKey(SealMessageEnum.APIKEY.getValue());
-            SealImpower sealImpower = new SealImpower();
-            sealImpower.setApplicationId(id);
-            sealImpower.setUuid(uuid);
-            sealImpower.setExpireTime(Long.valueOf("86400")); //24小时有效期
-            sealApply.setParams(JSONUtil.toJsonStr(sealImpower));
-            parseObj = HttpUtil.sendPostRequest(url, JSONUtil.toJsonStr(sealApply));
-        } catch (Exception e){
-            log.error("创建授权失败！e:" + parseObj.get("message"));
-            throw new CommonException("创建授权失败！");
+        try {
+            //等待返回接口--获取异步调用结果
+            job = future.get();
+            if(Integer.parseInt(job.get("code").toString()) != 0){
+                log.error("创建申请并授权失败！e:"+ job.get("message"));
+                throw new CommonException("创建授权失败！");
+            }
+            log.info("查询结果: {}", job);
+        } catch (InterruptedException | ExecutionException e) {
+            throw new CommonException("云玺异步任务执行失败", e);
         }
 
-        return parseObj;
+        return job;
     }
 
     /**
@@ -126,20 +138,18 @@ public class SealApplyServiceImpl implements SealApplyService {
     public List<UserSealApplyVo> queryAllSealApply() {
         List<UserSealApplyVo> sealApplyVos = null;
         try{
-            //请求url
-            String url = SealMessageEnum.YXSEALIPPOST.getValue();
             //请求固定参数
             SealApply sealApply = new SealApply();
-            sealApply.setAppKey(SealMessageEnum.APPKEY.getValue());
+            sealApply.setAppKey(sealApplyProperties.getAppKey());
             sealApply.setApiKey(SealMessageEnum.APIKEYDEVICE.getValue());
             sealApply.setTimestamp(new Date().getTime());
             sealApply.setBizId(UUID.randomUUID().toString());
-            sealApply.setTenant(SealMessageEnum.TENANT.getValue());
+            sealApply.setTenant(sealApplyProperties.getTenant());
             SealDevice sealDevice = new SealDevice();
             sealApply.setParams(JSONUtil.toJsonStr(sealDevice));
 
-            JSONObject jsonObject = HttpUtil.sendPostRequest(url, JSONUtil.toJsonStr(sealApply));
-             Object objList = JSONUtil.parseObj(jsonObject.get("data").toString()).get("list");
+            JSONObject jsonObject = HttpUtil.sendPostRequest(sealApplyProperties.getPostUrl(), JSONUtil.toJsonStr(sealApply));
+            Object objList = JSONUtil.parseObj(jsonObject.get("data").toString()).get("list");
             if(ObjectUtil.isNotEmpty(objList)){
                 sealApplyVos = BeanUtil.copyToList((Collection<?>) objList, UserSealApplyVo.class);
                 //将云玺用户信息存入redis缓存
