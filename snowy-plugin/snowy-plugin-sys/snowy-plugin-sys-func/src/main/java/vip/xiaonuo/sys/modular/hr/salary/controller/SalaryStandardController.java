@@ -139,7 +139,7 @@ public class SalaryStandardController {
     @ApiOperation("工资系统-月度工资标准 - 【复制上月工资标准】")
     @CommonLog("工资系统-月度工资标准 - 【复制上月工资标准】")
     @PostMapping("/sys/hr/salary/standard/copy")
-    public CommonResult<String> copy(CopyParam copyParam) {
+    public CommonResult<String> copy(@RequestBody @Valid CopyParam copyParam) {
         salaryStandardService.copy(copyParam);
         return CommonResult.ok();
     }
