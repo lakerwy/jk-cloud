@@ -48,7 +48,7 @@ public class FlwPurchaseApplyFailExecutionListener implements FlwGlobalCustomEve
 
     /** 流程拒绝标志 */
     private static final String STATUS_FLAG = "3";
-    private static final String URL_FLAG = "epc/purchasePlan/edit";
+    private static final String URL_FLAG = "epc/purchaseApply/edit";
 
     @Override
     public void publishRejectEvent(HistoricProcessInstance historicProcessInstance, String taskId) {
