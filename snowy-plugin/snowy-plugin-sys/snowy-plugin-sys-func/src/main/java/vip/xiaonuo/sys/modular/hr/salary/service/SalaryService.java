@@ -16,12 +16,10 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.TotalParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -98,7 +96,7 @@ public interface SalaryService extends IService<Salary> {
 
     /**
      * 工资报表导出
-     * @param searchParam
+     * @param excelParam
      */
-    void gzExport(SearchParam searchParam);
+    void gzExport(ExcelParam excelParam, HttpServletResponse response);
 }

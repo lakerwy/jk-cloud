@@ -16,8 +16,12 @@ public class GzExportResult {
     private String company;
 
     /** 所属年月 */
-    @ApiModelProperty(value = "所属年月", position = 4)
+    @ApiModelProperty(value = "所属年月", position = 2)
     private String yearMonth;
+
+    /** 序号 */
+    @ApiModelProperty(value = "序号", position = 3)
+    private Integer no;
 
     /** 姓名 */
     @ApiModelProperty(value = "姓名", position = 7)
@@ -131,4 +135,7 @@ public class GzExportResult {
     @ApiModelProperty(value = "实发工资", position = 60)
     private BigDecimal realPayAmount;
 
+    /** 是否缓发 */
+    @ApiModelProperty(value = "是否缓发", position = 69)
+    private String isSlow;
 }

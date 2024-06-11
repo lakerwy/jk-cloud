@@ -27,14 +27,12 @@ import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.sys.modular.hr.salary.entity.Salary;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.TotalParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SumSalaryTotal;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 /**
@@ -147,10 +145,9 @@ public class SalaryController {
     @ApiOperationSupport(order = 6)
     @ApiOperation("按照 工资所属年月 导出工资报表")
     @CommonLog("按照 工资所属年月 导出工资报表")
-    @PostMapping("/sys/hr/salary/gzExport")
-    public CommonResult<String> gzExport(@RequestBody @Valid SearchParam searchParam) {
-        salaryService.gzExport(searchParam);
-        return CommonResult.ok();
+    @GetMapping("/sys/hr/salary/gzExport")
+    public void gzExport(@Valid ExcelParam excelParam, HttpServletResponse response) {
+        salaryService.gzExport(excelParam,response);
     }
 
 }
