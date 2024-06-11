@@ -38,6 +38,7 @@ import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 人员资质管理控制器
@@ -188,5 +189,21 @@ public class CertManageController {
     @GetMapping("/sys/hr/cert/manage/listByIdCard")
     public CommonResult<List<CertManage>> listByIdCard(String idCard) {
         return CommonResult.data(certManageService.listByIdCard(idCard));
+    }
+
+
+    /**
+     * 获取-职称统计
+     *
+     * 可视化统计各职称级别的人数【有效期内+有效职称】
+     *
+     * @author yong.ye
+     * @date  2024/6/11 11:14
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("获取-职称统计")
+    @GetMapping("/sys/hr/cert/manage/titleTotal")
+    public CommonResult<Map<String, Integer>> titleTotal() {
+        return CommonResult.data(certManageService.titleTotal());
     }
 }

@@ -22,6 +22,7 @@ import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchDetailVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.SearchVo;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * 人员资质管理Service接口
@@ -106,4 +107,10 @@ public interface CertManageService extends IService<CertManage> {
      * @return
      */
     List<CertManage> listByIdCard(String idCard);
+
+    /**
+     * 职称统计
+     * @return
+     */
+    Map<String,Integer> titleTotal();
 }

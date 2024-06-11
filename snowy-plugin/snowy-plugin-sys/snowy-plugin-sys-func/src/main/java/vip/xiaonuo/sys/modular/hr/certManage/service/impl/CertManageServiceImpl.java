@@ -17,11 +17,9 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
@@ -33,8 +31,6 @@ import vip.xiaonuo.sys.modular.hr.certManage.mapper.CertManageMapper;
 import vip.xiaonuo.sys.modular.hr.certManage.param.*;
 import vip.xiaonuo.sys.modular.hr.certManage.service.CertManageService;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.*;
-import vip.xiaonuo.sys.modular.hr.registerCert.entity.RegCertStatusData;
-import vip.xiaonuo.sys.modular.hr.registerCert.service.RegCertStatusDataService;
 
 import javax.annotation.Resource;
 import java.text.SimpleDateFormat;
@@ -52,8 +48,6 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
 
     @Resource
     private CertManageMapper certManageMapper;
-    @Resource
-    RegCertStatusDataService regCertStatusDataService;
 
     @Override
     public Page<CertManageVo> page(CertManagePageParam certManagePageParam) {
@@ -269,6 +263,29 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
         queryWrapper.lambda().eq(CertManage::getType,CertTypeEnum.REGISTER.getValue());
         queryWrapper.lambda().orderByAsc(CertManage::getCertTypeId).orderByAsc(CertManage::getLevelId).orderByAsc(CertManage::getMajor);
         return this.list(queryWrapper);
+    }
+
+    /**
+     * 职称证书 | 有效 | 未过期
+     * @return
+     */
+    @Override
+    public Map<String, Integer> titleTotal() {
+        Map<String,Integer> result = new HashMap<>();
+        QueryWrapper<CertManage> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("a.TYPE", CertTypeEnum.OTHER.getValue());
+        queryWrapper.eq("a.userStatus","0");
+        queryWrapper.ne("a.certStage","已过期");
+        queryWrapper.orderByAsc("d1.SORT_CODE");
+        List<CertManageVo> certManageVoList = certManageMapper.getMyList(queryWrapper);
+        Map<String, List<CertManageVo>> typeGroup = certManageVoList.stream().collect(Collectors.groupingBy(x -> x.getCertTypeDict()));
+        if(CollUtil.isNotEmpty(typeGroup)){
+            for (Map.Entry<String, List<CertManageVo>> entry : typeGroup.entrySet()) {
+                 result.put(entry.getKey(),entry.getValue().size());
+            }
+        }
+        return result;
     }
 
     /**

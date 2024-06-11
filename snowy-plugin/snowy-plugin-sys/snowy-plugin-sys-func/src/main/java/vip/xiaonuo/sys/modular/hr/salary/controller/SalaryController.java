@@ -137,14 +137,14 @@ public class SalaryController {
 
 
     /**
-     * 按照 工资所属年月 导出工资报表
+     * 【工资报表】按照 工资所属年月 导出工资报表
      *
      * @author yong.ye
      * @date  2024/06/06 10:26
      */
-    @ApiOperationSupport(order = 6)
-    @ApiOperation("按照 工资所属年月 导出工资报表")
-    @CommonLog("按照 工资所属年月 导出工资报表")
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("【工资报表】按照 工资所属年月 导出工资报表")
+    @CommonLog("【工资报表】按照 工资所属年月 导出工资报表")
     @GetMapping("/sys/hr/salary/gzExport")
     public void gzExport(@Valid ExcelParam excelParam, HttpServletResponse response) {
         salaryService.gzExport(excelParam,response);
