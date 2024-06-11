@@ -221,6 +221,11 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
             }
         });
 
+        // 复制的时候，202403 - 202411 工资标准人员不匹配
+        if(CollUtil.isEmpty(tmpAddList)){
+            throw new CommonException("无有效复制数据");
+        }
+
         //根据tmpAddList获取扣减详情记录 tmpAddList 中旧主键id没变
         List<String> copyAddIds = tmpAddList.stream().map(x->x.getId()).collect(Collectors.toList());
         List<SalaryAddRecord> copyAddRecordData = new ArrayList<>();
