@@ -1528,8 +1528,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 ExtSystem extSystem = new ExtSystem();
                 extSystem.setTenantId(tenApi.getCurrentTenId());
                 extSystem.setFromId(String.valueOf(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).get("planId")));
-                JSONObject job = JSONUtil.parseObj(flwProcessStartParam.getDataJson()).set("processInstanceId", ObjectUtil.isNotEmpty(processInstance) ? processInstance.getProcessInstanceId() : null);
-                extSystem.setFromExtJson(JSONUtil.toJsonStr(job));
+                extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).set("processInstanceId", ObjectUtil.isNotEmpty(processInstance) ? processInstance.getProcessInstanceId() : null)));
                 extSystem.setSystemName(String.valueOf(JSONUtil.parseObj(flwProcessStartParam.getDataJson()).get("purchasingCode")));
                 extSystemService.save(extSystem);
             }
