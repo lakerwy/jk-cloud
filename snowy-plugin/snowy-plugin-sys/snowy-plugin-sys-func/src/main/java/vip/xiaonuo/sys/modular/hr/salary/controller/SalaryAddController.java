@@ -30,7 +30,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CopyParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
@@ -132,17 +132,19 @@ public class SalaryAddController {
 
 
     /**
-     * 获取工资系统-其他费用扣加 - 【复制上月（可指定复制）-为空，复制全部】
+     * 工资系统-其他费用扣加 - 【复制】
+     * 将 fromYearMonth 数据 复制到 toYearMonth
+     * 若 指定 ids ，则只复制指定部分
      *
      * @author yong.ye
      * @date  2024/04/26 09:36
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("获取工资系统-其他费用扣加 - 【复制上月（可指定复制）-为空，复制全部】")
-    @CommonLog("获取工资系统-其他费用扣加 - 【复制上月（可指定复制）-为空，复制全部】")
+    @ApiOperation("工资系统-其他费用扣加 - 【复制】")
+    @CommonLog("工资系统-其他费用扣加 - 【复制】")
     @PostMapping("/sys/hr/salary/deduct/copy")
-    public CommonResult<String> copy(@RequestBody @Valid IdsParam idsParam) {
-        salaryAddService.copy(idsParam);
+    public CommonResult<String> copy(@RequestBody @Valid CopyParam copyParam) {
+        salaryAddService.copy(copyParam);
         return CommonResult.ok();
     }
 }

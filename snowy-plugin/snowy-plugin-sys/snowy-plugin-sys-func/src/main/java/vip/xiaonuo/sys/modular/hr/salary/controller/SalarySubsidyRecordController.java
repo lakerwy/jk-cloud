@@ -30,7 +30,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalarySubsidyRecordPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CopyParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalarySubsidyRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalarySubsidyRecordVo;
 
@@ -132,17 +132,20 @@ public class SalarySubsidyRecordController {
 
 
     /**
-     * 工资系统-注册补贴- 【复制上月（可指定复制）-为空，复制全部】
+     * 工资系统-注册补贴- 【复制】
+     *
+     * 将 fromYearMonth 数据 复制到 toYearMonth
+     * 若 指定 ids ，则只复制指定部分
      *
      * @author yong.ye
      * @date  2024/04/26 09:36
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("工资系统-注册补贴- 【复制上月（可指定复制）-为空，复制全部】")
-    @CommonLog("工资系统-注册补贴- 【复制上月（可指定复制）-为空，复制全部】")
+    @ApiOperation("工资系统-注册补贴- 【复制】")
+    @CommonLog("工资系统-注册补贴- 【复制】")
     @PostMapping("/sys/hr/salary/subsidy/copy")
-    public CommonResult<String> copy(@RequestBody @Valid IdsParam idsParam) {
-        salarySubsidyRecordService.copy(idsParam);
+    public CommonResult<String> copy(@RequestBody @Valid CopyParam copyParam) {
+        salarySubsidyRecordService.copy(copyParam);
         return CommonResult.ok();
     }
 

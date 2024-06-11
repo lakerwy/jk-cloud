@@ -152,10 +152,16 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
     }
 
     @Override
-    public void copy() {
+    public void copy(CopyParam copyParam) {
         // 当前年月
-        String currentYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
-        String previousYearMonth = ComputeUtil.getPreviousYM(currentYearMonth);
+        String currentYearMonth = copyParam.getToYearMonth();
+        if(ObjectUtil.isEmpty(currentYearMonth)) {
+            currentYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+        }
+        String previousYearMonth = copyParam.getFromYearMonth();
+        if(ObjectUtil.isEmpty(previousYearMonth)) {
+            previousYearMonth = ComputeUtil.getPreviousYM(currentYearMonth);
+        }
 
         //1. 判断当前年月是否已存在工资标准数据（存在，则不可复制）
         List<SalaryStandard> currentData = this.list(new QueryWrapper<SalaryStandard>().lambda()
@@ -170,9 +176,10 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
             throw new CommonException("不存在{}月工资标准数据",previousYearMonth);
         }
         //3. 复制数据
+        String finalCurrentYearMonth = currentYearMonth;
         previousData.forEach(item->{
             item.setId(null);
-            item.setYearMonth(currentYearMonth);
+            item.setYearMonth(finalCurrentYearMonth);
             item.setCreateTime(null);
             item.setCreateUser(null);
             item.setUpdateTime(null);

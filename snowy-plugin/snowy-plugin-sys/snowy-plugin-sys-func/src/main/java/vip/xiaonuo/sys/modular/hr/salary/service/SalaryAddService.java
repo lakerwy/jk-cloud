@@ -19,7 +19,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CopyParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAddVo;
 
 import java.util.List;
@@ -81,7 +81,7 @@ public interface SalaryAddService extends IService<SalaryAdd> {
     SalaryAdd queryEntity(String id);
 
     /**
-     * 复制上月
+     * 复制数据
      */
-    void copy(IdsParam idsParam);
+    void copy(CopyParam copyParam);
 }

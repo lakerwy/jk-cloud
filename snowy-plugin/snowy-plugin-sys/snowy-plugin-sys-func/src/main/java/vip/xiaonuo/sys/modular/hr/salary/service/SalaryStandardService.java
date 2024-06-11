@@ -83,7 +83,7 @@ public interface SalaryStandardService extends IService<SalaryStandard> {
     /**
      * 复制 - 上月工资标准
      */
-    void copy();
+    void copy(CopyParam copyParam);
 
     /**
      * 总部|分公司 花名册

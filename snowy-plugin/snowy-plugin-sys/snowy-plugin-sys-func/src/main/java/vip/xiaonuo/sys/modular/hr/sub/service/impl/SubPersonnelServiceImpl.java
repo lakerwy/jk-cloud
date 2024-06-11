@@ -329,6 +329,7 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
         List<TitleTotalVo> result = new ArrayList<>();
         //若没有传入部门Id,则统计全部
         QueryWrapper<SubPersonnel> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(SubPersonnel::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         queryWrapper.lambda().eq(SubPersonnel::getDeleteFlag,"NOT_DELETE");
         queryWrapper.lambda().eq(SubPersonnel::getHrStatus,"0");
         //职称等级不为空

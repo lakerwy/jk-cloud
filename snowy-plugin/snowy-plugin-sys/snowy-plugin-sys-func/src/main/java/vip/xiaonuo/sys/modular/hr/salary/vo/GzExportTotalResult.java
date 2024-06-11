@@ -11,7 +11,8 @@ import java.math.BigDecimal;
 @Data
 public class GzExportTotalResult {
 
-    public GzExportTotalResult(String typeName) {
+    public GzExportTotalResult(String no,String typeName) {
+        this.no = no;
         this.typeName = typeName;
         this.basicAmountTotal = BigDecimal.ZERO;
         this.postAmountTotal = BigDecimal.ZERO;
@@ -42,8 +43,12 @@ public class GzExportTotalResult {
         this.realPayAmountTotal = BigDecimal.ZERO;
     }
 
-    /** 本页小计|合计 */
-    @ApiModelProperty(value = "本页小计|合计", position = 1)
+    /** 本页小计|合计 1 */
+    @ApiModelProperty(value = "本页小计|合计 1", position = 1)
+    private String no;
+
+    /** 本页小计|合计 2 */
+    @ApiModelProperty(value = "本页小计|合计 2", position = 1)
     private String typeName;
 
     /** 工资结构-基本工资 */

@@ -34,7 +34,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAddPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.IdsParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CopyParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddRecordService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryAddService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryStandardService;
@@ -163,11 +163,18 @@ public class SalaryAddServiceImpl extends ServiceImpl<SalaryAddMapper, SalaryAdd
 
     @Transactional(rollbackFor = Exception.class)
     @Override
-    public void copy(IdsParam idsParam) {
-        List<String> copyIds = idsParam.getIds();
-        // 当前年月
-        String currentYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
-        String previousYearMonth = ComputeUtil.getPreviousYM(currentYearMonth);
+    public void copy(CopyParam copyParam) {
+        List<String> copyIds = copyParam.getIds();
+
+        // 当前年月【数据复制 from - to】
+        String currentYearMonth = copyParam.getToYearMonth();
+        if(ObjectUtil.isEmpty(currentYearMonth)) {
+            currentYearMonth = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMM"));
+        }
+        String previousYearMonth = copyParam.getFromYearMonth();
+        if(ObjectUtil.isEmpty(previousYearMonth)) {
+            previousYearMonth = ComputeUtil.getPreviousYM(currentYearMonth);
+        }
 
         // 1. 获取待复制的源数据【Copy源数据】
         QueryWrapper<SalaryAdd> queryWrapper = new QueryWrapper<>();

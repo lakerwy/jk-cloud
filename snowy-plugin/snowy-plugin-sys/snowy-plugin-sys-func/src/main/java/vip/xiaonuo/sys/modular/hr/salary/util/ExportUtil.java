@@ -342,11 +342,12 @@ public class ExportUtil {
                 //统计行 - 最后一页合计值-全部
                 List<GzExportTotalResult> totalResultList = new ArrayList<>();
                 if(pageIndex == gzPageCount){
-                    totalResultList.add(GzSheetTotal("合计",gzData));
+                    totalResultList.add(GzSheetTotal("","本页小计",tmpData));
+                    totalResultList.add(GzSheetTotal("","合计",gzData));
                 }else{
-                    totalResultList.add(GzSheetTotal("本页小计",tmpData));
+                    totalResultList.add(GzSheetTotal("","本页小计",tmpData));
                 }
-                excelWriter.fill(new FillWrapper("total", totalResultList), fieldSheet);
+                excelWriter.fill(new FillWrapper("total", totalResultList),fillConfig, fieldSheet);
                 Map<String, Object> map1 = new HashMap<String, Object>();
                 map1.put("title", gzInfo.getTitle());
                 excelWriter.fill(map1, fieldSheet);
@@ -365,11 +366,12 @@ public class ExportUtil {
                 //统计行 - 最后一页合计值-全部
                 List<GzExportTotalResult> totalResultList = new ArrayList<>();
                 if(pageIndex == gzSlowPageCount){
-                    totalResultList.add(GzSheetTotal("合计",gzSlowData));
+                    totalResultList.add(GzSheetTotal("","本页小计",tmpData));
+                    totalResultList.add(GzSheetTotal("","合计",gzSlowData));
                 }else{
-                    totalResultList.add(GzSheetTotal("本页小计",tmpData));
+                    totalResultList.add(GzSheetTotal("","本页小计",tmpData));
                 }
-                excelWriter.fill(new FillWrapper("total", totalResultList), fieldSheet);
+                excelWriter.fill(new FillWrapper("total", totalResultList),fillConfig, fieldSheet);
                 Map<String, Object> map1 = new HashMap<String, Object>();
                 map1.put("title", gzInfo.getTitle()+"（缓发）");
                 excelWriter.fill(map1, fieldSheet);
@@ -398,8 +400,8 @@ public class ExportUtil {
      * @param data
      * @return
      */
-    public static GzExportTotalResult GzSheetTotal(String typeName,List<GzExportResult> data){
-        GzExportTotalResult totalResult = new GzExportTotalResult(typeName);
+    public static GzExportTotalResult GzSheetTotal(String no,String typeName,List<GzExportResult> data){
+        GzExportTotalResult totalResult = new GzExportTotalResult(no,typeName);
         if(CollUtil.isNotEmpty(data)){
             data.forEach(item->{
                 totalResult.setBasicAmountTotal(totalResult.getBasicAmountTotal().add(item.getBasicAmount()));

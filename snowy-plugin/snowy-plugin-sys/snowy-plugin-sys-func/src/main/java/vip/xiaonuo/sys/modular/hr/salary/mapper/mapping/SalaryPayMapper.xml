@@ -23,7 +23,7 @@
                b.FIRST_ORG_NAME as firstOrgName,b.ORG_NAME as orgName,b.HIRE_DATE as hireDate,b.LEAVE_DATE as leaveDate,
                b.POSITIVE_TIME as positiveTime,b.BIRTH_DAY as birthDay,b.USER_TYPE as userType,b.COMPANY as company,b.POSITION
         from HR_SALARY_PAY a
-                 left join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID
+                 join HR_SALARY_STANDARD b on a.STANDARD_ID = b.ID and b.DELETE_FLAG = 'NOT_DELETE'
             ${ew.customSqlSegment}
     </select>
 

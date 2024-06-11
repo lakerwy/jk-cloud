@@ -198,6 +198,9 @@ public class SalaryImportTempServiceImpl extends ServiceImpl<SalaryImportTempMap
             }
             if(ObjectUtil.isNotEmpty(x.getIdCardNumber())){
                 x.setIdCardNumber(x.getIdCardNumber().trim());
+                if(ObjectUtil.isEmpty(x.getBirthDay())){
+                    x.setBirthDay(ComputeUtil.getBirthDayFromIDCard(x.getIdCardNumber()));
+                }
             }
             if(ObjectUtil.isNotEmpty(x.getUserName())){
                 x.setUserName(x.getUserName().trim());

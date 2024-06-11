@@ -522,4 +522,35 @@ public class ComputeUtil {
         }
         return gjjCha;
     }
+
+
+    /**
+     * 根据身份证号，获取出生日期
+     * @param idCardNumber
+     * @return
+     */
+    public static String getBirthDayFromIDCard(String idCardNumber) {
+        String birthDateStr = "";
+        if(ObjectUtil.isEmpty(idCardNumber)) return birthDateStr;
+        // 确保身份证号码长度符合第二代身份证标准（18位）
+        if (idCardNumber.length() == 18) {
+            // 截取第7位到第14位
+            birthDateStr = idCardNumber.substring(6, 14);
+        }else if(idCardNumber.length() == 15) {
+            //第7位到第12位表示出生年月日,拼接
+            birthDateStr = "19"+idCardNumber.substring(6, 12);
+        }else {
+            return birthDateStr;
+        }
+        // 将截取的字符串转换为日期格式
+        LocalDate birthDate;
+        try {
+            birthDate = LocalDate.parse(birthDateStr, DateTimeFormatter.ofPattern("yyyyMMdd"));
+        } catch (Exception e) {
+            // 如果解析失败，可能是身份证号码中的日期部分不合法
+            return "";
+        }
+        // 返回标准日期格式的字符串，例如：1990-01-01
+        return birthDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
 }
