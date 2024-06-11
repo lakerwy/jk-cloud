@@ -12,13 +12,16 @@
  */
 package vip.xiaonuo.flw.core.listener;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.ExecutionListener;
 import org.springframework.stereotype.Component;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.core.deploy.DeployProperties;
 import vip.xiaonuo.flw.modular.system.entity.ExtSystem;
@@ -42,7 +45,7 @@ public class FlwPurchaseApplyExecutionListener implements ExecutionListener {
     @Resource
     private ExtSystemService extSystemService;
 
-    /** 流程拒绝标志 */
+    /** 流程成功标志 */
     private static final String STATUS_FLAG = "1";
     private static final String URL_FLAG = "epc/purchaseApply/edit";
 
@@ -67,12 +70,12 @@ public class FlwPurchaseApplyExecutionListener implements ExecutionListener {
 
             //返回成功则去记录系统表
             if("200".equals(String.valueOf(JSONUtil.parseObj(post).get("code")))){
-                //存入系统表
-                ExtSystem extSystem = new ExtSystem();
-                extSystem.setFromId(String.valueOf(JSONUtil.parseObj(dataJson).get("planId")));
-                extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG).set("processInstanceId", execution.getProcessInstanceId())));
-                extSystem.setSystemName("EPC系统招采申请审批通过");
-                extSystemService.save(extSystem);
+                //修改系统表--审批状态改成已通过
+                extSystemService.update(new LambdaUpdateWrapper<ExtSystem>().eq(ExtSystem::getFromId, String.valueOf(JSONUtil.parseObj(dataJson).get("planId")))
+                        .set(ExtSystem::getFromExtJson, JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG).set("processInstanceId", execution.getProcessInstanceId())))
+                        .set(ExtSystem::getSystemName,"EPC系统招采申请审批通过")
+                        .set(ExtSystem::getUpdateTime, DateUtil.date())
+                        .set(ExtSystem::getUpdateUser, StpLoginUserUtil.getLoginUser().getId()));
             }
         } catch (Exception e) {
             throw new CommonException("执行监听器{}出现异常：{}", FlwNewSealMessageExecutionListener.class.getName(), e.getMessage());

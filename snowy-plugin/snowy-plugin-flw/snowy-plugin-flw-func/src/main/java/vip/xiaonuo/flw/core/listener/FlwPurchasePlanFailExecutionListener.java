@@ -12,14 +12,17 @@
  */
 package vip.xiaonuo.flw.core.listener;
 
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.TaskService;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.springframework.stereotype.Component;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.core.deploy.DeployProperties;
 import vip.xiaonuo.flw.modular.system.entity.ExtSystem;
@@ -67,12 +70,12 @@ public class FlwPurchasePlanFailExecutionListener implements FlwGlobalCustomEven
 
             //返回成功则去记录系统表
             if("200".equals(String.valueOf(JSONUtil.parseObj(post).get("code")))) {
-                //存入系统表
-                ExtSystem extSystem = new ExtSystem();
-                extSystem.setFromId(String.valueOf(JSONUtil.parseObj(dataJson).get("planId")));
-                extSystem.setFromExtJson(JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG).set("processInstanceId", historicProcessInstance.getId())));
-                extSystem.setSystemName("EPC系统招采计划审批拒绝");
-                extSystemService.save(extSystem);
+                //修改系统表--审批状态改成已拒绝
+                extSystemService.update(new LambdaUpdateWrapper<ExtSystem>().eq(ExtSystem::getFromId, String.valueOf(JSONUtil.parseObj(dataJson).get("planId")))
+                        .set(ExtSystem::getFromExtJson, JSONUtil.toJsonStr(JSONUtil.parseObj(dataJson).set("status", STATUS_FLAG).set("processInstanceId", historicProcessInstance.getId())))
+                        .set(ExtSystem::getSystemName,"EPC系统招采计划审批拒绝")
+                        .set(ExtSystem::getUpdateTime, DateUtil.date())
+                        .set(ExtSystem::getUpdateUser, StpLoginUserUtil.getLoginUser().getId()));
             }
         } catch (Exception e) {
             throw new CommonException("自定义事件执行监听器{}出现异常：{}", FlwTestCustomListener.class.getName(), e.getMessage());
