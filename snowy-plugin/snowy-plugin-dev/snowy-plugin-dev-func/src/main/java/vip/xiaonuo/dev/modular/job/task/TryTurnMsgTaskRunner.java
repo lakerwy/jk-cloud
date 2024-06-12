@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
  * 试用期人员转正-人资通知
  *
  * 规则：需要在转正时间前15天 钉钉发送试用期转正考核提醒至人资 提醒人资填写发起流程
- *
+ * tryTurn.sendMsgPhone web + flw
  **/
 @Slf4j
 @Component
