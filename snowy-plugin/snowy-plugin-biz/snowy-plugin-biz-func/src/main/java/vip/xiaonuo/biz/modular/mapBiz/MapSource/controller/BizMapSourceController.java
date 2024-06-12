@@ -60,7 +60,7 @@ public class BizMapSourceController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取图审 - 原始资料录入 分页")
-//    @SaCheckPermission("/biz/mapBiz/source/page")
+    @SaCheckPermission("/biz/mapBiz/source/page")
     @GetMapping("/biz/mapBiz/source/page")
     public CommonResult<Page<BizMapSource>> page(BizMapSourcePageParam bizMapSourcePageParam) {
         return CommonResult.data(bizMapSourceService.page(bizMapSourcePageParam));

@@ -12,6 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.MapSource.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -22,6 +23,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -69,12 +71,21 @@ public class BizMapSourceServiceImpl extends ServiceImpl<BizMapSourceMapper, Biz
                     .or().like(BizMapSource::getOptName,bizMapSourcePageParam.getSearchKey())
                     .or().like(BizMapSource::getHtOwner,bizMapSourcePageParam.getSearchKey()));
         }
+
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BizMapSource::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BizMapSource::getCreateUser, StpUtil.getLoginIdAsString());
+        }
+
         if(ObjectUtil.isAllNotEmpty(bizMapSourcePageParam.getSortField(), bizMapSourcePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizMapSourcePageParam.getSortOrder());
             queryWrapper.orderBy(true, bizMapSourcePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizMapSourcePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BizMapSource::getId);
+            queryWrapper.lambda().orderByDesc(BizMapSource::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
