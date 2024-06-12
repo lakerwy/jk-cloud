@@ -122,6 +122,12 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if (ObjectUtil.isNotEmpty(personnelPageParam.getStartPositiveTime()) && ObjectUtil.isNotEmpty(personnelPageParam.getEndPositiveTime())) {
             queryWrapper.lambda().between(Personnel::getPositiveTime, personnelPageParam.getStartPositiveTime(), personnelPageParam.getEndPositiveTime());
         }
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getStatus())){
+            queryWrapper.lambda().eq(Personnel::getStatus,personnelPageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getEmployNature())){
+            queryWrapper.lambda().eq(Personnel::getEmployNature,personnelPageParam.getEmployNature());
+        }
         if(ObjectUtil.isNotEmpty(personnelPageParam.getSearchKey())){
             queryWrapper.and(q->q.lambda().like(Personnel::getName,personnelPageParam.getSearchKey())
                     .or().like(Personnel::getFileNo,personnelPageParam.getSearchKey())

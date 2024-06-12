@@ -37,6 +37,9 @@ public enum BizCommonEnum {
     HR_SUB_PERSONNEL("HR_SUB_PERSONNEL","HR_SUB_PERSONNEL","SubPersonnelServiceImpl"),  //分公司人事管理
     HR_SUB_SALARY("HR_SUB_SALARY","HR_SUB_SALARY","SubSalaryServiceImpl"),  //分公司人事管理-工资条
 
+    HR_TRY_DUTY("HR_TRY_DUTY","HR_TRY_DUTY","TryDutyServiceImpl"),  //试用期考核责任
+    HR_TRY_TURN("HR_TRY_TURN","HR_TRY_TURN","TryTurnServiceImpl"),  //试用期考核转正
+
     HR_SUB_TRANSFER("HR_SUB_TRANSFER","HR_SUB_TRANSFER","HrSubTransferServiceImpl"),  //分公司人事管理-工资社保转入|转出总部
 
     BIZ_INVOICE_COST("BIZ_INVOICE_COST","BIZ_INVOICE_COST","InvoiceCostServiceImpl"),  //财务系统-成本发票-申请

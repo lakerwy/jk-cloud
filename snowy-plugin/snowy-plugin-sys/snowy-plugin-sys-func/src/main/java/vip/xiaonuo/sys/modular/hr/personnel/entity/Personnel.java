@@ -358,4 +358,12 @@ public class Personnel {
     /** 离职日期 */
     @ApiModelProperty(value = "离职日期", position = 67)
     private String leaveDate;
+
+    /** 试用期考核责任流程实例Id */
+    @ApiModelProperty(value = "试用期考核责任流程实例Id", position = 100)
+    private String dutyProcessInstanceId;
+
+    /** 试用期转正考核流程实例Id */
+    @ApiModelProperty(value = "试用期转正考核流程实例Id", position = 100)
+    private String turnProcessInstanceId;
 }
