@@ -72,4 +72,7 @@ public class BizJzscMohurdPageParam {
     @ApiModelProperty(value = "监管注册编号/执业印章号")
     private String certRegNo;
 
+    @ApiModelProperty(value = "状态")
+    private String status;
+
 }

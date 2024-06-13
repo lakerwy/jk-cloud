@@ -95,6 +95,10 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
         if(ObjectUtil.isNotEmpty(bizJzscMohurdPageParam.getCertRegNo())) {
             queryWrapper.lambda().like(BizJzscMohurd::getCertRegNo, bizJzscMohurdPageParam.getCertRegNo());
         }
+
+        if(ObjectUtil.isNotEmpty(bizJzscMohurdPageParam.getStatus())) {
+            queryWrapper.lambda().eq(BizJzscMohurd::getStatus,bizJzscMohurdPageParam.getStatus());
+        }
         if(ObjectUtil.isAllNotEmpty(bizJzscMohurdPageParam.getSortField(), bizJzscMohurdPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizJzscMohurdPageParam.getSortOrder());
             queryWrapper.orderBy(true, bizJzscMohurdPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -142,12 +146,12 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
     }
     @Override
     public void sync(BizJzscMohurdSyncParam bizJzscMohurdSyncParam) {
-        if(activeTaskCount.get()>1){
+        if (activeTaskCount.get() > 1) {
             throw new CommonException("上次同步暂未结束，请稍后再试");
         }
         String valueByKey = devConfigApi.getValueByKey(WHITE_KEY);
-        if(StrUtil.isEmpty(valueByKey)){
-            throw  new CommonException("未配置资质白名单");
+        if (StrUtil.isEmpty(valueByKey)) {
+            throw new CommonException("未配置资质白名单");
         }
         JSONArray jsonArray = new JSONArray(valueByKey);
         // 转换为 List
@@ -156,43 +160,38 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
             whiteList.add(String.valueOf(o));
         }
         bizJzscMohurdSyncParam.setWhiteList(whiteList);
-        if(0==bizJzscMohurdSyncParam.getType()){
+        if (0 == bizJzscMohurdSyncParam.getType()) {
             List<Map<String, String>> maps = sysUserApi.syncUserToIm();
             List<BizJzscMohurdSyncParam.JzUser> users = new ArrayList<>();
-            BizJzscMohurdSyncParam.JzUser jzUser = null;
             for (Map<String, String> map : maps) {
                 String idNumber = map.get("idNumber");
-                if(StrUtil.isEmpty(idNumber)){
+                if (StrUtil.isEmpty(idNumber)) {
                     continue;
                 }
-                jzUser = new BizJzscMohurdSyncParam.JzUser();
+                BizJzscMohurdSyncParam.JzUser jzUser = new BizJzscMohurdSyncParam.JzUser();
                 jzUser.setName(map.get("name"));
                 jzUser.setIdNumber(map.get("idNumber"));
                 users.add(jzUser);
             }
             bizJzscMohurdSyncParam.setUsers(users);
-        }else {
+        } else {
             List<BizJzscMohurdSyncParam.JzUser> users = bizJzscMohurdSyncParam.getUsers();
-            if(CollUtil.isEmpty(users)){
+            if (CollUtil.isEmpty(users)) {
                 throw new CommonException("用户信息列表不能为空");
             }
         }
 
-        Future<HttpResponse> future = executor.submit(()->{
+        CompletableFuture.runAsync(() -> {
             activeTaskCount.incrementAndGet();
             try {
                 String json = JSONUtil.toJsonStr(bizJzscMohurdSyncParam);
-                return HttpUtil.createPost(pythonServiceUrl + "/webApi/dataservice/query").body(json).execute(true);
-            }finally {
+                HttpResponse response = HttpUtil.createPost(pythonServiceUrl + "/webApi/dataservice/query").body(json).execute(true);
+                log.info("资质校验查询结果: {}", response.getStatus());
+            } catch (Exception e) {
+                log.error("异步任务执行失败", e);
+            } finally {
                 activeTaskCount.decrementAndGet();
             }
-        });
-        lastTask.set(future);
-        try {
-            HttpResponse response = future.get();
-            log.info("资质校验查询结果: {}", response.getStatus());
-        } catch (InterruptedException | ExecutionException e) {
-            throw new CommonException("异步任务执行失败", e);
-        }
+        }, executor);
     }
 }
