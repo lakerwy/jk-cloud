@@ -54,7 +54,7 @@ public class SystemServerPageParam {
 
     /** 系统类别 */
     @ApiModelProperty(value = "系统类别")
-    private Integer systemType;
+    private String systemType;
 
     /** EPC单体服务部署状态 */
     @ApiModelProperty(value = "EPC单体服务部署状态")
