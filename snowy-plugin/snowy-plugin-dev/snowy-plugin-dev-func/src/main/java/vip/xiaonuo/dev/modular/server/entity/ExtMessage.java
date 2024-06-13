@@ -1,5 +1,6 @@
 package vip.xiaonuo.dev.modular.server.entity;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
@@ -12,4 +13,5 @@ public class ExtMessage {
     String id;
     String data;
     int operateType; //操作类型 1、 新增  2、 删除 3、同步用户
+    String roleJsonStr;  //角色信息
 }

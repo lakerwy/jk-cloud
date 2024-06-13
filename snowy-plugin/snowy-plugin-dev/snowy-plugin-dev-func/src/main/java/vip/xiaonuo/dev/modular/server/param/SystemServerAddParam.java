@@ -79,4 +79,7 @@ public class SystemServerAddParam {
     @ApiModelProperty(value = "项目类型", position = 14)
     private String projectType;
 
+    /** 角色信息json体 */
+    @ApiModelProperty(value = "角色信息json体", position = 15)
+    private String roleJsonStr;
 }

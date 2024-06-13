@@ -81,6 +81,9 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         if(ObjectUtil.isNotEmpty(systemServerPageParam.getSystemStatus())) {
             queryWrapper.lambda().eq(SystemServer::getSystemStatus, systemServerPageParam.getSystemStatus());
         }
+        if(ObjectUtil.isNotEmpty(systemServerPageParam.getProjectType())) {
+            queryWrapper.lambda().eq(SystemServer::getProjectType, systemServerPageParam.getProjectType());
+        }
         if(ObjectUtil.isNotEmpty(systemServerPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(SystemServer::getSystemName,systemServerPageParam.getSearchKey())
                     .or().like(SystemServer::getSystemDomain,systemServerPageParam.getSearchKey())
@@ -130,6 +133,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         extMessage.setId(IdWorker.getIdStr());
         extMessage.setOperateType(1);
         extMessage.setData(JSONUtil.toJsonStr(systemServer));
+        extMessage.setRoleJsonStr(systemServerAddParam.getRoleJsonStr());
         //系统项目创建完成以后，就通知项目系统去初始化项目信息
         streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
     }

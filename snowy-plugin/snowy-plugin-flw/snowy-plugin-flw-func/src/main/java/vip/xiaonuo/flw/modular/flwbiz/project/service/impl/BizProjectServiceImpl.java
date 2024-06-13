@@ -91,6 +91,9 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getIsHead())){
             queryWrapper.lambda().eq(BizProject::getIsHead,bizProjectPageParam.getIsHead());
         }
+        if(ObjectUtil.isNotEmpty(bizProjectPageParam.getType())){
+            queryWrapper.lambda().eq(BizProject::getType,bizProjectPageParam.getType());
+        }
         //queryWrapper.lambda().eq(BizProject::getStatus,"1");
         queryWrapper.lambda().in(BizProject::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
 

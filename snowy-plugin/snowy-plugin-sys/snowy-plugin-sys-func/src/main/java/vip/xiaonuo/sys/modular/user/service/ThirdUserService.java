@@ -56,5 +56,5 @@ public interface ThirdUserService extends IService<SysUser> {
      */
     void putUserToEpc(SystemEpcParam systemEpcParam);
 
-    List<EpcRoleVo> getEpcRole();
+    List<EpcRoleVo> getEpcRole(String epcRoleData);
 }

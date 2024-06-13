@@ -74,4 +74,8 @@ public class BizProjectPageParam {
 
     private String isHead;
 
+    /** 项目类型 */
+    @ApiModelProperty(value = "项目类型")
+    private String type;
+
 }

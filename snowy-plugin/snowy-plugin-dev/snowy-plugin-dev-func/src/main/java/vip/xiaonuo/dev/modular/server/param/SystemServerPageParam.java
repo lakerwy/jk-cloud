@@ -60,4 +60,7 @@ public class SystemServerPageParam {
     @ApiModelProperty(value = "EPC单体服务部署状态")
     private Integer systemStatus;
 
+    /** 项目类型 */
+    @ApiModelProperty(value = "项目类型")
+    private String projectType;
 }
