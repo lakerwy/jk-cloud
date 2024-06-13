@@ -165,13 +165,13 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
             List<Map<String, String>> maps = sysUserApi.getAllPersonnel();
             List<BizJzscMohurdSyncParam.JzUser> users = new ArrayList<>();
             for (Map<String, String> map : maps) {
-                String idNumber = map.get("idNumber");
+                String idNumber = map.get("id_number");
                 if (StrUtil.isEmpty(idNumber)) {
                     continue;
                 }
                 BizJzscMohurdSyncParam.JzUser jzUser = new BizJzscMohurdSyncParam.JzUser();
                 jzUser.setName(map.get("name"));
-                jzUser.setIdNumber(map.get("idNumber"));
+                jzUser.setIdNumber(map.get("id_number"));
                 users.add(jzUser);
             }
             bizJzscMohurdSyncParam.setUsers(users);
