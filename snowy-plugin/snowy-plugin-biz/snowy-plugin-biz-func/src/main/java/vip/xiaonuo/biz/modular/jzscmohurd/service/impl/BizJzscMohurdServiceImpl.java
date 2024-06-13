@@ -197,6 +197,8 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
 
     @Override
     public Boolean syncStatus() {
-        return activeTaskCount.get()>1;
+        int i = activeTaskCount.get();
+        log.info("任务数量{}",i);
+        return i>1;
     }
 }
