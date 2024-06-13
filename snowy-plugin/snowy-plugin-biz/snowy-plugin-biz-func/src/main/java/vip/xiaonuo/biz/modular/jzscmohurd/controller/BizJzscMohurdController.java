@@ -134,4 +134,12 @@ public class BizJzscMohurdController {
         bizJzscMohurdService.sync(bizJzscMohurdSyncParam);
         return CommonResult.ok();
     }
+
+    @ApiOperationSupport(order = 5)
+    @ApiOperation("同步状态查询")
+//    @SaCheckPermission("/biz/jzscmohurd/detail")
+    @PostMapping("/biz/jzscmohurd/syncStatus")
+    public CommonResult<Boolean> syncStatus() {
+        return CommonResult.data(bizJzscMohurdService.syncStatus());
+    }
 }

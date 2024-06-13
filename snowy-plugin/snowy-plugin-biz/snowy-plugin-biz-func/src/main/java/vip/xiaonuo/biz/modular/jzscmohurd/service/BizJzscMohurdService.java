@@ -76,4 +76,6 @@ public interface BizJzscMohurdService extends IService<BizJzscMohurd> {
     BizJzscMohurd queryEntity(String id);
 
     void sync(BizJzscMohurdSyncParam bizJzscMohurdSyncParam);
+
+    Boolean syncStatus();
 }
