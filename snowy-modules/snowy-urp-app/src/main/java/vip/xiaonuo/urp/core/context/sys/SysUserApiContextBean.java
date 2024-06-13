@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import vip.xiaonuo.sys.api.SysUserApi;
 import vip.xiaonuo.sys.feign.SysUserFeign;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -201,6 +202,11 @@ public class SysUserApiContextBean implements SysUserApi {
     @Override
     public List<Map<String, String>> syncUserToIm() {
         return null;
+    }
+
+    @Override
+    public List<Map<String, String>> getAllPersonnel() {
+        return sysUserFeign.getAllPersonnel();
     }
 
 }

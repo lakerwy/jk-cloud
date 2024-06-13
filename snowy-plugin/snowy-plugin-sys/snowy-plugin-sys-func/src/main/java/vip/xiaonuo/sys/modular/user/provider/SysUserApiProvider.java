@@ -24,6 +24,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.sys.api.SysUserApi;
+import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
@@ -33,6 +34,7 @@ import vip.xiaonuo.sys.modular.user.param.SysUserSelectorUserParam;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -53,6 +55,9 @@ public class SysUserApiProvider implements SysUserApi {
 
     @Resource
     private SysOrgService sysOrgService;
+
+    @Resource
+    private PersonnelService personnelService;
 
     @Override
     public JSONObject getUserByIdWithoutException(String userId) {
@@ -244,6 +249,14 @@ public class SysUserApiProvider implements SysUserApi {
     @Override
     public List<Map<String, String>> syncUserToIm(){
         return sysUserService.getAllUsers();
+    }
+
+    @Override
+    public List<Map<String, String>> getAllPersonnel() {
+        List<Map<String, Object>> allUser = personnelService.getAllUser();
+        return  allUser.stream().map(map ->
+                map.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue() == null ? "" : entry.getValue().toString()))
+        ).collect(Collectors.toList());
     }
 
 }

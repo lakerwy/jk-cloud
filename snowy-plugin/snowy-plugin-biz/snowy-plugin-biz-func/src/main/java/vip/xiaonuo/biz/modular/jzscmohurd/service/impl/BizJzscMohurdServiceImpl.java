@@ -162,7 +162,7 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
         }
         bizJzscMohurdSyncParam.setWhiteList(whiteList);
         if (0 == bizJzscMohurdSyncParam.getType()) {
-            List<Map<String, String>> maps = sysUserApi.syncUserToIm();
+            List<Map<String, String>> maps = sysUserApi.getAllPersonnel();
             List<BizJzscMohurdSyncParam.JzUser> users = new ArrayList<>();
             for (Map<String, String> map : maps) {
                 String idNumber = map.get("idNumber");
