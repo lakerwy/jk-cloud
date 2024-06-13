@@ -146,9 +146,10 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
     }
     @Override
     public void sync(BizJzscMohurdSyncParam bizJzscMohurdSyncParam) {
-        if (activeTaskCount.get() > 1) {
+        if (activeTaskCount.get() > 0) {
             throw new CommonException("上次同步暂未结束，请稍后再试");
         }
+        activeTaskCount.incrementAndGet();
         String valueByKey = devConfigApi.getValueByKey(WHITE_KEY);
         if (StrUtil.isEmpty(valueByKey)) {
             throw new CommonException("未配置资质白名单");
@@ -182,10 +183,9 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
         }
 
         CompletableFuture.runAsync(() -> {
-            activeTaskCount.incrementAndGet();
             try {
                 String json = JSONUtil.toJsonStr(bizJzscMohurdSyncParam);
-                HttpResponse response = HttpUtil.createPost(pythonServiceUrl + "/webApi/dataservice/query").body(json).execute(true);
+                HttpResponse response = HttpUtil.createPost(pythonServiceUrl + "/webApi/dataservice/query").body(json).execute(false);
                 log.info("资质校验查询结果: {}", response.getStatus());
             } catch (Exception e) {
                 log.error("异步任务执行失败", e);
@@ -199,6 +199,6 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
     public Boolean syncStatus() {
         int i = activeTaskCount.get();
         log.info("任务数量{}",i);
-        return i>1;
+        return i>0;
     }
 }
