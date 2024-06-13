@@ -2,10 +2,7 @@ package vip.xiaonuo.im.modular.chat.service.impl;
 
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
-import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.db.DbUtil;
-import cn.hutool.db.sql.SqlExecutor;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import cn.wildfirechat.common.ErrorCode;
@@ -369,6 +366,19 @@ public class ImServiceImpl implements ImService {
         } catch (SQLException e) {
             throw new CommonException("Failed to execute SQL: " + e.getMessage());
         }
+    }
+
+    @Override
+    public PojoGroupInfos getPojoGroupInfosByUserId(String userId){
+        try {
+            IMResult<PojoGroupInfos> userGroupInfosResult = GroupAdmin.getUserGroupInfos(userId);
+            if(userGroupInfosResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS){
+                return userGroupInfosResult.getResult();
+            }
+        }catch (Exception e){
+            throw new CommonException("获取该用户的所有接口.");
+        }
+        return null;
     }
 
 }

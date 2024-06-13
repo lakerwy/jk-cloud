@@ -1,6 +1,7 @@
 package vip.xiaonuo.im.modular.chat.controller;
 
 import cn.wildfirechat.pojos.OutputGetUserList;
+import cn.wildfirechat.pojos.PojoGroupInfos;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -37,5 +38,14 @@ public class ImController {
     public CommonResult<OutputGetUserList> getAllUsers(@RequestParam(value = "current") Integer current ,@RequestParam(value = "size") Integer size) {
         OutputGetUserList allUsers = imService.getAllUsers(current, size);
         return CommonResult.data(allUsers);
+    }
+
+    @ApiOperationSupport(order =2)
+    @ApiOperation("获取用户所有群组")
+    @CommonLog("获取用户所有群组")
+    @GetMapping("/im/getPojoGroupInfos")
+    public CommonResult<PojoGroupInfos> getPojoGroupInfos(@RequestParam(value = "userId") String userId) {
+        PojoGroupInfos pojoGroupInfos= imService.getPojoGroupInfosByUserId(userId);
+        return CommonResult.data(pojoGroupInfos);
     }
 }
