@@ -21,6 +21,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -54,6 +55,7 @@ import java.util.concurrent.atomic.AtomicReference;
  **/
 @Service
 @Slf4j
+@DS("slave_1")
 public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, BizJzscMohurd> implements BizJzscMohurdService {
 
     @Value("${pythonService.url}")
