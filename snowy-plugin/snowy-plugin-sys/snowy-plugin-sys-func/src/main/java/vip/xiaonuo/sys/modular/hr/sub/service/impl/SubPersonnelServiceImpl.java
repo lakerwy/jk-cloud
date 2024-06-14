@@ -16,6 +16,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -62,6 +63,10 @@ import java.util.stream.Collectors;
 @Service
 public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, SubPersonnel> implements SubPersonnelService {
 
+    /**
+     * 不参保 范围
+     */
+    public static final String[] NOT_INS_UNIT_LIST = {"暂未参保","退休返聘不参保"};
     @Resource
     private CommonCacheOperator commonCacheOperator;
     @Resource
@@ -354,12 +359,14 @@ public class SubPersonnelServiceImpl extends ServiceImpl<SubPersonnelMapper, Sub
             result.add(tmpTotal);
         }
         //已缴纳社保
-        Map<String,List<SubPersonnel>> insLevelGroup = subPersonnelList.stream().filter(x->ObjectUtil.isNotEmpty(x.getInsUnit())).collect(Collectors.toList()).stream().collect(Collectors.groupingBy(x->x.getHighTitleLever()));
+        Map<String,List<SubPersonnel>> insLevelGroup = subPersonnelList.stream()
+                .filter(x->ObjectUtil.isNotEmpty(x.getInsUnit()) && !CollectionUtil.newArrayList(NOT_INS_UNIT_LIST).contains(x.getInsUnit()))
+                .collect(Collectors.toList()).stream().collect(Collectors.groupingBy(x->x.getHighTitleLever()));
         if(CollUtil.isNotEmpty(insLevelGroup)) {
             TitleTotalVo tmpTotal = new TitleTotalVo();
             tmpTotal.setType("已缴社保");
             Map<String,Integer> total = new HashMap<>();
-            for (Map.Entry<String, List<SubPersonnel>> entry : levelGroup.entrySet()) {
+            for (Map.Entry<String, List<SubPersonnel>> entry : insLevelGroup.entrySet()) {
                 total.put(entry.getKey(),entry.getValue().size());
             }
             tmpTotal.setTotal(total);
