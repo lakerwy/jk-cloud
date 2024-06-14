@@ -22,6 +22,7 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -30,6 +31,7 @@ import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
@@ -44,6 +46,7 @@ import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
+import vip.xiaonuo.dev.modular.userRelation.vo.JlRoleVo;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -80,9 +83,6 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         }
         if(ObjectUtil.isNotEmpty(systemServerPageParam.getSystemStatus())) {
             queryWrapper.lambda().eq(SystemServer::getSystemStatus, systemServerPageParam.getSystemStatus());
-        }
-        if(ObjectUtil.isNotEmpty(systemServerPageParam.getProjectType())) {
-            queryWrapper.lambda().eq(SystemServer::getProjectType, systemServerPageParam.getProjectType());
         }
         if(ObjectUtil.isNotEmpty(systemServerPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(SystemServer::getSystemName,systemServerPageParam.getSearchKey())
@@ -133,9 +133,14 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         extMessage.setId(IdWorker.getIdStr());
         extMessage.setOperateType(1);
         extMessage.setData(JSONUtil.toJsonStr(systemServer));
-        extMessage.setRoleJsonStr(systemServerAddParam.getRoleJsonStr());
+        List<JlRoleVo> jlRoleVos = BeanUtil.copyToList((Collection<?>) JSONUtil.parseObj(systemServerAddParam.getRoleJsonStr()), JlRoleVo.class);
+        extMessage.setRoleJsonStr(JSONUtil.toJsonStr(jlRoleVos.get(0)));
         //系统项目创建完成以后，就通知项目系统去初始化项目信息
-        streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
+        boolean bo = streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL, extMessage);
+        //初始化项目成功，则修改项目的状态
+        if(bo){
+            this.update(new UpdateWrapper<SystemServer>().lambda().set(SystemServer::getSystemStatus,1).eq(SystemServer::getId,systemServer.getId()));
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)

@@ -223,6 +223,9 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
         if(ObjectUtil.isNotEmpty(systemUserRelationPageParam.getSearchKey())){
             queryWrapper.like("a.SYSTEM_NAME",systemUserRelationPageParam.getSearchKey());
         }
+        if(ObjectUtil.isNotEmpty(systemUserRelationPageParam.getSystemType())){
+            queryWrapper.like("a.SYSTEM_TYPE",systemUserRelationPageParam.getSystemType());
+        }
         return baseMapper.myServer(CommonPageRequest.defaultPage(),queryWrapper);
     }
 
