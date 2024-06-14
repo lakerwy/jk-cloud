@@ -48,4 +48,7 @@ public class SystemUserRelationPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 系统类别 */
+    @ApiModelProperty(value = "系统类别")
+    private String systemType;
 }

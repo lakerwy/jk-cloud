@@ -226,7 +226,6 @@ public class ThirdUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> im
     @Override
     public List<EpcRoleVo> getEpcRole(String epcRoleData){
         List<EpcRoleVo>  epcRoleVoList = new ArrayList<>();
-        //String epcRoleJson = devConfigService.getValueByKey(InitConfConstant.EPC_CONFIG_ROLE_DATA);
         String epcRoleJson = devConfigService.getValueByKey(epcRoleData);
         try{
             if(StringUtils.isNotEmpty(epcRoleJson)){
