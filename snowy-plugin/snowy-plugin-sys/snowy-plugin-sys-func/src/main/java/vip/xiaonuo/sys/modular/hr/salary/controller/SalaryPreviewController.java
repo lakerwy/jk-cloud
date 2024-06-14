@@ -30,14 +30,12 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPreviewService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
 import java.util.List;
@@ -224,5 +222,19 @@ public class SalaryPreviewController {
     public CommonResult<String> updateIsSlow(@RequestBody @Valid UpdateBatch updateBatch) {
         salaryPreviewService.updateIsSlow(updateBatch);
         return CommonResult.ok();
+    }
+
+    /**
+     * 【工资预览】按照 工资所属年月 导出工资报表 - 打印版
+     *
+     * @author yong.ye
+     * @date  2024/06/06 10:26
+     */
+    @ApiOperationSupport(order = 25)
+    @ApiOperation("【工资预览】按照 工资所属年月 导出工资报表 - 打印版")
+    @CommonLog("【工资预览】按照 工资所属年月 导出工资报表 - 打印版")
+    @GetMapping("/sys/hr/salary/preview/gzExport")
+    public void gzExport(@Valid ExcelParam excelParam, HttpServletResponse response) {
+        salaryPreviewService.gzExport(excelParam,response);
     }
 }

@@ -20,12 +20,10 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryPreviewVo;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -123,4 +121,11 @@ public interface SalaryPreviewService extends IService<SalaryPreview> {
      * @param updateBatch
      */
     void updateIsSlow(UpdateBatch updateBatch);
+
+    /**
+     * 按照 工资所属年月 导出工资报表 - 打印版
+     * @param excelParam
+     * @param response
+     */
+    void gzExport(ExcelParam excelParam, HttpServletResponse response);
 }

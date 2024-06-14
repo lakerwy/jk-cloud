@@ -36,17 +36,16 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryPreviewPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.AutoParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateBatch;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.UpdateFieldParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryPreviewService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
+import vip.xiaonuo.sys.modular.hr.salary.util.ExportUtil;
 import vip.xiaonuo.sys.modular.hr.salary.vo.*;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -260,6 +259,26 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
             List<SalaryPreview> salaryPreviewList = this.list(new QueryWrapper<SalaryPreview>().lambda().in(SalaryPreview::getId,updateBatch.getIds()));
             salaryPreviewList.forEach(x->x.setIsSlow(updateBatch.getIsSlow()));
             this.updateBatchById(salaryPreviewList);
+        }
+    }
+
+    @Override
+    public void gzExport(ExcelParam excelParam, HttpServletResponse response) {
+        //0. 获取导出数据
+        List<SalaryPreview> salaryPreviewList = this.list(new QueryWrapper<SalaryPreview>().lambda().eq(SalaryPreview::getYearMonth,excelParam.getYearMonth()));
+        if(CollUtil.isEmpty(salaryPreviewList)){
+            throw new CommonException("无有效数据需要导出");
+        }
+        //数据处理
+        List<SalaryPreview> dataSource = AesUtil.decryptGZList(salaryPreviewList);
+        dataSource.sort(Comparator.comparing(SalaryPreview::getCompany)
+                .thenComparing(SalaryPreview::getOrgName,Comparator.nullsLast(Comparator.naturalOrder())));
+        List<GzExportResult> data = BeanUtil.copyToList(dataSource,GzExportResult.class);
+        //打印模式
+        if("1".equals(excelParam.getReportType())){
+            ExportUtil.genGzExcelOne(data,excelParam.getYearMonth(),response);
+        } else if ("2".equals(excelParam.getReportType())) {
+            ExportUtil.genGzExcelTwo(data,excelParam.getYearMonth(),response);
         }
     }
 
