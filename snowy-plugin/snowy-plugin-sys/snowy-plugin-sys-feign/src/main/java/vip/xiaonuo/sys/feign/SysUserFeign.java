@@ -132,4 +132,7 @@ public interface SysUserFeign {
     @RequestMapping("/feign/sys/user/syncUserToIm")
     List<Map<String, String>> syncUserToIm();
 
+
+    @RequestMapping("/feign/sys/user/getAllPersonnel")
+    List<Map<String, String>> getAllPersonnel();
 }

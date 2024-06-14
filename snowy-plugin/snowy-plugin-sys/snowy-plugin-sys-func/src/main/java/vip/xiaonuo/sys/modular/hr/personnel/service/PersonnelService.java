@@ -99,4 +99,6 @@ public interface PersonnelService extends IService<Personnel> {
     List<PersonnelInfo> infoList(PersonnelParam personnelParam);
 
     void syncResource(PersonnelSimpleParam personnelSimpleParam);
+
+    List<Map<String, Object>> getAllUser();
 }

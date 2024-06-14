@@ -23,6 +23,7 @@ import vip.xiaonuo.sys.feign.SysUserFeign;
 import vip.xiaonuo.sys.modular.user.provider.SysUserApiProvider;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -191,5 +192,10 @@ public class SysUserFeignProvider implements SysUserFeign {
     @RequestMapping("/feign/sys/user/syncUserToIm")
     public List<Map<String, String>> syncUserToIm() {
         return sysUserApiProvider.syncUserToIm();
+    }
+
+    @Override
+    public List<Map<String, String>> getAllPersonnel() {
+        return sysUserApiProvider.getAllPersonnel();
     }
 }

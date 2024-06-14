@@ -600,4 +600,11 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         Personnel bean = BeanUtil.toBean(personnelSimpleParam, Personnel.class);
         update(bean,new UpdateWrapper<Personnel>().eq("USER_ID",personnelSimpleParam.getUserId()));
     }
+
+    @Override
+    public List<Map<String, Object>> getAllUser(){
+        return this.listMaps(new LambdaQueryWrapper<Personnel>().select(Personnel::getIdNumber, Personnel::getName)
+                .eq(Personnel::getStatus,"0")
+        );
+    }
 }

@@ -115,4 +115,6 @@ public interface SysUserApi {
     Page<JSONObject> userSelector(String orgId, String searchKey);
 
     List<Map<String, String>> syncUserToIm();
+
+    List<Map<String, String>> getAllPersonnel();
 }
