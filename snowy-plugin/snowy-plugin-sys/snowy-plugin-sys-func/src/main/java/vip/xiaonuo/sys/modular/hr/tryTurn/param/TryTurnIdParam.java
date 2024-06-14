@@ -22,7 +22,7 @@ import javax.validation.constraints.NotBlank;
  * HR - 试用期转正考核Id参数
  *
  * @author yong.ye
- * @date  2024/06/12 10:14
+ * @date  2024/06/14 08:39
  **/
 @Getter
 @Setter

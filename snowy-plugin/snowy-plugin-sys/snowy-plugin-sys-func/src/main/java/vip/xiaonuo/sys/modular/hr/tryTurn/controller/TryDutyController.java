@@ -32,6 +32,7 @@ import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyEditParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyIdParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyPageParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.service.TryDutyService;
+import vip.xiaonuo.sys.modular.hr.tryTurn.vo.TryDutyVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -62,7 +63,7 @@ public class TryDutyController {
     @ApiOperation("获取HR - 试用期考核责任分页")
 //    @SaCheckPermission("/sys/tryDuty/page")
     @GetMapping("/sys/tryDuty/page")
-    public CommonResult<Page<TryDuty>> page(TryDutyPageParam tryDutyPageParam) {
+    public CommonResult<Page<TryDutyVo>> page(TryDutyPageParam tryDutyPageParam) {
         return CommonResult.data(tryDutyService.page(tryDutyPageParam));
     }
 
@@ -125,7 +126,7 @@ public class TryDutyController {
     @ApiOperation("获取HR - 试用期考核责任详情")
 //    @SaCheckPermission("/sys/tryDuty/detail")
     @GetMapping("/sys/tryDuty/detail")
-    public CommonResult<TryDuty> detail(@Valid TryDutyIdParam tryDutyIdParam) {
+    public CommonResult<TryDutyVo> detail(@Valid TryDutyIdParam tryDutyIdParam) {
         return CommonResult.data(tryDutyService.detail(tryDutyIdParam));
     }
 }

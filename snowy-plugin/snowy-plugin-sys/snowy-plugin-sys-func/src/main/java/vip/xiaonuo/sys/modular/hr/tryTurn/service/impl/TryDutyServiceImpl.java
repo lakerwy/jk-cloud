@@ -40,6 +40,7 @@ import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyEditParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyIdParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyPageParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.service.TryDutyService;
+import vip.xiaonuo.sys.modular.hr.tryTurn.vo.TryDutyVo;
 
 import javax.annotation.Resource;
 import java.util.List;
@@ -55,53 +56,58 @@ public class TryDutyServiceImpl extends ServiceImpl<TryDutyMapper, TryDuty> impl
 
     @Resource
     private CommonCacheOperator commonCacheOperator;
+    @Resource
+    private TryDutyMapper tryDutyMapper;
 
     @Override
-    public Page<TryDuty> page(TryDutyPageParam tryDutyPageParam) {
+    public Page<TryDutyVo> page(TryDutyPageParam tryDutyPageParam) {
         QueryWrapper<TryDuty> queryWrapper = new QueryWrapper<>();
-        queryWrapper.lambda().in(TryDuty::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        queryWrapper.in("a.STATUS",FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(tryDutyPageParam.getApplyType())){
+            queryWrapper.eq("a.APPLY_TYPE",tryDutyPageParam.getApplyType());
+        }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getName())) {
-            queryWrapper.lambda().like(TryDuty::getName, tryDutyPageParam.getName());
+            queryWrapper.like("b.NAME", tryDutyPageParam.getName());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getIdNumber())) {
-            queryWrapper.lambda().like(TryDuty::getIdNumber, tryDutyPageParam.getIdNumber());
+            queryWrapper.like("b.ID_NUMBER", tryDutyPageParam.getIdNumber());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getDept())) {
-            queryWrapper.lambda().like(TryDuty::getDept, tryDutyPageParam.getDept());
+            queryWrapper.like("b.DEPT", tryDutyPageParam.getDept());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getDuty())) {
-            queryWrapper.lambda().like(TryDuty::getDuty, tryDutyPageParam.getDuty());
+            queryWrapper.like("b.DUTY", tryDutyPageParam.getDuty());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getStartHireDate()) && ObjectUtil.isNotEmpty(tryDutyPageParam.getEndHireDate())) {
-            queryWrapper.lambda().between(TryDuty::getHireDate, tryDutyPageParam.getStartHireDate(), tryDutyPageParam.getEndHireDate());
+            queryWrapper.between("b.HIRE_DATE", tryDutyPageParam.getStartHireDate(), tryDutyPageParam.getEndHireDate());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getStartPositiveTime()) && ObjectUtil.isNotEmpty(tryDutyPageParam.getEndPositiveTime())) {
-            queryWrapper.lambda().between(TryDuty::getPositiveTime, tryDutyPageParam.getStartPositiveTime(), tryDutyPageParam.getEndPositiveTime());
+            queryWrapper.between("b.POSITIVE_TIME", tryDutyPageParam.getStartPositiveTime(), tryDutyPageParam.getEndPositiveTime());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getContractUnit())) {
-            queryWrapper.lambda().like(TryDuty::getContractUnit, tryDutyPageParam.getContractUnit());
+            queryWrapper.like("b.CONTRACT_UNIT", tryDutyPageParam.getContractUnit());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getSn())) {
-            queryWrapper.lambda().like(TryDuty::getSn, tryDutyPageParam.getSn());
+            queryWrapper.like("a.SN", tryDutyPageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getStatus())) {
-            queryWrapper.lambda().eq(TryDuty::getStatus, tryDutyPageParam.getStatus());
+            queryWrapper.eq("a.STATUS", tryDutyPageParam.getStatus());
         }
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getSearchKey())){
-            queryWrapper.lambda().and(q->q.like(TryDuty::getSn,tryDutyPageParam.getSearchKey())
-                    .or().like(TryDuty::getName,tryDutyPageParam.getSearchKey())
-                    .or().like(TryDuty::getIdNumber,tryDutyPageParam.getSearchKey())
-                    .or().like(TryDuty::getDept,tryDutyPageParam.getSearchKey())
-                    .or().like(TryDuty::getContractUnit,tryDutyPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("a.SN",tryDutyPageParam.getSearchKey())
+                    .or().like("b.NAME",tryDutyPageParam.getSearchKey())
+                    .or().like("b.ID_NUMBER",tryDutyPageParam.getSearchKey())
+                    .or().like("b.DEPT",tryDutyPageParam.getSearchKey())
+                    .or().like("b.CONTRACT_UNIT",tryDutyPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(tryDutyPageParam.getSortField(), tryDutyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(tryDutyPageParam.getSortOrder());
             queryWrapper.orderBy(true, tryDutyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(tryDutyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(TryDuty::getSn);
+            queryWrapper.orderByDesc("a.SN");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        return tryDutyMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -155,8 +161,8 @@ public class TryDutyServiceImpl extends ServiceImpl<TryDutyMapper, TryDuty> impl
     }
 
     @Override
-    public TryDuty detail(TryDutyIdParam tryDutyIdParam) {
-        return this.queryEntity(tryDutyIdParam.getId());
+    public TryDutyVo detail(TryDutyIdParam tryDutyIdParam) {
+        return tryDutyMapper.getDetail(tryDutyIdParam.getId());
     }
 
     @Override

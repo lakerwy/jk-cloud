@@ -45,17 +45,16 @@ public class TryTurnMsgTaskRunner implements CommonTimerTaskRunner {
     public void action() {
         try {
             /* 查询15天后转正的人员 */
-            String sql = "SELECT `NAME`,SN,ID_NUMBER FROM HR_TRY_DUTY WHERE DELETE_FLAG='NOT_DELETE' AND `STATUS`='1' AND DATEDIFF(POSITIVE_TIME,NOW()) = 15";
+            String sql = "SELECT b.`NAME`,a.SN FROM HR_TRY_DUTY a JOIN PERSONNEL b ON a.PERSONNEL_ID=b.ID WHERE a.DELETE_FLAG='NOT_DELETE' AND a.`STATUS`='1' AND b.POSITIVE_TIME IS NOT NULL AND DATEDIFF(b.POSITIVE_TIME,NOW()) = 15";
             log.info("15天后转正人员查询----"+sql);
             List<Map<String, Object>> mapList = CommonHandleUtil.handleSqlQuery2(sql, Boolean.TRUE);
-            List<String> nameList = new ArrayList<>();
             if(CollUtil.isNotEmpty(mapList)){
-                nameList = mapList.stream().map(result -> result.get("NAME").toString()).collect(Collectors.toList());
+                List<String> nameList = mapList.stream().map(result -> result.get("NAME").toString()).collect(Collectors.toList());
+                //拼接消息体
+                String msg = "【转正提醒】"+StrUtil.join("，",nameList);
+                dingDingService.asyncsendV2(msg,sendMsgPhone);
+                log.info("试用期人员转正前通知提醒......"+msg);
             }
-            //拼接消息体
-            String msg = "【转正提醒】"+StrUtil.join("，",nameList);
-            dingDingService.asyncsendV2(msg,sendMsgPhone);
-            log.info("试用期人员转正前通知提醒......");
         }catch (Exception e){
             log.error("试用期人员转正前通知提醒......"+e.getMessage());
         }

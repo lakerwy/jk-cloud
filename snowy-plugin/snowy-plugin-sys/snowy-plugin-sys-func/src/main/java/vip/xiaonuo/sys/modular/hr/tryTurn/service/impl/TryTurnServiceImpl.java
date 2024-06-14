@@ -66,29 +66,36 @@ public class TryTurnServiceImpl extends ServiceImpl<TryTurnMapper, TryTurn> impl
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getType())) {
             queryWrapper.eq("a.TYPE", tryTurnPageParam.getType());
         }
+        if(ObjectUtil.isNotEmpty(tryTurnPageParam.getApplyType())){
+            queryWrapper.eq("b.APPLY_TYPE",tryTurnPageParam.getApplyType());
+        }
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getDutySn())){
             queryWrapper.like("b.SN", tryTurnPageParam.getDutySn());
         }
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getName())) {
-            queryWrapper.like("b.NAME", tryTurnPageParam.getName());
+            queryWrapper.like("c.NAME", tryTurnPageParam.getName());
         }
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getIdNumber())) {
-            queryWrapper.like("b.ID_NUMBER", tryTurnPageParam.getIdNumber());
+            queryWrapper.like("c.ID_NUMBER", tryTurnPageParam.getIdNumber());
         }
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getDept())) {
-            queryWrapper.like("b.DEPT", tryTurnPageParam.getDept());
+            queryWrapper.like("c.DEPT", tryTurnPageParam.getDept());
         }
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getDuty())) {
-            queryWrapper.like("b.DUTY", tryTurnPageParam.getDuty());
-        }
-        if(ObjectUtil.isNotEmpty(tryTurnPageParam.getKhResult())) {
-            queryWrapper.like("a.KH_RESULT", tryTurnPageParam.getKhResult());
+            queryWrapper.like("c.DUTY", tryTurnPageParam.getDuty());
         }
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getSn())) {
             queryWrapper.like("a.SN", tryTurnPageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getStatus())) {
             queryWrapper.eq("a.STATUS", tryTurnPageParam.getStatus());
+        }
+        if(ObjectUtil.isNotEmpty(tryTurnPageParam.getSearchKey())){
+            queryWrapper.and(q->q.like("a.SN",tryTurnPageParam.getSearchKey())
+                    .or().like("c.NAME",tryTurnPageParam.getSearchKey())
+                    .or().like("c.ID_NUMBER",tryTurnPageParam.getSearchKey())
+                    .or().like("c.DEPT",tryTurnPageParam.getSearchKey())
+                    .or().like("c.CONTRACT_UNIT",tryTurnPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(tryTurnPageParam.getSortField(), tryTurnPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(tryTurnPageParam.getSortOrder());

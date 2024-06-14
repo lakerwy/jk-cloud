@@ -19,6 +19,7 @@ import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyAddParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyEditParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyIdParam;
 import vip.xiaonuo.sys.modular.hr.tryTurn.param.TryDutyPageParam;
+import vip.xiaonuo.sys.modular.hr.tryTurn.vo.TryDutyVo;
 
 import java.util.List;
 
@@ -36,7 +37,7 @@ public interface TryDutyService extends IService<TryDuty> {
      * @author yong.ye
      * @date  2024/06/12 10:13
      */
-    Page<TryDuty> page(TryDutyPageParam tryDutyPageParam);
+    Page<TryDutyVo> page(TryDutyPageParam tryDutyPageParam);
 
     /**
      * 添加HR - 试用期考核责任
@@ -68,7 +69,7 @@ public interface TryDutyService extends IService<TryDuty> {
      * @author yong.ye
      * @date  2024/06/12 10:13
      */
-    TryDuty detail(TryDutyIdParam tryDutyIdParam);
+    TryDutyVo detail(TryDutyIdParam tryDutyIdParam);
 
     /**
      * 获取HR - 试用期考核责任详情

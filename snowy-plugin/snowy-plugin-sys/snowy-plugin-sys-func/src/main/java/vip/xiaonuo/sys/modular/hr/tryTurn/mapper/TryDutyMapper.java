@@ -12,8 +12,13 @@
  */
 package vip.xiaonuo.sys.modular.hr.tryTurn.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.tryTurn.entity.TryDuty;
+import vip.xiaonuo.sys.modular.hr.tryTurn.vo.TryDutyVo;
 
 /**
  * HR - 试用期考核责任Mapper接口
@@ -22,4 +27,18 @@ import vip.xiaonuo.sys.modular.hr.tryTurn.entity.TryDuty;
  * @date  2024/06/12 10:13
  **/
 public interface TryDutyMapper extends BaseMapper<TryDuty> {
+    /**
+     * 获取分页信息 - 联表信息
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<TryDutyVo> getPageList(Page<TryDutyVo> page, @Param(Constants.WRAPPER) Wrapper<TryDuty> queryWrapper);
+
+    /**
+     * 根据Id获取详情
+     * @param id
+     * @return
+     */
+    TryDutyVo getDetail(String id);
 }

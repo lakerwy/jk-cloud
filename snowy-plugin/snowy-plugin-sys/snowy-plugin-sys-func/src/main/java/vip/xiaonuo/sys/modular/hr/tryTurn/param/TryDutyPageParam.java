@@ -22,7 +22,7 @@ import java.util.Date;
  * HR - 试用期考核责任查询参数
  *
  * @author yong.ye
- * @date  2024/06/12 10:13
+ * @date  2024/06/14 08:38
  **/
 @Getter
 @Setter
@@ -47,6 +47,18 @@ public class TryDutyPageParam {
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
+
+    /** 申请人类型：职员|部门负责人 */
+    @ApiModelProperty(value = "申请人类型：职员|部门负责人")
+    private String applyType;
+
+    /** SN */
+    @ApiModelProperty(value = "SN")
+    private String sn;
+
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态")
+    private String status;
 
     /** 姓名 */
     @ApiModelProperty(value = "姓名")
@@ -83,13 +95,4 @@ public class TryDutyPageParam {
     /** 签约单位 */
     @ApiModelProperty(value = "签约单位")
     private String contractUnit;
-
-    /** SN */
-    @ApiModelProperty(value = "SN")
-    private String sn;
-
-    /** 流程状态 */
-    @ApiModelProperty(value = "流程状态")
-    private String status;
-
 }

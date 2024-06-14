@@ -15,12 +15,14 @@ package vip.xiaonuo.sys.modular.hr.tryTurn.param;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
  * HR - 试用期转正考核查询参数
  *
  * @author yong.ye
- * @date  2024/06/12 10:14
+ * @date  2024/06/14 08:39
  **/
 @Getter
 @Setter
@@ -50,13 +52,13 @@ public class TryTurnPageParam {
     @ApiModelProperty(value = "考核类型")
     private String type;
 
-    /** 试用期部门转正意见-考核判定结果 */
-    @ApiModelProperty(value = "试用期部门转正意见-考核判定结果")
-    private String khResult;
-
     /** SN */
     @ApiModelProperty(value = "SN")
     private String sn;
+
+    /** 试用期考核责任 - SN */
+    @ApiModelProperty(value = "试用期考核责任 - SN")
+    private String dutySn;
 
     /** 流程状态 */
     @ApiModelProperty(value = "流程状态")
@@ -78,7 +80,23 @@ public class TryTurnPageParam {
     @ApiModelProperty(value = "职务")
     private String duty;
 
-    /** 考核目标责任流程- SN */
-    @ApiModelProperty(value = "考核目标责任流程- SN")
-    private String dutySn;
+    /** 入职时间开始 */
+    @ApiModelProperty(value = "入职时间开始")
+    private String startHireDate;
+
+    /** 入职时间结束 */
+    @ApiModelProperty(value = "入职时间结束")
+    private String endHireDate;
+
+    /** 转正时间开始 */
+    @ApiModelProperty(value = "转正时间开始")
+    private String startPositiveTime;
+
+    /** 转正时间结束 */
+    @ApiModelProperty(value = "转正时间结束")
+    private String endPositiveTime;
+
+    /** 申请人类型：职员|部门负责人 */
+    @ApiModelProperty(value = "申请人类型：职员|部门负责人")
+    private String applyType;
 }

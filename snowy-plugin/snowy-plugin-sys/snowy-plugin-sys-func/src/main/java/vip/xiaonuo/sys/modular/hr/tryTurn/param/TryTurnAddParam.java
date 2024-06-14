@@ -16,11 +16,16 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
+import java.math.BigDecimal;
+import java.util.Date;
+
 /**
  * HR - 试用期转正考核添加参数
  *
  * @author yong.ye
- * @date  2024/06/12 10:14
+ * @date  2024/06/14 08:39
  **/
 @Getter
 @Setter
@@ -30,80 +35,108 @@ public class TryTurnAddParam {
     @ApiModelProperty(value = "HR - 试用期考核责任 - 主键Id", position = 2)
     private String hrTryDutyId;
 
+    /** 毕业时间 */
+    @ApiModelProperty(value = "毕业时间", position = 4)
+    private String graduateDate;
+
+    /** 最高职称 */
+    @ApiModelProperty(value = "最高职称", position = 5)
+    private String highTitleLever;
+
     /** 考核类型 */
     @ApiModelProperty(value = "考核类型", position = 3)
     private String type;
 
-    /** 试用期考核目标完成情况-附件 */
-    @ApiModelProperty(value = "试用期考核目标完成情况-附件", position = 4)
-    private String finishAttach;
+    /** 注册证书 */
+    @ApiModelProperty(value = "注册证书", position = 6)
+    private String certNo;
 
-    /** 试用期部门考核评分-JSON */
-    @ApiModelProperty(value = "试用期部门考核评分-JSON", position = 5)
-    private String evaluateJson;
+    /** 审核人ID */
+    @ApiModelProperty(value = "审核人ID", position = 7)
+    private String auditorId;
 
-    /** 试用期部门考核评分-考核得分 */
-    @ApiModelProperty(value = "试用期部门考核评分-考核得分", position = 6)
-    private String khScore;
+    /** 审核人 */
+    @ApiModelProperty(value = "审核人", position = 8)
+    private String auditor;
 
-    /** 试用期部门考核评分-百分制折算的分数 */
-    @ApiModelProperty(value = "试用期部门考核评分-百分制折算的分数", position = 7)
-    private String zsScore;
+    /** 试用期目标责任得分（40%） */
+    @ApiModelProperty(value = "试用期目标责任得分（40%）", position = 9)
+    private String pointScoreJson;
+
+    /** 综合素质得分（占60%） */
+    @ApiModelProperty(value = "综合素质得分（占60%）", position = 10)
+    private String zhszScoreJson;
+
+    /** 试用期部门考核评分-试用期责任得分（占40%） */
+    @ApiModelProperty(value = "试用期部门考核评分-试用期责任得分（占40%）", position = 11)
+    private String syzrScore;
+
+    /** 试用期部门考核评分-综合素质得分（占60%） */
+    @ApiModelProperty(value = "试用期部门考核评分-综合素质得分（占60%）", position = 12)
+    private String zhszScore;
+
+    /** 试用期部门考核评分-总分 */
+    @ApiModelProperty(value = "试用期部门考核评分-总分", position = 13)
+    private String totalScore;
 
     /** 试用期部门转正意见-优点 */
-    @ApiModelProperty(value = "试用期部门转正意见-优点", position = 8)
+    @ApiModelProperty(value = "试用期部门转正意见-优点", position = 14)
     private String advantage;
 
     /** 试用期部门转正意见-不足 */
-    @ApiModelProperty(value = "试用期部门转正意见-不足", position = 9)
+    @ApiModelProperty(value = "试用期部门转正意见-不足", position = 15)
     private String insufficient;
 
     /** 试用期部门转正意见-工作改进建议 */
-    @ApiModelProperty(value = "试用期部门转正意见-工作改进建议", position = 10)
+    @ApiModelProperty(value = "试用期部门转正意见-工作改进建议", position = 16)
     private String workSuggestion;
 
     /** 试用期部门转正意见-考核判定结果 */
-    @ApiModelProperty(value = "试用期部门转正意见-考核判定结果", position = 11)
+    @ApiModelProperty(value = "试用期部门转正意见-考核判定结果", position = 17)
     private String khResult;
 
     /** 人力资源中心意见-意见内容 */
-    @ApiModelProperty(value = "人力资源中心意见-意见内容", position = 12)
+    @ApiModelProperty(value = "人力资源中心意见-意见内容", position = 18)
     private String content;
 
     /** 人力资源中心意见-试用期薪资 */
-    @ApiModelProperty(value = "人力资源中心意见-试用期薪资", position = 13)
+    @ApiModelProperty(value = "人力资源中心意见-试用期薪资", position = 19)
     private String tryPay;
 
     /** 人力资源中心意见-转正后薪资 */
-    @ApiModelProperty(value = "人力资源中心意见-转正后薪资", position = 14)
+    @ApiModelProperty(value = "人力资源中心意见-转正后薪资", position = 20)
     private String turnPay;
 
     /** 人力资源中心意见-试用期职级 */
-    @ApiModelProperty(value = "人力资源中心意见-试用期职级", position = 15)
+    @ApiModelProperty(value = "人力资源中心意见-试用期职级", position = 21)
     private String tryLevel;
 
     /** 人力资源中心意见-试用期职级 */
-    @ApiModelProperty(value = "人力资源中心意见-试用期职级", position = 16)
+    @ApiModelProperty(value = "人力资源中心意见-试用期职级", position = 22)
     private String turnLevel;
 
+    /** 人力资源中心意见-试用期转正考察审批附件 */
+    @ApiModelProperty(value = "人力资源中心意见-试用期转正考察审批附件", position = 23)
+    private String khspAttach;
+
     /** 人力资源中心意见-备注 */
-    @ApiModelProperty(value = "人力资源中心意见-备注", position = 17)
+    @ApiModelProperty(value = "人力资源中心意见-备注", position = 24)
     private String memo;
 
     /** SN */
-    @ApiModelProperty(value = "SN", position = 25)
+    @ApiModelProperty(value = "SN", position = 32)
     private String sn;
 
     /** 模型Id */
-    @ApiModelProperty(value = "模型Id", position = 26)
+    @ApiModelProperty(value = "模型Id", position = 33)
     private String modelId;
 
     /** 流程实例Id */
-    @ApiModelProperty(value = "流程实例Id", position = 27)
+    @ApiModelProperty(value = "流程实例Id", position = 34)
     private String processInstanceId;
 
     /** 流程状态 */
-    @ApiModelProperty(value = "流程状态", position = 28)
+    @ApiModelProperty(value = "流程状态", position = 35)
     private String status;
 
 }

@@ -4,23 +4,27 @@
 
     <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.tryTurn.vo.TryTurnVo">
         SELECT a.*,
-               b.NAME as name,b.ID_NUMBER as idNumber,b.DEPT as dept,b.DUTY as duty,
-               b.HIRE_DATE as hireDate,b.POSITIVE_TIME as positiveTime,b.TRIAL_PERIOD as trialPeriod,
-               b.CONTRACT_UNIT as contractUnit,
-               b.SN as dutySn,b.PROCESS_INSTANCE_ID as dutyProcessInstanceId
+               c.NAME as name,c.ID_NUMBER as idNumber,c.DEPT as dept,c.DUTY as duty,
+               c.HIRE_DATE as hireDate,c.POSITIVE_TIME as positiveTime,c.TRIAL_PERIOD as trialPeriod,
+               c.CONTRACT_UNIT as contractUnit,c.HIGHEST_EDUCATION as highestEducation,
+               c.GRADUATE_SCHOOL as graduateSchool,c.MAJOR as major,
+               b.SN as dutySn,b.PROCESS_INSTANCE_ID as dutyProcessInstanceId,b.APPLY_TYPE as applyType
         FROM HR_TRY_TURN a
             left join HR_TRY_DUTY b on a.HR_TRY_DUTY_ID = b.ID
+            left join PERSONNEL c on b.PERSONNEL_ID = c.ID
         ${ew.customSqlSegment}
     </select>
 
     <select id="getDetail" resultType="vip.xiaonuo.sys.modular.hr.tryTurn.vo.TryTurnVo">
         SELECT a.*,
-               b.NAME as name,b.ID_NUMBER as idNumber,b.DEPT as dept,b.DUTY as duty,
-               b.HIRE_DATE as hireDate,b.POSITIVE_TIME as positiveTime,b.TRIAL_PERIOD as trialPeriod,
-               b.CONTRACT_UNIT as contractUnit,
-               b.SN as dutySn,b.PROCESS_INSTANCE_ID as dutyProcessInstanceId
+               c.NAME as name,c.ID_NUMBER as idNumber,c.DEPT as dept,c.DUTY as duty,
+               c.HIRE_DATE as hireDate,c.POSITIVE_TIME as positiveTime,c.TRIAL_PERIOD as trialPeriod,
+               c.CONTRACT_UNIT as contractUnit,c.HIGHEST_EDUCATION as highestEducation,
+               c.GRADUATE_SCHOOL as graduateSchool,c.MAJOR as major,
+               b.SN as dutySn,b.PROCESS_INSTANCE_ID as dutyProcessInstanceId,b.APPLY_TYPE as applyType
         FROM HR_TRY_TURN a
                  left join HR_TRY_DUTY b on a.HR_TRY_DUTY_ID = b.ID
+                 left join PERSONNEL c on b.PERSONNEL_ID = c.ID
         where a.ID = #{id}
     </select>
 
