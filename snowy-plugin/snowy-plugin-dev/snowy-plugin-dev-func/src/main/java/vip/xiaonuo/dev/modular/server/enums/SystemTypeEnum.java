@@ -14,8 +14,8 @@ public enum SystemTypeEnum {
     SUPERV("superv","SUPERV_CONFIG_ROLE_DATA")
     ;
 
-    private String typeName; //子系统名称
-    private String typeConfigValue;  //子系统配置名称
+    private final String typeName; //子系统名称
+    private final String typeConfigValue;  //子系统配置名称
 
     SystemTypeEnum(String typeName, String typeConfigValue) {
         this.typeName = typeName;
