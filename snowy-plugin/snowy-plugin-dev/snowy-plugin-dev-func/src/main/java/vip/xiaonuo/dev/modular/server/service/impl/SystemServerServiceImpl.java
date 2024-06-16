@@ -19,9 +19,11 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSONArray;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -36,15 +38,18 @@ import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.epcCenter.entity.SysProject;
 import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
 import vip.xiaonuo.dev.modular.server.entity.ExtMessage;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.server.enums.SystemTypeEnum;
 import vip.xiaonuo.dev.modular.server.mapper.SystemServerMapper;
 import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
+import vip.xiaonuo.dev.modular.server.vo.SystemRoleVo;
 import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
 import vip.xiaonuo.dev.modular.userRelation.vo.JlRoleVo;
 
@@ -66,9 +71,11 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     SystemConfExecService systemConfExecService;
     @Resource
     SysProjectService sysProjectService;
-
     @Resource
     SystemUserRelationService systemUserRelationService;
+
+    @Resource
+    DevConfigService devConfigService;
 
     @Resource
     private StreamBridge streamBridge;
@@ -133,14 +140,21 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         extMessage.setId(IdWorker.getIdStr());
         extMessage.setOperateType(1);
         extMessage.setData(JSONUtil.toJsonStr(systemServer));
-        List<JlRoleVo> jlRoleVos = BeanUtil.copyToList((Collection<?>) JSONUtil.parseObj(systemServerAddParam.getRoleJsonStr()), JlRoleVo.class);
-        extMessage.setRoleJsonStr(JSONUtil.toJsonStr(jlRoleVos.get(0)));
+        List<SystemRoleVo> systemRoleVos = getSystemRoleVos(systemServerAddParam.getSystemType());
+        String jsonStr = JSONUtil.toJsonStr(systemRoleVos);
+        extMessage.setRoleJsonStr(jsonStr);
         //系统项目创建完成以后，就通知项目系统去初始化项目信息
-        boolean bo = streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL, extMessage);
-        //初始化项目成功，则修改项目的状态
-        if(bo){
-            this.update(new UpdateWrapper<SystemServer>().lambda().set(SystemServer::getSystemStatus,1).eq(SystemServer::getId,systemServer.getId()));
+        boolean send = streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL, extMessage);
+        if(!send){
+            //修改子系统状态为创建失败
+            update(new LambdaUpdateWrapper<SystemServer>().set(SystemServer::getSystemStatus,2).eq(SystemServer::getId,systemServer.getId()));
+            log.error("send message info fail");
         }
+        //不能修改项目状态，只有子系统消费了，创建租户了才能修改状态
+//        //初始化项目成功，则修改项目的状态
+//        if(bo){
+//            this.update(new UpdateWrapper<SystemServer>().lambda().set(SystemServer::getSystemStatus,1).eq(SystemServer::getId,systemServer.getId()));
+//        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -244,5 +258,20 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             log.error("数据查询失败!"+e.getMessage());
             throw new CommonException("数据查询失败!"+e.getMessage());
         }
+    }
+
+    public List<SystemRoleVo> getSystemRoleVos(String type){
+        String typeConfigValue = SystemTypeEnum.getConfigByTypeName(type);
+        String valueByKey = devConfigService.getValueByKey(typeConfigValue);
+        List<SystemRoleVo>  systemRoleVos = new ArrayList<>();
+        String RoleJson = devConfigService.getValueByKey(valueByKey);
+        try{
+            if(StringUtils.isNotEmpty(RoleJson)){
+                systemRoleVos = JSONArray.parseArray(RoleJson, SystemRoleVo.class);
+            }
+        }catch (Exception e){
+            log.error("获取"+type+"字典表数据失败.");
+        }
+        return systemRoleVos;
     }
 }

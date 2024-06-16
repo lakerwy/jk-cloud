@@ -36,7 +36,8 @@ public class SystemServerAddParam {
     private String systemName;
 
     /** 系统类别 */
-    @ApiModelProperty(value = "系统类别", position = 4)
+    @ApiModelProperty(value = "系统类别", position = 4 ,required = true)
+    @NotNull(message = "系统类别不能为空")
     private String systemType;
 
     /** 系统来源 */

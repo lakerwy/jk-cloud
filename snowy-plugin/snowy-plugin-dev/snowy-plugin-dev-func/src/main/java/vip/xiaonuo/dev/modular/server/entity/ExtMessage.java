@@ -1,6 +1,5 @@
 package vip.xiaonuo.dev.modular.server.entity;
 
-import io.swagger.annotations.ApiModelProperty;
 import lombok.Data;
 
 /**
