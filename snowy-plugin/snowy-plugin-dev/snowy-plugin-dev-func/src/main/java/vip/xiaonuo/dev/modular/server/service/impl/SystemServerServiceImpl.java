@@ -12,50 +12,58 @@
  */
 package vip.xiaonuo.dev.modular.server.service.impl;
 
+import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollectionUtil;
+import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
-import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
+import vip.xiaonuo.common.util.CommonResponseUtil;
 import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.epcCenter.entity.SysProject;
 import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
 import vip.xiaonuo.dev.modular.server.entity.ExtMessage;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.server.entity.TemplateInfo;
 import vip.xiaonuo.dev.modular.server.enums.SystemTypeEnum;
 import vip.xiaonuo.dev.modular.server.mapper.SystemServerMapper;
 import vip.xiaonuo.dev.modular.server.message.MessageService;
 import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
+import vip.xiaonuo.dev.modular.server.util.TemplateUtil;
 import vip.xiaonuo.dev.modular.server.vo.SystemRoleVo;
 import vip.xiaonuo.dev.modular.userRelation.service.SystemUserRelationService;
-import vip.xiaonuo.dev.modular.userRelation.vo.JlRoleVo;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -82,6 +90,10 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
 
     @Resource
     private MessageService messageService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
     @Override
     public Page<SystemServer> page(SystemServerPageParam systemServerPageParam) {
         QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
@@ -284,5 +296,30 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             log.error("获取"+type+"字典表数据失败.");
         }
         return systemRoleVos;
+    }
+
+    @Override
+    public void downloadTemplate(HttpServletResponse response) throws IOException {
+        try {
+            InputStream inputStream = POICacheManager.getFile("系统初始化模板.xlsx");
+            byte[] bytes = IoUtil.readBytes(inputStream);
+            CommonDownloadUtil.download("系统初始化模板.xlsx", bytes, response);
+        } catch (Exception e) {
+            log.error(">>> 系统初始化模板.xlsx下载失败：", e);
+            CommonResponseUtil.renderError(response, "下载系统初始化模板失败");
+        }
+    }
+
+    @Override
+    public void parseExcel(MultipartFile file, String systemType) {
+        try {
+            File uploadTemplate = File.createTempFile("uploadTemplate", ".xlsx");
+            file.transferTo(uploadTemplate);
+            List<TemplateInfo> templateInfoList = TemplateUtil.parseExcel(uploadTemplate);
+            String jsonStr = JSONUtil.toJsonStr(templateInfoList);
+            commonCacheOperator.put("System_Template_"+systemType,jsonStr);
+        }catch (Exception e){
+            log.error("模板解析失败.",e.getMessage());
+        }
     }
 }

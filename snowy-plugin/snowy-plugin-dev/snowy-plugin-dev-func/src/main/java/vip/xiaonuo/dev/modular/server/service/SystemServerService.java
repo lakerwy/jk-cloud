@@ -14,9 +14,12 @@ package vip.xiaonuo.dev.modular.server.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.param.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -82,4 +85,8 @@ public interface SystemServerService extends IService<SystemServer> {
      * @date  2024/01/15 15:31
      */
     Page<SystemServer> myServerTask(MyServerParam myServerParam);
+
+    void downloadTemplate(HttpServletResponse response) throws IOException;
+
+    void parseExcel(MultipartFile file,String systemType);
 }
