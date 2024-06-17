@@ -23,4 +23,6 @@ public final class FeignConstant {
     /** PROCURE_APP **/
     public static final String PROCURE_APP = "snowy-procure-app";
 
+    public static final String OA_APP = "snowy-oa-app";
+
 }
