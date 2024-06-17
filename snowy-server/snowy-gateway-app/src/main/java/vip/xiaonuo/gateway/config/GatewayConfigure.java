@@ -89,6 +89,7 @@ public class GatewayConfigure {
             "/api/tenapp/v2/api-docs",
             "/api/flwapp/v2/api-docs",
             "/api/procureapp/v2/api-docs",
+            "/api/oaapp/v2/api-docs",
 
             /* 认证相关 */
             "/api/webapp/auth/c/getPicCaptcha",
@@ -279,7 +280,8 @@ public class GatewayConfigure {
             "/api/bizapp/pay/**",
             "/api/bizapp/urp/**",
             "/api/tenapp/dbs/**",
-            "/api/tenapp/ten/"
+            "/api/tenapp/ten/",
+            "/api/webapp/sys/server/downloadTemplate",
     };
 
     /**
