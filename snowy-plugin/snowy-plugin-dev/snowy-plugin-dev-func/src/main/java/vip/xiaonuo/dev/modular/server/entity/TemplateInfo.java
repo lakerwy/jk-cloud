@@ -30,7 +30,7 @@ public class TemplateInfo {
     @ApiModelProperty(value = "岗位或角色名称", position = 4)
     private String positionOrRole;
 
-    @ApiModelProperty(value = "类型", position = 5)
+    @ApiModelProperty(value = "类型(0是岗位 1 是角色)", position = 5)
     private String type;
 
     @ApiModelProperty(value = "岗位或角色编码", position = 6)

@@ -132,4 +132,8 @@ public interface InitConfConstant {
     public final String EPC_CONFIG_ROLE_DATA = "EPC_CONFIG_ROLE_DATA";
 
     public final String CONFERENCE_REZ_DING_TALK = "CONFERENCE_REZ_DING_TALK";
+
+    public final String SYSTEM_INIT_TEMPLATE_PRE = "System_Template_";
+
+    public final String SYSTEM_INIT_ROLE_PRE = "System_Role_";
 }

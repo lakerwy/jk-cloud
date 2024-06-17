@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.param.*;
+import vip.xiaonuo.dev.modular.server.vo.SystemRoleVo;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -89,4 +90,6 @@ public interface SystemServerService extends IService<SystemServer> {
     void downloadTemplate(HttpServletResponse response) throws IOException;
 
     void parseExcel(MultipartFile file,String systemType);
+
+    List<SystemRoleVo> getSystemRoles(String systemType);
 }

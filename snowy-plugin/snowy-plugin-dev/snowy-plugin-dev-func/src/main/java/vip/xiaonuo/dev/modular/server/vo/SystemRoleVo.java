@@ -1,7 +1,9 @@
 package vip.xiaonuo.dev.modular.server.vo;
 
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 /**
@@ -12,6 +14,8 @@ import lombok.Setter;
  */
 @Setter
 @Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class SystemRoleVo {
     /** 角色名称 */
     @ApiModelProperty(value = "角色名称")

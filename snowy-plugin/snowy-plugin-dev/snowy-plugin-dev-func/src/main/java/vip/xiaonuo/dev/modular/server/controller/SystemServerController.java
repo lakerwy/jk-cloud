@@ -32,6 +32,7 @@ import vip.xiaonuo.dev.modular.server.message.MessageService;
 import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 import vip.xiaonuo.dev.modular.server.util.TemplateUtil;
+import vip.xiaonuo.dev.modular.server.vo.SystemRoleVo;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
@@ -159,18 +160,25 @@ public class SystemServerController {
 //    }
 
     @ApiOperationSupport(order = 7)
-    @ApiOperation("获取项目初始化模板")
+    @ApiOperation("获取项目初始化模板下载")
     @GetMapping(value = "/sys/server/downloadTemplate",produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     public void getTemplate(HttpServletResponse response) throws IOException {
         systemServerService.downloadTemplate(response);
     }
 
-    @ApiOperationSupport(order = 16)
-    @ApiOperation("系统模板初始化")
-    @CommonLog("系统模板初始化")
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("系统模板初始化上传")
+    @CommonLog("系统模板初始化上传")
     @PostMapping("/sys/user/initTemplate")
     public CommonResult<Void> initTemplate(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file,@RequestParam("systemType") String systemType) {
         systemServerService.parseExcel(file,systemType);
         return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("系统角色列表")
+    @GetMapping("/sys/user/getSystemRoles")
+    public CommonResult<List<SystemRoleVo>> getSystemRoles(@RequestParam(value = "systemType") String systemType){
+        return CommonResult.data(systemServerService.getSystemRoles(systemType));
     }
 }

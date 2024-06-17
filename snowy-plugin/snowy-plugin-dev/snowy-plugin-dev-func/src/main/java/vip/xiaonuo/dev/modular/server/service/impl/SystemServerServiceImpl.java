@@ -45,6 +45,7 @@ import vip.xiaonuo.common.util.CommonResponseUtil;
 import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.epcCenter.entity.SysProject;
 import vip.xiaonuo.dev.modular.epcCenter.service.SysProjectService;
+import vip.xiaonuo.dev.modular.server.consts.InitConfConstant;
 import vip.xiaonuo.dev.modular.server.entity.ExtMessage;
 import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
@@ -317,9 +318,26 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
             file.transferTo(uploadTemplate);
             List<TemplateInfo> templateInfoList = TemplateUtil.parseExcel(uploadTemplate);
             String jsonStr = JSONUtil.toJsonStr(templateInfoList);
-            commonCacheOperator.put("System_Template_"+systemType,jsonStr);
+            commonCacheOperator.put(InitConfConstant.SYSTEM_INIT_TEMPLATE_PRE +systemType,jsonStr);
+            List<Map<String, Object>> roleMap = templateInfoList.stream().filter(templateInfo -> !templateInfo.getType().equals(1))
+                    .map(info -> {
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("roleName", info.getPositionOrRole());
+                        map.put("roleId", info.getCode());
+                        return map;
+                    }).collect(Collectors.toList());
+            commonCacheOperator.put(InitConfConstant.SYSTEM_INIT_ROLE_PRE+systemType,roleMap);
         }catch (Exception e){
             log.error("模板解析失败.",e.getMessage());
         }
+    }
+
+    @Override
+    public List<SystemRoleVo> getSystemRoles(String systemType) {
+        Object o = commonCacheOperator.get(InitConfConstant.SYSTEM_INIT_ROLE_PRE + systemType);
+        if(ObjectUtil.isNotEmpty(o)){
+            return (List<SystemRoleVo>) o;
+        }
+        return Collections.emptyList();
     }
 }
