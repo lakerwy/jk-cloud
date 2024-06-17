@@ -28,6 +28,7 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
@@ -46,6 +47,7 @@ import vip.xiaonuo.dev.modular.server.entity.SystemConfExec;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
 import vip.xiaonuo.dev.modular.server.enums.SystemTypeEnum;
 import vip.xiaonuo.dev.modular.server.mapper.SystemServerMapper;
+import vip.xiaonuo.dev.modular.server.message.MessageService;
 import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemConfExecService;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
@@ -65,6 +67,7 @@ import java.util.stream.Collectors;
  **/
 @Service
 @DS("common")
+@Slf4j
 public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, SystemServer> implements SystemServerService {
 
     @Resource
@@ -78,7 +81,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     DevConfigService devConfigService;
 
     @Resource
-    private StreamBridge streamBridge;
+    private MessageService messageService;
     @Override
     public Page<SystemServer> page(SystemServerPageParam systemServerPageParam) {
         QueryWrapper<SystemServer> queryWrapper = new QueryWrapper<>();
@@ -144,8 +147,15 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         String jsonStr = JSONUtil.toJsonStr(systemRoleVos);
         extMessage.setRoleJsonStr(jsonStr);
         //系统项目创建完成以后，就通知项目系统去初始化项目信息
-        boolean send = streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL, extMessage);
-        if(!send){
+        String routingKey = SystemTypeEnum.getRoutingKeyByTypeName(systemServerAddParam.getSystemType());
+        boolean flag = false;
+        if(null == routingKey){
+           log.info("not found routingKey.");
+        }else {
+            flag = messageService.sendMessage(extMessage,routingKey);
+        }
+        //        boolean send = streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL, extMessage);
+        if(!flag){
             //修改子系统状态为创建失败
             update(new LambdaUpdateWrapper<SystemServer>().set(SystemServer::getSystemStatus,2).eq(SystemServer::getId,systemServer.getId()));
             log.error("send message info fail");
@@ -182,6 +192,8 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<SystemServerIdParam> systemServerIdParamList) {
+        //犹豫区分了菜单，批量删除是删除的是同一类的系统，只有根据systemServerIdParamList 中的某一个获取系统类型即可
+        SystemServer systemServer = this.queryEntity(systemServerIdParamList.get(0).getId());
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(systemServerIdParamList, SystemServerIdParam::getId));
 
@@ -193,15 +205,14 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         extMessage.setOperateType(2);
         //删除关联表中数据
         systemUserRelationService.deleteBySystemIds(CollStreamUtil.toList(systemServerIdParamList, SystemServerIdParam::getId));
-        streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
-//        try{
-//            List<String> systemIds = systemServerIdParamList.stream().map(param -> param.getId()).collect(Collectors.toList());
-//            List<SystemConfExec> systemConfExecList = systemConfExecService.list(new LambdaQueryWrapper<SystemConfExec>().in(SystemConfExec::getSystemId,systemIds));
-//            systemConfExecService.removeBatchByIds(systemConfExecList.stream().map(conf -> conf.getId()).collect(Collectors.toList()));
-//        }catch (Exception e){
-//            log.error("批量删除配置失败！e:"+e.getMessage());
-//            throw new CommonException("批量删除配置失败！e:"+e.getMessage());
-//        }
+
+        String routingKey = SystemTypeEnum.getRoutingKeyByTypeName(systemServer.getSystemType());
+        if(null == routingKey){
+            log.info("not found routingKey.");
+        }else {
+            boolean flag = messageService.sendMessage(extMessage,routingKey);
+            log.info("delete system result {}.",flag);
+        }
     }
 
     @Override

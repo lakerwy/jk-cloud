@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,9 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.dev.modular.config.service.DevConfigService;
 import vip.xiaonuo.dev.modular.server.entity.ExtMessage;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.server.enums.SystemTypeEnum;
+import vip.xiaonuo.dev.modular.server.message.MessageService;
+import vip.xiaonuo.dev.modular.server.service.SystemServerService;
 import vip.xiaonuo.dev.modular.userRelation.entity.SystemUserRelation;
 import vip.xiaonuo.dev.modular.userRelation.mapper.SystemUserRelationMapper;
 import vip.xiaonuo.dev.modular.userRelation.param.*;
@@ -52,13 +56,14 @@ import java.util.stream.Collectors;
  **/
 @Service
 @DS("common")
+@Slf4j
 public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelationMapper, SystemUserRelation> implements SystemUserRelationService {
 
     @Resource
-    DevConfigService devConfigService;
+    private SystemServerService systemServerService;
 
     @Resource
-    private StreamBridge streamBridge;
+    private MessageService messageService;
 
     @Override
     public Page<SystemUserRelation> page(SystemUserRelationPageParam systemUserRelationPageParam) {
@@ -210,8 +215,16 @@ public class SystemUserRelationServiceImpl extends ServiceImpl<SystemUserRelatio
             extMessage.setId(IdWorker.getIdStr());
             extMessage.setOperateType(3);
             extMessage.setData(JSONUtil.toJsonStr(collect));
+            SystemServer systemServer = systemServerService.getById(syncParam.getId());
+            String routingKey = SystemTypeEnum.getRoutingKeyByTypeName(systemServer.getSystemType());
+            if(null == routingKey){
+                log.info("not found routingKey");
+            }else {
+                boolean flag = messageService.sendMessage(extMessage, routingKey);
+                log.error("sync user result {}.",flag);
+            }
             //系统项目创建完成以后，就通知项目系统去初始化项目信息
-            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
+//            streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL,extMessage);
         }
 
     }
