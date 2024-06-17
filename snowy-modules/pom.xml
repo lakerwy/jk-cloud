@@ -32,6 +32,9 @@
         <module>snowy-web-app</module>
 
         <module>snowy-procure-app</module>
+
+        <!--oa办公组件-->
+        <module>snowy-oa-app</module>
     </modules>
 
 </project>
