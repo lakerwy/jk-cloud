@@ -12,27 +12,34 @@
  */
 package vip.xiaonuo.dev.modular.server.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import io.swagger.annotations.ApiParam;
+import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import vip.xiaonuo.common.annotation.CommonLog;
+import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.dev.modular.server.entity.SystemServer;
+import vip.xiaonuo.dev.modular.server.entity.TemplateInfo;
+import vip.xiaonuo.dev.modular.server.message.MessageService;
 import vip.xiaonuo.dev.modular.server.param.*;
 import vip.xiaonuo.dev.modular.server.service.SystemServerService;
+import vip.xiaonuo.dev.modular.server.util.TemplateUtil;
+import vip.xiaonuo.dev.modular.server.vo.SystemRoleVo;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -49,6 +56,9 @@ public class SystemServerController {
 
     @Resource
     private SystemServerService systemServerService;
+
+    @Resource
+    private MessageService messageService;
 
     /**
      * 获取系统服务表分页
@@ -139,5 +149,36 @@ public class SystemServerController {
     @Deprecated
     public CommonResult<Page<SystemServer>> myServerTask(MyServerParam myServerParam) {
         return CommonResult.data(systemServerService.myServerTask(myServerParam));
+    }
+
+//    @ApiOperationSupport(order = 6)
+//    @ApiOperation("测试消息队列")
+//    @GetMapping("/sys/server/test")
+//    public CommonResult<List<TemplateInfo> > test() {
+//        List<TemplateInfo> templateInfoList = TemplateUtil.parseExcel(new File("系统初始化模板.xlsx"));
+//        return CommonResult.data(templateInfoList);
+//    }
+
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取项目初始化模板下载")
+    @GetMapping(value = "/sys/server/downloadTemplate",produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public void getTemplate(HttpServletResponse response) throws IOException {
+        systemServerService.downloadTemplate(response);
+    }
+
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("系统模板初始化上传")
+    @CommonLog("系统模板初始化上传")
+    @PostMapping("/sys/user/initTemplate")
+    public CommonResult<Void> initTemplate(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file,@RequestParam("systemType") String systemType) {
+        systemServerService.parseExcel(file,systemType);
+        return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("系统角色列表")
+    @GetMapping("/sys/user/getSystemRoles")
+    public CommonResult<List<SystemRoleVo>> getSystemRoles(@RequestParam(value = "systemType") String systemType){
+        return CommonResult.data(systemServerService.getSystemRoles(systemType));
     }
 }

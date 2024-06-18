@@ -202,6 +202,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             /* 远程调用免token */
             "/feign/dev/sms/sendSmsYunPian",
             "/push/sendMsg",
+            "sys/server/downloadTemplate",
     };
 
     /**
