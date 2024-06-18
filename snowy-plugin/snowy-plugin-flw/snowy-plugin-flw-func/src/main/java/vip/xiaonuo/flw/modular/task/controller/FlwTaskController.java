@@ -278,7 +278,7 @@ public class FlwTaskController {
     @ApiOperationSupport(order = 18)
     @ApiOperation("移交任务")
     @PostMapping("/flw/task/transferTasks")
-    public CommonResult<String> transferTasks(@RequestBody FlwTaskTransferParam flwTaskTransferParam) {
+    public CommonResult<String> transferTasks(@RequestBody @Valid FlwTaskTransferParam flwTaskTransferParam) {
         flwTaskService.transferTasks(flwTaskTransferParam);
         return CommonResult.ok();
     }
@@ -292,7 +292,7 @@ public class FlwTaskController {
     @ApiOperationSupport(order = 17)
     @ApiOperation("获取被移交人所有涉及到的流程")
     @GetMapping("/flw/task/getTransferTasks")
-    public CommonResult<List<FlwModelDTO>> getTransferTasks(FlwTaskTransferPageParam flwTaskTransferPageParam) {
+    public CommonResult<List<FlwModelDTO>> getTransferTasks(@RequestBody FlwTaskTransferPageParam flwTaskTransferPageParam) {
         return CommonResult.data(flwTaskService.getTransferTasks(flwTaskTransferPageParam));
     }
 
