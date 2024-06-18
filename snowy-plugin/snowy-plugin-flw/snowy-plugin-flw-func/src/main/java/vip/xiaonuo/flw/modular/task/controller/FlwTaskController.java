@@ -292,7 +292,7 @@ public class FlwTaskController {
     @ApiOperationSupport(order = 17)
     @ApiOperation("获取被移交人所有涉及到的流程")
     @GetMapping("/flw/task/getTransferTasks")
-    public CommonResult<List<FlwModelDTO>> getTransferTasks(@RequestBody FlwTaskTransferPageParam flwTaskTransferPageParam) {
+    public CommonResult<List<FlwModelDTO>> getTransferTasks(@Valid FlwTaskTransferPageParam flwTaskTransferPageParam) {
         return CommonResult.data(flwTaskService.getTransferTasks(flwTaskTransferPageParam));
     }
 
