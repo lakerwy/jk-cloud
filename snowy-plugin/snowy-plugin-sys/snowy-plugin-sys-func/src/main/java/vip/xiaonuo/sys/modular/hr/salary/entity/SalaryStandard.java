@@ -189,4 +189,8 @@ public class SalaryStandard {
     /** 是否实习生 */
     @ApiModelProperty(value = "是否实习生", position = 33)
     private String isTry;
+
+    /** 成本划分 - 存储JSON字符串 */
+    @ApiModelProperty(value = "成本划分 - 存储JSON字符串", position = 34)
+    private String costJson;
 }

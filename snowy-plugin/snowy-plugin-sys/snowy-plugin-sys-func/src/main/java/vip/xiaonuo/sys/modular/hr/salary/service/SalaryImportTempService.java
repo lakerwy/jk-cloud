@@ -63,4 +63,11 @@ public interface SalaryImportTempService extends IService<SalaryImportTemp> {
      * @return
      */
     ImportResult importSalary(ImportSalary input);
+
+    /**
+     * （无工资人员）社保公积金导入
+     * @param input
+     * @return
+     */
+    ImportResult importNoPayInsGjj(ImportInsGjjTax input);
 }

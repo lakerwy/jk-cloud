@@ -160,4 +160,19 @@ public class SalaryImportTempController {
 //        return CommonResult.data(salaryImportTempService.importAdd(input));
 //    }
 
+
+    /**
+     * 【导入】- （无工资人员）社保|公积金 数据
+     *  类型（无工资-社保|无工资-公积金）
+     * @author yong.ye
+     * @date  2024/06/18 09:31
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("【导入】- （无工资人员）社保|公积金 数据  类型（无工资-社保|无工资-公积金） ")
+    @CommonLog("【导入】- （无工资人员）社保|公积金 数据 ")
+    @PostMapping("/sys/hr/salary/import/importNoPayInsGjj")
+    public CommonResult<ImportResult> importNoPayInsGjj(@RequestBody @Valid ImportInsGjjTax input) {
+        return CommonResult.data(salaryImportTempService.importNoPayInsGjj(input));
+    }
+
 }

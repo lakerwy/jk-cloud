@@ -42,4 +42,13 @@ public class CommConstant {
         IMPORT_LIST.add(SalaryTypeEnum.EMP_BONUS.getValue());
     }
 
+    /**
+     * 无需进行员工匹配的导入类型
+     */
+    public static final List<String> NO_IMPORT_LIST = new ArrayList<>();
+    static {
+        NO_IMPORT_LIST.add(SalaryTypeEnum.NO_PAY_INS.getValue());
+        NO_IMPORT_LIST.add(SalaryTypeEnum.NO_PAY_GJJ.getValue());
+    }
+
 }

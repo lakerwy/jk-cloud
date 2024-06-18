@@ -294,4 +294,8 @@ public class SalaryPreviewVo {
     /** 排序字段 */
     @ApiModelProperty(value = "排序字段", position = 80)
     private Integer sortIndex;
+
+    /** 成本划分 - 存储JSON字符串 */
+    @ApiModelProperty(value = "成本划分 - 存储JSON字符串", position = 74)
+    private String costJson;
 }

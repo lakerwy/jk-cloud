@@ -99,4 +99,11 @@ public interface SalaryService extends IService<Salary> {
      * @param excelParam
      */
     void gzExport(ExcelParam excelParam, HttpServletResponse response);
+
+    /**
+     * 按 个人|部门|企业 查询期限内工资数据
+     * @param searchPage
+     * @return
+     */
+    Page<Salary> searchPage(SearchPage searchPage);
 }

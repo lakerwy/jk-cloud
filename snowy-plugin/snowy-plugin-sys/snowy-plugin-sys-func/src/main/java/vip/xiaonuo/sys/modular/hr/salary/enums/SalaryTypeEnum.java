@@ -48,7 +48,11 @@ public enum SalaryTypeEnum {
     /** 员工福利 */
     EMP_BONUS("员工福利"),
     /** 已确认的工资 - 员工工资 */
-    EMP_SALARY("工资");
+    EMP_SALARY("工资"),
+    /** 无工资 - 社保 */
+    NO_PAY_INS("无工资-社保"),
+    /** 无工资 - 公积金 */
+    NO_PAY_GJJ("无工资-公积金");
 
     private final String value;
 

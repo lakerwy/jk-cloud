@@ -192,4 +192,60 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
             ExportUtil.genGzExcelTwo(data,excelParam.getYearMonth(),response);
         }
     }
+
+    @Override
+    public Page<Salary> searchPage(SearchPage searchPage) {
+        QueryWrapper<Salary> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(searchPage.getCompany())){
+            queryWrapper.lambda().like(Salary::getCompany,searchPage.getCompany());
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getFromYearMonth())) {
+            queryWrapper.lambda().ge(Salary::getYearMonth, searchPage.getFromYearMonth());
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getToYearMonth())) {
+            queryWrapper.lambda().le(Salary::getYearMonth, searchPage.getToYearMonth());
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getUserType())){
+            queryWrapper.lambda().eq(Salary::getUserType,searchPage.getUserType());
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getIdCardNumber())) {
+            queryWrapper.lambda().eq(Salary::getIdCardNumber, AesUtil.encrypt(searchPage.getIdCardNumber()));
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getUserName())) {
+            queryWrapper.lambda().eq(Salary::getUserName, AesUtil.encrypt(searchPage.getUserName()));
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getFirstOrgName())) {
+            queryWrapper.lambda().eq(Salary::getFirstOrgName, AesUtil.encrypt(searchPage.getFirstOrgName()));
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getOrgName())) {
+            queryWrapper.lambda().eq(Salary::getOrgName, AesUtil.encrypt(searchPage.getOrgName()));
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getIsSlow())){
+            if(YesOrNoEnum.YES.getValue().equals(searchPage.getIsSlow())) {
+                queryWrapper.lambda().eq(Salary::getIsSlow, searchPage.getIsSlow());
+            }else{
+                queryWrapper.lambda().and(q->q.isNull(Salary::getIsSlow).or().ne(Salary::getIsSlow,YesOrNoEnum.YES.getValue()));
+            }
+        }
+        if(ObjectUtil.isNotEmpty(searchPage.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(Salary::getIdCardNumber,AesUtil.encrypt(searchPage.getSearchKey()))
+                    .or().like(Salary::getUserName,AesUtil.encrypt(searchPage.getSearchKey()))
+                    .or().like(Salary::getOrgName,AesUtil.encrypt(searchPage.getSearchKey())));
+        }
+        if(ObjectUtil.isAllNotEmpty(searchPage.getSortField(), searchPage.getSortOrder())) {
+            CommonSortOrderEnum.validate(searchPage.getSortOrder());
+            queryWrapper.orderBy(true, searchPage.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(searchPage.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(Salary::getYearMonth);
+        }
+        Page<Salary> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<Salary> records = AesUtil.decryptGZList(result.getRecords());
+        records.forEach(x->x.setSortIndex(UserTypeEnum.ZB.getValue().equals(x.getUserType()) ? 1 : (UserTypeEnum.FGS.getValue().equals(x.getUserType()) ? 2 : 3)));
+        records.sort(Comparator.comparing(Salary::getSortIndex)
+                .thenComparing(Salary::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(Salary::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
+        result.setRecords(records);
+        return result;
+    }
 }

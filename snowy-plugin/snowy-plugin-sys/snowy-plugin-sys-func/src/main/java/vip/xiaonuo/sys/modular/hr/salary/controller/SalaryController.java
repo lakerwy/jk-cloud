@@ -150,4 +150,18 @@ public class SalaryController {
         salaryService.gzExport(excelParam,response);
     }
 
+
+    /**
+     * 【已封存的工资数据】按照 部门|个人|公司，查询一定周期内员工工资表
+     *
+     * @author yong.ye
+     * @date  2024/03/01 16:50
+     */
+    @ApiOperationSupport(order = 12)
+    @ApiOperation("【已封存的工资数据】按照 部门|个人|公司，查询一定周期内员工工资表")
+    @GetMapping("/sys/hr/salary/searchPage")
+    public CommonResult<Page<Salary>> searchPage(SearchPage searchPage) {
+        return CommonResult.data(salaryService.searchPage(searchPage));
+    }
+
 }

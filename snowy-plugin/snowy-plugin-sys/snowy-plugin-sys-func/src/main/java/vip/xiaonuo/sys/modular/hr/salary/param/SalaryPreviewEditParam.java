@@ -300,4 +300,8 @@ public class SalaryPreviewEditParam {
     /** 是否缓发 */
     @ApiModelProperty(value = "是否缓发", position = 73)
     private String isSlow;
+
+    /** 成本划分 - 存储JSON字符串 */
+    @ApiModelProperty(value = "成本划分 - 存储JSON字符串", position = 74)
+    private String costJson;
 }

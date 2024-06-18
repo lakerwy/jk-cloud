@@ -144,4 +144,8 @@ public class SalaryStandardAddParam {
     /** 是否实习生 */
     @ApiModelProperty(value = "是否实习生", position = 33)
     private String isTry;
+
+    /** 成本划分 - 存储JSON字符串  {[{"dept" : "数字院" , "rate" : "0.8"}]} */
+    @ApiModelProperty(value = "成本划分 - 存储JSON字符串 {[{\"dept\" : \"数字院\" , \"rate\" : \"0.8\"}]}", position = 34)
+    private String costJson;
 }
