@@ -34,6 +34,7 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryNoPayInsGjjPageParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryNoPayInsGjjService;
 import vip.xiaonuo.sys.modular.hr.salary.util.AesUtil;
 
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -61,25 +62,36 @@ public class SalaryNoPayInsGjjServiceImpl extends ServiceImpl<SalaryNoPayInsGjjM
             queryWrapper.lambda().eq(SalaryNoPayInsGjj::getYearMonth, salaryNopayInsgjjPageParam.getYearMonth());
         }
         if(ObjectUtil.isNotEmpty(salaryNopayInsgjjPageParam.getIdCardNumber())) {
-            queryWrapper.lambda().like(SalaryNoPayInsGjj::getIdCardNumber, salaryNopayInsgjjPageParam.getIdCardNumber());
+            queryWrapper.lambda().like(SalaryNoPayInsGjj::getIdCardNumber,AesUtil.encrypt(salaryNopayInsgjjPageParam.getIdCardNumber()));
         }
         if(ObjectUtil.isNotEmpty(salaryNopayInsgjjPageParam.getUserName())) {
-            queryWrapper.lambda().like(SalaryNoPayInsGjj::getUserName, salaryNopayInsgjjPageParam.getUserName());
+            queryWrapper.lambda().like(SalaryNoPayInsGjj::getUserName, AesUtil.encrypt(salaryNopayInsgjjPageParam.getUserName()));
         }
         if(ObjectUtil.isNotEmpty(salaryNopayInsgjjPageParam.getFirstOrgName())) {
-            queryWrapper.lambda().like(SalaryNoPayInsGjj::getFirstOrgName, salaryNopayInsgjjPageParam.getFirstOrgName());
+            queryWrapper.lambda().like(SalaryNoPayInsGjj::getFirstOrgName, AesUtil.encrypt(salaryNopayInsgjjPageParam.getFirstOrgName()));
         }
         if(ObjectUtil.isNotEmpty(salaryNopayInsgjjPageParam.getUnitName())) {
             queryWrapper.lambda().like(SalaryNoPayInsGjj::getUnitName, salaryNopayInsgjjPageParam.getUnitName());
+        }
+        if(ObjectUtil.isNotEmpty(salaryNopayInsgjjPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(SalaryNoPayInsGjj::getIdCardNumber,AesUtil.encrypt(salaryNopayInsgjjPageParam.getSearchKey()))
+                    .or().like(SalaryNoPayInsGjj::getUserName,AesUtil.encrypt(salaryNopayInsgjjPageParam.getSearchKey()))
+                    .or().like(SalaryNoPayInsGjj::getFirstOrgName,AesUtil.encrypt(salaryNopayInsgjjPageParam.getSearchKey()))
+                    .or().like(SalaryNoPayInsGjj::getUnitName,salaryNopayInsgjjPageParam.getUnitName()));
         }
         if(ObjectUtil.isAllNotEmpty(salaryNopayInsgjjPageParam.getSortField(), salaryNopayInsgjjPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryNopayInsgjjPageParam.getSortOrder());
             queryWrapper.orderBy(true, salaryNopayInsgjjPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryNopayInsgjjPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(SalaryNoPayInsGjj::getYearMonth).orderByAsc(SalaryNoPayInsGjj::getFirstOrgName).orderByAsc(SalaryNoPayInsGjj::getIdCardNumber);
+            queryWrapper.lambda().orderByDesc(SalaryNoPayInsGjj::getYearMonth);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<SalaryNoPayInsGjj> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<SalaryNoPayInsGjj> records = AesUtil.decryptGZList(result.getRecords());
+        records.sort(Comparator.comparing(SalaryNoPayInsGjj::getOrgName,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(SalaryNoPayInsGjj::getIdCardNumber,Comparator.nullsLast(Comparator.naturalOrder())));
+        result.setRecords(records);
+        return result;
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -125,7 +137,8 @@ public class SalaryNoPayInsGjjServiceImpl extends ServiceImpl<SalaryNoPayInsGjjM
 
     @Override
     public SalaryNoPayInsGjj detail(SalaryNoPayInsGjjIdParam salaryNopayInsgjjIdParam) {
-        return this.queryEntity(salaryNopayInsgjjIdParam.getId());
+        SalaryNoPayInsGjj salaryNoPayInsGjj = this.queryEntity(salaryNopayInsgjjIdParam.getId());
+        return AesUtil.decryptGZ(salaryNoPayInsGjj);
     }
 
     @Override
