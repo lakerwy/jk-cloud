@@ -123,10 +123,22 @@ public class AuthServiceImpl implements AuthService {
         String phone = authGetPhoneValidCodeParam.getPhone();
         // 验证码
         String validCode = authGetPhoneValidCodeParam.getValidCode();
+
+        boolean webFlag = authGetPhoneValidCodeParam.isWebFlag();
+
         // 验证码请求号
         String validCodeReqNo = authGetPhoneValidCodeParam.getValidCodeReqNo();
+        if(webFlag){
+            if(StrUtil.isEmpty(validCode)){
+                throw new CommonException("验证码不能为空");
+            }
+            if(StrUtil.isEmpty(validCodeReqNo)){
+                throw new CommonException("验证码请求号不能为空");
+            }
+        }
+
         // 校验参数
-        validPhoneValidCodeParam(null, validCode, validCodeReqNo, type);
+        validPhoneValidCodeParam(null, validCode, validCodeReqNo, type,webFlag);
         // 生成手机验证码的值，随机6为数字
         String phoneValidCode = RandomUtil.randomNumbers(6);
         // 生成手机验证码的请求号
@@ -187,17 +199,21 @@ public class AuthServiceImpl implements AuthService {
      * @author xuyuxiang
      * @date 2022/8/25 14:29
      **/
-    private void validPhoneValidCodeParam(String phoneOrEmail, String validCode, String validCodeReqNo, String type) {
+    private void validPhoneValidCodeParam(String phoneOrEmail, String validCode, String validCodeReqNo, String type, boolean isWebFlag) {
         // 验证码正确则校验手机号格式
         if(ObjectUtil.isEmpty(phoneOrEmail)) {
-            // 执行校验验证码
-            validValidCode(null, validCode, validCodeReqNo);
+            if(isWebFlag){
+                // 执行校验验证码
+                validValidCode(null, validCode, validCodeReqNo);
+            }
         } else {
             if(!PhoneUtil.isMobile(phoneOrEmail) && !CommonEmailUtil.isEmail(phoneOrEmail)) {
                 throw new CommonException(AuthExceptionEnum.PHONE_FORMAT_ERROR.getValue());
             }
-            // 执行校验验证码
-            validValidCode(phoneOrEmail, validCode, validCodeReqNo);
+            if(isWebFlag) {
+                // 执行校验验证码
+                validValidCode(phoneOrEmail, validCode, validCodeReqNo);
+            }
 
             // 根据手机号获取用户信息，判断用户是否存在，根据B端或C端判断
             if(SaClientTypeEnum.B.getValue().equals(type)) {
@@ -296,7 +312,7 @@ public class AuthServiceImpl implements AuthService {
         // 手机号
         String phone = authPhoneValidCodeLoginParam.getPhone();
         // 校验参数
-        validPhoneValidCodeParam(phone, authPhoneValidCodeLoginParam.getValidCode(), authPhoneValidCodeLoginParam.getValidCodeReqNo(), type);
+        validPhoneValidCodeParam(phone, authPhoneValidCodeLoginParam.getValidCode(), authPhoneValidCodeLoginParam.getValidCodeReqNo(), type,true);
         // 设备
         String device = authPhoneValidCodeLoginParam.getDevice();
         // 默认指定为PC，如在小程序跟移动端的情况下，自行指定即可

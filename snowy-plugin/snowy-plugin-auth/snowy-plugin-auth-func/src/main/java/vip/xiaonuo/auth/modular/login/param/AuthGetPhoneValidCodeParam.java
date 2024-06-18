@@ -34,12 +34,15 @@ public class AuthGetPhoneValidCodeParam {
     private String phone;
 
     /** 验证码 */
-    @ApiModelProperty(value = "验证码", required = true, position = 2)
-    @NotBlank(message = "验证码不能为空")
+    @ApiModelProperty(value = "验证码", position = 2)
+//    @NotBlank(message = "验证码不能为空")
     private String validCode;
 
     /** 验证码请求号 */
-    @ApiModelProperty(value = "验证码请求号", required = true, position = 3)
-    @NotBlank(message = "验证码请求号不能为空")
+    @ApiModelProperty(value = "验证码请求号", position = 3)
+//    @NotBlank(message = "验证码请求号不能为空")
     private String validCodeReqNo;
+
+    @ApiModelProperty(value = "是否为web端登录标识",  position = 4)
+    private boolean webFlag = true;
 }
