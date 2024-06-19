@@ -46,4 +46,10 @@ public class AuthPhoneValidCodeLoginParam {
     /** 设备 */
     @ApiModelProperty(value = "设备", position = 4)
     private String device;
+
+    @ApiModelProperty(value = "客户端ID", position = 6)
+    private String clientId;
+
+    @ApiModelProperty(value = "IM登录所需字段",position = 7)
+    private Integer platform;
 }

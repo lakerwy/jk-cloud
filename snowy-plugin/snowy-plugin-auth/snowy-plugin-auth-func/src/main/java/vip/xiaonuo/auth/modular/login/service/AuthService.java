@@ -62,7 +62,7 @@ public interface AuthService {
      * @author xuyuxiang
      * @date 2021/12/28 14:46
      **/
-    String doLoginByPhone(AuthPhoneValidCodeLoginParam authPhoneValidCodeLoginParam, String type);
+    Object doLoginByPhone(AuthPhoneValidCodeLoginParam authPhoneValidCodeLoginParam, String type);
 
     /**
      * 获取B端登录用户信息

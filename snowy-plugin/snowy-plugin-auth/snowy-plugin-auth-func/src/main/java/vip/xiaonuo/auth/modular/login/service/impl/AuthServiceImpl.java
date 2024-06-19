@@ -308,7 +308,7 @@ public class AuthServiceImpl implements AuthService {
 
 
     @Override
-    public String doLoginByPhone(AuthPhoneValidCodeLoginParam authPhoneValidCodeLoginParam, String type) {
+    public Object doLoginByPhone(AuthPhoneValidCodeLoginParam authPhoneValidCodeLoginParam, String type) {
         // 手机号
         String phone = authPhoneValidCodeLoginParam.getPhone();
         // 校验参数
@@ -327,8 +327,10 @@ public class AuthServiceImpl implements AuthService {
             if(ObjectUtil.isEmpty(saBaseLoginUser)) {
                 throw new CommonException(AuthExceptionEnum.ACCOUNT_ERROR.getValue());
             }
+            saBaseLoginUser.setClientId(authPhoneValidCodeLoginParam.getClientId());
+            saBaseLoginUser.setPlatform(authPhoneValidCodeLoginParam.getPlatform());
             // 执行B端登录
-            return execLoginB(saBaseLoginUser, device);
+            return execLoginBExtend(saBaseLoginUser, device);
         } else {
             SaBaseClientLoginUser saBaseClientLoginUser = clientLoginUserApi.getClientUserByPhone(phone);
             if(ObjectUtil.isEmpty(saBaseClientLoginUser)) {

@@ -100,7 +100,7 @@ public class AuthController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("B端手机验证码登录")
     @PostMapping("/auth/b/doLoginByPhone")
-    public CommonResult<String> doLoginByPhone(@RequestBody @Valid AuthPhoneValidCodeLoginParam authPhoneValidCodeLoginParam) {
+    public CommonResult<Object> doLoginByPhone(@RequestBody @Valid AuthPhoneValidCodeLoginParam authPhoneValidCodeLoginParam) {
         return CommonResult.data(authService.doLoginByPhone(authPhoneValidCodeLoginParam, SaClientTypeEnum.B.getValue()));
     }
 
