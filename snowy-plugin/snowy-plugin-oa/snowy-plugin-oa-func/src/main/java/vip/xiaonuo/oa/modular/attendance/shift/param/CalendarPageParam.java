@@ -10,25 +10,42 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.oa.modular.attendance.calendar.enums;
+package vip.xiaonuo.oa.modular.attendance.shift.param;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
+import lombok.Setter;
+import java.math.BigDecimal;
+import java.util.Date;
 
 /**
- * 日历表枚举
+ * 日历表查询参数
  *
  * @author mayike
  * @date  2024/06/15 12:59
  **/
 @Getter
-public enum CalendarEnum {
+@Setter
+public class CalendarPageParam {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 当前页 */
+    @ApiModelProperty(value = "当前页码")
+    private Integer current;
 
-    private final String value;
+    /** 每页条数 */
+    @ApiModelProperty(value = "每页条数")
+    private Integer size;
 
-    CalendarEnum(String value) {
-        this.value = value;
-    }
+    /** 排序字段 */
+    @ApiModelProperty(value = "排序字段，字段驼峰名称，如：userName")
+    private String sortField;
+
+    /** 排序方式 */
+    @ApiModelProperty(value = "排序方式，升序：ASCEND；降序：DESCEND")
+    private String sortOrder;
+
+    /** 关键词 */
+    @ApiModelProperty(value = "关键词")
+    private String searchKey;
+
 }

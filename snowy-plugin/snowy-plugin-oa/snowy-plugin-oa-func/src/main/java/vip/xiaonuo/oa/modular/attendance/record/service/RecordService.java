@@ -19,8 +19,10 @@ import vip.xiaonuo.oa.modular.attendance.record.param.RecordAddParam;
 import vip.xiaonuo.oa.modular.attendance.record.param.RecordEditParam;
 import vip.xiaonuo.oa.modular.attendance.record.param.RecordIdParam;
 import vip.xiaonuo.oa.modular.attendance.record.param.RecordPageParam;
+import vip.xiaonuo.oa.modular.attendance.record.vo.RecordPreVo;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * 考勤记录表Service接口
@@ -78,5 +80,7 @@ public interface RecordService extends IService<Record> {
      **/
     Record queryEntity(String id);
 
-    void preAdd();
+    RecordPreVo preCheck();
+
+    void checkIn(RecordAddParam recordAddParam);
 }

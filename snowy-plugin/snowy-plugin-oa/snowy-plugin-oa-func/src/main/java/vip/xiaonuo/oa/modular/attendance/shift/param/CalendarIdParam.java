@@ -10,42 +10,26 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.oa.modular.attendance.calendar.param;
+package vip.xiaonuo.oa.modular.attendance.shift.param;
 
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import java.math.BigDecimal;
-import java.util.Date;
+
+import javax.validation.constraints.NotBlank;
 
 /**
- * 日历表查询参数
+ * 日历表Id参数
  *
  * @author mayike
  * @date  2024/06/15 12:59
  **/
 @Getter
 @Setter
-public class CalendarPageParam {
+public class CalendarIdParam {
 
-    /** 当前页 */
-    @ApiModelProperty(value = "当前页码")
-    private Integer current;
-
-    /** 每页条数 */
-    @ApiModelProperty(value = "每页条数")
-    private Integer size;
-
-    /** 排序字段 */
-    @ApiModelProperty(value = "排序字段，字段驼峰名称，如：userName")
-    private String sortField;
-
-    /** 排序方式 */
-    @ApiModelProperty(value = "排序方式，升序：ASCEND；降序：DESCEND")
-    private String sortOrder;
-
-    /** 关键词 */
-    @ApiModelProperty(value = "关键词")
-    private String searchKey;
-
+    /** 主键 */
+    @ApiModelProperty(value = "主键", required = true)
+    @NotBlank(message = "id不能为空")
+    private String id;
 }

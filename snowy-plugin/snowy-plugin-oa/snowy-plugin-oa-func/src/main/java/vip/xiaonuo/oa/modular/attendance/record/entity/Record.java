@@ -56,9 +56,24 @@ public class Record {
 
     /** 打卡记录时间 */
     @ApiModelProperty(value = "打卡记录时间", position = 5)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private Date checkinTime;
+
+    @ApiModelProperty(value = "打卡记录时分秒",position = 6)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
     @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime checkinTime;
+    private LocalTime dutyTime;
+
+    @ApiModelProperty(value = "打卡时间前限制打卡时间",position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    private LocalTime preDutyTimeBeforeLimit;
+
+    @ApiModelProperty(value = "打卡时间后限制打卡时间",position = 6)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
+    @DateTimeFormat(pattern = "HH:mm:ss")
+    private LocalTime preDutyTimeAfterLimit;
 
     /** 打卡数据来源（用户打卡、系统自动打卡等） */
     @ApiModelProperty(value = "打卡数据来源（用户打卡、系统自动打卡等）", position = 6)

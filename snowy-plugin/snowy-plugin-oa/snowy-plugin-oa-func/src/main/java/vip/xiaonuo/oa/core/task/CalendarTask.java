@@ -4,7 +4,7 @@ import cn.hutool.core.date.DateUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import vip.xiaonuo.oa.modular.attendance.calendar.service.CalendarService;
+import vip.xiaonuo.oa.modular.attendance.shift.service.CalendarService;
 
 import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
@@ -24,10 +24,10 @@ public class CalendarTask extends AbstractTask{
     @Resource
     private CalendarService calendarService;
 
-    @PostConstruct
-    public void init() {
-       scheduleTask();
-    }
+//    @PostConstruct
+//    public void init() {
+//       scheduleTask();
+//    }
 
     public CalendarTask() {
         super("CalendarTask");

@@ -32,6 +32,7 @@ import vip.xiaonuo.oa.modular.attendance.record.param.RecordEditParam;
 import vip.xiaonuo.oa.modular.attendance.record.param.RecordIdParam;
 import vip.xiaonuo.oa.modular.attendance.record.param.RecordPageParam;
 import vip.xiaonuo.oa.modular.attendance.record.service.RecordService;
+import vip.xiaonuo.oa.modular.attendance.record.vo.RecordPreVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -129,13 +130,22 @@ public class RecordController {
         return CommonResult.data(recordService.detail(recordIdParam));
     }
 
-    @ApiOperationSupport(order = 2)
-    @ApiOperation("打卡预处理")
-    @CommonLog("打卡预处理")
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("考勤打卡预处理")
+    @CommonLog("考勤打卡预处理")
 //    @SaCheckPermission("/oa/record/add")
-    @GetMapping("/oa/record/preAdd")
-    public CommonResult<String> preAdd() {
-        recordService.preAdd();
+    @GetMapping("/oa/record/preCheck")
+    public CommonResult<RecordPreVo> preCheck() {
+        return CommonResult.data(recordService.preCheck());
+    }
+
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("考勤打卡")
+    @CommonLog("考勤打卡")
+//    @SaCheckPermission("/oa/record/add")
+    @GetMapping("/oa/record/checkIn")
+    public CommonResult<String> checkIn(@RequestBody @Valid RecordAddParam recordAddParam) {
+        recordService.checkIn(recordAddParam);
         return CommonResult.ok();
     }
 }

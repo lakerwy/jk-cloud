@@ -26,7 +26,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.oa.modular.attendance.client.SysUserClient;
+import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupAddParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupEditParam;
@@ -54,7 +54,7 @@ public class GroupController {
     private GroupService groupService;
 
     @Resource
-    SysUserClient sysUserClient;
+    WebServerClient webServerClient;
 
     /**
      * 获取考勤-考勤组分页
@@ -137,7 +137,7 @@ public class GroupController {
     @ApiOperation("获取考勤-测试")
     @GetMapping("/oa/group/test")
     public CommonResult<String> test(){
-        String childrenUser = sysUserClient.getChildrenUser("1666651344023891970");
+        String childrenUser = webServerClient.getChildrenUser("1666651344023891970");
         System.out.println(childrenUser);
         return CommonResult.ok();
     }

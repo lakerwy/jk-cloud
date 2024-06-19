@@ -2,7 +2,9 @@ package vip.xiaonuo.oa.modular.attendance.shift.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -19,16 +21,18 @@ import java.util.Date;
 @Setter
 @Getter
 @Slf4j
+@AllArgsConstructor
+@NoArgsConstructor
 public class ClockInRule {
     @ApiModelProperty(value = "打卡类型", position = 1)
-    private String type; // 打卡类型，如 "上班", "午休开始", "下班", "加班"
+    private String type; // 打卡类型，如 "上班", "午休", "下班", "加班"
 
     @ApiModelProperty(value = "正常打卡开始时间", position = 2)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
     @DateTimeFormat(pattern = "HH:mm:ss")
     private LocalTime normalStart; // 正常打卡开始时间
 
-    @ApiModelProperty(value = "正常打卡结束时间", position = 3)
+    @ApiModelProperty(value = "打卡结束时间", position = 3)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
     @DateTimeFormat(pattern = "HH:mm:ss")
     private LocalTime normalEnd; // 正常打卡结束时间
