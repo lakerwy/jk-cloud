@@ -275,6 +275,9 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         if("meritRate".equals(fieldParam.getFieldName())){
             salaryStandard.setMeritRate(Float.valueOf(fieldParam.getFieldValue()));
         }
+        if("costJson".equals(fieldParam.getFieldName())){
+            salaryStandard.setCostJson(fieldParam.getFieldValue());
+        }
         this.updateById(salaryStandard);
     }
 

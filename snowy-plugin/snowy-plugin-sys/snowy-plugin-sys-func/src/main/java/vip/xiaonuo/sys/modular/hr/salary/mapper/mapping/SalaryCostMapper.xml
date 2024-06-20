@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryCostMapper">
+
+    <select id="getSalaryCost" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryCostVo">
+        select  a.*,
+                b.HIRE_DATE as hireDate,b.LEAVE_DATE as leaveDate,b.STANDARD_ID as standardId,b.COST_JSON as costJson
+        from HR_SALARY a
+                 left join HR_SALARY_PREVIEW b on a.PREVIEW_ID = b.ID
+        where a.DELETE_FLAG = 'NOT_DELETE'
+          and a.`YEAR_MONTH`=#{yearMonth}
+    </select>
+
+    <select id="getCostReport" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.CostReportVo">
+        select DEPT_ID as deptId,DEPT as dept,`YEAR_MONTH` as yearMonth,
+               SUM(IF(PAY_NUM is null ,0,PAY_NUM)) as payNum,
+               SUM(IF(GZ is null ,0,GZ)) as gz,
+               SUM(IF(INS is null ,0,INS)) as ins,
+               SUM(IF(GJJ is null ,0,GJJ)) as gjj,
+               SUM(IF(REGISTER is null ,0,REGISTER)) as register,
+               SUM(IF(WELFARE is null ,0,WELFARE)) as welfare,
+               SUM(IF(FIELD is null ,0,FIELD)) as field
+        from HR_SALARY_COST
+        where DELETE_FLAG = 'NOT_DELETE'
+          and `YEAR_MONTH`=#{yearMonth}
+          and TYPE = #{reportType}
+        group by DEPT_ID,DEPT,`YEAR_MONTH`
+    </select>
+
+</mapper>

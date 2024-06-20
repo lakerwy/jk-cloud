@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.Period;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -552,5 +553,51 @@ public class ComputeUtil {
         }
         // 返回标准日期格式的字符串，例如：1990-01-01
         return birthDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+    }
+
+    /**
+     * 根据 工资年月 入职日期 离职日期 计算月度发薪人数（<=1）
+     * 月度发薪人数=∑当月在职天数/当月自然日天数
+     * 月度发薪人次 = 当月在职天数/当月自然日天数
+     *
+     * @param yearMonth
+     * @param hireDate
+     * @param leaveDate
+     * @return
+     */
+    public static double getPayNum(String yearMonth,Date hireDate,Date leaveDate){
+        //入职日期|离职日期  日期转换
+        LocalDate tmpHireDate = null;
+        LocalDate tmpLeaveDate = null;
+        if(ObjectUtil.isNotEmpty(hireDate)) {
+            tmpHireDate = LocalDate.parse(DateUtil.formatDate(hireDate));
+        }
+        if(ObjectUtil.isNotEmpty(leaveDate)) {
+            tmpLeaveDate = LocalDate.parse(DateUtil.formatDate(leaveDate));
+        }
+
+        //获取yyyyMM月有多少自然日
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMM");
+        YearMonth currentYM = YearMonth.parse(yearMonth, formatter);  // 解析字符串为YearMonth对象
+        int daysInMonth = currentYM.lengthOfMonth();  // 获取该月的天数
+
+        //计算在职天数
+        int daysInWork = 0;
+        if(ObjectUtil.isEmpty(tmpHireDate) || (ObjectUtil.isNotEmpty(tmpLeaveDate) && tmpHireDate.isAfter(tmpLeaveDate))){
+            daysInWork = 0;
+        }
+        LocalDate startOfMonth = currentYM.atDay(1);  // 本月第一天
+        LocalDate endOfMonth = currentYM.atEndOfMonth();  // 本月最后一天
+        // 计算该员工在目标月的实际在职起始和结束日期
+        LocalDate actualStart = tmpHireDate.isBefore(startOfMonth) ? startOfMonth : tmpHireDate;
+        LocalDate actualEnd = (ObjectUtil.isNotEmpty(tmpLeaveDate) && tmpLeaveDate.isBefore(endOfMonth)) ? tmpLeaveDate : endOfMonth;
+        // 确保实际在职结束日期不早于起始日期
+        if(actualStart.isAfter(actualEnd)){
+            daysInWork = 0;
+        }
+        // 计算并返回实际在职天数
+        daysInWork = (int) ChronoUnit.DAYS.between(actualStart, actualEnd) + 1; // 加1是因为两端日期都包括在内
+
+        return (double) daysInWork / daysInMonth;
     }
 }
