@@ -19,6 +19,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
@@ -33,18 +34,14 @@ import java.util.Date;
 @Setter
 public class RecordAddParam {
 
-    /** 打卡记录时间 */
-    @ApiModelProperty(value = "打卡记录时间（后台自动切分成日期 和 时分秒 ）", position = 5)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
-    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-    private Date checkinTime;
-
-    /** 打卡结果（正常、迟到、早退等） */
-    @ApiModelProperty(value = "打卡结果（正常、迟到、早退等）", position = 7)
-    private String checkinResult;
+    /** 主键 */
+    @ApiModelProperty(value = "主键", required = true, position = 1)
+    @NotBlank(message = "id不能为空")
+    private String id;
 
     /** 考勤类型（上班、下班） */
-    @ApiModelProperty(value = "考勤类型（上班、下班）", position = 8)
+    @ApiModelProperty(value = "考勤类型（OnDuty、OffDuty等）", position = 8)
+    @NotEmpty(message = "考勤类型不能为空")
     private String checkinType;
 
     /** 来源设备（Mac、Windows等） */
@@ -74,6 +71,9 @@ public class RecordAddParam {
     /** 是否外勤打卡 */
     @ApiModelProperty(value = "是否外勤打卡", position = 15)
     private Boolean fieldWork;
+
+    @ApiModelProperty("打卡数据来源： USER_CHECK（用户打卡） FAST_CHECK（极速打卡） ")
+    private String sourceType;
 
     /** 考勤组 ID */
     @ApiModelProperty(value = "考勤组 ID", position = 16)

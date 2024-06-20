@@ -13,7 +13,7 @@ import vip.xiaonuo.common.consts.FeignConstant;
  * @date 2024/6/12 8:54
  */
 @FeignClient(name = FeignConstant.WEB_APP)
-public interface SysUserClient {
+public interface WebServerClient {
     @GetMapping("/sys/org/getChildrenUserNew")
     String getChildrenUser(@RequestParam(value = "orgId") String orgId);
 }

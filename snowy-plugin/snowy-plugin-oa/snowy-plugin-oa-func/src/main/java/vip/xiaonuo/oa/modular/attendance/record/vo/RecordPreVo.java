@@ -5,8 +5,10 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import vip.xiaonuo.oa.modular.attendance.record.entity.Record;
 
 import java.time.LocalTime;
+import java.util.List;
 
 /**
  * @author mayike
@@ -17,12 +19,18 @@ import java.time.LocalTime;
 @Setter
 public class RecordPreVo {
 
-    @ApiModelProperty(value = "打卡类型", position = 2)
-    private String type; //打卡类型
+    @ApiModelProperty(value = "是否允许外勤打卡",position = 1)
+    private Boolean allowFieldWork;
 
-    @ApiModelProperty(value = "正常打卡开始时间", position = 2)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
-    @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime normalStart; // 正常打卡开始时间
+    @ApiModelProperty(value = "外勤打卡备注是否必填",position = 2)
+    private Boolean requiredFieldWorkRemarks;
 
+    @ApiModelProperty(value = "当前时间是否能够打卡",position = 3)
+    private Boolean canCheckIn;
+
+    @ApiModelProperty(value = "不能打卡的原因",position = 4)
+    private String cannotCheckInReason;
+
+    @ApiModelProperty(value = "打卡列表", position = 5)
+    private List<Record> records;
 }

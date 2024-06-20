@@ -10,16 +10,16 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.oa.modular.attendance.calendar.service;
+package vip.xiaonuo.oa.modular.attendance.shift.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.oa.modular.attendance.calendar.entity.Calendar;
-import vip.xiaonuo.oa.modular.attendance.calendar.param.CalendarAddParam;
-import vip.xiaonuo.oa.modular.attendance.calendar.param.CalendarEditParam;
-import vip.xiaonuo.oa.modular.attendance.calendar.param.CalendarIdParam;
-import vip.xiaonuo.oa.modular.attendance.calendar.param.CalendarPageParam;
+import vip.xiaonuo.oa.modular.attendance.shift.entity.Calendar;
+import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarAddParam;
+import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarEditParam;
+import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarIdParam;
+import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarPageParam;
 
 import java.util.List;
 

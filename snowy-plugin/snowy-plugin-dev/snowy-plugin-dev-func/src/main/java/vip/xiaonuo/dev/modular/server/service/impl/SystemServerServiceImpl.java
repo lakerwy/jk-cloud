@@ -15,6 +15,7 @@ package vip.xiaonuo.dev.modular.server.service.impl;
 import cn.afterturn.easypoi.cache.manager.POICacheManager;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.io.IoUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -24,6 +25,7 @@ import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.baomidou.dynamic.datasource.annotation.DS;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -141,7 +143,7 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
     }
 
 
-    @Transactional(rollbackFor = Exception.class)
+    @DSTransactional
     @Override
     public void add(SystemServerAddParam systemServerAddParam) {
         SystemServer systemServer = BeanUtil.toBean(systemServerAddParam, SystemServer.class);
@@ -152,13 +154,12 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         systemServer.setSystemName(systemServer.getSystemSource());
         systemServer.setSystemStatus(0);
         this.save(systemServer);
+        List<SystemRoleVo> systemRoleVos = getSystemRoleVos(systemServerAddParam.getSystemType());
+        systemServer.setSystemRoleVos(systemRoleVos);
         ExtMessage extMessage = new ExtMessage();
         extMessage.setId(IdWorker.getIdStr());
         extMessage.setOperateType(1);
         extMessage.setData(JSONUtil.toJsonStr(systemServer));
-        List<SystemRoleVo> systemRoleVos = getSystemRoleVos(systemServerAddParam.getSystemType());
-        String jsonStr = JSONUtil.toJsonStr(systemRoleVos);
-        extMessage.setRoleJsonStr(jsonStr);
         //系统项目创建完成以后，就通知项目系统去初始化项目信息
         String routingKey = SystemTypeEnum.getRoutingKeyByTypeName(systemServerAddParam.getSystemType());
         boolean flag = false;
@@ -288,10 +289,10 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         String typeConfigValue = SystemTypeEnum.getConfigByTypeName(type);
         String valueByKey = devConfigService.getValueByKey(typeConfigValue);
         List<SystemRoleVo>  systemRoleVos = new ArrayList<>();
-        String RoleJson = devConfigService.getValueByKey(valueByKey);
+        //String RoleJson = devConfigService.getValueByKey(valueByKey);
         try{
-            if(StringUtils.isNotEmpty(RoleJson)){
-                systemRoleVos = JSONArray.parseArray(RoleJson, SystemRoleVo.class);
+            if(StringUtils.isNotEmpty(valueByKey)){
+                systemRoleVos = JSONArray.parseArray(valueByKey, SystemRoleVo.class);
             }
         }catch (Exception e){
             log.error("获取"+type+"字典表数据失败.");
@@ -337,6 +338,10 @@ public class SystemServerServiceImpl extends ServiceImpl<SystemServerMapper, Sys
         Object o = commonCacheOperator.get(InitConfConstant.SYSTEM_INIT_ROLE_PRE + systemType);
         if(ObjectUtil.isNotEmpty(o)){
             return (List<SystemRoleVo>) o;
+        }
+        List<SystemRoleVo> systemRoleVos = getSystemRoleVos(systemType);
+        if(CollUtil.isNotEmpty(systemRoleVos)){
+            return systemRoleVos;
         }
         return Collections.emptyList();
     }

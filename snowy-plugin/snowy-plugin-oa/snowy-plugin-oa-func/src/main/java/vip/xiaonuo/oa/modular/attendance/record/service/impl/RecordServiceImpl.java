@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DatePattern;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -23,6 +24,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
@@ -30,8 +32,10 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.oa.modular.attendance.group.constants.GroupConstant;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
 import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
+import vip.xiaonuo.oa.modular.attendance.record.constants.RecordConstant;
 import vip.xiaonuo.oa.modular.attendance.record.entity.Record;
 import vip.xiaonuo.oa.modular.attendance.record.mapper.RecordMapper;
 import vip.xiaonuo.oa.modular.attendance.record.param.RecordAddParam;
@@ -39,16 +43,27 @@ import vip.xiaonuo.oa.modular.attendance.record.param.RecordEditParam;
 import vip.xiaonuo.oa.modular.attendance.record.param.RecordIdParam;
 import vip.xiaonuo.oa.modular.attendance.record.param.RecordPageParam;
 import vip.xiaonuo.oa.modular.attendance.record.service.RecordService;
+import vip.xiaonuo.oa.modular.attendance.record.vo.RecordPreVo;
+import vip.xiaonuo.oa.modular.attendance.shift.entity.Calendar;
 import vip.xiaonuo.oa.modular.attendance.shift.entity.ClockInRule;
 import vip.xiaonuo.oa.modular.attendance.shift.entity.Shift;
 import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftIdParam;
+import vip.xiaonuo.oa.modular.attendance.shift.service.CalendarService;
 import vip.xiaonuo.oa.modular.attendance.shift.service.ShiftService;
 
 import javax.annotation.Resource;
 import java.text.DateFormat;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
+import java.util.stream.Collectors;
 
 /**
  * 考勤记录表Service接口实现类
@@ -57,6 +72,7 @@ import java.util.List;
  * @date  2024/06/12 11:03
  **/
 @Service
+@Slf4j
 public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> implements RecordService {
 
     @Resource
@@ -64,6 +80,11 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
 
     @Resource
     ShiftService shiftService;
+
+    @Resource
+    CalendarService calendarService;
+
+    public static final ThreadPoolExecutor executor = (ThreadPoolExecutor) Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
     @Override
     public Page<Record> page(RecordPageParam recordPageParam) {
@@ -118,49 +139,44 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
      * 打卡前预处理
      */
     @Override
-    public void preAdd() {
+    public RecordPreVo preCheck() {
+        // 获取当前登录用户
         SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
-        /**
-         * 1、根据当前日期和人获取 考勤组和考勤班次
-         */
-        //周日-周六 1-7
-        int weekValue = DateUtil.dayOfWeekEnum(DateUtil.date()).getValue();
-        assert loginUser != null;
+
+        // 根据当前日期和人获取考勤组
         Group group = groupService.getGroupByUserId(loginUser.getId());
-        String workDates = group.getWorkDates();
-        if(StrUtil.isEmpty(workDates)){
-            workDates = "0111110"; //考勤工作日为空时 ，默认赋值为周一到周五为工作日
-        }
-        boolean workDay = isWorkDay(workDates, weekValue);
-        //工作日
+        boolean isWorkDay = isWorkDay();
         Shift detail = null;
-        if(workDay){
-            if(StrUtil.isNotEmpty(group.getShiftId())){
+
+        if (isWorkDay) {
+            // 工作日
+            if (StrUtil.isNotEmpty(group.getShiftId())) {
+                // 根据 Shift ID 获取班次详情
                 ShiftIdParam shiftIdParam = new ShiftIdParam();
                 shiftIdParam.setId(group.getShiftId());
                 detail = shiftService.detail(shiftIdParam);
-            }else {
-                List<Shift> list = shiftService.list(new LambdaQueryWrapper<Shift>().eq(Shift::getDefaultFlag, true));
-                if(CollUtil.isEmpty(list)){
-                    //无默认班次，那就查询所有班次，设置第一个创建得班次为默认班次
-                    List<Shift> list1 = shiftService.list();
-                    if(CollUtil.isEmpty(list1)){
-                        throw  new CommonException("暂无班次信息，请设置后再次操作.");
+            } else {
+                // 获取默认班次或设置第一个创建的班次为默认班次
+                List<Shift> defaultShifts = shiftService.list(new LambdaQueryWrapper<Shift>().eq(Shift::getDefaultFlag, true));
+                if (CollUtil.isNotEmpty(defaultShifts)) {
+                    detail = defaultShifts.get(0);
+                } else {
+                    // 无默认班次
+                    List<Shift> allShifts = shiftService.list();
+                    if (CollUtil.isEmpty(allShifts)) {
+                        throw new CommonException("暂无班次信息，请设置后再次操作.");
                     }
-                    String id = list1.get(0).getId();
+                    Shift firstShift = allShifts.get(0);
                     ShiftIdParam shiftIdParam = new ShiftIdParam();
-                    shiftIdParam.setId(id);
+                    shiftIdParam.setId(firstShift.getId());
                     shiftService.setDefaultShift(shiftIdParam);
-                    detail = list1.get(0);
-                }else {
-                    detail = list.get(0);
+                    detail = firstShift;
                 }
             }
-        }else {
-            //非工作日打卡，若非工作日打卡不按照正常工作日打卡规则
-            if (!group.getWeekendWorkday()){
-                //获取休息日打卡班次
-                //此处无需考虑没有休息日打卡班次Id ,在新增时已校验
+        } else {
+            // 非工作日
+            if (!group.getWeekendWorkday()) {
+                // 获取休息日打卡班次
                 String weekDayShiftId = group.getWeekDayShiftId();
                 ShiftIdParam shiftIdParam = new ShiftIdParam();
                 shiftIdParam.setId(weekDayShiftId);
@@ -168,32 +184,308 @@ public class RecordServiceImpl extends ServiceImpl<RecordMapper, Record> impleme
             }
         }
 
-        List<ClockInRule> clockInRules = new ArrayList<>();
-        if(ObjectUtil.isNotEmpty(detail)){
-            assert detail != null;
-            clockInRules = detail.getClockInRules();
+        // 获取考勤记录
+        List<Record> records = new ArrayList<>();
+        try {
+            records = executor.submit(new CallableImpl(group, detail, loginUser.getId(), isWorkDay)).get();
+        } catch (Exception e) {
+            log.error("获取考勤打卡列表失败", e);
         }
-        //获取当日的打卡记录
-        List<Record> records = this.list(new LambdaQueryWrapper<Record>().eq(Record::getCheckinDate, DateUtil.format(DateUtil.date(), DatePattern.NORM_DATE_PATTERN))
-                .orderByAsc(Record::getCreateTime));
-        /**
-         * 上班只会有一条数据
-         * 下班会有多条
-         */
+
+        if (CollUtil.isEmpty(records)) {
+            throw new CommonException("没有对应的上下班打卡时间");
+        }
+
+        // 构建返回对象
+        RecordPreVo recordPreVo = new RecordPreVo();
+        recordPreVo.setCanCheckIn(true);
+        recordPreVo.setAllowFieldWork(group.getAllowFieldWork());
+        recordPreVo.setRequiredFieldWorkRemarks(group.getRequiredFieldWorkRemarks());
+        recordPreVo.setRecords(records);
+
+        return recordPreVo;
+    }
+
+
+    /**
+     * 考勤打卡
+     */
+    @Override
+    public void checkIn(RecordAddParam recordAddParam) {
+        SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
+        if(recordAddParam.getFieldWork()){
+            //外勤打卡就需要经度和维度
+            if(null == recordAddParam.getLatitude() || null == recordAddParam.getLongitude()){
+                throw new CommonException("外勤打卡经度或维度不能为空");
+            }
+        }
+        // 根据当前日期和人获取考勤组
+        Group group = groupService.getGroupByUserId(loginUser.getId());
+        if(null == group){
+            throw new CommonException("考勤组信息不能为空.");
+        }
+
+        Record record = queryEntity(recordAddParam.getId());
+        if(null == record){
+            throw new CommonException("打卡记录不存在");
+        }
+        if(RecordConstant.SOURCE_TYPE_FAST_CHECK.equals(recordAddParam.getSourceType()) && !RecordConstant.CHECKIN_RESULT_PreCheckIn.equals(record.getCheckinType())){
+            throw new CommonException("不能更新打卡记录");
+        }
+        String todayStr = DateUtil.today();
+        Date nowDate = new Date();
+        String checkInResult = RecordConstant.CHECKIN_RESULT_NORMAL;
+        if(StrUtil.isNotEmpty(record.getShiftId())){
+            Shift shift = shiftService.queryEntity(record.getShiftId());
+            if(null == shift){
+                throw new CommonException("班次不存在");
+            }
+            if(null != record.getPreDutyTimeBeforeLimit()){
+                DateTime checkTime = DateUtil.parse(todayStr + record.getPreDutyTimeBeforeLimit(), DatePattern.NORM_DATETIME_FORMAT);
+                if(nowDate.before(checkTime)){
+                    throw new CommonException("未到最早打卡时间.");
+                }
+            }
+
+            if(null != record.getPreDutyTimeAfterLimit()){
+                DateTime checkTime = DateUtil.parse(todayStr + record.getPreDutyTimeAfterLimit(), DatePattern.NORM_DATETIME_FORMAT);
+                if(nowDate.after(checkTime)){
+                    throw new CommonException("超过结束时间不能打卡.");
+                }
+            }
+
+            //上班打卡
+            if(record.getCheckinType().equals(RecordConstant.CHECKIN_TYPE_ON_DUTY)){
+                DateTime dutyTime = DateUtil.parse(todayStr + record.getDutyTime(), DatePattern.NORM_DATETIME_FORMAT);
+                checkInResult = RecordConstant.CHECKIN_RESULT_NORMAL;
+                //晚于正常打卡就记录为迟到打卡
+                if(nowDate.after(dutyTime)){
+                    checkInResult = RecordConstant.CHECKIN_RESULT_Late;
+                }
+                //超过严重打卡时间，记录为严重迟到
+                if(shift.getSeriousTardinessLateMinutes()>0){
+                    DateTime seriousLateTime = DateUtil.offsetMinute(dutyTime, shift.getSeriousTardinessLateMinutes());
+                    if(nowDate.after(seriousLateTime)){
+                        checkInResult = RecordConstant.CHECKIN_RESULT_SeriousLate;
+                    }
+                }
+            }
+        }else if (RecordConstant.CHECKIN_TYPE_OFF_DUTY.equals(record.getCheckinType())){
+            DateTime dutyTime = DateUtil.parse(todayStr + record.getDutyTime(), DatePattern.NORM_DATETIME_FORMAT);
+            //早退
+            if(nowDate.before(dutyTime)){
+                checkInResult = RecordConstant.CHECKIN_RESULT_Early;
+            }
+
+//            if(checkInResult.equals(RecordConstant)){
+//
+//            }
+
+        }
 
     }
 
     /**
      * 新增 工作日期表 判断是否未工作日
-     * @param workDates
-     * @param weekValue
      * @return
      */
-    private boolean isWorkDay(String workDates, int weekValue){
-        // 在 workDates 中，周日对应第一个字符，周一对应第二个字符（例如: "0111110"）
-        int index = weekValue - 1;
+    private boolean isWorkDay(){
+        DateTime date = DateUtil.date();
+        Calendar one = calendarService.getOne(new LambdaQueryWrapper<Calendar>().eq(Calendar::getCalendarDate, date.toDateStr()));
+        return ObjectUtil.isNotEmpty(one)?one.getIsWorkday():false;
+    }
 
-        // 判断当前星期几是否为工作日
-        return workDates.charAt(index) == '1';
+    private class CallableImpl implements Callable<List<Record>>{
+
+        private Group group;
+
+        private Shift shift;
+
+        private String userId;
+
+        private boolean isWork;
+
+        public CallableImpl(Group group, Shift shift, String userId, boolean isWork) {
+            this.group = group;
+            this.shift = shift;
+            this.userId = userId;
+            this.isWork = isWork;
+        }
+
+        @Override
+        public List<Record> call() throws Exception {
+            //查询打卡记录
+            Date nowDate = new Date();
+            String today = DateUtil.today();
+            List<Record> toDayRecords = list(new LambdaQueryWrapper<Record>().eq(Record::getCheckinDate, today).eq(Record::getUserId,userId)
+                    .orderByAsc(Record::getCreateTime));
+            if(group.getCheckType().equals(GroupConstant.CHECKTYPE_Arrangement)){
+                DateTime yesterday = DateUtil.yesterday();
+                String yesterdayStr = DateUtil.formatDate(yesterday);
+                List<Record> yesterRecords = list(new LambdaQueryWrapper<Record>().eq(Record::getCheckinDate, today).eq(Record::getUserId,userId)
+                        .orderByAsc(Record::getCreateTime));
+                if(CollUtil.isEmpty(yesterRecords)){
+                    if(shift != null){
+                        yesterRecords = dealShiftForRecord(group, shift, userId, yesterday, yesterdayStr, null);
+                    }
+                }
+                if(CollUtil.isNotEmpty(yesterRecords)){
+                    Record last = yesterRecords.get(yesterRecords.size() - 1);
+                    if(last.getOffDutyNextDay()){
+                        Date onDutyAfterTime;
+                        if(null == last.getPreDutyTimeAfterLimit()){
+                            onDutyAfterTime = DateUtil.parse(today+ " " + last.getDutyTime(),DatePattern.NORM_DATETIME_FORMAT);
+                            onDutyAfterTime = DateUtil.offsetMinute(onDutyAfterTime,60);
+                        }else {
+                            onDutyAfterTime = DateUtil.parse(today+ " " + last.getPreDutyTimeAfterLimit(),DatePattern.NORM_DATETIME_FORMAT);
+                        }
+
+                        // 如果没有在限制时间结束前 就是返回昨天的打卡记录
+                        if (!nowDate.after(onDutyAfterTime)) {
+                            return yesterRecords;
+                        }
+                    }
+                }
+            }
+
+            if(CollUtil.isNotEmpty(toDayRecords)){
+                dealWithOvertimeRecord(nowDate,today,toDayRecords);
+                return toDayRecords;
+            }
+
+            if(shift != null){
+                toDayRecords = dealShiftForRecord(group,shift,userId,nowDate,today,toDayRecords);
+            }
+
+            if(CollUtil.isEmpty(toDayRecords)){
+                List<Record> finalToDayRecords = new ArrayList<>();
+                //先按休息日处理
+                Boolean weekendWorkday = group.getWeekendWorkday();
+                if(!isWork && weekendWorkday){
+                    //如果休息日打卡按照工作日打卡规则
+                    String shiftId = group.getShiftId();
+                    //休息日排班规则
+                    Shift weekShift = shiftService.queryEntity(shiftId);
+                    weekShift.getClockInRules().forEach(rule->{
+                        finalToDayRecords.add(savePreCheckInRecord(userId, rule.getType(), group, shift.getId(), nowDate, today, rule));
+                    });
+                }else {
+                    ClockInRule onDutyRule = new ClockInRule(RecordConstant.CHECKIN_TYPE_ON_DUTY,LocalTime.parse("05:00"),LocalTime.parse("08:31"),LocalTime.parse("05:00"),LocalTime.parse("08:46"),false);
+                    Record record = savePreCheckInRecord(userId, RecordConstant.CHECKIN_TYPE_ON_DUTY, group, null, nowDate, today, onDutyRule);
+                    finalToDayRecords.add(record);
+                    ClockInRule offDutyRule = new ClockInRule(RecordConstant.CHECKIN_TYPE_OFF_DUTY,LocalTime.parse("17:30"),LocalTime.parse("11:59"),LocalTime.parse("17:30"),LocalTime.parse("11:59"),false);
+                    Record record1 = savePreCheckInRecord(userId, RecordConstant.CHECKIN_TYPE_ON_DUTY, group, null, nowDate, today, offDutyRule);
+                    finalToDayRecords.add(record1);
+                }
+                toDayRecords = finalToDayRecords;
+            }
+            return toDayRecords;
+        }
+    }
+
+    private List<Record> dealShiftForRecord(Group group,Shift shift,String userId, Date checkDate,String dateStr,List<Record> records){
+        List<ClockInRule> clockInRules = shift.getClockInRules();
+        if(CollUtil.isEmpty(clockInRules)){
+            throw new CommonException(String.format("%s该班次的考勤规则为空",shift.getShiftName()));
+        }
+        //没有打卡记录，那就先预生成打卡记录
+        if(CollUtil.isEmpty(records)){
+            List<Record> finalRecords = new ArrayList<>();
+            clockInRules.forEach(rule->{
+                finalRecords.add(savePreCheckInRecord(userId, rule.getType(), group, shift.getId(), checkDate, dateStr, rule));
+            });
+            records = finalRecords;
+        }
+
+        return records;
+    }
+
+    /**
+     * 预存打卡记录
+     * @return
+     */
+    private Record savePreCheckInRecord(String userId,String dutyType,Group group,String shiftId, Date dutyDate,String dutyTimeStr,ClockInRule clockInRule){
+        Record record = new Record();
+        record.setCheckinType(dutyType);
+        record.setCheckinResult(RecordConstant.CHECKIN_RESULT_PreCheckIn);
+        record.setUserId(userId);
+        record.setCheckinDate(dutyDate);
+        //打卡时间处理
+        if(StrUtil.isEmpty(dutyTimeStr)){
+            dutyTimeStr = clockInRule.getNormalStart().toString();
+        }
+        Date checkinTime = DateUtil.parse(dutyDate+ " " + dutyTimeStr,DatePattern.NORM_DATETIME_FORMAT);
+        if(dutyType.equals(RecordConstant.CHECKIN_TYPE_OFF_DUTY) && clockInRule.getOffDutyNextDay()){
+            DateTime dateTime = DateUtil.offsetDay(checkinTime, 1);
+            record.setCheckinTime(dateTime);
+        }else {
+            record.setCheckinTime(checkinTime);
+        }
+        record.setDutyTime(LocalTime.parse(dutyTimeStr));
+        record.setOffDutyNextDay(clockInRule.getOffDutyNextDay());
+        record.setSourceType(RecordConstant.SOURCE_TYPE_AUTO_CHECK);
+        record.setPreDutyTimeBeforeLimit(clockInRule.getEarliest());
+        record.setPreDutyTimeBeforeLimit(clockInRule.getLatest());
+        record.setSourceDevice("其他");
+        record.setDescription("系统生成，预打卡记录");
+        record.setGroupId(group.getId());
+        record.setShiftId(shiftId);
+        save(record);
+        return record;
+    }
+
+    /**
+     * 处理已超过打卡时间的记录，标记为未打卡
+     */
+    private void dealWithOvertimeRecord(Date nowDate, String today, List<Record> records) {
+        // 筛选出预打卡的数据
+        List<Record> preCheckInRecords = records.stream()
+                .filter(record -> RecordConstant.CHECKIN_RESULT_PreCheckIn.equals(record.getCheckinResult()))
+                .collect(Collectors.toList());
+
+        for (int i = 0; i < preCheckInRecords.size(); i++) {
+            Record currentRecord = preCheckInRecords.get(i);
+            Date checkinTime;
+
+            if (currentRecord.getPreDutyTimeAfterLimit() != null) {
+                // 配置了打卡结束时间限制
+                checkinTime = DateUtil.parse(today + " " + currentRecord.getPreDutyTimeAfterLimit(), DatePattern.NORM_DATETIME_FORMAT);
+            } else {
+                // 未配置结束时间限制，使用正常打卡时间
+                checkinTime = DateUtil.parse(today + " " + currentRecord.getDutyTime(), DatePattern.NORM_DATETIME_FORMAT);
+            }
+
+            if (nowDate.after(checkinTime)) {
+                if (currentRecord.getPreDutyTimeAfterLimit() != null || i == preCheckInRecords.size() - 1) {
+                    // 如果超过打卡结束限制时间，或者是最后一条记录，直接生成未打卡数据
+                    update2NoCheckInRecord(currentRecord);
+                } else {
+                    // 处理没有打卡结束时间限制且不是最后一条记录的情况
+                    Record nextRecord = preCheckInRecords.get(i + 1);
+                    Date nextCheckTime = DateUtil.parse(today + " " + nextRecord.getDutyTime(), DatePattern.NORM_DATETIME_FORMAT);
+
+                    if (nextRecord.getOffDutyNextDay()) {
+                        nextCheckTime = DateUtil.offsetDay(nextCheckTime, 1);
+                    }
+
+                    // 计算中间时间点
+                    long halfIntervalMinutes = (nextCheckTime.getTime() - checkinTime.getTime()) / 60000 / 2;
+                    DateTime middleTime = DateUtil.offsetMinute(checkinTime, (int) halfIntervalMinutes);
+
+                    // 如果当前时间超过中间时间点，生成未打卡数据
+                    if (nowDate.after(middleTime)) {
+                        update2NoCheckInRecord(currentRecord);
+                    }
+                }
+            }
+        }
+    }
+
+    private void update2NoCheckInRecord(Record record){
+        record.setCheckinResult(RecordConstant.CHECKIN_RESULT_NotSigned);
+        record.setSourceType(RecordConstant.SOURCE_TYPE_AUTO_CHECK);
+        record.setSourceDevice("其他");
+        record.setDescription("系统生成，缺卡记录");
+        updateById(record);
     }
 }

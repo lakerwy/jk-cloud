@@ -33,7 +33,7 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.oa.core.constant.AttCacheConstants;
-import vip.xiaonuo.oa.modular.attendance.client.SysUserClient;
+import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
 import vip.xiaonuo.oa.modular.attendance.group.entity.AttObject;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
 import vip.xiaonuo.oa.modular.attendance.group.mapper.GroupMapper;
@@ -60,7 +60,7 @@ import java.util.stream.Collectors;
 public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements GroupService {
 
     @Resource
-    private SysUserClient sysUserClient;
+    private WebServerClient webServerClient;
 
     @Resource
     private CommonCacheOperator cacheOperator;
@@ -113,7 +113,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             participates.forEach(attObject -> {
                 if(attObject.getType() == 0 || attObject.getType() == 1){
                     //获取公司或者部门下的所有用户信息
-                    String childrenUser = sysUserClient.getChildrenUser(attObject.getObjectId());
+                    String childrenUser = webServerClient.getChildrenUser(attObject.getObjectId());
                     JSONArray jsonArray = JSONUtil.parseArray(childrenUser);
                     trueParticipates.addAll(jsonArray.stream()
                             .map(json -> {

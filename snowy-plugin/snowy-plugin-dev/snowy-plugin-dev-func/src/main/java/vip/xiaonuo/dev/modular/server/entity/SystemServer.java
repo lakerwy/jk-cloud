@@ -16,8 +16,11 @@ import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.dev.modular.server.vo.SystemRoleVo;
+
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 系统服务表实体
@@ -127,4 +130,8 @@ public class SystemServer {
     @ApiModelProperty(value = "项目参与人，英文逗号隔开", position = 22)
     @TableField(exist = false)
     private String parter;
+
+    @TableField(exist = false)
+    @ApiModelProperty(value = "系统角色列表")
+    private List<SystemRoleVo> systemRoleVos;
 }

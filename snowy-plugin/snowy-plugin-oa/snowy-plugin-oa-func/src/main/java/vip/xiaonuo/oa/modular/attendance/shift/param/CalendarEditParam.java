@@ -10,34 +10,31 @@
  * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
  * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
  */
-package vip.xiaonuo.oa.modular.attendance.calendar.entity;
+package vip.xiaonuo.oa.modular.attendance.shift.param;
 
-import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 日历表实体
+ * 日历表编辑参数
  *
  * @author mayike
  * @date  2024/06/15 12:59
  **/
 @Getter
 @Setter
-@TableName("OA_ATTN_CALENDAR")
-public class Calendar {
+public class CalendarEditParam {
 
     /** 主键 */
-    @TableId
-    @ApiModelProperty(value = "主键", position = 1)
+    @ApiModelProperty(value = "主键", required = true, position = 1)
+    @NotBlank(message = "id不能为空")
     private String id;
-
-    /** 租户ID */
-    @ApiModelProperty(value = "租户ID", position = 2)
-    private String tenantId;
 
     /** 日期 */
     @ApiModelProperty(value = "日期", position = 3)
@@ -75,29 +72,4 @@ public class Calendar {
     @ApiModelProperty(value = "季度", position = 11)
     private Integer quarter;
 
-    /** 删除标志，逻辑删除 */
-    @ApiModelProperty(value = "删除标志，逻辑删除", position = 12)
-    @TableLogic
-    @TableField(fill = FieldFill.INSERT)
-    private String deleteFlag;
-
-    /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 13)
-    @TableField(fill = FieldFill.INSERT)
-    private Date createTime;
-
-    /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 14)
-    @TableField(fill = FieldFill.INSERT)
-    private String createUser;
-
-    /** 修改时间 */
-    @ApiModelProperty(value = "修改时间", position = 15)
-    @TableField(fill = FieldFill.UPDATE)
-    private Date updateTime;
-
-    /** 修改用户 */
-    @ApiModelProperty(value = "修改用户", position = 16)
-    @TableField(fill = FieldFill.UPDATE)
-    private String updateUser;
 }
