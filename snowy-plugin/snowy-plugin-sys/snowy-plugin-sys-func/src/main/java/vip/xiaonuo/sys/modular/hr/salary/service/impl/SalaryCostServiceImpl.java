@@ -159,6 +159,7 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
             List<SalaryCostConfig> costConfigList = ObjectUtil.isNotEmpty(item.getCostJson()) ? JSONUtil.toList(item.getCostJson(), SalaryCostConfig.class) : new ArrayList<>();
             //人力成本划分归属部门-设置
             List<String> deptIds = costConfigList.stream().filter(x->ObjectUtil.isNotEmpty(x.getDeptId())).map(x->x.getDeptId()).distinct().collect(Collectors.toList());  //一条工资数据成本划分涉及到多少部门
+            String tmpNote = "月度发薪人数："+payNum+" 成本划分设置："+item.getCostJson();
             /** 人力成本分析 - 汇总维度 **/
             deptIds.forEach(deptId->{
                 SalaryCost tmpSalaryCost = new SalaryCost();
@@ -174,7 +175,7 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                 SalaryCostConfig tmpDept = costConfigList.stream().filter(x->x.getDeptId().equals(deptId)).findFirst().orElse(null);
                 tmpSalaryCost.setDeptId(deptId);
                 tmpSalaryCost.setDept(tmpDept.getDept());
-                tmpSalaryCost.setNote("月度发薪人数："+payNum+" 成本划分设置："+item.getCostJson());
+                tmpSalaryCost.setNote(tmpNote);
                 //循环处理 各类配置
                 costConfigList.forEach(config->{
                     //工资 【工资=应发工资+公积金差额-注册补贴】
@@ -237,6 +238,7 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                     SalaryCostConfig tmpDept = insCostConfigList.stream().filter(x->x.getDeptId().equals(deptId)).findFirst().orElse(null);
                     tmpSalaryCost.setDeptId(deptId);
                     tmpSalaryCost.setDept(tmpDept.getDept());
+                    tmpSalaryCost.setNote(tmpNote);
                     insCostConfigList.forEach(config->{
                         if(deptId.equals(config.getDeptId())){
                             tmpSalaryCost.setPayNum(payNum * config.getRate());
@@ -269,6 +271,7 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                     SalaryCostConfig tmpDept = gjjCostConfigList.stream().filter(x->x.getDeptId().equals(deptId)).findFirst().orElse(null);
                     tmpSalaryCost.setDeptId(deptId);
                     tmpSalaryCost.setDept(tmpDept.getDept());
+                    tmpSalaryCost.setNote(tmpNote);
                     gjjCostConfigList.forEach(config->{
                         if(deptId.equals(config.getDeptId())){
                             tmpSalaryCost.setPayNum(payNum * config.getRate());
