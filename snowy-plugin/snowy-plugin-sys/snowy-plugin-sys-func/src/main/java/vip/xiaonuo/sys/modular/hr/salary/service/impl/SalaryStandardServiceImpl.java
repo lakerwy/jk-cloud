@@ -83,12 +83,18 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getPosition())) {
             queryWrapper.lambda().like(SalaryStandard::getPosition, AesUtil.encrypt(salaryStandardPageParam.getPosition()));
         }
+        if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(SalaryStandard::getUserName,AesUtil.encrypt(salaryStandardPageParam.getSearchKey()))
+                    .or().like(SalaryStandard::getIdCardNumber,AesUtil.encrypt(salaryStandardPageParam.getSearchKey()))
+                    .or().like(SalaryStandard::getOrgName,AesUtil.encrypt(salaryStandardPageParam.getSearchKey()))
+                    .or().like(SalaryStandard::getFirstOrgName,AesUtil.encrypt(salaryStandardPageParam.getSearchKey())));
+        }
         if(ObjectUtil.isAllNotEmpty(salaryStandardPageParam.getSortField(), salaryStandardPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryStandardPageParam.getSortOrder());
             queryWrapper.orderBy(true, salaryStandardPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(salaryStandardPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth);
+            queryWrapper.lambda().orderByDesc(SalaryStandard::getYearMonth).orderByDesc(SalaryStandard::getUserType).orderByAsc(SalaryStandard::getCompany);
         }
         Page<SalaryStandard> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<SalaryStandard> records = AesUtil.decryptGZList(result.getRecords());
