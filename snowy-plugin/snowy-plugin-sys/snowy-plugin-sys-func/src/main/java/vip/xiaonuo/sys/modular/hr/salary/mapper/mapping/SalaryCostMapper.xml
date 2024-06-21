@@ -4,7 +4,7 @@
 
     <select id="getSalaryCost" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryCostVo">
         select  a.*,
-                b.HIRE_DATE as hireDate,b.LEAVE_DATE as leaveDate,b.STANDARD_ID as standardId,b.COST_JSON as costJson
+                b.HIRE_DATE as hireDate,b.LEAVE_DATE as leaveDate,b.STANDARD_ID as standardId,b.COST_JSON as costJson,b.DATA_TYPE as dataType
         from HR_SALARY a
                  left join HR_SALARY_PREVIEW b on a.PREVIEW_ID = b.ID
         where a.DELETE_FLAG = 'NOT_DELETE'

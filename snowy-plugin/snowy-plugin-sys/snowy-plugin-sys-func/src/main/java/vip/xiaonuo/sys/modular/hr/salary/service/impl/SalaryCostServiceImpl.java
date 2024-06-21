@@ -30,6 +30,7 @@ import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryCost;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryGjj;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryIns;
 import vip.xiaonuo.sys.modular.hr.salary.enums.CostTypeEnum;
+import vip.xiaonuo.sys.modular.hr.salary.enums.DataTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryCostMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostEditParam;
@@ -180,15 +181,17 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                 costConfigList.forEach(config->{
                     //工资 【工资=应发工资+公积金差额-注册补贴】
                     if(CostTypeEnum.GZ.getValue().equals(config.getType()) && deptId.equals(config.getDeptId())){
-                        tmpSalaryCost.setPayNum(payNum * config.getRate());
-                        BigDecimal tmp = ComputeUtil.setScale((item.getGrossPayAmount().add(item.getGjjDiffAmount()).subtract(item.getRegisterAmount())).multiply(BigDecimal.valueOf(config.getRate())),2);
+                        if(DataTypeEnum.SALARY.getValue().equals(item.getDataType())) {
+                            tmpSalaryCost.setPayNum(payNum * config.getRate());
+                        }
+                        BigDecimal tmp = ComputeUtil.setScale((item.getGrossPayAmount().add(item.getGjjDiffAmount()).subtract(item.getRegisterAmount())).multiply(BigDecimal.valueOf(config.getRate())),6);
                         tmpSalaryCost.setGz(tmp);
                     }
                     //社会保险费 【社保保险费=合计-单位（社保）】
                     if(CostTypeEnum.INS.getValue().equals(config.getType()) && deptId.equals(config.getDeptId())){
                         SalaryIns tmpIns = finalInsList.stream().filter(x -> x.getStandardId().equals(item.getStandardId()) && x.getUnitName().equals(item.getCompany())).findFirst().orElse(null);
                         if(ObjectUtil.isNotEmpty(tmpIns)) {
-                            BigDecimal tmp = ComputeUtil.setScale(tmpIns.getUnit().multiply(BigDecimal.valueOf(config.getRate())),2);
+                            BigDecimal tmp = ComputeUtil.setScale(tmpIns.getUnit().multiply(BigDecimal.valueOf(config.getRate())),6);
                             tmpSalaryCost.setIns(tmp);
                         }
                     }
@@ -196,23 +199,23 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                     if(CostTypeEnum.GJJ.getValue().equals(config.getType()) && deptId.equals(config.getDeptId())){
                         SalaryGjj tmpGjj = finalGjjList.stream().filter(x -> x.getStandardId().equals(item.getStandardId()) && x.getUnitName().equals(item.getCompany())).findFirst().orElse(null);
                         if(ObjectUtil.isNotEmpty(tmpGjj)) {
-                            BigDecimal tmp = ComputeUtil.setScale(tmpGjj.getUnit().multiply(BigDecimal.valueOf(config.getRate())),2);
+                            BigDecimal tmp = ComputeUtil.setScale(tmpGjj.getUnit().multiply(BigDecimal.valueOf(config.getRate())),6);
                             tmpSalaryCost.setGjj(tmp);
                         }
                     }
                     //注册补贴费用 【注册补贴费用=注册补贴】
                     if(CostTypeEnum.REGISTER.getValue().equals(config.getType()) && deptId.equals(config.getDeptId())){
-                        BigDecimal tmp = ComputeUtil.setScale(item.getRegisterAmount().multiply(BigDecimal.valueOf(config.getRate())),2);
+                        BigDecimal tmp = ComputeUtil.setScale(item.getRegisterAmount().multiply(BigDecimal.valueOf(config.getRate())),6);
                         tmpSalaryCost.setRegister(tmp);
                     }
                     //员工福利费 【员工福利费=工资表里的员工福利】
                     if(CostTypeEnum.WELFARE.getValue().equals(config.getType()) && deptId.equals(config.getDeptId())){
-                        BigDecimal tmp = ComputeUtil.setScale(item.getEmpWelfareAmount().multiply(BigDecimal.valueOf(config.getRate())),2);
+                        BigDecimal tmp = ComputeUtil.setScale(item.getEmpWelfareAmount().multiply(BigDecimal.valueOf(config.getRate())),6);
                         tmpSalaryCost.setWelfare(tmp);
                     }
                     //外业补贴  【外业补贴=外业补贴】
                     if(CostTypeEnum.OUTER.getValue().equals(config.getType()) && deptId.equals(config.getDeptId())){
-                        BigDecimal tmp = ComputeUtil.setScale(item.getOuterAmount().multiply(BigDecimal.valueOf(config.getRate())),2);
+                        BigDecimal tmp = ComputeUtil.setScale(item.getOuterAmount().multiply(BigDecimal.valueOf(config.getRate())),6);
                         tmpSalaryCost.setField(tmp);
                     }
                 });
@@ -242,8 +245,8 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                     insCostConfigList.forEach(config->{
                         if(deptId.equals(config.getDeptId())){
                             tmpSalaryCost.setPayNum(payNum * config.getRate());
-                            BigDecimal tmpPer = ComputeUtil.setScale(tmpIns.getPer().multiply(BigDecimal.valueOf(config.getRate())),2);
-                            BigDecimal tmpUnit = ComputeUtil.setScale(tmpIns.getUnit().multiply(BigDecimal.valueOf(config.getRate())),2);
+                            BigDecimal tmpPer = ComputeUtil.setScale(tmpIns.getPer().multiply(BigDecimal.valueOf(config.getRate())),6);
+                            BigDecimal tmpUnit = ComputeUtil.setScale(tmpIns.getUnit().multiply(BigDecimal.valueOf(config.getRate())),6);
                             tmpSalaryCost.setIns(tmpPer);
                             tmpSalaryCost.setGjj(tmpUnit);
                         }
@@ -275,8 +278,8 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                     gjjCostConfigList.forEach(config->{
                         if(deptId.equals(config.getDeptId())){
                             tmpSalaryCost.setPayNum(payNum * config.getRate());
-                            BigDecimal tmpPer = ComputeUtil.setScale(tmpGjj.getPer().multiply(BigDecimal.valueOf(config.getRate())),2);
-                            BigDecimal tmpUnit = ComputeUtil.setScale(tmpGjj.getUnit().multiply(BigDecimal.valueOf(config.getRate())),2);
+                            BigDecimal tmpPer = ComputeUtil.setScale(tmpGjj.getPer().multiply(BigDecimal.valueOf(config.getRate())),6);
+                            BigDecimal tmpUnit = ComputeUtil.setScale(tmpGjj.getUnit().multiply(BigDecimal.valueOf(config.getRate())),6);
                             tmpSalaryCost.setIns(tmpPer);
                             tmpSalaryCost.setGjj(tmpUnit);
                         }

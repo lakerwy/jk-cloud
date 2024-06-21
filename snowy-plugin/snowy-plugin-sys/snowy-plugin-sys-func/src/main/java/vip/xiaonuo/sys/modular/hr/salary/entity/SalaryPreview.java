@@ -345,4 +345,8 @@ public class SalaryPreview {
     /** 成本划分 - 存储JSON字符串 */
     @ApiModelProperty(value = "成本划分 - 存储JSON字符串", position = 74)
     private String costJson;
+
+    /** 区分 - 数据类别：工资|社保|公积金 */
+    @ApiModelProperty(value = "区分 - 数据类别：工资|社保|公积金", position = 75)
+    private String dataType;
 }

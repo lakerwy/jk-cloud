@@ -37,4 +37,8 @@ public class SalaryCostVo extends Salary {
     @ApiModelProperty(value = "成本划分 - 存储JSON字符串", position = 104)
     private String costJson;
 
+    /** 数据类型 - 工资(可能含 社保、公积金)|社保|公积金 */
+    @ApiModelProperty(value = "数据类型 - 工资|社保|公积金", position = 105)
+    private String dataType;
+
 }

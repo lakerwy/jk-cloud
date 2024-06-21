@@ -83,6 +83,12 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getPosition())) {
             queryWrapper.lambda().like(SalaryStandard::getPosition, AesUtil.encrypt(salaryStandardPageParam.getPosition()));
         }
+        if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getIsSpec())){
+            queryWrapper.lambda().eq(SalaryStandard::getIsSpec,salaryStandardPageParam.getIsSpec());
+        }
+        if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getIsTry())){
+            queryWrapper.lambda().eq(SalaryStandard::getIsTry,salaryStandardPageParam.getIsTry());
+        }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(SalaryStandard::getUserName,AesUtil.encrypt(salaryStandardPageParam.getSearchKey()))
                     .or().like(SalaryStandard::getIdCardNumber,AesUtil.encrypt(salaryStandardPageParam.getSearchKey()))
