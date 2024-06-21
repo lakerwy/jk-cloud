@@ -57,6 +57,8 @@ public enum BizCommonEnum {
 
     BIZ_DEV_FORM("BIZ_DEV_FORM","BIZ_DEV_FORM","DevFormServiceImpl"),  //需求单 - 发起
 
+    BIZ_BID_DECISION("BIZ_BID_DECISION","BIZ_BID_DECISION","BidDecisionServiceImpl"),  //投标决策 - 发起
+
     BIZ_DEV_CONFIRM("BIZ_DEV_CONFIRM","BIZ_DEV_CONFIRM","DevConfirmServiceImpl");  //需求单 - 确认
 
     String bizModel;
