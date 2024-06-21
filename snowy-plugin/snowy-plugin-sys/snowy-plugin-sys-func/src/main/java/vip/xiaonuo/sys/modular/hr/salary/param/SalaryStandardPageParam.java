@@ -82,4 +82,8 @@ public class SalaryStandardPageParam {
     @ApiModelProperty(value = "是否实习生")
     private String isTry;
 
+    /** 是否设置了成本归属 */
+    @ApiModelProperty(value = "是否设置了成本归属")
+    private String isCostJson;
+
 }

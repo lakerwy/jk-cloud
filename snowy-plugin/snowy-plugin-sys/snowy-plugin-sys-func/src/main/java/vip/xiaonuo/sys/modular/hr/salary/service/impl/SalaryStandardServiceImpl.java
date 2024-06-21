@@ -28,6 +28,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryStandard;
 import vip.xiaonuo.sys.modular.hr.salary.enums.UserTypeEnum;
+import vip.xiaonuo.sys.modular.hr.salary.enums.YesOrNoEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryStandardMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.*;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.*;
@@ -88,6 +89,13 @@ public class SalaryStandardServiceImpl extends ServiceImpl<SalaryStandardMapper,
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getIsTry())){
             queryWrapper.lambda().eq(SalaryStandard::getIsTry,salaryStandardPageParam.getIsTry());
+        }
+        if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getIsCostJson())){
+            if(YesOrNoEnum.YES.getValue().equals(salaryStandardPageParam.getIsCostJson())){
+                queryWrapper.lambda().isNotNull(SalaryStandard::getCostJson).ne(SalaryStandard::getCostJson,"");
+            } else if (YesOrNoEnum.NO.getValue().equals(salaryStandardPageParam.getIsCostJson())) {
+                queryWrapper.lambda().and(q->q.isNull(SalaryStandard::getCostJson).or().eq(SalaryStandard::getCostJson,""));
+            }
         }
         if(ObjectUtil.isNotEmpty(salaryStandardPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(SalaryStandard::getUserName,AesUtil.encrypt(salaryStandardPageParam.getSearchKey()))

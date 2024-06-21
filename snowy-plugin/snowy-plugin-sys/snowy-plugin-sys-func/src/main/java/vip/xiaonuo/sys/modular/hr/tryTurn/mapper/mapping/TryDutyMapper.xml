@@ -17,7 +17,8 @@
         SELECT a.*,
                b.NAME as name,b.ID_NUMBER as idNumber,b.DEPT as dept,b.DUTY as duty,
                b.HIRE_DATE as hireDate,b.POSITIVE_TIME as positiveTime,b.TRIAL_PERIOD as trialPeriod,
-               b.CONTRACT_UNIT as contractUnit
+               b.CONTRACT_UNIT as contractUnit,b.HIGHEST_EDUCATION as highestEducation,
+               b.GRADUATE_SCHOOL as graduateSchool,b.MAJOR as major
         FROM HR_TRY_DUTY a
                  left join PERSONNEL b on a.PERSONNEL_ID = b.ID
         where a.ID = #{id}
