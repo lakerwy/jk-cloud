@@ -31,7 +31,7 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
     private static final String MEETING_BOOK = "meetingroom_book";
     private static final String EVENT_SUB_TYPE = "eventSubType";
     private static final String BOOK_SUCCESS = "bookSuccess";
-    private static final String SP_UNION_ID = "4SViPiiX4TPmlN0SXuiScfxuwiEiE";
+//    private static final String SP_UNION_ID = "QLLSud8sSkVN0SXuiScfxuwiEiE"; //4SViPiiX4TPmlN0SXuiScfxuwiEiE
 
 
     @Value("${dingtalkstream.clientId}")
@@ -42,6 +42,9 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
 
     @Value("${dingtalkstream.enable}")
     private Boolean enable;
+
+    @Value("${dingtalkstream.spUnionId}")
+    private String spUnionId;
 
     @Resource
     ConferenceRezService conferenceRezService;
@@ -98,7 +101,7 @@ public class DingTalkEventListener implements ApplicationListener<ApplicationRea
 
             String[] calendarIds = calendarEventIdJson.split(";");
             if(calendarIds.length <=1){return bizData;}
-            List<SysUser> sysUsers = dingdingCalendarUtil.getCalendarPart(SP_UNION_ID,calendarIds[1],xAcsDingtalkAccessToken);
+            List<SysUser> sysUsers = dingdingCalendarUtil.getCalendarPart(spUnionId,calendarIds[1],xAcsDingtalkAccessToken);
             String joinUsers = sysUsers.stream().map(SysUser::getId).collect(Collectors.joining(","));
             //StringBuilder joinUsers = new StringBuilder();
             //sysUsers.forEach(user -> joinUsers.append(user.getId()).append(","));
