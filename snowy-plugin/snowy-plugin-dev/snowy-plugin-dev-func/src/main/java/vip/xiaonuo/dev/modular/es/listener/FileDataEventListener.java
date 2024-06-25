@@ -32,7 +32,7 @@ public class FileDataEventListener {
             fileDataService.save(fileData);
             // 处理 fileData ...
         }catch (Exception e){
-            log.error("New file data received fail: " + fileData);
+            log.error("New file data received fail: " + fileData.getName());
         }
 
     }
