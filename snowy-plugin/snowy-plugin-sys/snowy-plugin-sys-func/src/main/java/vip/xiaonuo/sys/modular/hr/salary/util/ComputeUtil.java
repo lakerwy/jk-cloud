@@ -581,10 +581,9 @@ public class ComputeUtil {
         YearMonth currentYM = YearMonth.parse(yearMonth, formatter);  // 解析字符串为YearMonth对象
         int daysInMonth = currentYM.lengthOfMonth();  // 获取该月的天数
 
-        //计算在职天数
-        int daysInWork = 0;
+        //计算
         if(ObjectUtil.isEmpty(tmpHireDate) || (ObjectUtil.isNotEmpty(tmpLeaveDate) && tmpHireDate.isAfter(tmpLeaveDate))){
-            daysInWork = 0;
+            return 0;
         }
         LocalDate startOfMonth = currentYM.atDay(1);  // 本月第一天
         LocalDate endOfMonth = currentYM.atEndOfMonth();  // 本月最后一天
@@ -593,11 +592,11 @@ public class ComputeUtil {
         LocalDate actualEnd = (ObjectUtil.isNotEmpty(tmpLeaveDate) && tmpLeaveDate.isBefore(endOfMonth)) ? tmpLeaveDate : endOfMonth;
         // 确保实际在职结束日期不早于起始日期
         if(actualStart.isAfter(actualEnd)){
-            daysInWork = 0;
+            return 0;
         }
         // 计算并返回实际在职天数
-        daysInWork = (int) ChronoUnit.DAYS.between(actualStart, actualEnd) + 1; // 加1是因为两端日期都包括在内
+        double daysInWork = (double) ChronoUnit.DAYS.between(actualStart, actualEnd) + 1; // 加1是因为两端日期都包括在内
 
-        return (double) daysInWork / daysInMonth;
+        return daysInWork / daysInMonth;
     }
 }
