@@ -1973,6 +1973,6 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             avatar = CommonAvatarUtil.generateImg(sysUser.getName());
         }
         sysUser.setAvatar(avatar.split(";")[1]);
-        return baseMapper.selectOne(queryWrapper);
+        return sysUser;
     }
 }
