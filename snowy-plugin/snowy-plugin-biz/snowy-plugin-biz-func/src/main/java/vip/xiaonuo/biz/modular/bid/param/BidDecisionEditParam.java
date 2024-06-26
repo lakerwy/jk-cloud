@@ -115,6 +115,10 @@ public class BidDecisionEditParam {
     @ApiModelProperty(value = "开标日期（投标截止日期）", position = 21)
     private String bidDate;
 
+    /** 附件 */
+    @ApiModelProperty(value = "附件", position = 22)
+    private String attach;
+
     /** 计划项目生产分工JSON */
     @ApiModelProperty(value = "计划项目生产分工JSON", position = 22)
     private String planDivideJson;
