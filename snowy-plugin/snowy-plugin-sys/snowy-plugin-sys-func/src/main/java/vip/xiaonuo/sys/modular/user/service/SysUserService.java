@@ -527,4 +527,6 @@ public interface SysUserService extends IService<SysUser> {
     void updateExtJson(String userId, String extJson);
 
     void syncResource(String orgId);
+
+    SysUser getUserByImUserId(String imUserId);
 }

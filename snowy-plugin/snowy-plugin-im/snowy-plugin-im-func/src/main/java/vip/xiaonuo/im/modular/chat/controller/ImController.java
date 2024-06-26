@@ -1,9 +1,11 @@
 package vip.xiaonuo.im.modular.chat.controller;
 
+import cn.hutool.json.JSONObject;
 import cn.wildfirechat.pojos.OutputGetUserList;
 import cn.wildfirechat.pojos.PojoGroupInfos;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
+import com.google.gson.JsonObject;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiModelProperty;
 import io.swagger.annotations.ApiOperation;
@@ -47,5 +49,14 @@ public class ImController {
     public CommonResult<PojoGroupInfos> getPojoGroupInfos(@RequestParam(value = "userId") String userId) {
         PojoGroupInfos pojoGroupInfos= imService.getPojoGroupInfosByUserId(userId);
         return CommonResult.data(pojoGroupInfos);
+    }
+
+    @ApiOperationSupport(order =2)
+    @ApiOperation("更新Im的用户信息")
+    @CommonLog("更新Im的用户信息")
+    @PostMapping("/im/updateImUser")
+    public CommonResult<String> updateImUser(@RequestBody JSONObject userInfo) {
+        imService.updateImUser(userInfo);
+        return CommonResult.ok();
     }
 }

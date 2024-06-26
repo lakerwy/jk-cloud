@@ -945,6 +945,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         // 更新指定字段
         this.update(lambdaUpdateWrapper);
+        try {
+            SysLoginUser user = this.getUserById(sysUser.getId());
+            // 发布更新事件
+            CommonDataChangeEventCenter.doUpdateWithData(SysDataTypeEnum.USER.getValue(), JSONUtil.createArray().put(user));
+        }catch (Exception e){
+            log.error("更新事件发布失败.");
+        }
+
     }
 
     @Override
@@ -1953,5 +1961,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             }
             personnelService.syncResource(personnelSimpleParam);
         });
+    }
+
+    @Override
+    public SysUser getUserByImUserId(String imUserId) {
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.apply("JSON_VALID(EXT_JSON) AND JSON_EXTRACT(IFNULL(EXT_JSON, '{}'), '$.imUserId') = {0}", imUserId);
+        return baseMapper.selectOne(queryWrapper);
     }
 }

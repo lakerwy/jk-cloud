@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.core.listener;
 
 import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.json.JSON;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -24,6 +25,7 @@ import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.SysDataTypeEnum;
 import vip.xiaonuo.common.listener.CommonDataChangeListener;
+import vip.xiaonuo.sys.modular.client.ImClient;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.entity.HrUserHolidayData;
 import vip.xiaonuo.sys.modular.hr.userHolidayData.service.HrUserHolidayDataService;
 
@@ -44,6 +46,9 @@ public class SysDataChangeListener implements CommonDataChangeListener {
 
     @Resource
     HrUserHolidayDataService hrUserHolidayDataService;
+
+    @Resource
+    ImClient imClient;
 
     @Override
     public void doAddWithDataIdList(String dataType, List<String> dataIdList) {
@@ -83,6 +88,9 @@ public class SysDataChangeListener implements CommonDataChangeListener {
     @Override
     public void doUpdateWithDataList(String dataType, JSONArray jsonArray) {
         // 此处可做额外处理
+        if(dataType.equals(SysDataTypeEnum.USER.getValue())){
+            imClient.updateImUser(JSONUtil.parseObj(jsonArray.get(0)));
+        }
     }
 
     @Override

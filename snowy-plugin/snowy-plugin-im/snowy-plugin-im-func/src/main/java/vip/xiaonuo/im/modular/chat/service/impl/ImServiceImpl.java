@@ -1,10 +1,12 @@
 package vip.xiaonuo.im.modular.chat.service.impl;
 
+import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.codec.Base64;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import cn.wildfirechat.common.ErrorCode;
 import cn.wildfirechat.pojos.*;
 import cn.wildfirechat.proto.ProtoConstants;
@@ -300,19 +302,19 @@ public class ImServiceImpl implements ImService {
                     if (StrUtil.isEmpty(str)) {
                         str = CommonAvatarUtil.generateImg(displayName);
                     }
-                    MultipartFile multipartFile = null;
-                    try {
-                        String imageData = str.substring(str.indexOf(",") + 1);
-                        byte[] decode = Base64.decode(imageData);
-                        File tempFile = FileUtil.createTempFile("avatar",".jpeg",true);
-                        FileUtil.writeBytes(decode, tempFile);
-                        multipartFile = new MockMultipartFile(tempFile.getName(), tempFile.getName(), "image/jpeg", decode);
-                    } catch (Exception e) {
-                        log.error(e.getMessage());
-                    }
-                    String url = devFileApi.storageFileWithReturnUrlMinio(multipartFile);
+//                    MultipartFile multipartFile = null;
+//                    try {
+//                        String imageData = str.substring(str.indexOf(",") + 1);
+//                        byte[] decode = Base64.decode(imageData);
+//                        File tempFile = FileUtil.createTempFile("avatar",".jpeg",true);
+//                        FileUtil.writeBytes(decode, tempFile);
+//                        multipartFile = new MockMultipartFile(tempFile.getName(), tempFile.getName(), "image/jpeg", decode);
+//                    } catch (Exception e) {
+//                        log.error(e.getMessage());
+//                    }
+//                    String url = devFileApi.storageFileWithReturnUrlMinio(multipartFile);
 //                    String backendUrl = commonProperties.getBackendUrl();
-                    user.setPortrait(url);
+                    user.setPortrait(str.split(";")[1]);
                     IMResult<OutputCreateUser> userIdResult = UserAdmin.createUser(user);
                     if (userIdResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS) {
                         user.setUserId(userIdResult.getResult().getUserId());
@@ -379,6 +381,33 @@ public class ImServiceImpl implements ImService {
             throw new CommonException("获取该用户的所有接口.");
         }
         return null;
+    }
+
+    @Override
+    public void updateImUser(JSONObject userInfo) {
+        InputOutputUserInfo inputOutputUserInfo = new InputOutputUserInfo();
+        JSONObject extJson = userInfo.getJSONObject("extJson");
+        inputOutputUserInfo.setUserId(extJson.getStr("imUserId"));
+        inputOutputUserInfo.setMobile(userInfo.getStr("phone"));
+        inputOutputUserInfo.setDisplayName(userInfo.getStr("name"));
+        //图片编码
+        String str = userInfo.getStr("avatar");
+        if (StrUtil.isEmpty(str)) {
+            str = CommonAvatarUtil.generateImg(userInfo.getStr("name"));
+        }
+        inputOutputUserInfo.setPortrait(str.split(";")[1]);
+        inputOutputUserInfo.setGender(userInfo.getStr("gender").equals("男")?1:0);
+        inputOutputUserInfo.setAddress(userInfo.getStr("homeAddress"));
+        inputOutputUserInfo.setEmail(userInfo.getStr("email"));
+        int flag = ProtoConstants.UpdateUserInfoMask.Update_User_DisplayName | ProtoConstants.UpdateUserInfoMask.Update_User_Portrait |
+                ProtoConstants.UpdateUserInfoMask.Update_User_Gender | ProtoConstants.UpdateUserInfoMask.Update_User_Mobile |
+        ProtoConstants.UpdateUserInfoMask.Update_User_Email | ProtoConstants.UpdateUserInfoMask.Update_User_Address |
+        ProtoConstants.UpdateUserInfoMask.Update_User_Extra ;
+        try {
+            UserAdmin.updateUserInfo(inputOutputUserInfo,flag);
+        }catch (Exception e){
+            throw new CommonException(String.format("同步修改%s用户信息失败",inputOutputUserInfo.getDisplayName()));
+        }
     }
 
 }

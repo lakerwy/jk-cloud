@@ -24,4 +24,6 @@ public interface ImService {
     OutputGetUserList getAllUsers(int count, int offset);
 
     PojoGroupInfos getPojoGroupInfosByUserId(String userId);
+
+    void updateImUser(JSONObject userInfo);
 }

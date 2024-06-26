@@ -426,4 +426,11 @@ public class SysUserController {
         sysUserService.syncResource(orgId);
         return CommonResult.ok();
     }
+
+    @ApiOperationSupport(order = 27)
+    @ApiOperation("获取用户选择器")
+    @GetMapping("/sys/user/getUserByImUserId")
+    public CommonResult<SysUser> getUserByImUserId(@RequestParam(value = "imUserId") String imUserId) {
+        return CommonResult.data(sysUserService.getUserByImUserId(imUserId));
+    }
 }
