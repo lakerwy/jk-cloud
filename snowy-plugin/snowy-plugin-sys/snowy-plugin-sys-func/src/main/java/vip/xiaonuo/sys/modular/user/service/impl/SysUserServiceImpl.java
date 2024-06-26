@@ -1967,6 +1967,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public SysUser getUserByImUserId(String imUserId) {
         LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.apply("JSON_VALID(EXT_JSON) AND JSON_EXTRACT(IFNULL(EXT_JSON, '{}'), '$.imUserId') = {0}", imUserId);
+        SysUser sysUser = baseMapper.selectOne(queryWrapper);
+        String avatar = sysUser.getAvatar();
+        if (StrUtil.isEmpty(avatar)) {
+            avatar = CommonAvatarUtil.generateImg(sysUser.getName());
+        }
+        sysUser.setAvatar(avatar.split(";")[1]);
         return baseMapper.selectOne(queryWrapper);
     }
 }
