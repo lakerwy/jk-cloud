@@ -1972,7 +1972,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         if (StrUtil.isEmpty(avatar)) {
             avatar = CommonAvatarUtil.generateImg(sysUser.getName());
         }
-        sysUser.setAvatar(avatar.split(";")[1]);
+        sysUser.setAvatar(avatar.split(",")[1]);
         return sysUser;
     }
 }
