@@ -314,7 +314,7 @@ public class ImServiceImpl implements ImService {
 //                    }
 //                    String url = devFileApi.storageFileWithReturnUrlMinio(multipartFile);
 //                    String backendUrl = commonProperties.getBackendUrl();
-                    user.setPortrait(str.split(";")[1]);
+                    user.setPortrait(str.split(",")[1]);
                     IMResult<OutputCreateUser> userIdResult = UserAdmin.createUser(user);
                     if (userIdResult.getErrorCode() == ErrorCode.ERROR_CODE_SUCCESS) {
                         user.setUserId(userIdResult.getResult().getUserId());
@@ -395,7 +395,7 @@ public class ImServiceImpl implements ImService {
         if (StrUtil.isEmpty(str)) {
             str = CommonAvatarUtil.generateImg(userInfo.getStr("name"));
         }
-        inputOutputUserInfo.setPortrait(str.split(";")[1]);
+        inputOutputUserInfo.setPortrait(str.split(",")[1]);
         inputOutputUserInfo.setGender(userInfo.getStr("gender").equals("男")?1:0);
         inputOutputUserInfo.setAddress(userInfo.getStr("homeAddress"));
         inputOutputUserInfo.setEmail(userInfo.getStr("email"));
