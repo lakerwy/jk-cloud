@@ -51,6 +51,8 @@ import org.camunda.bpm.model.bpmn.instance.SequenceFlow;
 import org.camunda.bpm.model.bpmn.instance.UserTask;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.jetbrains.annotations.NotNull;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.pojo.SaBaseLoginUser;
@@ -109,6 +111,7 @@ import java.util.stream.Collectors;
 @Service
 public class FlwProcessServiceImpl implements FlwProcessService {
 
+    private static final Logger log = LoggerFactory.getLogger(FlwProcessServiceImpl.class);
     @Resource
     private SysUserApi sysUserApi;
 
@@ -205,18 +208,20 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             jsonObject.set("initiatorOrgId", ObjectUtil.isEmpty(flwProcessStartParam.getInitiatorOrgId()) ?
                     loginUser.getOrgId() : flwProcessStartParam.getInitiatorOrgId());
             jsonObject.set("initiatorOrgName", ObjectUtil.isEmpty(flwProcessStartParam.getInitiatorOrgName()) ?
-                    sysOrgApi.getNameById(jsonObject.getStr("initiatorOrgId")) : flwProcessStartParam.getInitiatorOrgName());
+                    loginUser.getOrgName() : flwProcessStartParam.getInitiatorOrgName());
             jsonObject.set("initiatorPositionId", ObjectUtil.isEmpty(flwProcessStartParam.getInitiatorPositionId()) ?
                     loginUser.getPositionId() : flwProcessStartParam.getInitiatorPositionId());
             jsonObject.set("initiatorPositionName", ObjectUtil.isEmpty(flwProcessStartParam.getInitiatorPositionName()) ?
-                    sysPositionApi.getNameById(jsonObject.getStr("initiatorPositionId")) : flwProcessStartParam.getInitiatorPositionName());
+                    loginUser.getPositionName() : flwProcessStartParam.getInitiatorPositionName());
             jsonObject.set("initiatorTime", DateUtil.now());
             jsonObject.set("initiatorModelInfo", JSONUtil.createObj().set("initiatorModelId", flwModel.getId())
                     .set("initiatorModelJson", flwModel.getProcessJson()).set("initiatorFormJson", flwModel.getFormJson())
                     .set("initiatorFormType", flwModel.getFormType()));
             ProcessInstance processInstance = null;
             //FlwModel flwModel = flwModelService.getById(modelId);
+            long l = System.currentTimeMillis();
             String sn = getSn(flwModel);
+            log.error("测试sn的耗时："+(System.currentTimeMillis() - l));
             String parentTablePrimaryId = IdWorker.getIdStr();
             if(flwModel.getFormType().equals(FlwModelFormTypeEnum.DESIGN.getValue())) {
                 if(ObjectUtil.isEmpty(flwModel.getTableJson())) {
@@ -404,66 +409,30 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 }
             }
         }
-//        Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
-//        List<FlwProcessResult> flwProcessResultList = new ArrayList<>();
-//        long current = defaultPage.getCurrent();
-//        long size = defaultPage.getSize();
-//        long totalSize = 0;
-//        int maxPages = 100; // 设定一个最大页数，避免无限循环
-//
-//        while (totalSize < size * maxPages) {
-//            List<FlwProcessResult> tempList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size, flwProcessMonitorPageParam.getStateCode());
-//            int tempSize = tempList.size();
-//            totalSize += tempSize;
-//            current += 1;
-//            // 将本次查询结果添加到总结果列表中
-//            flwProcessResultList.addAll(tempList);
-//            // 如果本次查询结果数量小于pageSize，则退出循环
-//            if (totalSize > size) {
-//                break;
-//            }
-//        }
-//        //List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size);
-//        defaultPage.setTotal(historicProcessInstanceQuery.count());
-//        defaultPage.setRecords(flwProcessResultList.stream().limit(size).collect(Collectors.toList()));
-//        return defaultPage;
 
 
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
         long current = defaultPage.getCurrent();
         long size = defaultPage.getSize();
-        //暴力玩法，非常耗时，不想改源码
+        int fromIndex = Convert.toInt((current - 1) * size);
+        int toIndex = 0;
         if(StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())){
-            List<HistoricProcessInstance> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
-//        defaultPage.setTotal(historicProcessInstanceQuery.count());
-//        defaultPage.setRecords(flwProcessResultList);
+            List<HistoricProcessInstance> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery,flwProcessMonitorPageParam.getStateCode());
             defaultPage.setTotal(flwProcessResultList.size());
-            if(flwProcessResultList.size() > current * size){
-                List<HistoricProcessInstance> tmpList = flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size));
-                defaultPage.setRecords(getCurrentPageData(tmpList));
-            }else if (flwProcessResultList.size()<current * size && flwProcessResultList.size()>(current - 1) * size){
-                List<HistoricProcessInstance> tmpList = flwProcessResultList.subList(Convert.toInt((current - 1) * size),flwProcessResultList.size());
-                defaultPage.setRecords(getCurrentPageData(tmpList));
-            }else {
-                defaultPage.setRecords(new ArrayList<>());
-            }
-            return defaultPage;
+            toIndex = Math.min(fromIndex + Convert.toInt(size), Convert.toInt(flwProcessResultList.size()));
+            List<HistoricProcessInstance> historicProcessInstances = flwProcessResultList.subList(fromIndex, toIndex);
+            return defaultPage.setRecords(getCurrentPageData(historicProcessInstances));
         }else {
-            List<HistoricProcessInstance> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
+            List<HistoricProcessInstance> flwProcessResultList = historicProcessInstanceQuery
+                    .listPage(fromIndex, Convert.toInt(size)).stream().collect(Collectors.toList());
             defaultPage.setTotal(historicProcessInstanceQuery.count());
             defaultPage.setRecords(getCurrentPageData(flwProcessResultList));
-//            defaultPage.setTotal(flwProcessResultList.size());
-//            defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size)));
             return defaultPage;
         }
     }
 
     @NotNull
-    private List<HistoricProcessInstance> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, long current, long size,String stateCode) {
-        long newSize = size;
-        if(StrUtil.isNotEmpty(stateCode)){
-            newSize = Integer.MAX_VALUE;
-        }
+    private List<HistoricProcessInstance> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, String stateCode) {
         String deleteReasonCode;
         if(StrUtil.isNotEmpty(stateCode) && (stateCode.equals("END") || stateCode.equals("REVOKE") || stateCode.equals("REJECT"))){
             deleteReasonCode = stateCode;
@@ -472,35 +441,15 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             deleteReasonCode = null;
         }
         String finalStateCode = stateCode;
-        if(StrUtil.isNotEmpty(stateCode)){
-            return historicProcessInstanceQuery
-                    .list().stream()
-                    .filter(historicProcessInstance -> {
-                        if (finalStateCode != null && !finalStateCode.isEmpty()) {
-                            return historicProcessInstance.getState().equals(finalStateCode);
-                        }
-                        return true;
-                    }).filter(historicProcessInstance -> {
-                        if (StrUtil.isNotEmpty(deleteReasonCode)) {
-                            return historicProcessInstance.getDeleteReason().equals(deleteReasonCode);
-                        }
-                        return true;
-                    }).collect(Collectors.toList());
-        }else{
-            return historicProcessInstanceQuery
-                    .listPage(Convert.toInt((current - 1) * size), Convert.toInt(newSize)).stream()
-                    .filter(historicProcessInstance -> {
-                        if (finalStateCode != null && !finalStateCode.isEmpty()) {
-                            return historicProcessInstance.getState().equals(finalStateCode);
-                        }
-                        return true;
-                    }).filter(historicProcessInstance -> {
-                        if (StrUtil.isNotEmpty(deleteReasonCode)) {
-                            return historicProcessInstance.getDeleteReason().equals(deleteReasonCode);
-                        }
-                        return true;
-                    }).collect(Collectors.toList());
-        }
+        return historicProcessInstanceQuery
+                .list().stream()
+                .filter(historicProcessInstance -> historicProcessInstance.getState().equals(finalStateCode))
+                .filter(historicProcessInstance -> {
+                    if (StrUtil.isNotEmpty(deleteReasonCode)) {
+                        return historicProcessInstance.getDeleteReason().equals(deleteReasonCode);
+                    }
+                    return true;
+                }).collect(Collectors.toList());
     }
 
     public List<FlwProcessResult> getCurrentPageData(List<HistoricProcessInstance> historicProcessInstanceList){
