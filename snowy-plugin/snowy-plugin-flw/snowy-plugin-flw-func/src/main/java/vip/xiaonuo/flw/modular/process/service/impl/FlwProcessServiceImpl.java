@@ -434,22 +434,24 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         long size = defaultPage.getSize();
         //暴力玩法，非常耗时，不想改源码
         if(StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())){
-            List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
+            List<HistoricProcessInstance> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
 //        defaultPage.setTotal(historicProcessInstanceQuery.count());
 //        defaultPage.setRecords(flwProcessResultList);
             defaultPage.setTotal(flwProcessResultList.size());
             if(flwProcessResultList.size() > current * size){
-                defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size)));
+                List<HistoricProcessInstance> tmpList = flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size));
+                defaultPage.setRecords(getCurrentPageData(tmpList));
             }else if (flwProcessResultList.size()<current * size && flwProcessResultList.size()>(current - 1) * size){
-                defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),flwProcessResultList.size()));
+                List<HistoricProcessInstance> tmpList = flwProcessResultList.subList(Convert.toInt((current - 1) * size),flwProcessResultList.size());
+                defaultPage.setRecords(getCurrentPageData(tmpList));
             }else {
                 defaultPage.setRecords(new ArrayList<>());
             }
             return defaultPage;
         }else {
-            List<FlwProcessResult> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
+            List<HistoricProcessInstance> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery, current, size,flwProcessMonitorPageParam.getStateCode());
             defaultPage.setTotal(historicProcessInstanceQuery.count());
-            defaultPage.setRecords(flwProcessResultList);
+            defaultPage.setRecords(getCurrentPageData(flwProcessResultList));
 //            defaultPage.setTotal(flwProcessResultList.size());
 //            defaultPage.setRecords(flwProcessResultList.subList(Convert.toInt((current - 1) * size),Convert.toInt(current * size)));
             return defaultPage;
@@ -457,7 +459,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
     }
 
     @NotNull
-    private List<FlwProcessResult> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, long current, long size,String stateCode) {
+    private List<HistoricProcessInstance> getMyFlwProcessResults(HistoricProcessInstanceQuery historicProcessInstanceQuery, long current, long size,String stateCode) {
         long newSize = size;
         if(StrUtil.isNotEmpty(stateCode)){
             newSize = Integer.MAX_VALUE;
@@ -470,129 +472,142 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             deleteReasonCode = null;
         }
         String finalStateCode = stateCode;
-        return historicProcessInstanceQuery
-                .listPage(Convert.toInt((current - 1) * size), Convert.toInt(newSize)).stream()
-                .filter(historicProcessInstance->{
-                    if (finalStateCode != null && !finalStateCode.isEmpty()) {
-                        return historicProcessInstance.getState().equals(finalStateCode);
-                    }
-                    return true;
-                }).filter(historicProcessInstance -> {
-                    if (StrUtil.isNotEmpty(deleteReasonCode)) {
-                        return historicProcessInstance.getDeleteReason().equals(deleteReasonCode);
-                    }
-                    return true;
-                })
-                .map(historicProcessInstance -> {
-                    FlwProcessResult flwProcessResult = new FlwProcessResult();
-                    flwProcessResult.setId(historicProcessInstance.getId());
-                    JSONObject variableJsonObject = JSONUtil.createObj();
-                    historyService.createHistoricVariableInstanceQuery().processInstanceId(historicProcessInstance.getId()).list()
-                            .forEach(historicVariableInstance -> variableJsonObject.set(historicVariableInstance.getName(),
-                                    historicVariableInstance.getValue()));
-                    flwProcessResult.setSn(variableJsonObject.getStr("initiatorProcessSn"));
-                    flwProcessResult.setTitle(variableJsonObject.getStr("initiatorProcessTitle"));
-                    flwProcessResult.setAbstractTitle(variableJsonObject.getStr("initiatorProcessAbstract"));
-                    flwProcessResult.setBusinessKey(historicProcessInstance.getBusinessKey());
-                    String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
-                    flwProcessResult.setProcessDefinitionId(processDefinitionId);
-                    flwProcessResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
-//                    //流程名称从flwModel中读取 保证和流程设计页面的流程名称同步
-//                    Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-//                    if(ObjectUtil.isNotEmpty(o)){
-//                        flwProcessResult.setProcessDefinitionName(String.valueOf(o));
-//                    }else {
-//                        //FlwModel flwModel = flwModelService.getOne(new LambdaQueryWrapper<FlwModel>().eq(FlwModel::getDefinitionId, processDefinitionId));
-//                        ProcessDefinition processDefinition = repositoryService.createProcessDefinitionQuery().processDefinitionId(processDefinitionId).singleResult();
-//                        if (ObjectUtil.isNotEmpty(processDefinition)) {
-//                            commonCacheOperator.put(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId, processDefinition.getName());
-//                            flwProcessResult.setProcessDefinitionName(processDefinition.getName());
-//                        }
-//                    }
+        if(StrUtil.isNotEmpty(stateCode)){
+            return historicProcessInstanceQuery
+                    .list().stream()
+                    .filter(historicProcessInstance -> {
+                        if (finalStateCode != null && !finalStateCode.isEmpty()) {
+                            return historicProcessInstance.getState().equals(finalStateCode);
+                        }
+                        return true;
+                    }).filter(historicProcessInstance -> {
+                        if (StrUtil.isNotEmpty(deleteReasonCode)) {
+                            return historicProcessInstance.getDeleteReason().equals(deleteReasonCode);
+                        }
+                        return true;
+                    }).collect(Collectors.toList());
+        }else{
+            return historicProcessInstanceQuery
+                    .listPage(Convert.toInt((current - 1) * size), Convert.toInt(newSize)).stream()
+                    .filter(historicProcessInstance -> {
+                        if (finalStateCode != null && !finalStateCode.isEmpty()) {
+                            return historicProcessInstance.getState().equals(finalStateCode);
+                        }
+                        return true;
+                    }).filter(historicProcessInstance -> {
+                        if (StrUtil.isNotEmpty(deleteReasonCode)) {
+                            return historicProcessInstance.getDeleteReason().equals(deleteReasonCode);
+                        }
+                        return true;
+                    }).collect(Collectors.toList());
+        }
+    }
 
-                    //flwProcessResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
-                    flwProcessResult.setProcessDefinitionVersion(StrUtil.format("V{}.0", historicProcessInstance.getProcessDefinitionVersion()));
-                    flwProcessResult.setStartTime(DateUtil.formatDateTime(historicProcessInstance.getStartTime()));
-                    flwProcessResult.setEndTime(ObjectUtil.isNotEmpty(historicProcessInstance.getEndTime()) ?
-                            DateUtil.formatDateTime(historicProcessInstance.getEndTime()) : "-");
-                    if (ObjectUtil.isNotEmpty(historicProcessInstance.getDurationInMillis())) {
-                        flwProcessResult.setDurationInfo(CommonTimeFormatUtil
-                                .formatSeconds(historicProcessInstance.getDurationInMillis() / 1000));
-                    } else {
-                        flwProcessResult.setDurationInfo("-");
-                    }
-                    flwProcessResult.setInitiator(variableJsonObject.getStr("initiator"));
-                    flwProcessResult.setInitiatorName(variableJsonObject.getStr("initiatorName"));
-                    flwProcessResult.setInitiatorOrgId(variableJsonObject.getStr("initiatorOrgId"));
-                    flwProcessResult.setInitiatorOrgName(variableJsonObject.getStr("initiatorOrgName"));
-                    flwProcessResult.setInitiatorPositionId(variableJsonObject.getStr("initiatorPositionId"));
-                    flwProcessResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
-                    String state = historicProcessInstance.getState();
-                    switch (state) {
-                        case "ACTIVE":
-                            flwProcessResult.setStateCode(state);
-                            flwProcessResult.setStateText("审批中");
+    public List<FlwProcessResult> getCurrentPageData(List<HistoricProcessInstance> historicProcessInstanceList){
+        List<String> processInstanceIds = historicProcessInstanceList.stream().map(x->x.getId()).collect(Collectors.toList());
+        if(CollUtil.isEmpty(processInstanceIds)) return null;
+        List<HistoricVariableInstance> historicVariableInstanceList = historyService.createHistoricVariableInstanceQuery().processInstanceIdIn(processInstanceIds.toArray(new String[0])).list();
+        List<FlwProcessResult> results = new ArrayList<>();
+        historicProcessInstanceList.forEach(historicProcessInstance -> {
+            FlwProcessResult flwProcessResult = new FlwProcessResult();
+            flwProcessResult.setId(historicProcessInstance.getId());
+            List<HistoricVariableInstance> variableInstanceList = historicVariableInstanceList.stream().filter(x->x.getProcessInstanceId().equals(historicProcessInstance.getId())).collect(Collectors.toList());
+            flwProcessResult.setSn(getVariableValue("initiatorProcessSn",variableInstanceList));
+            flwProcessResult.setTitle(getVariableValue("initiatorProcessTitle",variableInstanceList));
+            flwProcessResult.setAbstractTitle(getVariableValue("initiatorProcessAbstract",variableInstanceList));
+            flwProcessResult.setBusinessKey(historicProcessInstance.getBusinessKey());
+            String processDefinitionId = historicProcessInstance.getProcessDefinitionId();
+            flwProcessResult.setProcessDefinitionId(processDefinitionId);
+            flwProcessResult.setProcessDefinitionName(historicProcessInstance.getProcessDefinitionName());
+            flwProcessResult.setProcessDefinitionVersion(StrUtil.format("V{}.0", historicProcessInstance.getProcessDefinitionVersion()));
+            flwProcessResult.setStartTime(DateUtil.formatDateTime(historicProcessInstance.getStartTime()));
+            flwProcessResult.setEndTime(ObjectUtil.isNotEmpty(historicProcessInstance.getEndTime()) ?
+                    DateUtil.formatDateTime(historicProcessInstance.getEndTime()) : "-");
+            if (ObjectUtil.isNotEmpty(historicProcessInstance.getDurationInMillis())) {
+                flwProcessResult.setDurationInfo(CommonTimeFormatUtil
+                        .formatSeconds(historicProcessInstance.getDurationInMillis() / 1000));
+            } else {
+                flwProcessResult.setDurationInfo("-");
+            }
+            flwProcessResult.setInitiator(getVariableValue("initiator",variableInstanceList));
+            flwProcessResult.setInitiatorName(getVariableValue("initiatorName",variableInstanceList));
+            flwProcessResult.setInitiatorOrgId(getVariableValue("initiatorOrgId",variableInstanceList));
+            flwProcessResult.setInitiatorOrgName(getVariableValue("initiatorOrgName",variableInstanceList));
+            flwProcessResult.setInitiatorPositionId(getVariableValue("initiatorPositionId",variableInstanceList));
+            flwProcessResult.setInitiatorPositionName(getVariableValue("initiatorPositionName",variableInstanceList));
+            String state = historicProcessInstance.getState();
+            switch (state) {
+                case "ACTIVE":
+                    flwProcessResult.setStateCode(state);
+                    flwProcessResult.setStateText("审批中");
+                    break;
+                case "SUSPENDED":
+                    flwProcessResult.setStateCode(state);
+                    flwProcessResult.setStateText("已挂起");
+                    break;
+                case "COMPLETED":
+                    flwProcessResult.setStateCode(state);
+                    flwProcessResult.setStateText("已完成");
+                    break;
+                case "EXTERNALLY_TERMINATED":
+                    String deleteReason = historicProcessInstance.getDeleteReason();
+                    switch (deleteReason) {
+                        case "END":
+                            flwProcessResult.setStateCode(deleteReason);
+                            flwProcessResult.setStateText("已终止");
                             break;
-                        case "SUSPENDED":
-                            flwProcessResult.setStateCode(state);
-                            flwProcessResult.setStateText("已挂起");
+                        case "REVOKE":
+                            flwProcessResult.setStateCode(deleteReason);
+                            flwProcessResult.setStateText("已撤回");
                             break;
-                        case "COMPLETED":
-                            flwProcessResult.setStateCode(state);
-                            flwProcessResult.setStateText("已完成");
-                            break;
-                        case "EXTERNALLY_TERMINATED":
-                            String deleteReason = historicProcessInstance.getDeleteReason();
-                            switch (deleteReason) {
-                                case "END":
-                                    flwProcessResult.setStateCode(deleteReason);
-                                    flwProcessResult.setStateText("已终止");
-                                    break;
-                                case "REVOKE":
-                                    flwProcessResult.setStateCode(deleteReason);
-                                    flwProcessResult.setStateText("已撤回");
-                                    break;
-                                case "REJECT":
-                                    flwProcessResult.setStateCode(deleteReason);
-                                    flwProcessResult.setStateText("已拒绝");
-                                    break;
-                                default:
-                                    throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
-                            }
-                            break;
-                        case "INTERNALLY_TERMINATED":
-                            flwProcessResult.setStateCode(state);
-                            flwProcessResult.setStateText("内部终止");
+                        case "REJECT":
+                            flwProcessResult.setStateCode(deleteReason);
+                            flwProcessResult.setStateText("已拒绝");
                             break;
                         default:
                             throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
                     }
-                    if(state.equals("ACTIVE")) {
-                        Set<String> currentActivityNames = CollectionUtil.newHashSet();
-                        List<JSONObject> currentActivityNameJsonObjectList = CollectionUtil.newArrayList();
-                        taskService.createTaskQuery().processInstanceId(historicProcessInstance.getId()).list().forEach(task -> {
-                            String assignee = task.getAssignee();
-                            if(ObjectUtil.isNotEmpty(assignee)) {
-                                currentActivityNameJsonObjectList.add(JSONUtil.createObj().set("taskName", task.getName()).set("assignee", assignee));
-                            }
-                        });
-                        final List<String>[] assigneeNameList = new List[]{CollectionUtil.newArrayList()};
-                        currentActivityNameJsonObjectList.stream().collect(Collectors.groupingBy(jsonObject -> jsonObject.getStr("taskName"))).forEach((key, value) -> {
-                            List<String> assigneeList = value.stream().map(jsonObject -> jsonObject.getStr("assignee")).collect(Collectors.toList());
-                            assigneeNameList[0] = sysUserApi.getUserListByIdListWithoutException(CollectionUtil.reverse(assigneeList)).stream()
-                                    .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList());
-                            currentActivityNames.add(key + StrUtil.BRACKET_START + StrUtil.join("、", assigneeNameList[0]) + StrUtil.BRACKET_END);
-                        });
-                        flwProcessResult.setCurrentActivityNames(StrUtil.join("、", CollectionUtil.newArrayList(currentActivityNames)));
-                        flwProcessResult.setAssignees(StrUtil.join("、", assigneeNameList[0]));
-                    } else {
-                        flwProcessResult.setCurrentActivityNames("-");
-                        flwProcessResult.setAssignees("-");
+                    break;
+                case "INTERNALLY_TERMINATED":
+                    flwProcessResult.setStateCode(state);
+                    flwProcessResult.setStateText("内部终止");
+                    break;
+                default:
+                    throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
+            }
+            if(state.equals("ACTIVE")) {
+                Set<String> currentActivityNames = CollectionUtil.newHashSet();
+                List<JSONObject> currentActivityNameJsonObjectList = CollectionUtil.newArrayList();
+                taskService.createTaskQuery().processInstanceId(historicProcessInstance.getId()).list().forEach(task -> {
+                    String assignee = task.getAssignee();
+                    if(ObjectUtil.isNotEmpty(assignee)) {
+                        currentActivityNameJsonObjectList.add(JSONUtil.createObj().set("taskName", task.getName()).set("assignee", assignee));
                     }
-                    return flwProcessResult;
-                })
-                .collect(Collectors.toList());
+                });
+                final List<String>[] assigneeNameList = new List[]{CollectionUtil.newArrayList()};
+                currentActivityNameJsonObjectList.stream().collect(Collectors.groupingBy(jsonObject -> jsonObject.getStr("taskName"))).forEach((key, value) -> {
+                    List<String> assigneeList = value.stream().map(jsonObject -> jsonObject.getStr("assignee")).collect(Collectors.toList());
+                    assigneeNameList[0] = sysUserApi.getUserListByIdListWithoutException(CollectionUtil.reverse(assigneeList)).stream()
+                            .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList());
+                    currentActivityNames.add(key + StrUtil.BRACKET_START + StrUtil.join("、", assigneeNameList[0]) + StrUtil.BRACKET_END);
+                });
+                flwProcessResult.setCurrentActivityNames(StrUtil.join("、", CollectionUtil.newArrayList(currentActivityNames)));
+                flwProcessResult.setAssignees(StrUtil.join("、", assigneeNameList[0]));
+            } else {
+                flwProcessResult.setCurrentActivityNames("-");
+                flwProcessResult.setAssignees("-");
+            }
+            results.add(flwProcessResult);
+        });
+        return results;
     }
+
+    public String getVariableValue(String name,List<HistoricVariableInstance> variableInstanceList) {
+        if(CollUtil.isEmpty(variableInstanceList)) return "";
+        HistoricVariableInstance historicVariableInstance = variableInstanceList.stream().filter(x -> name.equals(x.getName())).findFirst().orElse(null);
+        return ObjectUtil.isNotEmpty(historicVariableInstance) && ObjectUtil.isNotEmpty(historicVariableInstance.getValue()) ? historicVariableInstance.getValue().toString() : "";
+    }
+
 
     @Transactional(rollbackFor = Exception.class)
     @Override
