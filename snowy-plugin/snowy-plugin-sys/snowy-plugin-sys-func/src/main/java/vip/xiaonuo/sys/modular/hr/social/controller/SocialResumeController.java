@@ -175,4 +175,19 @@ public class SocialResumeController {
         socialResumeService.submit(resumeParam);
         return CommonResult.ok();
     }
+
+
+    /**
+     * 根据 短链接 换取 长链接
+     *
+     * @author yong.ye
+     * @date  2024/07/01 09:35
+     */
+    @ApiOperationSupport(order = 9)
+    @ApiOperation("根据 短链接 换取 长链接")
+//    @SaCheckPermission("/sys/hr/social/resume/getLongUrl")
+    @GetMapping("/sys/hr/social/resume/getLongUrl")
+    public CommonResult<String> getLongUrl(String shortUrl) {
+        return CommonResult.data(socialResumeService.getLongUrl(shortUrl));
+    }
 }

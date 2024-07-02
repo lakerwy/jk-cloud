@@ -16,6 +16,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.PhoneUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -26,8 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.dev.api.DevConfigApi;
+import vip.xiaonuo.common.util.CommonUrlUtil;
 import vip.xiaonuo.dev.api.DevSmsApi;
+import vip.xiaonuo.sys.core.config.SmsConfig;
 import vip.xiaonuo.sys.modular.hr.social.entity.SocialInterview;
 import vip.xiaonuo.sys.modular.hr.social.entity.SocialResume;
 import vip.xiaonuo.sys.modular.hr.social.mapper.SocialResumeMapper;
@@ -41,6 +43,7 @@ import javax.annotation.Resource;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 社招 - （应聘者）简历库信息Service接口实现类
@@ -50,15 +53,17 @@ import java.util.List;
  **/
 @Service
 public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, SocialResume> implements SocialResumeService {
-
     @Resource
     private SocialInterviewService socialInterviewService;
-
+    @Resource
+    private SmsConfig smsConfig;
     @Resource
     private DevSmsApi devSmsApi;
 
     /* 云片短信：入职短信模板 */
-    private static final String YUN_PIAN_TPL_CODE_ID = "SNOWY_SMS_YUNPIAN_TPL_CODE_ID";
+    private static final String YUN_PIAN_TPL_CODE_ID = "5970264";
+    /* 长链接替换部分 */
+    private static final String REPLACE_LONG_URL = "jianli/#/social?id=" ;
 
     @Override
     public Page<SocialResumeVo> page(SocialResumePageParam socialResumePageParam) {
@@ -187,11 +192,22 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
         if(StrUtil.isEmpty(socialResume.getPhone())){
             throw new CommonException("手机号缺失，无法发送短信");
         }
-        // TODO 使用云片执行发送验证码，将验证码作为短信内容的参数变量放入，
-//        String tpl_Value = URLEncoder.encode("#code#") + "="  + URLEncoder.encode("");
-//        devSmsApi.sendSmsYunPian("", socialResume.getPhone(), YUN_PIAN_TPL_CODE_ID, tpl_Value);
-        socialResume.setIsSend("1");
-        this.updateById(socialResume);
+        if(!PhoneUtil.isMobile(socialResume.getPhone())) {
+            throw new CommonException("手机号码：{}格式错误", socialResume.getPhone());
+        }
+        if(smsConfig.getIsSend()) {
+            // TODO 使用云片执行发送验证码，将验证码作为短信内容的参数变量放入，
+            String shortUrl = socialResume.getShortUrl();
+            if(ObjectUtil.isEmpty(shortUrl)) {
+                String longUrl = StrUtil.concat(true, smsConfig.getBaseUrl(), REPLACE_LONG_URL, socialResume.getId());
+                shortUrl = getShortUrl(longUrl);
+            }
+            String tpl_Value = URLEncoder.encode("#url#") + "="  + URLEncoder.encode(shortUrl);
+//            devSmsApi.sendSmsYunPian("", socialResume.getPhone(), YUN_PIAN_TPL_CODE_ID, tpl_Value);
+            socialResume.setShortUrl(shortUrl);
+            socialResume.setIsSend("1");
+            this.updateById(socialResume);
+        }
     }
 
     @Override
@@ -202,6 +218,18 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
         }
         BeanUtil.copyProperties(resumeParam,socialResume);
         this.saveOrUpdate(socialResume);
+    }
+
+    @Override
+    public String getLongUrl(String shortUrl) {
+        if(StrUtil.isEmpty(shortUrl)){
+            throw new CommonException("短链接不能为空");
+        }
+        SocialResume one = this.getOne(new QueryWrapper<SocialResume>().lambda().eq(SocialResume::getShortUrl, shortUrl));
+        if(ObjectUtil.isEmpty(one)){
+            throw new CommonException("短链接已失效或不存在");
+        }
+        return StrUtil.concat(true,smsConfig.getBaseUrl(),REPLACE_LONG_URL,one.getId());
     }
 
     /**
@@ -231,5 +259,27 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
         fileInfo.setPhone(fileName);
         fileInfo.setApplyPost(fileName);
         return fileInfo;
+    }
+
+
+    /**
+     * 生成短链接 6 位
+     * 1. md5 加密算法生成
+     * 2. 判断是否已存在
+     * 3. 随机生成
+     * @param longUrl
+     * @return
+     */
+    public String getShortUrl(String longUrl){
+        String tmpShortUrl = CommonUrlUtil.shortUrl(longUrl);
+        LambdaQueryWrapper<SocialResume> lambdaQueryWrapper = new LambdaQueryWrapper<>();
+        lambdaQueryWrapper.select(SocialResume::getShortUrl).and(q->q.isNotNull(SocialResume::getShortUrl).ne(SocialResume::getShortUrl,""));
+        List<String> oldShortUrls = this.list(lambdaQueryWrapper).stream().map(x->x.getShortUrl()).collect(Collectors.toList());
+        if(CollUtil.isNotEmpty(oldShortUrls)) {
+            while (oldShortUrls.contains(tmpShortUrl)) {
+                tmpShortUrl = CommonUrlUtil.randomShortUrl(6);
+            }
+        }
+        return tmpShortUrl;
     }
 }

@@ -201,4 +201,8 @@ public class SocialResume {
     @ApiModelProperty(value = "数据权限控制字段", position = 41)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
+
+    /** 生成的短链接 shortUrl */
+    @ApiModelProperty(value = "生成的短链接 shortUrl", position = 42)
+    private String shortUrl;
 }

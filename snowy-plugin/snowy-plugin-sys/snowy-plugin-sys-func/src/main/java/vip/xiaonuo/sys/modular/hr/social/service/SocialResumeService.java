@@ -94,4 +94,11 @@ public interface SocialResumeService extends IService<SocialResume> {
      * @param resumeParam
      */
     void submit(ResumeParam resumeParam);
+
+    /**
+     * 根据 短链接 获取 长链接
+     * @param shortUrl
+     * @return
+     */
+    String getLongUrl(String shortUrl);
 }

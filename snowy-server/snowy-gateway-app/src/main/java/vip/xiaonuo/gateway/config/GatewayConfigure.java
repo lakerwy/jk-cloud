@@ -208,6 +208,7 @@ public class GatewayConfigure {
             /* 社招 */
             "/api/webapp/sys/hr/social/resume/submit",
             "/api/webapp/sys/hr/social/resume/detail",
+            "/api/webapp/sys/hr/social/resume/getLongUrl",
 
     };
 

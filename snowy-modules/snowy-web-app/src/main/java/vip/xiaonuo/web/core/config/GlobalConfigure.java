@@ -207,6 +207,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             /* 社招 */
             "/sys/hr/social/resume/submit",
             "/sys/hr/social/resume/detail",
+            "/sys/hr/social/resume/getLongUrl",
 
     };
 
