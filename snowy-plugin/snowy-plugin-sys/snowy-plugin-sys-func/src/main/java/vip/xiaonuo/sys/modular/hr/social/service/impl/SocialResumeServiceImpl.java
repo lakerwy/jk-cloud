@@ -233,7 +233,7 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
     }
 
     /**
-     * 支持 - _ + —— 符合分割  分别取 姓名_手机号_应聘岗位
+     * 支持 - _ —— 符合分割  分别取 姓名_手机号_应聘岗位
      * @param fileName
      * @return
      */
@@ -242,7 +242,7 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
         if (lastDotIndex != -1) {
             fileName = fileName.substring(0, lastDotIndex); // 输出：姓名_手机号_应聘岗位
         }
-        String[] splitRegex = new String[]{"_","-","——","+"};
+        String[] splitRegex = new String[]{"_","-","——"};
         for (String regex : splitRegex) {
             String[] split = fileName.split(regex);
             if(split.length>=3){

@@ -130,7 +130,7 @@ public class SocialResumeController {
 
     /**
      * 添加社招 - （应聘者）简历库信息 - 页面上传新增简历（支持批量 文件名格式 姓名_手机号_应聘岗位.pdf）
-     * 支持 - _ + —— 符合分割
+     * 支持 - _ —— 符合分割
      * @author yong.ye
      * @date  2024/07/01 09:35
      */
