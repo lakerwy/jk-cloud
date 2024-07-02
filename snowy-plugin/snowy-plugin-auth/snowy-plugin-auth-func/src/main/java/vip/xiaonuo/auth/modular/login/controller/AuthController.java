@@ -17,6 +17,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.qrcode.QrCodeUtil;
+import cn.hutool.json.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -181,8 +182,11 @@ public class AuthController {
     public CommonResult<Object> generateQRCode(){
         String uuid = UUID.randomUUID().toString();
         commonCacheOperator.put(QR_UUID+uuid,uuid,180);
-        String qrCodeText = commonProperties.getBackendUrl()+QR_REQUEST + uuid;
-        byte[] bytes = QrCodeUtil.generatePng(qrCodeText, 300, 300);
+        //String qrCodeText = commonProperties.getBackendUrl()+QR_REQUEST + uuid;
+        JSONObject dateText = new JSONObject();
+        dateText.set("ulr",commonProperties.getBackendUrl()+QR_REQUEST);
+        dateText.set("uuid",uuid);
+        byte[] bytes = QrCodeUtil.generatePng(dateText.toString(), 300, 300);
         // 转换为 Base64 编码
         String base64Image = java.util.Base64.getEncoder().encodeToString(bytes);
         Map<String,Object> dataMap = new HashMap<>();
