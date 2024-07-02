@@ -203,6 +203,11 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/feign/dev/sms/sendSmsYunPian",
             "/push/sendMsg",
             "sys/server/downloadTemplate",
+
+            /* 社招 */
+            "/sys/hr/social/resume/submit",
+            "/sys/hr/social/resume/detail",
+
     };
 
     /**

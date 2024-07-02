@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.sys.modular.hr.social.mapper.SocialInterviewMapper">
+
+    <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.social.vo.SocialInterviewVo" >
+        select a.*, b.NAME as name,b.SEX as sex,b.BIRTH_DAY as birthDay,b.ID_NUMBER as idNumber,
+               b.PHONE as phone,b.APPLY_POST as applyPost
+        from HR_SOCIAL_INTERVIEW a
+                left join HR_SOCIAL_RESUME b on a.HR_SOCIAL_RESUME_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetail" resultType="vip.xiaonuo.sys.modular.hr.social.vo.SocialInterviewVo" >
+        select a.*, b.NAME as name,b.SEX as sex,b.BIRTH_DAY as birthDay,b.ID_NUMBER as idNumber,
+               b.PHONE as phone,b.APPLY_POST as applyPost
+        from HR_SOCIAL_INTERVIEW a
+                 left join HR_SOCIAL_RESUME b on a.HR_SOCIAL_RESUME_ID = b.ID
+        where a.ID = #{id}
+    </select>
+
+</mapper>

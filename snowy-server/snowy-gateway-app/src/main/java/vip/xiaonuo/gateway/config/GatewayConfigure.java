@@ -205,6 +205,10 @@ public class GatewayConfigure {
             "/api/flwapp/flw/process/purchasePlanStart",
             "/api/webapp/push/sendMsg",
 
+            /* 社招 */
+            "/api/webapp/sys/hr/social/resume/submit",
+            "/api/webapp/sys/hr/social/resume/detail",
+
     };
 
     /**
