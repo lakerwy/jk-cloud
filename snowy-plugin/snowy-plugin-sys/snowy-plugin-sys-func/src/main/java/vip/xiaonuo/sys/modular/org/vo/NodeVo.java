@@ -36,4 +36,7 @@ public class NodeVo {
     /** 排序码 */
     @ApiModelProperty(value = "排序码", position = 6)
     private Integer sortCode;
+
+    @ApiModelProperty(value = "头像", position = 7)
+    private String avatar;
 }
