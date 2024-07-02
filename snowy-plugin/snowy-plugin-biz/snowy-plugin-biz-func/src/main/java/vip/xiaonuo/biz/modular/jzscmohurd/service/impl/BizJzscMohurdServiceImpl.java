@@ -144,42 +144,50 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
         }
         return bizJzscMohurd;
     }
+
     @Override
     public void sync(BizJzscMohurdSyncParam bizJzscMohurdSyncParam) {
         if (activeTaskCount.get() > 0) {
             throw new CommonException("上次同步暂未结束，请稍后再试");
         }
         activeTaskCount.incrementAndGet();
-        String valueByKey = devConfigApi.getValueByKey(WHITE_KEY);
-        if (StrUtil.isEmpty(valueByKey)) {
-            throw new CommonException("未配置资质白名单");
-        }
-        JSONArray jsonArray = new JSONArray(valueByKey);
-        // 转换为 List
-        List<String> whiteList = new ArrayList<>();
-        for (Object o : jsonArray) {
-            whiteList.add(String.valueOf(o));
-        }
-        bizJzscMohurdSyncParam.setWhiteList(whiteList);
-        if (0 == bizJzscMohurdSyncParam.getType()) {
-            List<Map<String, String>> maps = sysUserApi.getAllPersonnel();
-            List<BizJzscMohurdSyncParam.JzUser> users = new ArrayList<>();
-            for (Map<String, String> map : maps) {
-                String idNumber = map.get("id_number");
-                if (StrUtil.isEmpty(idNumber)) {
-                    continue;
+        try {
+            String valueByKey = devConfigApi.getValueByKey(WHITE_KEY);
+            if (StrUtil.isEmpty(valueByKey)) {
+                throw new CommonException("未配置资质白名单");
+            }
+            JSONArray jsonArray = new JSONArray(valueByKey);
+            // 转换为 List
+            List<String> whiteList = new ArrayList<>();
+            for (Object o : jsonArray) {
+                whiteList.add(String.valueOf(o));
+            }
+            bizJzscMohurdSyncParam.setWhiteList(whiteList);
+            if (0 == bizJzscMohurdSyncParam.getType()) {
+                List<Map<String, String>> maps = sysUserApi.getAllPersonnel();
+                List<BizJzscMohurdSyncParam.JzUser> users = new ArrayList<>();
+                for (Map<String, String> map : maps) {
+                    String idNumber = map.get("id_number");
+                    if (StrUtil.isEmpty(idNumber)) {
+                        continue;
+                    }
+                    BizJzscMohurdSyncParam.JzUser jzUser = new BizJzscMohurdSyncParam.JzUser();
+                    jzUser.setName(map.get("name"));
+                    jzUser.setIdNumber(map.get("id_number"));
+                    users.add(jzUser);
                 }
-                BizJzscMohurdSyncParam.JzUser jzUser = new BizJzscMohurdSyncParam.JzUser();
-                jzUser.setName(map.get("name"));
-                jzUser.setIdNumber(map.get("id_number"));
-                users.add(jzUser);
+                bizJzscMohurdSyncParam.setUsers(users);
+            } else {
+                List<BizJzscMohurdSyncParam.JzUser> users = bizJzscMohurdSyncParam.getUsers();
+                if (CollUtil.isEmpty(users)) {
+                    throw new CommonException("用户信息列表不能为空");
+                }
             }
-            bizJzscMohurdSyncParam.setUsers(users);
-        } else {
-            List<BizJzscMohurdSyncParam.JzUser> users = bizJzscMohurdSyncParam.getUsers();
-            if (CollUtil.isEmpty(users)) {
-                throw new CommonException("用户信息列表不能为空");
-            }
+
+        }catch (Exception e){
+            throw new CommonException("部门或白名单解析失败.");
+        }finally {
+            activeTaskCount.decrementAndGet();
         }
 
         CompletableFuture.runAsync(() -> {
