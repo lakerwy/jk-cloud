@@ -250,7 +250,9 @@ public class AuthController {
                 USER_MAP.remove(s);
                 return CommonResult.data(s);
             }
+        }else {
+            return  CommonResult.error("扫码登录失败，请刷新后重试。");
         }
-        return CommonResult.ok();
+        return CommonResult.error("扫码登录失败，请刷新后重试。");
     }
 }
