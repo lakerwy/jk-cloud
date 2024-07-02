@@ -242,22 +242,12 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
         if (lastDotIndex != -1) {
             fileName = fileName.substring(0, lastDotIndex); // 输出：姓名_手机号_应聘岗位
         }
-        String[] splitRegex = new String[]{"_","-","——"};
-        for (String regex : splitRegex) {
-            String[] split = fileName.split(regex);
-            if(split.length>=3){
-                SocialResume fileInfo = new SocialResume();
-                fileInfo.setName(split[0]);
-                fileInfo.setPhone(split[1]);
-                fileInfo.setApplyPost(split[2]);
-                return fileInfo;
-            }
-        }
+        String[] parts = fileName.split("[-+_——]");
         //解析失败，返回全名
         SocialResume fileInfo = new SocialResume();
-        fileInfo.setName(fileName);
-        fileInfo.setPhone(fileName);
-        fileInfo.setApplyPost(fileName);
+        fileInfo.setName(parts.length >0 ? parts[0] : fileName);
+        fileInfo.setPhone(parts.length >1 ? parts[1] : fileName);
+        fileInfo.setApplyPost(parts.length >2 ? parts[2] : fileName);
         return fileInfo;
     }
 
