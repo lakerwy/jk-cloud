@@ -185,7 +185,10 @@ public class AuthController {
         byte[] bytes = QrCodeUtil.generatePng(qrCodeText, 300, 300);
         // 转换为 Base64 编码
         String base64Image = java.util.Base64.getEncoder().encodeToString(bytes);
-        return CommonResult.data(base64Image);
+        Map<String,Object> dataMap = new HashMap<>();
+        dataMap.put("codeImage",base64Image);
+        dataMap.put("uuid",uuid);
+        return CommonResult.data(dataMap);
     }
 
     @ApiOperationSupport(order = 7)
