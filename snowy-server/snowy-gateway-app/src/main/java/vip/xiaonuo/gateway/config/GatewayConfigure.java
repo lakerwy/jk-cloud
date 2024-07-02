@@ -102,6 +102,9 @@ public class GatewayConfigure {
             "/api/webapp/auth/b/doLogin",
             "/api/webapp/auth/b/doLoginByPhone",
             "/api/webapp/auth/b/cadDoLogin",
+            "/api/webapp/auth/b/autoLogin",
+            "/api/webapp/auth/b/generateQRCode",
+            "/api/webapp/auth/b/getToken",
 
             /* 三方登录相关 */
             "/api/webapp/auth/third/render",

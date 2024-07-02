@@ -208,6 +208,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
             "/sys/hr/social/resume/submit",
             "/sys/hr/social/resume/detail",
 
+            "/auth/b/generateQRCode",
+            "/auth/b/getToken"
     };
 
     /**
