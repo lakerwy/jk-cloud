@@ -91,6 +91,9 @@ public class SysDataChangeListener implements CommonDataChangeListener {
         if(dataType.equals(SysDataTypeEnum.USER.getValue())){
             imClient.updateImUser(JSONUtil.parseObj(jsonArray.get(0)));
         }
+        if(dataType.equals(SysDataTypeEnum.IMUSER.getValue())){
+            imClient.updateImUser(JSONUtil.parseObj(jsonArray.get(0)));
+        }
     }
 
     @Override

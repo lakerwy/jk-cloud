@@ -390,12 +390,17 @@ public class ImServiceImpl implements ImService {
         inputOutputUserInfo.setUserId(extJson.getStr("imUserId"));
         inputOutputUserInfo.setMobile(userInfo.getStr("phone"));
         inputOutputUserInfo.setDisplayName(userInfo.getStr("name"));
-        //图片编码
-        String str = userInfo.getStr("avatar");
-        if (StrUtil.isEmpty(str)) {
-            str = CommonAvatarUtil.generateImg(userInfo.getStr("name"));
+        String avatarUrl = extJson.getStr("avatarUrl");
+        if(StrUtil.isNotEmpty(avatarUrl)){
+            inputOutputUserInfo.setPortrait(avatarUrl);
+        }else {
+            //图片编码
+            String str = userInfo.getStr("avatar");
+            if (StrUtil.isEmpty(str)) {
+                str = CommonAvatarUtil.generateImg(userInfo.getStr("name"));
+            }
+            inputOutputUserInfo.setPortrait(str.split(",")[1]);
         }
-        inputOutputUserInfo.setPortrait(str.split(",")[1]);
         inputOutputUserInfo.setGender(userInfo.getStr("gender").equals("男")?1:0);
         inputOutputUserInfo.setAddress(userInfo.getStr("homeAddress"));
         inputOutputUserInfo.setEmail(userInfo.getStr("email"));

@@ -83,10 +83,7 @@ import vip.xiaonuo.common.util.*;
 import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dbs.core.util.CommonUtils;
-import vip.xiaonuo.dev.api.DevConfigApi;
-import vip.xiaonuo.dev.api.DevEmailApi;
-import vip.xiaonuo.dev.api.DevMessageApi;
-import vip.xiaonuo.dev.api.DevSmsApi;
+import vip.xiaonuo.dev.api.*;
 import vip.xiaonuo.dev.modular.job.task.CommonHandleUtil;
 import vip.xiaonuo.mobile.vip.MobileButtonApi;
 import vip.xiaonuo.mobile.vip.MobileMenuApi;
@@ -203,6 +200,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
 
     @Resource
     private PersonnelService personnelService;
+
+    @Resource
+    private DevFileApi devFileApi;
 
     @Override
     public SysLoginUser getUserById(String id) {
@@ -587,21 +587,32 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     }
 
     @Override
-    public String updateAvatar(MultipartFile file) {
+    public String updateAvatar(MultipartFile file,Boolean isPc) {
         SysUser sysUser = this.queryEntity(StpUtil.getLoginIdAsString());
         try {
+            String avatarUrl = devFileApi.storageFileWithReturnUrlMinio(file);
             String suffix = Objects.requireNonNull(FileUtil.getSuffix(file.getOriginalFilename())).toLowerCase();
             String base64 = ImgUtil.toBase64DataUri(ImgUtil.scale(ImgUtil.toImage(file.getBytes()),
                     100, 100, null), suffix);
+            String extJson = sysUser.getExtJson();
+            JSONObject jsonObject = JSONUtil.parseObj(extJson);
+            jsonObject.set("avatarUrl",avatarUrl);
             this.update(new LambdaUpdateWrapper<SysUser>().eq(SysUser::getId,
-                    sysUser.getId()).set(SysUser::getAvatar, base64));
-            return base64;
+                    sysUser.getId()).set(SysUser::getAvatar, base64).set(SysUser::getExtJson,jsonObject.toString()));
+            if(isPc){
+                return base64;
+            }else {
+                // 发布更新事件
+                sysUser.setAvatar(base64);
+                sysUser.setExtJson(jsonObject.toString());
+                CommonDataChangeEventCenter.doUpdateWithData(SysDataTypeEnum.IMUSER.getValue(), JSONUtil.createArray().put(sysUser));
+                return avatarUrl;
+            }
         } catch (IOException e) {
             log.error(">>> 头像修改失败：", e);
             throw new CommonException("头像修改失败，用户id值为：{}", sysUser.getId());
         }
     }
-
     @Override
     public void updateSignature(SysUserSignatureParam sysUserSignatureParam) {
         SysUser sysUser = this.queryEntity(StpUtil.getLoginIdAsString());
