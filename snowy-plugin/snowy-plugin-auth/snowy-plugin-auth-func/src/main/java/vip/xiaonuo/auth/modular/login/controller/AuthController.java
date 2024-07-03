@@ -186,6 +186,7 @@ public class AuthController {
         JSONObject dateText = new JSONObject();
         dateText.set("url",commonProperties.getBackendUrl()+QR_REQUEST);
         dateText.set("uuid",uuid);
+        dateText.set("type","login");
         byte[] bytes = QrCodeUtil.generatePng(dateText.toString(), 300, 300);
         // 转换为 Base64 编码
         String base64Image = java.util.Base64.getEncoder().encodeToString(bytes);
