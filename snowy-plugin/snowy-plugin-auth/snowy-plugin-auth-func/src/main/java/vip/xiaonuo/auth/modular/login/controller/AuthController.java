@@ -184,7 +184,7 @@ public class AuthController {
         commonCacheOperator.put(QR_UUID+uuid,uuid,180);
         //String qrCodeText = commonProperties.getBackendUrl()+QR_REQUEST + uuid;
         JSONObject dateText = new JSONObject();
-        dateText.set("ulr",commonProperties.getBackendUrl()+QR_REQUEST);
+        dateText.set("url",commonProperties.getBackendUrl()+QR_REQUEST);
         dateText.set("uuid",uuid);
         byte[] bytes = QrCodeUtil.generatePng(dateText.toString(), 300, 300);
         // 转换为 Base64 编码
