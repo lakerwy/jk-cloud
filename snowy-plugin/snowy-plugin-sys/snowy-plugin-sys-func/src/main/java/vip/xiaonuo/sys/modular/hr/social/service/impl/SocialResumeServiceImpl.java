@@ -280,9 +280,30 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
         String[] parts = fileName.split("[-+_——]");
         //解析失败，返回全名
         SocialResume fileInfo = new SocialResume();
-        fileInfo.setName(parts.length >0 ? parts[0] : fileName);
-        fileInfo.setPhone(parts.length >1 ? parts[1] : fileName);
-        fileInfo.setApplyPost(parts.length >2 ? parts[2] : fileName);
+        for (int i = 0; i < parts.length; i++) {
+            String part = parts[i];
+            if(CommonEmailUtil.isEmail(part)){
+                fileInfo.setEmail(part);
+            } else if (PhoneUtil.isPhone(part)) {
+                fileInfo.setPhone(part);
+            }
+            if(i == 0){
+                fileInfo.setName(part);
+            }
+            if(i+1 == parts.length && i > 0){
+                fileInfo.setApplyPost(part);
+            }
+        }
+        // 保留
+        if(ObjectUtil.isEmpty(fileInfo.getName())){
+            fileInfo.setName(fileName);
+        }
+        if(ObjectUtil.isEmpty(fileInfo.getPhone())){
+            fileInfo.setPhone(fileName);
+        }
+        if(ObjectUtil.isEmpty(fileInfo.getApplyPost())){
+            fileInfo.setApplyPost(fileName);
+        }
         return fileInfo;
     }
 
