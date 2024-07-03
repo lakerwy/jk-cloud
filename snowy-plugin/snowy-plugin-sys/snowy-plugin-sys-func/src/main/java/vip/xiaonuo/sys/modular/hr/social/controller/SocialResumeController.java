@@ -146,17 +146,35 @@ public class SocialResumeController {
 
 
     /**
-     * 发送 短信 ，应聘者填写个人信息
+     * 发送 短信 ，应聘者填写个人信息（支持批量）
      * @author yong.ye
      * @date  2024/07/01 09:35
      */
     @ApiOperationSupport(order = 7)
-    @ApiOperation("发送 短信 ")
-    @CommonLog("发送 短信 ")
+    @ApiOperation("发送 短信（支持批量）")
+    @CommonLog("发送 短信（支持批量）")
 //    @SaCheckPermission("/sys/hr/social/resume/send")
     @PostMapping("/sys/hr/social/resume/send")
-    public CommonResult<String> send(@RequestBody @Valid SocialResumeIdParam idParam) {
-        socialResumeService.send(idParam);
+    public CommonResult<String> send(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                         CommonValidList<SocialResumeIdParam> idParamList) {
+        socialResumeService.send(idParamList);
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 发送邮件 ，应聘者填写个人信息（支持批量）
+     * @author yong.ye
+     * @date  2024/07/01 09:35
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("发送 邮件（支持批量）")
+    @CommonLog("发送 邮件（支持批量）")
+//    @SaCheckPermission("/sys/hr/social/resume/sendEmail")
+    @PostMapping("/sys/hr/social/resume/sendEmail")
+    public CommonResult<String> sendEmail(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
+                                     CommonValidList<SocialResumeIdParam> idParamList) {
+        socialResumeService.sendEmail(idParamList);
         return CommonResult.ok();
     }
 
@@ -166,7 +184,7 @@ public class SocialResumeController {
      * @author yong.ye
      * @date  2024/07/01 09:35
      */
-    @ApiOperationSupport(order = 8)
+    @ApiOperationSupport(order = 9)
     @ApiOperation("应聘者填写个人信息，提交")
     @CommonLog("应聘者填写个人信息，提交")
 //    @SaCheckPermission("/sys/hr/social/resume/submit")
@@ -183,7 +201,7 @@ public class SocialResumeController {
      * @author yong.ye
      * @date  2024/07/01 09:35
      */
-    @ApiOperationSupport(order = 9)
+    @ApiOperationSupport(order = 10)
     @ApiOperation("根据 短链接 换取 长链接")
 //    @SaCheckPermission("/sys/hr/social/resume/getLongUrl")
     @GetMapping("/sys/hr/social/resume/getLongUrl")

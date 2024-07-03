@@ -27,7 +27,9 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.util.CommonEmailUtil;
 import vip.xiaonuo.common.util.CommonUrlUtil;
+import vip.xiaonuo.dev.api.DevEmailApi;
 import vip.xiaonuo.dev.api.DevSmsApi;
 import vip.xiaonuo.sys.core.config.SmsConfig;
 import vip.xiaonuo.sys.modular.hr.social.entity.SocialInterview;
@@ -40,6 +42,7 @@ import vip.xiaonuo.sys.modular.hr.social.vo.InterviewVo;
 import vip.xiaonuo.sys.modular.hr.social.vo.SocialResumeVo;
 
 import javax.annotation.Resource;
+import java.io.File;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
@@ -59,11 +62,12 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
     private SmsConfig smsConfig;
     @Resource
     private DevSmsApi devSmsApi;
+    @Resource
+    private DevEmailApi devEmailApi;
+
 
     /* 云片短信：入职短信模板 */
     private static final String YUN_PIAN_TPL_CODE_ID = "5970264";
-    /* 长链接替换部分 */
-    private static final String REPLACE_LONG_URL = "jianli/#/social?id=" ;
 
     @Override
     public Page<SocialResumeVo> page(SocialResumePageParam socialResumePageParam) {
@@ -187,26 +191,57 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
     }
 
     @Override
-    public void send(SocialResumeIdParam idParam) {
-        SocialResume socialResume = this.queryEntity(idParam.getId());
-        if(StrUtil.isEmpty(socialResume.getPhone())){
-            throw new CommonException("手机号缺失，无法发送短信");
-        }
-        if(!PhoneUtil.isMobile(socialResume.getPhone())) {
-            throw new CommonException("手机号码：{}格式错误", socialResume.getPhone());
-        }
-        if(smsConfig.getIsSend()) {
-            // TODO 使用云片执行发送验证码，将验证码作为短信内容的参数变量放入，
-            String shortUrl = socialResume.getShortUrl();
-            if(ObjectUtil.isEmpty(shortUrl)) {
-                String longUrl = StrUtil.concat(true, smsConfig.getBaseUrl(), REPLACE_LONG_URL, socialResume.getId());
-                shortUrl = getShortUrl(longUrl);
+    public void send(List<SocialResumeIdParam> idParamList) {
+        List<String> ids = CollStreamUtil.toList(idParamList, SocialResumeIdParam::getId);
+        List<SocialResume> socialResumeList = this.listByIds(ids);
+        //手机号校验
+        socialResumeList.forEach(item->{
+            if(StrUtil.isEmpty(item.getPhone())){
+                throw new CommonException("{}手机号缺失",item.getName());
             }
-            String tpl_Value = URLEncoder.encode("#url#") + "="  + URLEncoder.encode(shortUrl);
-//            devSmsApi.sendSmsYunPian("", socialResume.getPhone(), YUN_PIAN_TPL_CODE_ID, tpl_Value);
-            socialResume.setShortUrl(shortUrl);
-            socialResume.setIsSend("1");
-            this.updateById(socialResume);
+            if(!PhoneUtil.isMobile(item.getPhone())) {
+                throw new CommonException("{}手机号码：{}格式错误",item.getName(), item.getPhone());
+            }
+        });
+        //发送短信
+        if(smsConfig.getIsSend()) {
+            socialResumeList.forEach(item->{
+                String shortUrl = item.getShortUrl();
+                if(ObjectUtil.isEmpty(shortUrl)) {
+                    String longUrl = StrUtil.concat(true, smsConfig.getBaseUrl(), item.getId());
+                    shortUrl = getShortUrl(longUrl);
+                }
+                String tpl_Value = URLEncoder.encode("#name#") + "="  + URLEncoder.encode(item.getName())+"&"+URLEncoder.encode("#url#") + "="  + URLEncoder.encode(shortUrl);
+                devSmsApi.sendSmsYunPian("", item.getPhone(), YUN_PIAN_TPL_CODE_ID, tpl_Value);
+                item.setShortUrl(shortUrl);
+                item.setIsSend("1");
+            });
+            this.updateBatchById(socialResumeList);
+        }
+    }
+
+
+    @Override
+    public void sendEmail(List<SocialResumeIdParam> idParamList) {
+        List<String> ids = CollStreamUtil.toList(idParamList, SocialResumeIdParam::getId);
+        List<SocialResume> resumeList = this.listByIds(ids);
+        List<SocialResume> emailResumeList = new ArrayList<>();
+        //手机号校验
+        resumeList.forEach(item->{
+            if(StrUtil.isNotEmpty(item.getEmail()) && CommonEmailUtil.isEmail(item.getEmail())){
+                emailResumeList.add(item);
+            }
+        });
+        //发送邮件
+        if(smsConfig.getIsSend()) {
+            emailResumeList.forEach(item->{
+                String content = "  尊敬的"+item.getName()+"，您好！建科人事邀请您点击 "+
+                         StrUtil.concat(true, smsConfig.getBaseUrl(), item.getId()) +" 填写登记信息。";
+                List<File> files = new ArrayList<>();
+                devEmailApi.sendTextEmailLocal(item.getEmail(),"建科-面试通知",content,files);
+                item.setIsSend("1");
+            });
+            this.updateBatchById(emailResumeList);
         }
     }
 
@@ -229,7 +264,7 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
         if(ObjectUtil.isEmpty(one)){
             throw new CommonException("短链接已失效或不存在");
         }
-        return StrUtil.concat(true,smsConfig.getBaseUrl(),REPLACE_LONG_URL,one.getId());
+        return StrUtil.concat(true,smsConfig.getBaseUrl(),one.getId());
     }
 
     /**

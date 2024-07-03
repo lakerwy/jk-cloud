@@ -83,10 +83,10 @@ public interface SocialResumeService extends IService<SocialResume> {
     void save(UploadParam uploadParam);
 
     /**
-     * 发送 面试 短信，填写基本信息
-     * @param idParam
+     * 模式一：发送短信
+     * @param idParamList
      */
-    void send(SocialResumeIdParam idParam);
+    void send(List<SocialResumeIdParam> idParamList);
 
 
     /**
@@ -101,4 +101,10 @@ public interface SocialResumeService extends IService<SocialResume> {
      * @return
      */
     String getLongUrl(String shortUrl);
+
+    /**
+     * 模式二：发送邮件
+     * @param idParamList
+     */
+    void sendEmail(List<SocialResumeIdParam> idParamList);
 }
