@@ -200,7 +200,7 @@ public interface SysUserService extends IService<SysUser> {
      * @author xuyuxiang
      * @date 2022/4/22 15:53
      **/
-    String updateAvatar(MultipartFile file);
+    String updateAvatar(MultipartFile file,Boolean isPc);
 
     /**
      * 修改用户签名图片返回base64

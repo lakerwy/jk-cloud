@@ -150,7 +150,15 @@ public class SysUserCenterController {
     @CommonLog("修改用户头像")
     @PostMapping("/sys/userCenter/updateAvatar")
     public CommonResult<String> updateAvatar(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file) {
-        return CommonResult.data(sysUserService.updateAvatar(file));
+        return CommonResult.data(sysUserService.updateAvatar(file,true));
+    }
+
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("移动端修改用户头像")
+    @CommonLog("修改用户头像")
+    @PostMapping("/sys/userCenter/updateAvatarUrl")
+    public CommonResult<String> updateAvatarUrl(@RequestPart("file") @ApiParam(value="文件", required = true) MultipartFile file) {
+        return CommonResult.data(sysUserService.updateAvatar(file,false));
     }
 
     /**
