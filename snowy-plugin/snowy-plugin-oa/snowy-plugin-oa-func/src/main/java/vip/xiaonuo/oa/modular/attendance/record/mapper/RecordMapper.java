@@ -14,6 +14,7 @@ package vip.xiaonuo.oa.modular.attendance.record.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.oa.modular.attendance.record.entity.Record;
+import vip.xiaonuo.oa.modular.attendance.record.entity.Record;
 
 /**
  * 考勤记录表Mapper接口

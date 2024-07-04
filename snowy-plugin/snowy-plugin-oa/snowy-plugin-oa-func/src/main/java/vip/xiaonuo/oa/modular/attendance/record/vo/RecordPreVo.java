@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.oa.modular.attendance.record.entity.Record;
+import vip.xiaonuo.oa.modular.attendance.record.entity.Record;
 
 import java.time.LocalTime;
 import java.util.List;

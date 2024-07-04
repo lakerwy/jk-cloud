@@ -18,8 +18,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.time.Duration;
-import java.time.LocalTime;
 import java.util.Date;
 import java.util.List;
 
@@ -51,26 +49,18 @@ public class Shift {
     @ApiModelProperty(value = "备注信息", position = 4)
     private String remark;
 
+    /** 打卡次数 */
+    @ApiModelProperty(value = "打卡次数(和clockInRules 的数量必须一直)", position = 6)
+    private Integer checkNum;
+
     /** 存储班次上下班打卡时间详情的JSON字段 */
     @ApiModelProperty(value = "存储班次上下班打卡时间详情的JSON字段", position = 5)
-    @TableField(value = "CLOCK_IN_RULES", typeHandler = FastjsonTypeHandler.class)
-    private List<ClockInRule> clockInRules;
+    @TableField(value = "RULES", typeHandler = FastjsonTypeHandler.class)
+    private List<Rule> rules;
 
     /** 工作时长，以分钟为单位 */
     @ApiModelProperty(value = "工作时长，以分钟为单位", position = 6)
     private Integer workTime;
-
-    /** 上班最多可晚时间，上班晚到几分钟，下班须晚走几分钟，如 30 表示30分钟 */
-    @ApiModelProperty(value = "上班最多可晚时间，上班晚到几分钟，下班须晚走几分钟，如 30 表示30分钟", position = 7)
-    private String lateAndEarlyOnTime;
-
-    /** 下班最多可早走时间，上班早到几分钟，下班可早走几分钟，如 90 表示1小时30分钟 */
-    @ApiModelProperty(value = "下班最多可早走时间，上班早到几分钟，下班可早走几分钟，如 90 表示1小时30分钟", position = 8)
-    private String lateAndEarlyOffTime;
-
-    /** 严重迟到的分钟数，如 30 */
-    @ApiModelProperty(value = "严重迟到的分钟数，如 30", position = 9)
-    private Integer seriousTardinessLateMinutes;
 
     /** 扩展信息，JSON格式存储 */
     @ApiModelProperty(value = "扩展信息，JSON格式存储", position = 10)
@@ -105,28 +95,28 @@ public class Shift {
     @ApiModelProperty(value = "是否为默认班次", position = 16)
     private Boolean defaultFlag;
 
-    public long shiftWorkTime() {
-        long totalMinutes = 0;
-
-        if (clockInRules != null) {
-            for (ClockInRule clockInRule : clockInRules) {
-                LocalTime normalStart = clockInRule.getNormalStart();
-                LocalTime normalEnd = clockInRule.getNormalEnd();
-
-                if (normalStart != null && normalEnd != null) {
-                    Duration duration;
-                    if (normalEnd.isBefore(normalStart)) {
-                        // 处理跨天的情况
-                        duration = Duration.between(normalStart, LocalTime.MAX)
-                                .plus(Duration.between(LocalTime.MIN, normalEnd));
-                    } else {
-                        duration = Duration.between(normalStart, normalEnd);
-                    }
-                    totalMinutes += duration.toMinutes();
-                }
-            }
-        }
-
-        return totalMinutes;
-    }
+//    public long shiftWorkTime() {
+//        long totalMinutes = 0;
+//
+//        if (clockInRules != null) {
+//            for (ClockInRule clockInRule : clockInRules) {
+//                LocalTime normalStart = clockInRule.getNormal();
+//                LocalTime normalEnd = clockInRule.getNormalEnd();
+//
+//                if (normalStart != null && normalEnd != null) {
+//                    Duration duration;
+//                    if (normalEnd.isBefore(normalStart)) {
+//                        // 处理跨天的情况
+//                        duration = Duration.between(normalStart, LocalTime.MAX)
+//                                .plus(Duration.between(LocalTime.MIN, normalEnd));
+//                    } else {
+//                        duration = Duration.between(normalStart, normalEnd);
+//                    }
+//                    totalMinutes += duration.toMinutes();
+//                }
+//            }
+//        }
+//
+//        return totalMinutes;
+//    }
 }

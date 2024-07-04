@@ -34,6 +34,18 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.oa.core.constant.AttCacheConstants;
 import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
+import vip.xiaonuo.oa.modular.attendance.group.constants.GroupConstant;
+import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
+import vip.xiaonuo.oa.modular.attendance.group.param.*;
+import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
+import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
+import vip.xiaonuo.oa.modular.attendance.group.entity.AttObject;
+import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
+import vip.xiaonuo.oa.modular.attendance.group.mapper.GroupMapper;
+import vip.xiaonuo.oa.modular.attendance.group.param.GroupEditParam;
+import vip.xiaonuo.oa.modular.attendance.group.param.GroupIdParam;
+import vip.xiaonuo.oa.modular.attendance.group.param.GroupPageParam;
+import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
 import vip.xiaonuo.oa.modular.attendance.group.entity.AttObject;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
 import vip.xiaonuo.oa.modular.attendance.group.mapper.GroupMapper;
@@ -44,10 +56,7 @@ import vip.xiaonuo.oa.modular.attendance.group.param.GroupPageParam;
 import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -89,6 +98,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(GroupAddParam groupAddParam) {
+        groupAddParam.isValid();
         checkGroupName(groupAddParam.getGroupName());
         if(CollUtil.isEmpty(groupAddParam.getAssistAdmins())){
             List<AttObject> assistAdmins = new ArrayList<>();
@@ -105,8 +115,10 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         Group group = BeanUtil.toBean(groupAddParam, Group.class);
         group.setTrueParticipants(trueParticipates);
         this.save(group);
+        cacheGroup(trueParticipates, group);
     }
 
+    //todo  一个人只能设置一个考勤组
     public  List<AttObject> buildAttObjects(List<AttObject> participates){
         List<AttObject> trueParticipates = new ArrayList<>();
         if(CollUtil.isNotEmpty(participates)){
@@ -136,6 +148,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(GroupEditParam groupEditParam) {
+        groupEditParam.isValid();
         Group group = this.queryEntity(groupEditParam.getId());
 
         List<AttObject> assistAdmins = group.getAssistAdmins();
@@ -155,6 +168,16 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         group.setTrueParticipants(trueParticipates);
 
         this.updateById(group);
+
+        cacheGroup(trueParticipates, group);
+    }
+
+    private void cacheGroup(List<AttObject> trueParticipates, Group group) {
+        Map<String, String> userMap = trueParticipates.stream().collect(Collectors.toMap(AttObject::getObjectId, attObject -> group.getId()));
+        // 人员和排班ID存入缓存
+        cacheOperator.putHashAll(AttCacheConstants.USER_GROUP_HASH,userMap);
+        // 排班存入缓存
+        cacheOperator.put(AttCacheConstants.ATT_GROUP_CACHE_PRE+ group.getId(), group);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -162,6 +185,8 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     public void delete(List<GroupIdParam> groupIdParamList) {
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(groupIdParamList, GroupIdParam::getId));
+        cacheOperator.remove(AttCacheConstants.USER_GROUP_HASH);
+        groupIdParamList.forEach(groupIdParam -> cacheOperator.remove(AttCacheConstants.ATT_GROUP_CACHE_PRE+groupIdParam));
     }
 
     @Override
@@ -188,8 +213,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     @Override
     public Group getGroupByUserId(String userId) {
         //从缓存中获取
-        Object groupId = cacheOperator.get(AttCacheConstants.ATT_GROUP_USERID_CACHE_PRE + userId);
-        if(ObjectUtil.isNull(groupId)){
+        Object groupId = cacheOperator.getHashValueByKey(AttCacheConstants.USER_GROUP_HASH, userId);
+        if(ObjectUtil.isNotEmpty(groupId)){
+            Object o = cacheOperator.get(AttCacheConstants.ATT_GROUP_CACHE_PRE + groupId);
+            if(ObjectUtil.isNotEmpty(o)){
+                return (Group) o;
+            }else {
+                Group group = this.getById(String.valueOf(groupId));
+                cacheOperator.put(AttCacheConstants.ATT_GROUP_CACHE_PRE+groupId,group);
+                return group;
+            }
+        }else {
             LambdaQueryWrapper<Group> apply = new LambdaQueryWrapper<Group>().apply("JSON_CONTAINS(TRUE_PARTICIPANTS, JSON_OBJECT('objectId', {0}))", userId);
             Group group = baseMapper.selectOne(apply);
             if(ObjectUtil.isNull(group)){
@@ -197,22 +231,13 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
             }
             // 排班存入缓存
             cacheOperator.put(AttCacheConstants.ATT_GROUP_CACHE_PRE+group.getId(),group);
-            List<AttObject> trueParticipants = group.getTrueParticipants();
-            trueParticipants.forEach(attObject -> cacheOperator.put(AttCacheConstants.ATT_GROUP_USERID_CACHE_PRE+attObject.getObjectId(),group.getId()));
+            cacheOperator.putHash(AttCacheConstants.USER_GROUP_HASH,userId,group.getId());
             return group;
-        }else {
-            Object o = cacheOperator.get(AttCacheConstants.ATT_GROUP_CACHE_PRE + groupId);
-            if(ObjectUtil.isNull(o)){
-                Group group = this.getById(String.valueOf(groupId));
-                if(ObjectUtil.isNull(group)){
-                    cacheOperator.removeKeys(AttCacheConstants.ATT_GROUP_USERID_CACHE_PRE);
-                    cacheOperator.remove(AttCacheConstants.ATT_GROUP_CACHE_PRE+group);
-                    throw  new CommonException("用户关联得考勤组不存在.");
-                }
-                return group;
-            }else {
-                return (Group) o;
-            }
         }
+    }
+
+    @Override
+    public void setGroup(GroupAttObjectParam groupAttObjectParam) {
+        //todo
     }
 }

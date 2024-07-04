@@ -12,12 +12,16 @@
  */
 package vip.xiaonuo.oa.modular.attendance.record.entity;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.annotation.*;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
+import vip.xiaonuo.oa.modular.attendance.record.constants.RecordConstant;
+import vip.xiaonuo.oa.modular.attendance.record.constants.RecordConstant;
+import vip.xiaonuo.oa.modular.attendance.record.constants.RecordConstant;
 
 import java.math.BigDecimal;
 import java.sql.Time;
@@ -63,17 +67,17 @@ public class Record {
     @ApiModelProperty(value = "打卡记录时分秒",position = 6)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
     @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime dutyTime;
+    private Date dutyTime;
 
     @ApiModelProperty(value = "打卡时间前限制打卡时间",position = 6)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
     @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime preDutyTimeBeforeLimit;
+    private Date preDutyTimeBeforeLimit;
 
     @ApiModelProperty(value = "打卡时间后限制打卡时间",position = 6)
     @JsonFormat(locale="zh", timezone="GMT+8", pattern="HH:mm:ss")
     @DateTimeFormat(pattern = "HH:mm:ss")
-    private LocalTime preDutyTimeAfterLimit;
+    private Date preDutyTimeAfterLimit;
 
     /** 打卡数据来源（用户打卡、系统自动打卡等） */
     @ApiModelProperty(value = "打卡数据来源（用户打卡、系统自动打卡等）", position = 6)
@@ -172,4 +176,17 @@ public class Record {
     @ApiModelProperty(value = "修改用户", position = 28)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    public boolean checkResultException(boolean fieldWorkMarkError){
+        if(fieldWorkMarkError){
+            return (checkinResult.equals(RecordConstant.CHECKIN_RESULT_NORMAL) && fieldWork) ||
+                    !checkinResult.equals(RecordConstant.CHECKIN_RESULT_PreCheckIn) &&
+                            !checkinResult.equals(RecordConstant.CHECKIN_RESULT_NORMAL) &&
+                            StrUtil.isEmpty(leaveDataId);
+        }else {
+            return  !checkinResult.equals(RecordConstant.CHECKIN_RESULT_PreCheckIn) &&
+                    StrUtil.isEmpty(leaveDataId) &&
+                    checkinResult.equals(RecordConstant.CHECKIN_RESULT_NORMAL);
+        }
+    }
 }

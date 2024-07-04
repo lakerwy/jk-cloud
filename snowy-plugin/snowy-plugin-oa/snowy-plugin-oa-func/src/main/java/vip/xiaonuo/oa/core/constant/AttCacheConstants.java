@@ -13,4 +13,9 @@ public class AttCacheConstants {
     public final static String ATT_GROUP_CACHE_PRE="ATT_GROUP:";  //考勤组key
 
     public final static String ATT_GROUP_USERID_CACHE_PRE="ATT_GROUP_USERID:";  //考勤和用户关系key
+
+    /*****
+     * 缓存前缀
+     */
+    public static final String USER_GROUP_HASH = "USER_GROUP_HASH";
 }

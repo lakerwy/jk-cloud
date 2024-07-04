@@ -17,10 +17,7 @@ import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.StrUtil;
 import org.springframework.dao.DataAccessException;
-import org.springframework.data.redis.core.BoundListOperations;
-import org.springframework.data.redis.core.RedisOperations;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.SessionCallback;
+import org.springframework.data.redis.core.*;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -163,6 +160,32 @@ public class CommonCacheOperator {
 
     public Boolean hasKey(String key){
         return  redisTemplate.hasKey(key);
+    }
+
+
+    /**
+     *  一次缓存多个
+     * @param key
+     * @param value
+     */
+    public void putHashAll(String key, Map<String,String> value){
+        redisTemplate.opsForHash().putAll(key,value);
+    }
+
+    /**
+     * 获取hash 中的值
+     * @param key
+     * @param hashKey
+     * @return
+     */
+    public Object getHashValueByKey(String key,String hashKey){
+        HashOperations<String, Object, Object> hashOps  = redisTemplate.opsForHash();
+        return hashOps.get(key,hashKey);
+    }
+
+    public void  removeHashKey(String key,String hashKey){
+        HashOperations<String, Object, Object> hashOps = redisTemplate.opsForHash();
+        hashOps.delete(key,hashKey);
     }
 
 

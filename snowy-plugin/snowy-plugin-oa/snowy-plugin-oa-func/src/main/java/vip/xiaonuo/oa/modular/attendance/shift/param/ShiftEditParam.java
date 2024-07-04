@@ -12,15 +12,14 @@
  */
 package vip.xiaonuo.oa.modular.attendance.shift.param;
 
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import vip.xiaonuo.oa.modular.attendance.shift.entity.ClockInRule;
+import vip.xiaonuo.oa.modular.attendance.shift.entity.Rule;
 
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
-import java.util.Date;
 import java.util.List;
 
 /**
@@ -38,6 +37,10 @@ public class ShiftEditParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
+    /** 租户ID */
+    @ApiModelProperty(value = "租户ID", position = 2)
+    private String tenantId;
+
     /** 班次名称 */
     @ApiModelProperty(value = "班次名称", position = 3)
     private String shiftName;
@@ -46,28 +49,23 @@ public class ShiftEditParam {
     @ApiModelProperty(value = "备注信息", position = 4)
     private String remark;
 
+    /** 打卡次数 */
+    @ApiModelProperty(value = "打卡次数(和clockInRules 的数量必须一直)", position = 6)
+    private Integer checkNum;
+
     /** 存储班次上下班打卡时间详情的JSON字段 */
     @ApiModelProperty(value = "存储班次上下班打卡时间详情的JSON字段", position = 5)
-    private List<ClockInRule> clockInRules;
+    private List<Rule> rules;
 
     /** 工作时长，以分钟为单位 */
     @ApiModelProperty(value = "工作时长，以分钟为单位", position = 6)
     private Integer workTime;
 
-    /** 上班最多可晚时间，上班晚到几分钟，下班须晚走几分钟，如 30 表示30分钟 */
-    @ApiModelProperty(value = "上班最多可晚时间，上班晚到几分钟，下班须晚走几分钟，如 30 表示30分钟", position = 7)
-    private String lateAndEarlyOnTime;
-
-    /** 下班最多可早走时间，上班早到几分钟，下班可早走几分钟，如 90 表示1小时30分钟 */
-    @ApiModelProperty(value = "下班最多可早走时间，上班早到几分钟，下班可早走几分钟，如 90 表示1小时30分钟", position = 8)
-    private String lateAndEarlyOffTime;
-
-    /** 严重迟到的分钟数，如 30 */
-    @ApiModelProperty(value = "严重迟到的分钟数，如 30", position = 9)
-    private Integer seriousTardinessLateMinutes;
-
     /** 扩展信息，JSON格式存储 */
     @ApiModelProperty(value = "扩展信息，JSON格式存储", position = 10)
     private String extJson;
+
+    @ApiModelProperty(value = "是否为默认班次", position = 16)
+    private Boolean defaultFlag;
 
 }

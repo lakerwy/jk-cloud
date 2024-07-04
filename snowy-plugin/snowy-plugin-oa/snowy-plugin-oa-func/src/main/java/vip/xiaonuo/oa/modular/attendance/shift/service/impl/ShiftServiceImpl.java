@@ -30,14 +30,14 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.oa.core.constant.AttCacheConstants;
-import vip.xiaonuo.oa.modular.attendance.shift.entity.ClockInRule;
-import vip.xiaonuo.oa.modular.attendance.shift.entity.Shift;
 import vip.xiaonuo.oa.modular.attendance.shift.mapper.ShiftMapper;
 import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftAddParam;
+import vip.xiaonuo.oa.modular.attendance.shift.service.ShiftService;
+import vip.xiaonuo.oa.modular.attendance.shift.entity.Rule;
+import vip.xiaonuo.oa.modular.attendance.shift.entity.Shift;
 import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftEditParam;
 import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftIdParam;
 import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftPageParam;
-import vip.xiaonuo.oa.modular.attendance.shift.service.ShiftService;
 
 import javax.annotation.Resource;
 import java.util.Comparator;
@@ -77,10 +77,11 @@ public class ShiftServiceImpl extends ServiceImpl<ShiftMapper, Shift> implements
     @Override
     public void add(ShiftAddParam shiftAddParam) {
         checkShiftName(shiftAddParam.getShiftName());
-        List<ClockInRule> clockInRules = getShiftCheckTimes(shiftAddParam.getClockInRules());
+        List<Rule> rules = getShiftCheckTimes(shiftAddParam.getRules());
         Shift shift = BeanUtil.toBean(shiftAddParam, Shift.class);
-        shift.setClockInRules(clockInRules);
+        shift.setRules(rules);
         shift.setDefaultFlag(false);
+        shift.setCheckNum(rules.size());
         this.save(shift);
         cacheOperator.put(AttCacheConstants.ATT_SHIFT_CACHE_PRE+shift.getId(),shift);
     }
@@ -90,9 +91,12 @@ public class ShiftServiceImpl extends ServiceImpl<ShiftMapper, Shift> implements
     public void edit(ShiftEditParam shiftEditParam) {
         Shift shift = this.queryEntity(shiftEditParam.getId());
         checkShiftName(shiftEditParam.getShiftName());
-        List<ClockInRule> clockInRules = getShiftCheckTimes(shiftEditParam.getClockInRules());
         BeanUtil.copyProperties(shiftEditParam, shift);
-        shift.setClockInRules(clockInRules);
+        if(CollUtil.isNotEmpty(shiftEditParam.getRules())){
+            List<Rule> rules = getShiftCheckTimes(shiftEditParam.getRules());
+            shift.setRules(rules);
+            shift.setCheckNum(rules.size());
+        }
         this.updateById(shift);
         cacheOperator.put(AttCacheConstants.ATT_SHIFT_CACHE_PRE+shift.getId(),shift);
     }
@@ -100,7 +104,10 @@ public class ShiftServiceImpl extends ServiceImpl<ShiftMapper, Shift> implements
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<ShiftIdParam> shiftIdParamList) {
-        // 执行删除
+        //todo
+        /**
+         * 删除前先判断考勤组中是否已关联了排班
+         */
         this.removeByIds(CollStreamUtil.toList(shiftIdParamList, ShiftIdParam::getId));
         List<String> collect = shiftIdParamList.stream().map(ShiftIdParam::getId).collect(Collectors.toList());
         cacheOperator.remove(collect);
@@ -147,11 +154,11 @@ public class ShiftServiceImpl extends ServiceImpl<ShiftMapper, Shift> implements
         }
     }
 
-    private static @NotNull List<ClockInRule> getShiftCheckTimes(List<ClockInRule> shiftCheckTimes) {
+    private static @NotNull List<Rule> getShiftCheckTimes(List<Rule> shiftCheckTimes) {
         shiftCheckTimes = shiftCheckTimes
                 .stream()
-                .peek(ClockInRule::isValid)
-                .sorted(Comparator.comparing(ClockInRule::getNormalStart)).collect(Collectors.toList());
+                .peek(Rule::isValid)
+                .sorted(Comparator.comparing(Rule::getNormal)).collect(Collectors.toList());
         return shiftCheckTimes;
     }
 

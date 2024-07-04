@@ -15,10 +15,11 @@ package vip.xiaonuo.oa.modular.attendance.group.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
-import vip.xiaonuo.oa.modular.attendance.group.param.GroupAddParam;
-import vip.xiaonuo.oa.modular.attendance.group.param.GroupEditParam;
+import vip.xiaonuo.oa.modular.attendance.group.param.*;
+import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupIdParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupPageParam;
+import vip.xiaonuo.oa.modular.attendance.group.param.GroupAddParam;
 
 import java.util.List;
 
@@ -79,4 +80,6 @@ public interface GroupService extends IService<Group> {
     Group queryEntity(String id);
 
     Group getGroupByUserId(String userId);
+
+    void setGroup(GroupAttObjectParam groupAttObjectParam);
 }

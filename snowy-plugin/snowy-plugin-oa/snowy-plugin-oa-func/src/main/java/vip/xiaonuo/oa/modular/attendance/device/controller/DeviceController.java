@@ -32,6 +32,12 @@ import vip.xiaonuo.oa.modular.attendance.device.param.DeviceEditParam;
 import vip.xiaonuo.oa.modular.attendance.device.param.DeviceIdParam;
 import vip.xiaonuo.oa.modular.attendance.device.param.DevicePageParam;
 import vip.xiaonuo.oa.modular.attendance.device.service.DeviceService;
+import vip.xiaonuo.oa.modular.attendance.device.entity.Device;
+import vip.xiaonuo.oa.modular.attendance.device.param.DeviceAddParam;
+import vip.xiaonuo.oa.modular.attendance.device.param.DeviceEditParam;
+import vip.xiaonuo.oa.modular.attendance.device.param.DeviceIdParam;
+import vip.xiaonuo.oa.modular.attendance.device.param.DevicePageParam;
+import vip.xiaonuo.oa.modular.attendance.device.service.DeviceService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;

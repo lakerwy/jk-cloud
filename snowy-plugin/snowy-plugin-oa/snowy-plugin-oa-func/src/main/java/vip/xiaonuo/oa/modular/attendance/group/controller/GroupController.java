@@ -26,12 +26,10 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.oa.modular.attendance.group.param.*;
 import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
-import vip.xiaonuo.oa.modular.attendance.group.param.GroupAddParam;
-import vip.xiaonuo.oa.modular.attendance.group.param.GroupEditParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupIdParam;
-import vip.xiaonuo.oa.modular.attendance.group.param.GroupPageParam;
 import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
 
 import javax.annotation.Resource;
@@ -64,7 +62,7 @@ public class GroupController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取考勤-考勤组分页")
-    @SaCheckPermission("/oa/group/page")
+//    @SaCheckPermission("/oa/group/page")
     @GetMapping("/oa/group/page")
     public CommonResult<Page<Group>> page(GroupPageParam groupPageParam) {
         return CommonResult.data(groupService.page(groupPageParam));
@@ -79,7 +77,7 @@ public class GroupController {
     @ApiOperationSupport(order = 2)
     @ApiOperation("添加考勤-考勤组")
     @CommonLog("添加考勤-考勤组")
-    @SaCheckPermission("/oa/group/add")
+//    @SaCheckPermission("/oa/group/add")
     @PostMapping("/oa/group/add")
     public CommonResult<String> add(@RequestBody @Valid GroupAddParam groupAddParam) {
         groupService.add(groupAddParam);
@@ -95,7 +93,7 @@ public class GroupController {
     @ApiOperationSupport(order = 3)
     @ApiOperation("编辑考勤-考勤组")
     @CommonLog("编辑考勤-考勤组")
-    @SaCheckPermission("/oa/group/edit")
+//    @SaCheckPermission("/oa/group/edit")
     @PostMapping("/oa/group/edit")
     public CommonResult<String> edit(@RequestBody @Valid GroupEditParam groupEditParam) {
         groupService.edit(groupEditParam);
@@ -111,7 +109,7 @@ public class GroupController {
     @ApiOperationSupport(order = 4)
     @ApiOperation("删除考勤-考勤组")
     @CommonLog("删除考勤-考勤组")
-    @SaCheckPermission("/oa/group/delete")
+//    @SaCheckPermission("/oa/group/delete")
     @PostMapping("/oa/group/delete")
     public CommonResult<String> delete(@RequestBody @Valid @NotEmpty(message = "集合不能为空")
                                                    CommonValidList<GroupIdParam> groupIdParamList) {
@@ -127,7 +125,7 @@ public class GroupController {
      */
     @ApiOperationSupport(order = 5)
     @ApiOperation("获取考勤-考勤组详情")
-    @SaCheckPermission("/oa/group/detail")
+//    @SaCheckPermission("/oa/group/detail")
     @GetMapping("/oa/group/detail")
     public CommonResult<Group> detail(@Valid GroupIdParam groupIdParam) {
         return CommonResult.data(groupService.detail(groupIdParam));
@@ -139,6 +137,16 @@ public class GroupController {
     public CommonResult<String> test(){
         String childrenUser = webServerClient.getChildrenUser("1666651344023891970");
         System.out.println(childrenUser);
+        return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("给公司/部门/角色/用户 设置考勤组-考勤")
+    @CommonLog("给公司/部门/角色/用户 设置考勤组-考勤")
+//    @SaCheckPermission("/oa/group/edit")
+    @PostMapping("/oa/group/edit")
+    public CommonResult<String> setGroup(@RequestBody @Valid GroupAttObjectParam groupAttObjectParam) {
+        groupService.setGroup(groupAttObjectParam);
         return CommonResult.ok();
     }
 }
