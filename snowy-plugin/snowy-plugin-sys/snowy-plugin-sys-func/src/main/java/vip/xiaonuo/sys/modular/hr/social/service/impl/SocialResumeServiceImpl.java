@@ -25,6 +25,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.common.util.CommonEmailUtil;
@@ -115,6 +116,7 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
             records.forEach(item->{
                 LambdaQueryWrapper<SocialInterview> interviewQueryWrapper = new QueryWrapper<SocialInterview>().lambda()
                         .eq(SocialInterview::getHrSocialResumeId,item.getId())
+                        .in(SocialInterview::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue())
                         .orderByDesc(SocialInterview::getSn);
                 List<SocialInterview> interviewList = socialInterviewService.list(interviewQueryWrapper);
                 List<InterviewVo> interviewVos = BeanUtil.copyToList(interviewList, InterviewVo.class);
@@ -158,6 +160,7 @@ public class SocialResumeServiceImpl extends ServiceImpl<SocialResumeMapper, Soc
         SocialResumeVo socialResumeVo = BeanUtil.copyProperties(socialResume, SocialResumeVo.class);
         LambdaQueryWrapper<SocialInterview> interviewQueryWrapper = new QueryWrapper<SocialInterview>().lambda()
                 .eq(SocialInterview::getHrSocialResumeId,socialResume.getId())
+                .in(SocialInterview::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue())
                 .orderByDesc(SocialInterview::getSn);
         List<SocialInterview> interviewList = socialInterviewService.list(interviewQueryWrapper);
         List<InterviewVo> interviewVos = BeanUtil.copyToList(interviewList, InterviewVo.class);
