@@ -19,7 +19,6 @@ import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.oa.core.constant.BaseConstants;
 import vip.xiaonuo.oa.modular.attendance.group.util.BaiduLocationTransformHelper;
-import vip.xiaonuo.oa.modular.attendance.workplace.entity.TransformPosition;
 
 import java.util.Date;
 
