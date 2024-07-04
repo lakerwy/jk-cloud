@@ -144,7 +144,7 @@ public class GroupController {
     @ApiOperation("给公司/部门/角色/用户 设置考勤组-考勤")
     @CommonLog("给公司/部门/角色/用户 设置考勤组-考勤")
 //    @SaCheckPermission("/oa/group/edit")
-    @PostMapping("/oa/group/edit")
+    @PostMapping("/oa/group/setGroup")
     public CommonResult<String> setGroup(@RequestBody @Valid GroupAttObjectParam groupAttObjectParam) {
         groupService.setGroup(groupAttObjectParam);
         return CommonResult.ok();

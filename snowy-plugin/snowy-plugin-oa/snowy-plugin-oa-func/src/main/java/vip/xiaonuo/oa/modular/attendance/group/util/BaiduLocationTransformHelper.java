@@ -1,6 +1,6 @@
 package vip.xiaonuo.oa.modular.attendance.group.util;
 
-import vip.xiaonuo.oa.modular.attendance.workplace.entity.TransformPosition;
+import vip.xiaonuo.oa.modular.attendance.group.entity.TransformPosition;
 
 public class BaiduLocationTransformHelper {
 

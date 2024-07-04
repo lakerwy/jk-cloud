@@ -26,13 +26,12 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftAddParam;
+import vip.xiaonuo.oa.modular.attendance.shift.entity.Calendar;
+import vip.xiaonuo.oa.modular.attendance.shift.param.*;
+import vip.xiaonuo.oa.modular.attendance.shift.service.CalendarService;
 import vip.xiaonuo.oa.modular.attendance.shift.service.ShiftService;
 import vip.xiaonuo.oa.modular.attendance.shift.entity.Shift;
 import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftAddParam;
-import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftEditParam;
-import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftIdParam;
-import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftPageParam;
 import vip.xiaonuo.oa.modular.attendance.shift.service.ShiftService;
 import vip.xiaonuo.oa.modular.attendance.shift.entity.Shift;
 import vip.xiaonuo.oa.modular.attendance.shift.param.ShiftAddParam;
@@ -58,6 +57,9 @@ public class ShiftController {
 
     @Resource
     private ShiftService shiftService;
+
+    @Resource
+    private CalendarService calendarService;
 
     /**
      * 获取班次表，用于存储班次的基本信息分页
@@ -144,5 +146,13 @@ public class ShiftController {
     public CommonResult<String> setDefaultShift(@Valid ShiftIdParam shiftIdParam) {
         shiftService.setDefaultShift(shiftIdParam);
         return CommonResult.ok();
+    }
+
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取节假日")
+//    @SaCheckPermission("/oa/shift/page")
+    @GetMapping("/oa/calender/page")
+    public CommonResult<Page<Calendar>> calenderPage(CalendarPageParam calendarPageParam) {
+        return CommonResult.data(calendarService.page(calendarPageParam));
     }
 }
