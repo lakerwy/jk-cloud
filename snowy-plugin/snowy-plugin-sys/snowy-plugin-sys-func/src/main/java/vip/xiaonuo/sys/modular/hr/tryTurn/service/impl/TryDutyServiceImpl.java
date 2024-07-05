@@ -62,6 +62,7 @@ public class TryDutyServiceImpl extends ServiceImpl<TryDutyMapper, TryDuty> impl
     @Override
     public Page<TryDutyVo> page(TryDutyPageParam tryDutyPageParam) {
         QueryWrapper<TryDuty> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.in("a.STATUS",FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(tryDutyPageParam.getApplyType())){
             queryWrapper.eq("a.APPLY_TYPE",tryDutyPageParam.getApplyType());

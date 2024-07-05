@@ -62,6 +62,7 @@ public class TryTurnServiceImpl extends ServiceImpl<TryTurnMapper, TryTurn> impl
     @Override
     public Page<TryTurnVo> page(TryTurnPageParam tryTurnPageParam) {
         QueryWrapper<TryTurn> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("a.DELETE_FLAG","NOT_DELETE");
         queryWrapper.in("a.STATUS", FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(tryTurnPageParam.getType())) {
             queryWrapper.eq("a.TYPE", tryTurnPageParam.getType());
