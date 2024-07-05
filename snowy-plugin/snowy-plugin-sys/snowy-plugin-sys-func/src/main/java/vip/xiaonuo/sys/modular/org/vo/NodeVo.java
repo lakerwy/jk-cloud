@@ -39,4 +39,7 @@ public class NodeVo {
 
     @ApiModelProperty(value = "头像", position = 7)
     private String avatar;
+
+    @ApiModelProperty(value = "头像Url", position = 7)
+    private String avatarUrl;
 }

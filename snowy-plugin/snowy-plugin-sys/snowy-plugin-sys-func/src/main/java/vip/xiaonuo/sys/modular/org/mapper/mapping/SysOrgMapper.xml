@@ -33,7 +33,8 @@
     <select id="getOrgOrUser" resultType="vip.xiaonuo.sys.modular.org.vo.NodeVo">
         SELECT * FROM (
         SELECT 'department' AS type, so.ID AS id, so.`NAME` AS `name`, so.TENANT_ID AS tenantId, so.PARENT_ID AS parentId, so.CATEGORY AS category, so.SORT_CODE AS sortCode,
-        '' as avatar
+        '' as avatar,
+        '' as avatarUrl
         FROM SYS_ORG so
         WHERE so.DELETE_FLAG = 'NOT_DELETE'
         <if test="id != null and id != ''">
@@ -46,7 +47,8 @@
         UNION ALL
 
         SELECT 'user' AS type, su.ID AS id, su.`NAME` AS `name`, su.TENANT_ID AS tenantId, su.ORG_ID AS parentId, "USER" AS category, su.SORT_CODE AS sortCode,
-        su.AVATAR as avatar
+        su.AVATAR as avatar,
+        IFNULL(JSON_UNQUOTE(JSON_EXTRACT(su.EXT_JSON, '$.avatarUrl')), '') AS avatarUrl
         FROM SYS_USER su
         WHERE su.USER_STATUS = 'ENABLE' AND su.DELETE_FLAG = 'NOT_DELETE'
         <if test="id != null and id != ''">
