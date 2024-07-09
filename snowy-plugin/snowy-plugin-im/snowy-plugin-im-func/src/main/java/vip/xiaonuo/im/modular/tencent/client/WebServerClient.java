@@ -15,7 +15,7 @@ import java.util.Map;
  * @version 1.0
  * @date 2024/6/12 8:54
  */
-@FeignClient(name = FeignConstant.WEB_APP)
+@FeignClient(name = FeignConstant.WEB_APP,contextId = "WebServerClient")
 public interface WebServerClient {
     @GetMapping("/sys/client/getChildrenUserNew")
     String getChildrenUser(@RequestParam(value = "orgId") String orgId);
