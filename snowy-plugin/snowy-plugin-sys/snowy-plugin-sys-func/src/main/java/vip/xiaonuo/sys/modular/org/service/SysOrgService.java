@@ -191,4 +191,6 @@ public interface SysOrgService extends IService<SysOrg> {
     Page<NodeVo> getOrgOrUser(SysOrgPageParam sysOrgPageParam);
 
     List<ExtendTree<String>> convertToTree();
+
+    SysOrg getOrgByMap(Map<String, Object> mapParam);
 }

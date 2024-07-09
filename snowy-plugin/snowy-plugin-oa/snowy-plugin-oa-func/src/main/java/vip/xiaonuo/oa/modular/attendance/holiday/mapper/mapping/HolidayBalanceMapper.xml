@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.oa.modular.attendance.holiday.mapper.HolidayBalanceMapper">
+
+    <resultMap id="holidayVoMap" type="vip.xiaonuo.oa.modular.attendance.holiday.vo.HolidayVo">
+        <id property="userId" column="userId"/>
+        <result property="userName" column="userName"/>
+        <result property="orgId" column="orgId"/>
+        <result property="orgName" column="orgName"/>
+        <result property="holidayDetails" column="holidayDetails" typeHandler="vip.xiaonuo.oa.core.handler.HolidayHandler"/>
+    </resultMap>
+
+    <select id="getUserHolidays" resultMap="holidayVoMap">
+        SELECT
+        su.ID AS userId,
+        su.`NAME` AS userName,
+        su.TENANT_ID AS tenantId,
+        su.ORG_ID AS orgId,
+        so.`NAME` as orgName,
+        JSON_ARRAYAGG(
+        JSON_OBJECT(
+        'holidayBalanceId', hb.ID,
+        'holidayTypeId', hb.HOLIDAY_TYPE_ID,
+        'holidayName', hr.HOLIDAY_NAME,
+        'balance', hb.BALANCE
+        )
+        ) AS holidayDetails
+        FROM
+        OA_ATTN_HOLIDAY_BALANCE hb
+        JOIN
+        OA_ATTN_HOLIDAY_RULE hr ON hb.HOLIDAY_TYPE_ID = hr.ID
+        JOIN
+        SYS_USER su ON hb.USER_ID = su.ID
+        JOIN SYS_ORG so ON su.ORG_ID = so.ID
+        ${ew.customSqlSegment}
+    </select>
+</mapper>

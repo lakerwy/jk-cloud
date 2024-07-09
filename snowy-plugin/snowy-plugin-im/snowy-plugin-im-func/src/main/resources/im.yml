@@ -1,6 +1,6 @@
 im:
   enable: true
-  admin_url: http://10.0.33.81:18080
+  admin_url: http://127.0.0.1:18080
   admin_secret: 123456
   admin_user_id: admin
   welcome_for_new_user: 欢迎使用建科IM，一起嗨起来。

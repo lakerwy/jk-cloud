@@ -13,9 +13,12 @@
 package vip.xiaonuo.oa.modular.attendance.shift.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
 import java.math.BigDecimal;
 import java.util.Date;
 
@@ -41,6 +44,8 @@ public class Calendar {
 
     /** 日期 */
     @ApiModelProperty(value = "日期", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date calendarDate;
 
     /** 年份 */
@@ -100,4 +105,8 @@ public class Calendar {
     @ApiModelProperty(value = "修改用户", position = 16)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 备注信息 */
+    @ApiModelProperty(value = "备注信息", position = 17)
+    private String remark;
 }

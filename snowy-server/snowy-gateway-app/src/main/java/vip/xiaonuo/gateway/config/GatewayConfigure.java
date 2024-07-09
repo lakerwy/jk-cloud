@@ -213,6 +213,9 @@ public class GatewayConfigure {
             "/api/webapp/sys/hr/social/resume/detail",
             "/api/webapp/sys/hr/social/resume/getLongUrl",
 
+            "/api/webapp/sys/client/getChildrenUserNew",
+            "/api/webapp/sys/client/getOrgByMap",
+
     };
 
     /**
