@@ -116,7 +116,7 @@ public class FlwModel extends CommonEntity {
     @ApiModelProperty(value = "流程图",position = 22)
     private String flwDiagram;
 
-//    /** 扩展信息 */
-//    @ApiModelProperty(value = "模型展示控制字段", position = 21)
-//    private String modelShowStatus;
+    /** 模型展示控制字段 是否展示在首页 */
+    @ApiModelProperty(value = "模型展示控制字段 是否展示在首页", position = 66)
+    private String modelShowStatus;
 }

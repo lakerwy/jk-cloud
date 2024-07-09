@@ -33,4 +33,8 @@ public class FlwModelMyParam {
     /** 名称关键词 */
     @ApiModelProperty(value = "名称关键词")
     private String searchKey;
+
+    /** 模型展示控制字段 */
+    @ApiModelProperty(value = "模型展示控制字段")
+    private String modelShowStatus;
 }

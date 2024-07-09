@@ -160,6 +160,9 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         if(ObjectUtil.isNotEmpty(flwModelMyParam.getSearchKey())) {
             lambdaQueryWrapper.like(FlwModel::getName, flwModelMyParam.getSearchKey());
         }
+        if(ObjectUtil.isNotEmpty(flwModelMyParam.getModelShowStatus())){
+            lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,flwModelMyParam.getModelShowStatus());
+        }
         // 只查询已启用的
         lambdaQueryWrapper.eq(FlwModel::getModelStatus, FlwModelStatusEnum.ENABLE.getValue());
 //        lambdaQueryWrapper.eq(FlwModel::getModelShowStatus,FlwModelStatusEnum.ENABLE.getValue());
@@ -224,7 +227,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         flwModel.setCode(RandomUtil.randomString(10));
         flwModel.setModelStatus(FlwModelStatusEnum.DISABLED.getValue());
         //默认展示在发起申请页面
-        flwModel.setModelStatus(FlwModelStatusEnum.ENABLE.getValue());
+        flwModel.setModelShowStatus(FlwModelStatusEnum.DISABLED.getValue());
         this.save(flwModel);
     }
 
@@ -434,17 +437,17 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         return flwModel;
     }
 
-//    @Override
-//    public void disableShowModel(FlwModelIdParam flwModelIdParam) {
-//        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
-//                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.DISABLED.getValue()));
-//    }
-//
-//    @Override
-//    public void enableShowModel(FlwModelIdParam flwModelIdParam) {
-//        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
-//                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.ENABLE.getValue()));
-//    }
+    @Override
+    public void disableShowModel(FlwModelIdParam flwModelIdParam) {
+        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
+                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.DISABLED.getValue()));
+    }
+
+    @Override
+    public void enableShowModel(FlwModelIdParam flwModelIdParam) {
+        this.update(new LambdaUpdateWrapper<FlwModel>().eq(FlwModel::getId,
+                flwModelIdParam.getId()).set(FlwModel::getModelShowStatus, FlwModelStatusEnum.ENABLE.getValue()));
+    }
 
     @SuppressWarnings("ALL")
     @Override

@@ -360,9 +360,6 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             historicProcessInstanceQuery.variableValueLike("initiatorProcessTitle", "%" + flwProcessMonitorPageParam.getInitiatorProcessTitle() + "%");
         }
 
-        if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getSn())) {
-            historicProcessInstanceQuery.variableValueLike("initiatorProcessSn","%" + flwProcessMonitorPageParam.getSn() + "%");
-        }
         //如果增减了状态，那就强行拼接一个时间限制，获取最近6个月，优化查询效率
         if (!flwProcessMonitorPageParam.isCloseDate() || StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())) {
             Date startDate = ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getStartOptDate()) ?
@@ -382,6 +379,8 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             List<String> keys  = getNameList(flwProcessMonitorPageParam.getName());
             if(CollUtil.isNotEmpty(keys)){
                 historicProcessInstanceQuery.processDefinitionKeyIn(keys.toArray(new String[0]));
+            }else{
+                historicProcessInstanceQuery.processDefinitionKeyIn(new String[]{"-1"});
             }
         }
         if (ObjectUtil.isNotEmpty(flwProcessMonitorPageParam.getProcessInstanceIdList())) {
