@@ -246,6 +246,7 @@ public class AuthServiceImpl implements AuthService {
             }
             saBaseLoginUser.setClientId(authAccountPasswordLoginParam.getClientId());
             saBaseLoginUser.setPlatform(authAccountPasswordLoginParam.getPlatform());
+            saBaseLoginUser.setImSystem(authAccountPasswordLoginParam.getImSystem());
             // 执行B端登录
             return execLoginBExtend(saBaseLoginUser, device);
             // 执行B端登录

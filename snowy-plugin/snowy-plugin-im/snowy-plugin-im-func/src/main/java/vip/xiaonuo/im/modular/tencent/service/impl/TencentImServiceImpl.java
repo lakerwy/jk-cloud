@@ -11,6 +11,7 @@ import cn.hutool.json.JSONUtil;
 import com.tencentyun.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -47,7 +48,7 @@ public class TencentImServiceImpl implements TencentImService {
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
-    @Resource
+    @Autowired
     private WebServerClient webServerClient;
 
     /**
@@ -73,34 +74,50 @@ public class TencentImServiceImpl implements TencentImService {
      */
     @Override
     public void initUserSign() {
-        Map<String,Object> mapParam = new HashMap<>();
-        mapParam.put("parentId",0);
-        String org = webServerClient.getOrgByMap(mapParam);
-        JSONObject jsonObject = JSONUtil.parseObj(org);
-        String data = jsonObject.getStr("data");
-        JSONObject sysOrg = JSONUtil.parseObj(data);
-        String childrenUser = webServerClient.getChildrenUser(sysOrg.getStr("id"));
-        JSONObject userJson = JSONUtil.parseObj(childrenUser);
-        JSONArray jsonArray = userJson.getJSONArray("data");
-        List<AccountParam> accountParams = new ArrayList<>();
-        AccountParam accountParam ;
-        for (Object object : jsonArray) {
-            JSONObject user = (JSONObject) object;
-            String userId = user.getStr("id");
-            //初始化文件
-            accountParam = new AccountParam();
-            accountParam.setUserID(userId);
-            String name = user.getStr("name");
-            accountParam.setNick(name);
-            JSONObject extJson = user.getJSONObject("extJson");
-            String avatarUrl = extJson.getStr("avatarUrl");
-            if(StrUtil.isNotEmpty(avatarUrl)){
-                accountParam.setFaceUrl(avatarUrl);
+        try {
+            Map<String,Object> mapParam = new HashMap<>();
+            mapParam.put("parentId",0);
+            String org = webServerClient.getOrgByMap(mapParam);
+            JSONObject jsonObject = JSONUtil.parseObj(org);
+            String data = jsonObject.getStr("data");
+            JSONObject sysOrg = JSONUtil.parseObj(data);
+            String childrenUser = webServerClient.getChildrenUser(sysOrg.getStr("id"));
+            JSONObject userJson = JSONUtil.parseObj(childrenUser);
+            JSONArray jsonArray = userJson.getJSONArray("data");
+            List<AccountParam> accountParams = new ArrayList<>();
+            AccountParam accountParam ;
+            for (Object object : jsonArray) {
+                log.info("测试用户失败---------{}",object);
+                JSONObject user = (JSONObject) object;
+                String userId = user.getStr("id");
+                //初始化文件
+                accountParam = new AccountParam();
+                accountParam.setUserID(userId);
+                String name = user.getStr("name");
+                accountParam.setNick(name);
+                Object o = user.get("extJson");
+                if(ObjectUtil.isNotEmpty(o)){
+                    JSONObject extJson = JSONUtil.parseObj(o);
+                    String avatarUrl = extJson.getStr("avatarUrl");
+                    if(StrUtil.isNotEmpty(avatarUrl)){
+                        accountParam.setFaceUrl(avatarUrl);
+                    }
+                }else {
+                    accountParam.setFaceUrl("");
+                }
+
+                accountParams.add(accountParam);
             }
-            accountParams.add(accountParam);
-        }
-        if(CollUtil.isNotEmpty(accountParams)){
-            multiAccountImport(accountParams);
+            if (CollUtil.isNotEmpty(accountParams)) {
+                int totalSize = accountParams.size();
+                for (int i = 0; i < totalSize; i += 90) {
+                    int end = Math.min(totalSize, i + 90);
+                    List<AccountParam> batch = accountParams.subList(i, end);
+                    multiAccountImport(batch);
+                }
+            }
+        }catch (Exception e){
+            log.error("初始化IM 用户失败{}", e);
         }
     }
 

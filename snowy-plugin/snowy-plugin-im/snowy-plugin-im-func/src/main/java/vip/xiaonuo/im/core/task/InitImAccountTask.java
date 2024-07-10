@@ -5,6 +5,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.im.modular.tencent.service.TencentImService;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 
 /**
@@ -20,13 +21,17 @@ public class InitImAccountTask {
     @Resource
     private TencentImService tencentImService;
 
-
+    /**
+     * 此处不能初始化在项目启动时，使用  @PostConstruct 来初始化数据
+     * 因initUserSign 使用了openfeign  ,如果此时调用时，项目未启动，初始化会失败
+     */
 //    @PostConstruct
 //    public void init() {
-//       scheduleTask();
+//        doTask();
 //    }
 
-    @Scheduled(cron = "0 0 1 01 01 ?")
+//    @Scheduled(cron = "0 0 1 01 01 ?")
+//    @Scheduled(initialDelay = 12000, fixedDelay = Long.MAX_VALUE)
     protected void doTask(){
         tencentImService.initUserSign();
     }
