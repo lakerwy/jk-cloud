@@ -8,6 +8,7 @@ import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.tencentyun.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
@@ -129,7 +130,7 @@ public class TencentImServiceImpl implements TencentImService {
             initData.setInitStatus(true);
             initData.setType("TENCNET_IM_USER");
             initData.setRemark("腾讯IM的用户初始化");
-            initDataService.save(initData);
+            initDataService.saveOrUpdate(initData,new LambdaQueryWrapper<InitData>().eq(InitData::getType,initData.getType()));
         }catch (Exception e){
             log.error("初始化IM 用户失败{}", e);
         }
