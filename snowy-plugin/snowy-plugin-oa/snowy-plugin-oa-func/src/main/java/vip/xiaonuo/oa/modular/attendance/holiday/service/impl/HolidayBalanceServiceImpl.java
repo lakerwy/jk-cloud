@@ -16,6 +16,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
@@ -30,10 +31,7 @@ import vip.xiaonuo.oa.modular.attendance.holiday.vo.HolidayVo;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -160,5 +158,20 @@ public class HolidayBalanceServiceImpl extends ServiceImpl<HolidayBalanceMapper,
     @Override
     public void deleteByIds(List<String> ids) {
         remove(new LambdaQueryWrapper<HolidayBalance>().in(HolidayBalance::getUserId,ids));
+    }
+
+    @Override
+    public List<HolidayVo> ownerHolidays() {
+        QueryWrapper<HolidayBalance> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("hb.USER_ID", StpLoginUserUtil.getLoginUser().getId());
+        queryWrapper.eq("hb.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("hr.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("su.DELETE_FLAG","NOT_DELETE");
+        queryWrapper.eq("su.USER_STATUS","ENABLE");
+        queryWrapper.groupBy("su.ID","su.ORG_ID");
+//        Page<HolidayVo> holidays = baseMapper.getUserHolidays(CommonPageRequest.defaultPage(), queryWrapper);
+//        List<HolidayVo> records = holidays.getRecords();
+        Page<HolidayVo> holidays = baseMapper.getUserHolidays(CommonPageRequest.defaultPage(), queryWrapper);
+        return holidays.getRecords();
     }
 }

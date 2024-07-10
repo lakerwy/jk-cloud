@@ -31,7 +31,7 @@ public class InitImAccountTask {
 //    }
 
 //    @Scheduled(cron = "0 0 1 01 01 ?")
-//    @Scheduled(initialDelay = 12000, fixedDelay = Long.MAX_VALUE)
+    @Scheduled(initialDelay = 18000, fixedDelay = Long.MAX_VALUE)
     protected void doTask(){
         tencentImService.initUserSign();
     }

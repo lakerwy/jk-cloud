@@ -2,6 +2,7 @@ package vip.xiaonuo.im.modular.tencent.service;
 
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.im.modular.tencent.param.AccountParam;
+import vip.xiaonuo.im.modular.tencent.param.FriendAddParam;
 
 import java.util.List;
 
@@ -28,4 +29,6 @@ public interface TencentImService {
     CommonResult<Object> accountDelete(List<AccountParam> accountParams);
 
     CommonResult<Object> accountCheck(List<AccountParam> accountParams);
+
+    CommonResult<String> friendAdd(FriendAddParam friendAddParam);
 }

@@ -1986,4 +1986,33 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         sysUser.setAvatar(avatar.split(",")[1]);
         return sysUser;
     }
+
+    @Override
+    public SysUser getUserInfo(List<SysUserFindParam> sysUserFindParams) {
+        LambdaQueryWrapper<SysUser> queryWrapper = new LambdaQueryWrapper<>();
+
+        if(CollUtil.isNotEmpty(sysUserFindParams)){
+            sysUserFindParams.forEach(sysUserFindParam -> {
+                String fieldName = sysUserFindParam.getFieldName();
+                if(fieldName.equals("account")){
+                    queryWrapper.eq(SysUser::getAccount,sysUserFindParam.getFieldValue());
+                }else if (fieldName.equals("name")){
+                    queryWrapper.eq(SysUser::getName,sysUserFindParam.getFieldValue());
+                }else if(fieldName.equals("id")){
+                    queryWrapper.eq(SysUser::getId,sysUserFindParam.getFieldValue());
+                }else if(fieldName.equals("extJson")){
+                    queryWrapper.apply("JSON_VALID(EXT_JSON) AND JSON_EXTRACT(IFNULL(EXT_JSON, '{}'), '$.imUserId') = {0}", sysUserFindParam.getFieldValue());
+                }
+            });
+        }else {
+            return null;
+        }
+        SysUser sysUser = baseMapper.selectOne(queryWrapper);
+        String avatar = sysUser.getAvatar();
+        if (StrUtil.isEmpty(avatar)) {
+            avatar = CommonAvatarUtil.generateImg(sysUser.getName());
+        }
+        sysUser.setAvatar(avatar.split(",")[1]);
+        return sysUser;
+    }
 }
