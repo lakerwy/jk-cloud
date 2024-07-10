@@ -78,4 +78,6 @@ public interface HolidayBalanceService extends IService<HolidayBalance> {
     List<String> getUserIds();
 
     void deleteByIds(List<String> ids);
+
+    List<HolidayVo> ownerHolidays();
 }

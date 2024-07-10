@@ -529,4 +529,6 @@ public interface SysUserService extends IService<SysUser> {
     void syncResource(String orgId);
 
     SysUser getUserByImUserId(String imUserId);
+
+    SysUser getUserInfo(List<SysUserFindParam> sysUserFindParam);
 }

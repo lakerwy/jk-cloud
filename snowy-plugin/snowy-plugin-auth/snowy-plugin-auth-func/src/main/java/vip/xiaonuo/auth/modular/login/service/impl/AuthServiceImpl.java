@@ -609,7 +609,7 @@ public class AuthServiceImpl implements AuthService {
         }
         if(saBaseLoginUser.getImSystem() ==0){
             JSONObject obj = JSONUtil.createObj();
-            String userSig = imAppApi.tencentImLogin(saBaseLoginUser.getId());
+            String userSig = imAppApi.tencentImLogin(saBaseLoginUser.getAccount());
             obj.set("token", token);
             obj.set("userId",saBaseLoginUser.getAccount());
             obj.set("userSig",userSig);

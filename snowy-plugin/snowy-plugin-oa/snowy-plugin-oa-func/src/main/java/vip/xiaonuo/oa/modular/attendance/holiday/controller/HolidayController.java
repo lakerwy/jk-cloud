@@ -200,6 +200,23 @@ public class HolidayController {
         return CommonResult.data(holidayBalanceService.detail(holidayBalanceIdParam));
     }
 
+
+    /**
+     * 获取假期余额管理表详情
+     *
+     * @author mayike
+     * @date  2024/07/05 10:57
+     */
+    @ApiOperationSupport(order = 15)
+    @ApiOperation("获取当前登录人假期余额")
+//    @SaCheckPermission("/oa/HolidayBalance/detail")
+    @GetMapping("/oa/HolidayBalance/ownerHolidays")
+    public CommonResult<List<HolidayVo>> ownerHolidays() {
+        return CommonResult.data(holidayBalanceService.ownerHolidays());
+    }
+
+
+
     /**
      * 初始化某个用户的假期
      * @param userId

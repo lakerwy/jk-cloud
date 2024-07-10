@@ -58,7 +58,8 @@ public class HolidayApplyServiceImpl extends ServiceImpl<HolidayApplyMapper, Hol
     public void add(HolidayApplyAddParam holidayApplyAddParam) {
         HolidayApply holidayApply = BeanUtil.toBean(holidayApplyAddParam, HolidayApply.class);
         /**
-         * 1、查看该时间段，是否有请假申请
+         *  判断冲突情况  请假/加班/外出/等
+         * 1、查看该请假时间段时候
          * 2、根据请假类型，判断假期情况。
          */
 

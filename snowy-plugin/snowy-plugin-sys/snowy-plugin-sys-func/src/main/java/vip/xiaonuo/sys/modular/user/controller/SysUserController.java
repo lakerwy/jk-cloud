@@ -433,4 +433,11 @@ public class SysUserController {
     public CommonResult<SysUser> getUserByImUserId(@RequestParam(value = "imUserId") String imUserId) {
         return CommonResult.data(sysUserService.getUserByImUserId(imUserId));
     }
+
+    @ApiOperationSupport(order = 28)
+    @ApiOperation("获取用户详情")
+    @PostMapping("/sys/user/getUserInfo")
+    public CommonResult<SysUser> getUserInfo(@RequestBody @Valid List<SysUserFindParam> sysUserFindParams) {
+        return CommonResult.data(sysUserService.getUserInfo(sysUserFindParams));
+    }
 }
