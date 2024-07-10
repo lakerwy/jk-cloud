@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.im.modular.tencent.param.AccountParam;
+import vip.xiaonuo.im.modular.tencent.param.FriendAddParam;
 import vip.xiaonuo.im.modular.tencent.service.TencentImService;
 
 import javax.annotation.Resource;
@@ -43,6 +44,14 @@ public class TencentImController {
     @PostMapping("/sys/im/account/import")
     public CommonResult<String> accountImport(@RequestBody @Valid AccountParam accountParam) {
         return tencentImService.accountImport(accountParam);
+    }
+
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("添加好友")
+    @CommonLog("添加好友")
+    @PostMapping("/sys/im/friend/add")
+    public CommonResult<String> friendAdd(@RequestBody @Valid FriendAddParam friendAddParam) {
+        return tencentImService.friendAdd(friendAddParam);
     }
 
     /**

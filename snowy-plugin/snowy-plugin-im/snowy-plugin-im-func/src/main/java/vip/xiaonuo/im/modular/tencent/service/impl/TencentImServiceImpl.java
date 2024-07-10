@@ -21,7 +21,10 @@ import vip.xiaonuo.im.modular.tencent.constant.ResultConstant;
 import vip.xiaonuo.im.modular.tencent.constant.TencentCloudImApiConstant;
 import vip.xiaonuo.im.modular.tencent.constant.TencentCloudImConstant;
 import vip.xiaonuo.im.modular.tencent.param.AccountParam;
+import vip.xiaonuo.im.modular.tencent.param.FriendAddParam;
 import vip.xiaonuo.im.modular.tencent.service.TencentImService;
+import vip.xiaonuo.util.modular.initData.entity.InitData;
+import vip.xiaonuo.util.modular.initData.service.InitDataService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -48,8 +51,11 @@ public class TencentImServiceImpl implements TencentImService {
     @Resource
     private CommonCacheOperator commonCacheOperator;
 
-    @Autowired
+    @Resource
     private WebServerClient webServerClient;
+
+    @Resource
+    private InitDataService initDataService;
 
     /**
      * 获取腾讯云用户签名
@@ -75,8 +81,12 @@ public class TencentImServiceImpl implements TencentImService {
     @Override
     public void initUserSign() {
         try {
+            boolean tencnetImUser = initDataService.getInitStatusByType("TENCNET_IM_USER");
+            if(tencnetImUser){
+                return;
+            }
             Map<String,Object> mapParam = new HashMap<>();
-            mapParam.put("parentId",0);
+            mapParam.put("parentId","1666651352106315777");
             String org = webServerClient.getOrgByMap(mapParam);
             JSONObject jsonObject = JSONUtil.parseObj(org);
             String data = jsonObject.getStr("data");
@@ -87,9 +97,8 @@ public class TencentImServiceImpl implements TencentImService {
             List<AccountParam> accountParams = new ArrayList<>();
             AccountParam accountParam ;
             for (Object object : jsonArray) {
-                log.info("测试用户失败---------{}",object);
                 JSONObject user = (JSONObject) object;
-                String userId = user.getStr("id");
+                String userId = user.getStr("account");
                 //初始化文件
                 accountParam = new AccountParam();
                 accountParam.setUserID(userId);
@@ -116,6 +125,11 @@ public class TencentImServiceImpl implements TencentImService {
                     multiAccountImport(batch);
                 }
             }
+            InitData initData = new InitData();
+            initData.setInitStatus(true);
+            initData.setType("TENCNET_IM_USER");
+            initData.setRemark("腾讯IM的用户初始化");
+            initDataService.save(initData);
         }catch (Exception e){
             log.error("初始化IM 用户失败{}", e);
         }
@@ -225,6 +239,21 @@ public class TencentImServiceImpl implements TencentImService {
         }
         log.info("腾讯云im查询账号，返回结果：{}", result);
         return new CommonResult<>(CODE_ERROR, "删除失败", resultJson.get(ResultConstant.ErrorInfo));
+    }
+
+    @Override
+    public CommonResult<String> friendAdd(FriendAddParam friendAddParam) {
+        String httpsUrl = getHttpsUrl(TencentCloudImApiConstant.RelationManage.FRIEND_ADD);
+        JSONObject jsonObject = JSONUtil.parseObj(friendAddParam);
+        log.info("腾讯云im添加好友，请求参数：{}", jsonObject);
+        String result = HttpUtil.post(httpsUrl, jsonObject.toString());
+        JSONObject resultJson = JSONUtil.parseObj(result);
+        Integer errorCode = resultJson.getInt(ResultConstant.ErrorCode);
+        if (ResultConstant.IS_OK.equals(errorCode)) {
+            return CommonResult.ok();
+        }
+        log.info("腾讯云im查询账号，返回结果：{}", result);
+        return new CommonResult<>(CODE_ERROR, "删除失败", resultJson.get(ResultConstant.ErrorInfo).toString());
     }
 
     private List<JSONObject> getUserIdJsonList(List<String> userIds) {
