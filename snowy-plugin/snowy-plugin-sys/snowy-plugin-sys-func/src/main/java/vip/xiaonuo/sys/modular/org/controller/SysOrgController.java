@@ -228,12 +228,22 @@ public class SysOrgController {
         return CommonResult.data(sysOrgService.getOrgOrUser(sysOrgPageParam));
     }
 
-    @GetMapping("/sys/org/getChildrenUserNew")
+    @GetMapping("/sys/client/getChildrenUserNew")
     public CommonResult<String> getChildrenUserNew(@RequestParam(value = "orgId") String orgId) {
         SysOrgIdParam sysOrgIdParam = new SysOrgIdParam();
         sysOrgIdParam.setId(orgId);
         List<SysUser> childrenUser = sysOrgService.getChildrenUser(sysOrgIdParam);
         String jsonStr = JSONUtil.toJsonStr(childrenUser);
         return CommonResult.data(jsonStr);
+    }
+
+    @PostMapping("/sys/client/getOrgByMap")
+    public CommonResult<String> getOrgByMap(@RequestBody Map<String,Object> mapParam) {
+        SysOrg sysOrg = sysOrgService.getOrgByMap(mapParam);
+        if(null!=sysOrg){
+            String jsonStr = JSONUtil.toJsonStr(sysOrg);
+            return CommonResult.data(jsonStr);
+        }
+        return CommonResult.ok();
     }
 }

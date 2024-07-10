@@ -9,4 +9,6 @@ import cn.hutool.json.JSONObject;
  */
 public interface ImAppApi {
     JSONObject imLogin(JSONObject jsonObject);
+
+    String tencentImLogin(String userId);
 }

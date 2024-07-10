@@ -246,6 +246,7 @@ public class AuthServiceImpl implements AuthService {
             }
             saBaseLoginUser.setClientId(authAccountPasswordLoginParam.getClientId());
             saBaseLoginUser.setPlatform(authAccountPasswordLoginParam.getPlatform());
+            saBaseLoginUser.setImSystem(authAccountPasswordLoginParam.getImSystem());
             // 执行B端登录
             return execLoginBExtend(saBaseLoginUser, device);
             // 执行B端登录
@@ -606,19 +607,28 @@ public class AuthServiceImpl implements AuthService {
         if(ObjectUtil.isEmpty(saBaseLoginUser.getPlatform())){
             return token;
         }
+        if(saBaseLoginUser.getImSystem() ==0){
+            JSONObject obj = JSONUtil.createObj();
+            String userSig = imAppApi.tencentImLogin(saBaseLoginUser.getId());
+            obj.set("token", token);
+            obj.set("userId",saBaseLoginUser.getId());
+            obj.set("userSig",userSig);
+            return obj;
+        }else {
 //        HashMap<String,Object> resultMap = new HashMap<>();
 //        resultMap.put("token",token);
-        JSONObject loginJson = JSONUtil.parseObj(saBaseLoginUser);
-        loginJson.set("mobile",saBaseLoginUser.getAccount());
-        loginJson.set("clientId",ObjectUtil.isNotEmpty(saBaseLoginUser.getClientId())?saBaseLoginUser.getClientId():RandomUtil.randomString(16));
-        loginJson.set("platform",ObjectUtil.isNotEmpty(saBaseLoginUser.getPlatform())?saBaseLoginUser.getPlatform():2);
-        loginJson.set("displayName",saBaseLoginUser.getName());
-        JSONObject o = imAppApi.imLogin(loginJson);
-        if(!o.getBool("enable")){
-            return token;
-        }else {
-            o.set("token",token);
-            return o;
+            JSONObject loginJson = JSONUtil.parseObj(saBaseLoginUser);
+            loginJson.set("mobile", saBaseLoginUser.getAccount());
+            loginJson.set("clientId", ObjectUtil.isNotEmpty(saBaseLoginUser.getClientId()) ? saBaseLoginUser.getClientId() : RandomUtil.randomString(16));
+            loginJson.set("platform", ObjectUtil.isNotEmpty(saBaseLoginUser.getPlatform()) ? saBaseLoginUser.getPlatform() : 2);
+            loginJson.set("displayName", saBaseLoginUser.getName());
+            JSONObject o = imAppApi.imLogin(loginJson);
+            if (!o.getBool("enable")) {
+                return token;
+            } else {
+                o.set("token", token);
+                return o;
+            }
         }
     }
 }

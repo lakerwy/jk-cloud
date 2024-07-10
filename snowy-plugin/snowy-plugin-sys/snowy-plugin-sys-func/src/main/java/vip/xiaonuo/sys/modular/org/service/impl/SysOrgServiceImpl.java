@@ -14,10 +14,12 @@ package vip.xiaonuo.sys.modular.org.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.lang.tree.TreeUtil;
+import cn.hutool.core.map.MapUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
@@ -504,6 +506,31 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
     public List<ExtendTree<String>> convertToTree() {
         List<SysOrg> sysOrgList = this.list(new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getDeleteFlag,"NOT_DELETE").orderByAsc(SysOrg::getSortCode));
         return buildTree(sysOrgList);
+    }
+
+    @Override
+    public SysOrg getOrgByMap(Map<String, Object> mapParam) {
+        if(MapUtil.isEmpty(mapParam)){
+            return null;
+        }
+        Object id = mapParam.get("id");
+        if(ObjectUtil.isNotEmpty(id)){
+            return queryEntity(String.valueOf(id));
+        }
+        LambdaQueryWrapper<SysOrg> queryWrapper = new LambdaQueryWrapper<>();
+        Object parentId = mapParam.get("parentId");
+        if(ObjectUtil.isNotEmpty(parentId)){
+            queryWrapper.eq(SysOrg::getParentId,parentId);
+        }
+        Object name = mapParam.get("name");
+        if(ObjectUtil.isNotEmpty(name)){
+            queryWrapper.eq(SysOrg::getName,name);
+        }
+        List<SysOrg> list = list(queryWrapper);
+        if(CollUtil.isNotEmpty(list)){
+            return list.get(0);
+        }
+        return null;
     }
 
     // 构建组织结构树的方法

@@ -56,4 +56,7 @@ public class AuthAccountPasswordLoginParam {
     @ApiModelProperty(value = "IM登录所需字段",position = 7)
     private Integer platform;
 
+    @ApiModelProperty(value = "im系统类型 0 腾讯  1 其他")
+    private Integer imSystem;
+
 }

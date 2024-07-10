@@ -12,13 +12,12 @@
  */
 package vip.xiaonuo.oa.modular.attendance.shift.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -31,30 +30,11 @@ import java.util.Date;
 @Setter
 public class CalendarEditParam {
 
-    /** 主键 */
-    @ApiModelProperty(value = "主键", required = true, position = 1)
-    @NotBlank(message = "id不能为空")
-    private String id;
-
     /** 日期 */
     @ApiModelProperty(value = "日期", position = 3)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date calendarDate;
-
-    /** 年份 */
-    @ApiModelProperty(value = "年份", position = 4)
-    private Integer year;
-
-    /** 月份 */
-    @ApiModelProperty(value = "月份", position = 5)
-    private Integer month;
-
-    /** 月份中的天数 */
-    @ApiModelProperty(value = "月份中的天数", position = 6)
-    private Integer dayOfMonth;
-
-    /** 星期几（1=星期日, 2=星期一, ..., 7=星期六） */
-    @ApiModelProperty(value = "星期几（1=星期日, 2=星期一, ..., 7=星期六）", position = 7)
-    private Integer dayOfWeek;
 
     /** 是否为工作日 */
     @ApiModelProperty(value = "是否为工作日", position = 8)
@@ -64,12 +44,8 @@ public class CalendarEditParam {
     @ApiModelProperty(value = "节假日名称（如果是节假日）", position = 9)
     private String holidayName;
 
-    /** 年度中的第几周 */
-    @ApiModelProperty(value = "年度中的第几周", position = 10)
-    private Integer weekOfYear;
-
-    /** 季度 */
-    @ApiModelProperty(value = "季度", position = 11)
-    private Integer quarter;
+    /** 备注信息 */
+    @ApiModelProperty(value = "备注信息", position = 12)
+    private String remark;
 
 }

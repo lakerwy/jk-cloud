@@ -235,7 +235,7 @@ public class JPushServiceImpl implements JPushService {
                 .setNotification(Notification.newBuilder()
                         // 指定当前推送的android通知
                         .addPlatformNotification(AndroidNotification.newBuilder()
-                                .setAlert(notificationTitle) //通知内容
+                                .setAlert(msgContent) //通知内容
                                 .setTitle(notificationTitle) //通知标题
                                 // 此字段为透传字段，不会显示在通知栏。用户可以通过此字段来做一些定制需求，如特定的key传要指定跳转的页面（value）
                                 .addExtra("androidNotification extras key", extras)
@@ -267,7 +267,7 @@ public class JPushServiceImpl implements JPushService {
                         .build())
                 .setOptions(Options.newBuilder()
                         // 此字段的值是用来指定本推送要推送的apns环境，false表示开发，true表示生产；对android和自定义消息无意义
-                        .setApnsProduction(JPushConfig.apnsProduction)
+                        .setApnsProduction(true)
                         // 此字段是给开发者自己给推送编号，方便推送者分辨推送记录
                         .setSendno(1)
                         // 此字段的值是用来指定本推送的离线保存时长，如果不传此字段则默认保存一天，最多指定保留十天；

@@ -1,15 +1,3 @@
-/*
- * Copyright [2022] [https://www.xiaonuo.vip]
- *
- * Snowy采用APACHE LICENSE 2.0开源协议，您在使用过程中，需要注意以下几点：
- *
- * 1.请不要删除和修改根目录下的LICENSE文件。
- * 2.请不要删除和修改Snowy源码头部的版权声明。
- * 3.本项目代码可免费商业使用，商业使用请保留源码和相关描述文件的项目出处，作者声明等。
- * 4.分发源码时候，请注明软件出处 https://www.xiaonuo.vip
- * 5.不可二次分发开源参与同类竞品，如有想法可联系团队xiaonuobase@qq.com商议合作。
- * 6.若您的项目无法满足以上几点，需要更多功能代码，获取Snowy商业授权许可，请在官网购买授权，地址为 https://www.xiaonuo.vip
- */
 package vip.xiaonuo.oa.modular.attendance.shift.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
@@ -20,6 +8,7 @@ import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -34,17 +23,7 @@ import vip.xiaonuo.oa.modular.attendance.shift.entity.Calendar;
 import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarAddParam;
 import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarEditParam;
 import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarIdParam;
-import vip.xiaonuo.oa.modular.attendance.shift.entity.Calendar;
 import vip.xiaonuo.oa.modular.attendance.shift.mapper.CalendarMapper;
-import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarAddParam;
-import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarEditParam;
-import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarIdParam;
-import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarPageParam;
-import vip.xiaonuo.oa.modular.attendance.shift.service.CalendarService;
-import vip.xiaonuo.oa.modular.attendance.shift.entity.Calendar;
-import vip.xiaonuo.oa.modular.attendance.shift.mapper.CalendarMapper;
-import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarEditParam;
-import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarIdParam;
 import vip.xiaonuo.oa.modular.attendance.shift.param.CalendarPageParam;
 import vip.xiaonuo.oa.modular.attendance.shift.service.CalendarService;
 
@@ -52,6 +31,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +50,7 @@ public class CalendarServiceImpl extends ServiceImpl<CalendarMapper, Calendar> i
     @Override
     public Page<Calendar> page(CalendarPageParam calendarPageParam) {
         QueryWrapper<Calendar> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(Calendar::getIsWorkday,calendarPageParam.getIsWorkday());
         if(ObjectUtil.isAllNotEmpty(calendarPageParam.getSortField(), calendarPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(calendarPageParam.getSortOrder());
             queryWrapper.orderBy(true, calendarPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -87,13 +68,13 @@ public class CalendarServiceImpl extends ServiceImpl<CalendarMapper, Calendar> i
         this.save(calendar);
     }
 
-    @Transactional(rollbackFor = Exception.class)
-    @Override
-    public void edit(CalendarEditParam calendarEditParam) {
-        Calendar calendar = this.queryEntity(calendarEditParam.getId());
-        BeanUtil.copyProperties(calendarEditParam, calendar);
-        this.updateById(calendar);
-    }
+//    @Transactional(rollbackFor = Exception.class)
+//    @Override
+//    public void edit(CalendarEditParam calendarEditParam) {
+//        Calendar calendar = this.queryEntity(calendarEditParam.getId());
+//        BeanUtil.copyProperties(calendarEditParam, calendar);
+//        this.updateById(calendar);
+//    }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
@@ -173,5 +154,19 @@ public class CalendarServiceImpl extends ServiceImpl<CalendarMapper, Calendar> i
             }
         }
         return java.util.Collections.emptyMap();
+    }
+
+    @Override
+    public void updateCalendar(CalendarEditParam calendarEditParam) {
+        Date calendarDate = calendarEditParam.getCalendarDate();
+        Calendar one = this.getOne(new LambdaQueryWrapper<Calendar>().eq(Calendar::getCalendarDate, calendarDate));
+        if(ObjectUtil.isNotEmpty(one)){
+            one.setIsWorkday(calendarEditParam.getIsWorkday());
+            one.setHolidayName(calendarEditParam.getHolidayName());
+            one.setRemark(calendarEditParam.getRemark());
+            updateById(one);
+        }else {
+            throw new CommonException("该日期暂时不能设置");
+        }
     }
 }

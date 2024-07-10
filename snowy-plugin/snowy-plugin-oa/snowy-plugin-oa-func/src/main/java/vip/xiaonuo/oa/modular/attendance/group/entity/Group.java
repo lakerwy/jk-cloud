@@ -18,7 +18,6 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.oa.core.handler.AttObjectHandler;
-import vip.xiaonuo.oa.core.handler.CustomFastjsonTypeHandler;
 import vip.xiaonuo.oa.core.handler.GroupWorkDayHandler;
 import vip.xiaonuo.oa.core.handler.WorkPlaceHandler;
 
