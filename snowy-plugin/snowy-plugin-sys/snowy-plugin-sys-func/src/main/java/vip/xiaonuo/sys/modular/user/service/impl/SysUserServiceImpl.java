@@ -421,6 +421,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     public void disableUser(SysUserIdParam sysUserIdParam) {
         this.update(new LambdaUpdateWrapper<SysUser>().eq(SysUser::getId,
                 sysUserIdParam.getId()).set(SysUser::getUserStatus, SysUserStatusEnum.DISABLED.getValue()));
+        StpUtil.logout(sysUserIdParam.getId());
     }
 
     @Override
