@@ -57,14 +57,45 @@ public class HolidayApplyServiceImpl extends ServiceImpl<HolidayApplyMapper, Hol
     @Override
     public void add(HolidayApplyAddParam holidayApplyAddParam) {
         HolidayApply holidayApply = BeanUtil.toBean(holidayApplyAddParam, HolidayApply.class);
-        /**
-         *  判断冲突情况  请假/加班/外出/等
-         * 1、查看该请假时间段时候
+        /**0、是否在请假规则内请假，比如：补请假申请，只能补前一天的
+         * 1、 判断冲突情况  请假/加班/外出/等
+         * 2、检查该时间段是否有请假
+         * 3、判断请假是否在休息日，要给出提示
+         * 4、计算请假时长
          * 2、根据请假类型，判断假期情况。
          */
 
-
         this.save(holidayApply);
+    }
+
+    /**
+     * 校验是否符合请假规则
+     */
+    private void checkHolidayApplyRule(){
+        //todo
+    }
+
+    /**
+     * 判断是否有其他申请
+     */
+    private void checkOtherApply(){
+        //todo
+    }
+
+    /**
+     * 检查是否为无效申请
+     * 比如 请假开始时间和结束时间都在节假期内，就是无效的
+     */
+    private void checkIsInvalidApply(){
+
+    }
+
+    /**
+     * 计算时长
+     * @return
+     */
+    private double calculateDuration(){
+        return 0;
     }
 
 

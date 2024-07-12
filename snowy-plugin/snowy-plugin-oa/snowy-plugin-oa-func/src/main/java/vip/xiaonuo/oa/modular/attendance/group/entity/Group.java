@@ -108,16 +108,14 @@ public class Group {
     @ApiModelProperty(value = "是否开启补卡规则", position = 17)
     private Boolean  correctionEnabled;
 
-    @ApiModelProperty(value = "补卡规则", position = 18)
-    @TableField(value = "CORRECT_RULE", typeHandler = FastjsonTypeHandler.class)
-    private CorrectRule correctRule;
+    @ApiModelProperty(value = "补卡规则Id", position = 18)
+    private String adjustmentId;
 
     @ApiModelProperty(value = "是否开启加班审批")
     private boolean enableApply;
 
-    @ApiModelProperty(value = "加班规则", position = 19)
-    @TableField(value = "OVER_WORK_RULE", typeHandler = FastjsonTypeHandler.class)
-    private OverWorkRule overWorkRule;
+    @ApiModelProperty(value = "加班规则Id", position = 19)
+    private String overWorkId;
 
 //    @ApiModelProperty(value = "wifi打卡设置", position = 7)
 //    @TableField(value = "WIFIS", typeHandler = FastjsonTypeHandler.class)

@@ -23,7 +23,7 @@ public class AttObject {
     @ApiModelProperty(value = "考勤对象名称",required = true)
     private String objectName;
 
-    @ApiModelProperty(value = "考勤对象类（0 公司 1 部门 2 员工 3 角色 默认2）",required = true)
+    @ApiModelProperty(value = "考勤对象类（0 公司 1 部门 2 员工 3 角色 4、考勤组 默认2）",required = true)
     private int type = 2;
 
 }

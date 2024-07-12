@@ -177,6 +177,8 @@ public class TencentCloudImApiConstant {
         public static final String GET_HISTORY = "v4/open_msg_svc/get_history";
         /**获取服务器 IP 地址*/
         public static final String GET_IP_LIST = "v4/ConfigSvc/GetIPList";
+
+        public static final String CREATE_ROBOT= "v4/openim_robot_http_svc/create_robot";
     }
 
     /**

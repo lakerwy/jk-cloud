@@ -17,4 +17,7 @@ import vip.xiaonuo.common.consts.FeignConstant;
 public interface ImClient {
     @PostMapping("/im/updateImUser")
     String updateImUser(@RequestBody JSONObject userInfo);
+
+    @PostMapping("/tencentIm/updateImUser")
+    String tencentUpdateImUser(@RequestBody JSONObject userInfo);
 }

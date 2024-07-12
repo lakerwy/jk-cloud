@@ -27,4 +27,8 @@ public class AccountParam {
     /**用户头像 URL**/
     @ApiModelProperty(value = "用户头像 URL", required = false)
     private String FaceUrl;
+
+    /**机器人签名，不超过500字节**/
+    @ApiModelProperty(value = "机器人签名所用字段，不超过500字节", required = false)
+    private String SelfSignature;
 }

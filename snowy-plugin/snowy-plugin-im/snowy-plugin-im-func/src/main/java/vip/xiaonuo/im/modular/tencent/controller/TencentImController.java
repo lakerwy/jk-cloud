@@ -1,5 +1,6 @@
 package vip.xiaonuo.im.modular.tencent.controller;
 
+import cn.hutool.json.JSONObject;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -12,6 +13,7 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.im.modular.tencent.param.AccountParam;
 import vip.xiaonuo.im.modular.tencent.param.FriendAddParam;
+import vip.xiaonuo.im.modular.tencent.param.GroupCreateParam;
 import vip.xiaonuo.im.modular.tencent.service.TencentImService;
 
 import javax.annotation.Resource;
@@ -41,17 +43,33 @@ public class TencentImController {
     @ApiOperationSupport(order = 1)
     @ApiOperation("导入单个用户")
     @CommonLog("导入单个用户")
-    @PostMapping("/sys/im/account/import")
+    @PostMapping("/tencentIm/account/import")
     public CommonResult<String> accountImport(@RequestBody @Valid AccountParam accountParam) {
         return tencentImService.accountImport(accountParam);
     }
 
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 2)
     @ApiOperation("添加好友")
     @CommonLog("添加好友")
-    @PostMapping("/sys/im/friend/add")
+    @PostMapping("/tencentIm/friend/add")
     public CommonResult<String> friendAdd(@RequestBody @Valid FriendAddParam friendAddParam) {
         return tencentImService.friendAdd(friendAddParam);
+    }
+
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("修改账号信息")
+    @CommonLog("修改账号信息")
+    @PostMapping("/tencentIm/tencent/updateImUser")
+    public CommonResult<String> tencentUpdateImUser( @RequestBody JSONObject userInfo) {
+        return tencentImService.tencentUpdateImUser(userInfo);
+    }
+
+    @ApiOperationSupport(order = 4)
+    @ApiOperation("创建机器人")
+    @CommonLog("创建机器人")
+    @PostMapping("/tencentIm/tencent/createRoot")
+    public CommonResult<String> tencentCreateRoot( @RequestBody AccountParam accountParam) {
+        return tencentImService.tencentCreateRoot(accountParam);
     }
 
     /**
@@ -60,10 +78,10 @@ public class TencentImController {
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 2)
+    @ApiOperationSupport(order = 5)
     @ApiOperation("导入多个用户")
     @CommonLog("导入多个用户")
-    @PostMapping("/sys/im/account/multiImport")
+    @PostMapping("/tencentIm/account/multiImport")
     public CommonResult<Object> multiAccountImport(@RequestBody @Valid List<AccountParam> accountParam) {
         return tencentImService.multiAccountImport(accountParam);
     }
@@ -74,10 +92,10 @@ public class TencentImController {
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 3)
+    @ApiOperationSupport(order = 6)
     @ApiOperation("删除账号")
     @CommonLog("删除账号")
-    @PostMapping("/sys/im/account/delete")
+    @PostMapping("/tencentIm/account/delete")
     public CommonResult<Object> delete(@RequestBody @Valid List<AccountParam> accountParam) {
         return tencentImService.accountDelete(accountParam);
     }
@@ -88,20 +106,30 @@ public class TencentImController {
      * @author xuyuxiang
      * @date 2022/4/24 20:47
      */
-    @ApiOperationSupport(order = 4)
+    @ApiOperationSupport(order = 7)
     @ApiOperation("查询账号")
     @CommonLog("查询账号")
-    @PostMapping("/sys/im/account/check")
+    @PostMapping("/tencentIm/account/check")
     public CommonResult<Object> check(@RequestBody @Valid List<AccountParam> accountParam) {
         return tencentImService.accountCheck(accountParam);
     }
 
-    @ApiOperationSupport(order = 4)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("创建账号userSig")
     @CommonLog("创建账号userSig")
-    @PostMapping("/sys/im/createUserSign")
+    @PostMapping("/tencentIm/account/createUserSign")
     public CommonResult<Object> createUserSign(@RequestBody @Valid AccountParam accountParam) {
         String userSign = tencentImService.createUserSignByUserId(accountParam.getUserID());
         return CommonResult.data(userSign);
     }
+
+
+    @ApiOperationSupport(order = 21)
+    @ApiOperation("创建群组")
+    @CommonLog("创建群组")
+    @PostMapping("/tencentIm/group/create")
+    public CommonResult<Object> createGroup(@RequestBody @Valid GroupCreateParam groupCreateParam) {
+         return tencentImService.createGroup(groupCreateParam);
+    }
+
 }

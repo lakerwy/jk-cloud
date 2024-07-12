@@ -12,7 +12,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.tencentyun.TLSSigAPIv2;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.pojo.CommonResult;
@@ -23,6 +22,7 @@ import vip.xiaonuo.im.modular.tencent.constant.TencentCloudImApiConstant;
 import vip.xiaonuo.im.modular.tencent.constant.TencentCloudImConstant;
 import vip.xiaonuo.im.modular.tencent.param.AccountParam;
 import vip.xiaonuo.im.modular.tencent.param.FriendAddParam;
+import vip.xiaonuo.im.modular.tencent.param.GroupCreateParam;
 import vip.xiaonuo.im.modular.tencent.service.TencentImService;
 import vip.xiaonuo.util.modular.initData.entity.InitData;
 import vip.xiaonuo.util.modular.initData.service.InitDataService;
@@ -255,6 +255,50 @@ public class TencentImServiceImpl implements TencentImService {
         }
         log.info("腾讯云im查询账号，返回结果：{}", result);
         return new CommonResult<>(CODE_ERROR, "删除失败", resultJson.get(ResultConstant.ErrorInfo).toString());
+    }
+
+    @Override
+    public CommonResult<String> tencentUpdateImUser(JSONObject userInfo) {
+        String userId = userInfo.getStr("account");
+        //初始化文件
+        AccountParam accountParam = new AccountParam();
+        accountParam.setUserID(userId);
+        String name = userInfo.getStr("name");
+        accountParam.setNick(name);
+        Object o = userInfo.get("extJson");
+        if(ObjectUtil.isNotEmpty(o)){
+            JSONObject extJson = JSONUtil.parseObj(o);
+            String avatarUrl = extJson.getStr("avatarUrl");
+            if(StrUtil.isNotEmpty(avatarUrl)){
+                accountParam.setFaceUrl(avatarUrl);
+            }
+        }else {
+            accountParam.setFaceUrl("");
+        }
+        return accountImport(accountParam);
+    }
+
+    @Override
+    public CommonResult<String> tencentCreateRoot(AccountParam accountParam) {
+//        accountParam.setUserID("@RBT#001");
+//        accountParam.setNick("科科");
+//        accountParam.setFaceUrl("https://minio.jianke.co/comm/jk.png");
+        return accountImport(accountParam);
+    }
+
+    @Override
+    public CommonResult<Object> createGroup(GroupCreateParam groupCreateParam) {
+        String httpsUrl = getHttpsUrl(TencentCloudImApiConstant.GroupManage.CREATE_GROUP);
+        JSONObject jsonObject = JSONUtil.parseObj(groupCreateParam);
+        log.info("腾讯云im创建群组，请求参数：{}", jsonObject);
+        String result = HttpUtil.post(httpsUrl, jsonObject.toString());
+        JSONObject resultJson = JSONUtil.parseObj(result);
+        Integer errorCode = resultJson.getInt(ResultConstant.ErrorCode);
+        log.info("腾讯云im创建群组，返回结果：{}", result);
+        if (ResultConstant.IS_OK.equals(errorCode)) {
+            return CommonResult.ok();
+        }
+        return new CommonResult<>(CODE_ERROR, "创建群组失败", resultJson.get(ResultConstant.ErrorInfo).toString());
     }
 
     private List<JSONObject> getUserIdJsonList(List<String> userIds) {

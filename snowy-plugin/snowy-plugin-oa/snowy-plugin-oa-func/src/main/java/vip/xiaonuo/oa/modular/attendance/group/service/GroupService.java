@@ -20,6 +20,7 @@ import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupIdParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupPageParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupAddParam;
+import vip.xiaonuo.oa.modular.attendance.group.vo.GroupDetailVo;
 
 import java.util.List;
 
@@ -69,7 +70,7 @@ public interface GroupService extends IService<Group> {
      * @author mayike
      * @date  2024/06/05 15:51
      */
-    Group detail(GroupIdParam groupIdParam);
+    GroupDetailVo detail(GroupIdParam groupIdParam);
 
     /**
      * 获取考勤-考勤组详情

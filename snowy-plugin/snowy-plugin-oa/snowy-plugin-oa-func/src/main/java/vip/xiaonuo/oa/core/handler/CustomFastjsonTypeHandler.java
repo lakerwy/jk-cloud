@@ -1,5 +1,6 @@
 package vip.xiaonuo.oa.core.handler;
 
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -54,6 +55,9 @@ public class CustomFastjsonTypeHandler<T> extends BaseTypeHandler<List<T>> {
     }
 
     private List<T> parseJsonArray(String json) {
+        if(StrUtil.isEmpty(json)){
+            return null;
+        }
         JSONArray jsonArray = JSONArray.parseArray(json);
         return jsonArray.toJavaList(type);
     }

@@ -31,6 +31,7 @@ import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupIdParam;
 import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
+import vip.xiaonuo.oa.modular.attendance.group.vo.GroupDetailVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -127,7 +128,7 @@ public class GroupController {
     @ApiOperation("获取考勤-考勤组详情")
 //    @SaCheckPermission("/oa/group/detail")
     @GetMapping("/oa/group/detail")
-    public CommonResult<Group> detail(@Valid GroupIdParam groupIdParam) {
+    public CommonResult<GroupDetailVo> detail(@Valid GroupIdParam groupIdParam) {
         return CommonResult.data(groupService.detail(groupIdParam));
     }
 

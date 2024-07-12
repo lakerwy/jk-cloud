@@ -54,6 +54,11 @@ import vip.xiaonuo.oa.modular.attendance.group.param.GroupEditParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupIdParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupPageParam;
 import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
+import vip.xiaonuo.oa.modular.attendance.group.vo.GroupDetailVo;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.Adjustment;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.OverWork;
+import vip.xiaonuo.oa.modular.attendance.rule.service.AdjustmentService;
+import vip.xiaonuo.oa.modular.attendance.rule.service.OverWorkService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -73,6 +78,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
 
     @Resource
     private CommonCacheOperator cacheOperator;
+
+    @Resource
+    private AdjustmentService adjustmentService;
+
+    @Resource
+    private OverWorkService overWorkService;
 
     @Override
     public Page<Group> page(GroupPageParam groupPageParam) {
@@ -190,8 +201,22 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     }
 
     @Override
-    public Group detail(GroupIdParam groupIdParam) {
-        return this.queryEntity(groupIdParam.getId());
+    public GroupDetailVo detail(GroupIdParam groupIdParam) {
+        Group group = this.queryEntity(groupIdParam.getId());
+        GroupDetailVo groupDetailVo = BeanUtil.toBean(group, GroupDetailVo.class);
+        if(StrUtil.isNotEmpty(groupDetailVo.getAdjustmentId())){
+            Adjustment adjustment = adjustmentService.getById(groupDetailVo.getAdjustmentId());
+            if(null != adjustment){
+                groupDetailVo.setAdjustment(adjustment);
+            }
+        }
+        if(StrUtil.isNotEmpty(groupDetailVo.getOverWorkId())){
+            OverWork overWork = overWorkService.getById(groupDetailVo.getOverWorkId());
+            if(null!=overWork){
+                groupDetailVo.setOverWork(overWork);
+            }
+        }
+        return groupDetailVo;
     }
 
     @Override

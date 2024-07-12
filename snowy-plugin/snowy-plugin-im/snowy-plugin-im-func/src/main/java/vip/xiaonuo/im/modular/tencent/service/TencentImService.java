@@ -1,8 +1,10 @@
 package vip.xiaonuo.im.modular.tencent.service;
 
+import cn.hutool.json.JSONObject;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.im.modular.tencent.param.AccountParam;
 import vip.xiaonuo.im.modular.tencent.param.FriendAddParam;
+import vip.xiaonuo.im.modular.tencent.param.GroupCreateParam;
 
 import java.util.List;
 
@@ -31,4 +33,10 @@ public interface TencentImService {
     CommonResult<Object> accountCheck(List<AccountParam> accountParams);
 
     CommonResult<String> friendAdd(FriendAddParam friendAddParam);
+
+    CommonResult<String> tencentUpdateImUser(JSONObject userInfo);
+
+    CommonResult<String> tencentCreateRoot(AccountParam accountParam);
+
+    CommonResult<Object> createGroup(GroupCreateParam groupCreateParam);
 }

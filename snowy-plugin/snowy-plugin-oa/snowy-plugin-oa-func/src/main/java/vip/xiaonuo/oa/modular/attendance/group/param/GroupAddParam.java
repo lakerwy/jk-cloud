@@ -22,12 +22,10 @@ import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.oa.core.handler.AttObjectHandler;
-import vip.xiaonuo.oa.core.handler.CustomFastjsonTypeHandler;
 import vip.xiaonuo.oa.core.handler.GroupWorkDayHandler;
 import vip.xiaonuo.oa.core.handler.WorkPlaceHandler;
 import vip.xiaonuo.oa.modular.attendance.group.entity.*;
 import vip.xiaonuo.oa.modular.attendance.group.entity.AttObject;
-import vip.xiaonuo.oa.modular.attendance.group.entity.CorrectRule;
 
 import javax.validation.constraints.NotBlank;
 import java.util.List;
@@ -113,16 +111,14 @@ public class GroupAddParam {
     @ApiModelProperty(value = "是否开启补卡规则", position = 17)
     private Boolean  correctionEnabled;
 
-    @ApiModelProperty(value = "补卡规则", position = 18)
-    @TableField(value = "CORRECT_RULE", typeHandler = FastjsonTypeHandler.class)
-    private CorrectRule correctRule;
+    @ApiModelProperty(value = "补卡规则Id", position = 18)
+    private String adjustmentId;
 
     @ApiModelProperty(value = "是否开启加班审批",position = 19)
     private boolean enableApply;
 
-    @ApiModelProperty(value = "加班规则", position = 20)
-    @TableField(value = "OVER_WORK_RULE", typeHandler = FastjsonTypeHandler.class)
-    private OverWorkRule overWorkRule;
+    @ApiModelProperty(value = "加班规则Id", position = 19)
+    private String overWorkId;
 
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 30)
@@ -136,10 +132,10 @@ public class GroupAddParam {
         if(enableWeekendWork && StrUtil.isEmpty(weekDayShiftId)){
             throw new CommonException("请设置非工作日的打卡规则");
         }
-        if(correctionEnabled && ObjectUtil.isNull(correctRule)){
+        if(correctionEnabled && ObjectUtil.isNull(adjustmentId)){
             throw new CommonException("补卡规则已开启，请设置补卡规则");
         }
-        if(enableApply && ObjectUtil.isNull(overWorkRule)){
+        if(enableApply && ObjectUtil.isNull(overWorkId)){
             throw new CommonException("加班规则已开启，请设置规则");
         }
         if(CollUtil.isEmpty(assistAdmins)){
