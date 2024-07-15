@@ -102,7 +102,8 @@ public class SalaryPreviewServiceImpl extends ServiceImpl<SalaryPreviewMapper, S
         if(ObjectUtil.isNotEmpty(salaryPreviewPageParam.getSearchKey())){
             queryWrapper.and(q->q.like("a.ID_CARD_NUMBER",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey()))
                     .or().like("a.USER_NAME",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey()))
-                    .or().like("a.ORG_NAME",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey())));
+                    .or().like("a.ORG_NAME",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey()))
+                    .or().like("a.FIRST_ORG_NAME",AesUtil.encrypt(salaryPreviewPageParam.getSearchKey())));
         }
         queryWrapper.isNull("b.ID");
         if(ObjectUtil.isAllNotEmpty(salaryPreviewPageParam.getSortField(), salaryPreviewPageParam.getSortOrder())) {

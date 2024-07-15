@@ -89,7 +89,8 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         if(ObjectUtil.isNotEmpty(salaryPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(Salary::getIdCardNumber,AesUtil.encrypt(salaryPageParam.getSearchKey()))
                     .or().like(Salary::getUserName,AesUtil.encrypt(salaryPageParam.getSearchKey()))
-                    .or().like(Salary::getOrgName,AesUtil.encrypt(salaryPageParam.getSearchKey())));
+                    .or().like(Salary::getOrgName,AesUtil.encrypt(salaryPageParam.getSearchKey()))
+                    .or().like(Salary::getFirstOrgName,AesUtil.encrypt(salaryPageParam.getSearchKey())));
         }
         if(ObjectUtil.isAllNotEmpty(salaryPageParam.getSortField(), salaryPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(salaryPageParam.getSortOrder());
@@ -230,7 +231,8 @@ public class SalaryServiceImpl extends ServiceImpl<SalaryMapper, Salary> impleme
         if(ObjectUtil.isNotEmpty(searchPage.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(Salary::getIdCardNumber,AesUtil.encrypt(searchPage.getSearchKey()))
                     .or().like(Salary::getUserName,AesUtil.encrypt(searchPage.getSearchKey()))
-                    .or().like(Salary::getOrgName,AesUtil.encrypt(searchPage.getSearchKey())));
+                    .or().like(Salary::getOrgName,AesUtil.encrypt(searchPage.getSearchKey()))
+                    .or().like(Salary::getFirstOrgName,AesUtil.encrypt(searchPage.getSearchKey())));
         }
         if(ObjectUtil.isAllNotEmpty(searchPage.getSortField(), searchPage.getSortOrder())) {
             CommonSortOrderEnum.validate(searchPage.getSortOrder());
