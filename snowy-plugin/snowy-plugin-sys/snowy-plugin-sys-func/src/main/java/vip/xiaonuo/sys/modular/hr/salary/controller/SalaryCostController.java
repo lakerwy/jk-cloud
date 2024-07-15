@@ -12,8 +12,6 @@
  */
 package vip.xiaonuo.sys.modular.hr.salary.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -25,20 +23,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
-import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryCost;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostAddParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostEditParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostIdParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ReportParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CostReportParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CostReportSearch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryCostService;
 import vip.xiaonuo.sys.modular.hr.salary.vo.CostReportVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
-import javax.validation.constraints.NotEmpty;
 import java.util.List;
 
 /**
@@ -143,10 +135,10 @@ public class SalaryCostController {
      * @date  2024/03/22 10:26
      */
     @ApiOperationSupport(order = 10)
-    @ApiOperation("【已封存工资数据】- 生成某年月-成本划分数据")
-    @CommonLog("【已封存工资数据】- 生成某年月-成本划分数据")
+    @ApiOperation("生成某年月-成本划分数据")
+    @CommonLog("生成某年月-成本划分数据")
     @PostMapping("/sys/hr/salary/report/genCost")
-    public CommonResult<String> genPerCost(@RequestBody @Valid SearchParam param) {
+    public CommonResult<String> genPerCost(@RequestBody @Valid CostReportParam param) {
         salaryCostService.genPerCost(param);
         return CommonResult.ok();
     }
@@ -158,9 +150,9 @@ public class SalaryCostController {
      * @date  2024/03/01 16:50
      */
     @ApiOperationSupport(order = 11)
-    @ApiOperation("【已封存的工资数据】查询 社保|公积金|汇总 分析报表")
+    @ApiOperation("查询 社保|公积金|汇总 分析报表")
     @GetMapping("/sys/hr/salary/report/genCostReport")
-    public CommonResult<List<CostReportVo>> genCostReport(ReportParam reportParam) {
-        return CommonResult.data(salaryCostService.genCostReport(reportParam));
+    public CommonResult<List<CostReportVo>> genCostReport(CostReportSearch param) {
+        return CommonResult.data(salaryCostService.genCostReport(param));
     }
 }

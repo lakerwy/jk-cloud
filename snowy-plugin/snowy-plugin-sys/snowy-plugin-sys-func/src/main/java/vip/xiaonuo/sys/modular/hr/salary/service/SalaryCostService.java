@@ -19,7 +19,8 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ReportParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CostReportParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CostReportSearch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.vo.CostReportVo;
 
@@ -86,12 +87,12 @@ public interface SalaryCostService extends IService<SalaryCost> {
      * 生成 某年月 个人成本划分数据
      * @param param
      */
-    void genPerCost(SearchParam param);
+    void genPerCost(CostReportParam param);
 
     /**
      * 查询 统计报表
-     * @param reportParam
+     * @param param
      * @return
      */
-    List<CostReportVo> genCostReport(ReportParam reportParam);
+    List<CostReportVo> genCostReport(CostReportSearch param);
 }

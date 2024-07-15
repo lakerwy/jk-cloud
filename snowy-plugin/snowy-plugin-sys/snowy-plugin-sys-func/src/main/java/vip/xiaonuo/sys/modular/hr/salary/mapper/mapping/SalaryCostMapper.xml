@@ -11,6 +11,14 @@
           and a.`YEAR_MONTH`=#{yearMonth}
     </select>
 
+
+    <select id="getPreviewCost" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.SalaryCostVo">
+        select *
+        from HR_SALARY_PREVIEW
+        where DELETE_FLAG = 'NOT_DELETE'
+          and `YEAR_MONTH`=#{yearMonth}
+    </select>
+
     <select id="getCostReport" resultType="vip.xiaonuo.sys.modular.hr.salary.vo.CostReportVo">
         select DEPT_ID as deptId,DEPT as dept,`YEAR_MONTH` as yearMonth,
                SUM(IF(PAY_NUM is null ,0,PAY_NUM)) as payNum,
@@ -24,6 +32,7 @@
         where DELETE_FLAG = 'NOT_DELETE'
           and `YEAR_MONTH`=#{yearMonth}
           and TYPE = #{reportType}
+          and DATA_SOURCE = #{dataSource}
         group by DEPT_ID,DEPT,`YEAR_MONTH`
     </select>
 

@@ -28,11 +28,18 @@ import java.util.List;
 public interface SalaryCostMapper extends BaseMapper<SalaryCost> {
 
     /**
-     * 根据年月 获取成本划分基础数据【成本划分-汇总-个人】
+     * 【封存工资-数据源】根据年月 获取成本划分基础数据【成本划分-汇总-个人】
      * @param yearMonth
      * @return
      */
     List<SalaryCostVo> getSalaryCost(String yearMonth);
+
+    /**
+     * 【预览工资-数据源】根据年月 获取成本划分基础数据【成本划分-汇总-个人】
+     * @param yearMonth
+     * @return
+     */
+    List<SalaryCostVo> getPreviewCost(String yearMonth);
 
     /**
      * 生成各维度的成本报表
@@ -40,5 +47,5 @@ public interface SalaryCostMapper extends BaseMapper<SalaryCost> {
      * @param reportType 报表维度
      * @return
      */
-    List<CostReportVo> getCostReport(String yearMonth,String reportType);
+    List<CostReportVo> getCostReport(String yearMonth,String reportType,String dataSource);
 }

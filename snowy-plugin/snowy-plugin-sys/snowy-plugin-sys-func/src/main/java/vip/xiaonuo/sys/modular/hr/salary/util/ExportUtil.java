@@ -27,6 +27,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.GzExportTotalResult;
 
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -430,7 +431,8 @@ public class ExportUtil {
                 totalResult.setLastAddAmountTotal(totalResult.getLastAddAmountTotal().add(item.getLastAddAmount()));
                 totalResult.setLastMinusAmountTotal(totalResult.getLastMinusAmountTotal().add(item.getLastMinusAmount()));
                 totalResult.setMonthTaxAmountTotal(totalResult.getMonthTaxAmountTotal().add(item.getMonthTaxAmount()));
-                totalResult.setRealPayAmountTotal(totalResult.getRealPayAmountTotal().add(item.getRealPayAmount()));
+                BigDecimal tmpRealPay = item.getRealPayAmount().compareTo(BigDecimal.ZERO) >= 0 ? item.getRealPayAmount() : BigDecimal.ZERO;
+                totalResult.setRealPayAmountTotal(totalResult.getRealPayAmountTotal().add(tmpRealPay));
             });
         }
         return totalResult;

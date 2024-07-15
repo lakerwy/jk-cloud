@@ -29,6 +29,7 @@ import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryCost;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryGjj;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryIns;
+import vip.xiaonuo.sys.modular.hr.salary.enums.CostDataSourceEnum;
 import vip.xiaonuo.sys.modular.hr.salary.enums.CostTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.enums.DataTypeEnum;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryCostMapper;
@@ -36,7 +37,8 @@ import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostAddParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostEditParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostIdParam;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryCostPageParam;
-import vip.xiaonuo.sys.modular.hr.salary.param.customer.ReportParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CostReportParam;
+import vip.xiaonuo.sys.modular.hr.salary.param.customer.CostReportSearch;
 import vip.xiaonuo.sys.modular.hr.salary.param.customer.SearchParam;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryCostService;
 import vip.xiaonuo.sys.modular.hr.salary.service.SalaryGjjService;
@@ -133,13 +135,23 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
 
 
     @Override
-    public void genPerCost(SearchParam param) {
-        //0. 清理历史数据
-        this.remove(new QueryWrapper<SalaryCost>().lambda().eq(SalaryCost::getYearMonth,param.getYearMonth()));
+    public void genPerCost(CostReportParam param) {
+        //0. 清理历史数据[数据源+年月]
+        this.remove(new QueryWrapper<SalaryCost>().lambda().eq(SalaryCost::getYearMonth,param.getYearMonth()).eq(SalaryCost::getDataSource,param.getDataSource()));
 
         //1. 准备数据（年度数据-准备） 工资 + 社保 + 公积金
-        List<SalaryCostVo> costList = salaryCostMapper.getSalaryCost(param.getYearMonth());  //工资-相关
+        List<SalaryCostVo> costList = new ArrayList<>();
+        /** 封存工资数据源 **/
+        if(CostDataSourceEnum.DATA_SOURCE_SALARY.getValue().equals(param.getDataSource())){
+            costList = salaryCostMapper.getSalaryCost(param.getYearMonth());
+        }
+        /** 预览工资数据源 **/
+        else if(CostDataSourceEnum.DATA_SOURCE_PREVIEW.getValue().equals(param.getDataSource())){
+            costList = salaryCostMapper.getPreviewCost(param.getYearMonth());
+        }
         if(CollUtil.isEmpty(costList)) return;
+
+        //1.1 社保|公积金 数据
         List<SalaryIns> insList = new ArrayList<>();
         List<SalaryGjj> gjjList = new ArrayList<>();
         List<String> standardIds = costList.stream().map(x->x.getStandardId()).distinct().collect(Collectors.toList());
@@ -148,7 +160,7 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
             gjjList = salaryGjjService.list(new QueryWrapper<SalaryGjj>().lambda().in(SalaryGjj::getStandardId,standardIds));
         }
 
-        //2. 生成成本划分数据
+        //1.2 生成成本划分数据
         List<SalaryCost> addSalaryCostList = new ArrayList<>();
         List<SalaryIns> finalInsList = insList;
         List<SalaryGjj> finalGjjList = gjjList;
@@ -164,6 +176,7 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
             /** 人力成本分析 - 汇总维度 **/
             deptIds.forEach(deptId->{
                 SalaryCost tmpSalaryCost = new SalaryCost();
+                tmpSalaryCost.setDataSource(param.getDataSource());
                 tmpSalaryCost.setType(CostTypeEnum.REPORT_PER.getValue());
                 tmpSalaryCost.setYearMonth(item.getYearMonth());
                 tmpSalaryCost.setIdCardNumber(item.getIdCardNumber());
@@ -229,6 +242,7 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                 List<String> insDeptIds = insCostConfigList.stream().filter(x->ObjectUtil.isNotEmpty(x.getDeptId())).map(x->x.getDeptId()).distinct().collect(Collectors.toList());
                 insDeptIds.forEach(deptId->{
                     SalaryCost tmpSalaryCost = new SalaryCost();
+                    tmpSalaryCost.setDataSource(param.getDataSource());
                     tmpSalaryCost.setType(CostTypeEnum.REPORT_INS.getValue());
                     tmpSalaryCost.setYearMonth(item.getYearMonth());
                     tmpSalaryCost.setIdCardNumber(item.getIdCardNumber());
@@ -262,6 +276,7 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
                 List<String> gjjDeptIds = gjjCostConfigList.stream().filter(x->ObjectUtil.isNotEmpty(x.getDeptId())).map(x->x.getDeptId()).distinct().collect(Collectors.toList());
                 gjjDeptIds.forEach(deptId->{
                     SalaryCost tmpSalaryCost = new SalaryCost();
+                    tmpSalaryCost.setDataSource(param.getDataSource());
                     tmpSalaryCost.setType(CostTypeEnum.REPORT_GJJ.getValue());
                     tmpSalaryCost.setYearMonth(item.getYearMonth());
                     tmpSalaryCost.setIdCardNumber(item.getIdCardNumber());
@@ -292,8 +307,8 @@ public class SalaryCostServiceImpl extends ServiceImpl<SalaryCostMapper, SalaryC
     }
 
     @Override
-    public List<CostReportVo> genCostReport(ReportParam reportParam) {
-        List<CostReportVo> costReportList = salaryCostMapper.getCostReport(reportParam.getYearMonth(),reportParam.getReportType());
+    public List<CostReportVo> genCostReport(CostReportSearch param) {
+        List<CostReportVo> costReportList = salaryCostMapper.getCostReport(param.getYearMonth(), param.getReportType(),param.getDataSource());
         costReportList.forEach(item->{
             item.setSubTotal(item.getGz().add(item.getIns()).add(item.getGjj()).add(item.getRegister()).add(item.getWelfare()).add(item.getField()));
         });

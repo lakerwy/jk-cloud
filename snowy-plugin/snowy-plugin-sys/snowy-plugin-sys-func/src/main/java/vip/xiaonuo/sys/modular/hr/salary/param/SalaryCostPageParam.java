@@ -68,4 +68,7 @@ public class SalaryCostPageParam {
     @ApiModelProperty(value = "姓名")
     private String userName;
 
+    /** 数据来源：preview - 预览工资数据 salary - 封存工资数据 */
+    @ApiModelProperty(value = "数据来源：preview - 预览工资数据 salary - 封存工资数据 ")
+    private String dataSource;
 }

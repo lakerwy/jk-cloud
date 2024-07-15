@@ -33,6 +33,10 @@ import java.util.Date;
 @Setter
 public class SalaryCostEditParam {
 
+    /** 数据来源：preview - 预览工资数据 salary - 封存工资数据 */
+    @ApiModelProperty(value = "数据来源：preview - 预览工资数据 salary - 封存工资数据 ", position = 2)
+    private String dataSource;
+
     /** 主键ID */
     @ApiModelProperty(value = "主键ID", required = true, position = 1)
     @NotBlank(message = "id不能为空")

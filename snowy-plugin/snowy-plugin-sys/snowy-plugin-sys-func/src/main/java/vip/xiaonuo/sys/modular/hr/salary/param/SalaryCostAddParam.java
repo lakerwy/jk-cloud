@@ -33,6 +33,10 @@ import java.util.Date;
 @Setter
 public class SalaryCostAddParam {
 
+    /** 数据来源：preview - 预览工资数据 salary - 封存工资数据 */
+    @ApiModelProperty(value = "数据来源：preview - 预览工资数据 salary - 封存工资数据 ", position = 2)
+    private String dataSource;
+
     /** 成本归属-统计维度 */
     @ApiModelProperty(value = "成本归属-统计维度", position = 2)
     private String type;
