@@ -229,7 +229,7 @@ public class PanFileController {
             List<Map<String, Object>> mapList = new ArrayList<>();
             UserFile serviceFold = userFileService.createServiceFold(FoldNameConstant.SERVICE_CHART_REVIEW);
             if(ObjectUtil.isNotNull(serviceFold)){
-                uploadFileParam.setFilePath(serviceFold.getFilePath()+serviceFold.getFileName()+StrUtil.SLASH);
+                uploadFileParam.setFilePath(serviceFold.getFilePath()+serviceFold.getFileName());
                 uploadFileParam.setParentId(serviceFold.getId());
                 List<UserFile> userFiles = fileTransferService.uploadFile(request, uploadFileParam);
                 userFiles.forEach(userFile -> {
