@@ -16,7 +16,7 @@ im:
 tencent:
   cloud:
     im:
-      sdkAppId: 1600022759
-      secretKey: 897824c7a7ffd411a2a41fb31ffaac9d574f06551dabe2bd51910d539fd7b3ad
+      sdkAppId: 1600044432
+      secretKey: cc53183b704dfed5667e2770a9c933329c0e43a2996ab2dcca715d9c8ec724b7
       expireTime: 604800
       appManager: administrator
