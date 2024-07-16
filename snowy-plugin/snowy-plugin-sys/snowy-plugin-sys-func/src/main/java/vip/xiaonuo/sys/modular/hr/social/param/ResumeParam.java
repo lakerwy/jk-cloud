@@ -1,8 +1,12 @@
 package vip.xiaonuo.sys.modular.hr.social.param;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
+
+import java.util.Date;
 
 /**
  * 简历在线提交参数
@@ -138,5 +142,10 @@ public class ResumeParam {
     /** 备注 */
     @ApiModelProperty(value = "备注", position = 34)
     private String memo;
+
+    @ApiModelProperty(value = "最快到岗时间", position = 35)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date entryDate;
 
 }
