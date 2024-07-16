@@ -4,8 +4,9 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
-import vip.xiaonuo.oa.modular.attendance.rule.entity.Adjustment;
-import vip.xiaonuo.oa.modular.attendance.rule.entity.OverWork;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.AdjustmentRule;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.OverWorkRule;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.Rule;
 
 /**
  * @author mayike
@@ -17,8 +18,8 @@ import vip.xiaonuo.oa.modular.attendance.rule.entity.OverWork;
 public class GroupDetailVo extends Group {
 
     @ApiModelProperty(value = "补卡规则类", position = 100)
-    private Adjustment adjustment;
+    private Rule<AdjustmentRule> adjustment;
 
     @ApiModelProperty(value = "加班规则类", position = 101)
-    private OverWork overWork;
+    private Rule<OverWorkRule> overWork;
 }

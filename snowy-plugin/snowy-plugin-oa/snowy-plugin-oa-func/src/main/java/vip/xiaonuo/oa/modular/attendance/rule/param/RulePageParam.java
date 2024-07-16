@@ -36,4 +36,8 @@ public class RulePageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 申请类型：1 补卡 2 请假 3 加班 4 外出 5 出差 6 签到 */
+    @ApiModelProperty(value = "规则类型( 1 补卡 2 请假 3 加班 4 外出 5 出差 6 签到)")
+    private int ruleType = 0;
+
 }

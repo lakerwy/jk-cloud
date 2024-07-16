@@ -7,14 +7,14 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 
 /**
- * 请假管理表Id参数
+ * 考勤申请管理表Id参数
  *
  * @author mayike
- * @date  2024/07/09 12:00
+ * @date  2024/07/15 09:56
  **/
 @Getter
 @Setter
-public class HolidayApplyIdParam {
+public class ApplyIdParam {
 
     /** 主键 */
     @ApiModelProperty(value = "主键", required = true)

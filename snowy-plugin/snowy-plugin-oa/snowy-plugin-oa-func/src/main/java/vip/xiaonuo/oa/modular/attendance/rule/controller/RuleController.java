@@ -1,6 +1,5 @@
 package vip.xiaonuo.oa.modular.attendance.rule.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
@@ -14,11 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
-import vip.xiaonuo.oa.modular.attendance.rule.entity.Adjustment;
-import vip.xiaonuo.oa.modular.attendance.rule.entity.OverWork;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.*;
+import vip.xiaonuo.oa.modular.attendance.rule.enums.RuleTypeEnum;
 import vip.xiaonuo.oa.modular.attendance.rule.param.*;
-import vip.xiaonuo.oa.modular.attendance.rule.service.AdjustmentService;
-import vip.xiaonuo.oa.modular.attendance.rule.service.OverWorkService;
 import vip.xiaonuo.oa.modular.attendance.rule.service.RuleService;
 
 import javax.annotation.Resource;
@@ -42,13 +39,6 @@ public class RuleController {
     @Resource
     private RuleService ruleService;
 
-    @Resource
-    private OverWorkService overWorkService;
-
-    @Resource
-    private AdjustmentService adjustmentService;
-
-
     /**
      * 获取考勤规则配置表分页
      *
@@ -59,8 +49,9 @@ public class RuleController {
     @ApiOperation("分页获取加班规则表")
 //    @SaCheckPermission("/oa/rule/OverWorkRule/Page")
     @GetMapping("/oa/rule/overWork/Page")
-    public CommonResult<Page<OverWork>> overWorkPage(RulePageParam rulePageParam) {
-        return CommonResult.data(overWorkService.page(rulePageParam));
+    public CommonResult<Page<Rule<OverWorkRule>>> overWorkPage(RulePageParam rulePageParam) {
+        rulePageParam.setRuleType(RuleTypeEnum.OVER_WORD_RULE.getType());
+        return CommonResult.data(ruleService.page(rulePageParam, OverWorkRule.class));
     }
 
     /**
@@ -75,7 +66,7 @@ public class RuleController {
 //    @SaCheckPermission("/oa/rule/add")
     @PostMapping("/oa/rule/overWork/add")
     public CommonResult<String> overWorkAdd(@RequestBody @Valid OverWorkAddParam ruleAddParam) {
-        overWorkService.add(ruleAddParam);
+        ruleService.add(ruleAddParam);
         return CommonResult.ok();
     }
 
@@ -91,7 +82,7 @@ public class RuleController {
 //    @SaCheckPermission("/oa/rule/edit")
     @PostMapping("/oa/rule/overWork/edit")
     public CommonResult<String> overWorkEdit(@RequestBody @Valid OverWorkEditParam ruleEditParam) {
-        overWorkService.edit(ruleEditParam);
+        ruleService.edit(ruleEditParam);
         return CommonResult.ok();
     }
 
@@ -102,11 +93,11 @@ public class RuleController {
      * @date  2024/07/10 16:29
      */
     @ApiOperationSupport(order = 4)
-    @ApiOperation("获取考勤规则配置表详情")
+    @ApiOperation("获取加班考勤规则配置详情")
 //    @SaCheckPermission("/oa/rule/overWork/detail")
     @GetMapping("/oa/rule/overWork/detail")
-    public CommonResult<OverWork> overWorkDetail(@Valid RuleIdParam ruleIdParam) {
-        return CommonResult.data(overWorkService.detail(ruleIdParam));
+    public CommonResult<Rule> overWorkDetail(@Valid RuleIdParam ruleIdParam) {
+        return CommonResult.data(ruleService.detail(ruleIdParam,OverWorkRule.class));
     }
 
     @ApiOperationSupport(order = 5)
@@ -114,12 +105,12 @@ public class RuleController {
 //    @SaCheckPermission("/oa/rule/OverWorkRule/Page")
     @GetMapping("/oa/rule/overWork/configList")
     public CommonResult<List<Map<String, String>>> configList() {
-        return CommonResult.data(overWorkService.configList());
+        return CommonResult.data(ruleService.overWorkConfigList());
     }
 
 
     /**
-     * 获取考勤规则配置表分页
+     * 获取补班规则配置表分页
      *
      * @author mayike
      * @date  2024/07/10 16:29
@@ -128,8 +119,9 @@ public class RuleController {
     @ApiOperation("分页获取补班规则")
 //    @SaCheckPermission("/oa/rule/OverWorkRule/Page")
     @GetMapping("/oa/rule/adjustment/Page")
-    public CommonResult<Page<Adjustment>> adjustmentPage(RulePageParam rulePageParam) {
-        return CommonResult.data(adjustmentService.page(rulePageParam));
+    public CommonResult<Page<Rule<AdjustmentRule>>> adjustmentPage(RulePageParam rulePageParam) {
+        rulePageParam.setRuleType(RuleTypeEnum.ADJUSTMENT_RULE.getType());
+        return CommonResult.data(ruleService.page(rulePageParam, AdjustmentRule.class));
     }
 
     /**
@@ -144,7 +136,7 @@ public class RuleController {
 //    @SaCheckPermission("/oa/rule/add")
     @PostMapping("/oa/rule/adjustment/add")
     public CommonResult<String> adjustmentAdd(@RequestBody @Valid AdjustmentAddParam ruleAddParam) {
-        adjustmentService.add(ruleAddParam);
+        ruleService.add(ruleAddParam);
         return CommonResult.ok();
     }
 
@@ -160,7 +152,7 @@ public class RuleController {
 //    @SaCheckPermission("/oa/rule/edit")
     @PostMapping("/oa/rule/adjustment/edit")
     public CommonResult<String> adjustmentEdit(@RequestBody @Valid AdjustmentEditParam ruleEditParam) {
-        adjustmentService.edit(ruleEditParam);
+        ruleService.edit(ruleEditParam);
         return CommonResult.ok();
     }
 
@@ -174,8 +166,8 @@ public class RuleController {
     @ApiOperation("获取补卡考勤规则配置表详情")
 //    @SaCheckPermission("/oa/rule/adjustment/detail")
     @GetMapping("/oa/rule/adjustment/detail")
-    public CommonResult<Adjustment> adjustmentDetail(@Valid RuleIdParam ruleIdParam) {
-        return CommonResult.data(adjustmentService.detail(ruleIdParam));
+    public CommonResult<Rule> adjustmentDetail(@Valid RuleIdParam ruleIdParam) {
+        return CommonResult.data(ruleService.detail(ruleIdParam,AdjustmentRule.class));
     }
 
     /**

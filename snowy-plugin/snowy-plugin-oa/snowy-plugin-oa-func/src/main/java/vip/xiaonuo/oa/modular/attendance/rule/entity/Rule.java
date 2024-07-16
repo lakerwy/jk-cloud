@@ -2,6 +2,7 @@ package vip.xiaonuo.oa.modular.attendance.rule.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import com.baomidou.mybatisplus.extension.handlers.FastjsonTypeHandler;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,7 +20,7 @@ import java.util.List;
  **/
 @Getter
 @Setter
-@TableName(value = "OA_ATTN_RULE",autoResultMap = true)
+@TableName(value = "OA_ATTN_RULE")
 public class Rule<T extends BaseRule> {
 
     /** 主键 */
@@ -39,9 +40,14 @@ public class Rule<T extends BaseRule> {
     @ApiModelProperty(value = "规则名称", position = 4)
     private String ruleName;
 
+    @ApiModelProperty(value = "规则JSON", position = 9)
+    @TableField(value = "RULE_JSON")
+    @JsonIgnore
+    private String ruleJsonStr;
+
     /** 规则JSON */
     @ApiModelProperty(value = "规则JSON", position = 5)
-    @TableField(value = "RULE_JSON", typeHandler = FastjsonTypeHandler.class)
+    @TableField(exist = false)
     private List<T> ruleJson;
 
     /** 应用范围，存储为 JSON 字符串 */

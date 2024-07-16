@@ -34,31 +34,22 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.oa.core.constant.AttCacheConstants;
 import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
-import vip.xiaonuo.oa.modular.attendance.group.constants.GroupConstant;
 import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
+import vip.xiaonuo.oa.modular.attendance.group.enums.AttnObjectEnum;
 import vip.xiaonuo.oa.modular.attendance.group.param.*;
 import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
-import vip.xiaonuo.oa.modular.attendance.client.WebServerClient;
 import vip.xiaonuo.oa.modular.attendance.group.entity.AttObject;
-import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
 import vip.xiaonuo.oa.modular.attendance.group.mapper.GroupMapper;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupEditParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupIdParam;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupPageParam;
-import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
-import vip.xiaonuo.oa.modular.attendance.group.entity.AttObject;
-import vip.xiaonuo.oa.modular.attendance.group.entity.Group;
-import vip.xiaonuo.oa.modular.attendance.group.mapper.GroupMapper;
 import vip.xiaonuo.oa.modular.attendance.group.param.GroupAddParam;
-import vip.xiaonuo.oa.modular.attendance.group.param.GroupEditParam;
-import vip.xiaonuo.oa.modular.attendance.group.param.GroupIdParam;
-import vip.xiaonuo.oa.modular.attendance.group.param.GroupPageParam;
-import vip.xiaonuo.oa.modular.attendance.group.service.GroupService;
 import vip.xiaonuo.oa.modular.attendance.group.vo.GroupDetailVo;
-import vip.xiaonuo.oa.modular.attendance.rule.entity.Adjustment;
-import vip.xiaonuo.oa.modular.attendance.rule.entity.OverWork;
-import vip.xiaonuo.oa.modular.attendance.rule.service.AdjustmentService;
-import vip.xiaonuo.oa.modular.attendance.rule.service.OverWorkService;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.AdjustmentRule;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.OverWorkRule;
+import vip.xiaonuo.oa.modular.attendance.rule.entity.Rule;
+import vip.xiaonuo.oa.modular.attendance.rule.param.RuleIdParam;
+import vip.xiaonuo.oa.modular.attendance.rule.service.RuleService;
 
 import javax.annotation.Resource;
 import java.util.*;
@@ -80,10 +71,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
     private CommonCacheOperator cacheOperator;
 
     @Resource
-    private AdjustmentService adjustmentService;
-
-    @Resource
-    private OverWorkService overWorkService;
+    private RuleService ruleService;
 
     @Override
     public Page<Group> page(GroupPageParam groupPageParam) {
@@ -134,7 +122,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         List<AttObject> trueParticipates = new ArrayList<>();
         if(CollUtil.isNotEmpty(participates)){
             participates.forEach(attObject -> {
-                if(attObject.getType() == 0 || attObject.getType() == 1){
+                if(attObject.getType() == AttnObjectEnum.COMPANY_OBJECT.getType() || attObject.getType() == AttnObjectEnum.DEPT_OBJECT.getType()){
                     //获取公司或者部门下的所有用户信息
                     String childrenUser = webServerClient.getChildrenUser(attObject.getObjectId());
                     JSONArray jsonArray = JSONUtil.parseArray(childrenUser);
@@ -144,10 +132,12 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
                                 return new AttObject(
                                         jsonObject.getStr("id"),
                                         jsonObject.getStr("name"),
-                                        2
+                                        AttnObjectEnum.USER_OBJECT.getType()
                                 );
                             })
                             .collect(Collectors.toList()));
+                }else if(attObject.getType() == AttnObjectEnum.ROLE_OBJECT.getType()){
+                    //todo
                 }else {
                     trueParticipates.add(attObject);
                 }
@@ -205,13 +195,17 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         Group group = this.queryEntity(groupIdParam.getId());
         GroupDetailVo groupDetailVo = BeanUtil.toBean(group, GroupDetailVo.class);
         if(StrUtil.isNotEmpty(groupDetailVo.getAdjustmentId())){
-            Adjustment adjustment = adjustmentService.getById(groupDetailVo.getAdjustmentId());
+            RuleIdParam ruleIdParam = new RuleIdParam();
+            ruleIdParam.setId(groupDetailVo.getAdjustmentId());
+            Rule<AdjustmentRule> adjustment = ruleService.detail(ruleIdParam, AdjustmentRule.class);
             if(null != adjustment){
                 groupDetailVo.setAdjustment(adjustment);
             }
         }
         if(StrUtil.isNotEmpty(groupDetailVo.getOverWorkId())){
-            OverWork overWork = overWorkService.getById(groupDetailVo.getOverWorkId());
+            RuleIdParam ruleIdParam = new RuleIdParam();
+            ruleIdParam.setId(groupDetailVo.getOverWorkId());
+            Rule<OverWorkRule> overWork = ruleService.detail(ruleIdParam, OverWorkRule.class);
             if(null!=overWork){
                 groupDetailVo.setOverWork(overWork);
             }
@@ -242,7 +236,7 @@ public class GroupServiceImpl extends ServiceImpl<GroupMapper, Group> implements
         if(ObjectUtil.isNotEmpty(groupId)){
             Object o = cacheOperator.get(AttCacheConstants.ATT_GROUP_CACHE_PRE + groupId);
             if(ObjectUtil.isNotEmpty(o)){
-                return (Group) o;
+                return BeanUtil.toBean(o,Group.class);
             }else {
                 Group group = this.getById(String.valueOf(groupId));
                 cacheOperator.put(AttCacheConstants.ATT_GROUP_CACHE_PRE+groupId,group);

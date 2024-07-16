@@ -21,6 +21,7 @@ import vip.xiaonuo.oa.core.handler.AttObjectHandler;
 import vip.xiaonuo.oa.core.handler.GroupWorkDayHandler;
 import vip.xiaonuo.oa.core.handler.WorkPlaceHandler;
 
+import java.io.Serializable;
 import java.util.Date;
 import java.util.List;
 
@@ -33,7 +34,7 @@ import java.util.List;
 @Getter
 @Setter
 @TableName(value = "OA_ATTN_GROUP",autoResultMap = true)
-public class Group {
+public class Group implements Serializable {
 
     /** 主键 */
     @TableId

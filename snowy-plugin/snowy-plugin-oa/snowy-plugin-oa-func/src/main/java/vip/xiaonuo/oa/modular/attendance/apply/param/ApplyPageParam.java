@@ -7,14 +7,14 @@ import java.math.BigDecimal;
 import java.util.Date;
 
 /**
- * 请假管理表查询参数
+ * 考勤申请管理表查询参数
  *
  * @author mayike
- * @date  2024/07/09 12:00
+ * @date  2024/07/15 09:56
  **/
 @Getter
 @Setter
-public class HolidayApplyPageParam {
+public class ApplyPageParam {
 
     /** 当前页 */
     @ApiModelProperty(value = "当前页码")
@@ -35,5 +35,12 @@ public class HolidayApplyPageParam {
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
+
+    @ApiModelProperty(value = "查询个人数据标识")
+    private Boolean owner = false;
+
+    /** 申请类型：1 补卡 2 请假 3 加班 4 外出 5 出差 6 签到 */
+    @ApiModelProperty(value = "申请类型：1 补卡 2 请假 3 加班 4 外出 5 出差 6 签到")
+    private int applyType = 0;
 
 }

@@ -48,5 +48,11 @@
             <groupId>vip.xiaonuo</groupId>
             <artifactId>snowy-plugin-util-func</artifactId>
         </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <version>5.8.20</version>
+            <scope>compile</scope>
+        </dependency>
     </dependencies>
 </project>
