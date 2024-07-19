@@ -27,7 +27,7 @@ public class MessageService {
     public boolean sendMessage(Object payload, String routingKey) {
         Message<Object> message = MessageBuilder
                 .withPayload(payload)
-                .setHeader("routingKey", routingKey)
+                .setHeader("type", routingKey)
                 .build();
        return streamBridge.send(RabbitConstant.DEFAULT_EXT_CHANNEL, message);
     }

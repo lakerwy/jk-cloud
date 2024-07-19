@@ -18,8 +18,8 @@ public class RabbitConstant {
 
     public final static String DEFAULT_EXT_CHANNEL = "ext-out-0"; //和其他外部服务通信的通道
 
-    public final static String ROUTING_EPC_KEY = "routing-epc";
+    public final static String ROUTING_EPC_KEY = "epc";
 
-    public final static String ROUTING_SUPERV_KEY = "routing-superv";
+    public final static String ROUTING_SUPERV_KEY = "superv";
 
 }
