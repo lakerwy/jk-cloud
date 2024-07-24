@@ -1834,7 +1834,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             try {
                 AtomicReference<Map<String,String>> result = new AtomicReference<>();
                 conn.setAutoCommit(false);
-                String finalSql= "SELECT t2.`NAME` as orgName,t2.ID as orgId,  t2.DIRECTOR_ID  as leaderId\n" +
+                String finalSql= "SELECT t2.`NAME` as orgName,t2.ID as orgId,  t2.DIRECTOR_ID  as leaderId,  t2.PARENT_ID  as parentId\n" +
                         "        FROM\n" +
                         "            (\n" +
                         "                SELECT\n" +

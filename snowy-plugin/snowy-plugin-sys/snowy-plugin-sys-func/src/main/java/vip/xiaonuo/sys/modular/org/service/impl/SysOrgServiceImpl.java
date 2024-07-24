@@ -408,6 +408,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             String firstOrgId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgId" + org.getId());
             String firstOrgLeaderId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderId" + org.getId());
             String firstOrgLeaderName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + org.getId());
+            String parentId = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"parentId" + org.getParentId());
             Map<String,String> orgMap = new HashMap<>();
             if(StrUtil.isBlank(orgName) || StrUtil.isBlank(firstOrgId) || StrUtil.isBlank(firstOrgLeaderId) || StrUtil.isBlank(firstOrgLeaderName)){
                 orgMap = newHandleSqlIdExecution(org.getId(),org);
@@ -438,12 +439,15 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
                     }
                 }
             }
-
+            if(StrUtil.isBlank(parentId)){
+                commonCacheOperator.put(ORG_FIRST_CODE_CACHE_KEY +"parentId" + org.getParentId(), parentId,7*24*60*60);
+            }
 
             Map<String, String> map = new HashMap<>();
             map.put("name", org.getName());
             map.put("id", org.getId());
             map.put("directorId",org.getDirectorId());
+            map.put("parentId",org.getParentId());
             return map;
         }).collect(Collectors.toList());
     }
