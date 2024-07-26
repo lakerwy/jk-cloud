@@ -281,7 +281,7 @@ public abstract class SaBaseLoginUser {
     @ApiModelProperty(value = "IM登录所需字段")
     private Integer platform;
 
-    @ApiModelProperty(value = "im系统类型 0 腾讯  1 其他")
+    @ApiModelProperty(value = "im系统类型 0 腾讯  1 openIm 2 野火IM")
     private Integer imSystem;
 
     /**

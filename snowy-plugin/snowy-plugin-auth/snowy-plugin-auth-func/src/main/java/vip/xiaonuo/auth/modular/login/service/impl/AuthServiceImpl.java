@@ -614,7 +614,15 @@ public class AuthServiceImpl implements AuthService {
             obj.set("userId",saBaseLoginUser.getAccount());
             obj.set("userSig",userSig);
             return obj;
-        }else {
+        }else if(saBaseLoginUser.getImSystem() == 1){
+            JSONObject loginParam = JSONUtil.createObj();
+            loginParam.set("account", saBaseLoginUser.getAccount());
+            loginParam.set("deviceId", ObjectUtil.isNotEmpty(saBaseLoginUser.getClientId()) ? saBaseLoginUser.getClientId() : RandomUtil.randomString(16));
+            loginParam.set("platform", ObjectUtil.isNotEmpty(saBaseLoginUser.getPlatform()) ? saBaseLoginUser.getPlatform() : 5);
+            JSONObject loginJson = imAppApi.openImLogin(loginParam);
+            loginJson.set("token", token);
+            return loginJson;
+        } else  {
 //        HashMap<String,Object> resultMap = new HashMap<>();
 //        resultMap.put("token",token);
             JSONObject loginJson = JSONUtil.parseObj(saBaseLoginUser);

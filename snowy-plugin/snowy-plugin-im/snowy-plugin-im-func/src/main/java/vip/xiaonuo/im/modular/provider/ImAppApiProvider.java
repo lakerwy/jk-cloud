@@ -1,4 +1,4 @@
-package vip.xiaonuo.im.modular.chat.provider;
+package vip.xiaonuo.im.modular.provider;
 
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import vip.xiaonuo.im.api.ImAppApi;
 import vip.xiaonuo.im.modular.chat.pojo.LoginResponse;
 import vip.xiaonuo.im.modular.chat.service.ImService;
+import vip.xiaonuo.im.modular.openIm.service.OpenImService;
 import vip.xiaonuo.im.modular.tencent.service.TencentImService;
 
 import javax.annotation.Resource;
@@ -24,6 +25,9 @@ public class ImAppApiProvider implements ImAppApi {
     @Resource
     TencentImService tencentImService;
 
+    @Resource
+    OpenImService openImService;
+
     @Override
     public JSONObject imLogin(JSONObject jsonObject) {
         LoginResponse loginResponse = imService.onLoginSuccess(jsonObject);
@@ -33,5 +37,10 @@ public class ImAppApiProvider implements ImAppApi {
     @Override
     public String tencentImLogin(String userId) {
         return tencentImService.createUserSignByUserId(userId);
+    }
+
+    @Override
+    public JSONObject openImLogin(JSONObject jsonObject) {
+        return JSONUtil.parseObj(openImService.autoLogin(jsonObject));
     }
 }

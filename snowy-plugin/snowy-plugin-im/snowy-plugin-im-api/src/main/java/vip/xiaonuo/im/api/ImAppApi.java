@@ -11,4 +11,6 @@ public interface ImAppApi {
     JSONObject imLogin(JSONObject jsonObject);
 
     String tencentImLogin(String userId);
+
+    JSONObject openImLogin(JSONObject jsonObject);
 }

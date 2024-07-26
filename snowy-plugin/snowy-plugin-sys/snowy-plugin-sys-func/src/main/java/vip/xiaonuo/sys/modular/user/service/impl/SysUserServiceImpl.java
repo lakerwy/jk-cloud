@@ -1736,6 +1736,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             map.put("account",user.getAccount());
             map.put("phone",user.getPhone());
             map.put("idNumber",user.getIdCardNumber());
+            map.put("gender",user.getGender());
             return map;
         }).collect(Collectors.toList());
     }
