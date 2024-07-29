@@ -120,7 +120,7 @@ public class FlwModelServiceImpl extends ServiceImpl<FlwModelMapper, FlwModel> i
         queryWrapper.lambda().select(FlwModel::getId,FlwModel::getTenantId,FlwModel::getDefinitionId,FlwModel::getDeploymentId,FlwModel::getAdminId,
                 FlwModel::getName,FlwModel::getCode,FlwModel::getVersionCode,FlwModel::getFormType,FlwModel::getCategory,FlwModel::getIcon,
                 FlwModel::getIconMobile, FlwModel::getColor,FlwModel::getFormUrl,FlwModel::getSortCode,FlwModel::getModelStatus,FlwModel::getModelShowStatus,
-                FlwModel::getDeleteFlag, FlwModel::getCreateTime,FlwModel::getCreateUser);
+                FlwModel::getDeleteFlag, FlwModel::getCreateTime,FlwModel::getCreateUser,FlwModel::getUpdateTime,FlwModel::getUpdateUser,FlwModel::getExtJson);
         if(ObjectUtil.isNotEmpty(flwModelPageParam.getCategory())) {
             queryWrapper.lambda().eq(FlwModel::getCategory, flwModelPageParam.getCategory());
         }
