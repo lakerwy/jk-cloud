@@ -166,8 +166,8 @@ public class SocialResumeAddParam {
     private String memo;
 
     @ApiModelProperty(value = "最快到岗时间", position = 35)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date entryDate;
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private String entryDate;
 
 }

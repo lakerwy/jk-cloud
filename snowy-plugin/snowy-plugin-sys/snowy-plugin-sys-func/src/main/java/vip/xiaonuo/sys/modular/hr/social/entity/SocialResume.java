@@ -210,7 +210,7 @@ public class SocialResume {
     private String shortUrl;
 
     @ApiModelProperty(value = "最快到岗时间", position = 43)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
-    private Date entryDate;
+//    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+//    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private String entryDate;
 }
