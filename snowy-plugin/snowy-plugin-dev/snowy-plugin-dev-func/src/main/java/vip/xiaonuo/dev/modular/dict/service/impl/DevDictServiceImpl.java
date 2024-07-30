@@ -62,7 +62,7 @@ public class DevDictServiceImpl extends ServiceImpl<DevDictMapper, DevDict> impl
         QueryWrapper<DevDict> queryWrapper = new QueryWrapper<>();
         // 查询部分字段
         queryWrapper.lambda().select(DevDict::getId, DevDict::getParentId, DevDict::getCategory, DevDict::getDictLabel,
-                DevDict::getDictValue, DevDict::getSortCode);
+                DevDict::getDictValue, DevDict::getSortCode,DevDict::getExtJson);
         if (ObjectUtil.isNotEmpty(devDictPageParam.getParentId())) {
 //            queryWrapper.lambda().eq(DevDict::getParentId, devDictPageParam.getParentId())
 //                    .or().eq(DevDict::getId, devDictPageParam.getParentId());
