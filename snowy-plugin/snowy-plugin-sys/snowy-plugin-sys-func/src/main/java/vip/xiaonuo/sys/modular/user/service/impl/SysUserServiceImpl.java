@@ -1835,19 +1835,20 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             try {
                 AtomicReference<Map<String,String>> result = new AtomicReference<>();
                 conn.setAutoCommit(false);
-                String finalSql= "SELECT t2.`NAME` as orgName,t2.ID as orgId,  t2.DIRECTOR_ID  as leaderId,  t2.PARENT_ID  as parentId\n" +
-                        "        FROM\n" +
-                        "            (\n" +
-                        "                SELECT\n" +
-                        "                    @r AS _id,\n" +
-                        "                    (SELECT @r := PARENT_ID FROM SYS_ORG WHERE ID = _id) AS parent_id,\n" +
-                        "            @l := @l + 1 AS lvl\n" +
-                        "        FROM\n" +
-                        "            (SELECT @r := ?, @l := 0) vars, SYS_ORG AS h\n" +
-                        "        WHERE @r != 0\n" +
-                        "            ) t1\n" +
-                        "            JOIN SYS_ORG t2\n" +
-                        "        ON t1._id = t2.ID  ORDER BY  t1.lvl DESC ";
+                String finalSql= "SELECT t2.`NAME` as orgName, t2.ID as orgId, t2.DIRECTOR_ID as leaderId " +
+                        "FROM " +
+                        "( " +
+                        "    SELECT " +
+                        "        @r AS _id, " +
+                        "        (SELECT @r := PARENT_ID FROM SYS_ORG WHERE ID = _id COLLATE utf8mb4_general_ci) AS parent_id, " +
+                        "        @l := @l + 1 AS lvl " +
+                        "    FROM " +
+                        "        (SELECT @r := ? COLLATE utf8mb4_general_ci, @l := 0) vars, SYS_ORG AS h " +
+                        "    WHERE @r != 0 " +
+                        ") t1 " +
+                        "JOIN SYS_ORG t2 " +
+                        "ON t1._id = t2.ID COLLATE utf8mb4_general_ci " +
+                        "ORDER BY t1.lvl DESC ";
                 if(ObjectUtil.isNotEmpty(sysOrg) && StringUtils.isNotEmpty(sysOrg.getCategory()) && sysOrg.getCategory().equals("PARTNER")){
                     finalSql = finalSql+" LIMIT 1,1";
                 }else {
