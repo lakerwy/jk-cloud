@@ -23,6 +23,8 @@ public enum BizCommonEnum {
     BIZ_PRJ_PLAN("BIZ_PRJ_PLAN","BIZ_PRJ_PLAN","BizPrjPlanServiceImpl"),  //项目计划付款单
     BIZ_PRJ_SETTLE("BIZ_PRJ_SETTLE","BIZ_PRJ_SETTLE","BizPrjSettleServiceImpl"),  //项目款结算单
     BIZ_PRJ_ALLOTMENT("BIZ_PRJ_ALLOTMENT","BIZ_PRJ_ALLOTMENT","BizPrjAllotmentServiceImpl"),  //项目拨付款申请单
+    BIZ_EXP_APPLY("BIZ_EXP_APPLY","BIZ_EXP_APPLY","BizExpApplyServiceImpl"),  //财务报销申请单
+    BIZ_DEBIT_APPLY("BIZ_DEBIT_APPLY","BIZ_DEBIT_APPLY","BizDebitApplyServiceImpl"),  //财务借支单申请单
     HR_APPLY_ATTENDANCE("HR_USER_APPLY_ATTENDANCE","HR_USER_APPLY_ATTENDANCE","HrUserApplyAttendanceServiceImpl"),//申请补卡
     HR_USER_APPLY_HOLIDAY("HR_USER_APPLY_HOLIDAY","HR_USER_APPLY_HOLIDAY","HrUserApplyHolidayServiceImpl"),//请假
     HR_APPLY_WORK_OT("HR_APPLY_WORK_OT","HR_APPLY_WORK_OT","HrApplyWorkOtServiceImpl"),//申请加班
