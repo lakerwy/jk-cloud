@@ -58,7 +58,7 @@ public class OpenImServiceImpl implements OpenImService {
                 return;
             }
             Map<String,Object> mapParam = new HashMap<>();
-            mapParam.put("parentId","1666651352106315777");
+            mapParam.put("parentId","0");
             String org = webServerClient.getOrgByMap(mapParam);
             JSONObject jsonObject = JSONUtil.parseObj(org);
             String data = jsonObject.getStr("data");
