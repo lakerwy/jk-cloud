@@ -127,7 +127,6 @@ public class BizFinCodeController {
 //    @SaCheckPermission("/biz/prj/finCode/genFinCode")
     @PostMapping("/biz/prj/finCode/genFinCode")
     public CommonResult<String> genFinCode(@RequestBody @Valid FinCodeParam finCodeParam) {
-        bizFinCodeService.genFinCode(finCodeParam);
-        return CommonResult.ok();
+        return CommonResult.data(bizFinCodeService.genFinCode(finCodeParam));
     }
 }
