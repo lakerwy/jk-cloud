@@ -157,7 +157,7 @@ public class DevDictController {
      * @author xuyuxiang
      * @date 2022/4/24 20:00
      */
-    @ApiOperationSupport(order = 7)
+    @ApiOperationSupport(order = 8)
     @ApiOperation("获取字典详情")
     @GetMapping("/dev/exp/getDictList")
     public CommonResult<List<ExpDict>> getDictList(@Valid ExpDictSearch expDictSearch) {
