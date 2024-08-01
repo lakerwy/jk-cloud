@@ -245,7 +245,7 @@ public class DevDictServiceImpl extends ServiceImpl<DevDictMapper, DevDict> impl
                 .thenComparing(ExpDict::getSortCode,Comparator.nullsLast(Comparator.naturalOrder())));
         List<ExpDict> result = expDictList;
         if(ObjectUtil.isNotEmpty(expDictSearch.getSearchKey())){
-            result.stream().filter(x->x.getParentDictLabel().contains(expDictSearch.getSearchKey())
+            result = result.stream().filter(x->x.getParentDictLabel().contains(expDictSearch.getSearchKey())
                     || x.getParentDictValue().contains(expDictSearch.getSearchKey())
                     || x.getDictLabel().contains(expDictSearch.getSearchKey())
                     || x.getDictValue().contains(expDictSearch.getSearchKey())).collect(Collectors.toList());
