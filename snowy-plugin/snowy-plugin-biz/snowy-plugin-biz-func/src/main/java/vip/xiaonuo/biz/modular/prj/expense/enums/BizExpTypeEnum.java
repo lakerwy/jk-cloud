@@ -12,10 +12,13 @@ import lombok.Getter;
 public enum BizExpTypeEnum {
 
     /** 费用报销单 */
-    FEE("费用报销单"),
+    FEE("FEE"),
 
     /** 差旅费用报销单 */
-    TRAFFIC_FEE("差旅费用报销单");
+    TRAFFIC_FEE("TRAFFIC"),
+
+    /** 借支单 */
+    DEBIT("DEBIT");
 
     private final String value;
 
