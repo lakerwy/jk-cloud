@@ -77,7 +77,9 @@ public class BizDebitApplyEditParam {
 
     /** 预计归还时间 */
     @ApiModelProperty(value = "预计归还时间", position = 13)
-    private String returnDate;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date returnDate;
 
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 14)
