@@ -15,8 +15,10 @@ package vip.xiaonuo.dev.modular.dict.service;
 import cn.hutool.core.lang.tree.Tree;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import vip.xiaonuo.dev.modular.dict.vo.ExpDict;
 import vip.xiaonuo.dev.modular.dict.entity.DevDict;
 import vip.xiaonuo.dev.modular.dict.param.*;
+import vip.xiaonuo.dev.modular.dict.vo.ExpDictSearch;
 
 import java.util.List;
 
@@ -91,4 +93,11 @@ public interface DevDictService extends IService<DevDict> {
      * @date 2022/4/24 21:18
      */
     DevDict queryEntity(String id);
+
+    /**
+     * 根据 字典 一级 DictValue 获取 二级内容（携带一级内容）
+     * @param expDictSearch
+     * @return
+     */
+    List<ExpDict> getDictList(ExpDictSearch expDictSearch);
 }

@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.prj.expense.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
@@ -12,6 +13,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.prj.expense.enums.BizDebitStatusEnum;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -74,13 +77,16 @@ public class BizDebitApplyServiceImpl extends ServiceImpl<BizDebitApplyMapper, B
         if(ObjectUtil.isNotEmpty(bizDebitApplyPageParam.getStatus())) {
             queryWrapper.lambda().eq(BizDebitApply::getStatus, bizDebitApplyPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizDebitApplyPageParam.getDebitStatus())){
+            queryWrapper.lambda().eq(BizDebitApply::getDebitStatus,bizDebitApplyPageParam.getDebitStatus());
+        }
         // 校验数据范围
-//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-//            queryWrapper.lambda().in(BizDebitApply::getDataScopeId, loginUserDataScope);
-//        } else {
-//            queryWrapper.lambda().eq(BizDebitApply::getCreateUser, StpUtil.getLoginIdAsString());
-//        }
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BizDebitApply::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BizDebitApply::getCreateUser, StpUtil.getLoginIdAsString());
+        }
         if(ObjectUtil.isNotEmpty(bizDebitApplyPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(BizDebitApply::getSn,bizDebitApplyPageParam.getSearchKey())
                     .or().like(BizDebitApply::getFinCode,bizDebitApplyPageParam.getSearchKey())
@@ -162,5 +168,19 @@ public class BizDebitApplyServiceImpl extends ServiceImpl<BizDebitApplyMapper, B
             throw new CommonException("财务管理 - 借支单 - 申请流程不存在，id值为：{}", id);
         }
         return bizDebitApply;
+    }
+
+    @Override
+    public void sure(BizDebitApplyIdParam bizDebitApplyIdParam) {
+        BizDebitApply bizDebitApply = this.queryEntity(bizDebitApplyIdParam.getId());
+        bizDebitApply.setDebitStatus(BizDebitStatusEnum.RETURN.getValue());
+        this.updateById(bizDebitApply);
+    }
+
+    @Override
+    public void cancel(BizDebitApplyIdParam bizDebitApplyIdParam) {
+        BizDebitApply bizDebitApply = this.queryEntity(bizDebitApplyIdParam.getId());
+        bizDebitApply.setDebitStatus(BizDebitStatusEnum.PRE_RETURN.getValue());
+        this.updateById(bizDebitApply);
     }
 }

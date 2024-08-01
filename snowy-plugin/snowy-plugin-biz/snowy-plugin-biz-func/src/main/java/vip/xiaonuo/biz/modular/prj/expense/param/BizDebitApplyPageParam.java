@@ -72,4 +72,8 @@ public class BizDebitApplyPageParam {
     @ApiModelProperty(value = "流程状态")
     private String status;
 
+    /** 借支 - 还款状态 0：待归还  1：已归还 */
+    @ApiModelProperty(value = "借支 - 还款状态 0：待归还  1：已归还")
+    private String debitStatus;
+
 }

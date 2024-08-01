@@ -14,6 +14,7 @@ package vip.xiaonuo.dev.modular.dict.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.lang.tree.Tree;
 import cn.hutool.core.lang.tree.TreeNode;
 import cn.hutool.core.lang.tree.TreeUtil;
@@ -36,8 +37,12 @@ import vip.xiaonuo.dev.modular.dict.enums.DevDictCategoryEnum;
 import vip.xiaonuo.dev.modular.dict.mapper.DevDictMapper;
 import vip.xiaonuo.dev.modular.dict.param.*;
 import vip.xiaonuo.dev.modular.dict.service.DevDictService;
+import vip.xiaonuo.dev.modular.dict.vo.ExpDict;
+import vip.xiaonuo.dev.modular.dict.vo.ExpDictSearch;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
@@ -198,6 +203,54 @@ public class DevDictServiceImpl extends ServiceImpl<DevDictMapper, DevDict> impl
             throw new CommonException("字典不存在，id值为：{}", id);
         }
         return devDict;
+    }
+
+    @Override
+    public List<ExpDict> getDictList(ExpDictSearch expDictSearch) {
+        //顶级 费用报销科目	FINCOST
+        QueryWrapper<DevDict> queryWrapper = new QueryWrapper();
+        queryWrapper.lambda().eq(DevDict::getCategory,DevDictCategoryEnum.BIZ.getValue());
+        queryWrapper.lambda().eq(DevDict::getDictValue,expDictSearch.getType());
+        queryWrapper.lambda().eq(DevDict::getParentId,"0");
+        queryWrapper.lambda().last(" limit 1 ");
+        DevDict topDevDict = this.getOne(queryWrapper);
+        //一级内容
+        QueryWrapper<DevDict> firstQueryWrapper = new QueryWrapper();
+        firstQueryWrapper.lambda().eq(DevDict::getCategory,DevDictCategoryEnum.BIZ.getValue());
+        firstQueryWrapper.lambda().eq(DevDict::getParentId,topDevDict.getId());
+        List<DevDict> firstDevDictList = this.list(firstQueryWrapper);
+        if(CollUtil.isEmpty(firstDevDictList)){
+            throw new CommonException("一级字典数据源缺失");
+        }
+        //二级内容
+        QueryWrapper<DevDict> secondQueryWrapper = new QueryWrapper();
+        secondQueryWrapper.lambda().eq(DevDict::getCategory,DevDictCategoryEnum.BIZ.getValue());
+        List<String> firstParentIds = firstDevDictList.stream().map(x->x.getId()).collect(Collectors.toList());
+        secondQueryWrapper.lambda().in(DevDict::getParentId,firstParentIds);
+        List<DevDict> secondDevDictList = this.list(secondQueryWrapper);
+        if(CollUtil.isEmpty(secondDevDictList)){
+            throw new CommonException("二级字典数据源缺失");
+        }
+        //构造结果集
+        List<ExpDict> expDictList = BeanUtil.copyToList(secondDevDictList,ExpDict.class);
+        expDictList.forEach(item->{
+            DevDict tmpDevDict = firstDevDictList.stream().filter(x -> x.getId().equals(item.getParentId())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(tmpDevDict)){
+                item.setParentDictLabel(tmpDevDict.getDictLabel());
+                item.setParentDictValue(tmpDevDict.getDictValue());
+                item.setParentSortCode(tmpDevDict.getSortCode());
+            }
+        });
+        expDictList.sort(Comparator.comparing(ExpDict::getParentSortCode,Comparator.nullsLast(Comparator.naturalOrder()))
+                .thenComparing(ExpDict::getSortCode,Comparator.nullsLast(Comparator.naturalOrder())));
+        List<ExpDict> result = expDictList;
+        if(ObjectUtil.isNotEmpty(expDictSearch.getSearchKey())){
+            result.stream().filter(x->x.getParentDictLabel().contains(expDictSearch.getSearchKey())
+                    || x.getParentDictValue().contains(expDictSearch.getSearchKey())
+                    || x.getDictLabel().contains(expDictSearch.getSearchKey())
+                    || x.getDictValue().contains(expDictSearch.getSearchKey())).collect(Collectors.toList());
+        }
+        return result;
     }
 
     @Override

@@ -99,4 +99,8 @@ public class BizDebitApplyAddParam {
     @ApiModelProperty(value = "入参信息", position = 26)
     private String extJson;
 
+    /** 借支 - 还款状态 0：待归还  1：已归还 */
+    @ApiModelProperty(value = "借支 - 还款状态 0：待归还  1：已归还", position = 27)
+    private String debitStatus;
+
 }

@@ -9,14 +9,17 @@ import lombok.Getter;
  * @date  2024/08/01 11:22
  **/
 @Getter
-public enum BizExpDevEnum {
+public enum BizDebitStatusEnum {
 
-    /** 测试 */
-    TEST("TEST");
+    /** 待归还 */
+    PRE_RETURN("0"),
+
+    /** 已归还 */
+    RETURN("1");
 
     private final String value;
 
-    BizExpDevEnum(String value) {
+    BizDebitStatusEnum(String value) {
         this.value = value;
     }
 }

@@ -48,7 +48,7 @@ public class BizDebitApplyController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取财务管理 - 借支单 - 申请流程分页")
-//    @SaCheckPermission("/biz/prj/debit/page")
+    @SaCheckPermission("/biz/prj/debit/page")
     @GetMapping("/biz/prj/debit/page")
     public CommonResult<Page<BizDebitApply>> page(BizDebitApplyPageParam bizDebitApplyPageParam) {
         return CommonResult.data(bizDebitApplyService.page(bizDebitApplyPageParam));
@@ -116,4 +116,38 @@ public class BizDebitApplyController {
     public CommonResult<BizDebitApply> detail(@Valid BizDebitApplyIdParam bizDebitApplyIdParam) {
         return CommonResult.data(bizDebitApplyService.detail(bizDebitApplyIdParam));
     }
+
+
+    /**
+     * 编辑财务管理 - 借支单 - 确认归还
+     *
+     * @author yong.ye
+     * @date  2024/07/30 15:33
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("编辑财务管理 - 借支单 - 确认归还")
+    @CommonLog("编辑财务管理 - 借支单 - 确认归还")
+//    @SaCheckPermission("/biz/prj/debit/sure")
+    @PostMapping("/biz/prj/debit/sure")
+    public CommonResult<String> sure(@RequestBody @Valid BizDebitApplyIdParam bizDebitApplyIdParam) {
+        bizDebitApplyService.sure(bizDebitApplyIdParam);
+        return CommonResult.ok();
+    }
+
+    /**
+     * 编辑财务管理 - 借支单 - 确认归还
+     *
+     * @author yong.ye
+     * @date  2024/07/30 15:33
+     */
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("编辑财务管理 - 借支单 - 确认归还")
+    @CommonLog("编辑财务管理 - 借支单 - 确认归还")
+//    @SaCheckPermission("/biz/prj/debit/cancel")
+    @PostMapping("/biz/prj/debit/cancel")
+    public CommonResult<String> cancel(@RequestBody @Valid BizDebitApplyIdParam bizDebitApplyIdParam) {
+        bizDebitApplyService.cancel(bizDebitApplyIdParam);
+        return CommonResult.ok();
+    }
+
 }
