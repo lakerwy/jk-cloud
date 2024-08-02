@@ -217,7 +217,7 @@ public class RabbitMsg {
                 urlStr.append(String.format("&currentActivityId=%s", currentActivityId));
             }
             if (StrUtil.isNotEmpty(flwType)) {
-                urlStr.append(String.format("&flwType=%s", flwType));
+                urlStr.append(String.format("&type=%s", flwType));
             }
             if(StrUtil.isNotEmpty(stateCode)){
                 urlStr.append(String.format("&stateCode=%s", stateCode));
