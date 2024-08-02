@@ -93,7 +93,7 @@ public class BizFinCodeServiceImpl extends ServiceImpl<BizFinCodeMapper, BizFinC
     }
 
     @Override
-    public String genFinCode(FinCodeParam finCodeParam) {
+    public synchronized String genFinCode(FinCodeParam finCodeParam) {
          BizFinCode preFinCode = this.getOne(new QueryWrapper<BizFinCode>().lambda()
                  .eq(BizFinCode::getCodePre,finCodeParam.getCodePre())
                  .eq(BizFinCode::getCodeYear,finCodeParam.getCodeYear())
