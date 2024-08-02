@@ -3,12 +3,10 @@ package vip.xiaonuo.biz.modular.prj.expense.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpApply;
-import vip.xiaonuo.biz.modular.prj.expense.param.BizExpApplyAddParam;
-import vip.xiaonuo.biz.modular.prj.expense.param.BizExpApplyEditParam;
-import vip.xiaonuo.biz.modular.prj.expense.param.BizExpApplyIdParam;
-import vip.xiaonuo.biz.modular.prj.expense.param.BizExpApplyPageParam;
+import vip.xiaonuo.biz.modular.prj.expense.param.*;
 import vip.xiaonuo.biz.modular.prj.expense.vo.BizExpApplyVo;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 /**
@@ -66,4 +64,11 @@ public interface BizExpApplyService extends IService<BizExpApply> {
      * @date  2024/07/30 15:26
      **/
     BizExpApply queryEntity(String id);
+
+
+    /**
+     * excel报表生成打印版
+     * @param excelParam
+     */
+    void genExcel(ExcelParam excelParam, HttpServletResponse response);
 }

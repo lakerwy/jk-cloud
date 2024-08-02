@@ -10,7 +10,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class ImgVo {
+public class ImgCell {
     /**
      * 图片设置信息
      *
@@ -25,7 +25,7 @@ public class ImgVo {
      */
     private WriteCellData<Void> image2;
 
-    public ImgVo(WriteCellData<Void> image1, WriteCellData<Void> image2) {
+    public ImgCell(WriteCellData<Void> image1, WriteCellData<Void> image2) {
         this.image1 = image1;
         this.image2 = image2;
     }

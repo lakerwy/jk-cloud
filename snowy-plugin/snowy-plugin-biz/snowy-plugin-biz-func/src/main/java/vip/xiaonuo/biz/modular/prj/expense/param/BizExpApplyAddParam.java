@@ -28,6 +28,10 @@ public class BizExpApplyAddParam {
     @ApiModelProperty(value = "报销类别", position = 2)
     private String expType;
 
+    /** 发起人 id */
+    @ApiModelProperty(value = "发起人 id", position = 2)
+    private String initorId;
+
     /** 发起人 */
     @ApiModelProperty(value = "发起人", position = 3)
     private String initor;

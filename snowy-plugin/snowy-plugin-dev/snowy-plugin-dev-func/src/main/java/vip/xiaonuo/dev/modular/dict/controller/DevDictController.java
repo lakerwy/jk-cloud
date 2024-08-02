@@ -26,9 +26,11 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
+import vip.xiaonuo.dev.modular.dict.vo.ExpDict;
 import vip.xiaonuo.dev.modular.dict.entity.DevDict;
 import vip.xiaonuo.dev.modular.dict.param.*;
 import vip.xiaonuo.dev.modular.dict.service.DevDictService;
+import vip.xiaonuo.dev.modular.dict.vo.ExpDictSearch;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -146,5 +148,19 @@ public class DevDictController {
     @GetMapping("/dev/dict/detail")
     public CommonResult<DevDict> detail(@Valid DevDictIdParam devDictIdParam) {
         return CommonResult.data(devDictService.detail(devDictIdParam));
+    }
+
+
+    /**
+     * 获取报销科目列表
+     *
+     * @author xuyuxiang
+     * @date 2022/4/24 20:00
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("获取报销科目列表")
+    @GetMapping("/dev/exp/getDictList")
+    public CommonResult<List<ExpDict>> getDictList(@Valid ExpDictSearch expDictSearch) {
+        return CommonResult.data(devDictService.getDictList(expDictSearch));
     }
 }

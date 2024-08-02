@@ -3,21 +3,39 @@ package vip.xiaonuo.biz.modular.prj.expense.service.impl;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.io.FileUtil;
+import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.ExcelWriter;
+import com.alibaba.excel.enums.CellDataTypeEnum;
+import com.alibaba.excel.metadata.data.ImageData;
+import com.alibaba.excel.metadata.data.WriteCellData;
+import com.alibaba.excel.write.metadata.WriteSheet;
+import com.alibaba.excel.write.metadata.fill.FillConfig;
+import com.alibaba.excel.write.metadata.fill.FillWrapper;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.metadata.style.WriteFont;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.apache.poi.ss.usermodel.BorderStyle;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpCost;
 import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpItem;
+import vip.xiaonuo.biz.modular.prj.expense.enums.BizExpTypeEnum;
+import vip.xiaonuo.biz.modular.prj.expense.param.*;
+import vip.xiaonuo.biz.modular.prj.expense.param.ExcelParam;
 import vip.xiaonuo.biz.modular.prj.expense.service.BizExpCostService;
 import vip.xiaonuo.biz.modular.prj.expense.service.BizExpItemService;
-import vip.xiaonuo.biz.modular.prj.expense.vo.BizExpApplyVo;
+import vip.xiaonuo.biz.modular.prj.expense.utils.MergeCellHandler;
+import vip.xiaonuo.biz.modular.prj.expense.vo.*;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -28,15 +46,17 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpApply;
 import vip.xiaonuo.biz.modular.prj.expense.mapper.BizExpApplyMapper;
-import vip.xiaonuo.biz.modular.prj.expense.param.BizExpApplyAddParam;
-import vip.xiaonuo.biz.modular.prj.expense.param.BizExpApplyEditParam;
-import vip.xiaonuo.biz.modular.prj.expense.param.BizExpApplyIdParam;
-import vip.xiaonuo.biz.modular.prj.expense.param.BizExpApplyPageParam;
 import vip.xiaonuo.biz.modular.prj.expense.service.BizExpApplyService;
+import vip.xiaonuo.common.util.CommonDownloadUtil;
 import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
+import java.io.File;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -276,4 +296,250 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
         }
         return bizExpApply;
     }
+
+    @Override
+    public void genExcel(ExcelParam excelParam ,HttpServletResponse response) {
+        try {
+            // 定义没有分隔符的日期时间格式化器
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+            // 将当前日期时间格式化为字符串
+            String dateStr = LocalDateTime.now().format(formatter);
+            // 定义导出excel文件路径
+            String outputFileName = FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR + excelParam.getReportType() + "_" + dateStr + ".xlsx";
+
+            // 分类处理
+            if (BizExpTypeEnum.FEE.getValue().equals(excelParam.getReportType())) {
+                ClassPathResource classPathResource = new ClassPathResource("FeeTemplate.xlsx");
+                String templateFileName = classPathResource.getAbsolutePath();
+                FeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), FeeExcelData.class);
+                if(ObjectUtil.isNotEmpty(excelData) && ObjectUtil.isNotEmpty(excelData.getExpDate())){
+                    excelData.setYear(String.valueOf(excelData.getExpDate().getYear()));
+                    excelData.setMonth(String.valueOf(excelData.getExpDate().getMonth()));
+                    excelData.setDay(String.valueOf(excelData.getExpDate().getDate()));
+                }
+                if(ObjectUtil.isNotEmpty(excelData) && !excelData.getExptor().equals(excelData.getInitor())) {
+                    excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                }
+                // 使用 EasyExcel 填充数据
+                ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
+                FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+                //费用报销单
+                List<MergeCell> feeMergeList = new ArrayList<>();
+                //firstRow:模版行（因为模版行已合并）  lastRow:合并结束行
+                int firstRow = 3;
+                feeMergeList.add(new MergeCell(firstRow, excelData.getItemList().size() + firstRow - 1, 1, 3));
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(feeMergeList)).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.fill(new FillWrapper("data1", excelData.getItemList()), fillConfig, sheet1);
+                excelWriter.fill(new FillWrapper("data2", excelData.getCostList()), fillConfig, sheet1);
+                excelWriter.finish();
+
+            } else if (BizExpTypeEnum.TRAFFIC_FEE.getValue().equals(excelParam.getReportType())) {
+                ClassPathResource classPathResource = new ClassPathResource("TrafficTemplate.xlsx");
+                String templateFileName = classPathResource.getAbsolutePath();
+                TripExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), TripExcelData.class);
+                if(ObjectUtil.isNotEmpty(excelData) && ObjectUtil.isNotEmpty(excelData.getExpDate())){
+                    excelData.setYear(String.valueOf(excelData.getExpDate().getYear()));
+                    excelData.setMonth(String.valueOf(excelData.getExpDate().getMonth()));
+                    excelData.setDay(String.valueOf(excelData.getExpDate().getDate()));
+                }
+                if(ObjectUtil.isNotEmpty(excelData) && !excelData.getExptor().equals(excelData.getInitor())) {
+                    excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                }
+                // 使用 EasyExcel 填充数据
+                ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
+                FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+                //差旅费报销单
+                List<MergeCell> tripMergeList = new ArrayList<>();
+                //firstRow:模版行（因为模版行已合并）  lastRow:合并结束行
+                int firstRow = 13 + excelData.getItemList().size() - 1;
+                tripMergeList.add(new MergeCell(firstRow, (excelData.getCostList().size() + firstRow - 1), 0, 1));
+                tripMergeList.add(new MergeCell(firstRow, (excelData.getCostList().size() + firstRow - 1), 2, 3));
+                tripMergeList.add(new MergeCell(firstRow, (excelData.getCostList().size() + firstRow - 1), 4, 8));
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).registerWriteHandler(new MergeCellHandler(tripMergeList)).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.fill(new FillWrapper("data1", excelData.getItemList()), fillConfig, sheet1);
+                excelWriter.fill(new FillWrapper("data2", excelData.getCostList()), fillConfig, sheet1);
+                excelWriter.finish();
+
+            } else if (BizExpTypeEnum.DEBIT.getValue().equals(excelParam.getReportType())) {
+                ClassPathResource classPathResource = new ClassPathResource("DebitTemplate.xlsx");
+                String templateFileName = classPathResource.getAbsolutePath();
+                DebitExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), DebitExcelData.class);
+                if(ObjectUtil.isNotEmpty(excelData) && ObjectUtil.isNotEmpty(excelData.getExpDate())){
+                    excelData.setYear(String.valueOf(excelData.getExpDate().getYear()));
+                    excelData.setMonth(String.valueOf(excelData.getExpDate().getMonth()));
+                    excelData.setDay(String.valueOf(excelData.getExpDate().getDate()));
+                }
+                if(ObjectUtil.isNotEmpty(excelData) && !excelData.getBorrower().equals(excelData.getInitor())) {
+                    excelData.setDebitSign(excelData.getInitor()+"代"+excelData.getBorrower()+"借支");
+                }
+                // 使用 EasyExcel 填充数据
+                ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
+                //借支单
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.finish();
+
+            } else {
+                throw new CommonException("不支持的报表类型");
+            }
+            File tempFile = FileUtil.file(outputFileName);
+            CommonDownloadUtil.download(tempFile, response);
+        }catch (Exception e){
+            throw new CommonException(e.getMessage());
+        }
+    }
+
+
+
+
+
+    /**
+     * 模版填充 FeeReportTemplate.xlsx 各类尝试
+     */
+    public void genExcelTest() {  //ExcelParam excelParam, HttpServletResponse response
+
+        ClassPathResource classPathResource = new ClassPathResource("FeeReportTemplate.xlsx");
+        String templateFileName  = classPathResource.getAbsolutePath();
+        String outputFileName = FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR + "报销测试.xlsx";
+
+        FeeExcelData feeExcel = new FeeExcelData();
+        TripExcelData tripExcel = new TripExcelData();
+        DebitExcelData debitExcel = new DebitExcelData();
+
+        // 使用 EasyExcel 填充数据
+        try {
+            ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
+            FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
+            //费用报销单
+            List<MergeCell> feeMergeList = new ArrayList<>();
+            //firstRow:模版行（因为模版行已合并）  lastRow:合并结束行
+            int firstRow = 3;
+            feeMergeList.add(new MergeCell(firstRow,feeExcel.getItemList().size()+firstRow-1,1,3));
+            WriteSheet sheet1 = EasyExcel.writerSheet(1).registerWriteHandler(new MergeCellHandler(feeMergeList)).build();
+            excelWriter.fill(feeExcel,sheet1);
+            excelWriter.fill(new FillWrapper("data1", feeExcel.getItemList()),fillConfig, sheet1);
+            excelWriter.fill(new FillWrapper("data2", feeExcel.getCostList()),fillConfig, sheet1);
+
+            //差旅费报销单
+            List<MergeCell> tripMergeList = new ArrayList<>();
+            //firstRow:模版行（因为模版行已合并）  lastRow:合并结束行
+            firstRow = 13 + tripExcel.getItemList().size()-1;
+            tripMergeList.add(new MergeCell(firstRow,(tripExcel.getCostList().size()+firstRow-1),0,1));
+            tripMergeList.add(new MergeCell(firstRow,(tripExcel.getCostList().size()+firstRow-1),2,3));
+            tripMergeList.add(new MergeCell(firstRow,(tripExcel.getCostList().size()+firstRow-1),4,8));
+            WriteSheet sheet2 = EasyExcel.writerSheet(2).registerWriteHandler(new MergeCellHandler(tripMergeList)).build();
+            excelWriter.fill(tripExcel,sheet2);
+            excelWriter.fill(new FillWrapper("data1", tripExcel.getItemList()),fillConfig, sheet2);
+            excelWriter.fill(new FillWrapper("data2", tripExcel.getCostList()),fillConfig, sheet2);
+
+            //借支单
+            WriteSheet sheet3 = EasyExcel.writerSheet(3).build();
+            excelWriter.fill(debitExcel,sheet3);
+
+            //手机截图
+            WriteCellStyle writeCellStyle = new WriteCellStyle();
+            writeCellStyle.setVerticalAlignment(VerticalAlignment.TOP);
+            writeCellStyle.setBorderLeft(BorderStyle.THIN);
+            writeCellStyle.setBorderTop(BorderStyle.THIN);
+            writeCellStyle.setBorderRight(BorderStyle.THIN);
+            writeCellStyle.setBorderBottom(BorderStyle.THIN);
+            //设置 自动换行
+            writeCellStyle.setWrapped(true);
+            // 字体策略
+            WriteFont contentWriteFont = new WriteFont();
+            // 字体大小
+            contentWriteFont.setFontHeightInPoints((short) 11);
+            contentWriteFont.setFontName("宋体");
+            contentWriteFont.setBold(true);
+            writeCellStyle.setWriteFont(contentWriteFont);
+
+            /** 图1 **/
+            List<ImageData> imageDataList1 = new ArrayList<>();
+            ImageData imageData1 = new ImageData();
+            imageData1.setImage(FileUtil.readBytes("C:\\Users\\yezi\\Desktop\\img\\1.png"));
+            imageData1.setTop(40);
+            imageData1.setBottom(20);
+            imageData1.setLeft(10);
+            imageData1.setRight(10);
+            imageDataList1.add(imageData1);
+            /** 单元格中填充文字和图片 **/
+            WriteCellData<Void> writeCellData1 = new WriteCellData<>();
+            writeCellData1.setWriteCellStyle(writeCellStyle);
+            writeCellData1.setImageDataList(imageDataList1);
+            writeCellData1.setType(CellDataTypeEnum.STRING);
+            writeCellData1.setStringValue("说明：张工和昌盛集团小王吃饭");
+
+            /** 图2 **/
+            List<ImageData> imageDataList2 = new ArrayList<>();
+            ImageData imageData2 = new ImageData();
+            imageData2.setImage(FileUtil.readBytes("C:\\Users\\yezi\\Desktop\\img\\2.jpeg"));
+            imageData2.setTop(40);
+            imageData2.setBottom(20);
+            imageData2.setLeft(10);
+            imageData2.setRight(10);
+            imageDataList2.add(imageData2);
+            /** 单元格中填充文字和图片 **/
+            WriteCellData<Void> writeCellData2 = new WriteCellData<>();
+            writeCellData2.setWriteCellStyle(writeCellStyle);
+            writeCellData2.setImageDataList(imageDataList2);
+            writeCellData2.setType(CellDataTypeEnum.STRING);
+            writeCellData2.setStringValue("说明：张工和昌盛集团小王吃饭张工和昌盛集团小王吃饭");
+
+            /** list 单元格中填充文字和图片 **/
+            List<ImgCell> imgList1 = new ArrayList<>();
+            imgList1.add(new ImgCell(writeCellData1,writeCellData1));
+            imgList1.add(new ImgCell(writeCellData2,writeCellData2));
+            imgList1.add(new ImgCell(writeCellData1,writeCellData2));
+            WriteSheet sheet4 = EasyExcel.writerSheet(4).build();
+            excelWriter.fill(new FillWrapper("data", imgList1),fillConfig, sheet4);
+
+            //发票
+            /** 图1 **/
+            List<ImageData> imageDataList11 = new ArrayList<>();
+            ImageData imageData11 = new ImageData();
+            imageData11.setImage(FileUtil.readBytes("C:\\Users\\yezi\\Desktop\\img\\2.jpeg"));
+            imageData11.setTop(40);
+            imageData11.setBottom(20);
+            imageData11.setLeft(10);
+            imageData11.setRight(10);
+            imageDataList11.add(imageData11);
+            /** 单元格中填充文字和图片 **/
+            WriteCellData<Void> writeCellData11 = new WriteCellData<>();
+            writeCellData11.setWriteCellStyle(writeCellStyle);
+            writeCellData11.setImageDataList(imageDataList11);
+            writeCellData11.setType(CellDataTypeEnum.STRING);
+            writeCellData11.setStringValue("说明：张工和昌盛集团小王吃饭张工和昌盛集团小王吃饭");
+            /** 图2 **/
+            List<ImageData> imageDataList12 = new ArrayList<>();
+            ImageData imageData12 = new ImageData();
+            imageData12.setImage(FileUtil.readBytes("C:\\Users\\yezi\\Desktop\\img\\3.png"));
+            imageData12.setTop(40);
+            imageData12.setBottom(20);
+            imageData12.setLeft(10);
+            imageData12.setRight(10);
+            imageDataList12.add(imageData12);
+            /** 单元格中填充文字和图片 **/
+            WriteCellData<Void> writeCellData12 = new WriteCellData<>();
+            writeCellData12.setWriteCellStyle(writeCellStyle);
+            writeCellData12.setImageDataList(imageDataList12);
+            writeCellData12.setType(CellDataTypeEnum.STRING);
+            writeCellData12.setStringValue("说明：张工和昌盛集团小王吃饭");
+            /** list 单元格中填充文字和图片 **/
+            List<ImgCell> imgList2 = new ArrayList<>();
+            imgList2.add(new ImgCell(writeCellData11,null));
+            imgList2.add(new ImgCell(writeCellData12,null));
+            imgList2.add(new ImgCell(writeCellData11,null));
+            WriteSheet sheet5 = EasyExcel.writerSheet(5).build();
+            excelWriter.fill(new FillWrapper("data", imgList2),fillConfig, sheet5);
+
+            excelWriter.finish();
+
+        }catch (Exception e){
+            System.console().printf(e.getMessage());
+
+        }
+    }
+
 }

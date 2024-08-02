@@ -5,17 +5,17 @@ import com.alibaba.excel.write.merge.AbstractMergeStrategy;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.ss.util.RegionUtil;
-import vip.xiaonuo.biz.modular.prj.expense.vo.MergeCellParam;
+import vip.xiaonuo.biz.modular.prj.expense.vo.MergeCell;
 
 import java.util.List;
 
 public class MergeCellHandler extends AbstractMergeStrategy {
 
     /** list 表格所有的合并列集合 */
-    private List<MergeCellParam> mergeCellParamList = null;
+    private List<MergeCell> mergeCellList = null;
 
-    public MergeCellHandler(List<MergeCellParam> mergeCellParamList){
-        this.mergeCellParamList = mergeCellParamList;
+    public MergeCellHandler(List<MergeCell> mergeCellList){
+        this.mergeCellList = mergeCellList;
     }
 
 
@@ -38,22 +38,22 @@ public class MergeCellHandler extends AbstractMergeStrategy {
         if(relativeRowIndex == null || relativeRowIndex == 0){
             return;
         }
-        mergeColumn(cell,this.mergeCellParamList);
+        mergeColumn(cell,this.mergeCellList);
 
     }
 
     /**
      * 合并单元格 从 firstRow 到 lastRow ，按列合并 firstCol 到 lastCol
      * @param cell 当前单元格
-     * @param mergeCellParamList 合并设置
+     * @param mergeCellList 合并设置
      */
-    private void mergeColumn(Cell cell, List<MergeCellParam> mergeCellParamList){
+    private void mergeColumn(Cell cell, List<MergeCell> mergeCellList){
         //当前单元格所在行和列
         int rowIndex = cell.getRowIndex();
         //获取单元格所在sheet
         Sheet sheet = cell.getSheet();
         //循环处理合并项
-        mergeCellParamList.forEach(item->{
+        mergeCellList.forEach(item->{
             //参数合法校验|是否满足合并设置|firstRow模版行（已合并）
             if(item.getLastRow() < item.getFirstRow() || item.getLastCol() < item.getFirstCol()
                || rowIndex <= item.getFirstRow() || rowIndex > item.getLastRow()){

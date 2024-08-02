@@ -77,7 +77,9 @@ public class BizDebitApplyEditParam {
 
     /** 预计归还时间 */
     @ApiModelProperty(value = "预计归还时间", position = 13)
-    private String returnDate;
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date returnDate;
 
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 14)
@@ -103,4 +105,7 @@ public class BizDebitApplyEditParam {
     @ApiModelProperty(value = "入参信息", position = 26)
     private String extJson;
 
+    /** 借支 - 还款状态 0：待归还  1：已归还 */
+    @ApiModelProperty(value = "借支 - 还款状态 0：待归还  1：已归还", position = 27)
+    private String debitStatus;
 }

@@ -65,4 +65,16 @@ public interface BizDebitApplyService extends IService<BizDebitApply> {
      * @date  2024/07/30 15:33
      **/
     BizDebitApply queryEntity(String id);
+
+    /**
+     * 确认归还
+     * @param bizDebitApplyIdParam
+     */
+    void sure(BizDebitApplyIdParam bizDebitApplyIdParam);
+
+    /**
+     * 取消归还确认
+     * @param bizDebitApplyIdParam
+     */
+    void cancel(BizDebitApplyIdParam bizDebitApplyIdParam);
 }

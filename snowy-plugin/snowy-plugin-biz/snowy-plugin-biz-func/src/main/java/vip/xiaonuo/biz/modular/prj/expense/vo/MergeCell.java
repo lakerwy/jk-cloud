@@ -11,7 +11,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class MergeCellParam {
+public class MergeCell {
 
     /**
      * excel中需要合并模式：
@@ -39,7 +39,7 @@ public class MergeCellParam {
      */
     private int lastCol;
 
-    public MergeCellParam(int firstRow, int lastRow, int firstCol, int lastCol) {
+    public MergeCell(int firstRow, int lastRow, int firstCol, int lastCol) {
         this.firstRow = firstRow;
         this.lastRow = lastRow;
         this.firstCol = firstCol;
