@@ -116,14 +116,14 @@ public class BizFinCodeController {
 
 
     /**
-     * 删除财务管理 - 费用报销 - 财务收单编码库 - 生成编码
+     * 费用报销 - 财务收单编码库 - 生成编码
      *
      * @author yong.ye
      * @date  2024/08/01 11:21
      */
     @ApiOperationSupport(order = 6)
-    @ApiOperation("删除财务管理 - 费用报销 - 财务收单编码库 - 生成编码")
-    @CommonLog("删除财务管理 - 费用报销 - 财务收单编码库 - 生成编码")
+    @ApiOperation("费用报销 - 财务收单编码库 - 生成编码")
+    @CommonLog("费用报销 - 财务收单编码库 - 生成编码")
 //    @SaCheckPermission("/biz/prj/finCode/genFinCode")
     @PostMapping("/biz/prj/finCode/genFinCode")
     public CommonResult<String> genFinCode(@RequestBody @Valid FinCodeParam finCodeParam) {
