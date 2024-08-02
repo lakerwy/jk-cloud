@@ -36,14 +36,7 @@ import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstanceQuery;
-import org.camunda.bpm.engine.impl.RepositoryServiceImpl;
-import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
-import org.camunda.bpm.engine.impl.persistence.entity.ProcessDefinitionEntity;
-import org.camunda.bpm.engine.impl.pvm.PvmActivity;
-import org.camunda.bpm.engine.impl.pvm.PvmTransition;
-import org.camunda.bpm.engine.impl.pvm.process.ActivityImpl;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
-import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.task.Comment;
 import org.camunda.bpm.engine.task.Task;
 import org.camunda.bpm.model.bpmn.BpmnModelInstance;
@@ -52,8 +45,6 @@ import org.camunda.bpm.model.bpmn.instance.Process;
 import org.camunda.bpm.model.bpmn.instance.*;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
-import org.camunda.bpm.model.xml.instance.ModelElementInstance;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
@@ -89,7 +80,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
-import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -1129,6 +1119,7 @@ public class NodeRuntimeUtil {
                                 taskMap.put("initiatorName",String.valueOf(delegateExecution.getVariable("initiatorName")));
                                 taskMap.put("processDefinitionId",delegateExecution.getProcessDefinitionId());
                                 taskMap.put("currentActivityId",delegateExecution.getCurrentActivityId());
+                                taskMap.put("flwType",FlwCacheConstant.FlwType.TODO);
 //                                taskMap.put("noticeType",noticeType);
                             }else {
                                 processInstanceId = delegateTask.getProcessInstanceId();
@@ -1142,6 +1133,7 @@ public class NodeRuntimeUtil {
                                     taskMap.put("initiatorProcessSn",String.valueOf(map.get("initiatorProcessSn")));
                                     taskMap.put("initiatorTime",String.valueOf(map.get("initiatorTime")));
                                     taskMap.put("initiatorName",String.valueOf(map.get("initiatorName")));
+                                    taskMap.put("flwType",FlwCacheConstant.FlwType.DONE);
                                 }else if(noticeType.equals("URGE")){
                                     Map<String, Object> map = getMap(processInstanceId);
                                     taskMap.put("initiatorProcessTitle",String.valueOf(map.get("initiatorProcessTitle")));
@@ -1149,19 +1141,23 @@ public class NodeRuntimeUtil {
                                     taskMap.put("initiatorProcessSn",String.valueOf(map.get("initiatorProcessSn")));
                                     taskMap.put("initiatorTime",String.valueOf(map.get("initiatorTime")));
                                     taskMap.put("initiatorName",String.valueOf(map.get("initiatorName")));
+                                    taskMap.put("flwType",FlwCacheConstant.FlwType.TODO);
                                 }else {
                                     taskMap.put("initiatorProcessTitle", String.valueOf(delegateTask.getVariable("initiatorProcessTitle")));
                                     taskMap.put("initiatorProcessAbstract", String.valueOf(delegateTask.getVariable("initiatorProcessAbstract")));
                                     taskMap.put("initiatorProcessSn", String.valueOf(delegateTask.getVariable("initiatorProcessSn")));
                                     taskMap.put("initiatorTime", String.valueOf(delegateTask.getVariable("initiatorTime")));
                                     taskMap.put("initiatorName", String.valueOf(delegateTask.getVariable("initiatorName")));
+                                    taskMap.put("flwType",FlwCacheConstant.FlwType.TODO);
                                 }
                                 taskMap.put("processDefinitionId", delegateTask.getProcessDefinitionId());
                                 taskMap.put("currentActivityId", delegateTask.getTaskDefinitionKey());
 //                                taskId = delegateTask.getId();
                             }
 //                            taskMap.put("noticeType", transfer(processInstanceId,noticeType,taskId));
-                            taskMap.put("status",transfer(processInstanceId,noticeType,delegateExecution));
+                            transfer(processInstanceId,noticeType,delegateExecution,taskMap);
+                            //taskMap.put("status",transfer(processInstanceId,noticeType,delegateExecution));
+
                             taskMap.put("noticeType",noticeType);
                             devMessageApi.sendMessage(finalParticipateUserIdList, processNoticeTemplateFormat,processInstanceId,taskMap);
                             log.info("给" + finalParticipateUserIdList + "发送内容为：" + processNoticeTemplateFormat + "的MSG");
@@ -1667,6 +1663,7 @@ public class NodeRuntimeUtil {
                     baseInfo.append(delegateTask.getVariable("initiatorName")).append("发起的").append(o).append("审批流程在您的审批节点还未处理，请及时处理");
                     jsonObject.set(FlwCacheConstant.FLW_BASE_INFO,baseInfo);
                     jsonObject.set(FlwCacheConstant.FLW_SN,delegateTask.getVariable("initiatorProcessSn"));
+                    jsonObject.set(FlwCacheConstant.FLW_TYPE,FlwCacheConstant.FlwType.TODO);
                     RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
                     rabbitMsg.setTitle("【审批通知】");
                     rabbitMsg.setUserSets(new HashSet<>(participateUserIdList));
@@ -1743,19 +1740,23 @@ public class NodeRuntimeUtil {
     }
 
 
-    public static  String transfer(String processInstanceId, String noticeType, DelegateExecution delegateExecution) {
-        String result = null;
+    public static  void transfer(String processInstanceId, String noticeType, DelegateExecution delegateExecution,Map<String,String> taskMap) {
         if(noticeType.equals("COMPLETE")){
-            return "已完成";
+            taskMap.put("status","已完成");
+            taskMap.put("stateCode","COMPLETE");
+            return;
         }
         if(noticeType.equals("REJECT")){
-            return "已拒绝";
+            taskMap.put("status","已拒绝");
+            taskMap.put("stateCode","REJECT");
+            return;
         }
         HistoryService historyService = SpringUtil.getBean(HistoryService.class);
         HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(processInstanceId)
                 .orderByProcessInstanceStartTime().desc().singleResult();
         if(null == historicProcessInstance){
-            return "审批中";
+            taskMap.put("status","审批中");
+            return;
         }
         String state = historicProcessInstance.getState();
         String deleteReason = historicProcessInstance.getDeleteReason();
@@ -1763,39 +1764,41 @@ public class NodeRuntimeUtil {
             EndNodeCheck endNodeCheck = SpringUtil.getBean(EndNodeCheck.class);
             state = endNodeCheck.nextTaskIsEnd(delegateExecution)?"COMPLETED":state;
         }
-
+        String status = null;
         switch (state) {
             case "ACTIVE":
-                result = "审批中";
+                status = "审批中";
                 break;
             case "SUSPENDED":
-                result = "已挂起";
+                status = "已挂起";
                 break;
             case "COMPLETED":
-                result = "已完成";
+                status = "已完成";
                 break;
             case "EXTERNALLY_TERMINATED":
                 switch (deleteReason) {
                     case "END":
-                        result = "已终止";
+                        status = "已终止";
                         break;
                     case "REVOKE":
-                        result = "已撤回";
+                        status = "已撤回";
                         break;
                     case "REJECT":
-                        result = "已拒绝";
+                        status = "已拒绝";
                         break;
                     default:
                         break;
                 }
                 break;
             case "INTERNALLY_TERMINATED":
-                result = "内部终止";
+                status = "内部终止";
                 break;
             default:
                 break;
         }
-        return result;
+        taskMap.put("status",status);
+        taskMap.put("stateCode",state);
+        taskMap.put("id",historicProcessInstance.getId());
     }
 
     private static Collection<SequenceFlow> getOutgoingFlows(BpmnModelInstance bpmnModel, FlowElement flowElement) {

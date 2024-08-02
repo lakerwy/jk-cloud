@@ -125,10 +125,24 @@ public class DevMessageServiceImpl extends ServiceImpl<DevMessageMapper, DevMess
         jsonObject.set(FlwCacheConstant.FLW_START_TIME,initiatorTime);
         Object o1 = taskMap.get("status");
         jsonObject.set(FlwCacheConstant.FLW_STATUS,o1);
+        jsonObject.set(FlwCacheConstant.STATE_CODE,taskMap.get("stateCode"));
         jsonObject.set(FlwCacheConstant.FLE_PROCESS_INSTANCE_ID,processInstanceId);
 //        if(o1.toString().equals("COMPLETE")){
 //            jsonObject.set(FlwCacheConstant.FLW_STATUS,"已完成");
 //        }
+        String id = taskMap.get("id");
+        if(StrUtil.isNotBlank(id)){
+            jsonObject.set(FlwCacheConstant.FLW_ID,id);
+        }
+        String flwType = taskMap.get("flwType");
+        if(ObjectUtil.isNotEmpty(flwType)){
+            jsonObject.set(FlwCacheConstant.FLW_TYPE,flwType);
+        }
+        String currentActivityId = taskMap.get("currentActivityId");
+        if(StrUtil.isNotEmpty(currentActivityId)){
+            jsonObject.set(FlwCacheConstant.CURRENT_ACTIVITY_ID,currentActivityId);
+        }
+
         String msgType = "通用通知";
         String s = taskMap.get("noticeType");
         if(StrUtil.isNotEmpty(s)){

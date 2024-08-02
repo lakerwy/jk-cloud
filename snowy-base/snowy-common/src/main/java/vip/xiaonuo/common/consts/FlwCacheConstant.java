@@ -16,6 +16,8 @@ public class FlwCacheConstant {
 
     public static final String CACHE_FLW_MODEL_ID_KEY = CACHE_FLW_KEY_PREFIX+"MODEL_ID_";
 
+    public static final String FLW_ID = "flw_Id";
+
     /**
      * 流程名称
      */
@@ -57,6 +59,19 @@ public class FlwCacheConstant {
     public static final String TIPS = "tips";
 
     /**
+     * 流程类型---todo done copy
+     */
+    public static final String FLW_TYPE = "flw_type";
+
+    /**
+     * 当前节点值
+     */
+    //currentActivityId
+    public static final String CURRENT_ACTIVITY_ID = "currentActivityId";
+
+    public static final String STATE_CODE = "stateCode";
+
+    /**
      * 分享抄送通知人
      */
     public static final String CARBON_NOTIFICATION_NAME = "carbon_notification_name";
@@ -76,4 +91,10 @@ public class FlwCacheConstant {
     public static  final String FLW_URGE_HOURS = "24";
 
     public static  final String BIZ_VISIT_KEY = "biz_visit_expire";
+
+    public static class FlwType{
+        public static final String TODO = "todo";
+
+        public static final String DONE = "done";
+    }
 }
