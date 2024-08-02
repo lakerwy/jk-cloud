@@ -208,7 +208,24 @@ public class RabbitMsg {
         }
         String processInstanceId = jsonObject.getStr(FlwCacheConstant.FLE_PROCESS_INSTANCE_ID);
         if(StrUtil.isNotEmpty(processInstanceId)){
-            builder.url(processInstanceId);
+            StringBuilder urlStr = new StringBuilder(String.format("?processInstanceId=%s", processInstanceId));
+            String currentActivityId = jsonObject.getStr(FlwCacheConstant.CURRENT_ACTIVITY_ID);
+            String flwType = jsonObject.getStr(FlwCacheConstant.FLW_TYPE);
+            String stateCode = jsonObject.getStr(FlwCacheConstant.STATE_CODE);
+            String flwId = jsonObject.getStr(FlwCacheConstant.FLW_ID);
+            if (StrUtil.isNotEmpty(currentActivityId)) {
+                urlStr.append(String.format("&currentActivityId=%s", currentActivityId));
+            }
+            if (StrUtil.isNotEmpty(flwType)) {
+                urlStr.append(String.format("&flwType=%s", flwType));
+            }
+            if(StrUtil.isNotEmpty(stateCode)){
+                urlStr.append(String.format("&stateCode=%s", stateCode));
+            }
+            if(StrUtil.isNotEmpty(flwId)){
+                urlStr.append(String.format("&id=%s", flwId));
+            }
+            builder.url(urlStr.toString());
         }
         return builder.build();
     }
