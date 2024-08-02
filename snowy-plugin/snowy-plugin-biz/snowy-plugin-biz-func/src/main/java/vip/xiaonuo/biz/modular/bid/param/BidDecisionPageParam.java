@@ -76,4 +76,12 @@ public class BidDecisionPageParam {
     @ApiModelProperty(value = "流程 状态")
     private String status;
 
+    /** 申请部门 */
+    @ApiModelProperty(value = "申请部门")
+    private String dept;
+
+    /** 项目承接部门 */
+    @ApiModelProperty(value = "项目承接部门")
+    private String acceptDept;
+
 }

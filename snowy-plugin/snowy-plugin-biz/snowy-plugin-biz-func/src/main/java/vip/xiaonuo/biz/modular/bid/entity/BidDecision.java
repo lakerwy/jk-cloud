@@ -193,4 +193,26 @@ public class BidDecision {
     /** 入参信息 */
     @ApiModelProperty(value = "入参信息", position = 38)
     private String extJson;
+
+    /**************************** 投标决策二期 *********************************/
+
+    /** 申请部门Id */
+    @ApiModelProperty(value = "申请部门Id", position = 41)
+    private String deptId;
+
+    /** 申请部门 */
+    @ApiModelProperty(value = "申请部门", position = 42)
+    private String dept;
+
+    /** 项目承接部门 */
+    @ApiModelProperty(value = "项目承接部门", position = 43)
+    private String acceptDept;
+
+    /** 责任上缴比例 */
+    @ApiModelProperty(value = "责任上缴比例", position = 44)
+    private String rate;
+
+    /** 承接工作内容 */
+    @ApiModelProperty(value = "承接工作内容", position = 45)
+    private String jobContent;
 }
