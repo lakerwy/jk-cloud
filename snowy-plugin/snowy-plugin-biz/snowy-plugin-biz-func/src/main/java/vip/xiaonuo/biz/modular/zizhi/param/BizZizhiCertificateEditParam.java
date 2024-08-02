@@ -79,4 +79,8 @@ public class BizZizhiCertificateEditParam {
     /** 附件 */
     @ApiModelProperty(value = "附件", position = 17)
     private String attachment;
+
+    /** 排序码 */
+    @ApiModelProperty(value = "排序码", position = 18)
+    private Integer sortCode;
 }

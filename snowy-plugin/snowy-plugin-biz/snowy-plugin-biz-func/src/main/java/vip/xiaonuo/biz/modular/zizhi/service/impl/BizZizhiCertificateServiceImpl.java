@@ -88,7 +88,7 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
             queryWrapper.orderBy(true, bizZizhiCertificatePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizZizhiCertificatePageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.sortIndex").orderByAsc("a.COMPANY").orderByAsc("a.TYPE").orderByAsc("a.ZI_ZHI_NAME");
+            queryWrapper.orderByAsc("a.SORT_CODE").orderByAsc("a.sortIndex").orderByAsc("a.COMPANY").orderByAsc("a.TYPE").orderByAsc("a.ZI_ZHI_NAME");
         }
         return bizZizhiCertificateMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
