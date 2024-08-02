@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.prj.expense.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -27,11 +28,14 @@ import org.apache.poi.ss.usermodel.BorderStyle;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.prj.expense.entity.BizDebitApply;
 import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpCost;
 import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpItem;
 import vip.xiaonuo.biz.modular.prj.expense.enums.BizExpTypeEnum;
 import vip.xiaonuo.biz.modular.prj.expense.param.*;
 import vip.xiaonuo.biz.modular.prj.expense.param.ExcelParam;
+import vip.xiaonuo.biz.modular.prj.expense.service.BizDebitApplyService;
 import vip.xiaonuo.biz.modular.prj.expense.service.BizExpCostService;
 import vip.xiaonuo.biz.modular.prj.expense.service.BizExpItemService;
 import vip.xiaonuo.biz.modular.prj.expense.utils.MergeCellHandler;
@@ -54,7 +58,10 @@ import vip.xiaonuo.flw.api.FlwCommonApi;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -77,9 +84,12 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
     private BizExpItemService bizExpItemService;
     @Resource
     private BizExpCostService bizExpCostService;
+    @Resource
+    private BizDebitApplyService bizDebitApplyService;
     @Override
     public Page<BizExpApplyVo> page(BizExpApplyPageParam bizExpApplyPageParam) {
         QueryWrapper<BizExpApply> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(BizExpApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getExpType())) {
             queryWrapper.lambda().eq(BizExpApply::getExpType, bizExpApplyPageParam.getExpType());
         }
@@ -107,13 +117,13 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
         if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getStatus())) {
             queryWrapper.lambda().eq(BizExpApply::getStatus, bizExpApplyPageParam.getStatus());
         }
-//        // 校验数据范围
-//        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
-//        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-//            queryWrapper.lambda().in(BizExpApply::getDataScopeId, loginUserDataScope);
-//        } else {
-//            queryWrapper.lambda().eq(BizExpApply::getCreateUser, StpUtil.getLoginIdAsString());
-//        }
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BizExpApply::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BizExpApply::getCreateUser, StpUtil.getLoginIdAsString());
+        }
         if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(BizExpApply::getSn,bizExpApplyPageParam.getSearchKey())
                     .or().like(BizExpApply::getInitor,bizExpApplyPageParam.getSearchKey())
@@ -380,7 +390,6 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
                 excelWriter.fill(excelData, sheet1);
                 excelWriter.finish();
-
             } else {
                 throw new CommonException("不支持的报表类型");
             }
@@ -391,9 +400,109 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
         }
     }
 
+    @Override
+    public List<BizExpData> totalPage(BizExpTotalSearch search) {
+        if(ObjectUtil.isNotEmpty(search.getType())){
+            throw new CommonException("请选择类型");
+        }
+        LocalDate startDate = null;
+        LocalDate endDate = null;
+        if(ObjectUtil.isNotEmpty(search.getYearMonth())){
+            YearMonth yearMonth = YearMonth.parse(search.getYearMonth(), DateTimeFormatter.ofPattern("yyyy-MM"));
+            YearMonth nextYearMonth = yearMonth.plusMonths(1);
+            startDate = yearMonth.atDay(1);
+            endDate = nextYearMonth.atDay(1);
+        }
+        //借支单
+        if(BizExpTypeEnum.DEBIT.getValue().equals(search.getType())){
+            QueryWrapper<BizDebitApply> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().in(BizDebitApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+            if(ObjectUtil.isNotEmpty(search.getYearMonth())){
+                queryWrapper.lambda().between(BizDebitApply::getExpDate,startDate,endDate);
+            }
+            if(ObjectUtil.isNotEmpty(search.getUnit())){
+                queryWrapper.lambda().eq(BizDebitApply::getUnit,search.getUnit());
+            }
+            if(ObjectUtil.isNotEmpty(search.getSearchKey())){
+                queryWrapper.lambda().like(BizDebitApply::getBorrower,search.getSearchKey());
+            }
+            queryWrapper.lambda().orderByAsc(BizDebitApply::getUnit).orderByAsc(BizDebitApply::getBorrower);
+            List<BizDebitApply> dataList = bizDebitApplyService.list(queryWrapper);
+            //结果集
+            List<BizExpData> result = new ArrayList<>();
+            if(CollUtil.isNotEmpty(dataList)){
+                dataList.forEach(item->{
+                    BizExpData bizExpData = new BizExpData();
+                    bizExpData.setUnit(item.getUnit());
+                    bizExpData.setDept(item.getDept());
+                    bizExpData.setExpDate(item.getExpDate());
+                    bizExpData.setExptor(item.getBorrower());
+                    bizExpData.setLowFeeTotal(item.getLowAmount());
+                    BigDecimal empTotal = BigDecimal.ZERO;
+                    List<String> tmpEmpList = dataList.stream().filter(x->item.getUnit().equals(x.getUnit()) && item.getDept().equals(x.getDept()) && item.getBorrower().equals(x.getBorrower())).map(x->x.getLowAmount()).collect(Collectors.toList());
+                    List<String> tmpUnitList = dataList.stream().filter(x->item.getUnit().equals(x.getUnit())).map(x->x.getLowAmount()).collect(Collectors.toList());
+                    bizExpData.setEmpTotal(sumTotal(tmpEmpList).toString());
+                    bizExpData.setUnitTotal(sumTotal(tmpUnitList).toString());
+                    result.add(bizExpData);
+                });
+            }
+            return result;
+        }else{
+            //报销单
+            QueryWrapper<BizExpApply> queryWrapper = new QueryWrapper<>();
+            queryWrapper.lambda().in(BizExpApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue());
+            queryWrapper.lambda().eq(BizExpApply::getExpType,search.getType());
+            if(ObjectUtil.isNotEmpty(search.getYearMonth())){
+                queryWrapper.lambda().between(BizExpApply::getExpDate,startDate,endDate);
+            }
+            if(ObjectUtil.isNotEmpty(search.getUnit())){
+                queryWrapper.lambda().eq(BizExpApply::getUnit,search.getUnit());
+            }
+            if(ObjectUtil.isNotEmpty(search.getSearchKey())){
+                queryWrapper.lambda().like(BizExpApply::getExptor,search.getSearchKey());
+            }
+            queryWrapper.lambda().orderByAsc(BizExpApply::getUnit).orderByAsc(BizExpApply::getExptor);
+            List<BizExpApply> dataList = this.list(queryWrapper);
+            //结果集
+            List<BizExpData> result = new ArrayList<>();
+            if(CollUtil.isNotEmpty(dataList)){
+                dataList.forEach(item->{
+                    BizExpData bizExpData = new BizExpData();
+                    bizExpData.setUnit(item.getUnit());
+                    bizExpData.setDept(item.getDept());
+                    bizExpData.setExpDate(item.getExpDate());
+                    bizExpData.setExptor(item.getExptor());
+                    bizExpData.setLowFeeTotal(item.getLowFeeTotal());
+                    BigDecimal empTotal = BigDecimal.ZERO;
+                    List<String> tmpEmpList = dataList.stream().filter(x->item.getUnit().equals(x.getUnit()) && item.getDept().equals(x.getDept()) && item.getExptor().equals(x.getExptor())).map(x->x.getLowFeeTotal()).collect(Collectors.toList());
+                    List<String> tmpUnitList = dataList.stream().filter(x->item.getUnit().equals(x.getUnit())).map(x->x.getLowFeeTotal()).collect(Collectors.toList());
+                    bizExpData.setEmpTotal(sumTotal(tmpEmpList).toString());
+                    bizExpData.setUnitTotal(sumTotal(tmpUnitList).toString());
+                    result.add(bizExpData);
+                });
+            }
+            return result;
+        }
+    }
 
-
-
+    /**
+     * BigDecimal 求和
+     * @param data
+     * @return
+     */
+    public BigDecimal sumTotal(List<String> data){
+        BigDecimal sum = BigDecimal.ZERO;
+        try {
+            for (String item:data) {
+                BigDecimal tmpAdd = new BigDecimal(item);
+                sum = sum.add(tmpAdd);
+            }
+            return sum;
+        }catch (Exception e){
+            sum = BigDecimal.ZERO;
+        }
+        return sum;
+    }
 
     /**
      * 模版填充 FeeReportTemplate.xlsx 各类尝试

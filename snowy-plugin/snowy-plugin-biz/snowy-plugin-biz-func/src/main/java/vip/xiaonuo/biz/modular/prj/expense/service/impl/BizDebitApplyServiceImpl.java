@@ -53,6 +53,7 @@ public class BizDebitApplyServiceImpl extends ServiceImpl<BizDebitApplyMapper, B
     @Override
     public Page<BizDebitApply> page(BizDebitApplyPageParam bizDebitApplyPageParam) {
         QueryWrapper<BizDebitApply> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(BizDebitApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizDebitApplyPageParam.getInitor())) {
             queryWrapper.lambda().like(BizDebitApply::getInitor, bizDebitApplyPageParam.getInitor());
         }

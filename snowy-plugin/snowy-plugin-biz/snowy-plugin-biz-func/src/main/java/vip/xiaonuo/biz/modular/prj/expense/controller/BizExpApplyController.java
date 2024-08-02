@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.prj.expense.param.*;
 import vip.xiaonuo.biz.modular.prj.expense.vo.BizExpApplyVo;
+import vip.xiaonuo.biz.modular.prj.expense.vo.BizExpData;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
@@ -22,6 +23,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
+import java.util.List;
 
 /**
  * 财务管理 - 费用报销|差旅费用报销 - 申请流程控制器
@@ -46,7 +48,7 @@ public class BizExpApplyController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取财务管理 - 费用报销|差旅费用报销 - 申请流程分页")
-//    @SaCheckPermission("/biz/prj/exp/page")
+    @SaCheckPermission("/biz/prj/exp/page")
     @GetMapping("/biz/prj/exp/page")
     public CommonResult<Page<BizExpApplyVo>> page(BizExpApplyPageParam bizExpApplyPageParam) {
         return CommonResult.data(bizExpApplyService.page(bizExpApplyPageParam));
@@ -128,5 +130,20 @@ public class BizExpApplyController {
     @GetMapping("/biz/prj/exp/genExcel")
     public void genExcel(@Valid ExcelParam excelParam, HttpServletResponse response) {
         bizExpApplyService.genExcel(excelParam,response);
+    }
+
+
+    /**
+     * 获取财务管理 - 报销统计
+     *
+     * @author yong.ye
+     * @date  2024/07/30 15:26
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("获取财务管理 - 报销统计")
+//    @SaCheckPermission("/biz/prj/exp/totalPage")
+    @GetMapping("/biz/prj/exp/totalPage")
+    public CommonResult<List<BizExpData>> totalPage(BizExpTotalSearch search) {
+        return CommonResult.data(bizExpApplyService.totalPage(search));
     }
 }

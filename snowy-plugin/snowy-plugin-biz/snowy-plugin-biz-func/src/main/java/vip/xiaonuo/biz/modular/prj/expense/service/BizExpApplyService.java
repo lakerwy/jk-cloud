@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpApply;
 import vip.xiaonuo.biz.modular.prj.expense.param.*;
 import vip.xiaonuo.biz.modular.prj.expense.vo.BizExpApplyVo;
+import vip.xiaonuo.biz.modular.prj.expense.vo.BizExpData;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -71,4 +72,11 @@ public interface BizExpApplyService extends IService<BizExpApply> {
      * @param excelParam
      */
     void genExcel(ExcelParam excelParam, HttpServletResponse response);
+
+    /**
+     * 报销|借支单 统计
+     * @param search
+     * @return
+     */
+    List<BizExpData> totalPage(BizExpTotalSearch search);
 }
