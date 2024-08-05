@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.ObjectUtil;
@@ -39,6 +40,8 @@ import vip.xiaonuo.biz.modular.prj.expense.service.BizDebitApplyService;
 import vip.xiaonuo.biz.modular.prj.expense.service.BizExpCostService;
 import vip.xiaonuo.biz.modular.prj.expense.service.BizExpItemService;
 import vip.xiaonuo.biz.modular.prj.expense.utils.MergeCellHandler;
+import vip.xiaonuo.biz.modular.prj.expense.utils.MyDateUtils;
+import vip.xiaonuo.biz.modular.prj.expense.utils.MyDecimalUtils;
 import vip.xiaonuo.biz.modular.prj.expense.vo.*;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
@@ -64,6 +67,7 @@ import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -322,13 +326,16 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                 ClassPathResource classPathResource = new ClassPathResource("FeeTemplate.xlsx");
                 String templateFileName = classPathResource.getAbsolutePath();
                 FeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), FeeExcelData.class);
-                if(ObjectUtil.isNotEmpty(excelData) && ObjectUtil.isNotEmpty(excelData.getExpDate())){
-                    excelData.setYear(String.valueOf(excelData.getExpDate().getYear()));
-                    excelData.setMonth(String.valueOf(excelData.getExpDate().getMonth()));
-                    excelData.setDay(String.valueOf(excelData.getExpDate().getDate()));
-                }
-                if(ObjectUtil.isNotEmpty(excelData) && !excelData.getExptor().equals(excelData.getInitor())) {
-                    excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                if(ObjectUtil.isNotEmpty(excelData)){
+                    if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
+                        excelData.setYearMonthDay(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
+                    }
+                    excelData.setLowFeeTotalQian(MyDecimalUtils.getQian(excelData.getLowFeeTotal()));
+                    excelData.setTaxCostTotalQian(MyDecimalUtils.getQian(excelData.getTaxCostTotal()));
+                    excelData.setLowCostTotalQian(MyDecimalUtils.getQian(excelData.getLowCostTotal()));
+                    if(!excelData.getExptor().equals(excelData.getInitor())){
+                        excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                    }
                 }
                 // 使用 EasyExcel 填充数据
                 ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
@@ -348,13 +355,16 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                 ClassPathResource classPathResource = new ClassPathResource("TrafficTemplate.xlsx");
                 String templateFileName = classPathResource.getAbsolutePath();
                 TripExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), TripExcelData.class);
-                if(ObjectUtil.isNotEmpty(excelData) && ObjectUtil.isNotEmpty(excelData.getExpDate())){
-                    excelData.setYear(String.valueOf(excelData.getExpDate().getYear()));
-                    excelData.setMonth(String.valueOf(excelData.getExpDate().getMonth()));
-                    excelData.setDay(String.valueOf(excelData.getExpDate().getDate()));
-                }
-                if(ObjectUtil.isNotEmpty(excelData) && !excelData.getExptor().equals(excelData.getInitor())) {
-                    excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                if(ObjectUtil.isNotEmpty(excelData)){
+                    if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
+                        excelData.setYearMonthDay(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
+                    }
+                    excelData.setLowFeeTotalQian(MyDecimalUtils.getQian(excelData.getLowFeeTotal()));
+                    excelData.setTaxCostTotalQian(MyDecimalUtils.getQian(excelData.getTaxCostTotal()));
+                    excelData.setLowCostTotalQian(MyDecimalUtils.getQian(excelData.getLowCostTotal()));
+                    if(!excelData.getExptor().equals(excelData.getInitor())){
+                        excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                    }
                 }
                 // 使用 EasyExcel 填充数据
                 ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
@@ -376,13 +386,17 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                 ClassPathResource classPathResource = new ClassPathResource("DebitTemplate.xlsx");
                 String templateFileName = classPathResource.getAbsolutePath();
                 DebitExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), DebitExcelData.class);
-                if(ObjectUtil.isNotEmpty(excelData) && ObjectUtil.isNotEmpty(excelData.getExpDate())){
-                    excelData.setYear(String.valueOf(excelData.getExpDate().getYear()));
-                    excelData.setMonth(String.valueOf(excelData.getExpDate().getMonth()));
-                    excelData.setDay(String.valueOf(excelData.getExpDate().getDate()));
-                }
-                if(ObjectUtil.isNotEmpty(excelData) && !excelData.getBorrower().equals(excelData.getInitor())) {
-                    excelData.setDebitSign(excelData.getInitor()+"代"+excelData.getBorrower()+"借支");
+                if(ObjectUtil.isNotEmpty(excelData)){
+                    if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
+                        excelData.setYearMonthDay(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
+                    }
+                    excelData.setLowAmountQian(MyDecimalUtils.getQian(excelData.getLowAmount()));
+                    if(!excelData.getBorrower().equals(excelData.getInitor())){
+                        excelData.setDebitSign(excelData.getInitor()+"代"+excelData.getBorrower()+"借支");
+                    }
+                    if(ObjectUtil.isNotEmpty(excelData.getReturnDate())){
+                        excelData.setReturnDateStr(MyDateUtils.getYearMonthDay2(excelData.getReturnDate()));
+                    }
                 }
                 // 使用 EasyExcel 填充数据
                 ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();

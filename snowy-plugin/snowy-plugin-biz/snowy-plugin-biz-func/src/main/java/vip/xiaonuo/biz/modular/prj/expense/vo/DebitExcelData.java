@@ -69,20 +69,19 @@ public class DebitExcelData {
 
     /****************************************************************/
 
-    /** 借支单 - 年 */
-    @ApiModelProperty(value = "借支单 - 年", position = 36)
-    private String year;
-
-    /** 借支单 - 月 */
-    @ApiModelProperty(value = "借支单 - 月", position = 37)
-    private String month;
-
-    /** 借支单 - 日 */
-    @ApiModelProperty(value = "借支单 - 日", position = 38)
-    private String day;
+    /** 借支单 - 年月日 */
+    @ApiModelProperty(value = "借支单 - 年月日", position = 36)
+    private String yearMonthDay;
 
     /** 借支单 - 报销人 */
-    @ApiModelProperty(value = "借支单 - 报销人", position = 39)
+    @ApiModelProperty(value = "借支单 - 报销人", position = 37)
     private String debitSign;
 
+    /** 人民币（小写）-千分位 */
+    @ApiModelProperty(value = "人民币（小写）-千分位 ", position = 38)
+    private String lowAmountQian;
+
+    /** 预计归还时间-年月日格式化 */
+    @ApiModelProperty(value = "预计归还时间-年月日格式化", position = 39)
+    private String returnDateStr;
 }

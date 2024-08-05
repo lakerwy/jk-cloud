@@ -86,7 +86,7 @@ public class FeeExcelData {
     private String taxCostTotal;
 
     /** 成本一览表-总计金额（小写） */
-    @ApiModelProperty(value = "成本一览表-总计金额（小写）", position = 19)
+    @ApiModelProperty(value = "成本一览表-总计金额（大写）", position = 19)
     private String upCostTotal;
 
     /** 成本一览表-总计金额（小写） */
@@ -103,21 +103,23 @@ public class FeeExcelData {
     @ApiModelProperty(value = "成本一览表 - 集合", position = 35)
     private List<BizExpCost> costList;
 
-
-    /** 费用报销单 - 年 */
-    @ApiModelProperty(value = "费用报销单 - 年", position = 36)
-    private String year;
-
-    /** 费用报销单 - 月 */
-    @ApiModelProperty(value = "费用报销单 - 月", position = 37)
-    private String month;
-
-    /** 费用报销单 - 日 */
-    @ApiModelProperty(value = "费用报销单 - 日", position = 38)
-    private String day;
+    /** 费用报销单 - 年月日 */
+    @ApiModelProperty(value = "费用报销单 - 年月日", position = 36)
+    private String yearMonthDay;
 
     /** 费用报销单 - 报销人 */
-    @ApiModelProperty(value = "费用报销单 - 报销人", position = 39)
+    @ApiModelProperty(value = "费用报销单 - 报销人", position = 37)
     private String expSign;
 
+    /** 费用明细-总计金额（小写）-千分位 */
+    @ApiModelProperty(value = "费用明细-总计金额（小写）-千分位", position = 38)
+    private String lowFeeTotalQian;
+
+    /** 成本一览表-总计进项税额-千分位 */
+    @ApiModelProperty(value = "成本一览表-总计进项税额-千分位", position = 39)
+    private String taxCostTotalQian;
+
+    /** 成本一览表-总计金额（小写）-千分位 */
+    @ApiModelProperty(value = "成本一览表-总计金额（小写）-千分位", position = 40)
+    private String lowCostTotalQian;
 }

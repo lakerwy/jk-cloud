@@ -127,8 +127,8 @@ public class BizExpApplyController {
     @ApiOperationSupport(order = 99)
     @ApiOperation("业务表-费用报销 - 生成打印Excel")
     @CommonLog("业务表-费用报销 - 生成打印Excel")
-    @GetMapping("/biz/prj/exp/genExcel")
-    public void genExcel(@Valid ExcelParam excelParam, HttpServletResponse response) {
+    @PostMapping("/biz/prj/exp/genExcel")
+    public void genExcel(@RequestBody @Valid ExcelParam excelParam, HttpServletResponse response) {
         bizExpApplyService.genExcel(excelParam,response);
     }
 
