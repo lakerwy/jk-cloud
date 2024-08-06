@@ -72,4 +72,9 @@ public class BranchBankInfo {
     @ApiModelProperty(value = "更新用户", position = 12)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 数据权限控制字段 */
+    @ApiModelProperty(value = "数据权限控制字段", position = 13)
+    @TableField(fill = FieldFill.INSERT)
+    private String dataScopeId;
 }
