@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -25,6 +26,8 @@ import java.util.List;
  * @author yong.ye
  * @date  2024/08/01 11:21
  **/
+
+@DS("slave_1")
 @Service
 public class BizFinCodeServiceImpl extends ServiceImpl<BizFinCodeMapper, BizFinCode> implements BizFinCodeService {
 

@@ -78,8 +78,8 @@ public class BizDebitApply {
 
     /** 预计归还时间 */
     @ApiModelProperty(value = "预计归还时间", position = 13)
-    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
-    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd HH:mm:ss")
+    @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date returnDate;
 
     /** 附件 */
