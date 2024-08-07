@@ -51,10 +51,6 @@ public class BranchAllotmentApplyEditParam {
     @ApiModelProperty(value = "出纳登记账户余额", position = 9)
     private BigDecimal realBalance;
 
-    /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 15)
-    private String dataScopeId;
-
     /** SN流水号 */
     @ApiModelProperty(value = "SN流水号", position = 16)
     private String sn;
