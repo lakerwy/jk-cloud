@@ -964,6 +964,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 String operateType = commonObject.getStr("OPERATE_TYPE");
                 if(NodeApproveOperateTypeEnum.COMMENT.getValue().equals(operateType)){
                     flwProcessComment.setTaskName("评论");
+                    flwProcessComment.setCommentId(taskComment.getId());
                 }else {
                     flwProcessComment.setTaskName(historicTaskInstance.getName());
                 }
@@ -991,6 +992,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             String operateType = commonObject.getStr("OPERATE_TYPE");
             if(NodeApproveOperateTypeEnum.COMMENT.getValue().equals(operateType)){
                 flwProcessComment.setTaskName("评论");
+                flwProcessComment.setCommentId(taskComment.getId());
             }else {
                 flwProcessComment.setTaskName(historicTaskInstanceList.get(0).getName());
             }

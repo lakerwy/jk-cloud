@@ -341,4 +341,18 @@ public class FlwTaskController {
     public CommonResult<String> getFlwDiagram(@Valid FlwProcessInstanceIdParam flwProcessInstanceIdParam) {
         return CommonResult.data(flwTaskService.getFlwDiagram(flwProcessInstanceIdParam));
     }
+
+
+    /**
+     * 删除评论
+     *
+     */
+    @ApiOperationSupport(order = 66)
+    @ApiOperation("删除评论")
+    @CommonLog("删除评论")
+    @PostMapping("/flw/task/deleteComment")
+    public CommonResult<String> deleteComment(String commentId) {
+        flwTaskService.deleteComment(commentId);
+        return CommonResult.ok();
+    }
 }

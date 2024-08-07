@@ -194,4 +194,10 @@ public interface FlwTaskService {
     FlwTaskInfoResult getOneByProcessInstanceId(FlwProcessInstanceIdParam flwProcessInstanceIdParam);
 
     String getFlwDiagram(FlwProcessInstanceIdParam flwProcessInstanceIdParam);
+
+    /**
+     * 删除评论
+     * @param commentId
+     */
+    void deleteComment(String commentId);
 }

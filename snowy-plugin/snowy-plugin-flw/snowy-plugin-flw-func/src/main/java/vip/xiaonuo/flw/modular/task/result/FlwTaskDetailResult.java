@@ -116,5 +116,9 @@ public class FlwTaskDetailResult {
         /** 审批耗时，最小单位：分钟 */
         @ApiModelProperty(value = "审批耗时，最小单位：分钟", position = 11)
         private String approveExpendHours;
+
+        /** 评论-主键id */
+        @ApiModelProperty(value = "评论-主键id", position = 12)
+        private String commentId;
     }
 }

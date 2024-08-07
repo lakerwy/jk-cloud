@@ -32,6 +32,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.*;
+import org.camunda.bpm.engine.impl.persistence.entity.CommentManager;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.Execution;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -74,6 +75,7 @@ import vip.xiaonuo.flw.modular.process.result.FlwProcessDetailResult;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
+import vip.xiaonuo.flw.modular.task.mapper.TaskCommentMapper;
 import vip.xiaonuo.flw.modular.task.param.*;
 import vip.xiaonuo.flw.modular.task.result.*;
 import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
@@ -141,6 +143,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Resource
     FlwModelService flwModelService;
+
+    @Resource
+    private TaskCommentMapper taskCommentMapper;
 
     /**
      * 快捷输入的保存key
@@ -1140,6 +1145,11 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             return getProcessDiagramBase64FromInstance(historicProcessInstance);
         }
         return null;
+    }
+
+    @Override
+    public void deleteComment(String commentId) {
+        taskCommentMapper.deleteCommentsById(commentId);
     }
 
     private String getProcessDiagramBase64FromInstance(Object processInstance) {
