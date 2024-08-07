@@ -74,6 +74,9 @@
 
         <!--oa工具插件-->
         <module>snowy-plugin-oa</module>
+
+        <!--iot工具插件-->
+        <module>snowy-plugin-iot</module>
     </modules>
 
 </project>

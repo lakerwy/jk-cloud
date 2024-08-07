@@ -35,6 +35,8 @@
 
         <!--oa办公组件-->
         <module>snowy-oa-app</module>
+
+        <module>snowy-iot-app</module>
     </modules>
 
 </project>

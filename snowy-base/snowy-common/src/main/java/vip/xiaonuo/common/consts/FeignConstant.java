@@ -25,4 +25,6 @@ public final class FeignConstant {
 
     public static final String OA_APP = "snowy-oa-app";
 
+    public static final String IOT_APP = "snowy-iot-app";
+
 }

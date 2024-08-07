@@ -1,0 +1,18 @@
+mqtt:
+  hostUrl: tcp://10.0.33.90:1883
+  username: admin
+  password: public
+  ## 服务端 clientId (发送端自己定义)
+  clientId: iot-client
+  cleanSession: true
+  reconnect: true
+  timeout: 100
+  keepAlive: 100
+  defaultTopic: smartHouse/24173233
+  deviceTopic: device/#
+  qos: 1
+  offCronExpression: "0 30 17 ? * MON-FRI" #工作日每天17:30关灯
+  onCronExpression: "0 10 08 ? * MON-FRI" #工作日每天8:10开灯
+#  offCronExpression: "0 23 15 ? * MON-FRI"
+#  onCronExpression: "0 27 15 ? * MON-FRI"
+  enable: false  #是否开启正式环境
