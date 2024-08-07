@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -34,6 +35,7 @@ import java.util.List;
  * @author pzh
  * @date  2024/08/05 11:46
  **/
+@DS("slave_1")
 @Service
 public class BranchBankInfoServiceImpl extends ServiceImpl<BranchBankInfoMapper, BranchBankInfo> implements BranchBankInfoService {
 
@@ -46,7 +48,7 @@ public class BranchBankInfoServiceImpl extends ServiceImpl<BranchBankInfoMapper,
                     .or().like(BranchBankInfo::getBankAccount,branchBankInfoPageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(branchBankInfoPageParam.getBalanceUpdateTime())){
-            LocalDate date = LocalDate.parse(branchBankInfoPageParam.getBalanceUpdateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss"));
+            LocalDate date = LocalDate.parse(branchBankInfoPageParam.getBalanceUpdateTime(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
 
             // 将 LocalDate 转换为 LocalDateTime，并设置时间为当天的开始时间（00:00:00）
             LocalDateTime startOfDay = date.atStartOfDay();

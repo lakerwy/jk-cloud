@@ -61,8 +61,4 @@ public class BranchPaymentInfoAddParam {
     @ApiModelProperty(value = "备注", position = 13)
     private String memo;
 
-    /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 19)
-    private String dataScopeId;
-
 }

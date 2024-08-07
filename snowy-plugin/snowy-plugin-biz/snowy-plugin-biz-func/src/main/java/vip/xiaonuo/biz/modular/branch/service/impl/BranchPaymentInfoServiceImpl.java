@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -29,6 +30,7 @@ import java.util.List;
  * @author pzh
  * @date  2024/08/06 14:03
  **/
+@DS("slave_1")
 @Service
 public class BranchPaymentInfoServiceImpl extends ServiceImpl<BranchPaymentInfoMapper, BranchPaymentInfo> implements BranchPaymentInfoService {
 
