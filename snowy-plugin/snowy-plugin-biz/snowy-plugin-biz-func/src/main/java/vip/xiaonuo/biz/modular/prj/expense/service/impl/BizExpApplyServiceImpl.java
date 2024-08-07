@@ -4,7 +4,6 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.io.resource.ClassPathResource;
 import cn.hutool.core.util.ObjectUtil;
@@ -61,13 +60,14 @@ import vip.xiaonuo.flw.api.FlwCommonApi;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.YearMonth;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -313,6 +313,8 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
 
     @Override
     public void genExcel(ExcelParam excelParam ,HttpServletResponse response) {
+        ExcelWriter excelWriter = null;
+        InputStream inputStream = null;
         try {
             // 定义没有分隔符的日期时间格式化器
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
@@ -320,11 +322,10 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
             String dateStr = LocalDateTime.now().format(formatter);
             // 定义导出excel文件路径
             String outputFileName = FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR + excelParam.getReportType() + "_" + dateStr + ".xlsx";
-
             // 分类处理
             if (BizExpTypeEnum.FEE.getValue().equals(excelParam.getReportType())) {
                 ClassPathResource classPathResource = new ClassPathResource("FeeTemplate.xlsx");
-                String templateFileName = classPathResource.getAbsolutePath();
+                inputStream = classPathResource.getStream();
                 FeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), FeeExcelData.class);
                 if(ObjectUtil.isNotEmpty(excelData)){
                     if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
@@ -338,7 +339,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                     }
                 }
                 // 使用 EasyExcel 填充数据
-                ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
                 FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
                 //费用报销单
                 List<MergeCell> feeMergeList = new ArrayList<>();
@@ -353,7 +354,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
 
             } else if (BizExpTypeEnum.TRAFFIC_FEE.getValue().equals(excelParam.getReportType())) {
                 ClassPathResource classPathResource = new ClassPathResource("TrafficTemplate.xlsx");
-                String templateFileName = classPathResource.getAbsolutePath();
+                inputStream = classPathResource.getStream();
                 TripExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), TripExcelData.class);
                 if(ObjectUtil.isNotEmpty(excelData)){
                     if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
@@ -367,7 +368,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                     }
                 }
                 // 使用 EasyExcel 填充数据
-                ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
                 FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
                 //差旅费报销单
                 List<MergeCell> tripMergeList = new ArrayList<>();
@@ -384,7 +385,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
 
             } else if (BizExpTypeEnum.DEBIT.getValue().equals(excelParam.getReportType())) {
                 ClassPathResource classPathResource = new ClassPathResource("DebitTemplate.xlsx");
-                String templateFileName = classPathResource.getAbsolutePath();
+                inputStream = classPathResource.getStream();
                 DebitExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), DebitExcelData.class);
                 if(ObjectUtil.isNotEmpty(excelData)){
                     if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
@@ -399,7 +400,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                     }
                 }
                 // 使用 EasyExcel 填充数据
-                ExcelWriter excelWriter = EasyExcel.write(outputFileName).withTemplate(templateFileName).build();
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
                 //借支单
                 WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
                 excelWriter.fill(excelData, sheet1);
@@ -411,6 +412,18 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
             CommonDownloadUtil.download(tempFile, response);
         }catch (Exception e){
             throw new CommonException(e.getMessage());
+        }finally {
+            // 关闭流
+            if(excelWriter != null){
+                excelWriter.close();
+            }
+            if(inputStream != null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
         }
     }
 
