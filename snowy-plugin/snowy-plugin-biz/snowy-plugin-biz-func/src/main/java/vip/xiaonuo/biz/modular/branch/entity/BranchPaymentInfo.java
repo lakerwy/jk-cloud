@@ -103,5 +103,6 @@ public class BranchPaymentInfo {
 
     /** 数据权限控制字段 */
     @ApiModelProperty(value = "数据权限控制字段", position = 25)
+    @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 }

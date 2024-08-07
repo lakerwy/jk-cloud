@@ -185,9 +185,8 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
             }
 
         }catch (Exception e){
+            decrementActiveTaskCountSafely();
             throw new CommonException("部门或白名单解析失败.");
-        }finally {
-            activeTaskCount.decrementAndGet();
         }
 
         CompletableFuture.runAsync(() -> {
@@ -198,11 +197,17 @@ public class BizJzscMohurdServiceImpl extends ServiceImpl<BizJzscMohurdMapper, B
             } catch (Exception e) {
                 log.error("异步任务执行失败", e);
             } finally {
-                activeTaskCount.decrementAndGet();
+                decrementActiveTaskCountSafely();
             }
         }, executor);
     }
 
+    private void decrementActiveTaskCountSafely() {
+        if (activeTaskCount.get() > 0) {
+            activeTaskCount.decrementAndGet();
+        }
+
+    }
     @Override
     public Boolean syncStatus() {
         int i = activeTaskCount.get();
