@@ -4,25 +4,32 @@
 
     <select id="getChildren" resultType="vip.xiaonuo.sys.modular.org.entity.SysOrg">
         SELECT
-            a.*
+        a.*
         FROM
-            (
-                SELECT
-                    @ids AS _ids,
-                    ( SELECT @ids := GROUP_CONCAT( id ) FROM SYS_ORG WHERE FIND_IN_SET( PARENT_ID, @ids ) ) AS cids,
-            @l := @l + 1 AS LEVEL
+        (
+        SELECT
+        @ids AS _ids,
+        (
+        SELECT
+        @ids := GROUP_CONCAT(id)
         FROM
-            SYS_ORG,
-            ( SELECT @ids := ${orgId}, @l := 0 ) b
+        SYS_ORG
         WHERE
-            @ids IS NOT NULL
-            ) b,
-            SYS_ORG a
+        FIND_IN_SET(PARENT_ID, @ids COLLATE utf8mb4_general_ci)
+        ) AS cids,
+        @l := @l + 1 AS LEVEL
+        FROM
+        SYS_ORG,
+        (SELECT @ids := '${orgId}', @l := 0) b
         WHERE
-            FIND_IN_SET( a.id, b._ids )
+        @ids IS NOT NULL
+        ) b,
+        SYS_ORG a
+        WHERE
+        FIND_IN_SET(a.id, b._ids COLLATE utf8mb4_general_ci)
         ORDER BY
-            LEVEL,
-            id
+        LEVEL,
+        id
     </select>
 
     <select id="getNewAllOrgList" resultType="vip.xiaonuo.sys.modular.org.entity.SysOrg">

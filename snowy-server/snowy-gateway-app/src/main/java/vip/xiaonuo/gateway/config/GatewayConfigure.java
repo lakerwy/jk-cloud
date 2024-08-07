@@ -90,6 +90,7 @@ public class GatewayConfigure {
             "/api/flwapp/v2/api-docs",
             "/api/procureapp/v2/api-docs",
             "/api/oaapp/v2/api-docs",
+            "/api/iotapp/v2/api-docs",
 
             /* 认证相关 */
             "/api/webapp/auth/c/getPicCaptcha",

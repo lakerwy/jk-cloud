@@ -1,0 +1,203 @@
+package vip.xiaonuo.iot.modular.device.service.impl;
+
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.exception.CommonException;
+import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.iot.core.config.MqttProperties;
+import vip.xiaonuo.iot.modular.device.constant.CmdConstant;
+import vip.xiaonuo.iot.modular.device.entity.IotDevice;
+import vip.xiaonuo.iot.modular.device.mapper.IotDeviceMapper;
+import vip.xiaonuo.iot.modular.device.param.*;
+import vip.xiaonuo.iot.modular.device.service.IotDeviceService;
+import vip.xiaonuo.iot.modular.mqtt.client.MqttSendClient;
+import vip.xiaonuo.iot.modular.mqtt.param.Message;
+import vip.xiaonuo.iot.modular.mqtt.param.MqttData;
+import vip.xiaonuo.iot.modular.mqtt.param.MqttDevice;
+import vip.xiaonuo.iot.modular.mqtt.service.IdGeneratorService;
+import vip.xiaonuo.iot.modular.topic.entity.IotTopic;
+import vip.xiaonuo.iot.modular.topic.service.IotTopicService;
+
+import javax.annotation.Resource;
+import java.util.ArrayList;
+import java.util.List;
+
+/**
+ * 物联网-设备表Service接口实现类
+ *
+ * @author mayike
+ * @date  2024/08/05 09:51
+ **/
+@Service
+public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice> implements IotDeviceService {
+
+    @Resource
+    private MqttSendClient mqttSendClient;
+
+    @Resource
+    private IotTopicService iotTopicService;
+
+    @Resource
+    private IdGeneratorService idGeneratorService;
+
+    @Resource
+    private MqttProperties mqttProperties;
+
+    @Override
+    public Page<IotDevice> page(IotDevicePageParam iotDevicePageParam) {
+        QueryWrapper<IotDevice> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isAllNotEmpty(iotDevicePageParam.getSortField(), iotDevicePageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(iotDevicePageParam.getSortOrder());
+            queryWrapper.orderBy(true, iotDevicePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(iotDevicePageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByAsc(IotDevice::getId);
+        }
+        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void add(IotDeviceAddParam iotDeviceAddParam) {
+        IotDevice iotDevice = BeanUtil.toBean(iotDeviceAddParam, IotDevice.class);
+        this.save(iotDevice);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void edit(IotDeviceEditParam iotDeviceEditParam) {
+        IotDevice iotDevice = this.queryEntity(iotDeviceEditParam.getId());
+        BeanUtil.copyProperties(iotDeviceEditParam, iotDevice);
+        this.updateById(iotDevice);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
+    public void delete(List<IotDeviceIdParam> iotDeviceIdParamList) {
+        // 执行删除
+        this.removeByIds(CollStreamUtil.toList(iotDeviceIdParamList, IotDeviceIdParam::getId));
+    }
+
+    @Override
+    public IotDevice detail(IotDeviceIdParam iotDeviceIdParam) {
+        return this.queryEntity(iotDeviceIdParam.getId());
+    }
+
+    @Override
+    public IotDevice queryEntity(String id) {
+        IotDevice iotDevice = this.getById(id);
+        if(ObjectUtil.isEmpty(iotDevice)) {
+            throw new CommonException("物联网-设备表不存在，id值为：{}", id);
+        }
+        return iotDevice;
+    }
+
+    @Override
+    public void operate(IotDeviceSwitchParam iotDeviceSwitchParam) {
+        String id = iotDeviceSwitchParam.getId();
+        int switchType = iotDeviceSwitchParam.getSwitchType();
+        operate(id,switchType);
+    }
+
+    public void operate(String id,int switchType) {
+        Message message = new Message();
+        IotDevice iotDevice = this.getById(id);
+        if(ObjectUtil.isEmpty(iotDevice)) {
+            throw new CommonException("设备不存在");
+        }
+        IotTopic iotTopic = iotTopicService.queryEntity(iotDevice.getDeviceTopicId());
+        message.setCmd(CmdConstant.CMD_208);
+        message.setClientId(iotTopic.getClientId());
+        MqttData data = new MqttData();
+        data.setId(idGeneratorService.generateId());
+        MqttDevice mqttDevice = BeanUtil.copyProperties(iotDevice, MqttDevice.class);
+        int deviceType = mqttDevice.getDeviceType();
+        if(deviceType == 9){
+            mqttDevice.setSwitchPower2(switchType);
+        }else if(deviceType == 10){
+            mqttDevice.setSwitchPower3(switchType);
+        }else{
+            mqttDevice.setSwitchPower1(switchType);
+        }
+        List<MqttDevice> mqttDevices = new ArrayList<>();
+        mqttDevices.add(mqttDevice);
+        data.setDevices(mqttDevices);
+        message.setData(data);
+        mqttSendClient.publish(false,iotTopic.getTopicPrex()+"/"+iotTopic.getClientId(),message);
+    }
+
+    @Override
+    public void deviceUpdate(IotDevice iotDevice){
+        if(ObjectUtil.isNotEmpty(iotDevice)) {
+            IotDevice one = getOne(new LambdaQueryWrapper<IotDevice>().eq(IotDevice::getDeviceCode, iotDevice.getDeviceCode()));
+            if(ObjectUtil.isEmpty(one)) {
+                iotDevice.setId(null);
+                save(iotDevice);
+            }else {
+                iotDevice.setId(one.getId());
+                updateById(iotDevice);
+            }
+        }
+    }
+
+    @Override
+    public List<IotDevice> listByGroupId(String groupId){
+        return list(new LambdaQueryWrapper<IotDevice>().eq(IotDevice::getGroupId, groupId));
+    }
+
+    @Override
+    public void setDeviceGroup(IotDeviceGroupParam iotDeviceGroupParam){
+        update(new LambdaUpdateWrapper<IotDevice>().set(IotDevice::getGroupId, iotDeviceGroupParam.getGroupId())
+                .in(IotDevice::getId,iotDeviceGroupParam.getDeviceIdList()));
+    }
+
+    @Override
+    public void batchOperate(IotDeviceOperateParam iotDeviceOperateParam) {
+        List<IotDevice> iotDevices = new ArrayList<>();
+        if (CollUtil.isNotEmpty(iotDeviceOperateParam.getGroupIds())){
+            iotDevices.addAll(list(new LambdaQueryWrapper<IotDevice>().in(IotDevice::getGroupId, iotDeviceOperateParam.getGroupIds())));
+
+        }
+        if (CollUtil.isNotEmpty(iotDeviceOperateParam.getIds())){
+            iotDevices.addAll(list(new LambdaQueryWrapper<IotDevice>().in(IotDevice::getId, iotDeviceOperateParam.getIds())));
+        }
+        for (IotDevice iotDevice : iotDevices){
+            operate(iotDevice.getId(),iotDeviceOperateParam.getSwitchType());
+        }
+    }
+
+    @Override
+    public void scheduling(int switchType) {
+        if(!mqttProperties.isEnable()){
+            testDevice(switchType);
+        }else {
+            List<IotDevice> list = list();
+            for (IotDevice iotDevice : list) {
+                try {
+                    operate(iotDevice.getId(), switchType);
+                } catch (Exception e) {
+                    log.error(String.format("编号为%s设备%s失败", iotDevice.getDeviceCode(), switchType == 0 ? "关闭" : "打开"), e);
+                }
+            }
+        }
+    }
+
+    private void testDevice(int switchType){
+        String deviceCode = "083b7c19";
+        IotDevice one = getOne(new LambdaQueryWrapper<IotDevice>().eq(IotDevice::getDeviceCode, deviceCode));
+        if(ObjectUtil.isNotEmpty(one)) {
+            operate(one.getId(),switchType);
+        }
+    }
+}

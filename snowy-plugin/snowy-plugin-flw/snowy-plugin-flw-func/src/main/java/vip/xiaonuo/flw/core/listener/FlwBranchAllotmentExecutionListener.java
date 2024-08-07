@@ -41,7 +41,7 @@ public class FlwBranchAllotmentExecutionListener implements ExecutionListener {
             //出纳登记账户余额
             String realBalance = String.valueOf(execution.getVariable("realBalance"));
             //更新 BIZ_BRANCH_BANK_INFO
-            if(ObjectUtil.isNotEmpty(branchAccountId)){
+            if(ObjectUtil.isNotEmpty(branchAccountId) && ObjectUtil.isNotEmpty(realBalance)){
                 String sql = "UPDATE BIZ_BRANCH_BANK_INFO SET ACCOUNT_BALANCE = " + realBalance + ", BALANCE_UPDATE_TIME = NOW() WHERE ID = '" + branchAccountId + "'";
                 CommonHandleUtil.handleSqlExecution(sql);
                 log.info("【实例ID】"+processInstanceId+" 【执行sql】"+sql);
