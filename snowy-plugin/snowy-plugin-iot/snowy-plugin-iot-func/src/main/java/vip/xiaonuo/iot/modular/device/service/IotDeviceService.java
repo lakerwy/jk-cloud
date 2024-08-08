@@ -65,7 +65,7 @@ public interface IotDeviceService extends IService<IotDevice> {
 
     void operate(IotDeviceSwitchParam iotDeviceSwitchParam);
 
-    void deviceUpdate(IotDevice iotDevice);
+    void deviceUpdate(IotDevice iotDevice, String clientId);
 
     List<IotDevice> listByGroupId(String groupId);
 

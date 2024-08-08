@@ -37,7 +37,7 @@ public class FlwProcessCarbonCopyServiceImpl implements FlwProcessCarbonCopyServ
         try{
             // 发送抄送通知
             devMessageApi.sendMessage(bizCarbonCopy.getUserList(), "流程抄送分类",bizCarbonCopy.getProcessInstanceId(),taskMap);
-            log.info("给" + bizCarbonCopy.getUserList() + "发送内容为：" + "流程抄送分类" + "的MSG");
+            log.info("给{}发送内容为：流程抄送分类的MSG", bizCarbonCopy.getUserList());
         }catch (Exception e){
             log.error(e.getMessage());
         }
