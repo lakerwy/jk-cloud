@@ -122,14 +122,18 @@ public class NodeInfoUtil {
      * @return
      */
     public static FlwNodeResult getAllNextFlwNodes(String flwJson,String activityId){
-        List<FlwNode> flwNodeList = new ArrayList<>();
-        FlwNode process = JSONUtil.toBean(flwJson, FlwNode.class);
-        executeFlwNodes(process,flwNodeList);
-        //找到当前节点
-        FlwNode currentFlwNode = flwNodeList.stream().filter(x->x.getId().equals(activityId)).findFirst().orElse(null);
-        //后续节点情况
-        FlwNodeResult nextFlwNodeResult = new FlwNodeResult();
-        return executeNextFlwNodes(currentFlwNode,nextFlwNodeResult);
+        try {
+            List<FlwNode> flwNodeList = new ArrayList<>();
+            FlwNode process = JSONUtil.toBean(flwJson, FlwNode.class);
+            executeFlwNodes(process, flwNodeList);
+            //找到当前节点
+            FlwNode currentFlwNode = flwNodeList.stream().filter(x -> x.getId().equals(activityId)).findFirst().orElse(null);
+            //后续节点情况
+            FlwNodeResult nextFlwNodeResult = new FlwNodeResult();
+            return executeNextFlwNodes(currentFlwNode, nextFlwNodeResult);
+        }catch (Exception e){
+            return null;
+        }
     }
 
     /**
