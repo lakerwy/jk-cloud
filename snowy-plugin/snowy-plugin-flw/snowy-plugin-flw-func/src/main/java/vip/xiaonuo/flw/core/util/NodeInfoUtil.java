@@ -177,7 +177,6 @@ public class NodeInfoUtil {
             FlwNode tmpFlwNode = BeanUtil.copyProperties(flwNode.getChildNode(),FlwNode.class);
             tmpFlwNode.setChildNode(null);
             tmpFlwNode.setConditionNodeList(null);
-            tmpFlwNode.setProperties(null);
             flwNodeList.add(tmpFlwNode);
             executeNextFlwNodes(flwNode.getChildNode(),flwNodeList);
         }
