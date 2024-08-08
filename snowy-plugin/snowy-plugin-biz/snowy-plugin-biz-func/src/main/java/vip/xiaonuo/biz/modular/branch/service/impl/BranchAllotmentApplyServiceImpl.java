@@ -86,7 +86,7 @@ public class BranchAllotmentApplyServiceImpl extends ServiceImpl<BranchAllotment
             branchAllotmentApply.setStatus(FlwStatusEnum.COMPLETED_STATUS.getValue());
         }
         this.save(branchAllotmentApply);
-        //处理付款信息
+        //添加付款信息
         if(CollUtil.isNotEmpty(branchAllotmentApplyAddParam.getPaymentInfoList())){
             List<BranchPaymentInfo> paymentInfoList = branchAllotmentApplyAddParam.getPaymentInfoList();
             paymentInfoList.forEach(item -> {
@@ -111,6 +111,8 @@ public class BranchAllotmentApplyServiceImpl extends ServiceImpl<BranchAllotment
         BranchAllotmentApply branchAllotmentApply = this.queryEntity(branchAllotmentApplyEditParam.getId());
         BeanUtil.copyProperties(branchAllotmentApplyEditParam, branchAllotmentApply);
         this.updateById(branchAllotmentApply);
+        //修改付款信息
+        branchPaymentInfoService.batchUpdate(branchAllotmentApplyEditParam.getPaymentInfoList());
     }
 
     @Transactional(rollbackFor = Exception.class)
