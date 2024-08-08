@@ -68,4 +68,12 @@ public class IotTopic {
     @ApiModelProperty(value = "更新人", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    @ApiModelProperty(value = "网关",position = 12)
+    @TableField(exist = false)
+    private String topic;
+
+    public String getTopic() {
+        return topicPrex+"/"+clientId;
+    }
 }
