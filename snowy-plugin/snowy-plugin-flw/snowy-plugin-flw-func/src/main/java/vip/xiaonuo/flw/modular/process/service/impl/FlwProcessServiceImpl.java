@@ -1066,8 +1066,8 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             List<FlwTaskDetailResult.FlwProcessComment> oldFlwNodeList = commonList.stream().filter(x -> ObjectUtil.isEmpty(x.getCommentId())).collect(Collectors.toList());
             if(CollUtil.isNotEmpty(oldFlwNodeList)){
                 String activityId = oldFlwNodeList.get(oldFlwNodeList.size()-1).getActivityId();
-                List<FlwNode> nextFlwNodeList = NodeInfoUtil.getAllNextFlwNodes(flwModel.getProcessJson(),activityId);
-                flwProcessDetailResult.setNextFlwNodeList(nextFlwNodeList);
+                FlwNodeResult nextFlwNodeResult = NodeInfoUtil.getAllNextFlwNodes(flwModel.getProcessJson(),activityId);
+                flwProcessDetailResult.setNextFlwNodeResult(nextFlwNodeResult);
             }
         }
 

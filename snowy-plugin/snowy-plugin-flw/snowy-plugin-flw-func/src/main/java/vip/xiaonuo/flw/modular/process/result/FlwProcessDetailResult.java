@@ -70,9 +70,9 @@ public class FlwProcessDetailResult {
     @ApiModelProperty(value = "流程图",position = 20)
     private String flwDiagram;
 
-    /** 后续流程节点集合 */
-    @ApiModelProperty(value = "后续流程节点集合", position = 66)
-    private List<FlwNode> nextFlwNodeList;
+    /** 后续流程节点情况 */
+    @ApiModelProperty(value = "后续流程节点情况", position = 66)
+    private FlwNodeResult nextFlwNodeResult;
 
 
     /**

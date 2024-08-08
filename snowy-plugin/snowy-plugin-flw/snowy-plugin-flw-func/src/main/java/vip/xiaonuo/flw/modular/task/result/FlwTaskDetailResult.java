@@ -15,6 +15,7 @@ package vip.xiaonuo.flw.modular.task.result;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import vip.xiaonuo.flw.modular.process.result.FlwNodeResult;
 
 import java.util.List;
 
@@ -62,6 +63,10 @@ public class FlwTaskDetailResult {
 
     @ApiModelProperty(value = "流程图",position = 9)
     private String flwDiagram;
+
+    /** 后续流程节点情况 */
+    @ApiModelProperty(value = "后续流程节点情况", position = 66)
+    private FlwNodeResult nextFlwNodeResult;
 
     /**
      * 审批记录类
