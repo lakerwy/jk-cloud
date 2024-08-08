@@ -7,6 +7,7 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 /**
  * 分公司日常费用拨付 - 申请流程编辑参数
@@ -50,6 +51,10 @@ public class BranchAllotmentApplyEditParam {
     /** 出纳登记账户余额 */
     @ApiModelProperty(value = "出纳登记账户余额", position = 9)
     private BigDecimal realBalance;
+
+    /** 付款信息 */
+    @ApiModelProperty(value = "付款信息", position = 10)
+    private List<BranchPaymentInfoEditParam> paymentInfoList;
 
     /** SN流水号 */
     @ApiModelProperty(value = "SN流水号", position = 16)
