@@ -36,9 +36,14 @@ public class MqttProperties{
     private String clientId;
 
     /**
-     * 默认连接主题
+     * 网关前缀
      */
-    private String defaultTopic;
+    private String gateWayPre;
+
+    /**
+     * 默认网关ID
+     */
+    private String defaultTopicId;
 
     /**
      * 超时时间

@@ -36,7 +36,7 @@ public class IotDevice {
     private Integer deviceType;
 
     /** 设备描述 */
-    @ApiModelProperty(value = "设备主题Topic", position = 5)
+    @ApiModelProperty(value = "网关TopicId", position = 5)
     private String deviceTopicId;
 
     @ApiModelProperty(value = "插座通断电状态(0=断电，1=通电)", position = 6)
@@ -163,20 +163,9 @@ public class IotDevice {
     @ApiModelProperty(value = "更新人", position = 36)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
-
-    @ApiModelProperty(value = "开关状态", position = 37)
-    @TableField(exist = false)
-    private Integer switchType;
-
-    public Integer getSwitchType() {
-        if(deviceType==9){
-            switchType = switchPower2;
-        }else if(deviceType==10){
-            switchType = switchPower3;
-        }else {
-            switchType = switchPower1;
-        }
-        return switchType;
-    }
+//
+//    @ApiModelProperty(value = "开关状态", position = 37)
+//    @TableField(exist = false)
+//    private Integer switchType;
 
 }

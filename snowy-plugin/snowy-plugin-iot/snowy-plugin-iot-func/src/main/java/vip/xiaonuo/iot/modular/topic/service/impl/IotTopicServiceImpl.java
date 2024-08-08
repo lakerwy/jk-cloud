@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.iot.modular.mqtt.client.MqttAcceptClient;
 import vip.xiaonuo.iot.modular.topic.entity.IotTopic;
 import vip.xiaonuo.iot.modular.topic.mapper.IotTopicMapper;
 import vip.xiaonuo.iot.modular.topic.param.IotTopicAddParam;
@@ -20,6 +21,7 @@ import vip.xiaonuo.iot.modular.topic.param.IotTopicIdParam;
 import vip.xiaonuo.iot.modular.topic.param.IotTopicPageParam;
 import vip.xiaonuo.iot.modular.topic.service.IotTopicService;
 
+import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -30,6 +32,9 @@ import java.util.List;
  **/
 @Service
 public class IotTopicServiceImpl extends ServiceImpl<IotTopicMapper, IotTopic> implements IotTopicService {
+
+    @Resource
+    private MqttAcceptClient mqttAcceptClient;
 
     @Override
     public Page<IotTopic> page(IotTopicPageParam iotTopicPageParam) {
@@ -55,6 +60,7 @@ public class IotTopicServiceImpl extends ServiceImpl<IotTopicMapper, IotTopic> i
             throw new CommonException("该主题已存在");
         }
         this.save(iotTopic);
+        mqttAcceptClient.subscribe(iotTopic.getTopicPrex()+"/"+iotTopic.getClientId(),1);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -74,6 +80,10 @@ public class IotTopicServiceImpl extends ServiceImpl<IotTopicMapper, IotTopic> i
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void delete(List<IotTopicIdParam> iotTopicIdParamList) {
+        for (IotTopicIdParam iotTopicIdParam : iotTopicIdParamList) {
+            IotTopic iotTopic = getById(iotTopicIdParam.getId());
+            mqttAcceptClient.unsubscribe(iotTopic.getTopicPrex()+"/"+iotTopic.getClientId());
+        }
         // 执行删除
         this.removeByIds(CollStreamUtil.toList(iotTopicIdParamList, IotTopicIdParam::getId));
     }
@@ -90,5 +100,19 @@ public class IotTopicServiceImpl extends ServiceImpl<IotTopicMapper, IotTopic> i
             throw new CommonException("物理网-主题topic 表不存在，id值为：{}", id);
         }
         return iotTopic;
+    }
+
+    @Override
+    public String saveOrUpdate(String topicPrex,String clientId) {
+        IotTopic one = getOne(new QueryWrapper<IotTopic>().lambda().eq(IotTopic::getClientId, clientId).eq(IotTopic::getTopicPrex, topicPrex));
+        if(ObjectUtil.isNotEmpty(one)){
+            return one.getId();
+        }
+        one = new IotTopic();
+        one.setTopicPrex(topicPrex);
+        one.setClientId(clientId);
+        this.save(one);
+        mqttAcceptClient.subscribe(one.getTopicPrex()+"/"+one.getClientId(),1);
+        return one.getId();
     }
 }

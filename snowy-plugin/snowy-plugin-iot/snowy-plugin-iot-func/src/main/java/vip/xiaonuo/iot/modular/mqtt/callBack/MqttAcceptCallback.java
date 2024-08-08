@@ -48,8 +48,8 @@ public class MqttAcceptCallback implements MqttCallbackExtended {
         log.info("--------------------ClientId:{}客户端连接成功！--------------------", MqttAcceptClient.mqttClient.getClientId());
         // 以/#结尾表示订阅所有以test开头的主题
         // 订阅所有机构主题
-        mqttAcceptClient.subscribe(mqttProperties.getDeviceTopic(), 0);
         mqttAcceptClient.subscribe(mqttProperties.getDeviceTopic(), 1);
+//        mqttAcceptClient.subscribe(mqttProperties.getDeviceTopic(), 1);
     }
 
     @Override
@@ -71,9 +71,10 @@ public class MqttAcceptCallback implements MqttCallbackExtended {
             JSONObject jsonObject = JSONUtil.parseObj(message);
             Integer cmd = jsonObject.getInt("cmd");
             if (cmd == CmdConstant.CMD_109) {
+                String  clientId = jsonObject.getStr("clientId");
                 Object o = jsonObject.get("data");
                 IotDevice iotDevice = BeanUtil.copyProperties(o, IotDevice.class);
-                iotDeviceService.deviceUpdate(iotDevice);
+                iotDeviceService.deviceUpdate(iotDevice,clientId);
             }else if(cmd == CmdConstant.CMD_100){
                 String  clientId = jsonObject.getStr("clientId");
                 jsonObject = jsonObject.getJSONObject("data");
@@ -85,7 +86,7 @@ public class MqttAcceptCallback implements MqttCallbackExtended {
                 MqttData data = new MqttData();
                 data.setId(id);
                 message1.setData(data);
-                mqttSendClient.publish(false,mqttProperties.getDefaultTopic(),message1);
+                mqttSendClient.publish(false,mqttProperties.getGateWayPre()+"/"+clientId,message1);
             }
         }
     }

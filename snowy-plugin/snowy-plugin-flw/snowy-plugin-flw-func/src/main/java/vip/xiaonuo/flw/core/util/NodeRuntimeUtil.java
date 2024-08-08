@@ -1119,7 +1119,7 @@ public class NodeRuntimeUtil {
                                 taskMap.put("initiatorName",String.valueOf(delegateExecution.getVariable("initiatorName")));
                                 taskMap.put("processDefinitionId",delegateExecution.getProcessDefinitionId());
                                 taskMap.put("currentActivityId",delegateExecution.getCurrentActivityId());
-                                taskMap.put("flwType",FlwCacheConstant.FlwType.TODO);
+                                taskMap.put("flwType",FlwCacheConstant.FlwType.DONE);
 //                                taskMap.put("noticeType",noticeType);
                             }else {
                                 processInstanceId = delegateTask.getProcessInstanceId();
@@ -1133,7 +1133,7 @@ public class NodeRuntimeUtil {
                                     taskMap.put("initiatorProcessSn",String.valueOf(map.get("initiatorProcessSn")));
                                     taskMap.put("initiatorTime",String.valueOf(map.get("initiatorTime")));
                                     taskMap.put("initiatorName",String.valueOf(map.get("initiatorName")));
-                                    taskMap.put("flwType",FlwCacheConstant.FlwType.DONE);
+                                    taskMap.put("flwType",FlwCacheConstant.FlwType.TODO);
                                 }else if(noticeType.equals("URGE")){
                                     Map<String, Object> map = getMap(processInstanceId);
                                     taskMap.put("initiatorProcessTitle",String.valueOf(map.get("initiatorProcessTitle")));

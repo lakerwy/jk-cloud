@@ -65,4 +65,6 @@ public interface IotTopicService extends IService<IotTopic> {
      * @date  2024/08/05 10:26
      **/
     IotTopic queryEntity(String id);
+
+    String saveOrUpdate(String topicPrex, String clientId);
 }

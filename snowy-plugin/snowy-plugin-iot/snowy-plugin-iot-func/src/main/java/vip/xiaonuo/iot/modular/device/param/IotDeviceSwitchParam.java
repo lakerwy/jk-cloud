@@ -21,6 +21,24 @@ public class IotDeviceSwitchParam {
     @NotBlank(message = "id不能为空")
     private String id;
 
-    @ApiModelProperty(value = "开关操作（0关 1 开）", required = true)
-    private int switchType;
+//    @ApiModelProperty(value = "开关操作（0关 1 开）", required = true)
+//    private int switchType;
+
+    /**
+     * deviceType=5，6，7，8，9，10时可传
+     */
+    @ApiModelProperty(value = "配置开关第1路的通断电状态(0=断电，1=通电)", position = 9)
+    private Integer switchPower1;
+
+    /**
+     * deviceType=6，7，9，10时可传
+     */
+    @ApiModelProperty(value = "配置开关第1路的通断电状态(0=断电，1=通电)", position = 10)
+    private Integer switchPower2;
+
+    /**
+     * deviceType=7，10时可传
+     */
+    @ApiModelProperty(value = "配置开关第1路的通断电状态(0=断电，1=通电)", position = 11)
+    private Integer switchPower3;
 }

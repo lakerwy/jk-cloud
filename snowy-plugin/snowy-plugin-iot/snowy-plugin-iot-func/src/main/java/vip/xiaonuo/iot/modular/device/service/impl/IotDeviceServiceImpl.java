@@ -106,11 +106,13 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
     @Override
     public void operate(IotDeviceSwitchParam iotDeviceSwitchParam) {
         String id = iotDeviceSwitchParam.getId();
-        int switchType = iotDeviceSwitchParam.getSwitchType();
-        operate(id,switchType);
+        int switchPower1 = iotDeviceSwitchParam.getSwitchPower1();
+        int switchPower2 = iotDeviceSwitchParam.getSwitchPower2();
+        int switchPower3 = iotDeviceSwitchParam.getSwitchPower3();
+        operate(id,switchPower1,switchPower2,switchPower3);
     }
 
-    public void operate(String id,int switchType) {
+    public void operate(String id,int switchPower1,int switchPower2,int switchPower3) {
         Message message = new Message();
         IotDevice iotDevice = this.getById(id);
         if(ObjectUtil.isEmpty(iotDevice)) {
@@ -122,14 +124,9 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
         MqttData data = new MqttData();
         data.setId(idGeneratorService.generateId());
         MqttDevice mqttDevice = BeanUtil.copyProperties(iotDevice, MqttDevice.class);
-        int deviceType = mqttDevice.getDeviceType();
-        if(deviceType == 9){
-            mqttDevice.setSwitchPower2(switchType);
-        }else if(deviceType == 10){
-            mqttDevice.setSwitchPower3(switchType);
-        }else{
-            mqttDevice.setSwitchPower1(switchType);
-        }
+        mqttDevice.setSwitchPower1(switchPower1);
+        mqttDevice.setSwitchPower2(switchPower2);
+        mqttDevice.setSwitchPower3(switchPower3);
         List<MqttDevice> mqttDevices = new ArrayList<>();
         mqttDevices.add(mqttDevice);
         data.setDevices(mqttDevices);
@@ -138,9 +135,11 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
     }
 
     @Override
-    public void deviceUpdate(IotDevice iotDevice){
+    public void deviceUpdate(IotDevice iotDevice,String clientId){
         if(ObjectUtil.isNotEmpty(iotDevice)) {
             IotDevice one = getOne(new LambdaQueryWrapper<IotDevice>().eq(IotDevice::getDeviceCode, iotDevice.getDeviceCode()));
+            String topicId = iotTopicService.saveOrUpdate(mqttProperties.getGateWayPre(), clientId);
+            iotDevice.setDeviceTopicId(topicId);
             if(ObjectUtil.isEmpty(one)) {
                 iotDevice.setId(null);
                 save(iotDevice);
@@ -172,8 +171,9 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
         if (CollUtil.isNotEmpty(iotDeviceOperateParam.getIds())){
             iotDevices.addAll(list(new LambdaQueryWrapper<IotDevice>().in(IotDevice::getId, iotDeviceOperateParam.getIds())));
         }
+        int switchType = iotDeviceOperateParam.getSwitchType();
         for (IotDevice iotDevice : iotDevices){
-            operate(iotDevice.getId(),iotDeviceOperateParam.getSwitchType());
+            operate(iotDevice.getId(),switchType,switchType,switchType);
         }
     }
 
@@ -185,7 +185,7 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
             List<IotDevice> list = list();
             for (IotDevice iotDevice : list) {
                 try {
-                    operate(iotDevice.getId(), switchType);
+                    operate(iotDevice.getId(), switchType,switchType,switchType);
                 } catch (Exception e) {
                     log.error(String.format("编号为%s设备%s失败", iotDevice.getDeviceCode(), switchType == 0 ? "关闭" : "打开"), e);
                 }
@@ -197,7 +197,7 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
         String deviceCode = "083b7c19";
         IotDevice one = getOne(new LambdaQueryWrapper<IotDevice>().eq(IotDevice::getDeviceCode, deviceCode));
         if(ObjectUtil.isNotEmpty(one)) {
-            operate(one.getId(),switchType);
+            operate(one.getId(),switchType,switchType,switchType);
         }
     }
 }

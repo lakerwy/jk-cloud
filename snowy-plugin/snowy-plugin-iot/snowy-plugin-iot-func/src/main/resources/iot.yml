@@ -8,7 +8,8 @@ mqtt:
   reconnect: true
   timeout: 100
   keepAlive: 100
-  defaultTopic: smartHouse/24173233
+  gateWayPre: smartHouse
+  defaultTopicId: 24173233
   deviceTopic: device/#
   qos: 1
   offCronExpression: "0 30 17 ? * MON-FRI" #工作日每天17:30关灯
