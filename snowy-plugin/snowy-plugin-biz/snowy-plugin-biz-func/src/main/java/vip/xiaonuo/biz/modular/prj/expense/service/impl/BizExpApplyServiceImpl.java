@@ -429,7 +429,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
 
     @Override
     public List<BizExpData> totalPage(BizExpTotalSearch search) {
-        if(ObjectUtil.isNotEmpty(search.getType())){
+        if(ObjectUtil.isEmpty(search.getType())){
             throw new CommonException("请选择类型");
         }
         LocalDate startDate = null;

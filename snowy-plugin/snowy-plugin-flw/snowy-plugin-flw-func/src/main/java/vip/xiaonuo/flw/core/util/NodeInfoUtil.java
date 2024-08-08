@@ -12,6 +12,8 @@
  */
 package vip.xiaonuo.flw.core.util;
 
+import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import org.camunda.bpm.model.bpmn.impl.BpmnModelConstants;
@@ -21,6 +23,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.flw.core.node.FlwNode;
 import vip.xiaonuo.flw.core.parser.ProcessParser;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -108,5 +111,76 @@ public class NodeInfoUtil {
                     tempFlwNode.setTitle(userTask.getName());
                     return tempFlwNode;
                 }).collect(Collectors.toList());
+    }
+
+
+    /**
+     * 根据 流程设计 json 当前节点id 获取后续流程节点
+     * @param flwJson
+     * @param activityId
+     * @return
+     */
+    public static List<FlwNode> getAllNextFlwNodes(String flwJson,String activityId){
+        List<FlwNode> flwNodeList = new ArrayList<>();
+        FlwNode process = JSONUtil.toBean(flwJson, FlwNode.class);
+        executeFlwNodes(process,flwNodeList);
+        //找到当前节点
+        FlwNode currentFlwNode = flwNodeList.stream().filter(x->x.getId().equals(activityId)).findFirst().orElse(null);
+        //后续节点集合
+        List<FlwNode> nextFlwNodeList = new ArrayList<>();
+        return executeNextFlwNodes(currentFlwNode,nextFlwNodeList);
+    }
+
+    /**
+     * 递归 获取 流程设计json 所有节点信息（startEvent|startTask...）
+     * @param flwNode 流程设计json
+     * @param flwNodeList 节点集合
+     * @return
+     */
+    public static List<FlwNode> executeFlwNodes(FlwNode flwNode,List<FlwNode> flwNodeList) {
+        if(ObjectUtil.isEmpty(flwNode) || ObjectUtil.isEmpty(flwNode.getId())){
+            return flwNodeList;
+        }
+        //看 ChildNode
+        if(ObjectUtil.isNotEmpty(flwNode.getChildNode()) && ObjectUtil.isNotEmpty(flwNode.getChildNode().getId())){
+            flwNodeList.add(flwNode.getChildNode());
+            executeFlwNodes(flwNode.getChildNode(),flwNodeList);
+        }
+        //看 conditionNodeList 条件分支中是一个FlwNode集合
+        if(CollUtil.isNotEmpty(flwNode.getConditionNodeList())){
+            flwNode.getConditionNodeList().forEach(item->{
+                if(ObjectUtil.isNotEmpty(item) && ObjectUtil.isNotEmpty(item.getId())){
+                    flwNodeList.add(item);
+                    executeFlwNodes(item,flwNodeList);
+                }
+            });
+        }
+        return flwNodeList;
+    }
+
+
+    /**
+     * 有分支则不返回，无条件分支返回后续节点
+     * 递归 获取 当前节点 所有后续节点信息（startEvent|startTask...）
+     * @param flwNode 流程设计json
+     * @param flwNodeList 节点集合
+     * @return
+     */
+    public static List<FlwNode> executeNextFlwNodes(FlwNode flwNode,List<FlwNode> flwNodeList) {
+        if(ObjectUtil.isEmpty(flwNode) || ObjectUtil.isEmpty(flwNode.getId())){
+            return flwNodeList;
+        }
+        if(CollUtil.isNotEmpty(flwNode.getConditionNodeList())){
+            return flwNodeList;
+        }
+        if(ObjectUtil.isNotEmpty(flwNode.getChildNode()) && ObjectUtil.isNotEmpty(flwNode.getChildNode().getId())){
+            FlwNode tmpFlwNode = BeanUtil.copyProperties(flwNode.getChildNode(),FlwNode.class);
+            tmpFlwNode.setChildNode(null);
+            tmpFlwNode.setConditionNodeList(null);
+            tmpFlwNode.setProperties(null);
+            flwNodeList.add(tmpFlwNode);
+            executeNextFlwNodes(flwNode.getChildNode(),flwNodeList);
+        }
+        return flwNodeList;
     }
 }

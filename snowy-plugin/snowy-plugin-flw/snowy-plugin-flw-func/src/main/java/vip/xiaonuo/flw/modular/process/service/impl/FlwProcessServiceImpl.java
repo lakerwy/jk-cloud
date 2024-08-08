@@ -1060,6 +1060,17 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
         }
 
+        //获取当前的审批节点的后续节点【审核中流程】
+        if(CollUtil.isNotEmpty(commonList) && state.equals("ACTIVE")){
+            //获取当前审批节点【非评论】-已排序
+            List<FlwTaskDetailResult.FlwProcessComment> oldFlwNodeList = commonList.stream().filter(x -> ObjectUtil.isEmpty(x.getCommentId())).collect(Collectors.toList());
+            if(CollUtil.isNotEmpty(oldFlwNodeList)){
+                String activityId = oldFlwNodeList.get(oldFlwNodeList.size()-1).getActivityId();
+                List<FlwNode> nextFlwNodeList = NodeInfoUtil.getAllNextFlwNodes(flwModel.getProcessJson(),activityId);
+                flwProcessDetailResult.setNextFlwNodeList(nextFlwNodeList);
+            }
+        }
+
         return flwProcessDetailResult;
     }
 
