@@ -21,6 +21,8 @@ import vip.xiaonuo.iot.modular.mqtt.param.MqttData;
 
 import javax.annotation.Resource;
 import java.io.UnsupportedEncodingException;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author mayike
@@ -43,6 +45,8 @@ public class MqttAcceptCallback implements MqttCallbackExtended {
     @Resource
     private MqttSendClient mqttSendClient;
 
+    private final ConcurrentMap<String, Boolean> clientMap = new ConcurrentHashMap<>();
+
     @Override
     public void connectComplete(boolean b, String s) {
         log.info("--------------------ClientId:{}客户端连接成功！--------------------", MqttAcceptClient.mqttClient.getClientId());
@@ -62,7 +66,7 @@ public class MqttAcceptCallback implements MqttCallbackExtended {
     }
 
     @Override
-    public void messageArrived(String topic, MqttMessage mqttMessage) throws Exception {
+    public void messageArrived(String topic, MqttMessage mqttMessage) {
         log.info("接收消息回调:  接收消息主题 : {}", topic);
         //处理设备消息
         if (topic.startsWith("device")) {
@@ -77,16 +81,22 @@ public class MqttAcceptCallback implements MqttCallbackExtended {
                 iotDeviceService.deviceUpdate(iotDevice,clientId);
             }else if(cmd == CmdConstant.CMD_100){
                 String  clientId = jsonObject.getStr("clientId");
+                Boolean flag = clientMap.get(clientId);
+                if(flag!=null && flag){
+                    return;
+                }
                 jsonObject = jsonObject.getJSONObject("data");
                 String id = jsonObject.getStr("id");
                 Message message1 = new Message();
                 message1.setCmd(CmdConstant.CMD_200);
                 message1.setClientId(clientId);
+                message1.setState(1);
                 message1.setTime(System.currentTimeMillis());
                 MqttData data = new MqttData();
                 data.setId(id);
                 message1.setData(data);
                 mqttSendClient.publish(false,mqttProperties.getGateWayPre()+"/"+clientId,message1);
+                clientMap.put(clientId,true);
             }
         }
     }

@@ -22,8 +22,8 @@ import javax.annotation.Resource;
  * @date 2024/8/2 15:25
  * mqtt 控制器
  */
-@Api(tags = "物理网-mqtt服务")
-@ApiSupport(author = "SNOWY_TEAM", order = 1)
+//@Api(tags = "物理网-mqtt服务")
+//@ApiSupport(author = "SNOWY_TEAM", order = 1)
 @RestController
 @Validated
 public class MqttController {
@@ -31,18 +31,18 @@ public class MqttController {
     @Resource
     private MqttSendClient mqttSendClient;
 
-    @ApiOperationSupport(order =2)
-    @ApiOperation("发布消息")
-    @CommonLog("发布消息")
+//    @ApiOperationSupport(order =2)
+//    @ApiOperation("发布消息")
+//    @CommonLog("发布消息")
     @PostMapping("/mqtt/sendMessage")
     public CommonResult<String> sendMessage(@RequestBody SendParam sendParam) {
         mqttSendClient.publish(false,sendParam.getTopic(),sendParam.getMessage());
         return CommonResult.ok();
     }
 
-    @ApiOperationSupport(order =2)
-    @ApiOperation("网关状态查询")
-    @CommonLog("网关状态查询")
+//    @ApiOperationSupport(order =2)
+//    @ApiOperation("网关状态查询")
+//    @CommonLog("网关状态查询")
     @PostMapping("/mqtt/topicStatus")
     public CommonResult<String> topicStatus(@RequestBody SendParam sendParam) {
         mqttSendClient.publish(false,sendParam.getTopic(),sendParam.getMessage());

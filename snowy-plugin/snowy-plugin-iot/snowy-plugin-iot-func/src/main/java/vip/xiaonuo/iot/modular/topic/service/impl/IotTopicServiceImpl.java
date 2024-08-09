@@ -60,7 +60,7 @@ public class IotTopicServiceImpl extends ServiceImpl<IotTopicMapper, IotTopic> i
             throw new CommonException("该主题已存在");
         }
         this.save(iotTopic);
-        mqttAcceptClient.subscribe(iotTopic.getTopicPrex()+"/"+iotTopic.getClientId(),1);
+        mqttAcceptClient.subscribe(StrUtil.isEmpty(iotTopic.getTopicPrex())?"smartHouse":iotTopic.getTopicPrex()+"/"+iotTopic.getClientId(),1);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -68,10 +68,9 @@ public class IotTopicServiceImpl extends ServiceImpl<IotTopicMapper, IotTopic> i
     public void edit(IotTopicEditParam iotTopicEditParam) {
         IotTopic iotTopic = this.queryEntity(iotTopicEditParam.getId());
         BeanUtil.copyProperties(iotTopicEditParam, iotTopic);
-        String topicPrex = iotTopicEditParam.getTopicDesc();
         String clientId = iotTopicEditParam.getClientId();
-        IotTopic one = getOne(new QueryWrapper<IotTopic>().lambda().eq(IotTopic::getClientId, clientId).eq(IotTopic::getTopicPrex, topicPrex));
-        if(one != null){
+        IotTopic one = getOne(new QueryWrapper<IotTopic>().lambda().eq(IotTopic::getClientId, clientId));
+        if(one != null && !one.getId().equals(iotTopicEditParam.getId())){
             throw new CommonException("该主题已存在");
         }
         this.updateById(iotTopic);
@@ -103,7 +102,7 @@ public class IotTopicServiceImpl extends ServiceImpl<IotTopicMapper, IotTopic> i
     }
 
     @Override
-    public String saveOrUpdate(String topicPrex,String clientId) {
+    public String saveOrUpdate(String topicPrex, String clientId) {
         IotTopic one = getOne(new QueryWrapper<IotTopic>().lambda().eq(IotTopic::getClientId, clientId).eq(IotTopic::getTopicPrex, topicPrex));
         if(ObjectUtil.isNotEmpty(one)){
             return one.getId();

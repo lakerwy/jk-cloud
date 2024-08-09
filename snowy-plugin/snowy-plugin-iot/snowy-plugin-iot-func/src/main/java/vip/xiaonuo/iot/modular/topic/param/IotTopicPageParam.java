@@ -35,5 +35,4 @@ public class IotTopicPageParam {
     /** 关键词 */
     @ApiModelProperty(value = "关键词")
     private String searchKey;
-
 }

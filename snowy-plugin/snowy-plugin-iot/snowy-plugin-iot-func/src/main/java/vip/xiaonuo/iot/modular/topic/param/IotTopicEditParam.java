@@ -26,18 +26,22 @@ public class IotTopicEditParam {
 
     /** 设备ID */
     @ApiModelProperty(value = "设备ID", position = 3,required = true)
+    @NotBlank(message = "网关ID不能为空")
     private String clientId;
 
+    @ApiModelProperty(value = "项目ID", position = 4)
+    private String projectId;
+
     /** 主题描述 */
-    @ApiModelProperty(value = "主题描述", position = 4,required = true)
+    @ApiModelProperty(value = "主题描述", position = 5,required = true)
     private String topicDesc;
 
     /** 主题描述 */
-    @ApiModelProperty(value = "主题描述", position = 4)
+    @ApiModelProperty(value = "主题描述", position = 6)
     private String desc;
 
     /** 扩展信息 */
-    @ApiModelProperty(value = "扩展信息", position = 6)
+    @ApiModelProperty(value = "扩展信息", position = 7)
     private String extJson;
 
 }
