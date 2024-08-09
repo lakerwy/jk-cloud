@@ -55,12 +55,17 @@ public class BranchAllotmentApplyServiceImpl extends ServiceImpl<BranchAllotment
     @Override
     public Page<BranchAllotmentApply> page(BranchAllotmentApplyPageParam branchAllotmentApplyPageParam) {
         QueryWrapper<BranchAllotmentApply> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(branchAllotmentApplyPageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(BranchAllotmentApply::getBranchName,branchAllotmentApplyPageParam.getSearchKey())
+                    .or().like(BranchAllotmentApply::getBankName,branchAllotmentApplyPageParam.getSearchKey())
+                    .or().like(BranchAllotmentApply::getBankAccount,branchAllotmentApplyPageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(branchAllotmentApplyPageParam.getSortField(), branchAllotmentApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(branchAllotmentApplyPageParam.getSortOrder());
             queryWrapper.orderBy(true, branchAllotmentApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(branchAllotmentApplyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(BranchAllotmentApply::getId);
+            queryWrapper.lambda().orderByDesc(BranchAllotmentApply::getId);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
