@@ -13,10 +13,13 @@
 package vip.xiaonuo.dev.modular.job.task;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.timer.CommonTimerTaskRunner;
+import vip.xiaonuo.dbs.api.DbsApi;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.api.IDingDingService;
 
 import javax.annotation.Resource;
@@ -50,6 +53,9 @@ public class DebitRemindMsgTaskRunner implements CommonTimerTaskRunner {
             String sql = "SELECT ID,FIN_CODE,INITOR_ID,INITOR,RETURN_DATE FROM BIZ_DEBIT_APPLY WHERE DELETE_FLAG='NOT_DELETE' AND `STATUS`='1' AND DEBIT_STATUS = '0' AND RETURN_DATE IS NOT NULL AND DATEDIFF(RETURN_DATE,NOW()) = 10";
             log.info("借支单 - 预计还款 - 提前10天提醒 - 数据查询----"+sql);
             List<Map<String, Object>> mapList = CommonHandleUtil.handleSqlQuery2(sql, Boolean.FALSE);
+            //查询完成，切回主库
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            dbsApi.changeDataSource(DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase());
             if(CollUtil.isNotEmpty(mapList)){
                 mapList.forEach(item->{
                     String initor = item.get("INITOR").toString();
@@ -60,6 +66,7 @@ public class DebitRemindMsgTaskRunner implements CommonTimerTaskRunner {
                     initorIds.add(initorId);
                     //消息体
                     String subject = "建科云|您还有一笔借支单" + finCode + "待处理，若归还，请忽略。";
+
                     dingDingService.batchSend(subject,initorIds);
                     log.info("【给发起人:" + initor + "】借支单 - 预计还款 - 提前10天提醒......"+ subject);
 
