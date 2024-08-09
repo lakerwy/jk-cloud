@@ -46,7 +46,10 @@ public class IotTopicServiceImpl extends ServiceImpl<IotTopicMapper, IotTopic> i
         } else {
             queryWrapper.lambda().orderByAsc(IotTopic::getId);
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        if(StrUtil.isNotEmpty(iotTopicPageParam.getSearchKey())){
+            queryWrapper.eq("a.TOPIC_DESC",iotTopicPageParam.getSearchKey()).or().like("b.PROJECT_NAME",iotTopicPageParam.getSearchKey());
+        }
+        return baseMapper.pageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

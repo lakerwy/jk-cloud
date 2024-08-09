@@ -62,9 +62,14 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
             queryWrapper.orderBy(true, iotDevicePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(iotDevicePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(IotDevice::getId);
+            queryWrapper.orderByAsc("a.CREATE_TIME");
         }
-        return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        if(StrUtil.isNotEmpty(iotDevicePageParam.getSearchKey())){
+            queryWrapper.eq("a.DEVICE_NAME",iotDevicePageParam.getSearchKey())
+                    .or().like("b.TOPIC_DESC",iotDevicePageParam.getSearchKey())
+                    .or().like("c.NAME",iotDevicePageParam.getSearchKey());
+        }
+        return baseMapper.pageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
     @Transactional(rollbackFor = Exception.class)

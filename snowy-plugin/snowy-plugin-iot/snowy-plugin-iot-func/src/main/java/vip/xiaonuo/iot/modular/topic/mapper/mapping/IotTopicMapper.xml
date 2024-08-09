@@ -2,4 +2,7 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.iot.modular.topic.mapper.IotTopicMapper">
 
+    <select id="pageList" resultType="vip.xiaonuo.iot.modular.topic.entity.IotTopic">
+        select a.*,b.PROJECT_NAME from IOT_TOPIC a left join IOT_PROJECT b on a.PROJECT_ID=b.ID  ${ew.customSqlSegment}
+    </select>
 </mapper>

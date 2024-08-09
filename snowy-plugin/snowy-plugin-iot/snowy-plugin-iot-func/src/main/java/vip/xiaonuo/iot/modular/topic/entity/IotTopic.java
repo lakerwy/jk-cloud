@@ -76,6 +76,10 @@ public class IotTopic {
     @TableField(exist = false)
     private String topic;
 
+    @ApiModelProperty(value = "项目名称",position = 14)
+    @TableField(exist = false)
+    private String projectName;
+
     public String getTopic() {
         return topicPrex+"/"+clientId;
     }
