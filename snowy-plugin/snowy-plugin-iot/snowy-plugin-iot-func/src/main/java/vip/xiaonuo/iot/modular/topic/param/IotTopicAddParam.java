@@ -20,15 +20,20 @@ import java.util.Date;
 public class IotTopicAddParam {
 
     /** 主题前缀 */
-    @ApiModelProperty(value = "主题前缀", position = 2,required = true)
+    @ApiModelProperty(value = "网关前缀", position = 2)
+//    @NotBlank(message = "网关前缀不能为空")
     private String topicPrex;
 
     /** 设备ID */
-    @ApiModelProperty(value = "设备ID", position = 3,required = true)
+    @ApiModelProperty(value = "网关ID", position = 3,required = true)
+    @NotBlank(message = "网关ID不能为空")
     private String clientId;
 
+    @ApiModelProperty(value = "项目ID", position = 4)
+    private String projectId;
+
     /** 主题描述 */
-    @ApiModelProperty(value = "主题描述", position = 4)
+    @ApiModelProperty(value = "主题描述", position = 5)
     private String topicDesc;
 
     /** 扩展信息 */

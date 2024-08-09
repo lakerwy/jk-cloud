@@ -20,8 +20,12 @@ import java.util.Date;
 public class IotGroupAddParam {
 
     /** 名称 */
-    @ApiModelProperty(value = "名称", position = 2)
+    @ApiModelProperty(value = "名称", position = 2,required = true)
+    @NotBlank(message = "名称不能为空")
     private String name;
+
+    @ApiModelProperty(value = "项目ID", position = 3)
+    private String projectId;
 
     /** 扩展信息 */
     @ApiModelProperty(value = "扩展信息", position = 4)

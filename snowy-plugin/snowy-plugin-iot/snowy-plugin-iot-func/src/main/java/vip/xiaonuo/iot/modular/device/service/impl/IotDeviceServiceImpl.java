@@ -106,13 +106,29 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
     @Override
     public void operate(IotDeviceSwitchParam iotDeviceSwitchParam) {
         String id = iotDeviceSwitchParam.getId();
-        int switchPower1 = iotDeviceSwitchParam.getSwitchPower1();
-        int switchPower2 = iotDeviceSwitchParam.getSwitchPower2();
-        int switchPower3 = iotDeviceSwitchParam.getSwitchPower3();
-        operate(id,switchPower1,switchPower2,switchPower3);
+//        if(iotDeviceSwitchParam.getSwitchPower1()!=null){
+//            int switchPower1 = iotDeviceSwitchParam.getSwitchPower1();
+//        }
+//        int switchPower2 = iotDeviceSwitchParam.getSwitchPower2();
+//        int switchPower3 = iotDeviceSwitchParam.getSwitchPower3();
+        operate(id,iotDeviceSwitchParam.getSwitchPower1(),iotDeviceSwitchParam.getSwitchPower2(),iotDeviceSwitchParam.getSwitchPower3());
+        IotDevice iotDevice = queryEntity(id);
+        Integer switchPower1 = iotDeviceSwitchParam.getSwitchPower1();
+        if(switchPower1 != null){
+            iotDevice.setSwitchPower1(switchPower1);
+        }
+        Integer switchPower2 = iotDeviceSwitchParam.getSwitchPower2();
+        if(switchPower2 != null){
+            iotDevice.setSwitchPower2(switchPower2);
+        }
+        Integer switchPower3 = iotDeviceSwitchParam.getSwitchPower3();
+        if(switchPower3 != null){
+            iotDevice.setSwitchPower3(switchPower3);
+        }
+        updateById(iotDevice);
     }
 
-    public void operate(String id,int switchPower1,int switchPower2,int switchPower3) {
+    public void operate(String id,Integer switchPower1,Integer switchPower2,Integer switchPower3) {
         Message message = new Message();
         IotDevice iotDevice = this.getById(id);
         if(ObjectUtil.isEmpty(iotDevice)) {
@@ -124,9 +140,15 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
         MqttData data = new MqttData();
         data.setId(idGeneratorService.generateId());
         MqttDevice mqttDevice = BeanUtil.copyProperties(iotDevice, MqttDevice.class);
-        mqttDevice.setSwitchPower1(switchPower1);
-        mqttDevice.setSwitchPower2(switchPower2);
-        mqttDevice.setSwitchPower3(switchPower3);
+        if(switchPower1 != null){
+            mqttDevice.setSwitchPower1(switchPower1);
+        }
+        if(switchPower2 != null){
+            mqttDevice.setSwitchPower2(switchPower2);
+        }
+        if(switchPower3 != null){
+            mqttDevice.setSwitchPower3(switchPower3);
+        }
         List<MqttDevice> mqttDevices = new ArrayList<>();
         mqttDevices.add(mqttDevice);
         data.setDevices(mqttDevices);
@@ -173,7 +195,7 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
         }
         int switchType = iotDeviceOperateParam.getSwitchType();
         for (IotDevice iotDevice : iotDevices){
-            operate(iotDevice.getId(),switchType,switchType,switchType);
+            operate(iotDevice.getId(),switchType,iotDevice.getDeviceType());
         }
     }
 
@@ -185,7 +207,7 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
             List<IotDevice> list = list();
             for (IotDevice iotDevice : list) {
                 try {
-                    operate(iotDevice.getId(), switchType,switchType,switchType);
+                    operate(iotDevice.getId(),switchType,iotDevice.getDeviceType());
                 } catch (Exception e) {
                     log.error(String.format("编号为%s设备%s失败", iotDevice.getDeviceCode(), switchType == 0 ? "关闭" : "打开"), e);
                 }
@@ -199,5 +221,18 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
         if(ObjectUtil.isNotEmpty(one)) {
             operate(one.getId(),switchType,switchType,switchType);
         }
+    }
+
+    private void operate(String deviceId,int switchType,int deviceType){
+        Integer switchPower1 = switchType;
+        Integer switchPower2 = null;
+        Integer switchPower3 = null;
+        if(deviceType==9){
+            switchPower2 = switchType;
+        }else if(deviceType==10){
+            switchPower2 = switchType;
+            switchPower3 = switchType;
+        }
+        operate(deviceId,switchPower1,switchPower2,switchPower3);
     }
 }

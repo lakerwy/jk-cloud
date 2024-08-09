@@ -168,4 +168,30 @@ public class IotDevice {
 //    @TableField(exist = false)
 //    private Integer switchType;
 
+    @ApiModelProperty(value = "群组名称",position = 37)
+    @TableField(exist = false)
+    private String groupName;
+
+    @ApiModelProperty(value = "网关名称",position = 38)
+    @TableField(exist = false)
+    private String topicName;
+
+
+    public Integer getSwitchPower1() {
+        return switchPower1;
+    }
+
+    public Integer getSwitchPower2() {
+        if (deviceType == 8){
+            return null;
+        }
+        return switchPower2;
+    }
+
+    public Integer getSwitchPower3() {
+        if (deviceType == 8 || deviceType == 9){
+            return null;
+        }
+        return switchPower3;
+    }
 }

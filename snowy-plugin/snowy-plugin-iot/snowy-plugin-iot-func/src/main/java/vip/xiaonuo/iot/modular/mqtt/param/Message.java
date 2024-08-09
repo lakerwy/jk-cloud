@@ -19,6 +19,8 @@ public class Message {
     @ApiModelProperty(value = "设备ID", position = 2,required = true)
     private String clientId;
 
+    private int state;
+
     @ApiModelProperty(value = "消息", position = 3,required = true)
     private MqttData data;
 }
