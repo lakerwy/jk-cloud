@@ -200,8 +200,17 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
         }
         int switchType = iotDeviceOperateParam.getSwitchType();
         for (IotDevice iotDevice : iotDevices){
+            Integer deviceType = iotDevice.getDeviceType();
+            iotDevice.setSwitchPower1(switchType);
+            if(deviceType==9){
+                iotDevice.setSwitchPower2(switchType);
+            }else if(deviceType==10){
+                iotDevice.setSwitchPower2(switchType);
+                iotDevice.setSwitchPower3(switchType);
+            }
             operate(iotDevice.getId(),switchType,iotDevice.getDeviceType());
         }
+        updateBatchById(iotDevices);
     }
 
     @Override

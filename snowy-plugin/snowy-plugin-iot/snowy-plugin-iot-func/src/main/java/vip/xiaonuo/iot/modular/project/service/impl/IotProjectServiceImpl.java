@@ -165,6 +165,8 @@ public class IotProjectServiceImpl extends ServiceImpl<IotProjectMapper, IotProj
                                 nodeVo1.setType(3);
                                 nodeVo1.setKey(iotDevice.getId());
                                 nodeVo1.setValue(iotDevice.getDeviceCode());
+                                nodeVo1.setCode(iotDevice.getDeviceCode());
+                                nodeVo1.setIsOnline(iotDevice.getIsOnline());
                                 nodeVo1.setDesc(iotDevice.getDeviceName());
                                 return nodeVo1;
                             }, Collectors.toList())
@@ -211,6 +213,8 @@ public class IotProjectServiceImpl extends ServiceImpl<IotProjectMapper, IotProj
                                 nodeVo1.setKey(iotDevice.getId());
                                 nodeVo1.setValue(iotDevice.getDeviceCode());
                                 nodeVo1.setDesc(iotDevice.getDeviceName());
+                                nodeVo1.setCode(iotDevice.getDeviceCode());
+                                nodeVo1.setIsOnline(iotDevice.getIsOnline());
                                 return nodeVo1;
                             }, Collectors.toList())
                     ));

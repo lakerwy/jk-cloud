@@ -25,5 +25,9 @@ public class NodeVo {
      */
     private int type;
 
+    private int isOnline;
+
+    private String code;
+
     private List<NodeVo> children;
 }

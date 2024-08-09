@@ -58,12 +58,57 @@ public class MqttAcceptCallback implements MqttCallbackExtended {
 
     @Override
     public void connectionLost(Throwable throwable) {
-        log.info("接收消息回调:  连接断开，可以做重连");
-        if (MqttAcceptClient.mqttClient == null || !MqttAcceptClient.mqttClient.isConnected()) {
-            log.info("接收消息回调:  emqx重新连接....................................................");
-            mqttAcceptClient.reconnection();
+        log.warn("MQTT 连接丢失，原因: {}", throwable.getMessage());
+
+        // 延迟重试机制
+        int maxRetries = 5;
+        int retryCount = 0;
+        int retryDelay = 5000; // 初始延迟时间（毫秒）
+
+        while ((MqttAcceptClient.mqttClient == null || !MqttAcceptClient.mqttClient.isConnected()) && retryCount < maxRetries) {
+            try {
+                log.info("尝试重新连接，重试次数: {}/{}", retryCount + 1, maxRetries);
+                mqttAcceptClient.reconnection();
+                if (MqttAcceptClient.mqttClient.isConnected()) {
+                    log.info("重新连接成功！");
+                    break;
+                }
+            } catch (Exception e) {
+                log.error("重新连接失败: {}", e.getMessage(), e);
+            }
+
+            retryCount++;
+            try {
+                // 随着重试次数增加，延长延迟时间
+                Thread.sleep(retryDelay + (retryCount * 2000));
+            } catch (InterruptedException e) {
+                log.error("重连延迟被打断: {}", e.getMessage(), e);
+                Thread.currentThread().interrupt();
+            }
+        }
+
+        if (retryCount >= maxRetries) {
+            log.error("已达到最大重试次数，无法重新连接 MQTT 服务器");
+            // 可选择停止重试，或者进行更长时间的延迟后再试
+            scheduleReconnectAttempt();
         }
     }
+
+    private void scheduleReconnectAttempt() {
+        int extendedRetryDelay = 60000; // 延迟 60 秒后再次尝试连接
+        log.warn("将在 {} 毫秒后尝试再次连接", extendedRetryDelay);
+
+        new Thread(() -> {
+            try {
+                Thread.sleep(extendedRetryDelay);
+                mqttAcceptClient.reconnection();
+            } catch (InterruptedException e) {
+                log.error("延迟后重连失败: {}", e.getMessage(), e);
+            }
+        }).start();
+    }
+
+
 
     @Override
     public void messageArrived(String topic, MqttMessage mqttMessage) {

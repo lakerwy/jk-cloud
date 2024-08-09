@@ -6,8 +6,8 @@ mqtt:
   clientId: iot-client
   cleanSession: true
   reconnect: true
-  timeout: 100
-  keepAlive: 100
+  timeout: 300
+  keepAlive: 300
   gateWayPre: smartHouse
   defaultTopicId: 24173233
   deviceTopic: device/#
