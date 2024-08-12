@@ -6,6 +6,9 @@ package vip.xiaonuo.iot.modular.device.constant;
  * @date 2024/8/5 11:35
  */
 public class CmdConstant {
+    /**
+     * 网关下发的控制设备的命令
+     */
     public static final int CMD_208 = 208;
 
     /**
@@ -19,4 +22,9 @@ public class CmdConstant {
     public static final int CMD_100 = 100;
 
     public static final int CMD_200 = 200;
+
+    /**
+     * 设备下发的命令
+     */
+    public static final int CMD_108 = 108;
 }

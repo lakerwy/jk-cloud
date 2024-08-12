@@ -1,5 +1,6 @@
 package vip.xiaonuo.iot.modular.mqtt.client;
 
+import cn.hutool.core.util.RandomUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -12,6 +13,8 @@ import vip.xiaonuo.iot.core.config.MqttProperties;
 import vip.xiaonuo.iot.modular.mqtt.callBack.MqttAcceptCallback;
 
 import javax.annotation.Resource;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * @author mayike
@@ -31,6 +34,8 @@ public class MqttAcceptClient {
     @Resource
     private MqttProperties mqttProperties;
 
+    private final ConcurrentMap<String, Boolean> clientMap = new ConcurrentHashMap<>();
+
     public static MqttClient getMqttClient() {
         return mqttClient;
     }
@@ -46,7 +51,7 @@ public class MqttAcceptClient {
         MqttClient client;
         try {
             // clientId 使用服务器 yml里面配置的 clientId
-            client = new MqttClient(mqttProperties.getHostUrl(), mqttProperties.getClientId(), new MemoryPersistence());
+            client = new MqttClient(mqttProperties.getHostUrl(), "iot"+ RandomUtil.getRandom(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setUserName(mqttProperties.getUsername());
             options.setPassword(mqttProperties.getPassword().toCharArray());
@@ -85,9 +90,13 @@ public class MqttAcceptClient {
      * @param qos   连接方式
      */
     public void subscribe(String topic, int qos) {
-        log.info("==============开始订阅主题=============={}", topic);
         try {
+            if (clientMap.containsKey(topic) && clientMap.get(topic)) {
+                return;
+            }
+            log.info("==============开始订阅主题=============={}", topic);
             mqttClient.subscribe(topic, qos);
+            clientMap.put(topic, true);
         } catch (MqttException e) {
             e.printStackTrace();
         }

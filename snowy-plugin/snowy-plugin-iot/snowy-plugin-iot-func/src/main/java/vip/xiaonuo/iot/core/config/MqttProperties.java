@@ -79,4 +79,9 @@ public class MqttProperties{
     private String onCronExpression;
 
     private boolean enable;
+
+    /**
+     * 命令之间延迟时间
+     */
+    private int sleepTime;
 }

@@ -7,7 +7,7 @@ mqtt:
   cleanSession: true
   reconnect: true
   timeout: 300
-  keepAlive: 300
+  keepAlive: 3000
   gateWayPre: smartHouse
   defaultTopicId: 24173233
   deviceTopic: device/#
@@ -17,3 +17,4 @@ mqtt:
 #  offCronExpression: "0 23 15 ? * MON-FRI"
 #  onCronExpression: "0 27 15 ? * MON-FRI"
   enable: false  #是否开启正式环境
+  sleepTime: 1000  # 命令之间的延迟时间

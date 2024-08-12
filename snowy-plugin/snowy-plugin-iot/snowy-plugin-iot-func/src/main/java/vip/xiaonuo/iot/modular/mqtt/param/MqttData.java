@@ -15,6 +15,10 @@ public class MqttData {
     @ApiModelProperty(value = "消息ID", position = 1)
     private String  id;
 
+    private int  ispush;
+
+    private int pollTime;
+
     @ApiModelProperty(value = "设备列表", position = 1)
     private List<MqttDevice> devices;
 }

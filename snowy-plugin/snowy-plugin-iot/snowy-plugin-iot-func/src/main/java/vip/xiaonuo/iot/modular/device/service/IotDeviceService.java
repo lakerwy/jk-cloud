@@ -74,4 +74,6 @@ public interface IotDeviceService extends IService<IotDevice> {
     void batchOperate(IotDeviceOperateParam iotDeviceOperateParam);
 
     void scheduling(int switchType);
+
+    String getId(int cmd);
 }
