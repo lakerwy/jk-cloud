@@ -45,7 +45,7 @@ public class BranchAllotmentApplyController {
      */
     @ApiOperationSupport(order = 1)
     @ApiOperation("获取分公司日常费用拨付 - 申请流程分页")
-    // @SaCheckPermission("/biz/branch/allotment/page")
+    @SaCheckPermission("/biz/branch/allotment/page")
     @GetMapping("/biz/branch/allotment/page")
     public CommonResult<Page<BranchAllotmentApply>> page(BranchAllotmentApplyPageParam branchAllotmentApplyPageParam) {
         return CommonResult.data(branchAllotmentApplyService.page(branchAllotmentApplyPageParam));

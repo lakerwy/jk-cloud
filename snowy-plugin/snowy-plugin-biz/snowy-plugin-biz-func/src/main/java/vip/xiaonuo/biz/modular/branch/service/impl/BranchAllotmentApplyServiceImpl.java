@@ -1,5 +1,6 @@
 package vip.xiaonuo.biz.modular.branch.service.impl;
 
+import cn.dev33.satoken.stp.StpUtil;
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
@@ -13,9 +14,11 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.branch.entity.BranchPaymentInfo;
 import vip.xiaonuo.biz.modular.branch.param.*;
 import vip.xiaonuo.biz.modular.branch.service.BranchPaymentInfoService;
+import vip.xiaonuo.biz.modular.crm.pursalecontract.entity.Pursalecontract;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -58,7 +61,11 @@ public class BranchAllotmentApplyServiceImpl extends ServiceImpl<BranchAllotment
         if(ObjectUtil.isNotEmpty(branchAllotmentApplyPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(BranchAllotmentApply::getBranchName,branchAllotmentApplyPageParam.getSearchKey())
                     .or().like(BranchAllotmentApply::getBankName,branchAllotmentApplyPageParam.getSearchKey())
-                    .or().like(BranchAllotmentApply::getBankAccount,branchAllotmentApplyPageParam.getSearchKey()));
+                    .or().like(BranchAllotmentApply::getBankAccount,branchAllotmentApplyPageParam.getSearchKey())
+                    .or().like(BranchAllotmentApply::getSn,branchAllotmentApplyPageParam.getSearchKey()));
+        }
+        if(ObjectUtil.isNotEmpty(branchAllotmentApplyPageParam.getStatus())){
+            queryWrapper.lambda().eq(BranchAllotmentApply::getStatus,branchAllotmentApplyPageParam.getStatus());
         }
         if(ObjectUtil.isAllNotEmpty(branchAllotmentApplyPageParam.getSortField(), branchAllotmentApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(branchAllotmentApplyPageParam.getSortOrder());
@@ -66,6 +73,13 @@ public class BranchAllotmentApplyServiceImpl extends ServiceImpl<BranchAllotment
                     StrUtil.toUnderlineCase(branchAllotmentApplyPageParam.getSortField()));
         } else {
             queryWrapper.lambda().orderByDesc(BranchAllotmentApply::getId);
+        }
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.lambda().in(BranchAllotmentApply::getDataScopeId, loginUserDataScope);
+        } else {
+            queryWrapper.lambda().eq(BranchAllotmentApply::getCreateUser, StpUtil.getLoginIdAsString());
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }

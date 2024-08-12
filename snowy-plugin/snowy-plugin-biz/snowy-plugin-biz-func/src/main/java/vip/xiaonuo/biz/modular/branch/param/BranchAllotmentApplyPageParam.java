@@ -34,4 +34,7 @@ public class BranchAllotmentApplyPageParam {
     @ApiModelProperty(value = "关键词")
     private String searchKey;
 
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态")
+    private String status;
 }
