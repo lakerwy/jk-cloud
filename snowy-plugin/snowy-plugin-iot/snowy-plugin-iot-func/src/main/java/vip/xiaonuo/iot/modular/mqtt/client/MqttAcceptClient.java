@@ -51,6 +51,7 @@ public class MqttAcceptClient {
         MqttClient client;
         try {
             // clientId 使用服务器 yml里面配置的 clientId
+            // clientId相同，即clientId重复导致  控制台不停地反复输出：已断开连接，
             client = new MqttClient(mqttProperties.getHostUrl(), "iot"+ RandomUtil.getRandom(), new MemoryPersistence());
             MqttConnectOptions options = new MqttConnectOptions();
             options.setUserName(mqttProperties.getUsername());
