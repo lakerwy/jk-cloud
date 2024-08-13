@@ -178,6 +178,22 @@ public class RabbitMsg {
             forms.add(form);
         }
 
+        String flwCommentUser = jsonObject.getStr(FlwCacheConstant.FLW_COMMENT_USER);
+        if(StrUtil.isNotEmpty(flwCommentUser)){
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("评论人：");
+            form.setValue(flwCommentUser);
+            forms.add(form);
+        }
+
+        String flwCommentContext = jsonObject.getStr(FlwCacheConstant.FLW_COMMENT_CONTEXT);
+        if(StrUtil.isNotEmpty(flwCommentUser)){
+            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
+            form.setKey("评论内容为：");
+            form.setValue(flwCommentContext);
+            forms.add(form);
+        }
+
         String flwSenders = jsonObject.getStr(FlwCacheConstant.SENDERS);
         Set<String> userSets = new HashSet<>();
         if(StrUtil.isNotEmpty(flwSenders)){

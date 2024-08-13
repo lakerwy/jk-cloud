@@ -422,6 +422,10 @@ public class DingDingServiceImpl implements IDingDingService {
 
     }
 
+    /**
+     * rabbitmq 消费消息
+     * @param rabbitMsg
+     */
     @Override
     public void commonSend(RabbitMsg rabbitMsg) {
         if(!dingTalkProperties.getIsSend()){
