@@ -3,10 +3,7 @@ package vip.xiaonuo.biz.modular.branch.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.branch.entity.BranchBankInfo;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoAddParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoEditParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoIdParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoPageParam;
+import vip.xiaonuo.biz.modular.branch.param.*;
 
 import java.util.List;
 
@@ -65,4 +62,12 @@ public interface BranchBankInfoService extends IService<BranchBankInfo> {
      * @date  2024/08/05 11:46
      **/
     BranchBankInfo queryEntity(String id);
+
+    /**
+     * 分公司银行账户信息 - 导入 【直接导入模式，无校验】
+     *
+     * @author pzh
+     * @date  2024/08/13 10:30
+     */
+    void importData(ImportBranchBankInfo input);
 }

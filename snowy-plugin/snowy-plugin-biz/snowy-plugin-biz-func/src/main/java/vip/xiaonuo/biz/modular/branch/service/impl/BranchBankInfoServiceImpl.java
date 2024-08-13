@@ -2,6 +2,7 @@ package vip.xiaonuo.biz.modular.branch.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -10,16 +11,12 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.biz.modular.prj.allotment.entity.BizPrjAllotment;
+import vip.xiaonuo.biz.modular.branch.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.branch.entity.BranchBankInfo;
 import vip.xiaonuo.biz.modular.branch.mapper.BranchBankInfoMapper;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoAddParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoEditParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoIdParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoPageParam;
 import vip.xiaonuo.biz.modular.branch.service.BranchBankInfoService;
 
 import java.time.LocalDate;
@@ -109,5 +106,19 @@ public class BranchBankInfoServiceImpl extends ServiceImpl<BranchBankInfoMapper,
             throw new CommonException("分公司银行账户信息不存在，id值为：{}", id);
         }
         return branchBankInfo;
+    }
+
+    @Override
+    public void importData(ImportBranchBankInfo input) {
+        if(CollUtil.isEmpty(input.getImportData())){
+            throw new CommonException("无有效导入数据");
+        }
+        List<BranchBankInfo> addList = BeanUtil.copyToList(input.getImportData(), BranchBankInfo.class);
+        Date now = new Date();
+        for(BranchBankInfo branchBankInfo : addList){
+            branchBankInfo.setCreateTime(now);
+            branchBankInfo.setBalanceUpdateTime(now);
+        }
+        this.saveBatch(addList);
     }
 }

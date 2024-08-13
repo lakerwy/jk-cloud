@@ -11,14 +11,11 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.branch.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.branch.entity.BranchBankInfo;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoAddParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoEditParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoIdParam;
-import vip.xiaonuo.biz.modular.branch.param.BranchBankInfoPageParam;
 import vip.xiaonuo.biz.modular.branch.service.BranchBankInfoService;
 
 import javax.annotation.Resource;
@@ -115,5 +112,20 @@ public class BranchBankInfoController {
     @GetMapping("/biz/branch/bank/detail")
     public CommonResult<BranchBankInfo> detail(@Valid BranchBankInfoIdParam branchBankInfoIdParam) {
         return CommonResult.data(branchBankInfoService.detail(branchBankInfoIdParam));
+    }
+
+    /**
+     * 分公司银行账户信息 - 导入 【直接导入模式，无校验】
+     *
+     * @author pzh
+     * @date  2024/08/13 10:30
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("分公司银行账户信息 - 导入 【直接导入模式，无校验】")
+    @CommonLog("分公司银行账户信息 - 导入 【直接导入模式，无校验】")
+    @PostMapping("/biz/branch/bank/importData")
+    public CommonResult<String> importData(@RequestBody @Valid ImportBranchBankInfo input) {
+        branchBankInfoService.importData(input);
+        return CommonResult.ok();
     }
 }
