@@ -83,4 +83,7 @@ public class BizAuditListsDetailsEditParam {
     @ApiModelProperty(value = "修订附件地址", position = 12)
     private String reviseAttachments;
 
+    /** 操作方：提问方 QUESTION 回复方 - REPLAY */
+    @ApiModelProperty(value = "操作方：提问方 QUESTION 回复方 - REPLAY", position = 18)
+    private String chatType;
 }

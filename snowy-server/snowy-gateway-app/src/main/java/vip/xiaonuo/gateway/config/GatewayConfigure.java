@@ -163,6 +163,8 @@ public class GatewayConfigure {
             /*获取工程设计校审信息*/
             "/api/bizapp/biz/AuditLists/info",
             "/api/bizapp/biz/AuditListsDetails/editNoToken",
+            "/api/bizapp/biz/AuditLists/infoChat",
+            "/api/bizapp/biz/AuditListsDetails/addChat",
 
             /* cms 文章管理 */
             "/api/bizapp/biz/cms/article/page",

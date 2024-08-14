@@ -19,8 +19,6 @@ import lombok.Getter;
 import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
-import javax.validation.constraints.NotBlank;
-import java.math.BigDecimal;
 import java.util.Date;
 
 /**
@@ -113,4 +111,8 @@ public class BizAuditListsDetails {
     @ApiModelProperty(value = "更新人", position = 17)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
+
+    /** 操作方：提问方 QUESTION 回复方 - REPLAY */
+    @ApiModelProperty(value = "操作方：提问方 QUESTION 回复方 - REPLAY", position = 18)
+    private String chatType;
 }
