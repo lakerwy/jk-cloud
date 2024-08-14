@@ -1,10 +1,16 @@
 package vip.xiaonuo.iot.modular.device.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
+import cn.hutool.core.bean.copier.CopyOptions;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSON;
+import com.alibaba.fastjson2.util.BeanUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
@@ -32,6 +38,7 @@ import vip.xiaonuo.iot.modular.topic.service.IotTopicService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -154,6 +161,9 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
         data.setId(getId(CmdConstant.CMD_208));
         data.setDevices(mqttDevices);
         message.setData(data);
+        if(JSON.toJSONString(message, SerializerFeature.WriteMapNullValue.toString()).length()>1000){
+            log.error("长度大于1000");
+        }
         mqttSendClient.publish(false,iotTopic.getTopicPrex()+"/"+iotTopic.getClientId(),message);
     }
 
@@ -187,54 +197,78 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
     @Override
     public void batchOperate(IotDeviceOperateParam iotDeviceOperateParam) {
         List<IotDevice> iotDevices = new ArrayList<>();
-        if (CollUtil.isNotEmpty(iotDeviceOperateParam.getGroupIds())){
+        if (CollUtil.isNotEmpty(iotDeviceOperateParam.getGroupIds())) {
             iotDevices.addAll(list(new LambdaQueryWrapper<IotDevice>().in(IotDevice::getGroupId, iotDeviceOperateParam.getGroupIds())));
-
         }
-        if (CollUtil.isNotEmpty(iotDeviceOperateParam.getIds())){
+        if (CollUtil.isNotEmpty(iotDeviceOperateParam.getIds())) {
             iotDevices.addAll(list(new LambdaQueryWrapper<IotDevice>().in(IotDevice::getId, iotDeviceOperateParam.getIds())));
         }
         Map<String, List<IotDevice>> collect = iotDevices.stream().collect(Collectors.groupingBy(IotDevice::getDeviceTopicId));
 
         int switchType = iotDeviceOperateParam.getSwitchType();
-        List<MqttDevice> mqttDevices;
+        List<MqttDevice> mqttDevices = new ArrayList<>();
+        int maxBatchLength = 800; // 字符串长度限制
+        int currentBatchLength = 0;
 
         for (Map.Entry<String, List<IotDevice>> entry : collect.entrySet()) {
             List<IotDevice> devices = entry.getValue();
-            mqttDevices = new ArrayList<>();
             String topicId = null;
 
-            for (IotDevice iotDevice : devices) {
+            Iterator<IotDevice> iterator = devices.iterator();
+            while (iterator.hasNext()) {
+                IotDevice iotDevice = iterator.next();
                 topicId = iotDevice.getDeviceTopicId();
-                buildFh(iotDevice, mqttDevices, switchType);
+                MqttDevice mqttDevice = buildFh(iotDevice, mqttDevices, switchType);
+                String deviceString = JSON.toJSONString(mqttDevice); // 使用 Fastjson2 序列化
 
-                // 符合指令 mqttDevices 列表的大小达到 8，则执行操作并清空列表
-                if (mqttDevices.size() == 8) {
+                int deviceLength = deviceString.length();
+
+                // 检查是否会超过限制
+                if ((currentBatchLength + deviceLength) > maxBatchLength) {
+                    mqttDevices.remove(mqttDevice);
+                    // 执行操作并清空列表
                     operate(topicId, mqttDevices);
-                    mqttDevices.clear(); // 清空列表以继续添加设备
-                    // 等待 1 秒
+                    mqttDevices.clear();
+                    currentBatchLength = 0;
+                    devices.add(iotDevice);
+                    // 休眠 1 秒
                     try {
                         Thread.sleep(mqttProperties.getSleepTime());
                     } catch (InterruptedException e) {
-                        Thread.currentThread().interrupt(); // 恢复中断状态
+                        Thread.currentThread().interrupt();
                         log.error("Thread was interrupted during sleep", e);
                     }
+                } else {
+                    currentBatchLength += deviceLength;
                 }
             }
-            // 处理剩余的未达到 8 个设备的列表
+            // 处理剩余未达到8个设备且字符串总长度未超过500的设备
             if (!mqttDevices.isEmpty() && topicId != null) {
                 operate(topicId, mqttDevices);
-                // 等待 1 秒
+                mqttDevices.clear();
+                currentBatchLength = 0;
+
+                // 休眠 1 秒
                 try {
                     Thread.sleep(mqttProperties.getSleepTime());
                 } catch (InterruptedException e) {
-                    Thread.currentThread().interrupt(); // 恢复中断状态
+                    Thread.currentThread().interrupt();
                     log.error("Thread was interrupted during sleep", e);
                 }
             }
         }
+
+        // 最终处理剩余的设备
+        if (!mqttDevices.isEmpty()) {
+            operate(iotDevices.get(0).getDeviceTopicId(), mqttDevices); // 假设所有设备的 topicId 相同
+            mqttDevices.clear();
+        }
+
         updateBatchById(iotDevices);
     }
+
+
+
 
     @Override
     public void scheduling(int switchType) {
@@ -276,18 +310,25 @@ public class IotDeviceServiceImpl extends ServiceImpl<IotDeviceMapper, IotDevice
 //        operate(deviceId,switchPower1,switchPower2,switchPower3);
 //    }
 
-    private void buildFh(IotDevice iotDevice,List<MqttDevice> mqttDevices,Integer switchType){
+    private MqttDevice buildFh(IotDevice iotDevice, List<MqttDevice> mqttDevices, Integer switchType) {
         Integer deviceType = iotDevice.getDeviceType();
         iotDevice.setSwitchPower1(switchType);
-        if(deviceType==9){
+        if (deviceType == 9) {
             iotDevice.setSwitchPower2(switchType);
-        }else if(deviceType==10){
+        } else if (deviceType == 10) {
             iotDevice.setSwitchPower2(switchType);
             iotDevice.setSwitchPower3(switchType);
         }
-        MqttDevice mqttDevice = BeanUtil.copyProperties(iotDevice, MqttDevice.class);
+        //MqttDevice mqttDevice = new MqttDevice();
+        JSONObject jsonObject = JSONUtil.parseObj(iotDevice, true);
+        MqttDevice mqttDevice = JSONUtil.toBean(jsonObject, MqttDevice.class,true);
+        //MqttDevice mqttDevice = JSON.to(MqttDevice.class, iotDevice);
+        // 使用 Hutool 的 BeanUtil.copyProperties 时过滤掉 null 字段
+        //BeanUtil.copyProperties(iotDevice, mqttDevice, CopyOptions.create().setIgnoreNullValue(false));
         mqttDevices.add(mqttDevice);
+        return mqttDevice;
     }
+
 
     @Override
     public String getId(int cmd){

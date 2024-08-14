@@ -14,38 +14,38 @@ public class MqttDevice {
     private String deviceCode;
 
     @ApiModelProperty(value = "子设备类型")
-    private int deviceType;
+    private Integer deviceType;
 
-    private int socketRestart;
+    private Integer socketRestart;
 
-    private int socketAllowStart;
+    private Integer socketAllowStart;
 
     @ApiModelProperty(value = "配置开关第1路的通断电状态")
-    private int switchPower1;
+    private Integer switchPower1;
 
     @ApiModelProperty(value = "配置开关第2路的通断电状态")
-    private int switchPower2;
+    private Integer switchPower2;
 
     @ApiModelProperty(value = "配置开关第3路的通断电状态")
-    private int switchPower3;
+    private Integer switchPower3;
 
-    private int switchRestate1;
+    private Integer switchRestate1;
 
-    private int switchRestate2;
+    private Integer switchRestate2;
 
-    private int switchRestate3;
+    private Integer switchRestate3;
 
-    private int switchAllowStart;
+    private Integer switchAllowStart;
 
-    private int hornVoice;
-
-    private int hornVolume;
-
-    private int lockOpenControl;
-
-    private int lockWorkMode;
-
-    private int lockCloseTime;
+//    private int hornVoice;
+//
+//    private int hornVolume;
+//
+//    private int lockOpenControl;
+//
+//    private int lockWorkMode;
+//
+//    private int lockCloseTime;
 
     private Integer isOnline;
 

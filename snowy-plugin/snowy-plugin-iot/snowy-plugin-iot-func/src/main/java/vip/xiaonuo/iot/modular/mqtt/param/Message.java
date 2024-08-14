@@ -12,14 +12,14 @@ import lombok.Data;
 public class Message {
 
     @ApiModelProperty(value = "命令代码", position = 1,required = true)
-    private int cmd;
+    private Integer cmd;
 
     private Long time = System.currentTimeMillis();
 
     @ApiModelProperty(value = "设备ID", position = 2,required = true)
     private String clientId;
 
-    private int state;
+    private Integer state;
 
     @ApiModelProperty(value = "消息", position = 3,required = true)
     private MqttData data;

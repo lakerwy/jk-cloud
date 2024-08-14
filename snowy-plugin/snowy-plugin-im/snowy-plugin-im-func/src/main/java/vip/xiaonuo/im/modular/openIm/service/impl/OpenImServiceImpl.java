@@ -164,7 +164,7 @@ public class OpenImServiceImpl implements OpenImService {
      */
     @Override
     public JSONObject autoLogin(JSONObject userJson){
-        String httpsUrl = openImProperties.getUrl() + Route.USER_LOGIN;
+        String httpsUrl = "10.0.22.91:10008" + Route.USER_LOGIN;
         HttpRequest httpPost = HttpUtil.createPost(httpsUrl);
         httpPost.header("Operationid", UUID.randomUUID().toString());
         LoginParam loginParam = new LoginParam();

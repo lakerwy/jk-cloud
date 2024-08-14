@@ -1,6 +1,8 @@
 package vip.xiaonuo.iot.modular.mqtt.client;
 
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson.serializer.SerializerFeature;
+import com.alibaba.fastjson2.JSON;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
@@ -67,11 +69,11 @@ public class MqttSendClient {
         message.setQos(mqttProperties.getQos());
         message.setRetained(retained);
         pushMessage.setTime(System.currentTimeMillis());
-        String pushMessageStr = JSONUtil.toJsonStr(pushMessage);
+        String pushMessageStr = JSON.toJSONString(pushMessage, SerializerFeature.WriteMapNullValue.toString());
         message.setPayload(pushMessageStr.getBytes());
         MqttClient mqttClient = connect();
         try {
-            log.debug(String.format("发送指令消息体为:%s",message));
+            log.info(String.format("发送指令消息体为:%s",message));
             mqttClient.publish(topic, message);
         } catch (MqttException e) {
             e.printStackTrace();
