@@ -1119,7 +1119,7 @@ public class NodeRuntimeUtil {
                                 taskMap.put("initiatorName",String.valueOf(delegateExecution.getVariable("initiatorName")));
                                 taskMap.put("processDefinitionId",delegateExecution.getProcessDefinitionId());
                                 taskMap.put("currentActivityId",delegateExecution.getCurrentActivityId());
-                                taskMap.put("flwType",FlwCacheConstant.FlwType.DONE);
+                                taskMap.put("flwType",FlwCacheConstant.FlwType.TODO);
 //                                taskMap.put("noticeType",noticeType);
                             }else {
                                 processInstanceId = delegateTask.getProcessInstanceId();
