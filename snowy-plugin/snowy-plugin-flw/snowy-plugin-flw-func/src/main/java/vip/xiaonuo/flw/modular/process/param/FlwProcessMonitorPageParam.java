@@ -90,4 +90,7 @@ public class FlwProcessMonitorPageParam {
     @ApiModelProperty(value = "状态码", position = 21)
     private String stateCode;
 
+    /** 当前办理人 */
+    @ApiModelProperty(value = "当前办理人", position = 22)
+    private String assignees;
 }
