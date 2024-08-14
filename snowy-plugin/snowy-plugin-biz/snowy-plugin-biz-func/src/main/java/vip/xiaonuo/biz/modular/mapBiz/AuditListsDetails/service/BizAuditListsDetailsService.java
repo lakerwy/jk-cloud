@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDetails;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsAddParam;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsEditParam;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsIdParam;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsPageParam;
+import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.*;
 
 import java.util.List;
 
@@ -77,4 +74,10 @@ public interface BizAuditListsDetailsService extends IService<BizAuditListsDetai
      * @date  2023/07/03 11:33
      **/
     BizAuditListsDetails queryEntity(String id);
+
+    /**
+     * 添加聊天记录
+     * @param chatParam
+     */
+    void addChat(ChatParam chatParam);
 }

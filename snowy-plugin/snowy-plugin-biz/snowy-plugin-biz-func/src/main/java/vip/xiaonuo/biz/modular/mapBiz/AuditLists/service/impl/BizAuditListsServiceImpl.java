@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
@@ -26,6 +27,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoChatVo;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.ChatInfoVo;
+import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.enums.ChatEnum;
 import vip.xiaonuo.common.consts.CacheConstant;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -52,6 +56,7 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -187,6 +192,64 @@ public class BizAuditListsServiceImpl extends ServiceImpl<BizAuditListsMapper, B
         bizAuditInfoVo.setBizChartReviews(bizChartReviews);
         bizAuditInfoVo.setBizAuditLists(bizAuditLists);
         bizAuditInfoVo.setBizAuditListsDetailsList(list);
+        return bizAuditInfoVo;
+    }
+
+    @Override
+    public BizAuditInfoChatVo infoChat(BizAuditListsIdParam bizAuditListsIdParam) {
+        BizAuditLists bizAuditLists = this.queryEntity(bizAuditListsIdParam.getId());
+        String profession = bizAuditLists.getProfession();
+        if(CommonUtils.isNumeric(profession)){
+            bizAuditLists.setProfession ( (String)commonCacheOperator.get(CommonUtils.MAJOR_TYPE + profession));
+            String o = String.valueOf(commonCacheOperator.get(CacheConstant.USER_INFO + bizAuditLists.getReader()));
+            String s = "";
+            if(StrUtil.isNotBlank(o)){
+                s = " "+o;
+            }
+            bizAuditLists.setReader(commonCacheOperator.get(CommonUtils.MAJOR_TYPE_USER+bizAuditLists.getReader()) + s);
+        }
+        String reviewId = bizAuditLists.getReviewId();
+        BizChartReviews bizChartReviews = bizChartReviewsService.getById(reviewId);
+        BizAuditInfoChatVo bizAuditInfoVo = new BizAuditInfoChatVo();
+        bizAuditInfoVo.setBizChartReviews(bizChartReviews);
+        bizAuditInfoVo.setBizAuditLists(bizAuditLists);
+        //构造聊天记录
+        QueryWrapper<BizAuditListsDetails> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().eq(BizAuditListsDetails::getAuditId, bizAuditListsIdParam.getId());
+        queryWrapper.lambda().orderByAsc(BizAuditListsDetails::getCreateTime);
+        List<BizAuditListsDetails> bizAuditListsDetailsList = bizAuditListsDetailsService.list(queryWrapper);
+        List<ChatInfoVo> chatList = new ArrayList<>();
+        if(CollUtil.isNotEmpty(bizAuditListsDetailsList)){
+            bizAuditListsDetailsList.forEach(item->{
+                if(ChatEnum.QUESTION.getValue().equals(item.getChatType())
+                        || (ObjectUtil.isNotEmpty(item.getOpinion()) || ObjectUtil.isNotEmpty(item.getOpinionTime()) || ObjectUtil.isNotEmpty(item.getAuditAttachments()))){
+                    ChatInfoVo chatInfoVo = new ChatInfoVo();
+                    chatInfoVo.setId(item.getId());
+                    chatInfoVo.setAuditId(item.getAuditId());
+                    chatInfoVo.setChatType(ChatEnum.QUESTION.getValue());
+                    chatInfoVo.setContent(item.getOpinion());
+                    chatInfoVo.setOptTime(item.getOpinionTime());
+                    chatInfoVo.setAttachIds(item.getAuditAttachments());
+                    chatInfoVo.setCreateTime(item.getCreateTime());
+                    chatInfoVo.setUpdateTime(item.getUpdateTime());
+                    chatList.add(chatInfoVo);
+                }
+                if(ChatEnum.REPLAY.getValue().equals(item.getChatType())
+                        || (ObjectUtil.isNotEmpty(item.getCondition()) || ObjectUtil.isNotEmpty(item.getReviseDate()) || ObjectUtil.isNotEmpty(item.getReviseAttachments()))){
+                    ChatInfoVo chatInfoVo = new ChatInfoVo();
+                    chatInfoVo.setId(item.getId());
+                    chatInfoVo.setAuditId(item.getAuditId());
+                    chatInfoVo.setChatType(ChatEnum.REPLAY.getValue());
+                    chatInfoVo.setContent(item.getCondition());
+                    chatInfoVo.setOptTime(item.getReviseDate());
+                    chatInfoVo.setAttachIds(item.getReviseAttachments());
+                    chatInfoVo.setCreateTime(item.getCreateTime());
+                    chatInfoVo.setUpdateTime(item.getUpdateTime());
+                    chatList.add(chatInfoVo);
+                }
+            });
+        }
+        bizAuditInfoVo.setChatList(chatList);
         return bizAuditInfoVo;
     }
 }

@@ -17,32 +17,21 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
-import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsIdParam;
+import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.enums.ChatEnum;
+import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.*;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDetails;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.mapper.BizAuditListsDetailsMapper;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsAddParam;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsEditParam;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsPageParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service.BizAuditListsDetailsService;
-import vip.xiaonuo.dev.api.IDingDingService;
-import vip.xiaonuo.sys.api.SysUserApi;
 
-import javax.annotation.Resource;
 import java.util.Date;
 import java.util.List;
 
@@ -108,5 +97,28 @@ public class BizAuditListsDetailsServiceImpl extends ServiceImpl<BizAuditListsDe
             throw new CommonException("业务表-设计校审记录表不存在，id值为：{}", id);
         }
         return bizAuditListsDetails;
+    }
+
+    @Override
+    public void addChat(ChatParam chatParam) {
+        BizAuditListsDetails bizAuditListsDetails = new BizAuditListsDetails();
+        //问题
+        if(ChatEnum.QUESTION.getValue().equals(chatParam.getChatType())){
+            bizAuditListsDetails.setChatType(chatParam.getChatType());
+            bizAuditListsDetails.setAuditId(chatParam.getAuditId());
+            bizAuditListsDetails.setOpinion(chatParam.getContent());
+            bizAuditListsDetails.setOpinionTime(new Date());
+            bizAuditListsDetails.setAuditAttachments(chatParam.getAttachIds());
+        } //回复
+        else if (ChatEnum.REPLAY.getValue().equals(chatParam.getChatType())) {
+            bizAuditListsDetails.setChatType(chatParam.getChatType());
+            bizAuditListsDetails.setAuditId(chatParam.getAuditId());
+            bizAuditListsDetails.setCondition(chatParam.getContent());
+            bizAuditListsDetails.setReviseDate(new Date());
+            bizAuditListsDetails.setReviseAttachments(chatParam.getAttachIds());
+        }else {
+            throw new CommonException("不支持的消息类型");
+        }
+        this.save(bizAuditListsDetails);
     }
 }

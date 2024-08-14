@@ -19,6 +19,7 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsAddParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsPageParam;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoChatVo;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoVo;
 
 import java.util.List;
@@ -86,4 +87,11 @@ public interface BizAuditListsService extends IService<BizAuditLists> {
      * @date  2023/06/30 16:43
      */
     BizAuditInfoVo info(BizAuditListsIdParam bizAuditListsIdParam);
+
+    /**
+     * 获取设计校审详情 - 聊天模式
+     * @param bizAuditListsIdParam
+     * @return
+     */
+    BizAuditInfoChatVo infoChat(BizAuditListsIdParam bizAuditListsIdParam);
 }

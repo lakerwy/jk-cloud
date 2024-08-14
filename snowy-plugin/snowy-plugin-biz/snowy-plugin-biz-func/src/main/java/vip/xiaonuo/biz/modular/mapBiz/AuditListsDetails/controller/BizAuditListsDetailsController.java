@@ -12,13 +12,7 @@
  */
 package vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.controller;
 
-import cn.hutool.core.date.DatePattern;
-import cn.hutool.core.date.DateUtil;
-import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.json.JSONObject;
-import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -31,29 +25,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import vip.xiaonuo.biz.modular.mapBiz.AuditLists.entity.BizAuditLists;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsIdParam;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsPageParam;
+import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
-import vip.xiaonuo.common.consts.FlwCacheConstant;
-import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.entity.BizAuditListsDetails;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsAddParam;
-import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.param.BizAuditListsDetailsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditListsDetails.service.BizAuditListsDetailsService;
-import vip.xiaonuo.common.pojo.RabbitMsg;
-import vip.xiaonuo.dbs.core.util.CommonUtils;
 import vip.xiaonuo.dev.api.IDingDingService;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
 import javax.validation.constraints.NotEmpty;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 业务表-设计校审记录表控制器
@@ -210,6 +194,22 @@ public class BizAuditListsDetailsController {
 //        }catch (Exception e){
 //            //消息发送失败
 //        }
+        return CommonResult.ok();
+    }
+
+
+    /**
+     * 添加业务表-设计校审记录表 - 聊天模式
+     *
+     * @author mayike
+     * @date  2023/07/03 11:33
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("添加业务表-设计校审记录表 - 聊天模式")
+    @CommonLog("添加业务表-设计校审记录表 - 聊天模式")
+    @PostMapping("/biz/AuditListsDetails/addChat")
+    public CommonResult<String> addChat(@RequestBody @Valid ChatParam chatParam) {
+        bizAuditListsDetailsService.addChat(chatParam);
         return CommonResult.ok();
     }
 }

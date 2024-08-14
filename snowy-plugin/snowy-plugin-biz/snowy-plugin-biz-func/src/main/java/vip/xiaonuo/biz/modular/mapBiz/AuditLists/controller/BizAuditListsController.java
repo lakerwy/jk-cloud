@@ -30,6 +30,7 @@ import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsEditParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsIdParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.param.BizAuditListsPageParam;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.service.BizAuditListsService;
+import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoChatVo;
 import vip.xiaonuo.biz.modular.mapBiz.AuditLists.vo.BizAuditInfoVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
@@ -182,6 +183,32 @@ public class BizAuditListsController {
         code = RandomUtil.randomNumbers(6);
         commonCacheOperator.put(CODE_PREX+bizAuditListsIdParam.getId(),code,3*24*60*60);
         return CommonResult.data(code);
+    }
+
+
+
+    /**
+     * 获取业务表-设计校审主表详情-聊天模式数据
+     *
+     * @author mayike
+     * @date  2023/06/30 16:43
+     */
+    @ApiOperationSupport(order = 11)
+    @ApiOperation("业务表-设计校审-获取单页展示所有信息-聊天模式数据")
+    @GetMapping("/biz/AuditLists/infoChat")
+    public CommonResult<BizAuditInfoChatVo> infoChat(@Valid BizAuditListsIdParam bizAuditListsIdParam) {
+        if(StrUtil.isNotBlank(bizAuditListsIdParam.getUserType())){
+            if("1".equals(bizAuditListsIdParam.getUserType())){
+                String code = (String) commonCacheOperator.get(CODE_PREX + bizAuditListsIdParam.getId());
+                if(StrUtil.isBlank(code)){
+                    throw  new CommonException("验证码已过期，请重新获取后在查询。");
+                }
+                if(!code.equals(bizAuditListsIdParam.getCode())){
+                    throw new CommonException("验证码错误。");
+                }
+            }
+        }
+        return CommonResult.data(bizAuditListsService.infoChat(bizAuditListsIdParam));
     }
 
 }
