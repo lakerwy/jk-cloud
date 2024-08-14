@@ -1,6 +1,7 @@
 package vip.xiaonuo.iot.modular.mqtt.client;
 
 import cn.hutool.json.JSONUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.eclipse.paho.client.mqttv3.MqttClient;
 import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -21,6 +22,7 @@ import java.util.UUID;
  * 发送消息
  */
 @Component
+@Slf4j
 public class MqttSendClient {
     @Resource
     private MqttSendCallBack mqttSendCallBack;
@@ -69,6 +71,7 @@ public class MqttSendClient {
         message.setPayload(pushMessageStr.getBytes());
         MqttClient mqttClient = connect();
         try {
+            log.debug(String.format("发送指令消息体为:%s",message));
             mqttClient.publish(topic, message);
         } catch (MqttException e) {
             e.printStackTrace();

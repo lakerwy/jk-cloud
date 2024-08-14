@@ -48,6 +48,7 @@ import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperties;
 import org.camunda.bpm.model.bpmn.instance.camunda.CamundaProperty;
 import org.camunda.bpm.model.xml.instance.ModelElementInstance;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
@@ -57,6 +58,7 @@ import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.flw.core.enums.NodeApproveOperateTypeEnum;
 import vip.xiaonuo.flw.core.listener.FlwGlobalCustomEventCenter;
@@ -146,6 +148,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
 
     @Resource
     private TaskCommentMapper taskCommentMapper;
+
+    @Resource
+    StreamBridge streamBridge;
 
     /**
      * 快捷输入的保存key
@@ -842,7 +847,15 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(comment.getProcessInstanceId()).caseInstanceId(historicTaskInstance.getCaseInstanceId()).singleResult();
                 values.put("stateCode", historicProcessInstance.getState());
                 values.put("processInstanceId",processInstanceId);
-                iDingDingService.customBatchSend(buildForms(processInstanceId, flwcommentParam.getComment()), collect, values);
+                buildForms(processInstanceId, flwcommentParam.getComment(),comment.getUserId(),taskId1);
+               //iDingDingService.customBatchSend(buildForms(processInstanceId, flwcommentParam.getComment()), collect, values);
+
+//                RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
+//                //消息ID 存入到redis 中，消费后直接删除，保证消息不会被重复消费
+//                //commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
+//                streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,rabbitMsg);
+
+
             } catch (Exception e) {
                 log.error(e.getMessage());
             }
@@ -850,58 +863,45 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     }
 
     @NotNull
-    private List<OapiMessageCorpconversationAsyncsendV2Request.Form> buildForms(String processInstanceId, String comment) {
+    private void  buildForms(String processInstanceId, String comment,String receiverIdList,String taskId){
         HistoricVariableInstanceQuery historicVariableInstanceQuery = historyService
                 .createHistoricVariableInstanceQuery().processInstanceId(processInstanceId)
                 .orderByVariableName().desc();
         List<HistoricVariableInstance> list = historicVariableInstanceQuery.list();
         if (CollUtil.isNotEmpty(list)) {
+            JSONObject jsonObject = new JSONObject();
             String processDefinitionId = list.get(0).getProcessDefinitionId();
             Map<String, Object> taskMap = list.stream().filter(f -> ObjectUtil.isNotEmpty(f.getName()) && ObjectUtil.isNotEmpty(f.getValue())).collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue, (v1, v2) -> v2));
 //        String processDefinitionName = historicProcessInstance.getProcessDefinitionName();
 //        Map taskMap = jsonObject.get("taskMap", Map.class);
 //        Object processDefinitionId = taskMap.get("processDefinitionId");
             //摘要
-            Object initiatorProcessAbstract = taskMap.get("initiatorProcessAbstract");
-            Object initiatorProcessSn = taskMap.get("initiatorProcessSn");
+//            Object initiatorProcessAbstract = taskMap.get("initiatorProcessAbstract");
+//            Object initiatorProcessSn = taskMap.get("initiatorProcessSn");
             Object initiatorTime = taskMap.get("initiatorTime");
             Object initiatorName = taskMap.get("initiatorName");
-            OapiMessageCorpconversationAsyncsendV2Request.Form form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-            form.setKey("流程名称： ");
 
             Object o = commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_KEY_PREFIX + processDefinitionId);
-            form.setValue(String.valueOf(o));
-            List<OapiMessageCorpconversationAsyncsendV2Request.Form> forms = new ArrayList<>();
-            forms.add(form);
+            jsonObject.set(FlwCacheConstant.FLW_NAME,String.valueOf(o));
+            jsonObject.set(FlwCacheConstant.FLW_SN,taskMap.get("initiatorProcessSn"));
+            jsonObject.set(FlwCacheConstant.FLW_BASE_INFO,taskMap.get("initiatorProcessAbstract"));
+            jsonObject.set(FlwCacheConstant.TITLE,"【评论知晓】");
 
-            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-            form.setKey("基本信息： ");
-            form.setValue(String.valueOf(initiatorProcessAbstract));
-            forms.add(form);
-
-            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-            form.setKey("流水号：");
-            form.setValue(String.valueOf(initiatorProcessSn));
-            forms.add(form);
-
-            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-            form.setKey("发起于：");
-            form.setValue(initiatorTime + " | " + initiatorName);
-            forms.add(form);
-
-            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-            form.setKey("评论人：");
-            form.setValue(StpLoginUserUtil.getLoginUser().getName());
-            forms.add(form);
-
-            form = new OapiMessageCorpconversationAsyncsendV2Request.Form();
-            form.setKey("评论内容为：");
-            form.setValue(comment);
-
-            forms.add(form);
-            return forms;
+            jsonObject.set(FlwCacheConstant.FLW_STARTER,initiatorName);
+            jsonObject.set(FlwCacheConstant.FLW_START_TIME,initiatorTime);
+            Object o1 = taskMap.get("status");
+            jsonObject.set(FlwCacheConstant.FLW_STATUS,o1);
+            jsonObject.set(FlwCacheConstant.STATE_CODE,taskMap.get("stateCode"));
+            jsonObject.set(FlwCacheConstant.FLE_PROCESS_INSTANCE_ID,processInstanceId);
+            jsonObject.set(FlwCacheConstant.FLW_COMMENT_USER,StpLoginUserUtil.getLoginUser().getName());
+            jsonObject.set(FlwCacheConstant.FLW_COMMENT_CONTEXT,comment);
+            jsonObject.set(FlwCacheConstant.FLW_MSG_TYPE,"评论通知");
+            jsonObject.set(FlwCacheConstant.SENDERS, String.join(StrUtil.COMMA, receiverIdList));
+            jsonObject.set(FlwCacheConstant.FLW_ID,taskId);
+            jsonObject.set(FlwCacheConstant.FLW_TYPE,FlwCacheConstant.FlwType.DONE);
+            RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
+            streamBridge.send(RabbitConstant.DEFAULT_CHANNEL,rabbitMsg);
         }
-        return new ArrayList<>();
     }
 
     @Override

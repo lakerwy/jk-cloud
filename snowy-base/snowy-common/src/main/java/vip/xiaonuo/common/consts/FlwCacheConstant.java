@@ -77,6 +77,17 @@ public class FlwCacheConstant {
     public static final String CARBON_NOTIFICATION_NAME = "carbon_notification_name";
 
 
+    /**
+     * 评论人
+     */
+    public static final String FLW_COMMENT_USER= "flw_comment_user";
+
+    /**
+     * 评论内容
+     */
+    public static final String FLW_COMMENT_CONTEXT= "flw_comment_context";
+
+
     public static final String FLW_STATUS= "flw_status";
 
     public static final String FLW_TASK_USER = "flw_task_user_";
