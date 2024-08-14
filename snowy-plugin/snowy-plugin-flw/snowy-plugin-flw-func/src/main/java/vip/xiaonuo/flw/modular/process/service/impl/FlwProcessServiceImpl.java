@@ -411,23 +411,26 @@ public class FlwProcessServiceImpl implements FlwProcessService {
 
 
         Page<FlwProcessResult> defaultPage = CommonPageRequest.defaultPage();
-        long current = defaultPage.getCurrent();
-        long size = defaultPage.getSize();
-        int fromIndex = Convert.toInt((current - 1) * size);
-        int toIndex = 0;
-        if(StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())){
-            List<HistoricProcessInstance> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery,flwProcessMonitorPageParam.getStateCode());
-            defaultPage.setTotal(flwProcessResultList.size());
-            toIndex = Math.min(fromIndex + Convert.toInt(size), Convert.toInt(flwProcessResultList.size()));
-            List<HistoricProcessInstance> historicProcessInstances = flwProcessResultList.subList(fromIndex, toIndex);
-            return defaultPage.setRecords(getCurrentPageData(historicProcessInstances));
-        }else {
-            List<HistoricProcessInstance> flwProcessResultList = historicProcessInstanceQuery
-                    .listPage(fromIndex, Convert.toInt(size)).stream().collect(Collectors.toList());
-            defaultPage.setTotal(historicProcessInstanceQuery.count());
-            defaultPage.setRecords(getCurrentPageData(flwProcessResultList));
-            return defaultPage;
-        }
+        getMyFlwProcessResults2(defaultPage,historicProcessInstanceQuery,flwProcessMonitorPageParam.getStateCode(),flwProcessMonitorPageParam.getAssignees());
+        return defaultPage;
+
+//        long current = defaultPage.getCurrent();
+//        long size = defaultPage.getSize();
+//        int fromIndex = Convert.toInt((current - 1) * size);
+//        int toIndex = 0;
+//        if(StrUtil.isNotEmpty(flwProcessMonitorPageParam.getStateCode())){
+//            List<HistoricProcessInstance> flwProcessResultList = getMyFlwProcessResults(historicProcessInstanceQuery,flwProcessMonitorPageParam.getStateCode());
+//            defaultPage.setTotal(flwProcessResultList.size());
+//            toIndex = Math.min(fromIndex + Convert.toInt(size), Convert.toInt(flwProcessResultList.size()));
+//            List<HistoricProcessInstance> historicProcessInstances = flwProcessResultList.subList(fromIndex, toIndex);
+//            return defaultPage.setRecords(getCurrentPageData(historicProcessInstances));
+//        }else {
+//            List<HistoricProcessInstance> flwProcessResultList = historicProcessInstanceQuery
+//                    .listPage(fromIndex, Convert.toInt(size)).stream().collect(Collectors.toList());
+//            defaultPage.setTotal(historicProcessInstanceQuery.count());
+//            defaultPage.setRecords(getCurrentPageData(flwProcessResultList));
+//            return defaultPage;
+//        }
     }
 
     @NotNull
@@ -450,6 +453,61 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     return true;
                 }).collect(Collectors.toList());
     }
+
+    /**
+     * 查询结果集（new）
+     * @param historicProcessInstanceQuery 流程查询条件
+     * @param stateCode 流程状态
+     * @param stateCode 当前办理人
+     * @return
+     */
+    private void getMyFlwProcessResults2(Page<FlwProcessResult> defaultPage, HistoricProcessInstanceQuery historicProcessInstanceQuery, String stateCode, String assignees) {
+        //页面参数-分页
+        long current = defaultPage.getCurrent();
+        long size = defaultPage.getSize();
+        int fromIndex = Convert.toInt((current - 1) * size);
+        int toIndex = 0;
+
+        //初步查询
+        List<HistoricProcessInstance> historicProcessInstanceList = new ArrayList<>();
+        if(ObjectUtil.isNotEmpty(assignees)){
+            if(ObjectUtil.isNotEmpty(stateCode)){
+                historicProcessInstanceList = getMyFlwProcessResults(historicProcessInstanceQuery,stateCode);
+            }else{
+                historicProcessInstanceList = historicProcessInstanceQuery.list();
+            }
+            List<FlwProcessResult> flwProcessResultPage = new ArrayList<>();
+            defaultPage.setTotal(0);
+            if(CollUtil.isNotEmpty(historicProcessInstanceList)){
+                List<FlwProcessResult> flwProcessResultList = getFlwProcessResultTempData(historicProcessInstanceList).stream().filter(x->x.getAssignees().contains(assignees)).collect(Collectors.toList());
+                if(CollUtil.isNotEmpty(flwProcessResultList)){
+                    defaultPage.setTotal(flwProcessResultList.size());
+                    toIndex = Math.min(fromIndex + Convert.toInt(size), Convert.toInt(flwProcessResultList.size()));
+                    List<FlwProcessResult> tempPageResult = flwProcessResultList.subList(fromIndex,toIndex);
+                    if(CollUtil.isNotEmpty(tempPageResult)) {
+                        List<String> processInstanceIds = tempPageResult.stream().map(x->x.getId()).collect(Collectors.toList());
+                        List<HistoricProcessInstance> temp = historicProcessInstanceList.stream().filter(x->processInstanceIds.contains(x.getId())).collect(Collectors.toList());
+                        flwProcessResultPage = getCurrentPageData(temp);
+                    }
+                }
+            }
+            defaultPage.setRecords(flwProcessResultPage);
+        }else{
+            if(ObjectUtil.isNotEmpty(stateCode)) {
+                historicProcessInstanceList = getMyFlwProcessResults(historicProcessInstanceQuery,stateCode);
+                defaultPage.setTotal(historicProcessInstanceList.size());
+                toIndex = Math.min(fromIndex + Convert.toInt(size), Convert.toInt(historicProcessInstanceList.size()));
+                List<HistoricProcessInstance> historicProcessInstances = historicProcessInstanceList.subList(fromIndex, toIndex);
+                defaultPage.setRecords(getCurrentPageData(historicProcessInstances));
+            }else{
+                historicProcessInstanceList = historicProcessInstanceQuery
+                        .listPage(fromIndex, Convert.toInt(size)).stream().collect(Collectors.toList());
+                defaultPage.setTotal(historicProcessInstanceQuery.count());
+                defaultPage.setRecords(getCurrentPageData(historicProcessInstanceList));
+            }
+        }
+    }
+
 
     public List<FlwProcessResult> getCurrentPageData(List<HistoricProcessInstance> historicProcessInstanceList){
         List<String> processInstanceIds = historicProcessInstanceList.stream().map(x->x.getId()).collect(Collectors.toList());
@@ -523,6 +581,46 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                 default:
                     throw new CommonException("流程实例状态错误，id值为：{}", historicProcessInstance.getId());
             }
+            if(state.equals("ACTIVE")) {
+                Set<String> currentActivityNames = CollectionUtil.newHashSet();
+                List<JSONObject> currentActivityNameJsonObjectList = CollectionUtil.newArrayList();
+                taskService.createTaskQuery().processInstanceId(historicProcessInstance.getId()).list().forEach(task -> {
+                    String assignee = task.getAssignee();
+                    if(ObjectUtil.isNotEmpty(assignee)) {
+                        currentActivityNameJsonObjectList.add(JSONUtil.createObj().set("taskName", task.getName()).set("assignee", assignee));
+                    }
+                });
+                final List<String>[] assigneeNameList = new List[]{CollectionUtil.newArrayList()};
+                currentActivityNameJsonObjectList.stream().collect(Collectors.groupingBy(jsonObject -> jsonObject.getStr("taskName"))).forEach((key, value) -> {
+                    List<String> assigneeList = value.stream().map(jsonObject -> jsonObject.getStr("assignee")).collect(Collectors.toList());
+                    assigneeNameList[0] = sysUserApi.getUserListByIdListWithoutException(CollectionUtil.reverse(assigneeList)).stream()
+                            .map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList());
+                    currentActivityNames.add(key + StrUtil.BRACKET_START + StrUtil.join("、", assigneeNameList[0]) + StrUtil.BRACKET_END);
+                });
+                flwProcessResult.setCurrentActivityNames(StrUtil.join("、", CollectionUtil.newArrayList(currentActivityNames)));
+                flwProcessResult.setAssignees(StrUtil.join("、", assigneeNameList[0]));
+            } else {
+                flwProcessResult.setCurrentActivityNames("-");
+                flwProcessResult.setAssignees("-");
+            }
+            results.add(flwProcessResult);
+        });
+        return results;
+    }
+
+
+    /**
+     * 针对 当前办理人 数据获取
+     * @param historicProcessInstanceList
+     * @return
+     */
+    public List<FlwProcessResult> getFlwProcessResultTempData(List<HistoricProcessInstance> historicProcessInstanceList){
+        List<FlwProcessResult> results = new ArrayList<>();
+        if(CollUtil.isEmpty(historicProcessInstanceList)) return results;
+        historicProcessInstanceList.forEach(historicProcessInstance -> {
+            FlwProcessResult flwProcessResult = new FlwProcessResult();
+            flwProcessResult.setId(historicProcessInstance.getId());
+            String state = historicProcessInstance.getState();
             if(state.equals("ACTIVE")) {
                 Set<String> currentActivityNames = CollectionUtil.newHashSet();
                 List<JSONObject> currentActivityNameJsonObjectList = CollectionUtil.newArrayList();
