@@ -1642,7 +1642,8 @@ public class NodeRuntimeUtil {
                                 processCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(processCamundaProperty -> {
                                     if (processCamundaProperty.getCamundaName().equals("configInfo")) {
                                         JSONObject processConfigInfo = JSONUtil.parseObj(processCamundaProperty.getCamundaValue());
-                                        processEnableOverLimit.set(processConfigInfo.getBool("processEnableOverLimit"));
+                                        Boolean tmpProcessEnableOverLimit = processConfigInfo.getBool("processEnableOverLimit");
+                                        processEnableOverLimit.set(ObjectUtil.isEmpty(tmpProcessEnableOverLimit) ? false : tmpProcessEnableOverLimit);
                                         if(processEnableOverLimit.get()) {
                                             processOverLimitTime.set(processConfigInfo.getInt("processOverLimitTime"));
                                         }
