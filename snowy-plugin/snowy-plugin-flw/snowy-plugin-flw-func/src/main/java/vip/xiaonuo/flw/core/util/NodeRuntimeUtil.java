@@ -966,10 +966,14 @@ public class NodeRuntimeUtil {
                                     if(CollUtil.isNotEmpty(collect)){
                                         commonCacheOperator.put(FlwCacheConstant.FLW_TASK_USER + delegateTask.getTaskDefinitionKey() + delegateTask.getProcessInstanceId(),String.join(",",collect));
                                     }
-                                    participateUserIdList.set(Collections.singletonList(s));
+                                    if(ObjectUtil.isNotEmpty(s)) {
+                                        participateUserIdList.set(Collections.singletonList(s));
+                                    }
                                 }
                             }else if (userTaskMulApproveType.equals("COUNTERSIGN")){
-                                participateUserIdList.set(Collections.singletonList(delegateTask.getAssignee()));
+                                if(ObjectUtil.isNotEmpty(delegateTask.getAssignee())) {
+                                    participateUserIdList.set(Collections.singletonList(delegateTask.getAssignee()));
+                                }
                             }else {
                                 participateUserIdList.set(Convert.toList(String.class, delegateTask
                                         .getVariable("assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey())));
