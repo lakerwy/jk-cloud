@@ -74,6 +74,7 @@ public class BizPrjAllotmentServiceImpl extends ServiceImpl<BizPrjAllotmentMappe
     @Override
     public Page<BizPrjAllotmentVo> page(BizPrjAllotmentPageParam bizPrjAllotmentPageParam) {
         QueryWrapper<BizPrjAllotment> queryWrapper = new QueryWrapper<>();
+        queryWrapper.lambda().in(BizPrjAllotment::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizPrjAllotmentPageParam.getHzfCode())) {
             queryWrapper.lambda().like(BizPrjAllotment::getHzfCode, bizPrjAllotmentPageParam.getHzfCode());
         }
