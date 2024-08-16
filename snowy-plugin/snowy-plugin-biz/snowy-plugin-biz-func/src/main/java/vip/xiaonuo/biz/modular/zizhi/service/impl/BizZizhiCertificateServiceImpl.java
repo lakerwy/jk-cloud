@@ -86,7 +86,7 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
             queryWrapper.orderBy(true, bizZizhiCertificatePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizZizhiCertificatePageParam.getSortField()));
         } else {
-            queryWrapper.orderByAsc("a.SORT_CODE").orderByAsc("a.sortIndex").orderByAsc("a.COMPANY").orderByAsc("a.TYPE").orderByAsc("a.ZI_ZHI_NAME");
+            queryWrapper.orderByAsc("a.SORT_CODE");
         }
         return bizZizhiCertificateMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -94,6 +94,13 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(BizZizhiCertificateAddParam bizZizhiCertificateAddParam) {
+        if(ObjectUtil.isEmpty(bizZizhiCertificateAddParam.getSortCode())){
+            throw new CommonException("排序号不能为空");
+        }
+        List<BizZizhiCertificate> oldList = this.list(new QueryWrapper<BizZizhiCertificate>().lambda().eq(BizZizhiCertificate::getSortCode,bizZizhiCertificateAddParam.getSortCode()));
+        if(CollUtil.isNotEmpty(oldList)){
+            throw new CommonException("排序号不能重复");
+        }
         BizZizhiCertificate bizZizhiCertificate = BeanUtil.toBean(bizZizhiCertificateAddParam, BizZizhiCertificate.class);
         this.save(bizZizhiCertificate);
     }
@@ -102,6 +109,15 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
     @Override
     public void edit(BizZizhiCertificateEditParam bizZizhiCertificateEditParam) {
         BizZizhiCertificate bizZizhiCertificate = this.queryEntity(bizZizhiCertificateEditParam.getId());
+        if(ObjectUtil.isEmpty(bizZizhiCertificateEditParam.getSortCode())){
+            throw new CommonException("排序号不能为空");
+        }
+        List<BizZizhiCertificate> oldList = this.list(new QueryWrapper<BizZizhiCertificate>().lambda()
+                .ne(BizZizhiCertificate::getId,bizZizhiCertificateEditParam.getId())
+                .eq(BizZizhiCertificate::getSortCode,bizZizhiCertificateEditParam.getSortCode()));
+        if(CollUtil.isNotEmpty(oldList)){
+            throw new CommonException("排序号已存在");
+        }
         BeanUtil.copyProperties(bizZizhiCertificateEditParam, bizZizhiCertificate);
         this.updateById(bizZizhiCertificate);
     }
@@ -129,11 +145,26 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
 
     @Override
     public void adjSort(AdjSortParam adjSortParam) {
-        //1. 获取目标位置元素信息
-        BizZizhiCertificate targetItem = this.queryEntity(adjSortParam.getTargetId());
-        //2. 获取被拖拽元素信息
+        if(ObjectUtil.isEmpty(adjSortParam.getBeforeTargetId()) && ObjectUtil.isEmpty(adjSortParam.getNextTargetId())){
+            throw new CommonException("目标位置定位信息不可为空");
+        }
+        //获取被拖拽元素信息
         BizZizhiCertificate sourceItem = this.queryEntity(adjSortParam.getSourceId());
-        Integer targetItemSortCode = ObjectUtil.isNotEmpty(targetItem.getSortCode()) ? targetItem.getSortCode() : 0;
+
+        //根据目标信息，获取目标位置（目标位前一个）
+        BizZizhiCertificate targetItem = null;
+        if(ObjectUtil.isNotEmpty(adjSortParam.getBeforeTargetId())){
+            targetItem = this.queryEntity(adjSortParam.getBeforeTargetId());
+        }else{
+            BizZizhiCertificate nextTargetItem = this.queryEntity(adjSortParam.getNextTargetId());
+            targetItem = this.getOne(new QueryWrapper<BizZizhiCertificate>().lambda()
+                    .isNotNull(BizZizhiCertificate::getSortCode)
+                    .ne(BizZizhiCertificate::getId,sourceItem.getId())
+                    .lt(BizZizhiCertificate::getSortCode,nextTargetItem.getSortCode())
+                    .orderByDesc(BizZizhiCertificate::getSortCode).last(" limit 1 "));
+        }
+
+        Integer targetItemSortCode = ObjectUtil.isNotEmpty(targetItem) ? targetItem.getSortCode() : 0;
         sourceItem.setSortCode(targetItemSortCode+1);
         //3. 目标排序之后的数据(排除拖拽项)
         List<BizZizhiCertificate> updateTargetItems = this.list(new QueryWrapper<BizZizhiCertificate>().lambda()

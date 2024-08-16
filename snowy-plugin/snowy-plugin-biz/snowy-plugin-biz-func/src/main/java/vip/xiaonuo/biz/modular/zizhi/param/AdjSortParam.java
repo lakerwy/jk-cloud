@@ -15,9 +15,12 @@ public class AdjSortParam {
     @NotBlank(message = "拖拽的元素主键id不能为空")
     private String sourceId;
 
-    /** 目标行元素 - 主键  拖拽至目标行主键id */
-    @ApiModelProperty(value = "目标行元素 - 主键  拖拽至目标行主键id", required = true, position = 1)
-    @NotBlank(message = "目标位置元素主键id不能为空")
-    private String targetId;
+    /** 目标行元素 - 主键  拖拽至目标行主键id 【目标位置上一行】 */
+    @ApiModelProperty(value = "目标行元素 - 主键  拖拽至目标行主键id【目标位置上一行】", position = 2)
+    private String beforeTargetId;
+
+    /** 目标行元素 - 主键  拖拽至目标行主键id 【目标位置下一行】 */
+    @ApiModelProperty(value = "目标行元素 - 主键  拖拽至目标行主键id【目标位置下一行】", position = 3)
+    private String nextTargetId;
 
 }
