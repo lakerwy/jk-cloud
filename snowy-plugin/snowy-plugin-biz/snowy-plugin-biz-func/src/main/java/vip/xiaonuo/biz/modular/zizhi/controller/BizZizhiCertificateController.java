@@ -23,15 +23,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import vip.xiaonuo.biz.modular.zizhi.param.*;
 import vip.xiaonuo.biz.modular.zizhi.vo.BizZizhiCertificateVo;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.biz.modular.zizhi.entity.BizZizhiCertificate;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateAddParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateEditParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateIdParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificatePageParam;
 import vip.xiaonuo.biz.modular.zizhi.service.BizZizhiCertificateService;
 
 import javax.annotation.Resource;
@@ -123,5 +120,21 @@ public class BizZizhiCertificateController {
     @GetMapping("/biz/ziZhi/detail")
     public CommonResult<BizZizhiCertificate> detail(@Valid BizZizhiCertificateIdParam bizZizhiCertificateIdParam) {
         return CommonResult.data(bizZizhiCertificateService.detail(bizZizhiCertificateIdParam));
+    }
+
+
+    /**
+     * 拖拽调整排序
+     *
+     * @author yong.ye
+     * @date  2023/09/01 09:56
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("拖拽调整排序")
+    @CommonLog("拖拽调整排序")
+    @PostMapping("/biz/ziZhi/adjSort")
+    public CommonResult<String> adjSort(@RequestBody @Valid AdjSortParam adjSortParam) {
+        bizZizhiCertificateService.adjSort(adjSortParam);
+        return CommonResult.ok();
     }
 }

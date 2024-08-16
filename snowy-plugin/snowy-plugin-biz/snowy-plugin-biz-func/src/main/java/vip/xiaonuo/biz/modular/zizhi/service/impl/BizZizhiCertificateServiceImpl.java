@@ -14,6 +14,7 @@ package vip.xiaonuo.biz.modular.zizhi.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
@@ -22,16 +23,13 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import vip.xiaonuo.biz.modular.zizhi.param.*;
 import vip.xiaonuo.biz.modular.zizhi.vo.BizZizhiCertificateVo;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.zizhi.entity.BizZizhiCertificate;
 import vip.xiaonuo.biz.modular.zizhi.mapper.BizZizhiCertificateMapper;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateAddParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateEditParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateIdParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificatePageParam;
 import vip.xiaonuo.biz.modular.zizhi.service.BizZizhiCertificateService;
 
 import javax.annotation.Resource;
@@ -127,5 +125,29 @@ public class BizZizhiCertificateServiceImpl extends ServiceImpl<BizZizhiCertific
             throw new CommonException("业务表-资质-企业资质证书表不存在，id值为：{}", id);
         }
         return bizZizhiCertificate;
+    }
+
+    @Override
+    public void adjSort(AdjSortParam adjSortParam) {
+        //1. 获取目标位置元素信息
+        BizZizhiCertificate targetItem = this.queryEntity(adjSortParam.getTargetId());
+        //2. 获取被拖拽元素信息
+        BizZizhiCertificate sourceItem = this.queryEntity(adjSortParam.getSourceId());
+        Integer targetItemSortCode = ObjectUtil.isNotEmpty(targetItem.getSortCode()) ? targetItem.getSortCode() : 0;
+        sourceItem.setSortCode(targetItemSortCode+1);
+        //3. 目标排序之后的数据(排除拖拽项)
+        List<BizZizhiCertificate> updateTargetItems = this.list(new QueryWrapper<BizZizhiCertificate>().lambda()
+                        .isNotNull(BizZizhiCertificate::getSortCode)
+                        .ne(BizZizhiCertificate::getId,sourceItem.getId())
+                        .gt(BizZizhiCertificate::getSortCode,targetItemSortCode));
+        if(CollUtil.isNotEmpty(updateTargetItems)){
+            updateTargetItems.forEach(item->{
+                item.setSortCode(item.getSortCode()+1);
+            });
+        }
+        updateTargetItems.add(sourceItem);
+        if(CollUtil.isNotEmpty(updateTargetItems)){
+            this.updateBatchById(updateTargetItems);
+        }
     }
 }

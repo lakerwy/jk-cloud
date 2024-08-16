@@ -15,10 +15,7 @@ package vip.xiaonuo.biz.modular.zizhi.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.biz.modular.zizhi.entity.BizZizhiCertificate;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateAddParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateEditParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificateIdParam;
-import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificatePageParam;
+import vip.xiaonuo.biz.modular.zizhi.param.*;
 import vip.xiaonuo.biz.modular.zizhi.vo.BizZizhiCertificateVo;
 
 import java.util.List;
@@ -78,4 +75,10 @@ public interface BizZizhiCertificateService extends IService<BizZizhiCertificate
      * @date  2023/09/01 09:56
      **/
     BizZizhiCertificate queryEntity(String id);
+
+    /**
+     * 拖拽调整排序
+     * @param adjSortParam
+     */
+    void adjSort(AdjSortParam adjSortParam);
 }
