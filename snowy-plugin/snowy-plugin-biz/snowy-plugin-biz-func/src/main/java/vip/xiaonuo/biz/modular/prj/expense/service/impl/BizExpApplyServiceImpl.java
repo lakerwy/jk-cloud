@@ -340,6 +340,109 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                 }
                 // 使用 EasyExcel 填充数据
                 excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.fill(new FillWrapper("data1", excelData.getItemList()), sheet1);
+                excelWriter.fill(new FillWrapper("data2", excelData.getCostList()), sheet1);
+                excelWriter.finish();
+
+            } else if (BizExpTypeEnum.TRAFFIC_FEE.getValue().equals(excelParam.getReportType())) {
+                ClassPathResource classPathResource = new ClassPathResource("TrafficTemplate.xlsx");
+                inputStream = classPathResource.getStream();
+                TripExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), TripExcelData.class);
+                if(ObjectUtil.isNotEmpty(excelData)){
+                    if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
+                        excelData.setYearMonthDay(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
+                    }
+                    excelData.setLowFeeTotalQian(MyDecimalUtils.getQian(excelData.getLowFeeTotal()));
+                    excelData.setTaxCostTotalQian(MyDecimalUtils.getQian(excelData.getTaxCostTotal()));
+                    excelData.setLowCostTotalQian(MyDecimalUtils.getQian(excelData.getLowCostTotal()));
+                    if(!excelData.getExptor().equals(excelData.getInitor())){
+                        excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                    }
+                }
+                // 使用 EasyExcel 填充数据
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.fill(new FillWrapper("data1", excelData.getItemList()), sheet1);
+                excelWriter.fill(new FillWrapper("data2", excelData.getCostList()), sheet1);
+                excelWriter.finish();
+
+            } else if (BizExpTypeEnum.DEBIT.getValue().equals(excelParam.getReportType())) {
+                ClassPathResource classPathResource = new ClassPathResource("DebitTemplate_old.xlsx");
+                inputStream = classPathResource.getStream();
+                DebitExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), DebitExcelData.class);
+                if(ObjectUtil.isNotEmpty(excelData)){
+                    if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
+                        excelData.setYearMonthDay(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
+                    }
+                    excelData.setLowAmountQian(MyDecimalUtils.getQian(excelData.getLowAmount()));
+                    if(!excelData.getBorrower().equals(excelData.getInitor())){
+                        excelData.setDebitSign(excelData.getInitor()+"代"+excelData.getBorrower()+"借支");
+                    }
+                    if(ObjectUtil.isNotEmpty(excelData.getReturnDate())){
+                        excelData.setReturnDateStr(MyDateUtils.getYearMonthDay2(excelData.getReturnDate()));
+                    }
+                }
+                // 使用 EasyExcel 填充数据
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
+                //借支单
+                WriteSheet sheet1 = EasyExcel.writerSheet(0).build();
+                excelWriter.fill(excelData, sheet1);
+                excelWriter.finish();
+            } else {
+                throw new CommonException("不支持的报表类型");
+            }
+            File tempFile = FileUtil.file(outputFileName);
+            CommonDownloadUtil.download(tempFile, response);
+        }catch (Exception e){
+            throw new CommonException(e.getMessage());
+        }finally {
+            // 关闭流
+            if(excelWriter != null){
+                excelWriter.close();
+            }
+            if(inputStream != null){
+                try {
+                    inputStream.close();
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+
+
+    public void genExcelOld(ExcelParam excelParam ,HttpServletResponse response) {
+        ExcelWriter excelWriter = null;
+        InputStream inputStream = null;
+        try {
+            // 定义没有分隔符的日期时间格式化器
+            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmssSSS");
+            // 将当前日期时间格式化为字符串
+            String dateStr = LocalDateTime.now().format(formatter);
+            // 定义导出excel文件路径
+            String outputFileName = FileUtil.getTmpDir() + FileUtil.FILE_SEPARATOR + excelParam.getReportType() + "_" + dateStr + ".xlsx";
+            // 分类处理
+            if (BizExpTypeEnum.FEE.getValue().equals(excelParam.getReportType())) {
+                ClassPathResource classPathResource = new ClassPathResource("FeeTemplate_old.xlsx");
+                inputStream = classPathResource.getStream();
+                FeeExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), FeeExcelData.class);
+                if(ObjectUtil.isNotEmpty(excelData)){
+                    if(ObjectUtil.isNotEmpty(excelData.getExpDate())) {
+                        excelData.setYearMonthDay(MyDateUtils.getYearMonthDay2(excelData.getExpDate()));
+                    }
+                    excelData.setLowFeeTotalQian(MyDecimalUtils.getQian(excelData.getLowFeeTotal()));
+                    excelData.setTaxCostTotalQian(MyDecimalUtils.getQian(excelData.getTaxCostTotal()));
+                    excelData.setLowCostTotalQian(MyDecimalUtils.getQian(excelData.getLowCostTotal()));
+                    if(!excelData.getExptor().equals(excelData.getInitor())){
+                        excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                    }
+                }
+                // 使用 EasyExcel 填充数据
+                excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
                 FillConfig fillConfig = FillConfig.builder().forceNewRow(Boolean.TRUE).build();
                 //费用报销单
                 List<MergeCell> feeMergeList = new ArrayList<>();
@@ -353,7 +456,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                 excelWriter.finish();
 
             } else if (BizExpTypeEnum.TRAFFIC_FEE.getValue().equals(excelParam.getReportType())) {
-                ClassPathResource classPathResource = new ClassPathResource("TrafficTemplate.xlsx");
+                ClassPathResource classPathResource = new ClassPathResource("TrafficTemplate_old.xlsx");
                 inputStream = classPathResource.getStream();
                 TripExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), TripExcelData.class);
                 if(ObjectUtil.isNotEmpty(excelData)){
@@ -384,7 +487,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                 excelWriter.finish();
 
             } else if (BizExpTypeEnum.DEBIT.getValue().equals(excelParam.getReportType())) {
-                ClassPathResource classPathResource = new ClassPathResource("DebitTemplate.xlsx");
+                ClassPathResource classPathResource = new ClassPathResource("DebitTemplate_old.xlsx");
                 inputStream = classPathResource.getStream();
                 DebitExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), DebitExcelData.class);
                 if(ObjectUtil.isNotEmpty(excelData)){
