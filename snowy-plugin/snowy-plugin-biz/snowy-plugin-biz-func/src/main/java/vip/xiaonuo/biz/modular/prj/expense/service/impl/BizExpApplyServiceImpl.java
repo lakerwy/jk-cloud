@@ -370,7 +370,7 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                 excelWriter.finish();
 
             } else if (BizExpTypeEnum.DEBIT.getValue().equals(excelParam.getReportType())) {
-                ClassPathResource classPathResource = new ClassPathResource("DebitTemplate_old.xlsx");
+                ClassPathResource classPathResource = new ClassPathResource("DebitTemplate.xlsx");
                 inputStream = classPathResource.getStream();
                 DebitExcelData excelData = com.alibaba.fastjson2.JSONObject.parseObject(excelParam.getParamJson(), DebitExcelData.class);
                 if(ObjectUtil.isNotEmpty(excelData)){
