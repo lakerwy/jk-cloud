@@ -84,4 +84,7 @@ public class DevFile extends CommonEntity {
     /** 是否解压到服务器 */
     @ApiModelProperty(value = "是否解压到服务器", position = 14)
     private Integer isUnzip;
+
+    @ApiModelProperty(value = "服务实例ID", position = 15)
+    private String instanceId;
 }
