@@ -158,9 +158,11 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
             if (!devFile.getInstanceId().equals(instanceId)) {
                 // 构造指向 Spring Cloud Gateway 的 URL
                 String backendUrl = commonProperties.getBackendUrl();
-                String encodedJson = URLEncoder.encode(JSON.toJSONString(devFileIdParam), StandardCharsets.UTF_8.toString());
-                String url = backendUrl + "/api/webapp/dev/file/download?data=" + encodedJson;
-
+                //String encodedJson = URLEncoder.encode(JSON.toJSONString(devFileIdParam), StandardCharsets.UTF_8.toString());
+                String url = backendUrl + "/api/webapp/dev/file/download?";
+                if(StrUtil.isNotEmpty(devFileIdParam.getId())){
+                    url += "id="+devFileIdParam.getId();
+                }
                 // 设置重定向
                 response.setHeader("Location", url);
                 response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT); // 302 重定向
