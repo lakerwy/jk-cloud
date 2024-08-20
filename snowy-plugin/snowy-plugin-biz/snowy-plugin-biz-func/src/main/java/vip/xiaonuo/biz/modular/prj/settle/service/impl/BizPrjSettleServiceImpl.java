@@ -73,6 +73,7 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
     public Page<BizPrjSettleVo> page(BizPrjSettlePageParam bizPrjSettlePageParam) {
         QueryWrapper<BizPrjSettle> queryWrapper = new QueryWrapper<>();
         queryWrapper.lambda().eq(BizPrjSettle::getDeleteFlag,"NOT_DELETE");
+        queryWrapper.lambda().in(BizPrjSettle::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         if(ObjectUtil.isNotEmpty(bizPrjSettlePageParam.getHzfCode())) {
             queryWrapper.lambda().like(BizPrjSettle::getHzfCode, bizPrjSettlePageParam.getHzfCode());
         }
@@ -109,7 +110,9 @@ public class BizPrjSettleServiceImpl extends ServiceImpl<BizPrjSettleMapper, Biz
                     .or().like(BizPrjSettle::getHzfCode,bizPrjSettlePageParam.getSearchKey())
                     .or().like(BizPrjSettle::getHzfName,bizPrjSettlePageParam.getSearchKey())
                     .or().like(BizPrjSettle::getXyContractNo,bizPrjSettlePageParam.getSearchKey())
-                    .or().like(BizPrjSettle::getXyContractName,bizPrjSettlePageParam.getSearchKey()));
+                    .or().like(BizPrjSettle::getXyContractName,bizPrjSettlePageParam.getSearchKey())
+                    .or().like(BizPrjSettle::getZbContractNo,bizPrjSettlePageParam.getSearchKey())
+                    .or().like(BizPrjSettle::getZbContractName,bizPrjSettlePageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(bizPrjSettlePageParam.getSortField(), bizPrjSettlePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizPrjSettlePageParam.getSortOrder());
