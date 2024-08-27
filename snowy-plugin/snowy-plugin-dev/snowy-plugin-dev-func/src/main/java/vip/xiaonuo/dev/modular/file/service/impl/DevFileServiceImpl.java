@@ -53,6 +53,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.net.URL;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.text.DateFormat;
@@ -147,44 +148,73 @@ public class DevFileServiceImpl extends ServiceImpl<DevFileMapper, DevFile> impl
     public void download(DevFileIdParam devFileIdParam, HttpServletResponse response) throws IOException {
         DevFile devFile;
         try {
-            devFile = this.getById(devFileIdParam.getId());
-            if (ObjectUtil.isEmpty(devFile)) {
-                DevFileUnzip devFileUnzip = devFileUnzipService.queryEntity(devFileIdParam.getId());
-                devFile = BeanUtil.toBean(devFileUnzip, DevFile.class);
-                devFile.setStoragePath(devFile.getStoragePath() + "." + devFile.getSuffix());
-            }
-
-            // 判断实例ID是否一致
-            if (!devFile.getInstanceId().equals(instanceId)) {
-                // 构造指向 Spring Cloud Gateway 的 URL
-                String backendUrl = commonProperties.getBackendUrl();
-                //String encodedJson = URLEncoder.encode(JSON.toJSONString(devFileIdParam), StandardCharsets.UTF_8.toString());
-                String url = backendUrl + "/api/webapp/dev/file/download?";
-                if(StrUtil.isNotEmpty(devFileIdParam.getId())){
-                    url += "id="+devFileIdParam.getId();
-                }
-                // 设置重定向
-                response.setHeader("Location", url);
-                response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT); // 302 重定向
-                return; // 结束当前方法，避免继续处理
-            }
+            devFile = this.queryEntity(devFileIdParam.getId());
         } catch (Exception e) {
             CommonResponseUtil.renderError(response, e.getMessage());
             return;
         }
-        // 确保文件在本地
-        if (!devFile.getEngine().equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
-            CommonResponseUtil.renderError(response, "非本地文件不支持此方式下载，id值为：" + devFile.getId());
+
+        byte[] fileBytes = null;
+        if(DevFileEngineTypeEnum.LOCAL.getValue().equals(devFile.getEngine())) {
+            File file = FileUtil.file(devFile.getStoragePath());
+            if(!FileUtil.exist(file)) {
+                CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
+                return;
+            }
+            fileBytes = IoUtil.readBytes(FileUtil.getInputStream(file));
+        }else if(DevFileEngineTypeEnum.MINIO.getValue().equals(devFile.getEngine())) {
+            URL url = new URL(devFile.getStoragePath());
+            fileBytes = IoUtil.readBytes(URLUtil.getStream(url));
+        }else{
+            CommonResponseUtil.renderError(response, "文件不支持此方式下载，id值为：" + devFile.getId());
             return;
         }
-        File file = FileUtil.file(devFile.getStoragePath());
-        if (!FileUtil.exist(file)) {
-            CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
-            return;
-        }
-        // 进行文件下载
-        CommonDownloadUtil.download(devFile.getName(), IoUtil.readBytes(FileUtil.getInputStream(file)), response);
+
+        CommonDownloadUtil.download(devFile.getName(), fileBytes, response);
     }
+
+//    @Override
+//    public void download(DevFileIdParam devFileIdParam, HttpServletResponse response) throws IOException {
+//        DevFile devFile;
+//        try {
+//            devFile = this.getById(devFileIdParam.getId());
+//            if (ObjectUtil.isEmpty(devFile)) {
+//                DevFileUnzip devFileUnzip = devFileUnzipService.queryEntity(devFileIdParam.getId());
+//                devFile = BeanUtil.toBean(devFileUnzip, DevFile.class);
+//                devFile.setStoragePath(devFile.getStoragePath() + "." + devFile.getSuffix());
+//            }
+//
+//            // 判断实例ID是否一致
+//            if (!devFile.getInstanceId().equals(instanceId)) {
+//                // 构造指向 Spring Cloud Gateway 的 URL
+//                String backendUrl = commonProperties.getBackendUrl();
+//                //String encodedJson = URLEncoder.encode(JSON.toJSONString(devFileIdParam), StandardCharsets.UTF_8.toString());
+//                String url = backendUrl + "/api/webapp/dev/file/download?";
+//                if(StrUtil.isNotEmpty(devFileIdParam.getId())){
+//                    url += "id="+devFileIdParam.getId();
+//                }
+//                // 设置重定向
+//                response.setHeader("Location", url);
+//                response.setStatus(HttpServletResponse.SC_TEMPORARY_REDIRECT); // 302 重定向
+//                return; // 结束当前方法，避免继续处理
+//            }
+//        } catch (Exception e) {
+//            CommonResponseUtil.renderError(response, e.getMessage());
+//            return;
+//        }
+//        // 确保文件在本地
+//        if (!devFile.getEngine().equals(DevFileEngineTypeEnum.LOCAL.getValue())) {
+//            CommonResponseUtil.renderError(response, "非本地文件不支持此方式下载，id值为：" + devFile.getId());
+//            return;
+//        }
+//        File file = FileUtil.file(devFile.getStoragePath());
+//        if (!FileUtil.exist(file)) {
+//            CommonResponseUtil.renderError(response, "找不到存储的文件，id值为：" + devFile.getId());
+//            return;
+//        }
+//        // 进行文件下载
+//        CommonDownloadUtil.download(devFile.getName(), IoUtil.readBytes(FileUtil.getInputStream(file)), response);
+//    }
 
 
 
