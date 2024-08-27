@@ -183,9 +183,74 @@ public class OpenImServiceImpl implements OpenImService {
             Integer errCode = jsonBody.getInt("errCode");
             if(errCode==0){
                 return jsonBody.getJSONObject("data");
+            }else if(errCode==20002){
+                //用户不存在就创建用户
+                JSONObject jsonObject = buildUser(userJson);
+                if(null!= jsonObject){
+                    return jsonObject;
+                }else {
+                    throw new CommonException("Im login failed. Check the provided userId.");
+                }
             }
         }else {
             throw new CommonException("Im login failed. Check the provided userId.");
+        }
+        return null;
+    }
+
+    private JSONObject buildUser(JSONObject object) {
+        //String httpsUrl = openImProperties.getUrl() + Route.USER_REGISTER;
+        String httpsUrl = openImProperties.getUrl() + Route.USER_REGISTER;
+        HttpRequest httpPost = HttpUtil.createPost(httpsUrl);
+        OpenImUser openImUser = new OpenImUser();
+        JSONObject user = object;
+        String phoneNumber = user.getStr("account");
+        if(!StrUtil.isNumeric(phoneNumber)){
+            return null;
+        }
+        //初始化文件
+        UserBean imUser = new UserBean();
+        imUser.setPhoneNumber(phoneNumber);
+        String name = user.getStr("name");
+        imUser.setNickName(name);
+        Object o = user.get("extJson");
+        if(ObjectUtil.isNotEmpty(o)){
+            JSONObject extJson = JSONUtil.parseObj(o);
+            String avatarUrl = extJson.getStr("avatarUrl");
+            if(StrUtil.isNotEmpty(avatarUrl)){
+                imUser.setFaceURL(avatarUrl);
+            }
+        }else {
+            imUser.setFaceURL("");
+        }
+//                String gender = user.getStr("gender");
+//                String intGender = "1";
+//                if(StrUtil.isNotBlank(gender)){
+//                    if(gender.equals("女")){
+//                        intGender = "0";
+//                    }
+//                }
+//                imUser.setGender(intGender);
+        openImUser.setUser(imUser);
+        openImUser.setAutoLogin(true);
+        httpPost.header("Operationid", UUID.randomUUID().toString());
+        httpPost.body(JSONUtil.toJsonPrettyStr(openImUser));
+        try {
+            HttpResponse execute = httpPost.execute();
+            JSONObject resultJson = JSONUtil.parseObj(execute);
+            if(resultJson.getInt("status") == 200){
+                String body = execute.body();
+                JSONObject jsonBody = JSONUtil.parseObj(body);
+                Integer errCode = jsonBody.getInt("errCode");
+                if(errCode==0){
+                    JSONObject result = jsonBody.getJSONObject("data");
+                    String imUserId = result.getStr("userID");
+                    handleSqlExecution(imUserId,user.getStr("id"));
+                    return result;
+                }
+            }
+        }catch (Exception e){
+            log.error(e.getMessage(),e);
         }
         return null;
     }

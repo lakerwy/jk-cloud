@@ -566,6 +566,7 @@ public class NodeRuntimeUtil {
         String initiatorOrgId = jsonObject.getStr("initiatorOrgId");
         String initiatorPositionId = jsonObject.getStr("initiatorPositionId");
         String initiatorDataJson = jsonObject.getStr("initiatorDataJson");
+        String initiatorSelectData = jsonObject.getStr("initiatorSelectData");
         Object initiatorTableJson = runtimeService.getVariable(processInstanceId, "initiatorTableJson");
         List<String> resultUserIdList = CollectionUtil.newArrayList();
         participateInfoArray.forEach(participateInfoJsonObject -> {
@@ -691,6 +692,9 @@ public class NodeRuntimeUtil {
                             }
                         }
                     }
+                    break;
+                case "CUSTOM":    //发起人自选
+                    buildCustomUser(initiatorSelectData, resultUserIdList, sysUserApi, sysRelationApi);
                     break;
                 case "INITIATOR":
                     resultUserIdList.add(initiator);
@@ -1840,6 +1844,37 @@ public class NodeRuntimeUtil {
             taskMap = list.stream().filter(f -> ObjectUtil.isNotEmpty(f.getName()) && ObjectUtil.isNotEmpty(f.getValue())).collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue, (v1, v2) -> v2));
         }
         return taskMap;
+    }
+
+    private static void buildCustomUser(String initiatorSelectData, List<String> resultUserIdList, SysUserApi sysUserApi, SysRelationApi sysRelationApi) {
+        if (StrUtil.isEmpty(initiatorSelectData)) {
+            return;
+        }
+
+        JSONArray jsonArray = JSONUtil.parseArray(initiatorSelectData);
+        for (Object o : jsonArray) {
+            JSONObject jsonObject = JSONUtil.parseObj(o);
+            String type = jsonObject.getStr("type");
+            List<String> value = jsonObject.get("value", List.class);
+
+            switch (type) {
+                case "ORG":
+                    resultUserIdList.addAll(sysUserApi.getUserIdListByOrgIdList(value));
+                    break;
+                case "POSITION":
+                    resultUserIdList.addAll(sysUserApi.getUserIdListByPositionIdList(value));
+                    break;
+                case "ROLE":
+                    resultUserIdList.addAll(sysRelationApi.getUserIdListByRoleIdList(value));
+                    break;
+                case "USER":
+                    resultUserIdList.addAll(value);
+                    break;
+                default:
+                    // Handle unknown types if necessary
+                    break;
+            }
+        }
     }
 
 }

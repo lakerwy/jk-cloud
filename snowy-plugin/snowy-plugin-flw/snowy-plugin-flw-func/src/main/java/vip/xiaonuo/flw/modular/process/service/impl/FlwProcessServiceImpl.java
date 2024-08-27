@@ -219,9 +219,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     .set("initiatorFormType", flwModel.getFormType()));
             ProcessInstance processInstance = null;
             //FlwModel flwModel = flwModelService.getById(modelId);
-            long l = System.currentTimeMillis();
             String sn = getSn(flwModel);
-            log.error("测试sn的耗时："+(System.currentTimeMillis() - l));
             String parentTablePrimaryId = IdWorker.getIdStr();
             if(flwModel.getFormType().equals(FlwModelFormTypeEnum.DESIGN.getValue())) {
                 if(ObjectUtil.isEmpty(flwModel.getTableJson())) {
@@ -238,6 +236,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     jsonObject.set("initiatorDataJson", JSONUtil.parse(initiatorDataJson).toString());
                     //设置sn
                     jsonObject.set("initiatorProcessSn",sn);
+                    String initiatorSelectData = flwProcessStartParam.getInitiatorSelectData();
+                    if(ObjectUtil.isNotEmpty(initiatorSelectData)){
+                        jsonObject.set("initiatorSelectData", initiatorSelectData);
+                    }
                     runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId, jsonObject);
                     NodeRuntimeUtil.handleSqlExecution(initiatorSql);
                 } else {

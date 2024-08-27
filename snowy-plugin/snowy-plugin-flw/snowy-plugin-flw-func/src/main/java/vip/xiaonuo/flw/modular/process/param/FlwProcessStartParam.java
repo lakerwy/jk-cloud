@@ -63,4 +63,7 @@ public class FlwProcessStartParam {
 
     @ApiModelProperty(value = "业务主键id",position = 9)
     private String id;
+
+    @ApiModelProperty(value = "发起人自选信息",position = 10)
+    private String initiatorSelectData;
 }

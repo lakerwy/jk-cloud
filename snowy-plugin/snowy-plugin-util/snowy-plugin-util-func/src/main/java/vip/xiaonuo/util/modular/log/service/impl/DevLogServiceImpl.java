@@ -54,6 +54,9 @@ import java.util.stream.Collectors;
 @Service
 public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> implements DevLogService{
 
+    //过滤的日志的黑名单
+    private String[] blackList = new String[]{"/dev/file/download"};
+
     @Override
     public Page<DevLog> page(DevLogPageParam devLogPageParam) {
         QueryWrapper<DevLog> queryWrapper = new QueryWrapper<>();
@@ -80,6 +83,7 @@ public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> impleme
         } else {
             queryWrapper.lambda().orderByDesc(DevLog::getCreateTime);
         }
+        queryWrapper.lambda().notIn(DevLog::getReqUrl,blackList);
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
 
