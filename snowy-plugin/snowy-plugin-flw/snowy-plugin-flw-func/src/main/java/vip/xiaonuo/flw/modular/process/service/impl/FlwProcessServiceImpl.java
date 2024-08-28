@@ -217,6 +217,10 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             jsonObject.set("initiatorModelInfo", JSONUtil.createObj().set("initiatorModelId", flwModel.getId())
                     .set("initiatorModelJson", flwModel.getProcessJson()).set("initiatorFormJson", flwModel.getFormJson())
                     .set("initiatorFormType", flwModel.getFormType()));
+            String initiatorSelectData = flwProcessStartParam.getInitiatorSelectData();
+            if(ObjectUtil.isNotEmpty(initiatorSelectData)){
+                jsonObject.set("initiatorSelectData", initiatorSelectData);
+            }
             ProcessInstance processInstance = null;
             //FlwModel flwModel = flwModelService.getById(modelId);
             String sn = getSn(flwModel);
@@ -236,10 +240,6 @@ public class FlwProcessServiceImpl implements FlwProcessService {
                     jsonObject.set("initiatorDataJson", JSONUtil.parse(initiatorDataJson).toString());
                     //设置sn
                     jsonObject.set("initiatorProcessSn",sn);
-                    String initiatorSelectData = flwProcessStartParam.getInitiatorSelectData();
-                    if(ObjectUtil.isNotEmpty(initiatorSelectData)){
-                        jsonObject.set("initiatorSelectData", initiatorSelectData);
-                    }
                     runtimeService.startProcessInstanceById(flwModel.getDefinitionId(), parentTablePrimaryId, jsonObject);
                     NodeRuntimeUtil.handleSqlExecution(initiatorSql);
                 } else {

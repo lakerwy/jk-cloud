@@ -275,7 +275,7 @@ public class NodeRuntimeUtil {
                     handleUserTaskEmptyParticipateInfo(delegateExecution.getProcessInstanceId(), userTask);
                 }
             } else {
-                List<String> participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), userTaskParticipateInfo);
+                List<String> participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), userTaskParticipateInfo,userTask.getId());
                 if (ObjectUtil.isEmpty(participateUserIdList)) {
                     handleUserTaskEmptyParticipateInfo(delegateExecution.getProcessInstanceId(), userTask);
                 } else {
@@ -373,7 +373,7 @@ public class NodeRuntimeUtil {
                                                                                                 }));
                                                                                     }
                                                                                     if (ObjectUtil.isNotEmpty(previousParticipateInfo.get())) {
-                                                                                        List<String> participateInfo = handleUserTaskParticipateInfo(delegateTask.getProcessInstanceId(), previousParticipateInfo.get());
+                                                                                        List<String> participateInfo = handleUserTaskParticipateInfo(delegateTask.getProcessInstanceId(), previousParticipateInfo.get(),delegateTask.getTaskDefinitionKey());
                                                                                         if(ObjectUtil.isNotEmpty(participateInfo) && participateInfo.size() == 1) {
                                                                                             if(delegateTask.getAssignee().equals(participateInfo.get(0))) {
                                                                                                 handleUserTaskCommentAndAttachment(delegateTask.getId(),
@@ -555,7 +555,7 @@ public class NodeRuntimeUtil {
      * @author xuyuxiang
      * @date 2022/6/6 9:58
      **/
-    public static List<String> handleUserTaskParticipateInfo(String processInstanceId, String participateInfo) {
+    public static List<String> handleUserTaskParticipateInfo(String processInstanceId, String participateInfo,String userTaskId) {
         SysUserApi sysUserApi = SpringUtil.getBean(SysUserApi.class);
         SysRelationApi sysRelationApi = SpringUtil.getBean(SysRelationApi.class);
         SysOrgApi sysOrgApi = SpringUtil.getBean(SysOrgApi.class);
@@ -694,7 +694,7 @@ public class NodeRuntimeUtil {
                     }
                     break;
                 case "CUSTOM":    //发起人自选
-                    buildCustomUser(initiatorSelectData, resultUserIdList, sysUserApi, sysRelationApi);
+                    buildCustomUser(initiatorSelectData, resultUserIdList, sysUserApi, sysRelationApi,userTaskId);
                     break;
                 case "INITIATOR":
                     resultUserIdList.add(initiator);
@@ -1049,7 +1049,7 @@ public class NodeRuntimeUtil {
                                         }
                                     })));
                     if (ObjectUtil.isNotEmpty(participateInfo.get())) {
-                        participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), participateInfo.get());
+                        participateUserIdList = handleUserTaskParticipateInfo(delegateExecution.getProcessInstanceId(), participateInfo.get(),delegateExecution.getCurrentActivityId());
                     }
                     processNoticeTemplateFormat = handleProcessNoticeTemplateForDelegateExecution(delegateExecution, processNoticeTemplate);
                     break;
@@ -1585,7 +1585,7 @@ public class NodeRuntimeUtil {
                                 boolean useFormUser = JSONUtil.parseArray(userTaskParticipateInfo).stream().anyMatch(o -> JSONUtil.toBean(JSONUtil.parseObj(o),
                                         FlwNode.FlwNodeParticipateProp.class).getKey().equals("FORM_USER"));
                                 if(useFormUser) {
-                                    List<String> participateUserIdList = handleUserTaskParticipateInfo(processInstanceId, userTaskParticipateInfo);
+                                    List<String> participateUserIdList = handleUserTaskParticipateInfo(processInstanceId, userTaskParticipateInfo,userTask.getId());
                                     if (ObjectUtil.isEmpty(participateUserIdList)) {
                                         handleUserTaskEmptyParticipateInfo(processInstanceId, userTask);
                                     } else {
@@ -1846,7 +1846,7 @@ public class NodeRuntimeUtil {
         return taskMap;
     }
 
-    private static void buildCustomUser(String initiatorSelectData, List<String> resultUserIdList, SysUserApi sysUserApi, SysRelationApi sysRelationApi) {
+    private static void buildCustomUser(String initiatorSelectData, List<String> resultUserIdList, SysUserApi sysUserApi, SysRelationApi sysRelationApi,String userTaskId) {
         if (StrUtil.isEmpty(initiatorSelectData)) {
             return;
         }
@@ -1854,6 +1854,13 @@ public class NodeRuntimeUtil {
         JSONArray jsonArray = JSONUtil.parseArray(initiatorSelectData);
         for (Object o : jsonArray) {
             JSONObject jsonObject = JSONUtil.parseObj(o);
+            String id = jsonObject.getStr("id");
+            if(StrUtil.isEmpty(id)){
+                continue;
+            }
+            if(!id.equals(userTaskId)){
+                continue;
+            }
             String type = jsonObject.getStr("type");
             List<String> value = jsonObject.get("value", List.class);
 
