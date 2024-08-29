@@ -74,6 +74,9 @@ public class FlwProcessDetailResult {
     @ApiModelProperty(value = "后续流程节点情况", position = 66)
     private FlwNodeResult nextFlwNodeResult;
 
+    /** 填写数据 */
+    @ApiModelProperty(value = "填写数据", position = 6)
+    private String initiatorSelectData;
 
     /**
      * 审批记录类

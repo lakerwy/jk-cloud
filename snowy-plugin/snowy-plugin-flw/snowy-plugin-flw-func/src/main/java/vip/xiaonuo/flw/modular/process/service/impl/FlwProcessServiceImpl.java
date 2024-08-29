@@ -1052,6 +1052,7 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         flwProcessDetailResult.setInitiatorModelJson(this.getProcessModelJsonVariable(processInstanceId));
         flwProcessDetailResult.setInitiatorFormJson(this.getProcessFormJsonVariable(processInstanceId));
         flwProcessDetailResult.setInitiatorDataJson(this.getProcessDataJsonVariable(processInstanceId));
+        flwProcessDetailResult.setInitiatorSelectData(this.getProcessSelectDataJsonVariable(processInstanceId));
         List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
                 .processInstanceId(processInstanceId).orderByHistoricActivityInstanceStartTime().asc().list();
         List<Comment> processInstanceCommentList = taskService.getProcessInstanceComments(processInstanceId);
@@ -1244,6 +1245,15 @@ public class FlwProcessServiceImpl implements FlwProcessService {
     public String getProcessDataJsonVariable(String processInstanceId) {
         HistoricVariableInstance initiatorDataJson = historyService.createHistoricVariableInstanceQuery()
                 .processInstanceId(processInstanceId).variableName("initiatorDataJson").singleResult();
+        if (ObjectUtil.isNotEmpty(initiatorDataJson)) {
+            return Convert.toStr(initiatorDataJson.getValue());
+        }
+        return null;
+    }
+
+    public String getProcessSelectDataJsonVariable(String processInstanceId) {
+        HistoricVariableInstance initiatorDataJson = historyService.createHistoricVariableInstanceQuery()
+                .processInstanceId(processInstanceId).variableName("initiatorSelectData").singleResult();
         if (ObjectUtil.isNotEmpty(initiatorDataJson)) {
             return Convert.toStr(initiatorDataJson.getValue());
         }
