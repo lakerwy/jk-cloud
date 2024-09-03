@@ -40,10 +40,10 @@ public class LogArchivingTask {
     private InitDataService initDataService;
 
 
-    @PostConstruct
-    public void onStartUp(){
-        action();
-    }
+//    @PostConstruct
+//    public void onStartUp(){
+//        action();
+//    }
 
 
     /**
