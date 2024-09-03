@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.branchRating.entity.BranchRating;
 import vip.xiaonuo.sys.modular.hr.branchRating.param.*;
-import vip.xiaonuo.sys.modular.hr.branchRating.vo.BranchRatingVo;
 
 import java.util.List;
 
@@ -86,5 +85,5 @@ public interface BranchRatingService extends IService<BranchRating> {
      * @author pzh
      * @date 2024/09/03 10:03
      **/
-    List<BranchRatingVo> getList(BranchRatingListParam branchRatingListParam);
+    List<BranchRating> getList(BranchRatingListParam branchRatingListParam);
 }

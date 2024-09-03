@@ -5,7 +5,6 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -20,7 +19,6 @@ import vip.xiaonuo.sys.modular.hr.branchRating.enums.BranchRatingStatusEnum;
 import vip.xiaonuo.sys.modular.hr.branchRating.mapper.BranchRatingMapper;
 import vip.xiaonuo.sys.modular.hr.branchRating.param.*;
 import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchRatingService;
-import vip.xiaonuo.sys.modular.hr.branchRating.vo.BranchRatingVo;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -134,8 +132,7 @@ public class BranchRatingServiceImpl extends ServiceImpl<BranchRatingMapper, Bra
     }
 
     @Override
-    public List<BranchRatingVo> getList(BranchRatingListParam branchRatingListParam) {
-        List<BranchRatingVo> branchRatingVoList = new ArrayList<>();
+    public List<BranchRating> getList(BranchRatingListParam branchRatingListParam) {
         LambdaUpdateWrapper<BranchRating> queryWrapper = new LambdaUpdateWrapper<>();
         if(ObjectUtil.isNotEmpty(branchRatingListParam.getYear())){
             queryWrapper.eq(BranchRating::getYear, branchRatingListParam.getYear());
@@ -158,22 +155,6 @@ public class BranchRatingServiceImpl extends ServiceImpl<BranchRatingMapper, Bra
                     .or().like(BranchRating::getLevel, branchRatingListParam.getSearchKey()));
         }
         queryWrapper.orderByAsc(BranchRating::getArea).orderByDesc(BranchRating::getCreateTime);
-        List<BranchRating> branchRatingList = this.list(queryWrapper);
-        if(CollUtil.isNotEmpty(branchRatingList)){
-            //按区域分组
-            Map<String, List<BranchRating>> branchRatingMap = branchRatingList.stream()
-                    .collect(Collectors.groupingBy(
-                            BranchRating::getArea,
-                            LinkedHashMap::new,
-                            Collectors.toList()));
-            branchRatingMap.forEach((area,list)->{
-                BranchRatingVo branchRatingVo = new BranchRatingVo();
-                branchRatingVo.setArea(area);
-                branchRatingVo.setAreaTotal(this.count(new LambdaQueryWrapper<BranchRating>().eq(BranchRating::getArea, area)));
-                branchRatingVo.setBranchRatingList(list);
-                branchRatingVoList.add(branchRatingVo);
-            });
-        }
-        return branchRatingVoList;
+        return this.list(queryWrapper);
     }
 }

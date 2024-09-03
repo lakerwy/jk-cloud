@@ -1,7 +1,5 @@
 package vip.xiaonuo.sys.modular.hr.branchRating.controller;
 
-import cn.dev33.satoken.annotation.SaCheckPermission;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -17,7 +15,6 @@ import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.branchRating.entity.BranchRating;
 import vip.xiaonuo.sys.modular.hr.branchRating.param.*;
 import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchRatingService;
-import vip.xiaonuo.sys.modular.hr.branchRating.vo.BranchRatingVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -64,7 +61,7 @@ public class BranchRatingController {
     @ApiOperation("获取分公司评级列表")
     // @SaCheckPermission("/sys/branchRating/list")
     @GetMapping("/sys/branchRating/list")
-    public CommonResult<List<BranchRatingVo>> list(BranchRatingListParam branchRatingListParam) {
+    public CommonResult<List<BranchRating>> list(BranchRatingListParam branchRatingListParam) {
         return CommonResult.data(branchRatingService.getList(branchRatingListParam));
     }
 
