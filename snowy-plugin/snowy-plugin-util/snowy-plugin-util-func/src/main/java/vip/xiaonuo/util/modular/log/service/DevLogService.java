@@ -18,6 +18,8 @@ import vip.xiaonuo.util.modular.log.entity.DevLog;
 import vip.xiaonuo.util.modular.log.param.*;
 import vip.xiaonuo.util.modular.log.result.*;
 
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -82,4 +84,17 @@ public interface DevLogService extends IService<DevLog> {
      * @return
      */
     Page<DevLog> fileActionLogPage(DevLogPageParam devLogPageParam);
+
+    /**
+     * 获取所有的历史日志记录表
+     * @return
+     */
+    List<String> getDevLogTables();
+
+    /**
+     *
+     * @param historyDevLogSearchParam
+     * @return
+     */
+    Page<DevLog> historyDevLog(HistoryDevLogSearchParam historyDevLogSearchParam);
 }

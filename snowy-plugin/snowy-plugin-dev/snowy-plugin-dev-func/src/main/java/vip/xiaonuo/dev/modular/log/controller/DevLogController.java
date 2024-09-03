@@ -18,15 +18,13 @@ import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.util.modular.log.entity.DevLog;
 import vip.xiaonuo.util.modular.log.param.DevLogDeleteParam;
 import vip.xiaonuo.util.modular.log.param.DevLogPageParam;
+import vip.xiaonuo.util.modular.log.param.HistoryDevLogSearchParam;
 import vip.xiaonuo.util.modular.log.result.DevLogOpBarChartDataResult;
 import vip.xiaonuo.util.modular.log.result.DevLogOpPieChartDataResult;
 import vip.xiaonuo.util.modular.log.result.DevLogVisLineChartDataResult;
@@ -34,6 +32,7 @@ import vip.xiaonuo.util.modular.log.result.DevLogVisPieChartDataResult;
 import vip.xiaonuo.util.modular.log.service.DevLogService;
 
 import javax.annotation.Resource;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -142,5 +141,19 @@ public class DevLogController {
     @GetMapping("/dev/pan/log/fileActionLogPage")
     public CommonResult<Page<DevLog>> fileActionLogPage(DevLogPageParam devLogPageParam) {
         return CommonResult.data(devLogService.fileActionLogPage(devLogPageParam));
+    }
+
+    @ApiOperationSupport(order = 7)
+    @ApiOperation("获取历史日志表")
+    @GetMapping("/dev/log/getDevLogTables")
+    public CommonResult<List<String>> getDevLogTables(){
+        return CommonResult.data(devLogService.getDevLogTables());
+    }
+
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("历史日志查询")
+    @PostMapping(value = "/dev/log/historyDevLog")
+    public CommonResult<Page<DevLog>> historyDevLog(@RequestBody HistoryDevLogSearchParam historyDevLogSearchParam) throws IOException {
+        return CommonResult.data(devLogService.historyDevLog(historyDevLogSearchParam));
     }
 }

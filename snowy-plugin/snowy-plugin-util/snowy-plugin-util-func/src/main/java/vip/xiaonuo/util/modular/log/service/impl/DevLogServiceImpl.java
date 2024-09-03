@@ -19,6 +19,10 @@ import cn.hutool.core.date.DateUnit;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.db.DbUtil;
+import cn.hutool.db.handler.RsHandler;
+import cn.hutool.db.sql.SqlExecutor;
+import cn.hutool.extra.spring.SpringUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.Master;
@@ -28,20 +32,23 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.dbs.api.DbsApi;
 import vip.xiaonuo.util.modular.log.entity.DevLog;
 import vip.xiaonuo.util.modular.log.enums.DevLogCategoryEnum;
 import vip.xiaonuo.util.modular.log.mapper.DevLogMapper;
 import vip.xiaonuo.util.modular.log.param.DevLogDeleteParam;
 import vip.xiaonuo.util.modular.log.param.DevLogPageParam;
+import vip.xiaonuo.util.modular.log.param.HistoryDevLogSearchParam;
 import vip.xiaonuo.util.modular.log.result.DevLogOpBarChartDataResult;
 import vip.xiaonuo.util.modular.log.result.DevLogOpPieChartDataResult;
 import vip.xiaonuo.util.modular.log.result.DevLogVisLineChartDataResult;
 import vip.xiaonuo.util.modular.log.result.DevLogVisPieChartDataResult;
 import vip.xiaonuo.util.modular.log.service.DevLogService;
 
-import java.util.List;
-import java.util.Map;
+import java.sql.*;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -207,5 +214,123 @@ public class DevLogServiceImpl extends ServiceImpl<DevLogMapper, DevLog> impleme
             queryWrapper.lambda().orderByDesc(DevLog::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
+    }
+
+    @Override
+    public List<String> getDevLogTables() {
+        List<String> logTableNames = new ArrayList<>();
+        Connection conn = null;
+        try {
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            conn = dbsApi.getCurrentDataSource().getConnection();
+           // conn.setAutoCommit(false);
+            DatabaseMetaData metaData = conn.getMetaData();
+            ResultSet resultSet = metaData.getTables(null, null, "DEV_LOG_%", new String[]{"TABLE"});
+            while (resultSet.next()) {
+                String tableName = resultSet.getString("TABLE_NAME");
+                logTableNames.add(tableName);
+            }
+        }catch (Exception e) {
+            if(conn != null) {
+                throw new CommonException("get Log tables error", e.getMessage());
+            }
+        }finally {
+            DbUtil.close(conn);
+        }
+
+        return logTableNames;
+    }
+
+    @Override
+    public Page<DevLog> historyDevLog(HistoryDevLogSearchParam historyDevLogSearchParam) {
+        List<String> devLogTables = getDevLogTables();
+        if(CollectionUtil.isNotEmpty(devLogTables)){
+            boolean contains = devLogTables.contains(historyDevLogSearchParam.getTableName());
+            if(!contains){
+                throw new CommonException("不存在该历史表");
+            }
+        }
+        return getDevLogPage(historyDevLogSearchParam);
+    }
+
+    public Page<DevLog>  getDevLogPage(HistoryDevLogSearchParam historyDevLogSearchParam) {
+
+        String sql = "SELECT * FROM `" + historyDevLogSearchParam.getTableName() + "` ";
+        String searchSql = "";
+        if (StrUtil.isNotEmpty(historyDevLogSearchParam.getSearchKey())){
+            String searchKey = "%"+historyDevLogSearchParam.getSearchKey()+"%";
+            searchSql += " where  'CATEGORY' like " + searchKey + " `NAME` like " + searchKey + " 'METHOD_NAME' like " + searchKey + " 'PARAM_JSON' like " + searchKey;
+        }
+        sql+=searchSql;
+        if (ObjectUtil.isAllNotEmpty(historyDevLogSearchParam.getSize(),historyDevLogSearchParam.getCurrent())) {
+            sql += " limit " + historyDevLogSearchParam.getSize() + " OFFSET " + (historyDevLogSearchParam.getCurrent()-1)*historyDevLogSearchParam.getSize();
+        }
+
+        Connection conn = null;
+        try {
+            DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+            conn = dbsApi.getCurrentDataSource().getConnection();
+            conn.setAutoCommit(false);
+            List<DevLog> devLogs = SqlExecutor.query(conn, sql, new RsHandler<List<DevLog>>() {
+                @Override
+                public List<DevLog> handle(ResultSet rs) throws SQLException {
+                    List<DevLog> list = new ArrayList<>();
+                    while (rs.next()) {
+                        DevLog devLog = new DevLog();
+                        devLog.setId(rs.getString("id"));
+                        devLog.setTenantId(rs.getString("TENANT_ID"));
+                        devLog.setCategory(rs.getString("CATEGORY"));
+                        devLog.setName(rs.getString("NAME"));
+                        devLog.setExeStatus(rs.getString("EXE_STATUS"));
+                        devLog.setExeMessage(rs.getString("EXE_MESSAGE"));
+                        devLog.setOpIp(rs.getString("OP_IP"));
+                        devLog.setOpAddress(rs.getString("OP_ADDRESS"));
+                        devLog.setOpBrowser(rs.getString("OP_BROWSER"));
+                        devLog.setOpOs(rs.getString("OP_OS"));
+                        devLog.setClassName(rs.getString("CLASS_NAME"));
+                        devLog.setMethodName(rs.getString("METHOD_NAME"));
+                        devLog.setReqMethod(rs.getString("REQ_METHOD"));
+                        devLog.setReqUrl(rs.getString("REQ_URL"));
+                        devLog.setParamJson(rs.getString("PARAM_JSON"));
+                        devLog.setResultJson(rs.getString("RESULT_JSON"));
+                        devLog.setOpTime(rs.getTimestamp("OP_TIME"));
+                        devLog.setOpUser(rs.getString("OP_USER"));
+                        devLog.setSignData(rs.getString("SIGN_DATA"));
+                        devLog.setCreateTime(rs.getTimestamp("CREATE_TIME"));
+                        devLog.setCreateUser(rs.getString("CREATE_USER"));
+                        devLog.setUpdateTime(rs.getTimestamp("UPDATE_TIME"));
+                        devLog.setUpdateUser(rs.getString("UPDATE_USER"));
+                        devLog.setModelTag(rs.getString("MODEL_TAG"));
+                        list.add(devLog);
+                    }
+                    return list;
+                }
+            });
+
+            // 查询总记录数
+            String countSql = "SELECT COUNT(`ID`) as total FROM `" + historyDevLogSearchParam.getTableName() + "` " + searchSql;
+            int totalRecords = SqlExecutor.query(conn, countSql, new RsHandler<Integer>() {
+
+                @Override
+                public Integer handle(ResultSet rs) throws SQLException {
+                    if (rs.next()) {
+                        return rs.getInt("total");
+                    }
+                    return 0;
+                }
+            });
+            conn.commit();
+            // 构建 Page 对象返回结果
+            Page<DevLog> page = new Page<>(historyDevLogSearchParam.getCurrent(), historyDevLogSearchParam.getSize());
+            page.setRecords(devLogs);
+            page.setTotal(totalRecords);
+            return page;
+        } catch (SQLException e) {
+            throw new CommonException(e.getMessage());
+        }finally {
+            if(conn != null){
+                DbUtil.close(conn);
+            }
+        }
     }
 }
