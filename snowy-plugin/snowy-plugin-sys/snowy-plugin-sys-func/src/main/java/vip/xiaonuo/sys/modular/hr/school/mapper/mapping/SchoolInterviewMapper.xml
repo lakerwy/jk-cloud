@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="vip.xiaonuo.sys.modular.hr.school.mapper.SchoolInterviewMapper">
+
+    <select id="getPageList" resultType="vip.xiaonuo.sys.modular.hr.school.vo.SchoolInterviewVo" >
+        select  a.ID as id,
+                a.DEPT as dept,
+                a.RESUME_ID as resumeId,
+                a.MATCH_JSON as matchJson,
+                a.SALARY_JSON as salaryJson,
+                a.SN as sn,
+                a.PROCESS_INSTANCE_ID as processInstanceId,
+                a.STATUS as status,
+
+                b.`YEAR` as year,
+                b.TYPE as type,
+                b.NAME as name,
+                b.PHONE as phone,
+                b.SCHOOL as school,
+                b.EDUCATION as education,
+                b.MAJOR as major,
+                b.INFO_RESOURCE as infoResource,
+                b.RESUME_ATTACH as resumeAttach,
+                b.POST_TYPE as postType,
+                b.APPLY_POST as applyPost,
+                b.EXPECT_SALARY as expectSalary,
+                b.ID_NUMBER as idNumber,
+                b.SEX as sex
+        from HR_SCHOOL_INTERVIEW a
+                 left join HR_SCHOOL_RESUME b on a.RESUME_ID = b.ID
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetail" resultType="vip.xiaonuo.sys.modular.hr.school.vo.SchoolInterviewVo" >
+        select  a.ID as id,
+                a.DEPT as dept,
+                a.RESUME_ID as resumeId,
+                a.MATCH_JSON as matchJson,
+                a.SALARY_JSON as salaryJson,
+                a.SN as sn,
+                a.PROCESS_INSTANCE_ID as processInstanceId,
+                a.STATUS as status,
+
+                b.`YEAR` as year,
+                b.TYPE as type,
+                b.NAME as name,
+                b.PHONE as phone,
+                b.SCHOOL as school,
+                b.EDUCATION as education,
+                b.MAJOR as major,
+                b.INFO_RESOURCE as infoResource,
+                b.RESUME_ATTACH as resumeAttach,
+                b.POST_TYPE as postType,
+                b.APPLY_POST as applyPost,
+                b.EXPECT_SALARY as expectSalary,
+                b.ID_NUMBER as idNumber,
+                b.SEX as sex
+        from HR_SCHOOL_INTERVIEW a
+            left join HR_SCHOOL_RESUME b on a.RESUME_ID = b.ID
+        where a.ID = #{id}
+    </select>
+
+</mapper>

@@ -216,6 +216,11 @@ public class GatewayConfigure {
             "/api/webapp/sys/hr/social/resume/detail",
             "/api/webapp/sys/hr/social/resume/getLongUrl",
 
+            /* 校招 */
+            "/api/webapp/sys/hr/school/resume/submit",
+            "/api/webapp/sys/hr/school/resume/detail",
+            "/api/webapp/sys/hr/school/resume/getLongUrl",
+
             "/api/webapp/sys/client/getChildrenUserNew",
             "/api/webapp/sys/client/getOrgByMap",
 

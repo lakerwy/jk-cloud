@@ -64,6 +64,10 @@ public enum BizCommonEnum {
     BIZ_BID_DECISION("BIZ_BID_DECISION","BIZ_BID_DECISION","BidDecisionServiceImpl"),  //投标决策 - 发起
 
     HR_SOCIAL_INTERVIEW("HR_SOCIAL_INTERVIEW","HR_SOCIAL_INTERVIEW","SocialInterviewServiceImpl"),  //社招-面试入职审批
+
+    HR_SCHOOL_DEPT("HR_SCHOOL_DEPT","HR_SCHOOL_DEPT","SchoolDeptServiceImpl"),  //校招-部门推荐
+    HR_SCHOOL_INTERVIEW("HR_SCHOOL_INTERVIEW","HR_SCHOOL_INTERVIEW","SchoolInterviewServiceImpl"),  //校招-面试入职审批
+
     BIZ_DEV_CONFIRM("BIZ_DEV_CONFIRM","BIZ_DEV_CONFIRM","DevConfirmServiceImpl");  //需求单 - 确认
 
     String bizModel;
