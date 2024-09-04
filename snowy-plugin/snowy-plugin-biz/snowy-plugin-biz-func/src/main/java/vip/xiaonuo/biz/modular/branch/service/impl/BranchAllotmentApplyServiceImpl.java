@@ -18,7 +18,6 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.biz.modular.branch.entity.BranchPaymentInfo;
 import vip.xiaonuo.biz.modular.branch.param.*;
 import vip.xiaonuo.biz.modular.branch.service.BranchPaymentInfoService;
-import vip.xiaonuo.biz.modular.crm.pursalecontract.entity.Pursalecontract;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.consts.DbTypeCacheConstant;
 import vip.xiaonuo.common.consts.FlwCacheConstant;
@@ -66,6 +65,9 @@ public class BranchAllotmentApplyServiceImpl extends ServiceImpl<BranchAllotment
         }
         if(ObjectUtil.isNotEmpty(branchAllotmentApplyPageParam.getStatus())){
             queryWrapper.lambda().eq(BranchAllotmentApply::getStatus,branchAllotmentApplyPageParam.getStatus());
+        }else {
+            // 默认只展示审核中和已完成的数据
+            queryWrapper.lambda().in(BranchAllotmentApply::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
         }
         if(ObjectUtil.isAllNotEmpty(branchAllotmentApplyPageParam.getSortField(), branchAllotmentApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(branchAllotmentApplyPageParam.getSortOrder());
