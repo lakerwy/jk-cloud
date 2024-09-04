@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,13 +19,11 @@ import vip.xiaonuo.sys.modular.hr.branchRating.entity.BranchRating;
 import vip.xiaonuo.sys.modular.hr.branchRating.enums.BranchRatingStatusEnum;
 import vip.xiaonuo.sys.modular.hr.branchRating.mapper.BranchRatingMapper;
 import vip.xiaonuo.sys.modular.hr.branchRating.param.*;
+import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchRatingPublicService;
 import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchRatingService;
 
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
+import javax.annotation.Resource;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * 分公司评级Service接口实现类
@@ -34,6 +33,9 @@ import java.util.stream.Collectors;
  **/
 @Service
 public class BranchRatingServiceImpl extends ServiceImpl<BranchRatingMapper, BranchRating> implements BranchRatingService {
+
+    @Resource
+    private BranchRatingPublicService branchRatingPublicService;
 
     @Override
     public Page<BranchRating> page(BranchRatingPageParam branchRatingPageParam) {
@@ -52,8 +54,7 @@ public class BranchRatingServiceImpl extends ServiceImpl<BranchRatingMapper, Bra
     @Override
     public void add(BranchRatingAddParam branchRatingAddParam) {
         BranchRating branchRating = BeanUtil.toBean(branchRatingAddParam, BranchRating.class);
-        // 跟随历史数据设置公示状态
-        branchRating.setStatus(this.getHisStatus(branchRatingAddParam.getYear(), branchRatingAddParam.getQuarter()));
+        branchRating.setStatus(branchRatingPublicService.getPublic(branchRatingAddParam.getYear(),branchRatingAddParam.getQuarter()));
         this.save(branchRating);
     }
 
@@ -62,25 +63,8 @@ public class BranchRatingServiceImpl extends ServiceImpl<BranchRatingMapper, Bra
     public void edit(BranchRatingEditParam branchRatingEditParam) {
         BranchRating branchRating = this.queryEntity(branchRatingEditParam.getId());
         BeanUtil.copyProperties(branchRatingEditParam, branchRating);
-        // 跟随历史数据设置公示状态
-        branchRating.setStatus(this.getHisStatus(branchRatingEditParam.getYear(), branchRatingEditParam.getQuarter()));
+        branchRating.setStatus(branchRatingPublicService.getPublic(branchRatingEditParam.getYear(),branchRatingEditParam.getQuarter()));
         this.updateById(branchRating);
-    }
-
-    /**
-     * 获取历史数据公示状态
-     * @param year 年份
-     * @param quarter 季度
-     * @return
-     */
-    private String getHisStatus(String year,String quarter) {
-        // 跟随历史数据设置公示状态
-        BranchRating hisBranchRating = this.getOne(new LambdaUpdateWrapper<BranchRating>()
-                .eq(BranchRating::getYear,year)
-                .eq(BranchRating::getQuarter,quarter)
-                .orderByDesc(BranchRating::getCreateTime).last(" limit 1 "));
-        return ObjectUtil.isNotEmpty(hisBranchRating) ?
-                hisBranchRating.getStatus() : BranchRatingStatusEnum.NOT_PUBLIC.getValue();
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -126,6 +110,7 @@ public class BranchRatingServiceImpl extends ServiceImpl<BranchRatingMapper, Bra
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void setStatus(BranchRatingStatusEditParam branchRatingStatusEditParam) {
+        branchRatingPublicService.setPublic(branchRatingStatusEditParam.getYear(),branchRatingStatusEditParam.getQuarter());
         this.update(new LambdaUpdateWrapper<BranchRating>().set(BranchRating::getStatus, BranchRatingStatusEnum.NOT_PUBLIC.getValue()));
         this.update(new LambdaUpdateWrapper<BranchRating>().eq(BranchRating::getYear, branchRatingStatusEditParam.getYear()).eq(BranchRating::getQuarter, branchRatingStatusEditParam.getQuarter())
                 .set(BranchRating::getStatus, BranchRatingStatusEnum.PUBLIC.getValue()));
@@ -133,7 +118,7 @@ public class BranchRatingServiceImpl extends ServiceImpl<BranchRatingMapper, Bra
 
     @Override
     public List<BranchRating> getList(BranchRatingListParam branchRatingListParam) {
-        LambdaUpdateWrapper<BranchRating> queryWrapper = new LambdaUpdateWrapper<>();
+        LambdaQueryWrapper<BranchRating> queryWrapper = new LambdaQueryWrapper<>();
         if(ObjectUtil.isNotEmpty(branchRatingListParam.getYear())){
             queryWrapper.eq(BranchRating::getYear, branchRatingListParam.getYear());
         }

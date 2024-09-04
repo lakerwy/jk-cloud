@@ -13,7 +13,9 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.sys.modular.hr.branchRating.entity.BranchRating;
+import vip.xiaonuo.sys.modular.hr.branchRating.entity.BranchRatingPublic;
 import vip.xiaonuo.sys.modular.hr.branchRating.param.*;
+import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchRatingPublicService;
 import vip.xiaonuo.sys.modular.hr.branchRating.service.BranchRatingService;
 
 import javax.annotation.Resource;
@@ -35,6 +37,9 @@ public class BranchRatingController {
 
     @Resource
     private BranchRatingService branchRatingService;
+
+    @Resource
+    private BranchRatingPublicService branchRatingPublicService;
 
     /**
      * 获取分公司评级分页
@@ -156,5 +161,19 @@ public class BranchRatingController {
     public CommonResult<String> setStatus(@RequestBody BranchRatingStatusEditParam branchRatingStatusEditParam) {
         branchRatingService.setStatus(branchRatingStatusEditParam);
         return CommonResult.ok();
+    }
+
+    /**
+     * 分公司评级 - 获取当前公示年份和季度
+     *
+     * @author pzh
+     * @date  2024/09/03 10:03
+     */
+    @ApiOperationSupport(order = 8)
+    @ApiOperation("分公司评级 - 获取当前公示年份和季度")
+    @CommonLog("分公司评级 - 获取当前公示年份和季度")
+    @GetMapping("/biz/branchRating/getCurPublic")
+    public CommonResult<BranchRatingPublic> getCurPublic() {
+        return CommonResult.data(branchRatingPublicService.getCurPublic());
     }
 }
