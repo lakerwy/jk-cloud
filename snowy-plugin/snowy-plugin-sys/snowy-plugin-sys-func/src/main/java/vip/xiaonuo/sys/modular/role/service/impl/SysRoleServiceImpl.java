@@ -14,6 +14,7 @@ package vip.xiaonuo.sys.modular.role.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
+import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.collection.CollectionUtil;
 import cn.hutool.core.convert.Convert;
 import cn.hutool.core.lang.tree.Tree;
@@ -453,7 +454,7 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
         lambdaQueryWrapper.select(SysUser::getId, SysUser::getAvatar, SysUser::getOrgId, SysUser::getPositionId, SysUser::getAccount,
                 SysUser::getName, SysUser::getSortCode, SysUser::getGender, SysUser::getEntryDate);
         // 如果查询条件为空，则直接查询
-        if(ObjectUtil.isAllEmpty(sysRoleSelectorUserParam.getOrgId(), sysRoleSelectorUserParam.getSearchKey())) {
+        if(ObjectUtil.isAllEmpty(sysRoleSelectorUserParam.getOrgId(), sysRoleSelectorUserParam.getSearchKey(),sysRoleSelectorUserParam.getUserList())) {
             Page<SysUser> result = sysUserService.getAllUserSelectorList();
             result.getRecords().forEach(x->{
                 String firstOrgId = String.valueOf(commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY + "orgId" + x.getOrgId()));
@@ -475,6 +476,9 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
             }
             if (ObjectUtil.isNotEmpty(sysRoleSelectorUserParam.getSearchKey())) {
                 lambdaQueryWrapper.like(SysUser::getName, sysRoleSelectorUserParam.getSearchKey());
+            }
+            if (CollUtil.isNotEmpty(sysRoleSelectorUserParam.getUserList())){
+                lambdaQueryWrapper.in(SysUser::getName,sysRoleSelectorUserParam.getUserList());
             }
             lambdaQueryWrapper.eq(SysUser::getUserStatus, SysUserStatusEnum.ENABLE.getValue());
             lambdaQueryWrapper.orderByAsc(SysUser::getSortCode);

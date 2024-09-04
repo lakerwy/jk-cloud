@@ -16,6 +16,8 @@ import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 /**
  * 用户选择器参数
  *
@@ -40,4 +42,8 @@ public class SysRoleSelectorUserParam {
     /** 姓名关键词 */
     @ApiModelProperty(value = "姓名关键词")
     private String searchKey;
+
+    /** 框定的用户集合 */
+    @ApiModelProperty(value = "框定的用户集合")
+    private List<String> userList;
 }
