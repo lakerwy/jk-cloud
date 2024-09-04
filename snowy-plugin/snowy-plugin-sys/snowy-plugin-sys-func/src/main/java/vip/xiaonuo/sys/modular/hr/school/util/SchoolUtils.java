@@ -22,7 +22,6 @@ public class SchoolUtils {
      * @return
      */
     public static String getTypeEnum(){
-        LocalDate today = LocalDate.now();
-        return today.getMonthValue() < 7 ? SchoolResumeTypeEnum.SPRING.getValue() : SchoolResumeTypeEnum.AUTUMN.getValue();
+        return LocalDate.now().getMonthValue() < 7 ? SchoolResumeTypeEnum.SPRING.getValue() : SchoolResumeTypeEnum.AUTUMN.getValue();
     }
 }

@@ -162,9 +162,11 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
     @Override
     public void batchAdd(List<SchoolResumeAddParam> schoolResumeAddParamList) {
         List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
+        String year = SchoolUtils.getCurrentYear();
+        String type = SchoolUtils.getTypeEnum();
         addList.forEach(item->{
-            item.setYear(SchoolUtils.getCurrentYear());
-            item.setType(SchoolUtils.getTypeEnum());
+            item.setYear(year);
+            item.setType(type);
         });
         this.saveBatch(addList);
     }
@@ -172,9 +174,11 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
     @Override
     public void batchImport(List<SchoolResumeAddParam> schoolResumeAddParamList) {
         List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
+        String year = SchoolUtils.getCurrentYear();
+        String type = SchoolUtils.getTypeEnum();
         addList.forEach(item->{
-            item.setYear(SchoolUtils.getCurrentYear());
-            item.setType(SchoolUtils.getTypeEnum());
+            item.setYear(year);
+            item.setType(type);
         });
         this.saveBatch(addList);
     }
