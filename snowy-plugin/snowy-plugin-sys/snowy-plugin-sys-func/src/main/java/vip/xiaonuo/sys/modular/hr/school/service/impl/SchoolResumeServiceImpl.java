@@ -22,6 +22,7 @@ import vip.xiaonuo.sys.modular.hr.school.param.*;
 import vip.xiaonuo.sys.modular.hr.school.service.SchoolDeptService;
 import vip.xiaonuo.sys.modular.hr.school.service.SchoolInterviewService;
 import vip.xiaonuo.sys.modular.hr.school.service.SchoolResumeService;
+import vip.xiaonuo.sys.modular.hr.school.util.SchoolUtils;
 import vip.xiaonuo.sys.modular.hr.school.vo.SchoolDeptInfo;
 import vip.xiaonuo.sys.modular.hr.school.vo.SchoolInterviewInfo;
 import vip.xiaonuo.sys.modular.hr.school.vo.SchoolResumeVo;
@@ -111,6 +112,8 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
     @Override
     public void add(SchoolResumeAddParam schoolResumeAddParam) {
         SchoolResume schoolResume = BeanUtil.toBean(schoolResumeAddParam, SchoolResume.class);
+        schoolResume.setYear(SchoolUtils.getCurrentYear());
+        schoolResume.setType(SchoolUtils.getTypeEnum());
         this.save(schoolResume);
     }
 
@@ -151,18 +154,28 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
             schoolResume = this.queryEntity(resumeParam.getId());
         }
         BeanUtil.copyProperties(resumeParam,schoolResume);
+        schoolResume.setYear(SchoolUtils.getCurrentYear());
+        schoolResume.setType(SchoolUtils.getTypeEnum());
         this.saveOrUpdate(schoolResume);
     }
 
     @Override
     public void batchAdd(List<SchoolResumeAddParam> schoolResumeAddParamList) {
         List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
+        addList.forEach(item->{
+            item.setYear(SchoolUtils.getCurrentYear());
+            item.setType(SchoolUtils.getTypeEnum());
+        });
         this.saveBatch(addList);
     }
 
     @Override
     public void batchImport(List<SchoolResumeAddParam> schoolResumeAddParamList) {
         List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
+        addList.forEach(item->{
+            item.setYear(SchoolUtils.getCurrentYear());
+            item.setType(SchoolUtils.getTypeEnum());
+        });
         this.saveBatch(addList);
     }
 
@@ -191,4 +204,5 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         schoolResumeVo.setDeptList(BeanUtil.copyToList(schoolDeptService.list(deptQueryWrapper), SchoolDeptInfo.class));
         return schoolResumeVo;
     }
+
 }
