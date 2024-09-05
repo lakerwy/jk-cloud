@@ -5,6 +5,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -23,6 +24,7 @@ import vip.xiaonuo.sys.modular.hr.school.service.SchoolDeptService;
 import vip.xiaonuo.sys.modular.hr.school.service.SchoolInterviewService;
 import vip.xiaonuo.sys.modular.hr.school.service.SchoolResumeService;
 import vip.xiaonuo.sys.modular.hr.school.util.SchoolUtils;
+import vip.xiaonuo.sys.modular.hr.school.vo.DeptInfo;
 import vip.xiaonuo.sys.modular.hr.school.vo.SchoolDeptInfo;
 import vip.xiaonuo.sys.modular.hr.school.vo.SchoolInterviewInfo;
 import vip.xiaonuo.sys.modular.hr.school.vo.SchoolResumeVo;
@@ -215,7 +217,21 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         LambdaQueryWrapper<SchoolDept> deptQueryWrapper = new QueryWrapper<SchoolDept>().lambda()
                 .apply(" JSON_VALID(RESUME_JSON) AND JSON_CONTAINS(RESUME_JSON, JSON_OBJECT('resumeId',{0})) ",schoolResume.getId())
                 .orderByDesc(SchoolDept::getSn);
-        schoolResumeVo.setDeptList(BeanUtil.copyToList(schoolDeptService.list(deptQueryWrapper), SchoolDeptInfo.class));
+        List<SchoolDept> deptList = schoolDeptService.list(deptQueryWrapper);
+        if(CollUtil.isNotEmpty(deptList)){
+            List<SchoolDeptInfo> deptInfoList = new ArrayList<>();
+            deptList.forEach(item->{
+                SchoolDeptInfo tmp = BeanUtil.copyProperties(item,SchoolDeptInfo.class);
+                try {
+                    DeptInfo deptInfo = JSONUtil.toList(item.getResumeJson(), DeptInfo.class).stream().filter(x -> x.getResumeId().equals(schoolResume.getId())).findFirst().orElse(null);
+                    if (ObjectUtil.isNotEmpty(deptInfo)) {
+                        tmp.setIsPass(deptInfo.getIsPass());
+                        deptInfoList.add(tmp);
+                    }
+                }catch (Exception e){}
+            });
+            schoolResumeVo.setDeptList(deptInfoList);
+        }
         return schoolResumeVo;
     }
 
