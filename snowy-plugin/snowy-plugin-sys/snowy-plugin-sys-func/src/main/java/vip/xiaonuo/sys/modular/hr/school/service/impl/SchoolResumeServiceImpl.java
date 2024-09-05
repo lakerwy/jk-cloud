@@ -203,7 +203,7 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         schoolResumeVo.setInterviewList(BeanUtil.copyToList(schoolInterviewService.list(interviewQueryWrapper), SchoolInterviewInfo.class));
 
         LambdaQueryWrapper<SchoolDept> deptQueryWrapper = new QueryWrapper<SchoolDept>().lambda()
-                .apply(" JSON_VALID(RESUME_JSON) AND JSON_EXTRACT(IFNULL(RESUME_JSON, '{}'), '$.resumeId') = {0} ",schoolResume.getId())
+                .apply(" JSON_VALID(RESUME_JSON) AND JSON_CONTAINS(RESUME_JSON, JSON_OBJECT('resumeId',{0})) ",schoolResume.getId())
                 .orderByDesc(SchoolDept::getSn);
         schoolResumeVo.setDeptList(BeanUtil.copyToList(schoolDeptService.list(deptQueryWrapper), SchoolDeptInfo.class));
         return schoolResumeVo;
