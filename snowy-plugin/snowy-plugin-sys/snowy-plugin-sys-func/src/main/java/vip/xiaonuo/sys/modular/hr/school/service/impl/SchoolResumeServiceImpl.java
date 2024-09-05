@@ -114,7 +114,8 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         SchoolResume schoolResume = BeanUtil.toBean(schoolResumeAddParam, SchoolResume.class);
         schoolResume.setYear(SchoolUtils.getCurrentYear());
         schoolResume.setType(SchoolUtils.getTypeEnum());
-        this.save(schoolResume);
+        SchoolResume newSchoolResume = saveOrUpdateResume(schoolResume);
+        this.saveOrUpdate(newSchoolResume);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -152,10 +153,13 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         SchoolResume schoolResume = new SchoolResume();
         if(ObjectUtil.isNotEmpty(resumeParam.getId())){
             schoolResume = this.queryEntity(resumeParam.getId());
+            BeanUtil.copyProperties(resumeParam,schoolResume);
+        }else{
+            BeanUtil.copyProperties(resumeParam,schoolResume);
+            schoolResume.setYear(SchoolUtils.getCurrentYear());
+            schoolResume.setType(SchoolUtils.getTypeEnum());
+            schoolResume = saveOrUpdateResume(schoolResume);
         }
-        BeanUtil.copyProperties(resumeParam,schoolResume);
-        schoolResume.setYear(SchoolUtils.getCurrentYear());
-        schoolResume.setType(SchoolUtils.getTypeEnum());
         this.saveOrUpdate(schoolResume);
     }
 
@@ -164,11 +168,14 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
         String year = SchoolUtils.getCurrentYear();
         String type = SchoolUtils.getTypeEnum();
+        List<SchoolResume> saveOrUpdateList = new ArrayList<>();
         addList.forEach(item->{
             item.setYear(year);
             item.setType(type);
+            SchoolResume tmp = saveOrUpdateResume(item);
+            saveOrUpdateList.add(tmp);
         });
-        this.saveBatch(addList);
+        this.saveOrUpdateBatch(saveOrUpdateList);
     }
 
     @Override
@@ -176,11 +183,14 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
         String year = SchoolUtils.getCurrentYear();
         String type = SchoolUtils.getTypeEnum();
+        List<SchoolResume> saveOrUpdateList = new ArrayList<>();
         addList.forEach(item->{
             item.setYear(year);
             item.setType(type);
+            SchoolResume tmp = saveOrUpdateResume(item);
+            saveOrUpdateList.add(tmp);
         });
-        this.saveBatch(addList);
+        this.saveOrUpdateBatch(saveOrUpdateList);
     }
 
     @Override
@@ -209,4 +219,25 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         return schoolResumeVo;
     }
 
+
+    /**
+     * 同一年同一期，同名+同手机号+岗位 历史简历（覆盖），否则新增
+     * @param source 源数据
+     * @return
+     */
+    public SchoolResume saveOrUpdateResume(SchoolResume source){
+        //同一年同一期，同名+同手机号+岗位 是否存在，存在则覆盖
+        SchoolResume target = this.getOne(new QueryWrapper<SchoolResume>().lambda()
+                .eq(SchoolResume::getYear,source.getYear())
+                .eq(SchoolResume::getType,source.getType())
+                .eq(SchoolResume::getName,source.getName())
+                .eq(SchoolResume::getPhone,source.getPhone())
+                .eq(SchoolResume::getApplyPost,source.getApplyPost())
+                .last(" limit 1 "));
+        if(ObjectUtil.isEmpty(target)){
+            target = new SchoolResume();
+        }
+        BeanUtil.copyProperties(source,target);
+        return target;
+    }
 }
