@@ -240,18 +240,18 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
 
 
     /**
-     * 同一年同一期，同名+同手机号+岗位 历史简历（覆盖），否则新增
+     * 同一年同一期，同名+同手机号+岗位类别 历史简历（覆盖），否则新增
      * @param source 源数据
      * @return
      */
     public SchoolResume saveOrUpdateResume(SchoolResume source){
-        //同一年同一期，同名+同手机号+岗位 是否存在，存在则覆盖
+        //同一年同一期，同名+同手机号+岗位类别 是否存在，存在则覆盖
         SchoolResume target = this.getOne(new QueryWrapper<SchoolResume>().lambda()
                 .eq(SchoolResume::getYear,source.getYear())
                 .eq(SchoolResume::getType,source.getType())
                 .eq(SchoolResume::getName,source.getName())
                 .eq(SchoolResume::getPhone,source.getPhone())
-                .eq(SchoolResume::getApplyPost,source.getApplyPost())
+                .eq(SchoolResume::getPostType,source.getPostType())
                 .last(" limit 1 "));
         if(ObjectUtil.isEmpty(target)){
             target = new SchoolResume();
