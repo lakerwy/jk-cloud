@@ -13,7 +13,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
-import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.school.entity.SchoolDept;
@@ -90,6 +89,12 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         if(ObjectUtil.isNotEmpty(schoolResumePageParam.getIsSend())) {
             queryWrapper.lambda().eq(SchoolResume::getIsSend, schoolResumePageParam.getIsSend());
         }
+        if(ObjectUtil.isNotEmpty(schoolResumePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(SchoolResume::getName,schoolResumePageParam.getSearchKey())
+                    .like(SchoolResume::getSchool,schoolResumePageParam.getSearchKey())
+                    .like(SchoolResume::getMajor,schoolResumePageParam.getSearchKey())
+                    .like(SchoolResume::getMemo,schoolResumePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(schoolResumePageParam.getSortField(), schoolResumePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(schoolResumePageParam.getSortOrder());
             queryWrapper.orderBy(true, schoolResumePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
@@ -114,11 +119,12 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void add(SchoolResumeAddParam schoolResumeAddParam) {
-        SchoolResume schoolResume = BeanUtil.toBean(schoolResumeAddParam, SchoolResume.class);
-        schoolResume.setYear(SchoolUtils.getCurrentYear());
-        schoolResume.setType(SchoolUtils.getTypeEnum());
-        SchoolResume newSchoolResume = saveOrUpdateResume(schoolResume);
-        this.saveOrUpdate(newSchoolResume);
+        //判断是否存在历史简历
+        schoolResumeAddParam.setYear(SchoolUtils.getCurrentYear());
+        schoolResumeAddParam.setType(SchoolUtils.getTypeEnum());
+        SchoolResume tmp = BeanUtil.copyProperties(schoolResumeAddParam,SchoolResume.class);
+        SchoolResume saveOrUpdate = saveOrUpdateResume(tmp);
+        this.saveOrUpdate(saveOrUpdate);
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -158,9 +164,9 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
             schoolResume = this.queryEntity(resumeParam.getId());
             BeanUtil.copyProperties(resumeParam,schoolResume);
         }else{
+            resumeParam.setYear(SchoolUtils.getCurrentYear());
+            resumeParam.setType(SchoolUtils.getTypeEnum());
             BeanUtil.copyProperties(resumeParam,schoolResume);
-            schoolResume.setYear(SchoolUtils.getCurrentYear());
-            schoolResume.setType(SchoolUtils.getTypeEnum());
             schoolResume = saveOrUpdateResume(schoolResume);
         }
         this.saveOrUpdate(schoolResume);
@@ -168,9 +174,9 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
 
     @Override
     public void batchAdd(List<SchoolResumeAddParam> schoolResumeAddParamList) {
-        List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
         String year = SchoolUtils.getCurrentYear();
         String type = SchoolUtils.getTypeEnum();
+        List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
         List<SchoolResume> saveOrUpdateList = new ArrayList<>();
         addList.forEach(item->{
             item.setYear(year);
@@ -183,17 +189,7 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
 
     @Override
     public void batchImport(List<SchoolResumeAddParam> schoolResumeAddParamList) {
-        List<SchoolResume> addList = BeanUtil.copyToList(schoolResumeAddParamList,SchoolResume.class);
-        String year = SchoolUtils.getCurrentYear();
-        String type = SchoolUtils.getTypeEnum();
-        List<SchoolResume> saveOrUpdateList = new ArrayList<>();
-        addList.forEach(item->{
-            item.setYear(year);
-            item.setType(type);
-            SchoolResume tmp = saveOrUpdateResume(item);
-            saveOrUpdateList.add(tmp);
-        });
-        this.saveOrUpdateBatch(saveOrUpdateList);
+        batchAdd(schoolResumeAddParamList);
     }
 
     @Override
@@ -210,20 +206,11 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
      */
     public SchoolResumeVo getSchoolResumeVo(SchoolResume schoolResume){
         SchoolResumeVo schoolResumeVo = BeanUtil.copyProperties(schoolResume,SchoolResumeVo.class);
-        LambdaQueryWrapper<SchoolInterview> interviewQueryWrapper = new QueryWrapper<SchoolInterview>().lambda()
-                .eq(SchoolInterview::getResumeId,schoolResume.getId())
-                .in(SchoolInterview::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue())
-                .orderByDesc(SchoolInterview::getSn);
-        List<SchoolInterview> interviewList = schoolInterviewService.list(interviewQueryWrapper);
+        List<SchoolInterview> interviewList = getInterviewList(schoolResume.getId());
         if(CollUtil.isNotEmpty(interviewList)) {
             schoolResumeVo.setInterviewList(BeanUtil.copyToList(interviewList, SchoolInterviewInfo.class));
         }
-
-        LambdaQueryWrapper<SchoolDept> deptQueryWrapper = new QueryWrapper<SchoolDept>().lambda()
-                .apply(" JSON_VALID(RESUME_JSON) AND JSON_CONTAINS(RESUME_JSON, JSON_OBJECT('resumeId',{0})) ",schoolResume.getId())
-                .in(SchoolDept::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue())
-                .orderByDesc(SchoolDept::getSn);
-        List<SchoolDept> deptList = schoolDeptService.list(deptQueryWrapper);
+        List<SchoolDept> deptList = getDeptList(schoolResume.getId());
         if(CollUtil.isNotEmpty(deptList)){
             List<SchoolDeptInfo> deptInfoList = new ArrayList<>();
             deptList.forEach(item->{
@@ -243,23 +230,57 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
 
 
     /**
-     * 同一年同一期，同名+同手机号+岗位类别 历史简历（覆盖），否则新增
-     * @param source 源数据
+     * 根据简历id，获取面试流程记录
+     * @param resumeId
+     * @return
+     */
+    public List<SchoolInterview> getInterviewList(String resumeId){
+        LambdaQueryWrapper<SchoolInterview> interviewQueryWrapper = new QueryWrapper<SchoolInterview>().lambda()
+                .eq(SchoolInterview::getResumeId,resumeId)
+                .orderByDesc(SchoolInterview::getSn);
+        return schoolInterviewService.list(interviewQueryWrapper);
+    }
+
+
+    /**
+     * 根据简历id，获取部门推送流程记录
+     * @param resumeId
+     * @return
+     */
+    public List<SchoolDept> getDeptList(String resumeId){
+        LambdaQueryWrapper<SchoolDept> deptQueryWrapper = new QueryWrapper<SchoolDept>().lambda()
+                .apply(" JSON_VALID(RESUME_JSON) AND JSON_CONTAINS(RESUME_JSON, JSON_OBJECT('resumeId',{0})) ",resumeId)
+                .orderByDesc(SchoolDept::getSn);
+        return schoolDeptService.list(deptQueryWrapper);
+    }
+
+    /**
+     * 同一年同一期，同名+同手机号+岗位类别 历史简历(若无推荐入职流程记录，覆盖，否则不覆盖)
+     * @param source
      * @return
      */
     public SchoolResume saveOrUpdateResume(SchoolResume source){
-        //同一年同一期，同名+同手机号+岗位类别 是否存在，存在则覆盖
-        SchoolResume target = this.getOne(new QueryWrapper<SchoolResume>().lambda()
-                .eq(SchoolResume::getYear,source.getYear())
-                .eq(SchoolResume::getType,source.getType())
-                .eq(SchoolResume::getName,source.getName())
-                .eq(SchoolResume::getPhone,source.getPhone())
+        //同一年同一期，同名+同手机号+岗位类别
+        SchoolResume resume = this.getOne(new QueryWrapper<SchoolResume>().lambda()
+                .eq(SchoolResume::getYear,source.getYear()).eq(SchoolResume::getType,source.getType())
+                .eq(SchoolResume::getName,source.getName()).eq(SchoolResume::getPhone,source.getPhone())
                 .eq(SchoolResume::getPostType,source.getPostType())
+                .orderByDesc(SchoolResume::getCreateTime)
                 .last(" limit 1 "));
-        if(ObjectUtil.isEmpty(target)){
-            target = new SchoolResume();
+        List<SchoolInterview> interviewList = new ArrayList<>();
+        List<SchoolDept> deptList = new ArrayList<>();
+        if(ObjectUtil.isNotEmpty(resume)) {
+            interviewList = getInterviewList(resume.getId());
+            deptList = getDeptList(resume.getId());
         }
-        BeanUtil.copyProperties(source,target);
-        return target;
+        //存在历史简历且无流程记录，则覆盖，否则新增简历
+        SchoolResume newResume = new SchoolResume();
+        if(ObjectUtil.isNotEmpty(resume) && CollUtil.isEmpty(interviewList) && CollUtil.isEmpty(deptList)){
+            BeanUtil.copyProperties(resume,newResume);
+            BeanUtil.copyProperties(source,newResume,"id");
+        }else{
+            BeanUtil.copyProperties(source,newResume);
+        }
+        return newResume;
     }
 }
