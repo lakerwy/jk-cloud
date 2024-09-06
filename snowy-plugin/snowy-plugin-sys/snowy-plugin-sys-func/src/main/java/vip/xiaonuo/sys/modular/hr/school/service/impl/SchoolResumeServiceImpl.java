@@ -100,7 +100,7 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
             queryWrapper.orderBy(true, schoolResumePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(schoolResumePageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByAsc(SchoolResume::getId);
+            queryWrapper.lambda().orderByDesc(SchoolResume::getCreateTime);
         }
         Page<SchoolResume> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
         List<SchoolResumeVo> records = new ArrayList<>();
