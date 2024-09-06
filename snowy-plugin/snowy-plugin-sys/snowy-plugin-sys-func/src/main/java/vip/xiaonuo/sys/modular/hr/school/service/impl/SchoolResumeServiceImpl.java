@@ -237,7 +237,7 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
     public List<SchoolInterview> getInterviewList(String resumeId){
         LambdaQueryWrapper<SchoolInterview> interviewQueryWrapper = new QueryWrapper<SchoolInterview>().lambda()
                 .eq(SchoolInterview::getResumeId,resumeId)
-                .orderByDesc(SchoolInterview::getSn);
+                .orderByDesc(SchoolInterview::getCreateTime);
         return schoolInterviewService.list(interviewQueryWrapper);
     }
 
@@ -250,7 +250,7 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
     public List<SchoolDept> getDeptList(String resumeId){
         LambdaQueryWrapper<SchoolDept> deptQueryWrapper = new QueryWrapper<SchoolDept>().lambda()
                 .apply(" JSON_VALID(RESUME_JSON) AND JSON_CONTAINS(RESUME_JSON, JSON_OBJECT('resumeId',{0})) ",resumeId)
-                .orderByDesc(SchoolDept::getSn);
+                .orderByDesc(SchoolDept::getCreateTime);
         return schoolDeptService.list(deptQueryWrapper);
     }
 
