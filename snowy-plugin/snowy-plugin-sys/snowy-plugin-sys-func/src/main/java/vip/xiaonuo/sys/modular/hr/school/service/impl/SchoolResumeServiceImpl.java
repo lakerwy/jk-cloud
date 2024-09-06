@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.school.entity.SchoolDept;
@@ -211,11 +212,13 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         SchoolResumeVo schoolResumeVo = BeanUtil.copyProperties(schoolResume,SchoolResumeVo.class);
         LambdaQueryWrapper<SchoolInterview> interviewQueryWrapper = new QueryWrapper<SchoolInterview>().lambda()
                 .eq(SchoolInterview::getResumeId,schoolResume.getId())
+                .in(SchoolInterview::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue())
                 .orderByDesc(SchoolInterview::getSn);
         schoolResumeVo.setInterviewList(BeanUtil.copyToList(schoolInterviewService.list(interviewQueryWrapper), SchoolInterviewInfo.class));
 
         LambdaQueryWrapper<SchoolDept> deptQueryWrapper = new QueryWrapper<SchoolDept>().lambda()
                 .apply(" JSON_VALID(RESUME_JSON) AND JSON_CONTAINS(RESUME_JSON, JSON_OBJECT('resumeId',{0})) ",schoolResume.getId())
+                .in(SchoolDept::getStatus,FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue())
                 .orderByDesc(SchoolDept::getSn);
         List<SchoolDept> deptList = schoolDeptService.list(deptQueryWrapper);
         if(CollUtil.isNotEmpty(deptList)){
