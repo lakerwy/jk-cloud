@@ -214,7 +214,10 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
                 .eq(SchoolInterview::getResumeId,schoolResume.getId())
                 .in(SchoolInterview::getStatus, FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue())
                 .orderByDesc(SchoolInterview::getSn);
-        schoolResumeVo.setInterviewList(BeanUtil.copyToList(schoolInterviewService.list(interviewQueryWrapper), SchoolInterviewInfo.class));
+        List<SchoolInterview> interviewList = schoolInterviewService.list(interviewQueryWrapper);
+        if(CollUtil.isNotEmpty(interviewList)) {
+            schoolResumeVo.setInterviewList(BeanUtil.copyToList(interviewList, SchoolInterviewInfo.class));
+        }
 
         LambdaQueryWrapper<SchoolDept> deptQueryWrapper = new QueryWrapper<SchoolDept>().lambda()
                 .apply(" JSON_VALID(RESUME_JSON) AND JSON_CONTAINS(RESUME_JSON, JSON_OBJECT('resumeId',{0})) ",schoolResume.getId())
