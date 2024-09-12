@@ -109,51 +109,51 @@
         </appender>
 
         <!-- 为logstash输出的JSON格式的Appender -->
-        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-            <!--Logstash服务地址-->
-            <destination>10.0.33.81:5044</destination>
-            <!-- 日志输出编码 -->
-            <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
-                <providers>
-                    <timestamp>
-                        <timeZone>Asia/Shanghai</timeZone>
-                    </timestamp>
-                    <!--自定义日志输出格式-->
-                    <pattern>
-                        <pattern>
-                            {
-                            "project": "${APPLICATION_NAME}",
-                            "date": "%X{date}", <!-- 索引名时区同步 -->
-                            "action":"${APPLICATION_ACTIVE}",
-                            "severity": "%level",
-                            "pid": "${PID:-}",
-                            "thread": "%thread",
-                            "class": "%logger{40}",
-<!--                            "rest": "%message",-->
-                            "elapsedTime": "%X{elapsedTime}",
-                            "username":"%X{username}",
-                            "clientIP": "%X{clientIP}",
-                            "region":"%X{region}",
-                            "paramJson":"%X{paramJson}",
-                            "resultJson":"%X{resultJson}",
-                            "exception":"%X{exception}",
-                            "reqUrl":"%X{reqUrl}",
-                            <!--                            "loginTime": "%date{\"yyyy-MM-dd HH:mm:ss\"}",-->
-                            "description":"%X{description}"
-                            }
-                        </pattern>
-                    </pattern>
-                </providers>
-            </encoder>
-            <keepAliveDuration>5 minutes</keepAliveDuration>
-        </appender>
+<!--        <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">-->
+<!--            &lt;!&ndash;Logstash服务地址&ndash;&gt;-->
+<!--            <destination>10.0.33.81:5044</destination>-->
+<!--            &lt;!&ndash; 日志输出编码 &ndash;&gt;-->
+<!--            <encoder charset="UTF-8" class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">-->
+<!--                <providers>-->
+<!--                    <timestamp>-->
+<!--                        <timeZone>Asia/Shanghai</timeZone>-->
+<!--                    </timestamp>-->
+<!--                    &lt;!&ndash;自定义日志输出格式&ndash;&gt;-->
+<!--                    <pattern>-->
+<!--                        <pattern>-->
+<!--                            {-->
+<!--                            "project": "${APPLICATION_NAME}",-->
+<!--                            "date": "%X{date}", &lt;!&ndash; 索引名时区同步 &ndash;&gt;-->
+<!--                            "action":"${APPLICATION_ACTIVE}",-->
+<!--                            "severity": "%level",-->
+<!--                            "pid": "${PID:-}",-->
+<!--                            "thread": "%thread",-->
+<!--                            "class": "%logger{40}",-->
+<!--&lt;!&ndash;                            "rest": "%message",&ndash;&gt;-->
+<!--                            "elapsedTime": "%X{elapsedTime}",-->
+<!--                            "username":"%X{username}",-->
+<!--                            "clientIP": "%X{clientIP}",-->
+<!--                            "region":"%X{region}",-->
+<!--                            "paramJson":"%X{paramJson}",-->
+<!--                            "resultJson":"%X{resultJson}",-->
+<!--                            "exception":"%X{exception}",-->
+<!--                            "reqUrl":"%X{reqUrl}",-->
+<!--                            &lt;!&ndash;                            "loginTime": "%date{\"yyyy-MM-dd HH:mm:ss\"}",&ndash;&gt;-->
+<!--                            "description":"%X{description}"-->
+<!--                            }-->
+<!--                        </pattern>-->
+<!--                    </pattern>-->
+<!--                </providers>-->
+<!--            </encoder>-->
+<!--            <keepAliveDuration>5 minutes</keepAliveDuration>-->
+<!--        </appender>-->
 
         <!--记录到文件时，记录两类一类是error日志，一个是所有日志-->
         <root level="info">
             <appender-ref ref="STDOUT"/>
             <appender-ref ref="FILE_ERROR"/>
             <appender-ref ref="FILE_ALL"/>
-            <appender-ref ref="LOGSTASH" />
+<!--            <appender-ref ref="LOGSTASH" />-->
         </root>
 
     </springProfile>
