@@ -155,4 +155,13 @@ public class VehicleApplyAddParam {
     @ApiModelProperty(value = "审批主管（用户的直属主管）-钉钉系统中的UserId", position = 30)
     private String seniorManagerDingDingUserId;
 
+
+    /** 行政审批主管-钉钉系统中的UserId 不为空，提交后给行政审批 11 ，否则直接待派车 2 */
+    @ApiModelProperty(value = "行政审批主管-钉钉系统中的UserId 不为空，提交后给行政审批 11 ，否则直接待派车 2", position = 99)
+    private String xzDingDingUserId;
+
+    /** 派车员-钉钉系统中的UserId  */
+    @ApiModelProperty(value = "派车员-钉钉系统中的UserId ", position = 99)
+    private String carAdminDingDingUserId;
+
 }
