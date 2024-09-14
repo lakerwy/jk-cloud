@@ -58,6 +58,7 @@ import java.util.stream.Collectors;
 
 import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
 import static vip.xiaonuo.sys.modular.user.service.impl.SysUserServiceImpl.newHandleSqlIdExecution;
+import static vip.xiaonuo.sys.modular.user.service.impl.SysUserServiceImpl.newHandleSqlIdExecution_utf8;
 
 /**
  * 组织Service接口实现类
@@ -410,7 +411,7 @@ public class SysOrgServiceImpl extends ServiceImpl<SysOrgMapper, SysOrg> impleme
             String firstOrgLeaderName = (String) commonCacheOperator.get(ORG_FIRST_CODE_CACHE_KEY +"orgLeaderName" + org.getId());
             Map<String,String> orgMap = new HashMap<>();
             if(StrUtil.isBlank(orgName) || StrUtil.isBlank(firstOrgId) || StrUtil.isBlank(firstOrgLeaderId) || StrUtil.isBlank(firstOrgLeaderName)){
-                orgMap = newHandleSqlIdExecution(org.getId(),org);
+                orgMap = newHandleSqlIdExecution_utf8(org.getId(),org);
             }
             if(StrUtil.isBlank(orgName)){
                 //Map<String,String> map = newHandleSqlIdExecution(org.getId(),null);

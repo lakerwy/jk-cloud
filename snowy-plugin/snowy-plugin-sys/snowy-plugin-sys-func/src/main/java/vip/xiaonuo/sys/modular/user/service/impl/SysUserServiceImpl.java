@@ -1694,7 +1694,7 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             Map<String,String> map = new HashMap<>();
             if(StrUtil.isBlank(orgName) || StrUtil.isBlank(firstOrgId) || StrUtil.isBlank(firstOrgLeaderId) || StrUtil.isBlank(firstOrgLeaderName)){
                 SysOrg sysOrg = sysOrgService.getById(orgId);
-                map = newHandleSqlIdExecution(orgId,sysOrg);
+                map = newHandleSqlIdExecution_utf8(orgId,sysOrg);
             }
             if(StrUtil.isBlank(orgName)){
                 //Map<String,String> map = newHandleSqlIdExecution(orgId);
@@ -1890,6 +1890,133 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         }
         return new HashMap<>();
     }
+
+
+    /**
+     * 执行SQL - newHandleSqlIdExecution  copy 针对不同版本数据库
+     *
+     * @author xuyuxiang
+     * @date 2022/6/16 10:24
+     **/
+    public static Map<String,String> newHandleSqlIdExecution_utf8(String orgId,SysOrg sysOrg) {
+        if(ObjectUtil.isNotEmpty(orgId)) {
+            Connection conn;
+            try {
+                DbsApi dbsApi = SpringUtil.getBean(DbsApi.class);
+                conn = dbsApi.getCurrentDataSource().getConnection();
+            } catch (SQLException e) {
+                throw new CommonException(e.getMessage());
+            }
+            try {
+                AtomicReference<Map<String,String>> result = new AtomicReference<>();
+                conn.setAutoCommit(false);
+                //第一次请求
+                String finalSql= getTempSql(sysOrg,true);
+                if(ObjectUtil.isNotEmpty(finalSql)) {
+                    try {
+                        result.set(SqlExecutor.query(conn, finalSql, new RsHandler<Map<String,String>>() {
+                            @Override
+                            public Map<String,String> handle(ResultSet resultSet) throws SQLException {
+                                //获取
+                                Map<String, String> result = new HashMap<>();
+                                ResultSetMetaData metaData = resultSet.getMetaData();
+                                int columnCount = metaData.getColumnCount();
+                                if (resultSet.next()) {
+                                    for (int i = 1; i <= columnCount; i++) {
+                                        String columnName = metaData.getColumnLabel(i);
+                                        String value = resultSet.getString(i);
+                                        result.put(columnName, value);
+                                    }
+                                }
+                                return result;
+                            }},orgId));
+                    } catch (SQLException e) {
+                        //报错  第二次请求
+                        finalSql = getTempSql(sysOrg, false);
+                        if (ObjectUtil.isNotEmpty(finalSql)) {
+                            try {
+                                result.set(SqlExecutor.query(conn, finalSql, new RsHandler<Map<String, String>>() {
+                                    @Override
+                                    public Map<String, String> handle(ResultSet resultSet) throws SQLException {
+                                        //获取
+                                        Map<String, String> result = new HashMap<>();
+                                        ResultSetMetaData metaData = resultSet.getMetaData();
+                                        int columnCount = metaData.getColumnCount();
+                                        if (resultSet.next()) {
+                                            for (int i = 1; i <= columnCount; i++) {
+                                                String columnName = metaData.getColumnLabel(i);
+                                                String value = resultSet.getString(i);
+                                                result.put(columnName, value);
+                                            }
+                                        }
+                                        return result;
+                                    }
+                                }, orgId));
+                            } catch (SQLException e1) {
+                                throw new CommonException(e1.getMessage());
+                            }
+                        }
+                    }
+                }
+                conn.commit();
+                return result.get();
+            } catch (SQLException sqlException) {
+                sqlException.printStackTrace();
+            } finally {
+                DbUtil.close(conn);
+            }
+        }
+        return new HashMap<>();
+    }
+
+
+    /**
+     * 根据 编码格式 生成兼容语句
+     * @param sysOrg
+     * @param isUTF8
+     * @return
+     */
+    public static String getTempSql(SysOrg sysOrg,Boolean isUTF8){
+        String finalSql = null;
+        if(isUTF8){
+            finalSql= "SELECT t2.`NAME` as orgName, t2.ID as orgId, t2.DIRECTOR_ID as leaderId " +
+                    "FROM " +
+                    "( " +
+                    "    SELECT " +
+                    "        @r AS _id, " +
+                    "        (SELECT @r := PARENT_ID FROM SYS_ORG WHERE ID = _id ) AS parent_id, " +
+                    "        @l := @l + 1 AS lvl " +
+                    "    FROM " +
+                    "        (SELECT @r := ? , @l := 0) vars, SYS_ORG AS h " +
+                    "    WHERE @r != 0 " +
+                    ") t1 " +
+                    "JOIN SYS_ORG t2 " +
+                    "ON t1._id = t2.ID  " +
+                    "ORDER BY t1.lvl DESC ";
+        }else{
+            finalSql= "SELECT t2.`NAME` as orgName, t2.ID as orgId, t2.DIRECTOR_ID as leaderId " +
+                    "FROM " +
+                    "( " +
+                    "    SELECT " +
+                    "        @r AS _id, " +
+                    "        (SELECT @r := PARENT_ID FROM SYS_ORG WHERE ID = _id COLLATE utf8mb4_general_ci) AS parent_id, " +
+                    "        @l := @l + 1 AS lvl " +
+                    "    FROM " +
+                    "        (SELECT @r := ? COLLATE utf8mb4_general_ci, @l := 0) vars, SYS_ORG AS h " +
+                    "    WHERE @r != 0 " +
+                    ") t1 " +
+                    "JOIN SYS_ORG t2 " +
+                    "ON t1._id = t2.ID COLLATE utf8mb4_general_ci " +
+                    "ORDER BY t1.lvl DESC ";
+        }
+        if(ObjectUtil.isNotEmpty(sysOrg) && StringUtils.isNotEmpty(sysOrg.getCategory()) && sysOrg.getCategory().equals("PARTNER")){
+            finalSql = finalSql+" LIMIT 1,1";
+        }else {
+            finalSql = finalSql+" LIMIT 2,1";
+        }
+        return finalSql;
+    }
+
 
     @Override
     public void bindCid(SysUserUpdateCidParam sysUserUpdateCidParam) {
