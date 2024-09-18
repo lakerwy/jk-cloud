@@ -29,6 +29,7 @@ public class BizExpCost {
 
     /** 编号与合同名称 */
     @ApiModelProperty(value = "编号与合同名称", position = 2)
+    @TableField(exist = false)
     private String prjNameNo;
 
     /** 项目编号 */
