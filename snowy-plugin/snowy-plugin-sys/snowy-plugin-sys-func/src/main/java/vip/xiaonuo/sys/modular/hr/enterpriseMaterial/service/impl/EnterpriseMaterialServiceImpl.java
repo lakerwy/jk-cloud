@@ -13,13 +13,13 @@ import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.enterpriseMaterial.entity.EnterpriseMaterial;
+import vip.xiaonuo.sys.modular.hr.enterpriseMaterial.enums.YesOrNoEnum;
 import vip.xiaonuo.sys.modular.hr.enterpriseMaterial.mapper.EnterpriseMaterialMapper;
 import vip.xiaonuo.sys.modular.hr.enterpriseMaterial.param.EnterpriseMaterialAddParam;
 import vip.xiaonuo.sys.modular.hr.enterpriseMaterial.param.EnterpriseMaterialEditParam;
 import vip.xiaonuo.sys.modular.hr.enterpriseMaterial.param.EnterpriseMaterialIdParam;
 import vip.xiaonuo.sys.modular.hr.enterpriseMaterial.param.EnterpriseMaterialPageParam;
 import vip.xiaonuo.sys.modular.hr.enterpriseMaterial.service.EnterpriseMaterialService;
-import vip.xiaonuo.sys.modular.hr.salary.enums.YesOrNoEnum;
 
 import java.util.Date;
 import java.util.List;
