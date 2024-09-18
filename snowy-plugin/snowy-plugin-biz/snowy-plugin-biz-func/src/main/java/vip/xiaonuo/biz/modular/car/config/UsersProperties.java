@@ -35,4 +35,9 @@ public class UsersProperties {
      *  应用跳转链接前缀
      */
     private String linkUrl;
+
+    /**
+     *  徐煦的钉钉userid  0235496007787414
+     */
+    private String carAdminDingDingUserId;
 }

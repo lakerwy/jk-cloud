@@ -31,7 +31,6 @@ import vip.xiaonuo.biz.modular.car.entity.*;
 import vip.xiaonuo.biz.modular.car.enums.CarApplyStatusEnum;
 import vip.xiaonuo.biz.modular.car.enums.CarStatusEnum;
 import vip.xiaonuo.biz.modular.car.enums.DriverStatusEnum;
-import vip.xiaonuo.biz.modular.car.enums.MsgTypeEnum;
 import vip.xiaonuo.biz.modular.car.param.*;
 import vip.xiaonuo.biz.modular.car.service.*;
 import vip.xiaonuo.biz.modular.car.vo.*;
@@ -138,23 +137,21 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     public void add(VehicleApplyAddParam vehicleApplyAddParam) {
         VehicleApply vehicleApply = BeanUtil.toBean(vehicleApplyAddParam, VehicleApply.class);
         vehicleApply.setOptDate(DateTime.now());
-        String tmpStatus = "";
-        if(vehicleApplyAddParam.getUserId().equals(vehicleApplyAddParam.getSeniorManagerUserId())){
-            tmpStatus = ObjectUtil.isNotEmpty(vehicleApplyAddParam.getXzDingDingUserId()) ? CarApplyStatusEnum.Audit_Dispatch.getValue() : CarApplyStatusEnum.Dispatching.getValue();
-        }else{
-            tmpStatus = CarApplyStatusEnum.Auditing.getValue();
-        }
-        vehicleApply.setStatus(tmpStatus);
+        vehicleApply.setStatus(vehicleApplyAddParam.getUserId().equals(vehicleApplyAddParam.getSeniorManagerUserId())?CarApplyStatusEnum.Dispatching.getValue():CarApplyStatusEnum.Auditing.getValue());
         this.save(vehicleApply);
 
         //派车单申请，发送通知给部门直属主管审批（申请单详情页）
-        sendDingCarMsg(MsgTypeEnum.USER.getValue(),"用车申请","yongche/dispatchCar?applyid="+ vehicleApply.getId(),vehicleApply,vehicleApplyAddParam.getSeniorManagerDingDingUserId());
-
-        //若 待派车 ，发送通知给车辆调度员分派车辆 ，若 待行政审核，发送通知给行政审核
-        if(CarApplyStatusEnum.Dispatching.getValue().equals(vehicleApply.getStatus())){
-            sendDingCarMsg(MsgTypeEnum.USER.getValue(), "分派车辆","yongche/dispatchCar?applyid="+ vehicleApply.getId(),vehicleApply,vehicleApplyAddParam.getCarAdminDingDingUserId());
-        } else if (CarApplyStatusEnum.Audit_Dispatch.equals(vehicleApply.getStatus())) {
-            sendDingCarMsg(MsgTypeEnum.USER.getValue(),"行政审批","yongche/dispatchCar?applyid="+ vehicleApply.getId(),vehicleApply,vehicleApplyAddParam.getXzDingDingUserId());
+        String title = "用车申请";
+        String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+        iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
+                JSONUtil.parseObj(vehicleApply),title,url,vehicleApplyAddParam.getSeniorManagerDingDingUserId());
+        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
+        if (vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
+        {
+            title = "分派车辆";
+            url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+            iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
+                    JSONUtil.parseObj(vehicleApply),title,url,usersProperties.getCarAdminDingDingUserId());
         }
     }
 
@@ -222,11 +219,14 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         VehicleApply vehicleApply = queryEntity(updateApplyStatusParam.getVehicleApplyId());
         vehicleApply.setStatus(updateApplyStatusParam.getStatus());
         this.updateById(vehicleApply);
-        // 若直属主管审批通过【由 待审核--待行政审批】，发送通知给车辆调度员分派车辆
-        if(CarApplyStatusEnum.Audit_Dispatch.getValue().equals(vehicleApply.getStatus())){
-            sendDingCarMsg(MsgTypeEnum.USER.getValue(),"行政审批","yongche/dispatchCar?applyid="+ vehicleApply.getId(),vehicleApply,updateApplyStatusParam.getXzDingDingUserId());
-        } else if (CarApplyStatusEnum.Dispatching.getValue().equals(vehicleApply.getStatus())) {
-            sendDingCarMsg(MsgTypeEnum.USER.getValue(),"分派车辆","yongche/dispatchCar?applyid="+ vehicleApply.getId(),vehicleApply,updateApplyStatusParam.getCarAdminDingDingUserId());
+        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
+        if(vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
+        {
+            //派车单申请，发送通知
+            String title = "分派车辆";
+            String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+            iDingDingService.sendCarMsg(usersProperties.getAgentId(),usersProperties.getAppKey(),usersProperties.getAppSecret(),
+                    JSONUtil.parseObj(vehicleApply), title, url, updateApplyStatusParam.getCarAdminDingDingUserId());
         }
     }
 
@@ -239,8 +239,12 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         vehicleApply.setDriver(dispatchCarParam.getDriver());
         vehicleApply.setDriverUserId(dispatchCarParam.getDriverUserId());
         this.updateById(vehicleApply);
-        //派车后，通知司机
-        sendDingCarMsg(MsgTypeEnum.USER.getValue(),"派车单","Activing/activingInfo?applyid="+ vehicleApply.getId(),vehicleApply,StrUtil.join(",",dispatchCarParam.getDingDingUserIds()));
+        //车辆调度后，发送通知给司机，派车单详情页
+        String title = "派车单";
+        String url = usersProperties.getLinkUrl() + "Activing/activingInfo?applyid=" + vehicleApply.getId();
+        String userlist = String.join(",", dispatchCarParam.getDingDingUserIds());
+        iDingDingService.sendCarMsg(usersProperties.getAgentId(),usersProperties.getAppKey(),usersProperties.getAppSecret(),
+                JSONUtil.parseObj(vehicleApply),title,url,userlist);
     }
 
     @Override
@@ -633,13 +637,19 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         List<ServiceRatings> serviceRates = serviceRatingsService.list(new QueryWrapper<ServiceRatings>().lambda().eq(ServiceRatings::getVehicleApplyId,vehicleApply.getId()));
         if (CollUtil.isEmpty(serviceRates))
         {
-            sendDingCarMsg(MsgTypeEnum.DRIVER.getValue(), "用车评价","appraise/userAppraise?vehicleapplyId=" + vehicleApply.getId()+ "&drivername=" + vehicleApply.getDriver(),vehicleApply,h5CarRegisterEndDto.getUserDingDingUserId());
+            String title = "用车评价";
+            String url = driversProperties.getLinkUrl()+ "appraise/userAppraise?vehicleapplyId=" + vehicleApply.getId()+ "&drivername=" + vehicleApply.getDriver();
+            iDingDingService.sendCarMsg(driversProperties.getAgentId(),driversProperties.getAppKey(),driversProperties.getAppSecret(),
+                    JSONUtil.parseObj(vehicleApply),title,url,h5CarRegisterEndDto.getUserDingDingUserId());
         }
 
         //派车单完成，发送通知给老板娘
         if (ObjectUtil.isNotEmpty(h5CarRegisterEndDto.getBossDingDingUserId()))
         {
-            sendDingCarMsg(MsgTypeEnum.DRIVER.getValue(),"派车单","Activing/activingInfo?applyid=" + vehicleApply.getId(),vehicleApply,h5CarRegisterEndDto.getBossDingDingUserId());
+            String title = "派车单";
+            String url = driversProperties.getLinkUrl() + "Activing/activingInfo?applyid=" + vehicleApply.getId();
+            iDingDingService.sendCarMsg(driversProperties.getAgentId(),driversProperties.getAppKey(),driversProperties.getAppSecret(),
+                    JSONUtil.parseObj(vehicleApply),title,url,h5CarRegisterEndDto.getBossDingDingUserId());
         }
     }
 
@@ -698,32 +708,5 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         return value1.divide(value2,2,BigDecimal.ROUND_HALF_UP);
     }
 
-
-    /**
-     * 用车 消息 提醒
-     * @param title
-     * @param uri
-     * @param vehicleApply
-     * @param dingUserIds
-     */
-    public void sendDingCarMsg(String type,String title,String uri,VehicleApply vehicleApply,String dingUserIds){
-        if(MsgTypeEnum.USER.getValue().equals(type)){
-            iDingDingService.sendCarMsg(usersProperties.getAgentId(),
-                                        usersProperties.getAppKey(),
-                                        usersProperties.getAppSecret(),
-                                        JSONUtil.parseObj(vehicleApply),
-                                        title,
-                                        usersProperties.getLinkUrl()+uri,
-                                        dingUserIds);
-        } else if (MsgTypeEnum.DRIVER.getValue().equals(type)) {
-            iDingDingService.sendCarMsg(driversProperties.getAgentId(),
-                                        driversProperties.getAppKey(),
-                                        driversProperties.getAppSecret(),
-                                        JSONUtil.parseObj(vehicleApply),
-                                        title,
-                                        driversProperties.getLinkUrl()+uri,
-                                        dingUserIds);
-        }
-    }
 
 }

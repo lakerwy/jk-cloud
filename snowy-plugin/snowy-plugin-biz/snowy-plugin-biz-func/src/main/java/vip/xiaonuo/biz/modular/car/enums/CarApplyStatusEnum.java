@@ -23,11 +23,8 @@ import lombok.Getter;
 @Getter
 public enum CarApplyStatusEnum {
 
-    /** 待审核（提交申请单 1（主管待审核） ——> 直属主管通过 11 （行政待审核）——> 行政审核通过 2（待派车） ——> 派车员派车 3 （已派车） ——> 完成出车 4 （已结束）） */
+    /** 待审核 */
     Auditing("1"),
-
-    /** 待行政审核 */
-    Audit_Dispatch("11"),  //待行政审核 - 新加
 
     /** 待派车 */
     Dispatching("2"),
