@@ -76,4 +76,15 @@ public class BizDebitApplyPageParam {
     @ApiModelProperty(value = "借支 - 还款状态 0：待归还  1：已归还")
     private String debitStatus;
 
+    /** 收款账户信息-账户名 */
+    @ApiModelProperty(value = "收款账户信息-账户名")
+    private String bankName;
+
+    /** 收款账户信息-账户号 */
+    @ApiModelProperty(value = "收款账户信息-账户号")
+    private String bankNo;
+
+    /** 收款账户信息-开户行 */
+    @ApiModelProperty(value = "收款账户信息-开户行")
+    private String bankAccount;
 }

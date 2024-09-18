@@ -108,4 +108,20 @@ public class BizDebitApplyEditParam {
     /** 借支 - 还款状态 0：待归还  1：已归还 */
     @ApiModelProperty(value = "借支 - 还款状态 0：待归还  1：已归还", position = 27)
     private String debitStatus;
+
+    /** 收款账户信息-账户名 */
+    @ApiModelProperty(value = "收款账户信息-账户名", position = 31)
+    private String bankName;
+
+    /** 收款账户信息-账户号 */
+    @ApiModelProperty(value = "收款账户信息-账户号", position = 32)
+    private String bankNo;
+
+    /** 收款账户信息-开户行 */
+    @ApiModelProperty(value = "收款账户信息-开户行", position = 33)
+    private String bankAccount;
+
+    /** 收款账户信息-备注 */
+    @ApiModelProperty(value = "收款账户信息-备注", position = 34)
+    private String bankMemo;
 }

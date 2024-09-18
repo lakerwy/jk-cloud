@@ -27,6 +27,10 @@ public class BizExpCost {
     @ApiModelProperty(value = "序号", position = 2)
     private String no;
 
+    /** 编号与合同名称 */
+    @ApiModelProperty(value = "编号与合同名称", position = 2)
+    private String prjNameNo;
+
     /** 项目编号 */
     @ApiModelProperty(value = "项目编号", position = 3)
     private String prjNo;

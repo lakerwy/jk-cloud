@@ -67,6 +67,23 @@ public class DebitExcelData {
     @DateTimeFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private Date returnDate;
 
+
+    /** 收款账户信息-账户名 */
+    @ApiModelProperty(value = "收款账户信息-账户名", position = 31)
+    private String bankName;
+
+    /** 收款账户信息-账户号 */
+    @ApiModelProperty(value = "收款账户信息-账户号", position = 32)
+    private String bankNo;
+
+    /** 收款账户信息-开户行 */
+    @ApiModelProperty(value = "收款账户信息-开户行", position = 33)
+    private String bankAccount;
+
+    /** 收款账户信息-备注 */
+    @ApiModelProperty(value = "收款账户信息-备注", position = 34)
+    private String bankMemo;
+
     /****************************************************************/
 
     /** 借支单 - 年月日 */

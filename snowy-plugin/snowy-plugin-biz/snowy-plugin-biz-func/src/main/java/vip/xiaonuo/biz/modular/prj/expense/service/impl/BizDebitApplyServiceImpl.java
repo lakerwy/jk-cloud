@@ -81,6 +81,15 @@ public class BizDebitApplyServiceImpl extends ServiceImpl<BizDebitApplyMapper, B
         if(ObjectUtil.isNotEmpty(bizDebitApplyPageParam.getDebitStatus())){
             queryWrapper.lambda().eq(BizDebitApply::getDebitStatus,bizDebitApplyPageParam.getDebitStatus());
         }
+        if(ObjectUtil.isNotEmpty(bizDebitApplyPageParam.getBankName())){
+            queryWrapper.lambda().like(BizDebitApply::getBankName,bizDebitApplyPageParam.getBankName());
+        }
+        if(ObjectUtil.isNotEmpty(bizDebitApplyPageParam.getBankNo())){
+            queryWrapper.lambda().like(BizDebitApply::getBankNo,bizDebitApplyPageParam.getBankNo());
+        }
+        if(ObjectUtil.isNotEmpty(bizDebitApplyPageParam.getBankAccount())){
+            queryWrapper.lambda().like(BizDebitApply::getBankAccount,bizDebitApplyPageParam.getBankAccount());
+        }
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
@@ -95,7 +104,10 @@ public class BizDebitApplyServiceImpl extends ServiceImpl<BizDebitApplyMapper, B
                     .or().like(BizDebitApply::getDept,bizDebitApplyPageParam.getSearchKey())
                     .or().like(BizDebitApply::getDuty,bizDebitApplyPageParam.getSearchKey())
                     .or().like(BizDebitApply::getBorrower,bizDebitApplyPageParam.getSearchKey())
-                    .or().like(BizDebitApply::getInitor,bizDebitApplyPageParam.getSearchKey()));
+                    .or().like(BizDebitApply::getInitor,bizDebitApplyPageParam.getSearchKey())
+                    .or().like(BizDebitApply::getBankName,bizDebitApplyPageParam.getSearchKey())
+                    .or().like(BizDebitApply::getBankNo,bizDebitApplyPageParam.getSearchKey())
+                    .or().like(BizDebitApply::getBankAccount,bizDebitApplyPageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(bizDebitApplyPageParam.getSortField(), bizDebitApplyPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(bizDebitApplyPageParam.getSortOrder());

@@ -337,6 +337,11 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                     if(!excelData.getExptor().equals(excelData.getInitor())){
                         excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
                     }
+                    if(CollUtil.isNotEmpty(excelData.getCostList())){
+                        excelData.getCostList().forEach(x->{
+                            x.setPrjNameNo(StrUtil.join("+",x.getPrjNo(),x.getPrjName()));
+                        });
+                    }
                 }
                 // 使用 EasyExcel 填充数据
                 excelWriter = EasyExcel.write(outputFileName).withTemplate(inputStream).build();
@@ -359,6 +364,11 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
                     excelData.setLowCostTotalQian(MyDecimalUtils.getQian(excelData.getLowCostTotal()));
                     if(!excelData.getExptor().equals(excelData.getInitor())){
                         excelData.setExpSign(excelData.getInitor()+"代"+excelData.getExptor()+"报销");
+                    }
+                    if(CollUtil.isNotEmpty(excelData.getCostList())){
+                        excelData.getCostList().forEach(x->{
+                            x.setPrjNameNo(StrUtil.join("+",x.getPrjNo(),x.getPrjName()));
+                        });
                     }
                 }
                 // 使用 EasyExcel 填充数据
