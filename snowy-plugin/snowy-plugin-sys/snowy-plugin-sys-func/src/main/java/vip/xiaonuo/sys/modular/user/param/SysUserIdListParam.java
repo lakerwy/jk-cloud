@@ -15,4 +15,8 @@ public class SysUserIdListParam {
     @NotNull(message = "idList不能为空")
     private List<String> idList;
 
+    /** 按照idList默认顺序返回结果 true false */
+    @ApiModelProperty(value = "按照idList默认顺序返回结果 true false")
+    private Boolean isIdList = Boolean.FALSE;
+
 }

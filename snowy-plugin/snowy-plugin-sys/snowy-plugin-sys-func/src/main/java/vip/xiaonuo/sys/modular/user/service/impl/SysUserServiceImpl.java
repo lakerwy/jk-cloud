@@ -1653,7 +1653,14 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         // 只查询部分字段
         lambdaQueryWrapper.select(SysUser::getId, SysUser::getOrgId, SysUser::getAccount, SysUser::getName, SysUser::getSortCode)
                 .in(SysUser::getId, sysUserIdListParam.getIdList()).orderByAsc(SysUser::getSortCode);
-        return this.list(lambdaQueryWrapper);
+        List<SysUser> result = this.list(lambdaQueryWrapper);
+        if(!sysUserIdListParam.getIsIdList()) {
+            return result;
+        }else{
+            //将结果集安装入参idList顺序排序
+            result.sort(Comparator.comparingInt(item->sysUserIdListParam.getIdList().indexOf(item.getId())));
+            return result;
+        }
     }
 
     @Override
