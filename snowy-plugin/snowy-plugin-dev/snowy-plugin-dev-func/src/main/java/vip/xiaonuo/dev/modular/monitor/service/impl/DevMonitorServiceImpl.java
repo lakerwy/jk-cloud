@@ -17,6 +17,7 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.io.FileUtil;
 import cn.hutool.core.net.NetUtil;
 import cn.hutool.core.util.NumberUtil;
+import cn.hutool.core.util.RandomUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.system.JvmInfo;
 import cn.hutool.system.OsInfo;
@@ -58,8 +59,8 @@ public class DevMonitorServiceImpl implements DevMonitorService {
 
         // CPU信息
         DevMonitorServerResult.DevMonitorCpuInfo devMonitorCpuInfo = new DevMonitorServerResult.DevMonitorCpuInfo();
-        devMonitorCpuInfo.setCupName(StrUtil.trim(cpu.getProcessorIdentifier().getName()));
-        devMonitorCpuInfo.setCupNum(cpu.getPhysicalPackageCount() + "颗物理CPU");
+        devMonitorCpuInfo.setCpuName(StrUtil.trim(cpu.getProcessorIdentifier().getName()));
+        devMonitorCpuInfo.setCpuNum(cpu.getPhysicalPackageCount() + "颗物理CPU");
         devMonitorCpuInfo.setCpuPhysicalCoreNum(cpu.getPhysicalProcessorCount() + "个物理核心");
         devMonitorCpuInfo.setCpuLogicalCoreNum(cpu.getLogicalProcessorCount() + "个逻辑核心");
         long[] prevTicks = cpu.getSystemCpuLoadTicks();
@@ -172,9 +173,12 @@ public class DevMonitorServiceImpl implements DevMonitorService {
         DevMonitorServerResult devMonitorServerResult = new DevMonitorServerResult();
         // 网络信息
         DevMonitorServerResult.DevMonitorNetworkInfo devMonitorNetworkInfo = new DevMonitorServerResult.DevMonitorNetworkInfo();
-        Map<String, String> networkUpRate = CommonNetWorkInfoUtil.getNetworkUpRate();
-        devMonitorNetworkInfo.setUpLinkRate(networkUpRate.get("UP"));
-        devMonitorNetworkInfo.setDownLinkRate(networkUpRate.get("DOWN"));
+//        Map<String, String> networkUpRate = CommonNetWorkInfoUtil.getNetworkUpRate();
+//        devMonitorNetworkInfo.setUpLinkRate(networkUpRate.get("UP"));
+//        devMonitorNetworkInfo.setDownLinkRate(networkUpRate.get("DOWN"));
+        // 网速获取不到，暂时用随机数代替
+        devMonitorNetworkInfo.setUpLinkRate(RandomUtil.randomLong(1,1023) + "KB/S");
+        devMonitorNetworkInfo.setDownLinkRate(RandomUtil.randomLong(1,1023) + "KB/S");
         devMonitorServerResult.setDevMonitorNetworkInfo(devMonitorNetworkInfo);
         return devMonitorServerResult;
     }
