@@ -50,7 +50,7 @@ public class CommonNetWorkInfoUtil {
         BufferedReader input = null;
         try {
             boolean isWindows = SystemUtil.getOsInfo().isWindows();
-            String command = isWindows ? "netstat -e" : "ifconfig";
+            String command = isWindows ? "netstat -e" : "/bin/sh -c ifconfig";
             pro = r.exec(command);
             input = new BufferedReader(new InputStreamReader(pro.getInputStream()));
             long[] result1 = readInLine(input, isWindows);
@@ -67,13 +67,13 @@ public class CommonNetWorkInfoUtil {
             result.put("UP", upSpeed + (upSpeed.endsWith("B")?"/S":"B/S"));
             result.put("DOWN", downSpeed + (downSpeed.endsWith("B")?"/S":"B/S"));
         } catch (Exception e) {
-            log.info(">>> 网络测速失败：", e);
+            log.error(">>> 网络测速失败：", e);
         } finally {
             if (input != null) {
                 try {
                     input.close();
                 } catch (IOException e) {
-                    log.info(">>> 网络测速失败：", e);
+                    log.error(">>> 网络测速失败：", e);
                 }
             }
             Optional.ofNullable(pro).ifPresent(Process::destroy);
@@ -106,6 +106,7 @@ public class CommonNetWorkInfoUtil {
                 //RX packets:4171603 errors:0 dropped:0 overruns:0 frame:0
                 //TX packets:4171603 errors:0 dropped:0 overruns:0 carrier:0
                 while ((line = input.readLine()) != null) {
+                    log.info("line======:{}",line);
                     if (line.contains("RX packets")) {
                         rx += Long.parseLong(line.substring(line.indexOf("RX packets") + 11, line.indexOf(" ",
                                 line.indexOf("RX packets") + 11)));
