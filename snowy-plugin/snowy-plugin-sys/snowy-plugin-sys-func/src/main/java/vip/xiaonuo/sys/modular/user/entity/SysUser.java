@@ -313,4 +313,14 @@ public class SysUser extends CommonEntity implements TransPojo {
     /** maskClosable 是否点击空白出关闭弹窗 */
     @ApiModelProperty(value = "maskClosable 是否点击空白出关闭弹窗", position = 65)
     private Boolean maskClosable;
+
+
+
+    @ApiModelProperty(value = "【钉钉组织架构同步】钉钉用户Id", position = 100)
+    @TableField(exist = false)
+    private String dingUserId;
+
+    @ApiModelProperty(value = "【钉钉组织架构同步】钉钉同步标记 add|update|remove", position = 100)
+    @TableField(exist = false)
+    private String dingSyncTag;
 }
