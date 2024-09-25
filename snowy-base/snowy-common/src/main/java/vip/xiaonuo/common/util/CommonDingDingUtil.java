@@ -1,11 +1,16 @@
 package vip.xiaonuo.common.util;
 
+import cn.hutool.core.collection.CollUtil;
 import com.aliyun.dingtalkoauth2_1_0.models.GetAccessTokenResponse;
 import com.dingtalk.api.DefaultDingTalkClient;
 import com.dingtalk.api.DingTalkClient;
 import com.dingtalk.api.request.*;
 import com.dingtalk.api.response.*;
 import com.taobao.api.ApiException;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * 钉钉通用工具类
@@ -13,6 +18,7 @@ import com.taobao.api.ApiException;
  * @author yong.ye
  * @date 2023/6/14 8:28
  */
+@Slf4j
 public class CommonDingDingUtil {
 
     /**
@@ -148,7 +154,7 @@ public class CommonDingDingUtil {
      * @param deptId
      * @return
      */
-    public static OapiV2DepartmentListsubResponse getListSub(String access_token, Long deptId){
+    public static List<OapiV2DepartmentListsubResponse.DeptBaseResponse> getListSub(String access_token, Long deptId){
         DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/department/listsub");
         OapiV2DepartmentListsubRequest req = new OapiV2DepartmentListsubRequest();
         req.setDeptId(deptId);
@@ -156,10 +162,11 @@ public class CommonDingDingUtil {
         OapiV2DepartmentListsubResponse rsp = null;
         try {
             rsp = client.execute(req, access_token);
+            return rsp.getResult();
         } catch (ApiException e) {
-            throw new RuntimeException(e);
+            log.error("【https://oapi.dingtalk.com/topapi/v2/department/listsub】"+ e.getErrMsg());
+            return null;
         }
-        return rsp;
     }
 
 
@@ -196,7 +203,7 @@ public class CommonDingDingUtil {
      * @param size   分页大小
      * @return
      */
-    public static OapiV2UserListResponse getListUser(String access_token, Long deptId,Long cursor,Long size){
+    public static OapiV2UserListResponse.PageResult getListUser(String access_token, Long deptId,Long cursor,Long size){
         DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/user/list");
         OapiV2UserListRequest req = new OapiV2UserListRequest();
         req.setDeptId(deptId);
@@ -207,10 +214,11 @@ public class CommonDingDingUtil {
         OapiV2UserListResponse rsp = null;
         try {
             rsp = client.execute(req, access_token);
+            return rsp.getResult();
         } catch (ApiException e) {
-            throw new RuntimeException(e);
+            log.error("【https://oapi.dingtalk.com/topapi/v2/user/list】"+e.getErrMsg());
+            return null;
         }
-        return rsp;
     }
 
 
@@ -229,6 +237,36 @@ public class CommonDingDingUtil {
             return rsp;
         }catch (Exception e){
             throw new RuntimeException(e);
+        }
+    }
+
+
+    /**
+     * 递归获取 钉钉组织架构 部门集合
+     * @return
+     */
+    public static void execRecursionDept(String access_token, Long deptId,List<OapiV2DepartmentListsubResponse.DeptBaseResponse> result){
+        List<OapiV2DepartmentListsubResponse.DeptBaseResponse> tempSubDept = getListSub(access_token, deptId);
+        if(CollUtil.isNotEmpty(tempSubDept)){
+            result.addAll(tempSubDept);
+            tempSubDept.forEach(dept->{
+                execRecursionDept(access_token,dept.getDeptId(),result);
+            });
+        }
+    }
+
+
+    /**
+     * 递归获取，钉钉部门用户信息 集合
+     * @return
+     */
+    public static void execRecursionDeptUser(String access_token, Long deptId, Long cursor, Long size, List<OapiV2UserListResponse.ListUserResponse> result){
+        OapiV2UserListResponse.PageResult tempDeptUser = getListUser(access_token, deptId, cursor, size);
+        if(CollUtil.isNotEmpty(tempDeptUser.getList())){
+            result.addAll(tempDeptUser.getList());
+        }
+        if(tempDeptUser.getHasMore()){
+            execRecursionDeptUser(access_token,deptId,tempDeptUser.getNextCursor(),size,result);
         }
     }
 
