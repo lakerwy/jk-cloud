@@ -40,4 +40,8 @@ public class EnterpriseMaterialEditParam {
     @ApiModelProperty(value = "是否重新上传了附件（1-是，0-否）", position = 6)
     private String isReUpload;
 
+    /** 排序序号 */
+    @ApiModelProperty(value = "排序序号", position = 7)
+    private Integer indexSort;
+
 }
