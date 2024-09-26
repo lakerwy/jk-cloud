@@ -1842,6 +1842,7 @@ public class NodeRuntimeUtil {
         Map<String,Object> taskMap = new HashMap<>();
         if (CollUtil.isNotEmpty(list)) {
             taskMap = list.stream().filter(f -> ObjectUtil.isNotEmpty(f.getName()) && ObjectUtil.isNotEmpty(f.getValue())).collect(Collectors.toMap(HistoricVariableInstance::getName, HistoricVariableInstance::getValue, (v1, v2) -> v2));
+            taskMap.put("processDefinitionId",list.get(0).getProcessDefinitionId());
         }
         return taskMap;
     }
