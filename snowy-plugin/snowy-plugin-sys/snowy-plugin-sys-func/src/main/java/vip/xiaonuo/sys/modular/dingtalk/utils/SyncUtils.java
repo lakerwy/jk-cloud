@@ -1,0 +1,97 @@
+package vip.xiaonuo.sys.modular.dingtalk.utils;
+
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.RandomUtil;
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
+import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
+import vip.xiaonuo.sys.modular.dingtalk.enums.DingSyncTagEnum;
+import vip.xiaonuo.sys.modular.org.entity.SysOrg;
+import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
+import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
+import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
+
+import java.util.Date;
+import java.util.List;
+
+public class SyncUtils {
+
+    /**
+     * 构建组织
+     * @param name 部门名称
+     * @param dingDeptId 钉钉部门Id
+     * @param dingParentId 钉钉部门父Id
+     * @return
+     */
+    public static SysOrg addOrg(String name, Long dingDeptId, Long dingParentId){
+        SysOrg tempAdd = new SysOrg();
+        tempAdd.setId(IdWorker.getIdStr());
+        tempAdd.setCategory(SysOrgCategoryEnum.DEPT.getValue());
+        tempAdd.setName(name);
+        tempAdd.setDingSyncTag(DingSyncTagEnum.ADD.getValue());
+        tempAdd.setDingDeptId(dingDeptId);
+        tempAdd.setCode(RandomUtil.randomString(10));
+        tempAdd.setSortCode(99);
+        tempAdd.setDeleteFlag("NOT_DELETE");
+        tempAdd.setCreateTime(new Date());
+        tempAdd.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
+        tempAdd.setDingParentId(dingParentId);
+        return tempAdd;
+    }
+
+    /**
+     * 构建三方用户
+     * @param name 姓名
+     * @param userId 系统用户Id
+     * @param dingUserId 钉钉用户Id
+     * @param unionId 钉钉用户unionId
+     * @return
+     */
+    public static AuthThirdUser addThirdUser(String name, String userId, String dingUserId, String unionId){
+        AuthThirdUser tmpAdd = new AuthThirdUser();
+        tmpAdd.setName(name);
+        tmpAdd.setCategory(AuthThirdCategoryEnum.DingDing.getValue());
+        tmpAdd.setUserId(userId);
+        tmpAdd.setThirdId(dingUserId);
+        tmpAdd.setUnionId(unionId);
+        tmpAdd.setDeleteFlag("NOT_DELETE");
+        tmpAdd.setCreateTime(new Date());
+        tmpAdd.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
+        return tmpAdd;
+    }
+
+    /**
+     * 构建增员
+     * @param account
+     * @param name
+     * @param phone
+     * @param sysOrgList
+     * @param dingDeptIds
+     * @return
+     */
+    public static SysUserAddParam addUser(String account, String name, String phone, List<SysOrg> sysOrgList, List<Long> dingDeptIds ){
+        SysUserAddParam sysUserAddParam = new SysUserAddParam();
+        sysUserAddParam.setAccount(account);
+        sysUserAddParam.setName(name);
+        sysUserAddParam.setPhone(phone);
+        sysUserAddParam.setOrgId(getOrgId(sysOrgList,dingDeptIds));
+        return sysUserAddParam;
+    }
+
+    /**
+     * 【根据钉钉deptId，找到系统对应orgId】
+     *
+     * @param sysOrgList 建科云组织信息
+     * @param dingDeptIds 钉钉用户所属部门集合 （默认取一个）
+     * @return
+     */
+    public static String getOrgId(List<SysOrg> sysOrgList,List<Long> dingDeptIds ){
+        for (Long deptId:dingDeptIds) {
+            SysOrg tmpOrg = sysOrgList.stream().filter(x -> x.getDingDeptId().equals(deptId)).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(tmpOrg)) {
+                return tmpOrg.getId();
+            }
+        }
+        return null;
+    }
+}

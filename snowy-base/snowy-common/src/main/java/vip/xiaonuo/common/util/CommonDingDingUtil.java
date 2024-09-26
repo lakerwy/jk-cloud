@@ -9,7 +9,6 @@ import com.dingtalk.api.response.*;
 import com.taobao.api.ApiException;
 import lombok.extern.slf4j.Slf4j;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -267,6 +266,26 @@ public class CommonDingDingUtil {
         }
         if(tempDeptUser.getHasMore()){
             execRecursionDeptUser(access_token,deptId,tempDeptUser.getNextCursor(),size,result);
+        }
+    }
+
+
+    /**
+     * 根据 钉钉deptId，获取钉钉部门详情
+     * @param access_token 钉钉内部应用 token
+     * @param deptId 钉钉部门Id
+     * @return
+     */
+    public static OapiV2DepartmentGetResponse.DeptGetResponse getDeptById(String access_token, Long deptId){
+        try {
+            DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/topapi/v2/department/get");
+            OapiV2DepartmentGetRequest req = new OapiV2DepartmentGetRequest();
+            req.setDeptId(deptId);
+            req.setLanguage("zh_CN");
+            OapiV2DepartmentGetResponse rsp = client.execute(req, access_token);
+            return rsp.getResult();
+        } catch (Exception e) {
+            return null;
         }
     }
 

@@ -2,26 +2,21 @@ package vip.xiaonuo.sys.modular.dingtalk.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.dingtalk.api.response.OapiV2DepartmentListsubResponse;
 import com.dingtalk.api.response.OapiV2UserListResponse;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
-import vip.xiaonuo.common.util.CommonCryptogramUtil;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.dev.modular.dingThirdData.service.AuthThirdUserService;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
+import vip.xiaonuo.sys.modular.dingtalk.config.DingSyncProperties;
 import vip.xiaonuo.sys.modular.dingtalk.enums.DingSyncTagEnum;
 import vip.xiaonuo.sys.modular.dingtalk.service.DingDingSyncService;
+import vip.xiaonuo.sys.modular.dingtalk.utils.SyncUtils;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -32,7 +27,6 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -55,6 +49,9 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
     @Resource
     private AuthThirdUserService authThirdUserService;
 
+    @Resource
+    private DingSyncProperties dingSyncProperties;
+
     /**
      * 钉钉组织架构顶层部门id
      */
@@ -69,42 +66,38 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
      */
     @Override
     public void sync() {
-        //1. 获取钉钉access_token
-        String access_token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(),dingTalkProperties.getAppSecret());
+        if(dingSyncProperties.getIsSync()) {
+            //1. 获取钉钉access_token
+            String access_token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
 
-        //2. 获取钉钉组织架构部门(递归)
-        List<OapiV2DepartmentListsubResponse.DeptBaseResponse> dingDeptList = new ArrayList<>();
-        CommonDingDingUtil.execRecursionDept(access_token,DING_TOP_DEPT_ID,dingDeptList);
+            //2. 获取钉钉组织架构部门(递归)
+            List<OapiV2DepartmentListsubResponse.DeptBaseResponse> dingDeptList = new ArrayList<>();
+            CommonDingDingUtil.execRecursionDept(access_token, DING_TOP_DEPT_ID, dingDeptList);
 
-        //3. 获取钉钉组织架构用户(递归)
-        List<OapiV2UserListResponse.ListUserResponse> dingUserList = new ArrayList<>();
-        dingDeptList.forEach(item->CommonDingDingUtil.execRecursionDeptUser(access_token,item.getDeptId(),0L,50L,dingUserList));
+            //3. 获取钉钉组织架构用户(递归)
+            List<OapiV2UserListResponse.ListUserResponse> dingUserList = new ArrayList<>();
+            dingDeptList.forEach(item -> CommonDingDingUtil.execRecursionDeptUser(access_token, item.getDeptId(), 0L, 50L, dingUserList));
 
-        //4. 获取建科云需要处理的组织信息【框定范围:DEPT+1L】
-        List<SysOrg> sysOrgList = new ArrayList<>();
-        LambdaQueryWrapper<SysOrg> sysOrgLambdaQueryWrapper = new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getCategory,SysOrgCategoryEnum.DEPT.getValue()).or().eq(SysOrg::getDingDeptId,DING_TOP_DEPT_ID);
-        sysOrgList = sysOrgService.list(sysOrgLambdaQueryWrapper);
+            //4. 获取建科云需要处理的组织信息【框定范围:DEPT+1L】
+            LambdaQueryWrapper<SysOrg> sysOrgLambdaQueryWrapper = new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getCategory, SysOrgCategoryEnum.DEPT.getValue()).or().eq(SysOrg::getDingDeptId, DING_TOP_DEPT_ID);
+            List<SysOrg> sysOrgList = sysOrgService.list(sysOrgLambdaQueryWrapper);
 
-        //5. 获取建科云需要处理的用户信息【框定范围:DEPT+1L下】
-        List<SysUser> sysUserList = new ArrayList<>();
-        if(CollUtil.isNotEmpty(sysOrgList)){
-            List<String> orgIds = sysOrgList.stream().map(x->x.getId()).collect(Collectors.toList());
-            LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<SysUser>().in(SysUser::getOrgId,orgIds).eq(SysUser::getUserStatus, SysUserStatusEnum.ENABLE.getValue());
-            sysUserList = sysUserService.list(sysUserLambdaQueryWrapper);
+            //5. 获取建科云需要处理的用户信息【框定范围:DEPT+1L下】
+            List<SysUser> sysUserList = new ArrayList<>();
+            if (CollUtil.isNotEmpty(sysOrgList)) {
+                List<String> orgIds = sysOrgList.stream().map(x -> x.getId()).collect(Collectors.toList());
+                LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<SysUser>().in(SysUser::getOrgId, orgIds).eq(SysUser::getUserStatus, SysUserStatusEnum.ENABLE.getValue());
+                sysUserList = sysUserService.list(sysUserLambdaQueryWrapper);
+            }
+
+            //6. 同步逻辑
+            syncDeptUser(dingDeptList, sysOrgList, dingUserList, sysUserList);
         }
-
-        syncDeptUser(dingDeptList,sysOrgList,dingUserList,sysUserList);
     }
 
 
     /**
-     * 同步规则：
-     *          * 1. 若已存在dingDeptId（已有对应关系），关注部门是否调整
-     *          * 2. 若不存在dingDeptId（暂无对应关系），根据部门名称匹配：
-     *          *    若不存在，则新增
-     *          *    若已存在，则关注部门信息是否调整
-     *          *    若已删除，则移除
-     * @param dingDeptList 钉钉没有返回DeptId=1
+     * 同步规则： dingDeptList 钉钉没有返回DeptId=1
      */
 
     @Transactional
@@ -114,11 +107,9 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
         List<SysOrg> newOrgList = new ArrayList<>();
         if(CollUtil.isNotEmpty(dingDeptList)) {
             //获取DingDeptId = 1L
-            SysOrg tmpTopSysOrg = sysOrgList.stream().filter(x -> x.getDingDeptId() == DING_TOP_DEPT_ID).findFirst().orElse(null);
-
+            SysOrg tmpTopSysOrg = sysOrgList.stream().filter(x -> DING_TOP_DEPT_ID.equals(x.getDingDeptId())).findFirst().orElse(null);
             //同步组织架构（DEPT级别 - 不包括 DingDeptId = 1）
             List<SysOrg> tmpSysOrgList = sysOrgList.stream().filter(x -> SysOrgCategoryEnum.DEPT.getValue().equals(x.getCategory())).collect(Collectors.toList());
-
             //待操作的sysOrg【DEPT级别】
             List<SysOrg> orgData = BeanUtil.copyToList(tmpSysOrgList, SysOrg.class);
 
@@ -126,10 +117,17 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             if (CollUtil.isNotEmpty(orgData)) {
                 List<Long> dingDeptIds = dingDeptList.stream().map(x -> x.getDeptId()).collect(Collectors.toList());
                 for (SysOrg org : orgData) {
-                    //匹配对应关系 DingDeptId
-                    if (ObjectUtil.isEmpty(org.getDingDeptId())) {
-                        OapiV2DepartmentListsubResponse.DeptBaseResponse tmpDingDept = dingDeptList.stream().filter(obj -> obj.getName().equals(org.getName())).findFirst().orElse(null);
-                        if (ObjectUtil.isNotEmpty(tmpDingDept)) org.setDingDeptId(tmpDingDept.getDeptId());
+                    //匹配对应关系 DingDeptId  DingParentId
+                    OapiV2DepartmentListsubResponse.DeptBaseResponse tmpDingDept = null;
+                    if (ObjectUtil.isNotEmpty(org.getDingDeptId())) {
+                        tmpDingDept = dingDeptList.stream().filter(obj -> obj.getDeptId().equals(org.getDingDeptId())).findFirst().orElse(null);
+                    }else{
+                        tmpDingDept = dingDeptList.stream().filter(obj -> obj.getName().equals(org.getName())).findFirst().orElse(null);
+                    }
+                    if (ObjectUtil.isNotEmpty(tmpDingDept)) {
+                        org.setDingDeptId(tmpDingDept.getDeptId());
+                        org.setDingParentId(tmpDingDept.getParentId());
+                        org.setName(tmpDingDept.getName());
                     }
                     //判断需要移除的（DingDeptId为空|DingDeptId不在DingDeptList中）
                     if (ObjectUtil.isEmpty(org.getDingDeptId()) || !dingDeptIds.contains(org.getDingDeptId())) {
@@ -143,36 +141,22 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             }
 
             //2. 判断需要新增的（钉钉中存在，但sysOrg中不存在）
-            List<Long> existDingDeptIds = orgData.stream().filter(x -> !DingSyncTagEnum.REMOVE.getValue().equals(x.getDingSyncTag())).map(x -> x.getDingDeptId()).collect(Collectors.toList());
+            List<Long> existDingDeptIds = orgData.stream().filter(x -> ObjectUtil.isNotEmpty(x.getDingDeptId())).map(x -> x.getDingDeptId()).collect(Collectors.toList());
             dingDeptList.forEach(dingDept -> {
                 if (!existDingDeptIds.contains(dingDept.getDeptId())) {
-                    SysOrg tempAdd = new SysOrg();
-                    tempAdd.setId(IdWorker.getIdStr());
-                    tempAdd.setCategory(SysOrgCategoryEnum.DEPT.getValue());
-                    tempAdd.setName(dingDept.getName());
-                    tempAdd.setDingSyncTag(DingSyncTagEnum.ADD.getValue());
-                    tempAdd.setDingDeptId(dingDept.getDeptId());
-                    tempAdd.setCode(RandomUtil.randomString(10));
-                    tempAdd.setSortCode(99);
-                    tempAdd.setDeleteFlag("NOT_DELETE");
-                    tempAdd.setCreateTime(new Date());
-                    tempAdd.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
+                    SysOrg tempAdd = SyncUtils.addOrg(dingDept.getName(),dingDept.getDeptId(),dingDept.getParentId());
                     orgData.add(tempAdd);
                 }
             });
 
-            //3. 维护数据（新增|更新） - 部门名称|上级parentId
+            //3. 维护数据（新增|更新） - 上级parentId
             if (CollUtil.isNotEmpty(orgData)) {
-                orgData.stream().filter(x -> DingSyncTagEnum.ADD.getValue().equals(x.getDingSyncTag()) || DingSyncTagEnum.UPDATE.getValue().equals(x.getDingSyncTag())).forEach(item -> {
-                    OapiV2DepartmentListsubResponse.DeptBaseResponse tmpDingDept = dingDeptList.stream().filter(obj -> item.getDingDeptId() == obj.getDeptId()).findFirst().orElse(null);
-                    if (ObjectUtil.isNotEmpty(tmpDingDept)) {
-                        item.setName(tmpDingDept.getName());
-                        if (tmpDingDept.getParentId() == DING_TOP_DEPT_ID) {
-                            item.setParentId(tmpTopSysOrg.getId());
-                        } else {
-                            SysOrg tmpSysOrg = orgData.stream().filter(org -> org.getDingDeptId() == tmpDingDept.getParentId()).findFirst().orElse(null);
-                            if (ObjectUtil.isNotEmpty(tmpSysOrg)) item.setParentId(tmpSysOrg.getId());
-                        }
+                orgData.stream().filter(x -> !DingSyncTagEnum.REMOVE.getValue().equals(x.getDingSyncTag())).forEach(item -> {
+                    if (DING_TOP_DEPT_ID.equals(item.getDingParentId())) {
+                        item.setParentId(tmpTopSysOrg.getId());
+                    } else {
+                        SysOrg tmpSysOrg = orgData.stream().filter(org -> org.getDingDeptId().equals(item.getDingParentId())).findFirst().orElse(null);
+                        if (ObjectUtil.isNotEmpty(tmpSysOrg)) item.setParentId(tmpSysOrg.getId());
                     }
                 });
             }
@@ -202,8 +186,11 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
 
             //待操作的SysUser
             List<SysUser> userData = BeanUtil.copyToList(sysUserList,SysUser.class);
-
+            //待新增的对应关系
+            List<AuthThirdUser> addThirdUserList = new ArrayList<>();
+            //最新组织信息
             List<SysOrg> finalNewOrgList = newOrgList;
+
             //1. 维护用户对应关系，并标记
             if(CollUtil.isNotEmpty(userData)){
                 List<String> dingUserIds = dingUserList.stream().map(x->x.getUserid()).collect(Collectors.toList());
@@ -216,6 +203,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                         OapiV2UserListResponse.ListUserResponse tmpDingUser = dingUserList.stream().filter(x -> x.getMobile().equals(user.getAccount()) && x.getName().equals(user.getName())).findFirst().orElse(null);
                         if(ObjectUtil.isNotEmpty(tmpDingUser)){
                             user.setDingUserId(tmpDingUser.getUserid());
+                            addThirdUserList.add(SyncUtils.addThirdUser(user.getName(),user.getId(),tmpDingUser.getUserid(),tmpDingUser.getUnionid()));
                         }
                     }
                     //删除的
@@ -226,52 +214,37 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     if(ObjectUtil.isNotEmpty(user.getDingUserId()) && ObjectUtil.isEmpty(user.getDingSyncTag())){
                         user.setDingSyncTag(DingSyncTagEnum.UPDATE.getValue());
                         OapiV2UserListResponse.ListUserResponse tmpDingUser = dingUserList.stream().filter(x -> x.getUserid().equals(user.getDingUserId())).findFirst().orElse(null);
-                        for (Long deptId:tmpDingUser.getDeptIdList()) {
-                            SysOrg tmpOrg = finalNewOrgList.stream().filter(x -> x.getDingDeptId() == deptId).findFirst().orElse(null);
-                            if(ObjectUtil.isNotEmpty(tmpOrg)) {
-                                user.setOrgId(tmpOrg.getId());
-                                break;
-                            }
-                        }
+                        user.setOrgId(SyncUtils.getOrgId(finalNewOrgList,tmpDingUser.getDeptIdList()));
                     }
                 }
             }
 
-            //2. 新增用户 - 直接操作数据库
-            List<String> existDingUserIds = userData.stream().filter(x -> !DingSyncTagEnum.REMOVE.getValue().equals(x.getDingSyncTag())).map(x -> x.getDingUserId()).collect(Collectors.toList());
+            //2. 新增用户|更新|删除 - 直接操作数据库
+            List<String> existDingUserIds = userData.stream().filter(x -> ObjectUtil.isNotEmpty(x.getDingUserId())).map(x -> x.getDingUserId()).collect(Collectors.toList());
             dingUserList.forEach(dingUser->{
                 if(!existDingUserIds.contains(dingUser.getUserid())){
-                    SysUserAddParam sysUserAddParam = new SysUserAddParam();
-                    sysUserAddParam.setAccount(dingUser.getMobile());
-                    sysUserAddParam.setName(dingUser.getName());
-                    sysUserAddParam.setPhone(dingUser.getMobile());
-                    for (Long deptId:dingUser.getDeptIdList()) {
-                        SysOrg tmpOrg = finalNewOrgList.stream().filter(x -> x.getDingDeptId() == deptId).findFirst().orElse(null);
-                        if(ObjectUtil.isNotEmpty(tmpOrg)) {
-                            sysUserAddParam.setOrgId(tmpOrg.getId());
-                            break;
-                        }
-                    }
-                    String userId = sysUserService.addAndGrantRole(sysUserAddParam);
+                    SysUserAddParam tmpSysUser = SyncUtils.addUser(dingUser.getMobile(),dingUser.getName(),dingUser.getMobile(), finalNewOrgList,dingUser.getDeptIdList());
+                    String userId = sysUserService.addAndGrantRole(tmpSysUser); //新增用户以及角色
                     //添加第三方库
-                    AuthThirdUser tmpAdd = new AuthThirdUser();
-                    tmpAdd.setName(dingUser.getName());
-                    tmpAdd.setCategory(AuthThirdCategoryEnum.DingDing.getValue());
-                    tmpAdd.setUserId(userId);
-                    tmpAdd.setThirdId(dingUser.getUserid());
-                    tmpAdd.setUnionId(dingUser.getUnionid());
-                    tmpAdd.setDeleteFlag("NOT_DELETE");
-                    tmpAdd.setCreateTime(new Date());
-                    authThirdUserService.save(tmpAdd);
+                    addThirdUserList.add(SyncUtils.addThirdUser(dingUser.getName(),userId,dingUser.getUserid(),dingUser.getUnionid()));
                 }
             });
-
-            // 3. 更新
+            //更新
             List<SysUser> updateList = userData.stream().filter(x->DingSyncTagEnum.UPDATE.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
+            //删除
+            List<SysUser> removeList = userData.stream().filter(x->DingSyncTagEnum.REMOVE.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
             if(CollUtil.isNotEmpty(updateList)){
                 sysUserService.updateBatchById(updateList);
             }
-
+            //删除
+            if(CollUtil.isNotEmpty(removeList)){
+                removeList.forEach(x->x.setUserStatus(SysUserStatusEnum.DISABLED.getValue()));
+                sysUserService.updateBatchById(removeList);
+            }
+            //维护关系
+            if(CollUtil.isNotEmpty(addThirdUserList)){
+                authThirdUserService.saveBatch(addThirdUserList);
+            }
         }
     }
 

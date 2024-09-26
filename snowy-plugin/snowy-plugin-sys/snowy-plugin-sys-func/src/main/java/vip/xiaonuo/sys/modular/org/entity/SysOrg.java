@@ -99,6 +99,10 @@ public class SysOrg extends CommonEntity implements TransPojo {
     @ApiModelProperty(value = "【钉钉组织架构同步】钉钉部门Id", position = 100)
     private Long dingDeptId;
 
+    @ApiModelProperty(value = "【钉钉组织架构同步】钉钉部门父Id", position = 100)
+    @TableField(exist = false)
+    private Long dingParentId;
+
     @ApiModelProperty(value = "【钉钉组织架构同步】钉钉同步标记 add|update|remove", position = 100)
     @TableField(exist = false)
     private String dingSyncTag;
