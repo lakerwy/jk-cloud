@@ -31,4 +31,8 @@ public class EnterpriseMaterialAddParam {
     @ApiModelProperty(value = "备注", position = 5)
     private String memo;
 
+    /** 排序序号 */
+    @ApiModelProperty(value = "排序序号", position = 6)
+    private Integer indexSort;
+
 }

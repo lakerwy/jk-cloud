@@ -43,34 +43,38 @@ public class EnterpriseMaterial {
     @ApiModelProperty(value = "上传时间", position = 6)
     private Date uploadTime;
 
+    /** 排序序号 */
+    @ApiModelProperty(value = "排序序号", position = 7)
+    private Integer indexSort;
+
     /** 删除标志 */
-    @ApiModelProperty(value = "删除标志", position = 7)
+    @ApiModelProperty(value = "删除标志", position = 8)
     @TableLogic
     @TableField(fill = FieldFill.INSERT)
     private String deleteFlag;
 
     /** 创建时间 */
-    @ApiModelProperty(value = "创建时间", position = 8)
+    @ApiModelProperty(value = "创建时间", position = 9)
     @TableField(fill = FieldFill.INSERT)
     private Date createTime;
 
     /** 创建用户 */
-    @ApiModelProperty(value = "创建用户", position = 9)
+    @ApiModelProperty(value = "创建用户", position = 10)
     @TableField(fill = FieldFill.INSERT)
     private String createUser;
 
     /** 更新时间 */
-    @ApiModelProperty(value = "更新时间", position = 10)
+    @ApiModelProperty(value = "更新时间", position = 11)
     @TableField(fill = FieldFill.UPDATE)
     private Date updateTime;
 
     /** 更新用户 */
-    @ApiModelProperty(value = "更新用户", position = 11)
+    @ApiModelProperty(value = "更新用户", position = 12)
     @TableField(fill = FieldFill.UPDATE)
     private String updateUser;
 
     /** 数据权限控制字段 */
-    @ApiModelProperty(value = "数据权限控制字段", position = 12)
+    @ApiModelProperty(value = "数据权限控制字段", position = 13)
     @TableField(fill = FieldFill.INSERT)
     private String dataScopeId;
 }

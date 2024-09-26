@@ -65,4 +65,12 @@ public interface EnterpriseMaterialService extends IService<EnterpriseMaterial> 
      * @date  2024/09/18 14:57
      **/
     EnterpriseMaterial queryEntity(String id);
+
+    /**
+     * 获取最新排序序号
+     *
+     * @author pzh
+     * @date  2024/09/26 08:45
+     **/
+    Integer getIndexSort();
 }

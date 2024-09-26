@@ -116,4 +116,18 @@ public class EnterpriseMaterialController {
     public CommonResult<EnterpriseMaterial> detail(@Valid EnterpriseMaterialIdParam enterpriseMaterialIdParam) {
         return CommonResult.data(enterpriseMaterialService.detail(enterpriseMaterialIdParam));
     }
+
+    /**
+     * 获取最新排序序号
+     *
+     * @author pzh
+     * @date  2024/09/26 08:45
+     */
+    @ApiOperationSupport(order = 6)
+    @ApiOperation("获取最新排序序号")
+//    @SaCheckPermission("/sys/enterpriseMaterial/getIndexSort")
+    @GetMapping("/sys/enterpriseMaterial/getIndexSort")
+    public CommonResult<Integer> getIndexSort() {
+        return CommonResult.data(enterpriseMaterialService.getIndexSort());
+    }
 }

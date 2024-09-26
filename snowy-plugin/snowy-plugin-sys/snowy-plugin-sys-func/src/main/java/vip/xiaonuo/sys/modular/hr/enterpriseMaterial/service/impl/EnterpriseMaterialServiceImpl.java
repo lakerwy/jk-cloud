@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -45,7 +46,8 @@ public class EnterpriseMaterialServiceImpl extends ServiceImpl<EnterpriseMateria
             queryWrapper.orderBy(true, enterpriseMaterialPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(enterpriseMaterialPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(EnterpriseMaterial::getUploadTime);
+            queryWrapper.lambda().orderByAsc(EnterpriseMaterial::getIndexSort)
+                    .orderByDesc(EnterpriseMaterial::getUploadTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -92,5 +94,12 @@ public class EnterpriseMaterialServiceImpl extends ServiceImpl<EnterpriseMateria
             throw new CommonException("企业宣传资料不存在，id值为：{}", id);
         }
         return enterpriseMaterial;
+    }
+
+    @Override
+    public Integer getIndexSort() {
+        EnterpriseMaterial enterpriseMaterial = this.getOne(new LambdaQueryWrapper<EnterpriseMaterial>()
+                .orderByDesc(EnterpriseMaterial::getIndexSort).last("limit 1"));
+        return ObjectUtil.isNotEmpty(enterpriseMaterial) ? enterpriseMaterial.getIndexSort() + 1 : 1;
     }
 }
