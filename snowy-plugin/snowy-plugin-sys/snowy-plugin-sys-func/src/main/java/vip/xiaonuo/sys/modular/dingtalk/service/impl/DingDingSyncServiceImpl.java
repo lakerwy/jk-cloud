@@ -6,6 +6,7 @@ import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.OapiV2DepartmentListsubResponse;
 import com.dingtalk.api.response.OapiV2UserListResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
  */
 
 @Service
+@Slf4j
 public class DingDingSyncServiceImpl implements DingDingSyncService {
 
     @Resource
@@ -67,6 +69,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
     @Override
     public void sync() {
         if(dingSyncProperties.getIsSync()) {
+            log.info("钉钉组织架构同步 -- 开始 -- ");
             //1. 获取钉钉access_token
             String access_token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
 
@@ -92,6 +95,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
 
             //6. 同步逻辑
             syncDeptUser(dingDeptList, sysOrgList, dingUserList, sysUserList);
+            log.info("钉钉组织架构同步 -- 结束 -- ");
         }
     }
 
@@ -106,6 +110,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
         /********************************************* 同步组织 **********************************************************/
         List<SysOrg> newOrgList = new ArrayList<>();
         if(CollUtil.isNotEmpty(dingDeptList)) {
+            log.info("钉钉组织架构同步 -- 部门 -- ");
             //获取DingDeptId = 1L
             SysOrg tmpTopSysOrg = sysOrgList.stream().filter(x -> DING_TOP_DEPT_ID.equals(x.getDingDeptId())).findFirst().orElse(null);
             //同步组织架构（DEPT级别 - 不包括 DingDeptId = 1）
@@ -155,7 +160,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     if (DING_TOP_DEPT_ID.equals(item.getDingParentId())) {
                         item.setParentId(tmpTopSysOrg.getId());
                     } else {
-                        SysOrg tmpSysOrg = orgData.stream().filter(org -> org.getDingDeptId().equals(item.getDingParentId())).findFirst().orElse(null);
+                        SysOrg tmpSysOrg = orgData.stream().filter(org -> item.getDingParentId().equals(org.getDingDeptId())).findFirst().orElse(null);
                         if (ObjectUtil.isNotEmpty(tmpSysOrg)) item.setParentId(tmpSysOrg.getId());
                     }
                 });
@@ -180,6 +185,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
 
         /********************************************* 同步用户 **********************************************************/
         if(CollUtil.isNotEmpty(dingUserList)){
+            log.info("钉钉组织架构同步 -- 用户 -- ");
             //获取已存在的 钉钉对应关系
             LambdaQueryWrapper<AuthThirdUser> thirdUserLambdaQueryWrapper = new LambdaQueryWrapper<AuthThirdUser>().eq(AuthThirdUser::getCategory, AuthThirdCategoryEnum.DingDing.getValue());
             List<AuthThirdUser> thirdUserList = authThirdUserService.list(thirdUserLambdaQueryWrapper);
@@ -223,10 +229,14 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             List<String> existDingUserIds = userData.stream().filter(x -> ObjectUtil.isNotEmpty(x.getDingUserId())).map(x -> x.getDingUserId()).collect(Collectors.toList());
             dingUserList.forEach(dingUser->{
                 if(!existDingUserIds.contains(dingUser.getUserid())){
-                    SysUserAddParam tmpSysUser = SyncUtils.addUser(dingUser.getMobile(),dingUser.getName(),dingUser.getMobile(), finalNewOrgList,dingUser.getDeptIdList());
-                    String userId = sysUserService.addAndGrantRole(tmpSysUser); //新增用户以及角色
-                    //添加第三方库
-                    addThirdUserList.add(SyncUtils.addThirdUser(dingUser.getName(),userId,dingUser.getUserid(),dingUser.getUnionid()));
+                    try {
+                        SysUserAddParam tmpSysUser = SyncUtils.addUser(dingUser.getMobile(), dingUser.getName(), dingUser.getMobile(), finalNewOrgList, dingUser.getDeptIdList());
+                        String userId = sysUserService.addAndGrantRole(tmpSysUser); //新增用户以及角色
+                        //添加第三方库
+                        addThirdUserList.add(SyncUtils.addThirdUser(dingUser.getName(), userId, dingUser.getUserid(), dingUser.getUnionid()));
+                    }catch (Exception e){
+                        log.error("钉钉组织架构同步 -- 用户 -- "+e.getMessage());
+                    }
                 }
             });
             //更新

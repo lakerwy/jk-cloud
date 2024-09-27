@@ -87,7 +87,7 @@ public class SyncUtils {
      */
     public static String getOrgId(List<SysOrg> sysOrgList,List<Long> dingDeptIds ){
         for (Long deptId:dingDeptIds) {
-            SysOrg tmpOrg = sysOrgList.stream().filter(x -> x.getDingDeptId().equals(deptId)).findFirst().orElse(null);
+            SysOrg tmpOrg = sysOrgList.stream().filter(x -> deptId.equals(x.getDingDeptId())).findFirst().orElse(null);
             if(ObjectUtil.isNotEmpty(tmpOrg)) {
                 return tmpOrg.getId();
             }
