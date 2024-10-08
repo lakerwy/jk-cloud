@@ -204,6 +204,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Resource
     private DevFileApi devFileApi;
 
+    @Resource
+    private SysUserMapper sysUserMapper;
+
     @Override
     public SysLoginUser getUserById(String id) {
         SysUser sysUser = this.getById(id);
@@ -2150,6 +2153,56 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             avatar = CommonAvatarUtil.generateImg(sysUser.getName());
         }
         sysUser.setAvatar(avatar.split(",")[1]);
+        return sysUser;
+    }
+
+    @Override
+    public void addAndGrantRole2(SysUser user) {
+        SysUser sysUser = saveUser2(user);
+        SysUserGrantRoleParam sysUserGrantRoleParam = new SysUserGrantRoleParam();
+        sysUserGrantRoleParam.setId(sysUser.getId());
+
+        SysRole sysRole = sysRoleService.getOne(new LambdaQueryWrapper<SysRole>().eq(SysRole::getName, "职员"));
+        if(ObjectUtil.isNotEmpty(sysRole)){
+            List<String> roles = new ArrayList<>();
+            String id = sysRole.getId();
+            roles.add(id);
+            sysUserGrantRoleParam.setRoleIdList(roles);
+            grantRole(sysUserGrantRoleParam);
+        }
+    }
+
+    @Override
+    public List<SysUser> getDingSysUser() {
+        return sysUserMapper.getDingSysUser();
+    }
+
+    @Override
+    public List<SysUser> getDingSysUserByIds(List<String> thirdIds) {
+        return sysUserMapper.getDingSysUserByIds(thirdIds);
+    }
+
+
+    /**
+     * 新增用户，自定义主键
+     * @param sysUser
+     * @return
+     */
+    private SysUser saveUser2(SysUser sysUser) {
+        SysUserAddParam sysUserAddParam = BeanUtil.copyProperties(sysUser,SysUserAddParam.class);
+        checkParam(sysUserAddParam);
+        if (ObjectUtil.isEmpty(sysUser.getAvatar())) {
+            // 设置默认头像
+            sysUser.setAvatar(CommonAvatarUtil.generateImg(sysUser.getName()));
+        }
+        // 设置默认密码
+        sysUser.setPassword(CommonCryptogramUtil.doHashValue(devConfigApi.getValueByKey(SNOWY_SYS_DEFAULT_PASSWORD_KEY)));
+        // 设置状态
+        sysUser.setUserStatus(SysUserStatusEnum.ENABLE.getValue());
+        this.save(sysUser);
+
+        // 发布增加事件
+        CommonDataChangeEventCenter.doAddWithData(SysDataTypeEnum.USER.getValue(), JSONUtil.createArray().put(sysUser));
         return sysUser;
     }
 }

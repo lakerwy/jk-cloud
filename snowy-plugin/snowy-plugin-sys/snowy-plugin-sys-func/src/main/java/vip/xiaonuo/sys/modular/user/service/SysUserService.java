@@ -531,4 +531,19 @@ public interface SysUserService extends IService<SysUser> {
     SysUser getUserByImUserId(String imUserId);
 
     SysUser getUserInfo(List<SysUserFindParam> sysUserFindParam);
+
+    /**
+     * 添加用户,自定义主键id,并赋予角色
+     */
+    void addAndGrantRole2(SysUser user);
+
+    /**
+     * 获取钉钉用户列表（SysUser+AuthThirdUser）
+     */
+    List<SysUser> getDingSysUser();
+
+    /**
+     * 根据钉钉用户id,获取钉钉用户列表（SysUser+AuthThirdUser）
+     */
+    List<SysUser> getDingSysUserByIds(List<String> thirdIds);
 }

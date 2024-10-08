@@ -1,5 +1,7 @@
 package vip.xiaonuo.sys.modular.dingtalk.impl;
 
+import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -16,7 +18,7 @@ import vip.xiaonuo.sys.modular.dingtalk.config.DingSyncProperties;
 import vip.xiaonuo.sys.modular.dingtalk.utils.SyncUtils;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
-import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
@@ -54,25 +56,41 @@ public class UserAddEventStrategy implements EventHandlingStrategy {
         String access_Token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
         //系统组织架构信息
         List<SysOrg> sysOrgList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>().isNotNull(SysOrg::getDingDeptId));
+        //系统用户信息（携带钉钉id）
+        List<SysUser> sysUserList = sysUserService.getDingSysUser();
+
         //循环增员
-        List<String> newUserIds = new ArrayList<>();
+        List<SysUser> addUserList = new ArrayList<>();
+        List<AuthThirdUser> addThirdUserList = new ArrayList<>();
         for (int i = 0; i < dingUserIds.size(); i++) {
-            try {
-                String dingUserId = dingUserIds.getString(i);
-                OapiV2UserGetResponse.UserGetResponse dingUser = CommonDingDingUtil.getUserById(access_Token, dingUserId);
-                //新增SysUser
-                SysUserAddParam tmpAddUser = SyncUtils.addUser(dingUser.getMobile(),dingUser.getName(),dingUser.getMobile(),sysOrgList,dingUser.getDeptIdList());
-                log.info("【事件订阅-企业新增员工】 -- 逻辑 --" + JSONUtil.toJsonStr(tmpAddUser));
-                //系统用户id
-                String userId = sysUserService.addAndGrantRole(tmpAddUser);
-                newUserIds.add(userId);
-                //添加第三方库
-                AuthThirdUser tmpAddThirdUser = SyncUtils.addThirdUser(dingUser.getName(),userId,dingUser.getUserid(),dingUser.getUnionid());
-                authThirdUserService.save(tmpAddThirdUser);
-            }catch (Exception e){
-                log.error("【事件订阅-企业新增员工】 -- 异常 --"+e.getMessage());
-            }
+            String dingUserId = dingUserIds.getString(i);
+            OapiV2UserGetResponse.UserGetResponse dingUser = CommonDingDingUtil.getUserById(access_Token, dingUserId);
+            //新增SysUser
+            SysUser tmpAddUser = SyncUtils.addUser(dingUserId,dingUser.getManagerUserid(),dingUser.getMobile(),dingUser.getName(),dingUser.getMobile(),sysOrgList,dingUser.getDeptIdList());
+            addUserList.add(tmpAddUser);
+            //添加第三方库
+            AuthThirdUser tmpAddThirdUser = SyncUtils.addThirdUser(dingUser.getName(),tmpAddUser.getId(),dingUser.getUserid(),dingUser.getUnionid());
+            addThirdUserList.add(tmpAddThirdUser);
         }
-        log.info("【事件订阅-企业新增员工】 -- end 系统用户Id --"+ JSONUtil.toJsonStr(newUserIds));
+        sysUserList.addAll(addUserList);  //避免新增的员工中有主管
+
+        //处理数据库
+        if(CollUtil.isNotEmpty(addUserList)){
+            addUserList.forEach(user->{
+                try {
+                    if (ObjectUtil.isNotEmpty(user.getDingDirectorId())) {
+                        SysUser tmpSysUser = sysUserList.stream().filter(x -> user.getDingDirectorId().equals(x.getDingUserId())).findFirst().orElse(null);
+                        user.setDirectorId(ObjectUtil.isNotEmpty(tmpSysUser) ? tmpSysUser.getId() : null);
+                    }
+                    sysUserService.addAndGrantRole2(user);
+                }catch (Exception e){
+                    log.error("【事件订阅-企业新增员工】 -- 操作数据库 异常 --"+e.getMessage());
+                }
+            });
+        }
+        if(CollUtil.isNotEmpty(addThirdUserList)){
+            authThirdUserService.saveBatch(addThirdUserList);
+        }
+        log.info("【事件订阅-企业新增员工】 -- end ");
     }
 }

@@ -8,8 +8,8 @@ import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.sys.modular.dingtalk.enums.DingSyncTagEnum;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.enums.SysOrgCategoryEnum;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
 import vip.xiaonuo.sys.modular.user.enums.AuthThirdCategoryEnum;
-import vip.xiaonuo.sys.modular.user.param.SysUserAddParam;
 
 import java.util.Date;
 import java.util.List;
@@ -69,13 +69,17 @@ public class SyncUtils {
      * @param dingDeptIds
      * @return
      */
-    public static SysUserAddParam addUser(String account, String name, String phone, List<SysOrg> sysOrgList, List<Long> dingDeptIds ){
-        SysUserAddParam sysUserAddParam = new SysUserAddParam();
-        sysUserAddParam.setAccount(account);
-        sysUserAddParam.setName(name);
-        sysUserAddParam.setPhone(phone);
-        sysUserAddParam.setOrgId(getOrgId(sysOrgList,dingDeptIds));
-        return sysUserAddParam;
+    public static SysUser addUser(String dingUserId,String dingDirectorId,String account, String name, String phone, List<SysOrg> sysOrgList, List<Long> dingDeptIds ){
+        SysUser user = new SysUser();
+        user.setId(IdWorker.getIdStr());
+        user.setAccount(account);
+        user.setName(name);
+        user.setPhone(phone);
+        user.setOrgId(getOrgId(sysOrgList,dingDeptIds));
+        user.setDingUserId(dingUserId);
+        user.setDingSyncTag(DingSyncTagEnum.ADD.getValue());
+        user.setDingDirectorId(dingDirectorId);
+        return user;
     }
 
     /**
@@ -90,6 +94,24 @@ public class SyncUtils {
             SysOrg tmpOrg = sysOrgList.stream().filter(x -> deptId.equals(x.getDingDeptId())).findFirst().orElse(null);
             if(ObjectUtil.isNotEmpty(tmpOrg)) {
                 return tmpOrg.getId();
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * 【根据钉钉部门主管列表，找到系统对应userId】
+     *
+     * @param sysUserList 建科云用户信息
+     * @param dingManagerIds 钉钉部门主管集合 （默认取一个）
+     * @return
+     */
+    public static String getManageId(List<SysUser> sysUserList,List<String> dingManagerIds ){
+        for (String managerId:dingManagerIds) {
+            SysUser tmpUser = sysUserList.stream().filter(x -> managerId.equals(x.getDingUserId())).findFirst().orElse(null);
+            if(ObjectUtil.isNotEmpty(tmpUser)) {
+                return tmpUser.getId();
             }
         }
         return null;

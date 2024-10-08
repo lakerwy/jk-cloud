@@ -2,4 +2,26 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.sys.modular.user.mapper.SysUserMapper">
 
+    <select id="getDingSysUser" resultType="vip.xiaonuo.sys.modular.user.entity.SysUser">
+        select distinct a.*,b.THIRD_ID as dingUserId
+        from SYS_USER a join AUTH_THIRD_USER b on a.ID = b.USER_ID
+        where a.DELETE_FLAG='NOT_DELETE'
+          and b.DELETE_FLAG='NOT_DELETE'
+          and b.CATEGORY='DingDing'
+    </select>
+
+    <select id="getDingSysUserByIds" resultType="vip.xiaonuo.sys.modular.user.entity.SysUser">
+        select distinct a.*,b.THIRD_ID as dingUserId
+        from SYS_USER a join AUTH_THIRD_USER b on a.ID = b.USER_ID
+        where a.DELETE_FLAG='NOT_DELETE'
+          and b.DELETE_FLAG='NOT_DELETE'
+          and b.CATEGORY='DingDing'
+        <if test="thirdIds != null and thirdIds.size() > 0 ">
+            and b.THIRD_ID in
+            <foreach collection="thirdIds" item="item" open="(" close=")" separator=",">
+                #{item}
+            </foreach>
+        </if>
+    </select>
+
 </mapper>

@@ -7,14 +7,18 @@ import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.OapiV2DepartmentGetResponse;
 import com.dingtalk.open.app.api.message.GenericOpenDingTalkEvent;
+import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 import vip.xiaonuo.sys.modular.dingtalk.EventHandlingStrategy;
 import vip.xiaonuo.sys.modular.dingtalk.config.DingSyncProperties;
+import vip.xiaonuo.sys.modular.dingtalk.utils.SyncUtils;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
+import vip.xiaonuo.sys.modular.user.entity.SysUser;
+import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
@@ -35,6 +39,8 @@ public class OrgUpdateEventStrategy implements EventHandlingStrategy {
     private SysOrgService sysOrgService;
     @Resource
     DingSyncProperties dingSyncProperties;
+    @Resource
+    private SysUserService sysUserService;
     @Override
     public void handleEvent(GenericOpenDingTalkEvent event) {
         if(!dingSyncProperties.getIsSync()){
@@ -46,6 +52,8 @@ public class OrgUpdateEventStrategy implements EventHandlingStrategy {
         String access_Token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
         //系统组织架构信息【历史数据】
         List<SysOrg> sysOrgList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>().isNotNull(SysOrg::getDingDeptId));
+        //系统用户信息（携带钉钉id）
+        List<SysUser> sysUserList = sysUserService.getDingSysUser();
         //循环修改部门
         List<SysOrg> updateList = new ArrayList<>();
         if(dingDeptIds.size()>0){
@@ -55,6 +63,8 @@ public class OrgUpdateEventStrategy implements EventHandlingStrategy {
                 item.setName(dingDept.getName());
                 SysOrg tmpSysOrg = sysOrgList.stream().filter(x -> x.getDingDeptId().equals(dingDept.getParentId())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(tmpSysOrg)) item.setParentId(tmpSysOrg.getId());
+                item.setDingDirectorId(JsonUtils.object2json(dingDept.getDeptManagerUseridList()));
+                item.setDirectorId(SyncUtils.getManageId(sysUserList,dingDept.getDeptManagerUseridList()));
             });
         }
         if(CollUtil.isNotEmpty(updateList)){

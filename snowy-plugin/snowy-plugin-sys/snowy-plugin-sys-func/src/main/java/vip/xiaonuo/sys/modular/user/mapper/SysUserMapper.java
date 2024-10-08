@@ -15,6 +15,8 @@ package vip.xiaonuo.sys.modular.user.mapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import vip.xiaonuo.sys.modular.user.entity.SysUser;
 
+import java.util.List;
+
 /**
  * 用户Mapper接口
  *
@@ -23,4 +25,7 @@ import vip.xiaonuo.sys.modular.user.entity.SysUser;
  **/
 public interface SysUserMapper extends BaseMapper<SysUser> {
 
+    List<SysUser> getDingSysUser();
+
+    List<SysUser> getDingSysUserByIds(List<String> thirdIds);
 }
