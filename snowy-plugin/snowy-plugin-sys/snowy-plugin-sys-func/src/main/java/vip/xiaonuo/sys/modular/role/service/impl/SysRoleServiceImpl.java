@@ -231,19 +231,19 @@ public class SysRoleServiceImpl extends ServiceImpl<SysRoleMapper, SysRole> impl
     @Override
     public void grantResource(SysRoleGrantResourceParam sysRoleGrantResourceParam) {
         String id = sysRoleGrantResourceParam.getId();
-        SysRole sysRole = this.queryEntity(id);
+//        SysRole sysRole = this.queryEntity(id);
         List<String> menuIdList = sysRoleGrantResourceParam.getGrantInfoList().stream()
                 .map(SysRoleGrantResourceParam.SysRoleGrantResource::getMenuId).collect(Collectors.toList());
-        if(!SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue().equals(sysRole.getCode())) {
-            if(ObjectUtil.isNotEmpty(menuIdList)) {
-                Set<String> sysModuleIdList = sysMenuService.listByIds(menuIdList).stream().map(SysMenu::getModule).collect(Collectors.toSet());
-                boolean containsSystemModule = sysModuleService.listByIds(sysModuleIdList).stream().map(SysModule::getCode)
-                        .collect(Collectors.toSet()).contains(SysBuildInEnum.BUILD_IN_MODULE_CODE.getValue());
-                if(containsSystemModule) {
-                    throw new CommonException("非超管角色不可被授权系统模块菜单资源");
-                }
-            }
-        }
+//        if(!SysBuildInEnum.BUILD_IN_ROLE_CODE.getValue().equals(sysRole.getCode())) {
+//            if(ObjectUtil.isNotEmpty(menuIdList)) {
+//                Set<String> sysModuleIdList = sysMenuService.listByIds(menuIdList).stream().map(SysMenu::getModule).collect(Collectors.toSet());
+//                boolean containsSystemModule = sysModuleService.listByIds(sysModuleIdList).stream().map(SysModule::getCode)
+//                        .collect(Collectors.toSet()).contains(SysBuildInEnum.BUILD_IN_MODULE_CODE.getValue());
+//                if(containsSystemModule) {
+//                    throw new CommonException("非超管角色不可被授权系统模块菜单资源");
+//                }
+//            }
+//        }
         List<String> extJsonList = sysRoleGrantResourceParam.getGrantInfoList().stream()
                 .map(JSONUtil::toJsonStr).collect(Collectors.toList());
         sysRelationService.saveRelationBatchWithClear(id, menuIdList, SysRelationCategoryEnum.SYS_ROLE_HAS_RESOURCE.getValue(),
