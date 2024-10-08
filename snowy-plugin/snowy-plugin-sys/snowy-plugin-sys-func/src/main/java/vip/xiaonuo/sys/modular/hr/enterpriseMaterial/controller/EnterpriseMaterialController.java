@@ -41,7 +41,7 @@ public class EnterpriseMaterialController {
     private EnterpriseMaterialService enterpriseMaterialService;
 
     /**
-     * 获取企业宣传资料分页
+     * 获取企业宣传资料分页1
      *
      * @author pzh
      * @date  2024/09/18 14:57
