@@ -79,6 +79,8 @@ public class SyncUtils {
         user.setDingUserId(dingUserId);
         user.setDingSyncTag(DingSyncTagEnum.ADD.getValue());
         user.setDingDirectorId(dingDirectorId);
+        user.setCreateTime(new Date());
+        user.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
         return user;
     }
 

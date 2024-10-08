@@ -2,6 +2,7 @@ package vip.xiaonuo.sys.modular.dingtalk.service.impl;
 
 import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.OapiV2DepartmentGetResponse;
@@ -30,6 +31,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -247,6 +249,10 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
         /********************************************* 同步用户&组织 - 同步更新 **********************************************************/
         //4.1 更新部门信息
         log.info("钉钉组织架构同步 -- 部门 - 操作数据库 -- ");
+        orgData.forEach(item->{
+            item.setDingSyncMemo(DateUtil.now()+" 操作：手动同步 "+item.getDingSyncTag());
+            item.setUpdateTime(new Date());
+        });
         List<SysOrg> addOrgList = orgData.stream().filter(x -> DingSyncTagEnum.ADD.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
         List<SysOrg> updateOrgList = orgData.stream().filter(x -> DingSyncTagEnum.UPDATE.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
         List<SysOrg> removeOrgList = orgData.stream().filter(x -> DingSyncTagEnum.REMOVE.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
@@ -257,11 +263,16 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             sysOrgService.updateBatchById(updateOrgList);
         }
         if (CollUtil.isNotEmpty(removeOrgList)) {
-            sysOrgService.removeBatchByIds(removeOrgList);
+            removeOrgList.forEach(x->x.setDeleteFlag("DELETED"));
+            sysOrgService.updateBatchById(removeOrgList);
         }
 
         //4.2 更新用户信息
         log.info("钉钉组织架构同步 -- 用户 - 操作数据库 -- ");
+        userData.forEach(item->{
+            item.setDingSyncMemo(DateUtil.now()+" 操作：手动同步 "+item.getDingSyncTag());
+            item.setUpdateTime(new Date());
+        });
         List<SysUser> addUserList = userData.stream().filter(x->DingSyncTagEnum.ADD.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
         List<SysUser> updateUserList = userData.stream().filter(x->DingSyncTagEnum.UPDATE.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
         List<SysUser> removeUserList = userData.stream().filter(x->DingSyncTagEnum.REMOVE.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());

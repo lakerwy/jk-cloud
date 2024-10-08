@@ -1,6 +1,7 @@
 package vip.xiaonuo.sys.modular.dingtalk.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONArray;
@@ -21,6 +22,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -71,6 +73,8 @@ public class UserUpdateEventStrategy implements EventHandlingStrategy {
                 //找到直属主管 - 对应建科云用户id
                 SysUser tmpSysUser = sysUserList.stream().filter(x -> dingUser.getManagerUserid().equals(x.getDingUserId())).findFirst().orElse(null);
                 user.setDirectorId(ObjectUtil.isNotEmpty(tmpSysUser) ? tmpSysUser.getId() : null);
+                user.setDingSyncMemo(DateUtil.now()+" 操作：【事件订阅-通讯录用户更改】");
+                user.setUpdateTime(new Date());
             });
         }
         //更新用户

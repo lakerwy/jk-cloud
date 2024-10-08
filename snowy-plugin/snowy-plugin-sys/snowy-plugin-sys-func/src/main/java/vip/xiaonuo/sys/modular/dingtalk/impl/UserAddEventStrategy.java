@@ -1,6 +1,7 @@
 package vip.xiaonuo.sys.modular.dingtalk.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONArray;
@@ -23,6 +24,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -77,6 +79,8 @@ public class UserAddEventStrategy implements EventHandlingStrategy {
         //处理数据库
         if(CollUtil.isNotEmpty(addUserList)){
             addUserList.forEach(user->{
+                user.setDingSyncMemo(DateUtil.now()+" 操作：【事件订阅-企业新增员工】");
+                user.setUpdateTime(new Date());
                 try {
                     if (ObjectUtil.isNotEmpty(user.getDingDirectorId())) {
                         SysUser tmpSysUser = sysUserList.stream().filter(x -> user.getDingDirectorId().equals(x.getDingUserId())).findFirst().orElse(null);

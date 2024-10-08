@@ -1,6 +1,7 @@
 package vip.xiaonuo.sys.modular.dingtalk.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONArray;
@@ -22,6 +23,7 @@ import vip.xiaonuo.sys.modular.user.service.SysUserService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -71,6 +73,8 @@ public class OrgAddEventStrategy implements EventHandlingStrategy {
             addList.forEach(item->{
                 SysOrg tmpSysOrg = sysOrgList.stream().filter(x -> x.getDingDeptId().equals(item.getDingParentId())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(tmpSysOrg)) item.setParentId(tmpSysOrg.getId());
+                item.setDingSyncMemo(DateUtil.now()+" 操作：【事件订阅-通讯录企业部门创建】 ");
+                item.setUpdateTime(new Date());
             });
             sysOrgService.saveBatch(addList);
         }

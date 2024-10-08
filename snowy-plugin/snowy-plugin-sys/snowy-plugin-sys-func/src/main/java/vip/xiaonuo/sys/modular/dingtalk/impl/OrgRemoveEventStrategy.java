@@ -1,6 +1,7 @@
 package vip.xiaonuo.sys.modular.dingtalk.impl;
 
 import cn.hutool.core.collection.CollUtil;
+import cn.hutool.core.date.DateUtil;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -14,6 +15,7 @@ import vip.xiaonuo.sys.modular.org.service.SysOrgService;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -40,7 +42,12 @@ public class OrgRemoveEventStrategy implements EventHandlingStrategy {
             removeList = sysOrgService.list(new LambdaQueryWrapper<SysOrg>().in(SysOrg::getDingDeptId,dingDeptIds));
         }
         if(CollUtil.isNotEmpty(removeList)){
-            sysOrgService.removeBatchByIds(removeList);
+            removeList.forEach(item-> {
+                item.setDeleteFlag("DELETED");
+                item.setDingSyncMemo(DateUtil.now()+" 操作：【事件订阅-通讯录企业部门删除】");
+                item.setUpdateTime(new Date());
+            });
+            sysOrgService.updateBatchById(removeList);
         }
         log.info("【事件订阅-通讯录企业部门删除】 -- end --"+ JSONUtil.toJsonStr(removeList));
     }

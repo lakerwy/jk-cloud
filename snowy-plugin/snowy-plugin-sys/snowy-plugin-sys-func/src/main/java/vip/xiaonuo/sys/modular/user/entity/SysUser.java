@@ -315,6 +315,8 @@ public class SysUser extends CommonEntity implements TransPojo {
     private Boolean maskClosable;
 
 
+    @ApiModelProperty(value = "【钉钉组织架构同步】同步备注", position = 100)
+    private String dingSyncMemo;
 
     @ApiModelProperty(value = "【钉钉组织架构同步】钉钉用户Id", position = 100)
     @TableField(exist = false)
