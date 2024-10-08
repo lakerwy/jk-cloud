@@ -221,4 +221,8 @@ public class SchoolResume {
     /** url短链接 */
     @ApiModelProperty(value = "url短链接", position = 49)
     private String shortUrl;
+
+    /** 简历状态 0 未审核 1 合格 -1 不合格 */
+    @ApiModelProperty(value = "简历状态 0 未审核 1 合格 -1 不合格", position = 100)
+    private String resumeStatus;
 }

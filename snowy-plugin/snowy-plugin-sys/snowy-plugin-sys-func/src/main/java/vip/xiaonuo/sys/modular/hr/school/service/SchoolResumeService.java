@@ -88,4 +88,10 @@ public interface SchoolResumeService extends IService<SchoolResume> {
      * @param resumeUploadParam
      */
     void upload(ResumeUploadParam resumeUploadParam);
+
+    /**
+     * 人资初审
+     * @param resumeStatusParam
+     */
+    void status(ResumeStatusParam resumeStatusParam);
 }

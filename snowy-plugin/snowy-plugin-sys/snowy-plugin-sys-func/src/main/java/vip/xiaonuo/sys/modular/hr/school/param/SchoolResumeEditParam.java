@@ -180,4 +180,7 @@ public class SchoolResumeEditParam {
     @ApiModelProperty(value = "所处阶段", position = 47)
     private String resumeStage;
 
+    /** 简历状态 0 未审核 1 合格 -1 不合格*/
+    @ApiModelProperty(value = "简历状态 0 未审核 1 合格 -1 不合格", position = 100)
+    private String resumeStatus;
 }

@@ -89,6 +89,12 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         if(ObjectUtil.isNotEmpty(schoolResumePageParam.getIsSend())) {
             queryWrapper.lambda().eq(SchoolResume::getIsSend, schoolResumePageParam.getIsSend());
         }
+        if(ObjectUtil.isNotEmpty(schoolResumePageParam.getResumeStatus())){
+            queryWrapper.lambda().eq(SchoolResume::getResumeStatus,schoolResumePageParam.getResumeStatus());
+        }
+        if(ObjectUtil.isNotEmpty(schoolResumePageParam.getStartDate()) && ObjectUtil.isNotEmpty(schoolResumePageParam.getEndDate())) {
+            queryWrapper.lambda().between(SchoolResume::getCreateTime, schoolResumePageParam.getStartDate(), schoolResumePageParam.getEndDate());
+        }
         if(ObjectUtil.isNotEmpty(schoolResumePageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(SchoolResume::getName,schoolResumePageParam.getSearchKey())
                     .or().like(SchoolResume::getSchool,schoolResumePageParam.getSearchKey())
@@ -197,6 +203,15 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
         SchoolResume schoolResume = this.queryEntity(resumeUploadParam.getId());
         schoolResume.setResumeAttach(resumeUploadParam.getResumeAttach());
         this.updateById(schoolResume);
+    }
+
+    @Override
+    public void status(ResumeStatusParam resumeStatusParam) {
+        if(CollUtil.isNotEmpty(resumeStatusParam.getIds())){
+            List<SchoolResume> schoolResumes = this.list(new QueryWrapper<SchoolResume>().lambda().in(SchoolResume::getId,resumeStatusParam.getIds()));
+            schoolResumes.forEach(item->item.setResumeStatus(resumeStatusParam.getResumeStatus()));
+            this.updateBatchById(schoolResumes);
+        }
     }
 
     /**

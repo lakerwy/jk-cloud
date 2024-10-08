@@ -88,4 +88,16 @@ public class SchoolResumePageParam {
     @ApiModelProperty(value = "是否发送短信：0：否 1：是")
     private String isSend;
 
+    /** 简历状态 0 未审核 1 合格 -1 不合格*/
+    @ApiModelProperty(value = "简历状态 0 未审核 1 合格 -1 不合格")
+    private String resumeStatus;
+
+    /** 开始 */
+    @ApiModelProperty(value = "开始")
+    private String startDate;
+
+    /** 结束 */
+    @ApiModelProperty(value = "结束")
+    private String endDate;
+
 }

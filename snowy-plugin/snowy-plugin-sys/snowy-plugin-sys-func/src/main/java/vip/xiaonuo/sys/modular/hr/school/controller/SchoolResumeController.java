@@ -171,4 +171,17 @@ public class SchoolResumeController {
         schoolResumeService.submit(resumeParam);
         return CommonResult.ok();
     }
+
+
+    /**
+     * 校招,人资初审
+     */
+    @ApiOperationSupport(order = 10)
+    @ApiOperation("校招,人资初审")
+    @CommonLog("校招,人资初审")
+    @PostMapping("/sys/hr/school/resume/status")
+    public CommonResult<String> status(@RequestBody @Valid ResumeStatusParam resumeStatusParam) {
+        schoolResumeService.status(resumeStatusParam);
+        return CommonResult.ok();
+    }
 }
