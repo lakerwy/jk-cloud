@@ -41,13 +41,13 @@ public class EnterpriseMaterialController {
     private EnterpriseMaterialService enterpriseMaterialService;
 
     /**
-     * 获取企业宣传资料分页1
+     * 获取企业宣传资料分页
      *
      * @author pzh
      * @date  2024/09/18 14:57
      */
     @ApiOperationSupport(order = 1)
-    @ApiOperation("获取企业宣传资料分页")
+    @ApiOperation("获取企业宣传资料分页1")
 //    @SaCheckPermission("/sys/enterpriseMaterial/page")
     @GetMapping("/sys/enterpriseMaterial/page")
     public CommonResult<Page<EnterpriseMaterial>> page(EnterpriseMaterialPageParam enterpriseMaterialPageParam) {
