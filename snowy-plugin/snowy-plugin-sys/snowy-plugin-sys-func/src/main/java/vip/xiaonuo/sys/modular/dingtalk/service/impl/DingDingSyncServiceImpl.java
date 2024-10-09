@@ -4,6 +4,7 @@ import cn.hutool.core.bean.BeanUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.util.ObjectUtil;
+import com.baomidou.dynamic.datasource.annotation.DSTransactional;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.dingtalk.api.response.OapiV2DepartmentGetResponse;
 import com.dingtalk.api.response.OapiV2DepartmentListsubResponse;
@@ -11,8 +12,8 @@ import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserListResponse;
 import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
@@ -71,6 +72,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
      *        4. 同步建科云用户信息 - 维护建科云与钉钉关系
      */
     @Override
+    @Async
     public void sync() {
         if(dingSyncProperties.getIsSync()) {
             long start = System.currentTimeMillis();
@@ -109,7 +111,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
      * 同步规则： dingDeptList 钉钉没有返回DeptId=1
      */
 
-    @Transactional
+    @DSTransactional
     public void syncDeptUser(List<OapiV2DepartmentListsubResponse.DeptBaseResponse> dingDeptList,List<SysOrg> sysOrgList,
                              List<OapiV2UserListResponse.ListUserResponse> dingUserList,List<SysUser> sysUserList,String access_Token){
         if(CollUtil.isEmpty(dingDeptList)) return;
@@ -277,7 +279,14 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
         List<SysUser> updateUserList = userData.stream().filter(x->DingSyncTagEnum.UPDATE.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
         List<SysUser> removeUserList = userData.stream().filter(x->DingSyncTagEnum.REMOVE.getValue().equals(x.getDingSyncTag())).collect(Collectors.toList());
         if(CollUtil.isNotEmpty(addUserList)){
-            addUserList.forEach(user -> sysUserService.addAndGrantRole2(user));
+            addUserList.forEach(user -> {
+                try {
+                    sysUserService.addAndGrantRole2(user);
+                }catch (Exception e){
+                    log.error("钉钉组织架构同步"+e.getMessage());
+                }
+             }
+            );
         }
         if(CollUtil.isNotEmpty(thirdUserData)){
             authThirdUserService.saveBatch(thirdUserData);

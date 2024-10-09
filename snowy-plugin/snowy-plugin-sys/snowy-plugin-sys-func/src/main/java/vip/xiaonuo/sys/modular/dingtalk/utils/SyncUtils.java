@@ -34,7 +34,6 @@ public class SyncUtils {
         tempAdd.setSortCode(99);
         tempAdd.setDeleteFlag("NOT_DELETE");
         tempAdd.setCreateTime(new Date());
-        tempAdd.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
         tempAdd.setDingParentId(dingParentId);
         return tempAdd;
     }
@@ -56,7 +55,6 @@ public class SyncUtils {
         tmpAdd.setUnionId(unionId);
         tmpAdd.setDeleteFlag("NOT_DELETE");
         tmpAdd.setCreateTime(new Date());
-        tmpAdd.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
         return tmpAdd;
     }
 
@@ -80,7 +78,6 @@ public class SyncUtils {
         user.setDingSyncTag(DingSyncTagEnum.ADD.getValue());
         user.setDingDirectorId(dingDirectorId);
         user.setCreateTime(new Date());
-        user.setCreateUser(StpLoginUserUtil.getLoginUser().getId());
         return user;
     }
 
