@@ -34,6 +34,7 @@ import javax.annotation.Resource;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 /**
@@ -72,37 +73,38 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
      *        4. 同步建科云用户信息 - 维护建科云与钉钉关系
      */
     @Override
-    @Async
     public void sync() {
         if(dingSyncProperties.getIsSync()) {
-            long start = System.currentTimeMillis();
-            log.info("钉钉组织架构同步 -- 开始 -- ");
-            //1. 获取钉钉access_token
-            String access_token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
+            CompletableFuture.runAsync(() -> {
+                long start = System.currentTimeMillis();
+                log.info("钉钉组织架构同步 -- 开始 -- ");
+                //1. 获取钉钉access_token
+                String access_token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
 
-            //2. 获取钉钉组织架构部门(递归)
-            List<OapiV2DepartmentListsubResponse.DeptBaseResponse> dingDeptList = new ArrayList<>();
-            CommonDingDingUtil.execRecursionDept(access_token, DING_TOP_DEPT_ID, dingDeptList);
+                //2. 获取钉钉组织架构部门(递归)
+                List<OapiV2DepartmentListsubResponse.DeptBaseResponse> dingDeptList = new ArrayList<>();
+                CommonDingDingUtil.execRecursionDept(access_token, DING_TOP_DEPT_ID, dingDeptList);
 
-            //3. 获取钉钉组织架构用户(递归)
-            List<OapiV2UserListResponse.ListUserResponse> dingUserList = new ArrayList<>();
-            dingDeptList.forEach(item -> CommonDingDingUtil.execRecursionDeptUser(access_token, item.getDeptId(), 0L, 50L, dingUserList));
+                //3. 获取钉钉组织架构用户(递归)
+                List<OapiV2UserListResponse.ListUserResponse> dingUserList = new ArrayList<>();
+                dingDeptList.forEach(item -> CommonDingDingUtil.execRecursionDeptUser(access_token, item.getDeptId(), 0L, 50L, dingUserList));
 
-            //4. 获取建科云需要处理的组织信息【框定范围:DEPT+1L】
-            LambdaQueryWrapper<SysOrg> sysOrgLambdaQueryWrapper = new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getCategory, SysOrgCategoryEnum.DEPT.getValue()).or().eq(SysOrg::getDingDeptId, DING_TOP_DEPT_ID);
-            List<SysOrg> sysOrgList = sysOrgService.list(sysOrgLambdaQueryWrapper);
+                //4. 获取建科云需要处理的组织信息【框定范围:DEPT+1L】
+                LambdaQueryWrapper<SysOrg> sysOrgLambdaQueryWrapper = new LambdaQueryWrapper<SysOrg>().eq(SysOrg::getCategory, SysOrgCategoryEnum.DEPT.getValue()).or().eq(SysOrg::getDingDeptId, DING_TOP_DEPT_ID);
+                List<SysOrg> sysOrgList = sysOrgService.list(sysOrgLambdaQueryWrapper);
 
-            //5. 获取建科云需要处理的用户信息【框定范围:DEPT+1L下】
-            List<SysUser> sysUserList = new ArrayList<>();
-            if (CollUtil.isNotEmpty(sysOrgList)) {
-                List<String> orgIds = sysOrgList.stream().map(x -> x.getId()).collect(Collectors.toList());
-                LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<SysUser>().in(SysUser::getOrgId, orgIds).eq(SysUser::getUserStatus, SysUserStatusEnum.ENABLE.getValue());
-                sysUserList = sysUserService.list(sysUserLambdaQueryWrapper);
-            }
+                //5. 获取建科云需要处理的用户信息【框定范围:DEPT+1L下】
+                List<SysUser> sysUserList = new ArrayList<>();
+                if (CollUtil.isNotEmpty(sysOrgList)) {
+                    List<String> orgIds = sysOrgList.stream().map(x -> x.getId()).collect(Collectors.toList());
+                    LambdaQueryWrapper<SysUser> sysUserLambdaQueryWrapper = new LambdaQueryWrapper<SysUser>().in(SysUser::getOrgId, orgIds).eq(SysUser::getUserStatus, SysUserStatusEnum.ENABLE.getValue());
+                    sysUserList = sysUserService.list(sysUserLambdaQueryWrapper);
+                }
 
-            //6. 同步逻辑
-            syncDeptUser(dingDeptList, sysOrgList, dingUserList, sysUserList,access_token);
-            log.info("钉钉组织架构同步 -- 结束 -- 耗时："+(System.currentTimeMillis()-start));
+                //6. 同步逻辑
+                syncDeptUser(dingDeptList, sysOrgList, dingUserList, sysUserList, access_token);
+                log.info("钉钉组织架构同步 -- 结束 -- 耗时：" + (System.currentTimeMillis() - start));
+            });
         }
     }
 

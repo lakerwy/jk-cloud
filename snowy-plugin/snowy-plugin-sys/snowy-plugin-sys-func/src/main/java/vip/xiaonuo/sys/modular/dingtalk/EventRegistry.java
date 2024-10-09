@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 
+import javax.annotation.PostConstruct;
 import javax.annotation.Resource;
 import java.util.HashMap;
 import java.util.Map;
@@ -41,6 +42,11 @@ public class EventRegistry {
     public void handleUnknownEvent(GenericOpenDingTalkEvent event) {
         // 处理未知事件类型的业务逻辑
         log.info("【事件订阅-未知订阅】"+ JSONUtil.toJsonStr(event));
+    }
+
+    @PostConstruct
+    public void init() throws Exception {
+        handleData();
     }
 
     public void handleData() throws Exception {
