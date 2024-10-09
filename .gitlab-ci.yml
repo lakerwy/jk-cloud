@@ -64,6 +64,6 @@ build:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./restart.sh"
     - echo "-------end webApp--------"
   tags:
-    - server
+    - server2
 
 
