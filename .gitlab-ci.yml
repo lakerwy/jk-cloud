@@ -46,7 +46,7 @@ build:
   after_script:
     - echo "-------start bizApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./mange.sh restart"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
     - echo "-------end bizApp--------"
 
     - echo "-------start flwApp--------"
