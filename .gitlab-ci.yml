@@ -29,6 +29,7 @@ before_script:
   - cat /etc/apt/sources.list
 
   - apt-get update
+  - apt-get install -y libcrypt1
   - apt-get install -y --no-install-recommends openssh-client rsync
   
   - eval $(ssh-agent -s)
