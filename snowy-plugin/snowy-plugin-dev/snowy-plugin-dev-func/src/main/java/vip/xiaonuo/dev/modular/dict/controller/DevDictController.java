@@ -163,4 +163,17 @@ public class DevDictController {
     public CommonResult<List<ExpDict>> getDictList(@Valid ExpDictSearch expDictSearch) {
         return CommonResult.data(devDictService.getDictList(expDictSearch));
     }
+
+
+    /**
+     * 提供一个对外的缓存清理接口
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("根据前缀清理redis缓存")
+    @CommonLog("根据前缀清理redis缓存")
+    @PostMapping("/dev/dict/redis/removeKeys")
+    public CommonResult<String> removeKeys(@RequestBody String prefix) {
+        devDictService.removeKeys(prefix);
+        return CommonResult.ok();
+    }
 }

@@ -29,6 +29,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fhs.trans.service.impl.DictionaryTransService;
 import org.springframework.beans.factory.InitializingBean;
 import org.springframework.stereotype.Service;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -61,6 +62,9 @@ public class DevDictServiceImpl extends ServiceImpl<DevDictMapper, DevDict> impl
 
     @Resource
     private DictionaryTransService dictionaryTransService;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<DevDict> page(DevDictPageParam devDictPageParam) {
@@ -251,6 +255,11 @@ public class DevDictServiceImpl extends ServiceImpl<DevDictMapper, DevDict> impl
                     || x.getDictValue().contains(expDictSearch.getSearchKey())).collect(Collectors.toList());
         }
         return result;
+    }
+
+    @Override
+    public void removeKeys(String prefix) {
+        commonCacheOperator.removeKeys(prefix);
     }
 
     @Override

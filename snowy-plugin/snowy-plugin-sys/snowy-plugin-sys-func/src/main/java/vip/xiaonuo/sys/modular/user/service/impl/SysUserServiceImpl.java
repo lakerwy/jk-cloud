@@ -214,7 +214,9 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
             transService.transOne(sysUser);
             SysOrg sysOrg = sysOrgService.getById(sysUser.getOrgId());
             SysLoginUser sysLoginUser = BeanUtil.copyProperties(sysUser, SysLoginUser.class);
-            sysLoginUser.setCategory(sysOrg.getCategory());
+            if(ObjectUtil.isNotEmpty(sysOrg)) {
+                sysLoginUser.setCategory(sysOrg.getCategory());
+            }
             return sysLoginUser;
         }
         return null;

@@ -100,4 +100,10 @@ public interface DevDictService extends IService<DevDict> {
      * @return
      */
     List<ExpDict> getDictList(ExpDictSearch expDictSearch);
+
+    /**
+     * 清理redis缓存
+     * @param prefix
+     */
+    void removeKeys(String prefix);
 }
