@@ -10,17 +10,17 @@ stages:
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=/root/.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
-  REMOTE_SERVER: "10.0.33.81"
+  REMOTE_SERVER: "10.0.33.82"
   REMOTE_USERNAME: "root"
-  REMOTE_PATH: "/home/jkTest/"
+  REMOTE_PATH: "/home/jkMicroService/jkCloud"
 
 cache:
   paths:
     - /root/.m2/repository
 
 before_script:
- - apt-get update
- - apt-get install -y openssh-client rsync
+  - apt-get update
+  - apt-get install -y openssh-client rsync
   - eval $(ssh-agent -s)
   - export SSH_PRIVATE_KEY_NO_CR=$(echo "$SSH_PRIVATE_KEY" | tr -d '\r')
   - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh-add -
