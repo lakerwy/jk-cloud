@@ -172,7 +172,7 @@ public class DevDictController {
     @ApiOperation("根据前缀清理redis缓存")
     @CommonLog("根据前缀清理redis缓存")
     @PostMapping("/dev/dict/redis/removeKeys")
-    public CommonResult<String> removeKeys(@RequestBody String prefix) {
+    public CommonResult<String> removeKeys(String prefix) {
         devDictService.removeKeys(prefix);
         return CommonResult.ok();
     }
