@@ -1,4 +1,4 @@
-image: mykjack/jkmaven:latest
+image: maven:3.6.3-openjdk-8
 
 stages:
   - build
@@ -10,17 +10,32 @@ stages:
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=/root/.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
-  REMOTE_SERVER: "10.0.33.81"
+  REMOTE_SERVER: "10.0.33.82"
   REMOTE_USERNAME: "root"
-  REMOTE_PATH: "/home/jkTest/"
+  REMOTE_PATH: "/home/jkMicroService/jkCloud"
 
 cache:
   paths:
     - /root/.m2/repository
 
 before_script:
-#  - apt-get update
-#  - apt-get install -y openssh-client rsync
+  # 使用阿里云源来加速安装 rsync
+  # 清除 apt 缓存
+  - apt-get clean
+
+  # 设置阿里云的 Debian 源，直接覆盖 /etc/apt/sources.list
+  - echo "deb http://mirrors.aliyun.com/debian/ bookworm main contrib non-free" > /etc/apt/sources.list
+  - echo "deb http://mirrors.aliyun.com/debian/ bookworm-updates main contrib non-free" >> /etc/apt/sources.list
+  - echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free" >> /etc/apt/sources.list
+
+  # 确认新源已正确添加
+  - cat /etc/apt/sources.list
+
+  # 清空 sources.list.d 目录
+  - rm -rf /etc/apt/sources.list.d/*
+
+  - apt-get update
+  - apt-get install -y openssh-client rsync
   - eval $(ssh-agent -s)
   - export SSH_PRIVATE_KEY_NO_CR=$(echo "$SSH_PRIVATE_KEY" | tr -d '\r')
   - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh-add -
@@ -46,22 +61,22 @@ build:
   after_script:
     - echo "-------start bizApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./restart.sh"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/biz/ && ./mange.sh restart"
     - echo "-------end bizApp--------"
 
     - echo "-------start flwApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/flw/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/flw/ && ./restart.sh"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/flw/ && ./mange.sh restart"
     - echo "-------end flwApp--------"
 
     - echo "-------start procureApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-procure-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/procure/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/procure/ && ./restart.sh"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/procure/ && ./mange.sh restart"
     - echo "-------end procureApp--------"
 
     - echo "-------start webApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/web/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./restart.sh"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./mange.sh restart"
     - echo "-------end webApp--------"
   tags:
     - server
