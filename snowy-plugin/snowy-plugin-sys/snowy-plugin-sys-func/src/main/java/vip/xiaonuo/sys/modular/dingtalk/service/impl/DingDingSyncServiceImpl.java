@@ -81,12 +81,13 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                 //1. 获取钉钉access_token
                 String access_token = CommonDingDingUtil.getAccessToken(dingTalkProperties.getAppKey(), dingTalkProperties.getAppSecret());
 
-                //2. 获取钉钉组织架构部门(递归)
+                //2. 获取钉钉组织架构部门(递归-不含顶级1L部门)
                 List<OapiV2DepartmentListsubResponse.DeptBaseResponse> dingDeptList = new ArrayList<>();
                 CommonDingDingUtil.execRecursionDept(access_token, DING_TOP_DEPT_ID, dingDeptList);
 
                 //3. 获取钉钉组织架构用户(递归)
                 List<OapiV2UserListResponse.ListUserResponse> dingUserList = new ArrayList<>();
+                CommonDingDingUtil.execRecursionDeptUser(access_token, DING_TOP_DEPT_ID, 0L, 50L, dingUserList); //集团下人员
                 dingDeptList.forEach(item -> CommonDingDingUtil.execRecursionDeptUser(access_token, item.getDeptId(), 0L, 50L, dingUserList));
 
                 //4. 获取建科云需要处理的组织信息【框定范围:DEPT+1L】
