@@ -1,4 +1,4 @@
-image: mykjack/jkmaven:latest
+image: maven:3.6.3-openjdk-8
 
 stages:
   - build
@@ -19,8 +19,8 @@ cache:
     - /root/.m2/repository
 
 before_script:
-#  - apt-get update
-#  - apt-get install -y openssh-client rsync
+ - apt-get update
+ - apt-get install -y openssh-client rsync
   - eval $(ssh-agent -s)
   - export SSH_PRIVATE_KEY_NO_CR=$(echo "$SSH_PRIVATE_KEY" | tr -d '\r')
   - echo "$SSH_PRIVATE_KEY_NO_CR" | ssh-add -
