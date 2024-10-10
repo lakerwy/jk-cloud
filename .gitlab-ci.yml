@@ -19,6 +19,21 @@ cache:
     - /root/.m2/repository
 
 before_script:
+  # 使用阿里云源来加速安装 rsync
+  # 清除 apt 缓存
+  - apt-get clean
+
+  # 设置阿里云的 Debian 源，直接覆盖 /etc/apt/sources.list
+  - echo "deb http://mirrors.aliyun.com/debian/ bookworm main contrib non-free" > /etc/apt/sources.list
+  - echo "deb http://mirrors.aliyun.com/debian/ bookworm-updates main contrib non-free" >> /etc/apt/sources.list
+  - echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free" >> /etc/apt/sources.list
+
+  # 确认新源已正确添加
+  - cat /etc/apt/sources.list
+
+  # 清空 sources.list.d 目录
+  - rm -rf /etc/apt/sources.list.d/*
+
   - apt-get update
   - apt-get install -y openssh-client rsync
   - eval $(ssh-agent -s)
