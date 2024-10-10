@@ -1,4 +1,4 @@
-image: maven:3.6.3-openjdk-8
+image: mykjack/jkmaven:latest
 
 stages:
   - build
@@ -10,9 +10,9 @@ stages:
 variables:
   MAVEN_OPTS: "-Dmaven.repo.local=/root/.m2/repository"
   MAVEN_CLI_OPTS: "--batch-mode --errors --fail-at-end --show-version"
-  REMOTE_SERVER: "10.0.33.82"
+  REMOTE_SERVER: "10.0.33.81"
   REMOTE_USERNAME: "root"
-  REMOTE_PATH: "/home/jkMicroService/jkCloud"
+  REMOTE_PATH: "/home/jkTest/"
 
 cache:
   paths:
