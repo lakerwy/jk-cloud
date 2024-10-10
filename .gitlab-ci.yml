@@ -44,7 +44,7 @@ build:
     - dev20230619
   script:
     - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
-    - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests"
+    - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests -T 1C"
 #  artifacts:                不上传产物到gitlab 服务器
 #    paths:
 #      - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
