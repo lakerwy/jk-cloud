@@ -157,6 +157,15 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
 
     @Transactional(rollbackFor = Exception.class)
     @Override
+    public void add2(VehicleApplyAddParam vehicleApplyAddParam) {
+        VehicleApply vehicleApply = BeanUtil.toBean(vehicleApplyAddParam, VehicleApply.class);
+        vehicleApply.setOptDate(DateTime.now());
+        vehicleApply.setStatus(CarApplyStatusEnum.Dispatching.getValue());
+        this.save(vehicleApply);
+    }
+
+    @Transactional(rollbackFor = Exception.class)
+    @Override
     public void edit(VehicleApplyEditParam vehicleApplyEditParam) {
         VehicleApply vehicleApply = this.queryEntity(vehicleApplyEditParam.getId());
         BeanUtil.copyProperties(vehicleApplyEditParam, vehicleApply);

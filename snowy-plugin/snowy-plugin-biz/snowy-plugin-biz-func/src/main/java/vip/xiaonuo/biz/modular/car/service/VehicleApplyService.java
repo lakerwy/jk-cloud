@@ -14,7 +14,6 @@ package vip.xiaonuo.biz.modular.car.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
-import org.springframework.web.bind.annotation.RequestBody;
 import vip.xiaonuo.biz.modular.car.entity.VehicleApply;
 import vip.xiaonuo.biz.modular.car.param.*;
 import vip.xiaonuo.biz.modular.car.vo.*;
@@ -45,6 +44,8 @@ public interface VehicleApplyService extends IService<VehicleApply> {
      * @date  2023/11/08 16:04
      */
     void add(VehicleApplyAddParam vehicleApplyAddParam);
+
+    void add2(VehicleApplyAddParam vehicleApplyAddParam);
 
     /**
      * 编辑CAR-用车申请单

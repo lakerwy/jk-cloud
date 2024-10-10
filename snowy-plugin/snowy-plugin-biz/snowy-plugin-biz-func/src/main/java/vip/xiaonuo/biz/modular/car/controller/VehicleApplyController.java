@@ -81,6 +81,16 @@ public class VehicleApplyController {
         return CommonResult.ok();
     }
 
+    @ApiOperationSupport(order = 2)
+    @ApiOperation("添加CAR-用车申请单")
+    @CommonLog("添加CAR-用车申请单")
+//    @SaCheckPermission("/biz/car/vehicleApply/addVehicleApply")
+    @PostMapping("/biz/car/vehicleApply/add")
+    public CommonResult<String> add2(@RequestBody @Valid VehicleApplyAddParam vehicleApplyAddParam) {
+        vehicleApplyService.add2(vehicleApplyAddParam);
+        return CommonResult.ok();
+    }
+
     /**
      * 编辑CAR-用车申请单
      *
