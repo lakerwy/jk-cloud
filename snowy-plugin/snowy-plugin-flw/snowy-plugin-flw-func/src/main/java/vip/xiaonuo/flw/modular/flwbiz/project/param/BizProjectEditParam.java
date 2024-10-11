@@ -277,4 +277,9 @@ public class BizProjectEditParam {
     @ApiModelProperty(value = "区域负责人Id", position = 78)
     private String areaLeaderId;
 
+    /**
+     * 投标部门id
+     */
+    @ApiModelProperty(value = "投标部门id", position = 79)
+    private String _deptId;
 }
