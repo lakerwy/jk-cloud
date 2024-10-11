@@ -78,11 +78,12 @@ public class ConsumerCenter {
             }catch (Exception e){
                 strRabbitMsg = e.getMessage();
             }
-            log.info("接受到延迟队列的消息: " + rabbitDelayedMessage.getTaskKey() + " 【消息体】：" + strRabbitMsg);
+            log.info("接受到延迟队列的消息: " + rabbitDelayedMessage.getTaskKey());
 
             String taskKey = rabbitDelayedMessage.getTaskKey();
             Object o = commonCacheOperator.get(taskKey);
             if (ObjectUtil.isNotEmpty(o) && !Boolean.parseBoolean(String.valueOf(o))) {
+                log.info("【发送延迟队列的消息】: " + rabbitDelayedMessage.getTaskKey() + " 【消息体】：" + strRabbitMsg);
                 //未办理，发送消息，继续放入缓存中
                 Message<RabbitDelayedMessage> newMessage = MessageBuilder
                         .withPayload(rabbitDelayedMessage)
