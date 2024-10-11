@@ -11,6 +11,7 @@ import com.dingtalk.open.app.api.message.GenericOpenDingTalkEvent;
 import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.modular.message.config.DingTalkProperties;
 import vip.xiaonuo.sys.modular.dingtalk.EventHandlingStrategy;
@@ -26,6 +27,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
 
 /**
  * @author mayike
@@ -43,6 +46,8 @@ public class OrgUpdateEventStrategy implements EventHandlingStrategy {
     DingSyncProperties dingSyncProperties;
     @Resource
     private SysUserService sysUserService;
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
     @Override
     public void handleEvent(GenericOpenDingTalkEvent event) {
         if(!dingSyncProperties.getIsSync()){
@@ -75,6 +80,9 @@ public class OrgUpdateEventStrategy implements EventHandlingStrategy {
         }
         if(CollUtil.isNotEmpty(updateList)){
             sysOrgService.updateBatchById(updateList);
+
+            /********************************************* 清理缓存 **********************************************************/
+            commonCacheOperator.removeKeys(ORG_FIRST_CODE_CACHE_KEY);
         }
         log.info("【事件订阅-通讯录企业部门修改】 -- end  --");
     }

@@ -99,7 +99,8 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
             queryWrapper.lambda().and(q->q.like(SchoolResume::getName,schoolResumePageParam.getSearchKey())
                     .or().like(SchoolResume::getSchool,schoolResumePageParam.getSearchKey())
                     .or().like(SchoolResume::getMajor,schoolResumePageParam.getSearchKey())
-                    .or().like(SchoolResume::getMemo,schoolResumePageParam.getSearchKey()));
+                    .or().like(SchoolResume::getMemo,schoolResumePageParam.getSearchKey())
+                    .or().like(SchoolResume::getPhone,schoolResumePageParam.getSearchKey()));
         }
         if(ObjectUtil.isAllNotEmpty(schoolResumePageParam.getSortField(), schoolResumePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(schoolResumePageParam.getSortOrder());

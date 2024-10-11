@@ -70,6 +70,7 @@ public class UserUpdateEventStrategy implements EventHandlingStrategy {
                 user.setName(dingUser.getName());
                 user.setEmail(dingUser.getEmail());
                 user.setDingDirectorId(dingUser.getManagerUserid());
+                user.setPhone(dingUser.getMobile());
                 //找到直属主管 - 对应建科云用户id
                 if(ObjectUtil.isNotEmpty(dingUser.getManagerUserid())) {
                     SysUser tmpSysUser = sysUserList.stream().filter(x -> dingUser.getManagerUserid().equals(x.getDingUserId())).findFirst().orElse(null);

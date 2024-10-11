@@ -14,6 +14,7 @@ import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
 import vip.xiaonuo.dev.modular.dingThirdData.entity.AuthThirdUser;
 import vip.xiaonuo.dev.modular.dingThirdData.service.AuthThirdUserService;
@@ -35,6 +36,8 @@ import java.util.Date;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+
+import static vip.xiaonuo.common.consts.CacheConstant.ORG_FIRST_CODE_CACHE_KEY;
 
 /**
  * 钉钉 - 数据 - 同步  服务实现类
@@ -63,6 +66,9 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
      * 钉钉组织架构顶层部门id
      */
     private static final Long DING_TOP_DEPT_ID = 1L;
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     /**
      * 同步逻辑说明 【暂停】：
@@ -300,6 +306,10 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             removeUserList.forEach(x->x.setUserStatus(SysUserStatusEnum.DISABLED.getValue()));
             sysUserService.updateBatchById(removeUserList);
         }
+
+        /********************************************* 清理缓存 **********************************************************/
+        commonCacheOperator.removeKeys(ORG_FIRST_CODE_CACHE_KEY);
+
     }
 
 }
