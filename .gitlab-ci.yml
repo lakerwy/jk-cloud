@@ -1,4 +1,4 @@
-image: maven:3.6.3-openjdk-8
+image: mykjack/jkmaven:latest
 
 stages:
   - build
@@ -20,15 +20,15 @@ cache:
 
 before_script:
   # 清除 apt 缓存
-  - apt-get clean
+  #- apt-get clean
   # 设置阿里云的 Debian 源
-  - echo "deb http://mirrors.aliyun.com/debian/ bookworm main contrib non-free" > /etc/apt/sources.list
-  - echo "deb http://mirrors.aliyun.com/debian/ bookworm-updates main contrib non-free" >> /etc/apt/sources.list
-  - echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free" >> /etc/apt/sources.list
+  #- echo "deb http://mirrors.aliyun.com/debian/ bookworm main contrib non-free" > /etc/apt/sources.list
+  #- echo "deb http://mirrors.aliyun.com/debian/ bookworm-updates main contrib non-free" >> /etc/apt/sources.list
+  #- echo "deb http://mirrors.aliyun.com/debian-security bookworm-security main contrib non-free" >> /etc/apt/sources.list
   # 确认新源已正确添加
-  - cat /etc/apt/sources.list
+  #- cat /etc/apt/sources.list
 
-  - apt-get update && apt-get install -y --no-install-recommends openssh-client rsync
+  #- apt-get update && apt-get install -y --no-install-recommends openssh-client rsync
   
   - eval $(ssh-agent -s)
   - export SSH_PRIVATE_KEY_NO_CR=$(echo "$SSH_PRIVATE_KEY" | tr -d '\r')
@@ -44,7 +44,7 @@ build:
     - dev20230619
   script:
     - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
-    - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests"
+    - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests -T 1C"
 #  artifacts:                不上传产物到gitlab 服务器
 #    paths:
 #      - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
