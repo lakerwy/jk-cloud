@@ -84,7 +84,7 @@ public class UserAddEventStrategy implements EventHandlingStrategy {
                 try {
                     if (ObjectUtil.isNotEmpty(user.getDingDirectorId())) {
                         SysUser tmpSysUser = sysUserList.stream().filter(x -> user.getDingDirectorId().equals(x.getDingUserId())).findFirst().orElse(null);
-                        user.setDirectorId(ObjectUtil.isNotEmpty(tmpSysUser) ? tmpSysUser.getId() : null);
+                        if(ObjectUtil.isNotEmpty(tmpSysUser)) user.setDirectorId(tmpSysUser.getId());
                     }
                     sysUserService.addAndGrantRole2(user);
                 }catch (Exception e){

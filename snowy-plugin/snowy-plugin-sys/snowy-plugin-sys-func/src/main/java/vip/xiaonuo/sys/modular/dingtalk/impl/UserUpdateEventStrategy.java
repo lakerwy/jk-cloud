@@ -71,8 +71,10 @@ public class UserUpdateEventStrategy implements EventHandlingStrategy {
                 user.setEmail(dingUser.getEmail());
                 user.setDingDirectorId(dingUser.getManagerUserid());
                 //找到直属主管 - 对应建科云用户id
-                SysUser tmpSysUser = sysUserList.stream().filter(x -> dingUser.getManagerUserid().equals(x.getDingUserId())).findFirst().orElse(null);
-                user.setDirectorId(ObjectUtil.isNotEmpty(tmpSysUser) ? tmpSysUser.getId() : null);
+                if(ObjectUtil.isNotEmpty(dingUser.getManagerUserid())) {
+                    SysUser tmpSysUser = sysUserList.stream().filter(x -> dingUser.getManagerUserid().equals(x.getDingUserId())).findFirst().orElse(null);
+                    if(ObjectUtil.isNotEmpty(tmpSysUser)) user.setDirectorId(tmpSysUser.getId());
+                }
                 user.setDingSyncMemo(DateUtil.now()+" 操作：【事件订阅-通讯录用户更改】");
                 user.setUpdateTime(new Date());
             });
@@ -81,6 +83,6 @@ public class UserUpdateEventStrategy implements EventHandlingStrategy {
         if(CollUtil.isNotEmpty(updateList)){
             sysUserService.updateBatchById(updateList);
         }
-        log.info("【事件订阅-通讯录用户更改】 -- end --"+ JSONUtil.toJsonStr(updateList));
+        log.info("【事件订阅-通讯录用户更改】 -- end --");
     }
 }

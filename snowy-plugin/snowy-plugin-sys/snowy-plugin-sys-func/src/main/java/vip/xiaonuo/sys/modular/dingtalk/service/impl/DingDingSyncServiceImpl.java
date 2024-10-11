@@ -12,7 +12,6 @@ import com.dingtalk.api.response.OapiV2UserGetResponse;
 import com.dingtalk.api.response.OapiV2UserListResponse;
 import com.fhs.common.utils.JsonUtils;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import vip.xiaonuo.auth.core.enums.SysUserStatusEnum;
 import vip.xiaonuo.common.util.CommonDingDingUtil;
@@ -231,7 +230,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
                     user.setDingDirectorId(tmpDingUser.getManagerUserid());
                     //找到直属主管 - 对应建科云用户id
                     SysUser tmpSysUser = userData.stream().filter(x -> tmpDingUser.getManagerUserid().equals(x.getDingUserId())).findFirst().orElse(null);
-                    user.setDirectorId(ObjectUtil.isNotEmpty(tmpSysUser) ? tmpSysUser.getId() : null);
+                    if(ObjectUtil.isNotEmpty(tmpSysUser)) user.setDirectorId(tmpSysUser.getId());
                 }
             });
         }
@@ -241,7 +240,7 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             orgData.stream().filter(x -> !DingSyncTagEnum.REMOVE.getValue().equals(x.getDingSyncTag())).forEach(org -> {
                 //上级组织
                 SysOrg tmpSysOrg = tmpAllOrgData.stream().filter(x -> org.getDingParentId().equals(x.getDingDeptId())).findFirst().orElse(null);
-                org.setParentId(ObjectUtil.isNotEmpty(tmpSysOrg) ? tmpSysOrg.getId() : null);
+                if(ObjectUtil.isNotEmpty(tmpSysOrg)) org.setParentId(tmpSysOrg.getId());
                 //处理部门主管
                 OapiV2DepartmentGetResponse.DeptGetResponse tmpDingDept = CommonDingDingUtil.getDeptById(access_Token, org.getDingDeptId());
                 if(ObjectUtil.isNotEmpty(tmpDingDept) && CollUtil.isNotEmpty(tmpDingDept.getDeptManagerUseridList())){
@@ -268,8 +267,8 @@ public class DingDingSyncServiceImpl implements DingDingSyncService {
             sysOrgService.updateBatchById(updateOrgList);
         }
         if (CollUtil.isNotEmpty(removeOrgList)) {
-            removeOrgList.forEach(x->x.setDeleteFlag("DELETED"));
-            sysOrgService.updateBatchById(removeOrgList);
+            sysOrgService.updateBatchById(removeOrgList); //修改备注
+            sysOrgService.removeBatchByIds(removeOrgList);
         }
 
         //4.2 更新用户信息

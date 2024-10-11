@@ -62,8 +62,10 @@ public class OrgAddEventStrategy implements EventHandlingStrategy {
             OapiV2DepartmentGetResponse.DeptGetResponse dingDept = CommonDingDingUtil.getDeptById(access_Token, dingDeptId);
             //新增SysOrg
             SysOrg tmpAddOrg = SyncUtils.addOrg(dingDept.getName(),dingDept.getDeptId(),dingDept.getParentId());
-            tmpAddOrg.setDingDirectorId(JsonUtils.object2json(dingDept.getDeptManagerUseridList()));
-            tmpAddOrg.setDirectorId(SyncUtils.getManageId(sysUserList,dingDept.getDeptManagerUseridList()));
+            if(CollUtil.isNotEmpty(dingDept.getDeptManagerUseridList())) {
+                tmpAddOrg.setDingDirectorId(JsonUtils.object2json(dingDept.getDeptManagerUseridList()));
+                tmpAddOrg.setDirectorId(SyncUtils.getManageId(sysUserList, dingDept.getDeptManagerUseridList()));
+            }
             addList.add(tmpAddOrg);
         }
         //资源，避免同时推送多个部门，相互有是上下级
@@ -78,6 +80,6 @@ public class OrgAddEventStrategy implements EventHandlingStrategy {
             });
             sysOrgService.saveBatch(addList);
         }
-        log.info("【事件订阅-通讯录企业部门创建】 -- end  --"+ JSONUtil.toJsonStr(addList));
+        log.info("【事件订阅-通讯录企业部门创建】 -- end  --");
     }
 }

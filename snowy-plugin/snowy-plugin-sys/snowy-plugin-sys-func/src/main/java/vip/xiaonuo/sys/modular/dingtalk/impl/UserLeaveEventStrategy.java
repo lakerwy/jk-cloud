@@ -53,6 +53,6 @@ public class UserLeaveEventStrategy implements EventHandlingStrategy {
         if(CollUtil.isNotEmpty(updateList)){
             sysUserService.updateBatchById(updateList);
         }
-        log.info("【事件订阅-通讯录用户离职】 -- end --"+ JSONUtil.toJsonStr(updateList));
+        log.info("【事件订阅-通讯录用户离职】 -- end --");
     }
 }

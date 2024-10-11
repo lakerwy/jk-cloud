@@ -65,8 +65,10 @@ public class OrgUpdateEventStrategy implements EventHandlingStrategy {
                 item.setName(dingDept.getName());
                 SysOrg tmpSysOrg = sysOrgList.stream().filter(x -> x.getDingDeptId().equals(dingDept.getParentId())).findFirst().orElse(null);
                 if(ObjectUtil.isNotEmpty(tmpSysOrg)) item.setParentId(tmpSysOrg.getId());
-                item.setDingDirectorId(JsonUtils.object2json(dingDept.getDeptManagerUseridList()));
-                item.setDirectorId(SyncUtils.getManageId(sysUserList,dingDept.getDeptManagerUseridList()));
+                if(ObjectUtil.isNotEmpty(dingDept.getDeptManagerUseridList())) {
+                    item.setDingDirectorId(JsonUtils.object2json(dingDept.getDeptManagerUseridList()));
+                    item.setDirectorId(SyncUtils.getManageId(sysUserList, dingDept.getDeptManagerUseridList()));
+                }
                 item.setDingSyncMemo(DateUtil.now()+" 操作：【事件订阅-通讯录企业部门修改】");
                 item.setUpdateTime(new Date());
             });
@@ -74,6 +76,6 @@ public class OrgUpdateEventStrategy implements EventHandlingStrategy {
         if(CollUtil.isNotEmpty(updateList)){
             sysOrgService.updateBatchById(updateList);
         }
-        log.info("【事件订阅-通讯录企业部门修改】 -- end  --"+ JSONUtil.toJsonStr(updateList));
+        log.info("【事件订阅-通讯录企业部门修改】 -- end  --");
     }
 }

@@ -43,12 +43,12 @@ public class OrgRemoveEventStrategy implements EventHandlingStrategy {
         }
         if(CollUtil.isNotEmpty(removeList)){
             removeList.forEach(item-> {
-                item.setDeleteFlag("DELETED");
                 item.setDingSyncMemo(DateUtil.now()+" 操作：【事件订阅-通讯录企业部门删除】");
                 item.setUpdateTime(new Date());
             });
-            sysOrgService.updateBatchById(removeList);
+            sysOrgService.updateBatchById(removeList);  //备注
+            sysOrgService.removeBatchByIds(removeList);
         }
-        log.info("【事件订阅-通讯录企业部门删除】 -- end --"+ JSONUtil.toJsonStr(removeList));
+        log.info("【事件订阅-通讯录企业部门删除】 -- end --");
     }
 }
