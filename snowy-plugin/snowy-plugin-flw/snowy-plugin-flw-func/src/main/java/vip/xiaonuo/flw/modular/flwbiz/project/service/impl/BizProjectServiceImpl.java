@@ -157,6 +157,10 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
         BizProject bizProject = this.queryEntity(id);
         checkRight(null,bizProject.getCreateUser());
         BeanUtil.copyProperties(bizProjectEditParam, bizProject);
+        //修改部门时，更新dataScopeId
+        if(ObjectUtil.isEmpty(bizProjectEditParam.get_deptId())){
+            bizProject.setDataScopeId(bizProjectEditParam.get_deptId());
+        }
         this.updateById(bizProject);
     }
 
