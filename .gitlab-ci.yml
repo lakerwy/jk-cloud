@@ -38,12 +38,11 @@ before_script:
   - chmod 600 ~/.ssh/id_rsa
 #  - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "touch /home/jkMicroService/jkCloud/test_file.txt"
 
-build:
+deploy:
   stage: build
-  only:
-    - dev20230619
   rules:
-    -  when: manual
+    - if: '$CI_COMMIT_BRANCH == "dev20230619"'
+      when: manual
   script:
     - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
     - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests -T 1C"
