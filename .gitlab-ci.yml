@@ -42,6 +42,8 @@ build:
   stage: build
   only:
     - dev20230619
+  rules:
+    -  when: manual
   script:
     - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
     - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests -T 1C"
