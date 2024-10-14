@@ -14,7 +14,7 @@ variables:
   REMOTE_USERNAME: "root"
   REMOTE_PATH: "/home/jkTest/"
   PRO_SERVER: "10.0.33.82"
-  PRO_PATH: "//home/jkMicroService/snowy"
+  PRO_PATH: "/home/jkMicroService/snowy/"
 
 cache:
   paths:
