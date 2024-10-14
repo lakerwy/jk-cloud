@@ -75,7 +75,7 @@ deploy_test:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./mange.sh restart"
     - echo "-------end webApp--------"
   tags:
-    - server
+    - server2
 
 deploy_pro:
   stage: pro
