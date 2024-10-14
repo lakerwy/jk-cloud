@@ -75,13 +75,13 @@ deploy_test:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./mange.sh restart"
     - echo "-------end webApp--------"
   tags:
-    - server2
+    - server
 
 deploy_pro:
   stage: pro
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "dev20230619"'
-      when: manual
+  when: manual
+  only:
+    - dev20230619
   script:
     - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
     - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests -T 1C"
