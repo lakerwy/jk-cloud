@@ -85,15 +85,18 @@ deploy_pro:
     - dev20230619
   script:
     - echo "-------start bizApp--------"
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cp $REMOTE_PATH/biz/snowy-*-app.jar $PRO_PATH/biz/ && $PRO_PATH/biz/mange.sh restart"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/biz/
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/biz/ && ./mange.sh restart"
     - echo "-------end bizApp--------"
 
     - echo "-------start flwApp--------"
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cp $REMOTE_PATH/flw/snowy-*-app.jar $PRO_PATH/flw/ && $PRO_PATH/flw/mange.sh restart"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/flw/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/flw/
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/flw/ && ./mange.sh restart"
     - echo "-------end flwApp--------"
 
     - echo "-------start webApp--------"
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cp $REMOTE_PATH/web/snowy-*-app.jar $PRO_PATH/web/ && $PRO_PATH/web/mange.sh restart"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/biz/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/web/
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/web/ && ./mange.sh restart"
     - echo "-------end webApp--------"
   tags:
     - server
