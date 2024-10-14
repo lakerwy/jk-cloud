@@ -13,8 +13,8 @@ variables:
   REMOTE_SERVER: "10.0.33.81"
   REMOTE_USERNAME: "root"
   REMOTE_PATH: "/home/jkTest/"
-  PRO_SERVER: "10.0.33.82"
-  PRO_PATH: "/home/jkMicroService/snowy"
+  PRO_SERVER: "10.0.33.81"
+  PRO_PATH: "/home/jkTest/"
 
 cache:
   paths:
@@ -95,7 +95,7 @@ deploy_pro:
   after_script:
     - echo "-------start bizApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/biz/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/biz/ && ./mange.sh restart"
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/biz/ && ./restart.sh"
     - echo "-------end bizApp--------"
 
     - echo "-------start flwApp--------"
