@@ -65,17 +65,17 @@ deploy_test:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/flw/ && ./mange.sh restart"
     - echo "-------end flwApp--------"
 
-    - echo "-------start procureApp--------"
-    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-procure-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/procure/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/procure/ && ./mange.sh restart"
-    - echo "-------end procureApp--------"
+    # - echo "-------start procureApp--------"
+    # - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-procure-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/procure/
+    # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/procure/ && ./mange.sh restart"
+    # - echo "-------end procureApp--------"
 
     - echo "-------start webApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar $REMOTE_USERNAME@$REMOTE_SERVER:$REMOTE_PATH/web/
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "cd $REMOTE_PATH/web/ && ./mange.sh restart"
     - echo "-------end webApp--------"
   tags:
-    - server
+    - server2
 
 deploy_pro:
   stage: pro
@@ -103,10 +103,10 @@ deploy_pro:
     - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/flw/ && ./mange.sh restart"
     - echo "-------end flwApp--------"
 
-    - echo "-------start procureApp--------"
-    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-procure-app/target/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/procure/
-    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/procure/ && ./mange.sh restart"
-    - echo "-------end procureApp--------"
+    # - echo "-------start procureApp--------"
+    # - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-procure-app/target/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/procure/
+    # - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/procure/ && ./mange.sh restart"
+    # - echo "-------end procureApp--------"
 
     - echo "-------start webApp--------"
     - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/web/
