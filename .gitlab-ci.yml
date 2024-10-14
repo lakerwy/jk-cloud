@@ -1,8 +1,8 @@
 image: mykjack/jkmaven:latest
 
 stages:
-  - build
-#  - deploy
+  - test
+  - pro
   # Uncomment the following lines if you have deploy stages for other modules
   # - deploy_flw
   # - deploy_web
@@ -13,6 +13,8 @@ variables:
   REMOTE_SERVER: "10.0.33.81"
   REMOTE_USERNAME: "root"
   REMOTE_PATH: "/home/jkTest/"
+  PRO_SERVER: "10.0.33.82"
+  PRO_PATH: "/home/jkMicroService/snowy"
 
 cache:
   paths:
@@ -38,11 +40,10 @@ before_script:
   - chmod 600 ~/.ssh/id_rsa
 #  - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$REMOTE_SERVER "touch /home/jkMicroService/jkCloud/test_file.txt"
 
-deploy:
-  stage: build
-  rules:
-    - if: '$CI_COMMIT_BRANCH == "dev20230619"'
-      when: manual
+deploy_test:
+  stage: test
+  only:
+    - dev20230619
   script:
     - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
     - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests -T 1C"
@@ -76,4 +77,40 @@ deploy:
   tags:
     - server
 
+deploy_pro:
+  stage: pro
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "dev20230619"'
+      when: manual
+  script:
+    - cp $CI_PROJECT_DIR/settings.xml /root/.m2/settings.xml
+    - "mvn ${MAVEN_OPTS} ${MAVEN_CLI_OPTS} clean package -DskipTests -T 1C"
+#  artifacts:                不上传产物到gitlab 服务器
+#    paths:
+#      - $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar
+#      - $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar
+#      - $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar
+#    expire_in: 1 day
+    # Instead of using artifacts, directly upload the JAR files to the remote server
+  after_script:
+    - echo "-------start bizApp--------"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-biz-app/target/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/biz/
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/biz/ && ./mange.sh restart"
+    - echo "-------end bizApp--------"
 
+    - echo "-------start flwApp--------"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-flw-app/target/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/flw/
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/flw/ && ./mange.sh restart"
+    - echo "-------end flwApp--------"
+
+    - echo "-------start procureApp--------"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-procure-app/target/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/procure/
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/procure/ && ./mange.sh restart"
+    - echo "-------end procureApp--------"
+
+    - echo "-------start webApp--------"
+    - rsync -e "ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa" -av $CI_PROJECT_DIR/snowy-modules/snowy-web-app/target/snowy-*-app.jar $REMOTE_USERNAME@$PRO_SERVER:$PRO_PATH/web/
+    - ssh -o StrictHostKeyChecking=no -i ~/.ssh/id_rsa $REMOTE_USERNAME@$PRO_SERVER "cd $PRO_PATH/web/ && ./mange.sh restart"
+    - echo "-------end webApp--------"
+  tags:
+    - server
