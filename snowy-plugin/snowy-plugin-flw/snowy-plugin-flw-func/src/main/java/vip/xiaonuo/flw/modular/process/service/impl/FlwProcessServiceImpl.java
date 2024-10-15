@@ -619,20 +619,24 @@ public class FlwProcessServiceImpl implements FlwProcessService {
         flwProcessResult.setNextActivityNames("-");
         flwProcessResult.setNextAssignees("-");
         // 根据流程实例Id获取当前活动任务
-        Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).active().singleResult();
+        List<Task> tasks = taskService.createTaskQuery().processInstanceId(processInstanceId).list();
+        if(CollUtil.isEmpty(tasks)){
+            return;
+        }
         String modelIdVariable = this.getProcessModelIdVariable(processInstanceId);
         FlwModel flwModel = flwModelService.getById(modelIdVariable);
         if(ObjectUtil.isNull(flwModel)){
             return;
         }
 //        ExecutionEntity execution = (ExecutionEntity) runtimeService.createExecutionQuery().executionId(task.getExecutionId()).singleResult();
+        Task activeTask = tasks.get(tasks.size()-1);
         // 获取后续流程节点
-        FlwNodeResult nextFlwNodeResult = NodeInfoUtil.getAllNextFlwNodes(flwModel.getProcessJson(),task.getTaskDefinitionKey());
+        FlwNodeResult nextFlwNodeResult = NodeInfoUtil.getAllNextFlwNodes(flwModel.getProcessJson(),activeTask.getTaskDefinitionKey());
         if(ObjectUtil.isNotEmpty(nextFlwNodeResult) && CollUtil.isNotEmpty(nextFlwNodeResult.getNextFlwNodeList())){
             // 获取后续第一个流程节点
             FlwNodeResult.FlwNodeVo nextFlwNodeVo = nextFlwNodeResult.getNextFlwNodeList().get(0);
             String participateInfo = JSON.toJSONString(nextFlwNodeResult.getNextFlwNodeList().get(0).getParticipateInfo());
-            List<String> participateInfoList = NodeRuntimeUtil.handleUserTaskParticipateInfo(processInstanceId,participateInfo,task.getId());
+            List<String> participateInfoList = NodeRuntimeUtil.handleUserTaskParticipateInfo(processInstanceId,participateInfo,activeTask.getId());
             List<JSONObject> nextAssigneeJson = sysUserApi.getUserListByIdListWithoutException(participateInfoList);
             List<String> nextAssigneeList = nextAssigneeJson.stream().map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList());
             flwProcessResult.setNextAssignees(String.join("、", nextAssigneeList));
