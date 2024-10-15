@@ -616,10 +616,15 @@ public class FlwProcessServiceImpl implements FlwProcessService {
     }
 
     private void getNextAssigneeName(String processInstanceId, FlwProcessResult flwProcessResult){
+        flwProcessResult.setNextActivityNames("-");
+        flwProcessResult.setNextAssignees("-");
         // 根据流程实例Id获取当前活动任务
         Task task = taskService.createTaskQuery().processInstanceId(processInstanceId).active().singleResult();
         String modelIdVariable = this.getProcessModelIdVariable(processInstanceId);
         FlwModel flwModel = flwModelService.getById(modelIdVariable);
+        if(ObjectUtil.isNull(flwModel)){
+            return;
+        }
 //        ExecutionEntity execution = (ExecutionEntity) runtimeService.createExecutionQuery().executionId(task.getExecutionId()).singleResult();
         // 获取后续流程节点
         FlwNodeResult nextFlwNodeResult = NodeInfoUtil.getAllNextFlwNodes(flwModel.getProcessJson(),task.getTaskDefinitionKey());
@@ -632,9 +637,6 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             List<String> nextAssigneeList = nextAssigneeJson.stream().map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList());
             flwProcessResult.setNextAssignees(String.join("、", nextAssigneeList));
             flwProcessResult.setNextActivityNames(nextFlwNodeVo.getTitle() + StrUtil.BRACKET_START + String.join("、", nextAssigneeList) + StrUtil.BRACKET_END);
-        }else{
-            flwProcessResult.setNextActivityNames("-");
-            flwProcessResult.setNextAssignees("-");
         }
     }
 
