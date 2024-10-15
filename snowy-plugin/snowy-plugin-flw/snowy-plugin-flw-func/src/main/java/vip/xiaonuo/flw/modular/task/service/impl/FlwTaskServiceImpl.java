@@ -25,6 +25,7 @@ import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
+import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +34,7 @@ import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.*;
 import org.camunda.bpm.engine.impl.persistence.entity.CommentManager;
+import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
 import org.camunda.bpm.engine.runtime.Execution;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
@@ -73,7 +75,9 @@ import vip.xiaonuo.flw.modular.model.param.FlwModelIdParam;
 import vip.xiaonuo.flw.modular.model.service.FlwModelService;
 import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.process.param.FlwProcessIdParam;
+import vip.xiaonuo.flw.modular.process.result.FlwNodeResult;
 import vip.xiaonuo.flw.modular.process.result.FlwProcessDetailResult;
+import vip.xiaonuo.flw.modular.process.result.FlwProcessResult;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
@@ -241,11 +245,32 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                     flwTodoTaskResult.setInitiatorPositionName(variableJsonObject.getStr("initiatorPositionName"));
                     flwTodoTaskResult.setInitiatorTime(variableJsonObject.getStr("initiatorTime"));
                     flwTodoTaskResult.setTenantId(task.getTenantId());
+                    getNextAssigneeName(task, flwTodoTaskResult);
                     return flwTodoTaskResult;
                 }).collect(Collectors.toList());
         defaultPage.setTotal(taskQuery.count());
         defaultPage.setRecords(flwTodoTaskResultList);
         return defaultPage;
+    }
+
+    private void getNextAssigneeName(Task task, FlwTodoTaskResult flwTodoTaskResult){
+        String modelIdVariable = flwProcessService.getProcessModelIdVariable(task.getProcessInstanceId());
+        FlwModel flwModel = flwModelService.getById(modelIdVariable);
+        // 获取后续流程节点
+        FlwNodeResult nextFlwNodeResult = NodeInfoUtil.getAllNextFlwNodes(flwModel.getProcessJson(),flwTodoTaskResult.getCurrentActivityId());
+        if(ObjectUtil.isNotEmpty(nextFlwNodeResult) && CollUtil.isNotEmpty(nextFlwNodeResult.getNextFlwNodeList())){
+            // 获取后续第一个流程节点
+            FlwNodeResult.FlwNodeVo nextFlwNodeVo = nextFlwNodeResult.getNextFlwNodeList().get(0);
+            String participateInfo = JSON.toJSONString(nextFlwNodeResult.getNextFlwNodeList().get(0).getParticipateInfo());
+            List<String> participateInfoList = NodeRuntimeUtil.handleUserTaskParticipateInfo(task.getProcessInstanceId(),participateInfo,task.getId());
+            List<JSONObject> nextAssigneeJson = sysUserApi.getUserListByIdListWithoutException(participateInfoList);
+            List<String> nextAssigneeList = nextAssigneeJson.stream().map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList());
+            flwTodoTaskResult.setNextAssignees(String.join("、", nextAssigneeList));
+            flwTodoTaskResult.setNextActivityNames(nextFlwNodeVo.getTitle() + StrUtil.BRACKET_START + String.join("、", nextAssigneeList) + StrUtil.BRACKET_END);
+        }else{
+            flwTodoTaskResult.setNextActivityNames("-");
+            flwTodoTaskResult.setNextAssignees("-");
+        }
     }
 
     @Override

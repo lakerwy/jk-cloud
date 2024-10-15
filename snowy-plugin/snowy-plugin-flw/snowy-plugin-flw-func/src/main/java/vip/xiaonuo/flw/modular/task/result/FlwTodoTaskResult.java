@@ -98,4 +98,13 @@ public class FlwTodoTaskResult {
     @ApiModelProperty(value = "流程名称", position = 18)
     private String processDefinitionName;
 
+    /** 当前节点 */
+    @ApiModelProperty(value = "下一节点", position = 19)
+    private String nextActivityNames;
+
+    /** 当前办理人 */
+    @ApiModelProperty(value = "下一节点办理人", position = 20)
+    private String nextAssignees;
+
+
 }

@@ -109,4 +109,12 @@ public class FlwProcessResult {
     /** 状态码 */
     @ApiModelProperty(value = "状态码", position = 21)
     private String stateCode;
+
+    /** 当前节点 */
+    @ApiModelProperty(value = "下一节点", position = 18)
+    private String nextActivityNames;
+
+    /** 当前办理人 */
+    @ApiModelProperty(value = "下一节点办理人", position = 19)
+    private String nextAssignees;
 }
