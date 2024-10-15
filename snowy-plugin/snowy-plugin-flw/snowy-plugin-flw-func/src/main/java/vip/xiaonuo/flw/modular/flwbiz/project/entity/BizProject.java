@@ -317,4 +317,9 @@ public class BizProject {
     /** 用印审批-流程实例id，多个英文逗号分割 */
     @ApiModelProperty(value = "用印审批-流程实例id，多个英文逗号分割", position = 80)
     private String sealProcessInstanceId;
+
+    /** 中标情况 - 中标金额 */
+    @ApiModelProperty(value = "中标情况 - 中标金额", position = 100)
+    @TableField(exist = false)
+    private String bidPrice;
 }

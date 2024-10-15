@@ -2,4 +2,15 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="vip.xiaonuo.flw.modular.flwbiz.project.mapper.BizProjectMapper">
 
+    <select id="getPageList" resultType="vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject">
+        SELECT  a.*,b.BID_PRICE as bidPrice
+        FROM BIZ_PROJECT a left join BIZ_CRM_BIDOPEN  b on a.ID = b.PROJECT_ID and b.DELETE_FLAG = 'NOT_DELETE'
+            ${ew.customSqlSegment}
+    </select>
+
+    <select id="getDetail" resultType="vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject">
+        SELECT  a.*,b.BID_PRICE as bidPrice
+        FROM BIZ_PROJECT a left join BIZ_CRM_BIDOPEN  b on a.ID = b.PROJECT_ID and b.DELETE_FLAG = 'NOT_DELETE'
+        where a.ID = #{id}
+    </select>
 </mapper>

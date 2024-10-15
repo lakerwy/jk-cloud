@@ -68,41 +68,44 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
     private CommonCacheOperator commonCacheOperator;
 
     @Resource
+    private BizProjectMapper bizProjectMapper;
+
+    @Resource
     private DictionaryTransService dictionaryTransService;
     @Override
     public Page<BizProject> page(BizProjectPageParam bizProjectPageParam) {
         QueryWrapper<BizProject> queryWrapper = new QueryWrapper<>();
 
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getStartApplyTime()) && ObjectUtil.isNotEmpty(bizProjectPageParam.getEndApplyTime())) {
-            queryWrapper.lambda().between(BizProject::getApplyTime, bizProjectPageParam.getStartApplyTime(), bizProjectPageParam.getEndApplyTime());
+            queryWrapper.between("a.APPLY_TIME", bizProjectPageParam.getStartApplyTime(), bizProjectPageParam.getEndApplyTime());
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSn())) {
-            queryWrapper.lambda().like(BizProject::getSn, bizProjectPageParam.getSn());
+            queryWrapper.like("a.SN", bizProjectPageParam.getSn());
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getName())) {
-            queryWrapper.lambda().like(BizProject::getName, bizProjectPageParam.getName());
+            queryWrapper.like("a.NAME", bizProjectPageParam.getName());
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSource())) {
-            queryWrapper.lambda().like(BizProject::getSource, bizProjectPageParam.getSource());
+            queryWrapper.like("a.SOURCE", bizProjectPageParam.getSource());
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getSearchKey())){
-            queryWrapper.lambda().or(wrapper ->wrapper.like(BizProject::getName,bizProjectPageParam.getSearchKey()).or().like(BizProject::getSn,bizProjectPageParam.getSearchKey()));
+            queryWrapper.and(q->q.like("a.NAME",bizProjectPageParam.getSearchKey())
+                    .or().like("a.SN",bizProjectPageParam.getSearchKey()));
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getIsHead())){
-            queryWrapper.lambda().eq(BizProject::getIsHead,bizProjectPageParam.getIsHead());
+            queryWrapper.eq("a.IS_HEAD",bizProjectPageParam.getIsHead());
         }
         if(ObjectUtil.isNotEmpty(bizProjectPageParam.getType())){
-            queryWrapper.lambda().eq(BizProject::getType,bizProjectPageParam.getType());
+            queryWrapper.eq("a.TYPE",bizProjectPageParam.getType());
         }
-        //queryWrapper.lambda().eq(BizProject::getStatus,"1");
-        queryWrapper.lambda().in(BizProject::getStatus,FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
+        queryWrapper.in("a.STATUS",FlwStatusEnum.ACTIVE_STATUS.getValue(),FlwStatusEnum.COMPLETED_STATUS.getValue());
 
         // 校验数据范围
         List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
         if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
-            queryWrapper.lambda().in(BizProject::getDataScopeId, loginUserDataScope);
+            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
         } else {
-            queryWrapper.lambda().eq(BizProject::getCreateUser, StpUtil.getLoginIdAsString());
+            queryWrapper.eq("a.CREATE_USER", StpUtil.getLoginIdAsString());
         }
 
         if(ObjectUtil.isAllNotEmpty(bizProjectPageParam.getSortField(), bizProjectPageParam.getSortOrder())) {
@@ -110,14 +113,10 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
             queryWrapper.orderBy(true, bizProjectPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(bizProjectPageParam.getSortField()));
         } else {
-            //queryWrapper.lambda().orderByAsc(BizProject::getId);
-            queryWrapper.lambda().orderByDesc(BizProject::getApplyTime);
+            queryWrapper.orderByDesc("a.APPLY_TIME");
         }
-        Page<BizProject> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
-//        List<BizProject> records = page.getRecords();
-//        records.forEach(bizProject -> );
-//        page.setRecords(records);
-       page.getRecords().forEach(bizProject -> bizProject.setHeadText((String) commonCacheOperator.get("trans","PROJECTCOME_"+bizProject.getHead())));
+        Page<BizProject> page = bizProjectMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper);
+        page.getRecords().forEach(bizProject -> bizProject.setHeadText((String) commonCacheOperator.get("trans", "PROJECTCOME_" + bizProject.getHead())));
         return page;
     }
 
@@ -192,7 +191,7 @@ public class BizProjectServiceImpl extends ServiceImpl<BizProjectMapper, BizProj
 
     @Override
     public BizProject detail(BizProjectIdParam bizProjectIdParam) {
-        return this.queryEntity(bizProjectIdParam.getId());
+        return bizProjectMapper.getDetail(bizProjectIdParam.getId());
     }
 
     @Override

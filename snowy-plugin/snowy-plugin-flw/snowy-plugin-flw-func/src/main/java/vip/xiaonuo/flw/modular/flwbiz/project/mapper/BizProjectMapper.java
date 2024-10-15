@@ -12,7 +12,11 @@
  */
 package vip.xiaonuo.flw.modular.flwbiz.project.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
 
 /**
@@ -22,4 +26,19 @@ import vip.xiaonuo.flw.modular.flwbiz.project.entity.BizProject;
  * @date  2023/06/20 14:26
  **/
 public interface BizProjectMapper extends BaseMapper<BizProject> {
+
+    /**
+     * 分页
+     * @param page
+     * @param queryWrapper
+     * @return
+     */
+    Page<BizProject> getPageList(Page<BizProject> page, @Param(Constants.WRAPPER) Wrapper<BizProject> queryWrapper);
+
+    /**
+     * 获取详情
+     * @param id
+     * @return
+     */
+    BizProject getDetail(String id);
 }
