@@ -637,10 +637,12 @@ public class FlwProcessServiceImpl implements FlwProcessService {
             FlwNodeResult.FlwNodeVo nextFlwNodeVo = nextFlwNodeResult.getNextFlwNodeList().get(0);
             String participateInfo = JSON.toJSONString(nextFlwNodeResult.getNextFlwNodeList().get(0).getParticipateInfo());
             List<String> participateInfoList = NodeRuntimeUtil.handleUserTaskParticipateInfo(processInstanceId,participateInfo,activeTask.getId());
-            List<JSONObject> nextAssigneeJson = sysUserApi.getUserListByIdListWithoutException(participateInfoList);
-            List<String> nextAssigneeList = nextAssigneeJson.stream().map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList());
-            flwProcessResult.setNextAssignees(String.join("、", nextAssigneeList));
-            flwProcessResult.setNextActivityNames(nextFlwNodeVo.getTitle() + StrUtil.BRACKET_START + String.join("、", nextAssigneeList) + StrUtil.BRACKET_END);
+            if(CollUtil.isNotEmpty(participateInfoList)) {
+                List<JSONObject> nextAssigneeJson = sysUserApi.getUserListByIdListWithoutException(participateInfoList);
+                List<String> nextAssigneeList = nextAssigneeJson.stream().map(jsonObject -> jsonObject.getStr("name")).collect(Collectors.toList());
+                flwProcessResult.setNextAssignees(String.join("、", nextAssigneeList));
+                flwProcessResult.setNextActivityNames(nextFlwNodeVo.getTitle() + StrUtil.BRACKET_START + String.join("、", nextAssigneeList) + StrUtil.BRACKET_END);
+            }
         }
     }
 
