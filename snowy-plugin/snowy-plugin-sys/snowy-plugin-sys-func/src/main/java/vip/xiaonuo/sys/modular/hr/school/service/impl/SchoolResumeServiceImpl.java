@@ -31,6 +31,7 @@ import vip.xiaonuo.sys.modular.hr.school.vo.SchoolResumeVo;
 
 import javax.annotation.Resource;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -210,7 +211,10 @@ public class SchoolResumeServiceImpl extends ServiceImpl<SchoolResumeMapper, Sch
     public void status(ResumeStatusParam resumeStatusParam) {
         if(CollUtil.isNotEmpty(resumeStatusParam.getIds())){
             List<SchoolResume> schoolResumes = this.list(new QueryWrapper<SchoolResume>().lambda().in(SchoolResume::getId,resumeStatusParam.getIds()));
-            schoolResumes.forEach(item->item.setResumeStatus(resumeStatusParam.getResumeStatus()));
+            schoolResumes.forEach(item-> {
+                item.setResumeStatus(resumeStatusParam.getResumeStatus());
+                item.setAuditTime(new Date());
+            });
             this.updateBatchById(schoolResumes);
         }
     }

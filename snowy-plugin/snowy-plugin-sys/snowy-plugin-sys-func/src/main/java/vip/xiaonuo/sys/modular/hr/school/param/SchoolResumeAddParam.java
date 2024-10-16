@@ -178,4 +178,8 @@ public class SchoolResumeAddParam {
     /** 简历状态 0 未审核 1 合格 -1 不合格 */
     @ApiModelProperty(value = "简历状态 0 未审核 1 合格 -1 不合格", position = 100)
     private String resumeStatus;
+
+    /** 审批时间 */
+    @ApiModelProperty(value = "审批时间", position = 100)
+    private Date auditTime;
 }
