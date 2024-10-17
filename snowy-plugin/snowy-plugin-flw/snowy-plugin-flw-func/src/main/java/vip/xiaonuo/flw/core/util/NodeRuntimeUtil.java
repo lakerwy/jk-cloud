@@ -316,7 +316,10 @@ public class NodeRuntimeUtil {
                             JSONObject configInfo = JSONUtil.parseObj(camundaProperty.getCamundaValue());
                             String userTaskType = configInfo.getStr("userTaskType");
                             if (userTaskType.equals("ARTIFICIAL")) {
-                                // 如果当前审批节点办理人为AUTO_COMPLETE，则自动通过
+                                // 如果当前审批节点办理人为AUTO_COMPLETE，则自动通过 【针对流程中设置的表单内的人】
+                                if(ObjectUtil.isNotEmpty(delegateTask.getAssignee()) && delegateTask.getAssignee().equals("AUTO_COMPLETE")){
+                                    handleUserTaskWithFormUserParticipateInfo2(delegateTask);
+                                }
                                 String assignee = delegateTask.getAssignee();
                                 if (ObjectUtil.isNotEmpty(assignee) && assignee.equals("AUTO_COMPLETE")) {
                                     // 自动通过任务
@@ -1599,6 +1602,41 @@ public class NodeRuntimeUtil {
                     }
                 });
     }
+
+
+
+
+    /**
+     * 处理使用【表单内的人】的节点的数据（针对非发起节点）
+     *
+     * @author xuyuxiang
+     * @date 2023/7/19 9:33
+     **/
+    public static void handleUserTaskWithFormUserParticipateInfo2(DelegateTask delegateTask) {
+        AtomicReference<String> autoParticipateInfo = new AtomicReference<>();
+        ExtensionElements previousExtensionElements = delegateTask.getBpmnModelElementInstance().getExtensionElements();
+        if (ObjectUtil.isNotEmpty(previousExtensionElements)) {
+            previousExtensionElements.getChildElementsByType(CamundaProperties.class).forEach(previousCamundaProperties ->
+                    previousCamundaProperties.getChildElementsByType(CamundaProperty.class).forEach(previousCamundaProperty -> {
+                        if (previousCamundaProperty.getCamundaName().equals("participateInfo")) {
+                            autoParticipateInfo.set(previousCamundaProperty.getCamundaValue());
+                        }
+                    }));
+        }
+        String userTaskParticipateInfo = autoParticipateInfo.get();
+        if (ObjectUtil.isNotEmpty(userTaskParticipateInfo)) {
+            boolean useFormUser = JSONUtil.parseArray(userTaskParticipateInfo).stream().anyMatch(o -> JSONUtil.toBean(JSONUtil.parseObj(o),
+                    FlwNode.FlwNodeParticipateProp.class).getKey().equals("FORM_USER"));
+            if(useFormUser){
+                List<String> participateUserIdList = handleUserTaskParticipateInfo(delegateTask.getProcessInstanceId(), userTaskParticipateInfo,delegateTask.getTaskDefinitionKey());
+                if(CollUtil.isNotEmpty(participateUserIdList)) {
+                    RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
+                    runtimeService.setVariable(delegateTask.getProcessInstanceId(), "assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey(), participateUserIdList);
+                }
+            }
+        }
+    }
+
 
     /**
      * 根据用户任务获取当前节点的办理人配置数据
