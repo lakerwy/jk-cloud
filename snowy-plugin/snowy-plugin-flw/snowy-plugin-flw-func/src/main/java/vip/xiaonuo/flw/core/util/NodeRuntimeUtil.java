@@ -1632,6 +1632,7 @@ public class NodeRuntimeUtil {
                 if(CollUtil.isNotEmpty(participateUserIdList)) {
                     RuntimeService runtimeService = SpringUtil.getBean(RuntimeService.class);
                     runtimeService.setVariable(delegateTask.getProcessInstanceId(), "assignee" + StrUtil.UNDERLINE + delegateTask.getTaskDefinitionKey(), participateUserIdList);
+                    delegateTask.setAssignee(StrUtil.join(",",participateUserIdList));
                 }
             }
         }
