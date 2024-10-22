@@ -15,11 +15,8 @@ package vip.xiaonuo.sys.modular.hr.personnel.service;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.*;
-import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelInfo;
-import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.*;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
-import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
-import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
 
 import java.util.List;
 import java.util.Map;
@@ -101,4 +98,6 @@ public interface PersonnelService extends IService<Personnel> {
     void syncResource(PersonnelSimpleParam personnelSimpleParam);
 
     List<Map<String, Object>> getAllUser();
+
+    Page<PersonnelListDetailVo> pageListWithDetail(PersonnelPageParam personnelPageParam);
 }

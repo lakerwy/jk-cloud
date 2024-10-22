@@ -59,6 +59,9 @@ public class PersonnelPageParam {
     @ApiModelProperty(value = "部门")
     private String dept;
 
+    @ApiModelProperty(value = "部门Id")
+    private String deptId;
+
     @ApiModelProperty(value = "职务")
     private String duty;
 
