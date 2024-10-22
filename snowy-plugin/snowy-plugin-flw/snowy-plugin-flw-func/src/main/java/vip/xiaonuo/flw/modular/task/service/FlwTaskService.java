@@ -200,4 +200,11 @@ public interface FlwTaskService {
      * @param commentId
      */
     void deleteComment(String commentId);
+
+    /**
+     * 获取当前流程的审批人
+     * @param flwTaskInfo
+     * @return
+     */
+    List<FlwTaskAuditorResult> getTaskAuditors(FlwTaskInfo flwTaskInfo);
 }

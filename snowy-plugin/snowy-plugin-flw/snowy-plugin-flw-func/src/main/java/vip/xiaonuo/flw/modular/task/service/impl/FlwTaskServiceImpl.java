@@ -27,16 +27,11 @@ import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.alibaba.fastjson2.JSON;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.StringUtils;
 import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.*;
-import org.camunda.bpm.engine.impl.persistence.entity.CommentManager;
-import org.camunda.bpm.engine.impl.persistence.entity.ExecutionEntity;
 import org.camunda.bpm.engine.repository.ProcessDefinition;
-import org.camunda.bpm.engine.runtime.Execution;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.camunda.bpm.engine.runtime.ProcessInstanceModificationBuilder;
 import org.camunda.bpm.engine.task.Comment;
@@ -77,7 +72,6 @@ import vip.xiaonuo.flw.modular.process.param.FlwCommentParam;
 import vip.xiaonuo.flw.modular.process.param.FlwProcessIdParam;
 import vip.xiaonuo.flw.modular.process.result.FlwNodeResult;
 import vip.xiaonuo.flw.modular.process.result.FlwProcessDetailResult;
-import vip.xiaonuo.flw.modular.process.result.FlwProcessResult;
 import vip.xiaonuo.flw.modular.process.service.FlwProcessService;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
@@ -88,11 +82,8 @@ import vip.xiaonuo.flw.modular.task.service.FlwTaskService;
 import vip.xiaonuo.sys.api.SysOrgApi;
 import vip.xiaonuo.sys.api.SysUserApi;
 
-import java.awt.image.BufferedImage;
 import java.io.*;
 import javax.annotation.Resource;
-import javax.imageio.ImageIO;
-import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
@@ -870,13 +861,28 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             Set<String> collect = new HashSet<>();
             collect.add(comment.getUserId());
             try {
+                //获取发送的人
+                if(ObjectUtil.isNotEmpty(flwcommentParam.getAuditorIds())){
+                    if("ALL".equals(flwcommentParam.getAuditorIds())){
+                        FlwTaskInfo flwTaskInfo = new FlwTaskInfo();
+                        flwTaskInfo.setProcessInstanceId(processInstanceId);
+                        List<FlwTaskAuditorResult> taskAuditors = getTaskAuditors(flwTaskInfo);
+                        collect.addAll(taskAuditors.stream().map(x->x.getAssign()).collect(Collectors.toList()));
+                    }else{
+                        String[] splitAuditor = flwcommentParam.getAuditorIds().split(",");
+                        for (String auditor:splitAuditor) {
+                            collect.add(auditor);
+                        }
+                    }
+                }
+               List<String> auditorIds =  collect.stream().distinct().collect(Collectors.toList());
 //                Map<String, Object> values = new HashMap<>();
 //                values.put("title","【评论知晓】");
 //                values.put("url",)
                 HistoricProcessInstance historicProcessInstance = historyService.createHistoricProcessInstanceQuery().processInstanceId(comment.getProcessInstanceId()).caseInstanceId(historicTaskInstance.getCaseInstanceId()).singleResult();
                 values.put("stateCode", historicProcessInstance.getState());
                 values.put("processInstanceId",processInstanceId);
-                buildForms(processInstanceId, flwcommentParam.getComment(),comment.getUserId(),taskId1);
+                buildForms(processInstanceId, flwcommentParam.getComment(),auditorIds,taskId1);
                //iDingDingService.customBatchSend(buildForms(processInstanceId, flwcommentParam.getComment()), collect, values);
 
 //                RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
@@ -892,7 +898,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     }
 
     @NotNull
-    private void  buildForms(String processInstanceId, String comment,String receiverIdList,String taskId){
+    private void  buildForms(String processInstanceId, String comment,List<String> receiverIdList,String taskId){
         HistoricVariableInstanceQuery historicVariableInstanceQuery = historyService
                 .createHistoricVariableInstanceQuery().processInstanceId(processInstanceId)
                 .orderByVariableName().desc();
@@ -1179,6 +1185,26 @@ public class FlwTaskServiceImpl implements FlwTaskService {
     @Override
     public void deleteComment(String commentId) {
         taskCommentMapper.deleteCommentsById(commentId);
+    }
+
+    @Override
+    public List<FlwTaskAuditorResult> getTaskAuditors(FlwTaskInfo flwTaskInfo) {
+        List<FlwTaskAuditorResult> auditorResults = new ArrayList<>();
+        //历史节点信息
+        List<HistoricTaskInstance> historicTaskInstanceList = historyService.createHistoricTaskInstanceQuery()
+                .processInstanceId(flwTaskInfo.getProcessInstanceId()).orderByHistoricActivityInstanceStartTime().asc().list();
+        if(CollUtil.isNotEmpty(historicTaskInstanceList)){
+            historicTaskInstanceList.forEach(historicTaskInstance -> {
+                if(ObjectUtil.isNotEmpty(historicTaskInstance.getAssignee())) {
+                    FlwTaskAuditorResult flwTaskAuditor = new FlwTaskAuditorResult();
+                    flwTaskAuditor.setId(historicTaskInstance.getId());
+                    flwTaskAuditor.setName(historicTaskInstance.getName());
+                    flwTaskAuditor.setAssign(historicTaskInstance.getAssignee());
+                    auditorResults.add(flwTaskAuditor);
+                }
+            });
+        }
+        return auditorResults;
     }
 
     private String getProcessDiagramBase64FromInstance(Object processInstance) {

@@ -36,4 +36,8 @@ public class FlwCommentParam {
 
     @ApiModelProperty(value = "特殊表示（流程完成后评论添加附件）",position = 6)
     private Boolean flag = true;
+
+    /** 指定通知人员 多个用英文逗号分割，通知全部传入 ALL 字符串 */
+    @ApiModelProperty(value = "指定通知人员", position = 100)
+    private String auditorIds;
 }

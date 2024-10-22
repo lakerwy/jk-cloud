@@ -355,4 +355,12 @@ public class FlwTaskController {
         flwTaskService.deleteComment(commentId);
         return CommonResult.ok();
     }
+
+
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("添加评论-通知指定人或全部审批人（本节点及以前审批人列表）")
+    @GetMapping("/flw/task/getTaskAuditors")
+    public CommonResult<List<FlwTaskAuditorResult>> getTaskAuditors(@Valid FlwTaskInfo flwTaskInfo ) {
+        return CommonResult.data(flwTaskService.getTaskAuditors(flwTaskInfo));
+    }
 }
