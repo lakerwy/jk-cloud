@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -39,6 +40,7 @@ import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.car.mapper.VehicleApplyMapper;
 import vip.xiaonuo.dev.api.IDingDingService;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -89,6 +91,9 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
 
     @Resource
     DangerRegisterService dangerRegisterService;
+
+    @Resource
+    FlwCommonApi flwCommonApi;
 
     @Override
     public Page<VehicleApply> page(VehicleApplyPageParam vehicleApplyPageParam) {
@@ -167,6 +172,15 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(VehicleApplyEditParam vehicleApplyEditParam) {
+        String id = vehicleApplyEditParam.getId();
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(vehicleApplyEditParam.getProcessInstanceId())){
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(vehicleApplyEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id=formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                vehicleApplyEditParam.setId(id);
+            }
+        }
         VehicleApply vehicleApply = this.queryEntity(vehicleApplyEditParam.getId());
         BeanUtil.copyProperties(vehicleApplyEditParam, vehicleApply);
         this.updateById(vehicleApply);

@@ -154,4 +154,8 @@ public class VehicleApplyEditParam {
     @ApiModelProperty(value = "司机备注特殊情况", position = 29)
     private String driverMemo;
 
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id", position = 50)
+    private String processInstanceId;
+
 }

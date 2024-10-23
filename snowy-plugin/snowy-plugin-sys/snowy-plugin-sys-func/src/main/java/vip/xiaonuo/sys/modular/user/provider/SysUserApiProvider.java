@@ -129,13 +129,16 @@ public class SysUserApiProvider implements SysUserApi {
         String positionJson = sysUser.getPositionJson();
         AtomicReference<String> result = new AtomicReference<>();
         // 先查主职位主管
-        if(ObjectUtil.isAllNotEmpty(userOrgId)) {
-            if(userOrgId.equals(orgId)) {
-                String directorId = sysUser.getDirectorId();
-                if(ObjectUtil.isNotEmpty(directorId)) {
-                    result.set(directorId);
-                }
-            }
+//        if(ObjectUtil.isAllNotEmpty(userOrgId)) {
+//            if(userOrgId.equals(orgId)) {
+//                String directorId = sysUser.getDirectorId();
+//                if(ObjectUtil.isNotEmpty(directorId)) {
+//                    result.set(directorId);
+//                }
+//            }
+//        }
+        if(ObjectUtil.isNotEmpty(sysUser.getDirectorId())) {
+            result.set(sysUser.getDirectorId());
         }
         //查询员工所在部门，获取部门负责人
         if(ObjectUtil.isEmpty(result.get())){
