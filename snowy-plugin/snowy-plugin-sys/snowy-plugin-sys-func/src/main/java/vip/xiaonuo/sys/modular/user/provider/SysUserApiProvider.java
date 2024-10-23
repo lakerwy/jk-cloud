@@ -194,6 +194,12 @@ public class SysUserApiProvider implements SysUserApi {
                 String nextLevel = Convert.toStr(Convert.toInt(supervisorLevel) - 1);
                 // 如果减1后级别为0，表示查一级直属主管
                 if(nextLevel.equals("0")) {
+                    // 一级主管优先获取用户的
+                    String directorId = sysUser.getDirectorId();
+                    if(ObjectUtil.isNotEmpty(directorId)) {
+                        result.set(directorId);
+                    }
+                    resultUserId = result.get();
                     // 则当前结果就是一级直属主管
                     return JSONUtil.createObj().set("id", resultUserId).set("idList", CollectionUtil.newArrayList(resultUserId));
                 } else {
