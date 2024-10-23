@@ -118,4 +118,8 @@ public class HetongVo {
     /** 乙方 */
     @ApiModelProperty(value = "乙方", position = 9)
     private String secondparty;
+
+    /** 项目规模描述 */
+    @ApiModelProperty(value = "项目规模描述", position = 66)
+    private String description;
 }
