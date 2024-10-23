@@ -174,7 +174,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     public void add2(VehicleApplyAddParam vehicleApplyAddParam) {
         VehicleApply vehicleApply = BeanUtil.toBean(vehicleApplyAddParam, VehicleApply.class);
         vehicleApply.setOptDate(DateTime.now());
-        vehicleApply.setStatus(vehicleApplyAddParam.getUserId().equals(vehicleApplyAddParam.getSeniorManagerUserId())?CarApplyStatusEnum.Dispatching.getValue():CarApplyStatusEnum.Auditing.getValue());
+        vehicleApply.setStatus(CarApplyStatusEnum.Dispatching.getValue());
         //走审批流程
         String processInstanceId = vehicleApplyAddParam.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){
