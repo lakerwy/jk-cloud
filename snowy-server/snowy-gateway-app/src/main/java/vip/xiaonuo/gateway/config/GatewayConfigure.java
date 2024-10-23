@@ -224,6 +224,10 @@ public class GatewayConfigure {
             "/api/webapp/sys/client/getChildrenUserNew",
             "/api/webapp/sys/client/getOrgByMap",
 
+            /* 对外提供查询接口（投标智囊）*/
+            "/api/webapp/openApi/sys/personnel/pageList",
+            "/api/webapp/openApi/sys/org/page",
+
     };
 
     /**

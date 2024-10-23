@@ -140,19 +140,19 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         vehicleApply.setStatus(vehicleApplyAddParam.getUserId().equals(vehicleApplyAddParam.getSeniorManagerUserId())?CarApplyStatusEnum.Dispatching.getValue():CarApplyStatusEnum.Auditing.getValue());
         this.save(vehicleApply);
 
-        //派车单申请，发送通知给部门直属主管审批（申请单详情页）
-        String title = "用车申请";
-        String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
-        iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
-                JSONUtil.parseObj(vehicleApply),title,url,vehicleApplyAddParam.getSeniorManagerDingDingUserId());
-        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
-        if (vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
-        {
-            title = "分派车辆";
-            url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
-            iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
-                    JSONUtil.parseObj(vehicleApply),title,url,usersProperties.getCarAdminDingDingUserId());
-        }
+//        //派车单申请，发送通知给部门直属主管审批（申请单详情页）
+//        String title = "用车申请";
+//        String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+//        iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
+//                JSONUtil.parseObj(vehicleApply),title,url,vehicleApplyAddParam.getSeniorManagerDingDingUserId());
+//        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
+//        if (vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
+//        {
+//            title = "分派车辆";
+//            url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+//            iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
+//                    JSONUtil.parseObj(vehicleApply),title,url,usersProperties.getCarAdminDingDingUserId());
+//        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -228,15 +228,15 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         VehicleApply vehicleApply = queryEntity(updateApplyStatusParam.getVehicleApplyId());
         vehicleApply.setStatus(updateApplyStatusParam.getStatus());
         this.updateById(vehicleApply);
-        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
-        if(vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
-        {
-            //派车单申请，发送通知
-            String title = "分派车辆";
-            String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
-            iDingDingService.sendCarMsg(usersProperties.getAgentId(),usersProperties.getAppKey(),usersProperties.getAppSecret(),
-                    JSONUtil.parseObj(vehicleApply), title, url, updateApplyStatusParam.getCarAdminDingDingUserId());
-        }
+//        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
+//        if(vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
+//        {
+//            //派车单申请，发送通知
+//            String title = "分派车辆";
+//            String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+//            iDingDingService.sendCarMsg(usersProperties.getAgentId(),usersProperties.getAppKey(),usersProperties.getAppSecret(),
+//                    JSONUtil.parseObj(vehicleApply), title, url, updateApplyStatusParam.getCarAdminDingDingUserId());
+//        }
     }
 
     @Override

@@ -37,16 +37,13 @@ import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileRegisterService;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileTitle;
 import vip.xiaonuo.sys.modular.hr.hrCenter.service.PersonnelFileTitleService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.*;
-import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelInfo;
-import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListVo;
+import vip.xiaonuo.sys.modular.hr.personnel.vo.*;
 import vip.xiaonuo.sys.modular.hr.personnel.mapper.PersonnelMapper;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.sys.modular.hr.personnel.entity.Personnel;
-import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelStatsVo;
-import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelVo;
 import vip.xiaonuo.sys.modular.hr.salary.util.ComputeUtil;
 import vip.xiaonuo.sys.modular.org.entity.SysOrg;
 import vip.xiaonuo.sys.modular.org.service.SysOrgService;
@@ -607,4 +604,35 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
                 .eq(Personnel::getStatus,"0")
         );
     }
+
+    @Override
+    public Page<PersonnelListDetailVo> pageListWithDetail(PersonnelPageParam personnelPageParam) {
+        QueryWrapper<Personnel> queryWrapper = new QueryWrapper<>();
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getDeptId())){
+            queryWrapper.lambda().eq(Personnel::getDeptId, personnelPageParam.getDeptId());
+        }
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getName())){
+            queryWrapper.lambda().like(Personnel::getName, personnelPageParam.getName());
+        }
+        if (ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(personnelPageParam.getSortOrder());
+            queryWrapper.orderBy(true, personnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(personnelPageParam.getSortField()));
+        } else {
+            queryWrapper.lambda().orderByDesc(Personnel::getCreateTime);
+        }
+        Page<Personnel> page = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        Page<PersonnelListDetailVo> newpage = new Page<>();
+        BeanUtil.copyProperties(page, newpage,"records");
+        newpage.setRecords(BeanUtil.copyToList(page.getRecords(), PersonnelListDetailVo.class));
+        for(PersonnelListDetailVo vo : newpage.getRecords()){
+            Map<String, Object> columnMap = new HashMap<>();
+            columnMap.put("FILE_ID", vo.getId());
+            columnMap.put("DELETE_FLAG", "NOT_DELETE");
+            vo.setPersonnelCertList(personnelFileCertService.listByMap(columnMap));
+            vo.setPersonnelTitleList(personnelFileTitleService.listByMap(columnMap));
+        }
+        return newpage;
+    }
+
 }
