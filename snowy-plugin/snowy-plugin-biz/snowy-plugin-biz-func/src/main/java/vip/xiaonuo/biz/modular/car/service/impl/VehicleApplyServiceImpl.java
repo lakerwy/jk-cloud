@@ -35,10 +35,16 @@ import vip.xiaonuo.biz.modular.car.enums.DriverStatusEnum;
 import vip.xiaonuo.biz.modular.car.param.*;
 import vip.xiaonuo.biz.modular.car.service.*;
 import vip.xiaonuo.biz.modular.car.vo.*;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.car.mapper.VehicleApplyMapper;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.api.IDingDingService;
 import vip.xiaonuo.flw.api.FlwCommonApi;
 
@@ -93,6 +99,9 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     DangerRegisterService dangerRegisterService;
 
     @Resource
+    private CommonCacheOperator commonCacheOperator;
+
+    @Resource
     FlwCommonApi flwCommonApi;
 
     @Override
@@ -145,19 +154,19 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         vehicleApply.setStatus(vehicleApplyAddParam.getUserId().equals(vehicleApplyAddParam.getSeniorManagerUserId())?CarApplyStatusEnum.Dispatching.getValue():CarApplyStatusEnum.Auditing.getValue());
         this.save(vehicleApply);
 
-//        //派车单申请，发送通知给部门直属主管审批（申请单详情页）
-//        String title = "用车申请";
-//        String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
-//        iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
-//                JSONUtil.parseObj(vehicleApply),title,url,vehicleApplyAddParam.getSeniorManagerDingDingUserId());
-//        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
-//        if (vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
-//        {
-//            title = "分派车辆";
-//            url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
-//            iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
-//                    JSONUtil.parseObj(vehicleApply),title,url,usersProperties.getCarAdminDingDingUserId());
-//        }
+        //派车单申请，发送通知给部门直属主管审批（申请单详情页）
+        String title = "用车申请";
+        String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+        iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
+                JSONUtil.parseObj(vehicleApply),title,url,vehicleApplyAddParam.getSeniorManagerDingDingUserId());
+        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
+        if (vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
+        {
+            title = "分派车辆";
+            url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+            iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
+                    JSONUtil.parseObj(vehicleApply),title,url,usersProperties.getCarAdminDingDingUserId());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -165,7 +174,19 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     public void add2(VehicleApplyAddParam vehicleApplyAddParam) {
         VehicleApply vehicleApply = BeanUtil.toBean(vehicleApplyAddParam, VehicleApply.class);
         vehicleApply.setOptDate(DateTime.now());
-        vehicleApply.setStatus(CarApplyStatusEnum.Dispatching.getValue());
+        vehicleApply.setStatus(vehicleApplyAddParam.getUserId().equals(vehicleApplyAddParam.getSeniorManagerUserId())?CarApplyStatusEnum.Dispatching.getValue():CarApplyStatusEnum.Auditing.getValue());
+        //走审批流程
+        String processInstanceId = vehicleApplyAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            vehicleApply.setId(id);
+            vehicleApply.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_VEHICLE_APPLY.getBizTable(),id,processInstanceId,dbName);
+        }
         this.save(vehicleApply);
     }
 

@@ -155,4 +155,8 @@ public class VehicleApplyAddParam {
     @ApiModelProperty(value = "审批主管（用户的直属主管）-钉钉系统中的UserId", position = 30)
     private String seniorManagerDingDingUserId;
 
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id", position = 40)
+    private String processInstanceId;
+
 }
