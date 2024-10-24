@@ -24,8 +24,8 @@ public class CarDispatchTaskListener implements TaskListener {
         String vehicleId = String.valueOf(delegateTask.getVariable("vehicleId"));
 
         CarUtil.updateApplyStatus("3", businessKey);// 更新用车申请单状态为已派车
-        CarUtil.updateDriverStatus("1", driverUserId); //更新司机状态为出车
-        CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为出车
+        CarUtil.updateDriverStatus("2", driverUserId); //更新司机状态为出车
+        CarUtil.updateCarStatus("2" , vehicleId);// 更新车辆状态为出车
         log.info("更新用车申请单状态为已派车-----");
     }
 }
