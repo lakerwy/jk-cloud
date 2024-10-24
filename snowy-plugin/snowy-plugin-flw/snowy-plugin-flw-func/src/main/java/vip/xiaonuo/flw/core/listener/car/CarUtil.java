@@ -28,7 +28,7 @@ public class CarUtil {
     }
 
     public static void updateCarTotalMileage(BigDecimal totalMileage, String businessKey) {
-        String sql = "UPDATE BIZ_CAR_VEHICLE_INFORMATION SET TOTAL_MILEAGE =" + totalMileage + "' WHERE  ID = '" + businessKey + "'";
+        String sql = "UPDATE BIZ_CAR_VEHICLE_INFORMATION SET TOTAL_MILEAGE =" + totalMileage + " WHERE  ID = '" + businessKey + "'";
         CommonHandleUtil.handleSqlExecution(sql);
     }
 }
