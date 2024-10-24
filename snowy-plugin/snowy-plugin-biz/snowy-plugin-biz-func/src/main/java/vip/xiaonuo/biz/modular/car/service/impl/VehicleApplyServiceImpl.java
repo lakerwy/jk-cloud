@@ -185,7 +185,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             //将流程实例和业务表关联起来
             //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
             String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
-            flwCommonApi.save(modelId, BizCommonEnum.BIZ_VEHICLE_APPLY.getBizTable(),id,processInstanceId,dbName);
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_CAR_VEHICLE_APPLY.getBizTable(),id,processInstanceId,dbName);
         }
         this.save(vehicleApply);
     }

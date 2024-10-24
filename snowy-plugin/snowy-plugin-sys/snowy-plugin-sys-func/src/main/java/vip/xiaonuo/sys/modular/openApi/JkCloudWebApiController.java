@@ -44,7 +44,7 @@ public class JkCloudWebApiController {
      * @author pzh
      * @date  2024/10/21 15:30
      */
-//    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 1)
     @ApiOperation("获取业务表-人事档案分页")
 //    @SaCheckPermission("/openApi/sys/personnel/pageList")
     @GetMapping("/openApi/sys/personnel/pageList")
@@ -58,7 +58,7 @@ public class JkCloudWebApiController {
      * @author pzh
      * @date  2024/10/21 15:30
      */
-    @ApiOperationSupport(order = 1)
+    @ApiOperationSupport(order = 2)
     @ApiOperation("获取组织分页")
 //    @SaCheckPermission("/openApi/sys/org/page")
     @GetMapping("/openApi/sys/org/page")

@@ -197,6 +197,8 @@ public class GlobalConfigure implements WebMvcConfigurer {
 
             /* 招采平台 - 登录|注册|退出|公告|澄清 */
             "/bp/platform/frontend/public/**",
+
+            "/openApi/biz/crm/hetong/page"
     };
 
     /**
