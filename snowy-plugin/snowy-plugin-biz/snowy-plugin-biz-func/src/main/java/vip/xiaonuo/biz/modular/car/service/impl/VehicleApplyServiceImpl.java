@@ -141,7 +141,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             queryWrapper.orderBy(true, vehicleApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(vehicleApplyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(VehicleApply::getSn);
+            queryWrapper.lambda().orderByDesc(VehicleApply::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
