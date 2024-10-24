@@ -9,7 +9,7 @@ import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Component;
 
 /**
- * 用车申请事件
+ * 用车申请事件-拒绝|取消
  */
 @Slf4j
 @Component
@@ -21,7 +21,7 @@ public class CarRejectTaskListener implements TaskListener {
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         String businessKey = processInstance.getBusinessKey();
 
-        CarUtil.updateStatus(5,businessKey);
-        log.info("更新车辆状态为已派车-----");
+        CarUtil.updateApplyStatus("5",businessKey);
+        log.info("更新用车申请单状态为已取消|已拒绝 -----");
     }
 }

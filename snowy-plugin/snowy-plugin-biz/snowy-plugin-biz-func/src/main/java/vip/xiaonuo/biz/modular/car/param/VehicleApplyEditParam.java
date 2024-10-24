@@ -126,8 +126,8 @@ public class VehicleApplyEditParam {
     @ApiModelProperty(value = "用车人userid", position = 22)
     private String userId;
 
-    /** 用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消|已拒绝） */
-    @ApiModelProperty(value = "用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消|已拒绝）", position = 23)
+    /** 用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消|已拒绝 6-已发车） */
+    @ApiModelProperty(value = "用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消|已拒绝 6-已发车）", position = 23)
     private String status;
 
     /** 车辆Id */

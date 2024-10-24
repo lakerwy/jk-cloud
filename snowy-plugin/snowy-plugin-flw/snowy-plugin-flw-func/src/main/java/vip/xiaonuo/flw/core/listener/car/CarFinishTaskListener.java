@@ -8,8 +8,10 @@ import org.camunda.bpm.engine.delegate.TaskListener;
 import org.camunda.bpm.engine.runtime.ProcessInstance;
 import org.springframework.stereotype.Component;
 
+import java.math.BigDecimal;
+
 /**
- * 用车申请事件
+ * 用车申请事件-完成节点
  */
 @Slf4j
 @Component
@@ -21,9 +23,13 @@ public class CarFinishTaskListener implements TaskListener {
         ProcessInstance processInstance = runtimeService.createProcessInstanceQuery().processInstanceId(processInstanceId).singleResult();
         String businessKey = processInstance.getBusinessKey();
         String driverUserId = String.valueOf(delegateTask.getVariable("driverUserId"));
+        String vehicleId = String.valueOf(delegateTask.getVariable("vehicleId"));
+        String endMileage = String.valueOf(delegateTask.getVariable("endMileage"));
 
-        CarUtil.updateStatus(3,businessKey);  //更新车辆状态
-        CarUtil.updateDriverStatus(1,driverUserId); //更新司机状态
-        log.info("更新车辆状态为已发车-----");
+        CarUtil.updateApplyStatus("4", businessKey); //更新用车申请单状态为已完成
+        CarUtil.updateDriverStatus("1", driverUserId); //更新司机状态为空闲
+        CarUtil.updateCarTotalMileage(new BigDecimal(endMileage), vehicleId);// 更新车辆总行驶里程
+        CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
+        log.info("更新用车申请单状态为已完成-----");
     }
 }
