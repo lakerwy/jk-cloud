@@ -41,7 +41,8 @@ public enum CarApplyStatusEnum {
     /** 已发车 */
     Go("6"),
 
-    Reject("7");
+//    Reject("7")
+    ;
 
     private final String value;
 

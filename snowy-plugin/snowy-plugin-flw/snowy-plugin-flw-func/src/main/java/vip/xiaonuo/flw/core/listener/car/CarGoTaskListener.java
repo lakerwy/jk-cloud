@@ -22,7 +22,7 @@ public class CarGoTaskListener implements TaskListener {
         String businessKey = processInstance.getBusinessKey();
         String driverUserId = String.valueOf(delegateTask.getVariable("driverUserId"));
 
-        CarUtil.updateStatus(7,businessKey);  //更新车辆状态
+        CarUtil.updateStatus(6,businessKey);  //更新车辆状态
         CarUtil.updateDriverStatus(2,driverUserId); //更新司机状态
         log.info("更新车辆状态为已发车-----");
     }
