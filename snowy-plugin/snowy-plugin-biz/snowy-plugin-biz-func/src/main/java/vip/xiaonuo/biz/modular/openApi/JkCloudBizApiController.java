@@ -2,6 +2,7 @@ package vip.xiaonuo.biz.modular.openApi;
 
 
 import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.xiaoymin.knife4j.annotations.ApiOperationSupport;
 import com.github.xiaoymin.knife4j.annotations.ApiSupport;
 import io.swagger.annotations.Api;
@@ -12,6 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.biz.modular.crm.hetong.param.HetongPageParam;
 import vip.xiaonuo.biz.modular.crm.hetong.service.HetongService;
 import vip.xiaonuo.biz.modular.crm.hetong.vo.HetongDetailVo;
+import vip.xiaonuo.biz.modular.zizhi.param.BizZizhiCertificatePageParam;
+import vip.xiaonuo.biz.modular.zizhi.service.BizZizhiCertificateService;
+import vip.xiaonuo.biz.modular.zizhi.vo.BizZizhiCertificateVo;
 import vip.xiaonuo.common.pojo.CommonResult;
 
 import javax.annotation.Resource;
@@ -31,6 +35,9 @@ public class JkCloudBizApiController {
     @Resource
     private HetongService hetongService;
 
+    @Resource
+    private BizZizhiCertificateService bizZizhiCertificateService;
+
     /**
      * 获取组织分页
      *
@@ -43,5 +50,18 @@ public class JkCloudBizApiController {
     @GetMapping("/openApi/biz/crm/hetong/page")
     public CommonResult<IPage<HetongDetailVo>> page(HetongPageParam hetongPageParam) {
         return CommonResult.data(hetongService.page(hetongPageParam));
+    }
+
+    /**
+     * 获取业务表-资质-企业资质证书表分页
+     *
+     * @author pzh
+     * @date  2024/10/24 17:30
+     */
+    @ApiOperationSupport(order = 1)
+    @ApiOperation("获取业务表-资质-企业资质证书表分页")
+    @GetMapping("/openApi/biz/ziZhi/page")
+    public CommonResult<Page<BizZizhiCertificateVo>> page(BizZizhiCertificatePageParam bizZizhiCertificatePageParam) {
+        return CommonResult.data(bizZizhiCertificateService.page(bizZizhiCertificatePageParam));
     }
 }
