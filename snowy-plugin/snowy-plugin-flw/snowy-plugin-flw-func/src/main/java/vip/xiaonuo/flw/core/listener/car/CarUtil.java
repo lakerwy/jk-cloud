@@ -18,7 +18,7 @@ public class CarUtil {
     }
 
     public static void updateDriverStatus(String status,String businessKey) {
-        String sql = "UPDATE BIZ_CAR_DRIVERS SET STATUS = '" + status + "' WHERE  ID = '" + businessKey + "'";
+        String sql = "UPDATE BIZ_CAR_DRIVERS SET STATUS = '" + status + "' WHERE  DRIVER_USER_ID = '" + businessKey + "'";
         CommonHandleUtil.handleSqlExecution(sql);
     }
 
