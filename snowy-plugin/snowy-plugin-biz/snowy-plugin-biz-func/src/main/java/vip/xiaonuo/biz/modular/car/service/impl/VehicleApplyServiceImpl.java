@@ -224,7 +224,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         VehicleApplyDetailDto result = BeanUtil.copyProperties(vehicleApply,VehicleApplyDetailDto.class);
         if(ObjectUtil.isNotEmpty(result)){
             QueryWrapper<VehicleApply> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(VehicleApply::getStatus, CarApplyStatusEnum.Dispatched.getValue());
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus, CarApplyStatusEnum.Dispatched.getValue());
             queryWrapper.lambda().gt(VehicleApply::getPredictCarTime,result.getPredictTransportTime());
             queryWrapper.lambda().lt(VehicleApply::getPredictTransportTime,result.getPredictCarTime());
             //判断当前预定时间下，可用的车辆信息
@@ -265,7 +265,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     @Override
     public void updateStatus(UpdateApplyStatusParam updateApplyStatusParam) {
         VehicleApply vehicleApply = queryEntity(updateApplyStatusParam.getVehicleApplyId());
-        vehicleApply.setStatus(updateApplyStatusParam.getStatus());
+        vehicleApply.setApplyStatus(updateApplyStatusParam.getApplyStatus());
         this.updateById(vehicleApply);
 //        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
 //        if(vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
@@ -281,7 +281,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     @Override
     public void dispatchCar(DispatchCarParam dispatchCarParam) {
         VehicleApply vehicleApply = this.queryEntity(dispatchCarParam.getVehicleApplyId());
-        vehicleApply.setStatus(CarApplyStatusEnum.Dispatched.getValue());
+        vehicleApply.setApplyStatus(CarApplyStatusEnum.Dispatched.getValue());
         vehicleApply.setVehicle(dispatchCarParam.getVehicle());
         vehicleApply.setVehicleId(dispatchCarParam.getVehicleId());
         vehicleApply.setDriver(dispatchCarParam.getDriver());
@@ -301,16 +301,25 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getStatus())){
             queryWrapper.lambda().eq(VehicleApply::getStatus,vehicleApplyPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getApplyStatus())) {
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus, vehicleApplyPageParam.getApplyStatus());
+        }
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getUserId())){
             queryWrapper.lambda().and(q->q.eq(VehicleApply::getUserId,vehicleApplyPageParam.getUserId())
                     .or().eq(VehicleApply::getSeniorManagerUserId,vehicleApplyPageParam.getUserId())
                     .or().eq(VehicleApply::getCarAdminUserId,vehicleApplyPageParam.getUserId()));
         }
+//        if(CollUtil.isNotEmpty(vehicleApplyPageParam.getFilterStatusIn())){
+//            queryWrapper.lambda().in(VehicleApply::getStatus,vehicleApplyPageParam.getFilterStatusIn());
+//        }
+//        if(CollUtil.isNotEmpty(vehicleApplyPageParam.getFilterStatusNotIn())){
+//            queryWrapper.lambda().notIn(VehicleApply::getStatus,vehicleApplyPageParam.getFilterStatusNotIn());
+//        }
         if(CollUtil.isNotEmpty(vehicleApplyPageParam.getFilterStatusIn())){
-            queryWrapper.lambda().in(VehicleApply::getStatus,vehicleApplyPageParam.getFilterStatusIn());
+            queryWrapper.lambda().in(VehicleApply::getApplyStatus,vehicleApplyPageParam.getFilterStatusIn());
         }
         if(CollUtil.isNotEmpty(vehicleApplyPageParam.getFilterStatusNotIn())){
-            queryWrapper.lambda().notIn(VehicleApply::getStatus,vehicleApplyPageParam.getFilterStatusNotIn());
+            queryWrapper.lambda().notIn(VehicleApply::getApplyStatus,vehicleApplyPageParam.getFilterStatusNotIn());
         }
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getApplyUserId())){
             queryWrapper.lambda().eq(VehicleApply::getUserId,vehicleApplyPageParam.getApplyUserId());
@@ -359,7 +368,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     public VehicleChartViewModel getVehicleChart(VehicleChartParam vehicleChartParam) {
         //派车单信息 【已完成  + 区间】
         QueryWrapper<VehicleApply> vehicleApplyQueryWrapper = new QueryWrapper<>();
-        vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Finish.getValue());
+        vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Finish.getValue());
         if(ObjectUtil.isNotEmpty(vehicleChartParam.getStartDate())){
             vehicleApplyQueryWrapper.lambda().ge(VehicleApply::getOptDate,vehicleChartParam.getStartDate());
         }
@@ -436,7 +445,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
 
         //派车单信息 【已完成  + 区间】
         QueryWrapper<VehicleApply> vehicleApplyQueryWrapper = new QueryWrapper<>();
-        vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Finish.getValue());
+        vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Finish.getValue());
         if(ObjectUtil.isNotEmpty(oilChartParam.getStartDate())){
             vehicleApplyQueryWrapper.lambda().ge(VehicleApply::getOptDate,oilChartParam.getStartDate());
         }
@@ -546,7 +555,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
                 c.add(Calendar.DATE, 1);
                 vehicleApplyQueryWrapper.lambda().lt(VehicleApply::getPredictTransportTime,c.getTime());
             }
-            vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Dispatched.getValue());
+            vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Dispatched.getValue());
             vehicleApplyQueryWrapper.lambda().orderByDesc(VehicleApply::getPredictTransportTime);
             List<VehicleApply> vehicleApplies = this.list(vehicleApplyQueryWrapper);
             newRecords.forEach(x->x.setPreVehicleApplyData(vehicleApplies.stream().filter(y->y.getVehicleId().equals(x.getId())).collect(Collectors.toList())));
@@ -565,7 +574,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(availableParam.getPredictCarTime()) && ObjectUtil.isNotEmpty(availableParam.getPredictTransportTime()))
         {
             QueryWrapper<VehicleApply> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(VehicleApply::getStatus, CarApplyStatusEnum.Dispatched.getValue());
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus, CarApplyStatusEnum.Dispatched.getValue());
             queryWrapper.lambda().gt(VehicleApply::getPredictCarTime,availableParam.getPredictTransportTime());
             queryWrapper.lambda().lt(VehicleApply::getPredictTransportTime,availableParam.getPredictCarTime());
             //判断当前预定时间下，可用的车辆信息
@@ -603,7 +612,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             h5VehicleDto.setToReferenceMileage(toValue(h5VehicleDto.getReferenceMileage()).add(toValue(h5VehicleDto.getLastMileage())).subtract(toValue(h5VehicleDto.getTotalMileage())).setScale(2));
             //用车申请，统计各车（车辆Id）出车次数，行驶里程数 【只统计已完成的订单】
             //里程补登，统计各车（车辆Id）补登总里程
-            List<VehicleApply> vehicleApplies = this.list(new QueryWrapper<VehicleApply>().lambda().eq(VehicleApply::getVehicleId,id).eq(VehicleApply::getStatus,CarApplyStatusEnum.Finish.getValue()));
+            List<VehicleApply> vehicleApplies = this.list(new QueryWrapper<VehicleApply>().lambda().eq(VehicleApply::getVehicleId,id).eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Finish.getValue()));
             int thisCount = vehicleApplies.size();
             BigDecimal thisTotalMileage = BigDecimal.ZERO;
             vehicleApplies.stream().filter(x->ObjectUtil.isNotEmpty(x.getSubTotal())).forEach(x->thisTotalMileage.add(x.getSubTotal()));
@@ -629,7 +638,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             queryWrapper.lambda().eq(VehicleApply::getDriverUserId,driverUserId);
         }
         if(ObjectUtil.isNotEmpty(isShowAll) && !isShowAll){
-            queryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Dispatched.getValue());
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Dispatched.getValue());
         }
         queryWrapper.lambda().orderByDesc(VehicleApply::getCreateTime);
         List<VehicleApply> vehicleApplies = this.list(queryWrapper);
@@ -663,7 +672,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         vehicleApply.setEndTime(h5CarRegisterEndDto.getEndTime());
         vehicleApply.setEndMileage(toValue(h5CarRegisterEndDto.getEndMileage()));
         vehicleApply.setSubTotal(vehicleApply.getEndMileage().subtract(vehicleApply.getStartMileage()));
-        vehicleApply.setStatus(CarApplyStatusEnum.Finish.getValue());
+        vehicleApply.setApplyStatus(CarApplyStatusEnum.Finish.getValue());
         vehicleApply.setDriverMemo(h5CarRegisterEndDto.getDriverMemo());
         this.updateById(vehicleApply);
 
