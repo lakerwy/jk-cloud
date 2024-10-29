@@ -1,5 +1,6 @@
 package vip.xiaonuo.flw.core.listener.car;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.extra.spring.SpringUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.camunda.bpm.engine.RuntimeService;
@@ -25,10 +26,11 @@ public class CarFinishTaskListener implements TaskListener {
         String driverId = String.valueOf(delegateTask.getVariable("driverId"));
         String vehicleId = String.valueOf(delegateTask.getVariable("vehicleId"));
         String endMileage = String.valueOf(delegateTask.getVariable("endMileage"));
-
         CarUtil.updateApplyStatus("4", businessKey); //更新用车申请单状态为已完成
         CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
-        CarUtil.updateCarTotalMileage(new BigDecimal(endMileage), vehicleId);// 更新车辆总行驶里程
+        if(ObjectUtil.isNotEmpty(endMileage)){
+            CarUtil.updateCarTotalMileage(new BigDecimal(endMileage), vehicleId);// 更新车辆总行驶里程
+        }
         CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
         log.info("更新用车申请单状态为已完成-----");
     }
