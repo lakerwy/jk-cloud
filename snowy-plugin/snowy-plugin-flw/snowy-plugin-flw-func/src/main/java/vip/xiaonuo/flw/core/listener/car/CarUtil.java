@@ -12,8 +12,8 @@ import java.math.BigDecimal;
  */
 @Slf4j
 public class CarUtil {
-    public static void updateApplyStatus(String status,String businessKey) {
-        String sql = "UPDATE BIZ_CAR_VEHICLE_APPLY SET STATUS = '" + status + "' WHERE  ID = '" + businessKey + "'";
+    public static void updateApplyStatus(String applyStatus,String businessKey) {
+        String sql = "UPDATE BIZ_CAR_VEHICLE_APPLY SET APPLY_STATUS = '" + applyStatus + "' WHERE  ID = '" + businessKey + "'";
         CommonHandleUtil.handleSqlExecution(sql);
     }
 

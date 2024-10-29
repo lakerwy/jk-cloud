@@ -35,13 +35,11 @@ public enum CarApplyStatusEnum {
     /** 已完成 */
     Finish("4"),
 
-    /** 已取消|已拒绝 */
+    /** 已取消*/
     Cancel("5"),
 
-    /** 已发车 */
-    Go("6"),
-
-//    Reject("7")
+    /** 已拒绝 */
+    Reject("6"),
     ;
 
     private final String value;

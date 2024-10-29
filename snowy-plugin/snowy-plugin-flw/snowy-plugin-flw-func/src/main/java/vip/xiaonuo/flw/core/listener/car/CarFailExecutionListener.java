@@ -36,7 +36,7 @@ public class CarFailExecutionListener implements FlwGlobalCustomEventListener {
             String id = String.valueOf(json.get("id"));
             String vehicleId = String.valueOf(json.get("vehicleId"));
             String driverId = String.valueOf(json.get("driverId"));
-            CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消|已拒绝
+            CarUtil.updateApplyStatus("6", id); //更新用车申请单状态为已拒绝
             CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
             CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
             log.info("更新用车申请单状态为已取消|已拒绝-----");
@@ -56,7 +56,7 @@ public class CarFailExecutionListener implements FlwGlobalCustomEventListener {
         String id = String.valueOf(variableJsonObject.get("id"));
         String vehicleId = String.valueOf(variableJsonObject.get("vehicleId"));
         String driverId = String.valueOf(variableJsonObject.get("driverId"));
-        CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消|已拒绝
+        CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消
         CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
         CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
         log.info("更新用车申请单状态为已取消|已拒绝-----");
@@ -73,7 +73,7 @@ public class CarFailExecutionListener implements FlwGlobalCustomEventListener {
         String id = String.valueOf(variableJsonObject.get("id"));
         String vehicleId = String.valueOf(variableJsonObject.get("vehicleId"));
         String driverId = String.valueOf(variableJsonObject.get("driverId"));
-        CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消|已拒绝
+        CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消
         CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
         CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
         log.info("更新用车申请单状态为已取消|已拒绝-----");
@@ -90,7 +90,7 @@ public class CarFailExecutionListener implements FlwGlobalCustomEventListener {
         String id = String.valueOf(variableJsonObject.get("id"));
         String vehicleId = String.valueOf(variableJsonObject.get("vehicleId"));
         String driverId = String.valueOf(variableJsonObject.get("driverId"));
-        CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消|已拒绝
+        CarUtil.updateApplyStatus("5", id); //更新用车申请单状态为已取消
         CarUtil.updateDriverStatus("1", driverId); //更新司机状态为空闲
         CarUtil.updateCarStatus("1" , vehicleId);// 更新车辆状态为可用
         log.info("更新用车申请单状态为已取消|已拒绝-----");

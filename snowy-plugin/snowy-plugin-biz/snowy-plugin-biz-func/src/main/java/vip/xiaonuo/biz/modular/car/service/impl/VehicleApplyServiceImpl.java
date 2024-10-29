@@ -128,6 +128,9 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getStatus())) {
             queryWrapper.lambda().eq(VehicleApply::getStatus, vehicleApplyPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getApplyStatus())) {
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus, vehicleApplyPageParam.getApplyStatus());
+        }
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(VehicleApply::getUsers,vehicleApplyPageParam.getSearchKey())
                     .or().like(VehicleApply::getSn,vehicleApplyPageParam.getSearchKey())
@@ -174,7 +177,8 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     public void add2(VehicleApplyAddParam vehicleApplyAddParam) {
         VehicleApply vehicleApply = BeanUtil.toBean(vehicleApplyAddParam, VehicleApply.class);
         vehicleApply.setOptDate(DateTime.now());
-        vehicleApply.setStatus(CarApplyStatusEnum.Auditing.getValue());
+        vehicleApply.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+        vehicleApply.setApplyStatus(CarApplyStatusEnum.Auditing.getValue());
         //走审批流程
         String processInstanceId = vehicleApplyAddParam.getProcessInstanceId();
         if(ObjectUtil.isNotEmpty(processInstanceId)){
