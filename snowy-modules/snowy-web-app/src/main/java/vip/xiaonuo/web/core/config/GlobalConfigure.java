@@ -222,6 +222,7 @@ public class GlobalConfigure implements WebMvcConfigurer {
             /* 对外提供查询接口（投标智囊）*/
             "/openApi/sys/personnel/pageList",
             "/openApi/sys/org/page",
+            "/openApi/sys/assetManageFlow/page",
 
     };
 

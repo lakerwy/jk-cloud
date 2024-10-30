@@ -10,6 +10,9 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import vip.xiaonuo.common.pojo.CommonResult;
+import vip.xiaonuo.sys.modular.hr.assetManage.entity.JkAssetManage;
+import vip.xiaonuo.sys.modular.hr.assetManage.param.JkAssetManagePageParam;
+import vip.xiaonuo.sys.modular.hr.assetManage.service.JkAssetManageService;
 import vip.xiaonuo.sys.modular.hr.personnel.param.PersonnelPageParam;
 import vip.xiaonuo.sys.modular.hr.personnel.service.PersonnelService;
 import vip.xiaonuo.sys.modular.hr.personnel.vo.PersonnelListDetailVo;
@@ -38,6 +41,9 @@ public class JkCloudWebApiController {
     @Resource
     private SysOrgService sysOrgService;
 
+    @Resource
+    private JkAssetManageService jkAssetManageService;
+
     /**
      * 获取业务表-人事档案分页(对外免token接口)
      *
@@ -64,5 +70,19 @@ public class JkCloudWebApiController {
     @GetMapping("/openApi/sys/org/page")
     public CommonResult<Page<SysOrg>> page(SysOrgPageParam sysOrgPageParam) {
         return CommonResult.data(sysOrgService.page(sysOrgPageParam));
+    }
+
+    /**
+     * 获取建科资产管理表分页
+     *
+     * @author pzh
+     * @date  2024/10/28 11:10
+     */
+    @ApiOperationSupport(order = 3)
+    @ApiOperation("获取建科资产管理表分页")
+//    @SaCheckPermission("/openApi/sys/assetManageFlow/page")
+    @GetMapping("/openApi/sys/assetManageFlow/page")
+    public CommonResult<Page<JkAssetManage>> page(JkAssetManagePageParam jkAssetManagePageParam) {
+        return CommonResult.data(jkAssetManageService.page(jkAssetManagePageParam));
     }
 }
