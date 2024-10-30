@@ -580,9 +580,9 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             //判断当前预定时间下，可用的车辆信息
             List<VehicleApply> dbVehicleApply = this.list(queryWrapper);
             //该区间不可用车辆
-            List<String> haveUsedVehicle = dbVehicleApply.stream().map(x->x.getVehicleId()).distinct().collect(Collectors.toList());
+            List<String> haveUsedVehicle = dbVehicleApply.stream().map(x->x.getVehicleId()).filter(ObjectUtil::isNotEmpty).distinct().collect(Collectors.toList());
             //该区间不可用司机
-            List<String> haveUsedDriver = dbVehicleApply.stream().map(x->x.getDriverUserId()).distinct().collect(Collectors.toList());
+            List<String> haveUsedDriver = dbVehicleApply.stream().map(x->x.getDriverUserId()).filter(ObjectUtil::isNotEmpty).distinct().collect(Collectors.toList());
             //可用车辆
             QueryWrapper<VehicleInformation> queryWrapper1 = new QueryWrapper<>();
             if(CollUtil.isNotEmpty(haveUsedVehicle))
