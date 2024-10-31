@@ -19,7 +19,7 @@ public class CarFinishExecutionListener implements ExecutionListener {
                 execution.getEventName(), execution.getProcessInstanceId(), execution.getCurrentActivityName());
         String id = String.valueOf(execution.getVariable("id"));
         String driverId = String.valueOf(execution.getVariable("driverId"));
-        String driverIdAgain = String.valueOf(execution.getVariable("driverId"));
+        String driverIdAgain = String.valueOf(execution.getVariable("driverIdAgain"));
         String vehicleId = String.valueOf(execution.getVariable("vehicleId"));
         String endMileage = String.valueOf(execution.getVariable("endMileage"));
 
