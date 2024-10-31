@@ -34,7 +34,6 @@ import org.camunda.bpm.engine.*;
 import org.camunda.bpm.engine.delegate.DelegateExecution;
 import org.camunda.bpm.engine.delegate.DelegateTask;
 import org.camunda.bpm.engine.history.HistoricProcessInstance;
-import org.camunda.bpm.engine.history.HistoricTaskInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstance;
 import org.camunda.bpm.engine.history.HistoricVariableInstanceQuery;
 import org.camunda.bpm.engine.impl.util.ClockUtil;
@@ -355,7 +354,7 @@ public class NodeRuntimeUtil {
                                                                                         "审批人和发起人是同一个人，审批自动通过", CollectionUtil.newArrayList());
                                                                                 delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
                                                                             }
-                                                                        } else if(processAutoDistinctType.equals("MULTIPLE")){
+                                                                        } else {
                                                                             // 获取上一个节点的审批参与人，如果为一个参与人，且跟当前的参与人一致，则审批自动通过；
                                                                             List<FlowNode> previousNodeList = delegateTask.getBpmnModelElementInstance().getPreviousNodes().list();
                                                                             if (ObjectUtil.isNotEmpty(previousNodeList) && previousNodeList.size() == 1) {
@@ -388,35 +387,6 @@ public class NodeRuntimeUtil {
                                                                                         }
                                                                                     }
                                                                                 }
-                                                                            }
-                                                                        }
-                                                                        // 审批人全部去重
-                                                                        else if(processAutoDistinctType.equals("DEDUP")){
-                                                                            // 判断审批人是否与发起人相同
-                                                                            boolean hasSameAssignee = ObjectUtil.isNotEmpty(assignee) && assignee.equals(initiator);
-                                                                            // 如果审批人与发起人不同，则判断历史任务中是否有相同的审批人
-                                                                            if(!hasSameAssignee){
-                                                                                // 获取流程实例的所有历史任务
-                                                                                List<HistoricTaskInstance> historicTasks = delegateTask.getProcessEngineServices().getHistoryService().createHistoricTaskInstanceQuery()
-                                                                                        .processInstanceId(delegateTask.getProcessInstanceId()).list();
-                                                                                // 判断历史任务中是否有相同的审批人
-                                                                                if(ObjectUtil.isNotEmpty(historicTasks)) {
-                                                                                    for (HistoricTaskInstance historicTask : historicTasks) {
-                                                                                        if (historicTask.getAssignee() != null && historicTask.getAssignee().equals(assignee)) {
-                                                                                            hasSameAssignee = true;
-                                                                                            break;
-                                                                                        }
-                                                                                    }
-                                                                                }
-                                                                            }
-                                                                            if(hasSameAssignee){
-                                                                                CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
-                                                                                commonCacheOperator.put("MULTIPLE-SAMPLE-"+delegateTask.getId(), "DEDUP",5*60L);
-                                                                                // 如果找到了相同的审批人，审批自动通过 (审批人设置为对应节点的审批人)
-                                                                                handleUserTaskCommentAndAttachment(delegateTask.getId(),
-                                                                                        delegateTask.getProcessInstanceId(), NodeApproveOperateTypeEnum.AUTO_COMPLETE.getValue(), "自动通过",
-                                                                                        "相同审批人出现，审批自动通过", CollectionUtil.newArrayList(),assignee);
-                                                                                delegateTask.getProcessEngineServices().getTaskService().complete(delegateTask.getId());
                                                                             }
                                                                         }
                                                                     }
@@ -1061,7 +1031,7 @@ public class NodeRuntimeUtil {
                                 commonCacheOperator.remove("MULTIPLE-SAMPLE-"+delegateTask.getId());//删除已被用的key值
                                 return;
                             }
-                            if(type.equals("MULTIPLE") || type.equals("DEDUP") ){
+                            if(type.equals("MULTIPLE")){
                                 if(!isProcessStart){//非开始流程
                                     /** 当同一审批人在流程中连续多次出现时，自动去重 */
                                     commonCacheOperator.remove("MULTIPLE-SAMPLE-"+delegateTask.getId());//删除已被用的key值
@@ -1504,35 +1474,6 @@ public class NodeRuntimeUtil {
         //SaBaseLoginUser loginUser = StpLoginUserUtil.getLoginUser();
         jsonObject.set("USER_ID", ObjectUtil.isEmpty(StpLoginUserUtil.getLoginUser()) ? null : StpLoginUserUtil.getLoginUser().getId());
         jsonObject.set("USER_NAME", ObjectUtil.isEmpty(StpLoginUserUtil.getLoginUser()) ? null : StpLoginUserUtil.getLoginUser().getName());
-        jsonObject.set("OPERATE_TYPE", operateType);
-        jsonObject.set("OPERATE_TEXT", operateText);
-        jsonObject.set("COMMENT", comment);
-        Comment taskComment = taskService.createComment(taskId, processInstanceId, JSONUtil.toJsonStr(jsonObject));
-        if(ObjectUtil.isNotEmpty(attachmentList)) {
-            attachmentList.forEach(flwTaskCommentParam -> {
-                if(ObjectUtil.isAllNotEmpty(flwTaskCommentParam.getAttachmentName(), flwTaskCommentParam.getAttachmentUrl())) {
-                    taskService.createAttachment(null, taskId, processInstanceId,
-                            flwTaskCommentParam.getAttachmentName(), taskComment.getId(), flwTaskCommentParam.getAttachmentUrl());
-                }
-            });
-        }
-    }
-
-    /**
-     * 处理任务意见
-     *
-     * @author xuyuxiang
-     * @date 2022/6/15 10:06
-     **/
-    public static void handleUserTaskCommentAndAttachment(String taskId, String processInstanceId, String operateType, String operateText,
-                                                          String comment, List<FlwTaskAttachmentParam> attachmentList, String userId) {
-        NodeRuntimeUtil.handleTenAuth();
-        TaskService taskService = SpringUtil.getBean(TaskService.class);
-        JSONObject jsonObject = JSONUtil.createObj();
-        SysUserApi sysUserApi = SpringUtil.getBean(SysUserApi.class);
-        JSONObject user = sysUserApi.getUserByIdWithoutException(userId);
-        jsonObject.set("USER_ID", userId);
-        jsonObject.set("USER_NAME", ObjectUtil.isNotEmpty(user) ? user.getStr("name") : null);
         jsonObject.set("OPERATE_TYPE", operateType);
         jsonObject.set("OPERATE_TEXT", operateText);
         jsonObject.set("COMMENT", comment);
