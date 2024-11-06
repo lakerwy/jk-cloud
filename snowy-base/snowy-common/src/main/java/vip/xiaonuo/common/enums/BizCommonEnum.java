@@ -68,7 +68,9 @@ public enum BizCommonEnum {
     HR_SCHOOL_DEPT("HR_SCHOOL_DEPT","HR_SCHOOL_DEPT","SchoolDeptServiceImpl"),  //校招-部门推荐
     HR_SCHOOL_INTERVIEW("HR_SCHOOL_INTERVIEW","HR_SCHOOL_INTERVIEW","SchoolInterviewServiceImpl"),  //校招-面试入职审批
 
-    BIZ_DEV_CONFIRM("BIZ_DEV_CONFIRM","BIZ_DEV_CONFIRM","DevConfirmServiceImpl");  //需求单 - 确认
+    BIZ_DEV_CONFIRM("BIZ_DEV_CONFIRM","BIZ_DEV_CONFIRM","DevConfirmServiceImpl"),  //需求单 - 确认
+
+    BIZ_CAR_VEHICLE_APPLY("BIZ_CAR_VEHICLE_APPLY","BIZ_CAR_VEHICLE_APPLY","VehicleApplyServiceImpl");   //用车申请单
 
     String bizModel;
     String bizTable;

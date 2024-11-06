@@ -79,9 +79,13 @@ public class VehicleApplyPageParam {
     @ApiModelProperty(value = "用户UserId【用车人+审批人+派车员】")
     private String userId;
 
-    /** 状态 */
-    @ApiModelProperty(value = "状态")
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态")
     private String status;
+
+    /** 用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消 6-已拒绝 */
+    @ApiModelProperty(value = "用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消 6-已拒绝）")
+    private String applyStatus;
 
     /** 针对不同数据范围，传入状态集合 */
     @ApiModelProperty(value = "针对不同数据范围，传入状态集合")

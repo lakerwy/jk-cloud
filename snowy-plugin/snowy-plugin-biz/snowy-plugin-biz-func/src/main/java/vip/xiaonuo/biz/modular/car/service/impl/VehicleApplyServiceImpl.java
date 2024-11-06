@@ -18,6 +18,7 @@ import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.dynamic.datasource.annotation.DS;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -34,11 +35,18 @@ import vip.xiaonuo.biz.modular.car.enums.DriverStatusEnum;
 import vip.xiaonuo.biz.modular.car.param.*;
 import vip.xiaonuo.biz.modular.car.service.*;
 import vip.xiaonuo.biz.modular.car.vo.*;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
+import vip.xiaonuo.common.enums.BizCommonEnum;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
+import vip.xiaonuo.common.enums.FlwStatusEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
 import vip.xiaonuo.biz.modular.car.mapper.VehicleApplyMapper;
+import vip.xiaonuo.dbs.core.consts.DbsConstant;
 import vip.xiaonuo.dev.api.IDingDingService;
+import vip.xiaonuo.flw.api.FlwCommonApi;
 
 import javax.annotation.Resource;
 import java.math.BigDecimal;
@@ -90,6 +98,12 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     @Resource
     DangerRegisterService dangerRegisterService;
 
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
+
+    @Resource
+    FlwCommonApi flwCommonApi;
+
     @Override
     public Page<VehicleApply> page(VehicleApplyPageParam vehicleApplyPageParam) {
         QueryWrapper<VehicleApply> queryWrapper = new QueryWrapper<>();
@@ -114,6 +128,9 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getStatus())) {
             queryWrapper.lambda().eq(VehicleApply::getStatus, vehicleApplyPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getApplyStatus())) {
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus, vehicleApplyPageParam.getApplyStatus());
+        }
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getSearchKey())){
             queryWrapper.lambda().and(q->q.like(VehicleApply::getUsers,vehicleApplyPageParam.getSearchKey())
                     .or().like(VehicleApply::getSn,vehicleApplyPageParam.getSearchKey())
@@ -127,7 +144,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             queryWrapper.orderBy(true, vehicleApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
                     StrUtil.toUnderlineCase(vehicleApplyPageParam.getSortField()));
         } else {
-            queryWrapper.lambda().orderByDesc(VehicleApply::getSn);
+            queryWrapper.lambda().orderByDesc(VehicleApply::getCreateTime);
         }
         return this.page(CommonPageRequest.defaultPage(), queryWrapper);
     }
@@ -140,19 +157,19 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         vehicleApply.setStatus(vehicleApplyAddParam.getUserId().equals(vehicleApplyAddParam.getSeniorManagerUserId())?CarApplyStatusEnum.Dispatching.getValue():CarApplyStatusEnum.Auditing.getValue());
         this.save(vehicleApply);
 
-//        //派车单申请，发送通知给部门直属主管审批（申请单详情页）
-//        String title = "用车申请";
-//        String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
-//        iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
-//                JSONUtil.parseObj(vehicleApply),title,url,vehicleApplyAddParam.getSeniorManagerDingDingUserId());
-//        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
-//        if (vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
-//        {
-//            title = "分派车辆";
-//            url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
-//            iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
-//                    JSONUtil.parseObj(vehicleApply),title,url,usersProperties.getCarAdminDingDingUserId());
-//        }
+        //派车单申请，发送通知给部门直属主管审批（申请单详情页）
+        String title = "用车申请";
+        String url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+        iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
+                JSONUtil.parseObj(vehicleApply),title,url,vehicleApplyAddParam.getSeniorManagerDingDingUserId());
+        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
+        if (vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
+        {
+            title = "分派车辆";
+            url = usersProperties.getLinkUrl() + "yongche/dispatchCar?applyid=" + vehicleApply.getId();
+            iDingDingService.sendCarMsg(usersProperties.getAgentId(), usersProperties.getAppKey(), usersProperties.getAppSecret(),
+                    JSONUtil.parseObj(vehicleApply),title,url,usersProperties.getCarAdminDingDingUserId());
+        }
     }
 
     @Transactional(rollbackFor = Exception.class)
@@ -160,13 +177,35 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     public void add2(VehicleApplyAddParam vehicleApplyAddParam) {
         VehicleApply vehicleApply = BeanUtil.toBean(vehicleApplyAddParam, VehicleApply.class);
         vehicleApply.setOptDate(DateTime.now());
-        vehicleApply.setStatus(CarApplyStatusEnum.Dispatching.getValue());
+        vehicleApply.setStatus(FlwStatusEnum.ACTIVE_STATUS.getValue());
+        vehicleApply.setApplyStatus(CarApplyStatusEnum.Auditing.getValue());
+        //走审批流程
+        String processInstanceId = vehicleApplyAddParam.getProcessInstanceId();
+        if(ObjectUtil.isNotEmpty(processInstanceId)){
+            String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+            String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+            vehicleApply.setId(id);
+            vehicleApply.setSn(String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId)));
+            //将流程实例和业务表关联起来
+            //MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+            String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+            flwCommonApi.save(modelId, BizCommonEnum.BIZ_CAR_VEHICLE_APPLY.getBizTable(),id,processInstanceId,dbName);
+        }
         this.save(vehicleApply);
     }
 
     @Transactional(rollbackFor = Exception.class)
     @Override
     public void edit(VehicleApplyEditParam vehicleApplyEditParam) {
+        String id = vehicleApplyEditParam.getId();
+        if(ObjectUtil.isEmpty(id) && ObjectUtil.isNotEmpty(vehicleApplyEditParam.getProcessInstanceId())){
+            JSONObject formRelationTable = flwCommonApi.getInfoByProcessInstanceId(vehicleApplyEditParam.getProcessInstanceId());
+            if(ObjectUtil.isNotEmpty(formRelationTable)){
+                id=formRelationTable.getStr("id");
+                //流程中修改 可能表单中没有id 未保证可以正常修改，需重新设置
+                vehicleApplyEditParam.setId(id);
+            }
+        }
         VehicleApply vehicleApply = this.queryEntity(vehicleApplyEditParam.getId());
         BeanUtil.copyProperties(vehicleApplyEditParam, vehicleApply);
         this.updateById(vehicleApply);
@@ -185,7 +224,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         VehicleApplyDetailDto result = BeanUtil.copyProperties(vehicleApply,VehicleApplyDetailDto.class);
         if(ObjectUtil.isNotEmpty(result)){
             QueryWrapper<VehicleApply> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(VehicleApply::getStatus, CarApplyStatusEnum.Dispatched.getValue());
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus, CarApplyStatusEnum.Dispatched.getValue());
             queryWrapper.lambda().gt(VehicleApply::getPredictCarTime,result.getPredictTransportTime());
             queryWrapper.lambda().lt(VehicleApply::getPredictTransportTime,result.getPredictCarTime());
             //判断当前预定时间下，可用的车辆信息
@@ -226,7 +265,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     @Override
     public void updateStatus(UpdateApplyStatusParam updateApplyStatusParam) {
         VehicleApply vehicleApply = queryEntity(updateApplyStatusParam.getVehicleApplyId());
-        vehicleApply.setStatus(updateApplyStatusParam.getStatus());
+        vehicleApply.setApplyStatus(updateApplyStatusParam.getApplyStatus());
         this.updateById(vehicleApply);
 //        //若审批通过【由 待审核--待派车】，发送通知给车辆调度员分派车辆
 //        if(vehicleApply.getStatus().equals(CarApplyStatusEnum.Dispatching.getValue()))
@@ -242,7 +281,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     @Override
     public void dispatchCar(DispatchCarParam dispatchCarParam) {
         VehicleApply vehicleApply = this.queryEntity(dispatchCarParam.getVehicleApplyId());
-        vehicleApply.setStatus(CarApplyStatusEnum.Dispatched.getValue());
+        vehicleApply.setApplyStatus(CarApplyStatusEnum.Dispatched.getValue());
         vehicleApply.setVehicle(dispatchCarParam.getVehicle());
         vehicleApply.setVehicleId(dispatchCarParam.getVehicleId());
         vehicleApply.setDriver(dispatchCarParam.getDriver());
@@ -262,16 +301,25 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getStatus())){
             queryWrapper.lambda().eq(VehicleApply::getStatus,vehicleApplyPageParam.getStatus());
         }
+        if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getApplyStatus())) {
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus, vehicleApplyPageParam.getApplyStatus());
+        }
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getUserId())){
             queryWrapper.lambda().and(q->q.eq(VehicleApply::getUserId,vehicleApplyPageParam.getUserId())
                     .or().eq(VehicleApply::getSeniorManagerUserId,vehicleApplyPageParam.getUserId())
                     .or().eq(VehicleApply::getCarAdminUserId,vehicleApplyPageParam.getUserId()));
         }
+//        if(CollUtil.isNotEmpty(vehicleApplyPageParam.getFilterStatusIn())){
+//            queryWrapper.lambda().in(VehicleApply::getStatus,vehicleApplyPageParam.getFilterStatusIn());
+//        }
+//        if(CollUtil.isNotEmpty(vehicleApplyPageParam.getFilterStatusNotIn())){
+//            queryWrapper.lambda().notIn(VehicleApply::getStatus,vehicleApplyPageParam.getFilterStatusNotIn());
+//        }
         if(CollUtil.isNotEmpty(vehicleApplyPageParam.getFilterStatusIn())){
-            queryWrapper.lambda().in(VehicleApply::getStatus,vehicleApplyPageParam.getFilterStatusIn());
+            queryWrapper.lambda().in(VehicleApply::getApplyStatus,vehicleApplyPageParam.getFilterStatusIn());
         }
         if(CollUtil.isNotEmpty(vehicleApplyPageParam.getFilterStatusNotIn())){
-            queryWrapper.lambda().notIn(VehicleApply::getStatus,vehicleApplyPageParam.getFilterStatusNotIn());
+            queryWrapper.lambda().notIn(VehicleApply::getApplyStatus,vehicleApplyPageParam.getFilterStatusNotIn());
         }
         if(ObjectUtil.isNotEmpty(vehicleApplyPageParam.getApplyUserId())){
             queryWrapper.lambda().eq(VehicleApply::getUserId,vehicleApplyPageParam.getApplyUserId());
@@ -320,7 +368,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
     public VehicleChartViewModel getVehicleChart(VehicleChartParam vehicleChartParam) {
         //派车单信息 【已完成  + 区间】
         QueryWrapper<VehicleApply> vehicleApplyQueryWrapper = new QueryWrapper<>();
-        vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Finish.getValue());
+        vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Finish.getValue());
         if(ObjectUtil.isNotEmpty(vehicleChartParam.getStartDate())){
             vehicleApplyQueryWrapper.lambda().ge(VehicleApply::getOptDate,vehicleChartParam.getStartDate());
         }
@@ -397,7 +445,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
 
         //派车单信息 【已完成  + 区间】
         QueryWrapper<VehicleApply> vehicleApplyQueryWrapper = new QueryWrapper<>();
-        vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Finish.getValue());
+        vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Finish.getValue());
         if(ObjectUtil.isNotEmpty(oilChartParam.getStartDate())){
             vehicleApplyQueryWrapper.lambda().ge(VehicleApply::getOptDate,oilChartParam.getStartDate());
         }
@@ -507,7 +555,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
                 c.add(Calendar.DATE, 1);
                 vehicleApplyQueryWrapper.lambda().lt(VehicleApply::getPredictTransportTime,c.getTime());
             }
-            vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Dispatched.getValue());
+            vehicleApplyQueryWrapper.lambda().eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Dispatched.getValue());
             vehicleApplyQueryWrapper.lambda().orderByDesc(VehicleApply::getPredictTransportTime);
             List<VehicleApply> vehicleApplies = this.list(vehicleApplyQueryWrapper);
             newRecords.forEach(x->x.setPreVehicleApplyData(vehicleApplies.stream().filter(y->y.getVehicleId().equals(x.getId())).collect(Collectors.toList())));
@@ -526,15 +574,15 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         if(ObjectUtil.isNotEmpty(availableParam.getPredictCarTime()) && ObjectUtil.isNotEmpty(availableParam.getPredictTransportTime()))
         {
             QueryWrapper<VehicleApply> queryWrapper = new QueryWrapper<>();
-            queryWrapper.lambda().eq(VehicleApply::getStatus, CarApplyStatusEnum.Dispatched.getValue());
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus, CarApplyStatusEnum.Dispatched.getValue());
             queryWrapper.lambda().gt(VehicleApply::getPredictCarTime,availableParam.getPredictTransportTime());
             queryWrapper.lambda().lt(VehicleApply::getPredictTransportTime,availableParam.getPredictCarTime());
             //判断当前预定时间下，可用的车辆信息
             List<VehicleApply> dbVehicleApply = this.list(queryWrapper);
             //该区间不可用车辆
-            List<String> haveUsedVehicle = dbVehicleApply.stream().map(x->x.getVehicleId()).distinct().collect(Collectors.toList());
+            List<String> haveUsedVehicle = dbVehicleApply.stream().map(x->x.getVehicleId()).filter(ObjectUtil::isNotEmpty).distinct().collect(Collectors.toList());
             //该区间不可用司机
-            List<String> haveUsedDriver = dbVehicleApply.stream().map(x->x.getDriverUserId()).distinct().collect(Collectors.toList());
+            List<String> haveUsedDriver = dbVehicleApply.stream().map(x->x.getDriverUserId()).filter(ObjectUtil::isNotEmpty).distinct().collect(Collectors.toList());
             //可用车辆
             QueryWrapper<VehicleInformation> queryWrapper1 = new QueryWrapper<>();
             if(CollUtil.isNotEmpty(haveUsedVehicle))
@@ -564,7 +612,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             h5VehicleDto.setToReferenceMileage(toValue(h5VehicleDto.getReferenceMileage()).add(toValue(h5VehicleDto.getLastMileage())).subtract(toValue(h5VehicleDto.getTotalMileage())).setScale(2));
             //用车申请，统计各车（车辆Id）出车次数，行驶里程数 【只统计已完成的订单】
             //里程补登，统计各车（车辆Id）补登总里程
-            List<VehicleApply> vehicleApplies = this.list(new QueryWrapper<VehicleApply>().lambda().eq(VehicleApply::getVehicleId,id).eq(VehicleApply::getStatus,CarApplyStatusEnum.Finish.getValue()));
+            List<VehicleApply> vehicleApplies = this.list(new QueryWrapper<VehicleApply>().lambda().eq(VehicleApply::getVehicleId,id).eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Finish.getValue()));
             int thisCount = vehicleApplies.size();
             BigDecimal thisTotalMileage = BigDecimal.ZERO;
             vehicleApplies.stream().filter(x->ObjectUtil.isNotEmpty(x.getSubTotal())).forEach(x->thisTotalMileage.add(x.getSubTotal()));
@@ -590,7 +638,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
             queryWrapper.lambda().eq(VehicleApply::getDriverUserId,driverUserId);
         }
         if(ObjectUtil.isNotEmpty(isShowAll) && !isShowAll){
-            queryWrapper.lambda().eq(VehicleApply::getStatus,CarApplyStatusEnum.Dispatched.getValue());
+            queryWrapper.lambda().eq(VehicleApply::getApplyStatus,CarApplyStatusEnum.Dispatched.getValue());
         }
         queryWrapper.lambda().orderByDesc(VehicleApply::getCreateTime);
         List<VehicleApply> vehicleApplies = this.list(queryWrapper);
@@ -624,7 +672,7 @@ public class VehicleApplyServiceImpl extends ServiceImpl<VehicleApplyMapper, Veh
         vehicleApply.setEndTime(h5CarRegisterEndDto.getEndTime());
         vehicleApply.setEndMileage(toValue(h5CarRegisterEndDto.getEndMileage()));
         vehicleApply.setSubTotal(vehicleApply.getEndMileage().subtract(vehicleApply.getStartMileage()));
-        vehicleApply.setStatus(CarApplyStatusEnum.Finish.getValue());
+        vehicleApply.setApplyStatus(CarApplyStatusEnum.Finish.getValue());
         vehicleApply.setDriverMemo(h5CarRegisterEndDto.getDriverMemo());
         this.updateById(vehicleApply);
 

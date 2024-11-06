@@ -123,9 +123,13 @@ public class VehicleApplyAddParam {
     @ApiModelProperty(value = "用车人userid", position = 22)
     private String userId;
 
-    /** 用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消|已拒绝） */
-    @ApiModelProperty(value = "用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消|已拒绝）", position = 23)
+    /** 流程状态 */
+    @ApiModelProperty(value = "流程状态", position = 23)
     private String status;
+
+    /** 用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消 6-已拒绝 */
+    @ApiModelProperty(value = "用车申请单状态（1-待审核 2-待派车 3-已派车 4-已完成 5-已取消 6-已拒绝）", position = 23)
+    private String applyStatus;
 
     /** 车辆Id */
     @ApiModelProperty(value = "车辆Id", position = 24)
@@ -154,5 +158,9 @@ public class VehicleApplyAddParam {
     /** 审批主管（用户的直属主管）-钉钉系统中的UserId */
     @ApiModelProperty(value = "审批主管（用户的直属主管）-钉钉系统中的UserId", position = 30)
     private String seniorManagerDingDingUserId;
+
+    /** 流程实例Id */
+    @ApiModelProperty(value = "流程实例Id", position = 40)
+    private String processInstanceId;
 
 }

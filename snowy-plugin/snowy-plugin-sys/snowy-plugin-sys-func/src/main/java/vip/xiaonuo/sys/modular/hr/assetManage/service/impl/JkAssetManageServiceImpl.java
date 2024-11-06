@@ -83,6 +83,9 @@ public class JkAssetManageServiceImpl extends ServiceImpl<JkAssetManageMapper, J
         if(ObjectUtil.isNotEmpty(jkAssetManagePageParam.getAssetType())) {
             queryWrapper.lambda().eq(JkAssetManage::getAssetType, jkAssetManagePageParam.getAssetType());
         }
+        if(ObjectUtil.isNotEmpty(jkAssetManagePageParam.getSearchKey())){
+            queryWrapper.lambda().and(q->q.like(JkAssetManage::getAssetTitle,jkAssetManagePageParam.getSearchKey()));
+        }
         if(ObjectUtil.isAllNotEmpty(jkAssetManagePageParam.getSortField(), jkAssetManagePageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(jkAssetManagePageParam.getSortOrder());
             queryWrapper.orderBy(true, jkAssetManagePageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

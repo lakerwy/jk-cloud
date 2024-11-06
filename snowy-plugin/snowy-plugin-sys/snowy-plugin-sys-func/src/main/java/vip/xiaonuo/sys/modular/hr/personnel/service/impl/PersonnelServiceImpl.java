@@ -614,6 +614,10 @@ public class PersonnelServiceImpl extends ServiceImpl<PersonnelMapper, Personnel
         if(ObjectUtil.isNotEmpty(personnelPageParam.getName())){
             queryWrapper.lambda().like(Personnel::getName, personnelPageParam.getName());
         }
+        if(ObjectUtil.isNotEmpty(personnelPageParam.getSearchKey())){
+            queryWrapper.and(q->q.lambda().like(Personnel::getName,personnelPageParam.getSearchKey())
+                    .or().like(Personnel::getIdNumber,personnelPageParam.getSearchKey()));
+        }
         if (ObjectUtil.isAllNotEmpty(personnelPageParam.getSortField(), personnelPageParam.getSortOrder())) {
             CommonSortOrderEnum.validate(personnelPageParam.getSortOrder());
             queryWrapper.orderBy(true, personnelPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),

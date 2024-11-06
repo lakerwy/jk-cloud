@@ -197,6 +197,10 @@ public class GlobalConfigure implements WebMvcConfigurer {
 
             /* 招采平台 - 登录|注册|退出|公告|澄清 */
             "/bp/platform/frontend/public/**",
+
+            /* 对外提供查询接口（投标智囊）*/
+            "/openApi/biz/crm/hetong/page",
+            "/openApi/biz/ziZhi/page"
     };
 
     /**
