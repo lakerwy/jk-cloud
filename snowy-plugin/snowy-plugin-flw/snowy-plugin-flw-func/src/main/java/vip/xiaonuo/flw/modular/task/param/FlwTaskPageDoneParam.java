@@ -38,9 +38,9 @@ public class FlwTaskPageDoneParam {
     @ApiModelProperty(value = "发起人id")
     private String initiator;
 
-    /** 发起人姓名关键词 */
-    @ApiModelProperty(value = "发起人姓名关键词")
-    private String searchKey;
+    /** 发起人姓名 */
+    @ApiModelProperty(value = "发起人姓名")
+    private String initiatorName;
 
     /** 流程名称 */
     @ApiModelProperty(value = "流程名称")

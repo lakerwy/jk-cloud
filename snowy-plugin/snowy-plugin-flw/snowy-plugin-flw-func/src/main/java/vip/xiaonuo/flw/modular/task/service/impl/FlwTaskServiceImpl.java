@@ -283,6 +283,9 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiator())) {
             historicTaskInstanceQuery.processVariableValueEquals("initiator", flwTaskPageDoneParam.getInitiator());
         }
+        if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getInitiatorName())) {
+            historicTaskInstanceQuery.processVariableValueLike("initiatorName", "%" + flwTaskPageDoneParam.getInitiatorName() + "%");
+        }
         if (ObjectUtil.isNotEmpty(flwTaskPageDoneParam.getSn())) {
             historicTaskInstanceQuery.processVariableValueLike("initiatorProcessSn", "%" + flwTaskPageDoneParam.getSn() + "%");
         }

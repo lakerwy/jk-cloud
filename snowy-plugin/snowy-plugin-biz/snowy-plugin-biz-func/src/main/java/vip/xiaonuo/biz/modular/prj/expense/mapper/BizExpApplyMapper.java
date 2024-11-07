@@ -1,6 +1,10 @@
 package vip.xiaonuo.biz.modular.prj.expense.mapper;
 
+import com.baomidou.mybatisplus.core.conditions.Wrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.core.toolkit.Constants;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpApply;
 
 /**
@@ -10,4 +14,6 @@ import vip.xiaonuo.biz.modular.prj.expense.entity.BizExpApply;
  * @date  2024/07/30 15:26
  **/
 public interface BizExpApplyMapper extends BaseMapper<BizExpApply> {
+    Page<BizExpApply> getPageList(Page<BizExpApply> page, @Param(Constants.WRAPPER) Wrapper<BizExpApply> queryWrapper,
+            @Param("abstractDesc") String abstractDesc);
 }
