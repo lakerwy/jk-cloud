@@ -51,7 +51,7 @@ public class BizExpApplyController {
     @SaCheckPermission("/biz/prj/exp/page")
     @GetMapping("/biz/prj/exp/page")
     public CommonResult<Page<BizExpApplyVo>> page(BizExpApplyPageParam bizExpApplyPageParam) {
-        return CommonResult.data(bizExpApplyService.page(bizExpApplyPageParam));
+        return CommonResult.data(bizExpApplyService.page2(bizExpApplyPageParam));
     }
 
     /**

@@ -76,4 +76,8 @@ public class BizExpApplyPageParam {
     @ApiModelProperty(value = "流程状态")
     private String status;
 
+    /** 摘要 */
+    @ApiModelProperty(value = "摘要")
+    private String abstractDesc;
+
 }

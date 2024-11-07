@@ -27,6 +27,14 @@ public interface BizExpApplyService extends IService<BizExpApply> {
     Page<BizExpApplyVo> page(BizExpApplyPageParam bizExpApplyPageParam);
 
     /**
+     * 获取财务管理 - 费用报销|差旅费用报销 - 申请流程分页 (支持费用明细摘要筛选)
+     *
+     * @author pzh
+     * @date  2024/11/7 09:12
+     */
+    Page<BizExpApplyVo> page2(BizExpApplyPageParam bizExpApplyPageParam);
+
+    /**
      * 添加财务管理 - 费用报销|差旅费用报销 - 申请流程
      *
      * @author yong.ye

@@ -90,6 +90,9 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
     private BizExpCostService bizExpCostService;
     @Resource
     private BizDebitApplyService bizDebitApplyService;
+    @Resource
+    private BizExpApplyMapper bizExpApplyMapper;
+
     @Override
     public Page<BizExpApplyVo> page(BizExpApplyPageParam bizExpApplyPageParam) {
         QueryWrapper<BizExpApply> queryWrapper = new QueryWrapper<>();
@@ -144,6 +147,78 @@ public class BizExpApplyServiceImpl extends ServiceImpl<BizExpApplyMapper, BizEx
             queryWrapper.lambda().orderByDesc(BizExpApply::getCreateTime);
         }
         Page<BizExpApply> result = this.page(CommonPageRequest.defaultPage(), queryWrapper);
+        List<BizExpApplyVo> recordNew = BeanUtil.copyToList(result.getRecords(),BizExpApplyVo.class);
+        if(CollUtil.isNotEmpty(recordNew)){
+            recordNew.forEach(item->{
+                item.setItemList(bizExpItemService.list(new QueryWrapper<BizExpItem>().lambda().eq(BizExpItem::getBizExpApplyId,item.getId())));
+                item.setCostList(bizExpCostService.list(new QueryWrapper<BizExpCost>().lambda().eq(BizExpCost::getBizExpApplyId,item.getId())));
+            });
+        }
+        Page<BizExpApplyVo> resultVo = new Page<>();
+        resultVo.setRecords(recordNew);
+        resultVo.setPages(result.getPages());
+        resultVo.setTotal(result.getTotal());
+        resultVo.setSize(result.getSize());
+        resultVo.setCurrent(result.getCurrent());
+        return resultVo;
+    }
+
+    @Override
+    public Page<BizExpApplyVo> page2(BizExpApplyPageParam bizExpApplyPageParam) {
+        QueryWrapper<BizExpApply> queryWrapper = new QueryWrapper<>();
+        queryWrapper.in("a.STATUS",FlwStatusEnum.COMPLETED_STATUS.getValue(),FlwStatusEnum.ACTIVE_STATUS.getValue());
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getExpType())) {
+            queryWrapper.eq("a.EXP_TYPE", bizExpApplyPageParam.getExpType());
+        }
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getInitor())) {
+            queryWrapper.like("a.INITOR", bizExpApplyPageParam.getInitor());
+        }
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getExptor())) {
+            queryWrapper.like("a.EXPTOR", bizExpApplyPageParam.getExptor());
+        }
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getFinCode())) {
+            queryWrapper.like("a.FIN_CODE", bizExpApplyPageParam.getFinCode());
+        }
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getUnit())) {
+            queryWrapper.like("a.UNIT", bizExpApplyPageParam.getUnit());
+        }
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getDept())) {
+            queryWrapper.like("a.DEPT", bizExpApplyPageParam.getDept());
+        }
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getStartExpDate()) && ObjectUtil.isNotEmpty(bizExpApplyPageParam.getEndExpDate())) {
+            queryWrapper.between("a.EXP_DATE", bizExpApplyPageParam.getStartExpDate(), bizExpApplyPageParam.getEndExpDate());
+        }
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getSn())) {
+            queryWrapper.like("a.SN", bizExpApplyPageParam.getSn());
+        }
+        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getStatus())) {
+            queryWrapper.eq("a.STATUS", bizExpApplyPageParam.getStatus());
+        }
+        // 校验数据范围
+        List<String> loginUserDataScope = StpLoginUserUtil.getLoginUserDataScope();
+        if(ObjectUtil.isNotEmpty(loginUserDataScope)) {
+            queryWrapper.in("a.DATA_SCOPE_ID", loginUserDataScope);
+        } else {
+            queryWrapper.eq("a.CREATE_USER", StpUtil.getLoginIdAsString());
+        }
+//        if(ObjectUtil.isNotEmpty(bizExpApplyPageParam.getSearchKey())){
+//            queryWrapper.and(q->q.like("a.SN",bizExpApplyPageParam.getSearchKey())
+//                    .or().like("a.INITOR",bizExpApplyPageParam.getSearchKey())
+//                    .or().like("a.FINCODE",bizExpApplyPageParam.getSearchKey())
+//                    .or().like("a.DEPT",bizExpApplyPageParam.getSearchKey())
+//                    .or().like("a.UNIT",bizExpApplyPageParam.getSearchKey())
+//                    .or().like("a.EXPTOR",bizExpApplyPageParam.getSearchKey())
+//            );
+//        }
+        if(ObjectUtil.isAllNotEmpty(bizExpApplyPageParam.getSortField(), bizExpApplyPageParam.getSortOrder())) {
+            CommonSortOrderEnum.validate(bizExpApplyPageParam.getSortOrder());
+            queryWrapper.orderBy(true, bizExpApplyPageParam.getSortOrder().equals(CommonSortOrderEnum.ASC.getValue()),
+                    StrUtil.toUnderlineCase(bizExpApplyPageParam.getSortField()));
+        } else {
+            queryWrapper.orderByDesc("a.CREATE_TIME");
+        }
+        Page<BizExpApply> result = bizExpApplyMapper.getPageList(CommonPageRequest.defaultPage(), queryWrapper,
+                bizExpApplyPageParam.getAbstractDesc());
         List<BizExpApplyVo> recordNew = BeanUtil.copyToList(result.getRecords(),BizExpApplyVo.class);
         if(CollUtil.isNotEmpty(recordNew)){
             recordNew.forEach(item->{
