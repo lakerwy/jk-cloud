@@ -1729,6 +1729,7 @@ public class NodeRuntimeUtil {
             CommonCacheOperator commonCacheOperator = SpringUtil.getBean(CommonCacheOperator.class);
             AtomicBoolean processEnableOverLimit = new AtomicBoolean(false);
             AtomicReference<Integer> processOverLimitTime = new AtomicReference<>();
+            AtomicReference<Integer> processOverLimitTimeCount = new AtomicReference<>();
             Collection<ExtensionElements> processExtensionElementsCollection;
 
             processExtensionElementsCollection = delegateTask.getBpmnModelElementInstance()
@@ -1752,11 +1753,11 @@ public class NodeRuntimeUtil {
                                         processEnableOverLimit.set(ObjectUtil.isEmpty(tmpProcessEnableOverLimit) ? false : tmpProcessEnableOverLimit);
                                         if(processEnableOverLimit.get()) {
                                             processOverLimitTime.set(processConfigInfo.getInt("processOverLimitTime"));
+                                            processOverLimitTimeCount.set(processConfigInfo.getInt("processOverLimitTimeCount"));
                                         }
                                     }
                                 })));
             }
-
 
             if(processEnableOverLimit.get()) {
                 Integer v = processOverLimitTime.get();
@@ -1778,6 +1779,8 @@ public class NodeRuntimeUtil {
                     rabbitDelayedMessage.setTaskKey(key);
                     rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
                     rabbitDelayedMessage.setLimit(v);
+                    rabbitDelayedMessage.setLimitCount(processOverLimitTimeCount.get());
+                    rabbitDelayedMessage.setLimitNum(ObjectUtil.isNotEmpty(rabbitDelayedMessage.getLimitCount()) ? 1 : null);
                     Message<RabbitDelayedMessage> message = MessageBuilder
                             .withPayload(rabbitDelayedMessage)
                             .setHeader("x-delay", v*60*60*1000)
@@ -1788,6 +1791,7 @@ public class NodeRuntimeUtil {
                     //commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
                     streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL,message);
                     commonCacheOperator.put(key,Boolean.FALSE);
+                    log.info("【限时审批-延迟队列消息key:】"+key+"【流程sn:】"+jsonObject.getStr(FlwCacheConstant.FLW_SN));
                 }
 
             }

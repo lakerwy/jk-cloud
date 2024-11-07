@@ -17,6 +17,7 @@ import cn.hutool.core.collection.CollStreamUtil;
 import cn.hutool.core.collection.CollUtil;
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,6 +27,8 @@ import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
+import vip.xiaonuo.sys.modular.hr.emp.entity.HrEmpAttend;
+import vip.xiaonuo.sys.modular.hr.emp.service.HrEmpAttendService;
 import vip.xiaonuo.sys.modular.hr.salary.entity.SalaryAttend;
 import vip.xiaonuo.sys.modular.hr.salary.mapper.SalaryAttendMapper;
 import vip.xiaonuo.sys.modular.hr.salary.param.SalaryAttendAddParam;
@@ -40,6 +43,7 @@ import vip.xiaonuo.sys.modular.hr.salary.vo.SalaryAttendVo;
 import javax.annotation.Resource;
 import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * 工资系统-月度考勤表Service接口实现类
@@ -52,6 +56,9 @@ public class SalaryAttendServiceImpl extends ServiceImpl<SalaryAttendMapper, Sal
 
     @Resource
     private SalaryAttendMapper salaryAttendMapper;
+
+    @Resource
+    private HrEmpAttendService hrEmpAttendService;
 
     @Override
     public Page<SalaryAttendVo> page(SalaryAttendPageParam salaryAttendPageParam) {
@@ -148,7 +155,12 @@ public class SalaryAttendServiceImpl extends ServiceImpl<SalaryAttendMapper, Sal
         String yearMonth = param.getYearMonth();
         String encryptUserId = AesUtil.encrypt(StpLoginUserUtil.getLoginUser().getId());
         List<SalaryAttendVo> salaryAttendVos = salaryAttendMapper.getEmpAttendList(yearMonth,encryptUserId);
-        return AesUtil.decryptGZList(salaryAttendVos);
+        List<SalaryAttendVo> result = AesUtil.decryptGZList(salaryAttendVos);
+        //员工考勤部分
+        List<HrEmpAttend> empAttendList = hrEmpAttendService.list(new LambdaQueryWrapper<HrEmpAttend>().eq(HrEmpAttend::getUserId,StpLoginUserUtil.getLoginUser().getId()).likeRight(HrEmpAttend::getYearMonth,yearMonth));
+        List<SalaryAttendVo> empList = BeanUtil.copyToList(empAttendList,SalaryAttendVo.class);
+        result.addAll(empList);
+        return result.stream().sorted(Comparator.comparing(x->x.getYearMonth())).collect(Collectors.toList());
     }
 
 }

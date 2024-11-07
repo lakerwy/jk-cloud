@@ -14,4 +14,13 @@ public class RabbitDelayedMessage {
     private RabbitMsg rabbitMsg;
     private int limit;
     private String taskKey;
+
+    /**
+     * 流程设置：通知次数
+     */
+    private Integer limitCount;
+    /**
+     * 流程设置：通知次数  本次是第几次通知
+     */
+    private Integer limitNum;
 }
