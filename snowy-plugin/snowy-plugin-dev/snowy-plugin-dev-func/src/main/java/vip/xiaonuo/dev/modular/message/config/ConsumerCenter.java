@@ -1,37 +1,21 @@
 package vip.xiaonuo.dev.modular.message.config;
 
-import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.lang.UUID;
 import cn.hutool.core.util.ObjectUtil;
-import cn.hutool.core.util.StrUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.dingtalk.api.request.OapiMessageCorpconversationAsyncsendV2Request;
 import lombok.extern.slf4j.Slf4j;
-import org.jetbrains.annotations.NotNull;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.cloud.stream.annotation.EnableBinding;
-import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.function.StreamBridge;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.messaging.Message;
-import org.springframework.messaging.MessageHeaders;
-import org.springframework.messaging.SubscribableChannel;
 import org.springframework.messaging.support.MessageBuilder;
-import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
 import vip.xiaonuo.common.cache.CommonCacheOperator;
-import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.consts.RabbitConstant;
 import vip.xiaonuo.common.pojo.RabbitDelayedMessage;
 import vip.xiaonuo.common.pojo.RabbitMsg;
 import vip.xiaonuo.dev.api.IDingDingService;
 
 import javax.annotation.Resource;
-import java.util.*;
 import java.util.function.Consumer;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * @author mayike
@@ -80,6 +64,7 @@ public class ConsumerCenter {
             Integer limitNum = rabbitDelayedMessage.getLimitNum();
             if(ObjectUtil.isNotEmpty(limitCount)){ //新
                 if(nextFlag && limitNum <= limitCount){
+                    log.info("【发送延迟队列消息-通知上限】: " + taskKey + "【超时提醒次数：" + limitNum + "】【消息体】：" + JSONUtil.toJsonStr(rabbitDelayedMessage));
                     //未办理，生成消息，继续放入缓存中【未达次数上线】
                     if(limitNum < limitCount) {
                         Message<RabbitDelayedMessage> newMessage = MessageBuilder
@@ -89,12 +74,13 @@ public class ConsumerCenter {
                         newMessage.getPayload().setLimitNum(limitNum+1);
                         streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL, newMessage);
                     }
-                    log.info("【发送延迟队列消息-通知上限】: " + taskKey + " 【消息体】：" + JSONUtil.toJsonStr(rabbitDelayedMessage));
-                    rabbitDelayedMessage.getRabbitMsg().setTitle("【超时提醒次数"+limitNum+"】"+rabbitDelayedMessage.getRabbitMsg().getTitle());
+                    //消息
+                    rabbitDelayedMessage.getRabbitMsg().setTitle("【超时提醒次数" + limitNum + "】"+rabbitDelayedMessage.getRabbitMsg().getTitle());
                     iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());
                 }
             }else{ //历史
                 if (nextFlag) {
+                    log.info("【发送延迟队列消息-历史通知】: " + taskKey + "【超时提醒次数：" + limitNum + "】【消息体】：" + JSONUtil.toJsonStr(rabbitDelayedMessage));
                     //未办理，生成消息，继续放入缓存中
                     Message<RabbitDelayedMessage> newMessage = MessageBuilder
                             .withPayload(rabbitDelayedMessage)
@@ -102,8 +88,8 @@ public class ConsumerCenter {
                             .build();
                     newMessage.getPayload().setLimitNum(limitNum+1);
                     streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL, newMessage);
-                    log.info("【发送延迟队列消息-历史通知】: " + taskKey + " 【消息体】：" + JSONUtil.toJsonStr(rabbitDelayedMessage));
-                    rabbitDelayedMessage.getRabbitMsg().setTitle("【超时提醒次数"+limitNum+"】"+rabbitDelayedMessage.getRabbitMsg().getTitle());
+                    //消息
+                    rabbitDelayedMessage.getRabbitMsg().setTitle("【超时提醒次数" + limitNum + "】"+rabbitDelayedMessage.getRabbitMsg().getTitle());
                     iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());
                 }
             }
