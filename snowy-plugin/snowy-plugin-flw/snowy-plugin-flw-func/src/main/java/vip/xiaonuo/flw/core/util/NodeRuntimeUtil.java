@@ -1779,8 +1779,11 @@ public class NodeRuntimeUtil {
                     rabbitDelayedMessage.setTaskKey(key);
                     rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
                     rabbitDelayedMessage.setLimit(v);
-                    rabbitDelayedMessage.setLimitCount(processOverLimitTimeCount.get());
-                    rabbitDelayedMessage.setLimitNum(ObjectUtil.isNotEmpty(rabbitDelayedMessage.getLimitCount()) ? 1 : null);
+                    Integer limitCount = processOverLimitTimeCount.get();
+                    if(ObjectUtil.isNotEmpty(limitCount)) {
+                        rabbitDelayedMessage.setLimitCount(limitCount);
+                    }
+                    rabbitDelayedMessage.setProcessInstanceId(delegateTask.getProcessInstanceId());
                     Message<RabbitDelayedMessage> message = MessageBuilder
                             .withPayload(rabbitDelayedMessage)
                             .setHeader("x-delay", v*60*60*1000)
@@ -1791,7 +1794,7 @@ public class NodeRuntimeUtil {
                     //commonCacheOperator.addToSet(RabbitConstant.RABBIT_MESSAGE_ID,rabbitMsg.getUuid());
                     streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL,message);
                     commonCacheOperator.put(key,Boolean.FALSE);
-                    log.info("【限时审批-延迟队列消息key:】"+key+"【流程sn:】"+jsonObject.getStr(FlwCacheConstant.FLW_SN));
+                    log.info("【限时审批-延迟队列消息key:】"+key+"【流程sn:】"+jsonObject.getStr(FlwCacheConstant.FLW_SN) +"【实例processInstanceId：】"+delegateTask.getProcessInstanceId());
                 }
 
             }

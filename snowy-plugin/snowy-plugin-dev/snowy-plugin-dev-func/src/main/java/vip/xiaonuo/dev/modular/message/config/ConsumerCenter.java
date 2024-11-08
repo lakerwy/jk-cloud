@@ -89,7 +89,7 @@ public class ConsumerCenter {
                         newMessage.getPayload().setLimitNum(limitNum+1);
                         streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL, newMessage);
                     }
-                    log.info("【发送延迟队列消息-设置了通知次数】: " + taskKey + " 【消息体】：" + JSONUtil.toJsonStr(rabbitDelayedMessage.getRabbitMsg()));
+                    log.info("【发送延迟队列消息-通知上限】: " + taskKey + " 【消息体】：" + JSONUtil.toJsonStr(rabbitDelayedMessage));
                     rabbitDelayedMessage.getRabbitMsg().setTitle("【第"+limitNum+"次提醒】"+rabbitDelayedMessage.getRabbitMsg().getTitle());
                     iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());
                 }
@@ -100,8 +100,10 @@ public class ConsumerCenter {
                             .withPayload(rabbitDelayedMessage)
                             .setHeader("x-delay", rabbitDelayedMessage.getLimit() *60*60*1000)
                             .build();
+                    newMessage.getPayload().setLimitNum(limitNum+1);
                     streamBridge.send(RabbitConstant.DEFAULT_DELAYED_CHANNEL, newMessage);
-                    log.info("【发送延迟队列消息-未设置通知次数】: " + taskKey + " 【消息体】：" + JSONUtil.toJsonStr(rabbitDelayedMessage.getRabbitMsg()));
+                    log.info("【发送延迟队列消息-历史通知】: " + taskKey + " 【消息体】：" + JSONUtil.toJsonStr(rabbitDelayedMessage));
+                    rabbitDelayedMessage.getRabbitMsg().setTitle("【第"+limitNum+"次提醒】"+rabbitDelayedMessage.getRabbitMsg().getTitle());
                     iDingDingService.commonSend(rabbitDelayedMessage.getRabbitMsg());
                 }
             }
