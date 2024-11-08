@@ -16,9 +16,9 @@ public class RabbitDelayedMessage {
     private String taskKey;
 
     /**
-     * 流程设置：通知次数  未设置 【默认3次】
+     * 流程设置：通知次数  未设置 【默认2次】
      */
-    private Integer limitCount = 3;
+    private Integer limitCount = 2;
     /**
      * 流程设置：通知次数  本次是第几次通知  从1开始
      */
