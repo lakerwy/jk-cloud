@@ -70,4 +70,15 @@
             ${ew.customSqlSegment}
     </select>
 
+
+
+
+    <select id="getDetail" resultType="vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageInfo">
+        select cert.*,
+               IF(b.ID is not null or c.ID is not null,1,cert.CERT_STATUS ) as userStatus
+        from HR_CERT_MANAGE cert
+            left join PERSONNEL b on cert.USER_TYPE='总部' and cert.USER_ID = b.ID and b.STATUS = '1' and b.DELETE_FLAG='NOT_DELETE'
+            left join HR_SUB_PERSONNEL c on cert.USER_TYPE='分公司' and cert.USER_ID = c.ID and c.HR_STATUS = '1' and c.`STATUS` in ('0','1') and c.DELETE_FLAG='NOT_DELETE'
+        where cert.ID = #{id}
+    </select>
 </mapper>

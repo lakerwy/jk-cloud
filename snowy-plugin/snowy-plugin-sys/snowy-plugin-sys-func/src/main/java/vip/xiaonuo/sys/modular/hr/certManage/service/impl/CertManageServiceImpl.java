@@ -149,7 +149,10 @@ public class CertManageServiceImpl extends ServiceImpl<CertManageMapper, CertMan
 
     @Override
     public CertManage detail(CertManageIdParam certManageIdParam) {
-        return this.queryEntity(certManageIdParam.getId());
+        CertManageInfo certManageInfo = certManageMapper.getDetail(certManageIdParam.getId());
+        CertManage certManage = BeanUtil.copyProperties(certManageInfo,CertManage.class);
+        certManage.setCertStatus(certManageInfo.getUserStatus());
+        return certManage;
     }
 
     @Override

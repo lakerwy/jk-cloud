@@ -19,6 +19,7 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.apache.ibatis.annotations.Param;
 import vip.xiaonuo.sys.modular.hr.certManage.entity.CertManage;
 import vip.xiaonuo.sys.modular.hr.certManage.param.PersonParam;
+import vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageInfo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.CertManageVo;
 import vip.xiaonuo.sys.modular.hr.certManage.vo.PersonVo;
 
@@ -59,5 +60,12 @@ public interface CertManageMapper extends BaseMapper<CertManage> {
      * @return
      */
     List<CertManageVo> getMyList(@Param(Constants.WRAPPER) Wrapper<CertManage> queryWrapper);
+
+    /**
+     * 获取详情
+     * @param id
+     * @return
+     */
+    CertManageInfo getDetail(String id);
 
 }

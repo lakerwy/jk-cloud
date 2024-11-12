@@ -1774,7 +1774,10 @@ public class NodeRuntimeUtil {
                     jsonObject.set(FlwCacheConstant.FLW_TYPE,FlwCacheConstant.FlwType.TODO);
                     RabbitMsg rabbitMsg = RabbitMsg.buildRabbitMsg(jsonObject);
                     rabbitMsg.setTitle("【审批通知】");
-                    rabbitMsg.setUserSets(new HashSet<>(participateUserIdList));
+//                    rabbitMsg.setUserSets(new HashSet<>(participateUserIdList));
+                    Set<String> userSets = new HashSet<>();
+                    userSets.add(delegateTask.getAssignee());
+                    rabbitMsg.setUserSets(userSets);
                     String key = RabbitConstant.RABBIT_KEY+ delegateTask.getProcessInstanceId()+delegateTask.getId();
                     rabbitDelayedMessage.setTaskKey(key);
                     rabbitDelayedMessage.setRabbitMsg(rabbitMsg);
