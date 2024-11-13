@@ -484,7 +484,7 @@ public class FlwTaskServiceImpl implements FlwTaskService {
                 NodeRuntimeUtil.handleSqlExecution(sql);
             }
         }
-        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + processInstanceId+taskId);
+        commonCacheOperator.remove(RabbitConstant.RABBIT_KEY + processInstanceId);
     }
 
     @Transactional(rollbackFor = Exception.class)
