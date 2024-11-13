@@ -322,4 +322,9 @@ public class BizProject {
     @ApiModelProperty(value = "中标情况 - 中标金额", position = 100)
     @TableField(exist = false)
     private String bidPrice;
+
+
+    /** 所属单位 */
+    @ApiModelProperty(value = "所属单位", position = 200)
+    private String unit;
 }

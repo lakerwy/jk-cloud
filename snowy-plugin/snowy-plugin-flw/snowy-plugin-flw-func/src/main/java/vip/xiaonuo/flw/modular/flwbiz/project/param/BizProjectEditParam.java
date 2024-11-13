@@ -282,4 +282,8 @@ public class BizProjectEditParam {
      */
     @ApiModelProperty(value = "投标部门id", position = 79)
     private String _deptId;
+
+    /** 所属单位 */
+    @ApiModelProperty(value = "所属单位", position = 200)
+    private String unit;
 }

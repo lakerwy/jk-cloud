@@ -273,4 +273,7 @@ public class BizProjectAddParam {
     @ApiModelProperty(value = "区域负责人Id", position = 78)
     private String areaLeaderId;
 
+    /** 所属单位 */
+    @ApiModelProperty(value = "所属单位", position = 200)
+    private String unit;
 }
