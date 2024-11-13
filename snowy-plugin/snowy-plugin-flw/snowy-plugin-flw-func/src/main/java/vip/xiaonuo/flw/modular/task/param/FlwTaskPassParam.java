@@ -45,4 +45,8 @@ public class FlwTaskPassParam {
     /** 附件信息 */
     @ApiModelProperty(value = "附件信息", position = 4)
     private List<FlwTaskAttachmentParam> attachmentList;
+
+    /** 下一节点办理人 */
+    @ApiModelProperty(value = "下一节点办理人", position = 5)
+    private String nextAssignee;
 }

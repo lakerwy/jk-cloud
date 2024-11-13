@@ -440,6 +440,16 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         long end3 = System.currentTimeMillis();
         log.info("【处理任务意见耗时(ms)】"+(end1-start)+" 【处理审批时表单数据耗时(ms)】"+(end2-end1)+" 【执行通过耗时(ms)】"+(end3-end2));
         commonCacheOperator.remove(RabbitConstant.RABBIT_KEY +processInstanceId+ taskId);
+        // 设置下一节点审批人
+        if(ObjectUtil.isNotEmpty(flwTaskPassParam.getNextAssignee())){
+            List<Task> taskList = taskService.createTaskQuery().processInstanceId(processInstanceId).list();
+            if(CollUtil.isNotEmpty(taskList) && taskList.size() == 1){
+                String nextTaskId = taskList.get(0).getId();
+                runtimeService.setVariable(processInstanceId, "assignee" + StrUtil.UNDERLINE + nextTaskId,
+                        CollectionUtil.newArrayList(flwTaskPassParam.getNextAssignee()));
+                taskService.setAssignee(nextTaskId, flwTaskPassParam.getNextAssignee());
+            }
+        }
     }
 
     @Override
