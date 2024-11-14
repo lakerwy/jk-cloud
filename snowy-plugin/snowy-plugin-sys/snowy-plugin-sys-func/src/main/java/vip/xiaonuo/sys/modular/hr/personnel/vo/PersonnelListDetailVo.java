@@ -1,11 +1,14 @@
 package vip.xiaonuo.sys.modular.hr.personnel.vo;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileCert;
 import vip.xiaonuo.sys.modular.hr.hrCenter.entity.PersonnelFileTitle;
 
+import java.util.Date;
 import java.util.List;
 
 @Getter
@@ -179,6 +182,11 @@ public class PersonnelListDetailVo {
     @ApiModelProperty(value = "第三学历备注", position = 47)
     private String thirdNote;
 
+    /** 出生日期 */
+    @ApiModelProperty(value = "出生日期", position = 48)
+    @JsonFormat(locale="zh", timezone="GMT+8", pattern="yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
+    private Date birth;
 
     @ApiModelProperty(value = "证书信息列表", position = 80)
     private List<PersonnelFileCert> personnelCertList;
