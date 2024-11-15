@@ -17,10 +17,8 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
 import vip.xiaonuo.flw.modular.model.entity.FlwModel;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableAddParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableEditParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableIdParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTablePageParam;
+import vip.xiaonuo.flw.modular.relationtable.param.*;
+import vip.xiaonuo.flw.modular.relationtable.vo.NodeJsVo;
 
 import java.util.List;
 import java.util.Map;
@@ -112,4 +110,11 @@ public interface FormRelationTableService extends IService<FormRelationTable> {
     FormRelationTable getInfoByProcessInstanceId(String processInstanceId);
 
     void save2(String modelId,String tableName,String businessKey,String processInstanceId,String dbName,String bizTableName);
+
+    /**
+     * nodejs发起流程生成对应关系
+     * @param formRelationTableNodeJsParam
+     * @return
+     */
+    NodeJsVo nodejsAdd(FormRelationTableNodeJsParam formRelationTableNodeJsParam);
 }

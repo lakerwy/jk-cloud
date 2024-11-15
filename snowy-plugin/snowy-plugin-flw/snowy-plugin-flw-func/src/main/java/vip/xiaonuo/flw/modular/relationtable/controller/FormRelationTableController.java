@@ -24,11 +24,9 @@ import vip.xiaonuo.common.annotation.CommonLog;
 import vip.xiaonuo.common.pojo.CommonResult;
 import vip.xiaonuo.common.pojo.CommonValidList;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableAddParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableEditParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableIdParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTablePageParam;
+import vip.xiaonuo.flw.modular.relationtable.param.*;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
+import vip.xiaonuo.flw.modular.relationtable.vo.NodeJsVo;
 
 import javax.annotation.Resource;
 import javax.validation.Valid;
@@ -142,4 +140,18 @@ public class FormRelationTableController {
          */
         return CommonResult.data(formRelationTableService.getTableName(formRelationTablePageParam));
     }
+
+
+
+    /**
+     * nodejs服务用于 流程发起-业务表 关联关系添加【nodejs】
+     */
+    @ApiOperationSupport(order = 100)
+    @ApiOperation("nodejs服务用于 流程发起-业务表 关联关系添加【nodejs】")
+    @CommonLog("nodejs服务用于 流程发起-业务表 关联关系添加【nodejs】")
+    @PostMapping("/biz/relationtable/nodejsAdd")
+    public CommonResult<NodeJsVo> nodejsAdd(@RequestBody @Valid FormRelationTableNodeJsParam formRelationTableNodeJsParam) {
+        return CommonResult.data(formRelationTableService.nodejsAdd(formRelationTableNodeJsParam));
+    }
+
 }
