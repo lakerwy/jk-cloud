@@ -36,6 +36,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import vip.xiaonuo.auth.core.util.StpLoginUserUtil;
+import vip.xiaonuo.common.cache.CommonCacheOperator;
+import vip.xiaonuo.common.consts.DbTypeCacheConstant;
+import vip.xiaonuo.common.consts.FlwCacheConstant;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
@@ -51,19 +54,17 @@ import vip.xiaonuo.flw.modular.relationtable.entity.DbTable;
 import vip.xiaonuo.flw.modular.relationtable.entity.Field;
 import vip.xiaonuo.flw.modular.relationtable.entity.FormRelationTable;
 import vip.xiaonuo.flw.modular.relationtable.mapper.FormRelationTableMapper;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableAddParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableEditParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTableIdParam;
-import vip.xiaonuo.flw.modular.relationtable.param.FormRelationTablePageParam;
+import vip.xiaonuo.flw.modular.relationtable.param.*;
 import vip.xiaonuo.flw.modular.relationtable.service.FormRelationTableService;
+import vip.xiaonuo.flw.modular.relationtable.vo.NodeJsVo;
 
+import javax.annotation.Resource;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Collectors;
 
@@ -79,6 +80,9 @@ import java.util.stream.Collectors;
 public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableMapper, FormRelationTable> implements FormRelationTableService {
 
     private final String ID_PRE = "LC";
+
+    @Resource
+    private CommonCacheOperator commonCacheOperator;
 
     @Override
     public Page<FormRelationTable> page(FormRelationTablePageParam formRelationTablePageParam) {
@@ -794,5 +798,25 @@ public class FormRelationTableServiceImpl extends ServiceImpl<FormRelationTableM
         String tmpBizTableName = "`"+dbName+"`.`"+bizTableName+"`";
         formRelationTable.setBizTableName(tmpBizTableName);
         this.save(formRelationTable);
+    }
+
+    @Override
+    public NodeJsVo nodejsAdd(FormRelationTableNodeJsParam formRelationTableNodeJsParam) {
+        NodeJsVo result = new NodeJsVo();
+        String processInstanceId = formRelationTableNodeJsParam.getProcessInstanceId();
+        String id = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_ID_KEY + processInstanceId));
+        String modelId = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_MODEL_ID_KEY + processInstanceId));
+        String sn = String.valueOf(commonCacheOperator.get(FlwCacheConstant.CACHE_FLW_SN_KEY+processInstanceId));
+        //将流程实例和业务表关联起来,默认 MASTER 数据库可能存到缓存中的名称是小写 修正关系库中存的PERSONNEL_FILE_MOVES 关联的库名称为null 的问题
+        String dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.MASTER_DATASOURCE_NAME.toLowerCase()));
+        if(DbsConstant.SLAVE_1_DATASOURCE_NAME.equals(formRelationTableNodeJsParam.getDbType())) {
+            dbName = String.valueOf(commonCacheOperator.get(DbTypeCacheConstant.CACHE_DB_KEY + DbsConstant.SLAVE_1_DATASOURCE_NAME));
+        }
+        save(modelId, formRelationTableNodeJsParam.getDbTable(), id,processInstanceId,dbName);
+        result.setSn(sn);
+        result.setModelId(modelId);
+        result.setId(id);
+        result.setProcessInstanceId(processInstanceId);
+        return result;
     }
 }
