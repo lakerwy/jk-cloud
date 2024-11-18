@@ -421,12 +421,13 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         taskService.complete(task.getId());
     }
 
-    //@Transactional(rollbackFor = Exception.class)
+    @Transactional(rollbackFor = Exception.class)
     @Override
     public void pass(FlwTaskPassParam flwTaskPassParam) {
         Task task = validTask(flwTaskPassParam.getId(), flwTaskPassParam.getComment());
         String taskId = task.getId();
         String processInstanceId = task.getProcessInstanceId();
+        String processDefinitionId = task.getProcessDefinitionId();
         //时间
         long start = System.currentTimeMillis();
         NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.PASS.getValue(), "同意申请",
@@ -434,21 +435,46 @@ public class FlwTaskServiceImpl implements FlwTaskService {
         long end1 = System.currentTimeMillis();
         // 更新sql
         handleDataJson(task.getProcessInstanceId(), flwTaskPassParam.getDataJson());
+        // 指定后续节点审批人（覆盖原有的审批人）
+        setAssigneesByActivityId(flwTaskPassParam.getNextNodeUserInfoList(),processDefinitionId,processInstanceId,taskId);
         long end2 = System.currentTimeMillis();
         // 执行通过
         taskService.complete(task.getId());
         long end3 = System.currentTimeMillis();
         log.info("【处理任务意见耗时(ms)】"+(end1-start)+" 【处理审批时表单数据耗时(ms)】"+(end2-end1)+" 【执行通过耗时(ms)】"+(end3-end2));
         commonCacheOperator.remove(RabbitConstant.RABBIT_KEY +processInstanceId+ taskId);
-        // 设置下一节点审批人
-        if(ObjectUtil.isNotEmpty(flwTaskPassParam.getNextAssignee())){
-            List<Task> taskList = taskService.createTaskQuery().processInstanceId(processInstanceId).list();
-            if(CollUtil.isNotEmpty(taskList) && taskList.size() == 1){
-                String nextTaskId = taskList.get(0).getId();
-                runtimeService.setVariable(processInstanceId, "assignee" + StrUtil.UNDERLINE + nextTaskId,
-                        CollectionUtil.newArrayList(flwTaskPassParam.getNextAssignee()));
-                taskService.setAssignee(nextTaskId, flwTaskPassParam.getNextAssignee());
-            }
+    }
+
+    /**
+     * 根据节点id设置审批人
+     * @param nodeUserInfoList
+     * @param processDefinitionId
+     * @param processInstanceId
+     * @param taskId
+     */
+    private void setAssigneesByActivityId(List<FlwTaskPassParam.NodeUser> nodeUserInfoList,
+                                          String processDefinitionId, String processInstanceId, String taskId){
+        if(CollUtil.isNotEmpty(nodeUserInfoList)){
+            nodeUserInfoList.forEach(nextNodeUserInfo -> {
+                String activityId = nextNodeUserInfo.getNodeId(); // 节点Id
+                String activityName = nextNodeUserInfo.getNodeName(); // 节点名称
+                List<String> assigneeList = nextNodeUserInfo.getNodeUserIdList(); // 审批人集合
+                UserTask userTask = repositoryService.getBpmnModelInstance(processDefinitionId).getModelElementById(activityId);
+                if(ObjectUtil.isNotEmpty(userTask) && CollUtil.isNotEmpty(assigneeList)){
+                    runtimeService.setVariable(processInstanceId, "assignee" + StrUtil.UNDERLINE + userTask.getId(), assigneeList);
+                    commonCacheOperator.put(FlwCacheConstant.FLW_TASK_USER+userTask.getId()+processInstanceId, String.join(",", assigneeList));
+                    List<String> assigneeNameList = CollUtil.newArrayList();
+                    assigneeList.forEach(assignee -> {
+                        JSONObject json = sysUserApi.getUserByIdWithoutException(assignee);
+                        if(ObjectUtil.isNotEmpty(json)){
+                            assigneeNameList.add(json.getStr("name"));
+                        }
+                    });
+                    String assigneeNames = StrUtil.join("、", assigneeNameList);
+                    NodeRuntimeUtil.handleUserTaskCommentAndAttachment(taskId, processInstanceId, NodeApproveOperateTypeEnum.ADD_ASSIGNEE.getValue(),
+                            "指定审批人", "指定节点：【" + activityName + "】"+" 指定人员：【" + assigneeNames + "】" , null);
+                }
+            });
         }
     }
 
@@ -1249,5 +1275,29 @@ public class FlwTaskServiceImpl implements FlwTaskService {
             ex.printStackTrace();
         }
         return null;
+    }
+
+
+    @Override
+    public List<FlwNextNodeInfoResult> getNextNodeInfo(FlwNextNodeInfoParam flwNextNodeInfoParam) {
+        List<FlwNextNodeInfoResult> flwNextNodeInfoResultList = new ArrayList<>();
+        List<Task> tasks = taskService.createTaskQuery().processInstanceId(flwNextNodeInfoParam.getProcessInstanceId()).list();
+        if (CollUtil.isNotEmpty(tasks)) {
+            Task task = tasks.get(0);
+            String modelIdVariable = flwProcessService.getProcessModelIdVariable(task.getProcessInstanceId());
+            FlwModel flwModel = flwModelService.getById(modelIdVariable);
+            if(ObjectUtil.isNotEmpty(flwModel)){
+                FlwNodeResult nextFlwNodeResult = NodeInfoUtil.getAllNextUserTaskFlwNodes(flwModel.getProcessJson(),task.getTaskDefinitionKey());
+                if(ObjectUtil.isNotEmpty(nextFlwNodeResult) && CollUtil.isNotEmpty(nextFlwNodeResult.getNextFlwNodeList())){
+                    for(FlwNodeResult.FlwNodeVo flwNodeVo : nextFlwNodeResult.getNextFlwNodeList()){
+                        FlwNextNodeInfoResult flwNextNodeInfoResult = new FlwNextNodeInfoResult();
+                        flwNextNodeInfoResult.setNodeId(flwNodeVo.getId());
+                        flwNextNodeInfoResult.setNodeName(flwNodeVo.getTitle());
+                        flwNextNodeInfoResultList.add(flwNextNodeInfoResult);
+                    }
+                }
+            }
+        }
+        return flwNextNodeInfoResultList;
     }
 }

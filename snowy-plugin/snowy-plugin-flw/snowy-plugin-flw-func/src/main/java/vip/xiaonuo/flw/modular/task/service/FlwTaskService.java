@@ -207,4 +207,11 @@ public interface FlwTaskService {
      * @return
      */
     List<FlwTaskAuditorResult> getTaskAuditors(FlwTaskInfo flwTaskInfo);
+
+    /**
+     * 获取后续用户节点信息
+     * @author pzh
+     * @date 2024/11/13 14:30
+     */
+    List<FlwNextNodeInfoResult> getNextNodeInfo(FlwNextNodeInfoParam flwNextNodeInfoParam);
 }

@@ -46,7 +46,25 @@ public class FlwTaskPassParam {
     @ApiModelProperty(value = "附件信息", position = 4)
     private List<FlwTaskAttachmentParam> attachmentList;
 
-    /** 下一节点办理人 */
-    @ApiModelProperty(value = "下一节点办理人", position = 5)
-    private String nextAssignee;
+    /** 后续节点审批人列表 */
+    @ApiModelProperty(value = "后续节点审批人列表", position = 5)
+    private List<NodeUser> nextNodeUserInfoList;
+
+    @Getter
+    @Setter
+    public static class NodeUser{
+
+        /** 节点Id */
+        @ApiModelProperty(value = "节点Id", position = 1)
+        private String nodeId;
+
+        /** 节点名称 */
+        @ApiModelProperty(value = "节点名称", position = 2)
+        private String nodeName;
+
+        /** 节点审批人Id列表 */
+        @ApiModelProperty(value = "节点审批人Id列表", position = 3)
+        private List<String> nodeUserIdList;
+
+    }
 }

@@ -363,4 +363,19 @@ public class FlwTaskController {
     public CommonResult<List<FlwTaskAuditorResult>> getTaskAuditors(@Valid FlwTaskInfo flwTaskInfo ) {
         return CommonResult.data(flwTaskService.getTaskAuditors(flwTaskInfo));
     }
+
+
+    /**
+     * 获取后续节点信息
+     *
+     * @author pzh
+     * @date 2024/11/13 14:30
+     */
+    @ApiOperationSupport(order = 120)
+    @ApiOperation("获取后续节点信息")
+    @CommonLog("获取后续节点信息")
+    @PostMapping("/flw/task/getNextNodeInfo")
+    public CommonResult<List<FlwNextNodeInfoResult>> getNextNodeInfo(@RequestBody @Valid FlwNextNodeInfoParam flwNextNodeInfoParam) {
+        return CommonResult.data(flwTaskService.getNextNodeInfo(flwNextNodeInfoParam));
+    }
 }

@@ -92,7 +92,13 @@ public enum NodeApproveOperateTypeEnum {
     /**
      * 催办
      * */
-    URGE("URGE");
+    URGE("URGE"),
+
+    /**
+     * 指定审批人
+     * */
+    ADD_ASSIGNEE("ADD_ASSIGNEE"),
+    ;
 
     private final String value;
 

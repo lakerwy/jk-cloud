@@ -195,4 +195,68 @@ public class NodeInfoUtil {
         }
         return flwNodeResult;
     }
+
+    /**
+     * 根据 流程设计 json 当前节点id 获取后续流程节点
+     * @param flwJson
+     * @param activityId
+     * @return
+     */
+    public static FlwNodeResult getAllNextUserTaskFlwNodes(String flwJson,String activityId){
+        try {
+            List<FlwNode> flwNodeList = new ArrayList<>();
+            FlwNode process = JSONUtil.toBean(flwJson, FlwNode.class);
+            executeFlwNodes(process, flwNodeList);
+            //找到当前节点
+            FlwNode currentFlwNode = flwNodeList.stream().filter(x -> x.getId().equals(activityId)).findFirst().orElse(null);
+            //后续节点情况
+            FlwNodeResult nextFlwNodeResult = new FlwNodeResult();
+            return executeNextUserTaskFlwNodes(currentFlwNode, nextFlwNodeResult);
+        }catch (Exception e){
+            return null;
+        }
+    }
+
+    /**
+     * 递归 获取 当前节点 所有后续节点信息
+     * 包含分支，不含参与人信息
+     * @param flwNode 流程设计json
+     * @param flwNodeResult 后续节点结果
+     * @return
+     */
+    public static FlwNodeResult executeNextUserTaskFlwNodes(FlwNode flwNode, FlwNodeResult flwNodeResult) {
+        if(ObjectUtil.isEmpty(flwNode) || ObjectUtil.isEmpty(flwNode.getId())){
+            return flwNodeResult;
+        }
+        // 处理分支
+        if(CollUtil.isNotEmpty(flwNode.getConditionNodeList())){
+            flwNodeResult.setHasConditionNode(true);
+            List<FlwNode> flwNodeList = flwNode.getConditionNodeList().stream().filter(x->x.getType().equals(BpmnModelConstants.BPMN_ELEMENT_USER_TASK)).collect(Collectors.toList());
+            flwNodeList.forEach(node->{
+                FlwNodeResult.FlwNodeVo flwNodeVo = BeanUtil.copyProperties(node,FlwNodeResult.FlwNodeVo.class);
+                //节点属性
+//                if(ObjectUtil.isNotEmpty(node.getProperties())) {
+//                    List<FlwNodeResult.FlwNodeParticipateProp> participateProps = BeanUtil.copyToList(node.getProperties().getParticipateInfo(), FlwNodeResult.FlwNodeParticipateProp.class);
+//                    flwNodeVo.setParticipateInfo(participateProps);
+//                }
+                flwNodeResult.getNextFlwNodeList().add(flwNodeVo);
+            });
+            flwNode.getConditionNodeList().forEach(node -> executeNextUserTaskFlwNodes(node,flwNodeResult));
+        }
+        // 处理子节点
+        FlwNode childNode = flwNode.getChildNode();
+        if(ObjectUtil.isNotEmpty(childNode) && ObjectUtil.isNotEmpty(childNode.getId())){
+            FlwNodeResult.FlwNodeVo flwNodeVo = BeanUtil.copyProperties(childNode,FlwNodeResult.FlwNodeVo.class);
+            if(BpmnModelConstants.BPMN_ELEMENT_USER_TASK.equals(flwNodeVo.getType())){
+                //节点属性
+//                if(ObjectUtil.isNotEmpty(childNode.getProperties())) {
+//                    List<FlwNodeResult.FlwNodeParticipateProp> participateProps = BeanUtil.copyToList(childNode.getProperties().getParticipateInfo(), FlwNodeResult.FlwNodeParticipateProp.class);
+//                    flwNodeVo.setParticipateInfo(participateProps);
+//                }
+                flwNodeResult.getNextFlwNodeList().add(flwNodeVo);
+            }
+            executeNextUserTaskFlwNodes(childNode,flwNodeResult);
+        }
+        return flwNodeResult;
+    }
 }
