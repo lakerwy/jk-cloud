@@ -9,11 +9,9 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import vip.xiaonuo.common.cache.CommonCacheOperator;
 import vip.xiaonuo.common.enums.CommonSortOrderEnum;
 import vip.xiaonuo.common.exception.CommonException;
 import vip.xiaonuo.common.page.CommonPageRequest;
-import vip.xiaonuo.flw.api.FlwCommonApi;
 import vip.xiaonuo.sys.modular.hr.honorAward.entity.HonorAward;
 import vip.xiaonuo.sys.modular.hr.honorAward.mapper.HonorAwardMapper;
 import vip.xiaonuo.sys.modular.hr.honorAward.param.HonorAwardAddParam;
@@ -22,7 +20,6 @@ import vip.xiaonuo.sys.modular.hr.honorAward.param.HonorAwardIdParam;
 import vip.xiaonuo.sys.modular.hr.honorAward.param.HonorAwardPageParam;
 import vip.xiaonuo.sys.modular.hr.honorAward.service.HonorAwardService;
 
-import javax.annotation.Resource;
 import java.util.List;
 
 /**
@@ -33,12 +30,6 @@ import java.util.List;
  **/
 @Service
 public class HonorAwardServiceImpl extends ServiceImpl<HonorAwardMapper, HonorAward> implements HonorAwardService {
-
-    @Resource
-    private CommonCacheOperator commonCacheOperator;
-
-    @Resource
-    FlwCommonApi flwCommonApi;
 
     @Override
     public Page<HonorAward> page(HonorAwardPageParam honorAwardPageParam) {
