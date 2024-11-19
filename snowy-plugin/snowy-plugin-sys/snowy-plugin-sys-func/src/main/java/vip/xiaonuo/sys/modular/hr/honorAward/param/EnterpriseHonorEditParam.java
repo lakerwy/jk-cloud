@@ -38,18 +38,6 @@ public class EnterpriseHonorEditParam {
     @ApiModelProperty(value = "发奖单位", position = 5)
     private String awardingOrg;
 
-    /** 招标类型 */
-    @ApiModelProperty(value = "招标类型", position = 6)
-    private String bidType;
-
-    /** 甲方 */
-    @ApiModelProperty(value = "甲方", position = 7)
-    private String counterparty;
-
-    /** 项目负责人 */
-    @ApiModelProperty(value = "项目负责人", position = 8)
-    private String projectLeader;
-
     /** 获奖时间 */
     @ApiModelProperty(value = "获奖时间", position = 9)
     private Date awardDate;
